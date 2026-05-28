@@ -1,4 +1,5 @@
 import { isObject } from '@scalar/helpers/object/is-object'
+import { slugify } from '@scalar/helpers/string/slugify'
 import type { UnknownObject } from '@scalar/types/utils'
 
 /** The AsyncAPI version produced by this upgrade step. */
@@ -73,13 +74,6 @@ function uniqueServerKey(description: string, index: number, usedKeys: Set<strin
     suffix += 1
   }
   return `${base}-${suffix}`
-}
-
-function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 }
 
 /** topics → channels, with operation/parameter shape changes and `baseTopic` prepending. */
