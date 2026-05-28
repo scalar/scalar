@@ -228,8 +228,8 @@ describe('findClient', () => {
     it('returns first option when first option is custom', () => {
       const customGroups: CustomClientOptionGroup[] = [
         {
-          label: 'Custom',
-          key: 'custom',
+          label: 'JavaScript',
+          key: 'custom-js',
           options: [
             {
               id: 'custom/example',

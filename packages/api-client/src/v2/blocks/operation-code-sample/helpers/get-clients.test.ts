@@ -7,11 +7,11 @@ import { getClients } from './get-clients'
 
 describe('getClients', () => {
   /**
-   * Test 1: Verifies that custom code samples are properly transformed and prepended
-   * This is critical because it ensures custom examples appear first in the UI
-   * and are correctly structured with all required properties.
+   * Test 1: Verifies that custom code samples are properly transformed and grouped by language
+   * This is critical because it ensures custom examples appear first in the UI,
+   * are correctly structured with all required properties, and are grouped by language.
    */
-  it('should merge custom code samples with client options and prepend them as a group', () => {
+  it('groups custom code samples by language and prepends them', () => {
     const customCodeSamples: XCodeSample[] = [
       {
         lang: 'python',
@@ -45,13 +45,13 @@ describe('getClients', () => {
 
     const result = getClients(customCodeSamples, clientOptions)
 
-    // Should have one more group than the original client options
-    expect(result).toHaveLength(2)
+    // Should have language groups + original client options
+    expect(result).toHaveLength(3)
 
-    // First group should be the custom code examples
+    // First group should be Python (first language encountered)
     expect(result[0]).toEqual({
-      label: 'Code Examples',
-      key: 'custom',
+      label: 'Python',
+      key: 'custom-python',
       options: [
         {
           id: 'custom/0',
@@ -60,6 +60,14 @@ describe('getClients', () => {
           title: 'Custom Python Example',
           label: 'Custom Python Example',
         },
+      ] satisfies CustomClientOption[],
+    })
+
+    // Second group should be Js (capitalized)
+    expect(result[1]).toEqual({
+      label: 'Js',
+      key: 'custom-js',
+      options: [
         {
           id: 'custom/1',
           lang: 'js',
@@ -71,7 +79,7 @@ describe('getClients', () => {
     })
 
     // Original client options should follow
-    expect(result[1]).toEqual(clientOptions[0])
+    expect(result[2]).toEqual(clientOptions[0])
   })
 
   /**
@@ -79,7 +87,7 @@ describe('getClients', () => {
    * This is critical because the OpenAPI spec allows lang and label to be optional,
    * and we need to handle these cases gracefully without breaking the UI.
    */
-  it('should handle custom code samples with missing lang and label fields', () => {
+  it('handles custom code samples with missing lang and label fields', () => {
     const customCodeSamples: XCodeSample[] = [
       {
         source: 'echo "test"',
@@ -98,40 +106,45 @@ describe('getClients', () => {
 
     const result = getClients(customCodeSamples, clientOptions)
 
-    expect(result).toHaveLength(1)
-    const firstGroup = result[0]
-    expect(firstGroup).toBeDefined()
-    expect(firstGroup?.label).toBe('Code Examples')
-    expect(firstGroup?.options).toHaveLength(3)
+    // Should have 2 groups: plaintext (samples 0 and 2) and ruby (sample 1)
+    expect(result).toHaveLength(2)
 
-    // When both lang and label are missing, should use the generated ID
-    const firstOption = result[0]?.options[0]
-    expect(firstOption).toBeDefined()
-    expect(firstOption).toMatchObject({
+    // First group is plaintext (first sample without lang defaults to plaintext)
+    const plaintextGroup = result[0]
+    expect(plaintextGroup).toBeDefined()
+    expect(plaintextGroup?.label).toBe('Plaintext')
+    expect(plaintextGroup?.key).toBe('custom-plaintext')
+    expect(plaintextGroup?.options).toHaveLength(2)
+
+    // When both lang and label are missing, should use the generated ID as label
+    expect(plaintextGroup?.options[0]).toMatchObject({
       id: 'custom/0',
       lang: 'plaintext',
       title: 'custom/0',
       label: 'custom/0',
     })
 
-    // When label is missing, should use lang
-    const secondOption = result[0]?.options[1]
-    expect(secondOption).toBeDefined()
-    expect(secondOption).toMatchObject({
-      id: 'custom/1',
-      lang: 'ruby',
-      title: 'ruby',
-      label: 'ruby',
-    })
-
     // When lang is missing, should use label and default to plaintext
-    const thirdOption = result[0]?.options[2]
-    expect(thirdOption).toBeDefined()
-    expect(thirdOption).toMatchObject({
+    expect(plaintextGroup?.options[1]).toMatchObject({
       id: 'custom/2',
       lang: 'plaintext',
       title: 'Special Example',
       label: 'Special Example',
+    })
+
+    // Second group is ruby
+    const rubyGroup = result[1]
+    expect(rubyGroup).toBeDefined()
+    expect(rubyGroup?.label).toBe('Ruby')
+    expect(rubyGroup?.key).toBe('custom-ruby')
+    expect(rubyGroup?.options).toHaveLength(1)
+
+    // When label is missing, should use lang
+    expect(rubyGroup?.options[0]).toMatchObject({
+      id: 'custom/1',
+      lang: 'ruby',
+      title: 'ruby',
+      label: 'ruby',
     })
   })
 
@@ -194,11 +207,12 @@ describe('getClients', () => {
   })
 
   /**
-   * Test 4: Verifies correct handling of edge cases with duplicate languages and special characters
-   * This is critical because real-world OpenAPI specs may contain duplicate custom examples
-   * or unusual language identifiers, and the function must handle these without errors.
+   * Test 4: Verifies correct handling of duplicate languages and special characters
+   * This is critical because real-world OpenAPI specs may contain multiple custom examples
+   * for the same language (e.g., sync and async Python clients), and they should be
+   * grouped together under one language group while maintaining distinct IDs.
    */
-  it('should handle duplicate languages and special characters in custom code samples', () => {
+  it('groups duplicate languages together while keeping distinct IDs', () => {
     const customCodeSamples: XCodeSample[] = [
       {
         lang: 'python',
@@ -242,21 +256,24 @@ describe('getClients', () => {
 
     const result = getClients(customCodeSamples, clientOptions)
 
-    expect(result).toHaveLength(2)
-    expect(result[0]?.label).toBe('Code Examples')
-    expect(result[0]?.options).toHaveLength(4)
+    // Should have 3 custom groups (python, c++, objective-c) + 1 original (shell)
+    expect(result).toHaveLength(4)
 
-    // Both python examples must get distinct IDs so they stay individually selectable
-    const firstPythonOption = result[0]?.options[0]
-    expect(firstPythonOption).toBeDefined()
+    // First group is Python with both samples
+    const pythonGroup = result[0]
+    expect(pythonGroup?.label).toBe('Python')
+    expect(pythonGroup?.key).toBe('custom-python')
+    expect(pythonGroup?.options).toHaveLength(2)
+
+    // Both python examples must have distinct IDs so they stay individually selectable
+    const firstPythonOption = pythonGroup?.options[0]
     expect(firstPythonOption).toMatchObject({
       id: 'custom/0',
       lang: 'python',
       label: 'Python Example 1',
     })
 
-    const secondPythonOption = result[0]?.options[1]
-    expect(secondPythonOption).toBeDefined()
+    const secondPythonOption = pythonGroup?.options[1]
     expect(secondPythonOption).toMatchObject({
       id: 'custom/1',
       lang: 'python',
@@ -265,24 +282,29 @@ describe('getClients', () => {
 
     expect(firstPythonOption?.id).not.toBe(secondPythonOption?.id)
 
-    // Languages with special characters should still produce unique IDs
-    const cppOption = result[0]?.options[2]
-    expect(cppOption).toBeDefined()
-    expect(cppOption).toMatchObject({
+    // Second group is C++
+    const cppGroup = result[1]
+    expect(cppGroup?.label).toBe('C++')
+    expect(cppGroup?.key).toBe('custom-c++')
+    expect(cppGroup?.options).toHaveLength(1)
+    expect(cppGroup?.options[0]).toMatchObject({
       id: 'custom/2',
       lang: 'c++',
       label: 'C++ Example',
     })
 
-    const objcOption = result[0]?.options[3]
-    expect(objcOption).toBeDefined()
-    expect(objcOption).toMatchObject({
+    // Third group is Objective-c (capitalized)
+    const objcGroup = result[2]
+    expect(objcGroup?.label).toBe('Objective-c')
+    expect(objcGroup?.key).toBe('custom-objective-c')
+    expect(objcGroup?.options).toHaveLength(1)
+    expect(objcGroup?.options[0]).toMatchObject({
       id: 'custom/3',
       lang: 'objective-c',
       label: 'Objective-C Example',
     })
 
-    // Original client options should still be present
-    expect(result[1]).toEqual(clientOptions[0])
+    // Original client options should still be present at the end
+    expect(result[3]).toEqual(clientOptions[0])
   })
 })
