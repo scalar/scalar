@@ -73,11 +73,11 @@ jobs:
       # Tarball of every workspace dist/ produced above. Consumed by the
       # restore-build composite so downstream JS jobs can fan out without
       # rerunning the build.
-      - name: Upload workspace-dist artifact
+      - name: Upload build-output artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: workspace-dist
-          path: workspace-dist.tar.gz
+          name: build-output
+          path: build-output.tar.gz
           retention-days: 1
           # The tarball is already gzip-compressed; skip the upload action's
           # outer zip-compression pass.
@@ -801,7 +801,7 @@ jobs:
 
       # restore-build has already populated every workspace dependency's
       # dist directory, so this is a single-package build of the examples
-      # wrapper itself (examples/* are not part of the workspace-dist tarball).
+      # wrapper itself (examples/* are not part of the build-output tarball).
       - name: Build @scalar-examples/web
         run: pnpm --filter @scalar-examples/web build
 

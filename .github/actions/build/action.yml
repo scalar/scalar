@@ -2,7 +2,7 @@ name: 'Build'
 description: |
   Install workspace deps and run a turbo build with the branch-scoped
   caches from setup-node. When `archive-output: true`, also tar up every
-  workspace `dist/` directory into `./workspace-dist.tar.gz` so downstream
+  workspace `dist/` directory into `./build-output.tar.gz` so downstream
   jobs can fan out via the `restore-build` composite instead of rebuilding.
 
   gzip rather than zstd because the `scalarapi/playwright-runner` container
@@ -12,7 +12,7 @@ inputs:
     description: 'Package glob pattern to build (e.g., "@scalar/api-reference" or "packages/*")'
     required: true
   archive-output:
-    description: 'When true, write ./workspace-dist.tar.gz alongside the build.'
+    description: 'When true, write ./build-output.tar.gz alongside the build.'
     required: false
     default: 'false'
 runs:
@@ -44,16 +44,16 @@ runs:
         set -euo pipefail
         find packages integrations projects \
           -mindepth 2 -maxdepth 2 -type d -name dist -print0 2>/dev/null \
-          | sort -zu > .workspace-dist.list
+          | sort -zu > .build-output.list
 
-        if [ ! -s .workspace-dist.list ]; then
+        if [ ! -s .build-output.list ]; then
           echo "No dist directories found to archive" >&2
           exit 1
         fi
 
         echo "Archiving:"
-        tr '\0' '\n' < .workspace-dist.list
+        tr '\0' '\n' < .build-output.list
 
-        tar --null -czf workspace-dist.tar.gz.tmp -T .workspace-dist.list
-        mv workspace-dist.tar.gz.tmp workspace-dist.tar.gz
-        ls -lh workspace-dist.tar.gz
+        tar --null -czf build-output.tar.gz.tmp -T .build-output.list
+        mv build-output.tar.gz.tmp build-output.tar.gz
+        ls -lh build-output.tar.gz
