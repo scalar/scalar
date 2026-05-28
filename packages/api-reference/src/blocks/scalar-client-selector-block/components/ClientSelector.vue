@@ -9,6 +9,7 @@ import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AvailableClient } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
+import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { computed, useId, useTemplateRef } from 'vue'
 
 import {
@@ -21,11 +22,14 @@ import ClientDropdown from './ClientDropdown.vue'
 const {
   clientOptions,
   xScalarSdkInstallation,
+  xCodeSamples,
   eventBus,
   selectedClient = DEFAULT_CLIENT,
 } = defineProps<{
   /** Selected SDK installation instructions */
   xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
+  /** Custom code samples from the info object (x-codeSamples, x-code-samples, or x-custom-examples) */
+  xCodeSamples?: XCodeSample[]
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client */
@@ -94,6 +98,17 @@ const installationInstructions = computed(() => {
   return instruction
 })
 
+/** Find the selected custom code sample based on the selected client */
+const selectedCodeSample = computed(() => {
+  if (!xCodeSamples?.length || !selectedClient) {
+    return undefined
+  }
+
+  // Find the matching code sample by language
+  const targetKey = selectedClient.split('/')[0]?.toLowerCase()
+  return xCodeSamples.find((sample) => sample.lang?.toLowerCase() === targetKey)
+})
+
 defineExpose({
   selectedClientOption,
 })
@@ -126,8 +141,22 @@ defineExpose({
 
       <!-- Content -->
       <TabPanels>
+        <!-- x-codeSamples: Display custom code samples from the info object -->
+        <template v-if="selectedCodeSample?.source">
+          <div
+            class="selected-client card-footer border-t-0 p-0"
+            role="tabpanel"
+            tabindex="0">
+            <ScalarCodeBlock
+              class="rounded-b-lg *:first:p-3"
+              :content="selectedCodeSample.source"
+              copy="always"
+              :lang="selectedCodeSample.lang || 'plaintext'" />
+          </div>
+        </template>
+        <!-- x-scalar-sdk-installation: Display SDK installation instructions -->
         <template
-          v-if="
+          v-else-if="
             installationInstructions?.source ||
             installationInstructions?.description
           ">

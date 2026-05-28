@@ -1,6 +1,7 @@
 import { intersection, object, optional, string } from '@scalar/validation'
 
 import { XScalarSdkInstallation } from '@/extensions/document'
+import { XCodeSamples } from '@/extensions/operation/x-code-samples'
 import { contact } from '@/openapi/3.1/contact'
 import { license } from '@/openapi/3.1/license'
 
@@ -25,6 +26,7 @@ export const info = intersection(
       license: optional(license),
     }),
     XScalarSdkInstallation,
+    XCodeSamples,
   ],
   { typeName: 'InfoObject' },
 )

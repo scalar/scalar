@@ -5,6 +5,7 @@ import {
   type XScalarSdkInstallation,
   XScalarSdkInstallationSchema,
 } from '@/schemas/extensions/document/x-scalar-sdk-installation'
+import { type XCodeSamples, XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
 
 import type { ContactObject } from './contact'
 import type { LicenseObject } from './license'
@@ -31,6 +32,7 @@ export const InfoObjectSchemaDefinition = compose(
     license: Type.Optional(LicenseObjectRef),
   }),
   XScalarSdkInstallationSchema,
+  XCodeSamplesSchema,
 )
 
 /**
@@ -51,4 +53,5 @@ export type InfoObject = {
   contact?: ContactObject
   /** The license information for the exposed API. */
   license?: LicenseObject
-} & XScalarSdkInstallation
+} & XScalarSdkInstallation &
+  XCodeSamples

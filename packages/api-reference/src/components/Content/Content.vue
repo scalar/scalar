@@ -137,6 +137,19 @@ const securitySchemes = computed(() =>
   ),
 )
 
+/** Extract x-codeSamples from the info object (supports all three spellings) */
+const infoCodeSamples = computed(() => {
+  const info = openApiDocument.value?.info
+  if (!info) return undefined
+
+  const codeSampleKeys = [
+    'x-custom-examples',
+    'x-codeSamples',
+    'x-code-samples',
+  ] as const
+  return codeSampleKeys.flatMap((key) => info[key] ?? [])
+})
+
 /** Ensures firstLazyLoadComplete is set for documents with no Lazy sections (e.g. no operations/tags/models). */
 onMounted(() => {
   scheduleInitialLoadComplete()
@@ -202,6 +215,7 @@ onMounted(() => {
               :clientOptions
               :eventBus
               :selectedClient="xScalarDefaultClient"
+              :xCodeSamples="infoCodeSamples"
               :xScalarSdkInstallation="
                 openApiDocument?.info?.['x-scalar-sdk-installation']
               " />
