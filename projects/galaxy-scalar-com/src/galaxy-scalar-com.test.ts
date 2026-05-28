@@ -88,14 +88,18 @@ describe('galaxy-scalar-com', () => {
           agent: expect.objectContaining({
             key: expect.any(String),
           }),
+          // Vitest builds run without the production `--define`, so the branch
+          // bundle is served from the local route.
+          cdn: '/scalar.js',
         }),
       )
     })
 
-    it('mounts the reference UI at the root path', () => {
+    it('mounts the reference UI and bundle routes', () => {
       configureApiReference(mockApp as Hono)
 
       expect(mockApp.get).toHaveBeenCalledWith('/', expect.any(Function))
+      expect(mockApp.get).toHaveBeenCalledWith('/scalar.js', expect.any(Function))
     })
   })
 })

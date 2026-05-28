@@ -3849,7 +3849,16 @@ describe('create-workspace-store', () => {
       })
       expect(document?.['x-scalar-original-document-hash']).not.toBe('')
       expect(document).not.toHaveProperty('openapi')
-      expect(document).not.toHaveProperty('x-scalar-navigation')
+      // AsyncAPI docs always carry an `x-scalar-navigation` tree so the sidebar can
+      // surface `info.description`. Without channels, tags, or a description, the only
+      // entry is the default Introduction.
+      expect(document?.['x-scalar-navigation']).toMatchObject({
+        id: 'streetlights',
+        name: 'streetlights',
+        title: 'Streetlights API',
+        type: 'document',
+        children: [{ type: 'text', title: 'Introduction' }],
+      })
     })
 
     it('does not upgrade the asyncapi version during ingestion', async () => {
@@ -4059,9 +4068,68 @@ describe('create-workspace-store', () => {
         name: 'chatapp',
       })
 
-      expect(JSON.stringify(store.exportWorkspace())).toBe(
-        '{"documents":{"chatapp":{"asyncapi":"3.0.0","info":{"title":"Simple Chat WebSocket API","version":"1.0.0","description":"Basic AsyncAPI example for a chat service"},"servers":{"production":{"host":"api.example.com","protocol":"wss","description":"Production WebSocket server"}},"channels":{"chat":{"address":"/chat","messages":{"sendMessage":{"$ref":"#/components/messages/SendMessage"},"receiveMessage":{"$ref":"#/components/messages/ReceiveMessage"}}}},"operations":{"sendChatMessage":{"action":"send","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/sendMessage"}]},"receiveChatMessage":{"action":"receive","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/receiveMessage"}]}},"components":{"messages":{"SendMessage":{"name":"SendMessage","title":"Send a chat message","payload":{"type":"object","properties":{"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["userId","message","timestamp"]}},"ReceiveMessage":{"name":"ReceiveMessage","title":"Receive a chat message","payload":{"type":"object","properties":{"id":{"type":"string","example":"msg_001"},"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["id","userId","message","timestamp"]}}}},"x-original-aas-version":"3.0.0","x-scalar-original-document-hash":"9ee417dc08249dc6","x-ext-urls":{}}},"meta":{},"originalDocuments":{"chatapp":{"asyncapi":"3.0.0","info":{"title":"Simple Chat WebSocket API","version":"1.0.0","description":"Basic AsyncAPI example for a chat service"},"servers":{"production":{"host":"api.example.com","protocol":"wss","description":"Production WebSocket server"}},"channels":{"chat":{"address":"/chat","messages":{"sendMessage":{"$ref":"#/components/messages/SendMessage"},"receiveMessage":{"$ref":"#/components/messages/ReceiveMessage"}}}},"operations":{"sendChatMessage":{"action":"send","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/sendMessage"}]},"receiveChatMessage":{"action":"receive","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/receiveMessage"}]}},"components":{"messages":{"SendMessage":{"name":"SendMessage","title":"Send a chat message","payload":{"type":"object","properties":{"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["userId","message","timestamp"]}},"ReceiveMessage":{"name":"ReceiveMessage","title":"Receive a chat message","payload":{"type":"object","properties":{"id":{"type":"string","example":"msg_001"},"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["id","userId","message","timestamp"]}}}}}},"intermediateDocuments":{"chatapp":{"asyncapi":"3.0.0","info":{"title":"Simple Chat WebSocket API","version":"1.0.0","description":"Basic AsyncAPI example for a chat service"},"servers":{"production":{"host":"api.example.com","protocol":"wss","description":"Production WebSocket server"}},"channels":{"chat":{"address":"/chat","messages":{"sendMessage":{"$ref":"#/components/messages/SendMessage"},"receiveMessage":{"$ref":"#/components/messages/ReceiveMessage"}}}},"operations":{"sendChatMessage":{"action":"send","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/sendMessage"}]},"receiveChatMessage":{"action":"receive","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/receiveMessage"}]}},"components":{"messages":{"SendMessage":{"name":"SendMessage","title":"Send a chat message","payload":{"type":"object","properties":{"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["userId","message","timestamp"]}},"ReceiveMessage":{"name":"ReceiveMessage","title":"Receive a chat message","payload":{"type":"object","properties":{"id":{"type":"string","example":"msg_001"},"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["id","userId","message","timestamp"]}}}}}},"overrides":{"chatapp":{}},"history":{},"auth":{}}',
-      )
+      const document = store.workspace.documents['chatapp']
+      assert(isAsyncApiDocument(document))
+
+      const navigation = document['x-scalar-navigation']
+      expect(navigation).toEqual({
+        'children': [
+          {
+            'id': 'chatapp/description/introduction',
+            'title': 'Introduction',
+            'type': 'text',
+          },
+          {
+            'channelAddress': '/chat',
+            'channelName': 'chat',
+            'children': [
+              {
+                'action': 'send',
+                'channelAddress': '/chat',
+                'channelName': 'chat',
+                'children': [
+                  {
+                    'channelName': 'chat',
+                    'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/sendchatmessage/asyncapi-message/sendmessage',
+                    'messageName': 'sendMessage',
+                    'title': 'Send a chat message',
+                    'type': 'asyncapi-message',
+                  },
+                ],
+                'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/sendchatmessage',
+                'operationName': 'sendChatMessage',
+                'title': 'sendChatMessage',
+                'type': 'asyncapi-operation',
+              },
+              {
+                'action': 'receive',
+                'channelAddress': '/chat',
+                'channelName': 'chat',
+                'children': [
+                  {
+                    'channelName': 'chat',
+                    'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/receivechatmessage/asyncapi-message/receivemessage',
+                    'messageName': 'receiveMessage',
+                    'title': 'Receive a chat message',
+                    'type': 'asyncapi-message',
+                  },
+                ],
+                'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/receivechatmessage',
+                'operationName': 'receiveChatMessage',
+                'title': 'receiveChatMessage',
+                'type': 'asyncapi-operation',
+              },
+            ],
+            'id': 'chatapp/asyncapi-channel/chat',
+            'title': '/chat',
+            'type': 'asyncapi-channel',
+          },
+        ],
+        'id': 'chatapp',
+        'name': 'chatapp',
+        'title': 'Simple Chat WebSocket API',
+        'type': 'document',
+      })
     })
   })
 })

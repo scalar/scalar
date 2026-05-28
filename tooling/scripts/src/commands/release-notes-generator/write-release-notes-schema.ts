@@ -3,15 +3,18 @@ import { dirname } from 'node:path'
 
 import { z } from 'zod'
 
+import { SHARED_RELEASE_NOTES_SCHEMA_PATH } from './products'
 import { releaseNotesFileSchema } from './types'
 
 /**
- * URI used as the JSON Schema `$id`. Stored alongside `RELEASE_NOTES.json`
- * so the generated file is self-describing - editors that download
- * referenced schemas (or follow `$id`) end up with the canonical name
- * even when the local copy is moved.
+ * URI used as the JSON Schema `$id`. The canonical file lives at
+ * {@link SHARED_RELEASE_NOTES_SCHEMA_PATH} and is shared by every
+ * product's `RELEASE_NOTES.json`.
  */
 const SCHEMA_ID = 'https://scalar.com/schemas/release-notes.schema.json'
+
+/** Default on-disk path for the shared release-notes JSON Schema. */
+export const DEFAULT_RELEASE_NOTES_SCHEMA_PATH = SHARED_RELEASE_NOTES_SCHEMA_PATH
 
 /**
  * Title shown to the user in editor tooltips. Stays purposefully short

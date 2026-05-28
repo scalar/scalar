@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 /**
- * Release note shapes for the Scalar app's "What's new" modal.
+ * Release note shapes for curated product release notes.
  *
  * - **`aiReleaseNoteSchema`** — fixed contract for the Anthropic JSON
  *   response (`version`, `title`, `description`, `highlights` only). Do not
@@ -12,10 +12,11 @@ import { z } from 'zod'
  *   blocks (`paragraph`, `list`, `heading`, `image`, `video`, `href`). Use
  *   `{ type: 'href', href, label }` for outbound URLs (for example changelog or
  *   GitHub release). Source for
- *   `RELEASE_NOTES.schema.json`.
+ *   `tooling/scripts/schemas/RELEASE_NOTES.schema.json`.
  *
  * Keep `releaseNoteSchema` in sync with
- * `projects/scalar-app/src/features/whats-new/types.ts`.
+ * `projects/scalar-app/src/features/whats-new/types.ts` when the app
+ * consumes the JSON at build time.
  */
 
 const versionSchema = z
@@ -197,7 +198,7 @@ export const releaseNoteSchema = z
  */
 export const releaseNotesFileSchema = z
   .array(releaseNoteSchema)
-  .describe('Curated, user-facing release notes for the Scalar app. Newest entry first.')
+  .describe('Curated, user-facing release notes for a Scalar product. Newest entry first.')
 
 type ContentBlock = z.infer<typeof contentBlockSchema>
 export type ReleaseNote = z.infer<typeof releaseNoteSchema>

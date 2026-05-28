@@ -66,7 +66,7 @@
 
   --scalar-button-1: rgba(0, 0, 0, 1);
   --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
+  --scalar-button-1-color: #fff;
 
   --scalar-tooltip-background: color-mix(in srgb, #1a1a1a, transparent 10%);
   --scalar-tooltip-color: color-mix(in srgb, #fff, transparent 15%);

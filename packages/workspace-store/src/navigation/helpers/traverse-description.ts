@@ -1,3 +1,5 @@
+import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
+
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/navigation/helpers/utils'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedDescription } from '@/schemas/navigation'
@@ -11,7 +13,7 @@ const DEFAULT_DESCRIPTION_ENTRY = {
 const getDefaultDescriptionEntry = (
   generateId: TraverseSpecOptions['generateId'],
   parentId: string,
-  info: InfoObject,
+  info: InfoObject | AsyncApiInfoObject,
 ) => {
   const id = generateId({
     type: 'text',
@@ -32,7 +34,7 @@ const getDefaultDescriptionEntry = (
 }
 
 /**
- * Creates a hierarchical navigation structure from markdown headings in an OpenAPI description.
+ * Creates a hierarchical navigation structure from markdown headings in an OpenAPI or AsyncAPI description.
  *
  * The function processes markdown headings to create a two-level navigation tree:
  * - Level 1: Main sections (based on the lowest heading level found)
@@ -44,7 +46,7 @@ const getDefaultDescriptionEntry = (
  * @param description - The markdown description text to process
  * @param generateId - Function to generate unique IDs for headings
  * @param parentId - The ID of the parent entry
- * @param info - OpenAPI Info Object
+ * @param info - OpenAPI or AsyncAPI Info Object
  *
  * @returns Array of TraversedDescription entries with their hierarchy
  */
@@ -55,7 +57,7 @@ export const traverseDescription = ({
 }: {
   generateId: TraverseSpecOptions['generateId']
   parentId: string
-  info: InfoObject
+  info: InfoObject | AsyncApiInfoObject
 }): TraversedDescription[] => {
   const description = info.description?.trim()
 

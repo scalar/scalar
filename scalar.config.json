@@ -542,7 +542,15 @@
         },
         {
           "from": "/products/mock-server/changelog",
-          "to": "/tools/mock-server/changelog"
+          "to": "/changelog/mock-server"
+        },
+        {
+          "from": "/tools/mock-server/changelog",
+          "to": "/changelog/mock-server"
+        },
+        {
+          "from": "/products/api-references/changelog",
+          "to": "/changelog/api-reference"
         },
         {
           "from": "/download",
@@ -742,6 +750,69 @@
                   "content": "index, follow"
                 }
               ]
+            }
+          },
+          "/changelog": {
+            "type": "group",
+            "title": "Changelog",
+            "icon": "phosphor/regular/list-bullets",
+            "mode": "nested",
+            "children": {
+              "": {
+                "type": "page",
+                "title": "Changelog",
+                "filepath": "documentation/changelog/index.md",
+                "description": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server.",
+                "layout": {
+                  "toc": false
+                },
+                "head": {
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/changelog"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "Changelog - Scalar"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              },
+              "api-client": {
+                "type": "page",
+                "title": "API Client",
+                "filepath": "projects/scalar-app/RELEASE_NOTES.md"
+              },
+              "api-reference": {
+                "type": "page",
+                "title": "API Reference",
+                "filepath": "packages/api-reference/RELEASE_NOTES.md"
+              },
+              "agent": {
+                "type": "page",
+                "title": "Agent",
+                "filepath": "packages/agent-chat/RELEASE_NOTES.md"
+              },
+              "mock-server": {
+                "type": "page",
+                "title": "Mock Server",
+                "filepath": "packages/mock-server/RELEASE_NOTES.md"
+              }
             }
           },
           "/pricing": {
@@ -1277,6 +1348,11 @@
                     "type": "page",
                     "filepath": "documentation/guides/agent/key.md"
                   },
+                  "release-notes": {
+                    "title": "Release notes",
+                    "filepath": "packages/agent-chat/RELEASE_NOTES.md",
+                    "type": "page"
+                  },
                   "examples": {
                     "title": "Examples",
                     "type": "group",
@@ -1614,8 +1690,8 @@
                     "type": "page"
                   },
                   "changelog": {
-                    "title": "Changelog",
-                    "filepath": "packages/api-reference/CHANGELOG.md",
+                    "title": "Release notes",
+                    "filepath": "packages/api-reference/RELEASE_NOTES.md",
                     "type": "page"
                   },
                   "integrations": {
@@ -2452,8 +2528,8 @@
                     "type": "page"
                   },
                   "changelog": {
-                    "title": "Changelog",
-                    "filepath": "packages/mock-server/CHANGELOG.md",
+                    "title": "Release notes",
+                    "filepath": "packages/mock-server/RELEASE_NOTES.md",
                     "type": "page"
                   }
                 }

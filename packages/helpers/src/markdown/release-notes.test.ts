@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { DEFAULT_RELEASE_NOTES_PREAMBLE, type ReleaseNoteEntry, serializeReleaseNotes } from './release-notes'
+import { type ReleaseNoteEntry, buildReleaseNotesPreamble, serializeReleaseNotes } from './release-notes'
 
 /** Test-only: `## semver (YYYY-MM-DD)` headings in document order. */
 const versionHeadingsInOrder = (markdown: string): string[] =>
@@ -24,7 +24,7 @@ describe('serializeReleaseNotes', () => {
     }
 
     const output = serializeReleaseNotes([entry])
-    expect(output.startsWith(DEFAULT_RELEASE_NOTES_PREAMBLE.replace(/\s+$/, ''))).toBe(true)
+    expect(output.startsWith(buildReleaseNotesPreamble().replace(/\s+$/, ''))).toBe(true)
     expect(output).toContain('## 1.0.0 (2026-01-01)')
     expect(output).toContain('### Hello world')
     expect(output).toContain('Initial release.')

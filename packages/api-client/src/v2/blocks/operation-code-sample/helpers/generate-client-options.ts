@@ -1,5 +1,4 @@
 import { AVAILABLE_CLIENTS, type AvailableClients, snippetz } from '@scalar/snippetz'
-import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { capitalize } from 'vue'
 
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
@@ -7,8 +6,14 @@ import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
 /** Type of custom code sample IDs */
 export type CustomCodeSampleId = `custom/${string}`
 
-/** Helper to generate an ID for custom code samples */
-export const generateCustomId = (example: XCodeSample): CustomCodeSampleId => `custom/${example.lang}`
+/**
+ * Generate a unique ID for a custom code sample.
+ *
+ * The ID is keyed by the sample's position in the operation's code samples, so multiple
+ * samples that share the same `lang` (e.g. separate sync and async examples) stay
+ * individually selectable.
+ */
+export const generateCustomId = (index: number): CustomCodeSampleId => `custom/${index}`
 
 /**
  * Generate client options for the request example block by filtering by allowed clients
