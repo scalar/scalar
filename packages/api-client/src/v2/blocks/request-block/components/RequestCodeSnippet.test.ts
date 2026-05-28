@@ -1,10 +1,8 @@
+import type { ClientOptionGroup, OperationCodeSampleProps } from '@scalar/blocks/operation-code-sample'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-
-import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
-import type { OperationCodeSampleProps } from '@/v2/blocks/operation-code-sample/components/OperationCodeSample.vue'
 
 import RequestCodeSnippet from './RequestCodeSnippet.vue'
 
