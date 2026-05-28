@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ClientOptionGroup } from '@scalar/blocks/operation-code-sample'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
@@ -32,7 +33,6 @@ import { computed, ref, useId, watch } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
 import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vue'
