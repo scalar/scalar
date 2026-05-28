@@ -43,6 +43,19 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('keeps the scheme on host when splitting a fully-qualified url', () => {
+    const document = upgradeFromTwoToThree({
+      asyncapi: '2.6.0',
+      servers: {
+        production: { url: 'https://api.example.com/v2', protocol: 'http' },
+      },
+    })
+
+    expect(document.servers).toEqual({
+      production: { host: 'https://api.example.com', pathname: '/v2', protocol: 'http' },
+    })
+  })
+
   it('converts non-OAuth server security to $ref entries', () => {
     const document = upgradeFromTwoToThree({
       asyncapi: '2.6.0',
@@ -344,6 +357,83 @@ describe('upgradeFromTwoToThree', () => {
       messages: { ping: { payload: { type: 'object' } } },
       schemas: { Pong: { type: 'string' } },
     })
+  })
+
+  it('upgrades operation-level security like server security', () => {
+    const document = upgradeFromTwoToThree({
+      asyncapi: '2.6.0',
+      channels: {
+        'user/signup': {
+          publish: {
+            operationId: 'onSignup',
+            security: [{ apiKey: [] }],
+            message: { $ref: '#/components/messages/userSignedUp' },
+          },
+        },
+      },
+      components: {
+        securitySchemes: { apiKey: { type: 'apiKey', in: 'user' } },
+      },
+    })
+
+    expect((document.operations as { onSignup: { security: unknown } }).onSignup.security).toEqual([
+      { $ref: '#/components/securitySchemes/apiKey' },
+    ])
+  })
+
+  it('dedupes channel ids that slugify to the same value', () => {
+    const document = upgradeFromTwoToThree({
+      asyncapi: '2.6.0',
+      channels: {
+        'user/signedup': {
+          publish: {
+            operationId: 'fromSlash',
+            message: { $ref: '#/components/messages/a' },
+          },
+        },
+        'user.signedup': {
+          publish: {
+            operationId: 'fromDot',
+            message: { $ref: '#/components/messages/b' },
+          },
+        },
+      },
+    })
+
+    expect(Object.keys(document.channels as object)).toEqual(['user-signedup', 'user-signedup-2'])
+    expect(document.operations).toEqual({
+      fromSlash: {
+        action: 'receive',
+        channel: { $ref: '#/channels/user-signedup' },
+        messages: [{ $ref: '#/channels/user-signedup/messages/a' }],
+      },
+      fromDot: {
+        action: 'receive',
+        channel: { $ref: '#/channels/user-signedup-2' },
+        messages: [{ $ref: '#/channels/user-signedup-2/messages/b' }],
+      },
+    })
+  })
+
+  it('dedupes operation keys when an operationId collides with a generated one', () => {
+    const document = upgradeFromTwoToThree({
+      asyncapi: '2.6.0',
+      channels: {
+        'user/welcome': {
+          // Generated key would be `send-user-welcome`.
+          subscribe: { message: { $ref: '#/components/messages/welcome' } },
+        },
+        'admin/welcome': {
+          // Hand-picked operationId collides with the auto-generated one above.
+          subscribe: {
+            operationId: 'send-user-welcome',
+            message: { $ref: '#/components/messages/adminWelcome' },
+          },
+        },
+      },
+    })
+
+    expect(Object.keys(document.operations as object)).toEqual(['send-user-welcome', 'send-user-welcome-2'])
   })
 
   // End-to-end ---------------------------------------------------------------

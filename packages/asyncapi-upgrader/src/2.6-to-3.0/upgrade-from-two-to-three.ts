@@ -57,9 +57,7 @@ function upgradeServers(document: UnknownObject): void {
     }
 
     if (Array.isArray(server.security)) {
-      server.security = server.security
-        .map((requirement) => upgradeSecurityRequirement(requirement, securitySchemes))
-        .filter((entry): entry is UnknownObject => entry !== undefined)
+      server.security = upgradeSecurity(server.security, securitySchemes)
     }
   }
 }
@@ -67,21 +65,37 @@ function upgradeServers(document: UnknownObject): void {
 /** Splits a 2.x server URL into a 3.0 `host` (everything before the first `/` outside the scheme) and `pathname`. */
 function splitUrl(url: string): { host: string; pathname: string } {
   const schemeMatch = url.match(/^([a-zA-Z][a-zA-Z0-9+\-.]*:\/\/)(.*)$/)
-  const scheme = schemeMatch ? schemeMatch[1] : ''
-  const rest = schemeMatch ? schemeMatch[2]! : url
-  const slashIndex = rest.indexOf('/')
 
+  if (schemeMatch) {
+    const [, scheme, rest] = schemeMatch
+    const slashIndex = rest!.indexOf('/')
+    if (slashIndex === -1) {
+      return { host: url, pathname: '' }
+    }
+    return {
+      host: `${scheme}${rest!.slice(0, slashIndex)}`,
+      pathname: rest!.slice(slashIndex),
+    }
+  }
+
+  const slashIndex = url.indexOf('/')
   if (slashIndex === -1) {
     return { host: url, pathname: '' }
   }
-
-  return {
-    host: `${scheme}${rest.slice(0, slashIndex)}`,
-    pathname: rest.slice(slashIndex),
-  }
+  return { host: url.slice(0, slashIndex), pathname: url.slice(slashIndex) }
 }
 
-/** Rewrites one 2.x security requirement object into its 3.0 form. */
+/** Maps every 2.x security requirement to its 3.0 form (`$ref` or inline OAuth + `scopes`). */
+function upgradeSecurity(security: unknown[], securitySchemes: Record<string, UnknownObject>): UnknownObject[] {
+  return security
+    .map((requirement) => upgradeSecurityRequirement(requirement, securitySchemes))
+    .filter((entry): entry is UnknownObject => entry !== undefined)
+}
+
+/**
+ * Rewrites one 2.x security requirement object into its 3.0 form. 2.x security requirement objects
+ * have exactly one key (the scheme name) and an array of scope names — we read that single entry.
+ */
 function upgradeSecurityRequirement(
   requirement: unknown,
   securitySchemes: Record<string, UnknownObject>,
@@ -90,12 +104,11 @@ function upgradeSecurityRequirement(
     return undefined
   }
 
-  const entries = Object.entries(requirement)
-  if (entries.length === 0) {
+  const [entry] = Object.entries(requirement)
+  if (!entry) {
     return undefined
   }
-
-  const [name, scopes] = entries[0]!
+  const [name, scopes] = entry
   const scheme = securitySchemes[name]
 
   if (isObject(scheme) && scheme.type === 'oauth2' && Array.isArray(scopes)) {
@@ -159,15 +172,18 @@ function upgradeChannelsAndOperations(document: UnknownObject): void {
     return
   }
 
+  const securitySchemes = getSecuritySchemes(document)
   const channels: Record<string, UnknownObject> = {}
   const operations: Record<string, UnknownObject> = {}
+  const usedChannelIds = new Set<string>()
+  const usedOperationKeys = new Set<string>()
 
   for (const [path, channel] of Object.entries(document.channels)) {
     if (!isObject(channel)) {
       continue
     }
 
-    const channelId = slugify(path)
+    const channelId = uniqueKey(slugify(path), usedChannelIds)
     const newChannel: UnknownObject = { address: path }
     const messages: Record<string, UnknownObject> = {}
 
@@ -192,12 +208,12 @@ function upgradeChannelsAndOperations(document: UnknownObject): void {
     channels[channelId] = newChannel
 
     if (isObject(channel.publish)) {
-      const opKey = operationKey(channel.publish, 'receive', channelId)
-      operations[opKey] = buildOperation(channel.publish, 'receive', channelId, publishMessages)
+      const opKey = uniqueKey(operationKey(channel.publish, 'receive', channelId), usedOperationKeys)
+      operations[opKey] = buildOperation(channel.publish, 'receive', channelId, publishMessages, securitySchemes)
     }
     if (isObject(channel.subscribe)) {
-      const opKey = operationKey(channel.subscribe, 'send', channelId)
-      operations[opKey] = buildOperation(channel.subscribe, 'send', channelId, subscribeMessages)
+      const opKey = uniqueKey(operationKey(channel.subscribe, 'send', channelId), usedOperationKeys)
+      operations[opKey] = buildOperation(channel.subscribe, 'send', channelId, subscribeMessages, securitySchemes)
     }
   }
 
@@ -258,11 +274,16 @@ function buildOperation(
   action: 'send' | 'receive',
   channelId: string,
   messageIds: string[],
+  securitySchemes: Record<string, UnknownObject>,
 ): UnknownObject {
   const result: UnknownObject = { action, channel: { $ref: `#/channels/${channelId}` } }
 
   for (const [field, value] of Object.entries(operation)) {
     if (field === 'message' || field === 'operationId') {
+      continue
+    }
+    if (field === 'security' && Array.isArray(value)) {
+      result.security = upgradeSecurity(value, securitySchemes)
       continue
     }
     result[field] = value
@@ -281,4 +302,19 @@ function slugify(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
+}
+
+/** Returns the base key if unused, otherwise appends `-2`, `-3`, … until unique. Mutates `usedKeys`. */
+function uniqueKey(base: string, usedKeys: Set<string>): string {
+  if (!usedKeys.has(base)) {
+    usedKeys.add(base)
+    return base
+  }
+  let suffix = 2
+  while (usedKeys.has(`${base}-${suffix}`)) {
+    suffix += 1
+  }
+  const key = `${base}-${suffix}`
+  usedKeys.add(key)
+  return key
 }
