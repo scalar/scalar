@@ -4,7 +4,11 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { buildReleaseNotesJsonSchema, writeReleaseNotesJsonSchema } from './write-release-notes-schema'
+import {
+  DEFAULT_RELEASE_NOTES_SCHEMA_PATH,
+  buildReleaseNotesJsonSchema,
+  writeReleaseNotesJsonSchema,
+} from './write-release-notes-schema'
 
 describe('buildReleaseNotesJsonSchema', () => {
   it('describes the file root as an array of release notes', () => {
@@ -31,6 +35,10 @@ describe('buildReleaseNotesJsonSchema', () => {
     }
     const blockTypes = schema.items.properties.content.items.oneOf.map((entry) => entry.properties.type.const)
     expect(blockTypes).toEqual(['paragraph', 'heading', 'list', 'image', 'video', 'href'])
+  })
+
+  it('uses the shared schema path constant', () => {
+    expect(DEFAULT_RELEASE_NOTES_SCHEMA_PATH).toBe('tooling/scripts/schemas/RELEASE_NOTES.schema.json')
   })
 })
 

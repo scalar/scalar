@@ -2,8 +2,8 @@ import { mkdir, stat, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 
 import {
-  DEFAULT_RELEASE_NOTES_PREAMBLE,
   type ReleaseNoteEntry,
+  buildReleaseNotesPreamble,
   serializeReleaseNotes,
 } from '@scalar/helpers/markdown/release-notes'
 
@@ -45,7 +45,7 @@ type WriteMarkdownResult = {
 export const writeReleaseNotesMarkdown = async (options: WriteMarkdownOptions): Promise<WriteMarkdownResult> => {
   const created = !(await pathExists(options.path))
 
-  const preamble = options.preamble ?? DEFAULT_RELEASE_NOTES_PREAMBLE
+  const preamble = options.preamble ?? buildReleaseNotesPreamble()
   // The on-disk JSON shape is intentionally a superset of `ReleaseNoteEntry`
   // (same fields), so a direct cast is safe and avoids an unnecessary
   // copy of every entry.
