@@ -8,8 +8,7 @@ import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
-import { mockEventBus } from '@/v2/helpers/test-utils'
-
+import { mockEventBus } from '../test-utils'
 import type { ClientOptionGroup } from '../types'
 import RequestExample from './OperationCodeSample.vue'
 

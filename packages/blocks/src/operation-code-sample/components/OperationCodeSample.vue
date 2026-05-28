@@ -136,7 +136,6 @@ import type {
   OperationObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { operationToHar } from '@v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
 import {
   computed,
   onBeforeMount,
@@ -146,20 +145,20 @@ import {
   type ComponentPublicInstance,
 } from 'vue'
 
-import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
-import { filterClientsByQuery } from '@/v2/blocks/operation-code-sample/helpers/filter-clients-by-query'
-import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
-import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
-import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-samples'
-import { getSecrets } from '@/v2/blocks/operation-code-sample/helpers/get-secrets'
+import { filterClientsByQuery } from '../helpers/filter-clients-by-query'
+import { findClient } from '../helpers/find-client'
+import { generateCodeSnippet } from '../helpers/generate-code-snippet'
+import { getClients } from '../helpers/get-clients'
+import { getCustomCodeSamples } from '../helpers/get-custom-code-samples'
+import { getSecrets } from '../helpers/get-secrets'
+import { operationToHar } from '../helpers/operation-to-har/operation-to-har'
 import type {
   ClientOption,
   ClientOptionGroup,
   CustomClientOption,
-} from '@/v2/blocks/operation-code-sample/types'
-
-import { generateCodeSnippet } from '../helpers/generate-code-snippet'
+} from '../types'
 import ExamplePicker from './ExamplePicker.vue'
+import HttpMethod from './HttpMethod.vue'
 
 const {
   integration,

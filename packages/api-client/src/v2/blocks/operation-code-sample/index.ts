@@ -1,8 +1,0 @@
-export { default as ExamplePicker } from './components/ExamplePicker.vue'
-export { default as HttpMethod } from './components/HttpMethod.vue'
-export { default as OperationCodeSample } from './components/OperationCodeSample.vue'
-export { filterClientsByQuery } from './helpers/filter-clients-by-query'
-export { DEFAULT_CLIENT, type SelectedClientId, findClient, isClient, isSelectedClient } from './helpers/find-client'
-export { generateClientOptions } from './helpers/generate-client-options'
-export { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
-export type { ClientOption, ClientOptionGroup, CustomClientOption, CustomClientOptionGroup } from './types'
