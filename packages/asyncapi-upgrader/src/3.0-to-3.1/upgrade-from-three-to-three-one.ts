@@ -48,7 +48,9 @@ function rewriteOperationMessageRefs(document: UnknownObject): void {
     rewriteMessageList(operation.messages, operation.channel, channels)
 
     if (isObject(operation.reply)) {
-      rewriteMessageList(operation.reply.messages, operation.reply.channel, channels)
+      // Reply's `channel` is optional in 3.0 — when omitted, the reply runs on the parent
+      // operation's channel.
+      rewriteMessageList(operation.reply.messages, operation.reply.channel ?? operation.channel, channels)
     }
   }
 }
@@ -78,15 +80,33 @@ function rewriteMessageList(messageList: unknown, channelRef: unknown, channels:
       continue
     }
 
-    const match = entry.$ref.match(COMPONENT_MESSAGE_REF)
-    if (!match) {
+    const [, messageName] = entry.$ref.match(COMPONENT_MESSAGE_REF) ?? []
+    if (!messageName) {
       continue
     }
 
-    const messageName = match[1]!
     registerChannelMessage(channel, messageName, entry.$ref)
     messageList[i] = { $ref: `#/channels/${channelId}/messages/${messageName}` }
   }
+
+  dedupeRefs(messageList)
+}
+
+/** Removes duplicate `{ $ref: 'X' }` entries (keeps the first occurrence). Mutates `list`. */
+function dedupeRefs(list: unknown[]): void {
+  const seen = new Set<string>()
+  let writeIndex = 0
+  for (const entry of list) {
+    if (isObject(entry) && typeof entry.$ref === 'string') {
+      if (seen.has(entry.$ref)) {
+        continue
+      }
+      seen.add(entry.$ref)
+    }
+    list[writeIndex] = entry
+    writeIndex += 1
+  }
+  list.length = writeIndex
 }
 
 /** Returns the channel id from a `{ $ref: '#/channels/{id}' }` value, or `undefined` for anything else. */

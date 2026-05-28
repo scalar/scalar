@@ -217,6 +217,62 @@ describe('upgradeFromThreeToThreeOne', () => {
     ).toEqual([{ $ref: '#/channels/userSignupReply/messages/userSignedUpReply' }])
   })
 
+  it('falls back to the operation channel when reply.channel is omitted', () => {
+    const document = upgradeFromThreeToThreeOne({
+      asyncapi: '3.0.0',
+      channels: {
+        ping: {
+          address: 'ping',
+          messages: {
+            ping: { $ref: '#/components/messages/ping' },
+            pong: { $ref: '#/components/messages/pong' },
+          },
+        },
+      },
+      operations: {
+        sendPing: {
+          action: 'send',
+          channel: { $ref: '#/channels/ping' },
+          messages: [{ $ref: '#/components/messages/ping' }],
+          reply: {
+            // No `channel` — reply runs on the parent operation's channel.
+            messages: [{ $ref: '#/components/messages/pong' }],
+          },
+        },
+      },
+    })
+
+    expect((document.operations as { sendPing: { reply: { messages: unknown } } }).sendPing.reply.messages).toEqual([
+      { $ref: '#/channels/ping/messages/pong' },
+    ])
+  })
+
+  it('dedupes operation messages when both forms point at the same message', () => {
+    const document = upgradeFromThreeToThreeOne({
+      asyncapi: '3.0.0',
+      channels: {
+        userSignedUp: {
+          address: 'user/signedup',
+          messages: { userSignedUp: { $ref: '#/components/messages/userSignedUp' } },
+        },
+      },
+      operations: {
+        onUserSignedUp: {
+          action: 'receive',
+          channel: { $ref: '#/channels/userSignedUp' },
+          messages: [
+            { $ref: '#/channels/userSignedUp/messages/userSignedUp' },
+            { $ref: '#/components/messages/userSignedUp' },
+          ],
+        },
+      },
+    })
+
+    expect((document.operations as { onUserSignedUp: { messages: unknown } }).onUserSignedUp.messages).toEqual([
+      { $ref: '#/channels/userSignedUp/messages/userSignedUp' },
+    ])
+  })
+
   it('leaves message refs alone when the operation has no channel ref', () => {
     const document = upgradeFromThreeToThreeOne({
       asyncapi: '3.0.0',
