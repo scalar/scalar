@@ -2,7 +2,12 @@
 import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import {
   DEFAULT_CLIENT,
+  findClient,
+  generateCustomId,
+  getClients,
+  type ClientOption,
   type ClientOptionGroup,
+  type CustomClientOption,
 } from '@scalar/api-client/blocks/operation-code-sample'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarMarkdown } from '@scalar/components/markdown'
@@ -10,7 +15,7 @@ import type { AvailableClient } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
-import { computed, useId, useTemplateRef } from 'vue'
+import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
 import {
   getFeaturedClients,
@@ -41,13 +46,35 @@ const {
 const headingId = useId()
 const morePanel = useId()
 
+/** Merge custom code samples with the client options */
+const mergedClientOptions = computed(() =>
+  getClients(xCodeSamples ?? [], clientOptions),
+)
+
+/** The locally selected client which includes custom code samples */
+const localSelectedClient = ref<ClientOption | CustomClientOption | undefined>(
+  findClient(mergedClientOptions.value, selectedClient),
+)
+
+/** If the globally selected client changes, update the local one */
+watch(
+  () => selectedClient,
+  (newClient) => {
+    const client = findClient(mergedClientOptions.value, newClient)
+    if (client) {
+      localSelectedClient.value = client
+    }
+  },
+)
+
 /** Grab the option for the currently selected Http Client */
 const selectedClientOption = computed(
   () =>
     clientOptions.flatMap(
       (optionGroup) =>
-        optionGroup.options.find((option) => option.id === selectedClient) ??
-        [],
+        optionGroup.options.find(
+          (option) => option.id === localSelectedClient.value?.id,
+        ) ?? [],
     )[0],
 )
 
@@ -57,7 +84,7 @@ const featuredClients = computed(() => getFeaturedClients(clientOptions))
 /** Currently selected tab index */
 const tabIndex = computed(() =>
   featuredClients.value.findIndex(
-    (featuredClient) => selectedClient === featuredClient.id,
+    (featuredClient) => localSelectedClient.value?.id === featuredClient.id,
   ),
 )
 
@@ -71,6 +98,7 @@ const onTabSelect = (i: number) => {
     return
   }
 
+  localSelectedClient.value = client
   eventBus.emit('workspace:update:selected-client', client.id)
 }
 
@@ -85,7 +113,9 @@ const installationInstructions = computed(() => {
 
   // Find the instructions for the current language
   const instruction = xScalarSdkInstallation.find((instruction) => {
-    const targetKey = selectedClient?.split('/')[0]?.toLowerCase()
+    const targetKey = localSelectedClient.value?.id
+      ?.split('/')[0]
+      ?.toLowerCase()
     return instruction.lang.toLowerCase() === targetKey
   })
 
@@ -98,16 +128,29 @@ const installationInstructions = computed(() => {
   return instruction
 })
 
-/** Find the selected custom code sample based on the selected client */
+/** Find the selected custom code sample when a custom client is selected */
 const selectedCodeSample = computed(() => {
-  if (!xCodeSamples?.length || !selectedClient) {
+  if (!xCodeSamples?.length || !localSelectedClient.value?.id) {
     return undefined
   }
 
-  // Find the matching code sample by language
-  const targetKey = selectedClient.split('/')[0]?.toLowerCase()
-  return xCodeSamples.find((sample) => sample.lang?.toLowerCase() === targetKey)
+  // Check if the selected client is a custom sample
+  if (localSelectedClient.value.id.startsWith('custom')) {
+    const index = xCodeSamples.findIndex(
+      (_, idx) => generateCustomId(idx) === localSelectedClient.value?.id,
+    )
+    if (index !== -1) {
+      return xCodeSamples[index]
+    }
+  }
+
+  return undefined
 })
+
+/** Check if the current selection is a custom code sample */
+const isCustomSampleSelected = computed(() =>
+  localSelectedClient.value?.id?.startsWith('custom'),
+)
 
 defineExpose({
   selectedClientOption,
@@ -132,17 +175,20 @@ defineExpose({
         :aria-labelledby="headingId"
         class="client-libraries-list">
         <ClientDropdown
-          :clientOptions
+          :clientOptions="mergedClientOptions"
           :eventBus
           :featuredClients
+          :localSelectedClient
           :morePanel
-          :selectedClient />
+          :selectedClient="localSelectedClient?.id"
+          :xCodeSamples
+          @update:localSelectedClient="localSelectedClient = $event" />
       </TabList>
 
       <!-- Content -->
       <TabPanels>
-        <!-- x-codeSamples: Display custom code samples from the info object -->
-        <template v-if="selectedCodeSample?.source">
+        <!-- x-codeSamples: Display custom code samples when selected from dropdown -->
+        <template v-if="isCustomSampleSelected && selectedCodeSample?.source">
           <div
             class="selected-client card-footer border-t-0 p-0"
             role="tabpanel"
@@ -180,7 +226,11 @@ defineExpose({
               lang="shell" />
           </div>
         </template>
-        <template v-else-if="isFeaturedClient(selectedClient)">
+        <template
+          v-else-if="
+            !localSelectedClient?.id?.startsWith('custom') &&
+            isFeaturedClient(localSelectedClient?.id as AvailableClient)
+          ">
           <TabPanel
             v-for="client in featuredClients"
             :key="client.id"
@@ -194,7 +244,7 @@ defineExpose({
           class="selected-client card-footer -outline-offset-2"
           role="tabpanel"
           tabindex="0">
-          {{ selectedClientOption?.title }}
+          {{ selectedClientOption?.title ?? localSelectedClient?.title }}
         </div>
       </TabPanels>
     </TabGroup>

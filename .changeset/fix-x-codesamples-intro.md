@@ -1,5 +1,6 @@
 ---
 "@scalar/api-reference": patch
+"@scalar/api-client": patch
 "@scalar/schemas": patch
 "@scalar/workspace-store": patch
 ---
@@ -10,7 +11,8 @@ The `x-codeSamples` extension (and its aliases `x-code-samples` and `x-custom-ex
 
 This fix:
 - Adds `x-codeSamples` support to the info object schema in both `@scalar/workspace-store` and `@scalar/schemas`
-- Updates the `ClientSelector` component to display custom code samples when they match the selected client language
-- Passes code samples from the info object to the introduction section
+- Exports `getClients` and `generateCustomId` from `@scalar/api-client` for reuse
+- Updates the `ClientSelector` component to merge custom code samples into the dropdown
+- Custom samples appear as a "Code Examples" group at the top of the "More" dropdown
 
-When you define code samples in your OpenAPI spec's info section, they will now be displayed in the Client Libraries section when you select the corresponding language tab.
+When you define code samples in your OpenAPI spec's info section, they will now appear in the Client Libraries dropdown as selectable items, and selecting them will display the custom code content.

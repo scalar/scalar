@@ -2,31 +2,41 @@
 import { Tab } from '@headlessui/vue'
 import {
   filterClientsByQuery,
-  findClient,
   type ClientOption,
-  type ClientOptionGroup,
   type CustomClientOption,
+  type CustomClientOptionGroup,
 } from '@scalar/api-client/blocks/operation-code-sample'
 import { ScalarCombobox } from '@scalar/components/combobox'
 import { ScalarIcon } from '@scalar/components/icon'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
-import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
+import type { AvailableClient, TargetId } from '@scalar/types/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
 import { isFeaturedClient } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
 
-const { clientOptions, featuredClients, eventBus, selectedClient } =
-  defineProps<{
-    /** Client options */
-    clientOptions: ClientOptionGroup[]
-    /** The currently selected Http Client */
-    selectedClient?: AvailableClients[number]
-    /** List of featured clients */
-    featuredClients: ClientOption[]
-    /** Event bus */
-    eventBus: WorkspaceEventBus
-  }>()
+const {
+  clientOptions,
+  featuredClients,
+  eventBus,
+  selectedClient,
+  localSelectedClient,
+} = defineProps<{
+  /** Client options (may include custom code samples) */
+  clientOptions: CustomClientOptionGroup[]
+  /** The currently selected Http Client */
+  selectedClient?: string
+  /** List of featured clients */
+  featuredClients: ClientOption[]
+  /** Event bus */
+  eventBus: WorkspaceEventBus
+  /** The locally selected client (for custom samples) */
+  localSelectedClient?: ClientOption | CustomClientOption
+}>()
+
+const emit = defineEmits<{
+  'update:localSelectedClient': [client: ClientOption | CustomClientOption]
+}>()
 
 const containerRef = ref<HTMLElement>()
 
@@ -49,16 +59,20 @@ const selectClient = (option: ClientOption | CustomClientOption) => {
     unfreeze()
   }, 300)
 
-  // Update the store
+  // Emit the local selected client update
+  emit('update:localSelectedClient', option)
+
+  // Update the global store only for non-custom samples
   if (option.clientKey !== 'custom') {
     eventBus.emit('workspace:update:selected-client', option.id)
   }
 }
 
 /** Calculates the targetKey from the selected client id */
-const selectedTargetKey = computed(
-  () => selectedClient?.split('/')[0] as TargetId | undefined,
-)
+const selectedTargetKey = computed(() => {
+  if (!selectedClient) return undefined
+  return selectedClient.split('/')[0] as TargetId | undefined
+})
 </script>
 <template>
   <div
@@ -84,7 +98,7 @@ const selectedTargetKey = computed(
     <!-- Client Dropdown -->
     <ScalarCombobox
       :filterFn="filterClientsByQuery"
-      :modelValue="findClient(clientOptions, selectedClient)"
+      :modelValue="localSelectedClient"
       :options="clientOptions"
       placement="bottom-end"
       teleport
@@ -93,18 +107,28 @@ const selectedTargetKey = computed(
         class="client-libraries client-libraries__select"
         :class="{
           'client-libraries__active':
-            selectedClient && !isFeaturedClient(selectedClient),
+            selectedClient &&
+            !isFeaturedClient(selectedClient as AvailableClient),
         }"
         type="button">
         <div
           aria-hidden="true"
           class="client-libraries-icon__more">
-          <template v-if="selectedClient && !isFeaturedClient(selectedClient)">
+          <template
+            v-if="
+              selectedClient &&
+              !isFeaturedClient(selectedClient as AvailableClient)
+            ">
             <div :class="`client-libraries-icon__${selectedTargetKey}`">
               <ScalarIcon
-                v-if="selectedTargetKey"
+                v-if="selectedTargetKey && !selectedClient.startsWith('custom')"
                 class="client-libraries-icon"
                 :icon="getIconByLanguageKey(selectedTargetKey)" />
+              <span
+                v-else
+                class="client-libraries-icon text-xs font-bold">
+                {{ localSelectedClient?.label?.charAt(0) ?? '?' }}
+              </span>
             </div>
           </template>
           <template v-else>
