@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { OperationCodeSample } from '@scalar/api-client/blocks/operation-code-sample'
+import { OperationCodeSample } from '@scalar/blocks/operation-code-sample'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'

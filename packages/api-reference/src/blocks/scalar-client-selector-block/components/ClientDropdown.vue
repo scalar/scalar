@@ -6,7 +6,7 @@ import {
   type ClientOption,
   type ClientOptionGroup,
   type CustomClientOption,
-} from '@scalar/api-client/blocks/operation-code-sample'
+} from '@scalar/blocks/operation-code-sample'
 import { ScalarCombobox } from '@scalar/components/combobox'
 import { ScalarIcon } from '@scalar/components/icon'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
