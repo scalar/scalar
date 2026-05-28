@@ -44,6 +44,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: './{packages,integrations}/**'
+          archive-output: 'true'
       - name: Copy and rename standalone.js to scalar.js
         run: |
           mkdir -p temp-artifacts
@@ -69,6 +70,18 @@ jobs:
           name: mock-server-docker-entrypoint
           path: packages/mock-server/docker/dist/docker-entrypoint.js
           retention-days: 3
+      # Tarball of every workspace dist/ produced above. Consumed by the
+      # restore-build composite so downstream JS jobs can fan out without
+      # rerunning the build.
+      - name: Upload workspace-dist artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: workspace-dist
+          path: workspace-dist.tar.gz
+          retention-days: 1
+          # The tarball is already gzip-compressed; skip the upload action's
+          # outer zip-compression pass.
+          compression-level: 0
       - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
         name: Upload webpack stats to RelativeCI
         uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
@@ -260,10 +273,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          packages: './{packages,integrations}/**'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
       - name: Knip
         run: pnpm lint:knip
 
@@ -278,10 +289,8 @@ jobs:
         shard-total: [3]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build packages
-        uses: ./.github/actions/build
-        with:
-          packages: './packages/**'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
       - name: Check built declaration alias imports
         if: matrix.shard-index == 1
         run: pnpm lint:check:dist-dts-aliases
@@ -315,10 +324,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build packages (workspace deps for projects)
-        uses: ./.github/actions/build
-        with:
-          packages: './packages/**'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
       - name: Run project tests
         run: |
           args=()
@@ -352,10 +359,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build packages
-        uses: ./.github/actions/build
-        with:
-          packages: './integrations/**'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
       - name: Run tests
         run: pnpm turbo --filter './integrations/**' test
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
@@ -384,10 +389,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build packages
-        uses: ./.github/actions/build
-        with:
-          packages: '@scalar/server-side-rendering...'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
       - name: Start SSR playground and verify it responds
         run: |
           pnpm --filter @scalar/server-side-rendering dev &
@@ -415,10 +418,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build packages
-        uses: ./.github/actions/build
-        with:
-          packages: '@scalar/api-reference...'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (@scalar/api-reference)
@@ -465,10 +466,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build scalar-app and dependencies
-        uses: ./.github/actions/build
-        with:
-          packages: 'scalar-app...'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (scalar-app)
@@ -510,10 +509,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build packages
-        uses: ./.github/actions/build
-        with:
-          packages: '@scalar/components...'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build storybook
@@ -559,10 +556,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build packages
-        uses: ./.github/actions/build
-        with:
-          packages: '@scalar/api-reference...'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run snapshot tests (@scalar/api-reference)
@@ -801,10 +796,14 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          packages: '@scalar-examples/web...'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+
+      # restore-build has already populated every workspace dependency's
+      # dist directory, so this is a single-package build of the examples
+      # wrapper itself (examples/* are not part of the workspace-dist tarball).
+      - name: Build @scalar-examples/web
+        run: pnpm --filter @scalar-examples/web build
 
       - name: Generate DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
@@ -846,10 +845,8 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Build workspace deps
-        uses: ./.github/actions/build
-        with:
-          packages: '@scalar/api-reference...'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
 
       - name: Build package root app
         run: pnpm --filter @scalar/api-reference exec vite build . -c ./vite.previews.config.ts
@@ -891,10 +888,8 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          packages: './packages/**'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
 
       - name: Generate DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
@@ -1070,10 +1065,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Build @scalar/galaxy
-        uses: ./.github/actions/build
-        with:
-          packages: '@scalar/galaxy...'
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
 
       - name: Extract version and generate preview version
         id: preview-version
