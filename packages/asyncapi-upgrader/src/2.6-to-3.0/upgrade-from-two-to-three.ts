@@ -1,4 +1,5 @@
 import { isObject } from '@scalar/helpers/object/is-object'
+import { slugify } from '@scalar/helpers/string/slugify'
 import type { UnknownObject } from '@scalar/types/utils'
 
 /** The AsyncAPI version produced by this upgrade step. */
@@ -183,7 +184,7 @@ function upgradeChannelsAndOperations(document: UnknownObject): void {
       continue
     }
 
-    const channelId = uniqueKey(slugify(path), usedChannelIds)
+    const channelId = uniqueKey(slugifyChannelPath(path), usedChannelIds)
     const newChannel: UnknownObject = { address: path }
     const messages: Record<string, UnknownObject> = {}
 
@@ -294,14 +295,14 @@ function buildOperation(
 }
 
 /**
- * Slugify a channel path or other identifier source: lowercase, replace runs of non-alphanumerics
- * with `-`, strip `-` at the ends. Empty input collapses to an empty string — the caller falls back.
+ * Slugify a channel path (e.g. `user/{id}/signedup` → `user-id-signedup`).
+ *
+ * `@scalar/helpers/string/slugify` drops non-word characters outright, but channel paths use `/`,
+ * `.`, `{`, and `}` as logical separators we want preserved as hyphens — so we pre-replace any run
+ * of non-alphanumerics with a space and let the shared slugify collapse those into hyphens.
  */
-function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+function slugifyChannelPath(value: string): string {
+  return slugify(value.replace(/[^a-zA-Z0-9]+/g, ' '))
 }
 
 /** Returns the base key if unused, otherwise appends `-2`, `-3`, … until unique. Mutates `usedKeys`. */
