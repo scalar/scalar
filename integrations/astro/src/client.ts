@@ -12,9 +12,7 @@
  * after a manual refresh on Starlight pages and other Astro sites that use
  * `<ClientRouter />`.
  */
-
-/** Default CDN, mirroring `@scalar/client-side-rendering`. */
-const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+import { DEFAULT_CDN } from '@scalar/client-side-rendering'
 
 /** A mounted API reference, as returned by `window.Scalar.createApiReference`. */
 type ScalarInstance = {
@@ -143,20 +141,18 @@ const mountContainer = (element: HTMLElement): void => {
 
   void ensureScalar(cdn)
     .then((Scalar) => {
-      const current = getState()
-
       // Mount only if this page is still live (no view transition happened
       // while the CDN loaded) and the element is still in the document.
-      if (current.generation === generation && element.isConnected && Scalar?.createApiReference) {
-        current.instances.set(element, Scalar.createApiReference(element, configuration))
+      if (state.generation === generation && element.isConnected && Scalar?.createApiReference) {
+        state.instances.set(element, Scalar.createApiReference(element, configuration))
       }
     })
     .catch((error) => console.error('[@scalar/astro] Could not mount the API reference.', error))
     .finally(() => {
       // Release the pending slot — but only if a view transition has not
       // already cleared it, in which case the slot belongs to a newer attempt.
-      if (getState().generation === generation) {
-        getState().pending.delete(element)
+      if (state.generation === generation) {
+        state.pending.delete(element)
       }
     })
 }

@@ -38,7 +38,7 @@ const { cdn, pageTitle, ...config } = finalConfiguration
     <Fragment>
       <div
         data-scalar-client
-        data-configuration={JSON.stringify(getConfiguration(config as Record<string, unknown>))}
+        data-configuration={JSON.stringify(getConfiguration(config))}
         data-cdn={cdn}></div>
       <script>
         import { initScalarClient } from './client'
