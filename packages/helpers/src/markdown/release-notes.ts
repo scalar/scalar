@@ -120,7 +120,10 @@ export const buildReleaseNotesPreamble = (displayName?: string): string => {
  *
  * The output is deterministic for a given preamble and entry list.
  */
-export const serializeReleaseNotes = (entries: ReleaseNoteEntry[], options: { preamble?: string } = {}): string => {
+export const serializeReleaseNotes = (
+  entries: readonly ReleaseNoteEntry[],
+  options: { preamble?: string } = {},
+): string => {
   const preamble = options.preamble ?? buildReleaseNotesPreamble()
   const sections = entries.map(serializeEntry)
   const body = sections.join('\n')
