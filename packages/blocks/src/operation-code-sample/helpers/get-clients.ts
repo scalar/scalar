@@ -1,11 +1,10 @@
 import type { TargetId } from '@scalar/types/snippetz'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 
-import type { ClientOptionGroup, CustomClientOption } from '@/v2/blocks/operation-code-sample'
-import { formatLanguage } from '@/v2/blocks/operation-code-sample/helpers/format-language'
-import { getCustomClientIds } from '@/v2/blocks/operation-code-sample/helpers/generate-client-options'
-import { CODE_EXAMPLES_GROUP_LABEL } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-samples'
-import type { CustomClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
+import { formatLanguage } from './format-language'
+import { getCustomClientIds } from './generate-client-options'
+import { CODE_EXAMPLES_GROUP_LABEL } from './get-custom-code-samples'
+import type { ClientOptionGroup, CustomClientOption, CustomClientOptionGroup } from '../types'
 
 /**
  * Merges custom code samples with the client options
