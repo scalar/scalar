@@ -38,9 +38,9 @@ function upgradeServers(document: UnknownObject): void {
   const result: Record<string, UnknownObject> = {}
   const usedKeys = new Set<string>()
 
-  document.servers.forEach((server, index) => {
+  for (const [index, server] of document.servers.entries()) {
     if (!isObject(server)) {
-      return
+      continue
     }
 
     const upgraded: UnknownObject = {}
@@ -57,7 +57,7 @@ function upgradeServers(document: UnknownObject): void {
     const key = uniqueServerKey(typeof server.description === 'string' ? server.description : '', index, usedKeys)
     usedKeys.add(key)
     result[key] = upgraded
-  })
+  }
 
   document.servers = result
 }
@@ -155,7 +155,13 @@ function upgradeChannelParameters(parameters: unknown): Record<string, UnknownOb
   return result
 }
 
-/** `stream: { framing, read, write }` → `channels['/']` with subscribe/publish. Framing is dropped. */
+/**
+ * `stream: { framing, read, write }` → `channels['/']` with subscribe/publish. Framing is dropped.
+ *
+ * AsyncAPI 1.x makes `topics`, `stream`, and `events` mutually exclusive at the document root, so a
+ * collision on the `/` channel between this transform, `upgradeEvents`, and any user-defined topic
+ * cannot happen in valid input.
+ */
 function upgradeStream(document: UnknownObject): void {
   if (!isObject(document.stream)) {
     return

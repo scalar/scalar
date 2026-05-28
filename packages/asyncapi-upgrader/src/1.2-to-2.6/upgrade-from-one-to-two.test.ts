@@ -137,6 +137,35 @@ describe('upgradeFromOneToTwo', () => {
     })
   })
 
+  it('wraps publish/subscribe oneOf with inline messages in a message object', () => {
+    const document = upgradeFromOneToTwo({
+      asyncapi: '1.2.0',
+      topics: {
+        'user.events': {
+          publish: {
+            oneOf: [
+              { summary: 'Signup', payload: { type: 'object', properties: { id: { type: 'string' } } } },
+              { summary: 'Login', payload: { type: 'object', properties: { token: { type: 'string' } } } },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(document.channels).toEqual({
+      'user.events': {
+        publish: {
+          message: {
+            oneOf: [
+              { summary: 'Signup', payload: { type: 'object', properties: { id: { type: 'string' } } } },
+              { summary: 'Login', payload: { type: 'object', properties: { token: { type: 'string' } } } },
+            ],
+          },
+        },
+      },
+    })
+  })
+
   it('wraps inline publish/subscribe message in a message object', () => {
     const document = upgradeFromOneToTwo({
       asyncapi: '1.2.0',
