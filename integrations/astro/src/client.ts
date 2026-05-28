@@ -100,11 +100,15 @@ const loadCdn = (cdn: string): Promise<void> => {
   return load
 }
 
-/** Resolve the global `Scalar` object, loading the CDN bundle if necessary. */
+/**
+ * Resolve the global `Scalar` object, loading the requested CDN bundle.
+ *
+ * Always routes through `loadCdn`, which deduplicates by URL. Skipping when
+ * `window.Scalar` happens to be set would make a second reference with a
+ * different `data-cdn` silently reuse the first bundle.
+ */
 const ensureScalar = async (cdn: string): Promise<ScalarGlobal | undefined> => {
-  if (!(window as ScalarWindow).Scalar) {
-    await loadCdn(cdn)
-  }
+  await loadCdn(cdn)
 
   return (window as ScalarWindow).Scalar
 }

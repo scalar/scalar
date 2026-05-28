@@ -8,12 +8,15 @@ type ScalarTestWindow = Window & {
     createApiReference: (element: Element, configuration: unknown) => { destroy: () => void }
   }
   __scalarAstroClient?: {
+    initialized?: boolean
     instances: Map<unknown, unknown>
     pending: Set<unknown>
-    cdnLoads: Map<unknown, unknown>
+    cdnLoads: Map<unknown, Promise<void>>
     generation: number
   }
 }
+
+const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
 
 /** A reference recorded by the fake `window.Scalar.createApiReference`. */
 type Created = {
@@ -22,17 +25,32 @@ type Created = {
   destroy: ReturnType<typeof vi.fn>
 }
 
-/** Install a fake `window.Scalar` and collect every reference it creates. */
-const installScalar = (): Created[] => {
+/**
+ * Install a fake `window.Scalar` and collect every reference it creates.
+ *
+ * Also marks `cdn` as already loaded, mirroring reality: `window.Scalar` only
+ * exists because its CDN script ran. Without this, `ensureScalar` would append
+ * a `<script>` and wait for a `load` event that jsdom never fires.
+ */
+const installScalar = (cdn: string = DEFAULT_CDN): Created[] => {
   const created: Created[] = []
+  const win = window as ScalarTestWindow
 
-  ;(window as ScalarTestWindow).Scalar = {
+  win.Scalar = {
     createApiReference: (element, configuration) => {
       const destroy = vi.fn()
       created.push({ element, configuration, destroy })
       return { destroy }
     },
   }
+
+  win.__scalarAstroClient ??= {
+    instances: new Map(),
+    pending: new Set(),
+    cdnLoads: new Map(),
+    generation: 0,
+  }
+  win.__scalarAstroClient.cdnLoads.set(cdn, Promise.resolve())
 
   return created
 }
@@ -144,6 +162,22 @@ describe('client', () => {
     await flush()
 
     expect(document.head.querySelectorAll('script')).toHaveLength(1)
+  })
+
+  it('loads a container-specific CDN even when Scalar is already defined', async () => {
+    // Scalar was loaded earlier in the session from the default CDN.
+    installScalar()
+
+    // A new reference asks for its own bundle.
+    createContainer({}, 'https://cdn.example.com/api-reference')
+
+    initScalarClient()
+    await flush()
+
+    // The requested CDN is fetched instead of silently reusing the existing
+    // global, which may belong to a different (older) bundle.
+    const scripts = Array.from(document.head.querySelectorAll('script')).map((script) => script.getAttribute('src'))
+    expect(scripts).toContain('https://cdn.example.com/api-reference')
   })
 
   it('mounts containers added by a client-side navigation', async () => {
