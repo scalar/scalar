@@ -44,9 +44,11 @@
     "@hono/node-server": "catalog:*",
     "@scalar/helpers": "workspace:*",
     "hono": "catalog:*",
-    "js-base64": "catalog:*"
+    "js-base64": "catalog:*",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@types/ws": "catalog:*",
     "vite": "catalog:*"
   }
 }

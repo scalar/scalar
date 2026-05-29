@@ -47,6 +47,7 @@ catalogs:
     '@types/react': ^19.2.7
     '@types/semver': 7.5.8
     '@types/supertest': 6.0.2
+    '@types/ws': 8.18.1
     '@typescript-eslint/parser': ^8.53.0
     '@vitejs/plugin-react': 6.0.1
     '@vitejs/plugin-vue': ^6.0.3
@@ -106,6 +107,7 @@ catalogs:
     yaml: ^2.8.3
     zod: ^4.3.5
     posthog-js: 1.363.2
+    ws: 8.21.0
 ignoredBuiltDependencies:
   - '@firebase/util'
   - core-js
