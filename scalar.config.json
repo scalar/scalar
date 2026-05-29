@@ -130,11 +130,11 @@
         },
         {
           "from": "/scalar/access",
-          "to": "/products/docs/access"
+          "to": "/products/docs/configuration/private-docs"
         },
         {
           "from": "/scalar-api",
-          "to": "/tools/api"
+          "to": "/docs/tools/api"
         },
         {
           "from": "/scalar/scalar-docs/publish-scalar-projects-using-github-actions",
@@ -149,28 +149,16 @@
           "to": "/products/api-client/download"
         },
         {
-          "from": "/scalar/introduction",
-          "to": "/"
-        },
-        {
-          "from": "/scalar/pricing",
-          "to": "/pricing"
-        },
-        {
-          "from": "/scalar/access",
-          "to": "/products/docs/access"
-        },
-        {
           "from": "/scalar/scalar-docs/getting-started",
           "to": "/products/docs/getting-started"
         },
         {
           "from": "/scalar/scalar-docs/github-sync",
-          "to": "/products/docs/github-sync"
+          "to": "/products/docs/configuration/scalar.config.json"
         },
         {
           "from": "/scalar/scalar-docs/github-actions",
-          "to": "/products/docs/github-actions"
+          "to": "/products/docs/deployment/github-actions"
         },
         {
           "from": "/scalar/scalar-docs/redirects",
@@ -298,11 +286,11 @@
         },
         {
           "from": "/scalar/scalar-cli/getting-started",
-          "to": "/tools/cli/getting-started"
+          "to": "/docs/tools/cli/getting-started"
         },
         {
           "from": "/scalar/scalar-cli/commands",
-          "to": "/tools/cli/commands"
+          "to": "/docs/tools/cli/commands"
         },
         {
           "from": "/scalar/scalar-api-references/getting-started",
@@ -506,51 +494,51 @@
         },
         {
           "from": "/scalar/scalar-mock-server/getting-started",
-          "to": "/tools/mock-server/getting-started"
+          "to": "/docs/tools/mock-server/getting-started"
         },
         {
           "from": "/scalar/scalar-mock-server/custom-request-handler",
-          "to": "/tools/mock-server/custom-request-handler"
+          "to": "/docs/tools/mock-server/custom-request-handler"
         },
         {
           "from": "/scalar/scalar-mock-server/data-seeding",
-          "to": "/tools/mock-server/data-seeding"
+          "to": "/docs/tools/mock-server/data-seeding"
         },
         {
           "from": "/scalar/scalar-mock-server/docker",
-          "to": "/tools/mock-server/docker"
+          "to": "/docs/tools/mock-server/docker"
         },
         {
           "from": "/products/mock-server",
-          "to": "/tools/mock-server/getting-started"
+          "to": "/docs/tools/mock-server/getting-started"
         },
         {
           "from": "/products/mock-server/getting-started",
-          "to": "/tools/mock-server/getting-started"
+          "to": "/docs/tools/mock-server/getting-started"
         },
         {
           "from": "/products/mock-server/custom-request-handler",
-          "to": "/tools/mock-server/custom-request-handler"
+          "to": "/docs/tools/mock-server/custom-request-handler"
         },
         {
           "from": "/products/mock-server/data-seeding",
-          "to": "/tools/mock-server/data-seeding"
+          "to": "/docs/tools/mock-server/data-seeding"
         },
         {
           "from": "/products/mock-server/docker",
-          "to": "/tools/mock-server/docker"
+          "to": "/docs/tools/mock-server/docker"
         },
         {
           "from": "/products/mock-server/changelog",
-          "to": "/changelog/mock-server"
+          "to": "/docs/changelog/mock-server"
         },
         {
           "from": "/products/api-references/changelog",
-          "to": "/changelog/api-reference"
+          "to": "/docs/changelog/api-reference"
         },
         {
-          "from": "/download",
-          "to": "/products/api-client/download"
+          "from": "/tools/mock-server/changelog",
+          "to": "/docs/changelog/mock-server"
         },
         {
           "from": "/terms-and-conditions",
@@ -559,78 +547,6 @@
         {
           "from": "/privacy-policy",
           "to": "/legal/privacy-policy"
-        },
-        {
-          "from": "/guides",
-          "to": "/migration"
-        },
-        {
-          "from": "/tools",
-          "to": "/docs/tools"
-        },
-        {
-          "from": "/tools/cli",
-          "to": "/docs/tools/cli"
-        },
-        {
-          "from": "/tools/cli/getting-started",
-          "to": "/docs/tools/cli/getting-started"
-        },
-        {
-          "from": "/tools/cli/authentication",
-          "to": "/docs/tools/cli/authentication"
-        },
-        {
-          "from": "/tools/cli/commands",
-          "to": "/docs/tools/cli/commands"
-        },
-        {
-          "from": "/tools/mock-server",
-          "to": "/docs/tools/mock-server"
-        },
-        {
-          "from": "/tools/mock-server/getting-started",
-          "to": "/docs/tools/mock-server/getting-started"
-        },
-        {
-          "from": "/tools/mock-server/docker",
-          "to": "/docs/tools/mock-server/docker"
-        },
-        {
-          "from": "/tools/mock-server/custom-request-handler",
-          "to": "/docs/tools/mock-server/custom-request-handler"
-        },
-        {
-          "from": "/tools/mock-server/agent-skills",
-          "to": "/docs/tools/mock-server/agent-skills"
-        },
-        {
-          "from": "/tools/mock-server/data-seeding",
-          "to": "/docs/tools/mock-server/data-seeding"
-        },
-        {
-          "from": "/tools/mock-server/changelog",
-          "to": "/docs/tools/mock-server/changelog"
-        },
-        {
-          "from": "/tools/openapi-upgrader",
-          "to": "/docs/tools/openapi-upgrader"
-        },
-        {
-          "from": "/tools/openapi-upgrader/getting-started",
-          "to": "/docs/tools/openapi-upgrader/getting-started"
-        },
-        {
-          "from": "/tools/openapi-upgrader/changelog",
-          "to": "/docs/tools/openapi-upgrader/changelog"
-        },
-        {
-          "from": "/tools/api",
-          "to": "/docs/tools/api"
-        },
-        {
-          "from": "/migration",
-          "to": "/docs/migration"
         },
         {
           "from": "/migration/swagger-ui",
@@ -651,126 +567,6 @@
         {
           "from": "/migration/zuplo",
           "to": "/docs/migration/zuplo"
-        },
-        {
-          "from": "/sso",
-          "to": "/docs/sso"
-        },
-        {
-          "from": "/sso/getting-started",
-          "to": "/docs/sso/getting-started"
-        },
-        {
-          "from": "/sso/providers",
-          "to": "/docs/sso/providers"
-        },
-        {
-          "from": "/sso/providers/auth0",
-          "to": "/docs/sso/providers/auth0"
-        },
-        {
-          "from": "/sso/providers/google",
-          "to": "/docs/sso/providers/google"
-        },
-        {
-          "from": "/sso/providers/microsoft-entra-id",
-          "to": "/docs/sso/providers/microsoft-entra-id"
-        },
-        {
-          "from": "/sso/providers/okta",
-          "to": "/docs/sso/providers/okta"
-        },
-        {
-          "from": "/sso/providers/onelogin",
-          "to": "/docs/sso/providers/onelogin"
-        },
-        {
-          "from": "/sso/providers/ping-identity",
-          "to": "/docs/sso/providers/ping-identity"
-        },
-        {
-          "from": "/changelog",
-          "to": "/docs/changelog"
-        },
-        {
-          "from": "/changelog/api-client",
-          "to": "/docs/changelog/api-client"
-        },
-        {
-          "from": "/changelog/api-reference",
-          "to": "/docs/changelog/api-reference"
-        },
-        {
-          "from": "/changelog/agent",
-          "to": "/docs/changelog/agent"
-        },
-        {
-          "from": "/changelog/mock-server",
-          "to": "/docs/changelog/mock-server"
-        },
-        {
-          "from": "/blog",
-          "to": "/docs/blog"
-        },
-        {
-          "from": "/guides/migration",
-          "to": "/migration"
-        },
-        {
-          "from": "/guides/migration/swagger-ui",
-          "to": "/migration/swagger-ui"
-        },
-        {
-          "from": "/guides/migration/stoplight",
-          "to": "/migration/stoplight"
-        },
-        {
-          "from": "/guides/migration/api-hub",
-          "to": "/migration/api-hub"
-        },
-        {
-          "from": "/guides/migration/bump",
-          "to": "/migration/bump"
-        },
-        {
-          "from": "/guides/migration/zuplo",
-          "to": "/migration/zuplo"
-        },
-        {
-          "from": "/guides/sso",
-          "to": "/sso"
-        },
-        {
-          "from": "/guides/sso/getting-started",
-          "to": "/sso/getting-started"
-        },
-        {
-          "from": "/guides/sso/providers",
-          "to": "/sso/providers"
-        },
-        {
-          "from": "/guides/sso/providers/auth0",
-          "to": "/sso/providers/auth0"
-        },
-        {
-          "from": "/guides/sso/providers/google",
-          "to": "/sso/providers/google"
-        },
-        {
-          "from": "/guides/sso/providers/microsoft-entra-id",
-          "to": "/sso/providers/microsoft-entra-id"
-        },
-        {
-          "from": "/guides/sso/providers/okta",
-          "to": "/sso/providers/okta"
-        },
-        {
-          "from": "/guides/sso/providers/onelogin",
-          "to": "/sso/providers/onelogin"
-        },
-        {
-          "from": "/guides/sso/providers/ping-identity",
-          "to": "/sso/providers/ping-identity"
         },
         {
           "from": "/products/docs/github-actions",
@@ -798,7 +594,7 @@
         },
         {
           "from": "/blog/oss-pledge-2024",
-          "to": "/blog/posts/2024-09-21-oss-pledge"
+          "to": "/blog/posts/2024-09-01-oss-pledge"
         }
       ]
     }
