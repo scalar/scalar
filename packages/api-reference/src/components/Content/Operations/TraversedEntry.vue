@@ -199,6 +199,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     <Model
       v-else-if="isModel(entry) && document.components?.schemas?.[entry.name]"
       :id="entry.id"
+      :document
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
       :name="entry.name"

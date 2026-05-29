@@ -3,19 +3,24 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import { ScalarIconCaretRight } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { type OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import {
+  type OpenApiDocument,
+  type OperationObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
-const { method, name, url, options } = defineProps<{
+const { method, name, url, options, document } = defineProps<{
   callback: OperationObject
   method: HttpMethodType
   name: string
   url: string
   eventBus: WorkspaceEventBus | null
+  /** The document the callback belongs to, used to resolve schema references for display */
+  document?: OpenApiDocument
   options: Pick<
     OperationProps['options'],
     'hideModels' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
@@ -47,6 +52,7 @@ const { method, name, url, options } = defineProps<{
     <!-- Body -->
     <div class="callback-operation-container flex flex-col gap-2">
       <OperationParameters
+        :document="document"
         :eventBus="eventBus"
         :options="options"
         :parameters="
@@ -57,6 +63,7 @@ const { method, name, url, options } = defineProps<{
       <!-- Responses -->
       <OperationResponses
         :collapsableItems="false"
+        :document
         :eventBus
         :options
         :responses="callback.responses" />

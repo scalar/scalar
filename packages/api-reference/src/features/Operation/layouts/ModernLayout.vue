@@ -6,6 +6,7 @@ import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type {
+  OpenApiDocument,
   OperationObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -41,6 +42,7 @@ import { XBadges } from '@/features/x-badges'
 
 const {
   clientOptions,
+  document,
   eventBus,
   isWebhook,
   method,
@@ -69,6 +71,8 @@ const {
     selectedSecuritySchemes: SecuritySchemeObjectSecret[]
     /** Required/optional security state for the badge next to the path */
     requiredSecurity: RequiredSecurity
+    /** The document the operation belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
   }
 >()
 
@@ -188,6 +192,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           <OperationParameters
             v-model:selectedContentType="selectedRequestBodyContentType"
             :breadcrumb="[id]"
+            :document
             :eventBus
             :options
             :parameters="operation.parameters"
@@ -195,6 +200,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           <OperationResponses
             :breadcrumb="[id]"
             :collapsableItems="!options.expandAllResponses"
+            :document
             :eventBus
             :options
             :responses="operation.responses" />
@@ -205,6 +211,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
               v-if="operation.callbacks"
               :callbacks="operation.callbacks"
               class="mt-6"
+              :document
               :eventBus
               :options
               :path />

@@ -9,6 +9,7 @@ import { ScalarIconCaretRight } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
+  OpenApiDocument,
   ParameterObject,
   ResponseObject,
   SchemaObject,
@@ -23,12 +24,14 @@ import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
 import { getParameterExamples } from './helpers/get-parameter-examples'
 
-const { name, parameter, options, collapsableItems } = defineProps<{
+const { name, parameter, options, collapsableItems, document } = defineProps<{
   parameter: ParameterObject | ResponseObject
   name: string
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
   collapsableItems?: boolean
+  /** The document the operation belongs to, used to resolve schema references for display */
+  document?: OpenApiDocument
   options: Pick<
     OperationProps['options'],
     'hideModels' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
@@ -161,6 +164,7 @@ const shouldCollapse = computed<boolean>(() =>
         <Headers
           v-if="headers"
           :breadcrumb="breadcrumb"
+          :document="document"
           :eventBus="eventBus"
           :headers="headers"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
@@ -181,6 +185,7 @@ const shouldCollapse = computed<boolean>(() =>
             hideWriteOnly: true,
             orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
             orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+            document,
           }"
           :required="'required' in parameter && parameter.required"
           :schema="value" />

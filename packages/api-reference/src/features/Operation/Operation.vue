@@ -148,6 +148,7 @@ const selectedSecuritySchemes = computed(() =>
       v-if="options.layout === 'classic'"
       :id
       :clientOptions
+      :document
       :eventBus
       :isCollapsed
       :isWebhook
@@ -163,6 +164,7 @@ const selectedSecuritySchemes = computed(() =>
       v-else
       :id
       :clientOptions
+      :document
       :eventBus
       :isWebhook
       :method

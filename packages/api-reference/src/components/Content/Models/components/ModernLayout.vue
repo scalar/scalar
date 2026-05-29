@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
 
 import { Schema, SchemaHeading } from '../../Schema'
 
-const { schema, options } = defineProps<{
+const { schema, options, document } = defineProps<{
   id: string
   name: string
   schema: SchemaObject
   isCollapsed: boolean
   eventBus: WorkspaceEventBus
+  /** The document the model belongs to, used to resolve schema references for display */
+  document?: OpenApiDocument
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
@@ -44,7 +49,7 @@ const { schema, options } = defineProps<{
         hideHeading
         :level="1"
         noncollapsible
-        :options="options"
+        :options="{ ...options, document }"
         :schema="schema" />
     </ScalarErrorBoundary>
   </CompactSection>
