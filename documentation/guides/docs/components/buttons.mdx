@@ -11,7 +11,6 @@ Buttons are interactive elements that link to external resources or other pages.
 | `title` | `string` | _required_ | The label shown on the button. |
 | `href` | `string` | _required_ | The URL the button links to. |
 | `icon` | `string` | — | Icon shown before the label. Accepts a Scalar icon key (e.g. `phosphor/regular/house`) or a URL. |
-| `icon-dark` | `string` | — | Dark-mode variant of `icon`. Falls back to `icon` when not set. |
 | `variant` | `'primary' \| 'secondary'` | `primary` | Visual style of the button. |
 | `target` | `'_blank' \| '_self'` | `_blank` | Where the link opens. `_blank` adds `rel="noopener noreferrer"` automatically. |
 
@@ -88,36 +87,6 @@ Buttons are interactive elements that link to external resources or other pages.
   title="Learn More"
   href="https://scalar.com"
   variant="secondary"
-/>
-```
-</CodeGroup>
-
-### Light and Dark Icons
-
-<Preview>
-  <Button
-    title="Visit Website"
-    href="https://scalar.com"
-    icon="https://cdn.scalar.com/images/logo-light.svg"
-    icon-dark="https://cdn.scalar.com/images/logo-dark.svg"
-  />
-</Preview>
-
-<CodeGroup>
-```md Markdown
-<scalar-button
-  title="Visit Website"
-  href="https://scalar.com"
-  icon="https://cdn.scalar.com/images/logo-light.svg"
-  icon-dark="https://cdn.scalar.com/images/logo-dark.svg">
-</scalar-button>
-```
-```mdx MDX
-<Button
-  title="Visit Website"
-  href="https://scalar.com"
-  icon="https://cdn.scalar.com/images/logo-light.svg"
-  icon-dark="https://cdn.scalar.com/images/logo-dark.svg"
 />
 ```
 </CodeGroup>
