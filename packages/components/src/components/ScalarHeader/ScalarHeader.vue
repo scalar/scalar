@@ -25,8 +25,7 @@ export default {}
 </script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-
-const { cx } = useBindCx()
+import { computed, useSlots } from 'vue'
 
 defineSlots<{
   /** The first section of the header, typically on the left */
@@ -36,22 +35,39 @@ defineSlots<{
   /** The last section of the header, typically on the right */
   end?(): unknown
 }>()
+
+const { cx } = useBindCx()
+const slots = useSlots()
+
+/** Middle slot is optional; layout differs so start/end are not forced to equal width */
+const hasCenterSlot = computed(() => Boolean(slots.default))
 </script>
 <template>
   <header
     v-bind="
       cx(
-        'flex min-h-header items-center justify-between gap-2 border-b px-3 min-w-min',
-        '*:flex *:flex-1 *:items-center *:gap-1',
+        'flex min-h-header min-w-0 items-center justify-between gap-2 border-b px-3',
         'bg-b-header-1 text-c-header border-border-header',
       )
     ">
-    <div class="justify-start"><slot name="start" /></div>
+    <div
+      v-bind="
+        cx(
+          'flex items-center gap-1',
+          hasCenterSlot
+            ? 'shrink-0 justify-start'
+            : 'min-w-0 flex-1 justify-start',
+        )
+      ">
+      <slot name="start" />
+    </div>
     <div
       v-if="$slots.default"
-      class="justify-center">
+      class="flex min-w-0 flex-1 items-center justify-center gap-1">
       <slot />
     </div>
-    <div class="justify-end"><slot name="end" /></div>
+    <div class="flex shrink-0 items-center justify-end gap-1">
+      <slot name="end" />
+    </div>
   </header>
 </template>
