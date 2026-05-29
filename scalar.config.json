@@ -2639,7 +2639,7 @@
                       "links": [
                         {
                           "rel": "canonical",
-                          "href": "https://scalar.com/docs/migration/swagger-ui"
+                          "href": "https://scalar.com/resources/migration/swagger-ui"
                         }
                       ],
                       "meta": [
@@ -2700,7 +2700,7 @@
                       "links": [
                         {
                           "rel": "canonical",
-                          "href": "https://scalar.com/docs/sso/getting-started"
+                          "href": "https://scalar.com/resources/sso/getting-started"
                         }
                       ],
                       "meta": [
@@ -2779,7 +2779,7 @@
                     "links": [
                       {
                         "rel": "canonical",
-                        "href": "https://scalar.com/docs/changelog"
+                        "href": "https://scalar.com/resources/changelog"
                       }
                     ],
                     "meta": [
