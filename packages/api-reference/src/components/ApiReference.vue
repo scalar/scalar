@@ -331,15 +331,14 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 })
 
 /**
- * The active document narrowed to an OpenAPI document.
- *
- * api-reference is OpenAPI-native, so AsyncAPI documents are surfaced as
- * undefined to downstream components.
+ * The active document passed to the search modal. Both OpenAPI and AsyncAPI
+ * documents are surfaced so the search index can pick up info.description
+ * headings from either spec; AsyncAPI-specific entries (channels, operations,
+ * messages) are not indexed yet.
  */
-const activeOpenApiDocument = computed(() => {
-  const doc = workspaceStore.workspace.activeDocument
-  return isOpenApiDocument(doc) ? doc : undefined
-})
+const activeSearchableDocument = computed(
+  () => workspaceStore.workspace.activeDocument,
+)
 
 /**
  * Create top level sidebar entries for each document
@@ -1092,7 +1091,7 @@ const showMCPButton = computed(() => {
           <SearchButton
             v-if="!mergedConfig.hideSearch"
             class="my-2"
-            :document="activeOpenApiDocument"
+            :document="activeSearchableDocument"
             :eventBus="eventBus"
             :hideModels="mergedConfig.hideModels"
             :searchHotKey="mergedConfig.searchHotKey"
@@ -1128,7 +1127,7 @@ const showMCPButton = computed(() => {
                 v-if="!mergedConfig.hideSearch"
                 class="flex gap-1.5 px-3 pt-3">
                 <SearchButton
-                  :document="activeOpenApiDocument"
+                  :document="activeSearchableDocument"
                   :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
                   :searchHotKey="mergedConfig.searchHotKey" />
@@ -1222,7 +1221,7 @@ const showMCPButton = computed(() => {
               <SearchButton
                 v-if="!mergedConfig.hideSearch"
                 class="t-doc__sidebar max-w-64"
-                :document="activeOpenApiDocument"
+                :document="activeSearchableDocument"
                 :eventBus="eventBus"
                 :hideModels="mergedConfig.hideModels"
                 :searchHotKey="mergedConfig.searchHotKey" />

@@ -1,3 +1,4 @@
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { FuseResult } from 'fuse.js'
 import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
@@ -9,9 +10,9 @@ import type { FuseData } from '../types'
 const MAX_SEARCH_RESULTS = 25
 
 /**
- * Creates the search index from an OpenAPI document.
+ * Creates the search index from an OpenAPI or AsyncAPI document.
  */
-export function useSearchIndex(document: MaybeRefOrGetter<OpenApiDocument | undefined>) {
+export function useSearchIndex(document: MaybeRefOrGetter<OpenApiDocument | AsyncApiDocument | undefined>) {
   const searchIndex = computed<FuseData[]>(() => createSearchIndex(toValue(document)))
 
   /** When the document changes we replace the search index */
