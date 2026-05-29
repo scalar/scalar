@@ -1,5 +1,7 @@
 ---
-import { getConfiguration, renderApiReference, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
+import { renderApiReference, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
+
+import ScalarClient from './ScalarClient.astro'
 
 export interface Props {
   configuration: Partial<HtmlRenderingConfiguration>
@@ -35,18 +37,8 @@ const { cdn, pageTitle, ...config } = finalConfiguration
 
 {
   renderMode === 'client' ? (
-    <Fragment>
-      <div
-        data-scalar-client
-        data-configuration={JSON.stringify(getConfiguration(config))}
-        data-cdn={cdn}></div>
-      <script>
-        import { initScalarClient } from './client'
-
-        initScalarClient()
-      </script>
-    </Fragment>
+    <ScalarClient config={config} cdn={cdn} />
   ) : (
-    <div set:html={renderApiReference({ config, cdn, pageTitle })}></div>
+    <div set:html={renderApiReference({ config, cdn, pageTitle })} />
   )
 }

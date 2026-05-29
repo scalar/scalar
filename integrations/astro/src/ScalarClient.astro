@@ -1,0 +1,18 @@
+---
+import { getConfiguration, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
+
+export interface Props {
+  config: Omit<Partial<HtmlRenderingConfiguration>, 'cdn' | 'pageTitle'>
+  cdn?: string
+}
+
+const { config, cdn } = Astro.props
+---
+
+<div data-scalar-client data-configuration={JSON.stringify(getConfiguration(config))} data-cdn={cdn}></div>
+
+<script>
+  import { initScalarClient } from './client'
+
+  initScalarClient()
+</script>
