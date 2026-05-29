@@ -1,5 +1,5 @@
 # Default code owners (overwritten by more specific entries)
-* @marclave @hanspagel @amritk
+* @marclave @hanspagel @amritk @bgrcs
 
 # Changesets
 /.changeset
