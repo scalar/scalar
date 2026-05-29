@@ -1205,9 +1205,6 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
-      '@scalar/json-magic':
-        specifier: workspace:*
-        version: link:../json-magic
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -1241,9 +1238,6 @@ importers:
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
-      '@types/har-format':
-        specifier: ^1.2.16
-        version: 1.2.16
       '@vueuse/core':
         specifier: catalog:*
         version: 13.9.0(vue@3.5.30(typescript@5.9.3))
