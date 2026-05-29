@@ -614,151 +614,91 @@
         },
         {
           "from": "/blog",
-          "to": "/docs/blog"
+          "to": "/resources/blog"
         },
         {
           "from": "/changelog",
-          "to": "/docs/changelog"
+          "to": "/resources/changelog"
         },
         {
           "from": "/changelog/agent",
-          "to": "/docs/changelog/agent"
+          "to": "/resources/changelog/agent"
         },
         {
           "from": "/changelog/api-client",
-          "to": "/docs/changelog/api-client"
+          "to": "/resources/changelog/api-client"
         },
         {
           "from": "/changelog/api-reference",
-          "to": "/docs/changelog/api-reference"
+          "to": "/resources/changelog/api-reference"
         },
         {
           "from": "/changelog/mock-server",
-          "to": "/docs/changelog/mock-server"
+          "to": "/resources/changelog/mock-server"
         },
         {
           "from": "/guides",
-          "to": "/docs/migration"
+          "to": "/resources/migration"
         },
         {
           "from": "/guides/migration",
-          "to": "/docs/migration"
+          "to": "/resources/migration"
         },
         {
           "from": "/guides/migration/api-hub",
-          "to": "/docs/migration/api-hub"
+          "to": "/resources/migration/api-hub"
         },
         {
           "from": "/guides/migration/bump",
-          "to": "/docs/migration/bump"
+          "to": "/resources/migration/bump"
         },
         {
           "from": "/guides/migration/stoplight",
-          "to": "/docs/migration/stoplight"
+          "to": "/resources/migration/stoplight"
         },
         {
           "from": "/guides/migration/swagger-ui",
-          "to": "/docs/migration/swagger-ui"
+          "to": "/resources/migration/swagger-ui"
         },
         {
           "from": "/guides/migration/zuplo",
-          "to": "/docs/migration/zuplo"
+          "to": "/resources/migration/zuplo"
         },
         {
           "from": "/guides/sso",
-          "to": "/docs/sso"
+          "to": "/resources/sso"
         },
         {
           "from": "/guides/sso/getting-started",
-          "to": "/docs/sso/getting-started"
+          "to": "/resources/sso/getting-started"
         },
         {
           "from": "/guides/sso/providers",
-          "to": "/docs/sso/providers"
+          "to": "/resources/sso/providers"
         },
         {
           "from": "/guides/sso/providers/auth0",
-          "to": "/docs/sso/providers/auth0"
+          "to": "/resources/sso/providers/auth0"
         },
         {
           "from": "/guides/sso/providers/google",
-          "to": "/docs/sso/providers/google"
+          "to": "/resources/sso/providers/google"
         },
         {
           "from": "/guides/sso/providers/microsoft-entra-id",
-          "to": "/docs/sso/providers/microsoft-entra-id"
+          "to": "/resources/sso/providers/microsoft-entra-id"
         },
         {
           "from": "/guides/sso/providers/okta",
-          "to": "/docs/sso/providers/okta"
+          "to": "/resources/sso/providers/okta"
         },
         {
           "from": "/guides/sso/providers/onelogin",
-          "to": "/docs/sso/providers/onelogin"
+          "to": "/resources/sso/providers/onelogin"
         },
         {
           "from": "/guides/sso/providers/ping-identity",
-          "to": "/docs/sso/providers/ping-identity"
-        },
-        {
-          "from": "/tools",
-          "to": "/docs/tools"
-        },
-        {
-          "from": "/tools/api",
-          "to": "/docs/tools/api"
-        },
-        {
-          "from": "/tools/cli",
-          "to": "/docs/tools/cli"
-        },
-        {
-          "from": "/tools/cli/authentication",
-          "to": "/docs/tools/cli/authentication"
-        },
-        {
-          "from": "/tools/cli/commands",
-          "to": "/docs/tools/cli/commands"
-        },
-        {
-          "from": "/tools/cli/getting-started",
-          "to": "/docs/tools/cli/getting-started"
-        },
-        {
-          "from": "/tools/mock-server",
-          "to": "/docs/tools/mock-server"
-        },
-        {
-          "from": "/tools/mock-server/agent-skills",
-          "to": "/docs/tools/mock-server/agent-skills"
-        },
-        {
-          "from": "/tools/mock-server/custom-request-handler",
-          "to": "/docs/tools/mock-server/custom-request-handler"
-        },
-        {
-          "from": "/tools/mock-server/data-seeding",
-          "to": "/docs/tools/mock-server/data-seeding"
-        },
-        {
-          "from": "/tools/mock-server/docker",
-          "to": "/docs/tools/mock-server/docker"
-        },
-        {
-          "from": "/tools/mock-server/getting-started",
-          "to": "/docs/tools/mock-server/getting-started"
-        },
-        {
-          "from": "/tools/openapi-upgrader",
-          "to": "/docs/tools/openapi-upgrader"
-        },
-        {
-          "from": "/tools/openapi-upgrader/changelog",
-          "to": "/docs/tools/openapi-upgrader/changelog"
-        },
-        {
-          "from": "/tools/openapi-upgrader/getting-started",
-          "to": "/docs/tools/openapi-upgrader/getting-started"
+          "to": "/resources/sso/providers/ping-identity"
         }
       ]
     }
@@ -2421,6 +2361,186 @@
               }
             }
           },
+          "/tools": {
+            "type": "group",
+            "title": "Tools",
+            "icon": "phosphor/regular/compass-tool",
+            "mode": "folder",
+            "children": {
+              "/cli": {
+                "title": "Scalar CLI",
+                "description": "Command-line interface for managing OpenAPI specs, validating schemas, and deploying documentation.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/terminal-window",
+                "children": {
+                  "getting-started": {
+                    "filepath": "documentation/guides/cli/getting-started.md",
+                    "type": "page",
+                    "title": "Getting Started",
+                    "description": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/cli/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with Scalar CLI - OpenAPI Command Line"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "authentication": {
+                    "filepath": "documentation/guides/cli/authentication.md",
+                    "type": "page",
+                    "title": "Authentication"
+                  },
+                  "commands": {
+                    "filepath": "documentation/guides/cli/commands.md",
+                    "type": "page",
+                    "title": "Commands"
+                  }
+                }
+              },
+              "/mock-server": {
+                "title": "Mock Server",
+                "description": "Generate realistic mock API servers from OpenAPI specifications for testing, development, and prototyping.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/cloud",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "filepath": "documentation/guides/mock-server/getting-started.md",
+                    "type": "page",
+                    "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/mock-server/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with Mock Server - API Mocking"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "docker": {
+                    "title": "Docker",
+                    "filepath": "documentation/guides/mock-server/docker.md",
+                    "type": "page"
+                  },
+                  "custom-request-handler": {
+                    "title": "Custom Request Handlers",
+                    "filepath": "documentation/guides/mock-server/custom-request-handler.md",
+                    "type": "page"
+                  },
+                  "agent-skills": {
+                    "title": "Agent Skills",
+                    "filepath": "documentation/guides/mock-server/agent-skills.md",
+                    "type": "page"
+                  },
+                  "data-seeding": {
+                    "title": "Data Seeding",
+                    "filepath": "documentation/guides/mock-server/data-seeding.md",
+                    "type": "page"
+                  },
+                  "changelog": {
+                    "title": "Release notes",
+                    "filepath": "packages/mock-server/RELEASE_NOTES.md",
+                    "type": "page"
+                  }
+                }
+              },
+              "/openapi-upgrader": {
+                "title": "OpenAPI Upgrader",
+                "description": "Automatically upgrade your OpenAPI specifications from Swagger 2.0 to OpenAPI 3.0 and 3.1 with zero manual work.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/arrow-up-right",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "filepath": "documentation/guides/openapi-upgrader/getting-started.md",
+                    "type": "page",
+                    "description": "Migrate legacy Swagger 2.0 specs to modern OpenAPI 3.x formats automatically with our free conversion tool.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/openapi-upgrader/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Migrate legacy Swagger 2.0 specs to modern OpenAPI 3.x formats automatically with our free conversion tool."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with OpenAPI Upgrader - Swagger to OpenAPI 3.x"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Migrate legacy Swagger 2.0 specs to modern OpenAPI 3.x formats automatically with our free conversion tool."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "filepath": "packages/openapi-upgrader/CHANGELOG.md",
+                    "type": "page"
+                  }
+                }
+              },
+              "/api": {
+                "type": "openapi",
+                "namespace": "scalar",
+                "slug": "access-service",
+                "version": "latest",
+                "title": "Scalar API",
+                "icon": "phosphor/regular/database",
+                "mode": "nested"
+              }
+            }
+          },
           "/enterprise": {
             "title": "Enterprise",
             "type": "page",
@@ -2498,191 +2618,11 @@
               ]
             }
           },
-          "/docs": {
+          "/resources": {
             "type": "group",
             "title": "Resources",
             "mode": "flat",
             "children": {
-              "tools": {
-                "type": "group",
-                "title": "Tools",
-                "icon": "phosphor/regular/compass-tool",
-                "mode": "folder",
-                "children": {
-                  "/cli": {
-                    "title": "Scalar CLI",
-                    "description": "Command-line interface for managing OpenAPI specs, validating schemas, and deploying documentation.",
-                    "type": "group",
-                    "mode": "nested",
-                    "icon": "phosphor/regular/terminal-window",
-                    "children": {
-                      "getting-started": {
-                        "filepath": "documentation/guides/cli/getting-started.md",
-                        "type": "page",
-                        "title": "Getting Started",
-                        "description": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal.",
-                        "head": {
-                          "links": [
-                            {
-                              "rel": "canonical",
-                              "href": "https://scalar.com/docs/tools/cli/getting-started"
-                            }
-                          ],
-                          "meta": [
-                            {
-                              "name": "description",
-                              "content": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal."
-                            },
-                            {
-                              "property": "og:title",
-                              "content": "Getting Started with Scalar CLI - OpenAPI Command Line"
-                            },
-                            {
-                              "property": "og:description",
-                              "content": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal."
-                            },
-                            {
-                              "name": "robots",
-                              "content": "index, follow"
-                            }
-                          ]
-                        }
-                      },
-                      "authentication": {
-                        "filepath": "documentation/guides/cli/authentication.md",
-                        "type": "page",
-                        "title": "Authentication"
-                      },
-                      "commands": {
-                        "filepath": "documentation/guides/cli/commands.md",
-                        "type": "page",
-                        "title": "Commands"
-                      }
-                    }
-                  },
-                  "/mock-server": {
-                    "title": "Mock Server",
-                    "description": "Generate realistic mock API servers from OpenAPI specifications for testing, development, and prototyping.",
-                    "type": "group",
-                    "mode": "nested",
-                    "icon": "phosphor/regular/cloud",
-                    "children": {
-                      "getting-started": {
-                        "title": "Getting Started",
-                        "filepath": "documentation/guides/mock-server/getting-started.md",
-                        "type": "page",
-                        "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
-                        "head": {
-                          "links": [
-                            {
-                              "rel": "canonical",
-                              "href": "https://scalar.com/docs/tools/mock-server/getting-started"
-                            }
-                          ],
-                          "meta": [
-                            {
-                              "name": "description",
-                              "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
-                            },
-                            {
-                              "property": "og:title",
-                              "content": "Getting Started with Mock Server - API Mocking"
-                            },
-                            {
-                              "property": "og:description",
-                              "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
-                            },
-                            {
-                              "name": "robots",
-                              "content": "index, follow"
-                            }
-                          ]
-                        }
-                      },
-                      "docker": {
-                        "title": "Docker",
-                        "filepath": "documentation/guides/mock-server/docker.md",
-                        "type": "page"
-                      },
-                      "custom-request-handler": {
-                        "title": "Custom Request Handlers",
-                        "filepath": "documentation/guides/mock-server/custom-request-handler.md",
-                        "type": "page"
-                      },
-                      "agent-skills": {
-                        "title": "Agent Skills",
-                        "filepath": "documentation/guides/mock-server/agent-skills.md",
-                        "type": "page"
-                      },
-                      "data-seeding": {
-                        "title": "Data Seeding",
-                        "filepath": "documentation/guides/mock-server/data-seeding.md",
-                        "type": "page"
-                      },
-                      "changelog": {
-                        "title": "Release notes",
-                        "filepath": "packages/mock-server/RELEASE_NOTES.md",
-                        "type": "page"
-                      }
-                    }
-                  },
-                  "/openapi-upgrader": {
-                    "title": "OpenAPI Upgrader",
-                    "description": "Automatically upgrade your OpenAPI specifications from Swagger 2.0 to OpenAPI 3.0 and 3.1 with zero manual work.",
-                    "type": "group",
-                    "mode": "nested",
-                    "icon": "phosphor/regular/arrow-up-right",
-                    "children": {
-                      "getting-started": {
-                        "title": "Getting Started",
-                        "filepath": "documentation/guides/openapi-upgrader/getting-started.md",
-                        "type": "page",
-                        "description": "Migrate legacy Swagger 2.0 specs to modern OpenAPI 3.x formats automatically with our free conversion tool.",
-                        "head": {
-                          "links": [
-                            {
-                              "rel": "canonical",
-                              "href": "https://scalar.com/docs/tools/openapi-upgrader/getting-started"
-                            }
-                          ],
-                          "meta": [
-                            {
-                              "name": "description",
-                              "content": "Migrate legacy Swagger 2.0 specs to modern OpenAPI 3.x formats automatically with our free conversion tool."
-                            },
-                            {
-                              "property": "og:title",
-                              "content": "Getting Started with OpenAPI Upgrader - Swagger to OpenAPI 3.x"
-                            },
-                            {
-                              "property": "og:description",
-                              "content": "Migrate legacy Swagger 2.0 specs to modern OpenAPI 3.x formats automatically with our free conversion tool."
-                            },
-                            {
-                              "name": "robots",
-                              "content": "index, follow"
-                            }
-                          ]
-                        }
-                      },
-                      "changelog": {
-                        "title": "Changelog",
-                        "filepath": "packages/openapi-upgrader/CHANGELOG.md",
-                        "type": "page"
-                      }
-                    }
-                  },
-                  "/api": {
-                    "type": "openapi",
-                    "namespace": "scalar",
-                    "slug": "access-service",
-                    "version": "latest",
-                    "title": "Scalar API",
-                    "icon": "phosphor/regular/database",
-                    "mode": "nested"
-                  }
-                }
-              },
               "migration": {
                 "title": "Migration",
                 "icon": "phosphor/regular/arrows-split",
