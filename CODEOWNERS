@@ -5,22 +5,22 @@
 /.changeset
 
 # Amrit + Redis
-/packages/api-client @marclave @hanspagel @amritk @DemonHa
-/packages/json-magic @marclave @hanspagel @amritk @DemonHa
-/packages/pre-post-request-scripts @marclave @hanspagel @amritk @DemonHa
-/packages/schemas @marclave @hanspagel @amritk @DemonHa
-/packages/types @marclave @hanspagel @amritk @DemonHa
-/packages/validation @marclave @hanspagel @amritk @DemonHa
-/packages/workspace-store @marclave @hanspagel @amritk @DemonHa
-/projects/scalar-app @marclave @hanspagel @amritk @DemonHa
+/packages/api-client @marclave @hanspagel @amritk @bgrcs @DemonHa
+/packages/json-magic @marclave @hanspagel @amritk @bgrcs @DemonHa
+/packages/pre-post-request-scripts @marclave @hanspagel @amritk @bgrcs @DemonHa
+/packages/schemas @marclave @hanspagel @amritk @bgrcs @DemonHa
+/packages/types @marclave @hanspagel @amritk @bgrcs @DemonHa
+/packages/validation @marclave @hanspagel @amritk @bgrcs @DemonHa
+/packages/workspace-store @marclave @hanspagel @amritk @bgrcs @DemonHa
+/projects/scalar-app @marclave @hanspagel @amritk @bgrcs @DemonHa
 
 # Brynn + Cam
-/packages/components @marclave @hanspagel @amritk @hwkr @cameronrohani
-/packages/icons @marclave @hanspagel @amritk @hwkr @cameronrohani
-/packages/sidebar @marclave @hanspagel @amritk @hwkr @cameronrohani @DemonHa
-/packages/themes @marclave @hanspagel @amritk @hwkr @cameronrohani
-/packages/use-hooks @marclave @hanspagel @amritk @hwkr @cameronrohani
-/packages/use-toasts @marclave @hanspagel @amritk @hwkr @cameronrohani
-/documentation @marclave @hanspagel @hwkr @cameronrohani
-/scalar.config.json @marclave @hanspagel @hwkr @cameronrohani
-/*.md @marclave @hanspagel @hwkr @cameronrohani
+/packages/components @marclave @hanspagel @amritk @bgrcs @hwkr @cameronrohani
+/packages/icons @marclave @hanspagel @amritk @bgrcs @hwkr @cameronrohani
+/packages/sidebar @marclave @hanspagel @amritk @bgrcs @hwkr @cameronrohani @DemonHa
+/packages/themes @marclave @hanspagel @amritk @bgrcs @hwkr @cameronrohani
+/packages/use-hooks @marclave @hanspagel @amritk @bgrcs @hwkr @cameronrohani
+/packages/use-toasts @marclave @hanspagel @amritk @bgrcs @hwkr @cameronrohani
+/documentation @marclave @hanspagel @bgrcs @hwkr @cameronrohani
+/scalar.config.json @marclave @hanspagel @bgrcs @hwkr @cameronrohani
+/*.md @marclave @hanspagel @bgrcs @hwkr @cameronrohani
