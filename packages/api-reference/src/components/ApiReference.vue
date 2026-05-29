@@ -100,7 +100,7 @@ import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
-import { persistencePlugin } from '@/plugins/persistance-plugin'
+import { persistencePlugin } from '@/plugins/persistence-plugin'
 
 const props = defineProps<{
   /**

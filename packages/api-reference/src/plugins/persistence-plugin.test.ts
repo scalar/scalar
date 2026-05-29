@@ -1,11 +1,11 @@
 import { REFERENCE_LS_KEYS } from '@scalar/helpers/object/local-storage'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { persistencePlugin } from './persistance-plugin'
+import { persistencePlugin } from './persistence-plugin'
 
 const AUTH_KEY = (slug: string) => `${REFERENCE_LS_KEYS.AUTH}-${slug}`
 
-describe('persistance-plugin', () => {
+describe('persistence-plugin', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     localStorage.clear()
