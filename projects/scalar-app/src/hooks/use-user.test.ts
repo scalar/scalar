@@ -21,7 +21,7 @@ vi.mock('@/hooks/use-auth', () => ({
  * without actually hitting the network. The `queryFn` is never executed;
  * tests drive `mockQueryData` directly.
  */
-const mockQueryData = ref<{ user?: { name: string; theme: string } | null } | undefined>(undefined)
+const mockQueryData = ref<{ name: string; theme: string } | null | undefined>(undefined)
 vi.mock('@tanstack/vue-query', () => ({
   useQuery: () => ({
     data: mockQueryData,
@@ -36,7 +36,7 @@ vi.mock('@/helpers/query-client', () => ({
 vi.mock('@/helpers/scalar-client', () => ({
   scalarClient: {
     authentication: {
-      getCurrentUser: vi.fn(),
+      listCurrentUser: vi.fn(),
     },
   },
 }))
@@ -63,21 +63,14 @@ describe('useUser', () => {
     })
 
     it('returns the user object when query resolves', () => {
-      mockQueryData.value = { user: { name: 'Test', theme: 'purple' } }
+      mockQueryData.value = { name: 'Test', theme: 'purple' }
 
       const { currentUser } = useUser()
       expect(currentUser.value).toEqual({ name: 'Test', theme: 'purple' })
     })
 
     it('is undefined when query resolves with null user', () => {
-      mockQueryData.value = { user: null }
-
-      const { currentUser } = useUser()
-      expect(currentUser.value).toBeUndefined()
-    })
-
-    it('is undefined when query resolves with no user field', () => {
-      mockQueryData.value = {}
+      mockQueryData.value = null
 
       const { currentUser } = useUser()
       expect(currentUser.value).toBeUndefined()
@@ -91,11 +84,11 @@ describe('useUser', () => {
     it('updates when mockQueryData changes', async () => {
       const { currentUser } = useUser()
 
-      mockQueryData.value = { user: { name: 'Alice', theme: 'default' } }
+      mockQueryData.value = { name: 'Alice', theme: 'default' }
       await nextTick()
       expect(currentUser.value).toEqual({ name: 'Alice', theme: 'default' })
 
-      mockQueryData.value = { user: { name: 'Bob', theme: 'solarized' } }
+      mockQueryData.value = { name: 'Bob', theme: 'solarized' }
       await nextTick()
       expect(currentUser.value).toEqual({ name: 'Bob', theme: 'solarized' })
     })

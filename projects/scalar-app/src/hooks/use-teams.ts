@@ -21,7 +21,7 @@ export const useTeams = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>
   const query = useQuery(
     {
       queryKey,
-      queryFn: () => scalarClient.teams.listTeams(),
+      queryFn: () => scalarClient.teams.list(),
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,
@@ -31,8 +31,8 @@ export const useTeams = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>
     queryClient,
   )
 
-  const teams = computed(() => query.data.value?.teams)
-  const currentTeam = computed(() => query.data.value?.teams?.find((t) => t.uid === tokenData.value?.teamUid))
+  const teams = computed(() => query.data.value)
+  const currentTeam = computed(() => query.data.value?.find((t) => t.uid === tokenData.value?.teamUid))
   const currentTeamSlug = computed(() => currentTeam.value?.slug || 'local')
   /**
    * Stable identifier for the active team. Use this instead of the slug

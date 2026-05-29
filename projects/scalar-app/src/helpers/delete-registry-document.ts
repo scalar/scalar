@@ -19,7 +19,7 @@ type DeleteRegistryDocument = RegistryAdapter['deleteDocument']
  */
 export const deleteRegistryDocument: DeleteRegistryDocument = async ({ namespace, slug }) => {
   try {
-    await scalarClient.registry.deleteApiDocument({ namespace, slug })
+    await scalarClient.registry.deleteApiDocument(namespace, slug)
 
     return {
       ok: true,

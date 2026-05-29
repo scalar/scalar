@@ -20,12 +20,12 @@ const { toast } = useToasts()
 const fetchCurrentTeamSlug = async (): Promise<string> => {
   const teamsData = await queryClient.fetchQuery({
     queryKey: ['teams'],
-    queryFn: () => scalarClient.teams.listTeams(),
+    queryFn: () => scalarClient.teams.list(),
     meta: {
       errorMessage: 'Failed to fetch teams. Please try logging in again.',
     },
   })
-  return teamsData?.teams?.find((t) => t.uid === tokenData.value?.teamUid)?.slug ?? 'local'
+  return teamsData?.find((t) => t.uid === tokenData.value?.teamUid)?.slug ?? 'local'
 }
 
 router.beforeEach(async (to) => {

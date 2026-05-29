@@ -18,11 +18,7 @@ type DeleteRegistryVersion = RegistryAdapter['deleteVersion']
  */
 export const deleteRegistryVersion: DeleteRegistryVersion = async ({ namespace, slug, version }) => {
   try {
-    await scalarClient.registry.deleteApiDocumentVersion({
-      namespace,
-      slug,
-      semver: version,
-    })
+    await scalarClient.registry.deleteApiDocumentVersion(namespace, slug, version)
 
     return {
       ok: true,
