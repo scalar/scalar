@@ -11,6 +11,10 @@
   display: none;
 }
 
+.w-1\/2 {
+  width: 50%;
+}
+
 /* TODO: Remove these styles after cleaning up the docs pages */
 
 /* Make adjacent buttons have secondary styles*/
