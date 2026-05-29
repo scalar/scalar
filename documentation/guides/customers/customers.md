@@ -66,6 +66,12 @@
     <p class="customer-docs-copy">Authentication and User Management platform built for the modern web</p>
     <a class="customer-docs-link" href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noreferrer">View Docs -&gt;</a>
   </article>
+  <article class="customer-docs-item">
+    <div class="customer-docs-image customer-docs-image-later" aria-label="Later">
+      <img src="/later.svg" alt="Later" />
+    </div>
+    <p class="customer-docs-copy">Social media management platform for creators, agencies, and brands</p>
+  </article>
 </div>
 
 <style>
@@ -281,6 +287,20 @@
   .customer-docs-image-clerk:hover {
     color: var(--scalar-color-1);
     background: var(--scalar-background-2) url('/clerk-background.webp') center / cover;
+  }
+  .customer-docs-image-later {
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+  }
+  .customer-docs-image-later:hover {
+    background: #000;
+  }
+  .customer-docs-image-later img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
   .customer-docs-image:focus-visible,
   .customer-docs-link:focus-visible {
