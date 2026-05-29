@@ -1072,4 +1072,64 @@ describe('mergeAllOfSchemas', () => {
       'x-enum-varnames': ['VALUE_ONE', 'VALUE_TWO'],
     })
   })
+
+  it('does not infinitely recurse on schemas with self-referencing $ref items', () => {
+    // Reproduces a real crash observed against schemas like:
+    //
+    //   ValidationIssue:
+    //     type: object
+    //     properties:
+    //       code: { type: string }
+    //       children:
+    //         type: array
+    //         items: { $ref: '#/components/schemas/ValidationIssue' }
+    //
+    // The recursive $ref drives mergeItems ↔ mergePropertiesIntoResult into
+    // infinite mutual recursion. The workspace-store dereferencer exposes
+    // resolved refs as `{ $ref, '$ref-value': <node> }` so we mirror that
+    // shape here to exercise the resolve.schema() path that the production
+    // bug took.
+    const issue: any = {
+      type: 'object',
+      properties: {
+        code: { type: 'string' },
+      },
+    }
+    issue.properties.children = {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/ValidationIssue',
+        '$ref-value': issue,
+      },
+    }
+
+    expect(() => mergeAllOfSchemas({ allOf: [issue, issue] } as any)).not.toThrow()
+  })
+
+  it('does not infinitely recurse on schemas with a self-referencing $ref object property', () => {
+    // The sibling case of the array-items cycle above: a schema that points
+    // back at itself through a plain object property rather than array items.
+    //
+    //   TreeNode:
+    //     type: object
+    //     properties:
+    //       value: { type: string }
+    //       parent: { $ref: '#/components/schemas/TreeNode' }
+    //
+    // Here the recursion lives entirely inside mergePropertiesIntoResult's
+    // object-merge branch and never passes through mergeItems, so it needs its
+    // own cycle guard keyed on the property's $ref.
+    const node: any = {
+      type: 'object',
+      properties: {
+        value: { type: 'string' },
+      },
+    }
+    node.properties.parent = {
+      $ref: '#/components/schemas/TreeNode',
+      '$ref-value': node,
+    }
+
+    expect(() => mergeAllOfSchemas({ allOf: [node, node] } as any)).not.toThrow()
+  })
 })
