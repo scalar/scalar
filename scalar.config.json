@@ -839,6 +839,7 @@
             "type": "page",
             "filepath": "documentation/guides/introduction.md",
             "title": "Introduction",
+            "icon": "phosphor/regular/house",
             "description": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve.",
             "layout": {
               "toc": false
@@ -864,6 +865,7 @@
           },
           "/pricing": {
             "title": "Pricing",
+            "icon": "phosphor/regular/currency-dollar-simple",
             "description": "Transparent pricing for developer documentation, SDKs, and API tools. Start free and scale as you grow.",
             "filepath": "documentation/guides/pricing.md",
             "type": "page",
@@ -899,6 +901,7 @@
           },
           "/customers": {
             "title": "Customers",
+            "icon": "phosphor/regular/user-focus",
             "description": "Trusted by the world's best API teams.",
             "filepath": "documentation/guides/customers/customers.md",
             "type": "page",
@@ -935,6 +938,7 @@
           "/products": {
             "type": "group",
             "title": "Products",
+            "icon": "phosphor/regular/compass",
             "mode": "folder",
             "children": {
               "/docs": {
@@ -2542,6 +2546,7 @@
               "tools": {
                 "type": "group",
                 "title": "Tools",
+                "icon": "phosphor/regular/compass-tool",
                 "mode": "folder",
                 "children": {
                   "/cli": {
@@ -2720,6 +2725,7 @@
               },
               "migration": {
                 "title": "Migration",
+                "icon": "phosphor/regular/arrows-split",
                 "description": "Step-by-step guides for migrating from Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo to Scalar.",
                 "type": "group",
                 "mode": "nested",
@@ -2780,6 +2786,7 @@
               },
               "sso": {
                 "title": "SSO/SAML",
+                "icon": "phosphor/regular/keyhole",
                 "description": "Configure single sign-on with Okta, Google, Microsoft Entra ID, Auth0, and other SAML providers for secure authentication.",
                 "type": "group",
                 "mode": "nested",
@@ -2858,6 +2865,7 @@
               "changelog": {
                 "type": "group",
                 "title": "Changelog",
+                "icon": "phosphor/regular/git-diff",
                 "mode": "folder",
                 "page": {
                   "type": "page",
@@ -2924,6 +2932,7 @@
               "blog": {
                 "type": "page",
                 "title": "Blog",
+                "icon": "phosphor/regular/newspaper",
                 "filepath": "documentation/blog/index.md",
                 "showInSidebar": true,
                 "layout": {
@@ -2939,16 +2948,19 @@
             "children": {
               "/github": {
                 "title": "GitHub",
+                "icon": "phosphor/regular/github-logo",
                 "url": "https://github.com/scalar/scalar",
                 "type": "link"
               },
               "/email": {
                 "title": "Email",
+                "icon": "phosphor/regular/envelope-simple-open",
                 "url": "mailto:support@scalar.com",
                 "type": "link"
               },
               "/demo": {
                 "title": "Demo",
+                "icon": "phosphor/regular/user-rectangle",
                 "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
                 "type": "link"
               }

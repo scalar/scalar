@@ -5,26 +5,6 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
   </div>
-  <div class="logowall">
-    <div class="logowall-item">
-      <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
-    </div>
-    <div class="logowall-item">
-      <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
-    </div>
-    <div class="logowall-item">
-      <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tailscale.svg"></scalar-icon>
-    </div>
-    <div class="logowall-item">
-      <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-supabase.svg"></scalar-icon>
-    </div>
-    <div class="logowall-item">
-      <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
-    </div>
-    <div class="logowall-item">
-      <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
-    </div>
-  </div>
 </div>
 
 <a class="featured-story-card" href="/customers/partech" aria-label="Read the PAR customer story">
@@ -111,24 +91,6 @@
   .customers-hero .t-editor__button {
     min-width: 160px;
     justify-content: center;
-  }
-  .logowall.logowall {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    align-items: center;
-    gap: 40px;
-    width: 100%;
-    margin-top: 32px;
-  }
-  .logowall-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .logowall-item svg {
-    width: 100%;
-    height: auto;
-    max-height: 24px;
   }
   .fill-current-bg {
     fill: var(--scalar-background-1);
@@ -346,14 +308,6 @@
     }
     .customers-hero .t-editor__button {
       flex: 1 1 180px;
-    }
-    .logowall.logowall {
-      grid-template-columns: repeat(3, 1fr);
-      column-gap: 20px;
-      row-gap: 32px;
-    }
-    .logowall-item svg {
-      max-height: 20px;
     }
     .featured-story-card {
       grid-template-columns: 1fr;
