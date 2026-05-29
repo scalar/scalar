@@ -1,0 +1,194 @@
+import Preview from './Preview.mdx'
+
+# Tabs
+
+Tabs organize content into multiple panels behind a row of clickable headers. Useful for showing the same example in several languages, splitting up reference material, or hiding optional details until they're requested.
+
+## Properties
+
+### Tabs
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `default` | `string` | — | Title of the tab that should be active on load. Matched case-insensitively against the `title` of each child. When omitted, the first tab is active. |
+
+### Tab
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` | `string` | _required_ | Label shown in the tab header. |
+| `id` | `string` | _auto-generated_ | Unique identifier. Auto-generated from the title when not provided — usually fine to leave out. |
+
+## Examples
+
+### Basic Tabs
+
+<Preview>
+  <Tabs>
+    <Tab title="JavaScript">
+      ```javascript
+      function greet(name) {
+        return `Hello, ${name}!`
+      }
+      ```
+    </Tab>
+    <Tab title="TypeScript">
+      ```typescript
+      function greet(name: string): string {
+        return `Hello, ${name}!`
+      }
+      ```
+    </Tab>
+    <Tab title="Python">
+      ```python
+      def greet(name):
+          return f"Hello, {name}!"
+      ```
+    </Tab>
+  </Tabs>
+</Preview>
+
+<CodeGroup>
+````md Markdown
+<scalar-tabs>
+  <scalar-tab title="JavaScript">
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`
+}
+```
+  </scalar-tab>
+  <scalar-tab title="TypeScript">
+```typescript
+function greet(name: string): string {
+  return `Hello, ${name}!`
+}
+```
+  </scalar-tab>
+  <scalar-tab title="Python">
+```python
+def greet(name):
+    return f"Hello, {name}!"
+```
+  </scalar-tab>
+</scalar-tabs>
+````
+````mdx MDX
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    function greet(name) {
+      return `Hello, ${name}!`
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    function greet(name: string): string {
+      return `Hello, ${name}!`
+    }
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    def greet(name):
+        return f"Hello, {name}!"
+    ```
+  </Tab>
+</Tabs>
+````
+</CodeGroup>
+
+### Default Tab
+
+The `default` prop matches the `title` of a child tab (case-insensitively).
+
+<Preview>
+  <Tabs default="TypeScript">
+    <Tab title="JavaScript">JavaScript content.</Tab>
+    <Tab title="TypeScript">TypeScript is shown first.</Tab>
+  </Tabs>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-tabs default="TypeScript">
+  <scalar-tab title="JavaScript">JavaScript content.</scalar-tab>
+  <scalar-tab title="TypeScript">TypeScript is shown first.</scalar-tab>
+</scalar-tabs>
+```
+```mdx MDX
+<Tabs default="TypeScript">
+  <Tab title="JavaScript">JavaScript content.</Tab>
+  <Tab title="TypeScript">TypeScript is shown first.</Tab>
+</Tabs>
+```
+</CodeGroup>
+
+### Mixed Content
+
+Tabs can hold any markdown or component content — not just code.
+
+<Preview>
+  <Tabs>
+    <Tab title="Overview">
+      Plain text with **markdown** formatting works too.
+    </Tab>
+    <Tab title="Install">
+      ```bash
+      pnpm add @scalar/guide-elements
+      ```
+    </Tab>
+    <Tab title="Configure">
+      ```json
+      {
+        "theme": "dark",
+        "features": ["tabs", "steps", "callouts"]
+      }
+      ```
+    </Tab>
+  </Tabs>
+</Preview>
+
+<CodeGroup>
+````md Markdown
+<scalar-tabs>
+  <scalar-tab title="Overview">
+Plain text with **markdown** formatting works too.
+  </scalar-tab>
+  <scalar-tab title="Install">
+```bash
+pnpm add @scalar/guide-elements
+```
+  </scalar-tab>
+  <scalar-tab title="Configure">
+```json
+{
+  "theme": "dark",
+  "features": ["tabs", "steps", "callouts"]
+}
+```
+  </scalar-tab>
+</scalar-tabs>
+````
+````mdx MDX
+<Tabs>
+  <Tab title="Overview">
+    Plain text with **markdown** formatting works too.
+  </Tab>
+  <Tab title="Install">
+    ```bash
+    pnpm add @scalar/guide-elements
+    ```
+  </Tab>
+  <Tab title="Configure">
+    ```json
+    {
+      "theme": "dark",
+      "features": ["tabs", "steps", "callouts"]
+    }
+    ```
+  </Tab>
+</Tabs>
+````
+</CodeGroup>

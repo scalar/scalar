@@ -1,0 +1,145 @@
+import Preview from './Preview.mdx'
+
+# Cards
+
+Cards display content in a bordered box, optionally with a title, description, icon, and link. They're useful for visually grouping related information or creating navigation tiles.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` | `string` | — | Title shown at the top of the card. |
+| `description` | `string` | — | Short description shown below the title. |
+| `icon` | `string` | — | Icon shown alongside the title. Accepts a Scalar icon key. |
+| `iconPosition` | `'title' \| 'left' \| 'above'` | `title` | Where the icon is placed relative to the card content. |
+| `href` | `string` | — | When set, the entire card becomes a link. |
+| `target` | `'_blank' \| '_self'` | — | Where the link opens. `_blank` adds `rel="noopener noreferrer"` automatically. |
+
+## Examples
+
+### Body Only
+
+<Preview>
+  <Card>Card with body content.</Card>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-card>
+  Card with body content.
+</scalar-card>
+```
+```mdx MDX
+<Card>
+  Card with body content.
+</Card>
+```
+</CodeGroup>
+
+### Title and Body
+
+<Preview>
+  <Card title="The Title of the Card">
+    Card with title and body.
+  </Card>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-card title="The Title of the Card">
+  Card with title and body.
+</scalar-card>
+```
+```mdx MDX
+<Card title="The Title of the Card">
+  Card with title and body.
+</Card>
+```
+</CodeGroup>
+
+### Title, Icon, and Description
+
+<Preview>
+  <Card
+    title="Getting Started"
+    description="Learn the basics in five minutes."
+    icon="phosphor/regular/rocket-launch"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-card
+  title="Getting Started"
+  description="Learn the basics in five minutes."
+  icon="phosphor/regular/rocket-launch">
+</scalar-card>
+```
+```mdx MDX
+<Card
+  title="Getting Started"
+  description="Learn the basics in five minutes."
+  icon="phosphor/regular/rocket-launch"
+/>
+```
+</CodeGroup>
+
+### Icon on the Left
+
+<Preview>
+  <Card
+    title="Left Icon"
+    icon="phosphor/regular/sparkle"
+    iconPosition="left">
+    The icon sits to the left of the content.
+  </Card>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-card
+  title="Left Icon"
+  icon="phosphor/regular/sparkle"
+  iconPosition="left">
+  The icon sits to the left of the content.
+</scalar-card>
+```
+```mdx MDX
+<Card
+  title="Left Icon"
+  icon="phosphor/regular/sparkle"
+  iconPosition="left">
+  The icon sits to the left of the content.
+</Card>
+```
+</CodeGroup>
+
+### Clickable Card
+
+<Preview>
+  <Card
+    title="Read the Docs"
+    description="Full API reference and guides."
+    icon="phosphor/regular/book-open"
+    href="https://scalar.com">
+  </Card>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-card
+  title="Read the Docs"
+  description="Full API reference and guides."
+  icon="phosphor/regular/book-open"
+  href="https://scalar.com">
+</scalar-card>
+```
+```mdx MDX
+<Card
+  title="Read the Docs"
+  description="Full API reference and guides."
+  icon="phosphor/regular/book-open"
+  href="https://scalar.com"
+/>
+```
+</CodeGroup>

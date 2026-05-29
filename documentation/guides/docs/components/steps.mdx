@@ -1,0 +1,151 @@
+import Preview from './Preview.mdx'
+
+# Steps
+
+Steps render numbered, optionally collapsible sections — ideal for tutorials, guides, and any sequential instructions. Wrap a series of `<Step>`s in `<Steps>` to share spacing and visual numbering.
+
+## Properties
+
+### Step
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` | `string` | — | Label shown next to the step marker. |
+| `id` | `string` | — | Optional unique identifier for the step. Used for deep links and accessibility. |
+| `icon` | `string` | — | Custom icon for the step marker. Accepts a Scalar icon key. |
+| `interactivity` | `'none'` | — | Set to `"none"` to render a static, non-collapsible step. |
+
+### Steps
+
+`<Steps>` is a container with no props of its own — it groups its `<Step>` children.
+
+## Examples
+
+### A Single Step
+
+<Preview>
+  <Step title="Install Dependencies">
+    First, install the required dependencies:
+
+    ```bash
+    pnpm add @scalar/guide-elements
+    ```
+  </Step>
+</Preview>
+
+<CodeGroup>
+````md Markdown
+<scalar-step title="Install Dependencies">
+First, install the required dependencies:
+
+```bash
+pnpm add @scalar/guide-elements
+```
+</scalar-step>
+````
+````mdx MDX
+<Step title="Install Dependencies">
+  First, install the required dependencies:
+
+  ```bash
+  pnpm add @scalar/guide-elements
+  ```
+</Step>
+````
+</CodeGroup>
+
+### Steps Container
+
+<Preview>
+  <Steps>
+    <Step title="Set up the project">
+      Initialize a new project:
+
+      ```bash
+      mkdir my-project
+      cd my-project
+      pnpm init
+      ```
+    </Step>
+    <Step title="Install dependencies">
+      ```bash
+      pnpm add react react-dom
+      ```
+    </Step>
+    <Step title="Start development">
+      ```bash
+      pnpm dev
+      ```
+    </Step>
+  </Steps>
+</Preview>
+
+<CodeGroup>
+````md Markdown
+<scalar-steps>
+  <scalar-step title="Set up the project">
+Initialize a new project:
+
+```bash
+mkdir my-project
+cd my-project
+pnpm init
+```
+  </scalar-step>
+  <scalar-step title="Install dependencies">
+```bash
+pnpm add react react-dom
+```
+  </scalar-step>
+  <scalar-step title="Start development">
+```bash
+pnpm dev
+```
+  </scalar-step>
+</scalar-steps>
+````
+````mdx MDX
+<Steps>
+  <Step title="Set up the project">
+    Initialize a new project:
+
+    ```bash
+    mkdir my-project
+    cd my-project
+    pnpm init
+    ```
+  </Step>
+  <Step title="Install dependencies">
+    ```bash
+    pnpm add react react-dom
+    ```
+  </Step>
+  <Step title="Start development">
+    ```bash
+    pnpm dev
+    ```
+  </Step>
+</Steps>
+````
+</CodeGroup>
+
+### Static Step
+
+<Preview>
+  <Step title="Heads up" interactivity="none">
+    This step cannot be collapsed and is always visible.
+  </Step>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-step title="Heads up" interactivity="none">
+  This step cannot be collapsed and is always visible.
+</scalar-step>
+```
+```mdx MDX
+<Step title="Heads up" interactivity="none">
+  This step cannot be collapsed and is always visible.
+</Step>
+```
+</CodeGroup>

@@ -1,0 +1,136 @@
+import Preview from './Preview.mdx'
+
+# Icons
+
+Icons render scalable vector graphics from the built-in [Phosphor](https://phosphoricons.com/) library or from a direct URL.
+
+## Icon Sources
+
+`src` accepts two forms:
+
+1. **A Phosphor key** in the format `phosphor/<variant>/<name>`. Variants are `regular`, `bold`, `duotone`, `fill`, `light`, and `thin`. Examples: `phosphor/regular/house`, `phosphor/fill/heart`, `phosphor/bold/check-circle`. See the [Phosphor icon list](https://phosphoricons.com/) for available names.
+2. **A direct URL** to an SVG or image file. Useful for custom or brand-specific icons.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `src` | `string` | _required_ | Phosphor key (e.g. `phosphor/regular/star`) or full URL to an SVG/image. |
+| `src-dark` | `string` | — | _MD only._ Dark-mode variant. Not available on `<Icon>` in MDX. |
+| `title` | `string` | — | Accessible label read by screen readers. |
+| `size` | `string` | — | CSS size for both width and height (e.g. `16px`, `1.5em`, `2rem`). |
+
+## Examples
+
+### Basic Icon
+
+<Preview>
+  <Icon src="phosphor/regular/check-circle" title="Success indicator" />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-icon
+  src="phosphor/regular/check-circle"
+  title="Success indicator">
+</scalar-icon>
+```
+```mdx MDX
+<Icon
+  src="phosphor/regular/check-circle"
+  title="Success indicator"
+/>
+```
+</CodeGroup>
+
+### Phosphor Variants
+
+<Preview>
+  <Icon src="phosphor/regular/heart" size="24px" />
+  <Icon src="phosphor/bold/heart" size="24px" />
+  <Icon src="phosphor/duotone/heart" size="24px" />
+  <Icon src="phosphor/fill/heart" size="24px" />
+  <Icon src="phosphor/light/heart" size="24px" />
+  <Icon src="phosphor/thin/heart" size="24px" />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-icon src="phosphor/regular/heart" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/bold/heart" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/duotone/heart" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/fill/heart" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/light/heart" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/thin/heart" size="24px"></scalar-icon>
+```
+```mdx MDX
+<Icon src="phosphor/regular/heart" size="24px" />
+<Icon src="phosphor/bold/heart" size="24px" />
+<Icon src="phosphor/duotone/heart" size="24px" />
+<Icon src="phosphor/fill/heart" size="24px" />
+<Icon src="phosphor/light/heart" size="24px" />
+<Icon src="phosphor/thin/heart" size="24px" />
+```
+</CodeGroup>
+
+### Sizes
+
+<Preview>
+  <Icon src="phosphor/regular/star" size="16px" />
+  <Icon src="phosphor/regular/star" size="24px" />
+  <Icon src="phosphor/regular/star" size="2rem" />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-icon src="phosphor/regular/star" size="16px"></scalar-icon>
+<scalar-icon src="phosphor/regular/star" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/regular/star" size="2rem"></scalar-icon>
+```
+```mdx MDX
+<Icon src="phosphor/regular/star" size="16px" />
+<Icon src="phosphor/regular/star" size="24px" />
+<Icon src="phosphor/regular/star" size="2rem" />
+```
+</CodeGroup>
+
+### Icon from a URL
+
+`src` also accepts a direct URL to an SVG or image file.
+
+<Preview>
+  <Icon
+    src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
+    title="Scalar logo"
+    size="4em"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-icon
+  src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
+  title="Scalar logo"
+  size="4em">
+</scalar-icon>
+```
+```mdx MDX
+<Icon
+  src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
+  title="Scalar logo"
+  size="4em"
+/>
+```
+</CodeGroup>
+
+### Light and Dark Variants (Markdown only)
+
+`src-dark` lets you swap the icon source in dark mode. This prop is only available on the markdown form.
+
+```md Markdown
+<scalar-icon
+  src="phosphor/regular/sun"
+  src-dark="phosphor/fill/moon"
+  title="Theme">
+</scalar-icon>
+```

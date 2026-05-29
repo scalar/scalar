@@ -1,0 +1,76 @@
+import Preview from './Preview.mdx'
+
+# Math
+
+Render mathematical equations using KaTeX and LaTeX syntax.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `equation` | `string` | — | The LaTeX equation to render. May also be passed as children. |
+| `caption` | `string` | — | Caption shown below the equation. |
+
+The component accepts the equation either as the `equation` prop or as children. The `equation` prop takes precedence when both are provided.
+
+## Examples
+
+### Basic Equation
+
+<Preview>
+  <Math equation="E = mc^2" />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-math equation="E = mc^2"></scalar-math>
+```
+```mdx MDX
+<Math equation="E = mc^2" />
+```
+</CodeGroup>
+
+### Equation as Children
+
+<Preview>
+  <Math>{`\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}`}</Math>
+</Preview>
+
+````md Markdown
+<scalar-math>
+  \int_{0}^{\infty} e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+</scalar-math>
+````
+
+```mdx MDX
+<Math>{String.raw`\int_{0}^{\infty} e^{-x^2} dx = \frac{\sqrt{\pi}}{2}`}</Math>
+```
+
+### With a Caption
+
+<Preview>
+  <Math equation="a^2 + b^2 = c^2" caption="Pythagorean theorem" />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-math
+  equation="a^2 + b^2 = c^2"
+  caption="Pythagorean theorem">
+</scalar-math>
+```
+```mdx MDX
+<Math
+  equation="a^2 + b^2 = c^2"
+  caption="Pythagorean theorem"
+/>
+```
+</CodeGroup>
+
+## MDX Shortcut
+
+`<Latex>` is an alias for `<Math>`, available only in MDX.
+
+```mdx MDX
+<Latex equation="\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}" />
+```

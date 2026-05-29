@@ -1114,7 +1114,7 @@
                     "icon": "phosphor/regular/puzzle-piece",
                     "children": {
                       "markdown-support": {
-                        "filepath": "documentation/guides/docs/components/markdown-support.md",
+                        "filepath": "documentation/guides/docs/components/markdown-support.mdx",
                         "type": "page",
                         "title": "Markdown Support",
                         "description": "Full markdown syntax reference including tables, lists, links, images, and GitHub-flavored markdown features.",
@@ -1138,27 +1138,27 @@
                         }
                       },
                       "buttons": {
-                        "filepath": "documentation/guides/docs/components/buttons.md",
+                        "filepath": "documentation/guides/docs/components/buttons.mdx",
                         "type": "page",
                         "title": "Buttons"
                       },
                       "callouts": {
-                        "filepath": "documentation/guides/docs/components/callouts.md",
+                        "filepath": "documentation/guides/docs/components/callouts.mdx",
                         "type": "page",
                         "title": "Callouts"
                       },
                       "math": {
-                        "filepath": "documentation/guides/docs/components/math.md",
+                        "filepath": "documentation/guides/docs/components/math.mdx",
                         "type": "page",
                         "title": "Math"
                       },
                       "embeds": {
-                        "filepath": "documentation/guides/docs/components/embeds.md",
+                        "filepath": "documentation/guides/docs/components/embeds.mdx",
                         "type": "page",
                         "title": "Embeds"
                       },
                       "code-blocks": {
-                        "filepath": "documentation/guides/docs/components/code-blocks.md",
+                        "filepath": "documentation/guides/docs/components/code-blocks.mdx",
                         "type": "page",
                         "title": "Code Blocks",
                         "description": "Syntax highlighting for 100+ programming languages with line numbers, highlighting, and copy-to-clipboard functionality.",
@@ -1182,47 +1182,47 @@
                         }
                       },
                       "images": {
-                        "filepath": "documentation/guides/docs/components/images.md",
+                        "filepath": "documentation/guides/docs/components/images.mdx",
                         "type": "page",
                         "title": "Images"
                       },
                       "icons": {
-                        "filepath": "documentation/guides/docs/components/icons.md",
+                        "filepath": "documentation/guides/docs/components/icons.mdx",
                         "type": "page",
                         "title": "Icons"
                       },
                       "tabs": {
-                        "filepath": "documentation/guides/docs/components/tabs.md",
+                        "filepath": "documentation/guides/docs/components/tabs.mdx",
                         "type": "page",
                         "title": "Tabs"
                       },
                       "tables": {
-                        "filepath": "documentation/guides/docs/components/tables.md",
+                        "filepath": "documentation/guides/docs/components/tables.mdx",
                         "type": "page",
                         "title": "Tables"
                       },
                       "steps": {
-                        "filepath": "documentation/guides/docs/components/steps.md",
+                        "filepath": "documentation/guides/docs/components/steps.mdx",
                         "type": "page",
                         "title": "Steps"
                       },
                       "cards": {
-                        "filepath": "documentation/guides/docs/components/cards.md",
+                        "filepath": "documentation/guides/docs/components/cards.mdx",
                         "type": "page",
                         "title": "Cards"
                       },
                       "details": {
-                        "filepath": "documentation/guides/docs/components/details.md",
+                        "filepath": "documentation/guides/docs/components/details.mdx",
                         "type": "page",
                         "title": "Details"
                       },
                       "page-link": {
-                        "filepath": "documentation/guides/docs/components/page-link.md",
+                        "filepath": "documentation/guides/docs/components/page-link.mdx",
                         "type": "page",
                         "title": "Page Link"
                       },
                       "row": {
-                        "filepath": "documentation/guides/docs/components/row.md",
+                        "filepath": "documentation/guides/docs/components/row.mdx",
                         "type": "page",
                         "title": "Row"
                       }
