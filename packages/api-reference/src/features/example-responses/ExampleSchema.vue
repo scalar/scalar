@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getResolvedRefDeep } from '@scalar/blocks/operation-code-sample'
+import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'

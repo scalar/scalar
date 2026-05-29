@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ClientOptionGroup } from '@scalar/blocks/operation-code-sample'
+import type { ClientOptionGroup } from '@scalar/blocks/code-example'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'

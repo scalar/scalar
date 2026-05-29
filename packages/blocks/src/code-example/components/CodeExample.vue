@@ -1,5 +1,5 @@
 <script lang="ts">
-export type OperationCodeSampleProps = {
+export type CodeExampleProps = {
   /**
    * Integration type: determines if the code sample is displayed in a client environment
    * or in an API reference environment.
@@ -181,7 +181,7 @@ const {
   generateLabel,
   globalCookies,
   requestBodyCompositionSelection,
-} = defineProps<OperationCodeSampleProps>()
+} = defineProps<CodeExampleProps>()
 
 const emit = defineEmits<{
   /**

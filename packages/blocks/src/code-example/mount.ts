@@ -3,7 +3,7 @@ import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { createApp, h, reactive } from 'vue'
 
-import OperationCodeSample from './components/OperationCodeSample.vue'
+import CodeExample from './components/CodeExample.vue'
 import { generateClientOptions } from './helpers/generate-client-options'
 
 type createCodeExampleOptions = {
@@ -17,7 +17,7 @@ type createCodeExampleOptions = {
 }
 
 /**
- * Mount the OperationCodeSample block to a DOM element without Vue.
+ * Mount the CodeExample block to a DOM element without Vue.
  *
  * The consumer creates and controls their own workspace store,
  * then passes it in along with the path and method to render.
@@ -50,7 +50,7 @@ export const createCodeExample = (el: HTMLElement | string, options: createCodeE
   })
 
   // @ts-expect-error TODO Needs proper typing
-  const app = createApp(() => h('div', { class: 'scalar-app dark-mode' }, h(OperationCodeSample, props)))
+  const app = createApp(() => h('div', { class: 'scalar-app dark-mode' }, h(CodeExample, props)))
 
   app.mount(element)
 

@@ -1,10 +1,10 @@
 // Re-export commonly used workspace-store helpers
 export { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 
+export type { CodeExampleProps } from './components/CodeExample.vue'
+export { default as CodeExample } from './components/CodeExample.vue'
 export { default as ExamplePicker } from './components/ExamplePicker.vue'
 export { default as HttpMethod } from './components/HttpMethod.vue'
-export type { OperationCodeSampleProps } from './components/OperationCodeSample.vue'
-export { default as OperationCodeSample } from './components/OperationCodeSample.vue'
 export { filterClientsByQuery } from './helpers/filter-clients-by-query'
 export { DEFAULT_CLIENT, type SelectedClientId, findClient, isClient, isSelectedClient } from './helpers/find-client'
 export { generateClientOptions } from './helpers/generate-client-options'

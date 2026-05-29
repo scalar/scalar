@@ -88,7 +88,7 @@ export type OperationBlockProps = {
 }
 </script>
 <script setup lang="ts">
-import { generateClientOptions } from '@scalar/blocks/operation-code-sample'
+import { generateClientOptions } from '@scalar/blocks/code-example'
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'

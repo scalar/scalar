@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { OperationCodeSample } from '@scalar/blocks/operation-code-sample'
+import { CodeExample } from '@scalar/blocks/code-example'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarMarkdown } from '@scalar/components/markdown'
@@ -265,7 +265,7 @@ const { copyToClipboard } = useClipboard()
         </LinkList>
         <!-- Request Example -->
         <ScalarErrorBoundary>
-          <OperationCodeSample
+          <CodeExample
             :key="requestBodyCompositionSelectionKey"
             class="operation-example-card"
             :clientOptions

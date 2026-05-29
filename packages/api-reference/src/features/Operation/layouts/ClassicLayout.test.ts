@@ -251,7 +251,7 @@ describe('ClassicLayout', () => {
     await requestBody.vm.$emit('update:selectedContentType', 'application/x-www-form-urlencoded')
     await nextTick()
 
-    const codeSample = wrapper.findComponent({ name: 'OperationCodeSample' })
+    const codeSample = wrapper.findComponent({ name: 'CodeExample' })
     expect(codeSample.props('selectedContentType')).toBe('application/x-www-form-urlencoded')
   })
 

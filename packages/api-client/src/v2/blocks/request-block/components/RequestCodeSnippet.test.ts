@@ -1,4 +1,4 @@
-import type { ClientOptionGroup, OperationCodeSampleProps } from '@scalar/blocks/operation-code-sample'
+import type { ClientOptionGroup, CodeExampleProps } from '@scalar/blocks/code-example'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { shallowMount } from '@vue/test-utils'
@@ -14,7 +14,7 @@ const createEventBus = () =>
     off: vi.fn(),
   }) as unknown as WorkspaceEventBus
 
-type Props = OperationCodeSampleProps & { eventBus: WorkspaceEventBus }
+type Props = CodeExampleProps & { eventBus: WorkspaceEventBus }
 
 /** Creates props with sensible defaults, allowing overrides */
 const createProps = (overrides: Partial<Props> = {}): Props => ({

@@ -6,7 +6,7 @@
 
 ```ts
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createCodeExample } from '@scalar/blocks/operation-code-sample/mount'
+import { createCodeExample } from '@scalar/blocks/code-example'
 import '@scalar/blocks/style.css'
 
 // Load OpenAPI documents
