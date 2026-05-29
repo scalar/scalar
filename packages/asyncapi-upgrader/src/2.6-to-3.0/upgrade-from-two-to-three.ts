@@ -63,27 +63,21 @@ function upgradeServers(document: UnknownObject): void {
   }
 }
 
-/** Splits a 2.x server URL into a 3.0 `host` (everything before the first `/` outside the scheme) and `pathname`. */
+/**
+ * Splits a 2.x server URL into a 3.0 `host` (hostname plus optional port) and `pathname`.
+ *
+ * The scheme is dropped because AsyncAPI 3.0 carries the protocol exclusively in the `protocol`
+ * field — keeping it on `host` would duplicate that information and violate the spec.
+ */
 function splitUrl(url: string): { host: string; pathname: string } {
-  const schemeMatch = url.match(/^([a-zA-Z][a-zA-Z0-9+\-.]*:\/\/)(.*)$/)
+  const schemeMatch = url.match(/^[a-zA-Z][a-zA-Z0-9+\-.]*:\/\/(.*)$/)
+  const rest = schemeMatch ? schemeMatch[1]! : url
 
-  if (schemeMatch) {
-    const [, scheme, rest] = schemeMatch
-    const slashIndex = rest!.indexOf('/')
-    if (slashIndex === -1) {
-      return { host: url, pathname: '' }
-    }
-    return {
-      host: `${scheme}${rest!.slice(0, slashIndex)}`,
-      pathname: rest!.slice(slashIndex),
-    }
-  }
-
-  const slashIndex = url.indexOf('/')
+  const slashIndex = rest.indexOf('/')
   if (slashIndex === -1) {
-    return { host: url, pathname: '' }
+    return { host: rest, pathname: '' }
   }
-  return { host: url.slice(0, slashIndex), pathname: url.slice(slashIndex) }
+  return { host: rest.slice(0, slashIndex), pathname: rest.slice(slashIndex) }
 }
 
 /** Maps every 2.x security requirement to its 3.0 form (`$ref` or inline OAuth + `scopes`). */

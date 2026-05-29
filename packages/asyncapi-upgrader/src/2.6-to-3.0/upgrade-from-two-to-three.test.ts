@@ -43,7 +43,7 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
-  it('keeps the scheme on host when splitting a fully-qualified url', () => {
+  it('strips the scheme from host when splitting a fully-qualified url', () => {
     const document = upgradeFromTwoToThree({
       asyncapi: '2.6.0',
       servers: {
@@ -52,7 +52,7 @@ describe('upgradeFromTwoToThree', () => {
     })
 
     expect(document.servers).toEqual({
-      production: { host: 'https://api.example.com', pathname: '/v2', protocol: 'http' },
+      production: { host: 'api.example.com', pathname: '/v2', protocol: 'http' },
     })
   })
 
