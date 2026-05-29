@@ -181,6 +181,9 @@ export const apiReferenceConfigurationSchema = intersection([
     generateWebhookSlug: optional(fn<(input: { name: string; method?: string }) => string>(), {
       typeComment: 'Customize the webhook portion of the hash',
     }),
+    setPageTitle: optional(fn<(input: { title: string; document: { title: string; slug: string } }) => string>(), {
+      typeComment: 'Customize the browser tab title for the section currently in view',
+    }),
     redirect: optional(fn<(input: string) => string | null | undefined>(), {
       typeComment:
         'To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState',

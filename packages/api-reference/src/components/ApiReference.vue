@@ -442,6 +442,31 @@ const scrollToLazyElement = (id: string) => {
   _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
 }
 
+/**
+ * Updates the browser tab title via the user-provided `setPageTitle` callback.
+ *
+ * Called whenever the section in view changes — on sidebar clicks, on scroll, and
+ * when switching documents — so the tab title always reflects what the reader sees.
+ */
+const updatePageTitle = (id: string) => {
+  const setPageTitle = mergedConfig.value?.setPageTitle
+  const entry = sidebarState.getEntryById(id)
+
+  if (!setPageTitle || typeof document === 'undefined' || !entry?.title) {
+    return
+  }
+
+  const activeDocument = workspaceStore.workspace.activeDocument
+
+  document.title = setPageTitle({
+    title: entry.title,
+    document: {
+      title: activeDocument?.info?.title ?? activeSlug.value,
+      slug: activeSlug.value,
+    },
+  })
+}
+
 /** Maps some config values to the workspace store to keep it reactive */
 mapConfigToWorkspaceStore({
   config: () => mergedConfig.value,
@@ -640,6 +665,9 @@ const changeSelectedDocument = async (
       sidebarState.setExpanded(firstTag.id, true)
     }
   }
+
+  // Reflect the freshly selected document in the browser tab title
+  updatePageTitle(elementId && elementId !== slug ? elementId : slug)
 }
 
 /**
@@ -844,6 +872,8 @@ eventBus.on('ui:download:document', ({ format }) => {
 const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
 
+  updatePageTitle(id)
+
   if (
     (item?.type === 'tag' ||
       item?.type === 'models' ||
@@ -897,6 +927,9 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
 
   sidebarState.setSelected(id)
   setBreadcrumb(id)
+
+  // Keep the browser tab title in sync with the section scrolled into view
+  updatePageTitle(id)
 
   // Scroll the sidebar to keep the selected element near the top
   scrollSidebarToTop(id)
