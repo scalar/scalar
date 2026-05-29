@@ -233,7 +233,7 @@ function collectMessages(operation: unknown, channelMessages: Record<string, Unk
     if (!isObject(item)) {
       continue
     }
-    const id = messageId(item, ids.length)
+    const id = messageId(item, channelMessages)
     channelMessages[id] = item
     ids.push(id)
   }
@@ -241,8 +241,13 @@ function collectMessages(operation: unknown, channelMessages: Record<string, Unk
   return ids
 }
 
-/** Derives a channel-message map key from a message: last `$ref` segment, `name`, or generated. */
-function messageId(message: UnknownObject, index: number): string {
+/**
+ * Derives a channel-message map key from a message: last `$ref` segment, `name`, or a generated
+ * `message-N`. The generated fallback is checked against the keys already present in the shared
+ * channel-message map so that anonymous inline messages from `publish` and `subscribe` do not
+ * collide on `message-0` and overwrite each other.
+ */
+function messageId(message: UnknownObject, existingMessages: Record<string, UnknownObject>): string {
   if (typeof message.$ref === 'string') {
     const last = message.$ref.split('/').pop()
     if (last) {
@@ -251,6 +256,10 @@ function messageId(message: UnknownObject, index: number): string {
   }
   if (typeof message.name === 'string' && message.name) {
     return message.name
+  }
+  let index = 0
+  while (`message-${index}` in existingMessages) {
+    index += 1
   }
   return `message-${index}`
 }

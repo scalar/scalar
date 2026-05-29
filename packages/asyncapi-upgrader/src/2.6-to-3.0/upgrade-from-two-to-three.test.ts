@@ -340,6 +340,44 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('keeps anonymous inline publish and subscribe messages separate', () => {
+    const document = upgradeFromTwoToThree({
+      asyncapi: '2.6.0',
+      channels: {
+        chat: {
+          publish: {
+            operationId: 'sendMessage',
+            message: { payload: { type: 'object', properties: { sent: { type: 'string' } } } },
+          },
+          subscribe: {
+            operationId: 'receiveMessage',
+            message: { payload: { type: 'object', properties: { received: { type: 'string' } } } },
+          },
+        },
+      },
+    })
+
+    expect((document.channels as Record<string, unknown>)['chat']).toEqual({
+      address: 'chat',
+      messages: {
+        'message-0': { payload: { type: 'object', properties: { sent: { type: 'string' } } } },
+        'message-1': { payload: { type: 'object', properties: { received: { type: 'string' } } } },
+      },
+    })
+    expect(document.operations).toEqual({
+      sendMessage: {
+        action: 'receive',
+        channel: { $ref: '#/channels/chat' },
+        messages: [{ $ref: '#/channels/chat/messages/message-0' }],
+      },
+      receiveMessage: {
+        action: 'send',
+        channel: { $ref: '#/channels/chat' },
+        messages: [{ $ref: '#/channels/chat/messages/message-1' }],
+      },
+    })
+  })
+
   it('leaves info, defaultContentType, and components.messages untouched', () => {
     const document = upgradeFromTwoToThree({
       asyncapi: '2.6.0',
