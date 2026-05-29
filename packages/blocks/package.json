@@ -39,10 +39,10 @@
       "require": "./dist/css/*.css",
       "default": "./dist/css/*.css"
     },
-    "./operation-code-sample": {
-      "import": "./dist/operation-code-sample/index.js",
-      "types": "./dist/operation-code-sample/index.d.ts",
-      "default": "./dist/operation-code-sample/index.js"
+    "./code-example": {
+      "import": "./dist/code-example/index.js",
+      "types": "./dist/code-example/index.d.ts",
+      "default": "./dist/code-example/index.js"
     }
   },
   "files": [

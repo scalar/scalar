@@ -49,6 +49,7 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@headlessui/vue": "catalog:*",
     "@scalar/api-client": "workspace:*",
+    "@scalar/blocks": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",

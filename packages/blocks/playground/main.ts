@@ -1,8 +1,7 @@
 import '../src/style.css'
 
+import { createCodeExample } from '@scalar/blocks/code-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-
-import { createCodeExample } from '../src/operation-code-sample/mount'
 
 const store = createWorkspaceStore()
 

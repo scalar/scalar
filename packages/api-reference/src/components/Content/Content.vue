@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mapHiddenClientsConfig } from '@scalar/api-client/modal/map-hidden-clients-config'
-import { generateClientOptions } from '@scalar/blocks/operation-code-sample'
+import { generateClientOptions } from '@scalar/blocks/code-example'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'

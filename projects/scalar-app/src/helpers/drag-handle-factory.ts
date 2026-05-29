@@ -1,4 +1,4 @@
-import { getResolvedRefDeep } from '@scalar/api-client/blocks/operation-code-sample'
+import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'

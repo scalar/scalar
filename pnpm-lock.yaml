@@ -2705,6 +2705,9 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
+      '@scalar/blocks':
+        specifier: workspace:*
+        version: link:../../packages/blocks
       '@scalar/components':
         specifier: workspace:*
         version: link:../../packages/components

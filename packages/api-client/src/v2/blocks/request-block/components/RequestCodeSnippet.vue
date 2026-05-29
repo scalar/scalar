@@ -6,9 +6,9 @@ import {
   getCustomCodeSamples,
   getSecrets,
   type ClientOption,
+  type CodeExampleProps,
   type CustomClientOption,
-  type OperationCodeSampleProps,
-} from '@scalar/blocks/operation-code-sample'
+} from '@scalar/blocks/code-example'
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarCombobox } from '@scalar/components/combobox'
@@ -33,7 +33,7 @@ const {
   selectedClient,
   globalCookies,
   integration,
-} = defineProps<OperationCodeSampleProps & { eventBus: WorkspaceEventBus }>()
+} = defineProps<CodeExampleProps & { eventBus: WorkspaceEventBus }>()
 
 /** Grab any custom code samples from the operation */
 const customCodeSamples = computed(() => getCustomCodeSamples(operation))

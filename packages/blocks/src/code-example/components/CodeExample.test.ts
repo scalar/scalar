@@ -10,7 +10,7 @@ import { nextTick, ref } from 'vue'
 
 import { mockEventBus } from '../test-utils'
 import type { ClientOptionGroup } from '../types'
-import RequestExample from './OperationCodeSample.vue'
+import RequestExample from './CodeExample.vue'
 
 enableAutoUnmount(afterEach)
 

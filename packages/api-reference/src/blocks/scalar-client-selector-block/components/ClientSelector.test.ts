@@ -1,4 +1,4 @@
-import { type ClientOptionGroup, DEFAULT_CLIENT } from '@scalar/blocks/operation-code-sample'
+import { type ClientOptionGroup, DEFAULT_CLIENT } from '@scalar/blocks/code-example'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'

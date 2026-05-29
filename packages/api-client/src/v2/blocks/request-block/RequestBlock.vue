@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ClientOptionGroup } from '@scalar/blocks/operation-code-sample'
+import type { ClientOptionGroup } from '@scalar/blocks/code-example'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
