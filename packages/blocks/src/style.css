@@ -5,10 +5,10 @@
 @import "@scalar/themes/style.css";
 @import "@scalar/themes/tailwind.css";
 
+@import "./styles/tailwind.config.css";
+
 .scalar-app {
   @import "tailwindcss/utilities.css";
 }
 
 @import "@scalar/components/style.css";
-
-@source "./";

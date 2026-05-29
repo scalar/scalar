@@ -9,6 +9,7 @@
 @import "@scalar/components/tailwind.config.css";
 @import "@scalar/sidebar/tailwind.config.css";
 @import "@scalar/api-client/tailwind.config.css";
+@import "@scalar/blocks/tailwind.config.css";
 @import "@scalar/agent-chat/tailwind.config.css";
 
 /* API Reference Tailwind Theme Extensions */

@@ -32,7 +32,7 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       formats: ['es'],
-      cssFileName: 'style',
+      cssFileName: 'vue-styles',
       entry,
     },
     rolldownOptions: {
