@@ -22,13 +22,15 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json",
+    "build:styles": "cp -r src/styles dist",
     "dev": "vite --config playground/vite.config.ts",
     "test": "vitest",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "exports": {
+    "./tailwind.config.css": "./dist/styles/tailwind.config.css",
     "./*.css": {
       "import": "./dist/*.css",
       "require": "./dist/*.css",
