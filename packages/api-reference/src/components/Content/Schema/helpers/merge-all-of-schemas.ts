@@ -241,15 +241,27 @@ const mergePropertiesIntoResult = (
     // Merge existing property
     const existing = resolve.schema(result[key])
 
+    // Break self-referential cycles: when this property's `$ref` is already
+    // being merged higher in the call stack, keep the partially merged existing
+    // schema instead of recursing into it again. This mirrors the guard in
+    // `mergeItems` and covers schemas that point back at themselves through a
+    // plain object property (e.g. a tree node whose `parent` $refs the node).
+    const schemaRef = (schema as { $ref?: string }).$ref
+    if (typeof schemaRef === 'string' && seenRefs.has(schemaRef)) {
+      result[key] = existing
+      continue
+    }
+    const nextSeenRefs = typeof schemaRef === 'string' ? new Set(seenRefs).add(schemaRef) : seenRefs
+
     if (schema.allOf) {
-      result[key] = mergeAllOfSchemas({ allOf: [existing, ...schema.allOf] } as SchemaObject, undefined, seenRefs)
+      result[key] = mergeAllOfSchemas({ allOf: [existing, ...schema.allOf] } as SchemaObject, undefined, nextSeenRefs)
     } else if (isArraySchema(schema) && isArraySchema(existing) && schema.items) {
       const existingItems = resolve.schema(existing.items)
       result[key] = {
         ...existing,
         type: 'array',
         items: existingItems
-          ? mergeItems(existingItems, resolve.schema(schema.items), seenRefs)
+          ? mergeItems(existingItems, resolve.schema(schema.items), nextSeenRefs)
           : resolve.schema(schema.items),
       }
     } else {
@@ -257,7 +269,7 @@ const mergePropertiesIntoResult = (
       if ('properties' in existing && 'properties' in schema) {
         const merged = { ...existing, ...schema }
         merged.properties = { ...existing.properties }
-        mergePropertiesIntoResult(merged.properties, schema.properties, seenRefs)
+        mergePropertiesIntoResult(merged.properties, schema.properties, nextSeenRefs)
         result[key] = merged
       }
       // Simple merge without property recursion
