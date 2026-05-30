@@ -18,9 +18,6 @@ Properties are passed through the info string on the opening fence. The first sp
 | `focus` | `string` | — | Lines to focus while dimming the rest. |
 | `added` | `string` | — | Lines marked as added (diff-style green). |
 | `removed` | `string` | — | Lines marked as removed (diff-style red). |
-| `maxHeight` | `string` | — | CSS max-height for the block (e.g. `200px`). |
-| `minHeight` | `string` | — | CSS min-height for the block. |
-| `fullHeight` | `boolean` | `false` | Expand to full height. Also accepted as `full-height`. |
 
 ## Examples
 
@@ -99,31 +96,5 @@ function greet(name: string): string {
   "version": "2.0.0",
   "name": "scalar"
 }
-```
-````
-
-### Constrained Height
-
-<Preview>
-```bash maxHeight="120px"
-$ pnpm install
-$ pnpm build
-$ pnpm test
-$ pnpm dev
-$ pnpm format
-$ pnpm lint
-$ pnpm changeset
-```
-</Preview>
-
-````md
-```bash maxHeight="120px"
-$ pnpm install
-$ pnpm build
-$ pnpm test
-$ pnpm dev
-$ pnpm format
-$ pnpm lint
-$ pnpm changeset
 ```
 ````

@@ -4,6 +4,8 @@ import Preview from './Preview.mdx'
 
 Images render responsive figures with optional captions, links, and dark-mode variants.
 
+The examples below reference images from your [assets directory](/products/docs/content/assets) using root-relative paths (e.g. `/marc-cam-scalar.jpg`). You can also pass a full URL to any external image.
+
 ## Properties
 
 | Prop | Type | Default | Description |
@@ -15,7 +17,7 @@ Images render responsive figures with optional captions, links, and dark-mode va
 | `width` | `number` | — | Display width in pixels. |
 | `height` | `number` | — | Display height in pixels. |
 | `href` | `string` | — | When set, wraps the image in a link to this URL. |
-| `size` | `'actual' \| 'custom' \| 'full'` | `actual` | Sizing strategy. `actual` uses the image's natural size, `custom` uses `width`/`height`, `full` stretches to container width. |
+| `size` | `'actual'` `'custom'` `'full'` | `actual` | Sizing strategy. `actual` uses the image's natural size, `custom` uses `width`/`height`, `full` stretches to container width. |
 
 ## Examples
 
@@ -23,22 +25,22 @@ Images render responsive figures with optional captions, links, and dark-mode va
 
 <Preview>
   <Image
-    src="https://docs.scalar.com/scalar-docs.png"
-    alt="Scalar documentation interface"
+    src="/marc-cam-scalar.jpg"
+    alt="Two Scalar team members working at a desk"
   />
 </Preview>
 
 <CodeGroup>
 ```md Markdown
 <scalar-image
-  src="https://docs.scalar.com/scalar-docs.png"
-  alt="Scalar documentation interface">
+  src="/marc-cam-scalar.jpg"
+  alt="Two Scalar team members working at a desk">
 </scalar-image>
 ```
 ```mdx MDX
 <Image
-  src="https://docs.scalar.com/scalar-docs.png"
-  alt="Scalar documentation interface"
+  src="/marc-cam-scalar.jpg"
+  alt="Two Scalar team members working at a desk"
 />
 ```
 </CodeGroup>
@@ -47,25 +49,25 @@ Images render responsive figures with optional captions, links, and dark-mode va
 
 <Preview>
   <Image
-    src="https://docs.scalar.com/scalar-docs.png"
-    alt="Scalar documentation"
-    caption="The Scalar documentation interface in action"
+    src="/marc-cam-scalar.jpg"
+    alt="Two Scalar team members working at a desk"
+    caption="Hard at work at Scalar"
   />
 </Preview>
 
 <CodeGroup>
 ```md Markdown
 <scalar-image
-  src="https://docs.scalar.com/scalar-docs.png"
-  alt="Scalar documentation"
-  caption="The Scalar documentation interface in action">
+  src="/marc-cam-scalar.jpg"
+  alt="Two Scalar team members working at a desk"
+  caption="Hard at work at Scalar">
 </scalar-image>
 ```
 ```mdx MDX
 <Image
-  src="https://docs.scalar.com/scalar-docs.png"
-  alt="Scalar documentation"
-  caption="The Scalar documentation interface in action"
+  src="/marc-cam-scalar.jpg"
+  alt="Two Scalar team members working at a desk"
+  caption="Hard at work at Scalar"
 />
 ```
 </CodeGroup>
@@ -74,31 +76,31 @@ Images render responsive figures with optional captions, links, and dark-mode va
 
 <Preview>
   <Image
-    src="https://cdn.scalar.com/marketing/landing/logo-light.svg"
-    src-dark="https://cdn.scalar.com/marketing/landing/logo-dark.svg"
-    alt="Scalar logo"
+    src="/brand/scalar-wordmark-light.png"
+    src-dark="/brand/scalar-wordmark-dark.png"
+    alt="Scalar wordmark"
     size="custom"
-    width={200}
+    width={300}
   />
 </Preview>
 
 <CodeGroup>
 ```md Markdown
 <scalar-image
-  src="https://cdn.scalar.com/marketing/landing/logo-light.svg"
-  src-dark="https://cdn.scalar.com/marketing/landing/logo-dark.svg"
-  alt="Scalar logo"
+  src="/brand/scalar-wordmark-light.png"
+  src-dark="/brand/scalar-wordmark-dark.png"
+  alt="Scalar wordmark"
   size="custom"
-  width="200">
+  width="300">
 </scalar-image>
 ```
 ```mdx MDX
 <Image
-  src="https://cdn.scalar.com/marketing/landing/logo-light.svg"
-  src-dark="https://cdn.scalar.com/marketing/landing/logo-dark.svg"
-  alt="Scalar logo"
+  src="/brand/scalar-wordmark-light.png"
+  src-dark="/brand/scalar-wordmark-dark.png"
+  alt="Scalar wordmark"
   size="custom"
-  width={200}
+  width={300}
 />
 ```
 </CodeGroup>
@@ -107,8 +109,8 @@ Images render responsive figures with optional captions, links, and dark-mode va
 
 <Preview>
   <Image
-    src="https://docs.scalar.com/scalar-docs.png"
-    alt="Click to visit"
+    src="/marc-cam-scalar.jpg"
+    alt="Visit Scalar"
     href="https://scalar.com"
   />
 </Preview>
@@ -116,43 +118,16 @@ Images render responsive figures with optional captions, links, and dark-mode va
 <CodeGroup>
 ```md Markdown
 <scalar-image
-  src="https://docs.scalar.com/scalar-docs.png"
-  alt="Click to visit"
+  src="/marc-cam-scalar.jpg"
+  alt="Visit Scalar"
   href="https://scalar.com">
 </scalar-image>
 ```
 ```mdx MDX
 <Image
-  src="https://docs.scalar.com/scalar-docs.png"
-  alt="Click to visit"
+  src="/marc-cam-scalar.jpg"
+  alt="Visit Scalar"
   href="https://scalar.com"
-/>
-```
-</CodeGroup>
-
-### Full-Width
-
-<Preview>
-  <Image
-    src="https://docs.scalar.com/scalar-docs.png"
-    alt="Full width screenshot"
-    size="full"
-  />
-</Preview>
-
-<CodeGroup>
-```md Markdown
-<scalar-image
-  src="https://docs.scalar.com/scalar-docs.png"
-  alt="Full width screenshot"
-  size="full">
-</scalar-image>
-```
-```mdx MDX
-<Image
-  src="https://docs.scalar.com/scalar-docs.png"
-  alt="Full width screenshot"
-  size="full"
 />
 ```
 </CodeGroup>

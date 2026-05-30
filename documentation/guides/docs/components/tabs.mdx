@@ -23,27 +23,30 @@ Tabs organize content into multiple panels behind a row of clickable headers. Us
 
 ### Basic Tabs
 
+Each tab can hold rich markdown — headings, lists, links, and emphasis.
+
 <Preview>
   <Tabs>
-    <Tab title="JavaScript">
-      ```javascript
-      function greet(name) {
-        return `Hello, ${name}!`
-      }
-      ```
+    <Tab title="Documentation">
+      Generate beautiful, interactive API reference docs straight from your OpenAPI document.
+
+      - Try requests right in the browser
+      - Auto-generated code samples
+      - Full-text search across every endpoint
     </Tab>
-    <Tab title="TypeScript">
-      ```typescript
-      function greet(name: string): string {
-        return `Hello, ${name}!`
-      }
-      ```
+    <Tab title="API Client">
+      A standalone client for testing and debugging your APIs.
+
+      - Save and organize requests
+      - Environment variables and secrets
+      - Works offline as a desktop app
     </Tab>
-    <Tab title="Python">
-      ```python
-      def greet(name):
-          return f"Hello, {name}!"
-      ```
+    <Tab title="Registry">
+      Host and version your OpenAPI documents in one place.
+
+      - Share docs with your whole team
+      - Automatic versioning on every push
+      - Connect a custom domain
     </Tab>
   </Tabs>
 </Preview>
@@ -51,49 +54,51 @@ Tabs organize content into multiple panels behind a row of clickable headers. Us
 <CodeGroup>
 ````md Markdown
 <scalar-tabs>
-  <scalar-tab title="JavaScript">
-```javascript
-function greet(name) {
-  return `Hello, ${name}!`
-}
-```
+  <scalar-tab title="Documentation">
+Generate beautiful, interactive API reference docs straight from your OpenAPI document.
+
+- Try requests right in the browser
+- Auto-generated code samples
+- Full-text search across every endpoint
   </scalar-tab>
-  <scalar-tab title="TypeScript">
-```typescript
-function greet(name: string): string {
-  return `Hello, ${name}!`
-}
-```
+  <scalar-tab title="API Client">
+A standalone client for testing and debugging your APIs.
+
+- Save and organize requests
+- Environment variables and secrets
+- Works offline as a desktop app
   </scalar-tab>
-  <scalar-tab title="Python">
-```python
-def greet(name):
-    return f"Hello, {name}!"
-```
+  <scalar-tab title="Registry">
+Host and version your OpenAPI documents in one place.
+
+- Share docs with your whole team
+- Automatic versioning on every push
+- Connect a custom domain
   </scalar-tab>
 </scalar-tabs>
 ````
 ````mdx MDX
 <Tabs>
-  <Tab title="JavaScript">
-    ```javascript
-    function greet(name) {
-      return `Hello, ${name}!`
-    }
-    ```
+  <Tab title="Documentation">
+    Generate beautiful, interactive API reference docs straight from your OpenAPI document.
+
+    - Try requests right in the browser
+    - Auto-generated code samples
+    - Full-text search across every endpoint
   </Tab>
-  <Tab title="TypeScript">
-    ```typescript
-    function greet(name: string): string {
-      return `Hello, ${name}!`
-    }
-    ```
+  <Tab title="API Client">
+    A standalone client for testing and debugging your APIs.
+
+    - Save and organize requests
+    - Environment variables and secrets
+    - Works offline as a desktop app
   </Tab>
-  <Tab title="Python">
-    ```python
-    def greet(name):
-        return f"Hello, {name}!"
-    ```
+  <Tab title="Registry">
+    Host and version your OpenAPI documents in one place.
+
+    - Share docs with your whole team
+    - Automatic versioning on every push
+    - Connect a custom domain
   </Tab>
 </Tabs>
 ````
@@ -104,91 +109,75 @@ def greet(name):
 The `default` prop matches the `title` of a child tab (case-insensitively).
 
 <Preview>
-  <Tabs default="TypeScript">
-    <Tab title="JavaScript">JavaScript content.</Tab>
-    <Tab title="TypeScript">TypeScript is shown first.</Tab>
+  <Tabs default="Production">
+    <Tab title="Local">Pointing at your local server.</Tab>
+    <Tab title="Production">Production is shown first.</Tab>
   </Tabs>
 </Preview>
 
 <CodeGroup>
 ```md Markdown
-<scalar-tabs default="TypeScript">
-  <scalar-tab title="JavaScript">JavaScript content.</scalar-tab>
-  <scalar-tab title="TypeScript">TypeScript is shown first.</scalar-tab>
+<scalar-tabs default="Production">
+  <scalar-tab title="Local">Pointing at your local server.</scalar-tab>
+  <scalar-tab title="Production">Production is shown first.</scalar-tab>
 </scalar-tabs>
 ```
 ```mdx MDX
-<Tabs default="TypeScript">
-  <Tab title="JavaScript">JavaScript content.</Tab>
-  <Tab title="TypeScript">TypeScript is shown first.</Tab>
+<Tabs default="Production">
+  <Tab title="Local">Pointing at your local server.</Tab>
+  <Tab title="Production">Production is shown first.</Tab>
 </Tabs>
 ```
 </CodeGroup>
 
-### Mixed Content
+### Rich Components
 
-Tabs can hold any markdown or component content — not just code.
+Tabs can hold any other component — cards, callouts, images, and more.
 
 <Preview>
   <Tabs>
-    <Tab title="Overview">
-      Plain text with **markdown** formatting works too.
+    <Tab title="Cards">
+      <Row cols={2}>
+        <Card title="Fast" icon="phosphor/regular/lightning">
+          Renders instantly, even for large API descriptions.
+        </Card>
+        <Card title="Themeable" icon="phosphor/regular/palette">
+          Match your brand with CSS variables and design tokens.
+        </Card>
+      </Row>
     </Tab>
-    <Tab title="Install">
-      ```bash
-      pnpm add @scalar/guide-elements
-      ```
+    <Tab title="Callout">
+      <Callout type="info">
+        Anything you can write on a page works inside a tab.
+      </Callout>
     </Tab>
-    <Tab title="Configure">
-      ```json
-      {
-        "theme": "dark",
-        "features": ["tabs", "steps", "callouts"]
-      }
-      ```
+    <Tab title="Image">
+      <Image src="/marc-cam-scalar.jpg" alt="The Scalar team at work" />
     </Tab>
   </Tabs>
 </Preview>
 
 <CodeGroup>
-````md Markdown
-<scalar-tabs>
-  <scalar-tab title="Overview">
-Plain text with **markdown** formatting works too.
-  </scalar-tab>
-  <scalar-tab title="Install">
-```bash
-pnpm add @scalar/guide-elements
-```
-  </scalar-tab>
-  <scalar-tab title="Configure">
-```json
-{
-  "theme": "dark",
-  "features": ["tabs", "steps", "callouts"]
-}
-```
-  </scalar-tab>
-</scalar-tabs>
-````
-````mdx MDX
+```mdx MDX
 <Tabs>
-  <Tab title="Overview">
-    Plain text with **markdown** formatting works too.
+  <Tab title="Cards">
+    <Row cols={2}>
+      <Card title="Fast" icon="phosphor/regular/lightning">
+        Renders instantly, even for large API descriptions.
+      </Card>
+      <Card title="Themeable" icon="phosphor/regular/palette">
+        Match your brand with CSS variables and design tokens.
+      </Card>
+    </Row>
   </Tab>
-  <Tab title="Install">
-    ```bash
-    pnpm add @scalar/guide-elements
-    ```
+  <Tab title="Callout">
+    <Callout type="info">
+      Anything you can write on a page works inside a tab.
+    </Callout>
   </Tab>
-  <Tab title="Configure">
-    ```json
-    {
-      "theme": "dark",
-      "features": ["tabs", "steps", "callouts"]
-    }
-    ```
+  <Tab title="Image">
+    <Image src="/marc-cam-scalar.jpg" alt="The Scalar team at work" />
   </Tab>
 </Tabs>
-````
+```
 </CodeGroup>
