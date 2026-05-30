@@ -130,7 +130,7 @@
         },
         {
           "from": "/scalar/access",
-          "to": "/products/docs/access"
+          "to": "/products/docs/configuration/private-docs"
         },
         {
           "from": "/scalar-api",
@@ -158,7 +158,7 @@
         },
         {
           "from": "/scalar/access",
-          "to": "/products/docs/access"
+          "to": "/products/docs/configuration/private-docs"
         },
         {
           "from": "/scalar/scalar-docs/getting-started",
@@ -166,11 +166,11 @@
         },
         {
           "from": "/scalar/scalar-docs/github-sync",
-          "to": "/products/docs/github-sync"
+          "to": "/products/docs/configuration/scalar.config.json"
         },
         {
           "from": "/scalar/scalar-docs/github-actions",
-          "to": "/products/docs/github-actions"
+          "to": "/products/docs/deployment/github-actions"
         },
         {
           "from": "/scalar/scalar-docs/redirects",
@@ -542,15 +542,15 @@
         },
         {
           "from": "/products/mock-server/changelog",
-          "to": "/changelog/mock-server"
+          "to": "/resources/changelog/mock-server"
         },
         {
           "from": "/tools/mock-server/changelog",
-          "to": "/changelog/mock-server"
+          "to": "/resources/changelog/mock-server"
         },
         {
           "from": "/products/api-references/changelog",
-          "to": "/changelog/api-reference"
+          "to": "/resources/changelog/api-reference"
         },
         {
           "from": "/download",
@@ -566,23 +566,23 @@
         },
         {
           "from": "/migration/swagger-ui",
-          "to": "/guides/migration/swagger-ui"
+          "to": "/resources/migration/swagger-ui"
         },
         {
           "from": "/migration/stoplight",
-          "to": "/guides/migration/stoplight"
+          "to": "/resources/migration/stoplight"
         },
         {
           "from": "/migration/api-hub",
-          "to": "/guides/migration/api-hub"
+          "to": "/resources/migration/api-hub"
         },
         {
           "from": "/migration/bump",
-          "to": "/guides/migration/bump"
+          "to": "/resources/migration/bump"
         },
         {
           "from": "/migration/zuplo",
-          "to": "/guides/migration/zuplo"
+          "to": "/resources/migration/zuplo"
         },
         {
           "from": "/products/docs/github-actions",
@@ -610,7 +610,7 @@
         },
         {
           "from": "/blog/oss-pledge-2024",
-          "to": "/blog/posts/2024-09-21-oss-pledge"
+          "to": "/blog/posts/2024-09-01-oss-pledge"
         },
         {
           "from": "/blog",
@@ -638,11 +638,11 @@
         },
         {
           "from": "/guides",
-          "to": "/resources/migration"
+          "to": "/resources/migration/swagger-ui"
         },
         {
           "from": "/guides/migration",
-          "to": "/resources/migration"
+          "to": "/resources/migration/swagger-ui"
         },
         {
           "from": "/guides/migration/api-hub",
@@ -666,7 +666,7 @@
         },
         {
           "from": "/guides/sso",
-          "to": "/resources/sso"
+          "to": "/resources/sso/getting-started"
         },
         {
           "from": "/guides/sso/getting-started",
@@ -674,7 +674,7 @@
         },
         {
           "from": "/guides/sso/providers",
-          "to": "/resources/sso/providers"
+          "to": "/resources/sso/providers/auth0"
         },
         {
           "from": "/guides/sso/providers/auth0",
