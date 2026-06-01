@@ -1,3 +1,5 @@
+import type { ModelsSectionLabel } from '@scalar/types/api-reference'
+
 import type { IdGenerator, TraversedEntry } from '@/schemas/navigation'
 import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
@@ -31,6 +33,9 @@ export type TraverseSpecOptions = {
 
   /** Whether to hide model schemas from the navigation */
   hideModels: boolean
+
+  /** User-facing label for the components.schemas section */
+  modelsSectionLabel: ModelsSectionLabel
 
   /** Whether to derive operation titles from the operation summary or the path */
   operationTitleSource?: OperationTitleSource

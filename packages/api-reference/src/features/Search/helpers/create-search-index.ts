@@ -1,3 +1,4 @@
+import { DEFAULT_MODELS_SECTION_LABEL, type ModelsSectionLabel } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { combineParams } from '@scalar/workspace-store/request-example'
@@ -78,18 +79,26 @@ function extractResponseExamples(responses: ResponsesObject | undefined): string
     .filter((value) => value.length > 0)
 }
 
+type CreateSearchIndexOptions = {
+  modelsSectionLabel?: ModelsSectionLabel
+}
+
 /**
  * Create a search index from a list of entries.
  */
-export function createSearchIndex(document: SearchableDocument | undefined): FuseData[] {
+export function createSearchIndex(
+  document: SearchableDocument | undefined,
+  options?: CreateSearchIndexOptions,
+): FuseData[] {
   const index: FuseData[] = []
+  const modelsSectionTitle = options?.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
 
   /**
    * Recursively processes entries and their children to build the search index.
    */
   function processEntries(entriesToProcess: TraversedEntry[]): void {
     entriesToProcess.forEach((entry) => {
-      addEntryToIndex(entry, index, document)
+      addEntryToIndex(entry, index, document, modelsSectionTitle)
 
       // Recursively process children if they exist
       if ('children' in entry && entry.children) {
@@ -109,7 +118,12 @@ export function createSearchIndex(document: SearchableDocument | undefined): Fus
  * AsyncAPI documents only contribute heading/tag entries here. Their channels,
  * operations, and messages are not indexed yet.
  */
-function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: SearchableDocument): void {
+function addEntryToIndex(
+  entry: TraversedEntry,
+  index: FuseData[],
+  document: SearchableDocument | undefined,
+  modelsSectionTitle: string,
+): void {
   // OpenAPI-only branches read fields that do not exist on AsyncAPI documents (paths, webhooks,
   // components.schemas). Narrow once here so each branch can dereference safely.
   const openApiDocument = isOpenApiDocument(document) ? document : undefined
@@ -178,7 +192,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Se
     index.push({
       type: 'model',
       title: entry.title,
-      description: 'Model',
+      description: modelsSectionTitle,
       id: entry.id,
       body: propertyNames,
       bodyDescriptions: schemaDescription ? [schemaDescription, ...propertyDescriptions] : propertyDescriptions,
@@ -193,7 +207,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Se
     index.push({
       id: entry.id,
       type: 'heading',
-      title: 'Models',
+      title: entry.title,
       description: 'Heading',
       body: '',
       entry,

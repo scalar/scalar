@@ -37,7 +37,7 @@ toTest.forEach((source) => {
     const models = await page.getByRole('region', { name: 'Models' })
 
     // Simple Model
-    await page.goto(`${example}#${slug}/model/user`)
+    await page.goto(`${example}#${slug}/models/user`)
     await models.getByRole('button', { name: 'User' }).click()
     const userModel = await models.getByRole('region', { name: 'User' })
     await expect(userModel).toHaveScreenshot(`${slug}-model-simple.png`)
@@ -53,7 +53,7 @@ toTest.forEach((source) => {
     await expect(nestedItem).toHaveScreenshot(`${slug}-model-nested.png`)
 
     // Discriminator
-    await page.goto(`${example}#${slug}/model/celestialbody`)
+    await page.goto(`${example}#${slug}/models/celestialbody`)
     await models.getByRole('button', { name: 'CelestialBody' }).click()
     const celestialBodyModel = await models.getByRole('region', { name: 'CelestialBody' })
     await celestialBodyModel.getByRole('button', { name: 'One of' }).click()

@@ -19,6 +19,7 @@ import {
 } from '@scalar/components/color-mode-toggle'
 import { addScalarClassesToHeadless } from '@scalar/components/helpers'
 import { ScalarSidebarFooter } from '@scalar/components/sidebar'
+import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import {
@@ -28,6 +29,7 @@ import {
 } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
+  DEFAULT_MODELS_SECTION_LABEL,
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationRaw,
@@ -79,6 +81,7 @@ import {
   getIdFromUrl,
   makeUrlFromId,
   matchesBasePath,
+  redirectLegacyModelUrl,
 } from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
@@ -228,14 +231,22 @@ const configurationOverrides = ref<
 >({})
 
 /** Any dev toolbar modifications are merged with the active configuration */
-const mergedConfig = computed<ApiReferenceConfiguration>(() => ({
-  // Provides a default set of values when the lookup fails
-  ...coerce(apiReferenceConfigurationSchema, {}),
-  // The active configuration based on the slug
-  ...configList.value[activeSlug.value]?.config,
-  // Any overrides from the localhost toolbar
-  ...configurationOverrides.value,
-}))
+const mergedConfig = computed<ApiReferenceConfiguration>(() => {
+  const merged = {
+    // Provides a default set of values when the lookup fails
+    ...coerce(apiReferenceConfigurationSchema, {}),
+    // The active configuration based on the slug
+    ...configList.value[activeSlug.value]?.config,
+    // Any overrides from the localhost toolbar
+    ...configurationOverrides.value,
+  }
+
+  return {
+    ...merged,
+    modelsSectionLabel:
+      merged.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL,
+  }
+})
 
 /** Convenience break out var to determine which routing mode we are using */
 const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
@@ -259,6 +270,23 @@ pluginManager.notifyInit(mergedConfig.value)
 watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
+
+// Redirect legacy `/model/<name>` URLs to the current section's plural slug
+// so bookmarks from before the slug streamline keep resolving.
+if (typeof window !== 'undefined') {
+  const canonical = redirectLegacyModelUrl(
+    window.location.href,
+    slugify(
+      mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL,
+    ),
+    activeSlug.value,
+    isMultiDocument.value,
+    mergedConfig.value.pathRouting?.basePath,
+  )
+  if (canonical) {
+    window.history.replaceState({}, '', canonical.toString())
+  }
+}
 
 // Front-end redirect
 if (mergedConfig.value.redirect && typeof window !== 'undefined') {
@@ -1094,6 +1122,7 @@ const showMCPButton = computed(() => {
             :document="activeSearchableDocument"
             :eventBus="eventBus"
             :hideModels="mergedConfig.hideModels"
+            :modelsSectionLabel="mergedConfig.modelsSectionLabel"
             :searchHotKey="mergedConfig.searchHotKey"
             :showSidebar="mergedConfig.showSidebar" />
         </template>
@@ -1130,6 +1159,7 @@ const showMCPButton = computed(() => {
                   :document="activeSearchableDocument"
                   :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
+                  :modelsSectionLabel="mergedConfig.modelsSectionLabel"
                   :searchHotKey="mergedConfig.searchHotKey" />
 
                 <AgentScalarButton v-if="agent.agentEnabled.value" />
@@ -1224,6 +1254,7 @@ const showMCPButton = computed(() => {
                 :document="activeSearchableDocument"
                 :eventBus="eventBus"
                 :hideModels="mergedConfig.hideModels"
+                :modelsSectionLabel="mergedConfig.modelsSectionLabel"
                 :searchHotKey="mergedConfig.searchHotKey" />
               <template #dark-mode-toggle>
                 <ScalarColorModeToggleIcon

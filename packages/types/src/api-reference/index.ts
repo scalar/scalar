@@ -12,6 +12,7 @@ export type {
   BaseConfiguration,
   ExternalUrls,
   LifecycleHooks,
+  ModelsSectionLabel,
   SecurityScheme,
   SecuritySchemeApiKey,
   SecuritySchemeHttp,
@@ -21,4 +22,4 @@ export type {
   SpecificationExtension,
   ViewComponent,
 } from './types'
-export { isConfigurationWithSources } from './types'
+export { DEFAULT_MODELS_SECTION_LABEL, isConfigurationWithSources } from './types'

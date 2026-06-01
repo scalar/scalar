@@ -328,6 +328,12 @@ export type BaseConfiguration = {
   externalUrls: ExternalUrls
 }
 
+/** User-facing label for the components.schemas section in the sidebar, content, and search. */
+export type ModelsSectionLabel = 'Models' | 'Schemas' | (string & {})
+
+/** Default label for the components.schemas section. Preserves the historical `Models` wording and the `#models` hash. */
+export const DEFAULT_MODELS_SECTION_LABEL: ModelsSectionLabel = 'Models'
+
 type ExtendedConfiguration = {
   /** The layout to use for the references */
   layout: 'modern' | 'classic'
@@ -353,6 +359,8 @@ type ExtendedConfiguration = {
   isLoading: boolean
   /** Whether to show models in the sidebar, search, and content. */
   hideModels: boolean
+  /** Label for the components.schemas section (`Models`, `Schemas`, or any custom string). */
+  modelsSectionLabel?: ModelsSectionLabel
   /** Sets the file type of the document to download, set to `none` to hide the download button */
   documentDownloadType: 'both' | 'yaml' | 'json' | 'direct' | 'none'
   /** @deprecated Use `documentDownloadType: 'none'` instead */

@@ -2,6 +2,7 @@
 import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import { ScalarSearchInput } from '@scalar/components/search-input'
 import { ScalarSearchResultList } from '@scalar/components/search-results'
+import type { ModelsSectionLabel } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -16,6 +17,7 @@ const props = defineProps<{
   modalState: ModalState
   document: OpenApiDocument | AsyncApiDocument | undefined
   eventBus: WorkspaceEventBus
+  modelsSectionLabel?: ModelsSectionLabel
 }>()
 
 /** Base id for the search form */
@@ -25,7 +27,10 @@ const listboxId = `${id}-search-result`
 /** An id for the results instructions */
 const instructionsId = `${id}-search-instructions`
 
-const { query, results } = useSearchIndex(() => props.document)
+const { query, results } = useSearchIndex(
+  () => props.document,
+  () => props.modelsSectionLabel,
+)
 
 const selectedIndex = ref<number | undefined>(undefined)
 
@@ -108,6 +113,7 @@ const activeDescendantId = computed(() => {
         :id="`search-result-${result.item.id}`"
         :key="result.refIndex"
         :isSelected="selectedIndex === idx"
+        :modelsSectionLabel="props.modelsSectionLabel"
         :result="result"
         @click.prevent="() => handleSelect(idx)" />
     </ScalarSearchResultList>

@@ -197,11 +197,50 @@ describe('traverseDocument', () => {
     })
     expect((result.children[1] as TraversedTag).children).toHaveLength(1)
     expect((result.children[1] as TraversedTag).children?.[0]).toEqual({
-      'id': 'doc-1/model/TestModel',
+      'id': 'doc-1/models/TestModel',
       'name': 'TestModel',
       'ref': '#/components/schemas/TestModel',
       'title': 'TestModel',
       'type': 'model',
+    })
+  })
+
+  it('uses Schemas section title when modelsSectionLabel is Schemas', () => {
+    const doc: OpenApiDocument = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          TestModel: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+              },
+            },
+          }),
+        },
+      },
+      'x-scalar-original-document-hash': '',
+    }
+
+    const result = traverseDocument('doc-1', doc, {
+      ...mockOptions,
+      modelsSectionLabel: 'Schemas',
+    })
+
+    expect(result.children[1]).toMatchObject({
+      type: 'models',
+      id: 'doc-1/schemas',
+      title: 'Schemas',
+      name: 'Schemas',
+    })
+    expect((result.children[1] as TraversedTag).children?.[0]).toMatchObject({
+      id: 'doc-1/schemas/TestModel',
+      type: 'model',
     })
   })
 

@@ -5,6 +5,7 @@ import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 import { NEW_PROXY_URL, OLD_PROXY_URL, baseConfigurationSchema } from './base-configuration'
 import { type SourceConfiguration, sourceConfigurationSchema } from './source-configuration'
+import { DEFAULT_MODELS_SECTION_LABEL } from './types'
 
 // Zod Schemas don't work well with async functions, so we use a custom type instead.
 const fetchLikeSchema = z.custom<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>()
@@ -63,6 +64,16 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default false
    */
   hideModels: z.boolean().optional().default(false).catch(false),
+  /**
+   * Label for the components.schemas section in the sidebar, content, and search.
+   * Use `Schemas` for OpenAPI terminology; `Models` is the historical default.
+   * @default 'Models'
+   */
+  modelsSectionLabel: z
+    .union([z.literal('Models'), z.literal('Schemas'), z.string()])
+    .optional()
+    .default(DEFAULT_MODELS_SECTION_LABEL)
+    .catch(DEFAULT_MODELS_SECTION_LABEL),
   /**
    * Sets the file type of the document to download, set to `none` to hide the download button
    * @default 'both'

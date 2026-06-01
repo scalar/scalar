@@ -18,6 +18,9 @@ const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
   cdn: '/scalar.js',
   url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
   proxyUrl: 'https://proxy.scalar.com',
+  // Title drives the document slug used in URLs (`scalar-galaxy`) so tests can
+  // construct deterministic deep links without each one having to set this.
+  title: 'Scalar Galaxy',
   // TODO: Remove this once the CDN supports the showDeveloperTools attribute
   // @ts-expect-error - we need this until next release (after 1.39.3)
   showToolbar: 'never',
