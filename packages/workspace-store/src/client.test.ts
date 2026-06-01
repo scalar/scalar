@@ -185,6 +185,48 @@ describe('create-workspace-store', () => {
     expect(getOpenApiDocument(store, 'default')?.['x-scalar-selected-server']).toBe('server-3')
   })
 
+  it('preserves nullable array schemas with items when adding a document', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument(
+      {
+        name: 'test',
+        document: {
+          components: {
+            schemas: {
+              ArtifactListResponse: {
+                type: 'object',
+                properties: {
+                  items: {
+                    type: ['array', 'null'],
+                    items: {
+                      $ref: '#/components/schemas/ArtifactResponse',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      { modelsSectionLabel: 'Models' },
+    )
+
+    const document = getRaw(getOpenApiDocument(store, 'test'))
+
+    expect(document?.components?.schemas?.ArtifactListResponse).toEqual({
+      type: 'object',
+      properties: {
+        items: {
+          type: ['array', 'null'],
+          items: {
+            $ref: '#/components/schemas/ArtifactResponse',
+          },
+        },
+      },
+    })
+  })
+
   it('does not throw when updating non-existent document', () => {
     const store = createWorkspaceStore()
 

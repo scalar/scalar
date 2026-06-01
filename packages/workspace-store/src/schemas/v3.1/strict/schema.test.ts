@@ -101,6 +101,38 @@ describe('schema', () => {
       })
     })
 
+    it('preserves nullable array type when items are present', () => {
+      const validInput = {
+        type: ['array', 'null'],
+        items: {
+          type: 'string',
+        },
+      }
+
+      const result = coerceValue(SchemaObjectSchema, validInput)
+
+      expect(result).toEqual(validInput)
+    })
+
+    it('preserves nested nullable item schemas', () => {
+      const validInput = {
+        type: ['array', 'null'],
+        items: {
+          type: ['object', 'null'],
+          properties: {
+            name: {
+              type: ['string', 'null'],
+              maxLength: 100,
+            },
+          },
+        },
+      }
+
+      const result = coerceValue(SchemaObjectSchema, validInput)
+
+      expect(result).toEqual(validInput)
+    })
+
     it('parses valid object schema object correctly', () => {
       const validInput = {
         type: 'object',
@@ -146,6 +178,21 @@ describe('schema', () => {
         },
         additionalProperties: false,
       })
+    })
+
+    it('preserves nullable object type when properties are present', () => {
+      const validInput = {
+        type: ['object', 'null'],
+        properties: {
+          name: {
+            type: 'string',
+          },
+        },
+      }
+
+      const result = coerceValue(SchemaObjectSchema, validInput)
+
+      expect(result).toEqual(validInput)
     })
 
     it('parses schema with composition (allOf) correctly', () => {
