@@ -100,7 +100,7 @@ import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
-import { persistencePlugin } from '@/plugins/persistance-plugin'
+import { persistencePlugin } from '@/plugins/persistence-plugin'
 
 const props = defineProps<{
   /**
@@ -314,7 +314,6 @@ const clientStore = createWorkspaceStore({
   verbose: isDevelopment,
   plugins: [
     persistencePlugin({
-      prefix: () => activeSlug.value,
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
     }),
   ],
@@ -332,15 +331,14 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 })
 
 /**
- * The active document narrowed to an OpenAPI document.
- *
- * api-reference is OpenAPI-native, so AsyncAPI documents are surfaced as
- * undefined to downstream components.
+ * The active document passed to the search modal. Both OpenAPI and AsyncAPI
+ * documents are surfaced so the search index can pick up info.description
+ * headings from either spec; AsyncAPI-specific entries (channels, operations,
+ * messages) are not indexed yet.
  */
-const activeOpenApiDocument = computed(() => {
-  const doc = workspaceStore.workspace.activeDocument
-  return isOpenApiDocument(doc) ? doc : undefined
-})
+const activeSearchableDocument = computed(
+  () => workspaceStore.workspace.activeDocument,
+)
 
 /**
  * Create top level sidebar entries for each document
@@ -440,6 +438,31 @@ const scrollToLazyElement = (id: string) => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
   _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
+}
+
+/**
+ * Updates the browser tab title via the user-provided `setPageTitle` callback.
+ *
+ * Called whenever the section in view changes — on sidebar clicks, on scroll, and
+ * when switching documents — so the tab title always reflects what the reader sees.
+ */
+const updatePageTitle = (id: string) => {
+  const setPageTitle = mergedConfig.value?.setPageTitle
+  const entry = sidebarState.getEntryById(id)
+
+  if (!setPageTitle || typeof document === 'undefined' || !entry?.title) {
+    return
+  }
+
+  const activeDocument = workspaceStore.workspace.activeDocument
+
+  document.title = setPageTitle({
+    title: entry.title,
+    document: {
+      title: activeDocument?.info?.title ?? activeSlug.value,
+      slug: activeSlug.value,
+    },
+  })
 }
 
 /** Maps some config values to the workspace store to keep it reactive */
@@ -640,6 +663,9 @@ const changeSelectedDocument = async (
       sidebarState.setExpanded(firstTag.id, true)
     }
   }
+
+  // Reflect the freshly selected document in the browser tab title
+  updatePageTitle(elementId && elementId !== slug ? elementId : slug)
 }
 
 /**
@@ -844,6 +870,8 @@ eventBus.on('ui:download:document', ({ format }) => {
 const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
 
+  updatePageTitle(id)
+
   if (
     (item?.type === 'tag' ||
       item?.type === 'models' ||
@@ -897,6 +925,9 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
 
   sidebarState.setSelected(id)
   setBreadcrumb(id)
+
+  // Keep the browser tab title in sync with the section scrolled into view
+  updatePageTitle(id)
 
   // Scroll the sidebar to keep the selected element near the top
   scrollSidebarToTop(id)
@@ -1060,7 +1091,7 @@ const showMCPButton = computed(() => {
           <SearchButton
             v-if="!mergedConfig.hideSearch"
             class="my-2"
-            :document="activeOpenApiDocument"
+            :document="activeSearchableDocument"
             :eventBus="eventBus"
             :hideModels="mergedConfig.hideModels"
             :searchHotKey="mergedConfig.searchHotKey"
@@ -1096,7 +1127,7 @@ const showMCPButton = computed(() => {
                 v-if="!mergedConfig.hideSearch"
                 class="flex gap-1.5 px-3 pt-3">
                 <SearchButton
-                  :document="activeOpenApiDocument"
+                  :document="activeSearchableDocument"
                   :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
                   :searchHotKey="mergedConfig.searchHotKey" />
@@ -1190,7 +1221,7 @@ const showMCPButton = computed(() => {
               <SearchButton
                 v-if="!mergedConfig.hideSearch"
                 class="t-doc__sidebar max-w-64"
-                :document="activeOpenApiDocument"
+                :document="activeSearchableDocument"
                 :eventBus="eventBus"
                 :hideModels="mergedConfig.hideModels"
                 :searchHotKey="mergedConfig.searchHotKey" />

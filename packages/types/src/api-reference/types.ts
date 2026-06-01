@@ -421,6 +421,13 @@ type ExtendedConfiguration = {
   generateOperationSlug?: (input: { path: string; operationId?: string; method: string; summary?: string }) => string
   /** Customize the webhook portion of the hash */
   generateWebhookSlug?: (input: { name: string; method?: string }) => string
+  /**
+   * Customize the browser tab title.
+   *
+   * Called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents.
+   * Receives the title of the section currently in view and the active OpenAPI document.
+   */
+  setPageTitle?: (input: { title: string; document: { title: string; slug: string } }) => string
   /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
   redirect?: (input: string) => string | null | undefined
   /** Whether to include default fonts */

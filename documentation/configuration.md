@@ -1220,6 +1220,21 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 }
 ```
 
+#### setPageTitle
+
+**Type:** `(input: { title: string; document: { title: string; slug: string } }) => string`
+
+Customize the browser tab title. The function is called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents — and receives the title of the section currently in view together with the active OpenAPI document.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
+
+```js
+// Results in a title like: Scalar Galaxy – Create a user
+{
+  setPageTitle: ({ title, document }) => `${document.title} – ${title}`
+}
+```
+
 #### tagsSorter
 
 **Type:** `'alpha' | (a: Tag, b: Tag) => number`

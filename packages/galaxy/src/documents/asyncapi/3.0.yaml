@@ -27,6 +27,18 @@ info:
   externalDocs:
     description: Documentation
     url: https://github.com/scalar/scalar
+  tags:
+    - name: Planets
+      description: Real-time planet events including creation, updates, deletions, atmospheric changes, and cosmic events
+    - name: Users
+      description: User authentication, registration, profile updates, and login events
+      externalDocs:
+        description: User documentation
+        url: https://github.com/scalar/scalar
+    - name: Celestial Bodies
+      description: Events for satellites, asteroids, comets, and other celestial objects in the galaxy
+    - name: System
+      description: System-wide events including maintenance, rate limits, security alerts, and API deprecations
 servers:
   production:
     host: galaxy.scalar.com
@@ -50,6 +62,7 @@ defaultContentType: application/json
 channels:
   planetEvents:
     address: 'planets/{planetId}/events'
+    title: Planet Events
     description: |
       Real-time events related to specific planets. Subscribe to get notified about:
 
@@ -76,6 +89,8 @@ channels:
         $ref: '#/components/messages/AtmosphereChanged'
       imageUploaded:
         $ref: '#/components/messages/ImageUploaded'
+    tags:
+      - name: Planets
     bindings:
       ws:
         method: GET
@@ -93,6 +108,7 @@ channels:
               description: Filter by specific event types
   userEvents:
     address: 'users/{userId}/events'
+    title: User Events
     description: |
       User-related events including authentication, profile changes, and activity tracking.
 
@@ -111,11 +127,14 @@ channels:
         $ref: '#/components/messages/UserDeleted'
       loginAttempt:
         $ref: '#/components/messages/LoginAttempt'
+    tags:
+      - name: Users
     bindings:
       ws:
         method: GET
   systemEvents:
     address: 'system/events'
+    title: System Events
     description: |
       System-wide events including maintenance notifications, rate limit alerts, and security events.
 
@@ -129,11 +148,14 @@ channels:
         $ref: '#/components/messages/SecurityAlert'
       apiVersionDeprecated:
         $ref: '#/components/messages/ApiVersionDeprecated'
+    tags:
+      - name: System
     bindings:
       ws:
         method: GET
   celestialBodyEvents:
     address: 'celestial-bodies/events'
+    title: Celestial Body Events
     description: |
       Events related to all types of celestial bodies (planets, satellites, asteroids, comets).
 
@@ -147,6 +169,8 @@ channels:
         $ref: '#/components/messages/OrbitalCollision'
       newDiscovery:
         $ref: '#/components/messages/NewDiscovery'
+    tags:
+      - name: Celestial Bodies
     bindings:
       ws:
         method: GET
@@ -171,6 +195,8 @@ operations:
     description: Subscribe to real-time events for a specific planet
     traits:
       - $ref: '#/components/operationTraits/authenticated'
+    tags:
+      - name: Planets
     bindings:
       ws:
         bindingVersion: 0.1.0
@@ -184,6 +210,8 @@ operations:
     traits:
       - $ref: '#/components/operationTraits/authenticated'
       - $ref: '#/components/operationTraits/rateLimited'
+    tags:
+      - name: Users
     bindings:
       ws:
         bindingVersion: 0.1.0
@@ -194,6 +222,8 @@ operations:
       $ref: '#/channels/systemEvents'
     title: Subscribe to System Events
     description: Subscribe to system-wide notifications and alerts
+    tags:
+      - name: System
     bindings:
       ws:
         bindingVersion: 0.1.0
@@ -206,6 +236,8 @@ operations:
     description: Subscribe to events for all celestial bodies in the galaxy
     traits:
       - $ref: '#/components/operationTraits/rateLimited'
+    tags:
+      - name: Celestial Bodies
     bindings:
       ws:
         bindingVersion: 0.1.0
@@ -272,6 +304,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/PlanetCreatedEvent'
+      tags:
+        - name: Planets
       examples:
         - name: Mars Discovery
           summary: Mars was just added to the galaxy
@@ -324,6 +358,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/PlanetUpdatedEvent'
+      tags:
+        - name: Planets
       examples:
         - name: Mars Atmosphere Update
           summary: Mars atmosphere composition was updated
@@ -365,6 +401,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/PlanetDeletedEvent'
+      tags:
+        - name: Planets
       examples:
         - name: Planet Destruction
           summary: A planet was deleted (hopefully by accident!)
@@ -393,6 +431,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/PlanetExplodedEvent'
+      tags:
+        - name: Planets
       examples:
         - name: Supernova Event
           summary: A planet went supernova
@@ -431,6 +471,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/SatelliteDiscoveredEvent'
+      tags:
+        - name: Planets
       examples:
         - name: New Moon Discovery
           summary: A new moon was discovered around Mars
@@ -464,6 +506,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/AtmosphereChangedEvent'
+      tags:
+        - name: Planets
       examples:
         - name: Terraforming Progress
           summary: Mars atmosphere is being terraformed
@@ -499,6 +543,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/ImageUploadedEvent'
+      tags:
+        - name: Planets
       examples:
         - name: Mars Photo Upload
           summary: A new photo of Mars was uploaded
@@ -531,6 +577,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/UserSignedUpEvent'
+      tags:
+        - name: Users
       examples:
         - name: New User Registration
           summary: A new user joined the galaxy
@@ -560,6 +608,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/UserAuthenticatedEvent'
+      tags:
+        - name: Users
       examples:
         - name: Successful Login
           summary: User logged in successfully
@@ -592,6 +642,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/UserProfileUpdatedEvent'
+      tags:
+        - name: Users
       examples:
         - name: Profile Update
           summary: User updated their profile
@@ -621,6 +673,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/UserDeletedEvent'
+      tags:
+        - name: Users
       examples:
         - name: Account Deletion
           summary: A user deleted their account
@@ -649,6 +703,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/LoginAttemptEvent'
+      tags:
+        - name: Users
       examples:
         - name: Failed Login
           summary: Someone tried to log in with wrong credentials
@@ -679,6 +735,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/SystemMaintenanceEvent'
+      tags:
+        - name: System
       examples:
         - name: Scheduled Maintenance
           summary: System maintenance is starting
@@ -712,6 +770,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/RateLimitExceededEvent'
+      tags:
+        - name: System
       examples:
         - name: API Rate Limit Hit
           summary: A user hit the API rate limit
@@ -744,6 +804,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/SecurityAlertEvent'
+      tags:
+        - name: System
       examples:
         - name: Suspicious Activity
           summary: Suspicious login pattern detected
@@ -779,6 +841,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/ApiVersionDeprecatedEvent'
+      tags:
+        - name: System
       examples:
         - name: Version Deprecation
           summary: API version 1.0 is being deprecated
@@ -810,6 +874,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/CelestialBodyCreatedEvent'
+      tags:
+        - name: Celestial Bodies
       examples:
         - name: New Asteroid
           summary: A new asteroid was discovered
@@ -841,6 +907,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/CelestialBodyUpdatedEvent'
+      tags:
+        - name: Celestial Bodies
       examples:
         - name: Orbit Update
           summary: A satellite's orbit was recalculated
@@ -877,6 +945,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/OrbitalCollisionEvent'
+      tags:
+        - name: Celestial Bodies
       examples:
         - name: Asteroid Impact
           summary: An asteroid collided with a planet
@@ -914,6 +984,8 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/NewDiscoveryEvent'
+      tags:
+        - name: Celestial Bodies
       examples:
         - name: Habitable Planet
           summary: A potentially habitable planet was discovered

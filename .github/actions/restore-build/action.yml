@@ -1,0 +1,38 @@
+name: 'Restore Build'
+description: |
+  Restore a pre-built workspace produced by an earlier `build` job in the
+  same workflow run. Sets up pnpm + node, installs dependencies, downloads
+  the `build-output` artifact, and extracts every `dist/` directory back
+  into place.
+
+  Intentionally never accepts a `run-id` input: artifacts must come from
+  the same run as the consumer, so a PR-produced artifact can never feed a
+  release job.
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/actions/setup-node
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile --prefer-offline
+
+    - name: Download build-output artifact
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      with:
+        name: build-output
+        path: .
+
+    - name: Extract workspace dist
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [ ! -f build-output.tar.gz ]; then
+          echo "Expected build-output.tar.gz but it was not in the artifact" >&2
+          exit 1
+        fi
+        tar -xzf build-output.tar.gz
+        rm build-output.tar.gz
+        echo "Restored workspace dist directories:"
+        find packages integrations projects \
+          -mindepth 2 -maxdepth 2 -type d -name dist 2>/dev/null | sort

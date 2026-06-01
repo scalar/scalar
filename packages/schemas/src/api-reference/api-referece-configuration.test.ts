@@ -125,6 +125,8 @@ describe('api-reference-configuration', () => {
         generateTagSlug: (tag: any) => `tag-${tag.name}`,
         generateOperationSlug: (operation: { path: string; method: string }) => `${operation.method}-${operation.path}`,
         generateWebhookSlug: (webhook: { name: string }) => `webhook-${webhook.name}`,
+        setPageTitle: (input: { title: string; document: { title: string; slug: string } }) =>
+          `${input.document.title} - ${input.title}`,
         onLoaded: () => console.log('loaded'),
         onSpecUpdate: (spec: string) => console.log('spec updated', spec),
       }
