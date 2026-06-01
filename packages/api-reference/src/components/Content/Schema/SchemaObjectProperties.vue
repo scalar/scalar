@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
@@ -123,11 +122,6 @@ const getPropertySchema = (
   if (!property) {
     return undefined
   }
-
-  if ('$ref' in property && typeof property.$ref === 'string') {
-    return getResolvedRef(property) as SchemaObject
-  }
-
   return resolve.schema(property)
 }
 
@@ -188,6 +182,7 @@ const getAdditionalPropertiesValue = (
       :compact
       :compositionPath="compositionPath"
       :compositionPathSegment="property"
+      :description="getPropertyDescription(schema.properties[property])"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -196,7 +191,6 @@ const getAdditionalPropertiesValue = (
       :name="property"
       :options="options"
       :required="schema.required?.includes(property)"
-      :description="getPropertyDescription(schema.properties[property])"
       :schema="getPropertySchema(schema.properties[property])"
       :schemaContext="schemaContext" />
   </template>
@@ -210,6 +204,7 @@ const getAdditionalPropertiesValue = (
       :compact
       :compositionPath="compositionPath"
       :compositionPathSegment="key"
+      :description="getPropertyDescription(property)"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -217,7 +212,6 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
-      :description="getPropertyDescription(property)"
       :schema="getPropertySchema(property)"
       :schemaContext="schemaContext" />
   </template>
