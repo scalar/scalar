@@ -399,7 +399,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     [
       object({
         type: array(schemaTypeMulti, {
-          typeName: 'SchemaObjectOtherTypeKeyword',
+          typeName: 'SchemaObjectMultiTypeKeywordArray',
         }),
         format: optional(string({ typeComment: 'Different subtypes.' })),
       }),

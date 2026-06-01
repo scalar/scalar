@@ -170,7 +170,7 @@ const multiTypeSchema = intersection(
   [
     object({
       type: array(schemaTypeMulti, {
-        typeName: 'SchemaObjectOtherTypeKeyword',
+        typeName: 'SchemaObjectMultiTypeKeywordArray',
       }),
       format: optional(string({ typeComment: 'Different subtypes.' })),
     }),
