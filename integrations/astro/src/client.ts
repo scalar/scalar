@@ -37,8 +37,11 @@ type ClientState = {
   instances: Map<HTMLElement, ScalarInstance>
   /** Containers with a mount currently in flight, so it is not started twice. */
   pending: Set<HTMLElement>
-  /** CDN script loads in flight (or settled), keyed by their resolved URL. */
-  cdnLoads: Map<string, Promise<void>>
+  /**
+   * CDN script loads in flight (or settled), keyed by their resolved URL. Each
+   * resolves with the `Scalar` global that bundle installed (see `loadCdn`).
+   */
+  cdnLoads: Map<string, Promise<ScalarGlobal | undefined>>
 }
 
 type ScalarWindow = Window & {
@@ -66,8 +69,20 @@ const getState = (): ClientState => {
   return win.__scalarAstroClient
 }
 
-/** Inject the Scalar standalone bundle, loading each CDN URL at most once. */
-const loadCdn = (cdn: string): Promise<void> => {
+/**
+ * Inject the Scalar standalone bundle, loading each CDN URL at most once, and
+ * resolve with the global that bundle installs.
+ *
+ * The global is captured synchronously inside the `load` handler — the instant
+ * this bundle's script has run — rather than read back from `window.Scalar`
+ * later. A page that mixes containers with distinct `data-cdn` URLs loads
+ * several bundles that all claim the single `window.Scalar` global, so reading
+ * it after an `await` could pick up whichever bundle happened to finish last.
+ * (Distinct bundles sharing one global is inherently last-one-wins; capturing
+ * here keeps the common single-CDN page correct and narrows the window for the
+ * rest.)
+ */
+const loadCdn = (cdn: string): Promise<ScalarGlobal | undefined> => {
   const { cdnLoads } = getState()
   const cached = cdnLoads.get(cdn)
 
@@ -75,10 +90,10 @@ const loadCdn = (cdn: string): Promise<void> => {
     return cached
   }
 
-  const load = new Promise<void>((resolve, reject) => {
+  const load = new Promise<ScalarGlobal | undefined>((resolve, reject) => {
     const script = document.createElement('script')
     script.src = cdn
-    script.addEventListener('load', () => resolve(), { once: true })
+    script.addEventListener('load', () => resolve((window as ScalarWindow).Scalar), { once: true })
     script.addEventListener(
       'error',
       () => {
@@ -96,19 +111,6 @@ const loadCdn = (cdn: string): Promise<void> => {
   cdnLoads.set(cdn, load)
 
   return load
-}
-
-/**
- * Resolve the global `Scalar` object, loading the requested CDN bundle.
- *
- * Always routes through `loadCdn`, which deduplicates by URL. Skipping when
- * `window.Scalar` happens to be set would make a second reference with a
- * different `data-cdn` silently reuse the first bundle.
- */
-const ensureScalar = async (cdn: string): Promise<ScalarGlobal | undefined> => {
-  await loadCdn(cdn)
-
-  return (window as ScalarWindow).Scalar
 }
 
 /** Mount a single container, unless it is already mounted or mounting. */
@@ -139,7 +141,7 @@ const mountContainer = (element: HTMLElement): void => {
 
   state.pending.add(element)
 
-  void ensureScalar(cdn)
+  void loadCdn(cdn)
     .then((Scalar) => {
       // Mount only if this page is still live (no view transition happened
       // while the CDN loaded) and the element is still in the document.

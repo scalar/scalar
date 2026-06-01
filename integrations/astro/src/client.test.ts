@@ -11,7 +11,7 @@ type ScalarTestWindow = Window & {
     initialized?: boolean
     instances: Map<unknown, unknown>
     pending: Set<unknown>
-    cdnLoads: Map<unknown, Promise<void>>
+    cdnLoads: Map<unknown, Promise<unknown>>
     generation: number
   }
 }
@@ -29,8 +29,9 @@ type Created = {
  * Install a fake `window.Scalar` and collect every reference it creates.
  *
  * Also marks `cdn` as already loaded, mirroring reality: `window.Scalar` only
- * exists because its CDN script ran. Without this, `ensureScalar` would append
- * a `<script>` and wait for a `load` event that jsdom never fires.
+ * exists because its CDN script ran. The cached promise resolves with that
+ * global, exactly as `loadCdn` does. Without this, the mount would append a
+ * `<script>` and wait for a `load` event that jsdom never fires.
  */
 const installScalar = (cdn: string = DEFAULT_CDN): Created[] => {
   const created: Created[] = []
@@ -50,7 +51,7 @@ const installScalar = (cdn: string = DEFAULT_CDN): Created[] => {
     cdnLoads: new Map(),
     generation: 0,
   }
-  win.__scalarAstroClient.cdnLoads.set(cdn, Promise.resolve())
+  win.__scalarAstroClient.cdnLoads.set(cdn, Promise.resolve(win.Scalar))
 
   return created
 }
@@ -178,6 +179,40 @@ describe('client', () => {
     // global, which may belong to a different (older) bundle.
     const scripts = Array.from(document.head.querySelectorAll('script')).map((script) => script.getAttribute('src'))
     expect(scripts).toContain('https://cdn.example.com/api-reference')
+  })
+
+  it('mounts each container against the bundle its own CDN installed', async () => {
+    // Two references from distinct CDN bundles, both claiming `window.Scalar`.
+    const elementA = createContainer({ url: 'https://example.com/a.json' }, 'https://cdn.example.com/a')
+    const elementB = createContainer({ url: 'https://example.com/b.json' }, 'https://cdn.example.com/b')
+
+    initScalarClient()
+    await flush()
+
+    const scriptFor = (src: string) =>
+      Array.from(document.head.querySelectorAll('script')).find((script) => script.getAttribute('src') === src)
+
+    const win = window as ScalarTestWindow
+    const mountedBy = new Map<Element, string>()
+    const fakeBundle = (name: string) => ({
+      createApiReference: (element: Element) => {
+        mountedBy.set(element, name)
+        return { destroy: vi.fn() }
+      },
+    })
+
+    // Bundle A finishes first and installs its global, then bundle B overwrites
+    // it before A's mount callback runs.
+    win.Scalar = fakeBundle('a')
+    scriptFor('https://cdn.example.com/a')?.dispatchEvent(new Event('load'))
+    win.Scalar = fakeBundle('b')
+    scriptFor('https://cdn.example.com/b')?.dispatchEvent(new Event('load'))
+    await flush()
+
+    // Each container mounts against its own bundle, not whichever won the race
+    // for the shared global.
+    expect(mountedBy.get(elementA)).toBe('a')
+    expect(mountedBy.get(elementB)).toBe('b')
   })
 
   it('mounts containers added by a client-side navigation', async () => {
