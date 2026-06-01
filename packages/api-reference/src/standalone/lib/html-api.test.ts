@@ -39,8 +39,8 @@ afterEach(() => {
 
 const consoleWarnSpy = vi.spyOn(console, 'warn')
 
-// Since we use zod now we have a base config
-const baseConfig = coerce(apiReferenceConfigurationSchema, {
+// Base config matches getConfigurationFromDataAttributes output (withSource schema + defaults).
+const baseConfig = apiReferenceConfigurationWithSourceSchema({
   _integration: 'html',
 })
 
@@ -310,7 +310,6 @@ describe('getConfigurationFromDataAttributes', () => {
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
       default: false,
-      proxyUrl: undefined,
       url: '/openapi.json',
     })
   })
@@ -326,7 +325,6 @@ describe('getConfigurationFromDataAttributes', () => {
 
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
-      proxyUrl: undefined,
       default: false,
       content: '{"openapi":"3.1.0"}',
     })
@@ -362,7 +360,6 @@ describe('getConfigurationFromDataAttributes', () => {
       ...baseConfig,
       darkMode: true,
       default: false,
-      proxyUrl: undefined,
       url: '/custom.json',
     })
   })
@@ -379,7 +376,6 @@ describe('getConfigurationFromDataAttributes', () => {
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
       default: false,
-      proxyUrl: undefined,
       content: '{"openapi":"3.1.0"}',
     })
 
@@ -397,7 +393,6 @@ describe('getConfigurationFromDataAttributes', () => {
 
     expect(getConfigurationFromDataAttributes(doc)).toEqual({
       ...baseConfig,
-      proxyUrl: undefined,
       default: false,
       url: '/deprecated.json',
     })
@@ -429,7 +424,6 @@ describe('getConfigurationFromDataAttributes', () => {
 
     expect(getConfigurationFromDataAttributes(doc)).toEqual({
       ...baseConfig,
-      proxyUrl: undefined,
       default: false,
       url: '/priority.json',
     })

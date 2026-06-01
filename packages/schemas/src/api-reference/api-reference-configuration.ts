@@ -1,3 +1,4 @@
+import { DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
 import {
   any,
   array,
@@ -49,6 +50,10 @@ export const apiReferenceConfigurationSchema = intersection([
     hideModels: boolean({
       default: false,
       typeComment: 'Whether to show models in the sidebar, search, and content.',
+    }),
+    modelsSectionLabel: optional(union([literal('Models'), literal('Schemas'), string()]), {
+      typeComment:
+        'Label for the components.schemas section in the sidebar, content, and search. Use `Schemas` for OpenAPI terminology.',
     }),
     documentDownloadType: union(
       [literal('both'), literal('yaml'), literal('json'), literal('direct'), literal('none')],
@@ -296,6 +301,8 @@ export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => 
     // @ts-expect-error - We're deleting the deprecated attribute
     delete input.showToolbar
   }
+
+  input.modelsSectionLabel ??= DEFAULT_MODELS_SECTION_LABEL
 
   return input
 }

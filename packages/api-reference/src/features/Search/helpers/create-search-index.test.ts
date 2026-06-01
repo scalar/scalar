@@ -391,7 +391,7 @@ describe('createSearchIndex', () => {
         },
         {
           title: 'User Model',
-          description: 'Model',
+          description: 'Models',
           body: ['name', 'email'],
           bodyDescriptions: ['A user object', 'Display name'],
         },
@@ -423,7 +423,7 @@ describe('createSearchIndex', () => {
         },
         {
           title: 'Post Model',
-          description: 'Model',
+          description: 'Models',
           body: [],
           bodyDescriptions: [],
         },
@@ -455,6 +455,37 @@ describe('createSearchIndex', () => {
       expect(index[1]).toMatchObject({ type: 'heading', title: 'Models' })
       expect(index[2]).toMatchObject({ title: 'User Model', bodyDescriptions: ['A user object'] })
       expect(index[3]).toMatchObject({ title: 'Post Model', bodyDescriptions: ['A post object'] })
+    })
+
+    it('uses Schemas labels when modelsSectionLabel is Schemas', () => {
+      const doc = createMockDocument({
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              title: 'User Model',
+              description: 'A user object',
+            },
+          },
+        },
+      })
+
+      doc['x-scalar-navigation'] = createNavigation('test', doc, {
+        hideModels: false,
+        modelsSectionLabel: 'Schemas',
+      })
+
+      const index = createSearchIndex(doc, { modelsSectionLabel: 'Schemas' })
+
+      expect(index[1]).toMatchObject({
+        type: 'heading',
+        title: 'Schemas',
+        description: 'Heading',
+      })
+      expect(index[2]).toMatchObject({
+        title: 'User Model',
+        description: 'Schemas',
+      })
     })
 
     it('collects property names through a oneOf model schema', () => {

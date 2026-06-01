@@ -156,6 +156,73 @@ export const makeUrlFromId = (_id: string, basePath: string | undefined, isMulti
   return url
 }
 
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/**
+ * Rewrite legacy `/model/<name>` URL segments to the current section's slug.
+ *
+ * Earlier versions hardcoded `model/` (singular) as the prefix for individual schema entries
+ * even though the section itself was `models/`. We now use the same plural slug for both,
+ * so old bookmarks like `#default/model/User` would 404. This rewrites them in place.
+ *
+ * The regex is anchored to the legacy structural shape so unrelated `/model/` occurrences
+ * inside operation paths (e.g. `POST /model/train` for an AI/ML API → `default/POST/model/train`)
+ * and a tag literally named "model" are left alone.
+ *
+ * Trade-off: in single-document mode the URL strips the document slug, which makes
+ * `#tag/<slug>/model/<name>` ambiguous with an operation under a tag named "model".
+ * Single-doc tagged-model bookmarks are not rewritten — only top-level models.
+ *
+ * Returns the canonicalized URL when a rewrite happens, or null otherwise.
+ */
+export const redirectLegacyModelUrl = (
+  url: string | URL,
+  modelsSectionSlug: string,
+  documentSlug: string,
+  isMultiDocument: boolean,
+  basePath?: string,
+): URL | null => {
+  if (!documentSlug) {
+    return null
+  }
+
+  const next = typeof url === 'string' ? new URL(url) : new URL(url.toString())
+  const escapedDoc = escapeRegex(documentSlug)
+  // Optional `(tag-group/<n>/)?tag/<slug>/` block in front of `model/`.
+  const tagPrefix = '(?:(?:tag-group\\/[^/]+\\/)?tag\\/[^/]+\\/)?'
+  const slugAnchoredHash = new RegExp(`^(#${escapedDoc}\\/${tagPrefix})model\\/`)
+  const replacement = `$1${modelsSectionSlug}/`
+
+  // Always try the slug-anchored form first — old bookmarks may include the doc slug
+  // even in single-document mode.
+  let newHash = next.hash.replace(slugAnchoredHash, replacement)
+  if (newHash === next.hash && !isMultiDocument) {
+    // Single-doc fallback: URL omits the doc slug (`#model/<name>`). We can only
+    // safely rewrite top-level models here — `#tag/<slug>/model/<name>` is
+    // ambiguous with an operation under a tag literally named "model".
+    newHash = next.hash.replace(/^(#)model\//, replacement)
+  }
+
+  let newPathname = next.pathname
+  if (basePath !== undefined && !basePath.startsWith('#')) {
+    const escapedBase = escapeRegex(sanitizeBasePath(basePath))
+    const basePrefix = escapedBase ? `\\/${escapedBase}` : ''
+    const slugAnchoredPath = new RegExp(`^(${basePrefix}\\/${escapedDoc}\\/${tagPrefix})model\\/`)
+    newPathname = next.pathname.replace(slugAnchoredPath, replacement)
+    if (newPathname === next.pathname && !isMultiDocument) {
+      newPathname = next.pathname.replace(new RegExp(`^(${basePrefix}\\/)model\\/`), replacement)
+    }
+  }
+
+  if (newHash === next.hash && newPathname === next.pathname) {
+    return null
+  }
+
+  next.hash = newHash
+  next.pathname = newPathname
+  return next
+}
+
 /** Extracts the schema parameters from the id if they are present */
 export const getSchemaParamsFromId = (id: string): { rawId: string; params: string } => {
   const matcher = id.match(/(.*)(\.body\.|\.path\.|\.query\.|\.header\.)(.*)/)
