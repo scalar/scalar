@@ -1019,6 +1019,7 @@ jobs:
       !cancelled() &&
       needs.build.result == 'success' &&
       needs.check-changes.result == 'success' &&
+      needs.npm-publish.result != 'failure' &&
       needs.npm-publish.outputs.published == 'true' &&
       github.ref == 'refs/heads/main'
     needs: [build, check-changes, npm-publish]
