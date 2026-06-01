@@ -228,5 +228,5 @@
     "additionalProperties": false,
     "description": "A single curated release note rendered in the \"What's new\" modal."
   },
-  "description": "Curated, user-facing release notes for the Scalar app. Newest entry first."
+  "description": "Curated, user-facing release notes for a Scalar product. Newest entry first."
 }

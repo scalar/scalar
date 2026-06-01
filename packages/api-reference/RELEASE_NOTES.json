@@ -1,5 +1,32 @@
 [
   {
+    "version": "1.58.0",
+    "date": "2026-06-01",
+    "title": "AsyncAPI support and improved bundle performance",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release brings AsyncAPI documents closer to feature parity with OpenAPI. AsyncAPI specs now render schemas as Models, display channels in the content area, and surface introduction headings in the sidebar and search. We also shipped a new ESM standalone bundle with code splitting that reduces the initial load by over 500 KB."
+      },
+      {
+        "type": "list",
+        "items": [
+          "AsyncAPI schemas render as Models in the sidebar, content, and search alongside OpenAPI schemas",
+          "AsyncAPI channels appear in the content area with their address and description, grouped by tags when configured",
+          "New ESM standalone bundle with code splitting drops initial load from 3.32 MB to 2.73 MB by lazy-loading the API client modal and icon library",
+          "Configure the Models section label with `modelsSectionLabel` to use OpenAPI-style Schemas terminology or custom labels",
+          "Customize the browser tab title with `setPageTitle`, called whenever the section in view changes"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1580",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.57.5",
     "date": "2026-05-27",
     "title": "Response content type selector works with expanded responses",
