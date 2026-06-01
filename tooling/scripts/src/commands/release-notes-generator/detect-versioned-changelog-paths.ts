@@ -59,16 +59,16 @@ export const shouldGenerateReleaseNotesForProduct = (
 }
 
 /**
- * Paths changed in the working tree since `HEAD`. Used right after
+ * Paths changed in the working tree compared to `main`. Used right after
  * `changeset version` inside `pnpm release:version` to detect which
  * packages were actually bumped in this release.
  *
  * Returns `null` when git is unavailable so callers fall back to
  * generating for every product rather than failing the release pipeline.
  */
-const getPathsChangedSinceHead = async (): Promise<Set<string> | null> => {
+const getPathsChangedSinceMain = async (): Promise<Set<string> | null> => {
   try {
-    const { stdout } = await execFileAsync('git', ['diff', '--name-only', 'HEAD'], {
+    const { stdout } = await execFileAsync('git', ['diff', '--name-only', 'main'], {
       cwd: getRepoRoot(),
     })
     const paths = stdout
@@ -98,7 +98,7 @@ const normalizeChangedPathsForComparison = (changedPaths: ReadonlySet<string>): 
  * for consistent set membership checks.
  */
 export const getChangedPathsForReleaseFiltering = async (): Promise<Set<string> | null> => {
-  const changed = await getPathsChangedSinceHead()
+  const changed = await getPathsChangedSinceMain()
   if (changed === null) {
     return null
   }
