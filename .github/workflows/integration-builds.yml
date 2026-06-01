@@ -1,0 +1,252 @@
+name: Integration Builds
+
+# Reusable workflow that runs the build-test jobs for every non-JS integration.
+# Path-gated by the caller via per-scope `*_changed` inputs. Called from both
+# pr.yml (PR validation) and main.yml (pre-publish checks). Each job consumes
+# the pre-built `scalar-js` artifact produced by the orchestrator's build job.
+
+on:
+  workflow_call:
+    inputs:
+      dotnet_changed:
+        type: string
+        required: true
+      java_changed:
+        type: string
+        required: true
+      fastapi_changed:
+        type: string
+        required: true
+      django_ninja_changed:
+        type: string
+        required: true
+      rust_changed:
+        type: string
+        required: true
+      docker_changed:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+jobs:
+  docker-build:
+    if: inputs.docker_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: scalar-js
+          path: integrations/docker/assets
+
+      - name: Compress static assets
+        working-directory: integrations/docker/assets
+        run: gzip --keep --verbose --force scalar.js
+
+      - name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
+        with:
+          platforms: linux/amd64
+
+      - name: Build Docker image
+        uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
+        with:
+          context: integrations/docker
+          file: integrations/docker/Dockerfile
+          load: true
+          tags: scalarapi/api-reference:latest
+
+  dotnet-build-test:
+    if: inputs.dotnet_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: scalar-js
+          path: temp-assets
+
+      - name: Copy scalar.js to aspnetcore and aspire
+        run: |
+          cp temp-assets/scalar.js integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets/
+          cp temp-assets/scalar.js integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot/
+
+      - name: Compress static assets (aspnetcore)
+        working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
+
+      - name: Cache NuGet packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
+
+      - name: Setup .NET
+        uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
+        with:
+          sdk-version: 10.x.x
+          aspnetcore-version: |
+            9.x.x
+            8.x.x
+
+      - name: Restore dependencies
+        working-directory: integrations/dotnet
+        run: dotnet restore
+
+      - name: Build solution
+        working-directory: integrations/dotnet
+        run: dotnet build -c Release --no-restore
+
+      - name: Test solution
+        working-directory: integrations/dotnet
+        run: dotnet test -c Release --no-build
+
+  fastapi-build-test:
+    if: inputs.fastapi_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/fastapi
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build Python package
+        working-directory: integrations/fastapi
+        run: python -m build
+
+      - name: Run tests
+        working-directory: integrations/fastapi
+        run: python run_tests.py
+
+  django-ninja-build-test:
+    if: inputs.django_ninja_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/django-ninja
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build Python package
+        working-directory: integrations/django-ninja
+        run: python -m build
+
+      - name: Run tests
+        working-directory: integrations/django-ninja
+        run: python run_tests.py
+
+  rust-build-test:
+    if: inputs.rust_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: scalar-js
+          path: integrations/rust/ui
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Check Rust code formatting
+        working-directory: integrations/rust
+        run: cargo fmt -- --check
+
+      - name: Run Clippy
+        working-directory: integrations/rust
+        run: cargo clippy -- -D warnings
+
+      - name: Run tests
+        working-directory: integrations/rust
+        run: cargo test
+
+      - name: Run tests with all features
+        working-directory: integrations/rust
+        run: cargo test --features axum,actix-web,warp
+
+      - name: Build examples
+        working-directory: integrations/rust
+        run: |
+          cargo build --example axum --features axum
+          cargo build --example actix --features actix-web
+          cargo build --example warp --features warp
+
+  java-build-test:
+    if: inputs.java_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: scalar-js
+          path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
+      - name: Setup Java
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+          cache-dependency-path: 'integrations/java/**/pom.xml'
+      - name: Run Maven tests
+        working-directory: integrations/java
+        run: mvn clean test

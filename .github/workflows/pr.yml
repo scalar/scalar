@@ -1,0 +1,597 @@
+name: PR
+
+# Pull-request validation. Runs every required check, fans tests and previews
+# out from a single build, and never references release.yml — so a pull request
+# has no path to production publish secrets. Also runs on pushes to
+# changeset-release/main (the release PR branch created by changesets/action,
+# whose pull_request event GitHub suppresses) so that branch gets the same
+# validation.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - changeset-release/main
+  workflow_dispatch: null
+
+# Workflow-level default: read-only. Individual jobs widen as needed.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}-base-ci
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/changeset-release/main' }}
+
+env:
+  # Exclude these packages from turbo as they are handled by dedicated jobs
+  TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
+
+jobs:
+  # Initial build.
+  # We only build the packages and integrations as everything else depends on them
+  # turbo is cached to sticky disk and pnpm is cached in the standard actions cache
+  build:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      # Required for build provenance attestation (scalar.js CDN artifact).
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          packages: './{packages,integrations}/**'
+          archive-output: 'true'
+      - name: Copy and rename standalone.js to scalar.js
+        run: |
+          mkdir -p temp-artifacts
+          cp packages/api-reference/dist/browser/standalone.js temp-artifacts/scalar.js
+      - name: Upload scalar.js artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: scalar-js
+          path: temp-artifacts/scalar.js
+          retention-days: 3
+      - name: Upload mock server docker entrypoint artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: mock-server-docker-entrypoint
+          path: packages/mock-server/docker/dist/docker-entrypoint.js
+          retention-days: 3
+      # Tarball of every workspace dist/ produced above. Consumed by the
+      # restore-build composite so downstream JS jobs can fan out without
+      # rerunning the build.
+      - name: Upload build-output artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: build-output
+          path: build-output.tar.gz
+          retention-days: 1
+          # The tarball is already gzip-compressed; skip the upload action's
+          # outer zip-compression pass.
+          compression-level: 0
+      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+        name: Upload webpack stats to RelativeCI
+        uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
+        with:
+          key: ${{ secrets.RELATIVE_CI_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
+
+  check-changes:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      dotnet_changed: ${{ steps.changes.outputs.dotnet_changed }}
+      java_changed: ${{ steps.changes.outputs.java_changed }}
+      fastapi_changed: ${{ steps.changes.outputs.fastapi_changed }}
+      django_ninja_changed: ${{ steps.changes.outputs.django_ninja_changed }}
+      rust_changed: ${{ steps.changes.outputs.rust_changed }}
+      docker_changed: ${{ steps.changes.outputs.docker_changed }}
+      icons_changed: ${{ steps.changes.outputs.icons_changed }}
+      galaxy_changed: ${{ steps.changes.outputs.galaxy_changed }}
+      galaxy_preview_changed: ${{ steps.changes.outputs.galaxy_preview_changed }}
+      api_client_changed: ${{ steps.changes.outputs.api_client_changed }}
+      api_reference_changed: ${{ steps.changes.outputs.api_reference_changed }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - id: changes
+        uses: ./.github/actions/check-changes
+
+  format:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+          # prettier and biome versions are pinned in package.json
+          cache-dependency-path: 'package.json'
+      # Install only root dependencies
+      - name: Install dev dependencies
+        run: pnpm install --filter .
+      - name: Lint code
+        run: pnpm lint:check
+      - name: Check formatting
+        run: pnpm format:check
+
+  lint-icons:
+    if: needs.check-changes.outputs.icons_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 15
+    needs: [build, check-changes]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Lint Component Library Icons
+        run: pnpm --filter components lint:icons
+      - name: Lint Icon Library Icons
+        run: pnpm --filter icons lint:icons
+
+  lint-galaxy:
+    if: needs.check-changes.outputs.galaxy_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [check-changes]
+    permissions:
+      contents: read
+      # Required so the lint results can be posted back to the PR.
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      # Capture the lint output (warnings do not fail the command) so we can
+      # both surface it in the job log and post it to the PR. continue-on-error
+      # keeps the comment step running even when spectral:oas reports errors;
+      # the captured exit code is replayed at the end to set the job status.
+      - name: Lint the Galaxy example document
+        id: lint
+        run: |
+          set +e
+          pnpm --filter @scalar/galaxy lint > lint-output.txt 2>&1
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat lint-output.txt
+      # Only PRs from the same repository have a writable token for comments.
+      - name: Build lint comment
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        run: |
+          # Strip ANSI escape codes, npm noise, and the pnpm script echo, then
+          # collapse blank lines so the comment shows just the lint findings.
+          clean=$(sed -r 's/\x1b\[[0-9;?]*[a-zA-Z]//g' lint-output.txt \
+            | grep -v '^npm warn' \
+            | grep -v '^> ' \
+            | sed '/^[[:space:]]*$/d')
+          warnings=$(printf '%s\n' "$clean" | grep -c '^Severity: Warning' || true)
+          {
+            echo '**Scalar Galaxy Lint**'
+            echo ''
+            if [ "${{ steps.lint.outputs.exit_code }}" != '0' ]; then
+              echo '❌ Linting failed.'
+            elif [ "$warnings" -gt 0 ]; then
+              echo "⚠️ ${warnings} warning(s) found."
+            else
+              echo '✅ No issues found.'
+            fi
+            echo ''
+            echo '```'
+            printf '%s\n' "$clean"
+            echo '```'
+          } > lint-comment.md
+      - name: Post lint results to the PR
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        with:
+          file-path: lint-comment.md
+          # Reuse (update) the same comment on every new commit instead of
+          # posting a new one.
+          comment-tag: galaxy-lint
+      # Replay the lint exit code so the job fails on real (error-level) issues.
+      - name: Report lint status
+        if: ${{ !cancelled() }}
+        run: exit ${{ steps.lint.outputs.exit_code }}
+
+  types:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+      - name: Install dependencies
+        run: pnpm install
+      - name: Check types
+        run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
+
+  knip:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Knip
+        run: pnpm lint:knip
+
+  # test-packages (sharded) and test-projects live in test-js.yml so the shell
+  # loops cannot drift between pr.yml and main.yml.
+  test-js:
+    needs: [build]
+    uses: ./.github/workflows/test-js.yml
+
+  test-integrations:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.59.1
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    env:
+      HOME: '/root'
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Run tests
+        run: pnpm turbo --filter './integrations/**' test
+        # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
+      - name: Run e2e tests
+        run: pnpm --filter @scalar/nuxt test:e2e
+
+  test-proxy-server:
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version-file: projects/proxy-scalar-com/go.mod
+          cache: false
+      - name: Run tests for the proxy server (Go)
+        run: cd projects/proxy-scalar-com && go test -v
+
+  test-server-side-rendering:
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Start SSR playground and verify it responds
+        run: |
+          pnpm --filter @scalar/server-side-rendering dev &
+          pnpm script wait -p 5173
+          curl -sSf http://localhost:5173 -o /tmp/response.html
+          grep -q "User account created successfully" /tmp/response.html
+        timeout-minutes: 2
+
+  test-e2e-api-reference:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.59.1
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Run e2e tests (@scalar/api-reference)
+        run: pnpm --filter api-reference test:e2e:ci
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Deploy Playwright Report to Netlify
+        run: |
+          pnpx netlify deploy --dir "./packages/api-reference/playwright-report" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Add Netlify Playwright Report URL to the PR
+        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        with:
+          comment-title: 'Scalar References End to End Test Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: packages/api-reference/playwright-results.json
+          report-tag: test-references-e2e
+          footer: |
+            > [!IMPORTANT]
+            > These tests include snapshots that may need to be updated if there are intentional changes to the UI components. To update the snapshots run `pnpm test:e2e --update-snapshots` in `packages/api-reference` and commit the changes.
+
+  test-e2e-scalar-app:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.59.1
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Run e2e tests (scalar-app)
+        run: pnpm --filter scalar-app test:e2e:ci
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Deploy Playwright Report to Netlify
+        run: |
+          pnpx netlify deploy --dir "./projects/scalar-app/playwright-report" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Add Netlify Playwright Report URL to the PR
+        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        with:
+          comment-title: 'Scalar App End to End Test Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: projects/scalar-app/playwright-results.json
+          report-tag: test-scalar-app-e2e
+
+  test-component-snapshots:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.59.1
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Build storybook
+        run: pnpm --filter components build:storybook
+      - name: Run e2e tests (@scalar/components)
+        run: pnpm --filter components test:e2e:ci
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Deploy Playwright Report to Netlify
+        run: |
+          pnpx netlify deploy --dir "./packages/components/playwright-report" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Add Netlify Playwright Report URL to the PR
+        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        with:
+          comment-title: 'Scalar Components Snapshot Test Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: packages/components/playwright-results.json
+          report-tag: test-components-snapshots
+
+  test-cdn-snapshots:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
+    needs: [build]
+    runs-on: blacksmith-8vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.59.1
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Run snapshot tests (@scalar/api-reference)
+        run: pnpm --filter api-reference test:e2e:cdn:ci
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Deploy Playwright Report to Netlify
+        run: |
+          pnpx netlify deploy --dir "./packages/api-reference/playwright-report-cdn" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Add Netlify Playwright Report URL to the PR
+        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        with:
+          comment-title: 'Scalar CDN Snapshot Diff Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: packages/api-reference/playwright-results-cdn.json
+          report-tag: test-cdn-snapshots
+          custom-info: These tests are **non-blocking** and will not prevent merging of your PR.
+          footer: |
+            > [!IMPORTANT]
+            > These tests detect visual differences between the current PR and the latest CDN build which means **they may be affected by other changes in `main` that haven't been released yet**.
+            >
+            > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test/snapshots-cdn/README.md).
+
+  # Path-gated integration build-tests (dotnet/java/rust/python/docker).
+  integration-builds:
+    needs: [check-changes, build]
+    uses: ./.github/workflows/integration-builds.yml
+    with:
+      dotnet_changed: ${{ needs.check-changes.outputs.dotnet_changed }}
+      java_changed: ${{ needs.check-changes.outputs.java_changed }}
+      fastapi_changed: ${{ needs.check-changes.outputs.fastapi_changed }}
+      django_ninja_changed: ${{ needs.check-changes.outputs.django_ninja_changed }}
+      rust_changed: ${{ needs.check-changes.outputs.rust_changed }}
+      docker_changed: ${{ needs.check-changes.outputs.docker_changed }}
+
+  # Preview deploys — same-repo PRs only (forks cannot read deploy secrets).
+  deploy-previews:
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.actor, '[bot]')
+    needs: [check-changes, build]
+    uses: ./.github/workflows/deploy-previews.yml
+    with:
+      api_reference_changed: ${{ needs.check-changes.outputs.api_reference_changed }}
+      api_client_changed: ${{ needs.check-changes.outputs.api_client_changed }}
+      galaxy_changed: ${{ needs.check-changes.outputs.galaxy_changed }}
+      galaxy_preview_changed: ${{ needs.check-changes.outputs.galaxy_preview_changed }}
+      pr-number: ${{ github.event.pull_request.number }}
+      pr-head-sha: ${{ github.event.pull_request.head.sha }}
+    secrets: inherit
+
+  preview-comment:
+    # Only run for PRs from the same repository
+    if: |
+      always() &&
+      (needs.deploy-previews.outputs.examples-url != '' ||
+       needs.deploy-previews.outputs.api-reference-url != '' ||
+       needs.deploy-previews.outputs.components-url != '' ||
+       needs.deploy-previews.outputs.api-client-url != '' ||
+       needs.deploy-previews.outputs.galaxy-url != '' ||
+       needs.deploy-previews.outputs.registry-preview-url != '') &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.actor, '[bot]')
+    needs: [deploy-previews]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Build comment message
+        id: build-message
+        env:
+          EXAMPLES_URL: ${{ needs.deploy-previews.outputs.examples-url }}
+          API_REFERENCE_URL: ${{ needs.deploy-previews.outputs.api-reference-url }}
+          COMPONENTS_URL: ${{ needs.deploy-previews.outputs.components-url }}
+          API_CLIENT_URL: ${{ needs.deploy-previews.outputs.api-client-url }}
+          GALAXY_URL: ${{ needs.deploy-previews.outputs.galaxy-url }}
+          REGISTRY_PREVIEW_URL: ${{ needs.deploy-previews.outputs.registry-preview-url }}
+        run: |
+          MESSAGE=""
+          [ -n "$EXAMPLES_URL" ] && MESSAGE="${MESSAGE}**Preview Examples**\n\n${EXAMPLES_URL}\n\n"
+          [ -n "$API_REFERENCE_URL" ] && MESSAGE="${MESSAGE}**Preview API Reference**\n\n${API_REFERENCE_URL}\n\n"
+          [ -n "$COMPONENTS_URL" ] && MESSAGE="${MESSAGE}**Preview Storybook**\n\n${COMPONENTS_URL}\n\n"
+          [ -n "$API_CLIENT_URL" ] && MESSAGE="${MESSAGE}**Preview API Client**\n\n${API_CLIENT_URL}\n\n"
+          [ -n "$GALAXY_URL" ] && MESSAGE="${MESSAGE}**Preview Galaxy**\n\n${GALAXY_URL}\n\n"
+          [ -n "$REGISTRY_PREVIEW_URL" ] && MESSAGE="${MESSAGE}**Scalar Registry Preview**\n\n${REGISTRY_PREVIEW_URL}\n\n"
+          {
+            echo "message<<EOF"
+            printf '%b' "$MESSAGE"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Add combined preview URLs to the PR
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        with:
+          message: ${{ steps.build-message.outputs.message }}
+          comment-tag: 'deployment-preview'
+
+  required-jobs-pull-requests:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 1
+    permissions: {}
+    needs:
+      [
+        build,
+        test-server-side-rendering,
+        format,
+        knip,
+        test-js,
+        test-integrations,
+        test-proxy-server,
+        test-e2e-scalar-app,
+        types,
+      ]
+    steps:
+      - name: Exit with error if some jobs are not successful
+        run: exit 1
+        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
