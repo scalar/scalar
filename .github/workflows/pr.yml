@@ -510,8 +510,15 @@ jobs:
       docker_changed: ${{ needs.check-changes.outputs.docker_changed }}
 
   # Preview deploys — same-repo PRs only (forks cannot read deploy secrets).
+  # Gating on `!cancelled() && build succeeded` (instead of the implicit
+  # all-needs-success gate) keeps the always-on examples and Storybook previews
+  # shipping even when check-changes failed. The path-gated previews
+  # (api-reference, api-client, galaxy) read check-changes outputs, so they
+  # simply skip when those come through empty.
   deploy-previews:
     if: |
+      !cancelled() &&
+      needs.build.result == 'success' &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       !contains(github.actor, '[bot]')

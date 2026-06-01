@@ -288,16 +288,18 @@ jobs:
   # Hand off to release.yml — only reached after required-jobs-main succeeded.
   # release.yml is the only workflow that touches production publish secrets.
   release:
-    # Runs only on main, only when required-jobs-main and check-changes passed
-    # (preserving npm-publish's old `if: refs/heads/main` + the success gate).
-    # `!cancelled()` lets release proceed even when integration-builds failed or
-    # was skipped — a broken integration build must NOT block the npm release or
-    # the other publishes. Instead each integration publish gates on its own
-    # build-test result, forwarded below via the `*_build_passed` inputs.
+    # Runs only on main, only when required-jobs-main passed — mirroring
+    # npm-publish's old `needs: [required-jobs-main]` + `if: refs/heads/main`.
+    # `!cancelled()` lets release proceed even when check-changes or
+    # integration-builds failed or were skipped: a broken change-detection or
+    # integration build must NOT block the npm release or the other publishes.
+    # check-changes stays in `needs` only to forward its outputs below; if it
+    # failed those come through empty, so each integration publish simply sees
+    # its package as unchanged. Per-integration publishes additionally gate on
+    # their own build-test result via the `*_build_passed` inputs.
     if: |
       !cancelled() &&
       github.ref == 'refs/heads/main' &&
-      needs.check-changes.result == 'success' &&
       needs.required-jobs-main.result == 'success'
     needs: [check-changes, required-jobs-main, integration-builds]
     uses: ./.github/workflows/release.yml
