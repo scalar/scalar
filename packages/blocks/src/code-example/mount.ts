@@ -56,22 +56,44 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
   const eventBus = createWorkspaceEventBus()
   const clientOptions = generateClientOptions()
 
+  /** Resolve the operation from the active document for the configured path and method. */
+  const resolveOperation = (): OperationObject | undefined => {
+    // The active document may be an AsyncAPI document, which has no `paths`.
+    const activeDocument = options.store.workspace.activeDocument
+    const paths = activeDocument && 'paths' in activeDocument ? activeDocument.paths : undefined
+    const pathItem = getResolvedRef(paths?.[options.path])
+    return getResolvedRef(pathItem?.[options.method])
+  }
+
+  // Fail loudly if the path and method do not point at an operation in the store,
+  // mirroring the "element not found" guard above.
+  if (!resolveOperation()) {
+    throw new Error(`Operation not found: ${options.method.toUpperCase()} ${options.path}`)
+  }
+
+  // Every prop is a getter so the block stays in sync with the store and the options
+  // object, rather than snapshotting their values at mount time.
   const props = reactive<CodeExampleProps>({
-    // Resolve the operation lazily so the block reacts to document changes in the store.
     get operation(): OperationObject {
-      // The active document may be an AsyncAPI document, which has no `paths`.
-      const document = options.store.workspace.activeDocument
-      const paths = document && 'paths' in document ? document.paths : undefined
-      const pathItem = getResolvedRef(paths?.[options.path])
-      return getResolvedRef(pathItem?.[options.method]) as OperationObject
+      return resolveOperation() as OperationObject
     },
-    method: options.method,
-    path: options.path,
+    get method() {
+      return options.method
+    },
+    get path() {
+      return options.path
+    },
     clientOptions,
     eventBus,
-    securitySchemes: options.securitySchemes ?? [],
-    selectedClient: options.selectedClient,
-    selectedServer: options.selectedServer ?? null,
+    get securitySchemes() {
+      return options.securitySchemes ?? []
+    },
+    get selectedClient() {
+      return options.selectedClient
+    },
+    get selectedServer() {
+      return options.selectedServer ?? null
+    },
   })
 
   const app = createApp(() => h('div', { class: getWrapperClass(options.darkMode) }, h(CodeExample, props)))
