@@ -294,63 +294,85 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     __scalar_: string({ typeComment: 'Internal marker for schema object disambiguation.' }),
   })
 
-  const numericSchema: Schema = object(
-    {
-      type: union([literal('number'), literal('integer')]),
-      format: optional(string({ typeComment: 'Different subtypes.' })),
-      multipleOf: optional(number({ typeComment: 'Number must be a multiple of this value.' })),
-      maximum: optional(number({ typeComment: 'Maximum value (inclusive).' })),
-      exclusiveMaximum: optional(number({ typeComment: 'Maximum value (exclusive).' })),
-      minimum: optional(number({ typeComment: 'Minimum value (inclusive).' })),
-      exclusiveMinimum: optional(number({ typeComment: 'Minimum value (exclusive).' })),
-    },
+  const numericValidationKeywords = object({
+    multipleOf: optional(number({ typeComment: 'Number must be a multiple of this value.' })),
+    maximum: optional(number({ typeComment: 'Maximum value (inclusive).' })),
+    exclusiveMaximum: optional(number({ typeComment: 'Maximum value (exclusive).' })),
+    minimum: optional(number({ typeComment: 'Minimum value (inclusive).' })),
+    exclusiveMinimum: optional(number({ typeComment: 'Minimum value (exclusive).' })),
+  })
+
+  const numericSchema: Schema = intersection(
+    [
+      object({
+        type: union([literal('number'), literal('integer')]),
+        format: optional(string({ typeComment: 'Different subtypes.' })),
+      }),
+      numericValidationKeywords,
+    ],
     { typeName: 'NumberSchemaObject' },
   )
 
-  const stringSchema = object(
-    {
-      type: literal('string'),
-      format: optional(string({ typeComment: 'Different subtypes.' })),
-      maxLength: optional(number({ typeComment: 'Maximum string length.' })),
-      minLength: optional(number({ typeComment: 'Minimum string length.' })),
-      pattern: optional(string({ typeComment: 'Regular expression pattern.' })),
-    },
+  const stringValidationKeywords = object({
+    maxLength: optional(number({ typeComment: 'Maximum string length.' })),
+    minLength: optional(number({ typeComment: 'Minimum string length.' })),
+    pattern: optional(string({ typeComment: 'Regular expression pattern.' })),
+  })
+
+  const stringSchema = intersection(
+    [
+      object({
+        type: literal('string'),
+        format: optional(string({ typeComment: 'Different subtypes.' })),
+      }),
+      stringValidationKeywords,
+    ],
     { typeName: 'StringSchemaObject' },
   )
 
-  const objectSchema = object(
-    {
-      type: literal('object'),
-      maxProperties: optional(number({ typeComment: 'Maximum number of properties.' })),
-      minProperties: optional(number({ typeComment: 'Minimum number of properties.' })),
-      properties: optional(
-        record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectProperties' }),
-      ),
-      required: optional(array(string(), { typeName: 'SchemaObjectRequired' })),
-      additionalProperties: optional(
-        union([boolean(), maybeRef(lazy((): Schema => schema))], {
-          typeName: 'SchemaObjectAdditionalProperties',
-        }),
-      ),
-      patternProperties: optional(
-        record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectPatternProperties' }),
-      ),
-      propertyNames: optional(maybeRef(lazy((): Schema => schema))),
-    },
+  const objectValidationKeywords = object({
+    maxProperties: optional(number({ typeComment: 'Maximum number of properties.' })),
+    minProperties: optional(number({ typeComment: 'Minimum number of properties.' })),
+    properties: optional(
+      record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectProperties' }),
+    ),
+    required: optional(array(string(), { typeName: 'SchemaObjectRequired' })),
+    additionalProperties: optional(
+      union([boolean(), maybeRef(lazy((): Schema => schema))], {
+        typeName: 'SchemaObjectAdditionalProperties',
+      }),
+    ),
+    patternProperties: optional(
+      record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectPatternProperties' }),
+    ),
+    propertyNames: optional(maybeRef(lazy((): Schema => schema))),
+  })
+
+  const objectSchema = intersection(
+    [
+      object({
+        type: literal('object'),
+      }),
+      objectValidationKeywords,
+    ],
     { typeName: 'ObjectSchemaObject' },
   )
 
-  const arraySchema = object(
-    {
-      type: literal('array'),
-      maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
-      minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
-      uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
-      items: optional(maybeRef(lazy((): Schema => schema))),
-      prefixItems: optional(
-        array(maybeRef(lazy((): Schema => schema)), { typeComment: 'Schema for tuple validation.' }),
-      ),
-    },
+  const arrayValidationKeywords = object({
+    maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
+    minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
+    uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
+    items: optional(maybeRef(lazy((): Schema => schema))),
+    prefixItems: optional(array(maybeRef(lazy((): Schema => schema)), { typeComment: 'Schema for tuple validation.' })),
+  })
+
+  const arraySchema = intersection(
+    [
+      object({
+        type: literal('array'),
+      }),
+      arrayValidationKeywords,
+    ],
     { typeName: 'ArraySchemaObject' },
   )
 
@@ -367,20 +389,43 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'SchemaObjectMultiTypeKeywords' },
   )
 
-  const otherTypeSchema = object(
-    {
-      type: union([literal('null'), literal('boolean'), array(schemaTypeMulti)], {
-        typeName: 'SchemaObjectOtherTypeKeyword',
+  const otherTypeSchema = object({
+    type: union([literal('null'), literal('boolean')], {
+      typeName: 'SchemaObjectOtherTypeKeyword',
+    }),
+  })
+
+  const multiTypeSchema = intersection(
+    [
+      object({
+        type: array(schemaTypeMulti, {
+          typeName: 'SchemaObjectMultiTypeKeywordArray',
+        }),
+        format: optional(string({ typeComment: 'Different subtypes.' })),
       }),
+      numericValidationKeywords,
+      stringValidationKeywords,
+      arrayValidationKeywords,
+      objectValidationKeywords,
+    ],
+    {
+      typeName: 'MultiTypeSchemaObject',
     },
-    { typeName: 'MultiTypeSchemaObject' },
   )
 
   const schema: Schema = intersection(
     [
       coreSchemaProperties,
       ...schemaExtensionObjects,
-      union([schemaScalarMarker, otherTypeSchema, numericSchema, stringSchema, objectSchema, arraySchema]),
+      union([
+        schemaScalarMarker,
+        otherTypeSchema,
+        numericSchema,
+        stringSchema,
+        objectSchema,
+        arraySchema,
+        multiTypeSchema,
+      ]),
     ],
     { typeName: 'SchemaObject' },
   )

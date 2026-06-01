@@ -394,7 +394,7 @@ describe('SchemaObjectProperties', () => {
     expect(props[3]?.attributes('data-name')).toBe('gamma')
   })
 
-  it('keeps sibling ref descriptions separate from the referenced schema', () => {
+  it('ref properties take precedence over the referenced schema', () => {
     const schema = {
       type: 'object',
       properties: {
@@ -426,6 +426,7 @@ describe('SchemaObjectProperties', () => {
 
     expect(property.props('description')).toBe('Property-specific description.')
     expect(property.props('schema')).toStrictEqual({
+      '$ref': '#/components/schemas/BaseSchema',
       oneOf: [
         {
           title: 'FirstVariant',
@@ -436,7 +437,7 @@ describe('SchemaObjectProperties', () => {
           type: 'object',
         },
       ],
-      description: 'Referenced schema description.',
+      description: 'Property-specific description.',
     })
   })
 })
