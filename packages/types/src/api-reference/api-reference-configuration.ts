@@ -8,6 +8,7 @@ import { type SourceConfiguration, sourceConfigurationSchema } from './source-co
 import { DEFAULT_MODELS_SECTION_LABEL } from './types'
 
 // Zod Schemas don't work well with async functions, so we use a custom type instead.
+// Note: `fetch` is the deprecated alias kept here for migration; `customFetch` lives in the base configuration.
 const fetchLikeSchema = z.custom<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>()
 
 /**
@@ -39,12 +40,6 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @deprecated Use `customFetch` instead.
    */
   fetch: fetchLikeSchema.optional(),
-  /**
-   * Custom fetch function used both when loading the OpenAPI document and when sending requests from the API client.
-   *
-   * Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.
-   */
-  customFetch: fetchLikeSchema.optional(),
   /**
    * Plugins for the API reference
    */

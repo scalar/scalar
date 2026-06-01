@@ -1,5 +1,7 @@
 import { any, array, boolean, fn, literal, nullable, object, optional, string, union } from '@scalar/validation'
 
+type FetchFunction = (input: string | URL | Request, init?: RequestInit) => Promise<Response>
+
 const externalUrlsSchema = object(
   {
     dashboardUrl: string({ default: 'https://dashboard.scalar.com' }),
@@ -148,4 +150,8 @@ export const baseConfigurationSchema = object({
     typeComment: 'Enables / disables telemetry',
   }),
   externalUrls: externalUrlsSchema,
+  customFetch: optional(fn<FetchFunction>(), {
+    typeComment:
+      "Custom fetch function used both when loading the OpenAPI document and when sending requests from the API client. Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.",
+  }),
 })

@@ -32,10 +32,6 @@ export const apiReferenceConfigurationSchema = intersection([
     fetch: optional(fn<typeof fetch>(), {
       typeComment: '@deprecated Use `customFetch` instead.',
     }),
-    customFetch: optional(fn<typeof fetch>(), {
-      typeComment:
-        "Custom fetch function used both when loading the OpenAPI document and when sending requests from the API client. Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.",
-    }),
     plugins: optional(array(apiReferencePluginSchema), {
       typeComment: 'Plugins for the API reference',
     }),

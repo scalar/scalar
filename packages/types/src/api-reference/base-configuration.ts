@@ -2,6 +2,9 @@ import z from 'zod'
 
 import { apiClientPluginSchema } from './api-client-plugin'
 
+// Zod doesn't work well with async functions, so we use a custom type instead.
+const fetchLikeSchema = z.custom<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>()
+
 const externalUrlsSchema = z.object({
   dashboardUrl: z.string().prefault('https://dashboard.scalar.com'),
   registryUrl: z.string().prefault('https://registry.scalar.com'),
@@ -170,6 +173,12 @@ export const baseConfigurationSchema = z.object({
   telemetry: z.boolean().optional().default(true),
   /** A bunch of external URLs to Scalar's services. */
   externalUrls: externalUrlsSchema.prefault({}),
+  /**
+   * Custom fetch function used both when loading the OpenAPI document and when sending requests from the API client.
+   *
+   * Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.
+   */
+  customFetch: fetchLikeSchema.optional(),
 })
 
 /** Shared configuration for the API Reference and API Client */
