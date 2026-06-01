@@ -369,4 +369,68 @@ describe('traverseAsyncApiDocument', () => {
       ],
     })
   })
+
+  it('lists components.schemas under a top-level Models section', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Schemas API', version: '1.0.0' },
+      'x-scalar-original-document-hash': 'schemas-fixture',
+      components: {
+        schemas: {
+          Planet: { type: 'object', title: 'A Planet' },
+          Star: { type: 'object' },
+        },
+      },
+    } as unknown as AsyncApiDocument
+
+    const result = traverseAsyncApiDocument('schemas', document, mockOptions)
+    const models = result.children?.find((entry) => entry.type === 'models')
+
+    expect(models).toMatchObject({
+      type: 'models',
+      title: 'Models',
+      children: [
+        expect.objectContaining({
+          type: 'model',
+          name: 'Planet',
+          title: 'A Planet',
+          ref: '#/components/schemas/Planet',
+        }),
+        expect.objectContaining({ type: 'model', name: 'Star', title: 'Star', ref: '#/components/schemas/Star' }),
+      ],
+    })
+  })
+
+  it('omits the Models section when hideModels is set', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Schemas API', version: '1.0.0' },
+      'x-scalar-original-document-hash': 'schemas-fixture',
+      components: { schemas: { Planet: { type: 'object' } } },
+    } as unknown as AsyncApiDocument
+
+    const result = traverseAsyncApiDocument('schemas', document, { ...mockOptions, hideModels: true })
+
+    expect(result.children?.some((entry) => entry.type === 'models')).toBe(false)
+  })
+
+  it('lists models when components is a resolved `$ref` wrapper', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Schemas API', version: '1.0.0' },
+      'x-scalar-original-document-hash': 'schemas-fixture',
+      components: {
+        '$ref': '#/components',
+        '$ref-value': { schemas: { Planet: { type: 'object', title: 'A Planet' } } },
+      },
+    } as unknown as AsyncApiDocument
+
+    const result = traverseAsyncApiDocument('schemas', document, mockOptions)
+    const models = result.children?.find((entry) => entry.type === 'models')
+
+    expect(models).toMatchObject({
+      type: 'models',
+      children: [expect.objectContaining({ type: 'model', name: 'Planet', title: 'A Planet' })],
+    })
+  })
 })

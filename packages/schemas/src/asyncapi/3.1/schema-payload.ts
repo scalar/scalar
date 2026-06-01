@@ -1,5 +1,7 @@
 import { literal, object, optional, string, union, unknown } from '@scalar/validation'
 
+import { schema as schemaObject } from '@/openapi/3.1/schema'
+
 import { recursiveRef } from './reference'
 
 export const asyncApiMultiFormatSchemaObject = object(
@@ -17,17 +19,11 @@ export const asyncApiMultiFormatSchemaObject = object(
   { typeName: 'AsyncApiMultiFormatSchemaObject' },
 )
 
-const asyncApiSchemaJsonShape = union(
-  [
-    literal(true),
-    literal(false),
-    unknown({
-      typeName: 'AsyncApiSchemaObject',
-      typeComment: 'JSON Schema Draft 07 compatible schema (boolean true/false or object); see AsyncAPI Schema Object.',
-    }),
-  ],
-  { typeName: 'AsyncApiSchemaJsonShape' },
-)
+// AsyncAPI's default schema format is JSON Schema, the same dialect OpenAPI 3.1 uses, so we reuse the
+// OpenAPI Schema Object here instead of an opaque `unknown`. A schema may also be a boolean per JSON Schema.
+const asyncApiSchemaJsonShape = union([literal(true), literal(false), schemaObject], {
+  typeName: 'AsyncApiSchemaJsonShape',
+})
 
 /** Schema Object | Reference Object */
 export const asyncApiSchemaObjectOrReference = recursiveRef(asyncApiSchemaJsonShape)

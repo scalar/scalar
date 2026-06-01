@@ -169,7 +169,9 @@ describe('resolveOperationWithTraits', () => {
           },
         },
       ],
-    } as AsyncApiOperationObject
+      // Partial fixture: the inline `query` schema widens `type` to `string`, which no longer
+      // matches the strict Schema Object, so go through `unknown` like the other fixtures here.
+    } as unknown as AsyncApiOperationObject
 
     const resolved = resolveOperationWithTraits(operation)
 

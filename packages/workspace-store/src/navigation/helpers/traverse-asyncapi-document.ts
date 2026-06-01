@@ -8,6 +8,7 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { type NavigationOptions, getNavigationOptions } from '@/navigation/get-navigation-options'
 import { getTag } from '@/navigation/helpers/get-tag'
 import { traverseDescription } from '@/navigation/helpers/traverse-description'
+import { traverseSchemas } from '@/navigation/helpers/traverse-schemas'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { XInternal } from '@/schemas/extensions/document/x-internal'
 import type { XScalarIgnore } from '@/schemas/extensions/document/x-scalar-ignore'
@@ -20,7 +21,7 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@/schemas/navigation'
-import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /** Anything that may carry the navigation visibility extensions. */
 type Hideable = XInternal & XScalarIgnore
@@ -592,7 +593,10 @@ export const traverseAsyncApiDocument = (
   document: AsyncApiDocumentWithNavigationExtensions,
   options?: NavigationOptions,
 ): TraversedDocument => {
-  const { generateId, operationsSorter, tagsSorter } = getNavigationOptions(documentName, options)
+  const { generateId, operationsSorter, tagsSorter, hideModels, modelsSectionLabel } = getNavigationOptions(
+    documentName,
+    options,
+  )
 
   const documentId = generateId({
     type: 'document',
@@ -650,6 +654,21 @@ export const traverseAsyncApiDocument = (
     }
   }
 
+  // AsyncAPI documents carry reusable schemas under `components.schemas`, just like OpenAPI.
+  // Reuse the OpenAPI schema traversal so they render as "Models" in the same way. Schemas
+  // tagged via `x-tags` are pushed into `tagsMap` here, so this must run before the tag
+  // entries below are built from that map.
+  //
+  // `traverseSchemas` only reads `components.schemas`, which both document shapes share, but it is
+  // typed against the OpenAPI document. We hand it the resolved `components` (so a `$ref`-only
+  // wrapper still exposes its schemas) wrapped in a minimal document; the cast bridges the single
+  // overlapping field, since AsyncAPI and OpenAPI documents are otherwise distinct types.
+  const components = document.components ? getResolvedRef(document.components, mergeSiblingReferences) : undefined
+  const untaggedModels =
+    !hideModels && components?.schemas
+      ? traverseSchemas({ documentId, document: { components } as unknown as OpenApiDocument, generateId, tagsMap })
+      : []
+
   // Surface the Introduction entry plus any headings extracted from `info.description`
   // before the channel/tag entries, mirroring how OpenAPI documents are traversed.
   const entries: TraversedEntry[] = traverseDescription({
@@ -675,6 +694,17 @@ export const traverseAsyncApiDocument = (
   }
 
   entries.push(...untaggedChannels)
+
+  // Mirror OpenAPI: untagged schemas are grouped under a single top-level "Models" section.
+  if (untaggedModels.length) {
+    entries.push({
+      type: 'models',
+      id: generateId({ type: 'model', parentId: documentId }),
+      title: modelsSectionLabel,
+      name: modelsSectionLabel,
+      children: untaggedModels,
+    })
+  }
 
   const sortOrder = document['x-scalar-order']
   const orderedEntries = sortOrder ? sortByOrder(entries, sortOrder, (entry) => entry.id) : entries
