@@ -1,0 +1,26 @@
+# Scalar ruleset for the Galaxy example document.
+#
+# Extends Spectral's built-in OpenAPI ruleset (spectral:oas) and layers on a few
+# Scalar opinions. The custom rules are kept at "warn" so they surface issues
+# without breaking the build; spectral:oas errors still fail the lint.
+#
+# Run it with:
+#   pnpm --filter @scalar/galaxy lint
+extends: spectral:oas
+rules:
+  # Every operation should carry a human-readable description, not just a summary.
+  operation-description:
+    description: Operations should have a description.
+    given: $.paths[*][get,put,post,delete,patch,options,head]
+    severity: warn
+    then:
+      field: description
+      function: truthy
+  # Every operation should be tagged so it groups nicely in the API reference.
+  operation-tags:
+    description: Operations should have at least one tag.
+    given: $.paths[*][get,put,post,delete,patch,options,head]
+    severity: warn
+    then:
+      field: tags
+      function: truthy
