@@ -195,6 +195,44 @@ describe('schema', () => {
       expect(result).toEqual(validInput)
     })
 
+    it('infers array type when items are present without explicit type', () => {
+      const validInput = {
+        items: {
+          type: 'string',
+        },
+      }
+
+      const result = coerceValue(SchemaObjectSchema, validInput)
+
+      expect(result).toEqual({
+        type: 'array',
+        items: {
+          type: 'string',
+        },
+      })
+    })
+
+    it('infers object type when properties are present without explicit type', () => {
+      const validInput = {
+        properties: {
+          name: {
+            type: 'string',
+          },
+        },
+      }
+
+      const result = coerceValue(SchemaObjectSchema, validInput)
+
+      expect(result).toEqual({
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+          },
+        },
+      })
+    })
+
     it('parses schema with composition (allOf) correctly', () => {
       const validInput = {
         allOf: [

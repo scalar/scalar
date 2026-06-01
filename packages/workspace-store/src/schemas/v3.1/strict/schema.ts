@@ -450,11 +450,11 @@ export const SchemaObjectSchemaDefinition = Type.Union([
   // even a non resolved ref and (2) it will match any schema so it will not validate the refs correctly
   compose(Type.Object({ __scalar_: Type.String() }), CorePropertiesWithSchema, Extensions),
   compose(OtherTypes, CorePropertiesWithSchema, Extensions),
-  compose(MultiTypeValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
   compose(NumericProperties, CorePropertiesWithSchema, Extensions),
   compose(StringValidationProperties, CorePropertiesWithSchema, Extensions),
   compose(ObjectValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
   compose(ArrayValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
+  compose(MultiTypeValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
 ])
 
 export type SchemaObject =
