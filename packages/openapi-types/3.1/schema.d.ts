@@ -153,6 +153,7 @@ export type MultiTypeObject = SharedProperties &
     format?: StringFormat | NumericFormat
   } & Extensions
 export type SchemaObject =
+  | boolean
   | UntypedObject
   | OtherTypes
   | NumericObject

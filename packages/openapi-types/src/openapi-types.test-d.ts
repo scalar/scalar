@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, it } from 'vitest'
 
+import type { Document as OpenAPIV3_1Document, SchemaObject as OpenAPIV3_1SchemaObject } from '../3.1'
 import type {
   Document as OpenAPIV3_2Document,
   MediaTypeObject as OpenAPIV3_2MediaTypeObject,
@@ -87,6 +88,39 @@ describe('OpenAPI', () => {
 
     // @ts-expect-error name is a string
     assertType('NOT_A_METHOD' as OpenAPI.HttpMethod)
+  })
+})
+
+describe('@scalar/openapi-types/3.1', () => {
+  it('allows boolean schemas anywhere a schema object is accepted', () => {
+    expectTypeOf<true>().toExtend<OpenAPIV3_1SchemaObject>()
+    expectTypeOf<false>().toExtend<OpenAPIV3_1SchemaObject>()
+
+    const schema: OpenAPIV3_1SchemaObject = {
+      type: 'object',
+      properties: {
+        anything: true,
+        nothing: false,
+      },
+      allOf: [true, false, { type: 'string' }],
+    }
+
+    const document: OpenAPIV3_1Document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Boolean schema test',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          Anything: true,
+          Nothing: false,
+        },
+      },
+    }
+
+    expectTypeOf(schema).not.toBeAny()
+    expectTypeOf(document).not.toBeAny()
   })
 })
 
