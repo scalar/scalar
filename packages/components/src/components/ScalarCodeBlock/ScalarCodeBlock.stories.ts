@@ -139,6 +139,23 @@ export const SingleLine: Story = {
   }),
 }
 
+/**
+ * Code with character sequences that ligature fonts (like JetBrains Mono) would
+ * normally combine into a single glyph. Ligatures are disabled so each character
+ * renders literally.
+ */
+export const Ligatures: Story = {
+  args: {
+    content: `const compare = (a, b) => a !== b && a >= 0 && b <= 10
+const arrow = a -> b
+const pipe = value |> transform
+const equal = x === y
+const notEqual = x != y
+const fatArrow = () => {}`,
+    lang: 'javascript',
+  },
+}
+
 export const HideCredentials: Story = {
   args: {
     content: contentCurl,
