@@ -1,5 +1,24 @@
 # @scalar/workspace-store
 
+## 0.53.0
+
+### Minor Changes
+
+- [#9340](https://github.com/scalar/scalar/pull/9340): feat: add getChannelConnectionContext for AsyncAPI WebSocket channels
+
+  Add channel connection context helpers that resolve channel, messages, parameters, servers, security, and connection URL for WebSocket client UI.
+
+- [#9372](https://github.com/scalar/scalar/pull/9372): Render AsyncAPI `components.schemas` as Models, listed in the sidebar and content just like OpenAPI schemas
+- [#9331](https://github.com/scalar/scalar/pull/9331): feat: generate AsyncAPI sidebar navigation on document ingest
+
+  Add `TraversedAsyncApiChannel`, `TraversedAsyncApiOperation`, and `TraversedAsyncApiMessage` navigation entry types, plus `traverseAsyncApiDocument` wired into the AsyncAPI ingest path. Navigation is structured as channel → operation → message, with messages resolved per operation (all channel messages by default, or filtered via `operation.messages`).
+
+### Patch Changes
+
+- [#9255](https://github.com/scalar/scalar/pull/9255): Surface the Introduction entry and any headings extracted from `info.description` of AsyncAPI documents in the sidebar, mirroring how OpenAPI documents are handled.
+- [#9309](https://github.com/scalar/scalar/pull/9309): feat: add `modelsSectionLabel` configuration (`'Models' | 'Schemas' | string`) to use OpenAPI-style Schemas terminology in the sidebar, content, and search.
+- [#9383](https://github.com/scalar/scalar/pull/9383): fix: preserve multi-type schema arrays when coercing schemas with validation keywords
+
 ## 0.52.0
 
 ### Minor Changes

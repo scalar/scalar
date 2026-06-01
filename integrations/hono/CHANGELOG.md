@@ -1,5 +1,7 @@
 # @scalar/hono-api-reference
 
+## 0.10.20
+
 ## 0.10.19
 
 ## 0.10.18

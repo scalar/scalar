@@ -1,5 +1,7 @@
 # @scalar/server-side-rendering
 
+## 0.1.21
+
 ## 0.1.20
 
 ## 0.1.19

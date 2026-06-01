@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.15.6
+
+### Patch Changes
+
+- [#9268](https://github.com/scalar/scalar/pull/9268): fix button text color variables to use pure white instead of semi-transparent white in dark themes.
+
 ## 0.15.5
 
 ### Patch Changes
