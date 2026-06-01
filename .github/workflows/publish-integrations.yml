@@ -37,6 +37,29 @@ on:
       java_package_changed:
         type: string
         required: true
+      # Build-test results from integration-builds.yml (forwarded via
+      # release.yml). A publish runs only when its build-test passed ('true');
+      # an empty value means the build-test was skipped or failed, which keeps
+      # the publish gated off — the cross-workflow equivalent of the old
+      # `needs: [<integration>-build-test]`.
+      docker_build_passed:
+        type: string
+        required: true
+      dotnet_build_passed:
+        type: string
+        required: true
+      fastapi_build_passed:
+        type: string
+        required: true
+      django_ninja_build_passed:
+        type: string
+        required: true
+      rust_build_passed:
+        type: string
+        required: true
+      java_build_passed:
+        type: string
+        required: true
 
 permissions:
   contents: read
@@ -46,7 +69,7 @@ env:
 
 jobs:
   docker-publish:
-    if: inputs.published == 'true' && inputs.docker_package_changed == 'true'
+    if: inputs.published == 'true' && inputs.docker_package_changed == 'true' && inputs.docker_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     environment: production-dockerhub
     timeout-minutes: 10
@@ -166,7 +189,7 @@ jobs:
           readme-filepath: ./packages/mock-server/docker/README.md
 
   aspnetcore-publish:
-    if: inputs.published == 'true' && inputs.aspnetcore_package_changed == 'true'
+    if: inputs.published == 'true' && inputs.aspnetcore_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     environment: production-nuget
     timeout-minutes: 10
@@ -227,7 +250,7 @@ jobs:
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   aspire-publish:
-    if: inputs.published == 'true' && inputs.aspire_package_changed == 'true'
+    if: inputs.published == 'true' && inputs.aspire_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     environment: production-nuget
     timeout-minutes: 10
@@ -324,7 +347,7 @@ jobs:
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   fastapi-publish:
-    if: inputs.published == 'true' && inputs.fastapi_package_changed == 'true'
+    if: inputs.published == 'true' && inputs.fastapi_package_changed == 'true' && inputs.fastapi_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -356,7 +379,7 @@ jobs:
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
 
   django-ninja-publish:
-    if: inputs.published == 'true' && inputs.django_ninja_package_changed == 'true'
+    if: inputs.published == 'true' && inputs.django_ninja_package_changed == 'true' && inputs.django_ninja_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -388,7 +411,7 @@ jobs:
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
 
   rust-publish:
-    if: inputs.published == 'true' && inputs.rust_package_changed == 'true'
+    if: inputs.published == 'true' && inputs.rust_package_changed == 'true' && inputs.rust_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     environment: production-crates
     timeout-minutes: 10
@@ -443,7 +466,7 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
   java-publish:
-    if: inputs.published == 'true' && inputs.java_package_changed == 'true'
+    if: inputs.published == 'true' && inputs.java_package_changed == 'true' && inputs.java_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     concurrency:
       group: java-publish

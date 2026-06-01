@@ -26,6 +26,23 @@ on:
       docker_changed:
         type: string
         required: true
+    # 'true' only when the matching build-test ran to completion successfully.
+    # A skipped (path-gated off) or failed job leaves the output empty, so the
+    # matching publish job in publish-integrations.yml stays gated off — this is
+    # how a publish waits on its build-test across the workflow boundary.
+    outputs:
+      docker_build_passed:
+        value: ${{ jobs.docker-build.outputs.passed }}
+      dotnet_build_passed:
+        value: ${{ jobs.dotnet-build-test.outputs.passed }}
+      fastapi_build_passed:
+        value: ${{ jobs.fastapi-build-test.outputs.passed }}
+      django_ninja_build_passed:
+        value: ${{ jobs.django-ninja-build-test.outputs.passed }}
+      rust_build_passed:
+        value: ${{ jobs.rust-build-test.outputs.passed }}
+      java_build_passed:
+        value: ${{ jobs.java-build-test.outputs.passed }}
 
 permissions:
   contents: read
@@ -40,6 +57,8 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+    outputs:
+      passed: ${{ steps.passed.outputs.passed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -66,12 +85,18 @@ jobs:
           load: true
           tags: scalarapi/api-reference:latest
 
+      - name: Mark build-test passed
+        id: passed
+        run: echo "passed=true" >> "$GITHUB_OUTPUT"
+
   dotnet-build-test:
     if: inputs.dotnet_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     permissions:
       contents: read
+    outputs:
+      passed: ${{ steps.passed.outputs.passed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -116,12 +141,18 @@ jobs:
         working-directory: integrations/dotnet
         run: dotnet test -c Release --no-build
 
+      - name: Mark build-test passed
+        id: passed
+        run: echo "passed=true" >> "$GITHUB_OUTPUT"
+
   fastapi-build-test:
     if: inputs.fastapi_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     permissions:
       contents: read
+    outputs:
+      passed: ${{ steps.passed.outputs.passed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -143,6 +174,10 @@ jobs:
       - name: Run tests
         working-directory: integrations/fastapi
         run: python run_tests.py
+
+      - name: Mark build-test passed
+        id: passed
+        run: echo "passed=true" >> "$GITHUB_OUTPUT"
 
   django-ninja-build-test:
     if: inputs.django_ninja_changed == 'true'
@@ -150,6 +185,8 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+    outputs:
+      passed: ${{ steps.passed.outputs.passed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -172,12 +209,18 @@ jobs:
         working-directory: integrations/django-ninja
         run: python run_tests.py
 
+      - name: Mark build-test passed
+        id: passed
+        run: echo "passed=true" >> "$GITHUB_OUTPUT"
+
   rust-build-test:
     if: inputs.rust_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     permissions:
       contents: read
+    outputs:
+      passed: ${{ steps.passed.outputs.passed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -227,12 +270,18 @@ jobs:
           cargo build --example actix --features actix-web
           cargo build --example warp --features warp
 
+      - name: Mark build-test passed
+        id: passed
+        run: echo "passed=true" >> "$GITHUB_OUTPUT"
+
   java-build-test:
     if: inputs.java_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       contents: read
     timeout-minutes: 10
+    outputs:
+      passed: ${{ steps.passed.outputs.passed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Download scalar.js artifact
@@ -250,3 +299,7 @@ jobs:
       - name: Run Maven tests
         working-directory: integrations/java
         run: mvn clean test
+
+      - name: Mark build-test passed
+        id: passed
+        run: echo "passed=true" >> "$GITHUB_OUTPUT"

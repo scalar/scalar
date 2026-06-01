@@ -288,11 +288,18 @@ jobs:
   # Hand off to release.yml — only reached after required-jobs-main succeeded.
   # release.yml is the only workflow that touches production publish secrets.
   release:
-    # `github.ref` guard preserves npm-publish's old `if: refs/heads/main`.
-    # With no status-check function it implies success(), so release still only
-    # runs when required-jobs-main passed.
-    if: github.ref == 'refs/heads/main'
-    needs: [check-changes, required-jobs-main]
+    # Runs only on main, only when required-jobs-main and check-changes passed
+    # (preserving npm-publish's old `if: refs/heads/main` + the success gate).
+    # `!cancelled()` lets release proceed even when integration-builds failed or
+    # was skipped — a broken integration build must NOT block the npm release or
+    # the other publishes. Instead each integration publish gates on its own
+    # build-test result, forwarded below via the `*_build_passed` inputs.
+    if: |
+      !cancelled() &&
+      github.ref == 'refs/heads/main' &&
+      needs.check-changes.result == 'success' &&
+      needs.required-jobs-main.result == 'success'
+    needs: [check-changes, required-jobs-main, integration-builds]
     uses: ./.github/workflows/release.yml
     with:
       docker_package_changed: ${{ needs.check-changes.outputs.docker_package_changed }}
@@ -303,6 +310,13 @@ jobs:
       django_ninja_package_changed: ${{ needs.check-changes.outputs.django_ninja_package_changed }}
       rust_package_changed: ${{ needs.check-changes.outputs.rust_package_changed }}
       java_package_changed: ${{ needs.check-changes.outputs.java_package_changed }}
+      # Build-test results — a publish only runs when its build-test passed.
+      docker_build_passed: ${{ needs.integration-builds.outputs.docker_build_passed }}
+      dotnet_build_passed: ${{ needs.integration-builds.outputs.dotnet_build_passed }}
+      fastapi_build_passed: ${{ needs.integration-builds.outputs.fastapi_build_passed }}
+      django_ninja_build_passed: ${{ needs.integration-builds.outputs.django_ninja_build_passed }}
+      rust_build_passed: ${{ needs.integration-builds.outputs.rust_build_passed }}
+      java_build_passed: ${{ needs.integration-builds.outputs.java_build_passed }}
     secrets: inherit
 
   # Production Storybook deploy on every main push (independent of release).
