@@ -3,15 +3,17 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { combineParams } from '@scalar/workspace-store/request-example'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import { isAsyncApiDocument, isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type {
   MediaTypeObject,
   OpenApiDocument,
   OperationObject,
   ResponsesObject,
+  SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { FuseData } from '@/features/Search/types'
+import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
 import {
   extractBodyDescriptions,
   extractBodyFieldNames,
@@ -21,8 +23,27 @@ import {
   extractSchemaFieldNames,
 } from '@/helpers/openapi'
 
-/** Documents the search index can ingest. AsyncAPI is supported for headings and tags; channels/operations/messages are not indexed yet. */
+/** Documents the search index can ingest. AsyncAPI is supported for headings, tags, and models; channels/operations/messages are not indexed yet. */
 type SearchableDocument = OpenApiDocument | AsyncApiDocument
+
+/**
+ * Resolves a schema from `components.schemas` for either document type.
+ *
+ * OpenAPI and AsyncAPI keep reusable schemas in the same place, so model search entries can read
+ * property names and descriptions from both. AsyncAPI entries need extra handling (ref siblings,
+ * multi-format wrappers, boolean schemas), which lives in {@link getAsyncApiModelSchema}.
+ */
+function getModelSchema(document: SearchableDocument | undefined, name: string): SchemaObject | undefined {
+  if (isOpenApiDocument(document)) {
+    return getResolvedRef(document.components?.schemas?.[name])
+  }
+
+  if (isAsyncApiDocument(document)) {
+    return getAsyncApiModelSchema(document, name)
+  }
+
+  return undefined
+}
 
 function responseExampleValueToString(value: unknown): string {
   if (typeof value === 'string') {
@@ -115,8 +136,8 @@ export function createSearchIndex(
 /**
  * Adds a single entry to the search index, handling all entry types recursively.
  *
- * AsyncAPI documents only contribute heading/tag entries here. Their channels,
- * operations, and messages are not indexed yet.
+ * AsyncAPI documents contribute heading, tag, and model entries here. Their
+ * channels, operations, and messages are not indexed yet.
  */
 function addEntryToIndex(
   entry: TraversedEntry,
@@ -184,7 +205,7 @@ function addEntryToIndex(
 
   // Model
   if (entry.type === 'model') {
-    const schema = getResolvedRef(openApiDocument?.components?.schemas?.[entry.name])
+    const schema = getModelSchema(document, entry.name)
     const schemaDescription = schema?.description ?? ''
     const propertyNames = extractSchemaFieldNames(schema)
     const propertyDescriptions = extractSchemaDescriptions(schema)

@@ -122,9 +122,10 @@ export const mergeWsBindings = (
   }
 }
 
-type JsonSchemaShape = Record<string, unknown>
+/** Inline Schema Object form of a WebSocket binding `query`, with booleans and the Reference wrapper resolved away. */
+type WsQuerySchema = Exclude<NonNullable<AsyncApiWsBindingObject['query']>, boolean | { $ref: string }>
 
-const resolveWsQuerySchema = (query: AsyncApiWsBindingObject['query']): JsonSchemaShape | undefined => {
+const resolveWsQuerySchema = (query: AsyncApiWsBindingObject['query']): WsQuerySchema | undefined => {
   if (!query) {
     return undefined
   }
@@ -156,17 +157,19 @@ const mergeWsQuerySchemas = (
     return channelQuery
   }
 
-  const channelProperties = isObject(channelSchema.properties) ? channelSchema.properties : {}
-  const operationProperties = isObject(operationSchema.properties) ? operationSchema.properties : {}
+  // `properties` only exists on the object-schema branch of the Schema Object union,
+  // so reach it through an `in` check rather than assuming it is present.
+  const channelProperties = 'properties' in channelSchema ? channelSchema.properties : undefined
+  const operationProperties = 'properties' in operationSchema ? operationSchema.properties : undefined
 
-  return {
-    ...channelSchema,
-    ...operationSchema,
+  // Merge via Object.assign so the result is an intersection of the two schemas rather than a
+  // distributed union of every Schema Object variant, which keeps it assignable to the query type.
+  return Object.assign({}, channelSchema, operationSchema, {
     properties: {
       ...channelProperties,
       ...operationProperties,
     },
-  }
+  })
 }
 
 const getDefaultValueFromPropertySchema = (propertySchema: unknown): unknown | undefined => {
@@ -218,8 +221,9 @@ export const buildWsQueryParams = (
   const params = new URLSearchParams()
   const querySchema = resolveWsQuerySchema(wsBinding?.query)
 
-  if (querySchema && isObject(querySchema.properties)) {
-    for (const [name, propertySchema] of objectEntries(querySchema.properties)) {
+  const properties = querySchema && 'properties' in querySchema ? querySchema.properties : undefined
+  if (isObject(properties)) {
+    for (const [name, propertySchema] of Object.entries(properties)) {
       const defaultValue = getDefaultValueFromPropertySchema(propertySchema)
       appendQueryValue(params, name, defaultValue)
     }

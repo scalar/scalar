@@ -964,5 +964,36 @@ describe('createSearchIndex', () => {
       const headings = index.filter((item) => item.type === 'heading')
       expect(headings.map((item) => item.title)).toEqual(expect.arrayContaining(['Introduction', 'Getting started']))
     })
+
+    it('indexes components.schemas as models with their property names and descriptions', () => {
+      const document = {
+        asyncapi: '3.0.0',
+        info: { title: 'Streaming API', version: '1.0.0' },
+        'x-scalar-original-document-hash': '',
+        components: {
+          schemas: {
+            PlanetEvent: {
+              type: 'object',
+              description: 'A planet lifecycle event',
+              properties: {
+                planetName: { type: 'string', description: 'Name of the planet' },
+                eventType: { type: 'string' },
+              },
+            },
+          },
+        },
+      } as unknown as AsyncApiDocument
+
+      document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
+
+      const index = createSearchIndex(document)
+
+      const model = index.find((item) => item.type === 'model' && item.title === 'PlanetEvent')
+      expect(model).toBeDefined()
+      expect(model?.body).toEqual(expect.arrayContaining(['planetName', 'eventType']))
+      expect(model?.bodyDescriptions).toEqual(
+        expect.arrayContaining(['A planet lifecycle event', 'Name of the planet']),
+      )
+    })
   })
 })
