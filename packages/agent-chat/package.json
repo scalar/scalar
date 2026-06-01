@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && shx cp package.json dist",
-    "build:styles": "cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
+    "build:styles": "shx cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "build:watch": "vite build --watch",
     "dev": "pnpm playground",
     "playground": "cd playground && vite",
