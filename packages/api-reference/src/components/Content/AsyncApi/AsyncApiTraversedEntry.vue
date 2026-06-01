@@ -3,6 +3,7 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedAsyncApiChannel,
+  TraversedAsyncApiOperation,
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
@@ -11,6 +12,7 @@ import { Tag } from '@/components/Content/Tags'
 import Lazy from '@/components/Lazy/Lazy.vue'
 
 import Channel from './Channel.vue'
+import Operation from './Operation.vue'
 
 const {
   entries,
@@ -44,6 +46,9 @@ const isTag = (
   entry.type === 'tag' && !isTagGroup(entry)
 const isChannel = (entry: TraversedEntry): entry is TraversedAsyncApiChannel =>
   entry.type === 'asyncapi-channel'
+const isOperation = (
+  entry: TraversedEntry,
+): entry is TraversedAsyncApiOperation => entry.type === 'asyncapi-operation'
 </script>
 
 <template>
@@ -52,13 +57,33 @@ const isChannel = (entry: TraversedEntry): entry is TraversedAsyncApiChannel =>
     :id="entry.id"
     :key="`${entry.id}-${options.layout}`"
     :expanded="!!expandedItems[entry.id]">
+    <!-- Channel: renders its own section, with operations nested below. -->
     <Channel
       v-if="isChannel(entry)"
       :channel="entry"
       :document="document"
       :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
-      :layout="options.layout" />
+      :layout="options.layout"
+      :level="level">
+      <AsyncApiTraversedEntry
+        v-if="entry.children?.length"
+        :document="document"
+        :entries="entry.children"
+        :eventBus="eventBus"
+        :expandedItems="expandedItems"
+        :level="level + 1"
+        :options="options" />
+    </Channel>
+
+    <!-- Operation: a single section that lists its messages as accordions. -->
+    <Operation
+      v-else-if="isOperation(entry)"
+      :document="document"
+      :eventBus="eventBus"
+      :expandedItems="expandedItems"
+      :level="level"
+      :operation="entry" />
 
     <Tag
       v-else-if="

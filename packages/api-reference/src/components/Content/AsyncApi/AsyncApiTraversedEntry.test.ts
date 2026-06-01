@@ -55,4 +55,72 @@ describe('AsyncApiTraversedEntry', () => {
     expect(tagComponents).toHaveLength(1)
     expect(tagComponents[0]?.props('moreThanOneTag')).toBe(false)
   })
+
+  it('renders a channel with its operation and nested message', () => {
+    const entries: TraversedEntry[] = [
+      {
+        id: 'channel',
+        type: 'asyncapi-channel',
+        title: 'User signup channel',
+        channelName: 'userSignedup',
+        channelAddress: 'user/signedup',
+        children: [
+          {
+            id: 'operation',
+            type: 'asyncapi-operation',
+            title: 'Consume user events',
+            operationName: 'receiveUserEvents',
+            action: 'receive',
+            channelName: 'userSignedup',
+            channelAddress: 'user/signedup',
+            children: [
+              {
+                id: 'message',
+                type: 'asyncapi-message',
+                title: 'User signed up',
+                messageName: 'userSignedUp',
+                channelName: 'userSignedup',
+              },
+            ],
+          },
+        ],
+      },
+    ]
+
+    const channelDocument = {
+      asyncapi: '3.0.0',
+      info: { title: 'Streaming API', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      channels: {
+        userSignedup: {
+          address: 'user/signedup',
+          messages: {
+            userSignedUp: {
+              title: 'User signed up',
+              summary: 'Inform about a new user.',
+            },
+          },
+        },
+      },
+    } as unknown as AsyncApiDocument
+
+    const wrapper = mount(AsyncApiTraversedEntry, {
+      props: {
+        entries,
+        document: channelDocument,
+        // `Lazy` only renders its slot when expanded, so mark every level.
+        expandedItems: { channel: true, operation: true, message: true },
+        options: { layout: 'modern' },
+        eventBus: null as never,
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'Channel' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'Message' }).exists()).toBe(true)
+    expect(wrapper.text()).toContain('Consume user events')
+    expect(wrapper.text()).toContain('receive')
+    expect(wrapper.text()).toContain('User signed up')
+    expect(wrapper.text()).toContain('Inform about a new user.')
+  })
 })

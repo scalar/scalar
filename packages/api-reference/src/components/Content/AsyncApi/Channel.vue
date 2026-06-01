@@ -22,12 +22,21 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 
-const { channel, document, layout, isCollapsed, eventBus } = defineProps<{
+const {
+  channel,
+  document,
+  layout,
+  isCollapsed,
+  eventBus,
+  level = 0,
+} = defineProps<{
   channel: TraversedAsyncApiChannel
   document: AsyncApiDocument
   layout: 'classic' | 'modern'
   isCollapsed: boolean
   eventBus: WorkspaceEventBus | null
+  /** Nesting depth, used to skip the outer container padding when nested. */
+  level?: number
 }>()
 
 const headerId = useId()
@@ -61,14 +70,14 @@ const headingText = computed(() => {
   <SectionContainerAccordion
     v-if="layout === 'classic'"
     :aria-label="headingText"
-    class="channel-section"
+    class="mb-12"
     :modelValue="!isCollapsed"
     @update:modelValue="
       (value) =>
         eventBus?.emit('toggle:nav-item', { id: channel.id, open: value })
     ">
     <template #title>
-      <SectionHeader class="channel-name">
+      <SectionHeader>
         <Anchor
           @copyAnchorUrl="
             () => eventBus?.emit('copy-url:nav-item', { id: channel.id })
@@ -79,19 +88,24 @@ const headingText = computed(() => {
         </Anchor>
       </SectionHeader>
       <ScalarMarkdown
-        class="channel-description"
+        class="pb-1 text-left"
         :value="description"
         withImages />
     </template>
+
+    <!-- Operations (and their messages) render as their own sections below. -->
+    <div class="contents divide-y">
+      <slot />
+    </div>
   </SectionContainerAccordion>
 
   <SectionContainer
     v-else
-    :aria-labelledby="headerId"
-    role="region">
+    :omit="level !== 0">
     <Section
       :id="channel.id"
-      role="none"
+      :aria-labelledby="headerId"
+      role="region"
       @intersecting="
         () => eventBus?.emit('intersecting:nav-item', { id: channel.id })
       ">
@@ -113,15 +127,10 @@ const headingText = computed(() => {
           withImages />
       </SectionContent>
     </Section>
+
+    <!-- Operations (and their messages) render as their own sections below. -->
+    <div class="contents divide-y">
+      <slot />
+    </div>
   </SectionContainer>
 </template>
-
-<style scoped>
-.channel-section {
-  margin-bottom: 48px;
-}
-.channel-description {
-  padding-bottom: 4px;
-  text-align: left;
-}
-</style>
