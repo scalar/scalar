@@ -436,7 +436,7 @@ describe('SchemaObjectProperties', () => {
           type: 'object',
         },
       ],
-      description: 'Referenced schema description.',
+      description: 'Property-specific description.',
     })
   })
 })
