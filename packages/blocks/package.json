@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json",
-    "build:styles": "cp -r src/styles dist",
+    "build:styles": "shx cp -r src/styles dist",
     "dev": "vite --config playground/vite.config.ts",
     "test": "vitest",
     "types:check": "vue-tsc --noEmit"
