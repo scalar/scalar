@@ -1,7 +1,7 @@
 ---
 import { getConfiguration, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
 
-export interface Props {
+interface Props {
   config: Omit<Partial<HtmlRenderingConfiguration>, 'cdn' | 'pageTitle'>
   cdn?: string
 }
