@@ -68,6 +68,12 @@ on:
       scalar_app_released:
         description: "'true' when projects/scalar-app version bumped on this commit"
         value: ${{ jobs.npm-publish.outputs.scalar_app_released }}
+      npm_publish_status:
+        # 'success' or 'failure' — the npm-publish JOB result on its own, so the
+        # main-push deploys can gate on the publish itself rather than on the
+        # whole release workflow (a failing registry push / integration publish /
+        # ToDesktop must not block the web + galaxy deploys).
+        value: ${{ jobs.npm-publish.outputs.status }}
 
 permissions:
   contents: read
@@ -110,6 +116,9 @@ jobs:
       # ToDesktop build) treat a scalar-app version bump as a release even
       # when no public packages were published in the same commit.
       scalar_app_released: ${{ steps.scalar-app-release.outputs.released }}
+      # Captured by the always()-step below so the caller can read the
+      # npm-publish job result independently of sibling release jobs.
+      status: ${{ steps.outcome.outputs.status }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -173,6 +182,16 @@ jobs:
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
           method: 'GET'
+
+      # Record this job's own result so the main-push deploys can gate on the
+      # npm publish alone. `always()` ensures it runs even if an earlier step
+      # failed, and `job.status` is 'success' or 'failure' at that point.
+      - name: Record npm-publish status
+        if: always()
+        id: outcome
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: echo "status=$JOB_STATUS" >> "$GITHUB_OUTPUT"
 
   # We use this job for automated changelog generation
   create-github-release:

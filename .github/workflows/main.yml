@@ -351,13 +351,18 @@ jobs:
 
   # Web app deploy: production when this commit released a public package or
   # bumped scalar-app's version, staging otherwise. Runs on every main push;
-  # waits for release so it can read the publish result.
+  # waits for release so it can read the publish result. Gates on the
+  # npm-publish job result specifically (npm_publish_status) — NOT the whole
+  # release workflow — so a failing registry push / integration publish /
+  # ToDesktop does not block the deploy. An empty value (release skipped because
+  # required tests failed) is treated like the old skipped-npm-publish case and
+  # still deploys to staging.
   deploy-api-client:
     if: |
       !cancelled() &&
       needs.build.result == 'success' &&
       needs.check-changes.result == 'success' &&
-      needs.release.result != 'failure'
+      needs.release.outputs.npm_publish_status != 'failure'
     needs: [build, check-changes, release]
     uses: ./.github/workflows/deploy-api-client.yml
     with:
@@ -367,13 +372,15 @@ jobs:
     secrets: inherit
 
   # Galaxy deploy: production-galaxy-com on a release commit, staging-galaxy-com
-  # otherwise. Runs on every main push.
+  # otherwise. Runs on every main push. Gates on the npm-publish job result
+  # (npm_publish_status), not the whole release workflow — same reasoning as
+  # deploy-api-client above.
   deploy-galaxy:
     if: |
       !cancelled() &&
       needs.build.result == 'success' &&
       needs.check-changes.result == 'success' &&
-      needs.release.result != 'failure'
+      needs.release.outputs.npm_publish_status != 'failure'
     needs: [build, check-changes, release]
     uses: ./.github/workflows/deploy-galaxy.yml
     with:
