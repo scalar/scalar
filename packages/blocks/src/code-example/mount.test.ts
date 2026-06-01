@@ -73,6 +73,15 @@ describe('mount', () => {
     )
   })
 
+  it('throws when the operation cannot be resolved', async () => {
+    const store = await createStore()
+    const element = document.createElement('div')
+
+    expect(() => createCodeExample(element, { store, path: '/missing', method: 'get' })).toThrow(
+      'Operation not found: GET /missing',
+    )
+  })
+
   it('forces a color mode on the wrapper only when darkMode is provided', async () => {
     const store = await createStore()
 
