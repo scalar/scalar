@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getResolvedRefDeep } from '@scalar/api-client/blocks/operation-code-sample'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
+import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
 import { ScalarVirtualText } from '@scalar/components/virtual-text'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
@@ -34,11 +35,19 @@ const shouldVirtualizeSchema = computed(() => {
     class="bg-b-2"
     lang="json"
     :prettyPrintedContent="schemaContent ?? ''" />
-  <ScalarVirtualText
+  <div
     v-else
-    :id="id"
-    containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
-    contentClass="language-plaintext whitespace-pre font-code text-base"
-    :lineHeight="20"
-    :text="schemaContent ?? ''" />
+    class="scalar-code-block group/code-block relative bg-b-2 min-h-0 min-w-0">
+    <ScalarVirtualText
+      :id="id"
+      containerClass="custom-scroll border rounded-b flex flex-1 max-h-screen"
+      contentClass="language-plaintext whitespace-pre font-code text-base p-2"
+      :lineHeight="20"
+      :text="schemaContent ?? ''" />
+    <ScalarCodeBlockCopy
+      class="scalar-code-copy absolute top-2.5 right-2.5 opacity-0 group-hocus-within/code-block:opacity-100"
+      :content="schemaContent ?? ''"
+      :showLang="true"
+      lang="json" />
+  </div>
 </template>
