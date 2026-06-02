@@ -150,7 +150,7 @@ onBeforeUnmount(() => observer?.disconnect())
         role="tablist">
         <button
           v-for="(sdk, index) in visibleSdks"
-          :key="sdk.lang"
+          :key="index"
           :aria-selected="index === selectedIndex"
           class="client-libraries"
           :class="{ 'client-libraries__active': index === selectedIndex }"
@@ -192,8 +192,8 @@ onBeforeUnmount(() => observer?.disconnect())
         aria-hidden="true"
         class="client-libraries-row client-libraries-row--measure">
         <span
-          v-for="sdk in sdks"
-          :key="sdk.lang"
+          v-for="(sdk, index) in sdks"
+          :key="index"
           class="client-libraries">
           <ScalarIcon
             v-if="sdk.icon"

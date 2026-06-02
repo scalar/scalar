@@ -17,11 +17,6 @@ export type Slug = Source['slug']
 /** A selection of test sources and configurations */
 export const sources = [
   {
-    title: 'SDK',
-    slug: 'sdk',
-    url: '/examples/sdk.json',
-  },
-  {
     title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
     slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
     content: galaxy,
