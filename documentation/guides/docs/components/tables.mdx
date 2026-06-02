@@ -1,3 +1,5 @@
+import Preview from './Preview.mdx'
+
 # Tables
 
 Tables let you organize structured data into rows and columns using standard GitHub-flavored Markdown syntax.
@@ -6,13 +8,17 @@ If you are looking for a dedicated `<Table />` MDX component, there is not one. 
 
 ## Basic Table
 
+<Preview>
+
 | Feature               | Status       | Notes                                          |
 | --------------------- | ------------ | ---------------------------------------------- |
 | Markdown tables       | Supported    | Works in all docs pages                        |
 | Inline formatting     | Supported    | Links, inline code, and emphasis work in cells |
 | Sorting and filtering | Not built in | Use static content or custom HTML/JS if needed |
 
-```markdown
+</Preview>
+
+```md
 | Feature               | Status       | Notes                                          |
 | --------------------- | ------------ | ---------------------------------------------- |
 | Markdown tables       | Supported    | Works in all docs pages                        |
@@ -24,12 +30,16 @@ If you are looking for a dedicated `<Table />` MDX component, there is not one. 
 
 Use colons in the separator row to align each column.
 
+<Preview>
+
 | Left   |  Center  |   Right |
 | :----- | :------: | ------: |
 | `:---` | `:----:` |  `---:` |
 | Alpha  |  Bravo   | Charlie |
 
-```markdown
+</Preview>
+
+```md
 | Left   |  Center  |   Right |
 | :----- | :------: | ------: |
 | `:---` | `:----:` |  `---:` |
@@ -40,12 +50,16 @@ Use colons in the separator row to align each column.
 
 If your cell content includes `|`, escape it with `\|`.
 
+<Preview>
+
 | Expression    | Result      |
 | ------------- | ----------- |
 | `A \| B`      | A \| B      |
 | `1 \| 2 \| 3` | 1 \| 2 \| 3 |
 
-```markdown
+</Preview>
+
+```md
 | Expression    | Result      |
 | ------------- | ----------- |
 | `A \| B`      | A \| B      |

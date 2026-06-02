@@ -1,10 +1,14 @@
+import Preview from './Preview.mdx'
+
 # Markdown Support
 
-We support all standard Markdown features (actually, we're using GitHub-flavored Markdown).
+We support all standard Markdown features, based on GitHub-flavored Markdown (GFM).
 
 ## Headings
 
-```markdown
+Use one to six `#` characters to create headings from level one through six.
+
+```md
 # Heading 1
 ## Heading 2
 ### Heading 3
@@ -15,6 +19,10 @@ We support all standard Markdown features (actually, we're using GitHub-flavored
 
 ## Text Formatting
 
+Emphasize text with bold, italic, strikethrough, and inline code.
+
+<Preview>
+
 **Bold text**
 
 *Italic text*
@@ -23,8 +31,9 @@ We support all standard Markdown features (actually, we're using GitHub-flavored
 
 `Inline code`
 
+</Preview>
 
-```markdown
+```md
 **Bold text**
 
 *Italic text*
@@ -36,24 +45,36 @@ We support all standard Markdown features (actually, we're using GitHub-flavored
 
 ## Lists
 
+Create unordered lists with `-` and nest items by indenting them.
+
+<Preview>
+
 - Unordered list item
 - Another item
   - Nested item
   - Another nested item
 
-```markdown
+</Preview>
+
+```md
 - Unordered list item
 - Another item
   - Nested item
   - Another nested item
 ```
 
+Create ordered lists with numbers, nesting items the same way.
+
+<Preview>
+
 1. Ordered list item
 2. Another item
    1. Nested item
    2. Another nested item
 
-```markdown
+</Preview>
+
+```md
 1. Ordered list item
 2. Another item
    1. Nested item
@@ -62,15 +83,39 @@ We support all standard Markdown features (actually, we're using GitHub-flavored
 
 ## Links and Images
 
-```markdown
+Link to absolute URLs, other Markdown files, and embed images.
+
+<Preview>
+
 [Absolute URLs](https://example.com)
-[Relative link](../another-markdown-file.md)
-![Image](https://example.com/image.png)
+
+[Relative link](/products/docs/components/tables)
+
+![Image](https://docs.scalar.com/scalar-docs.png)
+
+</Preview>
+
+```md
+[Absolute URLs](https://example.com)
+[Relative link](/products/docs/components/tables)
+![Image](https://docs.scalar.com/scalar-docs.png)
 ```
 
 ## Code Blocks
 
-````markdown
+Wrap code in fenced blocks and add a language for syntax highlighting.
+
+<Preview>
+
+```javascript
+function example() {
+  return "Hello, World!";
+}
+```
+
+</Preview>
+
+````md
 ```javascript
 function example() {
   return "Hello, World!";
@@ -78,19 +123,19 @@ function example() {
 ```
 ````
 
-```javascript
-function example() {
-  return "Hello, World!";
-}
-```
-
 ## Blockquotes
+
+Quote text with `>`, spanning multiple lines as needed.
+
+<Preview>
 
 > This is a blockquote
 >
 > It can span multiple lines
 
-```markdown
+</Preview>
+
+```md
 > This is a blockquote
 >
 > It can span multiple lines
@@ -100,12 +145,16 @@ function example() {
 
 We support standard GitHub-flavored Markdown tables.
 
+<Preview>
+
 | Header 1 | Header 2 | Header 3 |
 | -------- | -------- | -------- |
 | Cell 1   | Cell 2   | Cell 3   |
 | Cell 4   | Cell 5   | Cell 6   |
 
-```markdown
+</Preview>
+
+```md
 | Header 1 | Header 2 | Header 3 |
 | -------- | -------- | -------- |
 | Cell 1   | Cell 2   | Cell 3   |
@@ -116,7 +165,17 @@ For alignment, escaping pipe characters, and best practices, see [Tables](/produ
 
 ## Task Lists
 
-```markdown
+Track work with checkboxes using `- [ ]` for open items and `- [x]` for completed ones.
+
+<Preview>
+
+- [x] Completed task
+- [ ] Pending task
+- [ ] Another pending task
+
+</Preview>
+
+```md
 - [x] Completed task
 - [ ] Pending task
 - [ ] Another pending task
@@ -124,7 +183,9 @@ For alignment, escaping pipe characters, and best practices, see [Tables](/produ
 
 ## Hints
 
-We support GitHub-style alerts for highlighting important information:
+We support GitHub-style alerts for highlighting important information.
+
+<Preview>
 
 > [!NOTE]
 > Useful information that users should know, even when skimming content.
@@ -141,7 +202,9 @@ We support GitHub-style alerts for highlighting important information:
 > [!CAUTION]
 > Advises about risks or negative outcomes of certain actions.
 
-```markdown
+</Preview>
+
+```md
 > [!NOTE]
 > Useful information that users should know, even when skimming content.
 
@@ -157,4 +220,3 @@ We support GitHub-style alerts for highlighting important information:
 > [!CAUTION]
 > Advises about risks or negative outcomes of certain actions.
 ```
-

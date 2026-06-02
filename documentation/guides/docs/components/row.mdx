@@ -1,0 +1,89 @@
+import Preview from './Preview.mdx'
+
+# Row
+
+Row arranges its children in a horizontal layout with consistent spacing. It's useful for placing cards, callouts, or any other components side-by-side.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `cols` | `1` `2` `3` `4` | — | Number of equal-width grid columns. Values outside 1–4 are clamped. When omitted, children flow with consistent spacing instead of a fixed grid. |
+
+## Examples
+
+### Row of Cards
+
+<Preview>
+  <Row>
+    <Card icon="phosphor/regular/cube" title="One">First card.</Card>
+    <Card icon="phosphor/regular/cube" title="Two">Second card.</Card>
+    <Card icon="phosphor/regular/cube" title="Three">Third card.</Card>
+  </Row>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-row>
+  <scalar-card icon="phosphor/regular/cube" title="One">
+    First card.
+  </scalar-card>
+  <scalar-card icon="phosphor/regular/cube" title="Two">
+    Second card.
+  </scalar-card>
+  <scalar-card icon="phosphor/regular/cube" title="Three">
+    Third card.
+  </scalar-card>
+</scalar-row>
+```
+```mdx MDX
+<Row>
+  <Card icon="phosphor/regular/cube" title="One">First card.</Card>
+  <Card icon="phosphor/regular/cube" title="Two">Second card.</Card>
+  <Card icon="phosphor/regular/cube" title="Three">Third card.</Card>
+</Row>
+```
+</CodeGroup>
+
+### Fixed Column Grid
+
+Use `cols` to lay children out in an equal-width grid.
+
+<Preview>
+  <Row cols={2}>
+    <Card title="Left">Half-width card.</Card>
+    <Card title="Right">Half-width card.</Card>
+  </Row>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-row cols="2">
+  <scalar-card title="Left">Half-width card.</scalar-card>
+  <scalar-card title="Right">Half-width card.</scalar-card>
+</scalar-row>
+```
+```mdx MDX
+<Row cols={2}>
+  <Card title="Left">Half-width card.</Card>
+  <Card title="Right">Half-width card.</Card>
+</Row>
+```
+</CodeGroup>
+
+## MDX Aliases
+
+In MDX, `<Columns>` and `<CardGroup>` are aliases for `<Row>` — use whichever name reads better in context.
+
+```mdx MDX
+<Columns cols={3}>
+  <Card title="A" />
+  <Card title="B" />
+  <Card title="C" />
+</Columns>
+
+<CardGroup cols={2}>
+  <Card title="Left" />
+  <Card title="Right" />
+</CardGroup>
+```

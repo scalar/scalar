@@ -1,0 +1,99 @@
+import Preview from './Preview.mdx'
+
+# Page Link
+
+Page Link creates a styled link to another page within your documentation, with a title and an optional description. The link target can be specified by file path, URL path, or page UID.
+
+## Properties
+
+Exactly one of `filepath`, `path`, or `uid` is required — the rest are optional.
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `filepath` | `string` | _required (one of)_ | Path to the destination MDX/MD file, relative to the project root. Resolved at build time. |
+| `path` | `string` | _required (one of)_ | URL path of the destination page (e.g. `/products/docs/components/row`). |
+| `uid` | `string` | _required (one of)_ | Stable page UID, resolved at build time. Useful when the URL or path may change. |
+| `title` | `string` | `'Link to Page'` | Title shown in the link card. |
+| `description` | `string` | `'Link to a page in the guide'` | Secondary text shown under the title. |
+
+## Examples
+
+### By Filepath
+
+<Preview>
+  <PageLink
+    filepath="documentation/guides/docs/components/row.mdx"
+    title="Row Docs"
+    description="Row component documentation"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-page-link
+  filepath="documentation/guides/docs/components/row.mdx"
+  title="Row Docs"
+  description="Row component documentation">
+</scalar-page-link>
+```
+```mdx MDX
+<PageLink
+  filepath="documentation/guides/docs/components/row.mdx"
+  title="Row Docs"
+  description="Row component documentation"
+/>
+```
+</CodeGroup>
+
+### By URL Path
+
+<Preview>
+  <PageLink
+    path="/products/docs/components/row"
+    title="Row Docs"
+    description="Linked by URL path"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-page-link
+  path="/products/docs/components/row"
+  title="Row Docs"
+  description="Linked by URL path">
+</scalar-page-link>
+```
+```mdx MDX
+<PageLink
+  path="/products/docs/components/row"
+  title="Row Docs"
+  description="Linked by URL path"
+/>
+```
+</CodeGroup>
+
+### Title Only
+
+When only `filepath` (or `path` / `uid`) is provided, the default title and description are shown.
+
+<Preview>
+  <PageLink
+    filepath="documentation/guides/docs/components/row.mdx"
+    title="Row Docs"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-page-link
+  filepath="documentation/guides/docs/components/row.mdx"
+  title="Row Docs">
+</scalar-page-link>
+```
+```mdx MDX
+<PageLink
+  filepath="documentation/guides/docs/components/row.mdx"
+  title="Row Docs"
+/>
+```
+</CodeGroup>
