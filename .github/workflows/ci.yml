@@ -253,6 +253,26 @@ jobs:
       - name: Lint Icon Library Icons
         run: pnpm --filter icons lint:icons
 
+  lint-galaxy:
+    if: needs.check-changes.outputs.galaxy_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [check-changes]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Lint the Galaxy example document
+        run: pnpm --filter @scalar/galaxy lint
+
   types:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
