@@ -895,6 +895,15 @@ describe('redirectLegacyModelUrl', () => {
         redirectLegacyModelUrl('https://example.com/#default/tag/model/POST/foo', 'models', 'default', true),
       ).toBeNull()
     })
+
+    it('rewrites a top-level legacy hash with a trailing slash and no name', () => {
+      const result = redirectLegacyModelUrl('https://example.com/#default/model/', 'models', 'default', true)
+      expect(result?.hash).toBe('#default/models/')
+    })
+
+    it('does not touch a `model` segment without a trailing slash', () => {
+      expect(redirectLegacyModelUrl('https://example.com/#default/model', 'models', 'default', true)).toBeNull()
+    })
   })
 
   describe('single-document hash routing', () => {
@@ -909,14 +918,31 @@ describe('redirectLegacyModelUrl', () => {
       expect(result?.hash).toBe('#default/models/User')
     })
 
-    it('returns null for tagged legacy hashes (ambiguous with tag named "model")', () => {
-      // We cannot tell `#tag/<slug>/model/<name>` apart from an operation under a tag named "model"
-      // once the document slug is stripped, so we leave these alone.
-      expect(redirectLegacyModelUrl('https://example.com/#tag/pets/model/Pet', 'models', 'default', false)).toBeNull()
+    it('rewrites a tagged legacy hash without a doc slug', () => {
+      // An operation under a tag named "model" looks like `tag/model/<method>/...`, not
+      // `tag/<slug>/model/<name>`, so the `tag/<slug>/model/` chrome is unambiguous and safe to rewrite.
+      const result = redirectLegacyModelUrl('https://example.com/#tag/pets/model/Pet', 'models', 'default', false)
+      expect(result?.hash).toBe('#tag/pets/models/Pet')
+    })
+
+    it('rewrites a tag-group legacy hash without a doc slug', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/#tag-group/0/tag/pets/model/Pet',
+        'models',
+        'default',
+        false,
+      )
+      expect(result?.hash).toBe('#tag-group/0/tag/pets/models/Pet')
     })
 
     it('leaves operation paths containing `/model/` untouched', () => {
       expect(redirectLegacyModelUrl('https://example.com/#POST/model/train', 'models', 'default', false)).toBeNull()
+    })
+
+    it('leaves operations under a tag named "model" untouched', () => {
+      // `tag/model/POST/foo` is an operation in a tag called "model" — the segment after the tag
+      // chrome is `POST/`, not `model/`, so it must not be rewritten.
+      expect(redirectLegacyModelUrl('https://example.com/#tag/model/POST/foo', 'models', 'default', false)).toBeNull()
     })
   })
 
@@ -940,6 +966,98 @@ describe('redirectLegacyModelUrl', () => {
     it('leaves operation pathnames untouched', () => {
       expect(
         redirectLegacyModelUrl('https://example.com/docs/default/POST/model/train', 'models', 'default', true, '/docs'),
+      ).toBeNull()
+    })
+
+    it('rewrites a tagged legacy pathname in multi-doc mode', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/docs/default/tag/pets/model/Pet',
+        'models',
+        'default',
+        true,
+        '/docs',
+      )
+      expect(result?.pathname).toBe('/docs/default/tag/pets/models/Pet')
+    })
+
+    it('rewrites a tag-group legacy pathname in multi-doc mode', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/docs/default/tag-group/0/tag/pets/model/Pet',
+        'models',
+        'default',
+        true,
+        '/docs',
+      )
+      expect(result?.pathname).toBe('/docs/default/tag-group/0/tag/pets/models/Pet')
+    })
+
+    it('rewrites a tagged legacy pathname in single-doc mode', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/docs/tag/pets/model/Pet',
+        'models',
+        'default',
+        false,
+        '/docs',
+      )
+      expect(result?.pathname).toBe('/docs/tag/pets/models/Pet')
+    })
+
+    it('rewrites a legacy pathname with an empty basePath', () => {
+      const result = redirectLegacyModelUrl('https://example.com/default/model/User', 'models', 'default', true, '')
+      expect(result?.pathname).toBe('/default/models/User')
+    })
+
+    it('rewrites a legacy pathname with a root basePath', () => {
+      const result = redirectLegacyModelUrl('https://example.com/default/model/User', 'models', 'default', true, '/')
+      expect(result?.pathname).toBe('/default/models/User')
+    })
+
+    it('rewrites a legacy pathname when the basePath needs URL encoding', () => {
+      // The browser stores `/my docs` as `/my%20docs` in the pathname, so matching must
+      // account for the encoded form.
+      const result = redirectLegacyModelUrl(
+        'https://example.com/my%20docs/default/model/User',
+        'models',
+        'default',
+        true,
+        '/my docs',
+      )
+      expect(result?.pathname).toBe('/my%20docs/default/models/User')
+    })
+  })
+
+  describe('hash-basePath routing', () => {
+    it('rewrites a top-level legacy hash under a hash basePath', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/#api/default/model/User',
+        'models',
+        'default',
+        true,
+        '#api',
+      )
+      expect(result?.hash).toBe('#api/default/models/User')
+    })
+
+    it('rewrites a tagged legacy hash under a hash basePath', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/#api/default/tag/pets/model/Pet',
+        'models',
+        'default',
+        true,
+        '#api',
+      )
+      expect(result?.hash).toBe('#api/default/tag/pets/models/Pet')
+    })
+
+    it('returns null when the URL has no legacy segment under a hash basePath', () => {
+      expect(
+        redirectLegacyModelUrl('https://example.com/#api/default/models/User', 'models', 'default', true, '#api'),
+      ).toBeNull()
+    })
+
+    it('leaves operation paths under a hash basePath untouched', () => {
+      expect(
+        redirectLegacyModelUrl('https://example.com/#api/default/POST/model/train', 'models', 'default', true, '#api'),
       ).toBeNull()
     })
   })
