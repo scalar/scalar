@@ -4,11 +4,8 @@ import {
   DEFAULT_CLIENT,
   type ClientOptionGroup,
 } from '@scalar/api-client/blocks/operation-code-sample'
-import { ScalarCodeBlock } from '@scalar/components/code-block'
-import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AvailableClient } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import { computed, useId, useTemplateRef } from 'vue'
 
 import {
@@ -20,12 +17,9 @@ import ClientDropdown from './ClientDropdown.vue'
 
 const {
   clientOptions,
-  xScalarSdkInstallation,
   eventBus,
   selectedClient = DEFAULT_CLIENT,
 } = defineProps<{
-  /** Selected SDK installation instructions */
-  xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client */
@@ -70,30 +64,6 @@ const onTabSelect = (i: number) => {
   eventBus.emit('workspace:update:selected-client', client.id)
 }
 
-const installationInstructions = computed(() => {
-  // Check whether we have instructions at all
-  if (
-    !Array.isArray(xScalarSdkInstallation) ||
-    !xScalarSdkInstallation?.length
-  ) {
-    return undefined
-  }
-
-  // Find the instructions for the current language
-  const instruction = xScalarSdkInstallation.find((instruction) => {
-    const targetKey = selectedClient?.split('/')[0]?.toLowerCase()
-    return instruction.lang.toLowerCase() === targetKey
-  })
-
-  // Nothing found?
-  if (!instruction) {
-    return undefined
-  }
-
-  // Got it!
-  return instruction
-})
-
 defineExpose({
   selectedClientOption,
 })
@@ -126,32 +96,7 @@ defineExpose({
 
       <!-- Content -->
       <TabPanels>
-        <template
-          v-if="
-            installationInstructions?.source ||
-            installationInstructions?.description
-          ">
-          <div
-            v-if="installationInstructions.description"
-            class="selected-client card-footer -outline-offset-2"
-            :class="installationInstructions.source && 'rounded-b-none'"
-            role="tabpanel"
-            tabindex="0">
-            <ScalarMarkdown :value="installationInstructions.description" />
-          </div>
-          <div
-            v-if="installationInstructions.source"
-            class="selected-client card-footer border-t-0 p-0"
-            role="tabpanel"
-            tabindex="1">
-            <ScalarCodeBlock
-              class="rounded-b-lg *:first:p-3"
-              :content="installationInstructions.source"
-              copy="always"
-              lang="shell" />
-          </div>
-        </template>
-        <template v-else-if="isFeaturedClient(selectedClient)">
+        <template v-if="isFeaturedClient(selectedClient)">
           <TabPanel
             v-for="client in featuredClients"
             :key="client.id"
@@ -199,8 +144,5 @@ defineExpose({
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-top-left-radius: var(--scalar-radius-xl);
   border-top-right-radius: var(--scalar-radius-xl);
-}
-:deep(.scalar-codeblock-pre .hljs) {
-  margin-top: 8px;
 }
 </style>
