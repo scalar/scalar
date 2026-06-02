@@ -2,16 +2,13 @@ name: PR
 
 # Pull-request validation. Runs every required check, fans tests and previews
 # out from a single build, and never references release.yml — so a pull request
-# has no path to production publish secrets. Also runs on pushes to
-# changeset-release/main (the release PR branch created by changesets/action,
-# whose pull_request event GitHub suppresses) so that branch gets the same
-# validation.
+# has no path to production publish secrets. The "chore: release" PR opened by
+# changesets/action is created with a GitHub App token (see the npm-publish job
+# in release.yml), so GitHub does not suppress its workflow events and it
+# triggers pull_request events like any other PR — getting the same validation.
 
 on:
   pull_request:
-  push:
-    branches:
-      - changeset-release/main
   workflow_dispatch: null
 
 # Workflow-level default: read-only. Individual jobs widen as needed.
@@ -20,7 +17,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-base-ci
-  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/changeset-release/main' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   # Exclude these packages from turbo as they are handled by dedicated jobs
@@ -108,7 +105,7 @@ jobs:
         uses: ./.github/actions/check-changes
 
   format:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
+    if: github.event_name == 'pull_request'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
@@ -234,7 +231,7 @@ jobs:
         run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
 
   knip:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
+    if: github.event_name == 'pull_request'
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -400,7 +397,7 @@ jobs:
           report-tag: test-scalar-app-e2e
 
   test-component-snapshots:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
@@ -447,7 +444,7 @@ jobs:
           report-tag: test-components-snapshots
 
   test-cdn-snapshots:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
     container:
@@ -582,7 +579,7 @@ jobs:
           comment-tag: 'deployment-preview'
 
   required-jobs-pull-requests:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
+    if: github.event_name == 'pull_request'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}

@@ -373,10 +373,11 @@ jobs:
       sha: ${{ github.sha }}
     secrets: inherit
 
-  # Galaxy deploy: production-galaxy-com on a release commit, staging-galaxy-com
-  # otherwise. Runs on every main push. Gates on the npm-publish job result
-  # (npm_publish_status), not the whole release workflow — same reasoning as
-  # deploy-api-client above.
+  # Galaxy deploy to staging on every main push. Gates on the npm-publish job
+  # result (npm_publish_status), not the whole release workflow — same reasoning
+  # as deploy-api-client above. Release commits additionally deploy to
+  # production via deploy-galaxy-production below, so release SHAs land in both
+  # environments.
   deploy-galaxy:
     if: |
       !cancelled() &&
@@ -386,7 +387,27 @@ jobs:
     needs: [build, check-changes, release]
     uses: ./.github/workflows/deploy-galaxy.yml
     with:
-      environment: ${{ needs.release.outputs.published == 'true' && 'production-galaxy-com' || 'staging-galaxy-com' }}
+      environment: staging-galaxy-com
       pr-number: ''
+      sha: ${{ github.sha }}
+    secrets: inherit
+
+  # Release commits also deploy galaxy-scalar-com to production. This runs in
+  # addition to the staging deployment above so release SHAs land in both
+  # environments.
+  deploy-galaxy-production:
+    if: |
+      !cancelled() &&
+      needs.build.result == 'success' &&
+      needs.check-changes.result == 'success' &&
+      needs.release.outputs.npm_publish_status != 'failure' &&
+      needs.release.outputs.published == 'true'
+    needs: [build, check-changes, release]
+    concurrency:
+      group: deploy-galaxy-production-${{ github.ref }}
+      cancel-in-progress: false
+    uses: ./.github/workflows/deploy-galaxy.yml
+    with:
+      environment: production-galaxy-com
       sha: ${{ github.sha }}
     secrets: inherit
