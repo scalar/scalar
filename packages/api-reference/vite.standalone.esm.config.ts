@@ -45,7 +45,11 @@ export default defineConfig({
   plugins: [
     vue(),
     tailwindcss(),
-    cssInjectedByJsPlugin(),
+    // Tag the single injected <style> with a known id so the runtime can detach
+    // it on `destroy()`. Without this, the global styles linger in <head> after
+    // SPA-style navigation (Turbo Drive, htmx). Keep the id in sync with
+    // `STANDALONE_STYLE_ID` in `src/standalone/lib/html-api.ts`.
+    cssInjectedByJsPlugin({ attributes: { id: 'scalar-style' } }),
     webpackStats({ fileName: 'webpack-stats.esm.json' }),
     banner({
       outDir: 'dist/browser',

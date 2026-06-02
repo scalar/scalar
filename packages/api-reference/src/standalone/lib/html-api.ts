@@ -13,7 +13,7 @@ const getSpecScriptTag = (doc: Document) => doc.getElementById('api-reference')
 
 /**
  * The id given to the standalone build's single injected `<style>` tag.
- * Keep in sync with `vite.standalone.config.ts`.
+ * Keep in sync with `vite.standalone.config.ts` and `vite.standalone.esm.config.ts`.
  */
 const STANDALONE_STYLE_ID = 'scalar-style'
 
