@@ -27,6 +27,7 @@ import { computed, onMounted } from 'vue'
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
+import { SdkInstallationInstructions } from '@/blocks/scalar-sdk-installation-instructions'
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import { AsyncApiTraversedEntry } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
@@ -199,19 +200,25 @@ onMounted(() => {
           </IntroductionCardItem>
         </ScalarErrorBoundary>
 
-        <!-- Client selector -->
+        <!-- Custom SDK installation instructions, or the generic client selector -->
         <ScalarErrorBoundary>
           <IntroductionCardItem
-            v-if="clientOptions.length"
+            v-if="openApiDocument?.info?.['x-scalar-sdk-installation']?.length"
+            class="introduction-card-item scalar-reference-intro-clients">
+            <SdkInstallationInstructions
+              class="introduction-card-item scalar-reference-intro-clients"
+              :xScalarSdkInstallation="
+                openApiDocument.info['x-scalar-sdk-installation']
+              " />
+          </IntroductionCardItem>
+          <IntroductionCardItem
+            v-else-if="clientOptions.length"
             class="introduction-card-item scalar-reference-intro-clients">
             <ClientSelector
               class="introduction-card-item scalar-reference-intro-clients"
               :clientOptions
               :eventBus
-              :selectedClient="xScalarDefaultClient"
-              :xScalarSdkInstallation="
-                openApiDocument?.info?.['x-scalar-sdk-installation']
-              " />
+              :selectedClient="xScalarDefaultClient" />
           </IntroductionCardItem>
         </ScalarErrorBoundary>
       </template>
