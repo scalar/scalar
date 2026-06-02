@@ -1585,6 +1585,7 @@ jobs:
   fastapi-publish:
     if: needs.npm-publish.outputs.published == 'true' && needs.check-changes.outputs.fastapi_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-pypi
     timeout-minutes: 10
     concurrency:
       group: fastapi-publish
@@ -1647,6 +1648,7 @@ jobs:
   django-ninja-publish:
     if: needs.npm-publish.outputs.published == 'true' && needs.check-changes.outputs.django_ninja_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-pypi
     timeout-minutes: 10
     concurrency:
       group: django-ninja-publish
