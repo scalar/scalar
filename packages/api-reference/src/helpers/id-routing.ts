@@ -24,6 +24,23 @@ const stripBasePathPrefix = (value: string, basePath: string) => {
   return null
 }
 
+/**
+ * Builds the URL-encoded, slash-prefixed form of a sanitized base path.
+ *
+ * Each segment is encoded separately so the result matches how the browser stores
+ * `location.pathname` (which encodes within segments but leaves the slashes between them).
+ */
+const encodeBasePath = (sanitized: string) => {
+  if (!sanitized) {
+    return ''
+  }
+
+  return `/${sanitized
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')}`
+}
+
 /** Extracts an element id from the hash when using hash routing */
 export const getIdFromHash = (location: string | URL, slugPrefix: string | undefined) => {
   const url = typeof location === 'string' ? new URL(location) : location
@@ -35,16 +52,7 @@ export const getIdFromHash = (location: string | URL, slugPrefix: string | undef
 /** Extracts an element id from the path when using path routing */
 export const getIdFromPath = (location: string | URL, basePath: string, slugPrefix: string | undefined) => {
   const url = typeof location === 'string' ? new URL(location) : location
-  const sanitized = sanitizeBasePath(basePath)
-
-  // Construct the full basePath with leading slash and encode it for matching
-  // We need to encode each segment separately to match how URLs encode pathnames
-  const basePathWithSlash = sanitized
-    ? `/${sanitized
-        .split('/')
-        .map((segment) => encodeURIComponent(segment))
-        .join('/')}`
-    : ''
+  const basePathWithSlash = encodeBasePath(sanitizeBasePath(basePath))
 
   // Extract the portion after the basePath
   if (url.pathname.startsWith(basePathWithSlash)) {
@@ -79,13 +87,7 @@ export const matchesBasePath = (location: string | URL, basePath: string) => {
     return hash === basePath || hash.startsWith(`${basePath}/`)
   }
 
-  const sanitized = sanitizeBasePath(basePath)
-  const basePathWithSlash = sanitized
-    ? `/${sanitized
-        .split('/')
-        .map((segment) => encodeURIComponent(segment))
-        .join('/')}`
-    : ''
+  const basePathWithSlash = encodeBasePath(sanitizeBasePath(basePath))
 
   return url.pathname === basePathWithSlash || url.pathname.startsWith(`${basePathWithSlash}/`)
 }
@@ -159,19 +161,98 @@ export const makeUrlFromId = (_id: string, basePath: string | undefined, isMulti
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 /**
- * Rewrite legacy `/model/<name>` URL segments to the current section's slug.
+ * A located navigation id: the decoded id plus a way to write a rewritten id back.
+ */
+type IdCarrier = {
+  /** The decoded navigation id with all routing chrome (`#`, base path) removed. */
+  value: string
+  /** Splices `next` back into the location this id came from, preserving the URL shape. */
+  write: (next: string) => void
+}
+
+/**
+ * Locates the navigation id inside a URL regardless of the routing mode.
+ *
+ * The id can live in three places — the bare hash, a hash base path (`#<base>/<id>`), or the
+ * pathname after a path base path. Returning the decoded id alongside a `write` callback lets
+ * callers edit ids in id-space without re-deriving the routing chrome for each mode.
+ */
+const locateIdCarrier = (url: URL, basePath: string | undefined): IdCarrier => {
+  // Hash routing: the id is the bare fragment.
+  if (typeof basePath !== 'string') {
+    return {
+      value: decodeURIComponent(url.hash.slice(1)),
+      write: (next) => {
+        url.hash = next
+      },
+    }
+  }
+
+  // Hash base path routing: the id follows a `#<base>/` prefix.
+  if (isHashBasePath(basePath)) {
+    const base = sanitizeHashBasePath(basePath)
+    const hash = decodeURIComponent(url.hash.slice(1))
+
+    return {
+      value: stripBasePathPrefix(hash, base) ?? '',
+      write: (next) => {
+        url.hash = [base, next].filter(Boolean).join('/')
+      },
+    }
+  }
+
+  // Path routing: the id follows the (URL-encoded) base path in the pathname.
+  const base = sanitizeBasePath(basePath)
+  const remainder = stripBasePathPrefix(url.pathname, encodeBasePath(base))
+
+  return {
+    value: remainder === null ? '' : decodeURIComponent(remainder),
+    write: (next) => {
+      // Assigning to `pathname` re-encodes characters, so we splice with the decoded base.
+      url.pathname = base ? `/${base}/${next}` : `/${next}`
+    },
+  }
+}
+
+/** Optional `(tag-group/<n>/)?tag/<slug>/` chrome that may sit in front of a `model/` segment. */
+const TAG_CHROME = '(?:(?:tag-group/[^/]+/)?tag/[^/]+/)?'
+
+/**
+ * Rewrites the leading legacy `model/` segment of a navigation id to the current section slug.
+ *
+ * The match is anchored to the legacy structural shape — `<doc>/(tag chrome/)?model/` — so an
+ * operation path like `default/POST/model/train` (the segment after the chrome is `POST/`, not
+ * `model/`) and an operation under a tag named "model" (`default/tag/model/POST/foo`) are left
+ * alone. In single-document mode the document slug may be absent from the id, so it is optional.
+ *
+ * Returns the id unchanged when there is no legacy segment to rewrite.
+ */
+const rewriteLegacyModelSegment = (
+  id: string,
+  documentSlug: string,
+  modelsSectionSlug: string,
+  isMultiDocument: boolean,
+) => {
+  const escapedDoc = escapeRegex(documentSlug)
+  // Multi-document ids always carry the slug; single-document bookmarks may omit it.
+  const documentPrefix = isMultiDocument ? `${escapedDoc}/` : `(?:${escapedDoc}/)?`
+  const legacySegment = new RegExp(`^(${documentPrefix}${TAG_CHROME})model/`)
+  // `modelsSectionSlug` lands in the replacement string, where `$` is a special token — escape it.
+  const replacement = `$1${modelsSectionSlug.replace(/\$/g, '$$$$')}/`
+
+  return id.replace(legacySegment, replacement)
+}
+
+/**
+ * Rewrite legacy `model/<name>` schema bookmarks to the current section's plural slug.
  *
  * Earlier versions hardcoded `model/` (singular) as the prefix for individual schema entries
- * even though the section itself was `models/`. We now use the same plural slug for both,
- * so old bookmarks like `#default/model/User` would 404. This rewrites them in place.
+ * even though the section itself was `models/`. We now use the same plural slug for both, so old
+ * bookmarks like `#default/model/User` would 404. This canonicalizes them in place.
  *
- * The regex is anchored to the legacy structural shape so unrelated `/model/` occurrences
- * inside operation paths (e.g. `POST /model/train` for an AI/ML API → `default/POST/model/train`)
- * and a tag literally named "model" are left alone.
- *
- * Trade-off: in single-document mode the URL strips the document slug, which makes
- * `#tag/<slug>/model/<name>` ambiguous with an operation under a tag named "model".
- * Single-doc tagged-model bookmarks are not rewritten — only top-level models.
+ * The URL is reduced to its routing-agnostic id (see {@link locateIdCarrier}), the legacy segment
+ * is rewritten in id-space (see {@link rewriteLegacyModelSegment}), and the result is spliced back
+ * into the original location. This handles hash, hash-base-path, and path routing uniformly.
  *
  * Returns the canonicalized URL when a rewrite happens, or null otherwise.
  */
@@ -186,41 +267,16 @@ export const redirectLegacyModelUrl = (
     return null
   }
 
-  const next = typeof url === 'string' ? new URL(url) : new URL(url.toString())
-  const escapedDoc = escapeRegex(documentSlug)
-  // Optional `(tag-group/<n>/)?tag/<slug>/` block in front of `model/`.
-  const tagPrefix = '(?:(?:tag-group\\/[^/]+\\/)?tag\\/[^/]+\\/)?'
-  const slugAnchoredHash = new RegExp(`^(#${escapedDoc}\\/${tagPrefix})model\\/`)
-  const replacement = `$1${modelsSectionSlug}/`
+  const target = new URL(typeof url === 'string' ? url : url.toString())
+  const carrier = locateIdCarrier(target, basePath)
+  const rewritten = rewriteLegacyModelSegment(carrier.value, documentSlug, modelsSectionSlug, isMultiDocument)
 
-  // Always try the slug-anchored form first — old bookmarks may include the doc slug
-  // even in single-document mode.
-  let newHash = next.hash.replace(slugAnchoredHash, replacement)
-  if (newHash === next.hash && !isMultiDocument) {
-    // Single-doc fallback: URL omits the doc slug (`#model/<name>`). We can only
-    // safely rewrite top-level models here — `#tag/<slug>/model/<name>` is
-    // ambiguous with an operation under a tag literally named "model".
-    newHash = next.hash.replace(/^(#)model\//, replacement)
-  }
-
-  let newPathname = next.pathname
-  if (basePath !== undefined && !basePath.startsWith('#')) {
-    const escapedBase = escapeRegex(sanitizeBasePath(basePath))
-    const basePrefix = escapedBase ? `\\/${escapedBase}` : ''
-    const slugAnchoredPath = new RegExp(`^(${basePrefix}\\/${escapedDoc}\\/${tagPrefix})model\\/`)
-    newPathname = next.pathname.replace(slugAnchoredPath, replacement)
-    if (newPathname === next.pathname && !isMultiDocument) {
-      newPathname = next.pathname.replace(new RegExp(`^(${basePrefix}\\/)model\\/`), replacement)
-    }
-  }
-
-  if (newHash === next.hash && newPathname === next.pathname) {
+  if (rewritten === carrier.value) {
     return null
   }
 
-  next.hash = newHash
-  next.pathname = newPathname
-  return next
+  carrier.write(rewritten)
+  return target
 }
 
 /** Extracts the schema parameters from the id if they are present */
