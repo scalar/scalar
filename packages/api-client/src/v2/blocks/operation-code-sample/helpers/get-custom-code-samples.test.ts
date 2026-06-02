@@ -105,4 +105,130 @@ describe('getCustomCodeSamples', () => {
     expect(result[1]).toEqual(sample2)
     expect(result[2]).toEqual(sample3)
   })
+
+  it('reads ReadMe code samples from x-readme.code-samples', () => {
+    const operation: OperationObject = {
+      'x-readme': {
+        'code-samples': [
+          { language: 'curl', name: 'Custom cURL', code: 'curl https://api.example.com' },
+          { language: 'node', code: 'await client.list();' },
+        ],
+      },
+      responses: {},
+    }
+
+    const result = getCustomCodeSamples(operation)
+
+    expect(result).toEqual([
+      { lang: 'curl', label: 'Custom cURL', source: 'curl https://api.example.com' },
+      { lang: 'node', source: 'await client.list();' },
+    ])
+  })
+
+  it('reads Stainless snippets from x-stainless-snippets', () => {
+    const operation: OperationObject = {
+      'x-stainless-snippets': {
+        python: 'client.accounts.list()',
+        node: 'await client.accounts.list();',
+      },
+      responses: {},
+    }
+
+    const result = getCustomCodeSamples(operation)
+
+    expect(result).toEqual([
+      { lang: 'python', source: 'client.accounts.list()' },
+      { lang: 'node', source: 'await client.accounts.list();' },
+    ])
+  })
+
+  it('reads Stainless examples and uses the title as the label', () => {
+    const operation: OperationObject = {
+      'x-stainless-examples': {
+        title: 'List active accounts',
+        request: {
+          python: 'client.accounts.list(status="active")',
+          node: "await client.accounts.list({ status: 'active' });",
+        },
+        response: '[{"id": "acc_123"}]',
+      },
+      responses: {},
+    }
+
+    const result = getCustomCodeSamples(operation)
+
+    expect(result).toEqual([
+      { lang: 'python', label: 'List active accounts', source: 'client.accounts.list(status="active")' },
+      { lang: 'node', label: 'List active accounts', source: "await client.accounts.list({ status: 'active' });" },
+    ])
+  })
+
+  it('reads an array of Stainless examples', () => {
+    const operation: OperationObject = {
+      'x-stainless-examples': [
+        { title: 'List', request: { python: 'client.list()' } },
+        { title: 'Create', request: { python: 'client.create()' } },
+      ],
+      responses: {},
+    }
+
+    const result = getCustomCodeSamples(operation)
+
+    expect(result).toEqual([
+      { lang: 'python', label: 'List', source: 'client.list()' },
+      { lang: 'python', label: 'Create', source: 'client.create()' },
+    ])
+  })
+
+  describe('priority', () => {
+    it('prefers x-scalar-examples over everything else', () => {
+      const operation: OperationObject = {
+        'x-scalar-examples': { request: { python: 'scalar' } },
+        'x-stainless-snippets': { python: 'snippet' },
+        'x-stainless-examples': { request: { python: 'stainless' } },
+        'x-readme': { 'code-samples': [{ language: 'python', code: 'readme' }] },
+        'x-codeSamples': [{ lang: 'python', source: 'legacy' }],
+        responses: {},
+      }
+
+      const result = getCustomCodeSamples(operation)
+
+      expect(result).toEqual([{ lang: 'python', source: 'scalar' }])
+    })
+
+    it('prefers x-stainless-snippets over x-stainless-examples', () => {
+      const operation: OperationObject = {
+        'x-stainless-snippets': { python: 'snippet' },
+        'x-stainless-examples': { request: { python: 'stainless' } },
+        responses: {},
+      }
+
+      const result = getCustomCodeSamples(operation)
+
+      expect(result).toEqual([{ lang: 'python', source: 'snippet' }])
+    })
+
+    it('prefers x-readme over the legacy x-codeSamples family', () => {
+      const operation: OperationObject = {
+        'x-readme': { 'code-samples': [{ language: 'python', code: 'readme' }] },
+        'x-codeSamples': [{ lang: 'python', source: 'legacy' }],
+        responses: {},
+      }
+
+      const result = getCustomCodeSamples(operation)
+
+      expect(result).toEqual([{ lang: 'python', source: 'readme' }])
+    })
+
+    it('falls back to the legacy x-codeSamples family when no other extension is present', () => {
+      const operation: OperationObject = {
+        'x-codeSamples': [{ lang: 'python', source: 'legacy' }],
+        responses: {},
+      }
+
+      const result = getCustomCodeSamples(operation)
+
+      expect(result).toEqual([{ lang: 'python', source: 'legacy' }])
+    })
+  })
 })
