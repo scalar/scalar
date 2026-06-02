@@ -944,6 +944,58 @@ describe('redirectLegacyModelUrl', () => {
     })
   })
 
+  describe('customized models section slug', () => {
+    it('rewrites a `models` segment to the customized slug', () => {
+      const result = redirectLegacyModelUrl('https://example.com/#default/models/User', 'schemas', 'default', true)
+      expect(result?.hash).toBe('#default/schemas/User')
+    })
+
+    it('rewrites a tagged `models` segment to the customized slug', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/#default/tag/pets/models/Pet',
+        'schemas',
+        'default',
+        true,
+      )
+      expect(result?.hash).toBe('#default/tag/pets/schemas/Pet')
+    })
+
+    it('rewrites a `models` pathname to the customized slug', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/docs/default/models/User',
+        'schemas',
+        'default',
+        true,
+        '/docs',
+      )
+      expect(result?.pathname).toBe('/docs/default/schemas/User')
+    })
+
+    it('rewrites a top-level `models` segment in single-doc mode', () => {
+      const result = redirectLegacyModelUrl('https://example.com/#models/User', 'schemas', 'default', false)
+      expect(result?.hash).toBe('#schemas/User')
+    })
+
+    it('still rewrites the singular `model` segment to the customized slug', () => {
+      const result = redirectLegacyModelUrl('https://example.com/#default/model/User', 'schemas', 'default', true)
+      expect(result?.hash).toBe('#default/schemas/User')
+    })
+
+    it('leaves the `models` segment alone when the slug is the default', () => {
+      expect(redirectLegacyModelUrl('https://example.com/#default/models/User', 'models', 'default', true)).toBeNull()
+    })
+
+    it('leaves operation paths containing `/models/` untouched', () => {
+      expect(
+        redirectLegacyModelUrl('https://example.com/#default/POST/models/train', 'schemas', 'default', true),
+      ).toBeNull()
+    })
+
+    it('leaves a tagged `models` segment alone without a doc slug (ambiguous)', () => {
+      expect(redirectLegacyModelUrl('https://example.com/#tag/pets/models/Pet', 'schemas', 'default', false)).toBeNull()
+    })
+  })
+
   it('returns null when the document slug is empty', () => {
     expect(redirectLegacyModelUrl('https://example.com/#default/model/User', 'models', '', true)).toBeNull()
   })

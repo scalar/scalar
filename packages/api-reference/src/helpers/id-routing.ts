@@ -275,20 +275,32 @@ type RedirectContext = {
 const buildRedirects = ({ modelsSectionSlug, documentSlug, isMultiDocument }: RedirectContext): IdRedirect[] => {
   const escapedDoc = escapeRegex(documentSlug)
   // Keeping the tag chrome inside the doc-slug group is deliberate: a slug-less
-  // `tag/<slug>/model/<name>` is left alone, since once the document slug is stripped it is
-  // ambiguous with an operation under a tag literally named "model".
+  // `tag/<slug>/<segment>/<name>` is left alone, since once the document slug is stripped it is
+  // ambiguous with an operation under a tag literally named after the segment.
   const documentPrefix = isMultiDocument ? `${escapedDoc}/${TAG_CHROME}` : `(?:${escapedDoc}/${TAG_CHROME})?`
 
-  return [
-    {
-      // Earlier versions hardcoded a singular `model/` prefix for individual schema entries even
-      // though the section itself was plural, so old bookmarks like `default/model/User` would 404.
-      // Rewrite the leading segment to the current slug. The trailing `/` leaves an already-correct
-      // `models/` segment and operation paths such as `default/POST/model/train` untouched.
-      match: new RegExp(`^(${documentPrefix})model/`),
-      replace: (_match, prefix) => `${prefix}${modelsSectionSlug}/`,
-    },
+  // Rewrites a leading `<from>/` section segment to the current models section slug. The trailing
+  // `/` leaves an already-correct segment and operation paths such as `default/POST/model/train`
+  // untouched.
+  const renameSectionSegment = (from: string): IdRedirect => ({
+    match: new RegExp(`^(${documentPrefix})${escapeRegex(from)}/`),
+    replace: (_match, prefix) => `${prefix}${modelsSectionSlug}/`,
+  })
+
+  const redirects = [
+    // Earlier versions hardcoded a singular `model/` prefix for individual schema entries even
+    // though the section itself was plural, so old bookmarks like `default/model/User` would 404.
+    renameSectionSegment('model'),
   ]
+
+  // The models section used to live at the literal `models/`. Once a custom label moves it
+  // elsewhere (e.g. `schemas/`), older `models/<name>` bookmarks must follow it. When the slug is
+  // still the default `models` this would be a no-op, so only register it when it actually differs.
+  if (modelsSectionSlug !== 'models') {
+    redirects.push(renameSectionSegment('models'))
+  }
+
+  return redirects
 }
 
 /**
