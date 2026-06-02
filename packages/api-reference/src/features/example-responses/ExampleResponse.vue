@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { getResolvedRefDeep } from '@scalar/api-client/blocks/operation-code-sample'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
-import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
-import { ScalarVirtualText } from '@scalar/components/virtual-text'
+import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
@@ -64,20 +63,11 @@ const shouldVirtualize = computed(() => {
     lang="json"
     :prettyPrintedContent="prettyPrintedContent" />
 
-  <div
+  <ScalarVirtualCodeBlock
     v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
-    class="scalar-code-block group/code-block relative bg-b-2 min-h-0 min-w-0">
-    <ScalarVirtualText
-      containerClass="custom-scroll border rounded-b flex flex-1 max-h-screen"
-      contentClass="language-plaintext whitespace-pre font-code text-base p-2"
-      :lineHeight="20"
-      :text="prettyPrintedContent" />
-    <ScalarCodeBlockCopy
-      class="scalar-code-copy absolute top-2.5 right-2.5 opacity-0 group-hocus-within/code-block:opacity-100"
-      :content="prettyPrintedContent"
-      :showLang="true"
-      lang="json" />
-  </div>
+    class="bg-b-2"
+    :content="prettyPrintedContent"
+    lang="json" />
 
   <div
     v-else

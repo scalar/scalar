@@ -206,6 +206,11 @@
       "import": "./dist/components/ScalarTooltip/index.js",
       "default": "./dist/components/ScalarTooltip/index.js"
     },
+    "./virtual-code-block": {
+      "types": "./dist/components/ScalarVirtualCodeBlock/index.d.ts",
+      "import": "./dist/components/ScalarVirtualCodeBlock/index.js",
+      "default": "./dist/components/ScalarVirtualCodeBlock/index.js"
+    },
     "./virtual-text": {
       "types": "./dist/components/ScalarVirtualText/index.d.ts",
       "import": "./dist/components/ScalarVirtualText/index.js",
