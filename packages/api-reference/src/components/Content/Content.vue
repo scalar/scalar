@@ -94,6 +94,17 @@ const clientOptions = computed(() =>
 )
 
 /**
+ * Custom SDK installation instructions that actually have something to render.
+ * Entries with only a `lang` are ignored so we can fall back to the client
+ * selector instead of showing an empty card.
+ */
+const sdkInstallation = computed(() =>
+  (openApiDocument.value?.info?.['x-scalar-sdk-installation'] ?? []).filter(
+    (sdk) => sdk.source || sdk.description,
+  ),
+)
+
+/**
  * Narrow the (possibly AsyncAPI) documents to OpenAPI documents. api-reference
  * is OpenAPI-native, so AsyncAPI fields surface as undefined/empty.
  */
@@ -246,13 +257,11 @@ onMounted(() => {
         <!-- Custom SDK installation instructions, or the generic client selector -->
         <ScalarErrorBoundary>
           <IntroductionCardItem
-            v-if="openApiDocument?.info?.['x-scalar-sdk-installation']?.length"
+            v-if="sdkInstallation.length"
             class="introduction-card-item scalar-reference-intro-clients">
             <SdkInstallationInstructions
               class="introduction-card-item scalar-reference-intro-clients"
-              :xScalarSdkInstallation="
-                openApiDocument.info['x-scalar-sdk-installation']
-              " />
+              :xScalarSdkInstallation="sdkInstallation" />
           </IntroductionCardItem>
           <IntroductionCardItem
             v-else-if="clientOptions.length && !asyncApiDocument"
