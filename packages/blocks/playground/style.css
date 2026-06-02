@@ -1,3 +1,15 @@
 body {
   margin: 1rem;
 }
+
+/* Masonry-style packing: columns fill top-to-bottom so short blocks do not
+   leave the row gaps a fixed grid would. */
+#grid {
+  column-count: 3;
+  column-gap: 1rem;
+}
+
+#grid > * {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
