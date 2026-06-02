@@ -1,5 +1,13 @@
 # @scalar/workspace-store
 
+## 0.53.1
+
+### Patch Changes
+
+- [#9351](https://github.com/scalar/scalar/pull/9351): fix: preserve large integer parameter values
+
+  Stop JSON-parsing primitive parameter values when building requests. Integer and number path, query, and header fields keep the exact string from the editor so values larger than Number.MAX_SAFE_INTEGER are not rounded. Array and object parameters are still parsed for OpenAPI style serialization.
+
 ## 0.53.0
 
 ### Minor Changes

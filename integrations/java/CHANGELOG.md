@@ -1,5 +1,7 @@
 # @scalar/java-integration
 
+## 0.6.43
+
 ## 0.6.42
 
 ## 0.6.41
