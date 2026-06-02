@@ -7,7 +7,7 @@
 ```ts
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createCodeExample } from '@scalar/blocks/code-example'
-import '@scalar/blocks/vue-styles.css'
+import '@scalar/blocks/style.css'
 
 // Load OpenAPI documents
 const store = createWorkspaceStore()
