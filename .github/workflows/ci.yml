@@ -1819,6 +1819,7 @@ jobs:
     if: needs.npm-publish.outputs.published == 'true' && needs.check-changes.outputs.java_package_changed == 'true'
     needs: [required-jobs-main, java-build-test, check-changes, npm-publish]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-maven
     concurrency:
       group: java-publish
       cancel-in-progress: false
