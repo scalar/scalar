@@ -53,6 +53,8 @@ type GenerateOptions = {
   apiKey: string
   /** Optional model override. Defaults to `DEFAULT_MODEL`. */
   model?: string
+  /** Product context for the AI system prompt. */
+  product?: ProductPromptContext
   /**
    * CHANGELOG sections from internal dependencies whose changes ship
    * inside the parent release. The output still reads as a single release
@@ -72,18 +74,25 @@ type GenerateOptions = {
   fetchImpl?: typeof fetch
 }
 
+export type ProductPromptContext = {
+  /** User-facing product name (for example `Scalar API Client`). */
+  displayName: string
+  /** One-line description of what the product is. */
+  description: string
+}
+
 /**
  * Build the system prompt. Pulled out of `generateReleaseNote` so we can
  * unit-test the wording without a live API call.
  *
  * The tone instructions intentionally mirror the existing curated entries
- * in `projects/scalar-app/RELEASE_NOTES.md` and Scalar's house style
- * (no contractions, friendly, user-facing).
+ * in product `RELEASE_NOTES.md` files and Scalar's house style (no
+ * contractions, friendly, user-facing).
  */
-export const buildSystemPrompt = (): string => {
+export const buildSystemPrompt = (product: ProductPromptContext): string => {
   return [
-    'You write release notes for the Scalar API Client - a Vue-based open-source API testing client.',
-    'You are summarising a Changesets-style CHANGELOG section for the modal that users see inside the product.',
+    `You write release notes for ${product.displayName} - ${product.description}.`,
+    'You are summarising a Changesets-style CHANGELOG section for users reading curated release notes on the Scalar website or inside the product.',
     '',
     'Tone and style:',
     '- Friendly, human, Linear / Vercel-like.',
@@ -227,7 +236,12 @@ export const generateReleaseNote = async (options: GenerateOptions): Promise<Rel
     body: JSON.stringify({
       model,
       max_tokens: MAX_OUTPUT_TOKENS,
-      system: buildSystemPrompt(),
+      system: buildSystemPrompt(
+        options.product ?? {
+          displayName: options.packageName,
+          description: 'a Scalar product',
+        },
+      ),
       messages: [
         {
           role: 'user',

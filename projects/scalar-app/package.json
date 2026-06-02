@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "projects/scalar-app"
   },
-  "version": "1.1.2",
+  "version": "1.1.4",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -28,6 +28,7 @@
     "preview:web": "vite preview",
     "test": "vitest --run",
     "test:e2e": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test",
+    "test:e2e:app": "pnpm build:app && playwright test test/electron.e2e.ts --workers=1",
     "test:e2e:ci": "CI=1 playwright test",
     "test:e2e:install": "playwright install",
     "test:e2e:update-snapshots": "pnpm test:e2e --update-snapshots",

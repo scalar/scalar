@@ -1,31 +1,39 @@
 name: 'Setup Node'
-description: 'Setup pnpm, Node.js, and persistent turbo cache (stickydisk)'
-inputs:
-  node-version:
-    description: 'Node.js version to use (optional, defaults to reading from .nvmrc)'
-    required: false
+description: |
+  Set up pnpm, Node.js, and the branch-scoped caches used by every JS job
+  in this repo. Cache keys include `github.ref_name` so a PR can never
+  overwrite the cache a main-branch run will read.
 runs:
   using: 'composite'
   steps:
     - name: Install pnpm
       uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+
     - name: Read Node.js version from .nvmrc
       id: node-version
       shell: bash
-      run: |
-        if [ -n "${{ inputs.node-version }}" ]; then
-          echo "version=${{ inputs.node-version }}" >> $GITHUB_OUTPUT
-        else
-          echo "version=$(cat .nvmrc | tr -d 'v')" >> $GITHUB_OUTPUT
-        fi
+      run: echo "version=$(tr -d 'v' < .nvmrc)" >> "$GITHUB_OUTPUT"
+
     - name: Setup Node.js
       uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
       with:
         node-version: ${{ steps.node-version.outputs.version }}
         cache: 'pnpm'
+
+    # Branch-scoped persistent turbo cache.
+    # Bump the `v1` suffix in both keys below to invalidate every cache.
     - if: startsWith(runner.name, 'blacksmith')
       name: Setup persistent turbo cache
       uses: useblacksmith/stickydisk@41873b1513bb679f9c115504cbd13d3660432504 # v1
       with:
-        key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}
+        key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}-v1
         path: ./.turbo
+
+    # Branch-scoped pnpm store cache. pnpm verifies tarball integrity at
+    # install time, so a poisoned tarball with a mismatched hash is rejected.
+    - if: startsWith(runner.name, 'blacksmith')
+      name: Setup persistent pnpm store cache
+      uses: useblacksmith/stickydisk@41873b1513bb679f9c115504cbd13d3660432504 # v1
+      with:
+        key: ${{ github.repository }}-${{ github.ref_name }}-pnpm-store-${{ steps.node-version.outputs.version }}-${{ hashFiles('pnpm-lock.yaml') }}-v1
+        path: ~/.local/share/pnpm/store

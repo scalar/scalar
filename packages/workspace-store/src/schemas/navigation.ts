@@ -1,5 +1,6 @@
 import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type TLiteral, Type } from '@scalar/typebox'
+import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 
 import { compose } from '@/schemas/compose'
 import type { InfoObject } from '@/schemas/v3.1/strict/info'
@@ -103,6 +104,77 @@ export type TraversedOperation = BaseSchema & {
   children?: TraversedEntry[]
 }
 
+export const TraversedAsyncApiOperationSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-operation'),
+    operationName: Type.String(),
+    action: Type.Union([Type.Literal('send'), Type.Literal('receive')]),
+    channelName: Type.String(),
+    channelAddress: Type.String(),
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+  }),
+)
+
+/**
+ * An entry representing an AsyncAPI operation in the navigation structure.
+ */
+export type TraversedAsyncApiOperation = BaseSchema & {
+  type: 'asyncapi-operation'
+  /** Key in `document.operations` */
+  operationName: string
+  action: 'send' | 'receive'
+  /** Resolved channel key in `document.channels` */
+  channelName: string
+  /** Channel address for display and routing */
+  channelAddress: string
+  /** Messages available on this operation */
+  children?: TraversedEntry[]
+}
+
+export const TraversedAsyncApiChannelSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-channel'),
+    channelName: Type.String(),
+    channelAddress: Type.String(),
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+  }),
+)
+
+/**
+ * An entry representing an AsyncAPI channel in the navigation structure.
+ */
+export type TraversedAsyncApiChannel = BaseSchema & {
+  type: 'asyncapi-channel'
+  /** Key in `document.channels` */
+  channelName: string
+  /** Channel address for display and routing */
+  channelAddress: string
+  /** Operations on the channel */
+  children?: TraversedEntry[]
+}
+
+export const TraversedAsyncApiMessageSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-message'),
+    messageName: Type.String(),
+    channelName: Type.String(),
+  }),
+)
+
+/**
+ * An entry representing an AsyncAPI message in the navigation structure.
+ */
+export type TraversedAsyncApiMessage = BaseSchema & {
+  type: 'asyncapi-message'
+  /** Key in `channel.messages` */
+  messageName: string
+  /** Parent channel key in `document.channels` */
+  channelName: string
+}
+
 export const TraversedSchemaSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
@@ -191,6 +263,9 @@ export type TraversedModels = BaseSchema & {
 export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedDescriptionSchemaDefinition,
   TraversedOperationSchemaDefinition,
+  TraversedAsyncApiOperationSchemaDefinition,
+  TraversedAsyncApiChannelSchemaDefinition,
+  TraversedAsyncApiMessageSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
@@ -202,6 +277,9 @@ export const TraversedEntrySchemaDefinition = Type.Union([
 export type TraversedEntry =
   | TraversedDescription
   | TraversedOperation
+  | TraversedAsyncApiOperation
+  | TraversedAsyncApiChannel
+  | TraversedAsyncApiMessage
   | TraversedSchema
   | TraversedTag
   | TraversedWebhook
@@ -220,12 +298,12 @@ export type WithParent<Entry extends TraversedEntry> = Entry & {
 
 export type DocumentIdProps = {
   name: string
-  info: InfoObject
+  info: InfoObject | AsyncApiInfoObject
   type: 'document'
 }
 
 type DescriptionIdProps = {
-  info: InfoObject
+  info: InfoObject | AsyncApiInfoObject
   type: 'text'
   slug?: string
   depth?: number
@@ -281,11 +359,35 @@ type ExampleProps = {
   type: 'example'
 }
 
+type AsyncApiOperationProps = {
+  parentId: string
+  operationName: string
+  type: 'asyncapi-operation'
+  parentTag?: ParentTag
+}
+
+type AsyncApiChannelProps = {
+  parentId: string
+  channelName: string
+  type: 'asyncapi-channel'
+  parentTag?: ParentTag
+}
+
+type AsyncApiMessageProps = {
+  parentId: string
+  messageName: string
+  channelName: string
+  type: 'asyncapi-message'
+}
+
 export type IdGeneratorProps =
   | DocumentIdProps
   | DescriptionIdProps
   | TagProps
   | OperationProps
+  | AsyncApiOperationProps
+  | AsyncApiChannelProps
+  | AsyncApiMessageProps
   | WebhookProps
   | ModelProps
   | ExampleProps

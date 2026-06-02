@@ -15,7 +15,7 @@
     "http testing",
     "hono"
   ],
-  "version": "2.4.13",
+  "version": "2.5.0",
   "engines": {
     "node": ">=22"
   },
@@ -44,9 +44,11 @@
     "@hono/node-server": "catalog:*",
     "@scalar/helpers": "workspace:*",
     "hono": "catalog:*",
-    "js-base64": "catalog:*"
+    "js-base64": "catalog:*",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@types/ws": "catalog:*",
     "vite": "catalog:*"
   }
 }

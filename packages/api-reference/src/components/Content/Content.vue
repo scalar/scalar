@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/blocks/operation-code-sample'
-import { mapHiddenClientsConfig } from '@scalar/api-client/modal'
+import { mapHiddenClientsConfig } from '@scalar/api-client/modal/map-hidden-clients-config'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
@@ -28,6 +28,7 @@ import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
+import { AsyncApiTraversedEntry } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
@@ -65,6 +66,7 @@ const {
     | 'servers'
     | 'showOperationId'
     | 'hideModels'
+    | 'modelsSectionLabel'
   >
   document: WorkspaceDocument | undefined
   clientDocument: WorkspaceDocument | undefined
@@ -92,6 +94,11 @@ const openApiDocument = computed(() =>
 )
 const openApiClientDocument = computed(() =>
   isOpenApiDocument(clientDocument) ? clientDocument : undefined,
+)
+
+/** AsyncAPI narrow, used to render the (currently channel-only) AsyncAPI content tree. */
+const asyncApiDocument = computed(() =>
+  isAsyncApiDocument(document) ? document : undefined,
 )
 
 const documentType = computed(() => getDocumentType(document))
@@ -225,6 +232,15 @@ onMounted(() => {
       :selectedClient="xScalarDefaultClient"
       :selectedServer>
     </TraversedEntry>
+
+    <!-- AsyncAPI: render channels grouped by tag, mirroring the sidebar order. -->
+    <AsyncApiTraversedEntry
+      v-else-if="items.length && asyncApiDocument"
+      :document="asyncApiDocument"
+      :entries="items"
+      :eventBus
+      :expandedItems
+      :options />
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins

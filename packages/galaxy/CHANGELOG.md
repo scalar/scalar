@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.6.5
+
+### Patch Changes
+
+- [#9349](https://github.com/scalar/scalar/pull/9349): Tag channels, operations, and messages in the AsyncAPI 3.0 sample so they group consistently with the OpenAPI document.
+
 ## 0.6.4
 
 ### Patch Changes

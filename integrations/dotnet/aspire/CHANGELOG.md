@@ -1,5 +1,13 @@
 # @scalar/aspire
 
+## 0.9.42
+
+## 0.9.41
+
+### Patch Changes
+
+- [#9325](https://github.com/scalar/scalar/pull/9325): fix(aspire): store boolean environment variables as strings so `aspire publish` to Azure Container Apps no longer fails with "Unsupported value type System.Boolean"
+
 ## 0.9.40
 
 ## 0.9.39

@@ -12,16 +12,14 @@ if (version && typeof window !== 'undefined') {
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
-import {
-  createApiClientModal,
-  type ApiClientModal,
-} from '@scalar/api-client/modal'
+import type { ApiClientModal } from '@scalar/api-client/modal'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
 } from '@scalar/components/color-mode-toggle'
 import { addScalarClassesToHeadless } from '@scalar/components/helpers'
 import { ScalarSidebarFooter } from '@scalar/components/sidebar'
+import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import {
@@ -31,6 +29,7 @@ import {
 } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
+  DEFAULT_MODELS_SECTION_LABEL,
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationRaw,
@@ -82,6 +81,7 @@ import {
   getIdFromUrl,
   makeUrlFromId,
   matchesBasePath,
+  redirectLegacyModelUrl,
 } from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
@@ -103,7 +103,7 @@ import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
-import { persistencePlugin } from '@/plugins/persistance-plugin'
+import { persistencePlugin } from '@/plugins/persistence-plugin'
 
 const props = defineProps<{
   /**
@@ -231,14 +231,22 @@ const configurationOverrides = ref<
 >({})
 
 /** Any dev toolbar modifications are merged with the active configuration */
-const mergedConfig = computed<ApiReferenceConfiguration>(() => ({
-  // Provides a default set of values when the lookup fails
-  ...coerce(apiReferenceConfigurationSchema, {}),
-  // The active configuration based on the slug
-  ...configList.value[activeSlug.value]?.config,
-  // Any overrides from the localhost toolbar
-  ...configurationOverrides.value,
-}))
+const mergedConfig = computed<ApiReferenceConfiguration>(() => {
+  const merged = {
+    // Provides a default set of values when the lookup fails
+    ...coerce(apiReferenceConfigurationSchema, {}),
+    // The active configuration based on the slug
+    ...configList.value[activeSlug.value]?.config,
+    // Any overrides from the localhost toolbar
+    ...configurationOverrides.value,
+  }
+
+  return {
+    ...merged,
+    modelsSectionLabel:
+      merged.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL,
+  }
+})
 
 /** Convenience break out var to determine which routing mode we are using */
 const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
@@ -262,6 +270,23 @@ pluginManager.notifyInit(mergedConfig.value)
 watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
+
+// Redirect legacy `/model/<name>` URLs to the current section's plural slug
+// so bookmarks from before the slug streamline keep resolving.
+if (typeof window !== 'undefined') {
+  const canonical = redirectLegacyModelUrl(
+    window.location.href,
+    slugify(
+      mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL,
+    ),
+    activeSlug.value,
+    isMultiDocument.value,
+    mergedConfig.value.pathRouting?.basePath,
+  )
+  if (canonical) {
+    window.history.replaceState({}, '', canonical.toString())
+  }
+}
 
 // Front-end redirect
 if (mergedConfig.value.redirect && typeof window !== 'undefined') {
@@ -317,7 +342,6 @@ const clientStore = createWorkspaceStore({
   verbose: isDevelopment,
   plugins: [
     persistencePlugin({
-      prefix: () => activeSlug.value,
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
     }),
   ],
@@ -335,15 +359,14 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 })
 
 /**
- * The active document narrowed to an OpenAPI document.
- *
- * api-reference is OpenAPI-native, so AsyncAPI documents are surfaced as
- * undefined to downstream components.
+ * The active document passed to the search modal. Both OpenAPI and AsyncAPI
+ * documents are surfaced so the search index can pick up info.description
+ * headings from either spec; AsyncAPI-specific entries (channels, operations,
+ * messages) are not indexed yet.
  */
-const activeOpenApiDocument = computed(() => {
-  const doc = workspaceStore.workspace.activeDocument
-  return isOpenApiDocument(doc) ? doc : undefined
-})
+const activeSearchableDocument = computed(
+  () => workspaceStore.workspace.activeDocument,
+)
 
 /**
  * Create top level sidebar entries for each document
@@ -357,9 +380,8 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
       description: document.info.description,
       name: document.info.title ?? slug,
       title: document.info.title ?? slug,
-      children: isOpenApiDocument(document)
-        ? (document['x-scalar-navigation']?.children ?? [])
-        : [],
+      // Both OpenAPI and AsyncAPI documents carry an `x-scalar-navigation` tree.
+      children: document['x-scalar-navigation']?.children ?? [],
     }),
   )
 })
@@ -444,6 +466,31 @@ const scrollToLazyElement = (id: string) => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
   _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
+}
+
+/**
+ * Updates the browser tab title via the user-provided `setPageTitle` callback.
+ *
+ * Called whenever the section in view changes — on sidebar clicks, on scroll, and
+ * when switching documents — so the tab title always reflects what the reader sees.
+ */
+const updatePageTitle = (id: string) => {
+  const setPageTitle = mergedConfig.value?.setPageTitle
+  const entry = sidebarState.getEntryById(id)
+
+  if (!setPageTitle || typeof document === 'undefined' || !entry?.title) {
+    return
+  }
+
+  const activeDocument = workspaceStore.workspace.activeDocument
+
+  document.title = setPageTitle({
+    title: entry.title,
+    document: {
+      title: activeDocument?.info?.title ?? activeSlug.value,
+      slug: activeSlug.value,
+    },
+  })
 }
 
 /** Maps some config values to the workspace store to keep it reactive */
@@ -644,6 +691,9 @@ const changeSelectedDocument = async (
       sidebarState.setExpanded(firstTag.id, true)
     }
   }
+
+  // Reflect the freshly selected document in the browser tab title
+  updatePageTitle(elementId && elementId !== slug ? elementId : slug)
 }
 
 /**
@@ -778,10 +828,20 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
 // --------------------------------------------------------------------------- */
 // Api Client Modal
 
-// Setup the ApiClient on mount
+// Setup the ApiClient on mount.
+// The modal is dynamic-imported so its dependency graph (CodeMirror, the request
+// editor, the response viewer, etc.) becomes a separate chunk that loads
+// asynchronously after the API reference paints.
 const modal = useTemplateRef<HTMLElement>('modal')
 const apiClient = ref<ApiClientModal | null>(null)
-onMounted(() => {
+onMounted(async () => {
+  if (!modal.value) {
+    return
+  }
+
+  const { createApiClientModal } = await import('@scalar/api-client/modal')
+
+  // Bail if the component unmounted while the chunk was loading.
   if (!modal.value) {
     return
   }
@@ -838,6 +898,8 @@ eventBus.on('ui:download:document', ({ format }) => {
 const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
 
+  updatePageTitle(id)
+
   if (
     (item?.type === 'tag' ||
       item?.type === 'models' ||
@@ -891,6 +953,9 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
 
   sidebarState.setSelected(id)
   setBreadcrumb(id)
+
+  // Keep the browser tab title in sync with the section scrolled into view
+  updatePageTitle(id)
 
   // Scroll the sidebar to keep the selected element near the top
   scrollSidebarToTop(id)
@@ -1054,9 +1119,10 @@ const showMCPButton = computed(() => {
           <SearchButton
             v-if="!mergedConfig.hideSearch"
             class="my-2"
-            :document="activeOpenApiDocument"
+            :document="activeSearchableDocument"
             :eventBus="eventBus"
             :hideModels="mergedConfig.hideModels"
+            :modelsSectionLabel="mergedConfig.modelsSectionLabel"
             :searchHotKey="mergedConfig.searchHotKey"
             :showSidebar="mergedConfig.showSidebar" />
         </template>
@@ -1090,9 +1156,10 @@ const showMCPButton = computed(() => {
                 v-if="!mergedConfig.hideSearch"
                 class="flex gap-1.5 px-3 pt-3">
                 <SearchButton
-                  :document="activeOpenApiDocument"
+                  :document="activeSearchableDocument"
                   :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
+                  :modelsSectionLabel="mergedConfig.modelsSectionLabel"
                   :searchHotKey="mergedConfig.searchHotKey" />
 
                 <AgentScalarButton v-if="agent.agentEnabled.value" />
@@ -1184,9 +1251,10 @@ const showMCPButton = computed(() => {
               <SearchButton
                 v-if="!mergedConfig.hideSearch"
                 class="t-doc__sidebar max-w-64"
-                :document="activeOpenApiDocument"
+                :document="activeSearchableDocument"
                 :eventBus="eventBus"
                 :hideModels="mergedConfig.hideModels"
+                :modelsSectionLabel="mergedConfig.modelsSectionLabel"
                 :searchHotKey="mergedConfig.searchHotKey" />
               <template #dark-mode-toggle>
                 <ScalarColorModeToggleIcon

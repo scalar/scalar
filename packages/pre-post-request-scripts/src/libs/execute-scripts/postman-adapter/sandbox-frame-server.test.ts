@@ -161,20 +161,24 @@ describe('startSandboxFrameServer', () => {
    * own listener; without that, listeners from earlier tests would still see dispatched events
    * and call into the parent stub of the current test, contaminating assertions.
    */
-  const setupServer = () => {
+  const setupServer = (origin = window.location.origin) => {
     const parentPostMessage = vi.fn()
+    const originalLocationDescriptor = Object.getOwnPropertyDescriptor(window, 'location')
     const originalParentDescriptor = Object.getOwnPropertyDescriptor(window, 'parent')
 
-    // Replace `window.parent` with our stub. Captured here so the teardown can restore exactly
-    // what was there before, even if the original was the engine-provided non-configurable
-    // descriptor (in which case `originalParentDescriptor` is `undefined` and `delete` is the
-    // correct restore).
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: {
+        ...window.location,
+        origin,
+      },
+    })
+
+    const parentWindow = { postMessage: parentPostMessage } as unknown as Window
+
     Object.defineProperty(window, 'parent', {
       configurable: true,
-      get: () =>
-        ({
-          postMessage: parentPostMessage,
-        }) as unknown as Window,
+      get: () => parentWindow,
     })
 
     const teardown = startSandboxFrameServer()
@@ -183,6 +187,9 @@ describe('startSandboxFrameServer', () => {
       parentPostMessage,
       restore: () => {
         teardown()
+        if (originalLocationDescriptor) {
+          Object.defineProperty(window, 'location', originalLocationDescriptor)
+        }
         if (originalParentDescriptor) {
           Object.defineProperty(window, 'parent', originalParentDescriptor)
         } else {
@@ -194,7 +201,7 @@ describe('startSandboxFrameServer', () => {
     }
   }
 
-  const dispatchExecute = (overrides: Partial<MessageEventInit<unknown>>) => {
+  const dispatchExecute = (overrides: Partial<MessageEventInit<unknown>> = {}) => {
     const request: SandboxExecuteRequest = {
       channel: SANDBOX_CHANNEL,
       kind: 'execute',
@@ -222,6 +229,25 @@ describe('startSandboxFrameServer', () => {
         window.location.origin,
       )
       expect(parentPostMessage).not.toHaveBeenCalledWith(expect.anything(), '*')
+    } finally {
+      restore()
+    }
+  })
+
+  it('accepts file-origin messages and replies with a wildcard target origin', async () => {
+    sandboxContextMock.execute.mockImplementation((_target, _options, callback) => callback(undefined))
+    const { parentPostMessage, restore } = setupServer('file://')
+
+    try {
+      expect(parentPostMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ channel: SANDBOX_CHANNEL, kind: 'ready' }),
+        '*',
+      )
+      parentPostMessage.mockClear()
+      dispatchExecute({ origin: 'null' })
+      await vi.waitFor(() => expect(createContextMock).toHaveBeenCalled())
+
+      expect(parentPostMessage).toHaveBeenCalledWith(expect.objectContaining({ kind: 'done' }), '*')
     } finally {
       restore()
     }

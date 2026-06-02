@@ -17,12 +17,13 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.2.18",
+  "version": "0.3.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "dev": "cd playground && pnpm dev"
+    "dev": "cd playground && pnpm dev",
+    "test": "vitest --run"
   },
   "type": "module",
   "exports": {
@@ -30,6 +31,8 @@
   },
   "files": [
     "src",
+    "!src/**/*.test.*",
+    "!src/**/*.spec.*",
     "index.ts"
   ],
   "readme": {

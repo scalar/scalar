@@ -16,13 +16,13 @@
     "swagger",
     "petstore"
   ],
-  "version": "0.2.22",
+  "version": "0.2.23",
   "private": true,
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "wrangler deploy src/_worker.ts --dry-run --outdir dist --name galaxy-scalar-com --compatibility-date 2026-04-28 --compatibility-flags nodejs_compat",
+    "build": "wrangler deploy src/_worker.ts --dry-run --outdir dist --name galaxy-scalar-com --compatibility-date 2026-04-28 --compatibility-flags nodejs_compat --define GALAXY_IS_PRODUCTION:${GALAXY_IS_PRODUCTION:-false} && cp node_modules/@scalar/api-reference/dist/browser/standalone.js dist/scalar.js",
     "deploy": "wrangler pages deploy dist --project-name=galaxy-scalar-com",
     "dev": "pnpm build && wrangler pages dev dist --compatibility-date=2026-04-28 --compatibility-flags=nodejs_compat",
     "test": "vitest --run",
@@ -30,6 +30,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@scalar/api-reference": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/hono-api-reference": "workspace:*",

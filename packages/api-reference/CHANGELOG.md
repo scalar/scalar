@@ -1,5 +1,50 @@
 # @scalar/api-reference
 
+## 1.58.0
+
+### Minor Changes
+
+- [#9372](https://github.com/scalar/scalar/pull/9372): Render AsyncAPI `components.schemas` as Models, listed in the sidebar and content just like OpenAPI schemas
+- [#7618](https://github.com/scalar/scalar/pull/7618): feat(api-reference): add `setPageTitle` to customize the browser tab title
+
+  Pass a `setPageTitle` function to control the browser tab title. It is called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents — and receives the section title and the active OpenAPI document:
+
+  ```js
+  setPageTitle: ({ title, document }) => `${document.title} – ${title}`
+  ```
+
+### Patch Changes
+
+- [#9348](https://github.com/scalar/scalar/pull/9348): Render AsyncAPI channels as sections in the content area, with the channel address as the heading and the channel description below. Channels are grouped under tags when the navigation tree groups them. Operations and messages are not rendered yet.
+- [#9255](https://github.com/scalar/scalar/pull/9255): Surface the Introduction entry and any headings extracted from `info.description` of AsyncAPI documents in the sidebar, mirroring how OpenAPI documents are handled.
+- [#9347](https://github.com/scalar/scalar/pull/9347): Surface AsyncAPI `info.description` headings in the search modal, mirroring the sidebar behaviour. AsyncAPI channels, operations, and messages are not indexed yet.
+- [#9350](https://github.com/scalar/scalar/pull/9350): feat(api-reference): list Ask AI and MCP Servers as Scalar Docs features in the Deploy popover
+- [#9310](https://github.com/scalar/scalar/pull/9310): Add an ESM standalone build (`dist/browser/standalone.esm.js`) alongside the existing UMD bundle. The new bundle works as a side-effect script (registers `window.Scalar.createApiReference` and reads `data-*` configuration) and exports `createApiReference` for direct ESM consumers. It is fully minified through Rolldown's native minifier and uses code splitting so heavy features load asynchronously after first paint:
+  - The API client modal (request editor, response viewer, CodeMirror) is now `await import`'d inside `onMounted` instead of statically imported, moving ~265 KB into a `chunks/modal-*.js` chunk that loads in the background.
+  - The Agent Scalar chat interface (already wrapped in `defineAsyncComponent`) becomes a real `chunks/AgentScalarChatInterface-*.js` chunk (~200 KB), loaded only when the agent is enabled.
+  - The 84 per-icon dynamic imports from `@scalar/icons/library` are coalesced into a single `chunks/icons-*.js`.
+
+  Net effect: initial sync load drops from ~3.32 MB (UMD) to ~2.73 MB (ESM) — a ~570 KB improvement — while total bundle size shrinks by ~140 KB.
+
+  Also adds an `@scalar/api-client/modal/map-hidden-clients-config` deep export so consumers that only need the lightweight client-list helper don't pull the full modal barrel into their static graph.
+
+- [#9139](https://github.com/scalar/scalar/pull/9139): fix(api-reference): preserve OAuth redirect URL when switching between OpenAPI documents
+
+  Auth changes were being persisted under the wrong document slug and shared a single debounce queue across all documents. When switching documents quickly, the pending save for the first document could be overwritten or dropped by a save for the second document, causing the redirect URL (and other auth secrets) to appear cleared after switching back.
+
+  The fix uses `event.documentName` as both the debounce key and the storage key, giving each document its own independent debounce queue.
+
+- [#9194](https://github.com/scalar/scalar/pull/9194): fix(api-reference): break cycles in `mergeAllOfSchemas` for self-referencing schemas (whether they `$ref` back to themselves through array items or through a plain object property), which previously crashed the docs preview with "too much recursion"
+- [#9309](https://github.com/scalar/scalar/pull/9309): feat: add `modelsSectionLabel` configuration (`'Models' | 'Schemas' | string`) to use OpenAPI-style Schemas terminology in the sidebar, content, and search.
+
+## 1.57.5
+
+### Patch Changes
+
+- [#9318](https://github.com/scalar/scalar/pull/9318): fix: restore response content type selector when expandAllResponses is enabled
+
+  Move the content type picker after the disclosure panel so it stacks above expanded response content and remains clickable when `expandAllResponses` is true.
+
 ## 1.57.4
 
 ## 1.57.3

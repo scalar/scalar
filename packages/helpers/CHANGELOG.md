@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.8.1
+
+### Patch Changes
+
+- [#9377](https://github.com/scalar/scalar/pull/9377): fix: prevent the browser from freezing when pretty-printing deeply shared object graphs (e.g. the "Show Schema" toggle on recursive OpenAPI schemas). `prettyPrintJson` now always collapses repeated references instead of fully expanding every shared subtree, which previously grew exponentially.
+
 ## 0.8.0
 
 ### Minor Changes

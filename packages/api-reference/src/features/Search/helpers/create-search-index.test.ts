@@ -1,4 +1,5 @@
-import { createNavigation } from '@scalar/workspace-store/navigation'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createNavigation, traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
@@ -20,6 +21,7 @@ const introductionSearchEntry = {
 
 function createMockDocument(document: Partial<OpenApiDocument>) {
   const doc = {
+    openapi: '3.1.0',
     info: {
       title: 'Test API',
       version: '1.0.0',
@@ -389,7 +391,7 @@ describe('createSearchIndex', () => {
         },
         {
           title: 'User Model',
-          description: 'Model',
+          description: 'Models',
           body: ['name', 'email'],
           bodyDescriptions: ['A user object', 'Display name'],
         },
@@ -421,7 +423,7 @@ describe('createSearchIndex', () => {
         },
         {
           title: 'Post Model',
-          description: 'Model',
+          description: 'Models',
           body: [],
           bodyDescriptions: [],
         },
@@ -453,6 +455,37 @@ describe('createSearchIndex', () => {
       expect(index[1]).toMatchObject({ type: 'heading', title: 'Models' })
       expect(index[2]).toMatchObject({ title: 'User Model', bodyDescriptions: ['A user object'] })
       expect(index[3]).toMatchObject({ title: 'Post Model', bodyDescriptions: ['A post object'] })
+    })
+
+    it('uses Schemas labels when modelsSectionLabel is Schemas', () => {
+      const doc = createMockDocument({
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              title: 'User Model',
+              description: 'A user object',
+            },
+          },
+        },
+      })
+
+      doc['x-scalar-navigation'] = createNavigation('test', doc, {
+        hideModels: false,
+        modelsSectionLabel: 'Schemas',
+      })
+
+      const index = createSearchIndex(doc, { modelsSectionLabel: 'Schemas' })
+
+      expect(index[1]).toMatchObject({
+        type: 'heading',
+        title: 'Schemas',
+        description: 'Heading',
+      })
+      expect(index[2]).toMatchObject({
+        title: 'User Model',
+        description: 'Schemas',
+      })
     })
 
     it('collects property names through a oneOf model schema', () => {
@@ -909,6 +942,58 @@ describe('createSearchIndex', () => {
       expect(tagEntries.length).toBeGreaterThanOrEqual(2)
       expect(operationEntries.length).toBeGreaterThanOrEqual(3)
       expect(modelEntries.length).toBeGreaterThanOrEqual(2)
+    })
+  })
+
+  describe('AsyncAPI documents', () => {
+    it('indexes the Introduction entry and headings from info.description', () => {
+      const document = {
+        asyncapi: '3.0.0',
+        info: {
+          title: 'Streaming API',
+          version: '1.0.0',
+          description: 'Welcome to the streaming API.\n\n## Getting started\n\nConnect to a channel and subscribe.',
+        },
+        'x-scalar-original-document-hash': '',
+      } as AsyncApiDocument
+
+      document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
+
+      const index = createSearchIndex(document)
+
+      const headings = index.filter((item) => item.type === 'heading')
+      expect(headings.map((item) => item.title)).toEqual(expect.arrayContaining(['Introduction', 'Getting started']))
+    })
+
+    it('indexes components.schemas as models with their property names and descriptions', () => {
+      const document = {
+        asyncapi: '3.0.0',
+        info: { title: 'Streaming API', version: '1.0.0' },
+        'x-scalar-original-document-hash': '',
+        components: {
+          schemas: {
+            PlanetEvent: {
+              type: 'object',
+              description: 'A planet lifecycle event',
+              properties: {
+                planetName: { type: 'string', description: 'Name of the planet' },
+                eventType: { type: 'string' },
+              },
+            },
+          },
+        },
+      } as unknown as AsyncApiDocument
+
+      document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
+
+      const index = createSearchIndex(document)
+
+      const model = index.find((item) => item.type === 'model' && item.title === 'PlanetEvent')
+      expect(model).toBeDefined()
+      expect(model?.body).toEqual(expect.arrayContaining(['planetName', 'eventType']))
+      expect(model?.bodyDescriptions).toEqual(
+        expect.arrayContaining(['A planet lifecycle event', 'Name of the planet']),
+      )
     })
   })
 })

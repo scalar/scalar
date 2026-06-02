@@ -1,14 +1,19 @@
+import { DEFAULT_MODELS_SECTION_LABEL, type ModelsSectionLabel } from '@scalar/types/api-reference'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { combineParams } from '@scalar/workspace-store/request-example'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { isAsyncApiDocument, isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type {
   MediaTypeObject,
   OpenApiDocument,
   OperationObject,
   ResponsesObject,
+  SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { FuseData } from '@/features/Search/types'
+import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
 import {
   extractBodyDescriptions,
   extractBodyFieldNames,
@@ -17,6 +22,28 @@ import {
   extractSchemaDescriptions,
   extractSchemaFieldNames,
 } from '@/helpers/openapi'
+
+/** Documents the search index can ingest. AsyncAPI is supported for headings, tags, and models; channels/operations/messages are not indexed yet. */
+type SearchableDocument = OpenApiDocument | AsyncApiDocument
+
+/**
+ * Resolves a schema from `components.schemas` for either document type.
+ *
+ * OpenAPI and AsyncAPI keep reusable schemas in the same place, so model search entries can read
+ * property names and descriptions from both. AsyncAPI entries need extra handling (ref siblings,
+ * multi-format wrappers, boolean schemas), which lives in {@link getAsyncApiModelSchema}.
+ */
+function getModelSchema(document: SearchableDocument | undefined, name: string): SchemaObject | undefined {
+  if (isOpenApiDocument(document)) {
+    return getResolvedRef(document.components?.schemas?.[name])
+  }
+
+  if (isAsyncApiDocument(document)) {
+    return getAsyncApiModelSchema(document, name)
+  }
+
+  return undefined
+}
 
 function responseExampleValueToString(value: unknown): string {
   if (typeof value === 'string') {
@@ -73,18 +100,26 @@ function extractResponseExamples(responses: ResponsesObject | undefined): string
     .filter((value) => value.length > 0)
 }
 
+type CreateSearchIndexOptions = {
+  modelsSectionLabel?: ModelsSectionLabel
+}
+
 /**
  * Create a search index from a list of entries.
  */
-export function createSearchIndex(document: OpenApiDocument | undefined): FuseData[] {
+export function createSearchIndex(
+  document: SearchableDocument | undefined,
+  options?: CreateSearchIndexOptions,
+): FuseData[] {
   const index: FuseData[] = []
+  const modelsSectionTitle = options?.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
 
   /**
    * Recursively processes entries and their children to build the search index.
    */
   function processEntries(entriesToProcess: TraversedEntry[]): void {
     entriesToProcess.forEach((entry) => {
-      addEntryToIndex(entry, index, document)
+      addEntryToIndex(entry, index, document, modelsSectionTitle)
 
       // Recursively process children if they exist
       if ('children' in entry && entry.children) {
@@ -100,11 +135,23 @@ export function createSearchIndex(document: OpenApiDocument | undefined): FuseDa
 
 /**
  * Adds a single entry to the search index, handling all entry types recursively.
+ *
+ * AsyncAPI documents contribute heading, tag, and model entries here. Their
+ * channels, operations, and messages are not indexed yet.
  */
-function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: OpenApiDocument): void {
+function addEntryToIndex(
+  entry: TraversedEntry,
+  index: FuseData[],
+  document: SearchableDocument | undefined,
+  modelsSectionTitle: string,
+): void {
+  // OpenAPI-only branches read fields that do not exist on AsyncAPI documents (paths, webhooks,
+  // components.schemas). Narrow once here so each branch can dereference safely.
+  const openApiDocument = isOpenApiDocument(document) ? document : undefined
+
   // Operation
   if (entry.type === 'operation') {
-    const pathItem = getResolvedRef(document?.paths?.[entry.path])
+    const pathItem = getResolvedRef(openApiDocument?.paths?.[entry.path])
     const operation = (getResolvedRef(pathItem?.[entry.method]) ?? {}) as OperationObject
     const operationWithPathParams = {
       ...operation,
@@ -138,7 +185,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
 
   // Webhook
   if (entry.type === 'webhook') {
-    const webhook = getResolvedRef(document?.webhooks?.[entry.name]?.[entry.method]) ?? {}
+    const webhook = getResolvedRef(openApiDocument?.webhooks?.[entry.name]?.[entry.method]) ?? {}
     const webhookDescription = webhook.description || ''
 
     index.push({
@@ -158,7 +205,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
 
   // Model
   if (entry.type === 'model') {
-    const schema = getResolvedRef(document?.components?.schemas?.[entry.name])
+    const schema = getModelSchema(document, entry.name)
     const schemaDescription = schema?.description ?? ''
     const propertyNames = extractSchemaFieldNames(schema)
     const propertyDescriptions = extractSchemaDescriptions(schema)
@@ -166,7 +213,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
     index.push({
       type: 'model',
       title: entry.title,
-      description: 'Model',
+      description: modelsSectionTitle,
       id: entry.id,
       body: propertyNames,
       bodyDescriptions: schemaDescription ? [schemaDescription, ...propertyDescriptions] : propertyDescriptions,
@@ -181,7 +228,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
     index.push({
       id: entry.id,
       type: 'heading',
-      title: 'Models',
+      title: entry.title,
       description: 'Heading',
       body: '',
       entry,

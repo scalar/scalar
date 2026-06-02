@@ -67,7 +67,7 @@
 
   --scalar-button-1: rgba(0, 0, 0, 1);
   --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
+  --scalar-button-1-color: #fff;
 }
 .dark-mode {
   --scalar-color-green: #00b648;

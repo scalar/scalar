@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 1.58.0
+
+### Patch Changes
+
+- [#9209](https://github.com/scalar/scalar/pull/9209): Fix intermittent TypeScript error when hook handlers are spread into route options. Annotating the internal `schemaToHideRoute` constant as `FastifySchema` prevents TypeScript from narrowing its type to `{ hide: boolean }`, which caused incompatible hook-handler types with Fastify 5's `NoInfer<SchemaCompiler>`-based route definitions.
+
+## 1.57.5
+
 ## 1.57.4
 
 ## 1.57.3

@@ -121,6 +121,11 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'log:user-login': empty,
   'log:user-logout': empty,
 
+  // Document sync and save events
+  'log:save-document': empty,
+  'log:sync-pull-document': empty,
+  'log:sync-push-document': empty,
+
   // ---------------------------------------------------------------------------
   // Do not track — explicitly opted out so new events cause a type error
   // until they are consciously placed above with a payload

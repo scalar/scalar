@@ -6,7 +6,7 @@ import {
   asyncApiOperationBindingsObject,
   asyncApiServerBindingsObject,
 } from './bindings'
-import { asyncApiChannelObject } from './channel'
+import { asyncApiChannelsObject } from './channel'
 import { asyncApiCorrelationIdObject } from './correlation-id'
 import { asyncApiExternalDocumentationObject } from './external-documentation'
 import { asyncApiMessageObject } from './message'
@@ -32,7 +32,7 @@ export const asyncApiComponentsObject = lazy(() =>
         }),
       ),
       servers: optional(record(string(), asyncApiServerObject)),
-      channels: optional(record(string(), asyncApiChannelObject)),
+      channels: optional(asyncApiChannelsObject),
       operations: optional(record(string(), asyncApiOperationObject)),
       messages: optional(record(string(), asyncApiMessageObject)),
       securitySchemes: optional(record(string(), asyncApiSecuritySchemeObject)),

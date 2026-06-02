@@ -1,0 +1,86 @@
+import Preview from './Preview.mdx'
+
+# Embeds
+
+Embeds wrap an `<iframe>` for external content like YouTube, Vimeo, CodePen, and CodeSandbox. URLs from supported platforms are automatically rewritten to their embed form.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `src` | `string` | _required_ | URL of the content to embed. YouTube, Vimeo, CodePen, and CodeSandbox URLs are auto-optimized; other URLs are passed straight through. |
+| `caption` | `string` | — | Caption shown below the embed. If omitted, the component's children are used as the caption. |
+| `alt` | `string` | — | Accessible description of the embedded content. |
+
+## Examples
+
+### YouTube Video
+
+<Preview>
+  <Embed
+    src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+    caption="Never Gonna Give You Up — Rick Astley"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-embed
+  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+  caption="Never Gonna Give You Up — Rick Astley">
+</scalar-embed>
+```
+```mdx MDX
+<Embed
+  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+  caption="Never Gonna Give You Up — Rick Astley"
+/>
+```
+</CodeGroup>
+
+### Vimeo Video
+
+<Preview>
+  <Embed
+    src="https://player.vimeo.com/video/844557780"
+    caption="A short demo on Vimeo"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-embed
+  src="https://player.vimeo.com/video/844557780"
+  caption="A short demo on Vimeo">
+</scalar-embed>
+```
+```mdx MDX
+<Embed
+  src="https://player.vimeo.com/video/844557780"
+  caption="A short demo on Vimeo"
+/>
+```
+</CodeGroup>
+
+### Caption from Children
+
+When `caption` is omitted, the component's children are rendered as the caption.
+
+<Preview>
+  <Embed src="https://en.wikipedia.org/wiki/Open_source" alt="Wikipedia: Open source">
+    Wikipedia page on open source
+  </Embed>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-embed src="https://en.wikipedia.org/wiki/Open_source" alt="Wikipedia: Open source">
+  Wikipedia page on open source
+</scalar-embed>
+```
+```mdx MDX
+<Embed src="https://en.wikipedia.org/wiki/Open_source" alt="Wikipedia: Open source">
+  Wikipedia page on open source
+</Embed>
+```
+</CodeGroup>

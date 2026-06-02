@@ -1,5 +1,21 @@
 # @scalar/astro
 
+## 0.3.0
+
+### Minor Changes
+
+- [#9326](https://github.com/scalar/scalar/pull/9326): Add a `renderMode="client"` option to `<ScalarComponent />` that mounts Scalar in the browser and re-mounts around Astro view-transition events. This fixes the API reference appearing only after a refresh on Starlight pages and other Astro sites that use client-side navigation.
+
+### Patch Changes
+
+- [#9326](https://github.com/scalar/scalar/pull/9326): Bring `renderMode="client"` to parity with `renderMode="static"`:
+  - Normalize the configuration through `getConfiguration` so `url` takes precedence over `content` (and `content` functions are executed) before serialization, matching the static mode.
+  - Load each `data-cdn` URL even when `window.Scalar` is already defined, so references with different CDN URLs no longer silently share the first-loaded bundle.
+
+- [#9326](https://github.com/scalar/scalar/pull/9326): Move the `renderMode="client"` markup and bundled `<script>` into a dedicated `ScalarClient.astro` child component, so static-mode pages no longer pull in the client mount code or register view-transition listeners they do not need.
+
+## 0.2.19
+
 ## 0.2.18
 
 ## 0.2.17

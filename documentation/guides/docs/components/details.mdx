@@ -1,0 +1,144 @@
+import Preview from './Preview.mdx'
+
+# Details
+
+Details create collapsible content sections, useful for progressive disclosure of supplementary information. Interactivity can be disabled to use the same visual style as a static block.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` | `string` | — | Text shown in the summary header. |
+| `icon` | `string` | `phosphor/regular/caret-right` | Marker icon shown on the left of the summary. Accepts a built-in [icon key](/products/docs/components/icons#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](/products/docs/components/icons#custom-icons). |
+| `title-icon` | `string` | — | Icon shown inline next to the title text. In MDX this is written as `title-icon` on `<Detail>`. |
+| `open` | `boolean` | `false` | When `true`, the section starts expanded. |
+| `interactivity` | `'none'` | — | Set to `"none"` to render a static, non-collapsible container. |
+
+## Examples
+
+### Basic Collapsible Section
+
+<Preview>
+  <Detail title="More Info">
+    Here's some additional content.
+  </Detail>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-detail title="More Info">
+  Here's some additional content.
+</scalar-detail>
+```
+```mdx MDX
+<Detail title="More Info">
+  Here's some additional content.
+</Detail>
+```
+</CodeGroup>
+
+### Open by Default
+
+<Preview>
+  <Detail title="Default Open" open>
+    The section is open by default.
+  </Detail>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-detail title="Default Open" open>
+  The section is open by default.
+</scalar-detail>
+```
+```mdx MDX
+<Detail title="Default Open" open>
+  The section is open by default.
+</Detail>
+```
+</CodeGroup>
+
+### Title Icon
+
+<Preview>
+  <Detail title="With a Title Icon" title-icon="phosphor/regular/info">
+    The icon appears next to the title text.
+  </Detail>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-detail title="With a Title Icon" title-icon="phosphor/regular/info">
+  The icon appears next to the title text.
+</scalar-detail>
+```
+```mdx MDX
+<Detail title="With a Title Icon" title-icon="phosphor/regular/info">
+  The icon appears next to the title text.
+</Detail>
+```
+</CodeGroup>
+
+### Non-Interactive Block
+
+<Preview>
+  <Detail title="Non-Interactive" interactivity="none">
+    This does not collapse when clicked.
+  </Detail>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-detail title="Non-Interactive" interactivity="none">
+  This does not collapse when clicked.
+</scalar-detail>
+```
+```mdx MDX
+<Detail title="Non-Interactive" interactivity="none">
+  This does not collapse when clicked.
+</Detail>
+```
+</CodeGroup>
+
+### Nested
+
+<Preview>
+  <Detail title="Outer">
+    Outer content.
+
+    <Detail title="Inner">
+      Inner content.
+    </Detail>
+  </Detail>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-detail title="Outer">
+  Outer content.
+
+  <scalar-detail title="Inner">
+    Inner content.
+  </scalar-detail>
+</scalar-detail>
+```
+```mdx MDX
+<Detail title="Outer">
+  Outer content.
+
+  <Detail title="Inner">
+    Inner content.
+  </Detail>
+</Detail>
+```
+</CodeGroup>
+
+## MDX Shortcut
+
+In MDX, `<Accordion>` is an alias for `<Detail>` provided for compatibility with Mintlify-style content. The `icon` prop on `<Accordion>` maps to `title-icon` on `<Detail>`.
+
+```mdx MDX
+<Accordion title="Click to expand" icon="phosphor/regular/info">
+  Renders the same as <Detail title="Click to expand" title-icon="phosphor/regular/info">.
+</Accordion>
+```

@@ -81,7 +81,7 @@
   --scalar-scrollbar-color: rgba(0, 0, 0, 0.18);
   --scalar-button-1: rgba(0, 0, 0, 1);
   --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
+  --scalar-button-1-color: #fff;
 
   --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
   --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 0.5px;

@@ -11,6 +11,51 @@
   display: none;
 }
 
+.w-1\/2 {
+  width: 50%;
+}
+
+/* Component Preview Styles */
+
+.scalar-component-preview {
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--scalar-block-spacing);
+}
+
+.scalar-component-preview > *,
+.scalar-component-preview > * > .t-editor__code {
+  margin: 0 !important;
+}
+
+.scalar-component-preview:has(+ .t-editor__code-group),
+.scalar-component-preview:has(+ .t-editor__code-container) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.scalar-component-preview + .t-editor__code-group,
+.scalar-component-preview + .t-editor__code-container {
+  margin-top: 0;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-top: 0;
+  border-radius: var(--scalar-radius);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+
+  background: color-mix(in srgb, var(--scalar-background-1), var(--scalar-background-2));
+}
+
+.scalar-component-preview + .t-editor__code-group .t-editor__code,
+.scalar-component-preview + .t-editor__code-container .t-editor__code {
+  margin-top: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
 /* TODO: Remove these styles after cleaning up the docs pages */
 
 /* Make adjacent buttons have secondary styles*/

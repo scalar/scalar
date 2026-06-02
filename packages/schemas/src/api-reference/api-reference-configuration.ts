@@ -1,3 +1,4 @@
+import { DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
 import {
   any,
   array,
@@ -49,6 +50,10 @@ export const apiReferenceConfigurationSchema = intersection([
     hideModels: boolean({
       default: false,
       typeComment: 'Whether to show models in the sidebar, search, and content.',
+    }),
+    modelsSectionLabel: optional(union([literal('Models'), literal('Schemas'), string()]), {
+      typeComment:
+        'Label for the components.schemas section in the sidebar, content, and search. Use `Schemas` for OpenAPI terminology.',
     }),
     documentDownloadType: union(
       [literal('both'), literal('yaml'), literal('json'), literal('direct'), literal('none')],
@@ -181,6 +186,9 @@ export const apiReferenceConfigurationSchema = intersection([
     generateWebhookSlug: optional(fn<(input: { name: string; method?: string }) => string>(), {
       typeComment: 'Customize the webhook portion of the hash',
     }),
+    setPageTitle: optional(fn<(input: { title: string; document: { title: string; slug: string } }) => string>(), {
+      typeComment: 'Customize the browser tab title for the section currently in view',
+    }),
     redirect: optional(fn<(input: string) => string | null | undefined>(), {
       typeComment:
         'To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState',
@@ -293,6 +301,8 @@ export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => 
     // @ts-expect-error - We're deleting the deprecated attribute
     delete input.showToolbar
   }
+
+  input.modelsSectionLabel ??= DEFAULT_MODELS_SECTION_LABEL
 
   return input
 }

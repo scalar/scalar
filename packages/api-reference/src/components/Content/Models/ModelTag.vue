@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import {
+  DEFAULT_MODELS_SECTION_LABEL,
+  type ModelsSectionLabel,
+} from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import { Section, SectionHeader } from '@/components/Section'
@@ -7,24 +11,25 @@ import SectionContainerAccordion from '@/components/Section/SectionContainerAcco
 import SectionHeaderTag from '@/components/Section/SectionHeaderTag.vue'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
 
-defineProps<{
+const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
   id: string
   isCollapsed: boolean
   eventBus: WorkspaceEventBus
   layout: 'classic' | 'modern'
+  modelsSectionLabel?: ModelsSectionLabel
 }>()
 </script>
 <template>
   <!-- Modern Layout Model Container -->
-  <SectionContainer
-    v-if="layout === 'modern'"
-    id="model">
+  <SectionContainer v-if="layout === 'modern'">
     <Section
       :id="id"
-      aria-label="Models"
+      :aria-label="modelsSectionLabel"
       @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">
       <SectionHeader>
-        <SectionHeaderTag :level="2"> Models </SectionHeaderTag>
+        <SectionHeaderTag :level="2">
+          {{ modelsSectionLabel }}
+        </SectionHeaderTag>
       </SectionHeader>
       <template v-if="!isCollapsed">
         <slot />
@@ -41,14 +46,14 @@ defineProps<{
   <!-- Classic Layout Model Container -->
   <SectionContainerAccordion
     v-else
-    aria-label="Models"
+    :aria-label="modelsSectionLabel"
     class="pb-12"
     :modelValue="!isCollapsed"
     @update:modelValue="
       () => eventBus?.emit('toggle:nav-item', { id, open: isCollapsed })
     ">
     <template #title>
-      <SectionHeader :level="2">Models</SectionHeader>
+      <SectionHeader :level="2">{{ modelsSectionLabel }}</SectionHeader>
     </template>
     <slot />
   </SectionContainerAccordion>

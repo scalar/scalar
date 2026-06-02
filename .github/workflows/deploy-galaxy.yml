@@ -35,6 +35,12 @@ jobs:
     # Setting environment here (not at the workflow level) is what grants access
     # to the environment-scoped vars.* and secrets.* for staging or production.
     environment: ${{ inputs.environment }}
+    env:
+      # Baked into the worker bundle by the galaxy build script. Production
+      # release deploys load the published @scalar/api-reference bundle from the
+      # jsDelivr CDN; staging and PR previews load the branch build that the
+      # build script copies into the deploy output.
+      GALAXY_IS_PRODUCTION: ${{ inputs.environment == 'production-galaxy-com' }}
     timeout-minutes: 15
     outputs:
       preview-url: ${{ steps.set-output.outputs.url }}

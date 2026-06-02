@@ -2,7 +2,7 @@
 import { renderApiReference } from '@scalar/client-side-rendering'
 import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
-import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
+import type { FastifyBaseLogger, FastifySchema, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
 
@@ -21,7 +21,10 @@ const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
  *
  * @see https://github.com/fastify/fastify-swagger#hide-a-route
  */
-const schemaToHideRoute = {
+// Typed as FastifySchema so route inference uses FastifySchema (not the narrow
+// literal { hide: boolean }), keeping hook handler types compatible across
+// Fastify v4 and v5 even when @fastify/swagger augments FastifySchema with `hide`.
+const schemaToHideRoute: FastifySchema = {
   hide: true,
 }
 

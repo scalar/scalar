@@ -623,6 +623,20 @@ Whether models (`components.schemas` or `definitions`) should be shown in the si
 }
 ```
 
+#### modelsSectionLabel
+
+**Type:** `'Models' | 'Schemas' | string`
+
+Label for the `components.schemas` section in the sidebar, main content, and search. Use `Schemas` for OpenAPI terminology; `Models` is the default for backward compatibility. Any custom string is supported.
+
+**Default:** `'Models'`
+
+```javascript
+{
+  modelsSectionLabel: 'Schemas'
+}
+```
+
 #### hideSearch
 
 **Type:** `boolean`
@@ -1217,6 +1231,21 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 {
   generateWebhookSlug: (webhook) =>
     `v1-${webhook.method?.toLowerCase()}-${webhook.name}`
+}
+```
+
+#### setPageTitle
+
+**Type:** `(input: { title: string; document: { title: string; slug: string } }) => string`
+
+Customize the browser tab title. The function is called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents — and receives the title of the section currently in view together with the active OpenAPI document.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
+
+```js
+// Results in a title like: Scalar Galaxy – Create a user
+{
+  setPageTitle: ({ title, document }) => `${document.title} – ${title}`
 }
 ```
 

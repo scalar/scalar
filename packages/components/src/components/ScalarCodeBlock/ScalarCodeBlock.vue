@@ -138,6 +138,11 @@ const { cx } = useBindCx()
 @reference '../../style.css';
 @import '@scalar/code-highlight/css/code.css';
 
+/** Disable font ligatures so code renders with literal characters */
+.scalar-code-block pre {
+  font-variant-ligatures: none;
+}
+
 /** Make the copy button label backdrop match the background */
 .scalar-code-block.bg-b-1 .scalar-code-copy-backdrop {
   @apply bg-b-1;

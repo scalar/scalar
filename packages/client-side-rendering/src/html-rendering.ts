@@ -2,7 +2,8 @@ import type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration } from '@
 
 export type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration }
 
-const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+/** Default CDN URL for the @scalar/api-reference standalone bundle. */
+export const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
 
 /**
  * Escape HTML special characters in user-provided strings.
@@ -157,8 +158,10 @@ export function getScriptTags(configuration: Record<string, unknown>, cdn?: stri
 /**
  * The configuration to pass to the @scalar/api-reference package.
  */
-export const getConfiguration = (givenConfiguration: Record<string, unknown>): Record<string, unknown> => {
-  const configuration = { ...givenConfiguration }
+export const getConfiguration = (
+  givenConfiguration: Partial<HtmlRenderingConfiguration> | Record<string, unknown>,
+): Record<string, unknown> => {
+  const configuration = { ...givenConfiguration } as Record<string, unknown>
 
   // Execute content if it's a function
   if (typeof configuration.content === 'function') {

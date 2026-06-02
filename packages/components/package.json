@@ -10,14 +10,14 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.26.0",
+  "version": "0.26.1",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "pnpm typegen:icons && vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:storybook": "storybook build",
-    "build:styles": "cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
+    "build:styles": "shx cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "build:watch": "concurrently \"vite build --watch\" \"vue-tsc --watch -p tsconfig.build.json\" \"tsc-alias -p tsconfig.build.json --watch\"",
     "clean:snapshots": "shx rm -rf \"**/snapshots\"",
     "dev": "storybook dev -p 5100 --ci",

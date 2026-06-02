@@ -1,5 +1,13 @@
 # @scalar/client-side-rendering
 
+## 0.1.13
+
+### Patch Changes
+
+- [#9326](https://github.com/scalar/scalar/pull/9326): Export `DEFAULT_CDN` so consumers (e.g. `@scalar/astro`) can share the canonical fallback URL instead of duplicating it. Also widens `getConfiguration` to accept `Partial<HtmlRenderingConfiguration>`, removing the need for a `Record<string, unknown>` cast at the boundary.
+
+## 0.1.12
+
 ## 0.1.11
 
 ## 0.1.10

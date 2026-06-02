@@ -1,0 +1,100 @@
+import Preview from './Preview.mdx'
+
+# Code Blocks
+
+Code blocks render syntax-highlighted snippets with a copy button and an optional title. In Markdown they're written as standard fenced code blocks — Scalar reads extra options from the info string after the language name. In MDX, the same fenced syntax works directly.
+
+## Properties
+
+Properties are passed through the info string on the opening fence. The first space-separated token (before any `name="value"` pair) is the title.
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `lang` | `string` | _required_ | The language identifier directly after the opening fence (e.g. `js`, `python`). |
+| `title` | `string` | — | A filename or label shown in the code block header. The first bare token after `lang` is treated as the title. |
+| `lineNumbers` | `boolean` | `false` | Show line numbers. Also accepted as `line-numbers` or `lines`. |
+| `lineNumberStart` | `number` | `1` | First line number when `lineNumbers` is enabled. |
+| `highlight` | `string` | — | Comma-separated line numbers or ranges to highlight (e.g. `1,3-5`). |
+| `focus` | `string` | — | Lines to focus while dimming the rest. |
+| `added` | `string` | — | Lines marked as added (diff-style green). |
+| `removed` | `string` | — | Lines marked as removed (diff-style red). |
+
+## Examples
+
+### Basic Code Block
+
+<Preview>
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`
+}
+```
+</Preview>
+
+````md
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`
+}
+```
+````
+
+### With a Title
+
+<Preview>
+```javascript greet.js
+function greet(name) {
+  return `Hello, ${name}!`
+}
+```
+</Preview>
+
+````md
+```javascript greet.js
+function greet(name) {
+  return `Hello, ${name}!`
+}
+```
+````
+
+### Line Numbers and Highlighting
+
+<Preview>
+```typescript example.ts lineNumbers highlight="2-3"
+function greet(name: string): string {
+  const greeting = `Hello, ${name}!`
+  return greeting
+}
+```
+</Preview>
+
+````md
+```typescript example.ts lineNumbers highlight="2-3"
+function greet(name: string): string {
+  const greeting = `Hello, ${name}!`
+  return greeting
+}
+```
+````
+
+### Diff Style (Added and Removed Lines)
+
+<Preview>
+```diff config.json added="3" removed="2"
+{
+  "version": "1.0.0",
+  "version": "2.0.0",
+  "name": "scalar"
+}
+```
+</Preview>
+
+````md
+```diff config.json added="3" removed="2"
+{
+  "version": "1.0.0",
+  "version": "2.0.0",
+  "name": "scalar"
+}
+```
+````

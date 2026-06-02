@@ -1,5 +1,17 @@
 # @scalar/scripts
 
+## 0.4.19
+
+### Patch Changes
+
+- [#9338](https://github.com/scalar/scalar/pull/9338): perf: warm up the request scripts sandbox on mount when scripts are present, so the first request no longer pays the sandbox cold-start cost
+
+## 0.4.18
+
+### Patch Changes
+
+- [#9332](https://github.com/scalar/scalar/pull/9332): fix: running scripts on electron
+
 ## 0.4.17
 
 ## 0.4.16

@@ -361,6 +361,12 @@ export type BaseConfiguration = {
   externalUrls: ExternalUrls
 }
 
+/** User-facing label for the components.schemas section in the sidebar, content, and search. */
+export type ModelsSectionLabel = 'Models' | 'Schemas' | (string & {})
+
+/** Default label for the components.schemas section. Preserves the historical `Models` wording and the `#models` hash. */
+export const DEFAULT_MODELS_SECTION_LABEL: ModelsSectionLabel = 'Models'
+
 type ExtendedConfiguration = {
   /** The layout to use for the references */
   layout: 'modern' | 'classic'
@@ -386,6 +392,8 @@ type ExtendedConfiguration = {
   isLoading: boolean
   /** Whether to show models in the sidebar, search, and content. */
   hideModels: boolean
+  /** Label for the components.schemas section (`Models`, `Schemas`, or any custom string). */
+  modelsSectionLabel?: ModelsSectionLabel
   /** Sets the file type of the document to download, set to `none` to hide the download button */
   documentDownloadType: 'both' | 'yaml' | 'json' | 'direct' | 'none'
   /** @deprecated Use `documentDownloadType: 'none'` instead */
@@ -454,6 +462,13 @@ type ExtendedConfiguration = {
   generateOperationSlug?: (input: { path: string; operationId?: string; method: string; summary?: string }) => string
   /** Customize the webhook portion of the hash */
   generateWebhookSlug?: (input: { name: string; method?: string }) => string
+  /**
+   * Customize the browser tab title.
+   *
+   * Called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents.
+   * Receives the title of the section currently in view and the active OpenAPI document.
+   */
+  setPageTitle?: (input: { title: string; document: { title: string; slug: string } }) => string
   /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
   redirect?: (input: string) => string | null | undefined
   /** Whether to include default fonts */

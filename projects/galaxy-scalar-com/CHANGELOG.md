@@ -1,5 +1,11 @@
 # galaxy-scalar-com
 
+## 0.2.23
+
+### Patch Changes
+
+- [#9322](https://github.com/scalar/scalar/pull/9322): Render staging and PR-preview deployments with the `@scalar/api-reference` bundle built from the current branch, so reference UI changes can be reviewed before they are released. Production keeps loading the published bundle from the jsDelivr CDN.
+
 ## 0.2.22
 
 ### Patch Changes

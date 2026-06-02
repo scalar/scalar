@@ -8,6 +8,7 @@ import {
   getSchemaParamsFromId,
   makeUrlFromId,
   matchesBasePath,
+  redirectLegacyModelUrl,
   sanitizeBasePath,
 } from './id-routing'
 
@@ -824,5 +825,126 @@ describe('makeUrlFromId', () => {
   it('handles id with only slashes in multi-document mode', () => {
     const result = makeUrlFromId('///', undefined, true)
     expect(result?.hash).toBe('#///')
+  })
+})
+
+describe('redirectLegacyModelUrl', () => {
+  describe('multi-document hash routing', () => {
+    it('rewrites a top-level legacy hash', () => {
+      const result = redirectLegacyModelUrl('https://example.com/#default/model/User', 'models', 'default', true)
+      expect(result?.hash).toBe('#default/models/User')
+    })
+
+    it('rewrites a tagged legacy hash', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/#default/tag/pets/model/Pet',
+        'models',
+        'default',
+        true,
+      )
+      expect(result?.hash).toBe('#default/tag/pets/models/Pet')
+    })
+
+    it('rewrites a tag-group legacy hash', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/#default/tag-group/0/tag/pets/model/Pet',
+        'models',
+        'default',
+        true,
+      )
+      expect(result?.hash).toBe('#default/tag-group/0/tag/pets/models/Pet')
+    })
+
+    it('uses a custom slug when the label is not the default', () => {
+      const result = redirectLegacyModelUrl('https://example.com/#default/model/User', 'schemas', 'default', true)
+      expect(result?.hash).toBe('#default/schemas/User')
+    })
+
+    it('preserves schema sub-paths after the model name', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/#default/model/User.body.id',
+        'models',
+        'default',
+        true,
+      )
+      expect(result?.hash).toBe('#default/models/User.body.id')
+    })
+
+    it('returns null when the URL has no legacy segment', () => {
+      expect(redirectLegacyModelUrl('https://example.com/#default/models/User', 'models', 'default', true)).toBeNull()
+      expect(redirectLegacyModelUrl('https://example.com/#default/tag/pets', 'models', 'default', true)).toBeNull()
+    })
+
+    it('does not touch the section-level `/models` hash', () => {
+      expect(redirectLegacyModelUrl('https://example.com/#default/models', 'models', 'default', true)).toBeNull()
+    })
+
+    it('leaves operation paths whose raw path contains `/model/` untouched', () => {
+      // POST /model/train — common AI/ML endpoint
+      expect(
+        redirectLegacyModelUrl('https://example.com/#default/POST/model/train', 'models', 'default', true),
+      ).toBeNull()
+      // POST /v1/model/train — `/model/` deeper in the path
+      expect(
+        redirectLegacyModelUrl('https://example.com/#default/POST/v1/model/train', 'models', 'default', true),
+      ).toBeNull()
+    })
+
+    it('leaves operations under a tag named "model" untouched', () => {
+      expect(
+        redirectLegacyModelUrl('https://example.com/#default/tag/model/POST/foo', 'models', 'default', true),
+      ).toBeNull()
+    })
+  })
+
+  describe('single-document hash routing', () => {
+    it('rewrites a top-level legacy hash', () => {
+      const result = redirectLegacyModelUrl('https://example.com/#model/User', 'models', 'default', false)
+      expect(result?.hash).toBe('#models/User')
+    })
+
+    it('rewrites a legacy hash that still includes the doc slug', () => {
+      // Old bookmarks (or hand-typed URLs) sometimes include the doc slug even in single-doc mode.
+      const result = redirectLegacyModelUrl('https://example.com/#default/model/User', 'models', 'default', false)
+      expect(result?.hash).toBe('#default/models/User')
+    })
+
+    it('returns null for tagged legacy hashes (ambiguous with tag named "model")', () => {
+      // We cannot tell `#tag/<slug>/model/<name>` apart from an operation under a tag named "model"
+      // once the document slug is stripped, so we leave these alone.
+      expect(redirectLegacyModelUrl('https://example.com/#tag/pets/model/Pet', 'models', 'default', false)).toBeNull()
+    })
+
+    it('leaves operation paths containing `/model/` untouched', () => {
+      expect(redirectLegacyModelUrl('https://example.com/#POST/model/train', 'models', 'default', false)).toBeNull()
+    })
+  })
+
+  describe('path routing', () => {
+    it('rewrites a legacy pathname in multi-doc mode', () => {
+      const result = redirectLegacyModelUrl(
+        'https://example.com/docs/default/model/User',
+        'models',
+        'default',
+        true,
+        '/docs',
+      )
+      expect(result?.pathname).toBe('/docs/default/models/User')
+    })
+
+    it('rewrites a legacy pathname in single-doc mode', () => {
+      const result = redirectLegacyModelUrl('https://example.com/docs/model/User', 'models', 'default', false, '/docs')
+      expect(result?.pathname).toBe('/docs/models/User')
+    })
+
+    it('leaves operation pathnames untouched', () => {
+      expect(
+        redirectLegacyModelUrl('https://example.com/docs/default/POST/model/train', 'models', 'default', true, '/docs'),
+      ).toBeNull()
+    })
+  })
+
+  it('returns null when the document slug is empty', () => {
+    expect(redirectLegacyModelUrl('https://example.com/#default/model/User', 'models', '', true)).toBeNull()
   })
 })

@@ -39,6 +39,9 @@ export const REF_DEFINITIONS = {
   // Navigation schemas
   TraversedDescriptionObject: 'TraversedDescriptionObject',
   TraversedOperationObject: 'TraversedOperationObject',
+  TraversedAsyncApiOperationObject: 'TraversedAsyncApiOperationObject',
+  TraversedAsyncApiChannelObject: 'TraversedAsyncApiChannelObject',
+  TraversedAsyncApiMessageObject: 'TraversedAsyncApiMessageObject',
   TraversedSchemaObject: 'TraversedSchemaObject',
   TraversedWebhookObject: 'TraversedWebhookObject',
   TraversedTagObject: 'TraversedTagObject',
