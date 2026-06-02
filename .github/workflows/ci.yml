@@ -973,14 +973,13 @@ jobs:
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
 
-  # Deploy galaxy-scalar-com to Cloudflare Pages. On PRs it deploys a preview
-  # whenever any package — or galaxy itself — changed, so the branch-built
-  # @scalar/api-reference bundle galaxy serves can be reviewed; it also runs on
-  # every main push. Waits for npm-publish so it knows whether this commit
-  # released a dependency (-> production) or not (-> staging). `!cancelled()`
-  # lets it proceed when npm-publish is skipped (PRs); the explicit
-  # build/check-changes success gates are re-added because `!cancelled()`
-  # overrides the implicit `success()` check on `needs`.
+  # Deploy galaxy-scalar-com to Cloudflare Pages staging. On PRs it deploys a
+  # preview whenever any package — or galaxy itself — changed, so the
+  # branch-built @scalar/api-reference bundle galaxy serves can be reviewed; it
+  # also runs on every main push. `!cancelled()` lets it proceed when
+  # npm-publish is skipped (PRs); the explicit build/check-changes success gates
+  # are re-added because `!cancelled()` overrides the implicit `success()`
+  # check on `needs`.
   deploy-galaxy:
     if: |
       !cancelled() &&
@@ -1002,12 +1001,30 @@ jobs:
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     uses: ./.github/workflows/deploy-galaxy.yml
     with:
-      # Release commits (npm publish) target the production-galaxy-com
-      # environment — galaxy's dependencies ship with every release. Ordinary
-      # merges to main and PR previews target staging-galaxy-com.
-      environment: ${{ needs.npm-publish.outputs.published == 'true' && 'production-galaxy-com' || 'staging-galaxy-com' }}
+      environment: staging-galaxy-com
       pr-number: ${{ github.event.pull_request.number }}
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
+    secrets: inherit
+
+  # Release commits also deploy galaxy-scalar-com to production. This runs in
+  # addition to the staging deployment above so release SHAs land in both
+  # environments.
+  deploy-galaxy-production:
+    if: |
+      !cancelled() &&
+      needs.build.result == 'success' &&
+      needs.check-changes.result == 'success' &&
+      needs.npm-publish.result != 'failure' &&
+      needs.npm-publish.outputs.published == 'true' &&
+      github.ref == 'refs/heads/main'
+    needs: [build, check-changes, npm-publish]
+    concurrency:
+      group: deploy-galaxy-production-${{ github.ref }}
+      cancel-in-progress: false
+    uses: ./.github/workflows/deploy-galaxy.yml
+    with:
+      environment: production-galaxy-com
+      sha: ${{ github.sha }}
     secrets: inherit
 
   todesktop-build:
