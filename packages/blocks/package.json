@@ -23,13 +23,14 @@
   },
   "scripts": {
     "build": "vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json",
-    "build:styles": "shx cp -r src/styles dist",
+    "build:styles": "shx cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "dev": "vite --config playground/vite.config.ts",
     "test": "vitest",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "exports": {
+    "./style.css": "./dist/style.css",
     "./tailwind.config.css": "./dist/styles/tailwind.config.css",
     "./*.css": {
       "import": "./dist/*.css",
@@ -64,6 +65,7 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",

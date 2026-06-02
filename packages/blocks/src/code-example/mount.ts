@@ -1,3 +1,4 @@
+import { ScalarTeleportRoot } from '@scalar/components/teleport'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -96,7 +97,18 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
     },
   })
 
-  const app = createApp(() => h('div', { class: getWrapperClass(options.darkMode) }, h(CodeExample, props)))
+  // Render the operation path in the header by default. The reference renders
+  // this via the `#header` slot too, so the standalone block matches its look.
+  const renderHeader = () => h('span', { class: 'font-code text-c-2 min-w-0 truncate' }, options.path)
+
+  // Wrap the block in its own teleport root so floating UI (the client picker
+  // popover) renders inside the themed `.scalar-app` wrapper instead of escaping
+  // to `body`, where it would miss the color-mode variables and lose its styling.
+  const app = createApp(() =>
+    h('div', { class: getWrapperClass(options.darkMode) }, [
+      h(ScalarTeleportRoot, null, { default: () => h(CodeExample, props, { header: renderHeader }) }),
+    ]),
+  )
 
   app.mount(element)
 
