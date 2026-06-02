@@ -1,5 +1,19 @@
 # @scalar/schemas
 
+## 0.3.3
+
+### Patch Changes
+
+- [#9309](https://github.com/scalar/scalar/pull/9309): feat: add `modelsSectionLabel` configuration (`'Models' | 'Schemas' | string`) to use OpenAPI-style Schemas terminology in the sidebar, content, and search.
+- [#9383](https://github.com/scalar/scalar/pull/9383): fix: preserve multi-type schema arrays when coercing schemas with validation keywords
+- [#7618](https://github.com/scalar/scalar/pull/7618): feat(api-reference): add `setPageTitle` to customize the browser tab title
+
+  Pass a `setPageTitle` function to control the browser tab title. It is called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents — and receives the section title and the active OpenAPI document:
+
+  ```js
+  setPageTitle: ({ title, document }) => `${document.title} – ${title}`
+  ```
+
 ## 0.3.2
 
 ### Patch Changes

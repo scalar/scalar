@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 3.9.0
+
+### Minor Changes
+
+- [#9341](https://github.com/scalar/scalar/pull/9341): feat: add WebSocket session transport and plugin hooks for AsyncAPI
+
+  Add WebSocketSession with connect, send, and close helpers, plus connectWebSocket orchestration using Result-based errors. Extend ClientPlugin with optional webSocketHooks (beforeConnect, onWebSocketMessage, onWebSocketClose).
+
+### Patch Changes
+
+- [#9310](https://github.com/scalar/scalar/pull/9310): Add an ESM standalone build (`dist/browser/standalone.esm.js`) alongside the existing UMD bundle. The new bundle works as a side-effect script (registers `window.Scalar.createApiReference` and reads `data-*` configuration) and exports `createApiReference` for direct ESM consumers. It is fully minified through Rolldown's native minifier and uses code splitting so heavy features load asynchronously after first paint:
+  - The API client modal (request editor, response viewer, CodeMirror) is now `await import`'d inside `onMounted` instead of statically imported, moving ~265 KB into a `chunks/modal-*.js` chunk that loads in the background.
+  - The Agent Scalar chat interface (already wrapped in `defineAsyncComponent`) becomes a real `chunks/AgentScalarChatInterface-*.js` chunk (~200 KB), loaded only when the agent is enabled.
+  - The 84 per-icon dynamic imports from `@scalar/icons/library` are coalesced into a single `chunks/icons-*.js`.
+
+  Net effect: initial sync load drops from ~3.32 MB (UMD) to ~2.73 MB (ESM) — a ~570 KB improvement — while total bundle size shrinks by ~140 KB.
+
+  Also adds an `@scalar/api-client/modal/map-hidden-clients-config` deep export so consumers that only need the lightweight client-list helper don't pull the full modal barrel into their static graph.
+
+- [#9323](https://github.com/scalar/scalar/pull/9323): Fixed `x-codeSamples` entries that share a `lang`: multiple code samples with the same language but different labels (e.g. separate sync and async examples) were all marked selected and showed the same snippet. Each sample is now keyed by its position, so every one stays individually selectable.
+- [#9338](https://github.com/scalar/scalar/pull/9338): perf: warm up the request scripts sandbox on mount when scripts are present, so the first request no longer pays the sandbox cold-start cost
+
 ## 3.8.5
 
 ### Patch Changes

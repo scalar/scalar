@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.26.1
+
+### Patch Changes
+
+- [#9381](https://github.com/scalar/scalar/pull/9381): Disable font ligatures in ScalarCodeBlock so code renders with literal characters
+
 ## 0.26.0
 
 ### Minor Changes
