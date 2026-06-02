@@ -2,7 +2,10 @@ name: CI
 
 # This workflow runs on:
 # 1. Push events to the main branch
-# 2. Pull request events
+# 2. Pull request events — including the "chore: release" PR opened by
+#    changesets/action. That PR is created with a GitHub App token (see the
+#    npm-publish job) instead of the default GITHUB_TOKEN, so GitHub does not
+#    suppress its workflow events and CI runs on it like any other PR.
 on:
   push:
     branches:
@@ -486,7 +489,7 @@ jobs:
           report-tag: test-scalar-app-e2e
 
   test-component-snapshots:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
@@ -533,7 +536,7 @@ jobs:
           report-tag: test-components-snapshots
 
   test-cdn-snapshots:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
     container:
@@ -677,10 +680,25 @@ jobs:
       # when no public packages were published in the same commit.
       scalar_app_released: ${{ steps.scalar-app-release.outputs.released }}
     steps:
+      # Mint a short-lived GitHub App token so the "chore: release" PR is opened
+      # by our app instead of the default GITHUB_TOKEN. Pull requests created with
+      # GITHUB_TOKEN do not trigger workflow events, which is why the release PR
+      # used to get no CI; an app token lifts that restriction. The credentials
+      # live in the production-npm environment so they inherit its branch
+      # protection rules.
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
+          # Persist the app token so the branch push that opens the release PR is
+          # attributed to the app, which is what lets CI run on that PR.
+          token: ${{ steps.app-token.outputs.token }}
       - name: Detect scalar-app version bump
         id: scalar-app-release
         run: |
@@ -723,7 +741,9 @@ jobs:
           # The command to use to build and publish packages.
           publish: 'pnpm -r publish --access public --no-git-checks'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The app token (not GITHUB_TOKEN) is what makes the release PR
+          # trigger CI — see the "Generate GitHub App token" step above.
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new
           # Custom Expiration: 01-01-2100
           # Permissions: Read and Write
