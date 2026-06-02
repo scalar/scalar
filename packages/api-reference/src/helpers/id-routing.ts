@@ -313,7 +313,7 @@ const buildRedirects = ({ modelsSectionSlug, documentSlug, isMultiDocument }: Re
  *
  * Returns the canonicalized URL when a rewrite happens, or null otherwise.
  */
-export const redirectLegacyModelUrl = (
+export const redirectUrl = (
   url: string | URL,
   modelsSectionSlug: string,
   documentSlug: string,

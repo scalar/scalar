@@ -85,7 +85,7 @@ import {
   getIdFromUrl,
   makeUrlFromId,
   matchesBasePath,
-  redirectLegacyModelUrl,
+  redirectUrl,
 } from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
@@ -275,10 +275,10 @@ watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
 
-// Redirect legacy `/model/<name>` URLs to the current section's plural slug
-// so bookmarks from before the slug streamline keep resolving.
+// Rewrite outdated `model/` and `models/` schema URLs to the current models
+// section slug so bookmarks from before the slug changed keep resolving.
 if (typeof window !== 'undefined') {
-  const canonical = redirectLegacyModelUrl(
+  const canonical = redirectUrl(
     window.location.href,
     slugify(
       mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL,
