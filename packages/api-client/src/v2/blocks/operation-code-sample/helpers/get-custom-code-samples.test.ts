@@ -183,7 +183,7 @@ describe('getCustomCodeSamples', () => {
   describe('priority', () => {
     it('prefers x-scalar-examples over everything else', () => {
       const operation: OperationObject = {
-        'x-scalar-examples': { request: { python: 'scalar' } },
+        'x-scalar-examples': [{ lang: 'python', source: 'scalar' }],
         'x-stainless-snippets': { python: 'snippet' },
         'x-stainless-examples': { request: { python: 'stainless' } },
         'x-readme': { 'code-samples': [{ language: 'python', code: 'readme' }] },

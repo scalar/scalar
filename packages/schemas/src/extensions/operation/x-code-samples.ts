@@ -64,7 +64,9 @@ export const XCodeSamples = object(
       record(string(), string(), { typeComment: 'Stainless snippets, source code keyed by language' }),
     ),
     'x-stainless-examples': optional(XLanguageExamples),
-    'x-scalar-examples': optional(XLanguageExamples),
+    'x-scalar-examples': optional(
+      array(XCodeSample, { typeComment: 'Scalar code samples (same shape as x-codeSamples)' }),
+    ),
   },
   {
     typeName: 'XCodeSamples',

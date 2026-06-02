@@ -42,7 +42,7 @@ export const XCodeSamplesSchema = Type.Object({
   'x-readme': Type.Optional(XReadmeSchema),
   'x-stainless-snippets': Type.Optional(Type.Record(Type.String(), Type.String())),
   'x-stainless-examples': Type.Optional(XLanguageExamplesSchema),
-  'x-scalar-examples': Type.Optional(XLanguageExamplesSchema),
+  'x-scalar-examples': Type.Optional(Type.Array(XCodeSampleSchema)),
 })
 
 export type XCodeSample = {
@@ -104,7 +104,7 @@ export type XCodeSamples = {
   }
   'x-stainless-snippets'?: Record<string, string>
   'x-stainless-examples'?: XLanguageExample | XLanguageExample[]
-  'x-scalar-examples'?: XLanguageExample | XLanguageExample[]
+  'x-scalar-examples'?: XCodeSample[]
 }
 
 export const XCodeSamples = object({
@@ -114,5 +114,5 @@ export const XCodeSamples = object({
   'x-readme': optional(XReadme),
   'x-stainless-snippets': optional(record(string(), string())),
   'x-stainless-examples': optional(XLanguageExamples),
-  'x-scalar-examples': optional(XLanguageExamples),
+  'x-scalar-examples': optional(array(XCodeSample)),
 })

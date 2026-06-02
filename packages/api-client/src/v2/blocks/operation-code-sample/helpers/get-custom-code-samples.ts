@@ -51,7 +51,7 @@ const fromReadmeSamples = (samples: XReadmeCodeSample[] | undefined): XCodeSampl
  * @returns An array of custom code samples which exist in the operation
  */
 export const getCustomCodeSamples = (operation: OperationObject): XCodeSample[] => {
-  const scalarExamples = fromLanguageExamples(operation['x-scalar-examples'])
+  const scalarExamples = operation['x-scalar-examples'] ?? []
   if (scalarExamples.length) {
     return scalarExamples
   }
