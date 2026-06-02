@@ -295,7 +295,7 @@ jobs:
             | sed '/^[[:space:]]*$/d')
           warnings=$(printf '%s\n' "$clean" | grep -c '^Severity: Warning' || true)
           {
-            echo '### 🪐 Galaxy document lint'
+            echo '**Scalar Galaxy Lint**'
             echo ''
             if [ "${{ steps.lint.outputs.exit_code }}" != '0' ]; then
               echo '❌ Linting failed.'
