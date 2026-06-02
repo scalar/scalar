@@ -172,6 +172,45 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             withImages />
         </div>
 
+        <!--
+          Parameters, request body, responses and callbacks.
+
+          This block is kept before the examples in source order on purpose: the
+          request body schema (via SchemaComposition) seeds the shared
+          requestBodyCompositionSelection on mount, which drives the
+          OperationCodeSample's :key. Mounting the details first means the code
+          sample reads the final key on its first render and is never remounted —
+          a remount would reset the selected client and tear down an open client
+          picker. The grid (see grid-template-areas below) still paints the
+          examples on the right, independent of this source order.
+        -->
+        <div class="operation-details">
+          <OperationParameters
+            v-model:selectedContentType="selectedRequestBodyContentType"
+            :breadcrumb="[id]"
+            :eventBus
+            :options
+            :parameters="operation.parameters"
+            :requestBody="getResolvedRef(operation.requestBody)" />
+          <OperationResponses
+            :breadcrumb="[id]"
+            :collapsableItems="!options.expandAllResponses"
+            :eventBus
+            :options
+            :responses="operation.responses" />
+
+          <!-- Callbacks -->
+          <ScalarErrorBoundary>
+            <Callbacks
+              v-if="operation.callbacks"
+              :callbacks="operation.callbacks"
+              class="mt-6"
+              :eventBus
+              :options
+              :path />
+          </ScalarErrorBoundary>
+        </div>
+
         <!-- Example request and responses -->
         <div class="examples">
           <!-- External Docs -->
@@ -228,34 +267,6 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
               v-if="operation.responses"
               :responses="operation.responses"
               style="margin-top: 12px" />
-          </ScalarErrorBoundary>
-        </div>
-
-        <!-- Parameters, request body, responses and callbacks -->
-        <div class="operation-details">
-          <OperationParameters
-            v-model:selectedContentType="selectedRequestBodyContentType"
-            :breadcrumb="[id]"
-            :eventBus
-            :options
-            :parameters="operation.parameters"
-            :requestBody="getResolvedRef(operation.requestBody)" />
-          <OperationResponses
-            :breadcrumb="[id]"
-            :collapsableItems="!options.expandAllResponses"
-            :eventBus
-            :options
-            :responses="operation.responses" />
-
-          <!-- Callbacks -->
-          <ScalarErrorBoundary>
-            <Callbacks
-              v-if="operation.callbacks"
-              :callbacks="operation.callbacks"
-              class="mt-6"
-              :eventBus
-              :options
-              :path />
           </ScalarErrorBoundary>
         </div>
       </div>
