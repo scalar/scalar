@@ -78,10 +78,10 @@ import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import {
+  createRouting,
+  getDocumentSlugFromUrl,
   getIdFromUrl,
   makeUrlFromId,
-  matchesBasePath,
-  redirectLegacyModelUrl,
 } from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
@@ -205,12 +205,10 @@ if (typeof window !== 'undefined') {
     (c) => c.config.pathRouting?.basePath,
   )
 
-  const initialId = getIdFromUrl(
-    url,
-    basePaths.find((p) => (p ? matchesBasePath(url, p) : false)),
-    isMultiDocument.value ? undefined : activeSlug.value,
-  )
-  const documentSlug = initialId.split('/')[0]
+  const documentSlug = getDocumentSlugFromUrl(url, basePaths, {
+    isMultiDocument: isMultiDocument.value,
+    activeSlug: activeSlug.value,
+  })
 
   if (documentSlug && configList.value[documentSlug]) {
     activeSlug.value = documentSlug
@@ -251,6 +249,24 @@ const mergedConfig = computed<ApiReferenceConfiguration>(() => {
 /** Convenience break out var to determine which routing mode we are using */
 const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
 
+/** Slug of the models section, used to redirect legacy `model/` bookmarks */
+const modelsSectionSlug = computed(() =>
+  slugify(
+    mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL,
+  ),
+)
+
+/**
+ * In-house router for the active document: translates between the address bar and navigation ids
+ * and owns the history writes. Scrolling and intersection stay with this component.
+ */
+const routing = createRouting({
+  basePath: () => basePath.value,
+  isMultiDocument: () => isMultiDocument.value,
+  documentSlug: () => activeSlug.value,
+  modelsSectionSlug: () => modelsSectionSlug.value,
+})
+
 const themeStyle = computed(() =>
   getThemeStyles(mergedConfig.value.theme, {
     fonts: mergedConfig.value.withDefaultFonts,
@@ -274,15 +290,7 @@ watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 // Redirect legacy `/model/<name>` URLs to the current section's plural slug
 // so bookmarks from before the slug streamline keep resolving.
 if (typeof window !== 'undefined') {
-  const canonical = redirectLegacyModelUrl(
-    window.location.href,
-    slugify(
-      mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL,
-    ),
-    activeSlug.value,
-    isMultiDocument.value,
-    mergedConfig.value.pathRouting?.basePath,
-  )
+  const canonical = routing.redirectLegacy(window.location.href)
   if (canonical) {
     window.history.replaceState({}, '', canonical.toString())
   }
@@ -784,14 +792,7 @@ onBeforeMount(async () => {
   // We read the client from the client store so we need to set it to the client store
   loadClientFromStorage(clientStore)
 
-  await changeSelectedDocument(
-    activeSlug.value,
-    getIdFromUrl(
-      window.location.href,
-      configList.value[activeSlug.value]?.config.pathRouting?.basePath,
-      isMultiDocument.value ? undefined : activeSlug.value,
-    ),
-  )
+  await changeSelectedDocument(activeSlug.value, routing.getId())
 })
 
 const documentUrl = computed(() => {
@@ -924,14 +925,10 @@ const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
 
   scrollToLazyElement(id)
 
-  const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
-  if (url) {
-    window.history.pushState({}, '', url)
-
+  const url = routing.push(id)
+  if (url && caller === 'sidebar') {
     // Trigger the onSidebarClick callback if the caller is sidebar
-    if (caller === 'sidebar') {
-      mergedConfig.value.onSidebarClick?.(url.toString())
-    }
+    mergedConfig.value.onSidebarClick?.(url.toString())
   }
 
   if (agent.showAgent.value) {
@@ -960,9 +957,8 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
   // Scroll the sidebar to keep the selected element near the top
   scrollSidebarToTop(id)
 
-  const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
-  if (url && workspaceStore.workspace.activeDocument) {
-    window.history.replaceState({}, '', url.toString())
+  if (workspaceStore.workspace.activeDocument) {
+    routing.replace(id)
   }
 })
 
@@ -984,11 +980,7 @@ eventBus.on('toggle:nav-item', ({ id, open }) => {
 })
 
 eventBus.on('copy-url:nav-item', ({ id }) => {
-  const url = makeUrlFromId(
-    id,
-    basePath.value,
-    isMultiDocument.value,
-  )?.toString()
+  const url = routing.getUrl(id)?.toString()
   return url && copyToClipboard(url)
 })
 
@@ -1001,12 +993,7 @@ onBeforeMount(() => {
   addScalarClassesToHeadless()
 
   // When we detect a back button press we scroll to the new id
-  window.addEventListener('popstate', () => {
-    const id = getIdFromUrl(
-      window.location.href,
-      mergedConfig.value.pathRouting?.basePath,
-      isMultiDocument.value ? undefined : activeSlug.value,
-    )
+  routing.onNavigate((id) => {
     if (id) {
       scrollToLazyElement(id)
     }
