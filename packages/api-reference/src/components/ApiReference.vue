@@ -1024,11 +1024,15 @@ const documentStartRef = useTemplateRef<HTMLElement>('documentStartRef')
  * observer are intersecting simultaneously, so the section observer does not re-fire on its own.
  * The `onExit` callback bridges that gap by finding whichever section is at the viewport center
  * and re-emitting the nav event for it.
+ *
+ * We emit the Introduction entry rather than the document slug so this sentinel and the Introduction
+ * section's own intersection observer resolve to the same entry. Otherwise the two race at the top of
+ * the document and the tab title flickers between the section title and the document title.
  */
 useIntersection(
   documentStartRef,
   () => {
-    eventBus.emit('intersecting:nav-item', { id: activeSlug.value })
+    eventBus.emit('intersecting:nav-item', { id: infoSectionId.value })
   },
   {
     onExit: () => {
