@@ -41,8 +41,8 @@ describe('SdkInstallationInstructions', () => {
 
     const tabs = wrapper.findAll('[role="tab"]')
     expect(tabs).toHaveLength(2)
-    expect(tabs[0]?.text()).toBe('Node SDK')
-    expect(tabs[1]?.text()).toBe('Python SDK')
+    expect(tabs[0]?.text()).toBe('Node')
+    expect(tabs[1]?.text()).toBe('Python')
   })
 
   it('skips entries without a source, description or url', () => {
@@ -55,7 +55,7 @@ describe('SdkInstallationInstructions', () => {
 
     const tabs = wrapper.findAll('[role="tab"]')
     expect(tabs).toHaveLength(1)
-    expect(tabs[0]?.text()).toBe('Node SDK')
+    expect(tabs[0]?.text()).toBe('Node')
   })
 
   it('keeps entries that only have a url', () => {
@@ -68,7 +68,7 @@ describe('SdkInstallationInstructions', () => {
 
     const tabs = wrapper.findAll('[role="tab"]')
     expect(tabs).toHaveLength(1)
-    expect(tabs[0]?.text()).toBe('Node SDK')
+    expect(tabs[0]?.text()).toBe('Node')
   })
 
   it('renders a link with a friendly label for the selected SDK url', () => {
