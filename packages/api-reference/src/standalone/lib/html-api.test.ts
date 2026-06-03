@@ -186,6 +186,59 @@ describe('createApiReference', () => {
     expect(consoleWarnSpy).not.toHaveBeenCalled()
   })
 
+  // The standalone build injects all of its CSS into one <style> tag in <head>.
+  // Under SPA-style navigation (Turbo Drive, htmx) the host swaps the DOM without
+  // reloading the window, so these document-level styles would otherwise linger
+  // and bleed into the host app's next page. `destroy()` detaches them and a fresh
+  // mount re-attaches them. We simulate the injected tag since the bundle's
+  // runtime injection does not run in the test environment.
+  const injectStandaloneStyle = () => {
+    const style = document.createElement('style')
+    style.id = 'scalar-style'
+    style.textContent = ':root { --scalar-loaded-api-reference: true; }'
+    document.head.appendChild(style)
+
+    return style
+  }
+
+  it('detaches the injected standalone styles on destroy', () => {
+    injectStandaloneStyle()
+    const config = { _integration: 'html' }
+    const apiReference = createApiReference('#mount-point', coerce(apiReferenceConfigurationSchema, config))
+
+    expect(document.getElementById('scalar-style')).not.toBeNull()
+
+    apiReference.destroy()
+    expect(document.getElementById('scalar-style')).toBeNull()
+  })
+
+  it('re-attaches the injected styles when a new instance mounts', () => {
+    injectStandaloneStyle()
+    const config = { _integration: 'html' }
+
+    createApiReference('#mount-point', coerce(apiReferenceConfigurationSchema, config)).destroy()
+    expect(document.getElementById('scalar-style')).toBeNull()
+
+    createApiReference('#mount-point', coerce(apiReferenceConfigurationSchema, config))
+    expect(document.getElementById('scalar-style')).not.toBeNull()
+  })
+
+  it('keeps the styles until the last instance is destroyed', () => {
+    injectStandaloneStyle()
+    const second = document.createElement('div')
+    document.body.appendChild(second)
+
+    const config = { _integration: 'html' }
+    const first = createApiReference('#mount-point', coerce(apiReferenceConfigurationSchema, config))
+    const last = createApiReference(second, coerce(apiReferenceConfigurationSchema, config))
+
+    first.destroy()
+    expect(document.getElementById('scalar-style')).not.toBeNull()
+
+    last.destroy()
+    expect(document.getElementById('scalar-style')).toBeNull()
+  })
+
   it('allows mounting after creation', async () => {
     const config = { _integration: 'html' }
     const app = createApiReference(coerce(apiReferenceConfigurationSchema, config))
