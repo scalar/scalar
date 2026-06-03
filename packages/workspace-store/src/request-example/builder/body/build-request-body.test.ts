@@ -163,6 +163,176 @@ describe('buildRequestBody', () => {
     expect(result.value[0].value.type).toBe('application/json')
   })
 
+  describe('encoding style/explode', () => {
+    it('breaks a multipart object into deepObject bracket-notation parts', () => {
+      const requestBody = {
+        content: {
+          'multipart/form-data': {
+            encoding: {
+              address: { style: 'deepObject' as const, explode: true },
+            },
+            examples: {
+              default: {
+                value: { address: { street: 'Main', city: 'Berlin' } },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'formdata',
+        value: [
+          { type: 'text', key: 'address[street]', value: 'Main' },
+          { type: 'text', key: 'address[city]', value: 'Berlin' },
+        ],
+      })
+    })
+
+    it('explodes a multipart object into one part per property under style: form', () => {
+      const requestBody = {
+        content: {
+          'multipart/form-data': {
+            encoding: {
+              address: { style: 'form' as const, explode: true },
+            },
+            examples: {
+              default: {
+                value: { address: { street: 'Main', city: 'Berlin' } },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'formdata',
+        value: [
+          { type: 'text', key: 'street', value: 'Main' },
+          { type: 'text', key: 'city', value: 'Berlin' },
+        ],
+      })
+    })
+
+    it('regroups dotted UI rows then serializes them with bracket notation', () => {
+      const requestBody = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'multipart/form-data': {
+            encoding: {
+              address: { style: 'deepObject', explode: true },
+            },
+            schema: {
+              type: 'object',
+              properties: {
+                address: {
+                  type: 'object',
+                  properties: {
+                    street: { type: 'string' },
+                    city: { type: 'string' },
+                  },
+                },
+              },
+            },
+            examples: {
+              default: {
+                value: [
+                  { name: 'address.street', value: 'Main' },
+                  { name: 'address.city', value: 'Berlin' },
+                ],
+              },
+            },
+          },
+        },
+      })
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'formdata',
+        value: [
+          { type: 'text', key: 'address[street]', value: 'Main' },
+          { type: 'text', key: 'address[city]', value: 'Berlin' },
+        ],
+      })
+    })
+
+    it('ignores encoding.contentType when a style is set', () => {
+      const requestBody = {
+        content: {
+          'multipart/form-data': {
+            encoding: {
+              address: { style: 'form' as const, explode: true, contentType: 'application/json' },
+            },
+            examples: {
+              default: {
+                value: { address: { city: 'Berlin' } },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'formdata',
+        value: [{ type: 'text', key: 'city', value: 'Berlin' }],
+      })
+    })
+
+    it('serializes urlencoded objects with bracket notation under style: deepObject', () => {
+      const requestBody = {
+        content: {
+          'application/x-www-form-urlencoded': {
+            encoding: {
+              filter: { style: 'deepObject' as const, explode: true },
+            },
+            examples: {
+              default: {
+                value: { filter: { status: 'active', role: 'admin' } },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'urlencoded',
+        value: [
+          { key: 'filter[status]', value: 'active' },
+          { key: 'filter[role]', value: 'admin' },
+        ],
+      })
+    })
+
+    it('keeps JSON-stringifying multipart objects without an encoding style', () => {
+      const requestBody = {
+        content: {
+          'multipart/form-data': {
+            examples: {
+              default: {
+                value: { address: { city: 'Berlin' } },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'formdata',
+        value: [{ type: 'text', key: 'address', value: '{"city":"Berlin"}' }],
+      })
+    })
+  })
+
   it('builds URLSearchParams for application/x-www-form-urlencoded content type', () => {
     const requestBody = {
       content: {
