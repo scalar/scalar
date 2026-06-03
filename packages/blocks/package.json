@@ -74,6 +74,7 @@
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
+    "vue-router": "catalog:*",
     "vue-tsc": "catalog:*"
   }
 }
