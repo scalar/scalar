@@ -25,12 +25,15 @@ const createTagEntry = ({
   generateId,
   children,
   isGroup = false,
+  isTagGroup = false,
   parentId,
 }: {
   tag: TagObject
   generateId: TraverseSpecOptions['generateId']
   children: TraversedEntry[]
   isGroup: boolean
+  /** True only for legacy `x-tagGroups` wrapper nodes, which are not real tags. */
+  isTagGroup?: boolean
   parentId: string
 }): TraversedTag => {
   const id = generateId({
@@ -38,8 +41,10 @@ const createTagEntry = ({
     tag,
     parentId,
     isGroup,
+    isTagGroup,
   })
-  const title = tag['x-displayName'] ?? tag.name ?? 'Untitled Tag'
+  // `summary` is the OpenAPI 3.2 display label; `x-displayName` keeps precedence for backwards compatibility.
+  const title = tag['x-displayName'] ?? tag.summary ?? tag.name ?? 'Untitled Tag'
 
   // Update the order of the children based on the items
   // This will ensure that the sort order is always in sync with the items
@@ -182,10 +187,84 @@ const getSortedTagEntries = ({
 }
 
 /**
- * Traverses the tags map to create navigation entries, handling both grouped and ungrouped tags.
+ * Nests tag entries according to the OpenAPI 3.2 `parent` field.
+ *
+ * Each tag may declare the `name` of another tag it is nested under. We build the flat
+ * tag entries first (so operation sorting, hidden-tag filtering and IDs stay identical to
+ * the ungrouped path) and then re-parent them by reference. A tag that nests other tags
+ * but has no operations of its own is marked as a group so the renderer presents it as a
+ * section rather than a leaf.
+ *
+ * Tags whose `parent` does not resolve to an existing tag, and tags caught in a circular
+ * reference (which the spec forbids), are kept at the top level.
+ */
+const nestTagsByParent = ({
+  flatEntries,
+  document,
+}: {
+  flatEntries: TraversedEntry[]
+  document: OpenApiDocument
+}): TraversedEntry[] => {
+  // Index real tag entries by name and remember which ones owned operations before nesting.
+  const entriesByName = new Map<string, TraversedTag>()
+  const hadOwnOperations = new Map<string, boolean>()
+  for (const entry of flatEntries) {
+    if (entry.type === 'tag') {
+      entriesByName.set(entry.name, entry)
+      hadOwnOperations.set(entry.name, (entry.children?.length ?? 0) > 0)
+    }
+  }
+
+  // Map each tag to its parent, but only when the parent exists and is not the tag itself.
+  const parentOf = new Map<string, string>()
+  for (const tag of document.tags ?? []) {
+    if (tag.name && tag.parent && tag.parent !== tag.name && entriesByName.has(tag.parent)) {
+      parentOf.set(tag.name, tag.parent)
+    }
+  }
+
+  // A tag is part of a cycle when walking up its parent chain returns to a tag already seen.
+  const isCyclic = (name: string): boolean => {
+    const seen = new Set<string>([name])
+    let current = parentOf.get(name)
+    while (current) {
+      if (seen.has(current)) {
+        return true
+      }
+      seen.add(current)
+      current = parentOf.get(current)
+    }
+    return false
+  }
+
+  // Re-parent entries by reference, tracking which ones leave the top level.
+  const nested = new Set<string>()
+  for (const [name, entry] of entriesByName) {
+    const parentName = parentOf.get(name)
+    if (parentName && !isCyclic(name)) {
+      const parent = entriesByName.get(parentName)!
+      parent.children = [...(parent.children ?? []), entry]
+      nested.add(name)
+    }
+  }
+
+  // A tag that nests other tags but owns no operations is a section, not a leaf.
+  for (const [name, entry] of entriesByName) {
+    const hasChildTags = (entry.children ?? []).some((child) => child.type === 'tag')
+    if (hasChildTags && !hadOwnOperations.get(name)) {
+      entry.isGroup = true
+    }
+  }
+
+  return flatEntries.filter((entry) => !(entry.type === 'tag' && nested.has(entry.name)))
+}
+
+/**
+ * Traverses the tags map to create navigation entries, handling nested, grouped and ungrouped tags.
  *
  * This function processes the OpenAPI document's tags to:
- * - Handle tag groups if specified via x-tagGroups
+ * - Nest tags via the OpenAPI 3.2 `parent` field (takes precedence)
+ * - Otherwise handle tag groups if specified via x-tagGroups
  * - Sort tags and their operations according to provided sorters
  * - Create navigation entries for each tag or tag group
  */
@@ -201,7 +280,21 @@ export const traverseTags = ({
   documentId: string
   options: Options
 }): TraversedEntry[] => {
-  // x-tagGroups
+  // Native OpenAPI 3.2 tag nesting via `parent` takes precedence over x-tagGroups.
+  const hasNestedTags = document.tags?.some((tag) => typeof tag.parent === 'string' && tag.parent.length > 0)
+  if (hasNestedTags) {
+    const flatEntries = getSortedTagEntries({
+      _keys: Array.from(tagsMap.keys()),
+      tagsMap,
+      options: { generateId, tagsSorter, operationsSorter },
+      documentId,
+      sortOrder: document['x-scalar-order'],
+    })
+
+    return nestTagsByParent({ flatEntries, document })
+  }
+
+  // x-tagGroups (legacy)
   if (document['x-tagGroups']) {
     const tagGroups = document['x-tagGroups']
 
@@ -224,6 +317,7 @@ export const traverseTags = ({
             children: entries,
             parentId: documentId,
             isGroup: true,
+            isTagGroup: true,
           })
         : []
     })
