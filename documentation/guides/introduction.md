@@ -257,7 +257,7 @@
       </div>
     </div>
     <div class="draggable sticker-3">
-      <scalar-icon src="https://cdn.scalar.com/marketing/landing/sticker-3.svg"></scalar-icon>
+      <scalar-icon src="https://cdn.scalar.com/marketing/landing/sticker-3.v3.svg"></scalar-icon>
     </div>
   </div>
   <div class="product">
@@ -427,7 +427,7 @@
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
-        <object class="sticker-clip-docs" width="113" height="143" data="https://cdn.scalar.com/marketing/landing/sticker-3.svg"></object>
+        <object class="sticker-clip-docs" width="113" height="143" data="https://cdn.scalar.com/marketing/landing/sticker-3.v3.svg"></object>
       </div>
       <div class="expander-hover-title">API Docs</div>
       <div class="expander">
