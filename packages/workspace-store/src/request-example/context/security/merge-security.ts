@@ -24,6 +24,7 @@ export const mergeSecurity = (
   configSecuritySchemes: AuthenticationConfiguration['securitySchemes'] = {},
   authStore: AuthStore,
   documentName: string,
+  oauth2RedirectUri?: string,
 ): MergedSecuritySchemes => {
   /** Resolve any refs in the document security schemes */
   const resolvedDocumentSecuritySchemes = objectEntries(documentSecuritySchemes).reduce(
@@ -48,7 +49,7 @@ export const mergeSecurity = (
     // We then overwrite it back with the original value to keep any other fields like description, etc.
     const merged = { ...coerced, ...value }
 
-    acc[name] = extractSecuritySchemeSecrets(merged, authStore, name, documentName)
+    acc[name] = extractSecuritySchemeSecrets(merged, authStore, name, documentName, oauth2RedirectUri)
     return acc
   }, {} as MergedSecuritySchemes)
 }

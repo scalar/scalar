@@ -18,7 +18,7 @@ const { document, environment, eventBus, options, securitySchemes, authStore } =
   defineProps<{
     options: Pick<
       ApiReferenceConfigurationRaw,
-      'authentication' | 'persistAuth' | 'proxyUrl'
+      'authentication' | 'oauth2RedirectUri' | 'persistAuth' | 'proxyUrl'
     >
     authStore: AuthStore
     document: WorkspaceDocument | undefined
@@ -67,6 +67,7 @@ const selectedSecurity = computed(() =>
     isStatic
     layout="reference"
     :meta="{ type: 'document' }"
+    :options="{ oauth2RedirectUri: options.oauth2RedirectUri }"
     :persistAuth="options.persistAuth"
     :proxyUrl="options.proxyUrl ?? ''"
     :securityRequirements
