@@ -428,7 +428,7 @@ Aliases: `x-enumNames`
 
 We generate custom code examples for all languages, but you might have a custom SDK for your API. Provide installation instructions in the header like shown in the example below.
 
-You can use `description` (supports Markdown) or `source` (for shell scripts) or both.
+You can use `description` (supports Markdown) or `source` (for shell scripts) or both. You can also add a `url` that links to the package or repository (for example on GitHub, npm or PyPI). We render a friendly label for well-known hosts and fall back to the link itself otherwise.
 
 ```diff
 openapi: 3.1.0
@@ -440,7 +440,15 @@ info:
 +    description: "Install our **Custom SDK** for Node.js from npm:"
 +    source: |-
 +      npm install @your-awesome-company/sdk
++    url: https://github.com/your-awesome-company/sdk
 ```
+
+| Option      | Type   | Description                                                                        |
+| ----------- | ------ | ---------------------------------------------------------------------------------- |
+| lang        | string | **REQUIRED**. The language or platform of the SDK (for example `Node`, `Python`).  |
+| description | string | A human-readable description of this installation option. Supports Markdown.       |
+| source      | string | The installation command or snippet, rendered as a copyable shell block.           |
+| url         | string | A link to the package or repository, for example on GitHub, npm or PyPI.           |
 
 ## x-pre-request
 

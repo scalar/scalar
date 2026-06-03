@@ -25,4 +25,26 @@ describe('XScalarSdkInstallationSchema', () => {
       ],
     })
   })
+
+  it('supports a link to the package or repository', () => {
+    const result = Value.Parse(XScalarSdkInstallationSchema, {
+      'x-scalar-sdk-installation': [
+        {
+          lang: 'Node',
+          source: 'npm install @your-awesome-company/sdk',
+          url: 'https://github.com/your-awesome-company/sdk',
+        },
+      ],
+    })
+
+    expect(result).toEqual({
+      'x-scalar-sdk-installation': [
+        {
+          lang: 'Node',
+          source: 'npm install @your-awesome-company/sdk',
+          url: 'https://github.com/your-awesome-company/sdk',
+        },
+      ],
+    })
+  })
 })
