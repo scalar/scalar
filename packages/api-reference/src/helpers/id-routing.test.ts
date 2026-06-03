@@ -930,6 +930,20 @@ describe('redirectUrl', () => {
     })
   })
 
+  describe('hash base path routing', () => {
+    it('rewrites a legacy segment behind the hash base path', () => {
+      const result = redirectUrl('https://example.com/#/docs/default/model/User', 'models', 'default', true, '#/docs')
+      expect(result?.hash).toBe('#/docs/default/models/User')
+    })
+
+    it('still rewrites a legacy hash bookmark left over from before the base path was configured', () => {
+      // A bare `#default/model/User` fragment can linger from before the hash base path was set.
+      // The base-stripping carrier yields no id, so we fall back to the bare hash.
+      const result = redirectUrl('https://example.com/#default/model/User', 'models', 'default', true, '#/docs')
+      expect(result?.hash).toBe('#default/models/User')
+    })
+  })
+
   describe('customized models section slug', () => {
     it('rewrites a `models` segment to the customized slug', () => {
       const result = redirectUrl('https://example.com/#default/models/User', 'schemas', 'default', true)

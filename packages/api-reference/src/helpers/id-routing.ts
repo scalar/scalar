@@ -186,9 +186,10 @@ const bareHashCarrier = (url: URL): IdCarrier => ({
  * callers edit ids in id-space without re-deriving the routing chrome for each mode.
  *
  * Multiple carriers are returned in priority order: the canonical location for the active routing
- * mode comes first, followed by any legacy fallback. Path routing falls back to the bare hash so a
- * stale `#default/model/User` bookmark (left over from before path routing was enabled) is still
- * canonicalized — the previous implementation rewrote both the path and the hash on every load.
+ * mode comes first, followed by a legacy bare-hash fallback. Both path and hash-base-path routing
+ * fall back to the bare hash so a stale `#default/model/User` bookmark (left over from before the
+ * base path was configured) is still canonicalized — the previous implementation rewrote such
+ * doc-slug-anchored hashes on every load regardless of the routing mode.
  */
 const locateIdCarriers = (url: URL, basePath: string | undefined): IdCarrier[] => {
   // Hash routing: the id is the bare fragment.
@@ -208,6 +209,8 @@ const locateIdCarriers = (url: URL, basePath: string | undefined): IdCarrier[] =
           url.hash = [base, next].filter(Boolean).join('/')
         },
       },
+      // Legacy fallback: an old bookmark may carry the id in the fragment without the base prefix.
+      bareHashCarrier(url),
     ]
   }
 
