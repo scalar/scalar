@@ -22,11 +22,8 @@ const props = withDefaults(
     canAddCustomEnumValue?: boolean
     readOnly?: boolean
     enum?: string[]
-    min?: number
-    max?: number
     environment: XScalarEnvironment
     description?: string | undefined
-    lineWrapping?: boolean
     /** Whether to show context function suggestions like $guid, $timestamp. Defaults to true */
     withFakeData?: boolean
   }>(),
@@ -34,7 +31,6 @@ const props = withDefaults(
     canAddCustomEnumValue: true,
     required: false,
     readOnly: false,
-    lineWrapping: false,
     withFakeData: true,
   },
 )
