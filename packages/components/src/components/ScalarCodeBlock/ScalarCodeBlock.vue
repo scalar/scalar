@@ -114,7 +114,7 @@ const { cx } = useBindCx()
       class="scalar-code-copy absolute"
       :class="[
         isOneLine
-          ? 'top-[calc(10px+0.5lh)] -translate-y-1/2 m-0 right-1'
+          ? 'top-1/2 -translate-y-1/2 m-0 right-1'
           : 'top-2.5 right-2.5',
         { 'opacity-100': copy === 'always' },
       ]"
