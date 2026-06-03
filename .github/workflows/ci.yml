@@ -251,6 +251,75 @@ jobs:
       - name: Lint Icon Library Icons
         run: pnpm --filter icons lint:icons
 
+  lint-galaxy:
+    if: needs.check-changes.outputs.galaxy_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [check-changes]
+    permissions:
+      contents: read
+      # Required so the lint results can be posted back to the PR.
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      # Capture the lint output (warnings do not fail the command) so we can
+      # both surface it in the job log and post it to the PR. continue-on-error
+      # keeps the comment step running even when spectral:oas reports errors;
+      # the captured exit code is replayed at the end to set the job status.
+      - name: Lint the Galaxy example document
+        id: lint
+        run: |
+          set +e
+          pnpm --filter @scalar/galaxy lint > lint-output.txt 2>&1
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat lint-output.txt
+      # Only PRs from the same repository have a writable token for comments.
+      - name: Build lint comment
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        run: |
+          # Strip ANSI escape codes, npm noise, and the pnpm script echo, then
+          # collapse blank lines so the comment shows just the lint findings.
+          clean=$(sed -r 's/\x1b\[[0-9;?]*[a-zA-Z]//g' lint-output.txt \
+            | grep -v '^npm warn' \
+            | grep -v '^> ' \
+            | sed '/^[[:space:]]*$/d')
+          warnings=$(printf '%s\n' "$clean" | grep -c '^Severity: Warning' || true)
+          {
+            echo '**Scalar Galaxy Lint**'
+            echo ''
+            if [ "${{ steps.lint.outputs.exit_code }}" != '0' ]; then
+              echo '❌ Linting failed.'
+            elif [ "$warnings" -gt 0 ]; then
+              echo "⚠️ ${warnings} warning(s) found."
+            else
+              echo '✅ No issues found.'
+            fi
+            echo ''
+            echo '```'
+            printf '%s\n' "$clean"
+            echo '```'
+          } > lint-comment.md
+      - name: Post lint results to the PR
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        with:
+          file-path: lint-comment.md
+          # Reuse (update) the same comment on every new commit instead of
+          # posting a new one.
+          comment-tag: galaxy-lint
+      # Replay the lint exit code so the job fails on real (error-level) issues.
+      - name: Report lint status
+        if: ${{ !cancelled() }}
+        run: exit ${{ steps.lint.outputs.exit_code }}
+
   types:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
