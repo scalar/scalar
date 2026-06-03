@@ -285,4 +285,36 @@ describe('getClients', () => {
     // Original client options should still be present
     expect(result[1]).toEqual(clientOptions[0])
   })
+
+  /**
+   * Test 5: Verifies the group label is configurable so SDK-provider samples can be
+   * surfaced under "SDK" while generic samples stay under the default "Code Examples".
+   */
+  it('uses the provided label for the custom samples group', () => {
+    const customCodeSamples: XCodeSample[] = [
+      {
+        lang: 'python',
+        label: 'List accounts',
+        source: 'client.accounts.list()',
+      },
+    ]
+
+    const result = getClients(customCodeSamples, [], 'SDK')
+
+    expect(result[0]?.label).toBe('SDK')
+  })
+
+  it('defaults the group label to "Code Examples"', () => {
+    const customCodeSamples: XCodeSample[] = [
+      {
+        lang: 'python',
+        label: 'List accounts',
+        source: 'client.accounts.list()',
+      },
+    ]
+
+    const result = getClients(customCodeSamples, [])
+
+    expect(result[0]?.label).toBe('Code Examples')
+  })
 })

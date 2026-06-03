@@ -218,7 +218,11 @@ const customCodeSamples = computed(() => getCustomCodeSamples(operation))
 
 /** Merge custom code samples with the client options */
 const clients = computed(() =>
-  getClients(customCodeSamples.value, clientOptions),
+  getClients(
+    customCodeSamples.value.samples,
+    clientOptions,
+    customCodeSamples.value.label,
+  ),
 )
 
 /** Total number of available clients across all option groups */
@@ -271,7 +275,7 @@ const generatedCode = computed<string>(() => {
     defaultDisabledParameters: false,
     includeDefaultHeaders: integration === 'client',
     clientId: localSelectedClient.value?.id,
-    customCodeSamples: customCodeSamples.value,
+    customCodeSamples: customCodeSamples.value.samples,
     operation,
     method,
     path,

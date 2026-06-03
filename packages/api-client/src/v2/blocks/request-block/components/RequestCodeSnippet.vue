@@ -40,7 +40,11 @@ const customCodeSamples = computed(() => getCustomCodeSamples(operation))
 
 /** Merge custom code samples with the client options */
 const clients = computed(() =>
-  getClients(customCodeSamples.value, clientOptions),
+  getClients(
+    customCodeSamples.value.samples,
+    clientOptions,
+    customCodeSamples.value.label,
+  ),
 )
 
 /**
@@ -80,7 +84,7 @@ const generatedCode = computed<string>(() =>
   generateCodeSnippet({
     defaultDisabledParameters: true,
     clientId: localSelectedClient.value?.id,
-    customCodeSamples: customCodeSamples.value,
+    customCodeSamples: customCodeSamples.value.samples,
     operation,
     method,
     path,
