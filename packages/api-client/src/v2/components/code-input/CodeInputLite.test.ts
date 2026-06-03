@@ -179,8 +179,8 @@ describe('CodeInputLite', () => {
     expect(events?.[0]?.[0]).toBe('/users')
   })
 
-  it('still emits submit on Enter when disableEnter is true and prevents default', () => {
-    const wrapper = mountInput({ modelValue: '/users', disableEnter: true })
+  it('prevents the default Enter behaviour to keep the input single-line', () => {
+    const wrapper = mountInput({ modelValue: '/users' })
     const event = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
     wrapper.get('.code-input-lite__editor').element.dispatchEvent(event)
     expect(event.defaultPrevented).toBe(true)

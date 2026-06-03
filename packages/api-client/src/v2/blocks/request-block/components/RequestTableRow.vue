@@ -189,7 +189,6 @@ const handleUpdateRow = (
       <CodeInputLite
         :aria-label="`${label} Key`"
         :disabled="data.isReadonly"
-        disableEnter
         :environment="environment"
         :modelValue="name"
         placeholder="Key"
@@ -205,7 +204,6 @@ const handleUpdateRow = (
         class="pr-6 group-hover:pr-10 group-has-[.code-input-lite__editor:focus]:pr-10"
         :default="defaultValue"
         :disabled="data.isReadonly"
-        disableEnter
         :enum="enumValue"
         :environment="environment"
         :examples="
