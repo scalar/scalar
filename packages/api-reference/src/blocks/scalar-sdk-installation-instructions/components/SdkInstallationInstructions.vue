@@ -18,6 +18,7 @@ import {
 } from 'vue'
 
 import { getLanguageIcon } from '../helpers/language-icon'
+import { getSdkUrlLabel } from '../helpers/sdk-url-label'
 import { getVisibleTabCount } from '../helpers/visible-tab-count'
 
 const { xScalarSdkInstallation } = defineProps<{
@@ -30,7 +31,7 @@ const headingId = useId()
 /** Only the SDKs that actually have something to show, with their resolved icon */
 const sdks = computed(() =>
   (xScalarSdkInstallation ?? [])
-    .filter((sdk) => sdk.source || sdk.description)
+    .filter((sdk) => sdk.source || sdk.description || sdk.url)
     .map((sdk) => ({ ...sdk, icon: getLanguageIcon(sdk.lang) })),
 )
 
@@ -39,6 +40,11 @@ const selectedIndex = ref(0)
 
 /** The currently selected SDK */
 const selected = computed(() => sdks.value[selectedIndex.value])
+
+/** The link label for the selected SDK, friendly for known hosts */
+const selectedUrlLabel = computed(() =>
+  selected.value?.url ? getSdkUrlLabel(selected.value.url) : '',
+)
 
 // Keep the selection in range when the list of SDKs changes
 watch(
@@ -214,14 +220,19 @@ onBeforeUnmount(() => observer?.disconnect())
     <div
       v-if="selected?.description"
       class="selected-client"
-      :class="{ 'selected-client--connected': selected?.source }"
+      :class="{
+        'selected-client--connected': selected?.source || selected?.url,
+      }"
       role="tabpanel">
       <ScalarMarkdown :value="selected.description" />
     </div>
     <div
       v-if="selected?.source"
       class="selected-client selected-client--source"
-      :class="{ 'selected-client--divided': selected?.description }"
+      :class="{
+        'selected-client--divided': selected?.description,
+        'selected-client--connected': selected?.url,
+      }"
       role="tabpanel">
       <ScalarCodeBlock
         class="*:first:p-3"
@@ -229,6 +240,21 @@ onBeforeUnmount(() => observer?.disconnect())
         copy="always"
         lang="shell" />
     </div>
+    <!-- Link to the package or repository -->
+    <a
+      v-if="selected?.url"
+      class="selected-client selected-client--link"
+      :class="{
+        'selected-client--divided': selected?.description || selected?.source,
+      }"
+      :href="selected.url"
+      rel="noopener noreferrer"
+      target="_blank">
+      <ScalarIcon
+        class="client-libraries-icon"
+        icon="ExternalLink" />
+      <span>{{ selectedUrlLabel }}</span>
+    </a>
   </div>
 </template>
 <style scoped>
@@ -258,6 +284,21 @@ onBeforeUnmount(() => observer?.disconnect())
 /* Divider between the description and the code block */
 .selected-client--divided {
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+/* Link out to the package or repository */
+.selected-client--link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--scalar-color-accent);
+  text-decoration: none;
+}
+.selected-client--link:hover {
+  text-decoration: underline;
+}
+.selected-client--link:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
 .client-libraries-heading {
   font-size: var(--scalar-small);

@@ -7,6 +7,7 @@ const XScalarSdkInstallationItem = object(
     lang: string({ typeComment: 'Programming language or platform (for example `shell`, `javascript`)' }),
     source: optional(string({ typeComment: 'Installation command or snippet source' })),
     description: optional(string({ typeComment: 'Human-readable description of this installation option' })),
+    url: optional(string({ typeComment: 'Link to the package or repository (for example on GitHub, npm or PyPI)' })),
   },
   {
     typeName: 'XScalarSdkInstallationItem',

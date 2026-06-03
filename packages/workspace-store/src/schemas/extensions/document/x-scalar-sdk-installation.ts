@@ -5,6 +5,7 @@ const XScalarSdkInstallationItemSchema = Type.Object({
   lang: Type.String(),
   source: Type.Optional(Type.String()),
   description: Type.Optional(Type.String()),
+  url: Type.Optional(Type.String()),
 })
 
 export const XScalarSdkInstallationSchema = Type.Object({
@@ -16,6 +17,7 @@ const XScalarSdkInstallationItem = object(
     lang: string(),
     source: optional(string()),
     description: optional(string()),
+    url: optional(string()),
   },
   {
     typeName: 'XScalarSdkInstallationItem',
@@ -29,6 +31,8 @@ export type XScalarSdkInstallation = {
     lang: string
     source?: string
     description?: string
+    /** Link to the package or repository (for example on GitHub, npm or PyPI). */
+    url?: string
   }[]
 }
 

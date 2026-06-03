@@ -45,7 +45,7 @@ describe('SdkInstallationInstructions', () => {
     expect(tabs[1]?.text()).toBe('Python SDK')
   })
 
-  it('skips entries without a source or description', () => {
+  it('skips entries without a source, description or url', () => {
     const wrapper = mount(SdkInstallationInstructions, {
       props: {
         xScalarSdkInstallation: [{ lang: 'Node', source: 'npm install @scalar/sdk' }, { lang: 'Empty' }],
@@ -56,5 +56,33 @@ describe('SdkInstallationInstructions', () => {
     const tabs = wrapper.findAll('[role="tab"]')
     expect(tabs).toHaveLength(1)
     expect(tabs[0]?.text()).toBe('Node SDK')
+  })
+
+  it('keeps entries that only have a url', () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        xScalarSdkInstallation: [{ lang: 'Node', url: 'https://github.com/scalar/scalar' }],
+      },
+      global: { stubs },
+    })
+
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs).toHaveLength(1)
+    expect(tabs[0]?.text()).toBe('Node SDK')
+  })
+
+  it('renders a link with a friendly label for the selected SDK url', () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        xScalarSdkInstallation: [
+          { lang: 'Node', source: 'npm install @scalar/sdk', url: 'https://www.npmjs.com/package/@scalar/sdk' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    const link = wrapper.get('a[href="https://www.npmjs.com/package/@scalar/sdk"]')
+    expect(link.attributes('target')).toBe('_blank')
+    expect(link.text()).toBe('View on npm')
   })
 })
