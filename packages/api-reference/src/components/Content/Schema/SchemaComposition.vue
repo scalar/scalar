@@ -22,6 +22,7 @@ import {
 import { getSchemaType } from './helpers/get-schema-type'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { type CompositionKeyword } from './helpers/schema-composition'
+import { getCycleKey } from './helpers/schema-cycle'
 import { getModelNameFromSchema } from './helpers/schema-name'
 import Schema from './Schema.vue'
 
@@ -149,8 +150,23 @@ const selectedComposition = computed(
   () => composition.value[Number(selectedOption.value?.id ?? '0')]?.value,
 )
 
-/** Controls whether the nested schema is displayed */
-const showNestedSchema = ref(false)
+/**
+ * Cycle key for the selected composition member, derived from its raw
+ * (unresolved) value so a member that references an ancestor is detected as a
+ * cycle.
+ */
+const selectedCompositionCycleKey = computed(() =>
+  getCycleKey(
+    composition.value[Number(selectedOption.value?.id ?? '0')]?.original,
+  ),
+)
+
+/**
+ * Controls whether the nested schema is displayed. When expanding all schema
+ * properties we open it by default; the nested Schema handles cycle detection,
+ * so finite compositions render fully while recursive ones still stop.
+ */
+const showNestedSchema = ref(!!props.options.expandAllSchemaProperties)
 
 if (
   requestBodyCompositionSelectionRef &&
@@ -232,9 +248,11 @@ if (
         <!-- Render the selected schema if it has content to display -->
         <Schema
           v-else
+          :key="selectedOption?.id ?? '0'"
           :breadcrumb="breadcrumb"
           :compact="compact"
           :compositionPath="compositionPath"
+          :cycleKey="selectedCompositionCycleKey"
           :discriminator="discriminator"
           :eventBus="eventBus"
           :hideHeading="hideHeading"

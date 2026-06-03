@@ -37,6 +37,7 @@ const {
   options: Pick<
     ApiReferenceConfigurationRaw,
     | 'layout'
+    | 'expandAllSchemaProperties'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'hideModels'

@@ -9,6 +9,7 @@ import type {
 import { computed } from 'vue'
 
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
 import { sortPropertyNames } from '@/components/Content/Schema/helpers/sort-property-names'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 
@@ -182,6 +183,7 @@ const getAdditionalPropertiesValue = (
       :compact
       :compositionPath="compositionPath"
       :compositionPathSegment="property"
+      :cycleKey="getCycleKey(schema.properties[property])"
       :description="getPropertyDescription(schema.properties[property])"
       :discriminator
       :eventBus="eventBus"
@@ -204,6 +206,7 @@ const getAdditionalPropertiesValue = (
       :compact
       :compositionPath="compositionPath"
       :compositionPathSegment="key"
+      :cycleKey="getCycleKey(property)"
       :description="getPropertyDescription(property)"
       :discriminator
       :eventBus="eventBus"
@@ -228,6 +231,7 @@ const getAdditionalPropertiesValue = (
           schema.propertyNames,
         )
       "
+      :cycleKey="getCycleKey(schema.additionalProperties)"
       :discriminator
       :eventBus="eventBus"
       :hideHeading

@@ -7,13 +7,14 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { computed, inject, provide } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
+import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
@@ -33,6 +34,7 @@ const {
   options,
   schemaContext,
   compositionPath,
+  cycleKey,
 } = defineProps<{
   schema?: SchemaObject
   /** Track how deep we've gone */
@@ -63,22 +65,40 @@ const {
   schemaContext?: string
   /** Internal path used to sync nested request body compositions with the code sample */
   compositionPath?: string[]
+  /**
+   * Stable identity of this schema node, derived from its raw (unresolved)
+   * value by the parent. Used to detect self-referential cycles. See
+   * {@link getCycleKey}.
+   */
+  cycleKey?: unknown
 }>()
+
 /**
- * Safety cap for `expandAllSchemaProperties`.
+ * Cycle-safe `expandAllSchemaProperties`.
  *
- * We still auto-expand common schema nesting levels, but stop forcing nested
- * disclosures open once we get deep in the tree. Deep levels are where
- * recursive/circular schemas can explode render depth and hide sections.
+ * We track ancestor schema keys along the current render path. A node is
+ * treated as cyclic when its key is already present in the ancestor set, which
+ * indicates that rendering has looped back onto a self-referential schema.
  *
- * `6` is a pragmatic threshold: high enough to cover normal API payload
- * structures while preventing runaway expansion on self-referential models.
+ * This lets us force-expand finite branches while stopping automatic expansion
+ * only at cycle boundaries, preventing infinite recursion.
  */
-const MAX_AUTO_EXPAND_DEPTH = 6
+const ancestors = inject(SCHEMA_ANCESTORS_SYMBOL, undefined)
+
+const isCyclic = computed(
+  (): boolean => cycleKey != null && !!ancestors?.has(cycleKey),
+)
+
+// Re-provide the ancestor set augmented with this node so descendants can
+// detect cycles back to it. Built once at setup; a node's key is stable.
+const childAncestors = new Set<unknown>(ancestors ?? [])
+if (cycleKey != null) {
+  childAncestors.add(cycleKey)
+}
+provide(SCHEMA_ANCESTORS_SYMBOL, childAncestors)
 
 const shouldForceExpand = computed(
-  (): boolean =>
-    !!options.expandAllSchemaProperties && level < MAX_AUTO_EXPAND_DEPTH,
+  (): boolean => !!options.expandAllSchemaProperties && !isCyclic.value,
 )
 
 /**

@@ -546,9 +546,8 @@ By default response sections are closed in the operations. This flag will open t
 
 **Type:** `boolean`
 
-When true, the Show/Hide Child Attributes toggle is not rendered for nested
-schemas and child properties are always visible. There is no UI to collapse
-them.
+When true, the "Show/Hide Child Attributes" toggle is not rendered for nested
+schemas. Child properties are always visible and there is no UI to collapse them.
 
 Warning: this can cause performance issues on big documents.
 
