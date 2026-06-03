@@ -1,6 +1,28 @@
 import { describe, expect, it } from 'vitest'
 
-import { getSdkUrlLabel } from './sdk-url-label'
+import { getSafeSdkUrl, getSdkUrlLabel } from './sdk-url-label'
+
+describe('getSafeSdkUrl', () => {
+  it('allows https URLs', () => {
+    expect(getSafeSdkUrl('https://github.com/scalar/scalar')).toBe('https://github.com/scalar/scalar')
+  })
+
+  it('allows http URLs', () => {
+    expect(getSafeSdkUrl('http://example.com/sdk')).toBe('http://example.com/sdk')
+  })
+
+  it('rejects javascript: URLs', () => {
+    expect(getSafeSdkUrl('javascript:alert(1)')).toBeUndefined()
+  })
+
+  it('rejects data: URLs', () => {
+    expect(getSafeSdkUrl('data:text/html,<script>alert(1)</script>')).toBeUndefined()
+  })
+
+  it('rejects unparseable values', () => {
+    expect(getSafeSdkUrl('not a url')).toBeUndefined()
+  })
+})
 
 describe('getSdkUrlLabel', () => {
   it('labels GitHub URLs', () => {
