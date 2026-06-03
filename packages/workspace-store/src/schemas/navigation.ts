@@ -321,10 +321,16 @@ type TagProps = {
   tag: TagObject
   type: 'tag'
   /**
-   * Set when `tag` is a `tagGroup` entry so IDs stay distinct from same-named
-   * OpenAPI tags and from other groups.
+   * Set when this tag has no operations of its own and only nests other tags,
+   * so the renderer can present it as a section rather than a leaf.
    */
   isGroup?: boolean
+  /**
+   * Set when `tag` is an `x-tagGroups` wrapper entry (not a real OpenAPI tag),
+   * so its ID stays distinct from same-named OpenAPI tags and from other groups.
+   * Native OpenAPI 3.2 nested tags are real tags and keep the regular `tag` prefix.
+   */
+  isTagGroup?: boolean
 }
 
 type OperationProps = {
