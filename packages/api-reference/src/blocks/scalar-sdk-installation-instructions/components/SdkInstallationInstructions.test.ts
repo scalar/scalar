@@ -41,8 +41,8 @@ describe('SdkInstallationInstructions', () => {
 
     const tabs = wrapper.findAll('[role="tab"]')
     expect(tabs).toHaveLength(2)
-    expect(tabs[0]?.text()).toBe('Node SDK')
-    expect(tabs[1]?.text()).toBe('Python SDK')
+    expect(tabs[0]?.text()).toBe('Node')
+    expect(tabs[1]?.text()).toBe('Python')
   })
 
   it('skips entries without a source or description', () => {
@@ -55,6 +55,6 @@ describe('SdkInstallationInstructions', () => {
 
     const tabs = wrapper.findAll('[role="tab"]')
     expect(tabs).toHaveLength(1)
-    expect(tabs[0]?.text()).toBe('Node SDK')
+    expect(tabs[0]?.text()).toBe('Node')
   })
 })

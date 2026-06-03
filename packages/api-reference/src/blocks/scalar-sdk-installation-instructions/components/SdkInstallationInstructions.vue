@@ -104,7 +104,7 @@ const isMoreActive = computed(() => selectedIndex.value >= visibleCount.value)
 const moreOptions = computed<ScalarComboboxOption[]>(() =>
   sdks.value.slice(visibleCount.value).map((sdk, index) => ({
     id: String(visibleCount.value + index),
-    label: `${sdk.lang} SDK`,
+    label: sdk.lang,
   })),
 )
 
@@ -161,7 +161,7 @@ onBeforeUnmount(() => observer?.disconnect())
             v-if="sdk.icon"
             class="client-libraries-icon"
             :icon="sdk.icon" />
-          <span class="client-libraries-text">{{ sdk.lang }} SDK</span>
+          <span class="client-libraries-text">{{ sdk.lang }}</span>
         </button>
 
         <!-- More dropdown -->
@@ -199,7 +199,7 @@ onBeforeUnmount(() => observer?.disconnect())
             v-if="sdk.icon"
             class="client-libraries-icon"
             :icon="sdk.icon" />
-          <span class="client-libraries-text">{{ sdk.lang }} SDK</span>
+          <span class="client-libraries-text">{{ sdk.lang }}</span>
         </span>
         <span class="client-libraries">
           <ScalarIcon
