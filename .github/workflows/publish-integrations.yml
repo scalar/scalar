@@ -1,0 +1,516 @@
+name: Publish Integrations
+
+# Reusable workflow that publishes every non-JS integration to its registry
+# (DockerHub, NuGet, PyPI, crates.io, Maven Central). Only ever called from
+# release.yml after npm-publish succeeded. Each job is gated by the per-package
+# `*_changed` input and the overall `published` flag, and (where applicable)
+# runs in a per-registry GitHub Environment so its credentials stay scoped.
+
+on:
+  workflow_call:
+    inputs:
+      published:
+        description: 'changesets/action outputs.published — gate for every publish'
+        type: string
+        required: true
+      docker_package_changed:
+        type: string
+        required: true
+      mock_server_docker_package_changed:
+        type: string
+        required: true
+      aspnetcore_package_changed:
+        type: string
+        required: true
+      aspire_package_changed:
+        type: string
+        required: true
+      fastapi_package_changed:
+        type: string
+        required: true
+      django_ninja_package_changed:
+        type: string
+        required: true
+      rust_package_changed:
+        type: string
+        required: true
+      java_package_changed:
+        type: string
+        required: true
+      # Build-test results from integration-builds.yml (forwarded via
+      # release.yml). A publish runs only when its build-test passed ('true');
+      # an empty value means the build-test was skipped or failed, which keeps
+      # the publish gated off — the cross-workflow equivalent of the old
+      # `needs: [<integration>-build-test]`.
+      docker_build_passed:
+        type: string
+        required: true
+      dotnet_build_passed:
+        type: string
+        required: true
+      fastapi_build_passed:
+        type: string
+        required: true
+      django_ninja_build_passed:
+        type: string
+        required: true
+      rust_build_passed:
+        type: string
+        required: true
+      java_build_passed:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+jobs:
+  docker-publish:
+    if: inputs.published == 'true' && inputs.docker_package_changed == 'true' && inputs.docker_build_passed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-dockerhub
+    timeout-minutes: 10
+    concurrency:
+      group: docker-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: integrations/docker
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: scalar-js
+          path: integrations/docker/assets
+
+      - name: Compress static assets
+        working-directory: integrations/docker/assets
+        run: gzip --keep --verbose --force scalar.js
+
+      - name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker image
+        uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
+        with:
+          context: integrations/docker
+          file: integrations/docker/Dockerfile
+          push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: |
+            scalarapi/api-reference:latest
+            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+
+      - name: Update Docker Hub Description
+        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: scalarapi/api-reference
+          readme-filepath: ./integrations/docker/README.md
+
+  mock-server-docker-publish:
+    if: inputs.published == 'true' && inputs.mock_server_docker_package_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-dockerhub
+    timeout-minutes: 10
+    concurrency:
+      group: mock-server-docker-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: packages/mock-server/docker
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Download mock server docker entrypoint artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: mock-server-docker-entrypoint
+          path: packages/mock-server/docker/dist/
+
+      - name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker image
+        uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
+        with:
+          context: packages/mock-server/docker
+          file: packages/mock-server/docker/Dockerfile
+          push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: |
+            scalarapi/mock-server:latest
+            scalarapi/mock-server:${{ steps.package-version.outputs.VERSION }}
+
+      - name: Update Docker Hub Description
+        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: scalarapi/mock-server
+          readme-filepath: ./packages/mock-server/docker/README.md
+
+  aspnetcore-publish:
+    if: inputs.published == 'true' && inputs.aspnetcore_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-nuget
+    timeout-minutes: 10
+    # We don't want to run `nuget push` (publishing to NuGet) in parallel.
+    concurrency:
+      group: aspnetcore-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Git Status
+        run: git status
+
+      - name: Stash changes
+        run: git stash
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: integrations/dotnet/aspnetcore
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: scalar-js
+          path: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+
+      - name: Compress static assets
+        working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
+
+      - name: Cache NuGet packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
+
+      - name: Setup .NET
+        uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
+        with:
+          sdk-version: 10.x.x
+
+      - name: Restore dependencies
+        working-directory: integrations/dotnet/aspnetcore
+        run: dotnet restore
+
+      - name: Pack packages
+        working-directory: integrations/dotnet/aspnetcore
+        run: |
+          dotnet pack src/Scalar.AspNetCore -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
+          dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
+          dotnet pack src/Scalar.AspNetCore.Swashbuckle -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
+
+      - name: Publish packages
+        working-directory: integrations/dotnet/aspnetcore
+        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+
+  aspire-publish:
+    if: inputs.published == 'true' && inputs.aspire_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-nuget
+    timeout-minutes: 10
+    concurrency:
+      group: aspire-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Git Status
+        run: git status
+
+      - name: Stash changes
+        run: git stash
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: integrations/dotnet/aspire
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: scalar-js
+          path: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
+
+      - name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - name: Build and push Aspire Docker image
+        uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
+        with:
+          context: integrations/dotnet
+          file: integrations/dotnet/aspire/src/Scalar.Aspire.Service/Dockerfile
+          push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: |
+            scalarapi/aspire-api-reference:latest
+            scalarapi/aspire-api-reference:${{ steps.package-version.outputs.VERSION }}
+
+      - name: Update Docker Hub Description
+        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: scalarapi/aspire-api-reference
+          readme-filepath: ./integrations/dotnet/aspire/README.md
+
+      - name: Set version in Constants.cs
+        working-directory: integrations/dotnet/aspire
+
+        run: |
+          sed -i 's/ImageTag = "latest"/ImageTag = "'${{ steps.package-version.outputs.VERSION }}'"/' src/Scalar.Aspire/Constants.cs
+          cat src/Scalar.Aspire/Constants.cs
+
+      - name: Cache NuGet packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
+
+      - name: Setup .NET
+        uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
+        with:
+          sdk-version: 10.x.x
+
+      - name: Restore dependencies
+        working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
+        run: dotnet restore
+
+      - name: Pack Scalar.Aspire NuGet package
+        working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
+        run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
+
+      - name: Publish Scalar.Aspire NuGet package
+        working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
+        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+
+  fastapi-publish:
+    if: inputs.published == 'true' && inputs.fastapi_package_changed == 'true' && inputs.fastapi_build_passed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: fastapi-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/fastapi
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build FastAPI package
+        working-directory: integrations/fastapi
+        run: python -m build
+
+      - name: Publish FastAPI package to PyPI
+        working-directory: integrations/fastapi
+        run: |
+          twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
+
+  django-ninja-publish:
+    if: inputs.published == 'true' && inputs.django_ninja_package_changed == 'true' && inputs.django_ninja_build_passed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: django-ninja-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/django-ninja
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build Django Ninja package
+        working-directory: integrations/django-ninja
+        run: python -m build
+
+      - name: Publish Django Ninja package to PyPI
+        working-directory: integrations/django-ninja
+        run: |
+          twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
+
+  rust-publish:
+    if: inputs.published == 'true' && inputs.rust_package_changed == 'true' && inputs.rust_build_passed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-crates
+    timeout-minutes: 10
+    concurrency:
+      group: rust-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: scalar-js
+          path: integrations/rust/ui
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: integrations/rust
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Update Cargo.toml version
+        working-directory: integrations/rust
+        env:
+          VERSION: ${{ steps.package-version.outputs.VERSION }}
+        run: |
+          sed -i "0,/^version = \".*\"/{s/^version = \".*\"/version = \"$VERSION\"/}" Cargo.toml
+          cat Cargo.toml | grep version
+
+      - name: Publish to crates.io
+        working-directory: integrations/rust
+        run: cargo publish --allow-dirty
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  java-publish:
+    if: inputs.published == 'true' && inputs.java_package_changed == 'true' && inputs.java_build_passed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    concurrency:
+      group: java-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: scalar-js
+          path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
+      - name: Setup Java
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+          cache-dependency-path: '**/java/pom.xml'
+          server-id: 'central'
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: integrations/java
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Set version in parent POM
+        working-directory: integrations/java
+        run: mvn versions:set -DnewVersion=${{ steps.package-version.outputs.VERSION }} -DgenerateBackupPoms=false
+      - name: Build all Java modules
+        working-directory: integrations/java
+        run: mvn clean package -pl scalar-core,scalar-webmvc,scalar-webflux -am
+      - name: Publish all Java modules to Maven Central
+        working-directory: integrations/java
+        run: mvn deploy -pl scalar-core,scalar-webmvc,scalar-webflux -am
+        env:
+          # Create an account on Sonatype and add the credentials to the repository secrets.
+          # Generate User Token: https://central.sonatype.com/account
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          GPG_KEYNAME: ${{ secrets.GPG_KEY_ID }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

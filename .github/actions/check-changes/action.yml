@@ -1,0 +1,162 @@
+name: 'Check Changes'
+description: |
+  Detect which areas of the monorepo are affected by the current event and
+  emit one boolean output per scope. Path-based detection via
+  step-security/changed-files.
+
+  Lifted verbatim from the inline `check-changes` job that used to live in
+  ci.yml so pr.yml and main.yml can share a single source of truth.
+
+outputs:
+  dotnet_changed:
+    description: 'integrations/dotnet/**'
+    value: ${{ steps.set-outputs.outputs.dotnet_changed }}
+  java_changed:
+    description: 'integrations/java/**'
+    value: ${{ steps.set-outputs.outputs.java_changed }}
+  fastapi_changed:
+    description: 'integrations/fastapi/**'
+    value: ${{ steps.set-outputs.outputs.fastapi_changed }}
+  django_ninja_changed:
+    description: 'integrations/django-ninja/**'
+    value: ${{ steps.set-outputs.outputs.django_ninja_changed }}
+  rust_changed:
+    description: 'integrations/rust/**'
+    value: ${{ steps.set-outputs.outputs.rust_changed }}
+  docker_changed:
+    description: 'integrations/docker/**'
+    value: ${{ steps.set-outputs.outputs.docker_changed }}
+  aspnetcore_package_changed:
+    description: 'integrations/dotnet/aspnetcore/package.json'
+    value: ${{ steps.set-outputs.outputs.aspnetcore_package_changed }}
+  aspire_package_changed:
+    description: 'integrations/dotnet/aspire/package.json'
+    value: ${{ steps.set-outputs.outputs.aspire_package_changed }}
+  fastapi_package_changed:
+    description: 'integrations/fastapi/package.json'
+    value: ${{ steps.set-outputs.outputs.fastapi_package_changed }}
+  django_ninja_package_changed:
+    description: 'integrations/django-ninja/package.json'
+    value: ${{ steps.set-outputs.outputs.django_ninja_package_changed }}
+  rust_package_changed:
+    description: 'integrations/rust/package.json'
+    value: ${{ steps.set-outputs.outputs.rust_package_changed }}
+  java_package_changed:
+    description: 'integrations/java/package.json'
+    value: ${{ steps.set-outputs.outputs.java_package_changed }}
+  docker_package_changed:
+    description: 'integrations/docker/package.json'
+    value: ${{ steps.set-outputs.outputs.docker_package_changed }}
+  mock_server_docker_package_changed:
+    description: 'packages/mock-server/docker/package.json'
+    value: ${{ steps.set-outputs.outputs.mock_server_docker_package_changed }}
+  icons_changed:
+    description: 'packages/icons/** or the ScalarIcon component'
+    value: ${{ steps.set-outputs.outputs.icons_changed }}
+  galaxy_changed:
+    description: 'packages/galaxy/**'
+    value: ${{ steps.set-outputs.outputs.galaxy_changed }}
+  galaxy_preview_changed:
+    description: 'Any package or projects/galaxy-scalar-com/** (drives the galaxy preview deploy)'
+    value: ${{ steps.set-outputs.outputs.galaxy_preview_changed }}
+  api_client_changed:
+    description: 'packages/api-client/** or projects/scalar-app/**'
+    value: ${{ steps.set-outputs.outputs.api_client_changed }}
+  api_reference_changed:
+    description: 'packages/api-reference/**'
+    value: ${{ steps.set-outputs.outputs.api_reference_changed }}
+  scalar_app_package_changed:
+    description: 'projects/scalar-app/package.json'
+    value: ${{ steps.set-outputs.outputs.scalar_app_package_changed }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check whether integration files were modified
+      id: changed-integration-files
+      uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
+      with:
+        files_yaml: |
+          dotnet_integration:
+            - integrations/dotnet/**
+          java_integration:
+            - integrations/java/**
+          fastapi_integration:
+            - integrations/fastapi/**
+          rust_integration:
+            - integrations/rust/**
+          docker_integration:
+            - integrations/docker/**
+          django_ninja_integration:
+            - integrations/django-ninja/**
+
+    - name: Check whether packages files were modified
+      id: changed-packages-files
+      uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
+      with:
+        files_yaml: |
+          icons_changed:
+            - packages/icons/**
+            - packages/components/src/components/ScalarIcon/**
+          galaxy_changed:
+            - packages/galaxy/**
+          # Any package can feed into the @scalar/api-reference bundle that
+          # galaxy serves, so a preview deploy is worthwhile for every package
+          # change, not just changes to galaxy itself.
+          galaxy_preview_changed:
+            - packages/**
+            - projects/galaxy-scalar-com/**
+          api_client_changed:
+            - packages/api-client/**
+            - projects/scalar-app/**
+          api_reference_changed:
+            - packages/api-reference/**
+          scalar_app_package:
+            - projects/scalar-app/package.json
+
+    - name: Check whether integration package.json files were modified
+      id: changed-package-files
+      uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
+      with:
+        files_yaml: |
+          aspnetcore_package:
+            - integrations/dotnet/aspnetcore/package.json
+          aspire_package:
+            - integrations/dotnet/aspire/package.json
+          fastapi_package:
+            - integrations/fastapi/package.json
+          django_ninja_package:
+            - integrations/django-ninja/package.json
+          rust_package:
+            - integrations/rust/package.json
+          java_package:
+            - integrations/java/package.json
+          docker_package:
+            - integrations/docker/package.json
+          mock_server_docker_package:
+            - packages/mock-server/docker/package.json
+
+    - name: Set job outputs
+      id: set-outputs
+      shell: bash
+      run: |
+        echo "dotnet_changed=${{ steps.changed-integration-files.outputs.dotnet_integration_any_changed }}" >> $GITHUB_OUTPUT
+        echo "java_changed=${{ steps.changed-integration-files.outputs.java_integration_any_changed }}" >> $GITHUB_OUTPUT
+        echo "fastapi_changed=${{ steps.changed-integration-files.outputs.fastapi_integration_any_changed }}" >> $GITHUB_OUTPUT
+        echo "django_ninja_changed=${{ steps.changed-integration-files.outputs.django_ninja_integration_any_changed }}" >> $GITHUB_OUTPUT
+        echo "rust_changed=${{ steps.changed-integration-files.outputs.rust_integration_any_changed }}" >> $GITHUB_OUTPUT
+        echo "docker_changed=${{ steps.changed-integration-files.outputs.docker_integration_any_changed }}" >> $GITHUB_OUTPUT
+        echo "aspnetcore_package_changed=${{ steps.changed-package-files.outputs.aspnetcore_package_any_changed }}" >> $GITHUB_OUTPUT
+        echo "aspire_package_changed=${{ steps.changed-package-files.outputs.aspire_package_any_changed }}" >> $GITHUB_OUTPUT
+        echo "fastapi_package_changed=${{ steps.changed-package-files.outputs.fastapi_package_any_changed }}" >> $GITHUB_OUTPUT
+        echo "django_ninja_package_changed=${{ steps.changed-package-files.outputs.django_ninja_package_any_changed }}" >> $GITHUB_OUTPUT
+        echo "rust_package_changed=${{ steps.changed-package-files.outputs.rust_package_any_changed }}" >> $GITHUB_OUTPUT
+        echo "java_package_changed=${{ steps.changed-package-files.outputs.java_package_any_changed }}" >> $GITHUB_OUTPUT
+        echo "docker_package_changed=${{ steps.changed-package-files.outputs.docker_package_any_changed }}" >> $GITHUB_OUTPUT
+        echo "mock_server_docker_package_changed=${{ steps.changed-package-files.outputs.mock_server_docker_package_any_changed }}" >> $GITHUB_OUTPUT
+        echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
+        echo "galaxy_changed=${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}" >> $GITHUB_OUTPUT
+        echo "galaxy_preview_changed=${{ steps.changed-packages-files.outputs.galaxy_preview_changed_any_changed }}" >> $GITHUB_OUTPUT
+        echo "api_client_changed=${{ steps.changed-packages-files.outputs.api_client_changed_any_changed }}" >> $GITHUB_OUTPUT
+        echo "api_reference_changed=${{ steps.changed-packages-files.outputs.api_reference_changed_any_changed }}" >> $GITHUB_OUTPUT
+        echo "scalar_app_package_changed=${{ steps.changed-packages-files.outputs.scalar_app_package_any_changed }}" >> $GITHUB_OUTPUT

@@ -1,0 +1,330 @@
+name: Release
+
+# Reusable workflow that owns every production publish. Only ever invoked from
+# main.yml, after the required tests pass on a push to `main`. PRs trigger
+# pr.yml, which never references this file — that structural separation is what
+# keeps production publish secrets out of reach of pull requests.
+#
+# Stages:
+#   1. npm-publish (changesets/action) — must run on a github-hosted runner;
+#      npm provenance via OIDC rejects self-hosted runners.
+#   2. create-github-release (only when something was published)
+#   3. push-to-scalar-registry (galaxy registry)
+#   4. publish-integrations (Docker, NuGet, PyPI, crates, Maven)
+#   5. todesktop (only when scalar-app's version bumped)
+
+on:
+  workflow_call:
+    inputs:
+      docker_package_changed:
+        type: string
+        required: true
+      mock_server_docker_package_changed:
+        type: string
+        required: true
+      aspnetcore_package_changed:
+        type: string
+        required: true
+      aspire_package_changed:
+        type: string
+        required: true
+      fastapi_package_changed:
+        type: string
+        required: true
+      django_ninja_package_changed:
+        type: string
+        required: true
+      rust_package_changed:
+        type: string
+        required: true
+      java_package_changed:
+        type: string
+        required: true
+      # Per-integration build-test results from integration-builds.yml. Each
+      # publish job gates on its own flag so it only runs when its build-test
+      # passed (empty when the build-test was skipped or failed).
+      docker_build_passed:
+        type: string
+        required: true
+      dotnet_build_passed:
+        type: string
+        required: true
+      fastapi_build_passed:
+        type: string
+        required: true
+      django_ninja_build_passed:
+        type: string
+        required: true
+      rust_build_passed:
+        type: string
+        required: true
+      java_build_passed:
+        type: string
+        required: true
+    outputs:
+      published:
+        description: "changesets/action published flag ('true' when a package shipped to npm)"
+        value: ${{ jobs.npm-publish.outputs.published }}
+      scalar_app_released:
+        description: "'true' when projects/scalar-app version bumped on this commit"
+        value: ${{ jobs.npm-publish.outputs.scalar_app_released }}
+      npm_publish_status:
+        # 'success' or 'failure' — the npm-publish JOB result on its own, so the
+        # main-push deploys can gate on the publish itself rather than on the
+        # whole release workflow (a failing registry push / integration publish /
+        # ToDesktop must not block the web + galaxy deploys).
+        value: ${{ jobs.npm-publish.outputs.status }}
+
+permissions:
+  contents: read
+
+env:
+  TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
+
+jobs:
+  npm-publish:
+    # `npm publish --provenance` requires a GitHub-hosted runner. Self-hosted
+    # runners (including Blacksmith) are rejected by the npm registry with HTTP
+    # 422 because the OIDC issuer is not in npm's trusted list. Always use a
+    # github-hosted runner here, regardless of whether this run will publish.
+    runs-on: ubuntu-22.04
+    environment: production-npm
+    timeout-minutes: 15
+    # Avoid running this job in parallel:
+    # `changesets/action` creates/updates the release branch, which shouldn't happen in parallel.
+    # npm publish also shouldn't happen in parallel.
+    concurrency:
+      group: npm-publish
+      cancel-in-progress: false
+    permissions:
+      # Required for creating a release pull request
+      contents: write
+      pull-requests: write
+      repository-projects: write
+      # Required for npm provenance statements
+      id-token: write
+    # Expose the changesets/action outputs so downstream jobs can gate on the
+    # actual publish result instead of parsing the commit message. `published`
+    # is 'true' only when changesets/action actually pushed at least one
+    # package to npm; `publishedPackages` is a JSON array of {name, version}.
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+      publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+      # 'true' when this commit bumped projects/scalar-app/package.json's
+      # version. scalar-app is private, so it never appears in
+      # `publishedPackages` — this lets downstream jobs (web prod deploy,
+      # ToDesktop build) treat a scalar-app version bump as a release even
+      # when no public packages were published in the same commit.
+      scalar_app_released: ${{ steps.scalar-app-release.outputs.released }}
+      # Captured by the always()-step below so the caller can read the
+      # npm-publish job result independently of sibling release jobs.
+      status: ${{ steps.outcome.outputs.status }}
+    steps:
+      # Mint a short-lived GitHub App token so the "chore: release" PR is opened
+      # by our app instead of the default GITHUB_TOKEN. Pull requests created with
+      # GITHUB_TOKEN do not trigger workflow events, which is why the release PR
+      # used to get no CI; an app token lifts that restriction. The credentials
+      # live in the production-npm environment so they inherit its branch
+      # protection rules.
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          # Persist the app token so the branch push that opens the release PR is
+          # attributed to the app, which is what lets CI run on that PR.
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Detect scalar-app version bump
+        id: scalar-app-release
+        run: |
+          CURRENT_VERSION=$(jq -r .version projects/scalar-app/package.json)
+          PREV_VERSION=$(git show HEAD~1:projects/scalar-app/package.json 2>/dev/null | jq -r .version || echo "")
+          if [ -n "$PREV_VERSION" ] && [ "$CURRENT_VERSION" != "$PREV_VERSION" ]; then
+            echo "scalar-app version changed: $PREV_VERSION -> $CURRENT_VERSION"
+            echo "released=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "scalar-app version unchanged: $CURRENT_VERSION"
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          # Build everything
+          packages: './**'
+      - name: Git Status
+        run: git status
+      - name: Stash changes
+        run: git stash
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1
+        with:
+          # The pull request title.
+          title: 'chore: release'
+          # Bumps versions, updates CHANGELOG.md, and appends an
+          # AI-written entry to projects/scalar-app/RELEASE_NOTES.json
+          # (the source of truth bundled with the in-app "What's new"
+          # modal) plus a regenerated RELEASE_NOTES.md view. The note
+          # rolls up the scalar-app CHANGELOG with the bundled
+          # @scalar/api-client CHANGELOG, since the api-client is the
+          # headline dependency that ships inside the desktop and web
+          # builds. The release-notes step short-circuits silently when
+          # ANTHROPIC_API_KEY is not available (forks, contributor PRs).
+          version: 'pnpm release:version'
+          # The commit message to use.
+          commit: 'chore: version packages'
+          # The command to use to build and publish packages.
+          publish: 'pnpm -r publish --access public --no-git-checks'
+        env:
+          # The app token (not GITHUB_TOKEN) is what makes the release PR
+          # trigger CI — see the "Generate GitHub App token" step above.
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new
+          # Custom Expiration: 01-01-2100
+          # Permissions: Read and Write
+          # Select packages: @scalar
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Used by `pnpm release:version` to summarise the just-bumped
+          # CHANGELOG.md section into a friendly release-notes entry.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Bust CDN cache
+        if: steps.changesets.outputs.published == 'true'
+        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
+        with:
+          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
+          method: 'GET'
+
+      # Record this job's own result so the main-push deploys can gate on the
+      # npm publish alone. `always()` ensures it runs even if an earlier step
+      # failed, and `job.status` is 'success' or 'failure' at that point.
+      - name: Record npm-publish status
+        if: always()
+        id: outcome
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: echo "status=$JOB_STATUS" >> "$GITHUB_OUTPUT"
+
+  # We use this job for automated changelog generation
+  create-github-release:
+    if: needs.npm-publish.outputs.published == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    needs: [npm-publish]
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+      - name: Generate release tag
+        id: tag
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          TAG="release-${DATE}-${SHORT_SHA}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+      - name: Get PR body from merged release PR
+        id: pr-body
+        run: |
+          # Find the PR that contains this commit
+          PR_DATA=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[0]')
+          PR_BODY=$(echo "$PR_DATA" | jq -r '.body // ""')
+
+          # Fallback if PR body is empty
+          if [ -z "$PR_BODY" ] || [ "$PR_BODY" == "null" ]; then
+            echo "PR body not found, using default notes"
+            echo "Release ${{ steps.tag.outputs.date }}" > release-notes.md
+          else
+            # Extract only the relevant content:
+            # - Start from "# Releases" heading
+            # - Stop before "<!-- CURSOR_SUMMARY -->" marker
+            echo "$PR_BODY" | awk '
+              /^# Releases/ { found=1 }
+              /<!-- CURSOR_SUMMARY -->/ { exit }
+              found { print }
+            ' > release-notes.md
+
+            # If extraction failed (no "# Releases" found), use full body
+            if [ ! -s release-notes.md ]; then
+              echo "$PR_BODY" > release-notes.md
+            fi
+          fi
+      - name: Create GitHub Release
+        run: |
+          gh release create "${{ steps.tag.outputs.tag }}" \
+            --title "Release ${{ steps.tag.outputs.date }}" \
+            --notes-file release-notes.md
+
+  push-to-scalar-registry:
+    if: needs.npm-publish.outputs.published == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-scalar-registry
+    timeout-minutes: 10
+    needs: [npm-publish]
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Build @scalar/galaxy
+        uses: ./.github/actions/build
+        with:
+          packages: '@scalar/galaxy...'
+      - name: Check whether there's a new version of @scalar/galaxy
+        id: changed-files
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
+        with:
+          files_yaml: |
+            galaxy:
+              - packages/galaxy/**
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Get version from package.json
+        id: package-version
+        working-directory: packages/galaxy
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Login to Scalar Registry
+        run: npx @scalar/cli@latest auth login --token ${{ secrets.SCALAR_API_KEY }}
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Push OpenAPI Example to Scalar Registry
+        run: npx @scalar/cli@latest registry publish --namespace scalar --slug galaxy --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/latest.yaml
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Push AsyncAPI Example to Scalar Registry
+        run: npx @scalar/cli@latest registry publish --namespace scalar --slug asyncapi --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
+
+  # Fan out to every non-JS integration registry. Each job inside this reusable
+  # workflow runs in its own GitHub Environment so credentials stay scoped.
+  publish-integrations:
+    needs: [npm-publish]
+    uses: ./.github/workflows/publish-integrations.yml
+    with:
+      published: ${{ needs.npm-publish.outputs.published }}
+      docker_package_changed: ${{ inputs.docker_package_changed }}
+      mock_server_docker_package_changed: ${{ inputs.mock_server_docker_package_changed }}
+      aspnetcore_package_changed: ${{ inputs.aspnetcore_package_changed }}
+      aspire_package_changed: ${{ inputs.aspire_package_changed }}
+      fastapi_package_changed: ${{ inputs.fastapi_package_changed }}
+      django_ninja_package_changed: ${{ inputs.django_ninja_package_changed }}
+      rust_package_changed: ${{ inputs.rust_package_changed }}
+      java_package_changed: ${{ inputs.java_package_changed }}
+      docker_build_passed: ${{ inputs.docker_build_passed }}
+      dotnet_build_passed: ${{ inputs.dotnet_build_passed }}
+      fastapi_build_passed: ${{ inputs.fastapi_build_passed }}
+      django_ninja_build_passed: ${{ inputs.django_ninja_build_passed }}
+      rust_build_passed: ${{ inputs.rust_build_passed }}
+      java_build_passed: ${{ inputs.java_build_passed }}
+    secrets: inherit
+
+  todesktop:
+    needs: [npm-publish]
+    uses: ./.github/workflows/todesktop.yml
+    with:
+      scalar_app_released: ${{ needs.npm-publish.outputs.scalar_app_released }}
+    secrets: inherit
