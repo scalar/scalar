@@ -333,6 +333,13 @@ describe('CodeInputLite', () => {
     expect(wrapper.emitted('blur')).toBeTruthy()
   })
 
+  it('emits submit on blur for a falsy but non-empty model value like "0"', async () => {
+    const wrapper = mountInput({ modelValue: '0', emitOnBlur: true })
+    await nextTick()
+    await wrapper.get('.code-input-lite__editor').trigger('blur')
+    expect(wrapper.emitted('submit')?.[0]?.[0]).toBe('0')
+  })
+
   it('navigates to the environment page when the dropdown asks to redirect', async () => {
     const wrapper = mountInput({ modelValue: '' })
     api(wrapper).setContent('{{')

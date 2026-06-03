@@ -593,7 +593,9 @@ const handleBlur = (event: FocusEvent): void => {
   isFocused.value = false
   showDropdown.value = false
   const value = serializeEditor()
-  if (emitOnBlur && modelValue) {
+  // Check the serialized `value`, not `modelValue` — a `0` or `false` model is
+  // a valid non-empty entry that should still submit on blur.
+  if (emitOnBlur && value) {
     emit('submit', value, event)
   }
   emit('blur', value, event)
@@ -726,7 +728,13 @@ watch(
       return
     }
     lastPillSignature = pillSignature(serializeEditor(), withVariables)
+    // Preserve the caret across the rebuild so editing does not jump to the
+    // start when the environment changes mid-edit (mirrors `handleInput`).
+    const caret = getModelCaret()
     renderModel(serializeEditor())
+    if (caret !== null) {
+      setModelCaret(caret)
+    }
   },
   // Variables are often mutated in place (e.g. editing a value in the env
   // editor) without the object reference changing — deep watch catches it.
