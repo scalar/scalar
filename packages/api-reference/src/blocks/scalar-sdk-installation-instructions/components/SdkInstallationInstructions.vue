@@ -259,7 +259,7 @@ onBeforeUnmount(() => observer?.disconnect())
       rel="noopener noreferrer"
       target="_blank">
       <ScalarIcon
-        class="client-libraries-icon"
+        class="selected-client-link-icon"
         icon="ExternalLink" />
       <span>{{ selectedUrlLabel }}</span>
     </a>
@@ -298,15 +298,19 @@ onBeforeUnmount(() => observer?.disconnect())
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--scalar-color-accent);
+  color: var(--scalar-color-2);
   text-decoration: none;
 }
 .selected-client--link:hover {
-  text-decoration: underline;
+  color: var(--scalar-color-1);
 }
 .selected-client--link:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
+}
+.selected-client-link-icon {
+  width: 12px;
+  height: 12px;
 }
 .client-libraries-heading {
   font-size: var(--scalar-small);
