@@ -156,7 +156,7 @@ const shouldDisplayHeadingComputed = computed(() =>
 
 /** Computes which compositions should be rendered and with which values */
 const compositionsToRender = computed(() =>
-  getCompositionsToRender(optimizedValue.value),
+  getCompositionsToRender(optimizedValue.value, props.options.document),
 )
 
 /** Get resolved array items for rendering */

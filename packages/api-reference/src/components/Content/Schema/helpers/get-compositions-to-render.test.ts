@@ -1,3 +1,4 @@
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
@@ -43,6 +44,51 @@ describe('get-compositions-to-render', () => {
       const result = getCompositionsToRender(schema)
       expect(result).toHaveLength(2)
       expect(result.map((r) => r.composition)).toEqual(['oneOf', 'anyOf'])
+    })
+
+    it('infers oneOf composition from discriminator mapping using document component schemas', () => {
+      const schema = {
+        type: 'object',
+        discriminator: {
+          propertyName: 'shapeType',
+          mapping: {
+            circle: '#/components/schemas/Circle',
+            rectangle: 'Rectangle',
+          },
+        },
+      } as SchemaObject
+
+      const document: NonNullable<Parameters<typeof getCompositionsToRender>[1]> = {
+        components: {
+          schemas: {
+            Circle: {
+              title: 'Circle',
+              type: 'object',
+              properties: {
+                radius: { type: 'number' },
+              },
+            },
+            Rectangle: {
+              title: 'Rectangle',
+              type: 'object',
+              properties: {
+                width: { type: 'number' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = getCompositionsToRender(schema, document)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]?.composition).toBe('oneOf')
+      expect((result[0]?.value.oneOf?.[0] as any)?.$ref).toBe('#/components/schemas/Circle')
+      expect((result[0]?.value.oneOf?.[1] as any)?.$ref).toBe('#/components/schemas/Rectangle')
+      expect(resolve.schema(result[0]?.value.oneOf?.[0] as any)).toMatchObject({
+        title: 'Circle',
+        type: 'object',
+      })
     })
 
     it('returns empty array when schema has no compositions', () => {

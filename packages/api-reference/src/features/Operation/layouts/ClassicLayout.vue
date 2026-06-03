@@ -12,6 +12,7 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type {
+  OpenApiDocument,
   OperationObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -47,6 +48,7 @@ import { XBadges } from '@/features/x-badges'
 
 const {
   clientOptions,
+  document,
   eventBus,
   isWebhook,
   method,
@@ -70,6 +72,8 @@ const {
     selectedSecuritySchemes: SecuritySchemeObjectSecret[]
     /** Required/optional security state for the badge next to the path */
     requiredSecurity: RequiredSecurity
+    /** The document the operation belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
   }
 >()
 
@@ -211,6 +215,7 @@ const { copyToClipboard } = useClipboard()
         <div class="operation-details-card-item">
           <OperationParameters
             v-model:selectedContentType="selectedRequestBodyContentType"
+            :document
             :eventBus
             :options
             :parameters="operation.parameters"
@@ -218,6 +223,7 @@ const { copyToClipboard } = useClipboard()
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
+            :document
             :eventBus
             :options
             :responses="operation.responses" />
@@ -229,6 +235,7 @@ const { copyToClipboard } = useClipboard()
           class="operation-details-card-item">
           <Callbacks
             :callbacks="operation.callbacks"
+            :document
             :eventBus
             :options
             :path />

@@ -2,19 +2,24 @@
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
 
 import { SchemaHeading, SchemaProperty } from '../../Schema'
 
-const { eventBus, id } = defineProps<{
+const { eventBus, id, options, document } = defineProps<{
   id: string
   name: string
   schema: SchemaObject
   isCollapsed: boolean
   eventBus: WorkspaceEventBus
+  /** The document the model belongs to, used to resolve schema references for display */
+  document?: OpenApiDocument
   options: Pick<
     ApiReferenceConfigurationRaw,
     'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy' | 'hideModels'
@@ -51,7 +56,7 @@ const { eventBus, id } = defineProps<{
         :eventBus="eventBus"
         :hideModelNames="options.hideModels"
         :name="property"
-        :options
+        :options="{ ...options, document }"
         :required="schema.required?.includes(property)"
         :schema="resolve.schema(value)" />
     </div>
@@ -59,7 +64,7 @@ const { eventBus, id } = defineProps<{
       <SchemaProperty
         :eventBus="eventBus"
         :hideModelNames="options.hideModels"
-        :options
+        :options="{ ...options, document }"
         :schema="schema" />
     </div>
   </SectionAccordion>

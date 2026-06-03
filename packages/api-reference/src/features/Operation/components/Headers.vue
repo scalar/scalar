@@ -3,7 +3,10 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components/icon'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  HeaderObject,
+  OpenApiDocument,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import Header from './Header.vue'
 
@@ -11,6 +14,8 @@ const { headers, breadcrumb } = defineProps<{
   headers: Record<string, HeaderObject>
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
+  /** The document the headers belong to, used to resolve schema references for display */
+  document?: OpenApiDocument
   orderRequiredPropertiesFirst: boolean | undefined
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
 }>()
@@ -42,6 +47,7 @@ const { headers, breadcrumb } = defineProps<{
             :key="key">
             <Header
               :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
+              :document="document"
               :eventBus="eventBus"
               :header="getResolvedRef(header)"
               :name="key"

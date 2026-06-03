@@ -6,6 +6,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   CallbackObject,
+  OpenApiDocument,
   OperationObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
@@ -18,6 +19,8 @@ const { path, callbacks, options } = defineProps<{
   path: string
   callbacks: CallbackObject
   eventBus: WorkspaceEventBus | null
+  /** The document the callbacks belong to, used to resolve schema references for display */
+  document?: OpenApiDocument
   options: Pick<
     OperationProps['options'],
     'hideModels' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
@@ -75,6 +78,7 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
       v-for="{ callback, method, name, url } in flattenedCallbacks"
       :key="`${name}-${url}-${method}`"
       :callback
+      :document
       :eventBus
       :method
       :name

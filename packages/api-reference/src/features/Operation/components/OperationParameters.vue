@@ -2,6 +2,7 @@
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
+  OpenApiDocument,
   ParameterObject,
   ReferenceType,
   RequestBodyObject,
@@ -20,6 +21,8 @@ const { parameters = [], requestBody } = defineProps<{
   parameters?: ReferenceType<ParameterObject>[]
   requestBody?: RequestBodyObject | undefined
   eventBus: WorkspaceEventBus | null
+  /** The document the operation belongs to, used to resolve schema references for display */
+  document?: OpenApiDocument
   options: Pick<
     OperationProps['options'],
     'hideModels' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
@@ -58,6 +61,7 @@ const splitParameters = computed(() =>
   <!-- Path parameters-->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'path'] : undefined"
+    :document="document"
     :eventBus="eventBus"
     :options="options"
     :parameters="splitParameters['path']">
@@ -67,6 +71,7 @@ const splitParameters = computed(() =>
   <!-- Query parameters -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'query'] : undefined"
+    :document="document"
     :eventBus="eventBus"
     :options="options"
     :parameters="splitParameters['query']">
@@ -76,6 +81,7 @@ const splitParameters = computed(() =>
   <!-- Headers -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
+    :document="document"
     :eventBus="eventBus"
     :options="options"
     :parameters="splitParameters['header']">
@@ -85,6 +91,7 @@ const splitParameters = computed(() =>
   <!-- Cookies -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'cookies'] : undefined"
+    :document="document"
     :eventBus="eventBus"
     :options="options"
     :parameters="splitParameters['cookie']">
@@ -96,6 +103,7 @@ const splitParameters = computed(() =>
     v-if="requestBody"
     v-model:selectedContentType="selectedContentType"
     :breadcrumb="breadcrumb ? [...breadcrumb, 'body'] : undefined"
+    :document="document"
     :eventBus="eventBus"
     :options="options"
     :requestBody="requestBody">

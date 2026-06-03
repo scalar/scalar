@@ -2,7 +2,10 @@
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  RequestBodyObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
@@ -16,10 +19,12 @@ import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
-const { requestBody, options } = defineProps<{
+const { requestBody, options, document } = defineProps<{
   breadcrumb?: string[]
   requestBody?: RequestBodyObject
   eventBus: WorkspaceEventBus | null
+  /** The document the request body belongs to, used to resolve schema references for display */
+  document?: OpenApiDocument
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
@@ -179,6 +184,7 @@ const shouldRenderRequestBody = computed(
           hideReadOnly: true,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+          document,
         }"
         :schema="partitionedSchema.visibleProperties"
         schemaContext="requestBody" />
@@ -195,6 +201,7 @@ const shouldRenderRequestBody = computed(
           hideReadOnly: true,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+          document,
         }"
         :schema="partitionedSchema.collapsedProperties"
         schemaContext="requestBody" />
@@ -216,6 +223,7 @@ const shouldRenderRequestBody = computed(
           hideReadOnly: true,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+          document,
         }"
         :schema="schema"
         schemaContext="requestBody" />
