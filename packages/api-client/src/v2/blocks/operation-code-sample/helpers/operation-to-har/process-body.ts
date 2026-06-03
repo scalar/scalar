@@ -81,20 +81,11 @@ const objectToFormParams = (
     const explicitContentType = hasFormStyle || !isMultipart ? undefined : partEncoding?.contentType
 
     /**
-     * Per OpenAPI 3.1.x Encoding Object: when style/explode/allowReserved is set on a
-     * `multipart/form-data` or `application/x-www-form-urlencoded` part, the value is
-     * serialized as if it were a query-style parameter and contentType is ignored. For
-     * multipart the query delimiters are stripped per §Appendix C; HAR represents both
-     * content types via `PostData.params`, so the same shape works for both.
-     *
-     * Primitives skip this branch and fall through to the String(value) path below since
-     * style is a no-op for primitives. Files skip too, as do arrays containing Files —
-     * RFC6570 expansion of binary data is undefined per §Appendix C, and the array branch
-     * below already emits one `@filename` part per File.
-     *
-     * allowReserved only affects percent-encoding, which is a no-op at the HAR layer per
-     * OAS 3.1.2 ("`allowReserved` has no effect" for multipart); its presence still opts
-     * into this branch per spec.
+     * When the encoding sets style/explode/allowReserved, serialize the value RFC6570-style
+     * (bracket/exploded notation) and ignore contentType. See `serializeFormPropertyWithEncoding`
+     * for the per-style rules; it returns null for primitives, Files, and arrays of Files, which
+     * then fall through to the dedicated branches below. HAR represents multipart and urlencoded
+     * the same way via `PostData.params`, so the resulting parts work for both.
      */
     const styleParams = parentKey ? null : serializeFormPropertyWithEncoding(key, value, partEncoding)
     if (styleParams) {

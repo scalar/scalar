@@ -311,6 +311,27 @@ describe('buildRequestBody', () => {
       })
     })
 
+    it('drops a styled empty object instead of emitting an empty part', () => {
+      const requestBody = {
+        content: {
+          'multipart/form-data': {
+            encoding: {
+              address: { style: 'form' as const, explode: true },
+            },
+            examples: {
+              default: {
+                value: { address: {} },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({ mode: 'formdata', value: [] })
+    })
+
     it('keeps JSON-stringifying multipart objects without an encoding style', () => {
       const requestBody = {
         content: {
