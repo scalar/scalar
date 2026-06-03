@@ -224,49 +224,45 @@ onBeforeUnmount(() => observer?.disconnect())
       </div>
     </div>
 
-    <!-- Content -->
+    <!-- Content: description, install command and link share one panel -->
     <div
-      v-if="selected?.description"
+      v-if="selected?.description || selected?.source || selectedUrl"
       class="selected-client"
-      :class="{
-        'selected-client--connected': selected?.source || selected?.url,
-      }"
       role="tabpanel">
-      <ScalarMarkdown :value="selected.description" />
+      <ScalarMarkdown
+        v-if="selected?.description"
+        :value="selected.description" />
+      <!-- The install command keeps its own frame inside the panel -->
+      <div
+        v-if="selected?.source"
+        class="selected-client-source">
+        <ScalarCodeBlock
+          class="*:first:p-3"
+          :content="selected.source"
+          copy="always"
+          lang="shell" />
+      </div>
+      <!-- Link to the package or repository -->
+      <a
+        v-if="selectedUrl"
+        class="selected-client-link"
+        :href="selectedUrl"
+        rel="noopener noreferrer"
+        target="_blank">
+        <ScalarIcon
+          class="selected-client-link-icon"
+          icon="ExternalLink" />
+        <span>{{ selectedUrlLabel }}</span>
+      </a>
     </div>
-    <div
-      v-if="selected?.source"
-      class="selected-client selected-client--source"
-      :class="{
-        'selected-client--divided': selected?.description,
-        'selected-client--connected': selected?.url,
-      }"
-      role="tabpanel">
-      <ScalarCodeBlock
-        class="*:first:p-3"
-        :content="selected.source"
-        copy="always"
-        lang="shell" />
-    </div>
-    <!-- Link to the package or repository -->
-    <a
-      v-if="selectedUrl"
-      class="selected-client selected-client--link"
-      :class="{
-        'selected-client--divided': selected?.description || selected?.source,
-      }"
-      :href="selectedUrl"
-      rel="noopener noreferrer"
-      target="_blank">
-      <ScalarIcon
-        class="selected-client-link-icon"
-        icon="ExternalLink" />
-      <span>{{ selectedUrlLabel }}</span>
-    </a>
   </div>
 </template>
 <style scoped>
+/* One panel holds the description, install command and link */
 .selected-client {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
   color: var(--scalar-color-1);
   font-size: var(--scalar-small);
   font-family: var(--scalar-font-code);
@@ -276,35 +272,25 @@ onBeforeUnmount(() => observer?.disconnect())
   border-top: none;
   border-bottom-left-radius: var(--scalar-radius-xl);
   border-bottom-right-radius: var(--scalar-radius-xl);
-  min-height: fit-content;
 }
-/* When a code block follows, merge the description into one card */
-.selected-client--connected {
-  border-bottom: none;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-.selected-client--source {
-  padding: 0;
-  /* Clip the code block to the rounded bottom corners */
+/* The install command gets its own frame so it reads as a code block */
+.selected-client-source {
   overflow: hidden;
-}
-/* Divider between the description and the code block */
-.selected-client--divided {
-  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
 }
 /* Link out to the package or repository */
-.selected-client--link {
+.selected-client-link {
   display: flex;
   align-items: center;
   gap: 6px;
   color: var(--scalar-color-2);
   text-decoration: none;
 }
-.selected-client--link:hover {
+.selected-client-link:hover {
   color: var(--scalar-color-1);
 }
-.selected-client--link:focus-visible {
+.selected-client-link:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
@@ -409,8 +395,5 @@ onBeforeUnmount(() => observer?.disconnect())
 .client-libraries__active .client-libraries-text {
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold);
-}
-:deep(.scalar-codeblock-pre .hljs) {
-  margin-top: 8px;
 }
 </style>
