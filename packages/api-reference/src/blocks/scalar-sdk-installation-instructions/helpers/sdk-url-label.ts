@@ -22,6 +22,24 @@ const KNOWN_HOSTS: Record<string, string> = {
 }
 
 /**
+ * Resolve an SDK `url` to a safe, linkable `http(s)` URL.
+ *
+ * The `url` comes straight from the OpenAPI document, so it is untrusted. We
+ * only ever render `http:`/`https:` links to avoid `javascript:`, `data:` and
+ * other script-bearing schemes. Returns `undefined` when the value is not a
+ * safe absolute URL.
+ */
+export const getSafeSdkUrl = (url: string): string | undefined => {
+  try {
+    const parsed = new URL(url)
+
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/**
  * Build the label for an SDK link.
  *
  * Returns a friendly "View on …" label for known hosts (GitHub, npm, PyPI, …)

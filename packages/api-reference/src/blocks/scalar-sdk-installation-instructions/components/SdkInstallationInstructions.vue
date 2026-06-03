@@ -18,7 +18,7 @@ import {
 } from 'vue'
 
 import { getLanguageIcon } from '../helpers/language-icon'
-import { getSdkUrlLabel } from '../helpers/sdk-url-label'
+import { getSafeSdkUrl, getSdkUrlLabel } from '../helpers/sdk-url-label'
 import { getVisibleTabCount } from '../helpers/visible-tab-count'
 
 const { xScalarSdkInstallation } = defineProps<{
@@ -41,9 +41,17 @@ const selectedIndex = ref(0)
 /** The currently selected SDK */
 const selected = computed(() => sdks.value[selectedIndex.value])
 
+/**
+ * The selected SDK link, sanitized to `http(s)` only. The URL comes from the
+ * OpenAPI document, so we never render `javascript:`/`data:` and similar schemes.
+ */
+const selectedUrl = computed(() =>
+  selected.value?.url ? getSafeSdkUrl(selected.value.url) : undefined,
+)
+
 /** The link label for the selected SDK, friendly for known hosts */
 const selectedUrlLabel = computed(() =>
-  selected.value?.url ? getSdkUrlLabel(selected.value.url) : '',
+  selectedUrl.value ? getSdkUrlLabel(selectedUrl.value) : '',
 )
 
 // Keep the selection in range when the list of SDKs changes
@@ -242,12 +250,12 @@ onBeforeUnmount(() => observer?.disconnect())
     </div>
     <!-- Link to the package or repository -->
     <a
-      v-if="selected?.url"
+      v-if="selectedUrl"
       class="selected-client selected-client--link"
       :class="{
         'selected-client--divided': selected?.description || selected?.source,
       }"
-      :href="selected.url"
+      :href="selectedUrl"
       rel="noopener noreferrer"
       target="_blank">
       <ScalarIcon

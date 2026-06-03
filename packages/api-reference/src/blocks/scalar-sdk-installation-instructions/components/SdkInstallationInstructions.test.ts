@@ -85,4 +85,15 @@ describe('SdkInstallationInstructions', () => {
     expect(link.attributes('target')).toBe('_blank')
     expect(link.text()).toBe('View on npm')
   })
+
+  it('does not render a link for unsafe url schemes', () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        xScalarSdkInstallation: [{ lang: 'Node', source: 'npm install @scalar/sdk', url: 'javascript:alert(1)' }],
+      },
+      global: { stubs },
+    })
+
+    expect(wrapper.find('a').exists()).toBe(false)
+  })
 })
