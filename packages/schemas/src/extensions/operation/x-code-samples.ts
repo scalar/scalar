@@ -14,7 +14,7 @@ export const XCodeSample = object(
   },
 )
 
-export const XReadmeCodeSample = object(
+const XReadmeCodeSample = object(
   {
     language: optional(string({ typeComment: 'Programming language for syntax highlighting' })),
     code: string({ typeComment: 'Source code for the sample' }),
@@ -28,7 +28,7 @@ export const XReadmeCodeSample = object(
   },
 )
 
-export const XReadme = object(
+const XReadme = object(
   {
     'code-samples': optional(array(XReadmeCodeSample, { typeComment: 'ReadMe custom code samples' })),
     'samples-languages': optional(array(string(), { typeComment: 'Languages to generate code samples for' })),
@@ -39,7 +39,7 @@ export const XReadme = object(
   },
 )
 
-export const XLanguageExample = object(
+const XLanguageExample = object(
   {
     title: optional(string({ typeComment: 'Label shown in the code sample picker' })),
     request: optional(record(string(), string(), { typeComment: 'Source code keyed by programming language' })),
