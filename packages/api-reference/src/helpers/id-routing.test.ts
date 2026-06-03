@@ -920,6 +920,14 @@ describe('redirectUrl', () => {
         redirectUrl('https://example.com/docs/default/POST/model/train', 'models', 'default', true, '/docs'),
       ).toBeNull()
     })
+
+    it('still rewrites a legacy hash bookmark left over from before path routing', () => {
+      // A `#default/model/User` fragment can linger from when the docs used hash routing. Path
+      // routing reads the id from the pathname, but we fall back to the hash so the old bookmark
+      // is still canonicalized.
+      const result = redirectUrl('https://example.com/docs/#default/model/User', 'models', 'default', true, '/docs')
+      expect(result?.hash).toBe('#default/models/User')
+    })
   })
 
   describe('customized models section slug', () => {

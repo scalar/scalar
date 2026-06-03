@@ -170,22 +170,30 @@ type IdCarrier = {
   write: (next: string) => void
 }
 
+/** Carrier for an id that lives in the bare hash fragment (`#<id>`). */
+const bareHashCarrier = (url: URL): IdCarrier => ({
+  value: decodeURIComponent(url.hash.slice(1)),
+  write: (next) => {
+    url.hash = next
+  },
+})
+
 /**
  * Locates the navigation id inside a URL regardless of the routing mode.
  *
  * The id can live in three places — the bare hash, a hash base path (`#<base>/<id>`), or the
- * pathname after a path base path. Returning the decoded id alongside a `write` callback lets
+ * pathname after a path base path. Each carrier pairs the decoded id with a `write` callback, so
  * callers edit ids in id-space without re-deriving the routing chrome for each mode.
+ *
+ * Multiple carriers are returned in priority order: the canonical location for the active routing
+ * mode comes first, followed by any legacy fallback. Path routing falls back to the bare hash so a
+ * stale `#default/model/User` bookmark (left over from before path routing was enabled) is still
+ * canonicalized — the previous implementation rewrote both the path and the hash on every load.
  */
-const locateIdCarrier = (url: URL, basePath: string | undefined): IdCarrier => {
+const locateIdCarriers = (url: URL, basePath: string | undefined): IdCarrier[] => {
   // Hash routing: the id is the bare fragment.
   if (typeof basePath !== 'string') {
-    return {
-      value: decodeURIComponent(url.hash.slice(1)),
-      write: (next) => {
-        url.hash = next
-      },
-    }
+    return [bareHashCarrier(url)]
   }
 
   // Hash base path routing: the id follows a `#<base>/` prefix.
@@ -193,25 +201,31 @@ const locateIdCarrier = (url: URL, basePath: string | undefined): IdCarrier => {
     const base = sanitizeHashBasePath(basePath)
     const hash = decodeURIComponent(url.hash.slice(1))
 
-    return {
-      value: stripBasePathPrefix(hash, base) ?? '',
-      write: (next) => {
-        url.hash = [base, next].filter(Boolean).join('/')
+    return [
+      {
+        value: stripBasePathPrefix(hash, base) ?? '',
+        write: (next) => {
+          url.hash = [base, next].filter(Boolean).join('/')
+        },
       },
-    }
+    ]
   }
 
   // Path routing: the id follows the (URL-encoded) base path in the pathname.
   const base = sanitizeBasePath(basePath)
   const remainder = stripBasePathPrefix(url.pathname, encodeBasePath(base))
 
-  return {
-    value: remainder === null ? '' : decodeURIComponent(remainder),
-    write: (next) => {
-      // Assigning to `pathname` re-encodes characters, so we splice with the decoded base.
-      url.pathname = base ? `/${base}/${next}` : `/${next}`
+  return [
+    {
+      value: remainder === null ? '' : decodeURIComponent(remainder),
+      write: (next) => {
+        // Assigning to `pathname` re-encodes characters, so we splice with the decoded base.
+        url.pathname = base ? `/${base}/${next}` : `/${next}`
+      },
     },
-  }
+    // Legacy fallback: an old hash-routing bookmark may still carry the id in the fragment.
+    bareHashCarrier(url),
+  ]
 }
 
 /**
@@ -306,7 +320,7 @@ const buildRedirects = ({ modelsSectionSlug, documentSlug, isMultiDocument }: Re
 /**
  * Rewrites navigation ids in a URL to their current form.
  *
- * The URL is reduced to its routing-agnostic id (see {@link locateIdCarrier}), each redirect rule
+ * The URL is reduced to its routing-agnostic id (see {@link locateIdCarriers}), each redirect rule
  * is applied in id-space (see {@link buildRedirects}), and the result is spliced back into the
  * original location. This handles hash, hash-base-path, and path routing uniformly, so a new
  * redirect only has to be added to the list once.
@@ -325,18 +339,18 @@ export const redirectUrl = (
   }
 
   const target = new URL(typeof url === 'string' ? url : url.toString())
-  const carrier = locateIdCarrier(target, basePath)
-  const rewritten = applyIdRedirects(
-    carrier.value,
-    buildRedirects({ modelsSectionSlug, documentSlug, isMultiDocument }),
-  )
+  const redirects = buildRedirects({ modelsSectionSlug, documentSlug, isMultiDocument })
 
-  if (rewritten === carrier.value) {
-    return null
+  // Try each place the id might live, in priority order, and apply the first rewrite that sticks.
+  for (const carrier of locateIdCarriers(target, basePath)) {
+    const rewritten = applyIdRedirects(carrier.value, redirects)
+    if (rewritten !== carrier.value) {
+      carrier.write(rewritten)
+      return target
+    }
   }
 
-  carrier.write(rewritten)
-  return target
+  return null
 }
 
 /** Extracts the schema parameters from the id if they are present */
