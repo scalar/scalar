@@ -64,8 +64,6 @@ type Props = {
   placeholder?: string
   /** Show required indicator */
   required?: boolean
-  /** Disable the Enter key (single-line submit) */
-  disableEnter?: boolean
   /** Emit submit on blur */
   emitOnBlur?: boolean
   /** Render variable pills + show the autocomplete dropdown */
@@ -97,7 +95,6 @@ const {
   layout = 'desktop',
   placeholder,
   required = false,
-  disableEnter = false,
   emitOnBlur = true,
   alwaysEmitChange = false,
   withVariables = true,
@@ -645,10 +642,8 @@ const handleKeyDown = (event: KeyboardEvent): void => {
   if (event.key === 'Enter') {
     // Block the browser default so a contenteditable div does not insert
     // <br> / <div> and break single-line semantics, then emit submit
-    // (used by AddressBar / table editors). `disableEnter` is currently a
-    // no-op beyond preventDefault — kept for API parity with CodeInput.
+    // (used by the table editors).
     event.preventDefault()
-    void disableEnter
     emit('submit', serializeEditor(), event)
     return
   }

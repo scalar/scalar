@@ -2,4 +2,4 @@
 '@scalar/api-client': patch
 ---
 
-feat: add code input lite for better perf
+feat(api-client): add CodeInputLite, a lightweight contenteditable variable input that replaces CodeMirror in the request, auth, and environment tables for better performance
