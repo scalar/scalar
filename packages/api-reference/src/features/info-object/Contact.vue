@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIconEnvelopeSimple } from '@scalar/icons'
+import { ScalarIconEnvelopeSimple, ScalarIconLink } from '@scalar/icons'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { ContactObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -22,16 +22,30 @@ defineProps<{
     <div
       class="group flex items-center last:border-r-0 xl:border-r xl:first:ml-auto">
       <a
-        v-if="value?.email"
+        v-if="value.email"
         :class="variants({ link: true })"
-        :href="`mailto:${value?.email}`">
+        :href="`mailto:${value.email}`">
         <ScalarIconEnvelopeSimple
           weight="bold"
           class="size-3 text-current" />
         <span class="ml-1 empty:hidden">{{ value.name }}</span>
       </a>
+      <a
+        v-if="value.url"
+        :class="variants({ link: true })"
+        :href="value.url"
+        rel="noopener noreferrer"
+        target="_blank">
+        <ScalarIconLink
+          weight="bold"
+          class="size-3 text-current" />
+        <!-- Avoid repeating the name when the email link already shows it -->
+        <span class="ml-1 empty:hidden">{{
+          value.email ? '' : value.name
+        }}</span>
+      </a>
       <span
-        v-else-if="value?.name"
+        v-else-if="!value.email && value.name"
         :class="variants({ link: false })">
         {{ value.name }}
       </span>
