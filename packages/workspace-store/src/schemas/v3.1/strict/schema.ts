@@ -87,6 +87,22 @@ type Extensions = XScalarIgnore &
   XTags
 
 const CorePropertiesWithSchema = Type.Object({
+  /**
+   * JSON Schema 2020-12 core reference keywords.
+   *
+   * OpenAPI 3.1 adopts the JSON Schema 2020-12 dialect for Schema Objects, which means a schema may carry an
+   * identifier (`$id`), a plain-name anchor (`$anchor`), and the dynamic binding keywords (`$dynamicAnchor` /
+   * `$dynamicRef`) used for generic and recursive patterns such as `PaginatedResponse<T>`. We keep these typed so
+   * the keywords survive parsing instead of being dropped as unknown properties. Resolution of `$dynamicRef`
+   * against the active `$dynamicAnchor` is tracked separately, see https://github.com/scalar/scalar/issues/9414.
+   */
+  $id: Type.Optional(Type.String()),
+  /** Plain-name anchor that other schemas can reference with `#anchor`. */
+  $anchor: Type.Optional(Type.String()),
+  /** Dynamic anchor, the target a matching `$dynamicRef` resolves to within the dynamic scope. */
+  $dynamicAnchor: Type.Optional(Type.String()),
+  /** Dynamic reference, resolved against the outermost matching `$dynamicAnchor` in the dynamic scope. */
+  $dynamicRef: Type.Optional(Type.String()),
   name: Type.Optional(Type.String()),
   /** A title for the schema. */
   title: Type.Optional(Type.String()),
@@ -138,6 +154,22 @@ const CorePropertiesWithSchema = Type.Object({
 })
 
 type CoreProperties = {
+  /**
+   * JSON Schema 2020-12 core reference keywords.
+   *
+   * OpenAPI 3.1 adopts the JSON Schema 2020-12 dialect for Schema Objects, which means a schema may carry an
+   * identifier (`$id`), a plain-name anchor (`$anchor`), and the dynamic binding keywords (`$dynamicAnchor` /
+   * `$dynamicRef`) used for generic and recursive patterns such as `PaginatedResponse<T>`. We keep these typed so
+   * the keywords survive parsing instead of being dropped as unknown properties. Resolution of `$dynamicRef`
+   * against the active `$dynamicAnchor` is tracked separately, see https://github.com/scalar/scalar/issues/9414.
+   */
+  $id?: string
+  /** Plain-name anchor that other schemas can reference with `#anchor`. */
+  $anchor?: string
+  /** Dynamic anchor, the target a matching `$dynamicRef` resolves to within the dynamic scope. */
+  $dynamicAnchor?: string
+  /** Dynamic reference, resolved against the outermost matching `$dynamicAnchor` in the dynamic scope. */
+  $dynamicRef?: string
   name?: string
   /** A title for the schema. */
   title?: string
