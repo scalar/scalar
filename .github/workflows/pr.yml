@@ -578,6 +578,45 @@ jobs:
           message: ${{ steps.build-message.outputs.message }}
           comment-tag: 'deployment-preview'
 
+  # The scheduled docs bots (CLI docs + contributors) open their PRs with an app
+  # token, so this PR workflow runs on them. This job makes sure those bot PRs
+  # only ever touch Markdown: if a compromised step tried to smuggle in code or
+  # workflow changes, the PR fails here instead of being waved through as a
+  # routine docs update. For every other PR the step is skipped and the job
+  # simply succeeds, so it can sit in required-jobs-pull-requests without
+  # affecting normal PRs. github.head_ref is only read inside expressions and
+  # env vars, never interpolated into a shell.
+  verify-generated-docs:
+    name: Verify generated docs PR
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Fail if a generated docs PR changes non-Markdown files
+        if: >-
+          ${{ startsWith(github.head_ref, 'contributors-readme-action-') ||
+          github.head_ref == 'docs/update-cli-documentation' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          files=$(gh api --paginate "repos/${REPO}/pulls/${PR_NUMBER}/files" --jq '.[].filename')
+          echo "Changed files:"
+          echo "$files"
+
+          non_markdown=$(echo "$files" | grep -viE '\.md$' || true)
+          if [ -n "$non_markdown" ]; then
+            echo "::error::This generated docs PR may only modify Markdown files, but it changes:"
+            echo "$non_markdown"
+            exit 1
+          fi
+
+          echo "Only Markdown files changed."
+
   required-jobs-pull-requests:
     if: github.event_name == 'pull_request'
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -594,6 +633,7 @@ jobs:
         test-proxy-server,
         test-e2e-scalar-app,
         types,
+        verify-generated-docs,
       ]
     steps:
       - name: Exit with error if some jobs are not successful

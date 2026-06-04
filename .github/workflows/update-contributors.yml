@@ -29,6 +29,12 @@ jobs:
         with:
           app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          # Scope the token to the minimum the bot needs (push a branch + open a
+          # PR). This token is handed to the third-party contributors action, so
+          # keeping its blast radius small matters even though the action is
+          # pinned by SHA.
+          permission-contents: write
+          permission-pull-requests: write
 
       - name: Update the list of contributors
         uses: akhilmhdh/contributors-readme-action@83ea0b4f1ac928fbfe88b9e8460a932a528eb79f # v2.3.11

@@ -78,6 +78,9 @@ jobs:
         with:
           app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          # Scope the token to the minimum needed to open the docs PR.
+          permission-contents: write
+          permission-pull-requests: write
 
       - name: Create Pull Request
         if: steps.check-changes.outputs.has-changes == 'true'
