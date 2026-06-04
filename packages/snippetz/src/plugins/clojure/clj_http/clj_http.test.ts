@@ -301,6 +301,27 @@ describe('clojureCljhttp', () => {
                                                  :content (clojure.java.io/file "")}]})`)
   })
 
+  it('escapes backslashes and quotes in multipart file paths', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'C:\\path\\to\\"file".txt',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/post "https://example.com" {:multipart [{:name "file"
+                                                 :content (clojure.java.io/file "C:\\\\path\\\\to\\\\\\"file\\".txt")}]})`)
+  })
+
   it('handles url-encoded form data with special characters', () => {
     const result = clojureCljhttp.generate({
       url: 'https://example.com',

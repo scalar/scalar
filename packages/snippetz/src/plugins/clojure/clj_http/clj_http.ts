@@ -3,6 +3,12 @@ import type { Plugin } from '@scalar/types/snippetz'
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 
 /**
+ * Escapes a string so it stays a valid EDN string literal. Backslashes are
+ * escaped first, then double quotes, so the two passes do not interfere.
+ */
+const escapeEdnString = (value: string): string => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+
+/**
  * A Clojure keyword (e.g. `:json`) rendered verbatim in EDN.
  */
 class Keyword {
@@ -18,7 +24,7 @@ class Keyword {
 class File {
   constructor(public readonly path: string) {}
   toString(): string {
-    return `(clojure.java.io/file "${this.path}")`
+    return `(clojure.java.io/file "${escapeEdnString(this.path)}")`
   }
 }
 
@@ -59,8 +65,7 @@ const jsToEdn = (value: unknown): string => {
     return value.toString()
   }
   if (typeof value === 'string') {
-    // Escape backslashes first, then double quotes, so the EDN string stays valid.
-    return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+    return `"${escapeEdnString(value)}"`
   }
   if (Array.isArray(value)) {
     // Simple horizontal format.
