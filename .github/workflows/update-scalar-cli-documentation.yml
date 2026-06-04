@@ -18,12 +18,26 @@ jobs:
       pull-requests: write
     if: ${{ github.repository_owner == 'scalar' }}
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    # Holds the release bot app credentials (without NPM_TOKEN) so the docs PR
+    # can be opened by the app rather than by GITHUB_TOKEN.
+    environment: release-bot
     timeout-minutes: 15
     strategy:
       matrix:
         commands-markdown: [documentation/guides/cli/commands.md]
 
     steps:
+      # Mint a short-lived GitHub App token so the docs PR is opened by our app
+      # instead of GITHUB_TOKEN. Pull requests created with GITHUB_TOKEN do not
+      # trigger workflow events, so their CI checks stay pending forever; an app
+      # token lifts that restriction.
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup Node.js
@@ -66,6 +80,8 @@ jobs:
         if: steps.check-changes.outputs.has-changes == 'true'
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
         with:
+          # The app token (not GITHUB_TOKEN) is what makes the PR trigger CI.
+          token: ${{ steps.app-token.outputs.token }}
           base: main
           commit-message: 'docs(cli): update commands'
           title: 'docs(cli): update commands'
