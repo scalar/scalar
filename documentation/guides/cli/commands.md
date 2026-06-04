@@ -617,7 +617,8 @@ Options:
   -a, --api <api>              Registry API slug
   -n, --namespace <namespace>  Team namespace
   -l, --language <language>    Language of your SDK (choices: "typescript",
-                               "python", "csharp", "java", "ruby", "php", "go")
+                               "python", "csharp", "java", "ruby", "php", "go",
+                               "rust", "kotlin", "swift", "cpp", "dart")
   -h, --help                   display help for command
 ```
 
