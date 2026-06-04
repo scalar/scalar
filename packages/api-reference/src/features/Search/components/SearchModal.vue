@@ -6,8 +6,7 @@ import type { ModelsSectionLabel } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { nanoid } from 'nanoid'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 
 import { useSearchIndex } from '@/features/Search/hooks/useSearchIndex'
 
@@ -21,7 +20,7 @@ const props = defineProps<{
 }>()
 
 /** Base id for the search form */
-const id = nanoid()
+const id = useId()
 /** An id for the results listbox */
 const listboxId = `${id}-search-result`
 /** An id for the results instructions */

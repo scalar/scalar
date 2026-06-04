@@ -30,6 +30,19 @@ const {
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
 const modalState = useModal()
 
+/**
+ * Whether the user is on macOS, used to show the correct shortcut symbol.
+ *
+ * This must default to `false` so the server-rendered markup and the first
+ * client render agree. Detecting the platform relies on `navigator`, which is
+ * unavailable during SSR, so we resolve it after mount to avoid a hydration
+ * mismatch.
+ */
+const isMac = ref(false)
+onMounted(() => {
+  isMac.value = isMacOS()
+})
+
 const handleHotKey = (e: KeyboardEvent) => {
   if ((isMacOS() ? e.metaKey : e.ctrlKey) && e.key === searchHotKey) {
     e.preventDefault()
@@ -83,7 +96,7 @@ function handleClick() {
       Search
     </span>
     <template #shortcut>
-      <template v-if="isMacOS()">
+      <template v-if="isMac">
         <span class="sr-only">Command</span>
         <span aria-hidden="true">⌘</span>
       </template>
