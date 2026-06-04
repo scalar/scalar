@@ -323,6 +323,29 @@ describe('clojureCljhttp', () => {
                                                  :content "file contents"}]})`)
   })
 
+  it('references the file path when a part has a file name and a null value', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            // A null value is "no inline body", so the file path is still used.
+            value: null as unknown as string,
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/post "https://example.com" {:multipart [{:name "file"
+                                                 :content (clojure.java.io/file "test.txt")}]})`)
+  })
+
   it('treats a null file name as a value-less part instead of a file', () => {
     const result = clojureCljhttp.generate({
       url: 'https://example.com',

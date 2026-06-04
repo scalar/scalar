@@ -187,10 +187,11 @@ export const clojureCljhttp: Plugin = {
       case 'multipart/form-data': {
         if (postData.params) {
           params.multipart = postData.params.map((param) =>
-            // Only reference a file when there is a string fileName and no
-            // inline value. A part carrying both (a common HAR file part with
-            // body bytes) keeps its value as the content.
-            typeof param.fileName === 'string' && param.value === undefined
+            // Reference a file when there is a string fileName and no inline
+            // body. A part carrying an actual value (a common HAR file part
+            // with body bytes) keeps that value as the content, while an
+            // empty or null value still references the file path.
+            typeof param.fileName === 'string' && !param.value
               ? { name: param.name, content: new File(param.fileName) }
               : { name: param.name, content: param.value },
           )
