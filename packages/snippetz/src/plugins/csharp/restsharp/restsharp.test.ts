@@ -219,6 +219,35 @@ var response = await client.ExecuteAsync(request);`)
     expect(result).not.toContain('Authorization')
   })
 
+  it('does not emit a duplicate Authorization header when config auth is set', () => {
+    const result = csharpRestsharp.generate(
+      {
+        url: 'https://example.com',
+        headers: [{ name: 'Authorization', value: 'Bearer token' }],
+      },
+      {
+        auth: {
+          username: 'user',
+          password: 'pass',
+        },
+      },
+    )
+
+    expect(result).toBe(`var client = new RestClient("https://example.com");
+var request = new RestRequest("", Method.Get);
+request.AddHeader("Authorization", "Basic dXNlcjpwYXNz");
+var response = await client.ExecuteAsync(request);`)
+  })
+
+  it('keeps a request Authorization header when no config auth is set', () => {
+    const result = csharpRestsharp.generate({
+      url: 'https://example.com',
+      headers: [{ name: 'Authorization', value: 'Bearer token' }],
+    })
+
+    expect(result).toContain('request.AddHeader("Authorization", "Bearer token");')
+  })
+
   it('handles multipart form data with files', () => {
     const result = csharpRestsharp.generate({
       url: 'https://example.com',
@@ -273,6 +302,53 @@ var response = await client.ExecuteAsync(request);`)
       method: 'POST',
       postData: {
         mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          {
+            name: 'foo',
+            value: 'bar',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`var client = new RestClient("https://example.com");
+var request = new RestRequest("", Method.Post);
+request.AddParameter("foo", "bar");
+var response = await client.ExecuteAsync(request);`)
+  })
+
+  it('handles multipart form data with a boundary parameter on the mimeType', () => {
+    const result = csharpRestsharp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data; boundary=----WebKitFormBoundary',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+          },
+          {
+            name: 'field',
+            value: 'value',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`var client = new RestClient("https://example.com");
+var request = new RestRequest("", Method.Post);
+request.AddFile("file", "test.txt");
+request.AddParameter("field", "value");
+var response = await client.ExecuteAsync(request);`)
+  })
+
+  it('handles url-encoded form data with a charset parameter on the mimeType', () => {
+    const result = csharpRestsharp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded; charset=utf-8',
         params: [
           {
             name: 'foo',

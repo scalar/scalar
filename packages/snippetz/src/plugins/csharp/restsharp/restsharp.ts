@@ -82,13 +82,18 @@ export const csharpRestsharp: Plugin = {
     lines.push(`var request = new RestRequest("", ${getMethod(normalizedRequest.method)});`)
 
     // Basic Auth (added as an Authorization header so the client stays request-scoped)
-    if (configuration?.auth?.username && configuration?.auth?.password) {
-      const credentials = encode(`${configuration.auth.username}:${configuration.auth.password}`)
+    const { username, password } = configuration?.auth ?? {}
+    const hasBasicAuth = Boolean(username && password)
+    if (hasBasicAuth) {
+      const credentials = encode(`${username}:${password}`)
       lines.push(`request.AddHeader("Authorization", "Basic ${credentials}");`)
     }
 
-    // Headers
+    // Headers (skip an existing Authorization header when Basic auth from config takes precedence)
     normalizedRequest.headers?.forEach((header) => {
+      if (hasBasicAuth && header.name.toLowerCase() === 'authorization') {
+        return
+      }
       lines.push(`request.AddHeader("${escapeCSharpString(header.name)}", "${escapeCSharpString(header.value)}");`)
     })
 
@@ -103,6 +108,10 @@ export const csharpRestsharp: Plugin = {
     if (normalizedRequest.postData) {
       const { mimeType, text, params } = normalizedRequest.postData
 
+      // Compare against the essence so parameterized values (e.g. a `boundary` or
+      // `charset`) still match the form, multipart, and octet-stream branches.
+      const essence = mimeType ? parseMimeType(mimeType).essence : undefined
+
       if (isJsonContentType(mimeType)) {
         if (text) {
           let body = text
@@ -113,13 +122,13 @@ export const csharpRestsharp: Plugin = {
           }
           lines.push(`request.AddStringBody(${createRawStringLiteral(body)}, ContentType.Json);`)
         }
-      } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
+      } else if (essence === 'application/x-www-form-urlencoded' && params) {
         params.forEach((param) => {
           lines.push(
             `request.AddParameter("${escapeCSharpString(param.name)}", "${escapeCSharpString(param.value ?? '')}");`,
           )
         })
-      } else if (mimeType === 'multipart/form-data' && params) {
+      } else if (essence === 'multipart/form-data' && params) {
         params.forEach((param) => {
           if (param.fileName !== undefined) {
             if (param.contentType) {
@@ -137,7 +146,7 @@ export const csharpRestsharp: Plugin = {
             )
           }
         })
-      } else if (mimeType === 'application/octet-stream' && text) {
+      } else if (essence === 'application/octet-stream' && text) {
         lines.push(
           `request.AddParameter("application/octet-stream", "${escapeCSharpString(text)}", ParameterType.RequestBody);`,
         )
