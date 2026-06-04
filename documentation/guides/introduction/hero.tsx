@@ -32,7 +32,7 @@ export default function Hero() {
         />
         <Sticker
           className="sticker-6"
-          src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/sjRzU-qEfO5Y89jmLMyaF.svg"
+          src="https://cdn.scalar.com/marketing/landing/sticker-6.svg"
         />
         <Sticker
           className="sticker-7"

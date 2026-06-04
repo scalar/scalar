@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 export type ProductFeature = {
   icon: ReactNode
-  label: string
+  label: ReactNode
 }
 
 export type ProductImages = {
@@ -45,14 +45,14 @@ export default function Product({
     <div className={reversed ? 'product product-reversed' : 'product'}>
       <div className="product-copy">
         <span className={`font-bold ${accentClass}`}>{label}</span>
-        <h2 className="c">{title}</h2>
-        <p>{description}</p>
+        <h2 className="t-editor__heading t-editor__standard-heading">{title}</h2>
+        <p className="t-editor__paragraph">{description}</p>
         <ul
           className={`grid ${accentClass} gap-y-2 p-0`}
           style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-          {features.map((feature) => (
+          {features.map((feature, index) => (
             <li
-              key={feature.label}
+              key={index}
               className="flex items-center icon-text gap-3 font-medium min-h-8">
               {feature.icon}
               {feature.label}

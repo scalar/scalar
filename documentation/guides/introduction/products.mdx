@@ -20,10 +20,24 @@ import Sticker from './sticker.tsx'
       darkSrc: '/registry-static-dark.svg',
     }}
     features={[
-      { icon: <Icon src="phosphor/bold/git-branch" />, label: 'Source of Truth' },
+      {
+        icon: <Icon src="phosphor/bold/git-branch" />,
+        label: (
+          <span>
+            <span className="lg-only">Single </span>Source of Truth
+          </span>
+        ),
+      },
       { icon: <Icon src="phosphor/bold/arrows-clockwise" />, label: 'Git Integration' },
       { icon: <Icon src="phosphor/bold/arrow-up-right" />, label: 'OpenAPI Documents' },
-      { icon: <Icon src="phosphor/bold/brackets-curly" />, label: 'JSON Schema' },
+      {
+        icon: <Icon src="phosphor/bold/brackets-curly" />,
+        label: (
+          <span>
+            JSON Schema<span className="lg-only"> Support</span>
+          </span>
+        ),
+      },
       { icon: <Icon src="phosphor/bold/warning-octagon" />, label: 'Spectral Rules' },
       { icon: <Icon src="phosphor/bold/arrows-clockwise" />, label: 'AsyncAPI (coming soon)' },
       { icon: <Icon src="phosphor/bold/lock-simple" />, label: 'Private or Public' },
@@ -86,7 +100,14 @@ import Sticker from './sticker.tsx'
     features={[
       { icon: <Icon src="phosphor/bold/brackets-angle" />, label: 'Markdown and MDX' },
       { icon: <Icon src="phosphor/bold/arrow-up-right" />, label: 'OpenAPI Documents' },
-      { icon: <Icon src="phosphor/bold/brackets-curly" />, label: 'Custom HTML/CSS/JS' },
+      {
+        icon: <Icon src="phosphor/bold/brackets-curly" />,
+        label: (
+          <span>
+            <span className="lg-only">Custom </span>HTML/CSS/JS
+          </span>
+        ),
+      },
       { icon: <Icon src="phosphor/bold/github-logo" />, label: 'GitHub Sync' },
       { icon: <Icon src="phosphor/bold/palette" />, label: 'Customize Everything' },
       { icon: <Icon src="phosphor/bold/users" />, label: 'Fine-grained Access' },
@@ -118,7 +139,14 @@ import Sticker from './sticker.tsx'
       { icon: <Icon src="phosphor/bold/arrow-up-right" />, label: 'OpenAPI-First' },
       { icon: <Icon src="phosphor/bold/brackets-square" />, label: 'Custom-code' },
       { icon: <Icon src="phosphor/bold/code" />, label: 'Code Samples' },
-      { icon: <Icon src="phosphor/bold/fingerprint" />, label: 'OpenAPI Authentication' },
+      {
+        icon: <Icon src="phosphor/bold/fingerprint" />,
+        label: (
+          <span>
+            <span className="lg-only">OpenAPI </span>Authentication
+          </span>
+        ),
+      },
       { icon: <Icon src="phosphor/bold/cloud-check" />, label: 'Syncs with Docs' },
       { icon: <Icon src="phosphor/bold/file-cloud" />, label: 'File Streaming Support' },
     ]}

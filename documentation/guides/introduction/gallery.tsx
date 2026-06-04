@@ -8,24 +8,24 @@ export default function Gallery() {
         type="button"
         data-target="#slide-1">
         API Docs
-      </button>
+      </button>{' '}
       <button
         type="button"
         data-target="#slide-2">
         API Registry
-      </button>
+      </button>{' '}
       <button
         type="button"
         data-target="#slide-3">
         SDKs
-      </button>
+      </button>{' '}
       <button
         type="button"
         data-target="#slide-4">
         API Client
       </button>
       <ul
-        className="gallery container-full"
+        className="gallery container-full t-editor__list t-editor__paragraph"
         id="gallery">
         <GallerySlide
           id="slide-1"
