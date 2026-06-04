@@ -73,8 +73,8 @@ const secretCredentials = computed(() => getSecrets(securitySchemes ?? []))
 const handleClientChange = (option: ClientOption | undefined) => {
   localSelectedClient.value = option
 
-  // Emit the change if it's not a custom example
-  if (option && !option.id.startsWith('custom')) {
+  // Sync the selection globally (built-in client or custom sample keyed by language)
+  if (option) {
     eventBus.emit('workspace:update:selected-client', option.id)
   }
 }

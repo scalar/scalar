@@ -1,5 +1,3 @@
-import type { AvailableClients } from '@scalar/types/snippetz'
-
 /** Event definitions for the workspace/document meta */
 export type MetaEvents = {
   /**
@@ -11,7 +9,10 @@ export type MetaEvents = {
    */
   'update:active-document': string
   /**
-   * Update the selected client on the workspace
+   * Update the selected client on the workspace.
+   * Either a built-in client id (e.g. `js/fetch`) or a custom sample id (e.g. `custom/python`).
+   *
+   * See the note in `workspace.ts` on why this is a plain string.
    */
-  'update:selected-client': AvailableClients[number]
+  'update:selected-client': string
 }

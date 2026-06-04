@@ -4,68 +4,77 @@ import type { ClientOption, CustomClientOption, CustomClientOptionGroup } from '
 
 export const DEFAULT_CLIENT = 'shell/curl'
 
-/** Type guard to check if a string is a valid client id */
+/**
+ * A selection the code sample picker understands: either a built-in client id
+ * (e.g. `js/fetch`) or a custom sample id (e.g. `custom/python`).
+ *
+ * The custom part is typed as `string & {}` rather than the `custom/${string}`
+ * template literal: unioning that template literal with the (very large) built-in
+ * client-id union trips TypeScript's "union too complex" limit inside Vue's
+ * `defineProps` macro. `string & {}` keeps editor hints for the known client ids
+ * without expanding the union.
+ */
+export type SelectedClientId = AvailableClients[number] | (string & {})
+
+/** Type guard to check if a string is a valid built-in client id */
 export const isClient = (id: any): id is AvailableClients[number] => AVAILABLE_CLIENTS.includes(id)
 
-/**
- * Finds and returns the appropriate client option from a list of client option groups.
- *
- * This function is used to determine which client should be initially selected in the
- * request example block. It prioritizes a specific client ID if provided, otherwise
- * falls back to the first available option.
- *
- * @param options - Array of client option groups, each containing a label and array of client options
- * @param id - Optional client identifier to search for (e.g., 'js/fetch', 'python/requests')
+/** Type guard for any selection the picker can restore (built-in client or custom sample id) */
+export const isSelectedClient = (id: any): id is SelectedClientId =>
+  isClient(id) || (typeof id === 'string' && id.startsWith('custom/'))
 
- * @returns The selected client option. If a specific ID is provided and found, returns that client.
- *          If the ID is not found or not provided, returns the first available client option.
+/**
+ * Finds and returns the appropriate client option to select for an operation.
  *
- * @example
- * ```typescript
- * const clientGroups = [
- *   {
- *     label: 'JavaScript',
- *     options: [
- *       { id: 'js/fetch', label: 'Fetch API', lang: 'js' },
- *       { id: 'js/axios', label: 'Axios', lang: 'js' }
- *     ]
- *   }
- * ]
+ * Selection rules, given the globally selected client/sample id:
  *
- * // Find specific client
- * const client = findClient(clientGroups, 'js/fetch')
- * // Returns: { id: 'js/fetch', label: 'Fetch API', lang: 'js' }
+ * 1. A custom sample is selected (`custom/<lang>`): show the matching sample on
+ *    this operation. If this operation has no sample for that exact language, we
+ *    keep showing a custom sample (its first one) so the selection stays "global".
+ * 2. An explicit, non-default built-in client is selected: it wins, even when the
+ *    operation also has custom samples.
+ * 3. Otherwise (nothing selected yet, or the default client): prefer a custom
+ *    sample when the operation has one, so custom examples are the default.
+ * 4. Fall back to the default built-in client, then the first option.
  *
- * // Find first available client
- * const firstClient = findClient(clientGroups)
- * // Returns: { id: 'js/fetch', label: 'Fetch API', lang: 'js' }
- * ```
+ * @param clientGroups - Array of client option groups, each containing a label and array of client options
+ * @param clientId - Optional selection to restore (e.g. 'js/fetch' or 'custom/python')
+ * @returns The selected client option, or undefined when there is nothing to select
  */
 export const findClient = (
   clientGroups: CustomClientOptionGroup[],
-  clientId?: AvailableClients[number] | undefined,
+  clientId?: SelectedClientId | undefined,
 ): ClientOption | CustomClientOption | undefined => {
-  const firstOption = clientGroups[0]?.options[0]
-
-  // Client ID is passed in
-  if (clientId) {
+  const findById = (id: string) => {
     for (const group of clientGroups) {
-      const option = group.options.find((option) => option.id === clientId)
+      const option = group.options.find((option) => option.id === id)
       if (option) {
         return option
       }
     }
+    return undefined
   }
 
-  // If we dont have any custom examples, lets select the default client
-  if (!firstOption?.id.startsWith('custom')) {
-    for (const group of clientGroups) {
-      const option = group.options.find((option) => option.id === DEFAULT_CLIENT)
-      if (option) {
-        return option
-      }
+  const firstCustom = clientGroups.find((group) => group.key === 'custom')?.options[0]
+
+  // 1. A custom sample is selected: match the language, otherwise stay on a custom sample
+  if (clientId?.startsWith('custom')) {
+    return findById(clientId) ?? firstCustom ?? findById(DEFAULT_CLIENT) ?? clientGroups[0]?.options[0]
+  }
+
+  // 2. An explicit, non-default built-in client wins, even when custom samples exist
+  if (clientId && clientId !== DEFAULT_CLIENT) {
+    const option = findById(clientId)
+    if (option) {
+      return option
     }
   }
 
-  return firstOption
+  // 3. Default: prefer a custom sample when the operation has one
+  if (firstCustom) {
+    return firstCustom
+  }
+
+  // 4. Otherwise fall back to the default built-in client, then the first option
+  return findById(DEFAULT_CLIENT) ?? clientGroups[0]?.options[0]
 }

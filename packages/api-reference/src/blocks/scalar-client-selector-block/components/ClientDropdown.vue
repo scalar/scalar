@@ -10,7 +10,7 @@ import {
 import { ScalarCombobox } from '@scalar/components/combobox'
 import { ScalarIcon } from '@scalar/components/icon'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
-import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
+import type { TargetId } from '@scalar/types/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
@@ -20,8 +20,8 @@ const { clientOptions, featuredClients, eventBus, selectedClient } =
   defineProps<{
     /** Client options */
     clientOptions: ClientOptionGroup[]
-    /** The currently selected Http Client */
-    selectedClient?: AvailableClients[number]
+    /** The currently selected Http Client (a built-in client id or a custom sample id) */
+    selectedClient?: string
     /** List of featured clients */
     featuredClients: ClientOption[]
     /** Event bus */

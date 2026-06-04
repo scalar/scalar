@@ -1,4 +1,5 @@
 import { AVAILABLE_CLIENTS, type AvailableClients, snippetz } from '@scalar/snippetz'
+import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { capitalize } from 'vue'
 
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
@@ -7,13 +8,28 @@ import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
 export type CustomCodeSampleId = `custom/${string}`
 
 /**
- * Generate a unique ID for a custom code sample.
+ * Build stable, language-keyed ids for an operation's custom code samples.
  *
- * The ID is keyed by the sample's position in the operation's code samples, so multiple
- * samples that share the same `lang` (e.g. separate sync and async examples) stay
- * individually selectable.
+ * Custom samples are defined per operation, but a selection (e.g. the Python SDK
+ * example) should sync across every operation that ships the same language. So we
+ * key the id by language rather than by position: the first sample of a language
+ * becomes `custom/<lang>`, and any further samples that repeat a language fall back
+ * to `custom/<lang>/<n>` so they stay individually selectable within the operation.
+ *
+ * @param samples - The custom code samples for a single operation
+ * @returns A list of ids aligned by index with the input samples
  */
-export const generateCustomId = (index: number): CustomCodeSampleId => `custom/${index}`
+export const getCustomClientIds = (samples: XCodeSample[]): CustomCodeSampleId[] => {
+  const countByLang = new Map<string, number>()
+
+  return samples.map((sample): CustomCodeSampleId => {
+    const lang = sample.lang || 'plaintext'
+    const seen = countByLang.get(lang) ?? 0
+    countByLang.set(lang, seen + 1)
+
+    return seen === 0 ? `custom/${lang}` : `custom/${lang}/${seen}`
+  })
+}
 
 /**
  * Generate client options for the request example block by filtering by allowed clients

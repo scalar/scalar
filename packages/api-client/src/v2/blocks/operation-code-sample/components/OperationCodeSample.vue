@@ -10,11 +10,15 @@ export type OperationCodeSampleProps = {
    */
   clientOptions: ClientOptionGroup[]
   /**
-   * Pre-selected client, this will determine which client is initially selected in the dropdown
+   * Pre-selected client, this will determine which client is initially selected in the dropdown.
+   * Either a built-in client id (e.g. `js/fetch`) or a custom sample id (e.g. `custom/python`).
    *
-   * @defaults to shell/curl or a custom sample if one is available
+   * Typed as a plain string: unioning the (large) client-id union with the `custom/...`
+   * ids overflows TypeScript's union-complexity limit inside this component's `defineProps`.
+   *
+   * @defaults to a custom sample if one is available, otherwise shell/curl
    */
-  selectedClient?: AvailableClients[number]
+  selectedClient?: string
   /**
    * Which server from the spec to use for the code example
    */
@@ -124,7 +128,6 @@ import { ScalarVirtualText } from '@scalar/components/virtual-text'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import { type AvailableClients } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
@@ -329,8 +332,10 @@ const selectClient = (option: ClientOption) => {
   // Update to the local example
   localSelectedClient.value = option
 
-  // Emit the change if it's not a custom example
-  if (option && !option.id.startsWith('custom')) {
+  // Sync the selection globally so other operations follow along. Custom samples
+  // sync too (keyed by language), so picking e.g. the Python SDK example here
+  // shows the Python example on every operation that ships one.
+  if (option) {
     eventBus.emit('workspace:update:selected-client', option.id)
   }
 }

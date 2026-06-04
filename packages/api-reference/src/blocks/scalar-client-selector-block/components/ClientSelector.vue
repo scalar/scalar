@@ -6,7 +6,6 @@ import {
 } from '@scalar/api-client/blocks/operation-code-sample'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarMarkdown } from '@scalar/components/markdown'
-import type { AvailableClient } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import { computed, useId, useTemplateRef } from 'vue'
@@ -28,8 +27,8 @@ const {
   xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
-  /** The currently selected Http Client */
-  selectedClient?: AvailableClient
+  /** The currently selected Http Client (a built-in client id or a custom sample id) */
+  selectedClient?: string
   /** Event bus */
   eventBus: WorkspaceEventBus
 }>()

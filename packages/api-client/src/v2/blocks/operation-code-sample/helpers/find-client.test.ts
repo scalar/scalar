@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { ClientOption, ClientOptionGroup, CustomClientOptionGroup } from '../types'
 import { findClient } from './find-client'
+import { getClients } from './get-clients'
 
 describe('findClient', () => {
   // Test data setup
@@ -355,6 +356,43 @@ describe('findClient', () => {
         targetTitle: 'JavaScript',
         clientKey: 'fetch',
       })
+    })
+  })
+
+  describe('global custom sample selection', () => {
+    // Build the fixture the way the app does: a custom group prepended to the built-in groups
+    const groupsWithCustom = getClients(
+      [
+        { lang: 'python', source: 'client.list()' },
+        { lang: 'typescript', source: 'await client.list()' },
+      ],
+      mockClientGroups,
+    )
+
+    it('selects the matching custom sample when a custom id is selected', () => {
+      const result = findClient(groupsWithCustom, 'custom/typescript')
+      expect(result?.id).toBe('custom/typescript')
+    })
+
+    it('stays on a custom sample when the selected language is absent on this operation', () => {
+      const result = findClient(groupsWithCustom, 'custom/ruby')
+      // Falls back to the first custom sample so the selection feels global
+      expect(result?.id).toBe('custom/python')
+    })
+
+    it('prefers a custom sample by default over the default client', () => {
+      const result = findClient(groupsWithCustom)
+      expect(result?.id).toBe('custom/python')
+    })
+
+    it('treats the default client as no explicit selection so custom still wins', () => {
+      const result = findClient(groupsWithCustom, 'shell/curl')
+      expect(result?.id).toBe('custom/python')
+    })
+
+    it('lets an explicit, non-default built-in client win over custom samples', () => {
+      const result = findClient(groupsWithCustom, 'js/fetch')
+      expect(result?.id).toBe('js/fetch')
     })
   })
 })

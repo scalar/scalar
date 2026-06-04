@@ -1,5 +1,3 @@
-import type { AvailableClient } from '@scalar/types/snippetz'
-
 import type { ColorMode } from '@/schemas/workspace'
 
 /** Event definitions for the openapi document */
@@ -17,9 +15,14 @@ export type WorkspaceEvents = {
    */
   'workspace:update:theme': string | undefined // theme slug
   /**
-   * Update the selected client on the workspace
+   * Update the selected client on the workspace.
+   * Either a built-in client id (e.g. `js/fetch`) or a custom sample id (e.g. `custom/python`).
+   *
+   * Typed as a plain string: unioning the custom ids with the large client-id union trips
+   * TypeScript's "union too complex" limit when this event map is embedded in a Vue
+   * `defineProps`. The set of valid values is enforced at runtime instead.
    */
-  'workspace:update:selected-client': AvailableClient
+  'workspace:update:selected-client': string
   /**
    * Update the active environment on the workspace
    */
