@@ -496,6 +496,35 @@ invalid json {
     expect(result).toContain('"""Hello"""')
   })
 
+  it('appends the query string with & when the URL already has a query', () => {
+    const result = csharpRestsharp.generate({
+      url: 'https://example.com/path?existing=1',
+      queryString: [{ name: 'foo', value: 'bar' }],
+    })
+
+    expect(result).toContain('var client = new RestClient("https://example.com/path?existing=1&foo=bar");')
+  })
+
+  it('escapes newlines, carriage returns, and tabs in header values', () => {
+    const result = csharpRestsharp.generate({
+      url: 'https://example.com',
+      headers: [{ name: 'X-Custom', value: 'line1\nline2\r\tindented' }],
+    })
+
+    expect(result).toContain('request.AddHeader("X-Custom", "line1\\nline2\\r\\tindented");')
+  })
+
+  it('handles a body with text but no mimeType', () => {
+    const result = csharpRestsharp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      // Cast because real-world HAR input may omit mimeType even though the type requires it
+      postData: { text: 'raw body' } as { mimeType: string; text: string },
+    })
+
+    expect(result).toContain('request.AddParameter("", "raw body", ParameterType.RequestBody);')
+  })
+
   it('handles special characters in URL', () => {
     const result = csharpRestsharp.generate({
       url: 'https://example.com/path with spaces/[brackets]',

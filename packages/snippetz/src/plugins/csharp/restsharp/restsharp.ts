@@ -2,7 +2,7 @@ import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { Plugin } from '@scalar/types/snippetz'
 import { encode } from 'js-base64'
 
-import { buildQueryString } from '@/libs/http'
+import { joinUrlAndQuery } from '@/libs/http'
 
 /**
  * True for `application/json`, any RFC 6839 `+json` structured-syntax suffix
@@ -29,8 +29,12 @@ const getMethod = (method: string): string => {
 
 /**
  * Escapes a value for use inside a regular C# double-quoted string literal.
+ * Backslashes and double quotes are escaped, and newlines, carriage returns,
+ * and tabs are turned into their escape sequences so values stay on a single
+ * line and the generated snippet remains valid C#.
  */
-const escapeCSharpString = (text: string): string => text.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+const escapeCSharpString = (text: string): string =>
+  text.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t')
 
 /**
  * Wraps text in a C# raw string literal (`"""`), growing the delimiter when the
@@ -64,8 +68,9 @@ export const csharpRestsharp: Plugin = {
     // Normalization
     normalizedRequest.method = normalizedRequest.method.toUpperCase()
 
-    // Build the full URL, including the query string
-    const url = `${normalizedRequest.url}${buildQueryString(normalizedRequest.queryString)}`
+    // Build the full URL, appending the query string with the correct separator
+    // (joinUrlAndQuery uses `&` when the URL already carries a query string)
+    const url = joinUrlAndQuery(normalizedRequest.url, normalizedRequest.queryString)
 
     // Derive the host so cookies can be scoped to it (RestSharp requires a domain)
     let host = ''
@@ -152,7 +157,7 @@ export const csharpRestsharp: Plugin = {
         )
       } else if (text) {
         lines.push(
-          `request.AddParameter("${escapeCSharpString(mimeType)}", "${escapeCSharpString(text)}", ParameterType.RequestBody);`,
+          `request.AddParameter("${escapeCSharpString(mimeType ?? '')}", "${escapeCSharpString(text)}", ParameterType.RequestBody);`,
         )
       }
     }
