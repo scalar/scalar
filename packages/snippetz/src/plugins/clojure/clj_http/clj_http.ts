@@ -213,13 +213,18 @@ export const clojureCljhttp: Plugin = {
     const filteredParams = filterEmpty(params)
     const require = "(require '[clj-http.client :as client])\n"
 
+    // Escape the URL like every other EDN string so backslashes or quotes
+    // cannot break out of the literal.
+    const escapedUrl = escapeEdnString(url)
+
     if (isEmptyObject(filteredParams)) {
-      return `${require}\n(client/${method} "${url}")`
+      return `${require}\n(client/${method} "${escapedUrl}")`
     }
 
-    // Align the option map under the opening of the call.
-    const padding = 11 + method.length + url.length
+    // Align the option map under the opening of the call. The padding uses the
+    // escaped URL length so the columns line up with what is actually rendered.
+    const padding = 11 + method.length + escapedUrl.length
     const formattedParams = padBlock(padding, jsToEdn(filteredParams))
-    return `${require}\n(client/${method} "${url}" ${formattedParams})`
+    return `${require}\n(client/${method} "${escapedUrl}" ${formattedParams})`
   },
 }
