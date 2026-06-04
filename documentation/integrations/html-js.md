@@ -38,6 +38,32 @@ This renders our `@scalar/galaxy` OpenAPI example, using the latest version of `
 
 Check out the [Configuration](../configuration.md) page to learn more about customizing your API reference.
 
+## Content Security Policy (CSP)
+
+If your page enforces a strict [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP), the inline initialization script and the stylesheet that the bundle injects at runtime are blocked unless you allow `unsafe-inline`.
+
+To keep a strict policy instead, generate a per-request nonce, put it on the script tags, and add a `<meta property="csp-nonce">` so the injected stylesheet picks up the same nonce:
+
+```html
+<head>
+  <!-- Use the same value as the `nonce-...` source in your CSP header -->
+  <meta property="csp-nonce" content="r4nd0m" />
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- script-src 'nonce-r4nd0m' -->
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference" nonce="r4nd0m"></script>
+  <script nonce="r4nd0m">
+    Scalar.createApiReference('#app', {
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+    })
+  </script>
+</body>
+```
+
+If you render the HTML through one of our server integrations (Next.js, Express, Fastify, NestJS, Hono, SvelteKit, Astro) you do not have to wire this up by hand: pass a `nonce` to the configuration and all of the above is added for you.
+
 ## Version
 
 It's recommended to use the latest version from jsdelivr. You'll get continuous updates, fixes and other improvements and that's also the one we're testing and monitoring continuously.

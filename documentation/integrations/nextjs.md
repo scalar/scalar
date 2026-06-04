@@ -102,6 +102,65 @@ const config = {
 export const GET = ApiReference(config)
 ```
 
+### Content Security Policy (CSP)
+
+To render the reference, Scalar adds an inline `<script>` and inline `<style>` to the page, and the bundle injects its stylesheet at runtime. Under a strict [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP) those are blocked unless you allow `unsafe-inline` (which defeats the purpose of a CSP).
+
+Instead, pass a `nonce`. Scalar stamps it onto the inline tags and emits a matching `<meta property="csp-nonce">` so the injected stylesheet picks up the same nonce. That way you can keep a strict policy without `unsafe-inline`.
+
+A nonce has to be generated fresh for every request, so generate it in `middleware.ts`, expose it to the route through a request header, and set the matching CSP response header:
+
+```typescript
+// middleware.ts
+import { NextResponse, type NextRequest } from 'next/server'
+
+export function middleware(request: NextRequest) {
+  // A fresh nonce per request.
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+
+  const csp = [
+    `default-src 'self'`,
+    `script-src 'nonce-${nonce}'`,
+    `style-src 'nonce-${nonce}'`,
+    // Allow the OpenAPI document and any other resources you load.
+    `connect-src 'self' https:`,
+    `img-src 'self' data: https:`,
+    `font-src 'self' https:`,
+  ].join('; ')
+
+  // Pass the nonce to the route handler via a request header.
+  const headers = new Headers(request.headers)
+  headers.set('x-nonce', nonce)
+
+  const response = NextResponse.next({ request: { headers } })
+  response.headers.set('Content-Security-Policy', csp)
+
+  return response
+}
+
+export const config = {
+  matcher: '/reference/:path*',
+}
+```
+
+Then read the nonce in the route handler and pass it to the configuration:
+
+```typescript
+// app/reference/route.ts
+import { ApiReference } from '@scalar/nextjs-api-reference'
+import { headers } from 'next/headers'
+
+export async function GET() {
+  const nonce = (await headers()).get('x-nonce') ?? undefined
+
+  return ApiReference({
+    url: '/openapi.json',
+    nonce,
+  })()
+}
+```
+
+The same `nonce` option is available in all of our HTML-rendering integrations (Express, Fastify, NestJS, Hono, SvelteKit and Astro).
 
 ## Guide
 
