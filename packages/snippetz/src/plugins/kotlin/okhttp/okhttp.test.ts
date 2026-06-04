@@ -1,3 +1,4 @@
+import type { FormDataParam } from '@scalar/types/snippetz'
 import { describe, expect, it } from 'vitest'
 
 import { kotlinOkhttp } from './okhttp'
@@ -478,6 +479,31 @@ val response = client.newCall(request).execute()`)
     expect(result).toBe(`val client = OkHttpClient()
 
 val body = FormBody.Builder()
+  .build()
+
+val request = Request.Builder()
+  .url("https://example.com")
+  .post(body)
+  .build()
+
+val response = client.newCall(request).execute()`)
+  })
+
+  it('handles form params without a name', () => {
+    const result = kotlinOkhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        // A name is required by the HAR type, but malformed input can omit it at runtime
+        params: [{ value: 'bar' } as FormDataParam],
+      },
+    })
+
+    expect(result).toBe(`val client = OkHttpClient()
+
+val body = FormBody.Builder()
+  .addEncoded("", "bar")
   .build()
 
 val request = Request.Builder()

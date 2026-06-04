@@ -32,7 +32,7 @@ export const kotlinOkhttp: Plugin = {
     if (postData?.mimeType === 'application/x-www-form-urlencoded' && postData.params) {
       lines.push('val body = FormBody.Builder()')
       postData.params.forEach((param) => {
-        lines.push(`  .addEncoded(${quote(param.name)}, ${quote(param.value ?? '')})`)
+        lines.push(`  .addEncoded(${quote(param.name ?? '')}, ${quote(param.value ?? '')})`)
       })
       lines.push('  .build()', '')
       hasBody = true
@@ -41,10 +41,10 @@ export const kotlinOkhttp: Plugin = {
       postData.params.forEach((param) => {
         if (param.fileName !== undefined) {
           lines.push(
-            `  .addFormDataPart(${quote(param.name)}, ${quote(param.fileName)}, RequestBody.create(MediaType.parse("application/octet-stream"), File(${quote(param.fileName)})))`,
+            `  .addFormDataPart(${quote(param.name ?? '')}, ${quote(param.fileName)}, RequestBody.create(MediaType.parse("application/octet-stream"), File(${quote(param.fileName)})))`,
           )
         } else if (param.value !== undefined) {
-          lines.push(`  .addFormDataPart(${quote(param.name)}, ${quote(param.value)})`)
+          lines.push(`  .addFormDataPart(${quote(param.name ?? '')}, ${quote(param.value)})`)
         }
       })
       lines.push('  .build()', '')
