@@ -879,6 +879,53 @@ describe('buildRequestBody', () => {
     ])
   })
 
+  it('coerces regrouped dotted multipart rows using their leaf schema types', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              jsonField: {
+                type: 'object',
+                properties: {
+                  isSomething: { type: 'boolean' },
+                  mood: {
+                    type: 'array',
+                    items: { type: 'string' },
+                  },
+                },
+              },
+              stringField: { type: 'string' },
+            },
+          },
+          examples: {
+            default: {
+              value: [
+                { name: 'jsonField.isSomething', value: 'false' },
+                { name: 'jsonField.mood', value: '[]' },
+                { name: 'stringField', value: 'ciao2' },
+              ],
+            },
+          },
+        },
+      },
+    })
+
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    expect(result.value).toEqual([
+      {
+        type: 'text',
+        key: 'jsonField',
+        value: JSON.stringify({ isSomething: false, mood: [] }),
+      },
+      { type: 'text', key: 'stringField', value: 'ciao2' },
+    ])
+  })
+
   it('emits the regrouped multipart object at the position of its first dotted row', () => {
     const requestBody = coerceValue(RequestBodyObjectSchema, {
       content: {

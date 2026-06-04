@@ -53,6 +53,83 @@ export type RequestBody = FormData | UrlEncoded | Raw
 const getMultipartEncodingContentType = (requestBody: RequestBodyObject, bodyContentType: string, fieldName: string) =>
   requestBody.content[bodyContentType]?.encoding?.[fieldName]?.contentType
 
+const getSchemaAtPath = (schema: unknown, path: string[]): SchemaObject | undefined => {
+  let current = schema ? (getResolvedRef(schema) as SchemaObject | undefined) : undefined
+
+  for (const segment of path) {
+    if (!current || !isObjectSchema(current) || !current.properties) {
+      return undefined
+    }
+
+    const next = current.properties[segment]
+    if (!next) {
+      return undefined
+    }
+
+    current = getResolvedRef(next) as SchemaObject | undefined
+  }
+
+  return current
+}
+
+const getSchemaTypes = (schema: SchemaObject | undefined): string[] => {
+  const type = schema && 'type' in schema ? schema.type : undefined
+
+  if (!type) {
+    return []
+  }
+
+  return Array.isArray(type) ? type : [type]
+}
+
+const coerceFormRowValue = (value: unknown, schema: SchemaObject | undefined): unknown => {
+  if (typeof value !== 'string') {
+    return value
+  }
+
+  const types = getSchemaTypes(schema)
+  if (!types.length || types.includes('string')) {
+    return value
+  }
+
+  if (types.includes('boolean')) {
+    if (value === 'true') {
+      return true
+    }
+
+    if (value === 'false') {
+      return false
+    }
+  }
+
+  const isInteger = types.includes('integer')
+  const isNumber = types.includes('number')
+  if ((isInteger || isNumber) && value.trim() !== '') {
+    const numericValue = Number(value)
+    if (Number.isFinite(numericValue) && (isNumber || Number.isInteger(numericValue))) {
+      return numericValue
+    }
+  }
+
+  if (types.includes('array') || types.includes('object')) {
+    try {
+      const parsedValue = JSON.parse(value)
+
+      if (types.includes('array') && Array.isArray(parsedValue)) {
+        return parsedValue
+      }
+
+      if (types.includes('object') && isObject(parsedValue)) {
+        return parsedValue
+      }
+    } catch {
+      return value
+    }
+  }
+
+  return value
+}
+
 /**
  * Build a predicate that recognizes multipart rows whose dotted name encodes a path
  * into a nested object property of the multipart schema. Without a schema (or when
@@ -137,10 +214,8 @@ export const buildRequestBody = (
     // lazily allocate the regrouped object for its top-level key and push it into
     // `entries` at the position of the *first* matching row, then keep folding leaves
     // into the same live object reference so interleaved flat rows keep their order.
-    const isDottedNestedRow =
-      result.mode === 'formdata'
-        ? buildDottedNestedRowPredicate(requestBody.content[bodyContentType]?.schema)
-        : () => false
+    const multipartSchema = requestBody.content[bodyContentType]?.schema
+    const isDottedNestedRow = result.mode === 'formdata' ? buildDottedNestedRowPredicate(multipartSchema) : () => false
 
     const entries: { name: string; value: unknown }[] = []
     const regroupedByTopKey = new Map<string, Record<string, unknown>>()
@@ -161,7 +236,11 @@ export const buildRequestBody = (
         regroupedByTopKey.set(topKey, target)
         entries.push({ name: topKey, value: target })
       }
-      setValueAtPath(target, segments.slice(1), row.value)
+      setValueAtPath(
+        target,
+        segments.slice(1),
+        coerceFormRowValue(row.value, getSchemaAtPath(multipartSchema, segments)),
+      )
     }
 
     // Loop over all entries and add them to the form
