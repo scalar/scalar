@@ -655,7 +655,6 @@ public static partial class ScalarOptionsExtensions
     /// <param name="agentKey">Optional Agent Scalar key for this document.</param>
     /// <remarks>
     /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
-    /// If no documents are explicitly added, a default document named 'v1' will be used.
     /// </remarks>
     public static TOptions AddAsyncApiDocument<TOptions>(this TOptions options, string documentName, string? title = null, string? routePattern = null, bool isDefault = false, string? agentKey = null) where TOptions : ScalarOptions
     {
@@ -671,7 +670,6 @@ public static partial class ScalarOptionsExtensions
     /// <param name="documentNames">The name identifiers for the AsyncAPI documents.</param>
     /// <remarks>
     /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
-    /// If no documents are explicitly added, a default document named 'v1' will be used.
     /// </remarks>
     public static TOptions AddAsyncApiDocuments<TOptions>(this TOptions options, params IEnumerable<string> documentNames) where TOptions : ScalarOptions
     {

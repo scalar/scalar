@@ -234,6 +234,53 @@ You can also specify a document name directly in the URL path (e.g., `/scalar/v1
 > [!NOTE]
 > **Note on case sensitivity**: Scalar forwards document names to the OpenAPI generator exactly as they appear in the URL path or as they are defined, preserving the case. The behavior depends on whether your OpenAPI generator treats document names as case-sensitive. To avoid issues, use consistent casing for document names (e.g., lowercase `"v1"`).
 
+### AsyncAPI Documents
+
+Scalar can render AsyncAPI documents alongside your OpenAPI documents in the same API Reference. Use the `AddAsyncApiDocument` or `AddAsyncApiDocuments` methods to register them. AsyncAPI documents are served from a separate default route pattern (`/asyncapi/{documentName}.json`), which you can customize with `WithAsyncApiRoutePattern`.
+
+```csharp
+app.MapScalarApiReference(options =>
+{
+    // Simple document name (uses the default /asyncapi/{documentName}.json pattern)
+    options.AddAsyncApiDocument("events");
+
+    // With a custom title
+    options.AddAsyncApiDocument("events", "Event Stream");
+
+    // With a custom route pattern
+    options.AddAsyncApiDocument("events", routePattern: "/messaging/{documentName}.json");
+
+    // External AsyncAPI document
+    options.AddAsyncApiDocument("payments",
+        "Payments Events", "https://api.example.com/asyncapi/payments.json");
+});
+```
+
+You can add several AsyncAPI documents at once and mix them freely with OpenAPI documents — both types are rendered together in a single API Reference:
+
+```csharp
+app.MapScalarApiReference(options =>
+{
+    options
+        .AddDocument("v1", "REST API")
+        .AddAsyncApiDocument("events", "Event Stream");
+
+    // Or add multiple AsyncAPI documents by name
+    options.AddAsyncApiDocuments("events", "commands");
+});
+```
+
+To change the default route pattern for all AsyncAPI documents that do not specify their own:
+
+```csharp
+app.MapScalarApiReference(options =>
+{
+    options.WithAsyncApiRoutePattern("/messaging/{documentName}.json");
+});
+```
+
+The `routePattern` parameter on `AddAsyncApiDocument` works like its OpenAPI counterpart: if not specified, it falls back to the global `AsyncApiRoutePattern`, and the pattern can include the `{documentName}` placeholder.
+
 ### Agent
 
 Agent adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent key](../../guides/agent/key.md).
