@@ -3,15 +3,11 @@ import { inject } from 'vue'
 
 import { useProvideTeleport, useTeleport } from './useTeleport'
 
-// Mock vue's inject
+// Mock vue's inject, provide and useId
 vi.mock('vue', () => ({
   inject: vi.fn(),
   provide: vi.fn(),
-}))
-
-// Mock nanoid
-vi.mock('nanoid', () => ({
-  nanoid: vi.fn().mockReturnValue('1234567890'),
+  useId: vi.fn().mockReturnValue('1234567890'),
 }))
 
 describe('useTeleport', () => {
