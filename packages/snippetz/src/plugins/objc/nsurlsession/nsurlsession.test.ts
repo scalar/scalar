@@ -484,7 +484,7 @@ describe('objcNsurlsession', () => {
     expect(result).toContain('@"key": @"\\"quotes\\" and \\\\backslashes\\\\"')
   })
 
-  it('renders null JSON values as empty strings', () => {
+  it('renders null JSON values as NSNull', () => {
     const result = objcNsurlsession.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -494,7 +494,7 @@ describe('objcNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('@"value": @""')
+    expect(result).toContain('@"value": [NSNull null]')
   })
 
   it('handles cookies with special characters', () => {

@@ -47,8 +47,10 @@ const literalRepresentation = (value: unknown, indentation?: number): string => 
     case '[object Boolean]':
       return value ? '@YES' : '@NO'
     default:
+      // Map JSON null/undefined to NSNull so NSJSONSerialization emits a real
+      // JSON `null` instead of an empty string.
       if (value === null || value === undefined) {
-        return '@""'
+        return '[NSNull null]'
       }
       return objcStringLiteral(value.toString())
   }
