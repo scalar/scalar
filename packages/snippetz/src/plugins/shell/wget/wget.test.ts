@@ -459,6 +459,28 @@ describe('shellWget', () => {
   - https://example.com`)
   })
 
+  it('url-encodes form data values', () => {
+    const result = shellWget.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          {
+            name: 'foo',
+            value: 'a b&c=d',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`wget --quiet \\
+  --method POST \\
+  --body-data 'foo=a%20b%26c%3Dd' \\
+  --output-document \\
+  - https://example.com`)
+  })
+
   it('handles url-encoded form data with single quotes in parameter name', () => {
     const result = shellWget.generate({
       url: 'https://example.com',

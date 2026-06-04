@@ -92,8 +92,10 @@ export const shellWget: Plugin = {
       } else if (mimeType === 'application/octet-stream') {
         parts.push(`--body-data '${escapeSingleQuotes(text ?? '')}'`)
       } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
-        // Join all fields into a single body, encoding names to keep the snippet valid
-        const body = params.map((param) => `${encodeURIComponent(param.name)}=${param.value ?? ''}`).join('&')
+        // Join all fields into a single body, encoding names and values since wget sends --body-data as the raw request body
+        const body = params
+          .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`)
+          .join('&')
         parts.push(`--body-data '${escapeSingleQuotes(body)}'`)
       } else if (mimeType === 'multipart/form-data' && params) {
         // Wget has no native multipart support, so we approximate it: files are
