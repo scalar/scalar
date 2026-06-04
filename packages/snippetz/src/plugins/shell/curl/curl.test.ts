@@ -89,6 +89,28 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl 'https://example.com?foo=bar&bar=foo'`)
   })
 
+  it('joins query string parameters with & when the URL already has a query string', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com/api?existing=1',
+      queryString: [
+        {
+          name: 'foo',
+          value: 'bar',
+        },
+      ],
+    })
+
+    expect(result).toBe(`curl 'https://example.com/api?existing=1&foo=bar'`)
+  })
+
+  it('quotes a URL whose query string has no other special characters', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com/api?param1=value1&param2=value2',
+    })
+
+    expect(result).toBe(`curl 'https://example.com/api?param1=value1&param2=value2'`)
+  })
+
   it('has cookies', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
