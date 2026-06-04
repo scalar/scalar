@@ -26,14 +26,16 @@ export const kotlinOkhttp: Plugin = {
 
     const lines: string[] = ['val client = OkHttpClient()', '']
 
-    // Body
-    const hasParams = (postData?.params?.length ?? 0) > 0
+    // Body. Whenever a `val body` is emitted below, `hasBody` flips so the request
+    // builder passes it through for both dedicated and custom method calls.
+    let hasBody = false
     if (postData?.mimeType === 'application/x-www-form-urlencoded' && postData.params) {
       lines.push('val body = FormBody.Builder()')
       postData.params.forEach((param) => {
         lines.push(`  .addEncoded(${quote(param.name)}, ${quote(param.value ?? '')})`)
       })
       lines.push('  .build()', '')
+      hasBody = true
     } else if (postData?.mimeType === 'multipart/form-data' && postData.params) {
       lines.push('val body = MultipartBody.Builder()', '  .setType(MultipartBody.FORM)')
       postData.params.forEach((param) => {
@@ -46,18 +48,20 @@ export const kotlinOkhttp: Plugin = {
         }
       })
       lines.push('  .build()', '')
+      hasBody = true
     } else if (postData) {
       lines.push(`val mediaType = MediaType.parse(${quote(postData.mimeType ?? '')})`)
       lines.push(`val body = RequestBody.create(mediaType, ${JSON.stringify(postData.text ?? '')})`)
+      hasBody = true
     }
 
     // Request builder
     lines.push('val request = Request.Builder()', `  .url("${url}")`)
 
     // Method, mirroring OkHttp's dedicated builder calls and the generic `.method(...)` fallback
-    const bodyArg = postData && (postData.text || hasParams) ? 'body' : 'null'
+    const bodyArg = hasBody ? 'body' : 'null'
     if (!METHODS.includes(method)) {
-      lines.push(`  .method(${quote(method)}, ${postData?.text ? 'body' : 'null'})`)
+      lines.push(`  .method(${quote(method)}, ${bodyArg})`)
     } else if (METHODS_WITH_BODY.includes(method)) {
       lines.push(`  .${method.toLowerCase()}(${bodyArg})`)
     } else {

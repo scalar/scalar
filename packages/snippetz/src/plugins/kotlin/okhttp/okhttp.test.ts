@@ -436,6 +436,58 @@ val request = Request.Builder()
 val response = client.newCall(request).execute()`)
   })
 
+  it('passes form data through a custom HTTP method', () => {
+    const result = kotlinOkhttp.generate({
+      url: 'https://example.com',
+      method: 'PURGE',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          {
+            name: 'foo',
+            value: 'bar',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`val client = OkHttpClient()
+
+val body = FormBody.Builder()
+  .addEncoded("foo", "bar")
+  .build()
+
+val request = Request.Builder()
+  .url("https://example.com")
+  .method("PURGE", body)
+  .build()
+
+val response = client.newCall(request).execute()`)
+  })
+
+  it('passes an empty form body to the request builder', () => {
+    const result = kotlinOkhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [],
+      },
+    })
+
+    expect(result).toBe(`val client = OkHttpClient()
+
+val body = FormBody.Builder()
+  .build()
+
+val request = Request.Builder()
+  .url("https://example.com")
+  .post(body)
+  .build()
+
+val response = client.newCall(request).execute()`)
+  })
+
   it('handles special characters in URL', () => {
     const result = kotlinOkhttp.generate({
       url: 'https://example.com/path with spaces/[brackets]',
