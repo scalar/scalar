@@ -221,6 +221,11 @@ const clients = computed(() =>
   getClients(customCodeSamples.value, clientOptions),
 )
 
+/** Total number of available clients across all option groups */
+const clientCount = computed(() =>
+  clients.value.reduce((total, group) => total + group.options.length, 0),
+)
+
 /** The locally selected client which would include code samples from this operation only */
 const localSelectedClient = ref<ClientOption | CustomClientOption | undefined>(
   findClient(clients.value, selectedClient),
@@ -355,9 +360,11 @@ const id = useId()
       <slot name="header" />
       <!-- Client picker -->
       <template
-        v-if="!isWebhook && clients.length"
+        v-if="!isWebhook && clientCount"
         #actions>
+        <!-- Multiple clients: render a dropdown to switch between them -->
         <ScalarCombobox
+          v-if="clientCount > 1"
           class="max-h-80"
           :filterFn="filterClientsByQuery"
           :modelValue="localSelectedClient"
@@ -375,6 +382,13 @@ const id = useId()
               weight="bold" />
           </ScalarButton>
         </ScalarCombobox>
+        <!-- Single client: just show its label, no need for a dropdown -->
+        <span
+          v-else
+          class="text-c-2 flex h-full w-fit items-center px-0.5 py-0 text-base font-normal"
+          data-testid="client-picker">
+          {{ localSelectedClient?.title }}
+        </span>
       </template>
     </ScalarCardHeader>
 

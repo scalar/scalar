@@ -615,6 +615,51 @@ describe('RequestExample', () => {
     })
   })
 
+  describe('Single Client', () => {
+    const singleClientOptions: ClientOptionGroup[] = [
+      {
+        label: 'JavaScript',
+        key: 'js',
+        options: [
+          {
+            id: 'js/fetch',
+            label: 'Fetch API',
+            lang: 'js',
+            title: 'JavaScript Fetch API',
+            targetKey: 'js',
+            targetTitle: 'JavaScript',
+            clientKey: 'fetch',
+          },
+        ],
+      },
+    ]
+
+    it('renders the client label without a dropdown when only one client is available', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          clientOptions: singleClientOptions,
+        },
+      })
+
+      // No dropdown should be rendered for a single client
+      expect(wrapper.findComponent({ name: 'ScalarCombobox' }).exists()).toBe(false)
+
+      // The client title should still be shown as a plain label
+      const label = wrapper.find('[data-testid="client-picker"]')
+      expect(label.exists()).toBe(true)
+      expect(label.text()).toContain('JavaScript Fetch API')
+    })
+
+    it('renders a dropdown when more than one client is available', () => {
+      const wrapper = mount(RequestExample, {
+        props: defaultProps,
+      })
+
+      expect(wrapper.findComponent({ name: 'ScalarCombobox' }).exists()).toBe(true)
+    })
+  })
+
   describe('Custom Examples', () => {
     it('handles x-custom-examples extension', () => {
       const wrapper = mount(RequestExample, {
