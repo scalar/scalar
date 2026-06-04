@@ -56,7 +56,7 @@ export const kotlinOkhttp: Plugin = {
     }
 
     // Request builder
-    lines.push('val request = Request.Builder()', `  .url("${url}")`)
+    lines.push('val request = Request.Builder()', `  .url(${quote(url)})`)
 
     // Method, mirroring OkHttp's dedicated builder calls and the generic `.method(...)` fallback
     const bodyArg = hasBody ? 'body' : 'null'

@@ -514,6 +514,21 @@ val request = Request.Builder()
 val response = client.newCall(request).execute()`)
   })
 
+  it('escapes quotes in the URL', () => {
+    const result = kotlinOkhttp.generate({
+      url: 'say "hi"',
+    })
+
+    expect(result).toBe(`val client = OkHttpClient()
+
+val request = Request.Builder()
+  .url("say \\"hi\\"")
+  .get()
+  .build()
+
+val response = client.newCall(request).execute()`)
+  })
+
   it('handles special characters in URL', () => {
     const result = kotlinOkhttp.generate({
       url: 'https://example.com/path with spaces/[brackets]',
