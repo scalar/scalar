@@ -93,6 +93,24 @@ public class ScalarOptionsExtensionsTests
     }
 
     [Fact]
+    public void AddAsyncApiDocuments_ShouldForceAsyncApiTypeOnDocumentObjects()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act — pass documents that default to DocumentType.OpenApi; the overload coerces them to AsyncApi
+        options.AddAsyncApiDocuments(
+            new ScalarDocument("events", "Event Stream"),
+            new ScalarDocument("commands", RoutePattern: "/messaging/{documentName}.json"));
+
+        // Assert
+        options.Documents.Should().HaveCount(2);
+        options.Documents.Should().AllSatisfy(d => d.DocumentType.Should().Be(DocumentType.AsyncApi));
+        options.Documents.Should().ContainSingle(d => d.Name == "events" && d.Title == "Event Stream");
+        options.Documents.Should().ContainSingle(d => d.Name == "commands" && d.RoutePattern == "/messaging/{documentName}.json");
+    }
+
+    [Fact]
     public void AddAsyncApiDocument_ShouldCoexistWithOpenApiDocuments()
     {
         // Arrange

@@ -678,6 +678,21 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Adds multiple AsyncAPI documents to the Scalar API Reference using document objects.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="documents">A list of <see cref="ScalarDocument" />s to add.</param>
+    /// <remarks>
+    /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
+    /// Each document is treated as an AsyncAPI document regardless of its <see cref="ScalarDocument.DocumentType" />.
+    /// </remarks>
+    public static TOptions AddAsyncApiDocuments<TOptions>(this TOptions options, params IEnumerable<ScalarDocument> documents) where TOptions : ScalarOptions
+    {
+        options.Documents.AddRange(documents.Select(document => document with { DocumentType = DocumentType.AsyncApi }));
+        return options;
+    }
+
+    /// <summary>
     /// Controls whether to expose 'dotnet' flag to the configuration.
     /// </summary>
     /// <param name="options">The options to configure.</param>

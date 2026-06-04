@@ -270,6 +270,18 @@ app.MapScalarApiReference(options =>
 });
 ```
 
+You can also pass `ScalarDocument` objects. They are always registered as AsyncAPI documents, regardless of the `DocumentType` set on the object:
+
+```csharp
+var documents = new[]
+{
+    new ScalarDocument("events", "Event Stream"),
+    new ScalarDocument("commands", "Commands", "/messaging/{documentName}.json")
+};
+
+app.MapScalarApiReference(options => options.AddAsyncApiDocuments(documents));
+```
+
 To change the default route pattern for all AsyncAPI documents that do not specify their own:
 
 ```csharp
