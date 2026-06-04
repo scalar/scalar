@@ -26,6 +26,18 @@ describe('shellWget', () => {
   - https://example.com`)
   })
 
+  it('falls back to GET when method is explicitly undefined', () => {
+    const result = shellWget.generate({
+      url: 'https://example.com',
+      method: undefined,
+    })
+
+    expect(result).toBe(`wget --quiet \\
+  --method GET \\
+  --output-document \\
+  - https://example.com`)
+  })
+
   it('has headers', () => {
     const result = shellWget.generate({
       url: 'https://example.com',

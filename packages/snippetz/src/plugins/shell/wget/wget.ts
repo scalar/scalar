@@ -36,14 +36,12 @@ export const shellWget: Plugin = {
   client: 'wget',
   title: 'Wget',
   generate(request, configuration) {
-    // Defaults
+    // Defaults and normalization. Resolving the method from `request` directly guards
+    // against an explicit `method: undefined`, which would otherwise overwrite the default.
     const normalizedRequest = {
-      method: 'GET',
       ...request,
+      method: (request?.method ?? 'GET').toUpperCase(),
     }
-
-    // Normalization
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
 
     // Build the URL, joining extra query parameters with `&` when the URL already carries a query string
     const baseUrl = normalizedRequest.url ?? ''
