@@ -301,6 +301,28 @@ describe('clojureCljhttp', () => {
                                                  :content (clojure.java.io/file "")}]})`)
   })
 
+  it('uses the inline value as content when a part has both a file name and a value', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            value: 'file contents',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/post "https://example.com" {:multipart [{:name "file"
+                                                 :content "file contents"}]})`)
+  })
+
   it('treats a null file name as a value-less part instead of a file', () => {
     const result = clojureCljhttp.generate({
       url: 'https://example.com',
