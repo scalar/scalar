@@ -250,4 +250,15 @@ describe('getCustomClientIds', () => {
   it('falls back to plaintext when a sample has no language', () => {
     expect(getCustomClientIds([{ source: '' }])).toEqual(['custom/plaintext'])
   })
+
+  it('lower-cases the language so casing does not break cross-operation matching', () => {
+    expect(getCustomClientIds([{ lang: 'Python', source: '' }])).toEqual(['custom/python'])
+
+    // Differently-cased duplicates of the same language are treated as one
+    const ids = getCustomClientIds([
+      { lang: 'Python', source: '' },
+      { lang: 'python', source: '' },
+    ])
+    expect(ids).toEqual(['custom/python', 'custom/python/1'])
+  })
 })

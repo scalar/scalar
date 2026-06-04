@@ -238,16 +238,18 @@ const localSelectedClient = ref<ClientOption | CustomClientOption | undefined>(
   findClient(clients.value, selectedClient),
 )
 
-/** If the globally selected client changes we can update the local one */
-watch(
-  () => selectedClient,
-  (newClient) => {
-    const client = findClient(clients.value, newClient)
-    if (client) {
-      localSelectedClient.value = client
-    }
-  },
-)
+/**
+ * Re-resolve the local client whenever the global selection or the available
+ * clients change. Watching `clients` matters when navigating between operations:
+ * the stored id stays the same, but the matching option (e.g. a custom sample)
+ * differs per operation, so without this the snippet could go stale.
+ */
+watch([() => selectedClient, clients], ([newClient]) => {
+  const client = findClient(clients.value, newClient)
+  if (client) {
+    localSelectedClient.value = client
+  }
+})
 
 /** Generate HAR data for webhook requests */
 const webhookHar = computed(() => {

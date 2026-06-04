@@ -16,6 +16,10 @@ export type CustomCodeSampleId = `custom/${string}`
  * becomes `custom/<lang>`, and any further samples that repeat a language fall back
  * to `custom/<lang>/<n>` so they stay individually selectable within the operation.
  *
+ * The language is lower-cased so a selection still matches when operations (or
+ * extensions) spell the same language with different casing (e.g. `Python` vs
+ * `python`).
+ *
  * @param samples - The custom code samples for a single operation
  * @returns A list of ids aligned by index with the input samples
  */
@@ -23,7 +27,7 @@ export const getCustomClientIds = (samples: XCodeSample[]): CustomCodeSampleId[]
   const countByLang = new Map<string, number>()
 
   return samples.map((sample): CustomCodeSampleId => {
-    const lang = sample.lang || 'plaintext'
+    const lang = (sample.lang || 'plaintext').toLowerCase()
     const seen = countByLang.get(lang) ?? 0
     countByLang.set(lang, seen + 1)
 
