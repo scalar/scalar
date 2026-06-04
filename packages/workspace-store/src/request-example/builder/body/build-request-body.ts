@@ -9,6 +9,7 @@ import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type
 
 import { getExampleFromBody } from './get-request-body-example'
 import { getSelectedBodyContentType } from './get-selected-body-content-type'
+import { serializeFormPropertyWithEncoding } from './serialize-form-property'
 
 type FormData = {
   mode: 'formdata'
@@ -168,8 +169,20 @@ export const buildRequestBody = (
       if (!name) {
         return
       }
-      const partContentType =
-        result.mode === 'formdata' ? getMultipartEncodingContentType(requestBody, bodyContentType, name) : undefined
+      const partEncoding = requestBody.content[bodyContentType]?.encoding?.[name]
+
+      // When the encoding sets style/explode, serialize objects/arrays RFC6570-style
+      // (bracket or exploded notation) instead of JSON, so the wire request matches the
+      // generated code snippet.
+      const styleParts = serializeFormPropertyWithEncoding(name, value, partEncoding)
+      if (styleParts) {
+        for (const part of styleParts) {
+          result.value.push({ type: 'text', key: part.key, value: part.value })
+        }
+        return
+      }
+
+      const partContentType = result.mode === 'formdata' ? partEncoding?.contentType : undefined
 
       // Handle file uploads
       if (value instanceof File && result.mode === 'formdata') {
@@ -233,6 +246,17 @@ export const buildRequestBody = (
     // Convert object properties to form fields
     for (const [key, value] of Object.entries(example.value)) {
       if (key && value !== undefined && value !== null) {
+        const partEncoding = requestBody.content[bodyContentType]?.encoding?.[key]
+
+        // Encoding style/explode turns objects into bracket or exploded notation.
+        const styleParts = serializeFormPropertyWithEncoding(key, value, partEncoding)
+        if (styleParts) {
+          for (const part of styleParts) {
+            result.value.push({ key: part.key, value: part.value })
+          }
+          continue
+        }
+
         const stringValue =
           typeof value === 'object' && value !== null ? JSON.stringify(unpackProxyObject(value)) : String(value)
         result.value.push({
@@ -254,6 +278,18 @@ export const buildRequestBody = (
 
     for (const [key, value] of Object.entries(example.value)) {
       if (!key || value === undefined || value === null) {
+        continue
+      }
+
+      const partEncoding = requestBody.content[bodyContentType]?.encoding?.[key]
+
+      // Encoding style/explode turns objects into bracket or exploded notation instead of
+      // the default single JSON part.
+      const styleParts = serializeFormPropertyWithEncoding(key, value, partEncoding)
+      if (styleParts) {
+        for (const part of styleParts) {
+          result.value.push({ type: 'text', key: part.key, value: part.value })
+        }
         continue
       }
 
