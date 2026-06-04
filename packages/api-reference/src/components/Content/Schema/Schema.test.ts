@@ -734,7 +734,7 @@ describe('Schema', () => {
     })
   })
   describe('expandAllSchemaProperties', () => {
-    it('does not render the toggle and shows nested properties when expandAllSchemaProperties is true', () => {
+    it('renders the toggle and shows nested properties by default when expandAllSchemaProperties is true', () => {
       const wrapper = mount(Schema, {
         props: {
           schema: {
@@ -754,7 +754,7 @@ describe('Schema', () => {
         },
       })
 
-      expect(wrapper.find('button').exists()).toBe(false)
+      expect(wrapper.find('button').exists()).toBe(true)
       expect(wrapper.text()).toContain('bar')
     })
 
@@ -886,9 +886,9 @@ describe('Schema', () => {
         },
       })
 
-      // The deepest property is visible and no collapse toggle is rendered.
+      // The deepest property is visible and the collapse toggle remains available.
       expect(wrapper.text()).toContain('leaf')
-      expect(wrapper.find('button').exists()).toBe(false)
+      expect(wrapper.find('button').exists()).toBe(true)
     })
   })
 })

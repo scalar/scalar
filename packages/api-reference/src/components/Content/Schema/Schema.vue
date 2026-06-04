@@ -80,8 +80,8 @@ const {
  * treated as cyclic when its key is already present in the ancestor set, which
  * indicates that rendering has looped back onto a self-referential schema.
  *
- * This lets us force-expand finite branches while stopping automatic expansion
- * only at cycle boundaries, preventing infinite recursion.
+ * This lets us default-expand finite branches while stopping automatic
+ * expansion only at cycle boundaries, preventing infinite recursion.
  */
 const ancestors = inject(SCHEMA_ANCESTORS_SYMBOL, undefined)
 
@@ -105,18 +105,13 @@ const shouldForceExpand = computed(
  * Determines whether to show the collapse/expand toggle button.
  * We hide the toggle for non-collapsible schemas and root-level schemas.
  */
-const shouldShowToggle = computed((): boolean => {
-  if (shouldForceExpand.value) {
-    return false
-  }
-
-  return !noncollapsible && level > 0
-})
+const shouldShowToggle = computed((): boolean => !noncollapsible && level > 0)
 
 /**
  * Whether the disclosure starts expanded. Non-collapsible schemas are always
- * open, and when child properties are always shown there is no toggle to expand
- * them, so they must start open too.
+ * open. When `expandAllSchemaProperties` is enabled, finite branches start
+ * expanded by default while cyclic branches remain collapsed to avoid recursion
+ * loops.
  */
 const defaultOpen = computed(
   (): boolean => noncollapsible || shouldForceExpand.value,
@@ -156,9 +151,9 @@ const schemaDescription = computed(() => {
   return schema.description
 })
 
-// Prevent click action if noncollapsible or child properties are always shown
+// Prevent click action if noncollapsible
 const handleClick = (e: MouseEvent) => {
-  if (noncollapsible || shouldForceExpand.value) {
+  if (noncollapsible) {
     e.stopPropagation()
   }
 }

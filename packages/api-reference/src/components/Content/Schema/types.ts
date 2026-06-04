@@ -15,7 +15,7 @@ export type SchemaOptions = {
   orderSchemaPropertiesBy?: ApiReferenceConfiguration['orderSchemaPropertiesBy']
   /** Order required properties first */
   orderRequiredPropertiesFirst?: ApiReferenceConfiguration['orderRequiredPropertiesFirst']
-  /** Expand all nested schema properties (no Show/Hide toggle is rendered) */
+  /** Expand all nested schema properties by default while keeping the toggle available */
   expandAllSchemaProperties?: ApiReferenceConfiguration['expandAllSchemaProperties']
   /**
    * The document the schema belongs to.

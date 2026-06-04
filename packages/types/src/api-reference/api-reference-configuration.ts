@@ -378,9 +378,9 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   expandAllResponses: z.boolean().optional().default(false).catch(false),
   /**
-   * Whether to expand all nested schema properties. When true, the
-   * Show/Hide Child Attributes toggle is not rendered and nested object
-   * properties are always visible.
+   * Whether to expand all nested schema properties by default. The
+   * Show/Hide Child Attributes toggle remains available so nested sections can
+   * still be collapsed manually.
    *
    * Warning: this can cause performance issues on big documents
    * @default false
