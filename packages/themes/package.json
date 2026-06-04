@@ -27,9 +27,6 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "bin": {
-    "scalar-themes": "./scripts/cli.mjs"
-  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -43,7 +40,6 @@
   "files": [
     "dist",
     "skills",
-    "scripts",
     "CHANGELOG.md"
   ],
   "dependencies": {
