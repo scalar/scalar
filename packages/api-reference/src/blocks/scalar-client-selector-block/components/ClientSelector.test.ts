@@ -100,6 +100,54 @@ describe('ClientLibraries', () => {
       expect(vm.selectedClientOption?.id).toBe(customClient)
     })
 
+    it('ignores a custom sample selection and falls back to the default client', () => {
+      const wrapper = mount(ClientSelector, {
+        props: {
+          clientOptions: mockClientOptions,
+          eventBus,
+          // A custom sample is operation-specific and not a generic client
+          selectedClient: 'custom/python',
+        },
+        global: {
+          stubs: {
+            'ScalarCodeBlock': true,
+            'ScalarMarkdown': true,
+            'ClientSelector': true,
+          },
+        },
+      })
+
+      // The introduction selector only represents generic clients, so a custom
+      // sample should not be reflected here
+      const vm = wrapper.vm
+      expect(vm.selectedClientOption?.id).toBe(DEFAULT_CLIENT)
+    })
+
+    it('keeps the last generic client when the global selection switches to a custom sample', async () => {
+      const wrapper = mount(ClientSelector, {
+        props: {
+          clientOptions: mockClientOptions,
+          eventBus,
+          selectedClient: 'node/undici',
+        },
+        global: {
+          stubs: {
+            'ScalarCodeBlock': true,
+            'ScalarMarkdown': true,
+            'ClientSelector': true,
+          },
+        },
+      })
+
+      const vm = wrapper.vm
+      expect(vm.selectedClientOption?.id).toBe('node/undici')
+
+      // Picking a custom example elsewhere updates the global client, but the
+      // introduction selector should stay on the previously selected generic one
+      await wrapper.setProps({ selectedClient: 'custom/python' })
+      expect(vm.selectedClientOption?.id).toBe('node/undici')
+    })
+
     it('handles undefined selectedClient gracefully', () => {
       const wrapper = mount(ClientSelector, {
         props: {

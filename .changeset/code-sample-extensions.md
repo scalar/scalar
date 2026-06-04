@@ -1,6 +1,7 @@
 ---
 '@scalar/workspace-store': minor
 '@scalar/api-client': minor
+'@scalar/api-reference': patch
 '@scalar/schemas': minor
 '@scalar/types': minor
 ---
