@@ -13,11 +13,15 @@ export type HtmlRenderingConfiguration = Partial<ApiReferenceConfigurationWithMu
    * tags (and the CDN `<script>` tag).
    *
    * When set, a `<meta property="csp-nonce">` tag is also emitted so the standalone bundle can apply
-   * the same nonce to the stylesheet it injects at runtime. This allows the API Reference to render
-   * under a strict CSP without `unsafe-inline`.
+   * the same nonce to the stylesheet it injects at runtime. This lets the API Reference run under a
+   * strict `script-src` with no `unsafe-inline` and no `unsafe-eval`.
    *
-   * The value must match the `nonce-...` source in your `script-src` and `style-src` directives, and
-   * a fresh nonce should be generated for every request.
+   * The value must match the `nonce-...` source in your `script-src` directive, and a fresh nonce
+   * should be generated for every request.
+   *
+   * Note: `style-src` still needs `'unsafe-inline'`. The reference renders inline `style="..."`
+   * attributes, which a CSP nonce can never authorize (nonces only apply to `<script>`, `<style>`
+   * and `<link>` elements).
    */
   nonce: string
 }

@@ -92,8 +92,11 @@ export function renderApiReference(
      * tags (and the CDN `<script>` tag).
      *
      * When set, a `<meta property="csp-nonce">` tag is also emitted so the standalone bundle can apply
-     * the same nonce to the stylesheet it injects at runtime, allowing the API Reference to render
-     * under a strict CSP without `unsafe-inline`.
+     * the same nonce to the stylesheet it injects at runtime. This lets the API Reference run under a
+     * strict `script-src` with no `unsafe-inline` and no `unsafe-eval`.
+     *
+     * Note: `style-src` still needs `'unsafe-inline'`, because the reference renders inline
+     * `style="..."` attributes that a CSP nonce cannot authorize.
      */
     nonce?: string
   },

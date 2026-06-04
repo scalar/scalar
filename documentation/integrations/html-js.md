@@ -40,19 +40,19 @@ Check out the [Configuration](../configuration.md) page to learn more about cust
 
 ## Content Security Policy (CSP)
 
-If your page enforces a strict [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP), the inline initialization script and the stylesheet that the bundle injects at runtime are blocked unless you allow `unsafe-inline`.
+If your page enforces a strict [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP), the inline initialization script is blocked unless you allow `unsafe-inline`.
 
-To keep a strict policy instead, generate a per-request nonce, put it on the script tags, and add a `<meta property="csp-nonce">` so the injected stylesheet picks up the same nonce:
+To keep a strict `script-src` instead, generate a per-request nonce and put it on both script tags:
 
 ```html
 <head>
-  <!-- Use the same value as the `nonce-...` source in your CSP header -->
+  <!-- The reference also injects styles at runtime; this lets them carry the same nonce -->
   <meta property="csp-nonce" content="r4nd0m" />
 </head>
 <body>
   <div id="app"></div>
 
-  <!-- script-src 'nonce-r4nd0m' -->
+  <!-- script-src 'nonce-r4nd0m' — no unsafe-inline, no unsafe-eval -->
   <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference" nonce="r4nd0m"></script>
   <script nonce="r4nd0m">
     Scalar.createApiReference('#app', {
@@ -62,7 +62,10 @@ To keep a strict policy instead, generate a per-request nonce, put it on the scr
 </body>
 ```
 
-If you render the HTML through one of our server integrations (Next.js, Express, Fastify, NestJS, Hono, SvelteKit, Astro) you do not have to wire this up by hand: pass a `nonce` to the configuration and all of the above is added for you.
+> [!NOTE]
+> **`style-src` still needs `'unsafe-inline'`.** The reference renders inline `style="…"` attributes, and a CSP nonce can never authorize inline style attributes — only `<script>`, `<style>` and `<link>` elements. So a strict, nonce-only `style-src` is not possible today; keep `style-src 'unsafe-inline'`. The win here is `script-src`, which can stay fully strict.
+
+If you render the HTML through one of our server integrations (Next.js, Express, Fastify, NestJS, Hono, SvelteKit, Astro), pass a `nonce` to the configuration and the script tags and meta tag are added for you.
 
 ## Version
 

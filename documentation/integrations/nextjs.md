@@ -104,9 +104,9 @@ export const GET = ApiReference(config)
 
 ### Content Security Policy (CSP)
 
-To render the reference, Scalar adds an inline `<script>` and inline `<style>` to the page, and the bundle injects its stylesheet at runtime. Under a strict [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP) those are blocked unless you allow `unsafe-inline` (which defeats the purpose of a CSP).
+To boot the reference, Scalar adds an inline `<script>` to the page. Under a strict [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP) that script is blocked unless you allow `unsafe-inline` (which defeats the purpose of a CSP).
 
-Instead, pass a `nonce`. Scalar stamps it onto the inline tags and emits a matching `<meta property="csp-nonce">` so the injected stylesheet picks up the same nonce. That way you can keep a strict policy without `unsafe-inline`.
+Instead, pass a `nonce`. Scalar stamps it onto the inline script and the CDN `<script>` tag, so you can keep a strict `script-src` with **no `unsafe-inline` and no `unsafe-eval`**.
 
 A nonce has to be generated fresh for every request, so generate it in `middleware.ts`, expose it to the route through a request header, and set the matching CSP response header:
 
@@ -120,8 +120,10 @@ export function middleware(request: NextRequest) {
 
   const csp = [
     `default-src 'self'`,
+    // Scripts are locked down to the nonce — no unsafe-inline, no unsafe-eval.
     `script-src 'nonce-${nonce}'`,
-    `style-src 'nonce-${nonce}'`,
+    // Styles still need 'unsafe-inline' (see the note below).
+    `style-src 'unsafe-inline'`,
     // Allow the OpenAPI document and any other resources you load.
     `connect-src 'self' https:`,
     `img-src 'self' data: https:`,
@@ -161,6 +163,9 @@ export async function GET() {
 ```
 
 The same `nonce` option is available in all of our HTML-rendering integrations (Express, Fastify, NestJS, Hono, SvelteKit and Astro).
+
+> [!NOTE]
+> **`style-src` still needs `'unsafe-inline'`.** The reference renders many inline `style="…"` attributes, and a CSP nonce can never authorize inline style attributes — only `<script>`, `<style>` and `<link>` elements. So `style-src` cannot be locked down to a nonce today. The `nonce` is still applied to Scalar's own style tags (and a matching `<meta property="csp-nonce">` is emitted), but `style-src 'unsafe-inline'` remains required. The important win is `script-src`, which you can keep fully strict.
 
 ## Guide
 
