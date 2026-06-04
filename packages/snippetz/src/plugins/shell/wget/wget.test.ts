@@ -559,6 +559,34 @@ describe('shellWget', () => {
   - 'https://example.com/api?param1=value1&param2=special value&param3=123'`)
   })
 
+  it('joins query string parameters with & when the URL already has a query string', () => {
+    const result = shellWget.generate({
+      url: 'https://example.com/api?existing=1',
+      queryString: [
+        {
+          name: 'foo',
+          value: 'bar',
+        },
+      ],
+    })
+
+    expect(result).toBe(`wget --quiet \\
+  --method GET \\
+  --output-document \\
+  - 'https://example.com/api?existing=1&foo=bar'`)
+  })
+
+  it('quotes a URL whose query string has no other special characters', () => {
+    const result = shellWget.generate({
+      url: 'https://example.com/api?param1=value1&param2=value2',
+    })
+
+    expect(result).toBe(`wget --quiet \\
+  --method GET \\
+  --output-document \\
+  - 'https://example.com/api?param1=value1&param2=value2'`)
+  })
+
   it('handles empty URL', () => {
     const result = shellWget.generate({
       url: '',

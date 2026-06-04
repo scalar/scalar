@@ -45,13 +45,16 @@ export const shellWget: Plugin = {
     // Normalization
     normalizedRequest.method = normalizedRequest.method.toUpperCase()
 
-    // Build the URL (quote it once it carries query parameters or special characters)
+    // Build the URL, joining extra query parameters with `&` when the URL already carries a query string
+    const baseUrl = normalizedRequest.url ?? ''
+    const separator = baseUrl.includes('?') ? '&' : '?'
     const queryString = normalizedRequest.queryString?.length
-      ? '?' + normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
+      ? separator + normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
       : ''
-    const url = `${normalizedRequest.url ?? ''}${queryString}`
-    const hasSpecialChars = /[\s<>[\]{}|\\^%$]/.test(url)
-    const urlPart = queryString || hasSpecialChars ? `'${url}'` : url
+    const url = `${baseUrl}${queryString}`
+    // Quote the URL whenever it contains anything the shell could interpret (spaces, query separators, globs, …)
+    const isShellSafe = /^[A-Za-z0-9._~:/%@+,=-]*$/.test(url)
+    const urlPart = isShellSafe ? url : `'${escapeSingleQuotes(url)}'`
 
     // Wget runs quietly and writes to stdout so the snippet stays focused on the request
     const parts: string[] = ['wget --quiet', `--method ${normalizedRequest.method}`]

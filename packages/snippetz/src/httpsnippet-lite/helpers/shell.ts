@@ -11,4 +11,3 @@ export const shellQuote = (value = ''): string => {
   // if the value is not shell safe, then quote it
   return `'${value.replace(/'/g, "'\\''")}'`
 }
-export const shellEscape = (value: string): string => value.replace(/\r/g, '\\r').replace(/\n/g, '\\n')
