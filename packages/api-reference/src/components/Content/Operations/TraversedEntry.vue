@@ -157,21 +157,30 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       </template>
     </Tag>
 
-    <!-- Display tag grop entries for modern layout (flattened) -->
-    <TraversedEntry
+    <!-- Display tag group entries for modern layout (flattened) -->
+    <!--
+      The wrapping element carries the tag group id so it remains a scroll
+      target. Modern layout flattens groups and renders no header of their own,
+      so without this anchor, selecting a tag group (from search or the sidebar)
+      would have nothing to scroll to.
+    -->
+    <div
       v-else-if="isTagGroup(entry)"
-      :authStore
-      :clientOptions
-      :document
-      :entries="entry.children || []"
-      :eventBus
-      :expandedItems
-      :level="level + 1"
-      :options
-      :securitySchemes
-      :selectedClient
-      :selectedServer>
-    </TraversedEntry>
+      :id="entry.id">
+      <TraversedEntry
+        :authStore
+        :clientOptions
+        :document
+        :entries="entry.children || []"
+        :eventBus
+        :expandedItems
+        :level="level + 1"
+        :options
+        :securitySchemes
+        :selectedClient
+        :selectedServer>
+      </TraversedEntry>
+    </div>
 
     <!-- Models -->
     <ModelTag
