@@ -57,13 +57,17 @@ const installScalar = (cdn: string = DEFAULT_CDN): Created[] => {
 }
 
 /** Add an empty client-rendered container to the page, as the component does. */
-const createContainer = (configuration: unknown, cdn?: string): HTMLElement => {
+const createContainer = (configuration: unknown, cdn?: string, nonce?: string): HTMLElement => {
   const element = document.createElement('div')
   element.setAttribute('data-scalar-client', '')
   element.dataset.configuration = JSON.stringify(configuration)
 
   if (cdn) {
     element.dataset.cdn = cdn
+  }
+
+  if (nonce) {
+    element.dataset.nonce = nonce
   }
 
   document.body.appendChild(element)
@@ -213,6 +217,34 @@ describe('client', () => {
     // for the shared global.
     expect(mountedBy.get(elementA)).toBe('a')
     expect(mountedBy.get(elementB)).toBe('b')
+  })
+
+  it('stamps the nonce on the injected CDN script', async () => {
+    createContainer({}, 'https://cdn.example.com/api-reference', 'r4nd0m')
+
+    initScalarClient()
+    await flush()
+
+    expect(document.head.querySelector('script')?.nonce).toBe('r4nd0m')
+  })
+
+  it('emits a csp-nonce meta tag so the bundle can nonce its injected styles', async () => {
+    createContainer({}, undefined, 'r4nd0m')
+
+    initScalarClient()
+    await flush()
+
+    expect(document.head.querySelector('meta[property="csp-nonce"]')?.getAttribute('content')).toBe('r4nd0m')
+  })
+
+  it('does not stamp a nonce or meta tag when none is given', async () => {
+    createContainer({})
+
+    initScalarClient()
+    await flush()
+
+    expect(document.head.querySelector('script')?.nonce).toBe('')
+    expect(document.head.querySelector('meta[property="csp-nonce"]')).toBeNull()
   })
 
   it('mounts containers added by a client-side navigation', async () => {

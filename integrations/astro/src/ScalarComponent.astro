@@ -37,7 +37,7 @@ const { cdn, pageTitle, nonce, ...config } = finalConfiguration
 
 {
   renderMode === 'client' ? (
-    <ScalarClient config={config} cdn={cdn} />
+    <ScalarClient config={config} cdn={cdn} nonce={nonce} />
   ) : (
     <div set:html={renderApiReference({ config, cdn, pageTitle, nonce })} />
   )

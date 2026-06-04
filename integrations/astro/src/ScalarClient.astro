@@ -4,12 +4,18 @@ import { getConfiguration, type HtmlRenderingConfiguration } from '@scalar/clien
 interface Props {
   config: Omit<Partial<HtmlRenderingConfiguration>, 'cdn' | 'pageTitle'>
   cdn?: string
+  /**
+   * A Content Security Policy nonce, forwarded to the client so it can stamp
+   * the dynamically injected CDN `<script>` and the `csp-nonce` meta tag that
+   * the standalone bundle reads when nonce-ing its runtime styles.
+   */
+  nonce?: string
 }
 
-const { config, cdn } = Astro.props
+const { config, cdn, nonce } = Astro.props
 ---
 
-<div data-scalar-client data-configuration={JSON.stringify(getConfiguration(config))} data-cdn={cdn}></div>
+<div data-scalar-client data-configuration={JSON.stringify(getConfiguration(config))} data-cdn={cdn} data-nonce={nonce}></div>
 
 <script>
   import { initScalarClient } from './client'
