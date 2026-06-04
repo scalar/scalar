@@ -13,15 +13,27 @@ jobs:
     name: Update the README
     if: ${{ github.repository_owner == 'scalar' }}
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    # Holds the release bot app credentials so the README PR is opened by the
+    # app rather than by GITHUB_TOKEN. Pull requests created with GITHUB_TOKEN
+    # do not trigger workflow events, so their CI checks stay pending forever.
+    environment: release-bot
     timeout-minutes: 15
     permissions:
       contents: write
       pull-requests: write
 
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
       - name: Update the list of contributors
         uses: akhilmhdh/contributors-readme-action@83ea0b4f1ac928fbfe88b9e8460a932a528eb79f # v2.3.11
         with:
           use_username: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The app token (not GITHUB_TOKEN) is what makes the PR trigger CI.
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}

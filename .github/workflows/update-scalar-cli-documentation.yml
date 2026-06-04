@@ -27,17 +27,6 @@ jobs:
         commands-markdown: [documentation/guides/cli/commands.md]
 
     steps:
-      # Mint a short-lived GitHub App token so the docs PR is opened by our app
-      # instead of GITHUB_TOKEN. Pull requests created with GITHUB_TOKEN do not
-      # trigger workflow events, so their CI checks stay pending forever; an app
-      # token lifts that restriction.
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with:
-          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
-          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup Node.js
@@ -76,12 +65,30 @@ jobs:
             echo "has-changes=true" >> $GITHUB_OUTPUT
           fi
 
+      # Mint a short-lived GitHub App token so the docs PR is opened by our app
+      # instead of GITHUB_TOKEN. Pull requests created with GITHUB_TOKEN do not
+      # trigger workflow events, so their CI checks stay pending forever; an app
+      # token lifts that restriction. The token is generated here, right before
+      # it is used, so the untrusted `npx @scalar/cli@latest` step above never
+      # runs while a live app token exists in the job.
+      - name: Generate GitHub App token
+        id: app-token
+        if: steps.check-changes.outputs.has-changes == 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
       - name: Create Pull Request
         if: steps.check-changes.outputs.has-changes == 'true'
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
         with:
           # The app token (not GITHUB_TOKEN) is what makes the PR trigger CI.
           token: ${{ steps.app-token.outputs.token }}
+          # Restrict the PR to the generated markdown file only. Even if an
+          # upstream step were compromised and touched other files, nothing but
+          # this path can be staged into the PR.
+          add-paths: ${{ matrix.commands-markdown }}
           base: main
           commit-message: 'docs(cli): update commands'
           title: 'docs(cli): update commands'

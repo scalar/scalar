@@ -1,0 +1,43 @@
+name: Verify generated docs PR
+
+# The scheduled docs bots (CLI docs + contributors) open PRs with an app token,
+# so their CI runs. This gate makes sure those bot PRs only ever touch Markdown
+# files. If a compromised step tried to smuggle in code or workflow changes, the
+# PR fails here instead of being waved through as a routine docs update.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  markdown-only:
+    name: Only Markdown changes
+    # Limit the gate to the bot-authored docs branches. github.head_ref is only
+    # read inside expressions and env vars, never interpolated into a shell.
+    if: >-
+      ${{ startsWith(github.head_ref, 'contributors-readme-action-') ||
+      github.head_ref == 'docs/update-cli-documentation' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any non-Markdown file changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          files=$(gh api --paginate "repos/${REPO}/pulls/${PR_NUMBER}/files" --jq '.[].filename')
+          echo "Changed files:"
+          echo "$files"
+
+          non_markdown=$(echo "$files" | grep -viE '\.md$' || true)
+          if [ -n "$non_markdown" ]; then
+            echo "::error::This generated docs PR may only modify Markdown files, but it changes:"
+            echo "$non_markdown"
+            exit 1
+          fi
+
+          echo "Only Markdown files changed."
