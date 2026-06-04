@@ -1,7 +1,7 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { escapeSingleQuotes } from '@/libs/shell'
+import { escapeSingleQuotes } from '../../../libs/shell'
 
 /**
  * True for `application/json`, any RFC 6839 `+json` structured-syntax suffix
