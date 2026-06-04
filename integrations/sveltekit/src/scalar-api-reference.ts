@@ -23,8 +23,8 @@ export const ScalarApiReference = (givenConfiguration: Partial<ApiReferenceConfi
   }
 
   return () => {
-    const { cdn, pageTitle, ...config } = configuration
-    const referenceDocument = renderApiReference({ config, pageTitle, cdn }, customTheme)
+    const { cdn, pageTitle, nonce, ...config } = configuration
+    const referenceDocument = renderApiReference({ config, pageTitle, cdn, nonce }, customTheme)
     return new Response(referenceDocument, {
       status: 200,
       headers: { 'Content-Type': 'text/html' },

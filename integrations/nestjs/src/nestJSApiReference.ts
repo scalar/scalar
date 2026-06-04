@@ -92,8 +92,8 @@ export function apiReference(givenConfiguration: NestJSReferenceConfiguration) {
   }
 
   const content = () => {
-    const { cdn, pageTitle, ...config } = configuration
-    return renderApiReference({ config, pageTitle, cdn }, customThemeCSS)
+    const { cdn, pageTitle, nonce, ...config } = configuration
+    return renderApiReference({ config, pageTitle, cdn, nonce }, customThemeCSS)
   }
 
   if (givenConfiguration.withFastify) {

@@ -22,7 +22,7 @@ export function apiReference(givenConfiguration: Partial<ApiReferenceConfigurati
 
   // Respond with the HTML document
   return (_, res) => {
-    const { cdn, pageTitle, ...config } = configuration
-    res.type('text/html').send(renderApiReference({ config, pageTitle, cdn }))
+    const { cdn, pageTitle, nonce, ...config } = configuration
+    res.type('text/html').send(renderApiReference({ config, pageTitle, cdn, nonce }))
   }
 }
