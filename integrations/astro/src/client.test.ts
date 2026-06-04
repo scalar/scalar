@@ -247,6 +247,21 @@ describe('client', () => {
     expect(document.head.querySelector('meta[property="csp-nonce"]')).toBeNull()
   })
 
+  it('stamps the nonce even when an earlier mount loaded the same CDN without one', async () => {
+    // A nonce-less container mounts first and injects an un-nonced script.
+    createContainer({}, 'https://cdn.example.com/api-reference')
+    // A second container on the same CDN needs the nonce to pass strict CSP.
+    createContainer({}, 'https://cdn.example.com/api-reference', 'r4nd0m')
+
+    initScalarClient()
+    await flush()
+
+    const scripts = Array.from(document.head.querySelectorAll('script'))
+    // The cache keys on the nonce, so the second mount gets its own stamped tag
+    // instead of reusing the un-nonced one.
+    expect(scripts.some((script) => script.nonce === 'r4nd0m')).toBe(true)
+  })
+
   it('mounts containers added by a client-side navigation', async () => {
     const created = installScalar()
 

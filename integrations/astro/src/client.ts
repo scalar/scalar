@@ -81,10 +81,17 @@ const getState = (): ClientState => {
  * (Distinct bundles sharing one global is inherently last-one-wins; capturing
  * here keeps the common single-CDN page correct and narrows the window for the
  * rest.)
+ *
+ * The cache key also includes the nonce. A strict `script-src 'nonce-...'` only
+ * allows the `<script>` whose nonce matches the policy, so two mounts that want
+ * the same bundle under different nonces (or one with and one without) each need
+ * their own correctly-stamped tag — reusing the first load would leave the
+ * second blocked.
  */
 const loadCdn = (cdn: string, nonce?: string): Promise<ScalarGlobal | undefined> => {
   const { cdnLoads } = getState()
-  const cached = cdnLoads.get(cdn)
+  const key = nonce ? `${cdn}\n${nonce}` : cdn
+  const cached = cdnLoads.get(key)
 
   if (cached) {
     return cached
@@ -104,7 +111,7 @@ const loadCdn = (cdn: string, nonce?: string): Promise<ScalarGlobal | undefined>
       () => {
         // Drop the cached failure (and the dead tag) so a later mount or
         // navigation can retry, instead of replaying this rejection forever.
-        cdnLoads.delete(cdn)
+        cdnLoads.delete(key)
         script.remove()
         reject(new Error(`[@scalar/astro] Could not load ${cdn}`))
       },
@@ -113,7 +120,7 @@ const loadCdn = (cdn: string, nonce?: string): Promise<ScalarGlobal | undefined>
     document.head.appendChild(script)
   })
 
-  cdnLoads.set(cdn, load)
+  cdnLoads.set(key, load)
 
   return load
 }
