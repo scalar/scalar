@@ -301,6 +301,29 @@ describe('clojureCljhttp', () => {
                                                  :content (clojure.java.io/file "")}]})`)
   })
 
+  it('treats a null file name as a value-less part instead of a file', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'field',
+            // A null fileName must not take the file branch and crash escaping.
+            fileName: null as unknown as string,
+            value: 'value',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/post "https://example.com" {:multipart [{:name "field"
+                                                 :content "value"}]})`)
+  })
+
   it('renders multipart parts without a file name or value as nil', () => {
     const result = clojureCljhttp.generate({
       url: 'https://example.com',

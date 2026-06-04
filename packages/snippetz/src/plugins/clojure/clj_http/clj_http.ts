@@ -186,7 +186,7 @@ export const clojureCljhttp: Plugin = {
       case 'multipart/form-data': {
         if (postData.params) {
           params.multipart = postData.params.map((param) =>
-            param.fileName !== undefined
+            typeof param.fileName === 'string'
               ? { name: param.name, content: new File(param.fileName) }
               : { name: param.name, content: param.value },
           )
