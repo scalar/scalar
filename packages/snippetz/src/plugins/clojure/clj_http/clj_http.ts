@@ -58,7 +58,7 @@ const padBlock = (padSize: number, input: string): string => input.replace(/\n/g
  * maps are laid out vertically and vectors horizontally.
  */
 const jsToEdn = (value: unknown): string => {
-  if (value === null) {
+  if (value === null || value === undefined) {
     return 'nil'
   }
   if (value instanceof Keyword || value instanceof File) {
