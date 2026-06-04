@@ -164,7 +164,8 @@ export const clojureCljhttp: Plugin = {
           try {
             params['form-params'] = JSON.parse(postData.text)
           } catch {
-            // Leave the body off when the payload is not valid JSON.
+            // Preserve the original payload as a raw body when it is not valid JSON.
+            params.body = postData.text
           }
         }
         deleteHeader(headers, 'content-type')

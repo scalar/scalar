@@ -488,6 +488,28 @@ describe('clojureCljhttp', () => {
 (client/get "https://example.com" {:headers {:X-Empty ""}})`)
   })
 
+  it('preserves an invalid JSON body as a raw body', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'application/json',
+        },
+      ],
+      postData: {
+        mimeType: 'application/json',
+        text: 'not valid json',
+      },
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/post "https://example.com" {:content-type :json
+                                    :body "not valid json"})`)
+  })
+
   it('handles JSON body with special characters', () => {
     const result = clojureCljhttp.generate({
       url: 'https://example.com',
