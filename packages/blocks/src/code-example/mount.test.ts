@@ -1,6 +1,8 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { findClient } from './helpers/find-client'
+import { generateClientOptions } from './helpers/generate-client-options'
 import { createCodeExample } from './mount'
 
 /** Spins up a store with a single POST /hello operation. */
@@ -101,6 +103,25 @@ describe('mount', () => {
     expect(wrapperOf(inherit).classList.contains('dark-mode')).toBe(false)
     expect(wrapperOf(inherit).classList.contains('light-mode')).toBe(false)
     expect(wrapperOf(inherit).classList.contains('scalar-app')).toBe(true)
+  })
+
+  it('reads the selected client from the store, not just the initial option', async () => {
+    const store = await createStore()
+
+    // A previous selection (or another block) set the workspace default client.
+    // The block must honor the store over its own `selectedClient` seed so the
+    // choice persists across re-renders and is shared through the store.
+    store.workspace['x-scalar-default-client'] = 'js/fetch'
+
+    const expectedTitle = findClient(generateClientOptions(), 'js/fetch')?.title
+    expect(expectedTitle).toBeTruthy()
+
+    const element = document.createElement('div')
+    const instance = createCodeExample(element, { store, path: '/hello', method: 'post' })
+    mounted.push(instance)
+
+    const picker = element.querySelector('[data-testid="client-picker"]')
+    expect(picker?.textContent).toContain(expectedTitle)
   })
 
   it('clears the rendered content when destroyed', async () => {
