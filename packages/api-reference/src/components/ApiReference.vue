@@ -38,6 +38,7 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { coerce } from '@scalar/validation'
+import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
@@ -48,7 +49,10 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
-import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import {
+  isAsyncApiDocument,
+  isOpenApiDocument,
+} from '@scalar/workspace-store/schemas/type-guards'
 import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
@@ -869,6 +873,23 @@ onBeforeUnmount(() => {
 eventBus.on('server:update:selected', ({ url }) =>
   mergedConfig.value.onServerChange?.(url),
 )
+
+/**
+ * AsyncAPI servers are keyed by name, so resolve the selected name to its
+ * constructed connection URL before firing onServerChange, keeping the callback
+ * payload consistent with OpenAPI (a URL string).
+ */
+eventBus.on('asyncapi-server:update:selected', ({ name }) => {
+  const document = clientStore.workspace.activeDocument
+  if (!isAsyncApiDocument(document)) {
+    return
+  }
+
+  const server = getAsyncApiServers(document, { webSocketOnly: false }).find(
+    (s) => s.name === name,
+  )
+  mergedConfig.value.onServerChange?.(server?.url ?? name)
+})
 
 /** Download the document from the store */
 eventBus.on('ui:download:document', ({ format }) => {
