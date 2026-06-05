@@ -1,4 +1,5 @@
 asyncapi: 3.0.0
+id: 'urn:com:scalar:galaxy:events'
 info:
   title: Scalar Galaxy Events
   version: 1.0.0
@@ -386,6 +387,9 @@ operations:
     messages:
       - $ref: '#/channels/planetRequest/messages/getPlanet'
     reply:
+      address:
+        location: '$message.header#/replyTo'
+        description: The client provides the reply address in the replyTo header
       channel:
         $ref: '#/channels/planetResponse'
       messages:
@@ -427,8 +431,20 @@ components:
   parameters:
     planetId:
       description: The ID of the planet
+      default: '1'
+      examples:
+        - '1'
+        - '4'
+      location: '$message.payload#/planet/id'
     userId:
       description: The ID of the user
+      enum:
+        - '1'
+        - '2'
+        - '100'
+      examples:
+        - '1'
+      location: '$message.payload#/user/id'
   operationTraits:
     authenticated:
       description: This operation requires authentication
