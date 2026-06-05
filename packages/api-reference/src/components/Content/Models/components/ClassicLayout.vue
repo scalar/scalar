@@ -22,7 +22,10 @@ const { eventBus, id, options, document } = defineProps<{
   document?: OpenApiDocument
   options: Pick<
     ApiReferenceConfigurationRaw,
-    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy' | 'hideModels'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'expandAllSchemaProperties'
+    | 'hideModels'
   >
 }>()
 </script>

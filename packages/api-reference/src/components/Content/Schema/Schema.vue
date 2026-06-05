@@ -7,13 +7,14 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { computed, inject, provide } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
+import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
@@ -33,6 +34,7 @@ const {
   options,
   schemaContext,
   compositionPath,
+  cycleKey,
 } = defineProps<{
   schema?: SchemaObject
   /** Track how deep we've gone */
@@ -63,15 +65,57 @@ const {
   schemaContext?: string
   /** Internal path used to sync nested request body compositions with the code sample */
   compositionPath?: string[]
+  /**
+   * Stable identity of this schema node, derived from its raw (unresolved)
+   * value by the parent. Used to detect self-referential cycles. See
+   * {@link getCycleKey}.
+   */
+  cycleKey?: unknown
 }>()
+
+/**
+ * Cycle-safe `expandAllSchemaProperties`.
+ *
+ * We track ancestor schema keys along the current render path. A node is
+ * treated as cyclic when its key is already present in the ancestor set, which
+ * indicates that rendering has looped back onto a self-referential schema.
+ *
+ * This lets us default-expand finite branches while stopping automatic
+ * expansion only at cycle boundaries, preventing infinite recursion.
+ */
+const ancestors = inject(SCHEMA_ANCESTORS_SYMBOL, undefined)
+
+const isCyclic = computed(
+  (): boolean => cycleKey != null && !!ancestors?.has(cycleKey),
+)
+
+// Re-provide the ancestor set augmented with this node so descendants can
+// detect cycles back to it. Built once at setup; a node's key is stable.
+const childAncestors = new Set<unknown>(ancestors ?? [])
+if (cycleKey != null) {
+  childAncestors.add(cycleKey)
+}
+provide(SCHEMA_ANCESTORS_SYMBOL, childAncestors)
+
+const shouldForceExpand = computed(
+  (): boolean => !!options.expandAllSchemaProperties && !isCyclic.value,
+)
 
 /**
  * Determines whether to show the collapse/expand toggle button.
  * We hide the toggle for non-collapsible schemas and root-level schemas.
  */
-const shouldShowToggle = computed((): boolean => {
-  return !noncollapsible && level > 0
-})
+const shouldShowToggle = computed((): boolean => !noncollapsible && level > 0)
+
+/**
+ * Whether the disclosure starts expanded. Non-collapsible schemas are always
+ * open. When `expandAllSchemaProperties` is enabled, finite branches start
+ * expanded by default while cyclic branches remain collapsed to avoid recursion
+ * loops.
+ */
+const defaultOpen = computed(
+  (): boolean => noncollapsible || shouldForceExpand.value,
+)
 
 /** Gets the description to show for the schema */
 const schemaDescription = computed(() => {
@@ -108,13 +152,17 @@ const schemaDescription = computed(() => {
 })
 
 // Prevent click action if noncollapsible
-const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
+const handleClick = (e: MouseEvent) => {
+  if (noncollapsible) {
+    e.stopPropagation()
+  }
+}
 </script>
 <template>
   <Disclosure
     v-if="typeof schema === 'object' && Object.keys(schema).length"
     v-slot="{ open }"
-    :defaultOpen="noncollapsible">
+    :defaultOpen="defaultOpen">
     <div
       class="schema-card"
       :class="[

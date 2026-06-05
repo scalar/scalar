@@ -62,6 +62,7 @@ const {
     | 'oauth2RedirectUri'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
+    | 'expandAllSchemaProperties'
     | 'persistAuth'
     | 'proxyUrl'
     | 'servers'

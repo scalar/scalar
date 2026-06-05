@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -731,6 +731,164 @@ describe('Schema', () => {
 
       // Check that the oneOf schema is inheiriting the description correctly
       expect(text).toContain('The date the object was closed in YYYY-MM-DD or ISO 8601 format.')
+    })
+  })
+  describe('expandAllSchemaProperties', () => {
+    it('renders the toggle and shows nested properties by default when expandAllSchemaProperties is true', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          schema: {
+            type: 'object',
+            properties: {
+              foo: {
+                type: 'object',
+                properties: {
+                  bar: { type: 'string' },
+                },
+              },
+            },
+          },
+          level: 1,
+          eventBus: null,
+          options: { expandAllSchemaProperties: true },
+        },
+      })
+
+      expect(wrapper.find('button').exists()).toBe(true)
+      expect(wrapper.text()).toContain('bar')
+    })
+
+    it('renders the toggle when expandAllSchemaProperties is false', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          schema: {
+            type: 'object',
+            properties: {
+              foo: {
+                type: 'object',
+                properties: {
+                  bar: { type: 'string' },
+                },
+              },
+            },
+          },
+          level: 1,
+          eventBus: null,
+          options: {},
+        },
+      })
+
+      expect(wrapper.find('button').exists()).toBe(true)
+    })
+
+    it('does not infinitely expand circular schema references when expandAllSchemaProperties is true', () => {
+      const circularSchema = {
+        type: 'object',
+        properties: {},
+      } as Extract<SchemaObject, { type: 'object' }>
+
+      circularSchema.properties = {
+        self: circularSchema,
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          schema: circularSchema,
+          level: 1,
+          eventBus: null,
+          options: { expandAllSchemaProperties: true },
+        },
+      })
+
+      expect(wrapper.text()).toContain('self')
+      expect(wrapper.find('button').exists()).toBe(true)
+    })
+
+    it('does not infinitely expand $ref-based circular schemas when expandAllSchemaProperties is true', () => {
+      // Mirror how the workspace store bundles a self-referential $ref: the
+      // property is a wrapper carrying both the ref string and the resolved node.
+      const node: any = {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      }
+      node.properties.child = {
+        $ref: '#/components/schemas/Node',
+        '$ref-value': node,
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          schema: node,
+          level: 1,
+          eventBus: null,
+          options: { expandAllSchemaProperties: true },
+        },
+      })
+
+      // The first level of the cycle is expanded...
+      expect(wrapper.text()).toContain('child')
+      // ...but the recursion stops with a toggle instead of expanding forever.
+      expect(wrapper.find('button').exists()).toBe(true)
+    })
+
+    it('expands deeply nested finite schemas fully when enabled', () => {
+      // Eight levels deep to verify finite branches are not artificially truncated.
+      const schema = {
+        type: 'object',
+        properties: {
+          l1: {
+            type: 'object',
+            properties: {
+              l2: {
+                type: 'object',
+                properties: {
+                  l3: {
+                    type: 'object',
+                    properties: {
+                      l4: {
+                        type: 'object',
+                        properties: {
+                          l5: {
+                            type: 'object',
+                            properties: {
+                              l6: {
+                                type: 'object',
+                                properties: {
+                                  l7: {
+                                    type: 'object',
+                                    properties: {
+                                      leaf: { type: 'string' },
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      } as Extract<SchemaObject, { type: 'object' }>
+
+      const wrapper = mount(Schema, {
+        props: {
+          schema,
+          level: 0,
+          eventBus: null,
+          options: { expandAllSchemaProperties: true },
+        },
+      })
+
+      // The deepest property is visible and the collapse toggle remains available.
+      expect(wrapper.text()).toContain('leaf')
+      expect(wrapper.find('button').exists()).toBe(true)
     })
   })
 })

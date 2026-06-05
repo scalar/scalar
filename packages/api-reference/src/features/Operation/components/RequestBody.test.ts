@@ -12,6 +12,7 @@ describe('RequestBody', () => {
     hideModels: false,
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
+    expandAllSchemaProperties: false,
   }
 
   it('renders request body with schema properties', () => {

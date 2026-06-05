@@ -18,6 +18,7 @@ const { headers, breadcrumb } = defineProps<{
   document?: OpenApiDocument
   orderRequiredPropertiesFirst: boolean | undefined
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+  expandAllSchemaProperties: boolean | undefined
 }>()
 </script>
 <template>
@@ -52,7 +53,8 @@ const { headers, breadcrumb } = defineProps<{
               :header="getResolvedRef(header)"
               :name="key"
               :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
-              :orderSchemaPropertiesBy="orderSchemaPropertiesBy" />
+              :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
+              :expandAllSchemaProperties="expandAllSchemaProperties" />
           </template>
         </DisclosurePanel>
       </div>

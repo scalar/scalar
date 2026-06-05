@@ -12,6 +12,7 @@ import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SpecificationExtension } from '@/features/specification-extension'
 
@@ -61,6 +62,8 @@ const props = withDefaults(
     compositionPath?: string[]
     /** Internal path segment for this property when building nested composition keys */
     compositionPathSegment?: string
+    /** Stable identity of this property's schema, used for cycle detection. */
+    cycleKey?: unknown
   }>(),
   {
     level: 0,
@@ -168,6 +171,18 @@ const resolvedArrayItems = computed(() => {
   return resolve.schema(value.items)
 })
 
+/**
+ * Cycle key for the array items schema, derived from the raw (unresolved) items
+ * so a self-referential array element is detected as a cycle.
+ */
+const arrayItemsCycleKey = computed(() => {
+  const value = optimizedValue.value
+  if (!value || !isArraySchema(value)) {
+    return undefined
+  }
+  return getCycleKey(value.items)
+})
+
 /** Check if discriminator matches current property */
 const isDiscriminatorProperty = computed(() =>
   Boolean(props.name && props.discriminator?.propertyName === props.name),
@@ -255,6 +270,7 @@ const isDiscriminatorProperty = computed(() =>
         :breadcrumb="childBreadcrumb"
         :compact="compact"
         :compositionPath="currentCompositionPath"
+        :cycleKey="cycleKey"
         :eventBus="eventBus"
         :hideModelNames
         :level="level + 1"
@@ -272,6 +288,7 @@ const isDiscriminatorProperty = computed(() =>
       <Schema
         :compact="compact"
         :compositionPath="arrayItemsCompositionPath"
+        :cycleKey="arrayItemsCycleKey"
         :eventBus="eventBus"
         :hideModelNames
         :level="level + 1"

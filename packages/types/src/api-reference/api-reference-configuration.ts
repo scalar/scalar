@@ -359,24 +359,33 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   /**
    * Whether to expand all tags by default
    *
-   * Warning this can cause performance issues on big documents
+   * Warning: this can cause performance issues on big documents
    * @default false
    */
   defaultOpenAllTags: z.boolean().optional().default(false).catch(false),
   /**
    * Whether to expand all models by default
    *
-   * Warning this can cause performance issues on big documents
+   * Warning: this can cause performance issues on big documents
    * @default false
    */
   expandAllModelSections: z.boolean().optional().default(false).catch(false),
   /**
    * Whether to expand all responses by default
    *
-   * Warning this can cause performance issues on big documents
+   * Warning: this can cause performance issues on big documents
    * @default false
    */
   expandAllResponses: z.boolean().optional().default(false).catch(false),
+  /**
+   * Whether to expand all nested schema properties by default. The
+   * Show/Hide Child Attributes toggle remains available so nested sections can
+   * still be collapsed manually.
+   *
+   * Warning: this can cause performance issues on big documents
+   * @default false
+   */
+  expandAllSchemaProperties: z.boolean().optional().default(false).catch(false),
   /**
    * Function to sort tags
    * @default 'alpha' for alphabetical sorting

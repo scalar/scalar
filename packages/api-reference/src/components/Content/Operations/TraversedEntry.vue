@@ -51,6 +51,7 @@ const {
     | 'layout'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
+    | 'expandAllSchemaProperties'
     | 'showOperationId'
     | 'hideModels'
     | 'modelsSectionLabel'

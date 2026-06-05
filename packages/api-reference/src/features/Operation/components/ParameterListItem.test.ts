@@ -18,6 +18,7 @@ describe('ParameterListItem', () => {
           hideModels: true,
           orderRequiredPropertiesFirst: false,
           orderSchemaPropertiesBy: 'alpha',
+          expandAllSchemaProperties: false,
         },
         parameter: {
           in: 'query',

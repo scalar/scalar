@@ -541,6 +541,25 @@ By default response sections are closed in the operations. This flag will open t
 }
 ```
 
+
+#### expandAllSchemaProperties
+
+**Type:** `boolean`
+
+When true, nested child properties are expanded by default. The
+"Show/Hide Child Attributes" toggle stays available so users can collapse
+sections manually.
+
+Warning: this can cause performance issues on big documents.
+
+**Default:** `false`
+
+```javascript
+{
+  expandAllSchemaProperties: true
+}
+```
+
 #### favicon
 
 **Type:** `string`
