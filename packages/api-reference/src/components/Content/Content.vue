@@ -4,6 +4,10 @@ import { mapHiddenClientsConfig } from '@scalar/api-client/modal/map-hidden-clie
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
+import {
+  getAsyncApiServers,
+  getSelectedAsyncApiServer,
+} from '@scalar/workspace-store/channel-example'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
@@ -24,6 +28,7 @@ import type {
 } from '@scalar/workspace-store/schemas/workspace'
 import { computed, onMounted } from 'vue'
 
+import { AsyncApiServerSelector } from '@/blocks/scalar-asyncapi-server-selector-block'
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
@@ -136,6 +141,24 @@ const selectedServer = computed(() =>
   ),
 )
 
+/**
+ * Compute the AsyncAPI servers (all protocols, not just WebSocket) for the
+ * document-level server selector.
+ */
+const asyncApiServers = computed(() =>
+  asyncApiDocument.value
+    ? getAsyncApiServers(asyncApiDocument.value, { webSocketOnly: false })
+    : [],
+)
+
+/** Compute the selected AsyncAPI server for the document */
+const asyncApiSelectedServer = computed(() =>
+  getSelectedAsyncApiServer(
+    asyncApiDocument.value ?? null,
+    asyncApiServers.value,
+  ),
+)
+
 /** Merge authentication config with the document security schemes */
 const securitySchemes = computed(() =>
   mergeSecurity(
@@ -183,6 +206,17 @@ onMounted(() => {
               :eventBus
               :selectedServer
               :servers />
+          </IntroductionCardItem>
+        </ScalarErrorBoundary>
+
+        <!-- AsyncAPI Server Selector -->
+        <ScalarErrorBoundary>
+          <IntroductionCardItem
+            v-if="asyncApiServers.length"
+            class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
+            <AsyncApiServerSelector
+              :selectedServer="asyncApiSelectedServer"
+              :servers="asyncApiServers" />
           </IntroductionCardItem>
         </ScalarErrorBoundary>
 
