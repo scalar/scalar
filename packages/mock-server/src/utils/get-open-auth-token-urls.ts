@@ -1,4 +1,5 @@
 import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 /**
  * Extract path from URL
@@ -44,7 +45,9 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
   const oauthUrls = new Set<string>()
 
   // Iterate through all security schemes
-  for (const scheme of Object.values(securitySchemes)) {
+  for (const rawScheme of Object.values(securitySchemes)) {
+    const scheme = getResolvedRef(rawScheme)
+
     if (!isOAuth2Scheme(scheme)) {
       continue
     }

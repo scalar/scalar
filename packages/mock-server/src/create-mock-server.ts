@@ -1,4 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
@@ -32,7 +33,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   const schemas = schema?.components?.schemas
   if (schemas) {
     for (const [schemaName, schemaObject] of Object.entries(schemas)) {
-      const seedCode = (schemaObject as any)?.['x-seed']
+      const seedCode = (getResolvedRef(schemaObject) as any)?.['x-seed']
 
       if (seedCode && typeof seedCode === 'string') {
         try {
@@ -68,12 +69,14 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   const paths = schema?.paths ?? {}
 
   Object.keys(paths).forEach((path) => {
-    const methods = Object.keys(getOperations(paths[path])) as HttpMethod[]
+    // A path item may itself be a `$ref`, so resolve it before reading its operations.
+    const pathItem = getResolvedRef(paths[path])
+    const methods = Object.keys(getOperations(pathItem)) as HttpMethod[]
 
     /** Keys for all operations of a specified path */
     methods.forEach((method) => {
       const route = honoRouteFromPath(path)
-      const operation = schema?.paths?.[path]?.[method] as OpenAPIV3_1.OperationObject
+      const operation = pathItem?.[method] as OpenAPIV3_1.OperationObject
 
       // Check if authentication is required for this operation
       if (isAuthenticationRequired(operation.security)) {
