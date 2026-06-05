@@ -10,11 +10,15 @@ export type OperationCodeSampleProps = {
    */
   clientOptions: ClientOptionGroup[]
   /**
-   * Pre-selected client, this will determine which client is initially selected in the dropdown
+   * Pre-selected client, this will determine which client is initially selected in the dropdown.
+   * Either a built-in client id (e.g. `js/fetch`) or a custom sample id (e.g. `custom/python`).
    *
-   * @defaults to shell/curl or a custom sample if one is available
+   * Typed as a plain string: unioning the (large) client-id union with the `custom/...`
+   * ids overflows TypeScript's union-complexity limit inside this component's `defineProps`.
+   *
+   * @defaults to a custom sample if one is available, otherwise shell/curl
    */
-  selectedClient?: AvailableClients[number]
+  selectedClient?: string
   /**
    * Which server from the spec to use for the code example
    */
@@ -124,7 +128,6 @@ import { ScalarVirtualText } from '@scalar/components/virtual-text'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import { type AvailableClients } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
@@ -218,7 +221,11 @@ const customCodeSamples = computed(() => getCustomCodeSamples(operation))
 
 /** Merge custom code samples with the client options */
 const clients = computed(() =>
-  getClients(customCodeSamples.value, clientOptions),
+  getClients(
+    customCodeSamples.value.samples,
+    clientOptions,
+    customCodeSamples.value.label,
+  ),
 )
 
 /** Total number of available clients across all option groups */
@@ -231,16 +238,18 @@ const localSelectedClient = ref<ClientOption | CustomClientOption | undefined>(
   findClient(clients.value, selectedClient),
 )
 
-/** If the globally selected client changes we can update the local one */
-watch(
-  () => selectedClient,
-  (newClient) => {
-    const client = findClient(clients.value, newClient)
-    if (client) {
-      localSelectedClient.value = client
-    }
-  },
-)
+/**
+ * Re-resolve the local client whenever the global selection or the available
+ * clients change. Watching `clients` matters when navigating between operations:
+ * the stored id stays the same, but the matching option (e.g. a custom sample)
+ * differs per operation, so without this the snippet could go stale.
+ */
+watch([() => selectedClient, clients], ([newClient]) => {
+  const client = findClient(clients.value, newClient)
+  if (client) {
+    localSelectedClient.value = client
+  }
+})
 
 /** Generate HAR data for webhook requests */
 const webhookHar = computed(() => {
@@ -271,7 +280,7 @@ const generatedCode = computed<string>(() => {
     defaultDisabledParameters: false,
     includeDefaultHeaders: integration === 'client',
     clientId: localSelectedClient.value?.id,
-    customCodeSamples: customCodeSamples.value,
+    customCodeSamples: customCodeSamples.value.samples,
     operation,
     method,
     path,
@@ -325,8 +334,10 @@ const selectClient = (option: ClientOption) => {
   // Update to the local example
   localSelectedClient.value = option
 
-  // Emit the change if it's not a custom example
-  if (option && !option.id.startsWith('custom')) {
+  // Sync the selection globally so other operations follow along. Custom samples
+  // sync too (keyed by language), so picking e.g. the Python SDK example here
+  // shows the Python example on every operation that ships one.
+  if (option) {
     eventBus.emit('workspace:update:selected-client', option.id)
   }
 }

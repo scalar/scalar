@@ -1,16 +1,17 @@
-import { isClient } from '@scalar/api-client/blocks/operation-code-sample'
+import { isSelectedClient } from '@scalar/api-client/blocks/operation-code-sample'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { authStorage, clientStorage } from '@/helpers/storage'
 
 /**
  * Loads the default HTTP client from storage and applies it to the workspace.
- * Only updates if no default client is already set.
+ * Only updates if no default client is already set. Accepts both built-in client
+ * ids and custom sample ids (e.g. `custom/python`) so a custom selection persists.
  */
 export const loadClientFromStorage = (store: WorkspaceStore): void => {
   const storedClient = clientStorage().get()
 
-  if (isClient(storedClient) && !store.workspace['x-scalar-default-client']) {
+  if (isSelectedClient(storedClient) && !store.workspace['x-scalar-default-client']) {
     store.update('x-scalar-default-client', storedClient)
   }
 }

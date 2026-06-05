@@ -7,7 +7,7 @@ import type { OperationObject, ServerObject } from '@scalar/workspace-store/sche
 
 import { operationToHar } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
 
-import { type CustomCodeSampleId, generateCustomId } from './generate-client-options'
+import { type CustomCodeSampleId, getCustomClientIds } from './generate-client-options'
 import { getSnippet } from './get-snippet'
 
 type GenerateCodeSnippetProps = {
@@ -60,11 +60,12 @@ export const generateCodeSnippet = ({
       return ''
     }
 
-    // Use the selected custom example
+    // Use the selected custom example, matched by its language-keyed id
     if (clientId.startsWith('custom')) {
-      return (
-        customCodeSamples.find((_, index) => generateCustomId(index) === clientId)?.source ?? 'Custom example not found'
-      )
+      const ids = getCustomClientIds(customCodeSamples)
+      const index = ids.indexOf(clientId as CustomCodeSampleId)
+
+      return customCodeSamples[index]?.source ?? 'Custom example not found'
     }
 
     const harRequest = operationToHar({

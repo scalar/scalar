@@ -8,6 +8,8 @@ export {
   type XCodeSample,
   type XCodeSamples,
   XCodeSamplesSchema,
+  type XLanguageExample,
+  type XReadmeCodeSample,
 } from './x-code-samples'
 export {
   type XScalarSelectedContentType,

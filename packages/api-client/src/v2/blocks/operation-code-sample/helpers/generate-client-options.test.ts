@@ -1,7 +1,7 @@
 import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import { describe, expect, it } from 'vitest'
 
-import { generateClientOptions, generateCustomId } from './generate-client-options'
+import { generateClientOptions, getCustomClientIds } from './generate-client-options'
 
 describe('generateClientOptions', () => {
   describe('with all clients allowed', () => {
@@ -226,16 +226,39 @@ describe('generateClientOptions', () => {
   })
 })
 
-describe('generateCustomId', () => {
-  it('generates a custom ID from the sample index', () => {
-    expect(generateCustomId(0)).toBe('custom/0')
-    expect(generateCustomId(3)).toBe('custom/3')
+describe('getCustomClientIds', () => {
+  it('keys ids by language so a sample can be matched across operations', () => {
+    const ids = getCustomClientIds([
+      { lang: 'python', source: '' },
+      { lang: 'typescript', source: '' },
+    ])
+
+    expect(ids).toEqual(['custom/python', 'custom/typescript'])
   })
 
-  it('generates distinct IDs so samples sharing a language stay separate', () => {
-    const results = [0, 1, 2].map((index) => generateCustomId(index))
+  it('keeps samples that repeat a language individually selectable', () => {
+    const ids = getCustomClientIds([
+      { lang: 'python', source: '' },
+      { lang: 'python', source: '' },
+      { lang: 'go', source: '' },
+    ])
 
-    expect(results).toEqual(['custom/0', 'custom/1', 'custom/2'])
-    expect(new Set(results).size).toBe(results.length)
+    expect(ids).toEqual(['custom/python', 'custom/python/1', 'custom/go'])
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('falls back to plaintext when a sample has no language', () => {
+    expect(getCustomClientIds([{ source: '' }])).toEqual(['custom/plaintext'])
+  })
+
+  it('lower-cases the language so casing does not break cross-operation matching', () => {
+    expect(getCustomClientIds([{ lang: 'Python', source: '' }])).toEqual(['custom/python'])
+
+    // Differently-cased duplicates of the same language are treated as one
+    const ids = getCustomClientIds([
+      { lang: 'Python', source: '' },
+      { lang: 'python', source: '' },
+    ])
+    expect(ids).toEqual(['custom/python', 'custom/python/1'])
   })
 })

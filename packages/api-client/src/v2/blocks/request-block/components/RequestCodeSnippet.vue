@@ -40,7 +40,11 @@ const customCodeSamples = computed(() => getCustomCodeSamples(operation))
 
 /** Merge custom code samples with the client options */
 const clients = computed(() =>
-  getClients(customCodeSamples.value, clientOptions),
+  getClients(
+    customCodeSamples.value.samples,
+    clientOptions,
+    customCodeSamples.value.label,
+  ),
 )
 
 /**
@@ -51,16 +55,18 @@ const localSelectedClient = ref<ClientOption | CustomClientOption | undefined>(
   findClient(clients.value, selectedClient),
 )
 
-/** If the globally selected client changes we can update the local one */
-watch(
-  () => selectedClient,
-  (newClient) => {
-    const client = findClient(clients.value, newClient)
-    if (client) {
-      localSelectedClient.value = client
-    }
-  },
-)
+/**
+ * Re-resolve the local client whenever the global selection or the available
+ * clients change. Watching `clients` matters when navigating between operations:
+ * the stored id stays the same, but the matching option (e.g. a custom sample)
+ * differs per operation, so without this the snippet could go stale.
+ */
+watch([() => selectedClient, clients], ([newClient]) => {
+  const client = findClient(clients.value, newClient)
+  if (client) {
+    localSelectedClient.value = client
+  }
+})
 
 /** Block secrets from being shown in the code block */
 const secretCredentials = computed(() => getSecrets(securitySchemes ?? []))
@@ -69,8 +75,8 @@ const secretCredentials = computed(() => getSecrets(securitySchemes ?? []))
 const handleClientChange = (option: ClientOption | undefined) => {
   localSelectedClient.value = option
 
-  // Emit the change if it's not a custom example
-  if (option && !option.id.startsWith('custom')) {
+  // Sync the selection globally (built-in client or custom sample keyed by language)
+  if (option) {
     eventBus.emit('workspace:update:selected-client', option.id)
   }
 }
@@ -80,7 +86,7 @@ const generatedCode = computed<string>(() =>
   generateCodeSnippet({
     defaultDisabledParameters: true,
     clientId: localSelectedClient.value?.id,
-    customCodeSamples: customCodeSamples.value,
+    customCodeSamples: customCodeSamples.value.samples,
     operation,
     method,
     path,

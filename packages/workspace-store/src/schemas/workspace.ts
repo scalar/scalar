@@ -1,6 +1,6 @@
 import { Type } from '@scalar/typebox'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
-import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
+import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
@@ -32,7 +32,11 @@ export const WorkspaceMetaSchema = Type.Partial(
   compose(
     Type.Object({
       [extensions.workspace.colorMode]: ColorModeSchema,
-      [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
+      // A built-in client id (e.g. `js/fetch`) or a custom sample id (e.g. `custom/python`)
+      [extensions.workspace.defaultClient]: Type.Union([
+        ...AVAILABLE_CLIENTS.map((client) => Type.Literal(client)),
+        Type.String({ pattern: '^custom/' }),
+      ]),
       [extensions.workspace.activeDocument]: Type.String(),
       [extensions.workspace.theme]: Type.String(),
       [extensions.workspace.sidebarWidth]: Type.Number({ default: 288 }),
@@ -45,7 +49,10 @@ export type ColorMode = 'system' | 'light' | 'dark'
 
 export type WorkspaceMeta = {
   [extensions.workspace.colorMode]?: ColorMode
-  [extensions.workspace.defaultClient]?: AvailableClients[number]
+  // A built-in client id (e.g. `js/fetch`) or a custom sample id (e.g. `custom/python`).
+  // Typed as a plain string to avoid tripping TypeScript's "union too complex" limit when
+  // this type flows into a Vue `defineProps`; valid values are enforced at runtime.
+  [extensions.workspace.defaultClient]?: string
   [extensions.workspace.activeDocument]?: string
   [extensions.workspace.theme]?: string
   [extensions.workspace.sidebarWidth]?: number

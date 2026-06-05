@@ -347,6 +347,35 @@ describe('RequestExample', () => {
       const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
       expect(combobox.props('modelValue').id).toBe('python/requests')
     })
+
+    it('re-resolves the local client when navigating to another operation', async () => {
+      // Operation with a Python custom sample, selected globally by language
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          selectedClient: 'custom/python' as AvailableClient,
+          operation: {
+            ...mockOperation,
+            'x-codeSamples': [{ lang: 'python', label: 'Python SDK', source: 'first.operation()' }],
+          },
+        },
+      })
+
+      const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
+      expect(combobox.props('modelValue').id).toBe('custom/python')
+
+      // Navigate to an operation that has no Python sample. The stored id stays
+      // the same, so the local client must re-resolve instead of going stale.
+      await wrapper.setProps({
+        operation: {
+          ...mockOperation,
+          'x-codeSamples': [{ lang: 'go', label: 'Go SDK', source: 'second.operation()' }],
+        },
+      })
+      await nextTick()
+
+      expect(combobox.props('modelValue').id).toBe('custom/go')
+    })
   })
 
   describe('Example Selection', () => {
