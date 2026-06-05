@@ -31,7 +31,5 @@
     "types:check": "pnpm build"
   },
   "type": "module",
-  "devDependencies": {
-    "vite": "catalog:*"
-  }
+  "devDependencies": {}
 }

@@ -2,17 +2,6 @@
   "$schema": "./node_modules/knip/schema.json",
   // Catalog entries from ignored workspaces are falsely reported as unused
   "exclude": ["catalog"],
-  "ignoreWorkspaces": [
-    // Allows a progressive adoption
-    "examples/nestjs/**",
-    "examples/nextjs-api-reference/**",
-    "examples/react/**",
-    "examples/react-webpack/**",
-    "examples/ssg/**",
-    "examples/sveltekit/**",
-    "examples/web/**",
-    "projects/proxy-scalar-com/**"
-  ],
   "ignoreFiles": [
     // CSS files imported via @import or Vue components — knip cannot trace CSS imports
     "**/*.css",
@@ -40,8 +29,9 @@
     "tailwindcss",
     // Used as vitest environment in test files via @vitest-environment jsdom
     "jsdom",
-    // The following values needs to be re-checked once more packages are included
+    // Used by root tsconfig.json
     "tsconfig-paths",
+    //
     "typescript-language-server"
   ],
   "ignoreBinaries": ["netlify"],
@@ -297,8 +287,17 @@
     "packages/react-renderer": {
       "ignoreDependencies": ["react", "react-dom", "vue"]
     },
+    "examples/nestjs/nestjs-api-reference-express": {
+      "entry": ["src/main.ts", "test/app.e2e-spec.ts"]
+    },
+    "examples/nestjs/nestjs-api-reference-fastify": {
+      "entry": ["src/main.ts", "test/app.e2e-spec.ts"]
+    },
     "examples/nuxt": {
       "ignoreDependencies": ["@scalar/nuxt"]
+    },
+    "examples/sveltekit": {
+      "entry": ["src/lib/index.ts"]
     },
     "integrations/django-ninja": {
       "ignoreBinaries": ["python"]
@@ -309,7 +308,6 @@
       ]
     },
     "integrations/docusaurus": {
-      "ignoreFiles": ["playground/.docusaurus/**"],
       "docusaurus": {
         "config": ["playground/docusaurus.config.ts"],
         "entry": [
@@ -392,6 +390,13 @@
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
       ]
     },
+    "integrations/sveltekit": {
+      "ignoreDependencies": [
+        // Automatically added to devDependencies by `pnpm script packages format`
+        // because it's a peer dependency but not used directly.
+        "@sveltejs/kit"
+      ]
+    },
     "projects/galaxy-scalar-com": {
       // src/_worker.ts is the Cloudflare Pages worker entry, bundled by the
       // build script; knip cannot infer it without a wrangler config file.
@@ -430,12 +435,8 @@
         "electron.vite.config.ts"
       ]
     },
-    "integrations/sveltekit": {
-      "ignoreDependencies": [
-        // Automatically added to devDependencies by `pnpm script packages format`
-        // because it's a peer dependency but not used directly.
-        "@sveltejs/kit"
-      ]
+    "projects/proxy-scalar-com": {
+      "ignoreBinaries": ["go"]
     }
   }
 }
