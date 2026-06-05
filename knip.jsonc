@@ -66,6 +66,11 @@
     "packages/types/src/extensions/**/*.ts": ["types", "exports"]
   },
   "workspaces": {
+    "documentation": {
+      // Pages are rendered by the scalar.com platform via scalar.config.json rather than
+      // imported, so every MDX/TSX content file is an entry point, not something knip can trace.
+      "entry": ["**/*.{md,mdx,tsx}"]
+    },
     "packages/api-client": {
       "entry": [
         "src/components/HttpMethod/index.ts",
