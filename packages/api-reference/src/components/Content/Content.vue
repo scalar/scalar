@@ -202,10 +202,10 @@ onMounted(() => {
           </IntroductionCardItem>
         </ScalarErrorBoundary>
 
-        <!-- Client selector -->
+        <!-- Client selector (not relevant for AsyncAPI) -->
         <ScalarErrorBoundary>
           <IntroductionCardItem
-            v-if="clientOptions.length"
+            v-if="clientOptions.length && !asyncApiDocument"
             class="introduction-card-item scalar-reference-intro-clients">
             <ClientSelector
               class="introduction-card-item scalar-reference-intro-clients"
