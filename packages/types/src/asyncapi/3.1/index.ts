@@ -8,5 +8,6 @@ export type {
   AsyncApiParameterObject,
   AsyncApiSecuritySchemeObject,
   AsyncApiServerObject,
+  AsyncApiServerVariableObject,
   AsyncApiWsBindingObject,
 } from './index.generated'

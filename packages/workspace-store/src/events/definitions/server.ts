@@ -80,4 +80,25 @@ export type ServerEvents = {
     /** The meta information for the server */
     meta: ServerMeta
   }
+  /**
+   * Update the selected server for an AsyncAPI document.
+   *
+   * AsyncAPI servers are a named map (rather than an array of `url`), so the
+   * selection is identified by the server name instead of an index or URL.
+   */
+  'asyncapi-server:update:selected': {
+    /** The name (key in `document.servers`) of the server to select */
+    name: string
+  }
+  /**
+   * Update a server variable for an AsyncAPI document, identified by server name.
+   */
+  'asyncapi-server:update:variables': {
+    /** The name (key in `document.servers`) of the server to update */
+    name: string
+    /** The key of the variable to update */
+    key: string
+    /** The new value of the variable */
+    value: string
+  }
 }

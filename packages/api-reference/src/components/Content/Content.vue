@@ -108,6 +108,11 @@ const asyncApiDocument = computed(() =>
   isAsyncApiDocument(document) ? document : undefined,
 )
 
+/** AsyncAPI narrow of the client document, where server selection/variables are persisted. */
+const asyncApiClientDocument = computed(() =>
+  isAsyncApiDocument(clientDocument) ? clientDocument : undefined,
+)
+
 const documentType = computed(() => getDocumentType(document))
 
 const specificationVersion = computed(() => {
@@ -146,15 +151,15 @@ const selectedServer = computed(() =>
  * document-level server selector.
  */
 const asyncApiServers = computed(() =>
-  asyncApiDocument.value
-    ? getAsyncApiServers(asyncApiDocument.value, { webSocketOnly: false })
+  asyncApiClientDocument.value
+    ? getAsyncApiServers(asyncApiClientDocument.value, { webSocketOnly: false })
     : [],
 )
 
 /** Compute the selected AsyncAPI server for the document */
 const asyncApiSelectedServer = computed(() =>
   getSelectedAsyncApiServer(
-    asyncApiDocument.value ?? null,
+    asyncApiClientDocument.value ?? null,
     asyncApiServers.value,
   ),
 )
@@ -215,6 +220,7 @@ onMounted(() => {
             v-if="asyncApiServers.length"
             class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
             <AsyncApiServerSelector
+              :eventBus
               :selectedServer="asyncApiSelectedServer"
               :servers="asyncApiServers" />
           </IntroductionCardItem>

@@ -39,6 +39,67 @@ export const sources = [
     layout: 'classic',
   },
   {
+    // Small inline AsyncAPI doc to exercise the server selector with multiple
+    // servers, server variables, and a server description.
+    title: 'AsyncAPI Server Selector Playground',
+    slug: 'asyncapi-server-selector',
+    content: {
+      asyncapi: '3.0.0',
+      info: {
+        title: 'Server Selector Playground',
+        version: '1.0.0',
+      },
+      servers: {
+        production: {
+          host: '{environment}.example.com:{port}',
+          protocol: 'wss',
+          pathname: '/ws',
+          description: 'Production WebSocket broker. Pick an environment and port to build the URL.',
+          variables: {
+            environment: {
+              default: 'api',
+              description: 'Subdomain to connect to',
+              enum: ['api', 'staging', 'dev'],
+            },
+            port: {
+              default: '443',
+            },
+          },
+        },
+        development: {
+          host: 'localhost:8080',
+          protocol: 'ws',
+          description: 'Local development broker',
+        },
+        mqtt: {
+          host: 'broker.example.com:1883',
+          protocol: 'mqtt',
+        },
+      },
+      channels: {
+        events: {
+          address: 'events',
+          messages: {
+            ping: {
+              payload: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+      operations: {
+        sendEvent: {
+          action: 'send',
+          channel: { $ref: '#/channels/events' },
+        },
+      },
+    },
+  },
+  {
     title: 'Tag Groups',
     slug: 'tag-groups',
     content: {
