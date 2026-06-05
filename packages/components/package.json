@@ -235,7 +235,6 @@
     "@scalar/use-hooks": "workspace:*",
     "@vueuse/core": "catalog:*",
     "cva": "1.0.0-beta.4",
-    "nanoid": "catalog:*",
     "radix-vue": "catalog:*",
     "vue": "catalog:*",
     "vue-component-type-helpers": "^3.2.6"
