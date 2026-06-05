@@ -7,7 +7,7 @@ import {
 } from '@scalar/helpers/url/oas-document-fixtures'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
-import dynamicRefSpec from '../fixtures/petstore-dynamicref-showcase.yaml?raw'
+import dynamicRefSpec from '../fixtures/petstore-dynamicref-showcase.json' with { type: 'json' }
 
 /** All of the sources */
 export type Sources = typeof sources
