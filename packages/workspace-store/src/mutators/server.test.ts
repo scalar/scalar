@@ -1276,7 +1276,7 @@ describe('updateSelectedAsyncApiServer', () => {
     expect(document['x-scalar-selected-server']).toBe('development')
   })
 
-  it('clears the selection when the active server is selected again', () => {
+  it('keeps the server selected when it is selected again', () => {
     const document = createAsyncApiDocument({
       servers: { production: { host: 'broker.example.com', protocol: 'wss' } },
       'x-scalar-selected-server': 'production',
@@ -1284,8 +1284,8 @@ describe('updateSelectedAsyncApiServer', () => {
 
     const result = updateSelectedAsyncApiServer(document, { name: 'production' })
 
-    expect(result).toBe('')
-    expect(document['x-scalar-selected-server']).toBe('')
+    expect(result).toBe('production')
+    expect(document['x-scalar-selected-server']).toBe('production')
   })
 
   it('returns undefined for non-AsyncAPI documents', () => {

@@ -304,8 +304,9 @@ export const updateSelectedServer = (
  * Updates the selected server for an AsyncAPI document.
  *
  * AsyncAPI servers are a named map, so the selection is stored as the server
- * name in `x-scalar-selected-server`. Selecting the already-selected server
- * clears it (mirroring the OpenAPI selector toggle).
+ * name in `x-scalar-selected-server`. There is always an effective server
+ * (`getSelectedAsyncApiServer` falls back to the first one), so this simply sets
+ * the selection rather than toggling it off.
  *
  * @param document - The document to update the selected server in
  * @param name - The name of the server to select
@@ -319,7 +320,7 @@ export const updateSelectedAsyncApiServer = (
     return undefined
   }
 
-  document['x-scalar-selected-server'] = document['x-scalar-selected-server'] === name ? '' : name
+  document['x-scalar-selected-server'] = name
   return document['x-scalar-selected-server']
 }
 
