@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs'
-
 import galaxy from '@scalar/galaxy/latest.json' with { type: 'json' }
 import {
   PETSTORE_URL_2_0,
@@ -9,10 +7,7 @@ import {
 } from '@scalar/helpers/url/oas-document-fixtures'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
-const dynamicRefSpec = readFileSync(
-  new URL('../../test/fixtures/petstore-dynamicref-showcase.yaml', import.meta.url),
-  'utf-8',
-)
+import dynamicRefSpec from '../fixtures/petstore-dynamicref-showcase.yaml?raw'
 
 /** All of the sources */
 export type Sources = typeof sources

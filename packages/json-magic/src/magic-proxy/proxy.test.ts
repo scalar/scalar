@@ -2216,5 +2216,191 @@ describe('createMagicProxy', () => {
         },
       })
     })
+
+    it('resolves $dynamicRef correctly for two anonymous schemas with the same anchor name', () => {
+      const input = {
+        components: {
+          schemas: {
+            StringTemplate: {
+              type: 'object',
+              properties: {
+                data: {
+                  $dynamicRef: '#itemType',
+                },
+              },
+              $defs: {
+                itemType: {
+                  $dynamicAnchor: 'itemType',
+                  type: 'string',
+                },
+              },
+            },
+            IntegerTemplate: {
+              type: 'object',
+              properties: {
+                data: {
+                  $dynamicRef: '#itemType',
+                },
+              },
+              $defs: {
+                itemType: {
+                  $dynamicAnchor: 'itemType',
+                  type: 'integer',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      // StringTemplate.data should resolve to the string anchor
+      expect(result.components.schemas.StringTemplate.properties.data['$ref-value']).toEqual({
+        $dynamicAnchor: 'itemType',
+        type: 'string',
+      })
+
+      // IntegerTemplate.data should resolve to the integer anchor
+      expect(result.components.schemas.IntegerTemplate.properties.data['$ref-value']).toEqual({
+        $dynamicAnchor: 'itemType',
+        type: 'integer',
+      })
+    })
+
+    it('resolves $dynamicRef with JSON Pointer fragment', () => {
+      const input = {
+        $defs: {
+          fallback: {
+            type: 'string',
+          },
+        },
+        Template: {
+          data: {
+            $dynamicRef: '#/$defs/fallback',
+          },
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.Template.data['$ref-value']).toEqual({
+        type: 'string',
+      })
+    })
+
+    it('prefers dynamic anchor resolution over JSON Pointer static target', () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: { id: { type: 'string' } },
+            },
+            PaginatedTemplate: {
+              $id: 'https://example.com/schemas/PaginatedTemplate',
+              type: 'object',
+              properties: {
+                items: {
+                  type: 'array',
+                  items: {
+                    $dynamicRef: '#/$defs/itemType',
+                  },
+                },
+              },
+              $defs: {
+                itemType: {
+                  $dynamicAnchor: 'itemType',
+                  not: {},
+                },
+              },
+            },
+            PaginatedUserResponse: {
+              $id: 'https://example.com/schemas/PaginatedUserResponse',
+              $ref: '#/components/schemas/PaginatedTemplate',
+              $defs: {
+                itemType: {
+                  $dynamicAnchor: 'itemType',
+                  $ref: '#/components/schemas/User',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = createMagicProxy(input) as any
+
+      // Through the $ref chain, $dynamicRef should resolve to the User override
+      const userItems = result.components.schemas.PaginatedUserResponse['$ref-value'].properties.items.items
+      const userItemsValue = userItems['$ref-value']
+      expect(userItemsValue.$dynamicAnchor).toBe('itemType')
+      expect(userItemsValue['$ref-value']).toEqual({
+        type: 'object',
+        properties: { id: { type: 'string' } },
+      })
+
+      // Directly, the JSON Pointer fallback should resolve to the placeholder
+      const templateItems = result.components.schemas.PaginatedTemplate.properties.items.items
+      expect(templateItems['$ref-value']).toEqual({
+        $dynamicAnchor: 'itemType',
+        not: {},
+      })
+    })
+
+    it('resolves $dynamicRef with absolute URI and anchor fragment', () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: { id: { type: 'string' } },
+            },
+            Template: {
+              $id: 'https://example.com/schemas/Template',
+              type: 'object',
+              properties: {
+                data: {
+                  $dynamicRef: 'https://example.com/schemas/Template#itemType',
+                },
+              },
+              $defs: {
+                itemType: {
+                  $dynamicAnchor: 'itemType',
+                  type: 'string',
+                },
+              },
+            },
+            UserResponse: {
+              $id: 'https://example.com/schemas/UserResponse',
+              $ref: '#/components/schemas/Template',
+              $defs: {
+                itemType: {
+                  $dynamicAnchor: 'itemType',
+                  $ref: '#/components/schemas/User',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = createMagicProxy(input) as any
+
+      // Direct access resolves to Template's own anchor
+      const directData = result.components.schemas.Template.properties.data['$ref-value']
+      expect(directData).toEqual({
+        $dynamicAnchor: 'itemType',
+        type: 'string',
+      })
+
+      // Through UserResponse, resolves to the User override
+      const userData = result.components.schemas.UserResponse['$ref-value'].properties.data['$ref-value']
+      expect(userData.$dynamicAnchor).toBe('itemType')
+      expect(userData['$ref-value']).toEqual({
+        type: 'object',
+        properties: { id: { type: 'string' } },
+      })
+    })
   })
 })

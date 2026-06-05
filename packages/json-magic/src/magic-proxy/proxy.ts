@@ -15,6 +15,98 @@ const REF_VALUE = '$ref-value'
 const REF_KEY = '$ref'
 const DYNAMIC_REF_KEY = '$dynamicRef'
 
+const commonPathPrefix = (a: string, b: string): string => {
+  const minLen = Math.min(a.length, b.length)
+  let i = 0
+  while (i < minLen && a[i] === b[i]) {
+    i++
+  }
+  if (i === 0) return ''
+  // Trim to last '/' boundary to avoid partial segment matches
+  const lastSlash = a.lastIndexOf('/', i - 1)
+  return lastSlash >= 0 ? a.substring(0, lastSlash) : ''
+}
+
+/**
+ * Parses a $dynamicRef URI-reference into its static target path (if any)
+ * and the dynamic anchor name.
+ *
+ * Per JSON Schema 2020-12, $dynamicRef is a URI-reference:
+ * - `#itemType` — plain anchor, no static target
+ * - `#/$defs/item` — JSON Pointer fragment, static target (may have $dynamicAnchor)
+ * - `https://example.com/schema#itemType` — absolute URI + anchor
+ * - `https://example.com/schema#/$defs/item` — absolute URI + JSON Pointer
+ *
+ * If the static target contains a $dynamicAnchor, the anchor name is extracted
+ * so that scope-aware dynamic resolution can be applied.
+ *
+ * Returns { anchorName, staticPath }:
+ * - anchorName: the dynamic anchor to look up (empty string if none)
+ * - staticPath: the statically resolved local object path, or undefined
+ */
+const parseDynamicRef = (
+  dynamicRef: string,
+  currentContext: string,
+  schemas: SchemaMap,
+  root: unknown,
+): { anchorName: string; staticPath: string | undefined } => {
+  const hashIdx = dynamicRef.indexOf('#')
+  if (hashIdx === -1) {
+    // No fragment — bare URI. Try to resolve to a local path.
+    const resolved = convertToLocalRef(dynamicRef, currentContext, schemas)
+    return { anchorName: '', staticPath: resolved }
+  }
+
+  const baseUrl = dynamicRef.substring(0, hashIdx)
+  const fragment = dynamicRef.substring(hashIdx + 1)
+
+  if (baseUrl) {
+    // Has a base URI (absolute or relative)
+    const basePath = convertToLocalRef(`${baseUrl}#`, currentContext, schemas)
+    if (basePath === undefined) {
+      // Can't resolve the base — treat the whole thing as an anchor name
+      return { anchorName: fragment, staticPath: undefined }
+    }
+
+    if (!fragment) {
+      return { anchorName: '', staticPath: basePath }
+    }
+
+    if (fragment.startsWith('/')) {
+      // JSON Pointer fragment — check the static target for a $dynamicAnchor
+      const staticTargetPath = `${basePath}${fragment}`
+      const anchorName = getDynamicAnchorAtPath(root, staticTargetPath)
+      return { anchorName, staticPath: staticTargetPath }
+    }
+
+    // Named anchor fragment — this is the anchor to resolve dynamically
+    return { anchorName: fragment, staticPath: basePath }
+  }
+
+  // No base URI — just a fragment
+  if (fragment.startsWith('/')) {
+    // JSON Pointer fragment like #/$defs/item
+    // Per JSON Schema, #/... resolves from the root of the current schema resource.
+    // If the current resource has a $id, find its local path; otherwise use document root.
+    const resourcePath = schemas.get(currentContext) ?? ''
+    const staticTargetPath = resourcePath ? `${resourcePath}${fragment}` : fragment.slice(1)
+    const anchorName = getDynamicAnchorAtPath(root, staticTargetPath)
+    return { anchorName, staticPath: staticTargetPath }
+  }
+
+  // Plain anchor like #itemType
+  return { anchorName: fragment, staticPath: undefined }
+}
+
+const getDynamicAnchorAtPath = (root: unknown, path: string): string => {
+  const segments = parseJsonPointerSegments(`/${path}`)
+  const resolved = getValueByPath(root, segments)
+  if (isObject(resolved.value) && typeof resolved.value['$dynamicAnchor'] === 'string') {
+    return resolved.value['$dynamicAnchor']
+  }
+  return ''
+}
+
 /**
  * Resolves a $dynamicAnchor to the correct anchor path using scope-aware lookup.
  *
@@ -66,11 +158,30 @@ const resolveDynamicAnchor = (
     }
   }
 
-  // Check current context
+  // Check current context (may be an $id or an object path for anonymous resources)
   if (currentContext) {
     const contextMatch = entries.find((e) => e.resourceId === currentContext)
     if (contextMatch) {
       return contextMatch.anchorPath
+    }
+
+    // For anonymous resources, match by path prefix: prefer anchors whose path
+    // shares the longest common prefix with the caller's object path
+    let bestMatch: DynamicAnchorEntry | undefined
+    let bestLen = -1
+    for (const entry of entries) {
+      if (currentContext.startsWith(entry.anchorPath)) {
+        // caller is nested under this anchor — skip, not a valid scope
+        continue
+      }
+      const prefix = commonPathPrefix(currentContext, entry.anchorPath)
+      if (prefix.length > bestLen) {
+        bestLen = prefix.length
+        bestMatch = entry
+      }
+    }
+    if (bestMatch) {
+      return bestMatch.anchorPath
     }
   }
 
@@ -275,22 +386,25 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       // If accessing "$ref-value" and the node has $dynamicRef (but no meaningful $ref), resolve the dynamic reference
       // An empty $ref string from TypeBox coercion is treated as absent
       if (prop === REF_VALUE && (typeof ref !== 'string' || ref === '') && typeof dynamicRef === 'string') {
-        const cacheKey = `${DYNAMIC_REF_KEY}:${dynamicRef}:${args.dynamicScope.join(',')}`
+        const callerPath = (id ?? args.currentContext) || args.schemas.objectPaths.get(target as object) || ''
+        const cacheKey = `${DYNAMIC_REF_KEY}:${dynamicRef}:${args.dynamicScope.join(',')}:${callerPath}`
         if (args.cache.has(cacheKey)) {
           return args.cache.get(cacheKey)
         }
 
-        const anchorName = dynamicRef.startsWith('#') ? dynamicRef.substring(1) : dynamicRef
+        const { anchorName, staticPath } = parseDynamicRef(dynamicRef, callerPath, args.schemas, args.root)
 
-        const anchorPath = resolveDynamicAnchor(
-          anchorName,
-          args.dynamicScope,
-          args.schemas.dynamicAnchors,
-          id ?? args.currentContext,
-        )
+        // If there is a dynamic anchor name, try scope-aware dynamic resolution first
+        let anchorPath: string | undefined
+        if (anchorName) {
+          anchorPath = resolveDynamicAnchor(anchorName, args.dynamicScope, args.schemas.dynamicAnchors, callerPath)
+        }
 
-        if (anchorPath) {
-          const resolvedValue = getValueByPath(args.root, parseJsonPointerSegments(`/${anchorPath}`))
+        // If dynamic resolution found nothing, fall back to the static target
+        const resolvedPath = anchorPath ?? staticPath
+
+        if (resolvedPath) {
+          const resolvedValue = getValueByPath(args.root, parseJsonPointerSegments(`/${resolvedPath}`))
           if (isMagicProxyObject(resolvedValue.value)) {
             return resolvedValue.value
           }
@@ -365,13 +479,11 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       if (prop === REF_VALUE && (typeof ref !== 'string' || ref === '')) {
         const dynamicRef = Reflect.get(target, DYNAMIC_REF_KEY, receiver)
         if (typeof dynamicRef === 'string') {
-          const anchorName = dynamicRef.startsWith('#') ? dynamicRef.substring(1) : dynamicRef
-          const anchorPath = resolveDynamicAnchor(
-            anchorName,
-            args.dynamicScope,
-            args.schemas.dynamicAnchors,
-            getId(target) ?? args.currentContext,
-          )
+          const callerId = getId(target) ?? args.currentContext
+          const { anchorName } = parseDynamicRef(dynamicRef, callerId, args.schemas, args.root)
+          const anchorPath = anchorName
+            ? resolveDynamicAnchor(anchorName, args.dynamicScope, args.schemas.dynamicAnchors, callerId)
+            : undefined
           if (anchorPath) {
             const segments = parseJsonPointerSegments(`/${anchorPath}`)
             if (segments.length > 0) {
