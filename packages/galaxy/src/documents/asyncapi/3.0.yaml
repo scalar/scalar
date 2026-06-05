@@ -204,6 +204,40 @@ channels:
     bindings:
       ws:
         method: GET
+  planetRequest:
+    address: 'planets/{planetId}/get'
+    title: Planet Request
+    summary: Request a single planet over the request/reply channel.
+    description: |
+      Channel a client uses to request a planet by its ID. The planet is delivered back on the reply channel.
+    parameters:
+      planetId:
+        $ref: '#/components/parameters/planetId'
+    messages:
+      getPlanet:
+        $ref: '#/components/messages/GetPlanetRequest'
+    tags:
+      - name: Planets
+    bindings:
+      ws:
+        method: GET
+  planetResponse:
+    address: 'planets/{planetId}/response'
+    title: Planet Response
+    summary: Reply channel that carries the requested planet.
+    description: |
+      Channel the server uses to reply to a planet request with the planet data.
+    parameters:
+      planetId:
+        $ref: '#/components/parameters/planetId'
+    messages:
+      planet:
+        $ref: '#/components/messages/PlanetResponse'
+    tags:
+      - name: Planets
+    bindings:
+      ws:
+        method: GET
 operations:
   subscribeToPlanetEvents:
     action: receive
@@ -304,6 +338,29 @@ operations:
         $ref: '#/channels/subscriptionAck'
       messages:
         - $ref: '#/channels/subscriptionAck/messages/subscriptionAcknowledged'
+    bindings:
+      ws:
+        bindingVersion: 0.1.0
+        method: GET
+  getPlanet:
+    action: send
+    channel:
+      $ref: '#/channels/planetRequest'
+    title: Get a Planet
+    summary: Request a single planet and receive it in the reply.
+    description: |
+      A request/reply operation. The client sends a request for a planet by ID, and the server replies with the planet on the reply channel.
+    traits:
+      - $ref: '#/components/operationTraits/authenticated'
+    tags:
+      - name: Planets
+    messages:
+      - $ref: '#/channels/planetRequest/messages/getPlanet'
+    reply:
+      channel:
+        $ref: '#/channels/planetResponse'
+      messages:
+        - $ref: '#/channels/planetResponse/messages/planet'
     bindings:
       ws:
         bindingVersion: 0.1.0
@@ -1114,6 +1171,47 @@ components:
       bindings:
         ws:
           bindingVersion: 0.1.0
+    GetPlanetRequest:
+      name: GetPlanetRequest
+      title: Get Planet Request
+      summary: A request for a single planet by ID
+      description: Sent by the client to request a planet over the request/reply channel
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/GetPlanetRequestEvent'
+      tags:
+        - name: Planets
+      examples:
+        - name: Get Mars
+          summary: Request the planet with ID 4
+          payload:
+            requestId: 'req_1234567890'
+            planetId: 4
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    PlanetResponse:
+      name: PlanetResponse
+      title: Planet Response
+      summary: The planet returned in reply to a request
+      description: Sent by the server with the requested planet data
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/Planet'
+      tags:
+        - name: Planets
+      examples:
+        - name: Mars
+          summary: The planet with ID 4
+          payload:
+            id: 4
+            name: 'Mars'
+            description: 'The red planet'
+            type: 'terrestrial'
+            habitabilityIndex: 0.68
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
   schemas:
     PlanetCreatedEvent:
       type: object
@@ -1870,6 +1968,17 @@ components:
           format: date-time
         metadata:
           $ref: '#/components/schemas/EventMetadata'
+    GetPlanetRequestEvent:
+      type: object
+      required: [requestId, planetId]
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier used to correlate the request with its reply
+        planetId:
+          type: integer
+          format: int64
+          description: The ID of the planet to fetch
     # Shared schemas
     EventMetadata:
       type: object
