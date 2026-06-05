@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type {
   AsyncApiChannelObject,
   AsyncApiDocument,
@@ -21,14 +22,28 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
-const { channel, document, layout, isCollapsed, eventBus } = defineProps<{
-  channel: TraversedAsyncApiChannel
-  document: AsyncApiDocument
-  layout: 'classic' | 'modern'
-  isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
-}>()
+import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
+
+/** Subset of the configuration the shared `ParameterList` renderer needs. */
+type ParameterListOptions = Pick<
+  ApiReferenceConfigurationRaw,
+  | 'hideModels'
+  | 'orderRequiredPropertiesFirst'
+  | 'orderSchemaPropertiesBy'
+  | 'expandAllSchemaProperties'
+>
+
+const { channel, document, layout, isCollapsed, eventBus, options } =
+  defineProps<{
+    channel: TraversedAsyncApiChannel
+    document: AsyncApiDocument
+    layout: 'classic' | 'modern'
+    isCollapsed: boolean
+    eventBus: WorkspaceEventBus | null
+    options?: Partial<ParameterListOptions>
+  }>()
 
 const headerId = useId()
 
@@ -55,6 +70,22 @@ const headingText = computed(() => {
   const title = resolvedChannel.value?.title?.trim()
   return title || channel.channelAddress
 })
+
+/**
+ * Channel address parameters mapped into the OpenAPI parameter shape so we can reuse the shared
+ * `ParameterList` component instead of building a dedicated AsyncAPI renderer.
+ */
+const parameters = computed(() =>
+  adaptAsyncApiParameters(resolvedChannel.value?.parameters),
+)
+
+/** Fill in defaults so the shared renderer always receives a complete options object. */
+const parameterListOptions = computed<ParameterListOptions>(() => ({
+  hideModels: options?.hideModels ?? false,
+  orderRequiredPropertiesFirst: options?.orderRequiredPropertiesFirst ?? false,
+  orderSchemaPropertiesBy: options?.orderSchemaPropertiesBy ?? 'preserve',
+  expandAllSchemaProperties: options?.expandAllSchemaProperties ?? false,
+}))
 </script>
 
 <template>
@@ -83,6 +114,13 @@ const headingText = computed(() => {
         :value="description"
         withImages />
     </template>
+    <ParameterList
+      v-if="parameters.length"
+      :eventBus="eventBus"
+      :options="parameterListOptions"
+      :parameters="parameters">
+      <template #title>Parameters</template>
+    </ParameterList>
   </SectionContainerAccordion>
 
   <SectionContainer
@@ -111,6 +149,13 @@ const headingText = computed(() => {
         <ScalarMarkdown
           :value="description"
           withImages />
+        <ParameterList
+          v-if="parameters.length"
+          :eventBus="eventBus"
+          :options="parameterListOptions"
+          :parameters="parameters">
+          <template #title>Parameters</template>
+        </ParameterList>
       </SectionContent>
     </Section>
   </SectionContainer>
