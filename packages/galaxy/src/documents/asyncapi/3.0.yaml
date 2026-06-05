@@ -42,11 +42,23 @@ info:
 servers:
   production:
     host: galaxy.scalar.com
+    pathname: '/ws/{version}'
     protocol: wss
+    protocolVersion: '13'
     description: Production WebSocket server for real-time events
+    variables:
+      version:
+        enum:
+          - v1
+          - v2
+        default: v1
+        description: The API version to connect to
+        examples:
+          - v1
     security:
       - $ref: '#/components/securitySchemes/bearerAuth'
       - $ref: '#/components/securitySchemes/httpApiKey'
+      - $ref: '#/components/securitySchemes/oauth2'
     tags:
       - name: production
         description: Production environment
@@ -379,7 +391,16 @@ components:
       description: API key for WebSocket authentication
     oauth2:
       type: oauth2
+      description: OAuth 2.0 authentication for WebSocket connections
       flows:
+        authorizationCode:
+          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
+          tokenUrl: https://galaxy.scalar.com/oauth/token
+          refreshUrl: https://galaxy.scalar.com/oauth/refresh
+          availableScopes:
+            read:events: Subscribe to events
+            write:events: Publish events (admin only)
+            read:user:events: Subscribe to user events
         implicit:
           authorizationUrl: https://galaxy.scalar.com/oauth/authorize
           availableScopes:
@@ -417,6 +438,23 @@ components:
               X-RateLimit-Remaining:
                 type: integer
                 description: Remaining requests in current window
+  messageTraits:
+    commonHeaders:
+      headers:
+        type: object
+        properties:
+          correlationId:
+            type: string
+            format: uuid
+            description: Correlation ID used to trace a message and any related reply
+          x-request-id:
+            type: string
+            description: Unique identifier for the request that produced the message
+        required:
+          - correlationId
+      correlationId:
+        location: '$message.header#/correlationId'
+        description: Correlates a request with its reply via the correlationId header
   messages:
     PlanetCreated:
       name: PlanetCreated
@@ -431,6 +469,8 @@ components:
         3. This event published to subscribers
         4. Optional webhook callbacks triggered
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/PlanetCreatedEvent'
       tags:
@@ -485,6 +525,8 @@ components:
       summary: An existing planet has been modified
       description: Published when planet properties are updated via the REST API
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/PlanetUpdatedEvent'
       tags:
@@ -528,6 +570,8 @@ components:
 
         This is a destructive operation that may affect related celestial bodies and data.
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/PlanetDeletedEvent'
       tags:
@@ -558,6 +602,8 @@ components:
 
         This is a rare but dramatic event that may create new celestial bodies or affect nearby objects.
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/PlanetExplodedEvent'
       tags:
@@ -598,6 +644,8 @@ components:
       summary: A new satellite has been discovered orbiting a planet
       description: Published when a new moon, asteroid, or other satellite is found
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/SatelliteDiscoveredEvent'
       tags:
@@ -633,6 +681,8 @@ components:
       summary: A planet's atmosphere composition has changed
       description: Published when atmospheric properties are modified
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/AtmosphereChangedEvent'
       tags:
@@ -670,6 +720,8 @@ components:
       summary: A new image has been uploaded for a planet
       description: Published when a planet image is successfully uploaded
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/ImageUploadedEvent'
       tags:
@@ -704,6 +756,8 @@ components:
       summary: A new user has registered in the Scalar Galaxy
       description: Published when a user successfully creates an account
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/UserSignedUpEvent'
       tags:
@@ -735,6 +789,8 @@ components:
       summary: A user has successfully authenticated
       description: Published when a user logs in or refreshes their token
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/UserAuthenticatedEvent'
       tags:
@@ -769,6 +825,8 @@ components:
       summary: A user's profile information has been modified
       description: Published when user profile data is updated
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/UserProfileUpdatedEvent'
       tags:
@@ -800,6 +858,8 @@ components:
       summary: A user account has been deleted
       description: Published when a user account is permanently removed
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/UserDeletedEvent'
       tags:
@@ -830,6 +890,8 @@ components:
       summary: A user login attempt has been made
       description: Published for both successful and failed login attempts
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/LoginAttemptEvent'
       tags:
@@ -862,6 +924,8 @@ components:
       summary: System maintenance has been scheduled or is in progress
       description: Published for planned and emergency maintenance events
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/SystemMaintenanceEvent'
       tags:
@@ -897,6 +961,8 @@ components:
       summary: A user or system has exceeded rate limits
       description: Published when rate limits are exceeded
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/RateLimitExceededEvent'
       tags:
@@ -931,6 +997,8 @@ components:
       summary: A security-related event has been detected
       description: Published for security incidents and suspicious activity
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/SecurityAlertEvent'
       tags:
@@ -968,6 +1036,8 @@ components:
       summary: An API version has been deprecated
       description: Published when API versions are marked as deprecated
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/ApiVersionDeprecatedEvent'
       tags:
@@ -1001,6 +1071,8 @@ components:
       summary: A new celestial body has been added to the galaxy
       description: Published when any type of celestial body is created
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/CelestialBodyCreatedEvent'
       tags:
@@ -1034,6 +1106,8 @@ components:
       summary: An existing celestial body has been modified
       description: Published when celestial body properties are updated
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/CelestialBodyUpdatedEvent'
       tags:
@@ -1072,6 +1146,8 @@ components:
       summary: Two celestial bodies have collided
       description: Published when orbital collisions occur
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/OrbitalCollisionEvent'
       tags:
@@ -1111,6 +1187,8 @@ components:
       summary: A significant astronomical discovery has been made
       description: Published for major discoveries and breakthroughs
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/NewDiscoveryEvent'
       tags:
@@ -1154,6 +1232,8 @@ components:
       summary: A subscription request has been acknowledged
       description: Sent by the server to confirm whether a subscription was accepted
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/SubscriptionAcknowledgedEvent'
       tags:
@@ -1177,6 +1257,8 @@ components:
       summary: A request for a single planet by ID
       description: Sent by the client to request a planet over the request/reply channel
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/GetPlanetRequestEvent'
       tags:
@@ -1196,6 +1278,8 @@ components:
       summary: The planet returned in reply to a request
       description: Sent by the server with the requested planet data
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/Planet'
       tags:
