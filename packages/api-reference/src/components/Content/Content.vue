@@ -202,7 +202,7 @@ onMounted(() => {
           </IntroductionCardItem>
         </ScalarErrorBoundary>
 
-        <!-- Client selector (not relevant for AsyncAPI) -->
+        <!-- Client selector -->
         <ScalarErrorBoundary>
           <IntroductionCardItem
             v-if="clientOptions.length && !asyncApiDocument"
