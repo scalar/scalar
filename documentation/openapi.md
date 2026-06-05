@@ -426,9 +426,9 @@ Aliases: `x-enumNames`
 
 ## x-scalar-sdk-installation
 
-We generate custom code examples for all languages, but you might have a custom SDK for your API. Provide installation instructions in the header like shown in the example below.
+We generate custom code examples for all languages, but you might have a custom SDK for your API. Provide installation instructions in the header and they replace the generic HTTP clients in the introduction.
 
-You can use `description` (supports Markdown) or `source` (for shell scripts) or both. You can also add a `url` that links to the package or repository (for example on GitHub, npm or PyPI). We render a friendly label for well-known hosts and fall back to the link itself otherwise.
+Each entry has a `lang` (used as the tab label and to pick a matching language icon) and a `description`. The `description` supports Markdown, including fenced code blocks with syntax highlighting, so a single tab can show multiple snippets (for example Maven and Gradle for Java).
 
 ```diff
 openapi: 3.1.0
@@ -436,19 +436,36 @@ info:
   title: Example
   version: 1.0
 +  x-scalar-sdk-installation:
-+  - lang: Node
-+    description: "Install our **Custom SDK** for Node.js from npm:"
-+    source: |-
++  - lang: TypeScript
++    description: |-
++      Install our **Custom SDK** from npm:
++
++      ```sh
 +      npm install @your-awesome-company/sdk
-+    url: https://github.com/your-awesome-company/sdk
++      ```
++  - lang: Java
++    description: |-
++      Add the dependency with Maven:
++
++      ```xml
++      <dependency>
++        <groupId>com.your-awesome-company</groupId>
++        <artifactId>sdk</artifactId>
++        <version>1.0.0</version>
++      </dependency>
++      ```
++
++      …or with Gradle:
++
++      ```groovy
++      implementation 'com.your-awesome-company:sdk:1.0.0'
++      ```
 ```
 
-| Option      | Type   | Description                                                                        |
-| ----------- | ------ | ---------------------------------------------------------------------------------- |
-| lang        | string | **REQUIRED**. The language or platform of the SDK (for example `Node`, `Python`).  |
-| description | string | A human-readable description of this installation option. Supports Markdown.       |
-| source      | string | The installation command or snippet, rendered as a copyable shell block.           |
-| url         | string | A link to the package or repository, for example on GitHub, npm or PyPI.           |
+| Option      | Type   | Description                                                                                        |
+| ----------- | ------ | ------------------------------------------------------------------------------------------------- |
+| lang        | string | **REQUIRED**. The language or platform of the SDK (for example `TypeScript`, `Java`, `Python`).   |
+| description | string | The installation instructions for this language. Supports Markdown, including fenced code blocks. |
 
 ## x-pre-request
 

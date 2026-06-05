@@ -5,7 +5,6 @@ import SdkInstallationInstructions from './SdkInstallationInstructions.vue'
 
 describe('SdkInstallationInstructions', () => {
   const stubs = {
-    ScalarCodeBlock: true,
     ScalarMarkdown: true,
     ScalarIcon: true,
   }
@@ -32,8 +31,8 @@ describe('SdkInstallationInstructions', () => {
     const wrapper = mount(SdkInstallationInstructions, {
       props: {
         xScalarSdkInstallation: [
-          { lang: 'Node', description: 'Install for Node', source: 'npm install @scalar/sdk' },
-          { lang: 'Python', description: 'Install for Python', source: 'pip install scalar-sdk' },
+          { lang: 'TypeScript', description: 'Install for TypeScript' },
+          { lang: 'Python', description: 'Install for Python' },
         ],
       },
       global: { stubs },
@@ -41,59 +40,32 @@ describe('SdkInstallationInstructions', () => {
 
     const tabs = wrapper.findAll('[role="tab"]')
     expect(tabs).toHaveLength(2)
-    expect(tabs[0]?.text()).toBe('Node')
+    expect(tabs[0]?.text()).toBe('TypeScript')
     expect(tabs[1]?.text()).toBe('Python')
   })
 
-  it('skips entries without a source, description or url', () => {
+  it('skips entries without a description', () => {
     const wrapper = mount(SdkInstallationInstructions, {
       props: {
-        xScalarSdkInstallation: [{ lang: 'Node', source: 'npm install @scalar/sdk' }, { lang: 'Empty' }],
+        xScalarSdkInstallation: [{ lang: 'TypeScript', description: 'Install for TypeScript' }, { lang: 'Empty' }],
       },
       global: { stubs },
     })
 
     const tabs = wrapper.findAll('[role="tab"]')
     expect(tabs).toHaveLength(1)
-    expect(tabs[0]?.text()).toBe('Node')
+    expect(tabs[0]?.text()).toBe('TypeScript')
   })
 
-  it('keeps entries that only have a url', () => {
+  it('renders the description for the selected SDK', () => {
     const wrapper = mount(SdkInstallationInstructions, {
       props: {
-        xScalarSdkInstallation: [{ lang: 'Node', url: 'https://github.com/scalar/scalar' }],
+        xScalarSdkInstallation: [{ lang: 'TypeScript', description: 'Install for TypeScript' }],
       },
       global: { stubs },
     })
 
-    const tabs = wrapper.findAll('[role="tab"]')
-    expect(tabs).toHaveLength(1)
-    expect(tabs[0]?.text()).toBe('Node')
-  })
-
-  it('renders a link with a friendly label for the selected SDK url', () => {
-    const wrapper = mount(SdkInstallationInstructions, {
-      props: {
-        xScalarSdkInstallation: [
-          { lang: 'Node', source: 'npm install @scalar/sdk', url: 'https://www.npmjs.com/package/@scalar/sdk' },
-        ],
-      },
-      global: { stubs },
-    })
-
-    const link = wrapper.get('a[href="https://www.npmjs.com/package/@scalar/sdk"]')
-    expect(link.attributes('target')).toBe('_blank')
-    expect(link.text()).toBe('View on npm')
-  })
-
-  it('does not render a link for unsafe url schemes', () => {
-    const wrapper = mount(SdkInstallationInstructions, {
-      props: {
-        xScalarSdkInstallation: [{ lang: 'Node', source: 'npm install @scalar/sdk', url: 'javascript:alert(1)' }],
-      },
-      global: { stubs },
-    })
-
-    expect(wrapper.find('a').exists()).toBe(false)
+    const panel = wrapper.get('[role="tabpanel"]')
+    expect(panel.html()).toContain('Install for TypeScript')
   })
 })

@@ -4,10 +4,10 @@ import { typeCommentWithExample } from '../type-comment'
 
 const XScalarSdkInstallationItem = object(
   {
-    lang: string({ typeComment: 'Programming language or platform (for example `shell`, `javascript`)' }),
-    source: optional(string({ typeComment: 'Installation command or snippet source' })),
-    description: optional(string({ typeComment: 'Human-readable description of this installation option' })),
-    url: optional(string({ typeComment: 'Link to the package or repository (for example on GitHub, npm or PyPI)' })),
+    lang: string({ typeComment: 'Programming language or platform (for example `TypeScript`, `Java`, `Python`)' }),
+    description: optional(
+      string({ typeComment: 'Installation instructions in Markdown (supports fenced code blocks)' }),
+    ),
   },
   {
     typeName: 'XScalarSdkInstallationItem',
@@ -28,8 +28,8 @@ export const XScalarSdkInstallation = object(
     typeComment: typeCommentWithExample('Scalar SDK installation instructions for the API description.', {
       language: 'yaml',
       body: `x-scalar-sdk-installation:
-  - lang: shell
-    source: npm install @scalar/api-client`,
+  - lang: TypeScript
+    description: Install our SDK from npm with \`npm install @scalar/sdk\``,
     }),
   },
 )

@@ -100,7 +100,7 @@ const clientOptions = computed(() =>
  */
 const sdkInstallation = computed(() =>
   (openApiDocument.value?.info?.['x-scalar-sdk-installation'] ?? []).filter(
-    (sdk) => sdk.source || sdk.description || sdk.url,
+    (sdk) => sdk.description,
   ),
 )
 

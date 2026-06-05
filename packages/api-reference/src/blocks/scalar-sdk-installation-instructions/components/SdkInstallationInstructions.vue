@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ScalarCodeBlock } from '@scalar/components/code-block'
 import {
   ScalarCombobox,
   type ScalarComboboxOption,
@@ -18,7 +17,6 @@ import {
 } from 'vue'
 
 import { getLanguageIcon } from '../helpers/language-icon'
-import { getSafeSdkUrl, getSdkUrlLabel } from '../helpers/sdk-url-label'
 import { getVisibleTabCount } from '../helpers/visible-tab-count'
 
 const { xScalarSdkInstallation } = defineProps<{
@@ -31,7 +29,7 @@ const headingId = useId()
 /** Only the SDKs that actually have something to show, with their resolved icon */
 const sdks = computed(() =>
   (xScalarSdkInstallation ?? [])
-    .filter((sdk) => sdk.source || sdk.description || sdk.url)
+    .filter((sdk) => sdk.description)
     .map((sdk) => ({ ...sdk, icon: getLanguageIcon(sdk.lang) })),
 )
 
@@ -40,19 +38,6 @@ const selectedIndex = ref(0)
 
 /** The currently selected SDK */
 const selected = computed(() => sdks.value[selectedIndex.value])
-
-/**
- * The selected SDK link, sanitized to `http(s)` only. The URL comes from the
- * OpenAPI document, so we never render `javascript:`/`data:` and similar schemes.
- */
-const selectedUrl = computed(() =>
-  selected.value?.url ? getSafeSdkUrl(selected.value.url) : undefined,
-)
-
-/** The link label for the selected SDK, friendly for known hosts */
-const selectedUrlLabel = computed(() =>
-  selectedUrl.value ? getSdkUrlLabel(selectedUrl.value) : '',
-)
 
 // Keep the selection in range when the list of SDKs changes
 watch(
@@ -224,79 +209,29 @@ onBeforeUnmount(() => observer?.disconnect())
       </div>
     </div>
 
-    <!-- Content: description, install command and link share one panel -->
+    <!-- Content: Markdown installation instructions (supports code blocks) -->
     <div
-      v-if="selected?.description || selected?.source || selectedUrl"
+      v-if="selected?.description"
       class="selected-client"
       role="tabpanel">
-      <ScalarMarkdown
-        v-if="selected?.description"
-        :value="selected.description" />
-      <!-- The install command keeps its own frame inside the panel -->
-      <div
-        v-if="selected?.source"
-        class="selected-client-source">
-        <ScalarCodeBlock
-          class="*:first:p-3"
-          :content="selected.source"
-          copy="always"
-          lang="shell" />
-      </div>
-      <!-- Link to the package or repository -->
-      <a
-        v-if="selectedUrl"
-        class="selected-client-link"
-        :href="selectedUrl"
-        rel="noopener noreferrer"
-        target="_blank">
-        <ScalarIcon
-          class="selected-client-link-icon"
-          icon="ExternalLink" />
-        <span>{{ selectedUrlLabel }}</span>
-      </a>
+      <ScalarMarkdown :value="selected.description" />
     </div>
   </div>
 </template>
 <style scoped>
-/* One panel holds the description, install command and link */
+/* One panel holds the Markdown installation instructions */
 .selected-client {
   display: flex;
   flex-direction: column;
   gap: 9px;
   color: var(--scalar-color-1);
   font-size: var(--scalar-small);
-  font-family: var(--scalar-font-code);
   padding: 9px 12px;
   background: var(--scalar-background-1);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-top: none;
   border-bottom-left-radius: var(--scalar-radius-xl);
   border-bottom-right-radius: var(--scalar-radius-xl);
-}
-/* The install command gets its own frame so it reads as a code block */
-.selected-client-source {
-  overflow: hidden;
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius);
-}
-/* Link out to the package or repository */
-.selected-client-link {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--scalar-color-2);
-  text-decoration: none;
-}
-.selected-client-link:hover {
-  color: var(--scalar-color-1);
-}
-.selected-client-link:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
-}
-.selected-client-link-icon {
-  width: 12px;
-  height: 12px;
 }
 .client-libraries-heading {
   font-size: var(--scalar-small);
