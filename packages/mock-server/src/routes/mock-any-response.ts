@@ -1,5 +1,7 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
@@ -23,7 +25,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   // Response
   // default, 200, 201 …
   const preferredResponseKey = findPreferredResponseKey(Object.keys(operation.responses ?? {}))
-  const preferredResponse = preferredResponseKey ? operation.responses?.[preferredResponseKey] : null
+  const preferredResponse = preferredResponseKey ? getResolvedRef(operation.responses?.[preferredResponseKey]) : null
 
   if (!preferredResponse) {
     c.status(500)
@@ -40,7 +42,10 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   // Headers
   const headers = preferredResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
-    const value = headers[header].schema ? (getExampleFromSchema(headers[header].schema) as string) : null
+    const headerObject = getResolvedRef(headers[header])
+    const value = headerObject?.schema
+      ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema)) as string)
+      : null
     if (value !== null) {
       c.header(header, value)
     }
@@ -77,7 +82,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   const body = acceptedResponse?.example
     ? acceptedResponse.example
     : acceptedResponse?.schema
-      ? getExampleFromSchema(acceptedResponse.schema, {
+      ? getExampleFromSchema(getResolvedRefDeep(acceptedResponse.schema), {
           emptyString: 'string',
           variables: c.req.param(),
           mode: 'read',

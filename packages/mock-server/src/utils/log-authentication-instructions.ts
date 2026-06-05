@@ -1,4 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 import { getPathFromUrl } from './get-open-auth-token-urls'
 
@@ -13,7 +14,14 @@ export function logAuthenticationInstructions(securitySchemes: Record<string, Op
   console.log('Authentication:')
   console.log()
 
-  Object.entries(securitySchemes).forEach(([_, scheme]) => {
+  Object.entries(securitySchemes).forEach(([_, rawScheme]) => {
+    const scheme = getResolvedRef(rawScheme)
+
+    // Skip schemes that could not be resolved (e.g. a `$ref` to a missing component)
+    if (!scheme) {
+      return
+    }
+
     switch (scheme.type) {
       case 'apiKey':
         if (scheme.in === 'header') {

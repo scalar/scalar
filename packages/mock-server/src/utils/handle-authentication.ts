@@ -1,4 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { Context } from 'hono'
 import { getCookie } from 'hono/cookie'
 
@@ -17,12 +18,7 @@ export function handleAuthentication(schema?: OpenAPIV3_1.Document, operation?: 
         let securitySchemeAuthenticated = true
 
         for (const [schemeName] of Object.entries(securityRequirement)) {
-          const scheme = schema?.components?.securitySchemes?.[schemeName]
-
-          // Skip if scheme is a reference object (should be dereferenced already, but check to be safe)
-          if (scheme && '$ref' in scheme) {
-            continue
-          }
+          const scheme = getResolvedRef(schema?.components?.securitySchemes?.[schemeName])
 
           if (scheme && 'type' in scheme) {
             const securityScheme = scheme as OpenAPIV3_1.SecuritySchemeObject

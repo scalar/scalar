@@ -1,5 +1,7 @@
 import { faker } from '@faker-js/faker'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
@@ -43,7 +45,7 @@ function getExampleFromResponse(
     return null
   }
 
-  const response = responses[statusCode] || responses.default
+  const response = getResolvedRef(responses[statusCode] || responses.default)
 
   if (!response) {
     return null
@@ -75,7 +77,7 @@ function getExampleFromResponse(
   return acceptedResponse.example !== undefined
     ? acceptedResponse.example
     : acceptedResponse.schema
-      ? getExampleFromSchema(acceptedResponse.schema, {
+      ? getExampleFromSchema(getResolvedRefDeep(acceptedResponse.schema), {
           emptyString: 'string',
           variables: c.req.param(),
           mode: 'read',

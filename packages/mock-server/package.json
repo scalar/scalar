@@ -59,11 +59,11 @@
     "@faker-js/faker": "catalog:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "hono": "catalog:*"
+    "hono": "catalog:*",
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@types/node": "catalog:*",

@@ -1,4 +1,5 @@
 import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { Hono } from 'hono'
 
 import { respondWithAuthorizePage } from '@/routes/respond-with-authorize-page'
@@ -41,7 +42,14 @@ export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) 
   const authorizeUrls = new Set<string>()
   const tokenUrls = new Set<string>()
 
-  Object.entries(securitySchemes).forEach(([_, scheme]) => {
+  Object.entries(securitySchemes).forEach(([_, rawScheme]) => {
+    const scheme = getResolvedRef(rawScheme)
+
+    // Skip schemes that could not be resolved (e.g. a `$ref` to a missing component)
+    if (!scheme) {
+      return
+    }
+
     if (scheme.type === 'oauth2') {
       if (scheme.flows?.authorizationCode) {
         const authorizeRoute = scheme.flows.authorizationCode.authorizationUrl ?? '/oauth/authorize'
