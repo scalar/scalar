@@ -114,6 +114,29 @@ scalar.WithApiReference(bookService, options =>
 });
 ```
 
+### AsyncAPI Documents
+
+Services can expose AsyncAPI documents next to their OpenAPI documents. Use `AddAsyncApiDocument` or `AddAsyncApiDocuments` to register them; both document types are rendered together in the same API Reference. AsyncAPI documents use a separate default route pattern (`/asyncapi/{documentName}.json`), which you can override with `WithAsyncApiRoutePattern`.
+
+```csharp
+scalar.WithApiReference(eventService, options =>
+{
+    // Add an AsyncAPI document with a custom title
+    options.AddAsyncApiDocument("events", "Event Stream");
+
+    // Mix AsyncAPI and OpenAPI documents in a single reference
+    options
+        .AddDocument("v1", "REST API")
+        .AddAsyncApiDocument("events", "Event Stream");
+
+    // Or add multiple AsyncAPI documents at once
+    options.AddAsyncApiDocuments("events", "commands");
+
+    // Customize the default AsyncAPI route pattern
+    options.WithAsyncApiRoutePattern("/messaging/{documentName}.json");
+});
+```
+
 ### Static OpenAPI Documents
 
 Use the file-based overload when a service does not expose a live OpenAPI endpoint—for example, when the description document is generated at build time or when documenting an external API from a local file. The file is mounted into the Scalar container and served at `/openapi/{folderPath}/{filename}`. When the optional `folderPath` parameter is not provided, the resource name is used as the folder, so the path is `/openapi/{resourceName}/{filename}`. You can pass an explicit `folderPath` to override the default folder or to avoid name collisions when multiple services serve static files. The document URL in the API Reference uses that path; the `resourceBuilder` is still used to configure the **Try It** server URL (the API base URL for requests).

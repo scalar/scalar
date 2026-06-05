@@ -324,4 +324,52 @@ public class ScalarOptionsMapperTests
         configuration.Mcp.Should().NotBeNull();
         configuration.Mcp!.Disabled.Should().BeTrue();
     }
+
+    [Fact]
+    public void GetSources_ShouldMapAsyncApiDocumentUrl_UsingDefaultPattern()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+        options.AddAsyncApiDocument("events");
+
+        // Act
+        var configuration = options.ToScalarConfiguration();
+
+        // Assert
+        configuration.Sources.Should().ContainSingle()
+            .Which.Url.Should().Be("asyncapi/events.json");
+    }
+
+    [Fact]
+    public void GetSources_ShouldMapAsyncApiDocumentUrl_UsingCustomPattern()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+        options.WithAsyncApiRoutePattern("/api/asyncapi/{documentName}.yaml")
+               .AddAsyncApiDocument("events");
+
+        // Act
+        var configuration = options.ToScalarConfiguration();
+
+        // Assert
+        configuration.Sources.Should().ContainSingle()
+            .Which.Url.Should().Be("api/asyncapi/events.yaml");
+    }
+
+    [Fact]
+    public void GetSources_ShouldIncludeBothOpenApiAndAsyncApiDocuments()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+        options.AddDocument("v1");
+        options.AddAsyncApiDocument("events");
+
+        // Act
+        var configuration = options.ToScalarConfiguration();
+
+        // Assert
+        configuration.Sources.Should().HaveCount(2);
+        configuration.Sources.Should().ContainSingle(s => s.Url == "openapi/v1.json");
+        configuration.Sources.Should().ContainSingle(s => s.Url == "asyncapi/events.json");
+    }
 }

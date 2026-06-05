@@ -632,6 +632,67 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Controls the route pattern of the AsyncAPI document.
+    /// Can also be a complete URL to a remote AsyncAPI document, just be aware of CORS restrictions in this case.
+    /// The pattern can include the '{documentName}' placeholder which will be replaced with the document name.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="pattern">The route pattern to set.</param>
+    public static TOptions WithAsyncApiRoutePattern<TOptions>(this TOptions options, [StringSyntax("Route")] string pattern) where TOptions : ScalarOptions
+    {
+        options.AsyncApiRoutePattern = pattern;
+        return options;
+    }
+
+    /// <summary>
+    /// Adds an AsyncAPI document to the Scalar API Reference.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="documentName">The name identifier for the AsyncAPI document. This value will be used to replace the '{documentName}' placeholder in the <see cref="ScalarOptions.AsyncApiRoutePattern"/>.</param>
+    /// <param name="title">Optional display title for the document. If not provided, the document name will be used as the title.</param>
+    /// <param name="routePattern">Optional route pattern for the AsyncAPI document. If not provided, the <see cref="ScalarOptions.AsyncApiRoutePattern"/> will be used. The pattern can include the '{documentName}' placeholder which will be replaced with the document name.</param>
+    /// <param name="isDefault">Indicates whether this document should be the default selection when multiple documents are available. Only one document should be marked as default.</param>
+    /// <param name="agentKey">Optional Agent Scalar key for this document.</param>
+    /// <remarks>
+    /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
+    /// </remarks>
+    public static TOptions AddAsyncApiDocument<TOptions>(this TOptions options, string documentName, string? title = null, string? routePattern = null, bool isDefault = false, string? agentKey = null) where TOptions : ScalarOptions
+    {
+        var agent = agentKey is null ? null : new ScalarAgentOptions { Key = agentKey };
+        options.Documents.Add(new ScalarDocument(documentName, title, routePattern, isDefault, agent, DocumentType.AsyncApi));
+        return options;
+    }
+
+    /// <summary>
+    /// Adds multiple AsyncAPI documents to the Scalar API Reference using document names.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="documentNames">The name identifiers for the AsyncAPI documents.</param>
+    /// <remarks>
+    /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
+    /// </remarks>
+    public static TOptions AddAsyncApiDocuments<TOptions>(this TOptions options, params IEnumerable<string> documentNames) where TOptions : ScalarOptions
+    {
+        options.Documents.AddRange(documentNames.Select(name => new ScalarDocument(name, DocumentType: DocumentType.AsyncApi)));
+        return options;
+    }
+
+    /// <summary>
+    /// Adds multiple AsyncAPI documents to the Scalar API Reference using document objects.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="documents">A list of <see cref="ScalarDocument" />s to add.</param>
+    /// <remarks>
+    /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
+    /// Each document is treated as an AsyncAPI document regardless of its <see cref="ScalarDocument.DocumentType" />.
+    /// </remarks>
+    public static TOptions AddAsyncApiDocuments<TOptions>(this TOptions options, params IEnumerable<ScalarDocument> documents) where TOptions : ScalarOptions
+    {
+        options.Documents.AddRange(documents.Select(document => document with { DocumentType = DocumentType.AsyncApi }));
+        return options;
+    }
+
+    /// <summary>
     /// Controls whether to expose 'dotnet' flag to the configuration.
     /// </summary>
     /// <param name="options">The options to configure.</param>

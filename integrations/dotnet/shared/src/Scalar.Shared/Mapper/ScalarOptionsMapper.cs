@@ -71,14 +71,16 @@ internal static partial class ScalarOptionsMapper
     private static IEnumerable<ScalarSource> GetSources(ScalarOptions options)
     {
         var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
+        var trimmedAsyncApiRoutePattern = options.AsyncApiRoutePattern.TrimStart('/');
 
         foreach (var document in options.Documents)
         {
-            var openApiRoutePattern = document.RoutePattern is null ? trimmedOpenApiRoutePattern : document.RoutePattern.TrimStart('/');
+            var defaultPattern = document.DocumentType == DocumentType.AsyncApi ? trimmedAsyncApiRoutePattern : trimmedOpenApiRoutePattern;
+            var routePattern = document.RoutePattern is null ? defaultPattern : document.RoutePattern.TrimStart('/');
             yield return new ScalarSource
             {
                 Title = document.Title ?? document.Name,
-                Url = openApiRoutePattern.Replace(DocumentName, document.Name),
+                Url = routePattern.Replace(DocumentName, document.Name),
                 Default = document.IsDefault,
                 Agent = document.Agent
             };
