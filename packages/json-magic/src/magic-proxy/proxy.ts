@@ -2,6 +2,7 @@ import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointe
 import { isObject } from '@scalar/helpers/object/is-object'
 
 import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
+import type { DynamicAnchorEntry, SchemaMap } from '@/helpers/get-schemas'
 import { getId, getSchemas } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { createPathFromSegments } from '@/helpers/json-path-utils'
@@ -12,6 +13,70 @@ const magicProxyTarget = Symbol('magicProxyTarget')
 
 const REF_VALUE = '$ref-value'
 const REF_KEY = '$ref'
+const DYNAMIC_REF_KEY = '$dynamicRef'
+
+/**
+ * Resolves a $dynamicAnchor to the correct anchor path using scope-aware lookup.
+ *
+ * Per JSON Schema 2020-12, $dynamicRef resolution walks outward through the dynamic
+ * scope (the chain of schema resources entered via $ref), using the first matching
+ * $dynamicAnchor from the outermost resource. The dynamicScope array represents this
+ * chain — the last element is the innermost enclosing resource.
+ *
+ * Resolution order:
+ * 1. Walk the dynamic scope from innermost to outermost
+ * 2. Use the first entry whose resourceId matches a scope level
+ * 3. If no scope match, use the current context to find a matching entry
+ * 4. If still no match, use the last entry as fallback
+ *
+ * @param anchorName - The anchor name (without # prefix) from $dynamicRef
+ * @param dynamicScope - Stack of enclosing resource $id values (innermost last)
+ * @param dynamicAnchors - Map of anchor names to their entries with resource scoping
+ * @param currentContext - The $id of the current resource (for non-$ref resolution)
+ * @returns The anchor path to resolve to, or undefined if not found
+ */
+const resolveDynamicAnchor = (
+  anchorName: string,
+  dynamicScope: string[],
+  dynamicAnchors: Map<string, DynamicAnchorEntry[]>,
+  currentContext: string,
+): string | undefined => {
+  const entries = dynamicAnchors.get(anchorName)
+  if (!entries || entries.length === 0) {
+    return undefined
+  }
+
+  if (entries.length === 1) {
+    return entries[0].anchorPath
+  }
+
+  // Walk the dynamic scope from innermost to outermost
+  for (let i = dynamicScope.length - 1; i >= 0; i--) {
+    const scopeId = dynamicScope[i]
+    if (!scopeId) continue
+
+    const exactMatch = entries.find((e) => e.resourceId === scopeId)
+    if (exactMatch) {
+      return exactMatch.anchorPath
+    }
+
+    const pathMatch = entries.find((e) => e.anchorPath.startsWith(scopeId + '/'))
+    if (pathMatch) {
+      return pathMatch.anchorPath
+    }
+  }
+
+  // Check current context
+  if (currentContext) {
+    const contextMatch = entries.find((e) => e.resourceId === currentContext)
+    if (contextMatch) {
+      return contextMatch.anchorPath
+    }
+  }
+
+  // Fallback: last entry (template's own placeholder or final override)
+  return entries[entries.length - 1].anchorPath
+}
 
 /**
  * Creates a "magic" proxy for a given object or array, enabling transparent access to
@@ -72,27 +137,48 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     /**
      * Map of all schemas by their $id or $anchor for cross-document reference resolution.
      */
-    schemas: Map<string, string>
+    schemas: SchemaMap
     /**
      * The current JSON path context within the root object.
      *
      * Used to resolve $anchor references correctly.
      */
     currentContext: string
+    /**
+     * Stack of enclosing resource $id values for $dynamicRef scope-aware resolution.
+     * Each entry is a $id encountered when following a $ref chain.
+     * The last entry is the innermost enclosing resource.
+     */
+    dynamicScope: string[]
+    /**
+     * Secondary proxy cache keyed by (target, dynamicScope) for targets accessed
+     * with different dynamic scopes. Only used when dynamicScope is non-empty.
+     */
+    scopeCache: Map<object, Map<string, T>>
   } = {
     root: target,
     proxyCache: new WeakMap(),
     cache: new Map(),
-    schemas: getSchemas(target),
+    schemas: getSchemas(target) as SchemaMap,
     currentContext: '',
+    dynamicScope: [],
+    scopeCache: new Map(),
   },
 ): T => {
   if (!isObject(target) && !Array.isArray(target)) {
     return target
   }
 
-  // Return existing proxy for the same target to ensure referential stability
-  if (args.proxyCache.has(target)) {
+  // For targets with dynamic scope, use a scope-aware cache keyed by (target, scope)
+  // to ensure the same underlying object gets different proxies in different $ref contexts
+  if (args.dynamicScope.length > 0) {
+    const scopeKey = args.dynamicScope.join(',')
+    const targetScopes = args.scopeCache.get(target)
+    if (targetScopes?.has(scopeKey)) {
+      return targetScopes.get(scopeKey)!
+    }
+  } else if (args.proxyCache.has(target)) {
+    // No dynamic scope — use the simple proxy cache for referential stability
     return args.proxyCache.get(target)
   }
 
@@ -124,14 +210,31 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       // Get the $ref value of the current target (if any)
       const ref = Reflect.get(target, REF_KEY, receiver)
+      // Get the $dynamicRef value of the current target (if any)
+      const dynamicRef = Reflect.get(target, DYNAMIC_REF_KEY, receiver)
       // Get the identifier ($id) of the current target for context tracking
       const id = getId(target)
 
-      // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
-      if (prop === REF_VALUE && typeof ref === 'string') {
-        // Check cache first for performance optimization
-        if (args.cache.has(ref)) {
-          return args.cache.get(ref)
+      // If accessing "$ref-value" and $ref is a non-empty local reference, resolve and return the referenced value
+      // An empty $ref string is a TypeBox coercion artifact on $dynamicRef nodes — skip it
+      if (prop === REF_VALUE && typeof ref === 'string' && ref !== '') {
+        const enclosingId = id ?? args.currentContext
+        const cacheKey = enclosingId ? `${ref}:${enclosingId}` : ref
+
+        let callerIdentity = enclosingId
+        if (!callerIdentity) {
+          callerIdentity = args.schemas.objectPaths.get(target as object) ?? ''
+        }
+        const effectiveCaller = callerIdentity || ''
+        const newDynamicScope =
+          effectiveCaller && !args.dynamicScope.includes(effectiveCaller)
+            ? [...args.dynamicScope, effectiveCaller]
+            : args.dynamicScope
+        const scopeKey = newDynamicScope.join(',')
+
+        // Use regular cache only when no dynamic scope
+        if (scopeKey === '' && args.cache.has(cacheKey)) {
+          return args.cache.get(cacheKey)
         }
 
         const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
@@ -146,14 +249,60 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         if (isMagicProxyObject(resolvedValue.value)) {
           return resolvedValue.value
         }
+
+        // Check scope cache for this (target, scope) combination
+        if (scopeKey !== '') {
+          const targetScopes = args.scopeCache.get(resolvedValue.value)
+          if (targetScopes?.has(scopeKey)) {
+            return targetScopes.get(scopeKey)
+          }
+        }
+
         const proxiedValue = createMagicProxy(resolvedValue.value, options, {
           ...args,
           currentContext: resolvedValue.context,
+          dynamicScope: newDynamicScope,
         })
 
-        // Store in cache for future lookups
-        args.cache.set(ref, proxiedValue)
+        // Store in regular cache only when no dynamic scope
+        if (scopeKey === '') {
+          args.cache.set(cacheKey, proxiedValue)
+        }
+
         return proxiedValue
+      }
+
+      // If accessing "$ref-value" and the node has $dynamicRef (but no meaningful $ref), resolve the dynamic reference
+      // An empty $ref string from TypeBox coercion is treated as absent
+      if (prop === REF_VALUE && (typeof ref !== 'string' || ref === '') && typeof dynamicRef === 'string') {
+        const cacheKey = `${DYNAMIC_REF_KEY}:${dynamicRef}:${args.dynamicScope.join(',')}`
+        if (args.cache.has(cacheKey)) {
+          return args.cache.get(cacheKey)
+        }
+
+        const anchorName = dynamicRef.startsWith('#') ? dynamicRef.substring(1) : dynamicRef
+
+        const anchorPath = resolveDynamicAnchor(
+          anchorName,
+          args.dynamicScope,
+          args.schemas.dynamicAnchors,
+          id ?? args.currentContext,
+        )
+
+        if (anchorPath) {
+          const resolvedValue = getValueByPath(args.root, parseJsonPointerSegments(`/${anchorPath}`))
+          if (isMagicProxyObject(resolvedValue.value)) {
+            return resolvedValue.value
+          }
+          const proxiedValue = createMagicProxy(resolvedValue.value, options, {
+            ...args,
+            currentContext: resolvedValue.context,
+          })
+          args.cache.set(cacheKey, proxiedValue)
+          return proxiedValue
+        }
+
+        return undefined
       }
 
       // For all other properties, recursively wrap the value in a magic proxy
@@ -181,7 +330,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         return true
       }
 
-      if (prop === REF_VALUE && typeof ref === 'string') {
+      if (prop === REF_VALUE && typeof ref === 'string' && ref !== '') {
         const id = getId(target)
         const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
 
@@ -212,6 +361,31 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         return true
       }
 
+      // Handle setting $ref-value for $dynamicRef nodes
+      if (prop === REF_VALUE && (typeof ref !== 'string' || ref === '')) {
+        const dynamicRef = Reflect.get(target, DYNAMIC_REF_KEY, receiver)
+        if (typeof dynamicRef === 'string') {
+          const anchorName = dynamicRef.startsWith('#') ? dynamicRef.substring(1) : dynamicRef
+          const anchorPath = resolveDynamicAnchor(
+            anchorName,
+            args.dynamicScope,
+            args.schemas.dynamicAnchors,
+            getId(target) ?? args.currentContext,
+          )
+          if (anchorPath) {
+            const segments = parseJsonPointerSegments(`/${anchorPath}`)
+            if (segments.length > 0) {
+              const parent = getValueByPath(args.root, segments.slice(0, -1)).value
+              if (parent) {
+                parent[segments.at(-1)] = newValue
+                return true
+              }
+            }
+          }
+        }
+        return false
+      }
+
       return Reflect.set(target, prop, newValue, receiver)
     },
     /**
@@ -240,6 +414,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       if (prop === REF_VALUE && REF_KEY in target) {
         return true
       }
+      // Also pretend "$ref-value" exists if "$dynamicRef" exists
+      if (prop === REF_VALUE && DYNAMIC_REF_KEY in target) {
+        return true
+      }
       return Reflect.has(target, prop)
     },
     /**
@@ -261,6 +439,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       if (REF_KEY in target && !filteredKeys.includes(REF_VALUE)) {
         filteredKeys.push(REF_VALUE)
       }
+      // Also include $ref-value if $dynamicRef exists (but $ref doesn't)
+      if (!(REF_KEY in target) && DYNAMIC_REF_KEY in target && !filteredKeys.includes(REF_VALUE)) {
+        filteredKeys.push(REF_VALUE)
+      }
       return filteredKeys
     },
 
@@ -279,12 +461,24 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       const ref = Reflect.get(target, REF_KEY)
 
-      if (prop === REF_VALUE && typeof ref === 'string') {
+      if (prop === REF_VALUE && typeof ref === 'string' && ref !== '') {
         return {
           configurable: true,
           enumerable: true,
           value: undefined,
-          writable: false,
+          writable: true,
+        }
+      }
+
+      if (prop === REF_VALUE && (typeof ref !== 'string' || ref === '')) {
+        const dynamicRef = Reflect.get(target, DYNAMIC_REF_KEY)
+        if (typeof dynamicRef === 'string') {
+          return {
+            configurable: true,
+            enumerable: true,
+            value: undefined,
+            writable: true,
+          }
         }
       }
 
@@ -294,7 +488,17 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   }
 
   const proxied = new Proxy<T>(target, handler)
-  args.proxyCache.set(target, proxied)
+  if (args.dynamicScope.length > 0) {
+    const scopeKey = args.dynamicScope.join(',')
+    let targetScopes = args.scopeCache.get(target)
+    if (!targetScopes) {
+      targetScopes = new Map()
+      args.scopeCache.set(target, targetScopes)
+    }
+    targetScopes.set(scopeKey, proxied)
+  } else {
+    args.proxyCache.set(target, proxied)
+  }
   return proxied
 }
 

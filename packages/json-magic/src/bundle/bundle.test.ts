@@ -2993,3 +2993,113 @@ describe('resolveAndCopyReferences', () => {
     })
   })
 })
+
+describe('$dynamicRef', () => {
+  it('preserves $dynamicRef and $dynamicAnchor during bundling', async () => {
+    const input = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0' },
+      paths: {},
+      components: {
+        schemas: {
+          PaginatedTemplate: {
+            type: 'object',
+            properties: {
+              items: {
+                type: 'array',
+                items: {
+                  $dynamicRef: '#itemType',
+                },
+              },
+              total: { type: 'integer' },
+            },
+            $defs: {
+              itemType: {
+                $dynamicAnchor: 'itemType',
+                not: {},
+              },
+            },
+          },
+          User: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              email: { type: 'string' },
+            },
+          },
+        },
+      },
+    }
+
+    await bundle(input, { plugins: [fetchUrls()], treeShake: false })
+
+    expect(input.components!.schemas!.PaginatedTemplate.properties.items.items.$dynamicRef).toBe('#itemType')
+    expect(input.components!.schemas!.PaginatedTemplate.$defs!.itemType.$dynamicAnchor).toBe('itemType')
+  })
+
+  it('preserves $dynamicRef when $ref is also present in the document', async () => {
+    const input = {
+      components: {
+        schemas: {
+          Template: {
+            properties: {
+              data: { $dynamicRef: '#data' },
+              ref: { $ref: '#/components/schemas/Other' },
+            },
+            $defs: {
+              data: {
+                $dynamicAnchor: 'data',
+                type: 'string',
+              },
+            },
+          },
+          Other: {
+            type: 'string',
+          },
+        },
+      },
+    }
+
+    await bundle(input, { plugins: [fetchUrls()], treeShake: false })
+
+    expect(input.components!.schemas!.Template.properties.data.$dynamicRef).toBe('#data')
+    expect(input.components!.schemas!.Template.properties.ref.$ref).toBe('#/components/schemas/Other')
+  })
+
+  it('preserves $dynamicRef in external documents', async () => {
+    const server = fastify({ logger: false })
+    const external = {
+      Template: {
+        properties: {
+          data: { $dynamicRef: '#slot' },
+        },
+        $defs: {
+          slot: {
+            $dynamicAnchor: 'slot',
+            type: 'string',
+          },
+        },
+      },
+    }
+
+    server.get('/template.json', (_, reply) => {
+      reply.send(external)
+    })
+
+    await server.listen({ port: 0 })
+    const url = `http://localhost:${(server.server.address() as AddressInfo).port}`
+
+    const input = {
+      a: {
+        $ref: `${url}/template.json#`,
+      },
+    }
+
+    await bundle(input, { plugins: [fetchUrls()], treeShake: false })
+
+    expect(input.a.$ref).toBe(`#/x-ext/${getHash(url + '/template.json')}`)
+    expect((input as any)['x-ext'][getHash(url + '/template.json')].Template.properties.data.$dynamicRef).toBe('#slot')
+
+    await server.close()
+  })
+})

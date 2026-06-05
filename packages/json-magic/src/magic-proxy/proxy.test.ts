@@ -1984,4 +1984,237 @@ describe('createMagicProxy', () => {
       expect(keys).toContain('normal_property')
     })
   })
+
+  describe('$dynamicRef', () => {
+    it('resolves $dynamicRef to the matching $dynamicAnchor', () => {
+      const input = {
+        components: {
+          schemas: {
+            Template: {
+              type: 'object',
+              properties: {
+                data: {
+                  $dynamicRef: '#itemType',
+                },
+              },
+              $defs: {
+                itemType: {
+                  $dynamicAnchor: 'itemType',
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.components.schemas.Template.properties.data['$ref-value']).toEqual({
+        $dynamicAnchor: 'itemType',
+        type: 'string',
+      })
+    })
+
+    it('includes $ref-value in keys when $dynamicRef exists', () => {
+      const input = {
+        Template: {
+          $defs: {
+            slot: {
+              $dynamicAnchor: 'slot',
+              type: 'string',
+            },
+          },
+          data: {
+            $dynamicRef: '#slot',
+          },
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect('$ref-value' in result.Template.data).toBe(true)
+      expect(Object.keys(result.Template.data)).toContain('$ref-value')
+    })
+
+    it('resolves $dynamicRef in a generic pagination pattern', () => {
+      const input = {
+        components: {
+          schemas: {
+            PaginatedTemplate: {
+              $id: 'https://example.com/schemas/PaginatedTemplate',
+              type: 'object',
+              properties: {
+                items: {
+                  type: 'array',
+                  items: {
+                    $dynamicRef: '#itemType',
+                  },
+                },
+                total: { type: 'integer' },
+              },
+              $defs: {
+                itemType: {
+                  $dynamicAnchor: 'itemType',
+                  not: {},
+                },
+              },
+            },
+            User: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer' },
+                email: { type: 'string' },
+              },
+            },
+            PaginatedUserResponse: {
+              $id: 'https://example.com/schemas/PaginatedUserResponse',
+              $ref: '#/components/schemas/PaginatedTemplate',
+              $defs: {
+                itemType: {
+                  $dynamicAnchor: 'itemType',
+                  $ref: '#/components/schemas/User',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = createMagicProxy(input) as any
+
+      // Accessing the template directly should resolve to the placeholder
+      const templateItems = result.components.schemas.PaginatedTemplate.properties.items.items
+      expect(templateItems['$ref-value']).toEqual({
+        $dynamicAnchor: 'itemType',
+        not: {},
+      })
+
+      // Accessing through PaginatedUserResponse should resolve to User anchor
+      const responseTemplate = result.components.schemas.PaginatedUserResponse['$ref-value']
+      const responseItems = responseTemplate.properties.items.items
+      const responseItemsValue = responseItems['$ref-value']
+      expect(responseItemsValue.$dynamicAnchor).toBe('itemType')
+      expect(responseItemsValue['$ref-value']).toEqual({
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          email: { type: 'string' },
+        },
+      })
+    })
+
+    it('resolves $dynamicRef differently depending on enclosing schema resource', () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: { id: { type: 'string' }, email: { type: 'string' } },
+            },
+            Group: {
+              type: 'object',
+              properties: { id: { type: 'string' }, name: { type: 'string' } },
+            },
+            PaginatedTemplate: {
+              $id: 'https://example.com/schemas/PaginatedTemplate',
+              type: 'object',
+              properties: {
+                items: {
+                  type: 'array',
+                  items: { $dynamicRef: '#itemType' },
+                },
+              },
+              $defs: {
+                itemType: { $dynamicAnchor: 'itemType', not: {} },
+              },
+            },
+            PaginatedUserResponse: {
+              $id: 'https://example.com/schemas/PaginatedUserResponse',
+              $ref: '#/components/schemas/PaginatedTemplate',
+              $defs: {
+                itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/User' },
+              },
+            },
+            PaginatedGroupResponse: {
+              $id: 'https://example.com/schemas/PaginatedGroupResponse',
+              $ref: '#/components/schemas/PaginatedTemplate',
+              $defs: {
+                itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Group' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = createMagicProxy(input) as any
+
+      // User response: $dynamicRef should resolve to User anchor
+      const userItems = result.components.schemas.PaginatedUserResponse['$ref-value'].properties.items.items
+      const userItemsValue = userItems['$ref-value']
+      expect(userItemsValue.$dynamicAnchor).toBe('itemType')
+      expect(userItemsValue['$ref-value']).toEqual({
+        type: 'object',
+        properties: { id: { type: 'string' }, email: { type: 'string' } },
+      })
+
+      // Group response: $dynamicRef should resolve to Group anchor
+      const groupItems = result.components.schemas.PaginatedGroupResponse['$ref-value'].properties.items.items
+      const groupItemsValue = groupItems['$ref-value']
+      expect(groupItemsValue.$dynamicAnchor).toBe('itemType')
+      expect(groupItemsValue['$ref-value']).toEqual({
+        type: 'object',
+        properties: { id: { type: 'string' }, name: { type: 'string' } },
+      })
+
+      // Template directly: resolves to placeholder (no inner $ref to resolve)
+      const templateItems = result.components.schemas.PaginatedTemplate.properties.items.items
+      expect(templateItems['$ref-value']).toEqual({
+        $dynamicAnchor: 'itemType',
+        not: {},
+      })
+    })
+
+    it('returns undefined for $dynamicRef with no matching $dynamicAnchor', () => {
+      const input = {
+        Template: {
+          data: {
+            $dynamicRef: '#nonExistent',
+          },
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect(result.Template.data['$ref-value']).toBeUndefined()
+    })
+
+    it('does not interfere with $ref resolution', () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+              },
+            },
+          },
+        },
+        userRef: {
+          $ref: '#/components/schemas/User',
+        },
+        dynamicRef: {
+          $dynamicRef: '#something',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.userRef['$ref-value']).toEqual({
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      })
+    })
+  })
 })

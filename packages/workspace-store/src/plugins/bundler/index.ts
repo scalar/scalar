@@ -245,7 +245,17 @@ export const normalizeRefs = (): LifecyclePlugin => {
       // If the node is a $ref and we are not on the schema object, we need to normalize the $ref
       if (typeof node['$ref'] === 'string' && !(path[0] === 'components' && path[1] === 'schemas')) {
         // Remove any other properties from the node and only keep the '$ref', 'summary', 'description' and '$status'
-        const keepProperties = new Set(['$ref', 'summary', 'description', '$status'])
+        const keepProperties = new Set([
+          '$ref',
+          'summary',
+          'description',
+          '$status',
+          '$defs',
+          '$dynamicAnchor',
+          '$dynamicRef',
+          '$id',
+          '$anchor',
+        ])
 
         Object.keys(node).forEach((key) => {
           if (!keepProperties.has(key)) {

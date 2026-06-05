@@ -1,0 +1,369 @@
+openapi: 3.1.0
+info:
+  title: DynamicRef Petstore Showcase API
+  description: >
+    A combined showcase fixture exercising all $dynamicRef patterns in a
+    realistic SDK-oriented API: generic pagination, generic response envelopes,
+    recursive category trees, nested resource graphs, non-identifier schema
+    keys, and typed request/response bodies.
+  version: 0.1.0
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: https://api.petstore.example
+security: []
+
+paths:
+  /pets:
+    get:
+      summary: List pets
+      operationId: listPets
+      tags: [Pets]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Paginated list of pets
+          content:
+            application/json:
+              schema:
+                $defs:
+                  dataType:
+                    $dynamicAnchor: dataType
+                    $ref: '#/components/schemas/PaginatedPetItems'
+                $ref: '#/components/schemas/ApiEnvelopeTemplate'
+        '400':
+          description: Bad request
+
+    post:
+      summary: Create a pet
+      operationId: createPet
+      tags: [Pets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetCreateRequest'
+      responses:
+        '201':
+          description: Created pet
+          content:
+            application/json:
+              schema:
+                $defs:
+                  dataType:
+                    $dynamicAnchor: dataType
+                    $ref: '#/components/schemas/pet'
+                $ref: '#/components/schemas/ApiEnvelopeTemplate'
+        '400':
+          description: Bad request
+
+  /pets/{petId}:
+    get:
+      summary: Get a pet by ID
+      operationId: getPet
+      tags: [Pets]
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single pet
+          content:
+            application/json:
+              schema:
+                $defs:
+                  dataType:
+                    $dynamicAnchor: dataType
+                    $ref: '#/components/schemas/pet'
+                $ref: '#/components/schemas/ApiEnvelopeTemplate'
+        '404':
+          description: Not found
+
+  /owners:
+    get:
+      summary: List owners
+      operationId: listOwners
+      tags: [Owners]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Paginated list of owners
+          content:
+            application/json:
+              schema:
+                $defs:
+                  dataType:
+                    $dynamicAnchor: dataType
+                    $ref: '#/components/schemas/PaginatedOwnerItems'
+                $ref: '#/components/schemas/ApiEnvelopeTemplate'
+        '400':
+          description: Bad request
+
+  /species/tree:
+    get:
+      summary: Get species category tree
+      operationId: getSpeciesTree
+      tags: [Species]
+      responses:
+        '200':
+          description: Localized recursive species category tree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalizedSpeciesCategory'
+        '400':
+          description: Bad request
+
+  /shelters/{shelterId}/resources:
+    get:
+      summary: Get shelter resource tree
+      operationId: getShelterResources
+      tags: [Shelters]
+      parameters:
+        - name: shelterId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Shelter resource tree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShelterResource'
+        '404':
+          description: Not found
+
+components:
+  schemas:
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          format: uri
+
+    PetFields:
+      type: object
+      required: [name, species, status]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        species:
+          type: string
+        status:
+          type: string
+          enum: [available, pending, adopted]
+        tag:
+          type: array
+          items:
+            type: string
+
+    PetCreateRequest:
+      $ref: '#/components/schemas/PetFields'
+
+    pet:
+      $id: https://example.com/schemas/pet
+      allOf:
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+              format: uuid
+        - $ref: '#/components/schemas/PetFields'
+
+    Owner:
+      type: object
+      required: [id, name, email]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+
+    ApiEnvelopeTemplate:
+      $id: https://example.com/schemas/ApiEnvelopeTemplate
+      $defs:
+        dataType:
+          $dynamicAnchor: dataType
+          not: {}
+      type: object
+      required: [data, requestId]
+      properties:
+        data:
+          $dynamicRef: '#dataType'
+        requestId:
+          type: string
+        links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+
+    PaginatedTemplate:
+      $id: https://example.com/schemas/PaginatedTemplate
+      $defs:
+        itemType:
+          $dynamicAnchor: itemType
+          not: {}
+      type: object
+      required: [items, total, page, pageSize]
+      properties:
+        items:
+          type: array
+          items:
+            $dynamicRef: '#itemType'
+        total:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+
+    PaginatedPetItems:
+      $defs:
+        itemType:
+          $dynamicAnchor: itemType
+          $ref: '#/components/schemas/pet'
+      $ref: '#/components/schemas/PaginatedTemplate'
+
+    PaginatedOwnerItems:
+      $defs:
+        itemType:
+          $dynamicAnchor: itemType
+          $ref: '#/components/schemas/Owner'
+      $ref: '#/components/schemas/PaginatedTemplate'
+
+    BaseSpeciesCategory:
+      $id: https://example.com/schemas/BaseSpeciesCategory
+      $dynamicAnchor: speciesCategory
+      type: object
+      required: [id, label, children]
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        children:
+          type: array
+          items:
+            $dynamicRef: '#speciesCategory'
+
+    LocalizedSpeciesCategory:
+      $id: https://example.com/schemas/LocalizedSpeciesCategory
+      $dynamicAnchor: speciesCategory
+      allOf:
+        - $ref: '#/components/schemas/BaseSpeciesCategory'
+        - type: object
+          required: [locale, displayName]
+          properties:
+            locale:
+              type: string
+            displayName:
+              type: string
+
+    Document:
+      type: object
+      required: [kind, id, title]
+      properties:
+        kind:
+          const: document
+        id:
+          type: string
+        title:
+          type: string
+
+    ShelterFolderTemplate:
+      $id: https://example.com/schemas/ShelterFolderTemplate
+      $defs:
+        folderType:
+          $dynamicAnchor: folderType
+          not: {}
+        resourceType:
+          $dynamicAnchor: resourceType
+          not: {}
+      type: object
+      required: [kind, id, name, children]
+      properties:
+        kind:
+          const: folder
+        id:
+          type: string
+        name:
+          type: string
+        children:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/Document'
+              - $dynamicRef: '#folderType'
+        shortcuts:
+          type: array
+          items:
+            $dynamicRef: '#resourceType'
+
+    shelter-folder:
+      $id: https://example.com/schemas/shelter-folder
+      allOf:
+        - $defs:
+            folderType:
+              $dynamicAnchor: folderType
+              $ref: '#/components/schemas/shelter-folder'
+            resourceType:
+              $dynamicAnchor: resourceType
+              $ref: '#/components/schemas/ShelterResource'
+          $ref: '#/components/schemas/ShelterFolderTemplate'
+        - type: object
+          required: [accessLevel]
+          properties:
+            accessLevel:
+              type: string
+              enum: [public, staff, admin]
+
+    ShelterResource:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/Document'
+        - $ref: '#/components/schemas/shelter-folder'

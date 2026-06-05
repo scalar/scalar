@@ -88,6 +88,14 @@ type Extensions = XScalarIgnore &
 
 const CorePropertiesWithSchema = Type.Object({
   name: Type.Optional(Type.String()),
+  /** The schema identifier, used as a base URI for relative references within the schema. */
+  '$id': Type.Optional(Type.String()),
+  /** A plain name fragment for the schema, addressable as a JSON Pointer. */
+  '$anchor': Type.Optional(Type.String()),
+  /** A dynamic reference that is resolved against the dynamic scope at the point of use. */
+  '$dynamicRef': Type.Optional(Type.String()),
+  /** A dynamic anchor that can be targeted by $dynamicRef in subschemas. */
+  '$dynamicAnchor': Type.Optional(Type.String()),
   /** A title for the schema. */
   title: Type.Optional(Type.String()),
   /** A description of the schema. */
@@ -135,10 +143,20 @@ const CorePropertiesWithSchema = Type.Object({
   anyOf: Type.Optional(Type.Array(schemaOrReference)),
   /** Schema must not be valid. */
   not: Type.Optional(schemaOrReference),
+  /** Reusable sub-schema definitions within this schema. */
+  $defs: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
 })
 
 type CoreProperties = {
   name?: string
+  /** The schema identifier, used as a base URI for relative references within the schema. */
+  '$id'?: string
+  /** A plain name fragment for the schema, addressable as a JSON Pointer. */
+  '$anchor'?: string
+  /** A dynamic reference that is resolved against the dynamic scope at the point of use. */
+  '$dynamicRef'?: string
+  /** A dynamic anchor that can be targeted by $dynamicRef in subschemas. */
+  '$dynamicAnchor'?: string
   /** A title for the schema. */
   title?: string
   /** A description of the schema. */
@@ -186,6 +204,8 @@ type CoreProperties = {
   anyOf?: SchemaReferenceType<SchemaObject>[]
   /** Schema must not be valid. */
   not?: SchemaReferenceType<SchemaObject>
+  /** Reusable sub-schema definitions within this schema. */
+  $defs?: Record<string, SchemaReferenceType<SchemaObject>>
 }
 
 /**
