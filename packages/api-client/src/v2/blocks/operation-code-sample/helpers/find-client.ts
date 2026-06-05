@@ -31,10 +31,13 @@ export const isSelectedClient = (id: any): id is SelectedClientId =>
  * 1. A custom sample is selected (`custom/<lang>`): show the matching sample on
  *    this operation. If this operation has no sample for that exact language, we
  *    keep showing a custom sample (its first one) so the selection stays "global".
- * 2. An explicit, non-default built-in client is selected: it wins, even when the
- *    operation also has custom samples.
- * 3. Otherwise (nothing selected yet, or the default client): prefer a custom
- *    sample when the operation has one, so custom examples are the default.
+ * 2. An explicit built-in client is selected: it wins, even when the operation
+ *    also has custom samples. This includes the default client (`shell/curl`):
+ *    a built-in id only reaches us through a real selection (config, persistence,
+ *    or the picker), never as an implicit default, so a deliberate cURL pick must
+ *    stick instead of snapping back to an SDK example.
+ * 3. Otherwise (nothing selected yet): prefer a custom sample when the operation
+ *    has one, so custom examples are the default.
  * 4. Fall back to the default built-in client, then the first option.
  *
  * @param clientGroups - Array of client option groups, each containing a label and array of client options
@@ -62,15 +65,17 @@ export const findClient = (
     return findById(clientId) ?? firstCustom ?? findById(DEFAULT_CLIENT) ?? clientGroups[0]?.options[0]
   }
 
-  // 2. An explicit, non-default built-in client wins, even when custom samples exist
-  if (clientId && clientId !== DEFAULT_CLIENT) {
+  // 2. An explicit built-in client wins, even when custom samples exist. A built-in
+  //    id (including the default `shell/curl`) only reaches us through a real
+  //    selection, so it must stick rather than snap back to a custom sample.
+  if (clientId) {
     const option = findById(clientId)
     if (option) {
       return option
     }
   }
 
-  // 3. Default: prefer a custom sample when the operation has one
+  // 3. Nothing selected yet: prefer a custom sample when the operation has one
   if (firstCustom) {
     return firstCustom
   }

@@ -385,14 +385,24 @@ describe('findClient', () => {
       expect(result?.id).toBe('custom/python')
     })
 
-    it('treats the default client as no explicit selection so custom still wins', () => {
+    it('lets a deliberate cURL selection win over custom samples', () => {
+      // shell/curl is the default client, but it only reaches findClient through a
+      // real selection, so picking it must stick instead of snapping back to custom
       const result = findClient(groupsWithCustom, 'shell/curl')
-      expect(result?.id).toBe('custom/python')
+      expect(result?.id).toBe('shell/curl')
     })
 
     it('lets an explicit, non-default built-in client win over custom samples', () => {
       const result = findClient(groupsWithCustom, 'js/fetch')
       expect(result?.id).toBe('js/fetch')
+    })
+
+    it('falls back to the first custom sample for a legacy index-based custom id', () => {
+      // Ids used to be index-based (custom/0, custom/1) before switching to the
+      // language-keyed form. A stale stored id no longer matches any option, so we
+      // keep showing a custom sample instead of erroring out.
+      const result = findClient(groupsWithCustom, 'custom/1')
+      expect(result?.id).toBe('custom/python')
     })
   })
 })
