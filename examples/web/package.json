@@ -31,17 +31,11 @@
     "@scalar/schemas": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
-    "@scalar/use-hooks": "workspace:*",
-    "@scalar/workspace-store": "workspace:*",
-    "@vueuse/core": "catalog:*",
-    "monaco-editor": "catalog:*",
     "vue": "catalog:*",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
-    "autoprefixer": "^10.4.19",
-    "eslint-plugin-vue": "^9.31.0",
     "postcss": "catalog:*",
     "postcss-nested": "^6.0.1",
     "vite": "catalog:*"
