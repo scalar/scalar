@@ -119,4 +119,39 @@ describe('Channel', () => {
     expect(wrapper.text()).toContain('user/signedup')
     expect(wrapper.text()).toContain('Classic layout description.')
   })
+
+  it('renders channel address parameters', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel({ channelAddress: 'user/{userId}/signedup' }),
+        document: createDocumentWithChannel({
+          address: 'user/{userId}/signedup',
+          parameters: {
+            userId: { description: 'The unique user identifier' },
+          },
+        }),
+        layout: 'modern',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain('Parameters')
+    expect(wrapper.text()).toContain('userId')
+    expect(wrapper.text()).toContain('The unique user identifier')
+  })
+
+  it('does not render a parameters section when the channel has none', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        document: createDocument(),
+        layout: 'modern',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).not.toContain('Parameters')
+  })
 })

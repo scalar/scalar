@@ -98,7 +98,8 @@ const getModelSchema = (name: string) => getAsyncApiModelSchema(document, name)
       :document="document"
       :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
-      :layout="options.layout" />
+      :layout="options.layout"
+      :options="options" />
 
     <Tag
       v-else-if="
