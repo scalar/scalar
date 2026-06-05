@@ -4,6 +4,7 @@ import type { AvailableClients } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { createApp, h, reactive } from 'vue'
@@ -57,6 +58,17 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
   const eventBus = createWorkspaceEventBus()
   const clientOptions = generateClientOptions()
 
+  // Persist client changes back to the store. The block emits
+  // `workspace:update:selected-client` on its private bus when the user picks a
+  // client; without this subscription the choice would never reach the store
+  // and `x-scalar-default-client` (the source of truth read below) would stay
+  // stale, so the selection would not survive a re-render or be shared with
+  // other blocks reading from the same store.
+  const mutators = generateClientMutators(options.store)
+  const unsubscribe = eventBus.on('workspace:update:selected-client', (payload) =>
+    mutators.workspace().workspace.updateSelectedClient(payload),
+  )
+
   /** Resolve the operation from the active document for the configured path and method. */
   const resolveOperation = (): OperationObject | undefined => {
     // The active document may be an AsyncAPI document, which has no `paths`.
@@ -90,7 +102,10 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
       return options.securitySchemes ?? []
     },
     get selectedClient() {
-      return options.selectedClient
+      // The store is the source of truth once the user picks a client, so it
+      // wins over the initial `options.selectedClient` seed and the selection
+      // round-trips through the subscription above.
+      return options.store.workspace['x-scalar-default-client'] ?? options.selectedClient
     },
     get selectedServer() {
       return options.selectedServer ?? null
@@ -114,6 +129,9 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
 
   return {
     app,
-    destroy: () => app.unmount(),
+    destroy: () => {
+      unsubscribe()
+      app.unmount()
+    },
   }
 }
