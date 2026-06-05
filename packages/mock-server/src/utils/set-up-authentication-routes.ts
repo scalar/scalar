@@ -45,6 +45,11 @@ export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) 
   Object.entries(securitySchemes).forEach(([_, rawScheme]) => {
     const scheme = getResolvedRef(rawScheme)
 
+    // Skip schemes that could not be resolved (e.g. a `$ref` to a missing component)
+    if (!scheme) {
+      return
+    }
+
     if (scheme.type === 'oauth2') {
       if (scheme.flows?.authorizationCode) {
         const authorizeRoute = scheme.flows.authorizationCode.authorizationUrl ?? '/oauth/authorize'

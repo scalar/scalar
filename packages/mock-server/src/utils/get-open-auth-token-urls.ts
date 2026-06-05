@@ -48,7 +48,8 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
   for (const rawScheme of Object.values(securitySchemes)) {
     const scheme = getResolvedRef(rawScheme)
 
-    if (!isOAuth2Scheme(scheme)) {
+    // Skip schemes that could not be resolved (e.g. a `$ref` to a missing component)
+    if (!scheme || !isOAuth2Scheme(scheme)) {
       continue
     }
 

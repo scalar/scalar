@@ -17,6 +17,11 @@ export function logAuthenticationInstructions(securitySchemes: Record<string, Op
   Object.entries(securitySchemes).forEach(([_, rawScheme]) => {
     const scheme = getResolvedRef(rawScheme)
 
+    // Skip schemes that could not be resolved (e.g. a `$ref` to a missing component)
+    if (!scheme) {
+      return
+    }
+
     switch (scheme.type) {
       case 'apiKey':
         if (scheme.in === 'header') {

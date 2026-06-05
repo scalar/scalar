@@ -43,7 +43,9 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   const headers = preferredResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
     const headerObject = getResolvedRef(headers[header])
-    const value = headerObject.schema ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema)) as string) : null
+    const value = headerObject?.schema
+      ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema)) as string)
+      : null
     if (value !== null) {
       c.header(header, value)
     }

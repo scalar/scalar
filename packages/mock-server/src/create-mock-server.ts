@@ -1,5 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
@@ -33,7 +33,8 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   const schemas = schema?.components?.schemas
   if (schemas) {
     for (const [schemaName, schemaObject] of Object.entries(schemas)) {
-      const seedCode = (getResolvedRef(schemaObject) as any)?.['x-seed']
+      // Merge `$ref` siblings so an `x-seed` placed next to a `$ref` is preserved (OpenAPI 3.1 semantics)
+      const seedCode = (getResolvedRef(schemaObject, mergeSiblingReferences) as any)?.['x-seed']
 
       if (seedCode && typeof seedCode === 'string') {
         try {
