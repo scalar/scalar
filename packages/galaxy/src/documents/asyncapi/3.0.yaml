@@ -63,9 +63,26 @@ servers:
       - name: production
         description: Production environment
   development:
-    host: localhost:8080
+    host: '{host}:{port}'
+    pathname: '/ws/{version}'
     protocol: ws
     description: Local development server
+    variables:
+      host:
+        default: localhost
+        description: Hostname of the local development server
+      port:
+        enum:
+          - '8080'
+          - '9000'
+        default: '8080'
+        description: Port the local development server listens on
+      version:
+        enum:
+          - v1
+          - v2
+        default: v1
+        description: The API version to connect to
     security: []
     tags:
       - name: development
