@@ -69,6 +69,48 @@ describe('SdkInstallationInstructions', () => {
     expect(panel.html()).toContain('Install for TypeScript')
   })
 
+  it('associates each tab with the panel and labels the panel by the active tab', () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', description: 'Install for TypeScript' },
+          { lang: 'Python', description: 'Install for Python' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    const firstTab = wrapper.findAll('[role="tab"]')[0]
+    const panel = wrapper.get('[role="tabpanel"]')
+
+    expect(firstTab?.attributes('aria-controls')).toBe(panel.attributes('id'))
+    expect(panel.attributes('aria-labelledby')).toBe(firstTab?.attributes('id'))
+  })
+
+  it('keeps a single roving tab stop on the selected tab', async () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', description: 'Install for TypeScript' },
+          { lang: 'Python', description: 'Install for Python' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    const tabs = () => wrapper.findAll('[role="tab"]')
+    expect(tabs().map((tab) => tab.attributes('tabindex'))).toEqual(['0', '-1'])
+
+    // ArrowRight moves the selection (and the tab stop) to the next tab
+    await tabs()[0]?.trigger('keydown', { key: 'ArrowRight' })
+    expect(tabs().map((tab) => tab.attributes('tabindex'))).toEqual(['-1', '0'])
+    expect(tabs()[1]?.attributes('aria-selected')).toBe('true')
+
+    // ArrowRight wraps back around to the first tab
+    await tabs()[1]?.trigger('keydown', { key: 'ArrowRight' })
+    expect(tabs()[0]?.attributes('aria-selected')).toBe('true')
+  })
+
   it('clamps the selection when the SDK set changes out from under it', async () => {
     const wrapper = mount(SdkInstallationInstructions, {
       props: {

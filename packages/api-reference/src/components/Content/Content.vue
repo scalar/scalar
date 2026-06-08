@@ -32,7 +32,10 @@ import { AsyncApiServerSelector } from '@/blocks/scalar-asyncapi-server-selector
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
-import { SdkInstallationInstructions } from '@/blocks/scalar-sdk-installation-instructions'
+import {
+  getRenderableSdks,
+  SdkInstallationInstructions,
+} from '@/blocks/scalar-sdk-installation-instructions'
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import { AsyncApiTraversedEntry } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
@@ -99,9 +102,7 @@ const clientOptions = computed(() =>
  * selector instead of showing an empty card.
  */
 const sdkInstallation = computed(() =>
-  (openApiDocument.value?.info?.['x-scalar-sdk-installation'] ?? []).filter(
-    (sdk) => sdk.description,
-  ),
+  getRenderableSdks(openApiDocument.value?.info?.['x-scalar-sdk-installation']),
 )
 
 /**

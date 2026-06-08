@@ -17,6 +17,7 @@ import {
 } from 'vue'
 
 import { getLanguageIcon } from '../helpers/language-icon'
+import { getRenderableSdks } from '../helpers/renderable-sdks'
 import { getVisibleTabCount } from '../helpers/visible-tab-count'
 
 const { xScalarSdkInstallation } = defineProps<{
@@ -25,12 +26,16 @@ const { xScalarSdkInstallation } = defineProps<{
 }>()
 
 const headingId = useId()
+/** Base id used to associate each tab with the shared panel for assistive tech */
+const baseId = useId()
+const panelId = `${baseId}-panel`
 
 /** Only the SDKs that actually have something to show, with their resolved icon */
 const sdks = computed(() =>
-  (xScalarSdkInstallation ?? [])
-    .filter((sdk) => sdk.description)
-    .map((sdk) => ({ ...sdk, icon: getLanguageIcon(sdk.lang) })),
+  getRenderableSdks(xScalarSdkInstallation).map((sdk) => ({
+    ...sdk,
+    icon: getLanguageIcon(sdk.lang),
+  })),
 )
 
 /** Index of the currently selected SDK */
@@ -121,6 +126,58 @@ const selectMore = (option: ScalarComboboxOption | undefined) => {
   }
 }
 
+/** The id of the tab that labels the panel (falls back to the heading when the selection lives in "More") */
+const activeTabId = computed(() =>
+  isMoreActive.value ? headingId : `${baseId}-tab-${selectedIndex.value}`,
+)
+
+/**
+ * The visible tab that holds the roving tabindex. When the selection lives in
+ * the "More" dropdown, that trigger is the tab stop instead, so no inline tab
+ * should be focusable.
+ */
+const tabStopIndex = computed(() =>
+  isMoreActive.value ? -1 : selectedIndex.value,
+)
+
+/** Focus a visible tab by index after the DOM has settled */
+const focusTab = (index: number) => {
+  void nextTick(() => {
+    tabsRef.value
+      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+      [index]?.focus()
+  })
+}
+
+/** Arrow / Home / End keyboard navigation across the visible tabs (WAI-ARIA tabs pattern) */
+const onTabKeydown = (event: KeyboardEvent, index: number) => {
+  const lastVisible = visibleCount.value - 1
+
+  let next = index
+  switch (event.key) {
+    case 'ArrowRight':
+    case 'ArrowDown':
+      next = index >= lastVisible ? 0 : index + 1
+      break
+    case 'ArrowLeft':
+    case 'ArrowUp':
+      next = index <= 0 ? lastVisible : index - 1
+      break
+    case 'Home':
+      next = 0
+      break
+    case 'End':
+      next = lastVisible
+      break
+    default:
+      return
+  }
+
+  event.preventDefault()
+  selectedIndex.value = next
+  focusTab(next)
+}
+
 let observer: ResizeObserver | undefined
 
 onMounted(() => {
@@ -152,13 +209,17 @@ onBeforeUnmount(() => observer?.disconnect())
         role="tablist">
         <button
           v-for="(sdk, index) in visibleSdks"
+          :id="`${baseId}-tab-${index}`"
           :key="index"
+          :aria-controls="panelId"
           :aria-selected="index === selectedIndex"
           class="client-libraries"
           :class="{ 'client-libraries__active': index === selectedIndex }"
           role="tab"
+          :tabindex="index === tabStopIndex ? 0 : -1"
           type="button"
-          @click="selectedIndex = index">
+          @click="selectedIndex = index"
+          @keydown="onTabKeydown($event, index)">
           <ScalarIcon
             v-if="sdk.icon"
             class="client-libraries-icon"
@@ -215,8 +276,11 @@ onBeforeUnmount(() => observer?.disconnect())
     <!-- Content: Markdown installation instructions (supports code blocks) -->
     <div
       v-if="selected?.description"
+      :id="panelId"
+      :aria-labelledby="activeTabId"
       class="selected-client"
-      role="tabpanel">
+      role="tabpanel"
+      tabindex="0">
       <ScalarMarkdown :value="selected.description" />
     </div>
   </div>
