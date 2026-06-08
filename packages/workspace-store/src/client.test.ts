@@ -435,6 +435,56 @@ describe('create-workspace-store', () => {
     })
   })
 
+  it('resolves operations when a path item is a $ref to components.pathItems', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.1',
+        info: { title: 'My API' },
+        components: {
+          pathItems: {
+            UsersPath: {
+              get: {
+                summary: 'Get all users',
+                responses: {
+                  '200': {
+                    description: 'Successful response',
+                  },
+                },
+              },
+            },
+          },
+        },
+        paths: {
+          '/users': {
+            $ref: '#/components/pathItems/UsersPath',
+          },
+        },
+      },
+    })
+
+    const document = getActiveOpenApiDocument(store)
+    const pathItem = document?.paths?.['/users']
+
+    // typebox coerces the bare $ref into a wrapper that keeps the resolved value alongside the $ref
+    expect(pathItem).toHaveProperty('$ref', '#/components/pathItems/UsersPath')
+
+    // The referenced operation resolves through the path-item $ref
+    expect(getPathItemOperation(pathItem, 'get')?.summary).toBe('Get all users')
+
+    // And it surfaces in the generated navigation
+    const operationEntry = document?.['x-scalar-navigation']?.children?.find(
+      (child) => 'path' in child && child.path === '/users',
+    )
+    expect(operationEntry).toMatchObject({
+      type: 'operation',
+      method: 'get',
+      path: '/users',
+    })
+  })
+
   // TODO: See (1*) note
   it.skip('correctly resolve chunks from the remote server', async () => {
     server.get('/*', (req, res) => {

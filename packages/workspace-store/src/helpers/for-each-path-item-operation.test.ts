@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
+import { forEachPathItemOperation, getResolvedPathItem, pathItemIsEmpty } from '@/helpers/for-each-path-item-operation'
 
 describe('getResolvedPathItem', () => {
   it('includes parameters declared alongside a path $ref on the paths map', () => {
@@ -73,5 +73,30 @@ describe('forEachPathItemOperation', () => {
     forEachPathItemOperation(undefined, callback)
 
     expect(callback).not.toHaveBeenCalled()
+  })
+})
+
+describe('pathItemIsEmpty', () => {
+  it('returns true for an undefined or empty path item', () => {
+    expect(pathItemIsEmpty(undefined)).toBe(true)
+    expect(pathItemIsEmpty({})).toBe(true)
+  })
+
+  it('returns false when only path-level metadata remains', () => {
+    expect(pathItemIsEmpty({ parameters: [{ name: 'id', in: 'path' }] })).toBe(false)
+    expect(pathItemIsEmpty({ summary: 'User path' })).toBe(false)
+  })
+
+  it('returns false when an HTTP method remains', () => {
+    expect(pathItemIsEmpty({ get: { summary: 'Get users' } })).toBe(false)
+  })
+
+  it('treats a $ref wrapper as non-empty', () => {
+    expect(
+      pathItemIsEmpty({
+        $ref: '#/components/pathItems/UsersPath',
+        '$ref-value': {},
+      }),
+    ).toBe(false)
   })
 })

@@ -2,7 +2,7 @@ import { getOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
-import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { getPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
@@ -940,6 +940,32 @@ describe('deleteOperation', () => {
 
     const document = getOpenApiDocument(store, 'test-doc')
     expect(document?.paths?.['/users']).toBeUndefined()
+  })
+
+  it('keeps the path entry when path-level metadata remains after the last operation is deleted', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            parameters: [{ name: 'tenant', in: 'header' }],
+            get: {
+              summary: 'Get users',
+            },
+          },
+        },
+      }),
+    })
+
+    deleteOperation(store, {
+      documentName: 'test-doc',
+      meta: { method: 'get', path: '/users' },
+    })
+
+    const document = getOpenApiDocument(store, 'test-doc')
+    expect(getPathItemOperation(document?.paths?.['/users'], 'get')).toBeUndefined()
+    expect(getResolvedPathItem(document?.paths?.['/users'])?.parameters).toEqual([{ name: 'tenant', in: 'header' }])
   })
 
   it('no-ops when store is null', () => {

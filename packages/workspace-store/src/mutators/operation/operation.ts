@@ -8,7 +8,7 @@ import type { OperationEvents } from '@/events/definitions/operation'
 import {
   deletePathItemOperation,
   getPathItemOperation,
-  pathItemHasOperations,
+  pathItemIsEmpty,
   setPathItemOperation,
 } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
@@ -251,8 +251,8 @@ export const updateOperationPathMethod = (
   if (isHttpMethod(meta.method)) {
     deletePathItemOperation(document.paths[meta.path], meta.method)
 
-    // If the old path has no more operations, remove the path entry
-    if (!pathItemHasOperations(document.paths[meta.path])) {
+    // If the old path is now empty, remove the path entry (path-level metadata is kept otherwise)
+    if (pathItemIsEmpty(document.paths[meta.path])) {
       delete document.paths[meta.path]
     }
   }
@@ -288,8 +288,8 @@ export const deleteOperation = (
 
   deletePathItemOperation(document.paths?.[meta.path], meta.method)
 
-  // If the path has no more operations, remove the path entry
-  if (!pathItemHasOperations(document.paths?.[meta.path])) {
+  // If the path is now empty, remove the path entry (path-level metadata is kept otherwise)
+  if (pathItemIsEmpty(document.paths?.[meta.path])) {
     delete document.paths?.[meta.path]
   }
 }

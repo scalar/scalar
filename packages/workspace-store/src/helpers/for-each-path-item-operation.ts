@@ -8,9 +8,7 @@ import type { PathItemObject } from '@/schemas/v3.1/strict/path-item'
 /**
  * Resolves a path item (or webhook path item), merging sibling properties alongside `$ref`.
  */
-export const getResolvedPathItem = (
-  pathItem: NodeInput<PathItemObject> | undefined,
-): PathItemObject | undefined => {
+export const getResolvedPathItem = (pathItem: NodeInput<PathItemObject> | undefined): PathItemObject | undefined => {
   if (!pathItem || typeof pathItem !== 'object') {
     return undefined
   }
@@ -91,14 +89,14 @@ export const forEachPathItemOperation = (
 }
 
 /**
- * Returns whether a path item has any HTTP method operations after resolving $ref wrappers.
+ * Returns whether a path item has no remaining keys after resolving $ref wrappers.
+ *
+ * Used when cleaning up after deleting an operation: a path entry is only removed once nothing is
+ * left, so path-level metadata (`parameters`, `summary`, `servers`) and $ref wrappers are preserved
+ * even when every HTTP method has been removed.
  */
-export const pathItemHasOperations = (pathItem: NodeInput<PathItemObject> | undefined): boolean => {
-  let hasOperation = false
+export const pathItemIsEmpty = (pathItem: NodeInput<PathItemObject> | undefined): boolean => {
+  const resolvedPathItem = getResolvedPathItem(pathItem)
 
-  forEachPathItemOperation(pathItem, () => {
-    hasOperation = true
-  })
-
-  return hasOperation
+  return !resolvedPathItem || Object.keys(resolvedPathItem).length === 0
 }
