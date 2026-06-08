@@ -39,11 +39,14 @@ const selectedIndex = ref(0)
 /** The currently selected SDK */
 const selected = computed(() => sdks.value[selectedIndex.value])
 
-// Keep the selection in range when the list of SDKs changes
+// Keep the selection in range and re-measure whenever the set of SDKs changes.
+// Keying on the languages (not just the count) also catches documents that swap
+// in a different set of the same size, which would otherwise leave the cached
+// tab widths — and the "More" overflow logic — stale.
 watch(
-  () => sdks.value.length,
-  (length) => {
-    if (selectedIndex.value > length - 1) {
+  () => sdks.value.map((sdk) => sdk.lang).join('\n'),
+  () => {
+    if (selectedIndex.value > sdks.value.length - 1) {
       selectedIndex.value = 0
     }
     void nextTick(measure)

@@ -68,4 +68,27 @@ describe('SdkInstallationInstructions', () => {
     const panel = wrapper.get('[role="tabpanel"]')
     expect(panel.html()).toContain('Install for TypeScript')
   })
+
+  it('clamps the selection when the SDK set changes out from under it', async () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', description: 'Install for TypeScript' },
+          { lang: 'Python', description: 'Install for Python' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    // Select the second tab, then swap in a smaller set where it no longer exists
+    await wrapper.findAll('[role="tab"]')[1]?.trigger('click')
+    await wrapper.setProps({
+      xScalarSdkInstallation: [{ lang: 'Go', description: 'Install for Go' }],
+    })
+
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs).toHaveLength(1)
+    expect(tabs[0]?.text()).toBe('Go')
+    expect(wrapper.get('[role="tabpanel"]').html()).toContain('Install for Go')
+  })
 })
