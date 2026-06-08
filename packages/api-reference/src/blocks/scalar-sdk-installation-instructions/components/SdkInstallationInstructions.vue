@@ -179,10 +179,21 @@ const onTabKeydown = (event: KeyboardEvent, index: number) => {
 }
 
 let observer: ResizeObserver | undefined
+let frame = 0
+
+/** Coalesce resize bursts into a single measure before the next paint */
+const scheduleMeasure = () => {
+  if (typeof requestAnimationFrame === 'undefined') {
+    measure()
+    return
+  }
+  cancelAnimationFrame(frame)
+  frame = requestAnimationFrame(measure)
+}
 
 onMounted(() => {
   if (typeof ResizeObserver !== 'undefined') {
-    observer = new ResizeObserver(() => measure())
+    observer = new ResizeObserver(scheduleMeasure)
     // Observe the visible row for the available width, and the hidden measure
     // row for the natural tab widths. The latter catches changes the container
     // never sees — web fonts loading, or labels changing without the count
@@ -197,7 +208,12 @@ onMounted(() => {
   measure()
 })
 
-onBeforeUnmount(() => observer?.disconnect())
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  if (typeof cancelAnimationFrame !== 'undefined') {
+    cancelAnimationFrame(frame)
+  }
+})
 </script>
 <template>
   <div v-if="sdks.length">
@@ -256,27 +272,32 @@ onBeforeUnmount(() => observer?.disconnect())
         </ScalarCombobox>
       </div>
 
-      <!-- Hidden row used to measure the natural width of every tab -->
+      <!-- Hidden row used to measure the natural width of every tab. It is
+           clipped to a zero-size box so it never contributes to the scrollable
+           width of the (horizontally scrollable) row above. -->
       <div
-        ref="measureRef"
         aria-hidden="true"
-        class="client-libraries-row client-libraries-row--measure">
-        <span
-          v-for="(sdk, index) in sdks"
-          :key="index"
-          class="client-libraries">
-          <ScalarIcon
-            v-if="sdk.icon"
-            class="client-libraries-icon"
-            :icon="sdk.icon" />
-          <span class="client-libraries-text">{{ sdk.lang }}</span>
-        </span>
-        <span class="client-libraries">
-          <ScalarIcon
-            class="client-libraries-icon"
-            icon="Ellipses" />
-          <span class="client-libraries-text">More</span>
-        </span>
+        class="client-libraries-measure-clip">
+        <div
+          ref="measureRef"
+          class="client-libraries-row client-libraries-row--measure">
+          <span
+            v-for="(sdk, index) in sdks"
+            :key="index"
+            class="client-libraries">
+            <ScalarIcon
+              v-if="sdk.icon"
+              class="client-libraries-icon"
+              :icon="sdk.icon" />
+            <span class="client-libraries-text">{{ sdk.lang }}</span>
+          </span>
+          <span class="client-libraries">
+            <ScalarIcon
+              class="client-libraries-icon"
+              icon="Ellipses" />
+            <span class="client-libraries-text">More</span>
+          </span>
+        </div>
       </div>
     </div>
 
@@ -322,22 +343,40 @@ onBeforeUnmount(() => observer?.disconnect())
 }
 .client-libraries-content {
   position: relative;
-  overflow: hidden;
+  /*
+   * Scroll horizontally rather than clip: before JS measures the tab widths
+   * (and without JS at all) every tab is rendered, so overflowing tabs must
+   * stay reachable. Once measured, the "More" dropdown absorbs the overflow and
+   * no scrollbar is shown. The bar itself is hidden — keyboard focus and touch
+   * still scroll clipped tabs into view.
+   */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
   padding: 0 12px;
   background-color: var(--scalar-background-1);
   border-left: var(--scalar-border-width) solid var(--scalar-border-color);
   border-right: var(--scalar-border-width) solid var(--scalar-border-color);
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
+.client-libraries-content::-webkit-scrollbar {
+  display: none;
+}
 .client-libraries-row {
   display: flex;
   justify-content: flex-start;
 }
-/* Off-screen row used only to measure natural tab widths */
-.client-libraries-row--measure {
+/* Zero-size clip so the measure row never adds to the scrollable width */
+.client-libraries-measure-clip {
   position: absolute;
   top: 0;
   left: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+/* Off-screen row used only to measure natural tab widths */
+.client-libraries-row--measure {
   width: max-content;
   visibility: hidden;
   pointer-events: none;
@@ -349,6 +388,8 @@ onBeforeUnmount(() => observer?.disconnect())
   position: relative;
   cursor: pointer;
   white-space: nowrap;
+  /* Keep tabs at their natural (measured) width so they scroll rather than squish */
+  flex-shrink: 0;
   padding: 8px 12px;
   gap: 6px;
   color: var(--scalar-color-3);
