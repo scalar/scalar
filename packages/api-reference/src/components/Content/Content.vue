@@ -32,6 +32,10 @@ import { AsyncApiServerSelector } from '@/blocks/scalar-asyncapi-server-selector
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
+import {
+  getRenderableSdks,
+  SdkInstallationInstructions,
+} from '@/blocks/scalar-sdk-installation-instructions'
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import { AsyncApiTraversedEntry } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
@@ -90,6 +94,15 @@ const {
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
   generateClientOptions(mapHiddenClientsConfig(options.hiddenClients)),
+)
+
+/**
+ * Custom SDK installation instructions that actually have something to render.
+ * Entries with only a `lang` are ignored so we can fall back to the client
+ * selector instead of showing an empty card.
+ */
+const sdkInstallation = computed(() =>
+  getRenderableSdks(openApiDocument.value?.info?.['x-scalar-sdk-installation']),
 )
 
 /**
@@ -242,19 +255,23 @@ onMounted(() => {
           </IntroductionCardItem>
         </ScalarErrorBoundary>
 
-        <!-- Client selector -->
+        <!-- Custom SDK installation instructions, or the generic client selector -->
         <ScalarErrorBoundary>
           <IntroductionCardItem
-            v-if="clientOptions.length && !asyncApiDocument"
+            v-if="sdkInstallation.length"
+            class="introduction-card-item scalar-reference-intro-clients">
+            <SdkInstallationInstructions
+              class="introduction-card-item scalar-reference-intro-clients"
+              :xScalarSdkInstallation="sdkInstallation" />
+          </IntroductionCardItem>
+          <IntroductionCardItem
+            v-else-if="clientOptions.length && !asyncApiDocument"
             class="introduction-card-item scalar-reference-intro-clients">
             <ClientSelector
               class="introduction-card-item scalar-reference-intro-clients"
               :clientOptions
               :eventBus
-              :selectedClient="xScalarDefaultClient"
-              :xScalarSdkInstallation="
-                openApiDocument?.info?.['x-scalar-sdk-installation']
-              " />
+              :selectedClient="xScalarDefaultClient" />
           </IntroductionCardItem>
         </ScalarErrorBoundary>
       </template>

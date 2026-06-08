@@ -3,7 +3,6 @@ import { array, object, optional, string } from '@scalar/validation'
 
 const XScalarSdkInstallationItemSchema = Type.Object({
   lang: Type.String(),
-  source: Type.Optional(Type.String()),
   description: Type.Optional(Type.String()),
 })
 
@@ -14,7 +13,6 @@ export const XScalarSdkInstallationSchema = Type.Object({
 const XScalarSdkInstallationItem = object(
   {
     lang: string(),
-    source: optional(string()),
     description: optional(string()),
   },
   {
@@ -27,7 +25,7 @@ export type XScalarSdkInstallation = {
   /** Scalar SDK installation information. */
   'x-scalar-sdk-installation'?: {
     lang: string
-    source?: string
+    /** Installation instructions in Markdown (supports fenced code blocks). */
     description?: string
   }[]
 }

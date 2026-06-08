@@ -8,9 +8,8 @@ describe('XScalarSdkInstallationSchema', () => {
     const result = Value.Parse(XScalarSdkInstallationSchema, {
       'x-scalar-sdk-installation': [
         {
-          lang: 'Node',
-          description: 'Install our custom SDK for Node.js from npm',
-          source: 'npm install @your-awesome-company/sdk',
+          lang: 'TypeScript',
+          description: 'Install our custom SDK for TypeScript from npm',
         },
       ],
     })
@@ -18,9 +17,30 @@ describe('XScalarSdkInstallationSchema', () => {
     expect(result).toEqual({
       'x-scalar-sdk-installation': [
         {
-          lang: 'Node',
-          description: 'Install our custom SDK for Node.js from npm',
-          source: 'npm install @your-awesome-company/sdk',
+          lang: 'TypeScript',
+          description: 'Install our custom SDK for TypeScript from npm',
+        },
+      ],
+    })
+  })
+
+  it('supports a Markdown description with fenced code blocks', () => {
+    const description = ['Install our SDK with Maven:', '```xml', '<dependency />', '```'].join('\n')
+
+    const result = Value.Parse(XScalarSdkInstallationSchema, {
+      'x-scalar-sdk-installation': [
+        {
+          lang: 'Java',
+          description,
+        },
+      ],
+    })
+
+    expect(result).toEqual({
+      'x-scalar-sdk-installation': [
+        {
+          lang: 'Java',
+          description,
         },
       ],
     })

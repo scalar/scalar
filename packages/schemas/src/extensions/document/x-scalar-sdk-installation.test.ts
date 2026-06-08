@@ -8,9 +8,8 @@ describe('XScalarSdkInstallation', () => {
     const value = {
       'x-scalar-sdk-installation': [
         {
-          lang: 'Node',
-          description: 'Install our custom SDK for Node.js from npm',
-          source: 'npm install @your-awesome-company/sdk',
+          lang: 'TypeScript',
+          description: 'Install our custom SDK from npm',
         },
       ],
     }
