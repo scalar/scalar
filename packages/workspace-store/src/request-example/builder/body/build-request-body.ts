@@ -119,7 +119,9 @@ const parsedValueMatchesSchemaType = (value: unknown, types: string[]): boolean 
     return types.includes('boolean')
   }
   if (typeof value === 'number') {
-    return types.includes('number') || types.includes('integer')
+    // A fractional value only satisfies `number`; `integer` requires a whole number so a
+    // string like "3.14" against an integer-only leaf stays untouched instead of being coerced.
+    return types.includes('number') || (types.includes('integer') && Number.isInteger(value))
   }
   if (typeof value === 'string') {
     return types.includes('string')

@@ -1027,6 +1027,52 @@ describe('buildRequestBody', () => {
     ])
   })
 
+  it('keeps a fractional value as a string for an integer-only leaf but coerces a whole number', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              jsonField: {
+                type: 'object',
+                properties: {
+                  // Integer-only leaf: a whole number coerces, a fractional value does not.
+                  whole: { type: 'integer' },
+                  fractional: { type: 'integer' },
+                  // A leaf allowing `number` accepts the fractional value.
+                  ratio: { type: 'number' },
+                },
+              },
+            },
+          },
+          examples: {
+            default: {
+              value: [
+                { name: 'jsonField.whole', value: '3' },
+                { name: 'jsonField.fractional', value: '3.14' },
+                { name: 'jsonField.ratio', value: '3.14' },
+              ],
+            },
+          },
+        },
+      },
+    })
+
+    const result = buildRequestBody(requestBody, 'default')
+    assert(result?.mode === 'formdata')
+
+    // The fractional value stays a string under the integer-only leaf; the whole number and the
+    // number-typed leaf are coerced.
+    expect(result.value).toEqual([
+      {
+        type: 'text',
+        key: 'jsonField',
+        value: JSON.stringify({ whole: 3, fractional: '3.14', ratio: 3.14 }),
+      },
+    ])
+  })
+
   it('follows $ref sibling overrides when coercing a regrouped leaf type', () => {
     // OpenAPI 3.1 allows annotations alongside a $ref, and they take precedence over the
     // referenced schema. Here the leaf references a boolean schema but a sibling `type: 'string'`
