@@ -1,5 +1,13 @@
 # @scalar/mock-server
 
+## 0.10.17
+
+### Patch Changes
+
+- [#9437](https://github.com/scalar/scalar/pull/9437): chore(mock-server): resolve OpenAPI references with `@scalar/workspace-store` instead of `@scalar/openapi-parser`
+
+  The mock server no longer eagerly dereferences the whole document. It now keeps `$ref` nodes intact via the `@scalar/json-magic` magic proxy and resolves them lazily with `getResolvedRef`/`getResolvedRefDeep` from `@scalar/workspace-store`. The `/openapi.{json,yaml}` endpoints use `@scalar/json-magic` and `yaml` for normalization and serialization. This drops the `@scalar/openapi-parser` dependency. Behavior is unchanged.
+
 ## 0.10.16
 
 ## 0.10.15

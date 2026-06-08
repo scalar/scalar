@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.5 (2026-06-08)
+
+### SDK code samples, AsyncAPI servers, and form encoding fixes
+
+This release adds support for SDK-generated code samples from popular tools, introduces an AsyncAPI server selector, and fixes how form data is sent to match your API specification.
+
+- Read custom code samples from x-scalar-examples, x-stainless-snippets, x-stainless-examples, and x-readme.code-samples extensions
+- Added AsyncAPI server selector with variable editing and persistence
+- Fixed multipart and urlencoded form data to respect OpenAPI encoding styles like deepObject
+- Simplified the client picker when only one option is available
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#115)
+
 ## 1.1.4 (2026-06-01)
 
 ### Code splitting, WebSocket support, and performance improvements

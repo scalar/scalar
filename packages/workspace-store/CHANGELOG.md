@@ -1,5 +1,41 @@
 # @scalar/workspace-store
 
+## 0.54.0
+
+### Minor Changes
+
+- [#9438](https://github.com/scalar/scalar/pull/9438): feat(api-reference): add an AsyncAPI server selector
+
+  Adds a server selector for AsyncAPI documents in the API reference introduction. It mirrors the OpenAPI server selector but works with the AsyncAPI server shape (a named map of `host`/`protocol`/`pathname`), labelling each server with its constructed connection URL.
+
+  Server selection and variable changes are now persisted to the workspace store via new `asyncapi-server:update:selected` and `asyncapi-server:update:variables` events and their mutators, mirroring the OpenAPI wiring.
+
+- [#9398](https://github.com/scalar/scalar/pull/9398): feat: read code samples from x-readme, x-stainless and x-scalar extensions
+
+  In addition to `x-codeSamples`, the code sample picker now reads custom samples from `x-scalar-examples`, `x-stainless-snippets`, `x-stainless-examples`, and `x-readme.code-samples`. When more than one is present on an operation, the highest-priority source is used (x-scalar-examples > x-stainless-snippets > x-stainless-examples > x-readme > x-codeSamples).
+
+- [#9399](https://github.com/scalar/scalar/pull/9399): Show custom SDK installation instructions from `x-scalar-sdk-installation` in the introduction card, falling back to the client selector when there are none. Each entry takes a `lang` and a Markdown `description`, so a single tab can render rich instructions with syntax-highlighted code blocks (for example Maven and Gradle for Java)
+
+### Patch Changes
+
+- [#9404](https://github.com/scalar/scalar/pull/9404): Send `multipart/form-data` and `application/x-www-form-urlencoded` object properties using their OpenAPI encoding `style`/`explode` (for example `style: deepObject` produces `address[city]=...` bracket notation) instead of always JSON-stringifying them. The request sent over the wire now matches the generated code snippet.
+- [#9419](https://github.com/scalar/scalar/pull/9419): feat(workspace-store): keep JSON Schema 2020-12 `$id`, `$anchor`, `$dynamicAnchor`, and `$dynamicRef` on Schema Objects so they survive parsing
+- [#9131](https://github.com/scalar/scalar/pull/9131): fix(api-reference): preserve OAuth redirect URI when switching OpenAPI documents
+
+  When using multiple OpenAPI documents with OAuth configured via `oauth2RedirectUri`,
+  switching to another document no longer clears the Redirect URL in the Authentication
+  section.
+
+  The fix threads `oauth2RedirectUri` from the top-level configuration into the security
+  scheme merge chain so that each newly loaded document's OAuth flows are pre-populated
+  with the configured redirect URI, rather than relying solely on a component-level watcher
+  that would skip re-population when the same OAuth flow identity was detected across
+  documents.
+
+- [#9351](https://github.com/scalar/scalar/pull/9351): fix: preserve large integer parameter values
+
+  Stop JSON-parsing primitive parameter values when building requests. Integer and number path, query, and header fields keep the exact string from the editor so values larger than Number.MAX_SAFE_INTEGER are not rounded. Array and object parameters are still parsed for OpenAPI style serialization.
+
 ## 0.53.0
 
 ### Minor Changes

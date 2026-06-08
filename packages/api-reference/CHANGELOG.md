@@ -1,5 +1,80 @@
 # @scalar/api-reference
 
+## 1.59.0
+
+### Minor Changes
+
+- [#9435](https://github.com/scalar/scalar/pull/9435): feat(api-reference): render AsyncAPI channel parameters
+
+  Channel address parameters (the `{param}` placeholders in a channel address) are now shown in the API reference, reusing the same parameter list component as OpenAPI operations. Their `enum`, `default`, and `examples` are displayed on a string schema.
+
+- [#9438](https://github.com/scalar/scalar/pull/9438): feat(api-reference): add an AsyncAPI server selector
+
+  Adds a server selector for AsyncAPI documents in the API reference introduction. It mirrors the OpenAPI server selector but works with the AsyncAPI server shape (a named map of `host`/`protocol`/`pathname`), labelling each server with its constructed connection URL.
+
+  Server selection and variable changes are now persisted to the workspace store via new `asyncapi-server:update:selected` and `asyncapi-server:update:variables` events and their mutators, mirroring the OpenAPI wiring.
+
+- [#9422](https://github.com/scalar/scalar/pull/9422): Add a `nonce` option for Content Security Policy support.
+
+  When you pass a `nonce`, the rendered HTML stamps it onto the inline `<script>` and the CDN `<script>` tag (and Scalar's own `<style>` tags, plus a matching `<meta property="csp-nonce">`). This lets the API Reference run under a strict `script-src` with no `unsafe-inline` and no `unsafe-eval`.
+
+  ```ts
+  ApiReference({
+    url: '/openapi.json',
+    // Match this value in your `script-src` CSP directive.
+    nonce: 'r4nd0m',
+  })
+  ```
+
+  Note: `style-src` still needs `'unsafe-inline'`. The reference renders inline `style="…"` attributes, which a CSP nonce can never authorize (nonces only apply to `<script>`, `<style>` and `<link>` elements), so a nonce-only `style-src` is not possible. The win is a fully strict `script-src`.
+
+- [#9400](https://github.com/scalar/scalar/pull/9400): feat(api-reference): add `expandAllSchemaProperties` config option.
+
+  When enabled, nested schema properties are expanded by default while keeping the
+  "Show/Hide Child Attributes" button available for manual collapsing. Expansion
+  is cycle-safe: every finite branch is expanded fully, and self-referential
+  ($ref or inline) schemas stop at the point they would otherwise recurse forever.
+
+- [#9399](https://github.com/scalar/scalar/pull/9399): Show custom SDK installation instructions from `x-scalar-sdk-installation` in the introduction card, falling back to the client selector when there are none. Each entry takes a `lang` and a Markdown `description`, so a single tab can render rich instructions with syntax-highlighted code blocks (for example Maven and Gradle for Java)
+
+### Patch Changes
+
+- [#9388](https://github.com/scalar/scalar/pull/9388): Add `ScalarVirtualCodeBlock` component with copy button support for virtualized code blocks
+- [#9436](https://github.com/scalar/scalar/pull/9436): Hide the client selector for AsyncAPI documents
+- [#9398](https://github.com/scalar/scalar/pull/9398): feat: read code samples from x-readme, x-stainless and x-scalar extensions
+
+  In addition to `x-codeSamples`, the code sample picker now reads custom samples from `x-scalar-examples`, `x-stainless-snippets`, `x-stainless-examples`, and `x-readme.code-samples`. When more than one is present on an operation, the highest-priority source is used (x-scalar-examples > x-stainless-snippets > x-stainless-examples > x-readme > x-codeSamples).
+
+- [#9426](https://github.com/scalar/scalar/pull/9426): feat(api-reference): render the contact URL from `info.contact.url`
+- [#8573](https://github.com/scalar/scalar/pull/8573): fix(api-reference): infer discriminator variants from mapping
+- [#9131](https://github.com/scalar/scalar/pull/9131): fix(api-reference): preserve OAuth redirect URI when switching OpenAPI documents
+
+  When using multiple OpenAPI documents with OAuth configured via `oauth2RedirectUri`,
+  switching to another document no longer clears the Redirect URL in the Authentication
+  section.
+
+  The fix threads `oauth2RedirectUri` from the top-level configuration into the security
+  scheme merge chain so that each newly loaded document's OAuth flows are pre-populated
+  with the configured redirect URI, rather than relying solely on a component-level watcher
+  that would skip re-population when the same OAuth flow identity was detected across
+  documents.
+
+- [#9391](https://github.com/scalar/scalar/pull/9391): fix: stabilize the tab title at the top of the document
+
+  The document-start sentinel and the Introduction section both fire an intersection event at scroll-top. They resolved to different entries, so the tab title raced between the section title and the document title. The sentinel now emits the Introduction entry, so both agree.
+
+- [#9370](https://github.com/scalar/scalar/pull/9370): fix(api-reference): rework the modern operation layout with CSS grid so the request example sits directly under the description on narrow screens, and move the operation title and auth badge into the same grid
+- [#9421](https://github.com/scalar/scalar/pull/9421): fix(api-reference): avoid SSR hydration mismatch from the search shortcut and teleport ids
+
+  The macOS search shortcut symbol was derived from `navigator` during render, so a Mac client hydrated `⌘` where the server sent `⌃`. The platform is now resolved after mount. Teleport target ids and the search modal ids also switched from `nanoid()` to Vue's SSR-stable `useId()`.
+
+- [#9392](https://github.com/scalar/scalar/pull/9392): Clean up the standalone build's injected `<head>` styles on `destroy()` so they no longer linger after SPA-style navigation (Turbo Drive, htmx). The styles are re-attached when a new instance mounts.
+- [#9420](https://github.com/scalar/scalar/pull/9420): fix(api-reference): make x-tagGroups titles navigable from search
+
+  Tag group titles appeared as search results but clicking them did nothing,
+  because the flattened modern layout rendered no element carrying the tag
+  group id to scroll to. The group now exposes its id as a scroll anchor.
+
 ## 1.58.0
 
 ### Minor Changes

@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 3.10.0
+
+### Minor Changes
+
+- [#9398](https://github.com/scalar/scalar/pull/9398): feat: read code samples from x-readme, x-stainless and x-scalar extensions
+
+  In addition to `x-codeSamples`, the code sample picker now reads custom samples from `x-scalar-examples`, `x-stainless-snippets`, `x-stainless-examples`, and `x-readme.code-samples`. When more than one is present on an operation, the highest-priority source is used (x-scalar-examples > x-stainless-snippets > x-stainless-examples > x-readme > x-codeSamples).
+
+### Patch Changes
+
+- [#9438](https://github.com/scalar/scalar/pull/9438): feat(api-reference): add an AsyncAPI server selector
+
+  Adds a server selector for AsyncAPI documents in the API reference introduction. It mirrors the OpenAPI server selector but works with the AsyncAPI server shape (a named map of `host`/`protocol`/`pathname`), labelling each server with its constructed connection URL.
+
+  Server selection and variable changes are now persisted to the workspace store via new `asyncapi-server:update:selected` and `asyncapi-server:update:variables` events and their mutators, mirroring the OpenAPI wiring.
+
+- [#9404](https://github.com/scalar/scalar/pull/9404): Send `multipart/form-data` and `application/x-www-form-urlencoded` object properties using their OpenAPI encoding `style`/`explode` (for example `style: deepObject` produces `address[city]=...` bracket notation) instead of always JSON-stringifying them. The request sent over the wire now matches the generated code snippet.
+- [#9408](https://github.com/scalar/scalar/pull/9408): Render the client library name as a plain label instead of a dropdown when only a single client is available
+
 ## 3.9.0
 
 ### Minor Changes

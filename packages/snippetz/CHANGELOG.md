@@ -1,5 +1,16 @@
 # @scalar/snippetz
 
+## 0.9.13
+
+### Patch Changes
+
+- [#9429](https://github.com/scalar/scalar/pull/9429): replace `clojure/clj_http` with a native snippetz plugin and remove the legacy httpsnippet-lite clojure target
+- [#9430](https://github.com/scalar/scalar/pull/9430): fix(snippetz): correct curl URL query separator and shell quoting
+- [#9427](https://github.com/scalar/scalar/pull/9427): refactor(snippetz): replace the httpsnippet-lite Kotlin/OkHttp target with a native plugin
+- [#9425](https://github.com/scalar/scalar/pull/9425): refactor(snippetz): replace httpsnippet-lite with a native objc/nsurlsession plugin
+- [#9424](https://github.com/scalar/scalar/pull/9424): Replace the httpsnippet-lite-based csharp/restsharp generator with a native snippetz plugin
+- [#9428](https://github.com/scalar/scalar/pull/9428): refactor(snippetz): replace the httpsnippet-lite Wget client with a native plugin
+
 ## 0.9.12
 
 ## 0.9.11
