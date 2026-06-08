@@ -89,7 +89,7 @@ export const Scalar = <E extends Env>(configOrResolver: Configuration<E>): Middl
     }
 
     // Respond with the HTML document
-    const { cdn, pageTitle, ...config } = configuration
-    return c.html(renderApiReference({ config, pageTitle, cdn }, customTheme))
+    const { cdn, pageTitle, nonce, ...config } = configuration
+    return c.html(renderApiReference({ config, pageTitle, cdn, nonce }, customTheme))
   }
 }

@@ -13,6 +13,20 @@ const escapeHtml = (str: string): string => {
 }
 
 /**
+ * Escape a value for use inside a double-quoted HTML attribute.
+ *
+ * On top of the regular HTML escaping we also encode double quotes so the value cannot break out of
+ * the attribute. Used for the CSP nonce, which is attacker-influenced in some setups.
+ */
+const escapeHtmlAttribute = (str: string): string => escapeHtml(str).replace(/"/g, '&quot;')
+
+/**
+ * Build a ` nonce="..."` attribute (with a leading space) when a nonce is provided, otherwise an
+ * empty string. Returned ready to be interpolated into a tag.
+ */
+const nonceAttribute = (nonce?: string): string => (nonce ? ` nonce="${escapeHtmlAttribute(nonce)}"` : '')
+
+/**
  * Helper function to add consistent indentation to multiline strings
  * @param str The string to indent
  * @param spaces Number of spaces for each level
@@ -34,7 +48,7 @@ const addIndent = (str: string, spaces: number = 2, initialIndent: boolean = fal
 /**
  * Generate the style tag with custom theme if needed
  */
-const getStyles = (configuration: Record<string, unknown>, customTheme: string): string => {
+const getStyles = (configuration: Record<string, unknown>, customTheme: string, nonce?: string): string => {
   const styles: string[] = []
 
   if (configuration.customCss) {
@@ -52,7 +66,7 @@ const getStyles = (configuration: Record<string, unknown>, customTheme: string):
   }
 
   return `
-    <style type="text/css">
+    <style type="text/css"${nonceAttribute(nonce)}>
       ${addIndent(styles.join('\n\n'), 6)}
     </style>`
 }
@@ -73,10 +87,22 @@ export function renderApiReference(
     pageTitle?: string
     /** CDN URL for the standalone bundle. Defaults to jsDelivr. */
     cdn?: string
+    /**
+     * A Content Security Policy (CSP) nonce to apply to the generated inline `<script>` and `<style>`
+     * tags (and the CDN `<script>` tag).
+     *
+     * When set, a `<meta property="csp-nonce">` tag is also emitted so the standalone bundle can apply
+     * the same nonce to the stylesheet it injects at runtime. This lets the API Reference run under a
+     * strict `script-src` with no `unsafe-inline` and no `unsafe-eval`.
+     *
+     * Note: `style-src` still needs `'unsafe-inline'`, because the reference renders inline
+     * `style="..."` attributes that a CSP nonce cannot authorize.
+     */
+    nonce?: string
   },
   customTheme = '',
 ): string {
-  const { config: givenConfig, pageTitle, cdn } = options
+  const { config: givenConfig, pageTitle, cdn, nonce } = options
   const title = escapeHtml(pageTitle ?? 'Scalar API Reference')
 
   const unwrapped = Array.isArray(givenConfig) ? givenConfig[0] : givenConfig
@@ -88,6 +114,10 @@ export function renderApiReference(
     ...(customCss !== undefined ? { customCss } : {}),
   } as Record<string, unknown>)
 
+  // Expose the nonce to the standalone bundle so it can apply it to the stylesheet it injects at
+  // runtime (the bundle reads `meta[property=csp-nonce]` when built with `useStrictCSP`).
+  const cspNonceMeta = nonce ? `\n    <meta property="csp-nonce" content="${escapeHtmlAttribute(nonce)}" />` : ''
+
   return `<!doctype html>
 <html>
   <head>
@@ -95,10 +125,10 @@ export function renderApiReference(
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1" />${getStyles(configuration as Record<string, unknown>, customTheme)}
+      content="width=device-width, initial-scale=1" />${cspNonceMeta}${getStyles(configuration as Record<string, unknown>, customTheme, nonce)}
   </head>
   <body>
-    <div id="app"></div>${getScriptTags(configuration, cdn)}
+    <div id="app"></div>${getScriptTags(configuration, cdn, nonce)}
   </body>
 </html>`
 }
@@ -112,8 +142,11 @@ const serializeArrayWithFunctions = (arr: unknown[]): string => {
 
 /**
  * The script tags to load the @scalar/api-reference package from the CDN.
+ *
+ * When a `nonce` is provided it is applied to both script tags so they are allowed under a strict
+ * `script-src` Content Security Policy.
  */
-export function getScriptTags(configuration: Record<string, unknown>, cdn?: string): string {
+export function getScriptTags(configuration: Record<string, unknown>, cdn?: string, nonce?: string): string {
   const restConfig = { ...configuration }
 
   const functionProps: string[] = []
@@ -145,12 +178,14 @@ export function getScriptTags(configuration: Record<string, unknown>, cdn?: stri
     }
   }
 
+  const nonceAttr = nonceAttribute(nonce)
+
   return `
     <!-- Load the Script -->
-    <script src="${cdn ?? DEFAULT_CDN}"></script>
+    <script src="${cdn ?? DEFAULT_CDN}"${nonceAttr}></script>
 
     <!-- Initialize the Scalar API Reference -->
-    <script type="text/javascript">
+    <script type="text/javascript"${nonceAttr}>
       Scalar.createApiReference('#app', ${configString})
     </script>`
 }

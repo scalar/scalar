@@ -38,6 +38,35 @@ This renders our `@scalar/galaxy` OpenAPI example, using the latest version of `
 
 Check out the [Configuration](../configuration.md) page to learn more about customizing your API reference.
 
+## Content Security Policy (CSP)
+
+If your page enforces a strict [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP), the inline initialization script is blocked unless you allow `unsafe-inline`.
+
+To keep a strict `script-src` instead, generate a per-request nonce and put it on both script tags:
+
+```html
+<head>
+  <!-- The reference also injects styles at runtime; this lets them carry the same nonce -->
+  <meta property="csp-nonce" content="r4nd0m" />
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- script-src 'nonce-r4nd0m' — no unsafe-inline, no unsafe-eval -->
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference" nonce="r4nd0m"></script>
+  <script nonce="r4nd0m">
+    Scalar.createApiReference('#app', {
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+    })
+  </script>
+</body>
+```
+
+> [!NOTE]
+> **`style-src` still needs `'unsafe-inline'`.** The reference renders inline `style="…"` attributes, and a CSP nonce can never authorize inline style attributes — only `<script>`, `<style>` and `<link>` elements. So a strict, nonce-only `style-src` is not possible today; keep `style-src 'unsafe-inline'`. The win here is `script-src`, which can stay fully strict.
+
+If you render the HTML through one of our server integrations (Next.js, Express, Fastify, NestJS, Hono, SvelteKit, Astro), pass a `nonce` to the configuration and the script tags and meta tag are added for you.
+
 ## Version
 
 It's recommended to use the latest version from jsdelivr. You'll get continuous updates, fixes and other improvements and that's also the one we're testing and monitoring continuously.

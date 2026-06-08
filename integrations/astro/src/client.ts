@@ -81,10 +81,17 @@ const getState = (): ClientState => {
  * (Distinct bundles sharing one global is inherently last-one-wins; capturing
  * here keeps the common single-CDN page correct and narrows the window for the
  * rest.)
+ *
+ * The cache key also includes the nonce. A strict `script-src 'nonce-...'` only
+ * allows the `<script>` whose nonce matches the policy, so two mounts that want
+ * the same bundle under different nonces (or one with and one without) each need
+ * their own correctly-stamped tag — reusing the first load would leave the
+ * second blocked.
  */
-const loadCdn = (cdn: string): Promise<ScalarGlobal | undefined> => {
+const loadCdn = (cdn: string, nonce?: string): Promise<ScalarGlobal | undefined> => {
   const { cdnLoads } = getState()
-  const cached = cdnLoads.get(cdn)
+  const key = nonce ? `${cdn}\n${nonce}` : cdn
+  const cached = cdnLoads.get(key)
 
   if (cached) {
     return cached
@@ -93,13 +100,18 @@ const loadCdn = (cdn: string): Promise<ScalarGlobal | undefined> => {
   const load = new Promise<ScalarGlobal | undefined>((resolve, reject) => {
     const script = document.createElement('script')
     script.src = cdn
+    // Stamp the nonce so the injected bundle is allowed under a strict
+    // `script-src 'nonce-...'` policy.
+    if (nonce) {
+      script.nonce = nonce
+    }
     script.addEventListener('load', () => resolve((window as ScalarWindow).Scalar), { once: true })
     script.addEventListener(
       'error',
       () => {
         // Drop the cached failure (and the dead tag) so a later mount or
         // navigation can retry, instead of replaying this rejection forever.
-        cdnLoads.delete(cdn)
+        cdnLoads.delete(key)
         script.remove()
         reject(new Error(`[@scalar/astro] Could not load ${cdn}`))
       },
@@ -108,9 +120,32 @@ const loadCdn = (cdn: string): Promise<ScalarGlobal | undefined> => {
     document.head.appendChild(script)
   })
 
-  cdnLoads.set(cdn, load)
+  cdnLoads.set(key, load)
 
   return load
+}
+
+/**
+ * Ensure a `<meta property="csp-nonce">` is present in `<head>`.
+ *
+ * The standalone bundle reads this meta tag (it is built with `useStrictCSP`)
+ * to nonce the stylesheet it injects at runtime, so a strict `style-src` lets
+ * the bundle's `<style>` through. The static render path emits this tag in the
+ * server-rendered HTML; in client mode we add it here instead. Astro replaces
+ * `<head>` on every view transition, so this is re-checked on each mount.
+ */
+const ensureCspNonceMeta = (nonce: string): void => {
+  const existing = document.head.querySelector('meta[property="csp-nonce"]')
+
+  if (existing) {
+    existing.setAttribute('content', nonce)
+    return
+  }
+
+  const meta = document.createElement('meta')
+  meta.setAttribute('property', 'csp-nonce')
+  meta.setAttribute('content', nonce)
+  document.head.appendChild(meta)
 }
 
 /** Mount a single container, unless it is already mounted or mounting. */
@@ -136,12 +171,19 @@ const mountContainer = (element: HTMLElement): void => {
   }
 
   const cdn = element.dataset.cdn || DEFAULT_CDN
+  const nonce = element.dataset.nonce
   // Remember which lifecycle this mount belongs to (see `ClientState`).
   const { generation } = state
 
+  // Expose the nonce to the bundle before it loads, so the styles it injects at
+  // runtime carry the nonce too.
+  if (nonce) {
+    ensureCspNonceMeta(nonce)
+  }
+
   state.pending.add(element)
 
-  void loadCdn(cdn)
+  void loadCdn(cdn, nonce)
     .then((Scalar) => {
       // Mount only if this page is still live (no view transition happened
       // while the CDN loaded) and the element is still in the document.

@@ -32,13 +32,13 @@ const finalConfiguration = {
   ...DEFAULT_CONFIGURATION,
   ...configuration,
 }
-const { cdn, pageTitle, ...config } = finalConfiguration
+const { cdn, pageTitle, nonce, ...config } = finalConfiguration
 ---
 
 {
   renderMode === 'client' ? (
-    <ScalarClient config={config} cdn={cdn} />
+    <ScalarClient config={config} cdn={cdn} nonce={nonce} />
   ) : (
-    <div set:html={renderApiReference({ config, cdn, pageTitle })} />
+    <div set:html={renderApiReference({ config, cdn, pageTitle, nonce })} />
   )
 }
