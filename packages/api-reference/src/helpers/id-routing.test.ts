@@ -928,6 +928,20 @@ describe('redirectUrl', () => {
       const result = redirectUrl('https://example.com/docs/#default/model/User', 'models', 'default', true, '/docs')
       expect(result?.hash).toBe('#default/models/User')
     })
+
+    it('rewrites both the legacy pathname and a stale legacy hash in one pass', () => {
+      // When the id is legacy in both the pathname and a leftover hash, neither should survive the
+      // redirect — otherwise the address bar shows a corrected path next to an outdated hash.
+      const result = redirectUrl(
+        'https://example.com/docs/default/model/User#default/model/User',
+        'models',
+        'default',
+        true,
+        '/docs',
+      )
+      expect(result?.pathname).toBe('/docs/default/models/User')
+      expect(result?.hash).toBe('#default/models/User')
+    })
   })
 
   describe('hash base path routing', () => {

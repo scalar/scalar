@@ -185,11 +185,12 @@ const bareHashCarrier = (url: URL): IdCarrier => ({
  * pathname after a path base path. Each carrier pairs the decoded id with a `write` callback, so
  * callers edit ids in id-space without re-deriving the routing chrome for each mode.
  *
- * Multiple carriers are returned in priority order: the canonical location for the active routing
- * mode comes first, followed by a legacy bare-hash fallback. Both path and hash-base-path routing
- * fall back to the bare hash so a stale `#default/model/User` bookmark (left over from before the
- * base path was configured) is still canonicalized — the previous implementation rewrote such
- * doc-slug-anchored hashes on every load regardless of the routing mode.
+ * Multiple carriers are returned: the canonical location for the active routing mode comes first,
+ * followed by a legacy bare-hash carrier. Both path and hash-base-path routing include the bare hash
+ * so a stale `#default/model/User` bookmark (left over from before the base path was configured) is
+ * still canonicalized — the previous implementation rewrote such doc-slug-anchored hashes on every
+ * load regardless of the routing mode. Callers rewrite every carrier that matches, not just the
+ * first, so a legacy id sitting in both the pathname and the hash is cleaned up in one pass.
  */
 const locateIdCarriers = (url: URL, basePath: string | undefined): IdCarrier[] => {
   // Hash routing: the id is the bare fragment.
@@ -344,16 +345,23 @@ export const redirectUrl = (
   const target = new URL(typeof url === 'string' ? url : url.toString())
   const redirects = buildRedirects({ modelsSectionSlug, documentSlug, isMultiDocument })
 
-  // Try each place the id might live, in priority order, and apply the first rewrite that sticks.
+  // Canonicalize every place the id might live. The carriers are distinct physical locations (the
+  // pathname and the bare hash), so a single page load can carry a legacy id in more than one — for
+  // example a path-routing URL whose stale hash still holds an old bookmark. Rewriting all of them
+  // avoids the address bar showing a corrected path next to an outdated hash. A redirect rule is
+  // anchored to the document slug, so it never matches the base-prefixed value of a fallback carrier,
+  // which keeps carriers that happen to share a location (hash base path + bare hash) from clobbering
+  // each other.
+  let didRedirect = false
   for (const carrier of locateIdCarriers(target, basePath)) {
     const rewritten = applyIdRedirects(carrier.value, redirects)
     if (rewritten !== carrier.value) {
       carrier.write(rewritten)
-      return target
+      didRedirect = true
     }
   }
 
-  return null
+  return didRedirect ? target : null
 }
 
 /** Extracts the schema parameters from the id if they are present */
