@@ -59,9 +59,11 @@ export const deletePathItemOperation = (pathItem: NodeInput<PathItemObject> | un
     return
   }
 
+  // A $ref wrapper can carry the operation on its dereferenced value and/or as a sibling override
+  // alongside the `$ref`. Since mergeSiblingReferences gives the sibling precedence, both copies
+  // must be removed, otherwise getResolvedPathItem keeps exposing the operation after deletion.
   if ('$ref' in pathItem && '$ref-value' in pathItem) {
     delete pathItem['$ref-value'][method]
-    return
   }
 
   delete pathItem[method]

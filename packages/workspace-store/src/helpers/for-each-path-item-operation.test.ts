@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { forEachPathItemOperation, getResolvedPathItem, pathItemIsEmpty } from '@/helpers/for-each-path-item-operation'
+import {
+  deletePathItemOperation,
+  forEachPathItemOperation,
+  getResolvedPathItem,
+  pathItemIsEmpty,
+} from '@/helpers/for-each-path-item-operation'
 
 describe('getResolvedPathItem', () => {
   it('includes parameters declared alongside a path $ref on the paths map', () => {
@@ -73,6 +78,42 @@ describe('forEachPathItemOperation', () => {
     forEachPathItemOperation(undefined, callback)
 
     expect(callback).not.toHaveBeenCalled()
+  })
+})
+
+describe('deletePathItemOperation', () => {
+  it('removes the method from an inline path item', () => {
+    const pathItem = { get: { summary: 'Get users' }, post: { summary: 'Create user' } }
+
+    deletePathItemOperation(pathItem, 'get')
+
+    expect(pathItem).toEqual({ post: { summary: 'Create user' } })
+  })
+
+  it('removes the method from the dereferenced value of a $ref wrapper', () => {
+    const pathItem = {
+      $ref: '#/components/pathItems/UsersPath',
+      '$ref-value': { get: { summary: 'Get users' }, post: { summary: 'Create user' } },
+    }
+
+    deletePathItemOperation(pathItem, 'get')
+
+    expect(getResolvedPathItem(pathItem)?.get).toBeUndefined()
+    expect(getResolvedPathItem(pathItem)?.post).toEqual({ summary: 'Create user' })
+  })
+
+  it('removes a method override declared alongside a $ref wrapper', () => {
+    const pathItem = {
+      $ref: '#/components/pathItems/UsersPath',
+      '$ref-value': { get: { summary: 'Referenced get' } },
+      get: { summary: 'Overridden get' },
+    }
+
+    deletePathItemOperation(pathItem, 'get')
+
+    // The sibling override takes precedence in the merged view, so deleting only the
+    // dereferenced copy would leave the operation visible.
+    expect(getResolvedPathItem(pathItem)?.get).toBeUndefined()
   })
 })
 
