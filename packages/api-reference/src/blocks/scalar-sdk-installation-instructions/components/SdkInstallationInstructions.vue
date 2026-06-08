@@ -183,8 +183,15 @@ let observer: ResizeObserver | undefined
 onMounted(() => {
   if (typeof ResizeObserver !== 'undefined') {
     observer = new ResizeObserver(() => measure())
+    // Observe the visible row for the available width, and the hidden measure
+    // row for the natural tab widths. The latter catches changes the container
+    // never sees — web fonts loading, or labels changing without the count
+    // changing — which would otherwise leave the overflow logic stale.
     if (tabsRef.value) {
       observer.observe(tabsRef.value)
+    }
+    if (measureRef.value) {
+      observer.observe(measureRef.value)
     }
   }
   measure()

@@ -10,6 +10,10 @@ type SdkInstallationList = NonNullable<XScalarSdkInstallation['x-scalar-sdk-inst
  * fall back to the generic client selector instead of showing an empty card.
  * Both the gate in `Content.vue` and the tab list in the block rely on this, so
  * the "has instructions" rule lives in one place.
+ *
+ * The value comes straight from an untrusted OpenAPI document, so a malformed
+ * extension (a single object, a string, …) is treated as "no instructions"
+ * rather than allowed to throw at render time.
  */
 export const getRenderableSdks = (xScalarSdkInstallation: SdkInstallationList | undefined): SdkInstallationList =>
-  (xScalarSdkInstallation ?? []).filter((sdk) => Boolean(sdk.description))
+  Array.isArray(xScalarSdkInstallation) ? xScalarSdkInstallation.filter((sdk) => Boolean(sdk?.description)) : []
