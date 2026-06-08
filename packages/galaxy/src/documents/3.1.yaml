@@ -424,6 +424,8 @@ paths:
       tags:
         - Celestial Bodies
       summary: Create a celestial body
+      description: Stars, moons, comets, the occasional rogue asteroid — if it
+        glows or drifts through the void, you can add it here.
       operationId: createCelestialBody
       requestBody:
         description: Celestial body to create
