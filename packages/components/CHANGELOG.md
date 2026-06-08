@@ -1,5 +1,18 @@
 # @scalar/components
 
+## 0.27.0
+
+### Minor Changes
+
+- [#9388](https://github.com/scalar/scalar/pull/9388): Add `ScalarVirtualCodeBlock` component with copy button support for virtualized code blocks
+
+### Patch Changes
+
+- [#9397](https://github.com/scalar/scalar/pull/9397): fix(components): vertically center the copy button for single-line code blocks
+- [#9421](https://github.com/scalar/scalar/pull/9421): fix(api-reference): avoid SSR hydration mismatch from the search shortcut and teleport ids
+
+  The macOS search shortcut symbol was derived from `navigator` during render, so a Mac client hydrated `⌘` where the server sent `⌃`. The platform is now resolved after mount. Teleport target ids and the search modal ids also switched from `nanoid()` to Vue's SSR-stable `useId()`.
+
 ## 0.26.1
 
 ### Patch Changes

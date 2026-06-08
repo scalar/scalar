@@ -1,5 +1,42 @@
 # @scalar/types
 
+## 0.13.0
+
+### Minor Changes
+
+- [#9398](https://github.com/scalar/scalar/pull/9398): feat: read code samples from x-readme, x-stainless and x-scalar extensions
+
+  In addition to `x-codeSamples`, the code sample picker now reads custom samples from `x-scalar-examples`, `x-stainless-snippets`, `x-stainless-examples`, and `x-readme.code-samples`. When more than one is present on an operation, the highest-priority source is used (x-scalar-examples > x-stainless-snippets > x-stainless-examples > x-readme > x-codeSamples).
+
+- [#9422](https://github.com/scalar/scalar/pull/9422): Add a `nonce` option for Content Security Policy support.
+
+  When you pass a `nonce`, the rendered HTML stamps it onto the inline `<script>` and the CDN `<script>` tag (and Scalar's own `<style>` tags, plus a matching `<meta property="csp-nonce">`). This lets the API Reference run under a strict `script-src` with no `unsafe-inline` and no `unsafe-eval`.
+
+  ```ts
+  ApiReference({
+    url: '/openapi.json',
+    // Match this value in your `script-src` CSP directive.
+    nonce: 'r4nd0m',
+  })
+  ```
+
+  Note: `style-src` still needs `'unsafe-inline'`. The reference renders inline `style="…"` attributes, which a CSP nonce can never authorize (nonces only apply to `<script>`, `<style>` and `<link>` elements), so a nonce-only `style-src` is not possible. The win is a fully strict `script-src`.
+
+- [#9400](https://github.com/scalar/scalar/pull/9400): feat(api-reference): add `expandAllSchemaProperties` config option.
+
+  When enabled, nested schema properties are expanded by default while keeping the
+  "Show/Hide Child Attributes" button available for manual collapsing. Expansion
+  is cycle-safe: every finite branch is expanded fully, and self-referential
+  ($ref or inline) schemas stop at the point they would otherwise recurse forever.
+
+### Patch Changes
+
+- [#9438](https://github.com/scalar/scalar/pull/9438): feat(api-reference): add an AsyncAPI server selector
+
+  Adds a server selector for AsyncAPI documents in the API reference introduction. It mirrors the OpenAPI server selector but works with the AsyncAPI server shape (a named map of `host`/`protocol`/`pathname`), labelling each server with its constructed connection URL.
+
+  Server selection and variable changes are now persisted to the workspace store via new `asyncapi-server:update:selected` and `asyncapi-server:update:variables` events and their mutators, mirroring the OpenAPI wiring.
+
 ## 0.12.3
 
 ### Patch Changes
