@@ -9,8 +9,8 @@ import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointe
 import { upgrade } from '@scalar/openapi-upgrader'
 
 import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { keyOf } from '@/helpers/general'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { createNavigation } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { extensions } from '@/schemas/extensions'
@@ -188,7 +188,10 @@ export function externalizePathReferences(
             : `./chunks/${meta.name}/operations/${escapedPath}/${type}.json#`
 
         result[path][type] = { '$ref': ref, $global: true }
-      } else {
+      } else if (type !== '$ref') {
+        // Skip the path-item `$ref` merged in by getResolvedPathItem: the referenced component is
+        // externalized on its own and the operations are externalized above, so keeping it would
+        // emit a hybrid entry with both a component `$ref` and inlined operation references.
         result[path][type] = pathItemRecord[type]
       }
     })
