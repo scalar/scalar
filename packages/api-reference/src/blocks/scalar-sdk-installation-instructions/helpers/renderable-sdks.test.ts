@@ -26,6 +26,17 @@ describe('getRenderableSdks', () => {
     expect(getRenderableSdks([{ lang: 'TypeScript', description: '' }])).toEqual([])
   })
 
+  it('drops entries whose lang is not a string', () => {
+    // A non-string lang would crash the icon lookup, so it must not survive.
+    expect(
+      getRenderableSdks([
+        // @ts-expect-error — exercising a runtime shape the types forbid
+        { lang: 42, description: 'Install' },
+        { lang: 'Go', description: 'Install for Go' },
+      ]),
+    ).toEqual([{ lang: 'Go', description: 'Install for Go' }])
+  })
+
   it('returns an empty array for malformed (non-array) extension values', () => {
     // The extension comes from an untrusted document, so invalid shapes must
     // fall back rather than throw.
