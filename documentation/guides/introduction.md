@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="introduction" class="text-balance">
-    Industry leading Developer Docs, SDKs & API Registry
+    Industry leading Developer Docs, SDKs & API Client
   </scalar-heading>
   <p>
     Purpose-built for the OpenAPI™ standard
@@ -27,23 +27,18 @@
 
 <div class="slider">
   <button class="active" type="button" data-target="#slide-1">API Docs</button>
-  <button type="button" data-target="#slide-2">API Registry</button>
-  <button type="button" data-target="#slide-3">SDKs</button>
-  <button type="button" data-target="#slide-4">API Client</button>
+  <button type="button" data-target="#slide-2">SDKs</button>
+  <button type="button" data-target="#slide-3">API Client</button>
   <ul class="gallery container-full" id="gallery">
     <li id="slide-1">
       <img alt="API References Animation" class="light-image" src="/app-docs-animated.svg" />
       <img alt="API References Animation" class="dark-image" src="/app-docs-animated-dark.svg" />
     </li>
     <li id="slide-2">
-      <img alt="API Registry Animation" class="light-image" src="/registry-animated.svg" />
-      <img alt="API Registry Animation" class="dark-image" src="/registry-animated-dark.svg" />
-    </li>
-    <li id="slide-3">
       <img alt="SDK Animation" class="light-image" src="/sdks-animated.svg" />
       <img alt="SDK Animation" class="dark-image" src="/sdks-animated-dark.svg" />
     </li>
-    <li id="slide-4">
+    <li id="slide-3">
       <img alt="Client Animation" class="light-image" src="/api-client-animated.svg" />
       <img alt="Client Animation" class="dark-image" src="/api-client-animated-dark.svg" />
     </li>
@@ -112,115 +107,12 @@
 <div>
   <div class="product product-reversed">
     <div class="product-copy">
-      <span class="font-bold text-green">Registry</span>
-      <h2>
-        The Centralized Repository for Your API Definitions
-      </h2>
-      <p>
-        Upload, manage and version OpenAPI Documents, JSON Schemas and Spectral Rules in a single place. Can pull from your repository, works with any CI workflow.
-      </p>
-      <div class="flex flex-wrap text-green gap-y-2">
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/git-branch"></scalar-icon>
-          <span>
-            <span class="lg-only">Single </span>Source of Truth
-          <span>
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
-          Git Integration
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-          OpenAPI Documents
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
-          <span>JSON Schema<span class="lg-only"> Support</span></span>
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/warning-octagon"></scalar-icon>
-          Spectral Rules
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
-          AsyncAPI (coming soon)
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/lock-simple"></scalar-icon>
-          Private or Public
-        </b>
-      </div>
-      <a class="mt-3 t-editor__anchor" href="/products/registry/getting-started" aria-label="Connect your API for free with Registry">
-      Connect Your API for Free
-       →
-      </a>
-    </div>
-    <div class="product-image">
-      <div class="product-image-transform">
-        <img alt="Registry" class="light-image" src="/registry-static.svg" />
-        <img alt="Registry" class="dark-image" src="/registry-static-dark.svg" />
-      </div>
-    </div>
-    <div class="draggable sticker-4">
-      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></scalar-icon>
-    </div>
-  </div>
-  <div class="product">
-    <div class="product-copy">
-      <span class="font-bold text-orange">API Client</span>
-      <scalar-heading level="2" slug="scalar-api-client" class="c">
-        The Postman Alternative Your Team Is Dreaming Of
-      </scalar-heading>
-      <p>
-        Fully open-source & offline first API Client built on the OpenAPI standard, by us & our community.
-      </p>
-      <div class="flex flex-wrap text-orange gap-y-2">
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
-          Offline-first
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/globe"></scalar-icon>
-          Sync your local API
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/graph"></scalar-icon>
-          OpenAPI by Heart
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Collaborate with Others
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
-          No Vendor Lock-In
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
-          Linux, Windows, macOS
-        </b>
-      </div>
-      <a class="mt-3 t-editor__anchor" href="/products/api-client/getting-started" aria-label="Send your first API request with Scalar">Send Your First Request →</a>
-    </div>
-    <div class="product-image">
-      <div class="product-image-transform">
-        <img alt="API Client" class="light-image" src="/api-client-static.svg"/>
-        <img alt="API Client" class="dark-image" src="/api-client-static-dark.svg"/>
-      </div>
-    </div>
-    <div class="draggable sticker-8">
-      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></scalar-icon>
-    </div>
-  </div>
-  <div class="product product-reversed">
-    <div class="product-copy">
       <span class="font-bold text-blue">Docs</span>
       <scalar-heading level="2" slug="scalar-docs" class="c">
         The Modern Documentation Platform for Your API and Everything Else
       </scalar-heading>
       <p>
-        Write documentation with our WYSIWYG, pull Markdown and MDX files from your repository or generate API References from your OpenAPI documents. No matter how you work, your new documentation will always be up to date.
+        Write documentation with Markdown and MDX, generate API references from OpenAPI and AsyncAPI, and keep everything up to date with two-way Git sync.
       </p>
       <div class="flex flex-wrap text-blue gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
@@ -229,23 +121,23 @@
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-          OpenAPI Documents
+          OpenAPI + AsyncAPI
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
+          Two-Way Git Sync
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
           <span><span class="lg-only">Custom </span>HTML/CSS/JS</span>
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/github-logo"></scalar-icon>
-          GitHub Sync
+          <scalar-icon src="phosphor/bold/headset"></scalar-icon>
+          Chat with AI/MCP
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/palette"></scalar-icon>
-          Customize Everything
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Fine-grained Access
+          <scalar-icon src="phosphor/bold/lock-simple"></scalar-icon>
+          Private or Public
         </b>
       </div>
       <a class="mt-3 t-editor__anchor" href="/products/docs/getting-started" aria-label="Create your new API documentation with Scalar">Create Your New Documentation →</a>
@@ -307,6 +199,53 @@
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></scalar-icon>
     </div>
   </div>
+  <div class="product product-reversed">
+    <div class="product-copy">
+      <span class="font-bold text-orange">API Client</span>
+      <scalar-heading level="2" slug="scalar-api-client" class="c">
+        The Postman Alternative Your Team Is Dreaming Of
+      </scalar-heading>
+      <p>
+        Fully open-source & offline first API Client built on the OpenAPI standard, by us & our community.
+      </p>
+      <div class="flex flex-wrap text-orange gap-y-2">
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
+          Offline-first
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/globe"></scalar-icon>
+          Sync your local API
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/graph"></scalar-icon>
+          OpenAPI by Heart
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/users"></scalar-icon>
+          Collaborate with Others
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
+          No Vendor Lock-In
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
+          Linux, Windows, macOS
+        </b>
+      </div>
+      <a class="mt-3 t-editor__anchor" href="/products/api-client/getting-started" aria-label="Send your first API request with Scalar">Send Your First Request →</a>
+    </div>
+    <div class="product-image">
+      <div class="product-image-transform">
+        <img alt="API Client" class="light-image" src="/api-client-static.svg"/>
+        <img alt="API Client" class="dark-image" src="/api-client-static-dark.svg"/>
+      </div>
+    </div>
+    <div class="draggable sticker-8">
+      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></scalar-icon>
+    </div>
+  </div>
 </div>
 
 <div class="founder-quote border rounded-lg p-12 relative">
@@ -365,21 +304,20 @@
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
-      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
+      <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
+      <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
-        <object class="sticker-clip-client" width="156" height="110"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
+        <object class="sticker-clip-docs" width="113" height="143" data="https://cdn.scalar.com/marketing/landing/sticker-3.v3.svg"></object>
       </div>
-      <div class="expander-hover-title">API Client</div>
+      <div class="expander-hover-title">API Docs</div>
       <div class="expander">
         <div class="expander-content">
-          Minimal, powerful, fully open-source API Client built on open standards by us + our community.
+          Write beautiful documentation with Markdown, MDX, OpenAPI, AsyncAPI, and two-way Git sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank" aria-label="Learn more about API Client">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about API Docs">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -422,20 +360,21 @@
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
-      <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
+      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
+      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
-        <object class="sticker-clip-docs" width="113" height="143" data="https://cdn.scalar.com/marketing/landing/sticker-3.v3.svg"></object>
+        <object class="sticker-clip-client" width="156" height="110"
+          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
       </div>
-      <div class="expander-hover-title">API Docs</div>
+      <div class="expander-hover-title">API Client</div>
       <div class="expander">
         <div class="expander-content">
-          Write beautiful documentation with Markdown + MDX + Git Sync.
+          Minimal, powerful, fully open-source API Client built on open standards by us + our community.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about API Docs">Learn More</a>
+      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank" aria-label="Learn more about API Client">Learn More</a>
     </div>
   </div>
 </div>
