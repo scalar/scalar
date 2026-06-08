@@ -302,6 +302,15 @@ jobs:
       github.ref == 'refs/heads/main' &&
       needs.required-jobs-main.result == 'success'
     needs: [check-changes, required-jobs-main, integration-builds]
+    # A reusable workflow's jobs cannot request more token permissions than the
+    # calling job holds. release.yml's npm-publish and create-github-release
+    # jobs need write access, so grant it on this caller job — the workflow-level
+    # default of `contents: read` would otherwise reject the call at startup.
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+      id-token: write
     uses: ./.github/workflows/release.yml
     with:
       docker_package_changed: ${{ needs.check-changes.outputs.docker_package_changed }}
