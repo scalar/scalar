@@ -1,15 +1,15 @@
-<div class="flex flex-col gap-3 hero small-test">
+<div class="flex flex-col gap-3 hero small-test small-test-marc">
   <scalar-heading level="2" slug="introduction" class="text-balance">
-    Industry leading Developer Docs, SDKs & API Client
+    API interfaces built for developers and agents
   </scalar-heading>
   <p>
-    Purpose-built for the OpenAPI™ standard
+    Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves.
   </p>
   <div class="flex gap-2">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
   </div>
-  <div class="stickers">
+  <div class="stickers stickers-marc">
     <div class="draggable sticker-5">
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/SiTCkdsfi2287iQBEGzN2.svg"></scalar-icon>
     </div>
@@ -469,6 +469,14 @@
     text-wrap: balance;
     margin-top: 44px;
     position: relative;
+  }
+  .small-test-marc {
+    max-width: 680px;
+  }
+  @media only screen and (min-width: 1000px) {
+    .stickers-marc {
+      right: 240px;
+    }
   }
   .t-editor.page {
     margin-right: unset;
