@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { createWorkspaceStore } from '@/client'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
@@ -1822,6 +1823,51 @@ describe('getExampleFromSchema', () => {
       // Circular references should be skipped entirely
       const example = getExampleFromSchema(schema)
       expect(example).toStrictEqual({})
+    })
+
+    // Regression test for https://github.com/scalar/scalar/issues/9442
+    // A schema that references itself through `allOf` + a nested array (resolved via
+    // the workspace store's magic proxy) used to overflow the stack while rendering the
+    // response example. The self-reference inside the array should resolve to an empty array.
+    it('handles $ref self-references through allOf without overflowing', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Comments', version: '1.0.0' },
+          components: {
+            schemas: {
+              Dto: { type: 'object', properties: { id: { type: 'string' } } },
+              CommentDto: {
+                title: 'CommentDto',
+                allOf: [
+                  { $ref: '#/components/schemas/Dto' },
+                  {
+                    type: 'object',
+                    properties: {
+                      text: { type: 'string' },
+                      responses: {
+                        type: 'array',
+                        items: { $ref: '#/components/schemas/CommentDto' },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      })
+
+      const schema = (store.workspace.activeDocument as any).components.schemas.CommentDto as SchemaObject
+
+      expect(getExampleFromSchema(schema, { emptyString: 'string', mode: 'read' })).toStrictEqual({
+        id: 'string',
+        text: 'string',
+        // The self-reference is expanded once and then stopped, instead of recursing forever.
+        responses: [{}],
+      })
     })
   })
 
