@@ -1,5 +1,9 @@
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { addComponent, addVitePlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 
+import { isWrappableCjsModule, wrapCjsModuleAsEsm } from './cjs-interop'
 import type { Configuration } from './types'
 
 // Module options TypeScript interface definition
@@ -102,47 +106,53 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    // Shim CJS-only packages and fix highlight.js's use of require() in ESM builds.
-    // The resolveId hook is intentionally scoped to @scalar/* importers so that the
-    // debug/extend shims do not shadow the real packages for user code or unrelated
-    // third-party libraries (e.g. DEBUG=* env-var logging would silently stop working
-    // if we replaced debug globally with a no-op shim).
+    // The `debug` package is CJS-only and ships no ESM build, so it cannot be
+    // wrapped like the modules below (its internal require() calls would not
+    // resolve in the browser). We redirect it to a no-op ESM shim instead, but
+    // only for imports that originate from another dependency (for example
+    // micromark, which @scalar/api-reference pulls in for Markdown). A user's own
+    // `import 'debug'` is left untouched so DEBUG=* logging in their app code keeps
+    // working.
     const debugShim = resolver.resolve('./shims/debug.js')
-    const extendShim = resolver.resolve('./shims/extend.js')
 
     addVitePlugin({
       name: 'scalar-cjs-shims',
       enforce: 'pre',
       resolveId(source: string, importer: string | undefined) {
-        // Only intercept imports that originate from within @scalar packages
-        if (!importer?.includes('/node_modules/@scalar/')) {
-          return null
-        }
-        if (source === 'debug') {
+        // Only intercept `debug` when it is imported by another dependency, never
+        // when imported from the user's own application code.
+        if (source === 'debug' && importer?.includes('/node_modules/')) {
           return debugShim
-        }
-        if (source === 'extend') {
-          return extendShim
         }
         return null
       },
       transform(code: string, id: string) {
-        if (!id.includes('/highlight.js/lib/core.js')) {
+        if (!isWrappableCjsModule(id)) {
           return null
         }
+
         return {
-          code: [
-            'const module = { exports: {} };',
-            'const exports = module.exports;',
-            '(function(module, exports) {',
-            code,
-            '})(module, exports);',
-            'export default module.exports;',
-          ].join('\n'),
+          code: wrapCjsModuleAsEsm(code),
           map: null,
         }
       },
     })
+
+    // `@vercel/oidc` is pulled in transitively by the AI assistant (via
+    // @ai-sdk/gateway). Its CommonJS browser build exposes its exports through
+    // getters and uses internal require() calls, so the wrapper above cannot
+    // handle it, but Vite's dependency optimizer (esbuild) can. We only ask Vite
+    // to pre-bundle it when it is hoisted into the project's top-level
+    // node_modules — the layout where it is both resolvable by Vite and actually
+    // broken (e.g. pnpm with shamefully-hoist). This avoids a "failed to resolve"
+    // warning in setups where it is not hoisted (such as this repo's playground).
+    if (existsSync(join(_nuxt.options.rootDir, 'node_modules', '@vercel', 'oidc'))) {
+      _nuxt.options.vite.optimizeDeps ||= {}
+      _nuxt.options.vite.optimizeDeps.include ||= []
+      if (!_nuxt.options.vite.optimizeDeps.include.includes('@vercel/oidc')) {
+        _nuxt.options.vite.optimizeDeps.include.push('@vercel/oidc')
+      }
+    }
 
     // add scalar tab to DevTools
     if (_nuxt.options.dev && _options.devtools) {
