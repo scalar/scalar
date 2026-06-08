@@ -1,5 +1,30 @@
 [
   {
+    "version": "0.10.17",
+    "date": "2026-06-08",
+    "title": "Improved OpenAPI reference resolution performance",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The mock server now resolves OpenAPI $ref nodes on demand instead of processing the entire document upfront, improving startup time and memory usage for large specifications."
+      },
+      {
+        "type": "list",
+        "items": [
+          "References are now resolved lazily only when needed for generating responses",
+          "Nested references (like a Planet referencing a User) now resolve correctly in examples",
+          "Broken references are handled gracefully without failing document processing"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#01017",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.10.2",
     "date": "2026-04-21",
     "title": "OAuth refresh endpoints in mock authentication routes",

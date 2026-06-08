@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.59.0 (2026-06-08)
+
+### AsyncAPI server and channel parameters, CSP nonce support, and expanded schemas
+
+This release brings full AsyncAPI server selection and channel parameter rendering to the API reference, adds Content Security Policy support with a nonce option for strict script-src, and introduces an expandAllSchemaProperties configuration to show nested properties by default.
+
+- AsyncAPI channel address parameters are now rendered in the API reference, showing their enum, default, and example values alongside operation parameters
+- A server selector for AsyncAPI documents displays constructed connection URLs and persists selection and variable changes to the workspace store
+- Pass a nonce option to run the API reference under a strict script-src Content Security Policy with no unsafe-inline or unsafe-eval
+- The new expandAllSchemaProperties configuration expands nested schema properties by default while keeping manual collapse controls available
+- Custom SDK installation instructions from x-scalar-sdk-installation now render in the introduction card with support for rich Markdown and multiple code blocks per language
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1590)
+
 ## 1.58.0 (2026-06-01)
 
 ### AsyncAPI support and improved bundle performance
