@@ -80,7 +80,7 @@ catalogs:
     monaco-yaml: 5.4.1
     nanoid: ^5.1.6
     next: ^15.5.14
-    neverpanic: 0.0.7
+    neverpanic: 0.0.8
     picomatch: ^4.0.4
     postcss: ^8.4.38
     radix-vue: ^1.9.17
