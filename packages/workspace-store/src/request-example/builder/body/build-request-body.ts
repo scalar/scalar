@@ -1,7 +1,7 @@
 // import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
@@ -61,13 +61,15 @@ const getMultipartEncodingContentType = (requestBody: RequestBodyObject, bodyCon
  * by `get-form-body-rows.ts` are folded back via `foldDottedRowsToObject`.
  */
 const buildDottedNestedRowPredicate = (schema: unknown) => {
-  const resolved = schema ? (getResolvedRef(schema) as SchemaObject | undefined) : undefined
+  const resolved = schema ? (getResolvedRef(schema, mergeSiblingReferences) as SchemaObject | undefined) : undefined
   if (!resolved || !isObjectSchema(resolved) || !resolved.properties) {
     return (_name: string, _value: unknown) => false
   }
   const nestedTopKeys = new Set<string>()
   for (const [key, child] of Object.entries(resolved.properties)) {
-    const childResolved = child ? (getResolvedRef(child) as SchemaObject | undefined) : undefined
+    const childResolved = child
+      ? (getResolvedRef(child, mergeSiblingReferences) as SchemaObject | undefined)
+      : undefined
     if (childResolved && isObjectSchema(childResolved) && childResolved.properties) {
       nestedTopKeys.add(key)
     }
@@ -97,7 +99,7 @@ const resolveLeafSchema = (schema: SchemaObject | undefined, segments: string[])
     if (!current || !isObjectSchema(current) || !current.properties) {
       return undefined
     }
-    current = getResolvedRef(current.properties[segment]) as SchemaObject | undefined
+    current = getResolvedRef(current.properties[segment], mergeSiblingReferences) as SchemaObject | undefined
   }
   return current
 }
@@ -209,7 +211,9 @@ export const buildRequestBody = (
     // into the same live object reference so interleaved flat rows keep their order.
     const multipartSchema =
       result.mode === 'formdata'
-        ? (getResolvedRef(requestBody.content[bodyContentType]?.schema) as SchemaObject | undefined)
+        ? (getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences) as
+            | SchemaObject
+            | undefined)
         : undefined
     const isDottedNestedRow = result.mode === 'formdata' ? buildDottedNestedRowPredicate(multipartSchema) : () => false
 

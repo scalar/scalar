@@ -1027,6 +1027,46 @@ describe('buildRequestBody', () => {
     ])
   })
 
+  it('follows $ref sibling overrides when coercing a regrouped leaf type', () => {
+    // OpenAPI 3.1 allows annotations alongside a $ref, and they take precedence over the
+    // referenced schema. Here the leaf references a boolean schema but a sibling `type: 'string'`
+    // overrides it, so the merged leaf is a string and the stringified value must stay a string
+    // instead of being parsed back into a boolean. Build the body raw so the $ref siblings survive.
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              jsonField: {
+                type: 'object',
+                properties: {
+                  overridden: {
+                    $ref: '#/components/schemas/Flag',
+                    '$ref-value': { type: 'boolean' },
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+          examples: {
+            default: {
+              value: [{ name: 'jsonField.overridden', value: 'false' }],
+            },
+          },
+        },
+      },
+    }
+
+    // The strict reference schema does not model annotations alongside a $ref, so cast the raw
+    // body — real workspace data can carry these siblings, which is what mergeSiblingReferences handles.
+    const result = buildRequestBody(requestBody as Parameters<typeof buildRequestBody>[0], 'default')
+    assert(result?.mode === 'formdata')
+
+    expect(result.value).toEqual([{ type: 'text', key: 'jsonField', value: JSON.stringify({ overridden: 'false' }) }])
+  })
+
   it('keeps a flat multipart row whose name happens to contain dots (filename)', () => {
     const requestBody = {
       content: {
