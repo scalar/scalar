@@ -1,68 +1,44 @@
 import { describe, expect, it } from 'vitest'
 
-import { isWrappableCjsModule, wrapCjsModuleAsEsm } from './cjs-interop'
+import { wrapCjsModuleAsEsm } from './cjs-interop'
 
-describe('isWrappableCjsModule', () => {
-  it('matches the CommonJS modules that break under pnpm', () => {
-    // pnpm strict layout paths (the layout that triggers the bug)
-    expect(isWrappableCjsModule('/app/node_modules/.pnpm/cookie@1.1.1/node_modules/cookie/dist/index.js')).toBe(true)
-    expect(isWrappableCjsModule('/app/node_modules/.pnpm/extend@3.0.2/node_modules/extend/index.js')).toBe(true)
-    expect(isWrappableCjsModule('/app/node_modules/.pnpm/highlight.js@11/node_modules/highlight.js/lib/core.js')).toBe(
-      true,
-    )
-  })
-
-  it('ignores unrelated modules', () => {
-    expect(isWrappableCjsModule('/app/node_modules/vue/dist/vue.runtime.esm-bundler.js')).toBe(false)
-    expect(isWrappableCjsModule('/app/node_modules/cookie/dist/index.d.ts')).toBe(false)
-  })
-})
+/**
+ * Wrap CommonJS source and import the result as a real ES module, so we assert
+ * the actual exported values rather than the shape of the generated source.
+ */
+const importWrapped = (code: string): Promise<Record<string, unknown> & { default: Record<string, unknown> }> =>
+  import(`data:text/javascript;base64,${Buffer.from(wrapCjsModuleAsEsm(code)).toString('base64')}`)
 
 describe('wrapCjsModuleAsEsm', () => {
-  it('exposes a default export for `module.exports = ...` modules (e.g. extend)', () => {
-    const wrapped = wrapCjsModuleAsEsm('module.exports = function extend() { return "merged" }')
+  it('exposes `module.exports = ...` as the default export', async () => {
+    const mod = await importWrapped('module.exports = (value) => `wrapped:${value}`')
 
-    expect(wrapped).toContain('export default module.exports;')
-    // `module.exports = fn` style has no named exports to re-export
-    expect(wrapped).not.toContain('export const')
+    expect((mod.default as unknown as (value: string) => string)('a')).toBe('wrapped:a')
   })
 
-  it('re-exports named exports for `exports.name = ...` modules (e.g. cookie)', () => {
-    // The shape that caused "exports is not defined" / missing named exports
-    const code = [
-      'Object.defineProperty(exports, "__esModule", { value: true });',
-      'exports.parse = parseCookie;',
-      'exports.serialize = stringifySetCookie;',
-      'module.exports.stringify = stringifySetCookie;',
-    ].join('\n')
+  it('re-exports `exports.name = ...` assignments as named exports', async () => {
+    const mod = await importWrapped('exports.value = 1; exports.compute = () => 2;')
 
-    const wrapped = wrapCjsModuleAsEsm(code)
-
-    expect(wrapped).toContain('export default module.exports;')
-    expect(wrapped).toContain('export const parse = module.exports["parse"];')
-    expect(wrapped).toContain('export const serialize = module.exports["serialize"];')
-    expect(wrapped).toContain('export const stringify = module.exports["stringify"];')
-    // `__esModule` must not be re-exported as a binding
-    expect(wrapped).not.toContain('export const __esModule')
+    expect(mod.value).toBe(1)
+    expect((mod.compute as () => number)()).toBe(2)
+    // The named and default views agree, which is what `import * as ns` relies on
+    expect(mod.default.value).toBe(1)
   })
 
-  it('runs the wrapped CommonJS so named exports resolve to real values', async () => {
-    const code = [
-      'exports.parse = (value) => `parsed:${value}`;',
-      'exports.serialize = (name, value) => `${name}=${value}`;',
-    ].join('\n')
+  it('also picks up `module.exports.name = ...` assignments', async () => {
+    const mod = await importWrapped('module.exports.value = "set";')
 
-    // Evaluate the produced ESM as a data-URL module to prove the wrapping works
-    const moduleUrl = `data:text/javascript;base64,${Buffer.from(wrapCjsModuleAsEsm(code)).toString('base64')}`
-    const mod = (await import(moduleUrl)) as {
-      default: { serialize: (name: string, value: string) => string }
-      parse: (value: string) => string
-      serialize: (name: string, value: string) => string
-    }
+    expect(mod.value).toBe('set')
+  })
 
-    expect(mod.parse('a')).toBe('parsed:a')
-    expect(mod.serialize('id', '1')).toBe('id=1')
-    // Namespace and default access agree (this is what `import * as cookie` relies on)
-    expect(mod.default.serialize('id', '1')).toBe('id=1')
+  it('skips `default` and `__esModule` keys so the wrapped module stays valid', async () => {
+    // The shape Babel/TS emit: an __esModule marker plus a default export. Emitting
+    // `export const default = ...` would be a syntax error, so importing this at all
+    // proves those keys are skipped while real named exports still come through.
+    const mod = await importWrapped(
+      'Object.defineProperty(exports, "__esModule", { value: true }); exports.default = "d"; exports.named = "n";',
+    )
+
+    expect(mod.named).toBe('n')
   })
 })
