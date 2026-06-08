@@ -771,3 +771,36 @@ describe('ApiReference custom fetch forwarding', () => {
     warn.mockRestore()
   })
 })
+
+describe('ApiReference AsyncAPI onServerChange', () => {
+  it('fires onServerChange with the connection URL when an AsyncAPI server is selected', async () => {
+    const onServerChange = vi.fn()
+
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          onServerChange,
+          content: {
+            asyncapi: '3.0.0',
+            info: { title: 'Events API', version: '1.0.0' },
+            servers: {
+              production: { host: 'broker.example.com', protocol: 'wss' },
+              development: { host: 'localhost:8080', protocol: 'ws' },
+            },
+            channels: { events: { address: 'events' } },
+          },
+        },
+      },
+    })
+    await flushPromises()
+
+    const serverSelector = wrapper.findComponent({ name: 'Selector' })
+    expect(serverSelector.exists()).toBe(true)
+
+    await serverSelector.vm.$emit('update:modelValue', 'development')
+
+    expect(onServerChange).toHaveBeenCalledWith('ws://localhost:8080')
+
+    wrapper.unmount()
+  })
+})

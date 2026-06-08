@@ -230,6 +230,20 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('server:update:selected', (payload) =>
     withHook('server:update:selected', mutators.value.active().server.updateSelectedServer, hooks)(payload),
   )
+  eventBus.on('asyncapi-server:update:selected', (payload) =>
+    withHook(
+      'asyncapi-server:update:selected',
+      mutators.value.active().server.updateSelectedAsyncApiServer,
+      hooks,
+    )(payload),
+  )
+  eventBus.on('asyncapi-server:update:variables', (payload) =>
+    withHook(
+      'asyncapi-server:update:variables',
+      mutators.value.active().server.updateAsyncApiServerVariables,
+      hooks,
+    )(payload),
+  )
 
   //------------------------------------------------------------------------------------
   // Operation Related Event Handlers

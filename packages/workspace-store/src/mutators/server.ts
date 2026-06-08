@@ -1,9 +1,10 @@
 import { findVariables } from '@scalar/helpers/regex/find-variables'
+import type { AsyncApiServerVariableObject } from '@scalar/types/asyncapi/3.1'
 
 import type { ServerEvents, ServerMeta } from '@/events/definitions/server'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import { isOpenApiDocument } from '@/schemas/type-guards'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type ServerObject, ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@/schemas/workspace'
@@ -299,6 +300,58 @@ export const updateSelectedServer = (
   return target['x-scalar-selected-server']
 }
 
+/**
+ * Updates the selected server for an AsyncAPI document.
+ *
+ * AsyncAPI servers are a named map, so the selection is stored as the server
+ * name in `x-scalar-selected-server`. There is always an effective server
+ * (`getSelectedAsyncApiServer` falls back to the first one), so this simply sets
+ * the selection rather than toggling it off.
+ *
+ * @param document - The document to update the selected server in
+ * @param name - The name of the server to select
+ * @returns the name of the selected server or undefined if the document is not AsyncAPI
+ */
+export const updateSelectedAsyncApiServer = (
+  document: WorkspaceDocument | null,
+  { name }: ServerEvents['asyncapi-server:update:selected'],
+): string | undefined => {
+  if (!isAsyncApiDocument(document)) {
+    return undefined
+  }
+
+  document['x-scalar-selected-server'] = name
+  return document['x-scalar-selected-server']
+}
+
+/**
+ * Updates a server variable for an AsyncAPI document, identified by server name.
+ *
+ * @param document - The document to update the server variables in
+ * @param name - The name of the server to update
+ * @param key - The key of the variable to update
+ * @param value - The new value of the variable
+ * @returns the updated variable or undefined if it is not found
+ */
+export const updateAsyncApiServerVariables = (
+  document: WorkspaceDocument | null,
+  { name, key, value }: ServerEvents['asyncapi-server:update:variables'],
+): AsyncApiServerVariableObject | undefined => {
+  if (!isAsyncApiDocument(document)) {
+    return undefined
+  }
+
+  const server = getResolvedRef(document.servers?.[name])
+  const variable = server?.variables?.[key] ? getResolvedRef(server.variables[key]) : undefined
+  if (!variable) {
+    console.error('Variable not found', key, name)
+    return undefined
+  }
+
+  variable.default = value
+  return variable
+}
+
 export const serverMutatorsFactory = ({ document }: { document: WorkspaceDocument | null }) => {
   return {
     initializeServers: (payload: ServerEvents['server:initialize:servers']) => initializeServers(document, payload),
@@ -309,5 +362,9 @@ export const serverMutatorsFactory = ({ document }: { document: WorkspaceDocumen
     updateServerVariables: (payload: ServerEvents['server:update:variables']) =>
       updateServerVariables(document, payload),
     updateSelectedServer: (payload: ServerEvents['server:update:selected']) => updateSelectedServer(document, payload),
+    updateSelectedAsyncApiServer: (payload: ServerEvents['asyncapi-server:update:selected']) =>
+      updateSelectedAsyncApiServer(document, payload),
+    updateAsyncApiServerVariables: (payload: ServerEvents['asyncapi-server:update:variables']) =>
+      updateAsyncApiServerVariables(document, payload),
   }
 }
