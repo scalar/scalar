@@ -26,7 +26,7 @@
     "deploy": "wrangler pages deploy dist --project-name=galaxy-scalar-com",
     "dev": "pnpm build && wrangler pages dev dist --compatibility-date=2026-04-28 --compatibility-flags=nodejs_compat",
     "test": "vitest --run",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "devDependencies": {

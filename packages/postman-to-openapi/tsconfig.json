@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "include": ["src", "test", "esbuild.ts", "env.d.ts"],
   "compilerOptions": {
+    "types": ["node"],
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]

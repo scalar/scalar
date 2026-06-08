@@ -26,7 +26,7 @@
     "generate-openapi-types": "tsx ./scripts/generate-openapi-types.ts",
     "test": "vitest --run",
     "test:watch": "vitest",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "exports": {
