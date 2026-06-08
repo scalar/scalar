@@ -6,13 +6,11 @@ import type { WorkspaceDocument } from '@/schemas'
 import type { DisableParametersConfig } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { ExampleObject } from '@/schemas/v3.1/strict/example'
-import type { PathItemObject } from '@/schemas/v3.1/strict/path-item'
 import type { ParameterObject } from '@/schemas/v3.1/strict/parameter'
+import type { PathItemObject } from '@/schemas/v3.1/strict/path-item'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 
-const getPathItemsForParameterMutation = (
-  pathItemRef: NodeInput<PathItemObject> | undefined,
-): PathItemObject[] => {
+const getPathItemsForParameterMutation = (pathItemRef: NodeInput<PathItemObject> | undefined): PathItemObject[] => {
   if (!pathItemRef || typeof pathItemRef !== 'object') {
     return []
   }
