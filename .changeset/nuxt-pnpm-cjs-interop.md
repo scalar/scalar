@@ -2,6 +2,6 @@
 '@scalar/nuxt': patch
 ---
 
-fix(nuxt): render the docs page under pnpm's strict node_modules layout
+fix(nuxt): pre-bundle @vercel/oidc so the docs page renders under pnpm
 
-Several CommonJS dependencies (`cookie`, `extend`, `debug`) were served raw by Vite under pnpm without `shamefully-hoist`, breaking the docs page with `exports is not defined` and missing-export errors. They are now wrapped into proper ESM (with named exports) regardless of which package imports them, and `@vercel/oidc` (pulled in by the AI assistant) is pre-bundled when it is hoisted into the project.
+Under pnpm's strict node_modules layout, `@vercel/oidc` (pulled in transitively by the AI assistant) was served as raw CommonJS and broke the docs page. It is now pre-bundled by Vite when it is hoisted into the project. The other CommonJS offenders are fixed at their source packages instead.

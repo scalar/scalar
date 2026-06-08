@@ -1,9 +1,8 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { addComponent, addVitePlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
+import { addComponent, createResolver, defineNuxtModule, extendPages, extendViteConfig } from '@nuxt/kit'
 
-import { isWrappableCjsModule, wrapCjsModuleAsEsm } from './cjs-interop'
 import type { Configuration } from './types'
 
 // Module options TypeScript interface definition
@@ -106,52 +105,28 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    // The `debug` package is CJS-only and ships no ESM build, so it cannot be
-    // wrapped like the modules below (its internal require() calls would not
-    // resolve in the browser). We redirect it to a no-op ESM shim instead, but
-    // only for imports that originate from another dependency (for example
-    // micromark, which @scalar/api-reference pulls in for Markdown). A user's own
-    // `import 'debug'` is left untouched so DEBUG=* logging in their app code keeps
-    // working.
-    const debugShim = resolver.resolve('./shims/debug.js')
-
-    addVitePlugin({
-      name: 'scalar-cjs-shims',
-      enforce: 'pre',
-      resolveId(source: string, importer: string | undefined) {
-        // Only intercept `debug` when it is imported by another dependency, never
-        // when imported from the user's own application code.
-        if (source === 'debug' && importer?.includes('/node_modules/')) {
-          return debugShim
-        }
-        return null
-      },
-      transform(code: string, id: string) {
-        if (!isWrappableCjsModule(id)) {
-          return null
-        }
-
-        return {
-          code: wrapCjsModuleAsEsm(code),
-          map: null,
-        }
-      },
-    })
-
     // `@vercel/oidc` is pulled in transitively by the AI assistant (via
     // @ai-sdk/gateway). Its CommonJS browser build exposes its exports through
-    // getters and uses internal require() calls, so the wrapper above cannot
-    // handle it, but Vite's dependency optimizer (esbuild) can. We only ask Vite
-    // to pre-bundle it when it is hoisted into the project's top-level
-    // node_modules — the layout where it is both resolvable by Vite and actually
-    // broken (e.g. pnpm with shamefully-hoist). This avoids a "failed to resolve"
-    // warning in setups where it is not hoisted (such as this repo's playground).
+    // getters and uses internal require() calls, which breaks Vite under pnpm's
+    // strict node_modules layout. Vite's dependency optimizer (esbuild) handles
+    // it, so we ask Vite to pre-bundle it — but only when it is hoisted into the
+    // project's top-level node_modules, the layout where it is both resolvable by
+    // Vite and actually broken (e.g. pnpm with shamefully-hoist). This avoids a
+    // "failed to resolve" warning in setups where it is not hoisted (such as this
+    // repo's playground).
+    //
+    // The other CommonJS offenders (cookie, extend, debug, highlight.js) are
+    // handled at the source packages — `cookie` was dropped from @scalar/api-client
+    // and the Markdown/highlight stack is bundled into @scalar/code-highlight — so
+    // no shims are needed here for those.
     if (existsSync(join(_nuxt.options.rootDir, 'node_modules', '@vercel', 'oidc'))) {
-      _nuxt.options.vite.optimizeDeps ||= {}
-      _nuxt.options.vite.optimizeDeps.include ||= []
-      if (!_nuxt.options.vite.optimizeDeps.include.includes('@vercel/oidc')) {
-        _nuxt.options.vite.optimizeDeps.include.push('@vercel/oidc')
-      }
+      extendViteConfig((config) => {
+        config.optimizeDeps ||= {}
+        config.optimizeDeps.include ||= []
+        if (!config.optimizeDeps.include.includes('@vercel/oidc')) {
+          config.optimizeDeps.include.push('@vercel/oidc')
+        }
+      })
     }
 
     // add scalar tab to DevTools
