@@ -111,6 +111,7 @@ export { ScalarThemeSwatches, useThemeSwatches } from './components/ScalarThemeS
 export { ScalarToggle, ScalarToggleGroup, ScalarToggleInput } from './components/ScalarToggle'
 export type { ScalarTooltipPlacement, TooltipConfiguration } from './components/ScalarTooltip'
 export { ScalarHotkeyTooltip, ScalarTooltip, useTooltip } from './components/ScalarTooltip'
+export { ScalarVirtualCodeBlock } from './components/ScalarVirtualCodeBlock'
 export { ScalarVirtualText } from './components/ScalarVirtualText'
 export { ScalarWrappingText } from './components/ScalarWrappingText'
 export { addScalarClassesToHeadless } from './helpers'
