@@ -103,18 +103,25 @@ jobs:
       repository-projects: write
       # Required for npm provenance statements
       id-token: write
-    # Expose the changesets/action outputs so downstream jobs can gate on the
-    # actual publish result instead of parsing the commit message. `published`
-    # is 'true' only when changesets/action actually pushed at least one
-    # package to npm; `publishedPackages` is a JSON array of {name, version}.
+    # 'true' when this commit released at least one public package — every
+    # release-gated job downstream (production galaxy deploy, GitHub release,
+    # integration publishes, CDN purge, production web deploy) keys off this.
+    #
+    # We deliberately do NOT use changesets/action's own `published` output:
+    # that action only reports a package as published when the publish command
+    # prints changesets' `New tag:` lines, which only `changeset publish`
+    # emits. Our publish command is `pnpm -r publish`, whose output it cannot
+    # parse, so `steps.changesets.outputs.published` is always 'false' even
+    # though packages do reach npm. Instead we detect a release by diffing
+    # public package.json versions against the previous commit (see the
+    # "Detect package release" step).
     outputs:
-      published: ${{ steps.changesets.outputs.published }}
-      publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+      published: ${{ steps.release-check.outputs.published }}
       # 'true' when this commit bumped projects/scalar-app/package.json's
-      # version. scalar-app is private, so it never appears in
-      # `publishedPackages` — this lets downstream jobs (web prod deploy,
+      # version. scalar-app is private, so it is excluded from the public
+      # detection above — this lets downstream jobs (web prod deploy,
       # ToDesktop build) treat a scalar-app version bump as a release even
-      # when no public packages were published in the same commit.
+      # when no public packages were released in the same commit.
       scalar_app_released: ${{ steps.scalar-app-release.outputs.released }}
       # Captured by the always()-step below so the caller can read the
       # npm-publish job result independently of sibling release jobs.
@@ -151,6 +158,35 @@ jobs:
             echo "scalar-app version unchanged: $CURRENT_VERSION"
             echo "released=false" >> "$GITHUB_OUTPUT"
           fi
+      # Detect whether this commit released any public package, by diffing the
+      # version field of every changed package.json against the previous commit.
+      # This is the reliable replacement for changesets/action's `published`
+      # output (see the outputs block above for why that one is unusable). A
+      # release commit is the merge of the "chore: version packages" PR, which
+      # bumps the version in each released package.json; ordinary commits bump
+      # nothing and so deploy to staging instead of production. Runs before the
+      # build/stash steps so it only ever sees committed versions.
+      - name: Detect package release
+        id: release-check
+        run: |
+          published=false
+          while IFS= read -r file; do
+            # Only care about package manifests that still exist in the tree.
+            case "$file" in */package.json) ;; *) continue ;; esac
+            [ -f "$file" ] || continue
+            # Private packages never publish to npm. scalar-app is the only one
+            # that gates a deploy, and it is handled by the step above.
+            if [ "$(jq -r '.private // false' "$file")" = "true" ]; then
+              continue
+            fi
+            CURRENT_VERSION=$(jq -r '.version // ""' "$file")
+            PREV_VERSION=$(git show "HEAD~1:$file" 2>/dev/null | jq -r '.version // ""' 2>/dev/null || echo "")
+            if [ -n "$CURRENT_VERSION" ] && [ "$CURRENT_VERSION" != "$PREV_VERSION" ]; then
+              echo "released: $file ($PREV_VERSION -> $CURRENT_VERSION)"
+              published=true
+            fi
+          done < <(git diff --name-only HEAD~1 HEAD)
+          echo "published=$published" >> "$GITHUB_OUTPUT"
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -194,7 +230,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
       - name: Bust CDN cache
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.release-check.outputs.published == 'true'
         uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
