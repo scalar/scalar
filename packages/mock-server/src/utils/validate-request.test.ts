@@ -373,6 +373,31 @@ describe('validate-request', () => {
     expect((await valid.json()).received).toEqual({ name: 'Alice' })
   })
 
+  it('delivers a validated body to the handler for a mixed-case Content-Type', async () => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { received: req.body };',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+          },
+        },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // Media types are case-insensitive, so the validator and the handler must agree on `Application/JSON`.
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'Application/JSON' },
+      body: JSON.stringify({ name: 'Alice' }),
+    })
+
+    expect((await response.json()).received).toEqual({ name: 'Alice' })
+  })
+
   it('calls onRequest even when the request is rejected by validation', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
