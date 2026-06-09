@@ -8,6 +8,12 @@ const XScalarSdkInstallationItem = object(
     description: optional(
       string({ typeComment: 'Installation instructions in Markdown (supports fenced code blocks)' }),
     ),
+    source: optional(
+      string({
+        typeComment:
+          '@deprecated Use `description` instead. When set, it is appended to `description` as a fenced code block (or used on its own when there is no `description`).',
+      }),
+    ),
   },
   {
     typeName: 'XScalarSdkInstallationItem',

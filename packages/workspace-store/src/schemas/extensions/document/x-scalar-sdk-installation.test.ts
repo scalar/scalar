@@ -24,6 +24,26 @@ describe('XScalarSdkInstallationSchema', () => {
     })
   })
 
+  it('still accepts the deprecated source install command', () => {
+    const result = Value.Parse(XScalarSdkInstallationSchema, {
+      'x-scalar-sdk-installation': [
+        {
+          lang: 'Go',
+          source: 'go get example.com/sdk',
+        },
+      ],
+    })
+
+    expect(result).toEqual({
+      'x-scalar-sdk-installation': [
+        {
+          lang: 'Go',
+          source: 'go get example.com/sdk',
+        },
+      ],
+    })
+  })
+
   it('supports a Markdown description with fenced code blocks', () => {
     const description = ['Install our SDK with Maven:', '```xml', '<dependency />', '```'].join('\n')
 

@@ -47,4 +47,32 @@ describe('getRenderableSdks', () => {
       expect(getRenderableSdks(value)).toEqual([])
     }
   })
+
+  it('uses the legacy source as the description when there is no description', () => {
+    expect(getRenderableSdks([{ lang: 'Go', source: 'go get example.com/sdk' }])).toEqual([
+      { lang: 'Go', description: '```\ngo get example.com/sdk\n```' },
+    ])
+  })
+
+  it('appends the legacy source to the description as a fenced code block', () => {
+    expect(
+      getRenderableSdks([{ lang: 'Node', description: 'Install from npm:', source: 'npm install @scalar/sdk' }]),
+    ).toEqual([{ lang: 'Node', description: 'Install from npm:\n\n```\nnpm install @scalar/sdk\n```' }])
+  })
+
+  it('keeps the description verbatim so indented code blocks survive', () => {
+    const description = ['Install with Make:', '', '    make install'].join('\n')
+
+    expect(getRenderableSdks([{ lang: 'C', description }])).toEqual([{ lang: 'C', description }])
+  })
+
+  it('keeps the source inside one code block even when it contains backticks', () => {
+    expect(getRenderableSdks([{ lang: 'Shell', source: 'echo ```nested```' }])).toEqual([
+      { lang: 'Shell', description: '````\necho ```nested```\n````' },
+    ])
+  })
+
+  it('drops entries that carry neither a description nor a source', () => {
+    expect(getRenderableSdks([{ lang: 'Empty' }, { lang: 'Blank', description: '', source: '   ' }])).toEqual([])
+  })
 })
