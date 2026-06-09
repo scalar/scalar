@@ -47,7 +47,10 @@ export const getRenderableSdks = (xScalarSdkInstallation: SdkInstallationList | 
           return []
         }
 
-        const description = typeof sdk.description === 'string' ? sdk.description.trim() : ''
+        // Keep the description verbatim so indented code blocks and other
+        // significant whitespace survive; only a whitespace-only value counts
+        // as "no description".
+        const description = typeof sdk.description === 'string' && sdk.description.trim() ? sdk.description : ''
         const source = typeof sdk.source === 'string' ? sdk.source.trim() : ''
 
         if (!description && !source) {

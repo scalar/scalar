@@ -60,6 +60,12 @@ describe('getRenderableSdks', () => {
     ).toEqual([{ lang: 'Node', description: 'Install from npm:\n\n```\nnpm install @scalar/sdk\n```' }])
   })
 
+  it('keeps the description verbatim so indented code blocks survive', () => {
+    const description = ['Install with Make:', '', '    make install'].join('\n')
+
+    expect(getRenderableSdks([{ lang: 'C', description }])).toEqual([{ lang: 'C', description }])
+  })
+
   it('keeps the source inside one code block even when it contains backticks', () => {
     expect(getRenderableSdks([{ lang: 'Shell', source: 'echo ```nested```' }])).toEqual([
       { lang: 'Shell', description: '````\necho ```nested```\n````' },
