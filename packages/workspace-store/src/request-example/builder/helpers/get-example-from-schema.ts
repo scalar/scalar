@@ -563,8 +563,17 @@ const handleArraySchema = (
 
   let items = 'items' in schema ? resolve.schema(schema.items) : undefined
   // Bind a dynamic item type (e.g. the generic `PaginatedResponse<T>` pattern) before inspecting it.
+  // Crossing a `$dynamicRef` leaves the static schema graph, so the cycle guard built up by the outer
+  // walk no longer applies to the bound type. Restart `seen` for the item recursion so recursive trees
+  // (e.g. a category whose children reference the same anchor) render their nested levels instead of
+  // tripping the shared guard. Depth stays bounded by `MAX_LEVELS_DEEP`.
+  let itemsSeen = seen
   if (items && isDynamicRef(items)) {
-    items = resolveDynamicRef(items.$dynamicRef, childScope) ?? items
+    const resolvedDynamic = resolveDynamicRef(items.$dynamicRef, childScope)
+    if (resolvedDynamic) {
+      items = resolvedDynamic
+      itemsSeen = new WeakSet()
+    }
   }
   const itemsSchemaPath = [...schemaPath, 'items']
   const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
@@ -590,7 +599,7 @@ const handleArraySchema = (
           level: level + 1,
           parentSchema: schema,
           schemaPath: itemsSchemaPath,
-          seen,
+          seen: itemsSeen,
           dynamicScope: childScope,
         })
         return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged], cacheKey, skipCache)
@@ -602,7 +611,7 @@ const handleArraySchema = (
             level: level + 1,
             parentSchema: schema,
             schemaPath: itemsSchemaPath,
-            seen,
+            seen: itemsSeen,
             dynamicScope: childScope,
           }),
         )
@@ -625,7 +634,7 @@ const handleArraySchema = (
         level: level + 1,
         parentSchema: schema,
         schemaPath: itemsSchemaPath,
-        seen,
+        seen: itemsSeen,
         dynamicScope: childScope,
       })
       return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey, skipCache)
@@ -641,7 +650,7 @@ const handleArraySchema = (
     const ex = getExampleFromSchema(items as SchemaObject, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,
-      seen,
+      seen: itemsSeen,
       dynamicScope: childScope,
     })
     return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey, skipCache)
@@ -774,11 +783,15 @@ export const getExampleFromSchema = (
   if (isDynamicRef(_schema)) {
     const resolvedDynamic = resolveDynamicRef(_schema.$dynamicRef, dynamicScope)
     if (resolvedDynamic) {
+      // The `seen` set guards against cycles in the static schema graph, but a `$dynamicRef` is resolved
+      // per evaluation path and intentionally points outside that graph. Re-entering the bound type with a
+      // fresh `seen` lets recursive examples (e.g. a category tree) render their nested levels instead of
+      // bailing out on the shared cycle guard. Depth stays bounded by `MAX_LEVELS_DEEP`.
       return getExampleFromSchema(resolvedDynamic, options, {
         level: level + 1,
         parentSchema,
         name,
-        seen,
+        seen: new WeakSet(),
         schemaPath,
         dynamicScope,
       })

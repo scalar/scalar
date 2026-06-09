@@ -2104,6 +2104,47 @@ describe('getExampleFromSchema', () => {
       expect(Array.isArray(example.children)).toBe(true)
       expect(example.children[0]).toHaveProperty('displayName')
       expect(example.children[0]).toHaveProperty('locale')
+      // The recursive child is the full bound type, so it keeps the base fields (id, children) too —
+      // re-entering the same anchor must not be blocked by the cycle guard from the outer walk.
+      expect(example.children[0]).toHaveProperty('id')
+      expect(example.children[0]).toHaveProperty('children')
+      // The recursion descends at least one level deeper, still carrying the localized fields.
+      const grandchildren = example.children[0]!.children as Record<string, unknown>[]
+      expect(Array.isArray(grandchildren)).toBe(true)
+      expect(grandchildren[0]).toHaveProperty('displayName')
+    })
+
+    it('resolves a recursive $dynamicRef behind an object property', () => {
+      // Same recursion as above, but the self-reference is a plain object property (a linked-list `next`)
+      // rather than array items, so it exercises the main resolver branch instead of the array path.
+      const baseNode = {
+        $id: 'urn:node-base',
+        $dynamicAnchor: 'node',
+        type: 'object',
+        required: ['value', 'next'],
+        properties: {
+          value: { type: 'string' },
+          next: { $dynamicRef: '#node' },
+        },
+      }
+      const timestampedNode = dyn({
+        $id: 'urn:node-timestamped',
+        $dynamicAnchor: 'node',
+        allOf: [baseNode, { type: 'object', required: ['createdAt'], properties: { createdAt: { type: 'string' } } }],
+      })
+
+      const example = getExampleFromSchema(timestampedNode) as {
+        value: unknown
+        createdAt: unknown
+        next: Record<string, unknown>
+      }
+
+      expect(example).toHaveProperty('value')
+      expect(example).toHaveProperty('createdAt')
+      // `next` binds to the timestamped type, so it keeps both the base and the extended fields.
+      expect(example.next).toHaveProperty('value')
+      expect(example.next).toHaveProperty('createdAt')
+      expect(example.next).toHaveProperty('next')
     })
   })
 })
