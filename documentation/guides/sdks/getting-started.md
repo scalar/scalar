@@ -3,10 +3,10 @@
 </div>
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="scalar-sdks" class="text-balance">
-    SDKs
+    SDK Generator
   </scalar-heading>
   <p>
-    Get started with generating world-class SDKs in minutes on scalar.com in several languages: TypeScript, Python, Golang & more.
+    Get started with generating world-class SDKs and CLIs in minutes on scalar.com for TypeScript, Python, CLI, and more.
   </p>
 </div>
 
@@ -21,7 +21,7 @@
 ## Getting Started
 
 > [!NOTE]
-> SDK generation is part of our paid plans and costs $100 per month per language. Keep this in mind when selecting which languages you'd like to generate SDKs for.
+> SDK generation is part of our paid plans and costs $100 per month per target. Keep this in mind when selecting what you would like to generate.
 
 Make sure you have created a Scalar Account & are logged in ([see create account guide](../registry/getting-started.md#create-your-scalar-account))
 
@@ -37,8 +37,8 @@ If you don't already have an OpenAPI document on our registry, you can import it
 
   </scalar-step>
 
-  <scalar-step id="step-2" title="Select Desired Languages">
-Select as many SDKs as you would like, or just one language to start. Once you click "Continue" we will begin generating your SDKs.
+  <scalar-step id="step-2" title="Select Desired Targets">
+Select as many SDKs or CLIs as you would like, or just one target to start. Once you click "Continue" we will begin generating your SDKs.
 
   </scalar-step>
 
@@ -46,7 +46,7 @@ Select as many SDKs as you would like, or just one language to start. Once you c
 Once created, you will get redirected to the SDK Overview page where you can:
 - Configure your SDK settings
 - Add our GitHub Integration
-- Downlad the SDK Client
+- Download the SDK Client
 
   </scalar-step>
 </scalar-steps>
@@ -116,7 +116,13 @@ Once created, you will get redirected to the SDK Overview page where you can:
         <b class="font-medium">Additional Reading</b>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/sdks/configuration/typescript"><scalar-icon src="phosphor/bold/file-ts"></scalar-icon> Typescript SDKs</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/sdks/configuration/overview"><scalar-icon src="phosphor/bold/plug"></scalar-icon> Configuration</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/sdks/configuration/cli"><scalar-icon src="phosphor/bold/terminal-window"></scalar-icon> CLI</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/sdks/configuration/typescript"><scalar-icon src="phosphor/bold/file-ts"></scalar-icon> TypeScript SDKs</a>
       </p>
       <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/sdks/publishing"><scalar-icon src="phosphor/bold/package"></scalar-icon> Publishing to npm</a>

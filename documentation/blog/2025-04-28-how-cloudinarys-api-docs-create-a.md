@@ -65,7 +65,7 @@ Again, adding this sort of interactivity would take a significant amount of work
 
 Scalar is just one example of a tool in the wider OpenAPI ecosystem. By standardizing on OpenAPI, Cloudinary (and its users) can benefit from all the progress happening in this ecosystem.
 
-As an example, another tool in this ecosystem is Speakeasy which enables Cloudinary to generate client SDKs (like Python or Ruby) from an OpenAPI document. These SDKs make setting up and using Cloudinary simpler and gives another option for users with little added work for Cloudinary.
+As an example, tools in this ecosystem can generate client SDKs (like Python or Ruby) from an OpenAPI document. These SDKs make setting up and using Cloudinary simpler and give another option for users with little added work for Cloudinary.
 
 OpenAPI also helps make developers at Cloudinary more productive by:
 
