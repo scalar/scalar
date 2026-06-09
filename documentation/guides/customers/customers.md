@@ -368,7 +368,7 @@
     position: relative;
     overflow: hidden;
     width: calc(100% + 96px);
-    margin: 0 0 96px -48px;
+    margin: 0 0 68px -48px;
     background: var(--scalar-background-2);
     border-radius: var(--scalar-radius-lg);
     padding-inline: 20px;
