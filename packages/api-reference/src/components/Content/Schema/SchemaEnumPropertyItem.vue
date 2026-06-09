@@ -70,13 +70,20 @@ defineProps<{
 .property-enum-value:last-of-type::before,
 .property-enum-values:has(.enum-toggle-button)
   .property-enum-value:nth-last-child(2)::before {
-  height: calc(0.5lh + 4px);
+  /*
+   * The half-line is kept in a custom property so older `postcss-calc`
+   * versions (pulled in transitively by consumer builds via cssnano) skip
+   * reducing this expression instead of warning that they cannot parse the
+   * `lh` unit inside `calc()`.
+   */
+  --enum-decorator-height: 0.5lh;
+  height: calc(var(--enum-decorator-height) + 4px);
 }
 
 .property-enum-value-label::after {
   content: '';
   position: absolute;
-  top: calc(0.5lh);
+  top: 0.5lh;
   left: -12px;
   width: 8px;
   height: var(--decorator-width);
