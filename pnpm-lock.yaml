@@ -138,9 +138,6 @@ catalogs:
     concurrently:
       specifier: 9.1.2
       version: 9.1.2
-    cookie:
-      specifier: 1.1.1
-      version: 1.1.1
     cross-env:
       specifier: 10.1.0
       version: 10.1.0
@@ -1250,9 +1247,6 @@ importers:
       '@vueuse/integrations':
         specifier: catalog:*
         version: 13.9.0(axios@1.13.2)(change-case@5.4.4)(focus-trap@7.8.0)(fuse.js@7.1.0)(jwt-decode@4.0.0)(nprogress@0.2.0)(vue@3.5.30(typescript@5.9.3))
-      cookie:
-        specifier: catalog:*
-        version: 1.1.1
       focus-trap:
         specifier: ^7.8.0
         version: 7.8.0

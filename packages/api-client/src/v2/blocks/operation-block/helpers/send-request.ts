@@ -5,9 +5,9 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
 import { X_SCALAR_SET_COOKIE } from '@scalar/helpers/http/scalar-headers'
+import { serializeCookie } from '@scalar/helpers/http/serialize-cookie'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { RequestPayload } from '@scalar/workspace-store/request-example'
-import * as cookie from 'cookie'
 import { parseSetCookie } from 'set-cookie-parser'
 
 import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
@@ -148,18 +148,15 @@ export const sendRequest = async ({
 /**
  * Extracts and serializes custom cookies from the response using the custom cookie header.
  *
- * This function parses the custom cookie header (if present), serializes each cookie using the
- * 'cookie' library, and then deletes the custom cookie header from the response.
+ * This function parses the custom cookie header (if present), serializes each cookie using our
+ * in-repo `serializeCookie` helper, and then deletes the custom cookie header from the response.
  * Returns an array of serialized cookie strings, or null if no cookies were found.
- *
- * The @ts-expect-error is present due to a type mismatch between the 'cookie' parsing and serialization libraries.
  */
 const getCustomCookie = (response: Response): string[] | null => {
   const result = parseSetCookie(response.headers.get(X_SCALAR_SET_COOKIE) ?? '').map((c) =>
-    cookie.serialize(c.name, c.value, {
+    serializeCookie(c.name, c.value, {
       ...c,
       sameSite: c.sameSite as boolean | 'lax' | 'strict' | 'none' | undefined,
-      encode: (str: string) => str,
     }),
   )
 

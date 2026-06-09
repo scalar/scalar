@@ -58,7 +58,6 @@ catalogs:
     ai: 6.0.33
     ansis: 4.1.0
     astro: 5.18.1
-    cookie: 1.1.1
     commander: 13.1.0
     concurrently: 9.1.2
     cross-env: 10.1.0
