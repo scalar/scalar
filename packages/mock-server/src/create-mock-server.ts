@@ -79,8 +79,12 @@ export async function createMockServer(configuration: MockServerOptions): Promis
       const route = honoRouteFromPath(path)
       const operation = pathItem?.[method] as OpenAPIV3_1.OperationObject
 
+      // Operation-level security overrides the global requirement, so fall back to the
+      // document-wide `security` when the operation does not define its own.
+      const effectiveSecurity = operation.security ?? schema?.security
+
       // Check if authentication is required for this operation
-      if (isAuthenticationRequired(operation.security)) {
+      if (isAuthenticationRequired(effectiveSecurity)) {
         app[method](route, handleAuthentication(schema, operation))
       }
 
