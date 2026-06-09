@@ -96,13 +96,19 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   c.status(statusCode)
 
   return c.body(
-    typeof body === 'object'
+    // `null` is `typeof 'object'` too, but it is not a valid XML/JSON object
+    // root — serialize it (and any non-string primitive) with `JSON.stringify`
+    // so a `null` example does not get fed into `json2xml`.
+    body !== null && typeof body === 'object'
       ? // XML
         acceptedContentType?.includes('xml')
         ? json2xml(body as Record<string, unknown>)
         : // JSON
           JSON.stringify(body, null, 2)
-      : // String
-        (body as string),
+      : typeof body === 'string'
+        ? // String
+          body
+        : // null / number / boolean
+          JSON.stringify(body),
   )
 }

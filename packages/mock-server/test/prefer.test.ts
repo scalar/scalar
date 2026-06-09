@@ -183,6 +183,60 @@ describe('Prefer header', () => {
     })
   })
 
+  describe('null example', () => {
+    it('serializes a null JSON example as null', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: baseInfo,
+        paths: {
+          '/nothing': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/json': { example: null } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/nothing')
+
+      expect(response.status).toBe(200)
+      expect(await response.text()).toBe('null')
+    })
+
+    it('does not feed a null example into json2xml for XML responses', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: baseInfo,
+        paths: {
+          '/nothing': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/xml': { example: null } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/nothing', { headers: { Accept: 'application/xml' } })
+
+      expect(response.status).toBe(200)
+      expect(await response.text()).toBe('null')
+    })
+  })
+
   describe('code and example combined', () => {
     it('picks the response by code, then the example within it', async () => {
       const document = {
