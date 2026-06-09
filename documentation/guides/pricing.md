@@ -1,9 +1,9 @@
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="pricing" class="text-balance">
-    Pricing
+    Plans for every API interface
   </scalar-heading>
   <p>
- One platform for all your API needs: Docs, SDKs, Governance & API Client all based on OpenAPI™.
+ Start with beautiful API docs, then scale into SDKs, MCP servers, and developer portals that stay in sync as your API evolves.
   </p>
 </div>
 
@@ -12,13 +12,21 @@
   <section class="pricing-overview-card pricing-overview-card-free">
     <div class="pricing-overview-card-content">
       <p class="pricing-overview-plan">Free</p>
-      <p class="pricing-overview-headline">Start with OpenAPI docs.</p>
+      <p class="pricing-overview-headline">Start with beautiful API docs.</p>
       <p class="pricing-overview-price">$0</p>
       <a class="pricing-overview-cta" href="https://dashboard.scalar.com/register">Get started</a>
       <ul>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
-          Themes for docs projects
+          Hosted OpenAPI docs
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Built-in API client
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          50 Agent Scalar credits
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
@@ -28,17 +36,13 @@
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
           1 editor seat
         </li>
-        <li>
-          <scalar-icon src="phosphor/bold/check"></scalar-icon>
-          OpenAPI-first content
-        </li>
       </ul>
     </div>
   </section>
   <section class="pricing-overview-card pricing-overview-card-pro">
     <div class="pricing-overview-card-content">
       <p class="pricing-overview-plan">Pro</p>
-      <p class="pricing-overview-headline">Ship production docs and SDKs.</p>
+      <p class="pricing-overview-headline">Ship docs, SDKs, and MCP servers.</p>
       <p class="pricing-overview-price">$72 <span>/ Month</span></p>
       <a class="pricing-overview-cta" href="https://dashboard.scalar.com/register">Get started</a>
       <ul>
@@ -52,15 +56,15 @@
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
-          TypeScript and Python SDK targets
+          SDKs in every supported language
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Hosted MCP servers
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
           Automated GitHub workflows
-        </li>
-        <li>
-          <scalar-icon src="phosphor/bold/check"></scalar-icon>
-          SDK code samples and docs sync
         </li>
       </ul>
     </div>
@@ -68,7 +72,7 @@
   <section class="pricing-overview-card pricing-overview-card-enterprise">
     <div class="pricing-overview-card-content">
       <p class="pricing-overview-plan">Enterprise</p>
-      <p class="pricing-overview-headline">Scale docs and SDK programs.</p>
+      <p class="pricing-overview-headline">Scale every API interface.</p>
       <p class="pricing-overview-price">Custom</p>
       <a class="pricing-overview-cta" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a">Book a demo</a>
       <ul>
@@ -86,7 +90,7 @@
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
-          SDK migration services
+          SDK and MCP migration services
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
@@ -302,7 +306,7 @@
             </div>
           </div>
         </div>
-        <div class="st_wrap_table" data-table_id="1">
+        <div class="st_wrap_table" data-table_id="3">
           <header class="pricing-table-group-heading flex gap-1.5 items-center flex gap-1.5"><scalar-icon src="phosphor/bold/paper-plane-tilt"></scalar-icon>API Client</header>
                     <div class="pricing-table-group">
            <div class="pricing-table-row">
@@ -552,7 +556,7 @@
             </div>
           </div>
         </div>
-        <div class="st_wrap_table" data-table_id="3">
+        <div class="st_wrap_table" data-table_id="4">
           <header class="pricing-table-group-heading flex gap-1.5 items-center flex gap-1.5"><scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>Registry</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
@@ -647,18 +651,36 @@
             </div>
           </div>
         </div>
-        <div class="st_wrap_table" data-table_id="4">
-          <header class="pricing-table-group-heading flex gap-1.5 items-center"><scalar-icon src="phosphor/bold/sparkle"></scalar-icon>Agent</header>
+        <div class="st_wrap_table" data-table_id="1">
+          <header class="pricing-table-group-heading flex gap-1.5 items-center"><scalar-icon src="phosphor/bold/sparkle"></scalar-icon>Agent Scalar</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Chat on localhost</div>
-              <div class="pricing-table-column free-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
-              <div class="pricing-table-column pro-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
-              <div class="pricing-table-column enterprise-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column">Credits included</div>
+              <div class="pricing-table-column free-price">50</div>
+              <div class="pricing-table-column pro-price">500</div>
+              <div class="pricing-table-column enterprise-price">Custom</div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">10 free messages (localhost)</div>
-              <div class="pricing-table-column free-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column">MCP tool calls</div>
+              <div class="pricing-table-column free-price">200 / credit</div>
+              <div class="pricing-table-column pro-price">200 / credit</div>
+              <div class="pricing-table-column enterprise-price">Custom</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Docs chat messages</div>
+              <div class="pricing-table-column free-price">2 / credit</div>
+              <div class="pricing-table-column pro-price">2 / credit</div>
+              <div class="pricing-table-column enterprise-price">Custom</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Tokens</div>
+              <div class="pricing-table-column free-price">50,000 / credit</div>
+              <div class="pricing-table-column pro-price">50,000 / credit</div>
+              <div class="pricing-table-column enterprise-price">Custom</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Hosted MCP servers</div>
+              <div class="pricing-table-column free-price"></div>
               <div class="pricing-table-column pro-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column enterprise-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
@@ -667,41 +689,6 @@
               <div class="pricing-table-column free-price"></div>
               <div class="pricing-table-column pro-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column enterprise-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
-            </div>
-            <div class="pricing-table-row">
-              <div class="pricing-table-column">Messages included</div>
-              <div class="pricing-table-column free-price"></div>
-              <div class="pricing-table-column pro-price">250</div>
-              <div class="pricing-table-column enterprise-price">250</div>
-            </div>
-            <div class="pricing-table-row">
-              <div class="pricing-table-column">Additional messages</div>
-              <div class="pricing-table-column free-price"></div>
-              <div class="pricing-table-column pro-price">$0.02/msg</div>
-              <div class="pricing-table-column enterprise-price">$0.02/msg</div>
-            </div>
-          </div>
-        </div>
-        <div class="st_wrap_table" data-table_id="4">
-          <header class="pricing-table-group-heading flex gap-1.5 items-center"><scalar-icon src="phosphor/bold/sparkle"></scalar-icon>agent.scalar.com</header>
-          <div class="pricing-table-group">
-            <div class="pricing-table-row">
-              <div class="pricing-table-column">Tokens included</div>
-              <div class="pricing-table-column free-price"></div>
-              <div class="pricing-table-column pro-price">2,000,000</div>
-              <div class="pricing-table-column enterprise-price">2,000,000</div>
-            </div>
-            <div class="pricing-table-row">
-              <div class="pricing-table-column">Additional input tokens</div>
-              <div class="pricing-table-column free-price"></div>
-              <div class="pricing-table-column pro-price">$2/M</div>
-              <div class="pricing-table-column enterprise-price">$2/M</div>
-            </div>
-            <div class="pricing-table-row">
-              <div class="pricing-table-column">Additional output tokens</div>
-              <div class="pricing-table-column free-price"></div>
-              <div class="pricing-table-column pro-price">$10/M</div>
-              <div class="pricing-table-column enterprise-price">$10/M</div>
             </div>
           </div>
         </div>
@@ -754,7 +741,7 @@
       <div class="expander-hover-title">SDKs</div>
       <div class="expander">
         <div class="expander-content">
-          Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
+          Bring your OpenAPI document and get type-safe client libraries across supported languages.
         </div>
       </div>
       <a class="expander-hover-link" href="/products/sdks/getting-started" aria-label="Learn more about SDKs">Learn More</a>
@@ -1003,24 +990,31 @@
     border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: var(--scalar-radius);
     contain: paint;
+    display: flex;
+    flex-direction: column;
 }
 h4.t-editor__heading {
     margin-top: 0;
 }
 [data-table_id="0"]{
   --pricing-table-bg: var(--scalar-background-2);
+  order: 2;
 }
 [data-table_id="1"]{
   --pricing-table-bg: var(--scalar-background-2);
+  order: 3;
 }
 [data-table_id="2"]{
   --pricing-table-bg: var(--scalar-background-2);
+  order: 4;
 }
 [data-table_id="3"]{
   --pricing-table-bg: var(--scalar-background-2);
+  order: 5;
 }
 [data-table_id="4"]{
   --pricing-table-bg: var(--scalar-background-2);
+  order: 6;
 }
 .st_wrap_table svg {
     fill: var(--scalar-color-1)
