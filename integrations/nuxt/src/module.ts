@@ -1,4 +1,7 @@
-import { addComponent, addVitePlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+
+import { addComponent, createResolver, defineNuxtModule, extendPages, extendViteConfig } from '@nuxt/kit'
 
 import type { Configuration } from './types'
 
@@ -102,47 +105,29 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    // Shim CJS-only packages and fix highlight.js's use of require() in ESM builds.
-    // The resolveId hook is intentionally scoped to @scalar/* importers so that the
-    // debug/extend shims do not shadow the real packages for user code or unrelated
-    // third-party libraries (e.g. DEBUG=* env-var logging would silently stop working
-    // if we replaced debug globally with a no-op shim).
-    const debugShim = resolver.resolve('./shims/debug.js')
-    const extendShim = resolver.resolve('./shims/extend.js')
-
-    addVitePlugin({
-      name: 'scalar-cjs-shims',
-      enforce: 'pre',
-      resolveId(source: string, importer: string | undefined) {
-        // Only intercept imports that originate from within @scalar packages
-        if (!importer?.includes('/node_modules/@scalar/')) {
-          return null
+    // `@vercel/oidc` is pulled in transitively by the AI assistant (via
+    // @ai-sdk/gateway). Its CommonJS browser build exposes its exports through
+    // getters and uses internal require() calls, which breaks Vite under pnpm's
+    // strict node_modules layout. Vite's dependency optimizer (esbuild) handles
+    // it, so we ask Vite to pre-bundle it — but only when it is hoisted into the
+    // project's top-level node_modules, the layout where it is both resolvable by
+    // Vite and actually broken (e.g. pnpm with shamefully-hoist). This avoids a
+    // "failed to resolve" warning in setups where it is not hoisted (such as this
+    // repo's playground).
+    //
+    // The other CommonJS offenders (cookie, extend, debug, highlight.js) are
+    // handled at the source packages — `cookie` was dropped from @scalar/api-client
+    // and the Markdown/highlight stack is bundled into @scalar/code-highlight — so
+    // no shims are needed here for those.
+    if (existsSync(join(_nuxt.options.rootDir, 'node_modules', '@vercel', 'oidc'))) {
+      extendViteConfig((config) => {
+        config.optimizeDeps ||= {}
+        config.optimizeDeps.include ||= []
+        if (!config.optimizeDeps.include.includes('@vercel/oidc')) {
+          config.optimizeDeps.include.push('@vercel/oidc')
         }
-        if (source === 'debug') {
-          return debugShim
-        }
-        if (source === 'extend') {
-          return extendShim
-        }
-        return null
-      },
-      transform(code: string, id: string) {
-        if (!id.includes('/highlight.js/lib/core.js')) {
-          return null
-        }
-        return {
-          code: [
-            'const module = { exports: {} };',
-            'const exports = module.exports;',
-            '(function(module, exports) {',
-            code,
-            '})(module, exports);',
-            'export default module.exports;',
-          ].join('\n'),
-          map: null,
-        }
-      },
-    })
+      })
+    }
 
     // add scalar tab to DevTools
     if (_nuxt.options.dev && _options.devtools) {
