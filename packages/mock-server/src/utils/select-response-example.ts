@@ -13,7 +13,10 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
  * Returns a `{ value }` wrapper when an example is available — so a `null` or
  * otherwise falsy value is still treated as a real example — or `undefined`
  * to signal that the caller should fall back to generating a body from the
- * schema. An unknown `exampleName` simply falls through to the later steps.
+ * schema. An example whose resolved `value` is `undefined` (for example, an
+ * Example Object that only carries an `externalValue`) is skipped, so the
+ * caller still gets a schema-generated body. An unknown `exampleName` simply
+ * falls through to the later steps.
  */
 export const selectResponseExample = (
   mediaType: OpenAPIV3_1.MediaTypeObject | undefined,
@@ -27,7 +30,11 @@ export const selectResponseExample = (
 
   // 1. A named example requested via `Prefer: example=<name>`
   if (exampleName && examples && exampleName in examples) {
-    return { value: getResolvedRef(examples[exampleName])?.value }
+    const value = getResolvedRef(examples[exampleName])?.value
+
+    if (value !== undefined) {
+      return { value }
+    }
   }
 
   // 2. The singular `example` keyword
@@ -40,7 +47,11 @@ export const selectResponseExample = (
     const firstKey = Object.keys(examples)[0]
 
     if (firstKey !== undefined) {
-      return { value: getResolvedRef(examples[firstKey])?.value }
+      const value = getResolvedRef(examples[firstKey])?.value
+
+      if (value !== undefined) {
+        return { value }
+      }
     }
   }
 

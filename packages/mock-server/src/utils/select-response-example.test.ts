@@ -64,4 +64,47 @@ describe('selectResponseExample', () => {
 
     expect(selectResponseExample(mediaType, 'missing')).toEqual({ value: { from: 'singular' } })
   })
+
+  it('skips a named example without a value so the caller can use the schema', () => {
+    const mediaType: OpenAPIV3_1.MediaTypeObject = {
+      schema: { type: 'string' },
+      examples: {
+        external: { externalValue: 'https://example.com/payload.json' },
+      },
+    }
+
+    expect(selectResponseExample(mediaType, 'external')).toBeUndefined()
+  })
+
+  it('falls through to the singular example when a named example has no value', () => {
+    const mediaType: OpenAPIV3_1.MediaTypeObject = {
+      example: { from: 'singular' },
+      examples: {
+        external: { externalValue: 'https://example.com/payload.json' },
+      },
+    }
+
+    expect(selectResponseExample(mediaType, 'external')).toEqual({ value: { from: 'singular' } })
+  })
+
+  it('skips the first examples entry when it has no value', () => {
+    const mediaType: OpenAPIV3_1.MediaTypeObject = {
+      schema: { type: 'string' },
+      examples: {
+        external: { externalValue: 'https://example.com/payload.json' },
+      },
+    }
+
+    expect(selectResponseExample(mediaType)).toBeUndefined()
+  })
+
+  it('treats a null named example value as a real value', () => {
+    const mediaType: OpenAPIV3_1.MediaTypeObject = {
+      examples: {
+        empty: { value: null },
+      },
+    }
+
+    expect(selectResponseExample(mediaType, 'empty')).toEqual({ value: null })
+  })
 })
