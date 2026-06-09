@@ -129,6 +129,18 @@ describe('handleAuthentication', () => {
 
       expect(response.status).toBe(200)
     })
+
+    it('stays unsatisfiable when a scheme name in the requirement is undefined', async () => {
+      // `missingScheme` is not defined in components.securitySchemes, so the AND group
+      // can never be satisfied even when the other credential is provided.
+      const server = await createMockServer({
+        document: documentWith({ operationSecurity: [{ bearerAuth: [], missingScheme: [] }] }),
+      })
+
+      const response = await server.request('/secret', { headers: { Authorization: 'Bearer token-123' } })
+
+      expect(response.status).toBe(401)
+    })
   })
 
   describe('OR semantics (multiple requirement objects)', () => {

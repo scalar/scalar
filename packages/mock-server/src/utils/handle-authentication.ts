@@ -149,15 +149,25 @@ export function handleAuthentication(schema?: OpenAPIV3_1.Document, operation?: 
     }
 
     const isAuthenticated = security.some((requirement: OpenAPIV3.SecurityRequirementObject) => {
+      const schemeNames = Object.keys(requirement)
+
       // An empty requirement object makes authentication optional.
-      if (Object.keys(requirement).length === 0) {
+      if (schemeNames.length === 0) {
         return true
       }
 
-      const schemes = resolveSchemes(requirement, schema)
+      // Every scheme listed in the requirement must resolve and be satisfied (AND).
+      // A name that does not resolve to a valid scheme makes the whole requirement
+      // unsatisfiable, so a missing scheme cannot be silently skipped.
+      return schemeNames.every((name) => {
+        const scheme = getResolvedRef(schema?.components?.securitySchemes?.[name])
 
-      // Every scheme in the requirement must be satisfied (AND).
-      return schemes.length > 0 && schemes.every((scheme) => isSchemeSatisfied(scheme, c))
+        if (!scheme || !('type' in scheme)) {
+          return false
+        }
+
+        return isSchemeSatisfied(scheme as OpenAPIV3_1.SecuritySchemeObject, c)
+      })
     })
 
     if (isAuthenticated) {
