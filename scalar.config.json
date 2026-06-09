@@ -1341,7 +1341,7 @@
               },
               "/sdks": {
                 "title": "SDKs",
-                "description": "Generate production-ready SDKs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
+                "description": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
                 "type": "group",
                 "mode": "nested",
                 "icon": "phosphor/regular/package",
@@ -1392,6 +1392,12 @@
                     "mode": "flat",
                     "icon": "phosphor/regular/plug",
                     "children": {
+                      "overview": {
+                        "filepath": "documentation/guides/sdks/configuration.md",
+                        "type": "page",
+                        "title": "Configuration",
+                        "description": "Configure Scalar SDK generation targets, environments, resources, client settings, pagination, and publishing."
+                      },
                       "typescript": {
                         "title": "TypeScript",
                         "filepath": "documentation/guides/sdks/configuration/typescript.md",
@@ -1402,33 +1408,38 @@
                         "filepath": "documentation/guides/sdks/configuration/python.md",
                         "type": "page"
                       },
+                      "cli": {
+                        "filepath": "documentation/guides/sdks/cli.md",
+                        "type": "page",
+                        "title": "CLI"
+                      },
                       "go": {
-                        "title": "Go",
+                        "title": "Go (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/go.md",
                         "type": "page"
                       },
                       "java": {
-                        "title": "Java",
+                        "title": "Java (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/java.md",
                         "type": "page"
                       },
                       "csharp": {
-                        "title": "C#",
+                        "title": "C# (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/csharp.md",
                         "type": "page"
                       },
                       "php": {
-                        "title": "PHP",
+                        "title": "PHP (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/php.md",
                         "type": "page"
                       },
                       "ruby": {
-                        "title": "Ruby",
+                        "title": "Ruby (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/ruby.md",
                         "type": "page"
                       },
                       "swift": {
-                        "title": "Swift",
+                        "title": "Swift (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/swift.md",
                         "type": "page"
                       }
