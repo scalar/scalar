@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.8.2
+
+### Patch Changes
+
+- [#9449](https://github.com/scalar/scalar/pull/9449): Replace the CommonJS-only `cookie` dependency with an in-repo ESM `serializeCookie` helper
+
 ## 0.8.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.6.7
+
+### Patch Changes
+
+- [#9455](https://github.com/scalar/scalar/pull/9455): Add a description to the `Create a celestial body` operation
+
 ## 0.6.6
 
 ### Patch Changes

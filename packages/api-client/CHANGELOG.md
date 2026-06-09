@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 3.10.1
+
+### Patch Changes
+
+- [#9449](https://github.com/scalar/scalar/pull/9449): Replace the CommonJS-only `cookie` dependency with an in-repo ESM `serializeCookie` helper
+
 ## 3.10.0
 
 ### Minor Changes

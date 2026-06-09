@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.59.1
+
+### Patch Changes
+
+- [#9462](https://github.com/scalar/scalar/pull/9462): fix(api-reference): align examples panel and disable sticky when narrow
+
 ## 1.59.0
 
 ### Minor Changes

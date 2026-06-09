@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.59.1",
+    "date": "2026-06-09",
+    "title": "Fixed examples panel layout in operation view",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1591",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.59.0",
     "date": "2026-06-08",
     "title": "AsyncAPI server and channel parameters, CSP nonce support, and expanded schemas",

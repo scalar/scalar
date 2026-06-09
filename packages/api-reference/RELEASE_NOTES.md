@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.59.1 (2026-06-09)
+
+### Fixed examples panel layout in operation view
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1591)
+
 ## 1.59.0 (2026-06-08)
 
 ### AsyncAPI server and channel parameters, CSP nonce support, and expanded schemas

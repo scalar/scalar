@@ -1,5 +1,7 @@
 # @scalar/snippetz
 
+## 0.9.14
+
 ## 0.9.13
 
 ### Patch Changes

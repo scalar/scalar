@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.6 (2026-06-09)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#116)
+
 ## 1.1.5 (2026-06-08)
 
 ### SDK code samples, AsyncAPI servers, and form encoding fixes
