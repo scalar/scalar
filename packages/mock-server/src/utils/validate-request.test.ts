@@ -119,6 +119,73 @@ describe('validate-request', () => {
     expect((await wrongType.json()).violations[0]).toMatchObject({ location: 'body', path: '/age' })
   })
 
+  it('returns 422 for unparseable JSON even when the body is optional', async () => {
+    const document = documentWith('/items', 'post', {
+      requestBody: {
+        required: false,
+        content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } } } } },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{not valid json',
+    })
+
+    expect(response.status).toBe(422)
+    expect((await response.json()).violations[0]).toMatchObject({ location: 'body' })
+  })
+
+  it('validates path-item-level parameters shared across operations', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Validation', version: '1.0.0' },
+      paths: {
+        '/items': {
+          // Declared on the path item, so it applies to every operation underneath.
+          parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
+          get: {
+            responses: { '200': { description: 'OK', content: { 'application/json': { example: { ok: true } } } } },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const missing = await server.request('/items')
+    expect(missing.status).toBe(422)
+    expect((await missing.json()).violations[0]).toMatchObject({ location: 'query', path: '/limit' })
+
+    const valid = await server.request('/items?limit=5')
+    expect(valid.status).toBe(200)
+  })
+
+  it('lets an operation parameter override a path-item parameter of the same name', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Validation', version: '1.0.0' },
+      paths: {
+        '/items': {
+          // Required on the path item, but the operation relaxes it to optional.
+          parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
+          get: {
+            parameters: [{ name: 'limit', in: 'query', required: false, schema: { type: 'integer' } }],
+            responses: { '200': { description: 'OK', content: { 'application/json': { example: { ok: true } } } } },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // The operation-level override wins, so a missing `limit` is allowed.
+    const response = await server.request('/items')
+    expect(response.status).toBe(200)
+  })
+
   it('returns 422 when a required body is missing, but passes when an optional body is missing', async () => {
     const requiredDoc = documentWith('/items', 'post', {
       requestBody: {

@@ -64,12 +64,45 @@ const buildParameterSchema = (
 }
 
 /**
+ * Merge path-item-level parameters with operation-level parameters.
+ *
+ * OpenAPI allows declaring `parameters` on the path item, where they apply to every operation under
+ * it. Operation-level parameters override path-item ones that share the same name and location.
+ */
+const mergeParameters = (
+  pathItemParameters: OpenAPIV3_1.PathItemObject['parameters'],
+  operationParameters: OpenAPIV3_1.OperationObject['parameters'],
+): OpenAPIV3_1.OperationObject['parameters'] => {
+  const byKey = new Map<string, NonNullable<OpenAPIV3_1.OperationObject['parameters']>[number]>()
+
+  // Guard against malformed documents where `parameters` is not an array.
+  const pathItemList = Array.isArray(pathItemParameters) ? pathItemParameters : []
+  const operationList = Array.isArray(operationParameters) ? operationParameters : []
+
+  // Path-item parameters come first so that operation-level entries overwrite them by identity.
+  for (const parameterOrRef of [...pathItemList, ...operationList]) {
+    const parameter = getResolvedRef(parameterOrRef)
+
+    if (!parameter?.name || !parameter.in) {
+      continue
+    }
+
+    byKey.set(`${parameter.in}:${parameter.name}`, parameterOrRef)
+  }
+
+  return [...byKey.values()]
+}
+
+/**
  * Compile the validators for a single operation once, so they can be reused on every request.
  *
  * A malformed or uncompilable schema must not crash the server: we log and fall open (skip
  * validation for that part), consistent with how `x-seed` errors are swallowed during setup.
  */
-const compileValidators = (operation: OpenAPIV3_1.OperationObject): CompiledValidators => {
+const compileValidators = (
+  operation: OpenAPIV3_1.OperationObject,
+  pathItemParameters: OpenAPIV3_1.PathItemObject['parameters'],
+): CompiledValidators => {
   const validators: CompiledValidators = { path: null, query: null, body: null, bodyRequired: false }
 
   // Coerce string parameters to their declared types (integer, boolean, …).
@@ -80,13 +113,16 @@ const compileValidators = (operation: OpenAPIV3_1.OperationObject): CompiledVali
   const bodyAjv = new Ajv2020({ strict: false, allErrors: true })
   addFormats(bodyAjv)
 
+  // Path-item parameters apply to every operation, so fold them in before building the schemas.
+  const parameters = mergeParameters(pathItemParameters, operation.parameters)
+
   try {
-    const pathSchema = buildParameterSchema(operation.parameters, 'path')
+    const pathSchema = buildParameterSchema(parameters, 'path')
     if (pathSchema) {
       validators.path = parameterAjv.compile(pathSchema)
     }
 
-    const querySchema = buildParameterSchema(operation.parameters, 'query')
+    const querySchema = buildParameterSchema(parameters, 'query')
     if (querySchema) {
       validators.query = parameterAjv.compile(querySchema)
     }
@@ -144,8 +180,11 @@ const isJsonRequest = (c: Context): boolean => {
  * TODO: Parity follow-ups, intentionally deferred in this slice — response validation,
  * header/cookie parameter validation, non-JSON body validation, and validation proxy mode.
  */
-export const validateRequest = (operation: OpenAPIV3_1.OperationObject): MiddlewareHandler => {
-  const validators = compileValidators(operation)
+export const validateRequest = (
+  operation: OpenAPIV3_1.OperationObject,
+  pathItemParameters?: OpenAPIV3_1.PathItemObject['parameters'],
+): MiddlewareHandler => {
+  const validators = compileValidators(operation, pathItemParameters)
 
   return async (c, next): Promise<Response | void> => {
     const violations: Violation[] = []
@@ -184,9 +223,9 @@ export const validateRequest = (operation: OpenAPIV3_1.OperationObject): Middlew
             violations.push(...mapErrors(validators.body.errors, 'body'))
           }
         } catch {
-          if (validators.bodyRequired) {
-            violations.push({ location: 'body', path: '', message: 'Request body must be valid JSON' })
-          }
+          // The client sent a non-empty JSON body that cannot be parsed, so it cannot satisfy the
+          // schema regardless of whether the body is required.
+          violations.push({ location: 'body', path: '', message: 'Request body must be valid JSON' })
         }
       }
     }

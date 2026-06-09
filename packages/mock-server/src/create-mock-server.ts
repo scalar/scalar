@@ -93,7 +93,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
       // opt out with `validateRequest: false`). Runs after authentication but before the
       // mock handler. Validators are compiled once here, so there is no per-request recompilation.
       if (configuration.validateRequest !== false) {
-        app[method](route, validateRequest(operation))
+        app[method](route, validateRequest(operation, pathItem?.parameters))
       }
 
       // Check if operation has x-handler extension
