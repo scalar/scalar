@@ -10,7 +10,7 @@ on:
   workflow_call:
     inputs:
       published:
-        description: 'changesets/action outputs.published — gate for every publish'
+        description: "release.yml's package-release detection — gate for every publish"
         type: string
         required: true
       docker_package_changed:

@@ -63,7 +63,7 @@ on:
         required: true
     outputs:
       published:
-        description: "changesets/action published flag ('true' when a package shipped to npm)"
+        description: "'true' when this commit released at least one public package to npm"
         value: ${{ jobs.npm-publish.outputs.published }}
       scalar_app_released:
         description: "'true' when projects/scalar-app version bumped on this commit"
@@ -181,7 +181,12 @@ jobs:
             fi
             CURRENT_VERSION=$(jq -r '.version // ""' "$file")
             PREV_VERSION=$(git show "HEAD~1:$file" 2>/dev/null | jq -r '.version // ""' 2>/dev/null || echo "")
-            if [ -n "$CURRENT_VERSION" ] && [ "$CURRENT_VERSION" != "$PREV_VERSION" ]; then
+            # Require a non-empty PREV_VERSION so a brand-new package.json (added
+            # in an ordinary feature merge, where HEAD~1 has no such file) is not
+            # mistaken for a release — the same guard the scalar-app step uses. A
+            # real release only ever bumps the version of a package that already
+            # existed in the previous commit; changesets never adds manifests.
+            if [ -n "$PREV_VERSION" ] && [ "$CURRENT_VERSION" != "$PREV_VERSION" ]; then
               echo "released: $file ($PREV_VERSION -> $CURRENT_VERSION)"
               published=true
             fi
