@@ -1,5 +1,11 @@
 # @scalar/schemas
 
+## 0.4.2
+
+### Patch Changes
+
+- [#9471](https://github.com/scalar/scalar/pull/9471): Restore support for the deprecated `source` install command on `x-scalar-sdk-installation`. When set, it is appended to `description` as a fenced code block (or used on its own when there is no `description`). `description` remains the promoted field.
+
 ## 0.4.1
 
 ## 0.4.0
