@@ -8,6 +8,120 @@
 </div>
 
 
+<div class="pricing-overview-cards" aria-label="Pricing overview">
+  <section class="pricing-overview-card pricing-overview-card-free">
+    <div class="pricing-overview-card-content">
+      <p class="pricing-overview-plan">Free</p>
+      <p class="pricing-overview-headline">Start with OpenAPI docs.</p>
+      <p class="pricing-overview-price">$0</p>
+      <a class="pricing-overview-cta" href="https://dashboard.scalar.com/register">Get started</a>
+      <ul>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Themes for docs projects
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Viewer seats included
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          1 editor seat
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          OpenAPI-first content
+        </li>
+      </ul>
+    </div>
+  </section>
+  <section class="pricing-overview-card pricing-overview-card-pro">
+    <div class="pricing-overview-card-content">
+      <p class="pricing-overview-plan">Pro</p>
+      <p class="pricing-overview-headline">Ship production docs and SDKs.</p>
+      <p class="pricing-overview-price">$72 <span>/ Month</span></p>
+      <a class="pricing-overview-cta" href="https://dashboard.scalar.com/register">Get started</a>
+      <ul>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Custom domains and subdomains
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Git Sync, Markdown, and MDX
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          TypeScript and Python SDK targets
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Automated GitHub workflows
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          SDK code samples and docs sync
+        </li>
+      </ul>
+    </div>
+  </section>
+  <section class="pricing-overview-card pricing-overview-card-enterprise">
+    <div class="pricing-overview-card-content">
+      <p class="pricing-overview-plan">Enterprise</p>
+      <p class="pricing-overview-headline">Scale docs and SDK programs.</p>
+      <p class="pricing-overview-price">Custom</p>
+      <a class="pricing-overview-cta" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a">Book a demo</a>
+      <ul>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Full developer portals
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          SSO/SAML and RBAC
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Priority support and SLAs
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          SDK migration services
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Dedicated Slack/Teams channel
+        </li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<h4 class="text-c-3 mt-10 font-normal">Trusted by the world's best API teams</h4>
+
+<div class="logowall">
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
+  </div>
+</div>
+
+## Overview
+
 <div class="mobiletabs">
   <div class="mobiletabs-container">
     <label for="tab1"><input type="radio" name="mobiletabs" id="tab1" aria-controls="marzen" checked>Free</label>
@@ -32,20 +146,6 @@
               <div class="pricing-table-column enterprise-price _align-start pb-0">
                 <b class="text-sm">Enterprise</b>
                 <p class="text-xl font-bold ">Custom</p>
-              </div>
-            </div>
-          </header>
-          <header class="pricing-table-group_header _align-start">
-            <div class="pricing-table-row">
-              <div class="pricing-table-column _align-start"></div>
-              <div class="pricing-table-column _align-start">
-                <p class=" text-c-2 text-sm font-normal">Best for: self-hosting, local development, and personal API workflows.</p>
-              </div>
-              <div class="pricing-table-column _align-start">
-                <p class=" text-c-2 text-sm font-normal">Best for: teams shipping production docs, client collaboration, and embedded agents.</p>
-              </div>
-              <div class="pricing-table-column _align-start">
-                <p class=" text-c-2 text-sm font-normal">Best for: platform teams that need governance, access control, and support.</p>
               </div>
             </div>
           </header>
@@ -740,12 +840,150 @@
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg">
 </div>
 <style>
+.pricing-overview-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 48px;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  overflow: hidden;
+  background: var(--scalar-background-1);
+  margin-bottom: 64px;
+}
+.pricing-overview-card {
+  --pricing-overview-plan-color: var(--scalar-color-blue);
+  min-width: 0;
+  border-left: var(--scalar-border-width) solid var(--scalar-border-color);
+  color: var(--scalar-color-1);
+}
+.pricing-overview-card:first-child {
+  border-left: 0;
+}
+.pricing-overview-card-free {
+  --pricing-overview-plan-color: var(--scalar-color-orange);
+}
+.pricing-overview-card-pro {
+  --pricing-overview-plan-color: var(--scalar-color-purple);
+}
+.pricing-overview-card-enterprise {
+  --pricing-overview-plan-color: var(--scalar-color-green);
+}
+.pricing-overview-card-content {
+  display: flex;
+  min-height: 420px;
+  flex-direction: column;
+  padding: 24px;
+}
+.pricing-overview-plan {
+  margin: 0 0 8px;
+  color: var(--pricing-overview-plan-color);
+  font-size: var(--scalar-font-size-3);
+  font-weight: var(--scalar-semibold);
+  line-height: var(--scalar-line-height-3);
+}
+.pricing-overview-headline {
+  margin: 0;
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-font-size-2);
+  font-weight: var(--scalar-semibold);
+  line-height: var(--scalar-line-height-2);
+}
+.pricing-overview-price {
+  margin: 32px 0 20px;
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-font-size-1);
+  font-weight: var(--scalar-bold);
+  letter-spacing: 0;
+  line-height: var(--scalar-line-height-1);
+  white-space: nowrap;
+}
+.pricing-overview-price span {
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-font-size-2);
+  font-weight: var(--scalar-regular);
+  line-height: var(--scalar-line-height-2);
+}
+.pricing-overview-cta {
+  width: 100%;
+  display: block;
+  padding: 8px 12px;
+  border: var(--scalar-border-width) solid color-mix(in srgb, var(--pricing-overview-plan-color), var(--scalar-border-color) 24%);
+  border-radius: var(--scalar-radius-lg);
+  background: var(--pricing-overview-plan-color);
+  color: var(--scalar-button-1-color);
+  font-size: var(--scalar-font-size-3);
+  font-weight: var(--scalar-font-medium);
+  text-align: center;
+  text-decoration: none;
+}
+.pricing-overview-cta:hover,
+.pricing-overview-cta:visited {
+  color: var(--scalar-button-1-color);
+  text-decoration: none;
+}
+.pricing-overview-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pricing-overview-card li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-font-size-3);
+  line-height: var(--scalar-line-height-3);
+}
+.pricing-overview-card li scalar-icon {
+  display: inline-flex;
+  flex: 0 0 16px;
+  width: 16px;
+  min-width: 16px;
+  height: var(--scalar-line-height-3);
+  align-items: center;
+  justify-content: center;
+  color: var(--scalar-color-1);
+}
+.pricing-overview-card li svg {
+  display: block;
+  flex: 0 0 16px;
+  width: 14px;
+  min-width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  fill: currentColor;
+}
+.logowall.logowall {
+  margin: 24px 0 100px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  align-items: center;
+  gap: 40px;
+}
+.logowall-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logowall-item svg {
+  width: 100%;
+  height: auto;
+  max-height: 24px;
+}
+.ign-logo__fill {
+  fill: var(--scalar-color-1);
+}
+.fill-current-bg {
+  fill: var(--scalar-background-1);
+}
 .mobiletabs input {
   position: absolute;
   left: -200vw;
 }
 .mobiletabs {
-  margin-top: 40px !important;
 }
 .mobiletabs-container {
   display: none;
@@ -1002,6 +1240,7 @@ h4.t-editor__heading {
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
+    margin-top: 0;
   }
   .container {
     width: var(--scalar-container-width);
@@ -1187,6 +1426,36 @@ h4.t-editor__heading {
   @media screen and (max-width: 1000px) {
     .t-doc {
       --scalar-sidebar-width: 0px;
+    }
+    .pricing-overview-cards {
+      grid-template-columns: 1fr;
+    }
+    .pricing-overview-card {
+      border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+      border-left: 0;
+    }
+    .pricing-overview-card:first-child {
+      border-top: 0;
+    }
+    .pricing-overview-card-content {
+      min-height: 0;
+      padding: 28px;
+    }
+    .pricing-overview-card ul {
+      margin-top: 32px;
+    }
+    .logowall.logowall {
+      grid-template-columns: repeat(3, 1fr);
+      column-gap: 20px;
+      row-gap: 40px;
+    }
+    .logowall-item {
+      justify-content: start;
+    }
+    .logowall-item svg {
+      max-width: 100%;
+      height: 100%;
+      max-height: 20px;
     }
     .t-editor.page {
       padding-inline: 30px;

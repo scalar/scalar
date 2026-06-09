@@ -14,7 +14,7 @@
 
 <br>
 
-<h4 class="text-c-2 mt-10">Trusted by the world's best API teams</h4>
+<h4 class="text-c-3 mt-10 font-normal">Trusted by the world's best API teams</h4>
 
 <div class="logowall">
   <div class="logowall-item">
@@ -571,6 +571,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
+    margin-top: 0;
   }
   .container {
     width: var(--scalar-container-width);

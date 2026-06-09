@@ -490,6 +490,7 @@
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
+    margin-top: 0;
   }
   .container {
     width: var(--scalar-container-width);

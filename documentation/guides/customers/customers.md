@@ -1,6 +1,10 @@
-<div class="customers-hero">
-  <h1>Trusted by the world's best API teams.</h1>
-  <h2>Powering Docs, MCP servers &amp; SDKs for the most ambitious API companies in the world.</h2>
+<div class="flex flex-col gap-3 hero small-test customers-hero">
+  <scalar-heading level="2" slug="customers" class="text-balance">
+    Trusted by the world's best API teams.
+  </scalar-heading>
+  <p>
+    Powering Docs, MCP servers &amp; SDKs for the most ambitious API companies in the world.
+  </p>
   <div class="customers-hero-actions">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
@@ -55,33 +59,17 @@
 </div>
 
 <style>
-  main {
-    --scalar-container-width: 820px;
+  :root {
+    --scalar-container-width: 960px;
   }
   .customers-hero {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin: 0 auto 48px;
-  }
-  .customers-hero h1,
-  .customers-hero h2 {
-    margin: 0;
+    max-width: 680px;
+    position: relative;
     text-wrap: balance;
   }
-  .customers-hero h1.t-editor__page-title {
-    max-width: 760px;
-    font-size: var(--scalar-heading-1);
-    line-height: 1.1;
-    letter-spacing: 0;
+  .customers-hero .t-editor__heading {
+    --font-size: var(--scalar-heading-1);
     margin-top: 0;
-  }
-  .customers-hero h2 {
-    max-width: 640px;
-    color: var(--scalar-color-2);
-    font-size: var(--scalar-heading-2);
-    font-weight: 400;
-    line-height: 1.45;
   }
   .customers-hero-actions {
     display: flex;
@@ -296,12 +284,6 @@
   @media (max-width: 720px) {
     .customers-hero {
       margin-top: 40px;
-    }
-    .customers-hero h1 {
-      font-size: 40px;
-    }
-    .customers-hero h2 {
-      font-size: var(--scalar-font-size-3);
     }
     .customers-hero-actions {
       width: 100%;
