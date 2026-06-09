@@ -32,7 +32,9 @@
     // Used by root tsconfig.json
     "tsconfig-paths",
     //
-    "typescript-language-server"
+    "typescript-language-server",
+    // Provides the `tsgo` binary used by package `types:check` scripts; knip cannot map the binary to the package name
+    "@typescript/native-preview"
   ],
   "ignoreBinaries": ["netlify"],
   "ignoreIssues": {

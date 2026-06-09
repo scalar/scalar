@@ -27,7 +27,7 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest --run",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "main": "dist/index.cjs",

@@ -26,7 +26,7 @@
     "build": "pnpm types:check && pnpm build-only",
     "build-only": "vite build",
     "test": "vitest --run",
-    "types:check": "tsc --noEmit --skipLibCheck"
+    "types:check": "tsgo --noEmit --skipLibCheck"
   },
   "type": "module",
   "main": "./dist/index.cjs",
