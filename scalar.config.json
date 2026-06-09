@@ -6,7 +6,6 @@
     "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
   },
   "assetsDir": "documentation/assets",
-  "insertPageTitles": false,
   "siteConfig": {
     "subdomain": "scalar",
     "customDomain": "scalar.com",
