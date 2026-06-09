@@ -318,4 +318,58 @@ describe('validate-request', () => {
     // Validation is skipped for this operation, so the request still resolves to the mock.
     expect(response.status).toBe(200)
   })
+
+  it('keeps working validators when only the body schema fails to compile', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const document = documentWith('/items', 'post', {
+      parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
+      requestBody: {
+        required: true,
+        // A body schema that cannot compile must not disable the query validator above.
+        content: { 'application/json': { schema: { type: 'not-a-real-type' } as never } },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // The query validator still runs even though the body schema fell open.
+    const response = await server.request('/items', { method: 'POST' })
+    expect(response.status).toBe(422)
+    expect((await response.json()).violations[0]).toMatchObject({ location: 'query', path: '/limit' })
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('validates and delivers a JSON body sent without a Content-Type header', async () => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { received: req.body };',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+          },
+        },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // A string body would default to `text/plain`, so drop the header to exercise the absent case.
+    const withoutContentType = (body: string) => {
+      const request = new Request('http://localhost/items', { method: 'POST', body })
+      request.headers.delete('Content-Type')
+      return request
+    }
+
+    // No Content-Type header: validation must reject an invalid body...
+    const invalid = await server.request(withoutContentType(JSON.stringify({})))
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'body' })
+
+    // ...and a valid body must still reach the handler as `req.body`.
+    const valid = await server.request(withoutContentType(JSON.stringify({ name: 'Alice' })))
+    expect((await valid.json()).received).toEqual({ name: 'Alice' })
+  })
 })

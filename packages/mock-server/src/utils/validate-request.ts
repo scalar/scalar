@@ -94,17 +94,36 @@ const mergeParameters = (
 }
 
 /**
- * Compile the validators for a single operation once, so they can be reused on every request.
+ * Compile a single schema, failing open if it cannot compile.
  *
- * A malformed or uncompilable schema must not crash the server: we log and fall open (skip
- * validation for that part), consistent with how `x-seed` errors are swallowed during setup.
+ * A malformed or uncompilable schema must not crash the server: we log and skip validation for that
+ * part only, consistent with how `x-seed` errors are swallowed during setup. Each schema is compiled
+ * in isolation so one broken schema never disables the others.
+ */
+const compileSchema = (
+  ajv: Ajv2020,
+  schema: Record<string, unknown> | null,
+  label: string,
+): ValidateFunction | null => {
+  if (!schema) {
+    return null
+  }
+
+  try {
+    return ajv.compile(schema)
+  } catch (error) {
+    console.error(`Error compiling ${label} validator, skipping validation for it:`, error)
+    return null
+  }
+}
+
+/**
+ * Compile the validators for a single operation once, so they can be reused on every request.
  */
 const compileValidators = (
   operation: OpenAPIV3_1.OperationObject,
   pathItemParameters: OpenAPIV3_1.PathItemObject['parameters'],
 ): CompiledValidators => {
-  const validators: CompiledValidators = { path: null, query: null, body: null, bodyRequired: false }
-
   // Coerce string parameters to their declared types (integer, boolean, …).
   const parameterAjv = new Ajv2020({ strict: false, allErrors: true, coerceTypes: true })
   addFormats(parameterAjv)
@@ -116,31 +135,23 @@ const compileValidators = (
   // Path-item parameters apply to every operation, so fold them in before building the schemas.
   const parameters = mergeParameters(pathItemParameters, operation.parameters)
 
+  const requestBody = getResolvedRef(operation.requestBody)
+  // Build the body schema defensively; resolving a malformed `$ref` should not crash setup.
+  let bodySchema: Record<string, unknown> | null = null
   try {
-    const pathSchema = buildParameterSchema(parameters, 'path')
-    if (pathSchema) {
-      validators.path = parameterAjv.compile(pathSchema)
-    }
-
-    const querySchema = buildParameterSchema(parameters, 'query')
-    if (querySchema) {
-      validators.query = parameterAjv.compile(querySchema)
-    }
-
-    const requestBody = getResolvedRef(operation.requestBody)
-    validators.bodyRequired = requestBody?.required === true
-
     const jsonSchema = getResolvedRef(requestBody?.content?.['application/json'])?.schema
-    if (jsonSchema) {
-      validators.body = bodyAjv.compile(getResolvedRefDeep(jsonSchema))
-    }
+    bodySchema = jsonSchema ? (getResolvedRefDeep(jsonSchema) as Record<string, unknown>) : null
   } catch (error) {
-    // Fail open: a broken schema should never take the mock server down.
-    console.error('Error compiling request validators, skipping validation for this operation:', error)
-    return { path: null, query: null, body: null, bodyRequired: false }
+    console.error('Error resolving request body schema, skipping body validation:', error)
   }
 
-  return validators
+  return {
+    path: compileSchema(parameterAjv, buildParameterSchema(parameters, 'path'), 'path parameter'),
+    query: compileSchema(parameterAjv, buildParameterSchema(parameters, 'query'), 'query parameter'),
+    body: compileSchema(bodyAjv, bodySchema, 'request body'),
+    // Required-body enforcement is independent of whether the body schema compiles.
+    bodyRequired: requestBody?.required === true,
+  }
 }
 
 /**
@@ -163,11 +174,13 @@ const mapErrors = (errors: ErrorObject[] | null | undefined, location: Violation
 
 /**
  * Detect whether the request body should be treated as JSON. We only validate JSON bodies in this
- * slice; an empty/absent Content-Type is treated as JSON to stay forgiving.
+ * slice; an empty/absent Content-Type is treated as JSON to stay forgiving. This intentionally
+ * mirrors how `build-handler-context` parses the body, so we never validate a body the handler then
+ * fails to deliver as `req.body`.
  */
 const isJsonRequest = (c: Context): boolean => {
   const contentType = c.req.header('Content-Type')?.toLowerCase() ?? ''
-  return contentType === '' || contentType.includes('json')
+  return contentType === '' || contentType.includes('application/json')
 }
 
 /**

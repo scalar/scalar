@@ -96,7 +96,9 @@ export async function buildHandlerContext(
 
   try {
     const contentType = c.req.header('content-type') ?? ''
-    if (contentType.includes('application/json')) {
+    // An empty/absent Content-Type is treated as JSON to match request validation, so a headerless
+    // JSON body that passes validation is still delivered to the handler as `req.body`.
+    if (contentType === '' || contentType.includes('application/json')) {
       body = await c.req.json().catch(() => undefined)
     } else if (contentType.includes('application/x-www-form-urlencoded')) {
       body = await c.req.parseBody().catch(() => undefined)
