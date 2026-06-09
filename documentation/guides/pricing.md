@@ -1,12 +1,130 @@
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="pricing" class="text-balance">
-    Pricing
+    Plans for every API interface
   </scalar-heading>
   <p>
- One platform for all your API needs: Docs, SDKs, Governance & API Client all based on OpenAPI™.
+ Start with beautiful API docs, then scale into SDKs, MCP servers, and developer portals that stay in sync as your API evolves.
   </p>
 </div>
 
+
+<div class="pricing-overview-cards" aria-label="Pricing overview">
+  <section class="pricing-overview-card pricing-overview-card-free">
+    <div class="pricing-overview-card-content">
+      <p class="pricing-overview-plan">Free</p>
+      <p class="pricing-overview-headline">Start with beautiful API docs.</p>
+      <p class="pricing-overview-price">$0</p>
+      <a class="pricing-overview-cta" href="https://dashboard.scalar.com/register">Get started</a>
+      <ul>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Hosted OpenAPI docs
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Built-in API client
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          50 Agent Scalar credits
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Viewer seats included
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          1 editor seat
+        </li>
+      </ul>
+    </div>
+  </section>
+  <section class="pricing-overview-card pricing-overview-card-pro">
+    <div class="pricing-overview-card-content">
+      <p class="pricing-overview-plan">Pro</p>
+      <p class="pricing-overview-headline">Ship docs, SDKs, and MCP servers.</p>
+      <p class="pricing-overview-price">$72 <span>/ Month</span></p>
+      <a class="pricing-overview-cta" href="https://dashboard.scalar.com/register">Get started</a>
+      <ul>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Custom domains and subdomains
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Git Sync, Markdown, and MDX
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          SDKs in every supported language
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Hosted MCP servers
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Automated GitHub workflows
+        </li>
+      </ul>
+    </div>
+  </section>
+  <section class="pricing-overview-card pricing-overview-card-enterprise">
+    <div class="pricing-overview-card-content">
+      <p class="pricing-overview-plan">Enterprise</p>
+      <p class="pricing-overview-headline">Scale every API interface.</p>
+      <p class="pricing-overview-price">Custom</p>
+      <a class="pricing-overview-cta" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a">Book a demo</a>
+      <ul>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Full developer portals
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          SSO/SAML and RBAC
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Priority support and SLAs
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          SDK and MCP migration services
+        </li>
+        <li>
+          <scalar-icon src="phosphor/bold/check"></scalar-icon>
+          Dedicated Slack/Teams channel
+        </li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<h4 class="text-c-3 mt-10 font-normal">Trusted by the world's best API teams</h4>
+
+<div class="logowall">
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
+  </div>
+</div>
+
+## Overview
 
 <div class="mobiletabs">
   <div class="mobiletabs-container">
@@ -32,20 +150,6 @@
               <div class="pricing-table-column enterprise-price _align-start pb-0">
                 <b class="text-sm">Enterprise</b>
                 <p class="text-xl font-bold ">Custom</p>
-              </div>
-            </div>
-          </header>
-          <header class="pricing-table-group_header _align-start">
-            <div class="pricing-table-row">
-              <div class="pricing-table-column _align-start"></div>
-              <div class="pricing-table-column _align-start">
-                <p class=" text-c-2 text-sm font-normal">Best for: self-hosting, local development, and personal API workflows.</p>
-              </div>
-              <div class="pricing-table-column _align-start">
-                <p class=" text-c-2 text-sm font-normal">Best for: teams shipping production docs, client collaboration, and embedded agents.</p>
-              </div>
-              <div class="pricing-table-column _align-start">
-                <p class=" text-c-2 text-sm font-normal">Best for: platform teams that need governance, access control, and support.</p>
               </div>
             </div>
           </header>
@@ -202,7 +306,7 @@
             </div>
           </div>
         </div>
-        <div class="st_wrap_table" data-table_id="1">
+        <div class="st_wrap_table" data-table_id="3">
           <header class="pricing-table-group-heading flex gap-1.5 items-center flex gap-1.5"><scalar-icon src="phosphor/bold/paper-plane-tilt"></scalar-icon>API Client</header>
                     <div class="pricing-table-group">
            <div class="pricing-table-row">
@@ -452,7 +556,7 @@
             </div>
           </div>
         </div>
-        <div class="st_wrap_table" data-table_id="3">
+        <div class="st_wrap_table" data-table_id="4">
           <header class="pricing-table-group-heading flex gap-1.5 items-center flex gap-1.5"><scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>Registry</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
@@ -547,18 +651,36 @@
             </div>
           </div>
         </div>
-        <div class="st_wrap_table" data-table_id="4">
-          <header class="pricing-table-group-heading flex gap-1.5 items-center"><scalar-icon src="phosphor/bold/sparkle"></scalar-icon>Agent</header>
+        <div class="st_wrap_table" data-table_id="1">
+          <header class="pricing-table-group-heading flex gap-1.5 items-center"><scalar-icon src="phosphor/bold/sparkle"></scalar-icon>Agent Scalar</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Chat on localhost</div>
-              <div class="pricing-table-column free-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
-              <div class="pricing-table-column pro-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
-              <div class="pricing-table-column enterprise-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column">Credits included</div>
+              <div class="pricing-table-column free-price">50</div>
+              <div class="pricing-table-column pro-price">500</div>
+              <div class="pricing-table-column enterprise-price">Custom</div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">10 free messages (localhost)</div>
-              <div class="pricing-table-column free-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column">MCP tool calls</div>
+              <div class="pricing-table-column free-price">200 / credit</div>
+              <div class="pricing-table-column pro-price">200 / credit</div>
+              <div class="pricing-table-column enterprise-price">Custom</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Docs chat messages</div>
+              <div class="pricing-table-column free-price">2 / credit</div>
+              <div class="pricing-table-column pro-price">2 / credit</div>
+              <div class="pricing-table-column enterprise-price">Custom</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Tokens</div>
+              <div class="pricing-table-column free-price">50,000 / credit</div>
+              <div class="pricing-table-column pro-price">50,000 / credit</div>
+              <div class="pricing-table-column enterprise-price">Custom</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Hosted MCP servers</div>
+              <div class="pricing-table-column free-price"></div>
               <div class="pricing-table-column pro-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column enterprise-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
@@ -567,41 +689,6 @@
               <div class="pricing-table-column free-price"></div>
               <div class="pricing-table-column pro-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column enterprise-price"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
-            </div>
-            <div class="pricing-table-row">
-              <div class="pricing-table-column">Messages included</div>
-              <div class="pricing-table-column free-price"></div>
-              <div class="pricing-table-column pro-price">250</div>
-              <div class="pricing-table-column enterprise-price">250</div>
-            </div>
-            <div class="pricing-table-row">
-              <div class="pricing-table-column">Additional messages</div>
-              <div class="pricing-table-column free-price"></div>
-              <div class="pricing-table-column pro-price">$0.02/msg</div>
-              <div class="pricing-table-column enterprise-price">$0.02/msg</div>
-            </div>
-          </div>
-        </div>
-        <div class="st_wrap_table" data-table_id="4">
-          <header class="pricing-table-group-heading flex gap-1.5 items-center"><scalar-icon src="phosphor/bold/sparkle"></scalar-icon>agent.scalar.com</header>
-          <div class="pricing-table-group">
-            <div class="pricing-table-row">
-              <div class="pricing-table-column">Tokens included</div>
-              <div class="pricing-table-column free-price"></div>
-              <div class="pricing-table-column pro-price">2,000,000</div>
-              <div class="pricing-table-column enterprise-price">2,000,000</div>
-            </div>
-            <div class="pricing-table-row">
-              <div class="pricing-table-column">Additional input tokens</div>
-              <div class="pricing-table-column free-price"></div>
-              <div class="pricing-table-column pro-price">$2/M</div>
-              <div class="pricing-table-column enterprise-price">$2/M</div>
-            </div>
-            <div class="pricing-table-row">
-              <div class="pricing-table-column">Additional output tokens</div>
-              <div class="pricing-table-column free-price"></div>
-              <div class="pricing-table-column pro-price">$10/M</div>
-              <div class="pricing-table-column enterprise-price">$10/M</div>
             </div>
           </div>
         </div>
@@ -654,7 +741,7 @@
       <div class="expander-hover-title">SDKs</div>
       <div class="expander">
         <div class="expander-content">
-          Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
+          Bring your OpenAPI document and get type-safe client libraries across supported languages.
         </div>
       </div>
       <a class="expander-hover-link" href="/products/sdks/getting-started" aria-label="Learn more about SDKs">Learn More</a>
@@ -698,36 +785,44 @@
     </div>
   </div>
 </div>
-<div class="pricing footer container-full">
+<div class="pricing footer">
   <div class="footer-content">
-      <div>
+      <div class="flex flex-col gap-2">
         <span class="text-c-1">
           <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
         </span>
-        <p class="mt-10 text-c-3 text-sm text-balance">The OpenAPI company.</p>
-        <p class="mt-5 text-c-3 text-sm text-balance">© API Documentation, Inc.</p>
+        <p class="text-c-3 text-base text-balance">The API company.</p>
+        <div class="footer-socials" aria-label="Social links">
+          <a class="footer-social-link" href="https://twitter.com/scalar" target="_blank" aria-label="Scalar on X">
+            <scalar-icon src="phosphor/bold/x-logo"></scalar-icon>
+          </a>
+          <a class="footer-social-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="Scalar on GitHub">
+            <scalar-icon src="phosphor/fill/github-logo"></scalar-icon>
+          </a>
+          <a class="footer-social-link" href="https://discord.gg/scalar" target="_blank" aria-label="Scalar on Discord">
+            <scalar-icon src="phosphor/fill/discord-logo"></scalar-icon>
+          </a>
+          <a class="footer-social-link" href="https://www.linkedin.com/company/scalar-org" target="_blank" aria-label="Scalar on LinkedIn">
+            <scalar-icon src="phosphor/fill/linkedin-logo"></scalar-icon>
+          </a>
+        </div>
+        <p class="text-c-3 text-base text-balance">© API Documentation, Inc.</p>
       </div>
-      <div class="flex text-sm">
-        <div class="w-1/3 flex flex-col gap-2">
+      <div class="footer-links text-base">
+        <div class="footer-link-group flex flex-col gap-2">
           <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://" target="_blank">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
         </div>
-        <div class="w-1/3 flex flex-col gap-2">
+        <div class="footer-link-group flex flex-col gap-2">
           <b>Company</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/brand">Brand</a>
           <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
-        </div>
-        <div class="w-1/3 flex flex-col gap-2">
-          <b>Socials</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly Twitter)</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">GitHub</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
         </div>
       </div>
   </div>
@@ -737,15 +832,153 @@
   </div>
 </div>
 <div class="sticker-filter-effect">
-  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg">
+  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
 </div>
 <style>
+.pricing-overview-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 48px;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  overflow: hidden;
+  background: var(--scalar-background-1);
+  margin-bottom: 64px;
+}
+.pricing-overview-card {
+  --pricing-overview-plan-color: var(--scalar-color-blue);
+  min-width: 0;
+  border-left: var(--scalar-border-width) solid var(--scalar-border-color);
+  color: var(--scalar-color-1);
+}
+.pricing-overview-card:first-child {
+  border-left: 0;
+}
+.pricing-overview-card-free {
+  --pricing-overview-plan-color: var(--scalar-color-orange);
+}
+.pricing-overview-card-pro {
+  --pricing-overview-plan-color: var(--scalar-color-purple);
+}
+.pricing-overview-card-enterprise {
+  --pricing-overview-plan-color: var(--scalar-color-green);
+}
+.pricing-overview-card-content {
+  display: flex;
+  min-height: 420px;
+  flex-direction: column;
+  padding: 24px;
+}
+.pricing-overview-plan {
+  margin: 0 0 8px;
+  color: var(--pricing-overview-plan-color);
+  font-size: var(--scalar-font-size-3);
+  font-weight: var(--scalar-semibold);
+  line-height: var(--scalar-line-height-3);
+}
+.pricing-overview-headline {
+  margin: 0;
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-font-size-2);
+  font-weight: var(--scalar-semibold);
+  line-height: var(--scalar-line-height-2);
+}
+.pricing-overview-price {
+  margin: 32px 0 20px;
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-font-size-1);
+  font-weight: var(--scalar-bold);
+  letter-spacing: 0;
+  line-height: var(--scalar-line-height-1);
+  white-space: nowrap;
+}
+.pricing-overview-price span {
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-font-size-2);
+  font-weight: var(--scalar-regular);
+  line-height: var(--scalar-line-height-2);
+}
+.pricing-overview-cta {
+  width: 100%;
+  display: block;
+  padding: 8px 12px;
+  border: var(--scalar-border-width) solid color-mix(in srgb, var(--pricing-overview-plan-color), var(--scalar-border-color) 24%);
+  border-radius: var(--scalar-radius-lg);
+  background: var(--pricing-overview-plan-color);
+  color: var(--scalar-button-1-color);
+  font-size: var(--scalar-font-size-3);
+  font-weight: var(--scalar-font-medium);
+  text-align: center;
+  text-decoration: none;
+}
+.pricing-overview-cta:hover,
+.pricing-overview-cta:visited {
+  color: var(--scalar-button-1-color);
+  text-decoration: none;
+}
+.pricing-overview-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pricing-overview-card li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-font-size-3);
+  line-height: var(--scalar-line-height-3);
+}
+.pricing-overview-card li scalar-icon {
+  display: inline-flex;
+  flex: 0 0 16px;
+  width: 16px;
+  min-width: 16px;
+  height: var(--scalar-line-height-3);
+  align-items: center;
+  justify-content: center;
+  color: var(--scalar-color-1);
+}
+.pricing-overview-card li svg {
+  display: block;
+  flex: 0 0 16px;
+  width: 14px;
+  min-width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  fill: currentColor;
+}
+.logowall.logowall {
+  margin: 24px 0 100px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  align-items: center;
+  gap: 40px;
+}
+.logowall-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logowall-item svg {
+  width: 100%;
+  height: auto;
+  max-height: 24px;
+}
+.ign-logo__fill {
+  fill: var(--scalar-color-1);
+}
+.fill-current-bg {
+  fill: var(--scalar-background-1);
+}
 .mobiletabs input {
   position: absolute;
   left: -200vw;
 }
 .mobiletabs {
-  margin-top: 40px !important;
 }
 .mobiletabs-container {
   display: none;
@@ -765,24 +998,31 @@
     border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: var(--scalar-radius);
     contain: paint;
+    display: flex;
+    flex-direction: column;
 }
 h4.t-editor__heading {
     margin-top: 0;
 }
 [data-table_id="0"]{
   --pricing-table-bg: var(--scalar-background-2);
+  order: 2;
 }
 [data-table_id="1"]{
   --pricing-table-bg: var(--scalar-background-2);
+  order: 3;
 }
 [data-table_id="2"]{
   --pricing-table-bg: var(--scalar-background-2);
+  order: 4;
 }
 [data-table_id="3"]{
   --pricing-table-bg: var(--scalar-background-2);
+  order: 5;
 }
 [data-table_id="4"]{
   --pricing-table-bg: var(--scalar-background-2);
+  order: 6;
 }
 .st_wrap_table svg {
     fill: var(--scalar-color-1)
@@ -1002,6 +1242,7 @@ h4.t-editor__heading {
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
+    margin-top: 0;
   }
   .container {
     width: var(--scalar-container-width);
@@ -1135,14 +1376,23 @@ h4.t-editor__heading {
   .pricing.footer {
     position: relative;
     overflow: hidden;
+    width: calc(100% + 96px);
+    margin: 0 0 96px -48px;
     background: var(--scalar-background-2);
-    padding-bottom: 200px;
-    margin-top: 100px;
+    border-radius: var(--scalar-radius-lg);
+    padding-inline: 20px;
+    padding-bottom: 150px;
+  }
+  .footer-animation {
+    margin-inline: -20px;
   }
   .footer-animation svg {
     position: absolute;
     bottom: 0;
-    left: 0;
+  }
+  .fa-gradient,
+  .fa-gradient-2 {
+    background: linear-gradient(90deg, var(--scalar-color-blue), var(--scalar-color-yellow) 8.3%, var(--scalar-color-green) 16.6%, var(--scalar-color-accent) 24.9%, var(--scalar-color-orange) 33.2%, var(--scalar-color-purple) 41.5%, var(--scalar-color-blue) 49.8%, var(--scalar-color-yellow) 58.1%, var(--scalar-color-green) 66.4%, var(--scalar-color-accent) 74.7%, var(--scalar-color-orange) 83%, var(--scalar-color-purple) 91.3%, var(--scalar-color-blue));
   }
   .footer-content {
     display: flex;
@@ -1150,10 +1400,15 @@ h4.t-editor__heading {
     max-width: var(--scalar-container-width);
     width: 100%;
     margin: auto;
-    padding-top: 92px;
+    padding-top: 48px;
   }
   .footer-content > * {
     flex: 1;
+  }
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 48px;
   }
   .footer-content span,
   .footer-content p,
@@ -1162,8 +1417,58 @@ h4.t-editor__heading {
     position: relative;
     z-index: 1;
   }
-  .w-1\/3 {
-    width: 33.33%
+  .footer-content a,
+  .footer-content a:hover,
+  .footer-content a:visited,
+  .footer-content button {
+    text-decoration: none;
+    text-decoration-line: none;
+  }
+  .footer-socials {
+    display: flex;
+    gap: 8px;
+    margin-top: 36px;
+  }
+  @media screen and (min-width: 1001px) {
+    .pricing.footer {
+      padding-bottom: 80px;
+    }
+    .footer-socials {
+      margin-top: 120px;
+    }
+  }
+  .footer-social-link {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    color: var(--scalar-color-2);
+    text-decoration: none;
+  }
+  .footer-social-link:hover,
+  .footer-social-link:visited {
+    color: var(--scalar-color-1);
+    text-decoration: none;
+  }
+  .footer-social-link scalar-icon,
+  .footer-social-link svg {
+    width: 18px;
+    height: 18px;
+  }
+  @media screen and (max-width: 1379px) {
+    .pricing.footer {
+      --scalar-container-sidebar-gap: calc(
+        (
+          (100dvw - var(--scalar-container-width) - var(--scalar-sidebar-width)) /
+            2
+        )
+      );
+      width: calc(100dvw - var(--scalar-sidebar-width));
+      margin-bottom: 0;
+      margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
+      border-radius: 0;
+    }
   }
   .light-mode .dark-image {
     display: none;
@@ -1188,10 +1493,46 @@ h4.t-editor__heading {
     .t-doc {
       --scalar-sidebar-width: 0px;
     }
+    .pricing-overview-cards {
+      grid-template-columns: 1fr;
+    }
+    .pricing-overview-card {
+      border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+      border-left: 0;
+    }
+    .pricing-overview-card:first-child {
+      border-top: 0;
+    }
+    .pricing-overview-card-content {
+      min-height: 0;
+      padding: 28px;
+    }
+    .pricing-overview-card ul {
+      margin-top: 32px;
+    }
+    .logowall.logowall {
+      grid-template-columns: repeat(3, 1fr);
+      column-gap: 20px;
+      row-gap: 40px;
+    }
+    .logowall-item {
+      justify-content: start;
+    }
+    .logowall-item svg {
+      max-width: 100%;
+      height: 100%;
+      max-height: 20px;
+    }
     .t-editor.page {
       padding-inline: 30px;
     }
     .container-full {
+      --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
+      padding-inline: 30px;
+      margin-inline: -30px;
+    }
+    .pricing.footer {
       --scalar-container-sidebar-gap: 30px;
       width: 100dvw;
       padding-inline: 30px;
@@ -1234,6 +1575,11 @@ h4.t-editor__heading {
     }
     .footer-content > * {
       flex: initial;
+    }
+  }
+  @media screen and (max-width: 600px) {
+    .footer-links {
+      grid-template-columns: 1fr;
     }
   }
   @media screen and (max-width: 500px) {

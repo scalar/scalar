@@ -1,6 +1,10 @@
-<div class="customers-hero">
-  <h1>Trusted by the world's best API teams.</h1>
-  <h2>Powering Docs, MCP servers &amp; SDKs for the most ambitious API companies in the world.</h2>
+<div class="flex flex-col gap-3 hero small-test customers-hero">
+  <scalar-heading level="2" slug="customers" class="text-balance">
+    Trusted by the world's best API teams.
+  </scalar-heading>
+  <p>
+    Powering Docs, MCP servers &amp; SDKs for the most ambitious API companies in the world.
+  </p>
   <div class="customers-hero-actions">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
@@ -54,34 +58,102 @@
   </article>
 </div>
 
+<div class="customers footer">
+  <div class="footer-content">
+      <div class="flex flex-col gap-2">
+        <span class="text-c-1">
+          <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
+        </span>
+        <p class="text-c-3 text-base text-balance">The API company.</p>
+        <div class="footer-socials" aria-label="Social links">
+          <a class="footer-social-link" href="https://twitter.com/scalar" target="_blank" aria-label="Scalar on X">
+            <scalar-icon src="phosphor/bold/x-logo"></scalar-icon>
+          </a>
+          <a class="footer-social-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="Scalar on GitHub">
+            <scalar-icon src="phosphor/fill/github-logo"></scalar-icon>
+          </a>
+          <a class="footer-social-link" href="https://discord.gg/scalar" target="_blank" aria-label="Scalar on Discord">
+            <scalar-icon src="phosphor/fill/discord-logo"></scalar-icon>
+          </a>
+          <a class="footer-social-link" href="https://www.linkedin.com/company/scalar-org" target="_blank" aria-label="Scalar on LinkedIn">
+            <scalar-icon src="phosphor/fill/linkedin-logo"></scalar-icon>
+          </a>
+        </div>
+        <p class="text-c-3 text-base text-balance">© API Documentation, Inc.</p>
+      </div>
+      <div class="footer-links text-base">
+        <div class="footer-link-group flex flex-col gap-2">
+          <b>Products</b>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
+        </div>
+        <div class="footer-link-group flex flex-col gap-2">
+          <b>Company</b>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/brand">Brand</a>
+          <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
+        </div>
+      </div>
+  </div>
+  <!-- footer animation -->
+  <div class="footer-animation">
+    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
+  </div>
+</div>
+
+<div class="sticker-filter-effect">
+  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
+</div>
+
 <style>
-  main {
-    --scalar-container-width: 820px;
+  :root {
+    --scalar-container-width: 960px;
   }
-  .customers-hero {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin: 0 auto 48px;
+  .t-editor__page-nav,
+  .page-nav,
+  .content .page-nav {
+    display: none;
   }
-  .customers-hero h1,
-  .customers-hero h2 {
-    margin: 0;
-    text-wrap: balance;
+  main.content {
+    overflow-x: clip;
   }
-  .customers-hero h1.t-editor__page-title {
-    max-width: 760px;
-    font-size: var(--scalar-heading-1);
-    line-height: 1.1;
-    letter-spacing: 0;
+  .t-editor.page {
+    margin-right: unset;
+  }
+  .t-editor .editor-content,
+  .t-editor {
+    padding-bottom: 0;
+  }
+  .t-editor .editor-static .page-node,
+  .t-editor .page-node,
+  .t-editor .content {
+    max-width: var(--scalar-container-width);
+    padding-bottom: 0;
+    margin-bottom: 0;
     margin-top: 0;
   }
-  .customers-hero h2 {
-    max-width: 640px;
-    color: var(--scalar-color-2);
-    font-size: var(--scalar-heading-2);
-    font-weight: 400;
-    line-height: 1.45;
+  .container-full {
+    --scalar-container-sidebar-gap: calc(
+      (
+        (100dvw - var(--scalar-container-width) - var(--scalar-sidebar-width)) /
+          2
+      )
+    );
+    width: calc(100dvw - var(--scalar-sidebar-width));
+    margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
+  }
+  .customers-hero {
+    max-width: 680px;
+    position: relative;
+    text-wrap: balance;
+  }
+  .customers-hero .t-editor__heading {
+    --font-size: var(--scalar-heading-1);
+    margin-top: 0;
   }
   .customers-hero-actions {
     display: flex;
@@ -178,7 +250,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 40px;
     row-gap: 56px;
-    margin: 56px 0 0;
+    margin: 56px 0 100px;
   }
   .customer-docs-item {
     display: flex;
@@ -293,15 +365,123 @@
     color: var(--scalar-color-1);
     text-decoration: none;
   }
+  .customers.footer {
+    position: relative;
+    overflow: hidden;
+    width: calc(100% + 96px);
+    margin: 0 0 96px -48px;
+    background: var(--scalar-background-2);
+    border-radius: var(--scalar-radius-lg);
+    padding-inline: 20px;
+    padding-bottom: 200px;
+  }
+  .footer-animation {
+    margin-inline: -20px;
+  }
+  .footer-animation svg {
+    position: absolute;
+    bottom: 0;
+  }
+  .fa-gradient,
+  .fa-gradient-2 {
+    background: linear-gradient(90deg, var(--scalar-color-blue), var(--scalar-color-yellow) 8.3%, var(--scalar-color-green) 16.6%, var(--scalar-color-accent) 24.9%, var(--scalar-color-orange) 33.2%, var(--scalar-color-purple) 41.5%, var(--scalar-color-blue) 49.8%, var(--scalar-color-yellow) 58.1%, var(--scalar-color-green) 66.4%, var(--scalar-color-accent) 74.7%, var(--scalar-color-orange) 83%, var(--scalar-color-purple) 91.3%, var(--scalar-color-blue));
+  }
+  .footer-content {
+    display: flex;
+    gap: 48px;
+    max-width: var(--scalar-container-width);
+    width: 100%;
+    margin: auto;
+    padding-top: 48px;
+  }
+  .footer-content > * {
+    flex: 1;
+  }
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 48px;
+  }
+  .footer-content span,
+  .footer-content p,
+  .footer-content a,
+  .footer-content button {
+    position: relative;
+    z-index: 1;
+  }
+  .footer-content a,
+  .footer-content a:hover,
+  .footer-content a:visited,
+  .footer-content button {
+    text-decoration: none;
+    text-decoration-line: none;
+  }
+  .footer-socials {
+    display: flex;
+    gap: 8px;
+    margin-top: 36px;
+  }
+  @media screen and (min-width: 1001px) {
+    .customers.footer {
+      padding-bottom: 80px;
+    }
+    .footer-socials {
+      margin-top: 120px;
+    }
+  }
+  .footer-social-link {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    color: var(--scalar-color-2);
+    text-decoration: none;
+  }
+  .footer-social-link:hover,
+  .footer-social-link:visited {
+    color: var(--scalar-color-1);
+    text-decoration: none;
+  }
+  .footer-social-link scalar-icon,
+  .footer-social-link svg {
+    width: 18px;
+    height: 18px;
+  }
+  @media screen and (max-width: 1379px) {
+    .customers.footer {
+      --scalar-container-sidebar-gap: calc(
+        (
+          (100dvw - var(--scalar-container-width) - var(--scalar-sidebar-width)) /
+            2
+        )
+      );
+      width: calc(100dvw - var(--scalar-sidebar-width));
+      margin-bottom: 0;
+      margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
+      border-radius: 0;
+    }
+  }
+  @media (max-width: 1000px) {
+    .t-editor.page {
+      padding-inline: 30px;
+    }
+    .container-full {
+      --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
+      padding-inline: 30px;
+      margin-inline: -30px;
+    }
+    .customers.footer {
+      --scalar-container-sidebar-gap: 30px;
+      width: 100dvw;
+      padding-inline: 30px;
+      margin-inline: -30px;
+    }
+  }
   @media (max-width: 720px) {
     .customers-hero {
       margin-top: 40px;
-    }
-    .customers-hero h1 {
-      font-size: 40px;
-    }
-    .customers-hero h2 {
-      font-size: var(--scalar-font-size-3);
     }
     .customers-hero-actions {
       width: 100%;
@@ -330,6 +510,15 @@
     .customer-docs-grid {
       grid-template-columns: 1fr;
       row-gap: 40px;
+    }
+    .footer-content {
+      flex-direction: column;
+    }
+    .footer-content > * {
+      flex: initial;
+    }
+    .footer-links {
+      grid-template-columns: 1fr;
     }
   }
 </style>
