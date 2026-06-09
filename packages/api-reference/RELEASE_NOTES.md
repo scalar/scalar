@@ -9,6 +9,14 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.59.2 (2026-06-09)
+
+### Restore deprecated source field for SDK installation commands
+
+The deprecated `source` field on `x-scalar-sdk-installation` is now supported again for backward compatibility. When present, it is automatically appended to the `description` as a fenced code block, or used on its own when there is no `description`. The `description` field remains the recommended way to document installation commands.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1592)
+
 ## 1.59.1 (2026-06-09)
 
 ### Fixed examples panel layout in operation view
