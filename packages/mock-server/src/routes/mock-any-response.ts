@@ -7,20 +7,14 @@ import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
 
-import type { MockServerOptions } from '@/types'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 
 /**
  * Mock any response
  */
-export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObject, options: MockServerOptions) {
-  // Call onRequest callback
-  if (options?.onRequest) {
-    options.onRequest({
-      context: c,
-      operation,
-    })
-  }
+export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObject) {
+  // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
+  // for requests rejected before reaching this handler.
 
   // Response
   // default, 200, 201 …

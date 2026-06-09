@@ -6,7 +6,6 @@ import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
 
-import type { MockServerOptions } from '@/types'
 import { buildHandlerContext } from '@/utils/build-handler-context'
 import { executeHandler } from '@/utils/execute-handler'
 
@@ -126,18 +125,9 @@ function determineStatusCode(tracking: {
  * Mock response using x-handler code.
  * Executes the handler and returns its result as the response.
  */
-export async function mockHandlerResponse(
-  c: Context,
-  operation: OpenAPIV3_1.OperationObject,
-  options: MockServerOptions,
-) {
-  // Call onRequest callback
-  if (options?.onRequest) {
-    options.onRequest({
-      context: c,
-      operation,
-    })
-  }
+export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.OperationObject) {
+  // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
+  // for requests rejected before reaching this handler.
 
   // Get x-handler code from operation
   const handlerCode = operation?.['x-handler']

@@ -89,6 +89,15 @@ export async function createMockServer(configuration: MockServerOptions): Promis
         app[method](route, handleAuthentication(schema, operation))
       }
 
+      // Notify the `onRequest` callback before validation runs, so it fires for every request —
+      // including ones the validation middleware rejects with a `422`.
+      if (configuration.onRequest) {
+        app[method](route, async (c, next) => {
+          configuration.onRequest?.({ context: c, operation })
+          await next()
+        })
+      }
+
       // Validate the incoming request against the operation contract (on by default;
       // opt out with `validateRequest: false`). Runs after authentication but before the
       // mock handler. Validators are compiled once here, so there is no per-request recompilation.
@@ -103,9 +112,9 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
       // Route to appropriate handler
       if (hasHandler) {
-        app[method](route, (c) => mockHandlerResponse(c, operation, configuration))
+        app[method](route, (c) => mockHandlerResponse(c, operation))
       } else {
-        app[method](route, (c) => mockAnyResponse(c, operation, configuration))
+        app[method](route, (c) => mockAnyResponse(c, operation))
       }
     })
   })

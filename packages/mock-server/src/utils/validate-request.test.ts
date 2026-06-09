@@ -372,4 +372,23 @@ describe('validate-request', () => {
     const valid = await server.request(withoutContentType(JSON.stringify({ name: 'Alice' })))
     expect((await valid.json()).received).toEqual({ name: 'Alice' })
   })
+
+  it('calls onRequest even when the request is rejected by validation', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
+    })
+
+    const onRequest = vi.fn()
+    const server = await createMockServer({ document, validateRequest: true, onRequest })
+
+    // A rejected request (missing required query param) must still trigger onRequest.
+    const rejected = await server.request('/items')
+    expect(rejected.status).toBe(422)
+    expect(onRequest).toHaveBeenCalledTimes(1)
+
+    // A valid request triggers it exactly once too (no double-invocation from the handler).
+    const ok = await server.request('/items?limit=5')
+    expect(ok.status).toBe(200)
+    expect(onRequest).toHaveBeenCalledTimes(2)
+  })
 })
