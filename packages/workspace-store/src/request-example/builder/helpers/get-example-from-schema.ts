@@ -1,5 +1,6 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 
+import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
@@ -132,9 +133,13 @@ const getRequiredNames = (parentSchema: SchemaObject | undefined): ReadonlySet<s
  * Cache the result for a schema if it is an object type.
  * Primitive values are not cached to avoid unnecessary WeakMap operations.
  * Stores a map of cacheKey strings which is made up of the options object.
+ *
+ * Skips the cache while a dynamic scope is active: the same shared schema node can resolve to
+ * different examples depending on the dynamic scope it was reached through, so caching it by object
+ * identity would leak one scope's result into another.
  */
-const cache = (schema: SchemaObject, result: unknown, cacheKey: string) => {
-  if (typeof result !== 'object' || result === null) {
+const cache = (schema: SchemaObject, result: unknown, cacheKey: string, skip = false) => {
+  if (skip || typeof result !== 'object' || result === null) {
     return result
   }
   const rawSchema = getSchemaCacheTarget(schema)
@@ -406,8 +411,12 @@ const handleObjectSchema = (
   seen: WeakSet<object>,
   cacheKey: string,
   schemaPath: string[],
+  dynamicScope: DynamicScope,
 ): unknown => {
   const response: Record<string, unknown> = {}
+  // Children are evaluated with this schema added to the dynamic scope so nested `$dynamicRef`s bind here.
+  const childScope = pushDynamicScope(dynamicScope, schema)
+  const skipCache = dynamicScope.length > 0
 
   if ('properties' in schema && schema.properties) {
     const properties = schema.properties
@@ -428,6 +437,7 @@ const handleObjectSchema = (
         name: propertyName,
         schemaPath: [...schemaPath, propertyName],
         seen,
+        dynamicScope: childScope,
       })
 
       if (typeof value !== 'undefined') {
@@ -448,6 +458,7 @@ const handleObjectSchema = (
         name: pattern,
         schemaPath: [...schemaPath, pattern],
         seen,
+        dynamicScope: childScope,
       })
     }
   }
@@ -482,6 +493,7 @@ const handleObjectSchema = (
             level: level + 1,
             schemaPath: [...schemaPath, additionalName],
             seen,
+            dynamicScope: childScope,
           })
         : 'anything'
 
@@ -505,6 +517,7 @@ const handleObjectSchema = (
           level: level + 1,
           schemaPath,
           seen,
+          dynamicScope: childScope,
         }),
       )
     }
@@ -517,6 +530,7 @@ const handleObjectSchema = (
         level: level + 1,
         parentSchema: schema,
         seen,
+        dynamicScope: childScope,
       })
       merged = mergeExamples(merged, ex)
     }
@@ -528,10 +542,10 @@ const handleObjectSchema = (
   if (options?.xml && 'xml' in schema && schema.xml?.name && level === 0) {
     const wrapped: Record<string, unknown> = {}
     wrapped[schema.xml.name] = response
-    return cache(schema, wrapped, cacheKey)
+    return cache(schema, wrapped, cacheKey, skipCache)
   }
 
-  return cache(schema, response, cacheKey)
+  return cache(schema, response, cacheKey, skipCache)
 }
 
 /** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
@@ -542,14 +556,27 @@ const handleArraySchema = (
   seen: WeakSet<object>,
   cacheKey: string,
   schemaPath: string[],
+  dynamicScope: DynamicScope,
 ) => {
-  const items = 'items' in schema ? resolve.schema(schema.items) : undefined
+  const childScope = pushDynamicScope(dynamicScope, schema)
+  const skipCache = dynamicScope.length > 0
+
+  let items = 'items' in schema ? resolve.schema(schema.items) : undefined
+  // Bind a dynamic item type (e.g. the generic `PaginatedResponse<T>` pattern) before inspecting it.
+  if (items && isDynamicRef(items)) {
+    items = resolveDynamicRef(items.$dynamicRef, childScope) ?? items
+  }
   const itemsSchemaPath = [...schemaPath, 'items']
   const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
   const wrapItems = !!(options?.xml && 'xml' in schema && schema.xml?.wrapped && itemsXmlTagName)
 
   if (schema.example !== undefined) {
-    return cache(schema, wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example, cacheKey)
+    return cache(
+      schema,
+      wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example,
+      cacheKey,
+      skipCache,
+    )
   }
 
   if (items && typeof items === 'object') {
@@ -564,8 +591,9 @@ const handleArraySchema = (
           parentSchema: schema,
           schemaPath: itemsSchemaPath,
           seen,
+          dynamicScope: childScope,
         })
-        return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged], cacheKey)
+        return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged], cacheKey, skipCache)
       }
 
       const examples = allOf
@@ -575,6 +603,7 @@ const handleArraySchema = (
             parentSchema: schema,
             schemaPath: itemsSchemaPath,
             seen,
+            dynamicScope: childScope,
           }),
         )
         .filter(isDefined)
@@ -582,6 +611,7 @@ const handleArraySchema = (
         schema,
         wrapItems ? (examples as unknown[]).map((e) => ({ [itemsXmlTagName as string]: e })) : examples,
         cacheKey,
+        skipCache,
       )
     }
 
@@ -596,8 +626,9 @@ const handleArraySchema = (
         parentSchema: schema,
         schemaPath: itemsSchemaPath,
         seen,
+        dynamicScope: childScope,
       })
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey)
+      return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey, skipCache)
     }
   }
 
@@ -611,11 +642,12 @@ const handleArraySchema = (
       level: level + 1,
       schemaPath: itemsSchemaPath,
       seen,
+      dynamicScope: childScope,
     })
-    return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey)
+    return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey, skipCache)
   }
 
-  return cache(schema, [], cacheKey)
+  return cache(schema, [], cacheKey, skipCache)
 }
 
 /** Return primitive example value for single-type schemas, or undefined if not primitive */
@@ -719,6 +751,7 @@ export const getExampleFromSchema = (
     name,
     seen = new WeakSet(),
     schemaPath = [],
+    dynamicScope = [],
   }: Partial<{
     level: number
     parentSchema: SchemaObject
@@ -726,6 +759,8 @@ export const getExampleFromSchema = (
     seen: WeakSet<object>
     /** Internal traversal path used to resolve nested composition selections. */
     schemaPath: string[]
+    /** Chain of schema resources entered so far, used to resolve `$dynamicRef` (JSON Schema 2020-12). */
+    dynamicScope: DynamicScope
   }> = {},
 ): unknown => {
   // Resolve any $ref references to get the actual schema
@@ -733,6 +768,27 @@ export const getExampleFromSchema = (
   if (!isDefined(_schema)) {
     return undefined
   }
+
+  // Resolve a `$dynamicRef` against the active dynamic scope, then continue with the bound schema.
+  // When nothing matches, fall through and render the reference as before (no regression).
+  if (isDynamicRef(_schema)) {
+    const resolvedDynamic = resolveDynamicRef(_schema.$dynamicRef, dynamicScope)
+    if (resolvedDynamic) {
+      return getExampleFromSchema(resolvedDynamic, options, {
+        level: level + 1,
+        parentSchema,
+        name,
+        seen,
+        schemaPath,
+        dynamicScope,
+      })
+    }
+  }
+
+  // Grow the scope with this schema so nested references can bind to its `$dynamicAnchor`s.
+  const childScope = pushDynamicScope(dynamicScope, _schema)
+  // The same shared node can resolve differently per scope, so skip the result cache under a scope.
+  const skipCache = dynamicScope.length > 0
 
   // Unpack from all proxies to get the raw schema object for cycle detection
   const targetValue = getSchemaCacheTarget(_schema)
@@ -744,11 +800,13 @@ export const getExampleFromSchema = (
   /** Make the cache key unique per options and schema path */
   const cacheKey = createOptionsCacheKey(options) + (schemaPath.length > 0 ? `:path:${schemaPath.join('.')}` : '')
 
-  // Check cache first for performance - avoid recomputing the same schema
-  const cached = resultCache.get(targetValue)?.get(cacheKey)
-  if (typeof cached !== 'undefined') {
-    seen.delete(targetValue)
-    return cached
+  // Check cache first for performance - avoid recomputing the same schema (skipped under a dynamic scope)
+  if (!skipCache) {
+    const cached = resultCache.get(targetValue)?.get(cacheKey)
+    if (typeof cached !== 'undefined') {
+      seen.delete(targetValue)
+      return cached
+    }
   }
 
   // Prevent infinite recursion in circular references
@@ -773,49 +831,49 @@ export const getExampleFromSchema = (
       // Type coercion for numeric types
       if ('type' in _schema && (_schema.type === 'number' || _schema.type === 'integer')) {
         seen.delete(targetValue)
-        return cache(_schema, Number(value), cacheKey)
+        return cache(_schema, Number(value), cacheKey, skipCache)
       }
       seen.delete(targetValue)
-      return cache(_schema, value, cacheKey)
+      return cache(_schema, value, cacheKey, skipCache)
     }
   }
 
   // Priority order: examples > example > default > const > enum
   if (Array.isArray(_schema.examples) && _schema.examples.length > 0) {
     seen.delete(targetValue)
-    return cache(_schema, _schema.examples[0], cacheKey)
+    return cache(_schema, _schema.examples[0], cacheKey, skipCache)
   }
   if (_schema.example !== undefined) {
     seen.delete(targetValue)
-    return cache(_schema, _schema.example, cacheKey)
+    return cache(_schema, _schema.example, cacheKey, skipCache)
   }
   if (_schema.default !== undefined) {
     const normalizedDefault = normalizeSchemaDefault(_schema)
 
     if (normalizedDefault !== INVALID_DEFAULT) {
       seen.delete(targetValue)
-      return cache(_schema, normalizedDefault, cacheKey)
+      return cache(_schema, normalizedDefault, cacheKey, skipCache)
     }
   }
   if (_schema.const !== undefined) {
     seen.delete(targetValue)
-    return cache(_schema, _schema.const, cacheKey)
+    return cache(_schema, _schema.const, cacheKey, skipCache)
   }
   if (Array.isArray(_schema.enum) && _schema.enum.length > 0) {
     seen.delete(targetValue)
-    return cache(_schema, _schema.enum[0], cacheKey)
+    return cache(_schema, _schema.enum[0], cacheKey, skipCache)
   }
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath)
+    const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope)
     seen.delete(targetValue)
     return result
   }
 
   // Handle array types
   if (('type' in _schema && _schema.type === 'array') || 'items' in _schema) {
-    const result = handleArraySchema(_schema, options, level, seen, cacheKey, schemaPath)
+    const result = handleArraySchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope)
     seen.delete(targetValue)
     return result
   }
@@ -824,7 +882,7 @@ export const getExampleFromSchema = (
   const primitive = getPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
   if (primitive !== undefined) {
     seen.delete(targetValue)
-    return cache(_schema, primitive, cacheKey)
+    return cache(_schema, primitive, cacheKey, skipCache)
   }
 
   // Handle composition schemas (oneOf, anyOf)
@@ -849,13 +907,15 @@ export const getExampleFromSchema = (
             level: level + 1,
             schemaPath,
             seen,
+            dynamicScope: childScope,
           }),
           cacheKey,
+          skipCache,
         )
       }
     }
     seen.delete(targetValue)
-    return cache(_schema, null, cacheKey)
+    return cache(_schema, null, cacheKey, skipCache)
   }
 
   // Handle allOf at root level (non-object/array schemas)
@@ -868,6 +928,7 @@ export const getExampleFromSchema = (
         parentSchema: _schema,
         schemaPath,
         seen,
+        dynamicScope: childScope,
       })
       if (merged === undefined) {
         merged = ex
@@ -879,17 +940,17 @@ export const getExampleFromSchema = (
       }
     }
     seen.delete(targetValue)
-    return cache(_schema, merged ?? null, cacheKey)
+    return cache(_schema, merged ?? null, cacheKey, skipCache)
   }
 
   // Handle union types (array of types)
   const unionPrimitive = getUnionPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
   if (unionPrimitive !== undefined) {
     seen.delete(targetValue)
-    return cache(_schema, unionPrimitive, cacheKey)
+    return cache(_schema, unionPrimitive, cacheKey, skipCache)
   }
 
   // Default fallback
   seen.delete(targetValue)
-  return cache(_schema, null, cacheKey)
+  return cache(_schema, null, cacheKey, skipCache)
 }

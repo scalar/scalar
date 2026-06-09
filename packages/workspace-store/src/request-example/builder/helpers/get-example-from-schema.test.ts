@@ -2015,4 +2015,95 @@ describe('getExampleFromSchema', () => {
       expect(Object.keys(getExampleFromSchema(schema) as object)).toEqual(['c', 'b', 'a'])
     })
   })
+
+  describe('$dynamicRef resolution', () => {
+    // Cast helper so tests can use the untyped 2020-12 keywords ($defs) and a magic-proxy-style $ref-value.
+    const dyn = (value: Record<string, unknown>) => value as unknown as SchemaObject
+
+    // A shared generic pagination template. Its item type is a $dynamicRef whose fallback matches nothing.
+    const paginatedTemplate = {
+      $id: 'urn:template',
+      $defs: { itemType: { $dynamicAnchor: 'itemType', not: {} } },
+      type: 'object',
+      required: ['items', 'total'],
+      properties: {
+        items: { type: 'array', items: { $dynamicRef: '#itemType' } },
+        total: { type: 'integer', minimum: 0 },
+      },
+    }
+
+    // A response specializing the template by binding itemType through a sibling $ref (as the magic proxy stores it).
+    const responseBinding = (itemSchema: Record<string, unknown>) =>
+      dyn({
+        $id: 'urn:response',
+        $defs: { itemType: { $dynamicAnchor: 'itemType', ...itemSchema } },
+        '$ref': 'urn:template',
+        '$ref-value': paginatedTemplate,
+      })
+
+    it('binds the dynamic item type to the specializing schema', () => {
+      const example = getExampleFromSchema(
+        responseBinding({ type: 'object', required: ['id', 'email'], properties: { id: {}, email: {} } }),
+      ) as { items: Record<string, unknown>[] }
+
+      expect(Array.isArray(example.items)).toBe(true)
+      expect(example.items).toHaveLength(1)
+      expect(example.items[0]).toHaveProperty('id')
+      expect(example.items[0]).toHaveProperty('email')
+    })
+
+    it('resolves the same template to different item types per binding', () => {
+      const groups = getExampleFromSchema(responseBinding({ type: 'object', properties: { name: {} } })) as {
+        items: Record<string, unknown>[]
+      }
+
+      expect(groups.items[0]).toHaveProperty('name')
+      expect(groups.items[0]).not.toHaveProperty('email')
+    })
+
+    it('falls back to the template anchor when no binding is in scope', () => {
+      // Rendering the template directly leaves the dynamic items unresolvable, so the array stays empty.
+      const example = getExampleFromSchema(dyn(paginatedTemplate)) as { items: unknown[] }
+      expect(example.items).toEqual([])
+    })
+
+    it('resolves recursive $dynamicRef to the active extended type', () => {
+      const baseCategory = {
+        $id: 'urn:base',
+        $dynamicAnchor: 'category',
+        type: 'object',
+        required: ['id', 'children'],
+        properties: {
+          id: { type: 'string' },
+          children: { type: 'array', items: { $dynamicRef: '#category' } },
+        },
+      }
+      const localizedCategory = dyn({
+        $id: 'urn:localized',
+        $dynamicAnchor: 'category',
+        allOf: [
+          baseCategory,
+          {
+            type: 'object',
+            required: ['displayName', 'locale'],
+            properties: { displayName: { type: 'string' }, locale: { type: 'string' } },
+          },
+        ],
+      })
+
+      const example = getExampleFromSchema(localizedCategory) as {
+        id: unknown
+        displayName: unknown
+        children: Record<string, unknown>[]
+      }
+
+      // The top level carries both the base and the localized fields.
+      expect(example).toHaveProperty('id')
+      expect(example).toHaveProperty('displayName')
+      // children bind to the localized type (it has displayName/locale), not the bare base type.
+      expect(Array.isArray(example.children)).toBe(true)
+      expect(example.children[0]).toHaveProperty('displayName')
+      expect(example.children[0]).toHaveProperty('locale')
+    })
+  })
 })
