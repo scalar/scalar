@@ -84,11 +84,21 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
     throw new Error(`Operation not found: ${options.method.toUpperCase()} ${options.path}`)
   }
 
-  // Every prop is a getter so the block stays in sync with the store and the options
-  // object, rather than snapshotting their values at mount time.
+  // Remember the last operation that resolved so a transient miss (e.g. the active
+  // document is swapped to one without this path or method after mount) keeps
+  // rendering the previous operation instead of feeding `undefined` to the block.
+  let lastOperation: OperationObject | undefined
+
+  // Props are getters so the block tracks the reactive store (active document,
+  // `x-scalar-default-client`) live. Option fields are read at their current value;
+  // change the client or server through the store to drive re-renders.
   const props = reactive<CodeExampleProps>({
     get operation(): OperationObject {
-      return resolveOperation() as OperationObject
+      const operation = resolveOperation()
+      if (operation) {
+        lastOperation = operation
+      }
+      return (operation ?? lastOperation) as OperationObject
     },
     get method() {
       return options.method

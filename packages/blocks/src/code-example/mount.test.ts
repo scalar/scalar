@@ -1,5 +1,6 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { afterEach, describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 
 import { findClient } from './helpers/find-client'
 import { generateClientOptions } from './helpers/generate-client-options'
@@ -122,6 +123,29 @@ describe('mount', () => {
 
     const picker = element.querySelector('[data-testid="client-picker"]')
     expect(picker?.textContent).toContain(expectedTitle)
+  })
+
+  it('keeps rendering the last resolved operation when it disappears from the active document', async () => {
+    const store = await createStore()
+    const element = document.createElement('div')
+
+    const instance = createCodeExample(element, { store, path: '/hello', method: 'post' })
+    mounted.push(instance)
+
+    expect(element.textContent).toMatch(/post/i)
+
+    // Switch to a document that does not define the operation. The block must not
+    // feed `undefined` to CodeExample (which would crash reading `operation.requestBody`);
+    // it keeps the last resolved operation instead.
+    await store.addDocument({
+      name: 'empty',
+      document: { openapi: '3.1.0', info: { title: 'Empty', version: '1.0.0' }, paths: {} },
+    })
+    store.workspace['x-scalar-active-document'] = 'empty'
+    await nextTick()
+
+    expect(store.workspace.activeDocument?.info.title).toBe('Empty')
+    expect(element.textContent).toMatch(/post/i)
   })
 
   it('clears the rendered content when destroyed', async () => {
