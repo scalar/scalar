@@ -127,6 +127,7 @@
     "fuse.js": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
+    "unhead": "^2.1.4",
     "vue": "catalog:*",
     "yaml": "catalog:*"
   },
