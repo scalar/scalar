@@ -313,11 +313,8 @@ Put your content where you want: in your repository, any folder, or the Scalar E
 </div>
 <style>
   :root {
-    --scalar-text-decoration: none;
-    --scalar-text-decoration-hover: none;
-  }
-  .t-editor__anchor {
-    --font-visited: none;
+    --scalar-text-decoration: underline;
+    --scalar-text-decoration-hover: underline;
   }
   .resources-cta-container {
     border-radius: var(--scalar-radius-lg);
