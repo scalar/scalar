@@ -1,0 +1,201 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
+import type { ErrorObject, ValidateFunction } from 'ajv'
+import Ajv2020 from 'ajv/dist/2020.js'
+import addFormats from 'ajv-formats'
+import type { Context, MiddlewareHandler } from 'hono'
+
+/** Where a validation violation was found in the request */
+type ViolationLocation = 'body' | 'query' | 'path'
+
+/** A single request validation violation, mapped from an Ajv error */
+type Violation = {
+  location: ViolationLocation
+  /** JSON pointer into the offending value (e.g. `/limit`), empty for top-level errors */
+  path: string
+  message: string
+}
+
+/** The validators compiled once per operation and reused across every request */
+type CompiledValidators = {
+  path: ValidateFunction | null
+  query: ValidateFunction | null
+  body: ValidateFunction | null
+  /** Whether the request body is required by the operation */
+  bodyRequired: boolean
+}
+
+/**
+ * Build a JSON Schema object for the parameters declared `in` the given location.
+ *
+ * Parameters arrive as strings, so the caller compiles these with `coerceTypes: true` to let
+ * `type: integer`/`boolean` validate correctly. Returns `null` when there is nothing to validate.
+ */
+const buildParameterSchema = (
+  parameters: OpenAPIV3_1.OperationObject['parameters'],
+  location: 'path' | 'query',
+): Record<string, unknown> | null => {
+  const properties: Record<string, unknown> = {}
+  const required: string[] = []
+
+  for (const parameterOrRef of parameters ?? []) {
+    const parameter = getResolvedRef(parameterOrRef)
+
+    if (parameter?.in !== location) {
+      continue
+    }
+
+    if (parameter.schema) {
+      properties[parameter.name] = getResolvedRefDeep(parameter.schema)
+    }
+
+    if (parameter.required) {
+      required.push(parameter.name)
+    }
+  }
+
+  if (Object.keys(properties).length === 0 && required.length === 0) {
+    return null
+  }
+
+  // Allow undeclared parameters to pass through; we only enforce what the operation declares.
+  return { type: 'object', properties, required, additionalProperties: true }
+}
+
+/**
+ * Compile the validators for a single operation once, so they can be reused on every request.
+ *
+ * A malformed or uncompilable schema must not crash the server: we log and fall open (skip
+ * validation for that part), consistent with how `x-seed` errors are swallowed during setup.
+ */
+const compileValidators = (operation: OpenAPIV3_1.OperationObject): CompiledValidators => {
+  const validators: CompiledValidators = { path: null, query: null, body: null, bodyRequired: false }
+
+  // Coerce string parameters to their declared types (integer, boolean, …).
+  const parameterAjv = new Ajv2020({ strict: false, allErrors: true, coerceTypes: true })
+  addFormats(parameterAjv)
+
+  // Do not coerce the JSON body; a JSON value already carries its type and coercion would mask errors.
+  const bodyAjv = new Ajv2020({ strict: false, allErrors: true })
+  addFormats(bodyAjv)
+
+  try {
+    const pathSchema = buildParameterSchema(operation.parameters, 'path')
+    if (pathSchema) {
+      validators.path = parameterAjv.compile(pathSchema)
+    }
+
+    const querySchema = buildParameterSchema(operation.parameters, 'query')
+    if (querySchema) {
+      validators.query = parameterAjv.compile(querySchema)
+    }
+
+    const requestBody = getResolvedRef(operation.requestBody)
+    validators.bodyRequired = requestBody?.required === true
+
+    const jsonSchema = getResolvedRef(requestBody?.content?.['application/json'])?.schema
+    if (jsonSchema) {
+      validators.body = bodyAjv.compile(getResolvedRefDeep(jsonSchema))
+    }
+  } catch (error) {
+    // Fail open: a broken schema should never take the mock server down.
+    console.error('Error compiling request validators, skipping validation for this operation:', error)
+    return { path: null, query: null, body: null, bodyRequired: false }
+  }
+
+  return validators
+}
+
+/**
+ * Map Ajv errors into our violation shape. For path/query parameters the offending parameter name
+ * is prepended to the message so the response is readable without cross-referencing the pointer.
+ */
+const mapErrors = (errors: ErrorObject[] | null | undefined, location: ViolationLocation): Violation[] =>
+  (errors ?? []).map((error) => {
+    const missingProperty =
+      typeof error.params === 'object' && error.params && 'missingProperty' in error.params
+        ? String((error.params as { missingProperty?: string }).missingProperty)
+        : ''
+    const path = error.instancePath || (missingProperty ? `/${missingProperty}` : '')
+
+    const name = error.instancePath.replace(/^\//, '') || missingProperty
+    const message = location !== 'body' && name ? `${name} ${error.message ?? ''}`.trim() : (error.message ?? '')
+
+    return { location, path, message }
+  })
+
+/**
+ * Detect whether the request body should be treated as JSON. We only validate JSON bodies in this
+ * slice; an empty/absent Content-Type is treated as JSON to stay forgiving.
+ */
+const isJsonRequest = (c: Context): boolean => {
+  const contentType = c.req.header('Content-Type')?.toLowerCase() ?? ''
+  return contentType === '' || contentType.includes('json')
+}
+
+/**
+ * Create a Hono middleware bound to a single resolved operation that enforces its request contract.
+ *
+ * Validators are compiled once here (at route-setup time) and reused on every request. On any
+ * violation the middleware short-circuits with a `422` and a `application/problem+json` body;
+ * otherwise it calls `next()` and the normal mock handler runs.
+ *
+ * TODO: Parity follow-ups, intentionally deferred in this slice — response validation,
+ * header/cookie parameter validation, non-JSON body validation, and validation proxy mode.
+ */
+export const validateRequest = (operation: OpenAPIV3_1.OperationObject): MiddlewareHandler => {
+  const validators = compileValidators(operation)
+
+  return async (c, next): Promise<Response | void> => {
+    const violations: Violation[] = []
+
+    // Path parameters (coerced from strings)
+    if (validators.path) {
+      const data: Record<string, unknown> = { ...c.req.param() }
+      if (!validators.path(data)) {
+        violations.push(...mapErrors(validators.path.errors, 'path'))
+      }
+    }
+
+    // Query parameters (coerced from strings)
+    if (validators.query) {
+      const data: Record<string, unknown> = { ...c.req.query() }
+      if (!validators.query(data)) {
+        violations.push(...mapErrors(validators.query.errors, 'query'))
+      }
+    }
+
+    // Request body — only `application/json` in this slice
+    if (validators.body || validators.bodyRequired) {
+      const raw = await c.req.text()
+
+      if (!raw) {
+        if (validators.bodyRequired) {
+          violations.push({ location: 'body', path: '', message: 'Request body is required' })
+        }
+      } else if (validators.body && isJsonRequest(c)) {
+        try {
+          const parsed: unknown = JSON.parse(raw)
+          if (!validators.body(parsed)) {
+            violations.push(...mapErrors(validators.body.errors, 'body'))
+          }
+        } catch {
+          if (validators.bodyRequired) {
+            violations.push({ location: 'body', path: '', message: 'Request body must be valid JSON' })
+          }
+        }
+      }
+    }
+
+    if (violations.length > 0) {
+      // Use `c.body` (not `c.json`) so the `application/problem+json` content type is preserved;
+      // `c.json` would force `application/json`.
+      return c.body(JSON.stringify({ error: 'Request validation failed', violations }), 422, {
+        'Content-Type': 'application/problem+json',
+      })
+    }
+
+    await next()
+  }
+}

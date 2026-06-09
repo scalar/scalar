@@ -13,6 +13,7 @@ import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
 import { processOpenApiDocument } from '@/utils/process-openapi-document'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
+import { validateRequest } from '@/utils/validate-request'
 
 import { store } from './libs/store'
 import { mockAnyResponse } from './routes/mock-any-response'
@@ -86,6 +87,13 @@ export async function createMockServer(configuration: MockServerOptions): Promis
       // Check if authentication is required for this operation
       if (isAuthenticationRequired(effectiveSecurity)) {
         app[method](route, handleAuthentication(schema, operation))
+      }
+
+      // Validate the incoming request against the operation contract (on by default;
+      // opt out with `validateRequest: false`). Runs after authentication but before the
+      // mock handler. Validators are compiled once here, so there is no per-request recompilation.
+      if (configuration.validateRequest !== false) {
+        app[method](route, validateRequest(operation))
       }
 
       // Check if operation has x-handler extension

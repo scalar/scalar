@@ -1868,6 +1868,12 @@ importers:
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
+      ajv:
+        specifier: ^8.17.1
+        version: 8.17.1
+      ajv-formats:
+        specifier: ^3.0.1
+        version: 3.0.1(ajv@8.17.1)
       hono:
         specifier: catalog:*
         version: 4.12.9
