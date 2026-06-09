@@ -5,7 +5,7 @@
  * (pick a named example). The index signature keeps the shape open so future
  * directives can be read without changing the parser.
  */
-export type PreferDirectives = {
+type PreferDirectives = {
   /** Requested response status code, e.g. `code=404`. */
   code?: string
   /** Requested named example from the `examples` map, e.g. `example=notFound`. */
