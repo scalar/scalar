@@ -168,7 +168,10 @@ export const validateRequest = (operation: OpenAPIV3_1.OperationObject): Middlew
 
     // Request body — only `application/json` in this slice
     if (validators.body || validators.bodyRequired) {
-      const raw = await c.req.text()
+      // Read from a clone so the original request stream stays intact for the mock or `x-handler`
+      // downstream. Consuming `c.req.text()` directly would leave `c.req.parseBody()` (used for
+      // form bodies) unable to reconstruct the body, so handlers would see it as undefined.
+      const raw = await c.req.raw.clone().text()
 
       if (!raw) {
         if (validators.bodyRequired) {

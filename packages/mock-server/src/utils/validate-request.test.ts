@@ -144,6 +144,52 @@ describe('validate-request', () => {
     expect(optionalResponse.status).toBe(200)
   })
 
+  it('leaves the JSON body intact for a downstream x-handler', async () => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { received: req.body };',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+          },
+        },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Alice' }),
+    })
+
+    // Validation reads the body, but the handler must still see it.
+    expect((await response.json()).received).toEqual({ name: 'Alice' })
+  })
+
+  it('leaves a form body intact for a downstream x-handler', async () => {
+    const document = documentWith('/form', 'post', {
+      'x-handler': 'return { received: req.body };',
+      requestBody: {
+        required: true,
+        content: {
+          'application/x-www-form-urlencoded': { schema: { type: 'object', properties: { name: { type: 'string' } } } },
+        },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+    const response = await server.request('/form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'name=Alice&age=30',
+    })
+
+    // The body required check reads the stream; `parseBody` downstream must still reconstruct the form.
+    expect((await response.json()).received).toEqual({ name: 'Alice', age: '30' })
+  })
+
   it('validates by default when validateRequest is unset', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
