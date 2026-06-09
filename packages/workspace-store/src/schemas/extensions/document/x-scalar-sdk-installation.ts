@@ -4,6 +4,7 @@ import { array, object, optional, string } from '@scalar/validation'
 const XScalarSdkInstallationItemSchema = Type.Object({
   lang: Type.String(),
   description: Type.Optional(Type.String()),
+  source: Type.Optional(Type.String()),
 })
 
 export const XScalarSdkInstallationSchema = Type.Object({
@@ -14,6 +15,7 @@ const XScalarSdkInstallationItem = object(
   {
     lang: string(),
     description: optional(string()),
+    source: optional(string()),
   },
   {
     typeName: 'XScalarSdkInstallationItem',
@@ -27,6 +29,12 @@ export type XScalarSdkInstallation = {
     lang: string
     /** Installation instructions in Markdown (supports fenced code blocks). */
     description?: string
+    /**
+     * @deprecated Use `description` instead. Kept for backwards compatibility:
+     * when set, it is appended to `description` as a fenced code block (or used
+     * on its own when there is no `description`).
+     */
+    source?: string
   }[]
 }
 
