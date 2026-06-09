@@ -293,6 +293,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
 .operation-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto 1fr;
   grid-template-areas:
     'heading     badge'
     'description examples'
@@ -330,6 +331,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
 
 .examples {
   grid-area: examples;
+  align-self: start;
   min-width: 0;
 
   position: sticky;
@@ -387,6 +389,11 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
 
   .operation-description {
     margin-bottom: 24px;
+  }
+
+  /* Don't make the examples sticky on narrow viewports */
+  .examples {
+    position: static;
   }
 }
 </style>
