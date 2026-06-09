@@ -1,5 +1,7 @@
 # @scalar/mock-server
 
+## 0.10.18
+
 ## 0.10.17
 
 ### Patch Changes

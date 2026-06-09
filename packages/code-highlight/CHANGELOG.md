@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.3.5
+
+### Patch Changes
+
+- [#9451](https://github.com/scalar/scalar/pull/9451): Bundle runtime dependencies into the build so CommonJS-only packages (like `extend` and `debug`) no longer leak to consumers and break Vite dev under pnpm
+
 ## 0.3.4
 
 ### Patch Changes
