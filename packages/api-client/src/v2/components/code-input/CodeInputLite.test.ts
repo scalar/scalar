@@ -134,6 +134,23 @@ describe('CodeInputLite', () => {
     expect(pill.attributes('style')).toMatch(/opacity:\s*0\.5/)
   })
 
+  it('fades pills for variables declared with an empty value', async () => {
+    const wrapper = mountInput({
+      modelValue: '{{emptyVar}}',
+      environment: { color: '#ff0000', variables: [{ name: 'emptyVar', value: '' }] },
+    })
+    await nextTick()
+    const pill = wrapper.find('.scalar-pill')
+    expect(pill.attributes('style')).toMatch(/opacity:\s*0\.5/)
+  })
+
+  it('does not fade pills for variables with a value', async () => {
+    const wrapper = mountInput({ modelValue: '{{baseUrl}}' })
+    await nextTick()
+    const pill = wrapper.find('.scalar-pill')
+    expect(pill.attributes('style')).not.toMatch(/opacity:\s*0\.5/)
+  })
+
   it('does not render pills when withVariables is false', async () => {
     const wrapper = mountInput({ modelValue: '{{baseUrl}}', withVariables: false })
     await nextTick()

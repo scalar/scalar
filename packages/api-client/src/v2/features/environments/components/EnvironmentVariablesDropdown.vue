@@ -221,7 +221,8 @@ onClickOutside(
     <div
       ref="dropdownRef"
       class="custom-scroll z-context fixed top-0 left-0 flex max-h-[60svh] w-56 flex-col rounded border p-0.75"
-      :style="dropdownStyle">
+      :style="dropdownStyle"
+      @mousedown.prevent>
       <ul
         v-if="filteredVariables.length"
         :id="listboxId"

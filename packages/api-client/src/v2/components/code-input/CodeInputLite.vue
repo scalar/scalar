@@ -244,8 +244,10 @@ const createPillElement = (
     : environment?.color || 'var(--scalar-color-1)'
   span.style.setProperty('--tw-bg-base', color)
 
-  const isUndefinedEnv =
-    !isCtx && lookupVariableValue(environment, name) === undefined
+  // Fade env pills with no usable value. A falsy check (not just
+  // `=== undefined`) matches the tooltip path's `Boolean(value)`, so a
+  // variable declared with an empty string fades here too.
+  const isUndefinedEnv = !isCtx && !lookupVariableValue(environment, name)
   if (isUndefinedEnv) {
     span.style.opacity = '0.5'
   }
@@ -928,8 +930,9 @@ defineExpose({
 
 /* Absolute so the placeholder does not occupy flow space inside the
    contenteditable; otherwise the caret would land after it on focus.
-   `pointer-events: none` lets clicks fall through to focus the editor. */
-.code-input-lite--empty .code-input-lite__editor::before {
+   `pointer-events: none` lets clicks fall through to focus the editor.
+   Hidden on focus so it never renders on top of the text caret. */
+.code-input-lite--empty .code-input-lite__editor:not(:focus)::before {
   content: attr(data-placeholder);
   color: var(--scalar-color-3);
   pointer-events: none;
