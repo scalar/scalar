@@ -611,6 +611,10 @@ const handlePaste = (event: ClipboardEvent): void => {
     return
   }
   document.execCommand('insertText', false, text.replace(/\r?\n/g, ' '))
+  // `insertText` normally fires an `input` event, but that is not guaranteed
+  // across browsers. Run the same path explicitly so pill rendering, emptiness,
+  // `update:modelValue`, and the dropdown never lag behind the pasted DOM.
+  handleInput()
 }
 
 // ───────────────────────────────────────────────────────────────────
@@ -889,6 +893,7 @@ defineExpose({
     :environment="environment"
     :listboxId="listboxId"
     :query="dropdownQuery"
+    @close="showDropdown = false"
     @redirect="emit('navigate', { page: 'document', path: 'environment' })"
     @select="handleDropdownSelect" />
 </template>
