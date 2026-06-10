@@ -35,6 +35,12 @@ const {
 const emit = defineEmits<{
   (e: 'select', variable: string): void
   (e: 'redirect'): void
+  /**
+   * Fired when the user dismisses the panel by clicking outside. The owning
+   * combobox needs this to clear its `aria-expanded`/`aria-controls` state,
+   * which would otherwise keep pointing at a listbox that is no longer mounted.
+   */
+  (e: 'close'): void
 }>()
 
 const isOpen = ref(true)
@@ -210,6 +216,7 @@ onClickOutside(
   dropdownRef,
   () => {
     isOpen.value = false
+    emit('close')
   },
   { ignore: [dropdownRef] },
 )

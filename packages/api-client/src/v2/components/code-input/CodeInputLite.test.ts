@@ -302,6 +302,28 @@ describe('CodeInputLite', () => {
       expect(editor.attributes('aria-controls')).toBeUndefined()
       expect(editor.attributes('aria-activedescendant')).toBeUndefined()
     })
+
+    it('clears aria-expanded and aria-controls when the dropdown emits close', async () => {
+      const wrapper = mountInput({ modelValue: '' })
+      api(wrapper).setContent('{{')
+      api(wrapper).focus('end')
+      await wrapper.get('.code-input-lite__editor').trigger('input')
+      await nextTick()
+
+      const dropdown = wrapper.findComponent({ name: 'EnvironmentVariablesDropdown' })
+      expect(dropdown.exists()).toBe(true)
+      expect(wrapper.get('.code-input-lite__editor').attributes('aria-expanded')).toBe('true')
+
+      // A click outside closes the teleported panel; the combobox must drop its
+      // aria references so they never point at a listbox that left the DOM.
+      dropdown.vm.$emit('close')
+      await nextTick()
+
+      const editor = wrapper.get('.code-input-lite__editor')
+      expect(editor.attributes('aria-expanded')).toBeUndefined()
+      expect(editor.attributes('aria-controls')).toBeUndefined()
+      expect(editor.attributes('aria-activedescendant')).toBeUndefined()
+    })
   })
 
   it('exposes focus(), getValue(), setContent(), and cursorPosition()', () => {
@@ -478,6 +500,36 @@ describe('CodeInputLite', () => {
     await nextTick()
     expect(wrapper.findComponent({ name: 'EnvironmentVariablesDropdown' }).exists()).toBe(false)
     expect(wrapper.emitted('submit')).toBeUndefined()
+  })
+
+  it('syncs editor state on paste even when the browser fires no input event', async () => {
+    const wrapper = mountInput({ modelValue: '' })
+    const editor = wrapper.get('.code-input-lite__editor').element as HTMLDivElement
+
+    // jsdom does not implement `execCommand('insertText')`, and some browsers
+    // do not emit a follow-up `input` event for it. Simulate that worst case:
+    // mutate the DOM the way the command would, but never dispatch `input`.
+    const original = document.execCommand
+    document.execCommand = ((_command: string, _ui?: boolean, value?: string) => {
+      editor.textContent = `${editor.textContent ?? ''}${value ?? ''}`
+      return true
+    }) as typeof document.execCommand
+
+    try {
+      const clipboardData = {
+        getData: (type: string) => (type === 'text/plain' ? 'pasted text' : ''),
+      } as DataTransfer
+      await wrapper.get('.code-input-lite__editor').trigger('paste', { clipboardData })
+      await nextTick()
+    } finally {
+      document.execCommand = original
+    }
+
+    // `handlePaste` must run the same path as typing, so the model updates and
+    // the empty-state class clears without relying on a synthetic input event.
+    expect(api(wrapper).getValue()).toBe('pasted text')
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['pasted text'])
+    expect(wrapper.find('.code-input-lite').classes()).not.toContain('code-input-lite--empty')
   })
 
   it('marks pills with character offsets so clicks can be forwarded', async () => {
