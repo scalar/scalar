@@ -4,7 +4,7 @@ import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { usePluginManager } from '@/plugins'
 
 const { viewName, options } = defineProps<{
-  viewName: 'content.end'
+  viewName: 'content.start' | 'content.end'
   options: Record<string, any>
 }>()
 
@@ -19,22 +19,24 @@ const components = getViewComponents(viewName)
         v-for="(item, _index) in components"
         :key="_index">
         <ScalarErrorBoundary>
-          <template v-if="item.renderer">
-            <!-- Custom renderer (e.g. React) -->
-            <component
-              :is="item.renderer"
-              v-bind="{
-                component: item.component,
-                options,
-                ...item.props,
-              }" />
-          </template>
-          <template v-else>
-            <!-- Vue component -->
-            <component
-              :is="item.component"
-              v-bind="{ options, ...item.props }" />
-          </template>
+          <div :id="`plugin-view-${viewName}-${_index}`">
+            <template v-if="item.renderer">
+              <!-- Custom renderer (e.g. React) -->
+              <component
+                :is="item.renderer"
+                v-bind="{
+                  component: item.component,
+                  options,
+                  ...item.props,
+                }" />
+            </template>
+            <template v-else>
+              <!-- Vue component -->
+              <component
+                :is="item.component"
+                v-bind="{ options, ...item.props }" />
+            </template>
+          </div>
         </ScalarErrorBoundary>
       </template>
     </div>

@@ -25,6 +25,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -56,6 +57,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -91,6 +93,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -131,6 +134,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -173,6 +177,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -220,6 +225,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -268,6 +274,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -310,6 +317,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -340,6 +348,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -370,6 +379,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -393,6 +403,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -421,6 +432,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -448,6 +460,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -476,6 +489,7 @@ describe('RenderPlugins', () => {
         notifyConfigChange: vi.fn(),
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
