@@ -257,6 +257,18 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
 
   const coreSchemaProperties = object({
     name: optional(string({ typeComment: 'Schema name (extension).' })),
+    // JSON Schema 2020-12 core reference keywords. OpenAPI 3.1 Schema Objects may carry these for
+    // generic and recursive patterns such as `PaginatedResponse<T>`; keep them typed so coercion
+    // does not drop them. Resolution of `$dynamicRef` against the active `$dynamicAnchor` happens
+    // separately, see https://github.com/scalar/scalar/issues/9414.
+    $id: optional(string({ typeComment: 'JSON Schema 2020-12 schema identifier.' })),
+    $anchor: optional(string({ typeComment: 'JSON Schema 2020-12 plain-name anchor.' })),
+    $dynamicAnchor: optional(
+      string({ typeComment: 'JSON Schema 2020-12 dynamic anchor; the target a matching `$dynamicRef` resolves to.' }),
+    ),
+    $dynamicRef: optional(
+      string({ typeComment: 'JSON Schema 2020-12 dynamic reference, resolved against the active `$dynamicAnchor`.' }),
+    ),
     title: optional(string({ typeComment: 'A title for the schema.' })),
     description: optional(string({ typeComment: 'A description of the schema.' })),
     default: optional(any({ typeComment: 'Default value for the schema.' })),
