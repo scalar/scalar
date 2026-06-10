@@ -376,6 +376,78 @@ describe('validate-request', () => {
     expect((await invalid.json()).violations[0]).toMatchObject({ location: 'path' })
   })
 
+  it('validates label-style array and object path params', async () => {
+    const arrayDoc = documentWith('/items/{ids}', 'get', {
+      parameters: [
+        {
+          name: 'ids',
+          in: 'path',
+          required: true,
+          style: 'label',
+          schema: { type: 'array', items: { type: 'integer' }, minItems: 2 },
+        },
+      ],
+    })
+
+    const arrayServer = await createMockServer({ document: arrayDoc, validateRequest: true })
+    expect((await arrayServer.request('/items/.1.2.3')).status).toBe(200)
+    // A single element cannot meet `minItems: 2`, proving the dot-list is parsed as an array.
+    expect((await arrayServer.request('/items/.1')).status).toBe(422)
+
+    const objectDoc = documentWith('/points/{point}', 'get', {
+      parameters: [
+        {
+          name: 'point',
+          in: 'path',
+          required: true,
+          style: 'label',
+          explode: true,
+          schema: { type: 'object', required: ['x'], properties: { x: { type: 'integer' }, y: { type: 'integer' } } },
+        },
+      ],
+    })
+
+    const objectServer = await createMockServer({ document: objectDoc, validateRequest: true })
+    expect((await objectServer.request('/points/.x=1.y=2')).status).toBe(200)
+    expect((await objectServer.request('/points/.x=nope')).status).toBe(422)
+  })
+
+  it('validates matrix-style array and object path params', async () => {
+    const arrayDoc = documentWith('/items/{ids}', 'get', {
+      parameters: [
+        {
+          name: 'ids',
+          in: 'path',
+          required: true,
+          style: 'matrix',
+          explode: true,
+          schema: { type: 'array', items: { type: 'integer' } },
+        },
+      ],
+    })
+
+    const arrayServer = await createMockServer({ document: arrayDoc, validateRequest: true })
+    expect((await arrayServer.request('/items/;ids=1;ids=2;ids=3')).status).toBe(200)
+    expect((await arrayServer.request('/items/;ids=1;ids=nope')).status).toBe(422)
+
+    const objectDoc = documentWith('/points/{point}', 'get', {
+      parameters: [
+        {
+          name: 'point',
+          in: 'path',
+          required: true,
+          style: 'matrix',
+          schema: { type: 'object', required: ['x'], properties: { x: { type: 'integer' }, y: { type: 'integer' } } },
+        },
+      ],
+    })
+
+    const objectServer = await createMockServer({ document: objectDoc, validateRequest: true })
+    // Non-exploded matrix object: `;point=x,1,y,2`.
+    expect((await objectServer.request('/points/;point=x,1,y,2')).status).toBe(200)
+    expect((await objectServer.request('/points/;point=x,nope')).status).toBe(422)
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {

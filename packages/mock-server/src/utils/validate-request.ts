@@ -268,8 +268,8 @@ const isJsonRequest = (c: Context): boolean => {
  * violation the middleware short-circuits with a `422` and a `application/problem+json` body;
  * otherwise it calls `next()` and the normal mock handler runs.
  *
- * TODO: Parity follow-ups, intentionally deferred — the rarer `label`/`matrix` path styles, response
- * validation, non-JSON body validation, and validation proxy mode.
+ * TODO: Parity follow-ups, intentionally deferred — response validation, non-JSON body validation,
+ * and validation proxy mode.
  */
 export const validateRequest = (
   operation: OpenAPIV3_1.OperationObject,
