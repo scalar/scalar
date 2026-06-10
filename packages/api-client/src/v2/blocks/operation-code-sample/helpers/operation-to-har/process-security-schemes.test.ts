@@ -372,10 +372,9 @@ describe('process-security-schemes', () => {
 
       const result = processSecuritySchemes(securitySchemes)
 
-      expect(result.headers).toEqual([
-        { name: 'Authorization', value: 'Basic username:password' },
-        { name: 'Authorization', value: 'Bearer YOUR_SECRET_TOKEN' },
-      ])
+      // Basic auth with both fields empty must not emit a header, so only the bearer
+      // placeholder remains.
+      expect(result.headers).toEqual([{ name: 'Authorization', value: 'Bearer YOUR_SECRET_TOKEN' }])
     })
 
     it('handles oauth2 without token', () => {
