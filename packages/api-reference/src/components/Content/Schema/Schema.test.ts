@@ -415,7 +415,7 @@ describe('Schema', () => {
   })
 
   describe('object property order', () => {
-    it('should render properties by required alphabetical order', () => {
+    it('renders required properties first, then the document order', () => {
       const wrapper = mount(Schema, {
         props: {
           eventBus: null,
@@ -442,17 +442,17 @@ describe('Schema', () => {
       // Extract property names in the order they appear
       const propertyNames = schemaProperties.map((prop) => prop.props('name'))
 
-      // Expected order: required properties first (alphabetical), then optional properties (alphabetical)
+      // Expected order: required properties first (in document order), then optional properties (in document order)
       const expectedOrder = [
         // Required properties
-        'aRequired',
-        'bRequired',
-        'cRequired',
         'dRequired',
+        'bRequired',
+        'aRequired',
+        'cRequired',
         // Optional properties
-        'aOptional',
-        'bOptional',
         'gOptional',
+        'bOptional',
+        'aOptional',
       ]
 
       expect(propertyNames).toEqual(expectedOrder)

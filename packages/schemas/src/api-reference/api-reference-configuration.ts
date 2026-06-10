@@ -226,7 +226,7 @@ export const apiReferenceConfigurationSchema = intersection([
     operationsSorter: optional(union([literal('alpha'), literal('method'), fn<(a: any, b: any) => number>()]), {
       typeComment: 'Function to sort operations',
     }),
-    orderSchemaPropertiesBy: union([literal('alpha'), literal('preserve')], {
+    orderSchemaPropertiesBy: union([literal('preserve'), literal('alpha')], {
       typeComment: 'Order the schema properties by',
     }),
     orderRequiredPropertiesFirst: boolean({

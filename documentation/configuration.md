@@ -909,12 +909,12 @@ Control how schema properties are ordered in model definitions. Can be set to:
 - `'alpha'`: Sort properties alphabetically by name
 - `'preserve'`: Preserve the order from the OpenAPI Document
 
-**Default:** `'alpha'`
+**Default:** `'preserve'`
 
 ```javascript
-// Preserve original ordering
+// Sort properties alphabetically
 {
-  orderSchemaPropertiesBy: 'preserve'
+  orderSchemaPropertiesBy: 'alpha'
 }
 ```
 
