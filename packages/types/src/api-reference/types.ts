@@ -199,6 +199,11 @@ export type ViewComponent = {
   component: unknown
   renderer?: unknown
   props?: Record<string, any>
+  sidebar?: {
+    show: boolean
+    label: string
+    icon?: string
+  }
 }
 
 export type LifecycleHooks = {
@@ -211,6 +216,7 @@ export type ApiReferencePlugin = () => {
   name: string
   extensions: SpecificationExtension[]
   views?: {
+    'content.start'?: ViewComponent[]
     'content.end'?: ViewComponent[]
   }
   hooks?: LifecycleHooks

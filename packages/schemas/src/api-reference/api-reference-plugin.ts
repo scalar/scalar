@@ -26,9 +26,22 @@ const viewComponentSchema = object({
   props: optional(record(string(), any()), {
     typeComment: 'Additional props to pass to the component',
   }),
+  sidebar: optional(
+    object({
+      show: any(),
+      label: string(),
+      icon: optional(string()),
+    }),
+    {
+      typeComment: 'Sidebar configuration. Set show: true to display in sidebar.',
+    },
+  ),
 })
 
 const viewsSchema = object({
+  'content.start': optional(array(viewComponentSchema), {
+    typeComment: 'Components to render before the Introduction/Info section',
+  }),
   'content.end': optional(array(viewComponentSchema), {
     typeComment: 'Components to render at specific views in the API Reference',
   }),

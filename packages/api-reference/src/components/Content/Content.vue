@@ -199,6 +199,11 @@ onMounted(() => {
   <div class="narrow-references-container">
     <slot name="start" />
 
+    <!-- Render plugins at content.start view -->
+    <RenderPlugins
+      :options
+      viewName="content.start" />
+
     <!-- Introduction -->
 
     <InfoBlock
