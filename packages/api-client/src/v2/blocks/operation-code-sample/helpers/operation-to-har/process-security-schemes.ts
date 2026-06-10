@@ -52,15 +52,17 @@ export const processSecuritySchemes = (
         const username = scheme['x-scalar-secret-username'] || ''
         const password = scheme['x-scalar-secret-password'] || ''
 
-        // When both fields are empty we must not emit any credentials. Falling back to
-        // placeholder values would produce `Basic username:password`, which mirrors the real
-        // request (we do not send the header in that case either).
-        if (username !== '' || password !== '') {
-          result.headers.push({
-            name: 'Authorization',
-            value: `Basic ${encode(`${username}:${password}`)}`,
-          })
-        }
+        // The snippet is documentation, so we always show an Authorization header. When both
+        // fields are empty we render a readable `username:password` placeholder, mirroring the
+        // `YOUR_SECRET_TOKEN` placeholder used by the other schemes. (The real request omits the
+        // header entirely in that case — see buildRequestSecurity.)
+        const value = `${username}:${password}`
+        const auth = value === ':' ? 'username:password' : encode(value)
+
+        result.headers.push({
+          name: 'Authorization',
+          value: `Basic ${auth}`,
+        })
       } else if (scheme.scheme === 'bearer') {
         const token = scheme['x-scalar-secret-token'] || 'YOUR_SECRET_TOKEN'
 
