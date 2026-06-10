@@ -27,9 +27,9 @@ import {
 import { type MaybeRefOrGetter, type Ref, computed, onBeforeUnmount, ref, toValue, watch } from 'vue'
 
 const CHEVRON_DOWN =
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m18 10-6 6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m18 10-6 6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 const CHEVRON_RIGHT =
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 
 import { customTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
