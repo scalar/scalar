@@ -3,6 +3,8 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { pushDynamicScope } from '@scalar/workspace-store/helpers/dynamic-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -12,6 +14,11 @@ import { computed, inject, provide } from 'vue'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
 
+import {
+  resolveDynamicSchema,
+  SCHEMA_DYNAMIC_SCOPE_SYMBOL,
+  useDynamicScope,
+} from './helpers/dynamic-scope'
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
@@ -74,6 +81,49 @@ const {
 }>()
 
 /**
+ * The dynamic scope inherited from ancestor schema resources.
+ *
+ * Used to bind JSON Schema 2020-12 `$dynamicRef`s to the active `$dynamicAnchor` while walking the
+ * tree. Empty at the root. See {@link useDynamicScope}.
+ */
+const dynamicScope = useDynamicScope()
+
+/**
+ * The schema this node actually renders.
+ *
+ * Two normalizations happen here, both no-ops for ordinary schemas:
+ * - A top-level `$dynamicRef` is bound to its concrete type via the inherited dynamic scope.
+ * - A resource that extends a template through a root `$ref` (JSON Schema 2020-12 `$ref` alongside
+ *   `$defs`, e.g. a `PaginatedResponse` binding) is merged so its inherited properties render.
+ */
+const resolvedSchema = computed((): SchemaObject | undefined => {
+  if (!schema || typeof schema !== 'object') {
+    return schema
+  }
+
+  const bound = resolveDynamicSchema(schema, dynamicScope)
+  return '$ref' in bound ? resolve.schema(bound) : bound
+})
+
+/**
+ * Re-provide the dynamic scope grown with this resource so nested `$dynamicRef`s bind here.
+ *
+ * Built once at setup from the resource's stable identity (like the ancestor set below);
+ * `pushDynamicScope` only grows the scope for schemas that can carry a `$dynamicAnchor`.
+ *
+ * The raw schema is pushed, not the merged {@link resolvedSchema}: merging through `resolve.schema`
+ * coerces the node and drops the resolved `$ref-value` from entries inside `$defs`, which
+ * `$dynamicAnchor` resolution relies on to dereference the bound type (e.g. `User`).
+ */
+const scopeSchema = schema
+  ? resolveDynamicSchema(schema, dynamicScope)
+  : undefined
+provide(
+  SCHEMA_DYNAMIC_SCOPE_SYMBOL,
+  scopeSchema ? pushDynamicScope(dynamicScope, scopeSchema) : dynamicScope,
+)
+
+/**
  * Cycle-safe `expandAllSchemaProperties`.
  *
  * We track ancestor schema keys along the current render path. A node is
@@ -119,36 +169,38 @@ const defaultOpen = computed(
 
 /** Gets the description to show for the schema */
 const schemaDescription = computed(() => {
+  const value = resolvedSchema.value
+
   if (hideDescription) {
     return null
   }
 
   // For the request body we want to show the base description or the first allOf schema description
-  if (schema?.allOf && schema.allOf.length > 0 && name === 'Request Body') {
-    return schema.description || schema.allOf[0]?.description || null
+  if (value?.allOf && value.allOf.length > 0 && name === 'Request Body') {
+    return value.description || value.allOf[0]?.description || null
   }
 
   // Don't show description if there's no description or it's not a string
-  if (!schema?.description || typeof schema.description !== 'string') {
+  if (!value?.description || typeof value.description !== 'string') {
     return null
   }
 
   // Don't show description for enum schemas (they have special handling)
-  if (schema.enum) {
+  if (value.enum) {
     return null
   }
 
   // Will be shown in the properties anyway
   if (
-    !('properties' in schema) &&
-    !('patternProperties' in schema) &&
-    !('additionalProperties' in schema)
+    !('properties' in value) &&
+    !('patternProperties' in value) &&
+    !('additionalProperties' in value)
   ) {
     return null
   }
 
   // Return the schema's own description
-  return schema.description
+  return value.description
 })
 
 // Prevent click action if noncollapsible
@@ -160,7 +212,7 @@ const handleClick = (e: MouseEvent) => {
 </script>
 <template>
   <Disclosure
-    v-if="typeof schema === 'object' && Object.keys(schema).length"
+    v-if="resolvedSchema && Object.keys(resolvedSchema).length"
     v-slot="{ open }"
     :defaultOpen="defaultOpen">
     <div
@@ -177,7 +229,7 @@ const handleClick = (e: MouseEvent) => {
         <ScalarMarkdown :value="schemaDescription" />
       </div>
       <div
-        v-if="isEmptySchemaObject(schema)"
+        v-if="isEmptySchemaObject(resolvedSchema)"
         class="pt-2">
         Empty object
       </div>
@@ -221,10 +273,10 @@ const handleClick = (e: MouseEvent) => {
               icon="Add"
               size="sm" />
             <template v-if="open">
-              Hide {{ schema?.title ?? 'Child Attributes' }}
+              Hide {{ resolvedSchema?.title ?? 'Child Attributes' }}
             </template>
             <template v-else>
-              Show {{ schema?.title ?? 'Child Attributes' }}
+              Show {{ resolvedSchema?.title ?? 'Child Attributes' }}
             </template>
             <ScreenReader v-if="name">for {{ name }}</ScreenReader>
           </template>
@@ -235,8 +287,8 @@ const handleClick = (e: MouseEvent) => {
               icon="Add"
               size="sm" />
             <SchemaHeading
-              :name="schema?.title ?? name"
-              :value="schema" />
+              :name="resolvedSchema?.title ?? name"
+              :value="resolvedSchema" />
           </template>
         </DisclosureButton>
         <DisclosurePanel
@@ -245,7 +297,7 @@ const handleClick = (e: MouseEvent) => {
           :static="!shouldShowToggle">
           <!-- Object properties -->
           <SchemaObjectProperties
-            v-if="isTypeObject(schema)"
+            v-if="isTypeObject(resolvedSchema)"
             :breadcrumb
             :compact
             :compositionPath="compositionPath"
@@ -255,12 +307,12 @@ const handleClick = (e: MouseEvent) => {
             :hideModelNames
             :level="level + 1"
             :options
-            :schema
+            :schema="resolvedSchema"
             :schemaContext="schemaContext" />
           <!-- Not an object -->
           <template v-else>
             <SchemaProperty
-              v-if="schema"
+              v-if="resolvedSchema"
               :breadcrumb
               :compact
               :compositionPath="compositionPath"
@@ -269,7 +321,7 @@ const handleClick = (e: MouseEvent) => {
               :hideModelNames
               :level
               :options
-              :schema
+              :schema="resolvedSchema"
               :schemaContext="schemaContext" />
           </template>
         </DisclosurePanel>

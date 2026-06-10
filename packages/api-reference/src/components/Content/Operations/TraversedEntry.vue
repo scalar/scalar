@@ -4,7 +4,6 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   TraversedEntry,
@@ -214,7 +213,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :isCollapsed="!expandedItems[entry.id]"
       :name="entry.name"
       :options
-      :schema="getResolvedRef(document.components.schemas[entry.name])">
+      :schema="document.components.schemas[entry.name]">
     </Model>
   </Lazy>
 </template>
