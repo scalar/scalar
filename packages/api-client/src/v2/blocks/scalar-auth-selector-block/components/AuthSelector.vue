@@ -163,14 +163,27 @@ const handleAuthIndicatorClick = (event: Event): void => {
 
 /**
  * Updates the selected auth schemes.
- * Separates existing schemes from newly created ones for the event payload.
+ *
+ * The auth dropdown lists the operation's security requirements as mutually exclusive
+ * OR alternatives. Picking one should replace the previous selection rather than append
+ * to it, so we keep only the option the user just added and emit that single requirement.
+ * An AND-combo (e.g. `apiKeyHeader & apiKeyQuery`) is a single option whose value already
+ * holds both schemes, so a replacement naturally activates both at once.
+ *
+ * When `createAnySecurityScheme` is enabled (the collection builder, not the per-operation
+ * request flow) the dropdown stays additive so users can compose several auth schemes.
  */
 const handleSchemeSelection = (selected: SecuritySchemeOption[]): void => {
-  const existingSchemes = selected
+  // In additive mode keep every selected option; otherwise reduce to the newly added one.
+  const effectiveSelection = createAnySecurityScheme
+    ? selected
+    : getReplacementSelection(selected)
+
+  const existingSchemes = effectiveSelection
     .filter((option) => option.payload === undefined)
     .map((option) => unpackProxyObject(option.value, { depth: 2 }))
 
-  const newSchemes = selected
+  const newSchemes = effectiveSelection
     .filter((option) => option.payload !== undefined)
     .map((option) => ({
       name: option.label,
@@ -182,6 +195,30 @@ const handleSchemeSelection = (selected: SecuritySchemeOption[]): void => {
     newSchemes,
     meta,
   })
+}
+
+/**
+ * Reduces a multiselect emission to a single requirement for replacement behavior.
+ *
+ * The combobox emits the full next selection on every toggle. We diff it against the
+ * currently active options to find the one the user just added and select only that.
+ * Deselecting the last active option (empty emission) clears the selection.
+ */
+const getReplacementSelection = (
+  selected: SecuritySchemeOption[],
+): SecuritySchemeOption[] => {
+  if (selected.length === 0) {
+    return []
+  }
+
+  const activeIds = new Set(
+    activeSchemeOptions.value.map((option) => option.id),
+  )
+  const added = selected.find((option) => !activeIds.has(option.id))
+
+  // A newly added option replaces the previous selection; otherwise keep the last entry
+  // (e.g. re-selecting the only active option) so we never emit more than one requirement.
+  return [added ?? selected[selected.length - 1]!]
 }
 
 /** Shows the delete confirmation modal for the selected scheme */

@@ -6,6 +6,9 @@ import { nextTick } from 'vue'
 import AuthSelector from './AuthSelector.vue'
 
 describe('AuthSelector', () => {
+  // The dropdown options are grouped (Required / Available); flatten them for lookups.
+  const flattenOptions = (options: any[]): any[] => options.flatMap((entry) => entry.options ?? [entry])
+
   const baseEnvironment = {
     uid: 'env-1' as any,
     name: 'Default',
@@ -50,6 +53,7 @@ describe('AuthSelector', () => {
       environment: any
       envVariables: any[]
       isStatic: boolean
+      createAnySecurityScheme: boolean
       securityRequirements: any
       selectedSecurity: any
       securitySchemes: any
@@ -243,7 +247,7 @@ describe('AuthSelector', () => {
   })
 
   describe('combobox interactions', () => {
-    it('updates selected auth when combobox selection changes', async () => {
+    it('emits the newly created scheme when adding via the dropdown', async () => {
       const eventBus = createWorkspaceEventBus()
       const fn = vi.fn()
       eventBus.on('auth:update:selected-security-schemes', fn)
@@ -272,6 +276,119 @@ describe('AuthSelector', () => {
             scheme: baseSecuritySchemes.BearerAuth,
           },
         ],
+        meta: { type: 'document' },
+      })
+    })
+
+    it('replaces the previous OR alternative instead of appending it', async () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:update:selected-security-schemes', fn)
+      const wrapper = mountWithProps({
+        eventBus,
+        securityRequirements: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
+      })
+
+      const combobox = wrapper.findComponent({ name: 'ScalarComboboxMultiselect' })
+
+      // The multiselect emits the full next selection (existing + newly added) on toggle.
+      const bearer = wrapper.vm.selectedSchemeOptions[0]
+      const apiKey = flattenOptions(wrapper.vm.schemeOptions).find((option: any) =>
+        Object.keys(option.value).includes('ApiKeyAuth'),
+      )
+
+      await combobox.vm?.$emit('update:modelValue', [bearer, apiKey])
+      await nextTick()
+
+      // Only the newly added alternative survives - the prior one is dropped.
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        selectedRequirements: [{ ApiKeyAuth: [] }],
+        newSchemes: [],
+        meta: { type: 'document' },
+      })
+    })
+
+    it('activates both schemes when selecting an AND-combo requirement', async () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:update:selected-security-schemes', fn)
+      const wrapper = mountWithProps({
+        eventBus,
+        securityRequirements: [{ BearerAuth: [] }, { ApiKeyAuth: [], OAuth2Auth: [] }],
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
+      })
+
+      const combobox = wrapper.findComponent({ name: 'ScalarComboboxMultiselect' })
+
+      const bearer = wrapper.vm.selectedSchemeOptions[0]
+      const combo = flattenOptions(wrapper.vm.schemeOptions).find(
+        (option: any) =>
+          Object.keys(option.value).includes('ApiKeyAuth') && Object.keys(option.value).includes('OAuth2Auth'),
+      )
+
+      await combobox.vm?.$emit('update:modelValue', [bearer, combo])
+      await nextTick()
+
+      // The AND-combo is a single requirement that carries both schemes.
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        selectedRequirements: [{ ApiKeyAuth: [], OAuth2Auth: [] }],
+        newSchemes: [],
+        meta: { type: 'document' },
+      })
+    })
+
+    it('clears the selection when the active option is deselected', async () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:update:selected-security-schemes', fn)
+      const wrapper = mountWithProps({
+        eventBus,
+        securityRequirements: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
+      })
+
+      const combobox = wrapper.findComponent({ name: 'ScalarComboboxMultiselect' })
+
+      await combobox.vm?.$emit('update:modelValue', [])
+      await nextTick()
+
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        selectedRequirements: [],
+        newSchemes: [],
+        meta: { type: 'document' },
+      })
+    })
+
+    it('keeps additive behavior when createAnySecurityScheme is enabled', async () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:update:selected-security-schemes', fn)
+      const wrapper = mountWithProps({
+        eventBus,
+        createAnySecurityScheme: true,
+        securityRequirements: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
+        selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
+      })
+
+      const combobox = wrapper.findComponent({ name: 'ScalarComboboxMultiselect' })
+
+      const bearer = wrapper.vm.selectedSchemeOptions[0]
+      const apiKey = flattenOptions(wrapper.vm.schemeOptions).find((option: any) =>
+        Object.keys(option.value).includes('ApiKeyAuth'),
+      )
+
+      await combobox.vm?.$emit('update:modelValue', [bearer, apiKey])
+      await nextTick()
+
+      // Both requirements are kept when composing auth schemes in the collection builder.
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        selectedRequirements: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
+        newSchemes: [],
         meta: { type: 'document' },
       })
     })
