@@ -17,7 +17,11 @@ export const shouldDisplayDescription = (schema: SchemaObject | undefined, propD
     return null
   }
 
-  if (propDescription && schema.description && (schema.oneOf || schema.anyOf)) {
+  // When both an external description (e.g. a response or parameter description) and the
+  // schema's own description are present, show both so neither is lost. This matters for
+  // responses with multiple content types where each media type schema carries its own
+  // description (see expandAllResponses). Identical descriptions are shown only once.
+  if (propDescription && schema.description) {
     return propDescription === schema.description ? propDescription : `${propDescription}\n\n${schema.description}`
   }
 
