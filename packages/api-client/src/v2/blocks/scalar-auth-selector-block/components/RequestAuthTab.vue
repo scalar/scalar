@@ -21,6 +21,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { capitalize, computed, ref } from 'vue'
 
+import type { AuthenticationPlaceholders } from '@scalar/types/api-reference'
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
 
 import OAuth2, { type OAuth2Options } from './OAuth2.vue'
@@ -42,6 +43,7 @@ const {
   server,
   eventBus,
   options,
+  placeholders,
 } = defineProps<{
   /** Current environment configuration */
   environment: XScalarEnvironment
@@ -59,6 +61,8 @@ const {
   eventBus: WorkspaceEventBus
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
+  /** Custom placeholder text for auth input fields */
+  placeholders?: AuthenticationPlaceholders
 }>()
 
 const emits = defineEmits<{
@@ -259,7 +263,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           :containerClass="getStaticBorderClass()"
           :environment
           :modelValue="scheme['x-scalar-secret-token']"
-          placeholder="Token"
+          :placeholder="placeholders?.bearerToken ?? 'Token'"
           type="password"
           @update:modelValue="
             (v) => handleHttpSecretsUpdate({ 'x-scalar-secret-token': v }, name)
@@ -275,7 +279,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
             class="text-c-2"
             :environment
             :modelValue="scheme['x-scalar-secret-username']"
-            placeholder="janedoe"
+            :placeholder="placeholders?.username ?? 'janedoe'"
             required
             @update:modelValue="
               (v) =>
@@ -288,7 +292,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           <RequestAuthDataTableInput
             :environment
             :modelValue="scheme['x-scalar-secret-password']"
-            placeholder="********"
+            :placeholder="placeholders?.password ?? '********'"
             type="password"
             @update:modelValue="
               (v) =>
@@ -307,7 +311,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           :containerClass="getStaticBorderClass()"
           :environment
           :modelValue="scheme.name"
-          placeholder="api-key"
+          :placeholder="placeholders?.apiKeyName ?? 'api-key'"
           @update:modelValue="
             (v) => handleApiKeySecuritySchemeUpdate({ name: v }, name)
           ">
@@ -318,7 +322,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
         <RequestAuthDataTableInput
           :environment
           :modelValue="scheme['x-scalar-secret-token']"
-          placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
+          :placeholder="placeholders?.apiKeyValue ?? 'QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT'"
           type="password"
           @update:modelValue="
             (v) =>

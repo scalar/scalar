@@ -69,6 +69,7 @@ const selectedSecurity = computed(() =>
     :meta="{ type: 'document' }"
     :options="{ oauth2RedirectUri: options.oauth2RedirectUri }"
     :persistAuth="options.persistAuth"
+    :placeholders="options.authentication?.placeholders"
     :proxyUrl="options.proxyUrl ?? ''"
     :securityRequirements
     :securitySchemes
