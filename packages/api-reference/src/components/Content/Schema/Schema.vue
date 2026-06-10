@@ -116,12 +116,17 @@ const resolvedSchema = computed((): SchemaObject | undefined => {
  *
  * Built once at setup from the resource's stable identity (like the ancestor set below);
  * `pushDynamicScope` only grows the scope for schemas that can carry a `$dynamicAnchor`.
+ *
+ * The raw schema is pushed, not the merged {@link resolvedSchema}: merging through `resolve.schema`
+ * coerces the node and drops the resolved `$ref-value` from entries inside `$defs`, which
+ * `$dynamicAnchor` resolution relies on to dereference the bound type (e.g. `User`).
  */
+const scopeSchema = schema
+  ? resolveDynamicSchema(schema, dynamicScope)
+  : undefined
 provide(
   SCHEMA_DYNAMIC_SCOPE_SYMBOL,
-  resolvedSchema.value
-    ? pushDynamicScope(dynamicScope, resolvedSchema.value)
-    : dynamicScope,
+  scopeSchema ? pushDynamicScope(dynamicScope, scopeSchema) : dynamicScope,
 )
 
 /**
