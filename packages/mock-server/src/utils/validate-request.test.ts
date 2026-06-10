@@ -82,6 +82,72 @@ describe('validate-request', () => {
     expect(valid.status).toBe(200)
   })
 
+  it('returns 422 for a missing required header param and coerces a correct one', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'X-Api-Version', in: 'header', required: true, schema: { type: 'integer' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const missing = await server.request('/items')
+    expect(missing.status).toBe(422)
+    expect((await missing.json()).violations[0]).toMatchObject({ location: 'header', path: '/X-Api-Version' })
+
+    const wrongType = await server.request('/items', { headers: { 'X-Api-Version': 'abc' } })
+    expect(wrongType.status).toBe(422)
+    expect((await wrongType.json()).violations[0]).toMatchObject({ location: 'header' })
+
+    const valid = await server.request('/items', { headers: { 'X-Api-Version': '2' } })
+    expect(valid.status).toBe(200)
+  })
+
+  it('matches header parameter names case-insensitively', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'X-Api-Version', in: 'header', required: true, schema: { type: 'string' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // The client sends a differently cased header name, which must still satisfy the requirement.
+    const response = await server.request('/items', { headers: { 'x-api-version': '2024-01' } })
+    expect(response.status).toBe(200)
+  })
+
+  it('ignores Accept, Content-Type, and Authorization header parameters', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        { name: 'Accept', in: 'header', required: true, schema: { type: 'string' } },
+        { name: 'Content-Type', in: 'header', required: true, schema: { type: 'string' } },
+        { name: 'Authorization', in: 'header', required: true, schema: { type: 'string' } },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // These headers are defined elsewhere in OpenAPI, so they are not enforced as parameters.
+    const response = await server.request('/items')
+    expect(response.status).toBe(200)
+  })
+
+  it('returns 422 for a missing required cookie param and coerces a correct one', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'session', in: 'cookie', required: true, schema: { type: 'integer' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const missing = await server.request('/items')
+    expect(missing.status).toBe(422)
+    expect((await missing.json()).violations[0]).toMatchObject({ location: 'cookie', path: '/session' })
+
+    const wrongType = await server.request('/items', { headers: { Cookie: 'session=abc' } })
+    expect(wrongType.status).toBe(422)
+    expect((await wrongType.json()).violations[0]).toMatchObject({ location: 'cookie' })
+
+    const valid = await server.request('/items', { headers: { Cookie: 'session=42' } })
+    expect(valid.status).toBe(200)
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {

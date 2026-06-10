@@ -193,7 +193,7 @@ The given OpenAPI document is automatically exposed:
 
 The mock server enforces your OpenAPI contract by default. Each request is validated against the matched operation before a mock response is generated:
 
-- **Path and query parameters** declared in the operation are validated against their schema. Values arrive as strings, so `type: integer`/`boolean` are coerced before validation (for example `?limit=10` becomes the number `10`). Required parameters are enforced.
+- **Path, query, header, and cookie parameters** declared in the operation are validated against their schema. Values arrive as strings, so `type: integer`/`boolean` are coerced before validation (for example `?limit=10` becomes the number `10`). Required parameters are enforced. Header names are matched case-insensitively, and the `Accept`, `Content-Type`, and `Authorization` headers are ignored as parameters because OpenAPI defines them elsewhere.
 - **JSON request bodies** are validated against `requestBody.content['application/json'].schema`, and `requestBody.required` is enforced.
 
 When a request violates the contract, the server responds with `422 Unprocessable Entity` and a `application/problem+json` body listing every violation, instead of a mock response.
@@ -227,9 +227,9 @@ Content-Type: application/problem+json
 }
 ```
 
-Each violation reports its `location` (`path`, `query`, or `body`), a `path` pointing at the offending value, and a human-readable `message`. All violations are returned at once, not just the first.
+Each violation reports its `location` (`path`, `query`, `header`, `cookie`, or `body`), a `path` pointing at the offending value, and a human-readable `message`. All violations are returned at once, not just the first.
 
-> This validates path/query parameters and JSON request bodies. Response validation, header/cookie parameters, non-JSON bodies, and proxy mode are planned follow-ups.
+> This validates path, query, header, and cookie parameters and JSON request bodies. Response validation, non-JSON bodies, and proxy mode are planned follow-ups.
 
 ### Custom Request Handlers
 
