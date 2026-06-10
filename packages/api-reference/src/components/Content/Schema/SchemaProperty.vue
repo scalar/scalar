@@ -2,6 +2,10 @@
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  isDynamicRef,
+  resolveDynamicRef,
+} from '@scalar/workspace-store/helpers/dynamic-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
@@ -11,6 +15,10 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-
 import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
+import {
+  resolveDynamicSchema,
+  useDynamicScope,
+} from '@/components/Content/Schema/helpers/dynamic-scope'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
@@ -78,8 +86,18 @@ const props = withDefaults(
   },
 )
 
-/** Simplified composition with `null` type. */
-const optimizedValue = computed(() => optimizeValueForDisplay(props.schema))
+/** The dynamic scope inherited from the enclosing schema resources, used to bind `$dynamicRef`s. */
+const dynamicScope = useDynamicScope()
+
+/**
+ * Simplified composition with `null` type.
+ *
+ * A top-level `$dynamicRef` (e.g. a linked-list `next` node) is bound to its concrete type via the
+ * dynamic scope first; for ordinary schemas this is a no-op.
+ */
+const optimizedValue = computed(() =>
+  optimizeValueForDisplay(resolveDynamicSchema(props.schema, dynamicScope)),
+)
 
 const childBreadcrumb = computed<string[] | undefined>(() =>
   props.breadcrumb && props.name
@@ -100,9 +118,25 @@ const arrayItemsCompositionPath = computed<string[]>(() => [
 
 const shouldHaveLink = computed(() => props.level <= 2)
 
+/**
+ * The array schema used for item inspection, with a `$dynamicRef` item bound to its concrete type.
+ *
+ * Returns the schema unchanged unless `items` is a `$dynamicRef` that resolves against the dynamic
+ * scope, so ordinary arrays (including `$ref` items) keep their existing behavior exactly.
+ */
+const arrayValueWithBoundItems = computed(() => {
+  const value = optimizedValue.value
+  if (!value || !isArraySchema(value) || !isDynamicRef(value.items)) {
+    return value
+  }
+
+  const bound = resolveDynamicRef(value.items.$dynamicRef, dynamicScope)
+  return bound ? ({ ...value, items: bound } as SchemaObject) : value
+})
+
 /** Checks if array items have complex structure */
 const hasComplexArrayItemsComputed = computed(() =>
-  hasComplexArrayItems(optimizedValue.value),
+  hasComplexArrayItems(arrayValueWithBoundItems.value),
 )
 
 /** Check if enum should be displayed (from value schema or from propertyNames) */
@@ -212,7 +246,7 @@ const compositionsToRender = computed(() =>
 )
 
 /**
- * Get resolved array items for rendering.
+ * Get resolved array items for rendering (with any `$dynamicRef` bound to the concrete type).
  *
  * When the items are wrapped in a single-item composition (e.g. `items: { allOf: [{ type: 'object', ... }] }`), we
  * flatten that wrapper into its plain form. A composition with a single member is equivalent to that member, so
@@ -220,7 +254,7 @@ const compositionsToRender = computed(() =>
  * unnecessary level of nesting and duplicates the item description. See https://github.com/scalar/scalar/issues/5900
  */
 const resolvedArrayItems = computed(() => {
-  const value = optimizedValue.value
+  const value = arrayValueWithBoundItems.value
   if (!value || !isArraySchema(value) || typeof value.items !== 'object') {
     return undefined
   }
