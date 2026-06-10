@@ -229,7 +229,7 @@ Content-Type: application/problem+json
 
 Each violation reports its `location` (`path`, `query`, `header`, `cookie`, or `body`), a `path` pointing at the offending value, and a human-readable `message`. All violations are returned at once, not just the first.
 
-> This validates path, query, header, and cookie parameters and JSON request bodies. Response validation, non-JSON bodies, and proxy mode are planned follow-ups.
+> This validates path, query, header, and cookie parameters, plus JSON request bodies. Response validation, non-JSON bodies, and proxy mode are planned follow-ups.
 
 ### Custom Request Handlers
 
