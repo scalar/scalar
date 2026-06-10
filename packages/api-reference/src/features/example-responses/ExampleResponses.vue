@@ -15,10 +15,11 @@ import type {
   MediaTypeObject,
   ResponsesObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref, toValue, useId, watch } from 'vue'
+import { computed, inject, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
+import { RESPONSE_CONTENT_TYPE_SYMBOL } from '@/features/Operation/response-content-type'
 
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
@@ -78,14 +79,22 @@ const currentResponse = computed(() => {
   return getResolvedRef(responses?.[currentStatusCode])
 })
 
-const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
-  const normalizedContent = normalizeMimeTypeObject(
-    currentResponse.value?.content,
-  )
+const normalizedResponseContent = computed(() =>
+  normalizeMimeTypeObject(currentResponse.value?.content),
+)
 
-  /** All the keys of the normalized content */
-  const keys = objectKeys(normalizedContent ?? {})
-  return normalizedContent?.[keys[0] ?? '']
+const responseContentTypes = inject(RESPONSE_CONTENT_TYPE_SYMBOL, null)
+
+const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
+  const content = normalizedResponseContent.value
+  if (!content) return undefined
+  const statusCode =
+    toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
+  const selected = responseContentTypes?.value[statusCode]
+  const keys = objectKeys(content)
+  return content[
+    selected && keys.includes(selected) ? selected : (keys[0] ?? '')
+  ]
 })
 
 const hasMultipleExamples = computed<boolean>(

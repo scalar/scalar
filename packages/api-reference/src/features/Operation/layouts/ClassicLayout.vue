@@ -41,6 +41,7 @@ import {
   REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
   type RequestBodyCompositionSelection,
 } from '@/features/Operation/request-body-composition-index'
+import { RESPONSE_CONTENT_TYPE_SYMBOL } from '@/features/Operation/response-content-type'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
@@ -100,6 +101,9 @@ const requestBodyCompositionSelectionKey = computed(() =>
 )
 
 provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
+
+const selectedResponseContentTypes = ref<Record<string, string>>({})
+provide(RESPONSE_CONTENT_TYPE_SYMBOL, selectedResponseContentTypes)
 
 const { copyToClipboard } = useClipboard()
 </script>
