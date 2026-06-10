@@ -207,6 +207,88 @@ describe('validate-request', () => {
     expect(locations).toEqual(expect.arrayContaining(['header', 'query', 'body']))
   })
 
+  it('validates exploded form array query params from repeated values', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'ids', in: 'query', required: true, schema: { type: 'array', items: { type: 'integer' } } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // `?ids=1&ids=2&ids=3` is the default (form, explode) serialization for an array query param.
+    const valid = await server.request('/items?ids=1&ids=2&ids=3')
+    expect(valid.status).toBe(200)
+
+    // A non-integer element must be reported, not silently coerced away.
+    const invalid = await server.request('/items?ids=1&ids=abc')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'query' })
+  })
+
+  it('validates comma- and pipe-delimited array query params', async () => {
+    const comma = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'ids',
+          in: 'query',
+          required: true,
+          explode: false,
+          schema: { type: 'array', items: { type: 'integer' }, minItems: 2 },
+        },
+      ],
+    })
+
+    const commaServer = await createMockServer({ document: comma, validateRequest: true })
+    expect((await commaServer.request('/items?ids=1,2,3')).status).toBe(200)
+
+    const pipe = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'ids',
+          in: 'query',
+          required: true,
+          style: 'pipeDelimited',
+          schema: { type: 'array', items: { type: 'integer' }, minItems: 2 },
+        },
+      ],
+    })
+
+    const pipeServer = await createMockServer({ document: pipe, validateRequest: true })
+    // A single value cannot satisfy `minItems: 2`, proving the value is parsed as an array, not a string.
+    expect((await pipeServer.request('/items?ids=1')).status).toBe(422)
+    expect((await pipeServer.request('/items?ids=1|2|3')).status).toBe(200)
+  })
+
+  it('validates comma-separated array params in path, header, and cookie', async () => {
+    const document = documentWith('/items/{ids}', 'get', {
+      parameters: [
+        { name: 'ids', in: 'path', required: true, schema: { type: 'array', items: { type: 'integer' } } },
+        { name: 'X-Tags', in: 'header', required: true, schema: { type: 'array', items: { type: 'string' } } },
+        // Cookies default to `form`/explode, so comma-joined arrays must declare `explode: false`.
+        {
+          name: 'roles',
+          in: 'cookie',
+          required: true,
+          explode: false,
+          schema: { type: 'array', items: { type: 'integer' } },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const valid = await server.request('/items/1,2,3', {
+      headers: { 'X-Tags': 'a,b,c', Cookie: 'roles=1,2' },
+    })
+    expect(valid.status).toBe(200)
+
+    // A wrong-typed element in the comma-separated cookie array must fail.
+    const invalid = await server.request('/items/1,2,3', {
+      headers: { 'X-Tags': 'a,b', Cookie: 'roles=1,nope' },
+    })
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'cookie' })
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {

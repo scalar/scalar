@@ -7,8 +7,26 @@ import addFormats from 'ajv-formats'
 import type { Context, MiddlewareHandler } from 'hono'
 import { getCookie } from 'hono/cookie'
 
+import {
+  type ParameterLocation,
+  deserializeArrayParameter,
+  isArraySchema,
+  resolveSerialization,
+} from './deserialize-parameter'
+
 /** Where a validation violation was found in the request */
 type ViolationLocation = 'body' | 'query' | 'path' | 'header' | 'cookie'
+
+/** A declared parameter, describing how to read and deserialize its value from the request */
+type ParameterDescriptor = {
+  name: string
+  /** Resolved serialization style (for example `form`, `simple`, `pipeDelimited`) */
+  style: string
+  /** Resolved `explode` flag, applying the OpenAPI default for the style */
+  explode: boolean
+  /** Whether the parameter schema is an array, which needs delimiter-aware deserialization */
+  isArray: boolean
+}
 
 /** A single request validation violation, mapped from an Ajv error */
 type Violation = {
@@ -24,10 +42,11 @@ type CompiledValidators = {
   query: ValidateFunction | null
   header: ValidateFunction | null
   cookie: ValidateFunction | null
-  /** Declared header parameter names, used to gather their values case-insensitively from the request */
-  headerNames: string[]
-  /** Declared cookie parameter names, used to gather their values from the request */
-  cookieNames: string[]
+  /** Declared parameters per location, used to gather and deserialize their values from the request */
+  pathParameters: ParameterDescriptor[]
+  queryParameters: ParameterDescriptor[]
+  headerParameters: ParameterDescriptor[]
+  cookieParameters: ParameterDescriptor[]
   body: ValidateFunction | null
   /** Whether the request body is required by the operation */
   bodyRequired: boolean
@@ -41,20 +60,21 @@ type CompiledValidators = {
 const IGNORED_HEADER_PARAMETERS = new Set(['accept', 'content-type', 'authorization'])
 
 /**
- * Build a JSON Schema object for the parameters declared `in` the given location, alongside the list
- * of declared parameter names.
+ * Build a JSON Schema object for the parameters declared `in` the given location, alongside a
+ * descriptor for each declared parameter.
  *
  * Parameters arrive as strings, so the caller compiles these with `coerceTypes: true` to let
- * `type: integer`/`boolean` validate correctly. The `names` list lets header and cookie validation
- * gather only declared values from the request. Returns `null` when there is nothing to validate.
+ * `type: integer`/`boolean` validate correctly. The descriptors let the middleware gather only
+ * declared values and deserialize array parameters by their `style`/`explode`. Returns `null` when
+ * there is nothing to validate.
  */
 const buildParameterSchema = (
   parameters: OpenAPIV3_1.OperationObject['parameters'],
-  location: 'path' | 'query' | 'header' | 'cookie',
-): { schema: Record<string, unknown>; names: string[] } | null => {
+  location: ParameterLocation,
+): { schema: Record<string, unknown>; parameters: ParameterDescriptor[] } | null => {
   const properties: Record<string, unknown> = {}
   const required: string[] = []
-  const names: string[] = []
+  const descriptors: ParameterDescriptor[] = []
 
   for (const parameterOrRef of parameters ?? []) {
     const parameter = getResolvedRef(parameterOrRef)
@@ -68,10 +88,15 @@ const buildParameterSchema = (
       continue
     }
 
-    names.push(parameter.name)
+    const resolvedSchema = parameter.schema
+      ? (getResolvedRefDeep(parameter.schema) as Record<string, unknown>)
+      : undefined
+    const { style, explode } = resolveSerialization(location, parameter.style, parameter.explode)
 
-    if (parameter.schema) {
-      properties[parameter.name] = getResolvedRefDeep(parameter.schema)
+    descriptors.push({ name: parameter.name, style, explode, isArray: isArraySchema(resolvedSchema) })
+
+    if (resolvedSchema) {
+      properties[parameter.name] = resolvedSchema
     }
 
     if (parameter.required) {
@@ -84,7 +109,7 @@ const buildParameterSchema = (
   }
 
   // Allow undeclared parameters to pass through; we only enforce what the operation declares.
-  return { schema: { type: 'object', properties, required, additionalProperties: true }, names }
+  return { schema: { type: 'object', properties, required, additionalProperties: true }, parameters: descriptors }
 }
 
 /**
@@ -179,8 +204,10 @@ const compileValidators = (
     query: compileSchema(parameterAjv, queryParameters?.schema ?? null, 'query parameter'),
     header: compileSchema(parameterAjv, headerParameters?.schema ?? null, 'header parameter'),
     cookie: compileSchema(parameterAjv, cookieParameters?.schema ?? null, 'cookie parameter'),
-    headerNames: headerParameters?.names ?? [],
-    cookieNames: cookieParameters?.names ?? [],
+    pathParameters: pathParameters?.parameters ?? [],
+    queryParameters: queryParameters?.parameters ?? [],
+    headerParameters: headerParameters?.parameters ?? [],
+    cookieParameters: cookieParameters?.parameters ?? [],
     body: compileSchema(bodyAjv, bodySchema, 'request body'),
     // Required-body enforcement is independent of whether the body schema compiles.
     bodyRequired: requestBody?.required === true,
@@ -224,8 +251,9 @@ const isJsonRequest = (c: Context): boolean => {
  * violation the middleware short-circuits with a `422` and a `application/problem+json` body;
  * otherwise it calls `next()` and the normal mock handler runs.
  *
- * TODO: Parity follow-ups, intentionally deferred in this slice — response validation,
- * non-JSON body validation, and validation proxy mode.
+ * TODO: Parity follow-ups, intentionally deferred — object parameter serialization (`deepObject`
+ * and `simple`/`form` objects), response validation, non-JSON body validation, and validation proxy
+ * mode.
  */
 export const validateRequest = (
   operation: OpenAPIV3_1.OperationObject,
@@ -236,47 +264,65 @@ export const validateRequest = (
   return async (c, next): Promise<Response | void> => {
     const violations: Violation[] = []
 
+    /**
+     * Gather declared parameter values for one location into a plain object for validation. Array
+     * parameters are deserialized by their `style`/`explode`; everything else is read as a single
+     * string. Values are looked up by declared name (rather than dumping every request value) so
+     * header names match case-insensitively and only declared parameters are enforced.
+     */
+    const gather = (
+      descriptors: ParameterDescriptor[],
+      getValue: (name: string) => string | undefined,
+      getValues?: (name: string) => string[] | undefined,
+    ): Record<string, unknown> => {
+      const data: Record<string, unknown> = {}
+      for (const descriptor of descriptors) {
+        const value = descriptor.isArray
+          ? deserializeArrayParameter({
+              style: descriptor.style,
+              explode: descriptor.explode,
+              single: getValue(descriptor.name),
+              multi: getValues?.(descriptor.name),
+            })
+          : getValue(descriptor.name)
+        if (value !== undefined) {
+          data[descriptor.name] = value
+        }
+      }
+      return data
+    }
+
     // Path parameters (coerced from strings)
     if (validators.path) {
-      const data: Record<string, unknown> = { ...c.req.param() }
+      const data = gather(validators.pathParameters, (name) => c.req.param(name))
       if (!validators.path(data)) {
         violations.push(...mapErrors(validators.path.errors, 'path'))
       }
     }
 
-    // Query parameters (coerced from strings)
+    // Query parameters (coerced from strings; repeated keys feed exploded array parameters)
     if (validators.query) {
-      const data: Record<string, unknown> = { ...c.req.query() }
+      const data = gather(
+        validators.queryParameters,
+        (name) => c.req.query(name),
+        (name) => c.req.queries(name),
+      )
       if (!validators.query(data)) {
         violations.push(...mapErrors(validators.query.errors, 'query'))
       }
     }
 
-    // Header parameters (coerced from strings). Header names are case-insensitive, so we look up each
-    // declared name through Hono rather than dumping all headers, which keeps the spec-declared casing.
+    // Header parameters (coerced from strings; names are case-insensitive)
     if (validators.header) {
-      const data: Record<string, unknown> = {}
-      for (const name of validators.headerNames) {
-        const value = c.req.header(name)
-        if (value !== undefined) {
-          data[name] = value
-        }
-      }
+      const data = gather(validators.headerParameters, (name) => c.req.header(name))
       if (!validators.header(data)) {
         violations.push(...mapErrors(validators.header.errors, 'header'))
       }
     }
 
-    // Cookie parameters (coerced from strings). Cookie names are case-sensitive, so look up each
-    // declared name exactly.
+    // Cookie parameters (coerced from strings)
     if (validators.cookie) {
-      const data: Record<string, unknown> = {}
-      for (const name of validators.cookieNames) {
-        const value = getCookie(c, name)
-        if (value !== undefined) {
-          data[name] = value
-        }
-      }
+      const data = gather(validators.cookieParameters, (name) => getCookie(c, name))
       if (!validators.cookie(data)) {
         violations.push(...mapErrors(validators.cookie.errors, 'cookie'))
       }
