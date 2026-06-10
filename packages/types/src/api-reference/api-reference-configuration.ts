@@ -415,13 +415,13 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     .optional(),
   /**
    * Order the schema properties by
-   * @default 'alpha' for alphabetical sorting
+   * @default 'preserve' to keep the order from the OpenAPI document
    */
   orderSchemaPropertiesBy: z
     .union([z.literal('alpha'), z.literal('preserve')])
     .optional()
-    .default('alpha')
-    .catch('alpha'),
+    .default('preserve')
+    .catch('preserve'),
   /**
    * Sort the schema properties by required ones first
    * @default true
