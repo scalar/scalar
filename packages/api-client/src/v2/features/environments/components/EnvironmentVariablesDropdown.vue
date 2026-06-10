@@ -6,7 +6,7 @@ import { POPULAR_CONTEXT_FUNCTION_KEYS } from '@scalar/workspace-store/request-e
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import { computed, onMounted, ref, type CSSProperties } from 'vue'
+import { computed, onMounted, ref, watch, type CSSProperties } from 'vue'
 
 type DropdownRow =
   | { kind: 'env'; key: string; secondary: string }
@@ -50,6 +50,9 @@ const selectedVariableIndex = ref(0)
 const redirectToEnvironment = () => {
   emit('redirect')
   isOpen.value = false
+  // The panel is gone, so tell the combobox to drop its aria-expanded /
+  // aria-controls — otherwise they keep pointing at a dismissed listbox.
+  emit('close')
 }
 
 /** Normalize the variables to have a name and value */
@@ -171,6 +174,17 @@ const selectVariable = (variableKey: string): void => {
   emit('select', variableKey)
 }
 
+// Narrowing the query shrinks the list; keep the highlight in range so both the
+// visible selection and `aria-activedescendant` never reference a dropped option.
+watch(
+  () => filteredVariables.value.length,
+  (length) => {
+    if (selectedVariableIndex.value > length - 1) {
+      selectedVariableIndex.value = Math.max(0, length - 1)
+    }
+  },
+)
+
 const handleArrowKey = (direction: 'up' | 'down') => {
   const offset = direction === 'up' ? -1 : 1
   const length = filteredVariables.value.length
@@ -230,8 +244,11 @@ onClickOutside(
       class="custom-scroll z-context fixed top-0 left-0 flex max-h-[60svh] w-56 flex-col rounded border p-0.75"
       :style="dropdownStyle"
       @mousedown.prevent>
+      <!--
+        Always rendered (even with no matches) so the combobox's `aria-controls`
+        always resolves to a real listbox; an empty list simply has no options.
+      -->
       <ul
-        v-if="filteredVariables.length"
         :id="listboxId"
         aria-label="Variable suggestions"
         class="gap-1/2 flex flex-col"
@@ -268,7 +285,7 @@ onClickOutside(
         </template>
       </ul>
       <ScalarButton
-        v-else
+        v-if="!filteredVariables.length"
         class="font-code text-xxs bg-b-inherit hover:bg-b-3 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
         variant="outlined"
         @click="redirectToEnvironment">

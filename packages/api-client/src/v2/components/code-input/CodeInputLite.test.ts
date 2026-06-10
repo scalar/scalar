@@ -324,6 +324,69 @@ describe('CodeInputLite', () => {
       expect(editor.attributes('aria-controls')).toBeUndefined()
       expect(editor.attributes('aria-activedescendant')).toBeUndefined()
     })
+
+    it('keeps aria-controls pointing at a real listbox even when no variables match', async () => {
+      const wrapper = mountInput({ modelValue: '' })
+      // A query that matches none of the env variables -> empty list + "Add Variable".
+      api(wrapper).setContent('{{zzznope')
+      api(wrapper).focus('end')
+      await wrapper.get('.code-input-lite__editor').trigger('input')
+      await nextTick()
+      await nextTick()
+
+      const editor = wrapper.get('.code-input-lite__editor')
+      const listboxId = editor.attributes('aria-controls')
+      expect(listboxId).toBeTruthy()
+      const listbox = document.getElementById(listboxId as string)
+      expect(listbox?.getAttribute('role')).toBe('listbox')
+      // No matches -> no options, and nothing for aria-activedescendant to point at.
+      expect(listbox?.querySelectorAll('[role="option"]').length).toBe(0)
+      expect(editor.attributes('aria-activedescendant')).toBeUndefined()
+    })
+
+    it('clears combobox aria state when "Add Variable" dismisses the panel', async () => {
+      const wrapper = mountInput({ modelValue: '' })
+      api(wrapper).setContent('{{zzznope')
+      api(wrapper).focus('end')
+      await wrapper.get('.code-input-lite__editor').trigger('input')
+      await nextTick()
+
+      // The empty state renders an "Add Variable" action that navigates away.
+      const addVariable = [...document.querySelectorAll('button')].find((b) => b.textContent?.includes('Add Variable'))
+      expect(addVariable).toBeTruthy()
+      addVariable?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await nextTick()
+
+      const editor = wrapper.get('.code-input-lite__editor')
+      expect(wrapper.emitted('navigate')).toBeTruthy()
+      expect(editor.attributes('aria-expanded')).toBeUndefined()
+      expect(editor.attributes('aria-controls')).toBeUndefined()
+    })
+
+    it('keeps the active option in range as the query narrows the list', async () => {
+      const wrapper = mountInput({ modelValue: '' })
+      api(wrapper).setContent('{{')
+      api(wrapper).focus('end')
+      const editor = wrapper.get('.code-input-lite__editor')
+      await editor.trigger('input')
+      await nextTick()
+
+      // Highlight the last option (ArrowUp wraps to the end of the list).
+      await editor.trigger('keydown', { key: 'ArrowUp' })
+      await nextTick()
+
+      // Narrow to a single match; the highlight must clamp to a real option
+      // rather than dangle past the end of the shorter list.
+      api(wrapper).setContent('{{baseu')
+      api(wrapper).focus('end')
+      await editor.trigger('input')
+      await nextTick()
+      await nextTick()
+
+      const activeId = editor.attributes('aria-activedescendant')
+      expect(activeId).toBeTruthy()
+      expect(document.getElementById(activeId as string)).not.toBeNull()
+    })
   })
 
   it('exposes focus(), getValue(), setContent(), and cursorPosition()', () => {
