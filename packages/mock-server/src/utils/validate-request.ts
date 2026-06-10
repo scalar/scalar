@@ -5,9 +5,10 @@ import type { ErrorObject, ValidateFunction } from 'ajv'
 import Ajv2020 from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
 import type { Context, MiddlewareHandler } from 'hono'
+import { getCookie } from 'hono/cookie'
 
 /** Where a validation violation was found in the request */
-type ViolationLocation = 'body' | 'query' | 'path'
+type ViolationLocation = 'body' | 'query' | 'path' | 'header' | 'cookie'
 
 /** A single request validation violation, mapped from an Ajv error */
 type Violation = {
@@ -21,23 +22,39 @@ type Violation = {
 type CompiledValidators = {
   path: ValidateFunction | null
   query: ValidateFunction | null
+  header: ValidateFunction | null
+  cookie: ValidateFunction | null
+  /** Declared header parameter names, used to gather their values case-insensitively from the request */
+  headerNames: string[]
+  /** Declared cookie parameter names, used to gather their values from the request */
+  cookieNames: string[]
   body: ValidateFunction | null
   /** Whether the request body is required by the operation */
   bodyRequired: boolean
 }
 
 /**
- * Build a JSON Schema object for the parameters declared `in` the given location.
+ * Header parameters named `Accept`, `Content-Type`, or `Authorization` are defined elsewhere in
+ * OpenAPI (through `content` and `security`), so the spec says such parameter definitions SHALL be
+ * ignored. We compare case-insensitively because header names are case-insensitive.
+ */
+const IGNORED_HEADER_PARAMETERS = new Set(['accept', 'content-type', 'authorization'])
+
+/**
+ * Build a JSON Schema object for the parameters declared `in` the given location, alongside the list
+ * of declared parameter names.
  *
  * Parameters arrive as strings, so the caller compiles these with `coerceTypes: true` to let
- * `type: integer`/`boolean` validate correctly. Returns `null` when there is nothing to validate.
+ * `type: integer`/`boolean` validate correctly. The `names` list lets header and cookie validation
+ * gather only declared values from the request. Returns `null` when there is nothing to validate.
  */
 const buildParameterSchema = (
   parameters: OpenAPIV3_1.OperationObject['parameters'],
-  location: 'path' | 'query',
-): Record<string, unknown> | null => {
+  location: 'path' | 'query' | 'header' | 'cookie',
+): { schema: Record<string, unknown>; names: string[] } | null => {
   const properties: Record<string, unknown> = {}
   const required: string[] = []
+  const names: string[] = []
 
   for (const parameterOrRef of parameters ?? []) {
     const parameter = getResolvedRef(parameterOrRef)
@@ -45,6 +62,13 @@ const buildParameterSchema = (
     if (parameter?.in !== location) {
       continue
     }
+
+    // Per the OpenAPI spec, these header parameters are defined elsewhere and ignored as parameters.
+    if (location === 'header' && IGNORED_HEADER_PARAMETERS.has(parameter.name.toLowerCase())) {
+      continue
+    }
+
+    names.push(parameter.name)
 
     if (parameter.schema) {
       properties[parameter.name] = getResolvedRefDeep(parameter.schema)
@@ -60,7 +84,7 @@ const buildParameterSchema = (
   }
 
   // Allow undeclared parameters to pass through; we only enforce what the operation declares.
-  return { type: 'object', properties, required, additionalProperties: true }
+  return { schema: { type: 'object', properties, required, additionalProperties: true }, names }
 }
 
 /**
@@ -135,6 +159,11 @@ const compileValidators = (
   // Path-item parameters apply to every operation, so fold them in before building the schemas.
   const parameters = mergeParameters(pathItemParameters, operation.parameters)
 
+  const pathParameters = buildParameterSchema(parameters, 'path')
+  const queryParameters = buildParameterSchema(parameters, 'query')
+  const headerParameters = buildParameterSchema(parameters, 'header')
+  const cookieParameters = buildParameterSchema(parameters, 'cookie')
+
   const requestBody = getResolvedRef(operation.requestBody)
   // Build the body schema defensively; resolving a malformed `$ref` should not crash setup.
   let bodySchema: Record<string, unknown> | null = null
@@ -146,8 +175,12 @@ const compileValidators = (
   }
 
   return {
-    path: compileSchema(parameterAjv, buildParameterSchema(parameters, 'path'), 'path parameter'),
-    query: compileSchema(parameterAjv, buildParameterSchema(parameters, 'query'), 'query parameter'),
+    path: compileSchema(parameterAjv, pathParameters?.schema ?? null, 'path parameter'),
+    query: compileSchema(parameterAjv, queryParameters?.schema ?? null, 'query parameter'),
+    header: compileSchema(parameterAjv, headerParameters?.schema ?? null, 'header parameter'),
+    cookie: compileSchema(parameterAjv, cookieParameters?.schema ?? null, 'cookie parameter'),
+    headerNames: headerParameters?.names ?? [],
+    cookieNames: cookieParameters?.names ?? [],
     body: compileSchema(bodyAjv, bodySchema, 'request body'),
     // Required-body enforcement is independent of whether the body schema compiles.
     bodyRequired: requestBody?.required === true,
@@ -155,8 +188,9 @@ const compileValidators = (
 }
 
 /**
- * Map Ajv errors into our violation shape. For path/query parameters the offending parameter name
- * is prepended to the message so the response is readable without cross-referencing the pointer.
+ * Map Ajv errors into our violation shape. For non-body parameters (path, query, header, cookie) the
+ * offending parameter name is prepended to the message so the response is readable without
+ * cross-referencing the pointer.
  */
 const mapErrors = (errors: ErrorObject[] | null | undefined, location: ViolationLocation): Violation[] =>
   (errors ?? []).map((error) => {
@@ -191,7 +225,7 @@ const isJsonRequest = (c: Context): boolean => {
  * otherwise it calls `next()` and the normal mock handler runs.
  *
  * TODO: Parity follow-ups, intentionally deferred in this slice — response validation,
- * header/cookie parameter validation, non-JSON body validation, and validation proxy mode.
+ * non-JSON body validation, and validation proxy mode.
  */
 export const validateRequest = (
   operation: OpenAPIV3_1.OperationObject,
@@ -215,6 +249,36 @@ export const validateRequest = (
       const data: Record<string, unknown> = { ...c.req.query() }
       if (!validators.query(data)) {
         violations.push(...mapErrors(validators.query.errors, 'query'))
+      }
+    }
+
+    // Header parameters (coerced from strings). Header names are case-insensitive, so we look up each
+    // declared name through Hono rather than dumping all headers, which keeps the spec-declared casing.
+    if (validators.header) {
+      const data: Record<string, unknown> = {}
+      for (const name of validators.headerNames) {
+        const value = c.req.header(name)
+        if (value !== undefined) {
+          data[name] = value
+        }
+      }
+      if (!validators.header(data)) {
+        violations.push(...mapErrors(validators.header.errors, 'header'))
+      }
+    }
+
+    // Cookie parameters (coerced from strings). Cookie names are case-sensitive, so look up each
+    // declared name exactly.
+    if (validators.cookie) {
+      const data: Record<string, unknown> = {}
+      for (const name of validators.cookieNames) {
+        const value = getCookie(c, name)
+        if (value !== undefined) {
+          data[name] = value
+        }
+      }
+      if (!validators.cookie(data)) {
+        violations.push(...mapErrors(validators.cookie.errors, 'cookie'))
       }
     }
 
