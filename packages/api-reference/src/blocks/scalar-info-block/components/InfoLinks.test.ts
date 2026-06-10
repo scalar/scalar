@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
 import InfoLinks from './InfoLinks.vue'
 
 describe('InfoLinks', () => {
@@ -151,7 +152,10 @@ describe('InfoLinks', () => {
       props: { info: minimalInfo },
     })
 
-    expect(wrapper.findComponent({ name: 'LinkList' }).exists()).toBe(true)
+    const linkList = wrapper.findComponent({ name: 'LinkList' })
+
+    expect(linkList.exists()).toBe(true)
+    expect(linkList.element.matches(':not(:has(>*))')).toBe(true)
     expect(wrapper.findComponent({ name: 'ExternalDocs' }).exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'Contact' }).exists()).toBe(false)
     expect(wrapper.findComponent({ name: 'License' }).exists()).toBe(false)
