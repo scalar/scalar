@@ -148,6 +148,65 @@ describe('validate-request', () => {
     expect(valid.status).toBe(200)
   })
 
+  it('passes when an optional header or cookie param is absent', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        { name: 'X-Api-Version', in: 'header', required: false, schema: { type: 'string' } },
+        { name: 'session', in: 'cookie', required: false, schema: { type: 'string' } },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request('/items')
+    expect(response.status).toBe(200)
+  })
+
+  it('enforces a required header param that declares no schema', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'X-Request-Id', in: 'header', required: true }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const missing = await server.request('/items')
+    expect(missing.status).toBe(422)
+    expect((await missing.json()).violations[0]).toMatchObject({ location: 'header', path: '/X-Request-Id' })
+
+    const present = await server.request('/items', { headers: { 'X-Request-Id': 'abc' } })
+    expect(present.status).toBe(200)
+  })
+
+  it('aggregates violations across header, query, and body in one response', async () => {
+    const document = documentWith('/items', 'post', {
+      parameters: [
+        { name: 'X-Api-Version', in: 'header', required: true, schema: { type: 'integer' } },
+        { name: 'limit', in: 'query', required: true, schema: { type: 'integer' } },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { type: 'object', required: ['name'], properties: { name: { type: 'string' } } },
+          },
+        },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // Every location is violated at once: missing header, missing query, and a body missing `name`.
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    })
+
+    expect(response.status).toBe(422)
+    const locations = (await response.json()).violations.map((violation: { location: string }) => violation.location)
+    expect(locations).toEqual(expect.arrayContaining(['header', 'query', 'body']))
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {
