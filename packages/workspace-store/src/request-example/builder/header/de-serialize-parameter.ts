@@ -38,18 +38,54 @@ const deSerializeContentExample = (example: unknown, contentType: string) => {
 const structuredSchemaTypes = new Set(['array', 'object'])
 
 /**
+ * Find the structured (`array` or `object`) type a schema represents, looking through
+ * `anyOf`/`oneOf`/`allOf` composition.
+ *
+ * Optional array/object parameters are commonly described as `anyOf: [{ type: 'array' }, { type: 'null' }]`
+ * (e.g. FastAPI/Pydantic `Optional[List[str]]`). Without unwrapping these we would treat the value as a
+ * plain string and send a single `id=a,b` query parameter instead of repeating `id=a&id=b`.
+ */
+const getStructuredType = (schema: unknown): 'array' | 'object' | undefined => {
+  const resolved = getResolvedRef(schema)
+  if (!resolved || typeof resolved !== 'object') {
+    return undefined
+  }
+
+  if ('type' in resolved && resolved.type) {
+    const type = Array.isArray(resolved.type)
+      ? resolved.type.find((t: string) => structuredSchemaTypes.has(t))
+      : resolved.type
+    if (type === 'array' || type === 'object') {
+      return type
+    }
+  }
+
+  for (const key of ['anyOf', 'oneOf', 'allOf'] as const) {
+    const subSchemas = (resolved as Record<string, unknown>)[key]
+    if (Array.isArray(subSchemas)) {
+      for (const subSchema of subSchemas) {
+        const type = getStructuredType(subSchema)
+        if (type) {
+          return type
+        }
+      }
+    }
+  }
+
+  return undefined
+}
+
+/**
  * Schema-based parameters from the request editor.
  *
  * Primitives (`string`, `integer`, `number`, `boolean`, `null`) are left as the typed string
  * Only `array` and `object` values are parsed so OpenAPI style serialization can expand them.
  */
 const deSerializeSchemaExample = (example: unknown, schema: ParameterWithSchemaObject['schema']) => {
-  const resolvedSchema = getResolvedRef(schema)
+  if (typeof example === 'string') {
+    const type = getStructuredType(schema)
 
-  if (typeof example === 'string' && resolvedSchema && 'type' in resolvedSchema) {
-    const type = Array.isArray(resolvedSchema.type) ? resolvedSchema.type[0] : resolvedSchema.type
-
-    if (type && structuredSchemaTypes.has(type)) {
+    if (type) {
       try {
         return JSON.parse(example)
       } catch {

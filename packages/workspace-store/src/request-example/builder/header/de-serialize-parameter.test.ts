@@ -375,6 +375,31 @@ describe('de-serialize-parameter', () => {
       expect(result).toEqual(['item1', 'item2'])
     })
 
+    it('splits comma-separated string into array when array type is wrapped in anyOf', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'id',
+        in: 'query',
+        schema: {
+          anyOf: [{ type: 'array', items: { type: 'string' } }, { type: 'null' }],
+        } as ParameterWithSchemaObject['schema'],
+      }
+
+      expect(deSerializeParameter('a,b', param)).toEqual(['a', 'b'])
+      expect(deSerializeParameter('["a","b"]', param)).toEqual(['a', 'b'])
+    })
+
+    it('parses JSON object when object type is wrapped in oneOf', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'filter',
+        in: 'query',
+        schema: {
+          oneOf: [{ type: 'object' }, { type: 'null' }],
+        } as ParameterWithSchemaObject['schema'],
+      }
+
+      expect(deSerializeParameter('{"a":1}', param)).toEqual({ a: 1 })
+    })
+
     it('handles complex nested JSON with content type', () => {
       const param: ParameterObject = {
         name: 'test',
