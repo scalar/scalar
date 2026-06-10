@@ -56,6 +56,64 @@ const wrap = (value: string | undefined): string[] | undefined => (value === und
 const split = (value: string | undefined, delimiter: string): string[] | undefined =>
   value === undefined ? undefined : value.split(delimiter)
 
+/** Drop a leading prefix (for example the `.` of `label` or the `;` of `matrix`) when present. */
+const stripPrefix = (value: string, prefix: string): string =>
+  value.startsWith(prefix) ? value.slice(prefix.length) : value
+
+/** Return the part of a `key=value` segment after the first `=`, or the whole segment when there is none. */
+const valueAfterEquals = (segment: string): string => {
+  const equals = segment.indexOf('=')
+  return equals === -1 ? segment : segment.slice(equals + 1)
+}
+
+/** Build an object from a list of `key=value` segments (for example `['R=100', 'G=200']`). */
+const pairsFromList = (parts: string[]): Record<string, string> => {
+  const result: Record<string, string> = {}
+  for (const part of parts) {
+    const equals = part.indexOf('=')
+    if (equals !== -1) {
+      result[part.slice(0, equals)] = part.slice(equals + 1)
+    }
+  }
+  return result
+}
+
+/** Build an object from a flat list alternating key, value (for example `['R', '100', 'G', '200']`). */
+const alternatingFromList = (parts: string[]): Record<string, string> => {
+  const result: Record<string, string> = {}
+  // Walk in pairs; a trailing key without a value is ignored.
+  for (let index = 0; index + 1 < parts.length; index += 2) {
+    const key = parts[index]
+    const propertyValue = parts[index + 1]
+    if (key !== undefined && propertyValue !== undefined) {
+      result[key] = propertyValue
+    }
+  }
+  return result
+}
+
+/**
+ * Deserialize a `matrix`-style array (path only). Non-exploded values join the elements after a single
+ * `;name=` prefix (`;ids=1,2,3`), while exploded values repeat the prefix per element (`;ids=1;ids=2`).
+ */
+const parseMatrixArray = (value: string | undefined, explode: boolean): string[] | undefined => {
+  if (value === undefined) {
+    return undefined
+  }
+
+  const segments = stripPrefix(value, ';')
+    .split(';')
+    .filter((segment) => segment.length > 0)
+
+  if (explode) {
+    return segments.map(valueAfterEquals)
+  }
+
+  // Non-exploded: a single `name=a,b,c` segment whose value is comma-separated.
+  const [first] = segments
+  return first === undefined ? [] : valueAfterEquals(first).split(',')
+}
+
 /**
  * Deserialize a string-encoded array parameter into its elements.
  *
@@ -83,6 +141,11 @@ export const deserializeArrayParameter = ({
     case 'simple':
       // Path and header arrays are always comma-separated; `explode` does not change the delimiter.
       return split(single, ',')
+    case 'label':
+      // Path `label` arrays are dot-prefixed and dot-separated (`.1.2.3`), regardless of `explode`.
+      return single === undefined ? undefined : stripPrefix(single, '.').split('.')
+    case 'matrix':
+      return parseMatrixArray(single, explode)
     default:
       // `form` (and any unrecognised style): an exploded array repeats the key, otherwise it is comma-joined.
       return explode ? (multi ?? wrap(single)) : split(single, ',')
@@ -90,39 +153,12 @@ export const deserializeArrayParameter = ({
 }
 
 /** Parse `R,100,G,200` (a flat list alternating key, value) into an object. */
-const parseAlternating = (value: string | undefined, delimiter: string): Record<string, string> | undefined => {
-  if (value === undefined) {
-    return undefined
-  }
-
-  const parts = value.split(delimiter)
-  const result: Record<string, string> = {}
-  // Walk in pairs; a trailing key without a value is ignored.
-  for (let index = 0; index + 1 < parts.length; index += 2) {
-    const key = parts[index]
-    const propertyValue = parts[index + 1]
-    if (key !== undefined && propertyValue !== undefined) {
-      result[key] = propertyValue
-    }
-  }
-  return result
-}
+const parseAlternating = (value: string | undefined, delimiter: string): Record<string, string> | undefined =>
+  value === undefined ? undefined : alternatingFromList(value.split(delimiter))
 
 /** Parse `R=100,G=200` (delimiter-separated `key=value` pairs) into an object. */
-const parsePairs = (value: string | undefined, delimiter: string): Record<string, string> | undefined => {
-  if (value === undefined) {
-    return undefined
-  }
-
-  const result: Record<string, string> = {}
-  for (const pair of value.split(delimiter)) {
-    const equals = pair.indexOf('=')
-    if (equals !== -1) {
-      result[pair.slice(0, equals)] = pair.slice(equals + 1)
-    }
-  }
-  return result
-}
+const parsePairs = (value: string | undefined, delimiter: string): Record<string, string> | undefined =>
+  value === undefined ? undefined : pairsFromList(value.split(delimiter))
 
 /** Parse `name[R]=100&name[G]=200` from the query map into an object. */
 const parseDeepObject = (query: Record<string, string>, name: string): Record<string, string> | undefined => {
@@ -187,6 +223,32 @@ export const deserializeObjectParameter = ({
   // Exploded `simple` (path/header): comma-separated `key=value` pairs, e.g. `R=100,G=200`.
   if (style === 'simple' && explode) {
     return parsePairs(single, ',')
+  }
+
+  // `label` (path): dot-prefixed and dot-separated. Exploded uses `key=value`, e.g. `.R=100.G=200`;
+  // non-exploded alternates key and value, e.g. `.R.100.G.200`.
+  if (style === 'label') {
+    if (single === undefined) {
+      return undefined
+    }
+    const parts = stripPrefix(single, '.').split('.')
+    return explode ? pairsFromList(parts) : alternatingFromList(parts)
+  }
+
+  // `matrix` (path): semicolon-prefixed. Exploded repeats `;key=value` per property, e.g. `;R=100;G=200`;
+  // non-exploded carries everything in one `;name=R,100,G,200` segment.
+  if (style === 'matrix') {
+    if (single === undefined) {
+      return undefined
+    }
+    const segments = stripPrefix(single, ';')
+      .split(';')
+      .filter((segment) => segment.length > 0)
+    if (explode) {
+      return pairsFromList(segments)
+    }
+    const [first] = segments
+    return first === undefined ? {} : alternatingFromList(valueAfterEquals(first).split(','))
   }
 
   // Non-exploded `form` and `simple`: a flat list alternating key, value, e.g. `R,100,G,200`.

@@ -255,8 +255,8 @@ const document = {
 The mock server enforces your OpenAPI contract by default. Each request is validated against the matched operation before a mock response is generated:
 
 - **Path, query, header, and cookie parameters** declared in the operation are validated against their schema. Values arrive as strings, so `type: integer`/`boolean` are coerced before validation (for example `?limit=10` becomes the number `10`). Required parameters are enforced. Header names are matched case-insensitively, and the `Accept`, `Content-Type`, and `Authorization` headers are ignored as parameters because OpenAPI defines them elsewhere.
-- **Array parameters** are deserialized according to their `style` and `explode` before validation. Exploded `form` arrays read repeated query keys (`?ids=1&ids=2`), while `form` (non-exploded), `spaceDelimited`, and `pipeDelimited` query arrays, plus `simple` path and header arrays and `form` cookie arrays, are split on their delimiter (for example `?ids=1,2,3` or `X-Ids: 1,2,3`).
-- **Object parameters** are deserialized too: `deepObject` (`?filter[min]=1&filter[max]=9`), exploded `form` (properties as top-level keys, `?r=100&g=200`), non-exploded `form`/`simple` (alternating `key,value`, for example `r,100,g,200`), and exploded `simple` (`key=value` pairs, for example `r=100,g=200`).
+- **Array parameters** are deserialized according to their `style` and `explode` before validation. Exploded `form` arrays read repeated query keys (`?ids=1&ids=2`), while `form` (non-exploded), `spaceDelimited`, and `pipeDelimited` query arrays, `simple` path and header arrays, `form` cookie arrays, and the `label` (`/.1.2.3`) and `matrix` (`/;ids=1;ids=2`) path styles are split on their delimiter.
+- **Object parameters** are deserialized too: `deepObject` (`?filter[min]=1&filter[max]=9`), exploded `form` (properties as top-level keys, `?r=100&g=200`), `form`/`simple`/`label`/`matrix` in both explode modes (for example `r,100,g,200`, `r=100,g=200`, or `;point=x,1,y,2`).
 - **JSON request bodies** are validated against `requestBody.content['application/json'].schema`, and `requestBody.required` is enforced.
 
 When a request violates the contract, the server responds with `422 Unprocessable Entity` and a `application/problem+json` body listing every violation, instead of a mock response.
@@ -292,7 +292,7 @@ Content-Type: application/problem+json
 
 Each violation reports its `location` (`path`, `query`, `header`, `cookie`, or `body`), a `path` pointing at the offending value, and a human-readable `message`. All violations are returned at once, not just the first.
 
-> This validates path, query, header, and cookie parameters (including array and object serialization), plus JSON request bodies. The rarer `label`/`matrix` path styles, response validation, non-JSON bodies, and proxy mode are planned follow-ups.
+> This validates path, query, header, and cookie parameters (across every OpenAPI serialization style, including array and object values), plus JSON request bodies. Response validation, non-JSON bodies, and proxy mode are planned follow-ups.
 
 ### Custom Request Handlers
 

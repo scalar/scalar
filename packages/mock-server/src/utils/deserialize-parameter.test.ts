@@ -77,6 +77,24 @@ describe('deserialize-parameter', () => {
       expect(deserializeArrayParameter({ style: 'simple', explode: false, single: '1,2,3' })).toEqual(['1', '2', '3'])
       expect(deserializeArrayParameter({ style: 'simple', explode: true, single: '1,2,3' })).toEqual(['1', '2', '3'])
     })
+
+    it('parses label arrays (dot-prefixed, dot-separated)', () => {
+      expect(deserializeArrayParameter({ style: 'label', explode: false, single: '.1.2.3' })).toEqual(['1', '2', '3'])
+      expect(deserializeArrayParameter({ style: 'label', explode: true, single: '.1.2.3' })).toEqual(['1', '2', '3'])
+    })
+
+    it('parses matrix arrays for both explode modes', () => {
+      expect(deserializeArrayParameter({ style: 'matrix', explode: false, single: ';ids=1,2,3' })).toEqual([
+        '1',
+        '2',
+        '3',
+      ])
+      expect(deserializeArrayParameter({ style: 'matrix', explode: true, single: ';ids=1;ids=2;ids=3' })).toEqual([
+        '1',
+        '2',
+        '3',
+      ])
+    })
   })
 
   describe('isObjectSchema', () => {
@@ -140,6 +158,24 @@ describe('deserialize-parameter', () => {
     it('parses exploded simple objects as key=value pairs', () => {
       expect(
         deserializeObjectParameter({ style: 'simple', explode: true, single: 'R=100,G=200', name: 'color' }),
+      ).toEqual({ R: '100', G: '200' })
+    })
+
+    it('parses label objects (dot-prefixed) for both explode modes', () => {
+      expect(
+        deserializeObjectParameter({ style: 'label', explode: false, single: '.R.100.G.200', name: 'color' }),
+      ).toEqual({ R: '100', G: '200' })
+      expect(
+        deserializeObjectParameter({ style: 'label', explode: true, single: '.R=100.G=200', name: 'color' }),
+      ).toEqual({ R: '100', G: '200' })
+    })
+
+    it('parses matrix objects for both explode modes', () => {
+      expect(
+        deserializeObjectParameter({ style: 'matrix', explode: true, single: ';R=100;G=200', name: 'color' }),
+      ).toEqual({ R: '100', G: '200' })
+      expect(
+        deserializeObjectParameter({ style: 'matrix', explode: false, single: ';color=R,100,G,200', name: 'color' }),
       ).toEqual({ R: '100', G: '200' })
     })
   })
