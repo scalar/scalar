@@ -289,6 +289,93 @@ describe('validate-request', () => {
     expect((await invalid.json()).violations[0]).toMatchObject({ location: 'cookie' })
   })
 
+  it('validates deepObject query params', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          required: true,
+          style: 'deepObject',
+          explode: true,
+          schema: {
+            type: 'object',
+            required: ['min'],
+            properties: { min: { type: 'integer' }, max: { type: 'integer' } },
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // `?filter[min]=1&filter[max]=9` deserializes to `{ min: 1, max: 9 }` before validation.
+    const valid = await server.request('/items?filter[min]=1&filter[max]=9')
+    expect(valid.status).toBe(200)
+
+    // A non-integer property is reported rather than coerced away.
+    const invalid = await server.request('/items?filter[min]=abc')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'query' })
+  })
+
+  it('validates exploded form object query params from top-level keys', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'color',
+          in: 'query',
+          required: true,
+          schema: {
+            type: 'object',
+            required: ['r'],
+            properties: { r: { type: 'integer' }, g: { type: 'integer' } },
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // The default object serialization (form, explode) spreads properties across top-level keys.
+    const valid = await server.request('/items?r=100&g=200')
+    expect(valid.status).toBe(200)
+
+    const invalid = await server.request('/items?g=200')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'query' })
+  })
+
+  it('validates comma-separated object params in path and header', async () => {
+    const document = documentWith('/items/{point}', 'get', {
+      parameters: [
+        {
+          name: 'point',
+          in: 'path',
+          required: true,
+          schema: { type: 'object', properties: { x: { type: 'integer' }, y: { type: 'integer' } } },
+        },
+        {
+          name: 'X-Color',
+          in: 'header',
+          required: true,
+          explode: true,
+          schema: { type: 'object', properties: { r: { type: 'integer' }, g: { type: 'integer' } } },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // Path simple (non-exploded): `x,1,y,2`; header simple exploded: `r=100,g=200`.
+    const valid = await server.request('/items/x,1,y,2', { headers: { 'X-Color': 'r=100,g=200' } })
+    expect(valid.status).toBe(200)
+
+    const invalid = await server.request('/items/x,nope,y,2', { headers: { 'X-Color': 'r=100,g=200' } })
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'path' })
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {
