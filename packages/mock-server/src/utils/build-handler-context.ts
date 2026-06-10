@@ -95,8 +95,13 @@ export async function buildHandlerContext(
   let body: any = undefined
 
   try {
-    const contentType = c.req.header('content-type') ?? ''
-    if (contentType.includes('application/json')) {
+    // Compare case-insensitively, since media types are case-insensitive and request validation
+    // matches them the same way. Otherwise a body like `Application/JSON` could pass validation yet
+    // never reach the handler as `req.body`.
+    const contentType = (c.req.header('content-type') ?? '').toLowerCase()
+    // An empty/absent Content-Type is treated as JSON to match request validation, so a headerless
+    // JSON body that passes validation is still delivered to the handler as `req.body`.
+    if (contentType === '' || contentType.includes('application/json')) {
       body = await c.req.json().catch(() => undefined)
     } else if (contentType.includes('application/x-www-form-urlencoded')) {
       body = await c.req.parseBody().catch(() => undefined)

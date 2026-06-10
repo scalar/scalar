@@ -34,6 +34,20 @@ type BaseMockServerOptions = {
    * Callback function to be called before each request is processed.
    */
   onRequest?: (data: { context: Context; operation: OpenAPIV3_1.OperationObject }) => void
+
+  /**
+   * Validate the incoming request against the matched operation's schema. When the request
+   * violates the contract, the server responds with `422` and a `application/problem+json`
+   * body describing the violations, instead of returning a mock response.
+   *
+   * Validates path/query parameters and the `application/json` request body.
+   *
+   * @default true
+   *
+   * Enabled by default for Prism-style contract enforcement. Set to `false` to opt out and
+   * always return a mock response regardless of whether the request matches the contract.
+   */
+  validateRequest?: boolean
 }
 
 export type MockServerOptions = RequireAtLeastOne<BaseMockServerOptions, 'specification' | 'document'>

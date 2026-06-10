@@ -13,6 +13,7 @@ import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
 import { processOpenApiDocument } from '@/utils/process-openapi-document'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
+import { validateRequest } from '@/utils/validate-request'
 
 import { store } from './libs/store'
 import { mockAnyResponse } from './routes/mock-any-response'
@@ -88,6 +89,22 @@ export async function createMockServer(configuration: MockServerOptions): Promis
         app[method](route, handleAuthentication(schema, operation))
       }
 
+      // Notify the `onRequest` callback before validation runs, so it fires for every request —
+      // including ones the validation middleware rejects with a `422`.
+      if (configuration.onRequest) {
+        app[method](route, async (c, next) => {
+          configuration.onRequest?.({ context: c, operation })
+          await next()
+        })
+      }
+
+      // Validate the incoming request against the operation contract (on by default;
+      // opt out with `validateRequest: false`). Runs after authentication but before the
+      // mock handler. Validators are compiled once here, so there is no per-request recompilation.
+      if (configuration.validateRequest !== false) {
+        app[method](route, validateRequest(operation, pathItem?.parameters))
+      }
+
       // Check if operation has x-handler extension
       // Validate that it's a non-empty string (consistent with x-seed validation)
       const handlerCode = operation?.['x-handler']
@@ -95,9 +112,9 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
       // Route to appropriate handler
       if (hasHandler) {
-        app[method](route, (c) => mockHandlerResponse(c, operation, configuration))
+        app[method](route, (c) => mockHandlerResponse(c, operation))
       } else {
-        app[method](route, (c) => mockAnyResponse(c, operation, configuration))
+        app[method](route, (c) => mockAnyResponse(c, operation))
       }
     })
   })
