@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { deserializeArrayParameter, isArraySchema, resolveSerialization } from './deserialize-parameter'
+import {
+  deserializeArrayParameter,
+  deserializeObjectParameter,
+  isArraySchema,
+  isObjectSchema,
+  resolveSerialization,
+} from './deserialize-parameter'
 
 describe('deserialize-parameter', () => {
   describe('resolveSerialization', () => {
@@ -70,6 +76,71 @@ describe('deserialize-parameter', () => {
     it('splits simple-style arrays on commas regardless of explode', () => {
       expect(deserializeArrayParameter({ style: 'simple', explode: false, single: '1,2,3' })).toEqual(['1', '2', '3'])
       expect(deserializeArrayParameter({ style: 'simple', explode: true, single: '1,2,3' })).toEqual(['1', '2', '3'])
+    })
+  })
+
+  describe('isObjectSchema', () => {
+    it('detects object schemas', () => {
+      expect(isObjectSchema({ type: 'object', properties: {} })).toBe(true)
+      expect(isObjectSchema({ type: ['object', 'null'] })).toBe(true)
+      expect(isObjectSchema({ properties: { a: { type: 'string' } } })).toBe(true)
+    })
+
+    it('returns false for non-object schemas', () => {
+      expect(isObjectSchema({ type: 'array', items: {} })).toBe(false)
+      expect(isObjectSchema({ type: 'string' })).toBe(false)
+      expect(isObjectSchema(undefined)).toBe(false)
+    })
+  })
+
+  describe('deserializeObjectParameter', () => {
+    it('returns undefined when the parameter is absent', () => {
+      expect(
+        deserializeObjectParameter({ style: 'form', explode: false, single: undefined, name: 'color' }),
+      ).toBeUndefined()
+      expect(
+        deserializeObjectParameter({ style: 'deepObject', explode: true, single: undefined, name: 'color', query: {} }),
+      ).toBeUndefined()
+    })
+
+    it('parses deepObject bracket notation from the query map', () => {
+      expect(
+        deserializeObjectParameter({
+          style: 'deepObject',
+          explode: true,
+          single: undefined,
+          name: 'color',
+          query: { 'color[R]': '100', 'color[G]': '200', other: 'x' },
+        }),
+      ).toEqual({ R: '100', G: '200' })
+    })
+
+    it('gathers exploded form objects from matching top-level query keys', () => {
+      expect(
+        deserializeObjectParameter({
+          style: 'form',
+          explode: true,
+          single: undefined,
+          name: 'color',
+          query: { R: '100', G: '200', unrelated: 'x' },
+          propertyNames: ['R', 'G', 'B'],
+        }),
+      ).toEqual({ R: '100', G: '200' })
+    })
+
+    it('parses non-exploded form/simple objects as alternating key,value', () => {
+      expect(
+        deserializeObjectParameter({ style: 'form', explode: false, single: 'R,100,G,200', name: 'color' }),
+      ).toEqual({ R: '100', G: '200' })
+      expect(
+        deserializeObjectParameter({ style: 'simple', explode: false, single: 'R,100,G,200', name: 'color' }),
+      ).toEqual({ R: '100', G: '200' })
+    })
+
+    it('parses exploded simple objects as key=value pairs', () => {
+      expect(
+        deserializeObjectParameter({ style: 'simple', explode: true, single: 'R=100,G=200', name: 'color' }),
+      ).toEqual({ R: '100', G: '200' })
     })
   })
 })

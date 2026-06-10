@@ -10,7 +10,9 @@ import { getCookie } from 'hono/cookie'
 import {
   type ParameterLocation,
   deserializeArrayParameter,
+  deserializeObjectParameter,
   isArraySchema,
+  isObjectSchema,
   resolveSerialization,
 } from './deserialize-parameter'
 
@@ -26,6 +28,10 @@ type ParameterDescriptor = {
   explode: boolean
   /** Whether the parameter schema is an array, which needs delimiter-aware deserialization */
   isArray: boolean
+  /** Whether the parameter schema is an object, which needs key/value deserialization */
+  isObject: boolean
+  /** Declared object property names, used to gather exploded `form` objects from the query map */
+  propertyNames: string[]
 }
 
 /** A single request validation violation, mapped from an Ajv error */
@@ -93,7 +99,18 @@ const buildParameterSchema = (
       : undefined
     const { style, explode } = resolveSerialization(location, parameter.style, parameter.explode)
 
-    descriptors.push({ name: parameter.name, style, explode, isArray: isArraySchema(resolvedSchema) })
+    // Property names let exploded `form` objects be gathered from matching top-level query keys.
+    const schemaProperties = resolvedSchema?.properties as Record<string, unknown> | undefined
+    const propertyNames = schemaProperties ? Object.keys(schemaProperties) : []
+
+    descriptors.push({
+      name: parameter.name,
+      style,
+      explode,
+      isArray: isArraySchema(resolvedSchema),
+      isObject: isObjectSchema(resolvedSchema),
+      propertyNames,
+    })
 
     if (resolvedSchema) {
       properties[parameter.name] = resolvedSchema
@@ -251,9 +268,8 @@ const isJsonRequest = (c: Context): boolean => {
  * violation the middleware short-circuits with a `422` and a `application/problem+json` body;
  * otherwise it calls `next()` and the normal mock handler runs.
  *
- * TODO: Parity follow-ups, intentionally deferred — object parameter serialization (`deepObject`
- * and `simple`/`form` objects), response validation, non-JSON body validation, and validation proxy
- * mode.
+ * TODO: Parity follow-ups, intentionally deferred — the rarer `label`/`matrix` path styles, response
+ * validation, non-JSON body validation, and validation proxy mode.
  */
 export const validateRequest = (
   operation: OpenAPIV3_1.OperationObject,
@@ -265,26 +281,42 @@ export const validateRequest = (
     const violations: Violation[] = []
 
     /**
-     * Gather declared parameter values for one location into a plain object for validation. Array
-     * parameters are deserialized by their `style`/`explode`; everything else is read as a single
-     * string. Values are looked up by declared name (rather than dumping every request value) so
-     * header names match case-insensitively and only declared parameters are enforced.
+     * Gather declared parameter values for one location into a plain object for validation. Array and
+     * object parameters are deserialized by their `style`/`explode`; everything else is read as a
+     * single string. Values are looked up by declared name (rather than dumping every request value)
+     * so header names match case-insensitively and only declared parameters are enforced.
+     *
+     * `getValues` (repeated query keys) and `queryMap` (the full query map) are only supplied for the
+     * query location, where exploded arrays and `deepObject`/exploded-`form` objects need them.
      */
     const gather = (
       descriptors: ParameterDescriptor[],
       getValue: (name: string) => string | undefined,
       getValues?: (name: string) => string[] | undefined,
+      queryMap?: () => Record<string, string>,
     ): Record<string, unknown> => {
       const data: Record<string, unknown> = {}
       for (const descriptor of descriptors) {
-        const value = descriptor.isArray
-          ? deserializeArrayParameter({
-              style: descriptor.style,
-              explode: descriptor.explode,
-              single: getValue(descriptor.name),
-              multi: getValues?.(descriptor.name),
-            })
-          : getValue(descriptor.name)
+        let value: unknown
+        if (descriptor.isArray) {
+          value = deserializeArrayParameter({
+            style: descriptor.style,
+            explode: descriptor.explode,
+            single: getValue(descriptor.name),
+            multi: getValues?.(descriptor.name),
+          })
+        } else if (descriptor.isObject) {
+          value = deserializeObjectParameter({
+            style: descriptor.style,
+            explode: descriptor.explode,
+            single: getValue(descriptor.name),
+            query: queryMap?.(),
+            name: descriptor.name,
+            propertyNames: descriptor.propertyNames,
+          })
+        } else {
+          value = getValue(descriptor.name)
+        }
         if (value !== undefined) {
           data[descriptor.name] = value
         }
@@ -300,12 +332,13 @@ export const validateRequest = (
       }
     }
 
-    // Query parameters (coerced from strings; repeated keys feed exploded array parameters)
+    // Query parameters (coerced from strings; repeated keys feed exploded arrays, the query map feeds objects)
     if (validators.query) {
       const data = gather(
         validators.queryParameters,
         (name) => c.req.query(name),
         (name) => c.req.queries(name),
+        () => c.req.query(),
       )
       if (!validators.query(data)) {
         violations.push(...mapErrors(validators.query.errors, 'query'))
