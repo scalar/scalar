@@ -50,25 +50,41 @@ describe('getRenderableSdks', () => {
 
   it('uses the legacy source as the description when there is no description', () => {
     expect(getRenderableSdks([{ lang: 'Go', source: 'go get example.com/sdk' }])).toEqual([
-      { lang: 'Go', description: '```\ngo get example.com/sdk\n```' },
+      { lang: 'Go', description: 'go get example.com/sdk' },
     ])
   })
 
-  it('appends the legacy source to the description as a fenced code block', () => {
+  it('appends the legacy source to the description as plain text', () => {
     expect(
       getRenderableSdks([{ lang: 'Node', description: 'Install from npm:', source: 'npm install @scalar/sdk' }]),
-    ).toEqual([{ lang: 'Node', description: 'Install from npm:\n\n```\nnpm install @scalar/sdk\n```' }])
+    ).toEqual([{ lang: 'Node', description: 'Install from npm:\nnpm install @scalar/sdk' }])
   })
 
-  it('keeps the description verbatim so indented code blocks survive', () => {
+  it('collapses Markdown fenced code blocks to their contents', () => {
+    const description = ['```properties', 'pip install scalar-warp-api', '```'].join('\n')
+
+    expect(getRenderableSdks([{ lang: 'Python', description }])).toEqual([
+      { lang: 'Python', description: 'pip install scalar-warp-api' },
+    ])
+  })
+
+  it('collapses tilde fenced code blocks to their contents', () => {
+    const description = ['~~~sh', 'npm install scalar-warp-api', '~~~'].join('\n')
+
+    expect(getRenderableSdks([{ lang: 'TypeScript', description }])).toEqual([
+      { lang: 'TypeScript', description: 'npm install scalar-warp-api' },
+    ])
+  })
+
+  it('keeps indented code text when there are no Markdown fences', () => {
     const description = ['Install with Make:', '', '    make install'].join('\n')
 
     expect(getRenderableSdks([{ lang: 'C', description }])).toEqual([{ lang: 'C', description }])
   })
 
-  it('keeps the source inside one code block even when it contains backticks', () => {
+  it('keeps legacy source backticks as plain text', () => {
     expect(getRenderableSdks([{ lang: 'Shell', source: 'echo ```nested```' }])).toEqual([
-      { lang: 'Shell', description: '````\necho ```nested```\n````' },
+      { lang: 'Shell', description: 'echo ```nested```' },
     ])
   })
 

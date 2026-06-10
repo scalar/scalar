@@ -3,37 +3,64 @@ import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/ext
 /** The array shape stored under `x-scalar-sdk-installation`. */
 type SdkInstallationList = NonNullable<XScalarSdkInstallation['x-scalar-sdk-installation']>
 
-/** A renderable SDK entry whose `description` is the resolved Markdown to show. */
+/** A renderable SDK entry whose `description` is the resolved text to show. */
 type RenderableSdk = {
   lang: string
   description: string
 }
 
-/**
- * Wrap a raw install command in a fenced code block.
- *
- * The fence uses a run of backticks longer than the longest run inside the
- * source, so a `source` that itself contains backticks (or a nested fence)
- * still renders as a single code block instead of breaking out of it.
- */
-const toFencedCodeBlock = (source: string): string => {
-  const longestRun = Math.max(0, ...[...source.matchAll(/`+/g)].map((match) => match[0].length))
-  const fence = '`'.repeat(Math.max(3, longestRun + 1))
+const fenceStart = /^\s*(`{3,}|~{3,})/
 
-  return `${fence}\n${source}\n${fence}`
+/**
+ * Collapse Markdown fenced code blocks to their contents so SDK installation
+ * instructions render like the generic client-library footer instead of a
+ * highlighted Markdown code block.
+ */
+const textFromMarkdown = (markdown: string): string => {
+  const lines = markdown.split('\n')
+  const text: string[] = []
+  let fence: { marker: '`' | '~'; length: number } | undefined
+
+  for (const line of lines) {
+    if (fence) {
+      const closingFence = new RegExp(`^\\s*\\${fence.marker}{${fence.length},}\\s*$`)
+
+      if (closingFence.test(line)) {
+        fence = undefined
+        continue
+      }
+
+      text.push(line)
+      continue
+    }
+
+    const openingFence = line.match(fenceStart)
+
+    if (openingFence?.[1]) {
+      fence = {
+        marker: openingFence[1][0] as '`' | '~',
+        length: openingFence[1].length,
+      }
+      continue
+    }
+
+    text.push(line)
+  }
+
+  return text.join('\n').trim()
 }
 
 /**
  * The SDK installation entries that actually have something to render, each
- * resolved to a single Markdown `description`.
+ * resolved to a single plain-text `description`.
  *
  * A `description` is the promoted content, but the legacy `source` install
- * command is still supported: when both are present it is appended to the
- * description as a fenced code block, and when only `source` is present it
- * becomes the description on its own. Entries that carry neither are ignored so
- * the UI can fall back to the generic client selector instead of showing an
- * empty card. Both the gate in `Content.vue` and the tab list in the block rely
- * on this, so the "has instructions" rule lives in one place.
+ * command is still supported: when both are present it is appended to the text,
+ * and when only `source` is present it becomes the description on its own.
+ * Entries that carry neither are ignored so the UI can fall back to the generic
+ * client selector instead of showing an empty card. Both the gate in
+ * `Content.vue` and the tab list in the block rely on this, so the "has
+ * instructions" rule lives in one place.
  *
  * The value comes straight from an untrusted OpenAPI document, so anything
  * malformed — a non-array extension, a non-object entry, or an entry missing a
@@ -47,17 +74,15 @@ export const getRenderableSdks = (xScalarSdkInstallation: SdkInstallationList | 
           return []
         }
 
-        // Keep the description verbatim so indented code blocks and other
-        // significant whitespace survive; only a whitespace-only value counts
-        // as "no description".
-        const description = typeof sdk.description === 'string' && sdk.description.trim() ? sdk.description : ''
+        const description =
+          typeof sdk.description === 'string' && sdk.description.trim() ? textFromMarkdown(sdk.description) : ''
         const source = typeof sdk.source === 'string' ? sdk.source.trim() : ''
 
         if (!description && !source) {
           return []
         }
 
-        const resolved = [description, source && toFencedCodeBlock(source)].filter(Boolean).join('\n\n')
+        const resolved = [description, source].filter(Boolean).join('\n')
 
         return [{ lang: sdk.lang, description: resolved }]
       })

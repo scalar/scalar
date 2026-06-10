@@ -5,7 +5,6 @@ import SdkInstallationInstructions from './SdkInstallationInstructions.vue'
 
 describe('SdkInstallationInstructions', () => {
   const stubs = {
-    ScalarMarkdown: true,
     ScalarIcon: true,
   }
 
@@ -67,6 +66,26 @@ describe('SdkInstallationInstructions', () => {
 
     const panel = wrapper.get('[role="tabpanel"]')
     expect(panel.html()).toContain('Install for TypeScript')
+  })
+
+  it('renders fenced instructions as plain text without syntax highlighting', () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        xScalarSdkInstallation: [
+          {
+            lang: 'Python',
+            description: ['```properties', 'pip install scalar-warp-api', '```'].join('\n'),
+          },
+        ],
+      },
+      global: { stubs },
+    })
+
+    const panel = wrapper.get('[role="tabpanel"]')
+    expect(panel.text()).toBe('pip install scalar-warp-api')
+    expect(panel.find('pre').exists()).toBe(false)
+    expect(panel.find('code').exists()).toBe(false)
+    expect(panel.find('.hljs').exists()).toBe(false)
   })
 
   it('associates each tab with the panel and labels the panel by the active tab', () => {
