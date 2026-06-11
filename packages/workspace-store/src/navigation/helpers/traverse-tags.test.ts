@@ -2,7 +2,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { assert, describe, expect, it } from 'vitest'
 
 import type { TagsMap } from '@/navigation/types'
-import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
+import type { IdGenerator, TraversedEntry, TraversedTag } from '@/schemas/navigation'
 import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseTags } from './traverse-tags'
@@ -550,5 +550,157 @@ describe('traverseTags', () => {
     })
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('visible')
+  })
+
+  describe('OpenAPI 3.2 nested tags (parent)', () => {
+    const generateId: IdGenerator = (props) => {
+      if (props.type === 'tag') {
+        const prefix = props.isTagGroup ? 'tag-group' : 'tag'
+        return `doc-1/${prefix}/${props.tag.name}`
+      }
+      return 'unknown-id'
+    }
+
+    const options = { tagsSorter: 'alpha' as const, operationsSorter: 'alpha' as const, generateId }
+
+    const buildDocument = (tags: TagObject[], extra?: Partial<OpenApiDocument>): OpenApiDocument => ({
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {},
+      tags,
+      'x-scalar-original-document-hash': '',
+      ...extra,
+    })
+
+    const buildTagsMap = (entriesByTag: Record<string, TraversedEntry[]>, tags: TagObject[]): TagsMap =>
+      new Map(
+        tags.map((tag) => [
+          tag.name,
+          { id: `doc-1/tag/${tag.name}`, parentId: 'doc-1', tag, entries: entriesByTag[tag.name] ?? [] },
+        ]),
+      )
+
+    it('nests a tag under its parent', () => {
+      const tags: TagObject[] = [{ name: 'fruits' }, { name: 'apples', parent: 'fruits' }]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap(
+        { fruits: [createMockEntry('List fruits')], apples: [createMockEntry('List apples')] },
+        tags,
+      )
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      expect(result).toHaveLength(1)
+      assert(result[0]?.type === 'tag')
+      expect(result[0].name).toBe('fruits')
+      // The parent has operations of its own, so it stays a regular tag.
+      expect(result[0].isGroup).toBe(false)
+      const childTag = (result[0].children ?? []).find((child) => child.type === 'tag')
+      assert(childTag?.type === 'tag')
+      expect(childTag.name).toBe('apples')
+    })
+
+    it('marks an operation-less parent as a group', () => {
+      const tags: TagObject[] = [{ name: 'fruits' }, { name: 'apples', parent: 'fruits' }]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap({ apples: [createMockEntry('List apples')] }, tags)
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      expect(result).toHaveLength(1)
+      assert(result[0]?.type === 'tag')
+      expect(result[0].isGroup).toBe(true)
+    })
+
+    it('keeps the regular tag prefix for nested tags so anchors stay stable', () => {
+      const tags: TagObject[] = [{ name: 'fruits' }, { name: 'apples', parent: 'fruits' }]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap({ apples: [createMockEntry('List apples')] }, tags)
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      assert(result[0]?.type === 'tag')
+      // Even though the parent acts as a group, it is a real tag and keeps the `tag` prefix.
+      expect(result[0].id).toBe('doc-1/tag/fruits')
+      const childTag = (result[0].children ?? []).find((child) => child.type === 'tag')
+      assert(childTag?.type === 'tag')
+      expect(childTag.id).toBe('doc-1/tag/apples')
+    })
+
+    it('nests tags across multiple levels', () => {
+      const tags: TagObject[] = [{ name: 'a' }, { name: 'b', parent: 'a' }, { name: 'c', parent: 'b' }]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap({ c: [createMockEntry('Deep op')] }, tags)
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      expect(result).toHaveLength(1)
+      assert(result[0]?.type === 'tag')
+      expect(result[0].name).toBe('a')
+      const b = (result[0].children ?? []).find((child) => child.type === 'tag')
+      assert(b?.type === 'tag')
+      expect(b.name).toBe('b')
+      const c = (b.children ?? []).find((child) => child.type === 'tag')
+      assert(c?.type === 'tag')
+      expect(c.name).toBe('c')
+    })
+
+    it('keeps tags with an unknown parent at the top level', () => {
+      const tags: TagObject[] = [{ name: 'apples', parent: 'nonexistent' }]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap({ apples: [createMockEntry('List apples')] }, tags)
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      expect(result).toHaveLength(1)
+      assert(result[0]?.type === 'tag')
+      expect(result[0].name).toBe('apples')
+    })
+
+    it('breaks circular parent references instead of looping', () => {
+      const tags: TagObject[] = [
+        { name: 'a', parent: 'b' },
+        { name: 'b', parent: 'a' },
+      ]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap({ a: [createMockEntry('Op a')], b: [createMockEntry('Op b')] }, tags)
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      // Neither tag can be safely nested, so both remain at the top level.
+      expect(result).toHaveLength(2)
+      expect(result.every((entry) => entry.type === 'tag')).toBe(true)
+    })
+
+    it('takes precedence over x-tagGroups', () => {
+      const tags: TagObject[] = [{ name: 'fruits' }, { name: 'apples', parent: 'fruits' }]
+      const document = buildDocument(tags, { 'x-tagGroups': [{ name: 'Group', tags: ['fruits', 'apples'] }] })
+      const tagsMap = buildTagsMap(
+        { fruits: [createMockEntry('List fruits')], apples: [createMockEntry('List apples')] },
+        tags,
+      )
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      // The result reflects parent nesting, not the x-tagGroups wrapper.
+      expect(result).toHaveLength(1)
+      assert(result[0]?.type === 'tag')
+      expect(result[0].name).toBe('fruits')
+      expect(result[0].id).toBe('doc-1/tag/fruits')
+    })
+
+    it('uses summary as the title when no x-displayName is set', () => {
+      const tags: TagObject[] = [
+        { name: 'fruits', summary: 'Fresh Fruits' },
+        { name: 'apples', parent: 'fruits' },
+      ]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap({ apples: [createMockEntry('List apples')] }, tags)
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      assert(result[0]?.type === 'tag')
+      expect(result[0].title).toBe('Fresh Fruits')
+    })
   })
 })
