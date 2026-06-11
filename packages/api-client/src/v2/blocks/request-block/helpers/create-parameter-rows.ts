@@ -212,6 +212,74 @@ const getExpandedPropertyRows = ({
 }
 
 /**
+ * Collects the leaf paths of an object value. In `form` mode only the top-level keys are leaves
+ * (form-style explode does not flatten nested objects); in `deepObject` mode we recurse into nested
+ * objects, mirroring how the rows and serialization are built.
+ */
+const collectValueLeafPaths = (value: unknown, mode: ExpansionMode): string[][] => {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return []
+  }
+
+  const paths: string[][] = []
+
+  const walk = (node: Record<string, unknown>, prefix: string[]): void => {
+    for (const [key, val] of Object.entries(node)) {
+      const path = [...prefix, key]
+
+      if (mode === 'deepObject' && val !== null && typeof val === 'object' && !Array.isArray(val)) {
+        walk(val as Record<string, unknown>, path)
+      } else {
+        paths.push(path)
+      }
+    }
+  }
+
+  walk(value as Record<string, unknown>, [])
+
+  return paths
+}
+
+/**
+ * Builds rows for value paths that the schema does not describe. This keeps user-edited keys (for
+ * example a property that was renamed in the table) visible instead of snapping back to the
+ * schema-derived rows on the next render.
+ */
+const getUnmappedValueRows = ({
+  parameter,
+  value,
+  schemaRows,
+  mode,
+  isDisabled,
+}: {
+  parameter: ParameterObject
+  value: unknown
+  schemaRows: TableRow[]
+  mode: ExpansionMode
+  isDisabled: boolean
+}): TableRow[] => {
+  const seen = new Set(schemaRows.map((row) => toPathKey(row.sourceParameterValuePath ?? [])))
+
+  // These rows always render: a key that carries a value should stay visible. The hidden-path set
+  // only suppresses empty schema suggestions, so it is intentionally not applied here.
+  return collectValueLeafPaths(value, mode)
+    .filter((path) => !seen.has(toPathKey(path)))
+    .map((path) =>
+      toTableRow({
+        parameter,
+        // deepObject names mirror the wire format (`parent[a][b]`); form-style uses the bare key.
+        name: mode === 'deepObject' ? `${parameter.name}${path.map((segment) => `[${segment}]`).join('')}` : path[0]!,
+        value: getValueAtPath(value, path),
+        description: parameter.description,
+        schema: undefined,
+        isRequired: false,
+        isDisabled,
+        sourceParameterValuePath: path,
+      }),
+    )
+}
+
+/**
  * Turns a single OpenAPI parameter into one or more table rows.
  *
  * For object-typed query parameters with `form`/`explode: true` (the default) or `deepObject`
@@ -257,5 +325,15 @@ export const createParameterRows = (
     hiddenValuePaths,
   })
 
-  return rows
+  // Surface keys present in the value but not in the schema (for example a renamed property) so the
+  // edited key keeps showing up instead of snapping back to the schema-derived rows.
+  const unmappedRows = getUnmappedValueRows({
+    parameter,
+    value,
+    schemaRows: rows,
+    mode,
+    isDisabled,
+  })
+
+  return [...rows, ...unmappedRows]
 }

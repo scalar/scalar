@@ -52,6 +52,13 @@ export type TableRow = {
   sourceParameterValuePath?: string[]
 }
 
+export type TableRowUpsertPayload = {
+  name: string
+  value: string | File
+  isDisabled: boolean
+  shouldRenameExpandedRow?: boolean
+}
+
 const {
   data,
   environment,
@@ -68,10 +75,7 @@ const {
 }>()
 
 const emit = defineEmits<{
-  (
-    e: 'upsertRow',
-    payload: { name: string; value: string | File; isDisabled: boolean },
-  ): void
+  (e: 'upsertRow', payload: TableRowUpsertPayload): void
   (e: 'deleteRow'): void
   (e: 'uploadFile'): void
   (e: 'removeFile'): void
@@ -156,6 +160,7 @@ const validationResult = computed(() =>
 /** Handle row updates while preserving existing properties */
 const handleUpdateRow = (
   payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
+  options: { shouldRenameExpandedRow?: boolean } = {},
 ): void => {
   // Update our local state
   if (payload.name !== undefined) {
@@ -168,11 +173,22 @@ const handleUpdateRow = (
   // Is disabled should always be false unless you explicitly set it to true
   isDisabled.value = payload.isDisabled ?? false
 
+  if (
+    payload.name !== undefined &&
+    data.sourceParameterValuePath &&
+    !options.shouldRenameExpandedRow
+  ) {
+    return
+  }
+
   // Emit all of the local state
   emit('upsertRow', {
     name: name.value,
     value: value.value,
     isDisabled: isDisabled.value,
+    ...(options.shouldRenameExpandedRow
+      ? { shouldRenameExpandedRow: true }
+      : {}),
   })
 }
 </script>
@@ -203,6 +219,15 @@ const handleUpdateRow = (
         :modelValue="name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
+        @blur="
+          (v) =>
+            handleUpdateRow(
+              { name: v },
+              {
+                shouldRenameExpandedRow: Boolean(data.sourceParameterValuePath),
+              },
+            )
+        "
         @navigate="(route) => emit('navigate', route)"
         @selectVariable="(v: string) => handleUpdateRow({ name: v })"
         @update:modelValue="(v) => handleUpdateRow({ name: v })" />

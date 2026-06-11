@@ -123,6 +123,25 @@ const getHiddenValuePaths = (parameter: {
 }): string[][] =>
   deletedExpandedParameterPaths.value[getExpandedParameterKey(parameter)] ?? []
 
+/**
+ * Hides the schema path of an expanded row so it does not reappear as an empty suggestion. Used
+ * both when a row is deleted and when its key is renamed (the old key should not pop back up).
+ */
+const hideExpandedRowPath = (row: TableRow): void => {
+  if (!row.originalParameter || !row.sourceParameterValuePath) {
+    return
+  }
+
+  const key = getExpandedParameterKey(row.originalParameter)
+  deletedExpandedParameterPaths.value = {
+    ...deletedExpandedParameterPaths.value,
+    [key]: [
+      ...(deletedExpandedParameterPaths.value[key] ?? []),
+      row.sourceParameterValuePath,
+    ],
+  }
+}
+
 /** Parameters grouped by type (path, query, header, cookie) */
 const sections = computed(() =>
   groupBy(
@@ -376,20 +395,8 @@ const parameterHandlers = computed(() => ({
   }),
   query: createParameterHandlers('query', eventBus, meta.value, {
     context: sections.value.query ?? [],
-    onDeleteExpandedRow: (row) => {
-      if (!row.originalParameter || !row.sourceParameterValuePath) {
-        return
-      }
-
-      const key = getExpandedParameterKey(row.originalParameter)
-      deletedExpandedParameterPaths.value = {
-        ...deletedExpandedParameterPaths.value,
-        [key]: [
-          ...(deletedExpandedParameterPaths.value[key] ?? []),
-          row.sourceParameterValuePath,
-        ],
-      }
-    },
+    onDeleteExpandedRow: hideExpandedRowPath,
+    onRenameExpandedRow: hideExpandedRowPath,
   }),
 }))
 

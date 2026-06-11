@@ -173,6 +173,65 @@ describe('createParameterRows', () => {
     expect(updatedRows[1]?.value).toBe('20')
   })
 
+  it('surfaces a renamed form property as its own row', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      schema: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // The user renamed "status" to "state", so the value carries a key the schema does not describe.
+          value: { state: 'active' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default')
+
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [
+        { name: 'status', value: '', path: ['status'] },
+        { name: 'state', value: 'active', path: ['state'] },
+      ],
+    )
+  })
+
+  it('surfaces a renamed deepObject property with bracket notation', () => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: {
+          role: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          value: { user: { role: 'admin' } },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default')
+
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [
+        { name: 'filter[role]', value: '', path: ['role'] },
+        { name: 'filter[user][role]', value: 'admin', path: ['user', 'role'] },
+      ],
+    )
+  })
+
   it('omits expanded rows hidden by path', () => {
     const parameter: ParameterObject = {
       name: 'pageable',

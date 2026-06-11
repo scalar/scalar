@@ -129,6 +129,40 @@ describe('RequestTableRow', () => {
     })
   })
 
+  it('keeps expanded row key edits local until blur', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: {
+          name: 'filter[role]',
+          value: 'admin',
+          isDisabled: false,
+          originalParameter: { name: 'filter', in: 'query' },
+          sourceParameterValuePath: ['role'],
+        },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    await keyInput?.vm.$emit('update:modelValue', 'filter[user]')
+
+    expect(wrapper.emitted('upsertRow')).toBeUndefined()
+
+    await keyInput?.vm.$emit('blur', 'filter[user][role]')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toStrictEqual({
+      name: 'filter[user][role]',
+      value: 'admin',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+  })
+
   it('emits upsertRow when value input changes', async () => {
     const wrapper = mount(RequestTableRow, {
       props: {
