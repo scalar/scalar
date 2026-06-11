@@ -3,6 +3,8 @@ import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { type Static, Type } from '@scalar/typebox'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
+import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
+
 /**
  * OpenID Connect Discovery Document (subset)
  * Represents the metadata fields consumed by the auth selector flow conversion.
@@ -35,11 +37,15 @@ export const OPENID_SCOPE = 'openid'
  * Supports both full discovery URLs and issuer URLs.
  *
  * @param url - The OpenID Connect discovery URL or issuer URL
+ * @param proxyUrl - Optional CORS proxy to route the request through
+ * @param customFetch - Fetch implementation to use. Falls back to the global `fetch`, but the
+ *   desktop app passes an IPC-backed fetch so discovery requests leave the renderer's network stack.
  * @returns The discovery document or an error
  */
 export const fetchOpenIDConnectDiscovery = async (
   url: string,
   proxyUrl: string,
+  customFetch?: CustomFetch,
 ): Promise<ErrorResponse<OpenIDConnectDiscovery>> => {
   try {
     // If the URL does not end with the well-known path, append it
@@ -60,7 +66,7 @@ export const fetchOpenIDConnectDiscovery = async (
     }
 
     const proxiedUrl = redirectToProxy(proxyUrl, discoveryUrl)
-    const response = await fetch(proxiedUrl)
+    const response = await (customFetch ?? fetch)(proxiedUrl)
 
     if (!response.ok) {
       return [
