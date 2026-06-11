@@ -93,15 +93,21 @@ export const buildRequestSecurity = (
     // HTTP
     if (scheme.type === 'http') {
       if (scheme.scheme === 'basic') {
-        const username = scheme['x-scalar-secret-username']
-        const password = scheme['x-scalar-secret-password']
-        const value = `${username}:${password}`
+        const username = scheme['x-scalar-secret-username'] || ''
+        const password = scheme['x-scalar-secret-password'] || ''
+
+        // When the user has cleared both fields we must not send any credentials.
+        // Falling back to placeholder values here would emit `Basic username:password`,
+        // which some servers accept as a valid (but bogus) credential instead of returning 401.
+        if (username === '' && password === '') {
+          return null
+        }
 
         return result.push({
           in: 'header',
           name: 'Authorization',
           // We encode the value when we build the request since we want to be able to replace the variables in the value
-          value: value === ':' ? 'username:password' : value,
+          value: `${username}:${password}`,
           format: 'basic',
         })
       }
