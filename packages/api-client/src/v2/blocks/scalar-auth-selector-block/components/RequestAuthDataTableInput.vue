@@ -36,7 +36,6 @@ const id = useId()
     :canAddCustomEnumValue="!readOnly"
     :containerClass="containerClass"
     :environment="environment"
-    lineWrapping
     :readOnly="readOnly"
     :required="required"
     :type="type"

@@ -5,7 +5,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import { computed, ref, useTemplateRef } from 'vue'
 
 import type { VueClassProp } from '@/types/vue'
-import { CodeInput } from '@/v2/components/code-input'
+import { CodeInputLite } from '@/v2/components/code-input'
 
 import DataTableCell from './DataTableCell.vue'
 import DataTableInputSelect from './DataTableInputSelect.vue'
@@ -22,11 +22,8 @@ const props = withDefaults(
     canAddCustomEnumValue?: boolean
     readOnly?: boolean
     enum?: string[]
-    min?: number
-    max?: number
     environment: XScalarEnvironment
     description?: string | undefined
-    lineWrapping?: boolean
     /** Whether to show context function suggestions like $guid, $timestamp. Defaults to true */
     withFakeData?: boolean
   }>(),
@@ -34,7 +31,6 @@ const props = withDefaults(
     canAddCustomEnumValue: true,
     required: false,
     readOnly: false,
-    lineWrapping: false,
     withFakeData: true,
   },
 )
@@ -102,7 +98,7 @@ const handleLabelClick = () => {
               ($event.target as HTMLInputElement).value ?? '',
             )
           " />
-        <CodeInput
+        <CodeInputLite
           v-else
           v-bind="$attrs"
           :id="id"
@@ -113,17 +109,10 @@ const handleLabelClick = () => {
             description && 'pr-8',
             type === 'password' && 'scalar-password-input',
           ]"
-          :description="description"
-          disableCloseBrackets
-          disableTabIndent
           :environment="environment"
-          :lineWrapping="Boolean(lineWrapping)"
-          :max="max"
-          :min="min"
           :modelValue="modelValue ?? ''"
           :readOnly="readOnly"
           :required="Boolean(required)"
-          spellcheck="false"
           :type="inputType"
           :withFakeData="withFakeData"
           @blur="handleBlur"
@@ -156,32 +145,17 @@ const handleLabelClick = () => {
 </template>
 
 <style scoped>
-:deep(.cm-editor) {
-  padding: 0;
-}
-:deep(.cm-content) {
-  align-items: center;
+:deep(.code-input-lite__editor) {
   background-color: transparent;
-  display: flex;
   font-family: var(--scalar-font);
   font-size: var(--scalar-small);
   padding: 5px 8px;
-  width: 100%;
 }
-:deep(.cm-content):has(.cm-pill) {
-  padding: 5px 8px;
-}
-:deep(.cm-content .cm-pill:not(:last-of-type)) {
+:deep(.scalar-pill:not(:last-of-type)) {
   margin-right: 0.5px;
 }
-:deep(.cm-content .cm-pill:not(:first-of-type)) {
+:deep(.scalar-pill:not(:first-of-type)) {
   margin-left: 0.5px;
-}
-:deep(.cm-line) {
-  overflow: hidden;
-  padding: 0;
-  text-overflow: ellipsis;
-  word-break: break-word;
 }
 .required::after {
   content: 'Required';
