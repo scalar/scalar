@@ -776,4 +776,42 @@ describe('externalize-path-references', () => {
       '/test': { get: { '$ref': './chunks/name/operations/~1test/get.json#', $global: true } },
     })
   })
+
+  it('externalizes operations of a $ref path item without emitting a hybrid component ref', () => {
+    const result = externalizePathReferences(
+      {
+        info: {
+          title: '',
+          version: '',
+        },
+        openapi: '',
+        'x-scalar-original-document-hash': '',
+        paths: {
+          '/test': {
+            $ref: '#/components/pathItems/Test',
+            // The bundled store keeps the resolved value alongside the $ref
+            '$ref-value': {
+              get: {
+                description: 'string',
+              },
+            },
+            // A path-level sibling declared next to the $ref should still survive
+            parameters: [{ name: 'tenant', in: 'header' }],
+          } as any,
+        },
+      },
+      {
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        name: 'name',
+      },
+    )
+
+    expect(result).toEqual({
+      '/test': {
+        get: { '$ref': 'https://example.com/name/operations/~1test/get#', $global: true },
+        parameters: [{ name: 'tenant', in: 'header' }],
+      },
+    })
+  })
 })

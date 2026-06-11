@@ -2,6 +2,7 @@ import { getActiveOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import {
   authMutatorsFactory,
@@ -970,7 +971,7 @@ describe('deleteSecurityScheme', () => {
     expect(activeDocument?.security).toEqual([{ D: [] }])
 
     // Operation level filtering
-    const op = getResolvedRef(activeDocument?.paths!['/p']?.get)
+    const op = getResolvedRef(getPathItemOperation(activeDocument?.paths?.['/p'], 'get'))
     assert(op)
     expect(op.security).toEqual([{ E: [] }])
     const opSchemes = store.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: '/p', method: 'get' })

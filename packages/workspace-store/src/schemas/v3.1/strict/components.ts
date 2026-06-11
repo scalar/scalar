@@ -55,7 +55,7 @@ export const ComponentsObjectSchemaDefinition = Type.Object({
   /** An object to hold reusable Callback Objects. */
   callbacks: Type.Optional(Type.Record(Type.String(), Type.Union([CallbackObjectRef, reference(CallbackObjectRef)]))),
   /** An object to hold reusable Path Item Objects. */
-  pathItems: Type.Optional(Type.Record(Type.String(), PathItemObjectRef)),
+  pathItems: Type.Optional(Type.Record(Type.String(), Type.Union([PathItemObjectRef, reference(PathItemObjectRef)]))),
 })
 
 /** Holds a set of reusable objects for different aspects of the OAS. All objects defined within the Components Object will have no effect on the API unless they are explicitly referenced from outside the Components Object. */
@@ -79,5 +79,5 @@ export type ComponentsObject = {
   /** An object to hold reusable Callback Objects. */
   callbacks?: Record<string, ReferenceType<CallbackObject>>
   /** An object to hold reusable Path Item Objects. */
-  pathItems?: Record<string, PathItemObject>
+  pathItems?: Record<string, ReferenceType<PathItemObject>>
 }

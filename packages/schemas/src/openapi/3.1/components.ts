@@ -28,13 +28,7 @@ export const components = lazy(() =>
       ),
       links: optional(record(string(), recursiveRef(lazy(() => link)), { typeName: 'ComponentsLinks' })),
       callbacks: optional(record(string(), recursiveRef(lazy(() => callback)), { typeName: 'ComponentsCallbacks' })),
-      pathItems: optional(
-        record(
-          string(),
-          lazy(() => pathItem),
-          { typeName: 'ComponentsPathItems' },
-        ),
-      ),
+      pathItems: optional(record(string(), recursiveRef(lazy(() => pathItem)), { typeName: 'ComponentsPathItems' })),
     },
     { typeName: 'ComponentsObject' },
   ),

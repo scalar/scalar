@@ -267,6 +267,8 @@ onMounted(() => {
             class="introduction-card-item scalar-reference-intro-clients">
             <SdkInstallationInstructions
               class="introduction-card-item scalar-reference-intro-clients"
+              :eventBus
+              :selectedClient="xScalarDefaultClient"
               :xScalarSdkInstallation="sdkInstallation" />
           </IntroductionCardItem>
           <IntroductionCardItem

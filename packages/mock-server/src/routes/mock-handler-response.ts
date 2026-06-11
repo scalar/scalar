@@ -8,15 +8,22 @@ import type { StatusCode } from 'hono/utils/http-status'
 
 import { buildHandlerContext } from '@/utils/build-handler-context'
 import { executeHandler } from '@/utils/execute-handler'
+import { parsePreferHeader } from '@/utils/parse-prefer-header'
+import { selectResponseExample } from '@/utils/select-response-example'
 
 /**
  * Get example response from OpenAPI spec for a given status code.
  * Returns the example value if found, or null if not available.
+ *
+ * Honors `Prefer: example=<name>` to pick a named example from the
+ * `examples` map; otherwise it falls back to the singular `example`, the
+ * first entry of the map, or a value generated from the schema.
  */
 function getExampleFromResponse(
   c: Context,
   statusCode: StatusCode,
   responses: OpenAPIV3_1.ResponsesObject | undefined,
+  exampleName?: string,
 ): any {
   if (!responses) {
     return null
@@ -51,9 +58,11 @@ function getExampleFromResponse(
     return null
   }
 
-  // Extract example from example property or generate from schema
-  return acceptedResponse.example !== undefined
-    ? acceptedResponse.example
+  // Extract example (named, singular, or first) or generate from schema
+  const selectedExample = selectResponseExample(acceptedResponse, exampleName)
+
+  return selectedExample
+    ? selectedExample.value
     : acceptedResponse.schema
       ? getExampleFromSchema(getResolvedRefDeep(acceptedResponse.schema), {
           emptyString: 'string',
@@ -162,10 +171,12 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.Ope
     // Handle undefined/null results gracefully
     if (result === undefined || result === null) {
       // Try to pick up example response from OpenAPI spec if available
+      const prefer = parsePreferHeader(c.req.header('Prefer'))
       const exampleResponse = getExampleFromResponse(
         c,
         statusCode,
         operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
+        prefer.example,
       )
       if (exampleResponse !== null) {
         return c.json(exampleResponse)

@@ -1,8 +1,10 @@
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
-import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { minify } from 'html-minifier-terser'
 import rehypeParse from 'rehype-parse'
 import rehypeRemark from 'rehype-remark'
@@ -16,8 +18,7 @@ import { renderToString } from 'vue/server-renderer'
 import MarkdownReference from './components/MarkdownReference.vue'
 
 type AnyDocument = OpenApiDocument | Record<string, unknown> | string
-type HttpMethodKeys = Exclude<keyof PathItemObject, '$ref' | 'summary' | 'description' | 'servers' | 'parameters'>
-export type HttpMethod = Extract<HttpMethodKeys, string>
+export type { HttpMethod }
 export type OperationSelector =
   | {
       path: string
@@ -132,9 +133,11 @@ const getPathEntries = (document: OpenApiDocument): Array<[string, PathItemObjec
     return []
   }
 
-  return Object.entries(paths).flatMap(([path, pathItem]) =>
-    isObject(pathItem) ? [[path, pathItem as PathItemObject]] : [],
-  )
+  return Object.entries(paths).flatMap(([path, pathItemRef]) => {
+    const pathItem = getResolvedPathItem(pathItemRef)
+
+    return pathItem ? [[path, pathItem]] : []
+  })
 }
 
 const filterPathItemToSingleOperation = (pathItem: PathItemObject, selectedMethod: HttpMethod): PathItemObject =>
@@ -155,10 +158,9 @@ const findOperationByPathAndMethod = (
     throw new Error(`Invalid HTTP method "${selector.method}". Supported methods: ${HTTP_METHODS.join(', ')}`)
   }
 
-  const pathEntries = getPathEntries(document)
-  const pathItem = pathEntries.find(([path]) => path === selector.path)?.[1]
+  const pathItemRef = document.paths?.[selector.path]
 
-  if (!pathItem || !(method in pathItem)) {
+  if (!getPathItemOperation(pathItemRef, method)) {
     throw new Error(`Operation not found for path "${selector.path}" and method "${method.toUpperCase()}"`)
   }
 

@@ -1,5 +1,6 @@
 import type { WorkspaceStore } from '@/client'
 import type { TagEvents } from '@/events/definitions/tag'
+import { forEachPathItemOperation, getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
@@ -65,7 +66,7 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
   payload.tag.children?.forEach((child) => {
     // Operation
     if (child.type === 'operation') {
-      const operation = getResolvedRef(document.paths?.[child.path]?.[child.method])
+      const operation = getResolvedRef(getPathItemOperation(document.paths?.[child.path], child.method))
 
       if (operation && 'tags' in operation) {
         const plainTags = unpackProxyObject(operation.tags, { depth: null })
@@ -75,7 +76,7 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
 
     // Webhook
     else if (child.type === 'webhook') {
-      const webhook = getResolvedRef(document.webhooks?.[child.name]?.[child.method])
+      const webhook = getResolvedRef(getPathItemOperation(document.webhooks?.[child.name], child.method))
 
       if (webhook && 'tags' in webhook) {
         const plainTags = unpackProxyObject(webhook.tags, { depth: null })
@@ -127,14 +128,9 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
   }
 
   // Clear tags from all operations that have this tag
-  Object.values(document.paths ?? {}).forEach((path) => {
-    Object.values(path).forEach((operation) => {
-      // Only process operations that are objects
-      if (typeof operation !== 'object' || Array.isArray(operation)) {
-        return
-      }
-
-      const resolvedOperation = getResolvedRef(operation)
+  Object.values(document.paths ?? {}).forEach((pathItemRef) => {
+    forEachPathItemOperation(pathItemRef, (_method, operationRef) => {
+      const resolvedOperation = getResolvedRef(operationRef)
 
       if ('tags' in resolvedOperation) {
         const plainTags = unpackProxyObject(resolvedOperation.tags, { depth: 1 })
@@ -144,13 +140,9 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
   })
 
   // Remove the tag from all webhooks that have this tag
-  Object.values(document.webhooks ?? {}).forEach((webhook) => {
-    Object.values(webhook).forEach((operation) => {
-      if (typeof operation !== 'object' || Array.isArray(operation)) {
-        return
-      }
-
-      const resolvedOperation = getResolvedRef(operation)
+  Object.values(document.webhooks ?? {}).forEach((pathItemRef) => {
+    forEachPathItemOperation(pathItemRef, (_method, operationRef) => {
+      const resolvedOperation = getResolvedRef(operationRef)
 
       const plainTags = unpackProxyObject(resolvedOperation.tags, { depth: 1 })
       resolvedOperation.tags = plainTags?.filter((tag) => tag !== payload.name)

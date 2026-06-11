@@ -1,3 +1,4 @@
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -35,7 +36,7 @@ export function createSearchIndex(documents: OpenApiDocument[]): FuseData[] {
 function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: OpenApiDocument): void {
   // Operation
   if (entry.type === 'operation') {
-    const operation = getResolvedRef(document?.paths?.[entry.path]?.[entry.method]) ?? {}
+    const operation = getResolvedRef(getPathItemOperation(document?.paths?.[entry.path], entry.method)) ?? {}
 
     index.push({
       type: 'operation',

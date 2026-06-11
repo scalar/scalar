@@ -1,5 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import {
   deleteAllOperationParameters,
@@ -37,7 +38,7 @@ describe('upsertOperationParameter', () => {
       payload: { name: 'q', value: 'john', isDisabled: false },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/search'], 'get'))
     assert(op)
     const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
     expect(params.length).toBe(2)
@@ -64,7 +65,7 @@ describe('upsertOperationParameter', () => {
       payload: { name: 'id', value: '123', isDisabled: false },
     })
 
-    const op = getResolvedRef(document.paths?.['/users/{id}']?.get)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/users/{id}'], 'get'))
     assert(op)
     const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
     expect(params.length).toBe(1)
@@ -91,7 +92,7 @@ describe('upsertOperationParameter', () => {
       },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/search'], 'get'))
     assert(op)
     const secondQueryParam = getResolvedRef(op.parameters?.[2])
     assert(secondQueryParam)
@@ -131,7 +132,7 @@ describe('upsertOperationParameter', () => {
       },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/search'], 'get'))
     assert(op)
     const param = getResolvedRef(op.parameters?.[0])
     assert(param)
@@ -159,7 +160,7 @@ describe('upsertOperationParameter', () => {
       },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/search'], 'get'))
     assert(op)
     const param = getResolvedRef(op.parameters?.[0])
     assert(param)
@@ -193,7 +194,7 @@ describe('upsertOperationParameter', () => {
       },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/search'], 'get'))
     assert(op)
     const queryParam = getResolvedRef(op.parameters?.[1])
     assert(queryParam)
@@ -236,7 +237,7 @@ describe('upsertOperationParameter', () => {
       },
     })
 
-    const op = getResolvedRef(document.paths?.['/users']?.get)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     assert(op)
     const param = getResolvedRef(op.parameters?.[0])
     assert(param)
@@ -283,7 +284,7 @@ describe('upsertOperationParameter', () => {
       payload: { name: 'offset', value: '0', isDisabled: false },
     })
 
-    const op = getResolvedRef(document.paths?.['/users']?.get)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     assert(op)
     const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
     expect(params.length).toBe(3)
@@ -340,7 +341,7 @@ describe('deleteOperationParameter', () => {
       },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/search'], 'get'))
     assert(op)
     const pageParam = getResolvedRef(op.parameters?.[2])
     assert(pageParam)
@@ -416,7 +417,7 @@ describe('deleteAllOperationParameters', () => {
       meta: { method: 'get', path: '/users/{id}' },
     })
 
-    const op = getResolvedRef(document.paths?.['/users/{id}']?.get)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/users/{id}'], 'get'))
     assert(op)
     const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
     // Should keep header and path, remove all queries
@@ -470,7 +471,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: true },
     })
 
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.Authorization).toBe(true)
   })
 
@@ -492,7 +493,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: true },
     })
 
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']?.default?.session).toBe(true)
   })
 
@@ -512,7 +513,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: false },
     })
 
-    const operation = getResolvedRef(document.paths?.['/products']?.post)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/products'], 'post'))
     assert(operation)
     expect(operation['x-scalar-disable-parameters']).toBeDefined()
     expect(operation['x-scalar-disable-parameters']?.['default-headers']).toBeDefined()
@@ -537,7 +538,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: true },
     })
 
-    const operation = getResolvedRef(document.paths?.['/items']?.put)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'put'))
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.['Content-Type']).toBe(true)
   })
 
@@ -559,7 +560,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: true },
     })
 
-    const operation = getResolvedRef(document.paths?.['/items']?.put)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'put'))
     expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']?.default?.auth_token).toBe(true)
   })
 
@@ -588,7 +589,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: true },
     })
 
-    const operation = getResolvedRef(document.paths?.['/orders']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/orders'], 'get'))
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default).toEqual({
       Authorization: true,
       'X-API-Version': false,
@@ -620,7 +621,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: true },
     })
 
-    const operation = getResolvedRef(document.paths?.['/customers']?.delete)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/customers'], 'delete'))
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.Authorization).toBe(true)
   })
 
@@ -647,7 +648,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: false },
     })
 
-    const operation = getResolvedRef(document.paths?.['/reports']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/reports'], 'get'))
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.example1?.Authorization).toBe(true)
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.example2?.Authorization).toBe(false)
   })
@@ -682,7 +683,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: true },
     })
 
-    const operation = getResolvedRef(document.paths?.['/analytics']?.post)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/analytics'], 'post'))
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default).toEqual({
       Authorization: true,
       'Content-Type': false,
@@ -720,7 +721,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: true },
     })
 
-    const operation = getResolvedRef(document.paths?.['/analytics']?.post)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/analytics'], 'post'))
     expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']?.default).toEqual({
       session: true,
       csrf_token: false,
@@ -751,7 +752,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: false },
     })
 
-    const operation = getResolvedRef(document.paths?.['/mixed']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/mixed'], 'get'))
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.Authorization).toBe(true)
     expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']?.default?.session).toBe(false)
   })
@@ -772,7 +773,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: undefined },
     })
 
-    const operation = getResolvedRef(document.paths?.['/webhook']?.post)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/webhook'], 'post'))
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.default?.['X-Webhook-Secret']).toBe(false)
   })
 
@@ -820,7 +821,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: true },
     })
 
-    const operation = getResolvedRef(document.paths?.['/existing']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/existing'], 'get'))
     expect(operation?.['x-scalar-disable-parameters']).toBeUndefined()
   })
 
@@ -848,7 +849,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: false },
     })
 
-    const operation = getResolvedRef(document.paths?.['/stats']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/stats'], 'get'))
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.example1?.Authorization).toBe(true)
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']?.example2?.['X-API-Key']).toBe(false)
   })
@@ -869,7 +870,7 @@ describe('updateOperationExtraParameters', () => {
       payload: { isDisabled: true },
     })
 
-    const operation = getResolvedRef(document.paths?.['/invalid']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/invalid'], 'get'))
     expect(operation?.['x-scalar-disable-parameters']).toEqual({})
     expect(operation?.['x-scalar-disable-parameters']?.['default-headers']).toBeUndefined()
     expect(operation?.['x-scalar-disable-parameters']?.['global-cookies']).toBeUndefined()

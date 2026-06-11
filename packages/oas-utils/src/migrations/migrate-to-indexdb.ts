@@ -8,6 +8,7 @@ import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-p
 import { type ThemeId, presets } from '@scalar/themes'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { setPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
 import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import {
@@ -279,7 +280,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
           // Make sure the drafts document has a GET / route cuz that's the first route we navigate the user to
           drafts.paths ??= {}
           drafts.paths['/'] ??= {}
-          drafts.paths['/']['get'] ??= {}
+          setPathItemOperation(drafts.paths['/'], 'get', {})
         }
 
         store.buildSidebar(DRAFTS_DOCUMENT_NAME)

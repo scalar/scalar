@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.59.3
+
+### Patch Changes
+
+- [#9396](https://github.com/scalar/scalar/pull/9396): Refactor URL redirects into a routing-agnostic, list-driven engine. Redirects now operate on the bare navigation id, so each rule works across hash, hash-base-path, and path routing automatically. Also redirect old `models/<name>` bookmarks to the configured models section slug when the section label is customized (e.g. `schemas/`).
+- [#9489](https://github.com/scalar/scalar/pull/9489): Do not render the info link list when no links are available.
+- [#9342](https://github.com/scalar/scalar/pull/9342): fix: resolve operations when OpenAPI path items use `$ref`
+
+  Path entries and webhooks can reference `components.pathItems` instead of inlining operations. Navigation, mutators, search, and markdown export now resolve path-item references before reading HTTP methods and path-level parameters.
+
+- [#9498](https://github.com/scalar/scalar/pull/9498): Sync the SDK installation tabs with the operation code examples: picking a language under "Client Libraries" now switches every operation's code sample to that language's custom example
+
 ## 1.59.2
 
 ### Patch Changes

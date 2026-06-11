@@ -6,6 +6,7 @@ import {
 import { ScalarToggle } from '@scalar/components/toggle'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { AuthMeta } from '@scalar/workspace-store/events'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
@@ -58,7 +59,7 @@ const operation = computed(() => {
       return null
     }
     // Operation found, return the servers
-    return getResolvedRef(document?.paths?.[path]?.[method])
+    return getResolvedRef(getPathItemOperation(document?.paths?.[path], method))
   }
   return null
 })

@@ -5,6 +5,11 @@ import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import {
+  deletePathItemOperation,
+  getPathItemOperation,
+  setPathItemOperation,
+} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { getOpenapiObject, getParentEntry } from '@scalar/workspace-store/navigation'
 import type {
@@ -214,8 +219,8 @@ const moveOperationBetweenDocuments = (
   operationCopy: OperationObject,
 ): void => {
   // Delete from old location
-  if (draggingDocument.paths?.[draggingItem.path]?.[draggingItem.method]) {
-    delete draggingDocument.paths[draggingItem.path]![draggingItem.method]
+  if (getPathItemOperation(draggingDocument.paths?.[draggingItem.path], draggingItem.method)) {
+    deletePathItemOperation(draggingDocument.paths?.[draggingItem.path], draggingItem.method)
   }
 
   // Add to new location
@@ -229,7 +234,7 @@ const moveOperationBetweenDocuments = (
     if (!hoveredDocument.paths[draggingItem.path]) {
       hoveredDocument.paths[draggingItem.path] = {}
     }
-    hoveredDocument.paths[draggingItem.path]![draggingItem.method] = operationCopy
+    setPathItemOperation(hoveredDocument.paths[draggingItem.path], draggingItem.method, operationCopy)
   }
 }
 
@@ -242,7 +247,7 @@ const getDereferencedOperation = (
   path: string,
   method: HttpMethod,
 ): OperationObject | undefined => {
-  const operation = document.paths?.[path]?.[method]
+  const operation = getPathItemOperation(document.paths?.[path], method)
 
   if (!operation) {
     return undefined
@@ -459,7 +464,7 @@ export const dragHandleFactory = ({
         isDropIntoParent(_hoveredItem) &&
         isEntryType(hoveredItem, ['tag', 'document']) &&
         (draggingDocumentEntry.id === hoveredDocumentEntry.id ||
-          hoveredDocument.paths?.[draggingItem.path]?.[draggingItem.method] === undefined)
+          getPathItemOperation(hoveredDocument.paths?.[draggingItem.path], draggingItem.method) === undefined)
       )
     }
 

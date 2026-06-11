@@ -1,5 +1,6 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import SdkInstallationInstructions from './SdkInstallationInstructions.vue'
 
@@ -109,6 +110,95 @@ describe('SdkInstallationInstructions', () => {
     // ArrowRight wraps back around to the first tab
     await tabs()[1]?.trigger('keydown', { key: 'ArrowRight' })
     expect(tabs()[0]?.attributes('aria-selected')).toBe('true')
+  })
+
+  it('broadcasts the matching custom client id when a tab is selected', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        eventBus,
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', description: 'Install for TypeScript' },
+          { lang: 'Python', description: 'Install for Python' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    // Selecting the Python tab syncs the language-keyed id the operation code
+    // samples are keyed by, lower-cased to match across casing differences.
+    await wrapper.findAll('[role="tab"]')[1]?.trigger('click')
+    expect(listener).toHaveBeenCalledWith('custom/python')
+  })
+
+  it('activates the tab that matches the globally selected client', async () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        selectedClient: 'custom/python',
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', description: 'Install for TypeScript' },
+          { lang: 'Python', description: 'Install for Python' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    const tabs = () => wrapper.findAll('[role="tab"]')
+    expect(tabs()[1]?.attributes('aria-selected')).toBe('true')
+
+    // A selection change elsewhere moves the active tab to match
+    await wrapper.setProps({ selectedClient: 'custom/typescript' })
+    expect(tabs()[0]?.attributes('aria-selected')).toBe('true')
+  })
+
+  it('follows the selected language when the SDK list is reordered', async () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        selectedClient: 'custom/python',
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', description: 'Install for TypeScript' },
+          { lang: 'Python', description: 'Install for Python' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    const tabs = () => wrapper.findAll('[role="tab"]')
+    expect(tabs()[1]?.text()).toBe('Python')
+    expect(tabs()[1]?.attributes('aria-selected')).toBe('true')
+
+    // Reordering the list (selection unchanged) must keep the active tab on the
+    // selected language, not on its old index — otherwise the intro tab and the
+    // operation samples would disagree.
+    await wrapper.setProps({
+      xScalarSdkInstallation: [
+        { lang: 'Python', description: 'Install for Python' },
+        { lang: 'TypeScript', description: 'Install for TypeScript' },
+      ],
+    })
+
+    expect(tabs()[0]?.text()).toBe('Python')
+    expect(tabs()[0]?.attributes('aria-selected')).toBe('true')
+  })
+
+  it('keeps the current tab when the selected client is not one of its languages', () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        // A built-in client (or a language without an install entry) leaves the
+        // tabs untouched rather than forcing a switch.
+        selectedClient: 'js/fetch',
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', description: 'Install for TypeScript' },
+          { lang: 'Python', description: 'Install for Python' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    expect(wrapper.findAll('[role="tab"]')[0]?.attributes('aria-selected')).toBe('true')
   })
 
   it('clamps the selection when the SDK set changes out from under it', async () => {

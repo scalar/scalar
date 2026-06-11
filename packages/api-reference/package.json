@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.59.2",
+  "version": "1.59.3",
   "engines": {
     "node": ">=22"
   },
@@ -98,6 +98,8 @@
     "dist",
     "!dist/browser/webpack-stats.json",
     "!dist/browser/webpack-stats.esm.json",
+    "!dist/examples",
+    "!dist/browser/examples",
     "CHANGELOG.md"
   ],
   "browser": "./dist/browser/standalone.js",

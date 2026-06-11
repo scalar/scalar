@@ -187,6 +187,67 @@ The given OpenAPI document is automatically exposed:
 
 - `/openapi.json` and `/openapi.yaml`
 
+### Selecting responses
+
+By default the mock server picks a response (and its status code) for you and returns the first example it can find. You can override both with the standard [`Prefer` header](https://www.rfc-editor.org/rfc/rfc7240), just like [Stoplight Prism](https://github.com/stoplightio/prism).
+
+Use `code=<status>` to request a specific response status:
+
+```bash
+# Returns the 404 response defined for the operation
+curl http://localhost:3000/users/1 -H 'Prefer: code=404'
+```
+
+Use `example=<name>` to pick a named example from the `examples` map:
+
+```bash
+# Returns the `bob` example from the response
+curl http://localhost:3000/users -H 'Prefer: example=bob'
+```
+
+Both directives are independent and can be combined. `code=` picks the response, then `example=` picks the example within it:
+
+```bash
+curl http://localhost:3000/users -H 'Prefer: code=422, example=missingEmail'
+```
+
+Unknown values fall back to the default behavior, so an undefined status code or example name never errors.
+
+To define multiple examples, use the `examples` map on the response media type:
+
+```typescript
+const document = {
+  openapi: '3.1.1',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {
+    '/users': {
+      get: {
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                examples: {
+                  alice: {
+                    value: { name: 'Alice' },
+                  },
+                  bob: {
+                    value: { name: 'Bob' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+```
+
 ## Advanced Features
 
 ### Request Validation

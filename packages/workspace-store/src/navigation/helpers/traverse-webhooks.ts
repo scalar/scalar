@@ -1,7 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
-import { objectKeys } from '@scalar/helpers/object/object-keys'
 
+import { forEachPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
@@ -99,12 +98,9 @@ export const traverseWebhooks = ({
   const untagged: TraversedWebhook[] = []
 
   // Traverse webhooks
-  Object.entries(document.webhooks ?? {}).forEach(([name, pathItemObject]) => {
-    const pathKeys = objectKeys(pathItemObject ?? {}).filter((key) => isHttpMethod(key))
-
-    pathKeys.forEach((method) => {
-      const _operation = pathItemObject?.[method]
-      const operation = getResolvedRef(_operation, mergeSiblingReferences)
+  Object.entries(document.webhooks ?? {}).forEach(([name, pathItemRef]) => {
+    forEachPathItemOperation(pathItemRef, (method, operationRef) => {
+      const operation = getResolvedRef(operationRef, mergeSiblingReferences)
       if (!operation) {
         return
       }
