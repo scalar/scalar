@@ -162,13 +162,31 @@ const compositionsToRender = computed(() =>
   getCompositionsToRender(optimizedValue.value, props.options.document),
 )
 
-/** Get resolved array items for rendering */
+/**
+ * Get resolved array items for rendering.
+ *
+ * When the items are wrapped in a single-item `allOf` (e.g. `items: { allOf: [{ type: 'object', ... }] }`), we
+ * flatten that wrapper into its plain object form. The wrapper is equivalent to the bare object, but keeping the
+ * `allOf` keyword makes the items render through an extra schema layer, which adds an unnecessary level of nesting
+ * and duplicates the item description. See https://github.com/scalar/scalar/issues/5900
+ */
 const resolvedArrayItems = computed(() => {
   const value = optimizedValue.value
   if (!value || !isArraySchema(value) || typeof value.items !== 'object') {
     return undefined
   }
-  return resolve.schema(value.items)
+
+  const items = resolve.schema(value.items)
+  if (
+    items &&
+    'allOf' in items &&
+    Array.isArray(items.allOf) &&
+    items.allOf.length === 1
+  ) {
+    return optimizeValueForDisplay(items)
+  }
+
+  return items
 })
 
 /**

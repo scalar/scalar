@@ -127,6 +127,51 @@ describe('SchemaProperty', () => {
         expect(schemas).toHaveLength(1)
       })
 
+      // https://github.com/scalar/scalar/issues/5900
+      it('renders array items wrapped in a single-item allOf without extra nesting', async () => {
+        // An array whose items are wrapped in a single-item `allOf` is equivalent to
+        // an array whose items are a plain object. Both should render identically.
+        const allOfItems = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              title: 'foos array',
+              items: {
+                title: 'foos array element',
+                allOf: [{ type: 'object', properties: { foo: { title: 'foo value', type: 'string' } } }],
+              },
+            }),
+            options: {},
+          },
+        })
+
+        const plainItems = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              title: 'bars array',
+              items: {
+                type: 'object',
+                title: 'bars array element',
+                properties: { bar: { title: 'bar value', type: 'string' } },
+              },
+            }),
+            options: {},
+          },
+        })
+
+        await allOfItems.find('.schema-card-title').trigger('click')
+        await plainItems.find('.schema-card-title').trigger('click')
+
+        // The allOf variant must not introduce an additional level of Schema nesting.
+        expect(allOfItems.findAllComponents(Schema)).toHaveLength(plainItems.findAllComponents(Schema).length)
+
+        // The element title must be shown exactly once (it was duplicated by the extra nesting).
+        expect(allOfItems.html().match(/foos array element/g)).toHaveLength(1)
+      })
+
       it('hides expand button for array with primitive items', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
