@@ -146,6 +146,11 @@ export const sources = [
     url: 'examples/openapi.json',
   },
   {
+    title: 'SDK Examples',
+    slug: 'sdk-examples',
+    url: 'examples/sdk-examples.yaml',
+  },
+  {
     title: 'Long Strings Example',
     slug: 'long-strings',
     url: 'examples/long-strings.yaml',
