@@ -14,19 +14,27 @@ export const readFiles = (): LoaderPlugin => {
     type: 'loader',
     validate: isFilePath, // Validates the input is a file path
     exec: async (path) => {
-      // Read file content using Electron's exposed API
-      const content = await window.api.readFile(path)
+      try {
+        // Read file content using Electron's exposed API
+        const content = await window.api.readFile(path)
 
-      if (content === undefined) {
-        return {
-          ok: false, // File could not be read or doesn't exist
+        if (content === undefined) {
+          return {
+            ok: false, // File could not be read or doesn't exist
+          }
         }
-      }
 
-      return {
-        ok: true,
-        data: normalize(content), // Normalize the file contents (e.g., parse OpenAPI/YAML/JSON)
-        raw: content,
+        return {
+          ok: true,
+          data: normalize(content), // Normalize the file contents (e.g., parse OpenAPI/YAML/JSON)
+          raw: content,
+        }
+      } catch {
+        // The IPC call rejects when the file can't be read (e.g. it was
+        // deleted). Loader plugins must not throw, so report a failed load.
+        return {
+          ok: false,
+        }
       }
     },
   }
