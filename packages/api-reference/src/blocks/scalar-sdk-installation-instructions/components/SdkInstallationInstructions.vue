@@ -4,7 +4,6 @@ import {
   type ScalarComboboxOption,
 } from '@scalar/components/combobox'
 import { ScalarIcon } from '@scalar/components/icon'
-import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import {
   computed,
@@ -301,7 +300,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <!-- Content: Markdown installation instructions (supports code blocks) -->
+    <!-- Content: selected SDK installation instruction -->
     <div
       v-if="selected?.description"
       :id="panelId"
@@ -309,24 +308,25 @@ onBeforeUnmount(() => {
       class="selected-client"
       role="tabpanel"
       tabindex="0">
-      <ScalarMarkdown :value="selected.description" />
+      {{ selected.description }}
     </div>
   </div>
 </template>
 <style scoped>
-/* One panel holds the Markdown installation instructions */
 .selected-client {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
   color: var(--scalar-color-1);
   font-size: var(--scalar-small);
+  font-family: var(--scalar-font-code);
   padding: 9px 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   background: var(--scalar-background-1);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-top: none;
   border-bottom-left-radius: var(--scalar-radius-xl);
   border-bottom-right-radius: var(--scalar-radius-xl);
+  min-height: fit-content;
 }
 .client-libraries-heading {
   font-size: var(--scalar-small);
