@@ -1,6 +1,6 @@
 import type { ScalarComboboxFilterFunction } from '@scalar/components/combobox'
 
-import type { CustomClientOptionGroup, CustomOrDefaultClientOption } from '@/v2/blocks/operation-code-sample/types'
+import type { CustomClientOptionGroup, CustomOrDefaultClientOption } from '../types'
 
 /**
  * Checks if a client label, client key, or language matches a query

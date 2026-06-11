@@ -45,7 +45,7 @@ export type OperationProps = {
 </script>
 
 <script lang="ts" setup>
-import type { ClientOptionGroup } from '@scalar/api-client/blocks/operation-code-sample'
+import type { ClientOptionGroup } from '@scalar/blocks/code-example'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'

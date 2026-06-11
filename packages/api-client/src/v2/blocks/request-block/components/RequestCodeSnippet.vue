@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import {
+  findClient,
+  generateCodeSnippet,
+  getClients,
+  getCustomCodeSamples,
+  getSecrets,
+  type ClientOption,
+  type CodeExampleProps,
+  type CustomClientOption,
+} from '@scalar/blocks/code-example'
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarCombobox } from '@scalar/components/combobox'
@@ -7,16 +17,6 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, watch } from 'vue'
 
-import {
-  findClient,
-  type ClientOption,
-  type CustomClientOption,
-} from '@/v2/blocks/operation-code-sample'
-import type { OperationCodeSampleProps } from '@/v2/blocks/operation-code-sample/components/OperationCodeSample.vue'
-import { generateCodeSnippet } from '@/v2/blocks/operation-code-sample/helpers/generate-code-snippet'
-import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
-import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-samples'
-import { getSecrets } from '@/v2/blocks/operation-code-sample/helpers/get-secrets'
 import { DataTable, DataTableRow } from '@/v2/components/data-table'
 import { CollapsibleSection } from '@/v2/components/layout'
 
@@ -33,7 +33,7 @@ const {
   selectedClient,
   globalCookies,
   integration,
-} = defineProps<OperationCodeSampleProps & { eventBus: WorkspaceEventBus }>()
+} = defineProps<CodeExampleProps & { eventBus: WorkspaceEventBus }>()
 
 /** Grab any custom code samples from the operation */
 const customCodeSamples = computed(() => getCustomCodeSamples(operation))

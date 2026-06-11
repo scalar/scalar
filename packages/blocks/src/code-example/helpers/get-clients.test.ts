@@ -1,8 +1,7 @@
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { describe, expect, it } from 'vitest'
 
-import type { ClientOptionGroup, CustomClientOption } from '@/v2/blocks/operation-code-sample'
-
+import type { ClientOptionGroup, CustomClientOption } from '../types'
 import { getClients } from './get-clients'
 
 describe('getClients', () => {

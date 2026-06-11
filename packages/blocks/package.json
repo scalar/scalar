@@ -1,0 +1,80 @@
+{
+  "name": "@scalar/blocks",
+  "description": "Render blocks for your OpenAPI documentation",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/blocks"
+  },
+  "keywords": [
+    "scalar",
+    "openapi",
+    "swagger",
+    "blocks",
+    "docs"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json",
+    "build:styles": "shx cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
+    "dev": "vite --config playground/vite.config.ts",
+    "test": "vitest",
+    "types:check": "vue-tsc --noEmit"
+  },
+  "type": "module",
+  "exports": {
+    "./style.css": "./dist/style.css",
+    "./tailwind.config.css": "./dist/styles/tailwind.config.css",
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css",
+      "default": "./dist/css/*.css"
+    },
+    "./code-example": {
+      "import": "./dist/code-example/index.js",
+      "types": "./dist/code-example/index.d.ts",
+      "default": "./dist/code-example/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@scalar/components": "workspace:*",
+    "@scalar/helpers": "workspace:*",
+    "@scalar/icons": "workspace:*",
+    "@scalar/snippetz": "workspace:*",
+    "@scalar/themes": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
+    "@types/har-format": "^1.2.16",
+    "js-base64": "catalog:*",
+    "vue": "catalog:*"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "catalog:*",
+    "@tailwindcss/vite": "catalog:*",
+    "@vitejs/plugin-vue": "catalog:*",
+    "@vue/test-utils": "catalog:*",
+    "@vueuse/core": "catalog:*",
+    "jsdom": "catalog:*",
+    "tailwindcss": "catalog:*",
+    "vite": "catalog:*",
+    "vitest": "catalog:*",
+    "vue-router": "catalog:*",
+    "vue-tsc": "catalog:*"
+  }
+}

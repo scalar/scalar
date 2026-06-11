@@ -5,10 +5,9 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import { operationToHar } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
-
 import { type CustomCodeSampleId, getCustomClientIds } from './generate-client-options'
 import { getSnippet } from './get-snippet'
+import { operationToHar } from './operation-to-har/operation-to-har'
 
 type GenerateCodeSnippetProps = {
   /** The selected client/language for code generation (e.g., 'node/fetch') or a custom code sample ID. */

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HttpMethod as HttpMethodBadge } from '@scalar/api-client/blocks/operation-code-sample'
+import { HttpMethod as HttpMethodBadge } from '@scalar/blocks/code-example'
 import { ScalarButton } from '@scalar/components/button'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { computed } from 'vue'

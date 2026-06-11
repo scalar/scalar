@@ -1,0 +1,12 @@
+/**
+ * Blocks Tailwind Configuration
+ *
+ * This file can be imported into other projects using Tailwind to
+ * generate the appropriate Tailwind utilities for Scalar Blocks.
+ */
+
+/* Dependency Tailwind Configurations */
+@import "@scalar/components/tailwind.config.css";
+
+/* Search for Tailwind classes in Scalar Blocks */
+@source "../";

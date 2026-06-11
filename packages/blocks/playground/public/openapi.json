@@ -1,0 +1,212 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Playground API",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "https://api.example.com" }],
+  "paths": {
+    "/users": {
+      "get": {
+        "summary": "List users",
+        "operationId": "listUsers",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "example": 20 }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": { "type": "integer", "example": 0 }
+          }
+        ],
+        "responses": {
+          "200": { "description": "A list of users" }
+        }
+      },
+      "post": {
+        "summary": "Create user",
+        "operationId": "createUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email"],
+                "properties": {
+                  "name": { "type": "string", "example": "Marc Laventure" },
+                  "email": { "type": "string", "example": "marc@example.com" },
+                  "role": { "type": "string", "example": "admin" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "The created user" }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "summary": "Get user",
+        "operationId": "getUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "example": "usr_123" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "A single user" }
+        }
+      },
+      "patch": {
+        "summary": "Update user",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "example": "usr_123" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "example": "Marc L." },
+                  "role": { "type": "string", "example": "owner" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "The updated user" }
+        }
+      },
+      "delete": {
+        "summary": "Delete user",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "example": "usr_123" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "No content" }
+        }
+      }
+    },
+    "/files": {
+      "post": {
+        "summary": "Upload file",
+        "operationId": "uploadFile",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": { "type": "string", "format": "binary" },
+                  "description": {
+                    "type": "string",
+                    "example": "Quarterly report"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "The uploaded file" }
+        }
+      }
+    },
+    "/sessions": {
+      "post": {
+        "summary": "Log in",
+        "operationId": "createSession",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": { "type": "string", "example": "marc" },
+                  "password": { "type": "string", "example": "hunter2" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "A session token" }
+        }
+      }
+    },
+    "/articles": {
+      "post": {
+        "summary": "Publish article",
+        "operationId": "publishArticle",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string", "example": "Hello, blocks" },
+                  "tags": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "example": ["openapi", "scalar"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "The published article" }
+        }
+      }
+    },
+    "/webhooks/ping": {
+      "put": {
+        "summary": "Replace webhook",
+        "operationId": "replaceWebhook",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "example": "https://example.com/hook"
+                  },
+                  "active": { "type": "boolean", "example": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "The webhook" }
+        }
+      }
+    }
+  }
+}

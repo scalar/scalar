@@ -11,7 +11,7 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
-import { APP_VERSION } from '@/v2/constants'
+import { APP_VERSION } from '@/constants'
 
 import { processBody } from './process-body'
 import { processParameters } from './process-parameters'

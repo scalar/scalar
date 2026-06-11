@@ -23,11 +23,11 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { HttpMethod as HttpMethodBadge } from '@scalar/api-client/blocks/operation-code-sample'
 import {
   CommandActionForm,
   CommandActionInput,
 } from '@scalar/api-client/features/command-palette'
+import { HttpMethod as HttpMethodBadge } from '@scalar/blocks/code-example'
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarDropdown, ScalarDropdownItem } from '@scalar/components/dropdown'
 import { ScalarIcon } from '@scalar/components/icon'
