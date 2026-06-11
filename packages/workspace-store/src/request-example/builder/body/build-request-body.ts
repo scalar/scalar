@@ -1,7 +1,7 @@
 // import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
@@ -61,13 +61,15 @@ const getMultipartEncodingContentType = (requestBody: RequestBodyObject, bodyCon
  * by `get-form-body-rows.ts` are folded back via `foldDottedRowsToObject`.
  */
 const buildDottedNestedRowPredicate = (schema: unknown) => {
-  const resolved = schema ? (getResolvedRef(schema) as SchemaObject | undefined) : undefined
+  const resolved = schema ? (getResolvedRef(schema, mergeSiblingReferences) as SchemaObject | undefined) : undefined
   if (!resolved || !isObjectSchema(resolved) || !resolved.properties) {
     return (_name: string, _value: unknown) => false
   }
   const nestedTopKeys = new Set<string>()
   for (const [key, child] of Object.entries(resolved.properties)) {
-    const childResolved = child ? (getResolvedRef(child) as SchemaObject | undefined) : undefined
+    const childResolved = child
+      ? (getResolvedRef(child, mergeSiblingReferences) as SchemaObject | undefined)
+      : undefined
     if (childResolved && isObjectSchema(childResolved) && childResolved.properties) {
       nestedTopKeys.add(key)
     }
@@ -78,6 +80,78 @@ const buildDottedNestedRowPredicate = (schema: unknown) => {
     }
     const head = name.split('.', 1)[0]
     return !!head && nestedTopKeys.has(head)
+  }
+}
+
+/** Normalize a schema's `type` (string | string[] | absent) into a plain string array. */
+const normalizeSchemaTypes = (schema: SchemaObject): string[] => {
+  const type = 'type' in schema ? schema.type : undefined
+  return Array.isArray(type) ? [...type] : type == null ? [] : [type]
+}
+
+/**
+ * Walk an object schema along a dotted-row path and return the resolved leaf schema,
+ * or undefined when any segment is not a declared object property.
+ */
+const resolveLeafSchema = (schema: SchemaObject | undefined, segments: string[]): SchemaObject | undefined => {
+  let current = schema
+  for (const segment of segments) {
+    if (!current || !isObjectSchema(current) || !current.properties) {
+      return undefined
+    }
+    current = getResolvedRef(current.properties[segment], mergeSiblingReferences) as SchemaObject | undefined
+  }
+  return current
+}
+
+/** True when a JSON-parsed value's runtime type is allowed by the schema's declared types. */
+const parsedValueMatchesSchemaType = (value: unknown, types: string[]): boolean => {
+  if (value === null) {
+    return types.includes('null')
+  }
+  if (Array.isArray(value)) {
+    return types.includes('array')
+  }
+  if (typeof value === 'object') {
+    return types.includes('object')
+  }
+  if (typeof value === 'boolean') {
+    return types.includes('boolean')
+  }
+  if (typeof value === 'number') {
+    // A fractional value only satisfies `number`; `integer` requires a whole number so a
+    // string like "3.14" against an integer-only leaf stays untouched instead of being coerced.
+    return types.includes('number') || (types.includes('integer') && Number.isInteger(value))
+  }
+  if (typeof value === 'string') {
+    return types.includes('string')
+  }
+  return false
+}
+
+/**
+ * The form table stringifies every value for display, so an edited nested field comes back
+ * as a string (`false` -> "false", `[]` -> "[]"). When the leaf schema declares a non-string
+ * type, parse the string back to that type so the regrouped JSON part keeps its original
+ * shape instead of becoming string-typed (issue #9416).
+ *
+ * Coercion is deliberately conservative: schemas that allow `string` keep the raw text, and a
+ * value that does not parse as its declared type is left untouched so user input is never lost.
+ */
+const coerceLeafValueToSchemaType = (value: unknown, schema: SchemaObject | undefined): unknown => {
+  if (typeof value !== 'string' || !schema) {
+    return value
+  }
+  const types = normalizeSchemaTypes(schema)
+  // No declared type, or a string is allowed: keep the user's text as-is.
+  if (types.length === 0 || types.includes('string')) {
+    return value
+  }
+  try {
+    const parsed = JSON.parse(value)
+    return parsedValueMatchesSchemaType(parsed, types) ? parsed : value
+  } catch {
+    return value
   }
 }
 
@@ -137,10 +211,13 @@ export const buildRequestBody = (
     // lazily allocate the regrouped object for its top-level key and push it into
     // `entries` at the position of the *first* matching row, then keep folding leaves
     // into the same live object reference so interleaved flat rows keep their order.
-    const isDottedNestedRow =
+    const multipartSchema =
       result.mode === 'formdata'
-        ? buildDottedNestedRowPredicate(requestBody.content[bodyContentType]?.schema)
-        : () => false
+        ? (getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences) as
+            | SchemaObject
+            | undefined)
+        : undefined
+    const isDottedNestedRow = result.mode === 'formdata' ? buildDottedNestedRowPredicate(multipartSchema) : () => false
 
     const entries: { name: string; value: unknown }[] = []
     const regroupedByTopKey = new Map<string, Record<string, unknown>>()
@@ -161,7 +238,13 @@ export const buildRequestBody = (
         regroupedByTopKey.set(topKey, target)
         entries.push({ name: topKey, value: target })
       }
-      setValueAtPath(target, segments.slice(1), row.value)
+      // The form table stringifies leaf values; restore the schema-declared type so the
+      // regrouped JSON part keeps booleans/numbers/arrays instead of string-typing them.
+      setValueAtPath(
+        target,
+        segments.slice(1),
+        coerceLeafValueToSchemaType(row.value, resolveLeafSchema(multipartSchema, segments)),
+      )
     }
 
     // Loop over all entries and add them to the form
