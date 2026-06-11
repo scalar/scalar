@@ -168,21 +168,29 @@ export const useDocumentWatcher = ({
       return
     }
 
-    // Local file paths must go through the file loader — passing them as `url`
-    // would send them to the HTTP fetcher, which rejects non-http(s) sources.
-    const result = await storeValue.rebaseDocument(
-      isHttpUrl(sourceUrl) ? { name: documentNameValue, url: sourceUrl } : { name: documentNameValue, path: sourceUrl },
-    )
+    try {
+      // Local file paths must go through the file loader — passing them as `url`
+      // would send them to the HTTP fetcher, which rejects non-http(s) sources.
+      const result = await storeValue.rebaseDocument(
+        isHttpUrl(sourceUrl)
+          ? { name: documentNameValue, url: sourceUrl }
+          : { name: documentNameValue, path: sourceUrl },
+      )
 
-    if (result?.ok) {
-      // On conflicts, prefer remote changes by automatically choosing the first option for each conflict tuple
-      await result.applyChanges({ resolvedConflicts: resolveConflicts(result.conflicts) })
-      handleSuccess()
-    } else if (result?.ok === false && result.type === 'NO_CHANGES_DETECTED') {
-      // Still a successful call, just nothing changed
-      handleSuccess()
-    } else {
-      // Exponential backoff on failure
+      if (result?.ok) {
+        // On conflicts, prefer remote changes by automatically choosing the first option for each conflict tuple
+        await result.applyChanges({ resolvedConflicts: resolveConflicts(result.conflicts) })
+        handleSuccess()
+      } else if (result?.ok === false && result.type === 'NO_CHANGES_DETECTED') {
+        // Still a successful call, just nothing changed
+        handleSuccess()
+      } else {
+        // Exponential backoff on failure
+        handleFailure()
+      }
+    } catch {
+      // A rebase that throws (e.g. a loader exception when the source file
+      // disappeared) must not kill the polling loop — back off and retry.
       handleFailure()
     }
   }
