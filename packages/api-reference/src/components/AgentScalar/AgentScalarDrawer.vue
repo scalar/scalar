@@ -6,7 +6,7 @@ import type {
   ExternalUrls,
 } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, ref, watch } from 'vue'
 
 import { useAgentContext } from '@/hooks/use-agent'
 
@@ -20,6 +20,25 @@ const agentContext = useAgentContext()
 
 const AgentScalarChatInterface = defineAsyncComponent(
   async () => import('./AgentScalarChatInterface.vue'),
+)
+
+/**
+ * Defer mounting the chat interface until the agent is opened for the first time.
+ *
+ * The chat interface mounts its own api-client modal (a hidden CodeMirror-backed
+ * request editor). Rendering the drawer with `v-show` would mount that second client
+ * eagerly on every agent-enabled page — including on localhost, where the agent is on
+ * by default — even when the user never opens the chat. We flip this flag on first open
+ * and keep it true so the chat (and its state) stays mounted once the user has used it.
+ */
+const hasOpenedAgent = ref(false)
+watch(
+  () => agentContext.value?.showAgent.value,
+  (visible) => {
+    if (visible) {
+      hasOpenedAgent.value = true
+    }
+  },
 )
 </script>
 
@@ -50,6 +69,7 @@ const AgentScalarChatInterface = defineAsyncComponent(
       <div
         class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow overflow-auto px-6">
         <AgentScalarChatInterface
+          v-if="hasOpenedAgent"
           :agentScalarConfiguration
           :externalUrls
           :prefilledMessage="agentContext?.prefilledMessage"
