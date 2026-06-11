@@ -1642,4 +1642,87 @@ describe('buildRequestParameters', () => {
       expect(result.urlParams.getAll('ids')).toEqual(['1', '2', '3'])
     })
   })
+
+  /**
+   * The PHP/Rails/`qs` "bracket" convention for arrays (`tags[]=a&tags[]=b`) is expressed in OpenAPI
+   * by making the brackets part of the parameter name. No vendor extension is required: the name is
+   * serialized verbatim, so the repeated-key bracket form falls out of the standard form/explode
+   * behavior. See https://github.com/scalar/scalar/issues/9492.
+   */
+  describe('bracket-notation array parameters (via the parameter name)', () => {
+    it('serializes an array param named with [] as repeated bracketed keys', () => {
+      const params = [
+        createParameter(
+          {
+            name: 'tags[]',
+            in: 'query',
+            value: '',
+            schema: { type: 'array', items: { type: 'string' } },
+          },
+          { default: { value: ['a', 'b'] } },
+        ),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      expect(result.urlParams.getAll('tags[]')).toEqual(['a', 'b'])
+    })
+
+    it('handles deeply nested bracket names from the issue', () => {
+      const params = [
+        createParameter(
+          {
+            name: 'filters[applicationInstanceId][in][]',
+            in: 'query',
+            value: '',
+            schema: { type: 'array', items: { type: 'integer' } },
+          },
+          { default: { value: [1, 2] } },
+        ),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      expect(result.urlParams.getAll('filters[applicationInstanceId][in][]')).toEqual(['1', '2'])
+    })
+
+    it('keeps the bracket key literal when allowReserved is set', () => {
+      const params = [
+        createParameter(
+          {
+            name: 'tags[]',
+            in: 'query',
+            value: '',
+            allowReserved: true,
+            schema: { type: 'array', items: { type: 'string' } },
+          },
+          { default: { value: ['a', 'b'] } },
+        ),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // The key is tracked so the request sender does not percent-encode the brackets.
+      expect(result.allowReservedQueryParameters.has('tags[]')).toBe(true)
+    })
+
+    it('leaves non-bracket array names untouched (no implicit brackets)', () => {
+      const params = [
+        createParameter(
+          {
+            name: 'tags',
+            in: 'query',
+            value: '',
+            schema: { type: 'array', items: { type: 'string' } },
+          },
+          { default: { value: ['a', 'b'] } },
+        ),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      expect(result.urlParams.getAll('tags')).toEqual(['a', 'b'])
+      expect(result.urlParams.getAll('tags[]')).toEqual([])
+    })
+  })
 })
