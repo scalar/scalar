@@ -52,6 +52,10 @@ export const processSecuritySchemes = (
         const username = scheme['x-scalar-secret-username'] || ''
         const password = scheme['x-scalar-secret-password'] || ''
 
+        // The snippet is documentation, so we always show an Authorization header. When both
+        // fields are empty we render a readable `username:password` placeholder, mirroring the
+        // `YOUR_SECRET_TOKEN` placeholder used by the other schemes. (The real request omits the
+        // header entirely in that case — see buildRequestSecurity.)
         const value = `${username}:${password}`
         const auth = value === ':' ? 'username:password' : encode(value)
 
