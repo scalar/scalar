@@ -30,6 +30,10 @@ const AgentScalarChatInterface = defineAsyncComponent(
  * eagerly on every agent-enabled page — including on localhost, where the agent is on
  * by default — even when the user never opens the chat. We flip this flag on first open
  * and keep it true so the chat (and its state) stays mounted once the user has used it.
+ *
+ * `immediate` matters: the drawer can mount while the agent is already open (for example,
+ * when the agent gets disabled and re-enabled on a document switch), so we evaluate the
+ * current visibility on mount rather than only reacting to later changes.
  */
 const hasOpenedAgent = ref(false)
 watch(
@@ -39,6 +43,7 @@ watch(
       hasOpenedAgent.value = true
     }
   },
+  { immediate: true },
 )
 </script>
 
