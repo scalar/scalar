@@ -98,6 +98,8 @@
     "dist",
     "!dist/browser/webpack-stats.json",
     "!dist/browser/webpack-stats.esm.json",
+    "!dist/examples",
+    "!dist/browser/examples",
     "CHANGELOG.md"
   ],
   "browser": "./dist/browser/standalone.js",
