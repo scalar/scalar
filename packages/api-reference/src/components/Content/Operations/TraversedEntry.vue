@@ -4,6 +4,7 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
@@ -96,8 +97,8 @@ const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
 
 function getPathValue(entry: TraversedOperation | TraversedWebhook) {
   return isWebhook(entry)
-    ? document.webhooks?.[entry.name]
-    : document.paths?.[entry.path]
+    ? getResolvedPathItem(document.webhooks?.[entry.name])
+    : getResolvedPathItem(document.paths?.[entry.path])
 }
 </script>
 

@@ -1,5 +1,6 @@
 import { DEFAULT_MODELS_SECTION_LABEL, type ModelsSectionLabel } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { combineParams } from '@scalar/workspace-store/request-example'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
@@ -151,8 +152,9 @@ function addEntryToIndex(
 
   // Operation
   if (entry.type === 'operation') {
-    const pathItem = getResolvedRef(openApiDocument?.paths?.[entry.path])
-    const operation = (getResolvedRef(pathItem?.[entry.method]) ?? {}) as OperationObject
+    const pathItem = getResolvedPathItem(openApiDocument?.paths?.[entry.path])
+    const operation = (getResolvedRef(getPathItemOperation(openApiDocument?.paths?.[entry.path], entry.method)) ??
+      {}) as OperationObject
     const operationWithPathParams = {
       ...operation,
       parameters: combineParams(pathItem?.parameters, operation.parameters),
@@ -185,7 +187,7 @@ function addEntryToIndex(
 
   // Webhook
   if (entry.type === 'webhook') {
-    const webhook = getResolvedRef(openApiDocument?.webhooks?.[entry.name]?.[entry.method]) ?? {}
+    const webhook = getResolvedRef(getPathItemOperation(openApiDocument?.webhooks?.[entry.name], entry.method)) ?? {}
     const webhookDescription = webhook.description || ''
 
     index.push({

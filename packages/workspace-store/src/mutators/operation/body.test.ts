@@ -1,5 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import {
   updateOperationRequestBodyContentType,
@@ -32,7 +33,7 @@ describe('updateOperationRequestBodyContentType', () => {
       payload: { contentType: 'application/json' },
     })
 
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/upload'], 'post'))
     assert(op)
     const rb = getResolvedRef(op.requestBody)
     assert(rb)
@@ -59,7 +60,7 @@ describe('updateOperationRequestBodyContentType', () => {
       payload: { contentType: 'text/plain' },
     })
 
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/upload'], 'post'))
     assert(op)
     const rb = getResolvedRef(op.requestBody)
     assert(rb)
@@ -110,7 +111,7 @@ describe('updateOperationRequestBodyExample', () => {
       payload: '{"name":"Ada"}',
     })
 
-    const op = getResolvedRef(document.paths?.['/users']?.post)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'post'))
     assert(op)
     const rb = getResolvedRef(op.requestBody)
     assert(rb)
@@ -142,7 +143,7 @@ describe('updateOperationRequestBodyExample', () => {
       payload: 'v2',
     })
 
-    const op = getResolvedRef(document.paths?.['/users']?.post)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'post'))
     assert(op)
     const rb = getResolvedRef(op.requestBody)
     assert(rb)
@@ -174,7 +175,7 @@ describe('updateOperationRequestBodyExample', () => {
       payload: 'two',
     })
 
-    const op = getResolvedRef(document.paths?.['/users']?.post)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'post'))
     assert(op)
     const rb = getResolvedRef(op.requestBody)
     assert(rb)
@@ -237,7 +238,7 @@ describe('updateOperationRequestBodyExample', () => {
       }),
     ).not.toThrow()
 
-    const op = getResolvedRef(document.paths?.['/users']?.post)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'post'))
     assert(op)
     const rb = getResolvedRef(op.requestBody)
     assert(rb)
@@ -270,7 +271,7 @@ describe('updateOperationRequestBodyFormValue', () => {
       payload: formData,
     })
 
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/upload'], 'post'))
     assert(op)
     const rb = getResolvedRef(op.requestBody)
     assert(rb)
@@ -308,7 +309,7 @@ describe('updateOperationRequestBodyFormValue', () => {
       payload: updatedFormData,
     })
 
-    const op = getResolvedRef(document.paths?.['/upload']?.post)
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/upload'], 'post'))
     assert(op)
     const rb = getResolvedRef(op.requestBody)
     assert(rb)

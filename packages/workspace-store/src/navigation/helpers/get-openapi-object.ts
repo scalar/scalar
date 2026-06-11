@@ -1,4 +1,5 @@
 import type { WorkspaceStore } from '@/client'
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 import type { TraversedDocument, TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
@@ -75,7 +76,11 @@ export const getOpenapiObject = <Entry extends TraversedOrderable>({
 
   if (entry.type === 'operation') {
     // Fetch and resolve the referenced operation object at the given path/method
-    return (getResolvedRef(document.paths?.[entry.path]?.[entry.method]) as GetOpenapiObject<Entry> | undefined) ?? null
+    return (
+      (getResolvedRef(getPathItemOperation(document.paths?.[entry.path], entry.method)) as
+        | GetOpenapiObject<Entry>
+        | undefined) ?? null
+    )
   }
 
   // If entry type is unknown, return null

@@ -34,6 +34,7 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarListbox } from '@scalar/components/listbox'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, type ComputedRef } from 'vue'
 
@@ -97,7 +98,10 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
     return `"${selectedDocument.value.label}" is an AsyncAPI document. cURL imports can only target OpenAPI documents.`
   }
 
-  if (isOpenApiDocument(document) && document.paths?.[path]?.[method]) {
+  if (
+    isOpenApiDocument(document) &&
+    getPathItemOperation(document.paths?.[path], method)
+  ) {
     return `A ${method.toUpperCase()} operation at "${path}" already exists in "${selectedDocument.value.label}". Importing this cURL would conflict with it.`
   }
 

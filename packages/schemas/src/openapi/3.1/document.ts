@@ -24,6 +24,7 @@ import { components } from '@/openapi/3.1/components'
 import { externalDocs } from '@/openapi/3.1/external-docs'
 import { info } from '@/openapi/3.1/info'
 import { pathItem } from '@/openapi/3.1/path-item'
+import { recursiveRef } from '@/openapi/3.1/reference'
 import { securityRequirement } from '@/openapi/3.1/security-requirement'
 import { server } from '@/openapi/3.1/server'
 import { tag } from '@/openapi/3.1/tag'
@@ -74,13 +75,13 @@ const openApiDocumentCore = object(
       }),
     ),
     paths: optional(
-      record(string(), pathItem, {
+      record(string(), recursiveRef(pathItem), {
         typeComment: 'The available paths and operations for the API.',
         typeName: 'PathsObject',
       }),
     ),
     webhooks: optional(
-      record(string(), pathItem, {
+      record(string(), recursiveRef(pathItem), {
         typeComment:
           'The incoming webhooks that MAY be received as part of this API and that the API consumer MAY choose to implement.',
         typeName: 'WebhooksObject',

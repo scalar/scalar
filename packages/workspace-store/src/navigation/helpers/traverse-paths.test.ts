@@ -335,6 +335,114 @@ describe('traversePaths', () => {
     expect(tagsMap.get('Ignored')?.entries).toEqual([])
   })
 
+  it('traverses operations when the path item is a $ref', () => {
+    const document = createDocument()
+    document.paths = {
+      '/users': {
+        $ref: '#/components/pathItems/UsersPath',
+        // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
+        '$ref-value': {
+          get: {
+            tags: ['Users'],
+            summary: 'Get users',
+            operationId: 'getUsers',
+          },
+          post: {
+            tags: ['Users'],
+            summary: 'Create user',
+            operationId: 'createUser',
+          },
+        },
+      } as any,
+    }
+
+    const tagsMap: TagsMap = new Map([
+      [
+        'Users',
+        { id: 'tag/users', parentId: 'doc-1', tag: { name: 'Users', description: 'User operations' }, entries: [] },
+      ],
+    ])
+
+    const result = traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
+
+    expect(tagsMap.get('Users')?.entries).toStrictEqual([
+      {
+        id: 'GET-/users',
+        title: 'Get users',
+        path: '/users',
+        method: 'get',
+        ref: '#/paths/~1users/get',
+        type: 'operation',
+        isDeprecated: false,
+        children: undefined,
+      },
+      {
+        id: 'POST-/users',
+        title: 'Create user',
+        path: '/users',
+        method: 'post',
+        ref: '#/paths/~1users/post',
+        type: 'operation',
+        isDeprecated: false,
+        children: undefined,
+      },
+    ])
+    expect(result.untaggedOperations).toStrictEqual([])
+  })
+
+  it('collects untagged operations from a $ref path item', () => {
+    const document = createDocument()
+    document.paths = {
+      '/health': {
+        $ref: '#/components/pathItems/HealthPath',
+        // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
+        '$ref-value': {
+          get: {
+            summary: 'Health check',
+            operationId: 'healthCheck',
+          },
+        },
+      } as any,
+    }
+
+    const tagsMap: TagsMap = new Map()
+
+    const result = traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
+
+    expect(result.untaggedOperations).toStrictEqual([
+      {
+        id: 'GET-/health',
+        title: 'Health check',
+        path: '/health',
+        method: 'get',
+        ref: '#/paths/~1health/get',
+        type: 'operation',
+        isDeprecated: false,
+        children: undefined,
+      },
+    ])
+  })
+
   it('should handle operations with missing summary', () => {
     const document = createDocument()
     document.paths = {

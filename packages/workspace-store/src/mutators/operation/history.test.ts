@@ -2,6 +2,7 @@ import { getOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { addResponseToHistory, reloadOperationHistory } from '@/mutators/operation/history'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
@@ -560,7 +561,7 @@ describe('reloadOperationHistory', () => {
     expect(callbackResult).toBe('success')
 
     // Verify that path parameters were reloaded
-    const operation = getResolvedRef(document.paths?.['/orders/{orderId}']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/orders/{orderId}'], 'get'))
     const param = getResolvedRef(operation?.parameters?.[0])
     assert(param && 'examples' in param)
     expect(getResolvedRef(param.examples?.draft)?.value).toBe('12345')

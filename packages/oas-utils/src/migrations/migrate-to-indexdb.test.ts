@@ -1,4 +1,5 @@
 import { type SecurityScheme, securitySchemeSchema } from '@scalar/types/entities'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
@@ -2196,7 +2197,7 @@ describe('migrate-to-indexdb', () => {
         const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
-        expect(doc.paths?.['/users']?.get).toEqual({
+        expect(getPathItemOperation(doc.paths?.['/users'], 'get')).toEqual({
           summary: 'Get all users',
           description: 'Retrieves a list of all users',
           operationId: 'getUsers',
@@ -2237,7 +2238,7 @@ describe('migrate-to-indexdb', () => {
         const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
-        expect(doc.paths?.['/users']?.post).toEqual({
+        expect(getPathItemOperation(doc.paths?.['/users'], 'post')).toEqual({
           summary: 'Create user',
           operationId: 'createUser',
           requestBody: {
@@ -2290,7 +2291,7 @@ describe('migrate-to-indexdb', () => {
         const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/users/{id}']?.get)?.parameters).toMatchObject([
+        expect(getResolvedRef(getPathItemOperation(doc.paths?.['/users/{id}'], 'get'))?.parameters).toMatchObject([
           {
             name: 'id',
             in: 'path',
@@ -3045,7 +3046,9 @@ describe('migrate-to-indexdb', () => {
         const result = await transformLegacyDataToWorkspace(legacyData)
         const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['auth-api']
         expect(
-          getResolvedRef(getResolvedRef(doc?.paths?.['/login']?.post)?.requestBody)?.['x-scalar-selected-content-type'],
+          getResolvedRef(getResolvedRef(getPathItemOperation(doc?.paths?.['/login'], 'post'))?.requestBody)?.[
+            'x-scalar-selected-content-type'
+          ],
         ).toEqual({
           'Form Example': 'multipart/form-data',
           'Create User Example': 'application/json',
@@ -3079,7 +3082,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = await transformLegacyDataToWorkspace(legacyData)
         const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
-        expect(getResolvedRef(doc?.paths?.['/users']?.get)?.requestBody).toBeUndefined()
+        expect(getResolvedRef(getPathItemOperation(doc?.paths?.['/users'], 'get'))?.requestBody).toBeUndefined()
       })
 
       it('transforms an example with path parameters', async () => {
