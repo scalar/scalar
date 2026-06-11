@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { getCustomClientIds } from '@scalar/api-client/blocks/operation-code-sample'
 import {
   ScalarCombobox,
   type ScalarComboboxOption,
 } from '@scalar/components/combobox'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import {
   computed,
@@ -20,9 +22,21 @@ import { getLanguageIcon } from '../helpers/language-icon'
 import { getRenderableSdks } from '../helpers/renderable-sdks'
 import { getVisibleTabCount } from '../helpers/visible-tab-count'
 
-const { xScalarSdkInstallation } = defineProps<{
+const { xScalarSdkInstallation, selectedClient, eventBus } = defineProps<{
   /** Custom SDK installation instructions from `x-scalar-sdk-installation` */
   xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
+  /**
+   * The globally selected client id. When it matches one of the SDK languages
+   * (as a `custom/<lang>` id) the matching tab is shown as active, keeping the
+   * tabs in sync with the operation code samples.
+   */
+  selectedClient?: string
+  /**
+   * Event bus used to broadcast the selected client. Picking a language here
+   * switches the operation code samples to that language's custom example, the
+   * same channel the generic client selector uses.
+   */
+  eventBus?: WorkspaceEventBus
 }>()
 
 const headingId = useId()
@@ -43,6 +57,45 @@ const selectedIndex = ref(0)
 
 /** The currently selected SDK */
 const selected = computed(() => sdks.value[selectedIndex.value])
+
+/**
+ * The `custom/<lang>` client id for each SDK, aligned by index with `sdks`.
+ *
+ * We reuse the exact id scheme the operation code samples use for their custom
+ * examples, so selecting a language here resolves to the same id those samples
+ * are keyed by — that shared id is what keeps the two surfaces in sync.
+ */
+const sdkClientIds = computed(() =>
+  getCustomClientIds(sdks.value.map((sdk) => ({ lang: sdk.lang, source: '' }))),
+)
+
+/** Select an SDK by index and broadcast it so the operation code samples follow */
+const select = (index: number) => {
+  selectedIndex.value = index
+
+  const id = sdkClientIds.value[index]
+  if (id) {
+    eventBus?.emit('workspace:update:selected-client', id)
+  }
+}
+
+// Mirror the global selection into the active tab. When the selection is a
+// built-in client, or a custom language this document does not ship an install
+// entry for, we leave the current tab as-is rather than forcing a switch.
+watch(
+  () => selectedClient,
+  (client) => {
+    if (!client) {
+      return
+    }
+
+    const index = sdkClientIds.value.findIndex((id) => id === client)
+    if (index >= 0) {
+      selectedIndex.value = index
+    }
+  },
+  { immediate: true },
+)
 
 // Keep the selection in range and re-measure whenever the set of SDKs changes.
 // Keying on the languages (not just the count) also catches documents that swap
@@ -122,7 +175,7 @@ const selectedMoreOption = computed(() =>
 
 const selectMore = (option: ScalarComboboxOption | undefined) => {
   if (option) {
-    selectedIndex.value = Number(option.id)
+    select(Number(option.id))
   }
 }
 
@@ -174,7 +227,7 @@ const onTabKeydown = (event: KeyboardEvent, index: number) => {
   }
 
   event.preventDefault()
-  selectedIndex.value = next
+  select(next)
   focusTab(next)
 }
 
@@ -241,7 +294,7 @@ onBeforeUnmount(() => {
           role="tab"
           :tabindex="index === tabStopIndex ? 0 : -1"
           type="button"
-          @click="selectedIndex = index"
+          @click="select(index)"
           @keydown="onTabKeydown($event, index)">
           <ScalarIcon
             v-if="sdk.icon"
