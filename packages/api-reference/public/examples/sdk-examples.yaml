@@ -1,0 +1,185 @@
+openapi: 3.1.0
+info:
+  title: Bookstore API
+  version: 1.0.0
+  description: |
+    A tiny, generic API used to demonstrate Scalar's SDK features.
+
+    The `x-scalar-sdk-installation` extension drives the "Client Libraries"
+    tabs in the introduction, and the `x-scalar-examples` on each operation
+    provide the matching per-language code samples. Selecting a language in the
+    introduction switches every operation's code sample to that language.
+  # Installation instructions shown as the "Client Libraries" tabs in the introduction.
+  x-scalar-sdk-installation:
+    - lang: TypeScript
+      description: |
+        Install the SDK from npm:
+
+        ```bash
+        npm install @scalar/bookstore-sdk
+        ```
+    - lang: Python
+      description: |
+        Install the SDK from PyPI:
+
+        ```bash
+        pip install scalar-bookstore-sdk
+        ```
+servers:
+  - url: https://api.bookstore.example.com/v1
+paths:
+  /books:
+    get:
+      operationId: listBooks
+      summary: List books
+      description: Returns every book in the catalog.
+      tags:
+        - Books
+      responses:
+        '200':
+          description: A list of books.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+      # Per-language code samples. The `lang` maps to the same language as the
+      # SDK installation tabs, so the selection stays in sync across the page.
+      x-scalar-examples:
+        - lang: TypeScript
+          label: TypeScript
+          source: |
+            import { Bookstore } from '@scalar/bookstore-sdk'
+
+            const bookstore = new Bookstore({ apiKey: process.env.BOOKSTORE_API_KEY })
+
+            const books = await bookstore.books.list()
+            console.log(books)
+        - lang: Python
+          label: Python
+          source: |
+            from scalar_bookstore_sdk import Bookstore
+
+            bookstore = Bookstore(api_key=os.environ["BOOKSTORE_API_KEY"])
+
+            books = bookstore.books.list()
+            print(books)
+    post:
+      operationId: createBook
+      summary: Create a book
+      description: Adds a new book to the catalog.
+      tags:
+        - Books
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '201':
+          description: The created book.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+      x-scalar-examples:
+        - lang: TypeScript
+          label: TypeScript
+          source: |
+            import { Bookstore } from '@scalar/bookstore-sdk'
+
+            const bookstore = new Bookstore({ apiKey: process.env.BOOKSTORE_API_KEY })
+
+            const book = await bookstore.books.create({
+              title: 'The Pragmatic Programmer',
+              author: 'Hunt & Thomas',
+            })
+            console.log(book.id)
+        - lang: Python
+          label: Python
+          source: |
+            from scalar_bookstore_sdk import Bookstore
+
+            bookstore = Bookstore(api_key=os.environ["BOOKSTORE_API_KEY"])
+
+            book = bookstore.books.create(
+                title="The Pragmatic Programmer",
+                author="Hunt & Thomas",
+            )
+            print(book.id)
+  /books/{bookId}:
+    get:
+      operationId: getBook
+      summary: Get a book
+      description: Returns a single book by its identifier.
+      tags:
+        - Books
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: The unique identifier of the book.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The requested book.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: No book matches the given identifier.
+      x-scalar-examples:
+        - lang: TypeScript
+          label: TypeScript
+          source: |
+            import { Bookstore } from '@scalar/bookstore-sdk'
+
+            const bookstore = new Bookstore({ apiKey: process.env.BOOKSTORE_API_KEY })
+
+            const book = await bookstore.books.get('book_42')
+            console.log(book.title)
+        - lang: Python
+          label: Python
+          source: |
+            from scalar_bookstore_sdk import Bookstore
+
+            bookstore = Bookstore(api_key=os.environ["BOOKSTORE_API_KEY"])
+
+            book = bookstore.books.get("book_42")
+            print(book.title)
+components:
+  schemas:
+    Book:
+      type: object
+      required:
+        - id
+        - title
+        - author
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the book.
+          examples:
+            - book_42
+        title:
+          type: string
+          description: The title of the book.
+        author:
+          type: string
+          description: The author of the book.
+    BookInput:
+      type: object
+      required:
+        - title
+        - author
+      properties:
+        title:
+          type: string
+          description: The title of the book.
+        author:
+          type: string
+          description: The author of the book.
