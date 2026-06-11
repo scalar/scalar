@@ -19,13 +19,9 @@ type ImportDocumentFromRegistry = RegistryAdapter['fetchDocument']
  */
 export const fetchRegistryDocument: ImportDocumentFromRegistry = async ({ namespace, slug, version = 'latest' }) => {
   try {
-    const response = await scalarClient.registry.getApiDocumentVersion({
-      namespace,
-      slug,
-      semver: version,
-    })
+    const response = await scalarClient.registry.retrieveApiDocumentVersion(namespace, slug, version).withResponse()
 
-    const documentString = response.res
+    const documentString = response.data
     if (typeof documentString !== 'string') {
       return { ok: false, error: 'UNKNOWN', message: 'Registry returned an empty document body' }
     }
@@ -39,7 +35,7 @@ export const fetchRegistryDocument: ImportDocumentFromRegistry = async ({ namesp
     // rather than baking it into the document body, so the sync flow
     // can treat it as an optimistic-concurrency token without parsing
     // the OpenAPI document itself.
-    const versionSha = response.httpMeta.response.headers.get('x-scalar-version-sha') ?? undefined
+    const versionSha = response.response.headers.get('x-scalar-version-sha') ?? undefined
 
     return { ok: true, data: { document, versionSha } }
   } catch (error) {

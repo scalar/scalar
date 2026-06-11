@@ -50,7 +50,7 @@ vi.mock('@/helpers/scalar-client', () => ({
   DEFAULT_REFETCH_INTERVAL: 60_000,
   scalarClient: {
     namespaces: {
-      listNamespaces: vi.fn(),
+      list: vi.fn(),
     },
   },
 }))

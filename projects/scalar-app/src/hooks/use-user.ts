@@ -19,7 +19,7 @@ export const useUser = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>)
   const query = useQuery(
     {
       queryKey,
-      queryFn: () => scalarClient.authentication.getCurrentUser(),
+      queryFn: () => scalarClient.authentication.listCurrentUser(),
       enabled: isLoggedIn,
       meta: { errorMessage: 'Failed to fetch user' },
       ...options,
@@ -29,6 +29,6 @@ export const useUser = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>)
 
   return {
     ...query,
-    currentUser: computed(() => query.data.value?.user ?? undefined),
+    currentUser: computed(() => query.data.value ?? undefined),
   }
 }

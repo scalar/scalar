@@ -55,8 +55,8 @@ vi.mock('@/helpers/scalar-client', () => ({
   DEFAULT_REFETCH_INTERVAL: 60_000,
   scalarClient: {
     themes: {
-      listThemes: vi.fn(),
-      getTheme: vi.fn(),
+      list: vi.fn(),
+      retrieve: vi.fn(),
     },
   },
 }))

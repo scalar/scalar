@@ -1,4 +1,4 @@
-import { Scalar } from '@scalar/sdk'
+import { ScalarApi } from 'scalar-api'
 
 import { env } from '@/environment'
 import { useAuth } from '@/hooks/use-auth'
@@ -13,8 +13,8 @@ const { getAccessToken, checkRefresh } = useAuth()
 export const DEFAULT_REFETCH_INTERVAL = 1000 * 60
 
 /** Single SDK client for the app */
-export const scalarClient = new Scalar({
-  serverURL: `${env.VITE_API_URL}`,
+export const scalarClient = new ScalarApi({
+  baseURL: `${env.VITE_API_URL}`,
   bearerAuth: async () => {
     // Ensure the access token is fresh
     await checkRefresh()

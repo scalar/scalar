@@ -29,20 +29,16 @@ export const publishRegistryVersion: PublishRegistryVersion = async ({
   commitHash,
 }) => {
   try {
-    const result = await scalarClient.registry.createApiDocumentVersion({
-      namespace,
-      slug,
-      requestBody: {
-        version,
-        document: JSON.stringify(document),
-        force: true,
-        lastKnownVersionSha: commitHash,
-      },
+    const result = await scalarClient.registry.createApiDocumentVersion(namespace, slug, {
+      version,
+      document: JSON.stringify(document),
+      force: true,
+      lastKnownVersionSha: commitHash,
     })
 
     return {
       ok: true,
-      data: { namespace, slug, version, commitHash: result.managedDocVersion?.versionSha ?? '' },
+      data: { namespace, slug, version, commitHash: result.versionSha ?? '' },
     }
   } catch (error) {
     return mapRegistryError(error, {
