@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.8 (2026-06-11)
+
+### Path item references and SDK tab sync
+
+This release fixes OpenAPI specs that use path item references and improves code example consistency across the client.
+
+- Operations now appear correctly when OpenAPI paths use $ref to reference components.pathItems
+- Authentication scheme dropdown now opens reliably when multiple API reference modals are present
+- Selecting a language in Client Libraries now switches all operation code examples to that language
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#118)
+
 ## 1.1.6 (2026-06-09)
 
 ### Polish and bug fixes shipped

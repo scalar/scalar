@@ -1,5 +1,31 @@
 [
   {
+    "version": "1.59.3",
+    "date": "2026-06-11",
+    "title": "Path item references, redirects, and SDK tab sync",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release fixes rendering when path items use component references, improves navigation for custom section labels, and syncs SDK installation tabs with code examples across all operations."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Operations now appear correctly when OpenAPI path items reference components.pathItems instead of inlining methods",
+          "Old model bookmarks automatically redirect to custom section slugs when you have renamed the models section",
+          "Selecting a language in SDK installation tabs now switches every operation's code sample to that language",
+          "Empty info link lists no longer push down the download button on mobile"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1593",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.59.2",
     "date": "2026-06-09",
     "title": "Restore deprecated source field for SDK installation commands",
