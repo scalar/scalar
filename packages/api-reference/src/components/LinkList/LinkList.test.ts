@@ -45,13 +45,6 @@ describe('LinkList', () => {
     expect(wrapper.classes()).toContain('custom-scroll')
   })
 
-  it('hides when empty', () => {
-    const wrapper = mount(LinkList)
-
-    expect(wrapper.classes()).toContain('[&:not(:has(>*))]:hidden')
-    expect(wrapper.element.matches(':not(:has(>*))')).toBe(true)
-  })
-
   it('applies icons-only class when scroll is needed', async () => {
     const wrapper = mount(LinkList, {
       slots: {

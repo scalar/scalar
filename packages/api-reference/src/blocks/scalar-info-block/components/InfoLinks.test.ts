@@ -26,12 +26,20 @@ describe('InfoLinks', () => {
     url: 'https://docs.example.com',
   }
 
-  it('renders LinkList wrapper', () => {
+  it('renders LinkList wrapper when a link is present', () => {
+    const wrapper = mount(InfoLinks, {
+      props: { info: mockInfo, externalDocs: mockExternalDocs },
+    })
+
+    expect(wrapper.findComponent({ name: 'LinkList' }).exists()).toBe(true)
+  })
+
+  it('does not render LinkList when there are no links', () => {
     const wrapper = mount(InfoLinks, {
       props: { info: mockInfo },
     })
 
-    expect(wrapper.findComponent({ name: 'LinkList' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'LinkList' }).exists()).toBe(false)
   })
 
   it('renders ExternalDocs with externalDocs prop', () => {
@@ -47,14 +55,12 @@ describe('InfoLinks', () => {
     expect(externalDocs.props('value')).toEqual(mockExternalDocs)
   })
 
-  it('renders ExternalDocs without externalDocs prop', () => {
+  it('does not render ExternalDocs without externalDocs prop', () => {
     const wrapper = mount(InfoLinks, {
-      props: { info: mockInfo },
+      props: { info: { ...mockInfo, contact: mockContact } },
     })
 
-    const externalDocs = wrapper.findComponent({ name: 'ExternalDocs' })
-    expect(externalDocs.exists()).toBe(true)
-    expect(externalDocs.props('value')).toBeUndefined()
+    expect(wrapper.findComponent({ name: 'ExternalDocs' }).exists()).toBe(false)
   })
 
   it('renders Contact when info.contact is provided', () => {
@@ -142,20 +148,15 @@ describe('InfoLinks', () => {
     expect(wrapper.findComponent({ name: 'TermsOfService' }).exists()).toBe(true)
   })
 
-  it('renders only required components when minimal info is provided', () => {
-    const minimalInfo = {
-      title: 'Minimal API',
-      version: '1.0.0',
-    }
-
+  it('renders only the provided link when minimal info has a single link', () => {
     const wrapper = mount(InfoLinks, {
-      props: { info: minimalInfo },
+      props: {
+        info: { title: 'Minimal API', version: '1.0.0' },
+        externalDocs: mockExternalDocs,
+      },
     })
 
-    const linkList = wrapper.findComponent({ name: 'LinkList' })
-
-    expect(linkList.exists()).toBe(true)
-    expect(linkList.element.matches(':not(:has(>*))')).toBe(true)
+    expect(wrapper.findComponent({ name: 'LinkList' }).exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'ExternalDocs' }).exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'Contact' }).exists()).toBe(false)
     expect(wrapper.findComponent({ name: 'License' }).exists()).toBe(false)
