@@ -84,11 +84,13 @@ export const createParameterHandlers = (
     defaultParameters = 0,
     globalParameters = 0,
     onDeleteExpandedRow,
+    onRenameExpandedRow,
   }: {
     context: TableRow[]
     defaultParameters?: number
     globalParameters?: number
     onDeleteExpandedRow?: (row: TableRow) => void
+    onRenameExpandedRow?: (row: TableRow) => void
   },
 ) => {
   const offset = defaultParameters + globalParameters
@@ -148,10 +150,15 @@ export const createParameterHandlers = (
       }
 
       if (index >= offset) {
-        const nextPayload =
-          row?.sourceParameterValuePath && row.originalParameter
-            ? getExpandedObjectPayload(row, context, payload)
-            : payload
+        const isExpandedRow = Boolean(row?.sourceParameterValuePath && row.originalParameter)
+
+        // When the key of an expanded row changes, retire the old schema path so the original
+        // property name does not pop back up as an empty suggestion next to the renamed row.
+        if (isExpandedRow && row && payload.name !== row.name) {
+          onRenameExpandedRow?.(row)
+        }
+
+        const nextPayload = isExpandedRow && row ? getExpandedObjectPayload(row, context, payload) : payload
 
         return eventBus.emit(
           'operation:upsert:parameter',

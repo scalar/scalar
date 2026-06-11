@@ -173,6 +173,53 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('retires the old key when an expanded row is renamed', () => {
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+    } as const
+    const row: TableRow = {
+      name: 'status',
+      value: 'active',
+      isDisabled: false,
+      originalParameter: parentParameter,
+      sourceParameterValuePath: ['status'],
+    }
+    const onRenameExpandedRow = vi.fn()
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context: [row],
+      onRenameExpandedRow,
+    })
+
+    handlers.upsert(0, { name: 'state', value: 'active', isDisabled: false })
+
+    expect(onRenameExpandedRow).toHaveBeenCalledTimes(1)
+    expect(onRenameExpandedRow).toHaveBeenCalledWith(row)
+  })
+
+  it('does not retire the key when an expanded row value changes but the key does not', () => {
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+    } as const
+    const row: TableRow = {
+      name: 'status',
+      value: 'active',
+      isDisabled: false,
+      originalParameter: parentParameter,
+      sourceParameterValuePath: ['status'],
+    }
+    const onRenameExpandedRow = vi.fn()
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context: [row],
+      onRenameExpandedRow,
+    })
+
+    handlers.upsert(0, { name: 'status', value: 'inactive', isDisabled: false })
+
+    expect(onRenameExpandedRow).not.toHaveBeenCalled()
+  })
+
   it('renames a deepObject-expanded property row by stripping the parent prefix', () => {
     const parentParameter = {
       name: 'filter',

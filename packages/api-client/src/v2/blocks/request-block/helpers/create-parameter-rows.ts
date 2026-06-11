@@ -251,19 +251,19 @@ const getUnmappedValueRows = ({
   schemaRows,
   mode,
   isDisabled,
-  hiddenValuePaths,
 }: {
   parameter: ParameterObject
   value: unknown
   schemaRows: TableRow[]
   mode: ExpansionMode
   isDisabled: boolean
-  hiddenValuePaths: ReadonlySet<string>
 }): TableRow[] => {
   const seen = new Set(schemaRows.map((row) => toPathKey(row.sourceParameterValuePath ?? [])))
 
+  // These rows always render: a key that carries a value should stay visible. The hidden-path set
+  // only suppresses empty schema suggestions, so it is intentionally not applied here.
   return collectValueLeafPaths(value, mode)
-    .filter((path) => !seen.has(toPathKey(path)) && !hiddenValuePaths.has(toPathKey(path)))
+    .filter((path) => !seen.has(toPathKey(path)))
     .map((path) =>
       toTableRow({
         parameter,
@@ -333,7 +333,6 @@ export const createParameterRows = (
     schemaRows: rows,
     mode,
     isDisabled,
-    hiddenValuePaths,
   })
 
   return [...rows, ...unmappedRows]
