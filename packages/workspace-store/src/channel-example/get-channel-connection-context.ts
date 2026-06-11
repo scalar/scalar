@@ -1,7 +1,7 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 
 import { buildConnectionUrl } from '@/channel-example/build-connection-url'
-import { getAllChannelMessages } from '@/channel-example/get-all-channel-messages'
+import { getSendChannelMessages } from '@/channel-example/get-all-channel-messages'
 import { getChannelConnectionSecurityRequirements } from '@/channel-example/get-channel-connection-security'
 import { getChannelOperations } from '@/channel-example/get-channel-operations'
 import { getChannelParameters } from '@/channel-example/get-channel-parameters'
@@ -101,7 +101,7 @@ export const getChannelConnectionContext = (
       environmentVariables,
     })
 
-  const messages = getAllChannelMessages(document, channel)
+  const messages = getSendChannelMessages(document, channelName, channel, channelOperations)
   const selectedMessage = messages[0] ?? null
 
   const documentSelectedSecurity = workspaceStore.auth.getAuthSelectedSchemas({

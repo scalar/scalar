@@ -1,3 +1,4 @@
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { getActiveOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it } from 'vitest'
 
@@ -1757,5 +1758,210 @@ describe('deleteScope', () => {
     const flow = (getResolvedRef(getActiveOpenApiDocument(store)?.components?.securitySchemes?.OAuth) as OAuth2Object)
       .flows?.authorizationCode
     expect(flow?.scopes).toEqual({})
+  })
+})
+
+describe('AsyncAPI document-level auth', () => {
+  /**
+   * AsyncAPI 3 carries `components.securitySchemes` exactly like OpenAPI, but it does not have
+   * a `paths` object. The mutators therefore should treat AsyncAPI as a document-level-only
+   * surface: writes targeting `{ type: 'document' }` must persist, and writes targeting
+   * `{ type: 'operation', ... }` must be no-ops since channel-level auth is not modeled yet.
+   */
+  function createAsyncApiDocument(initial?: Partial<AsyncApiDocument>): AsyncApiDocument {
+    return {
+      asyncapi: '3.0.0',
+      info: { title: 'AsyncAPI Test', version: '1.0.0' },
+      ...initial,
+    } as AsyncApiDocument
+  }
+
+  const getActiveAsyncApiDocument = (store: ReturnType<typeof createWorkspaceStore>) =>
+    store.workspace.activeDocument as AsyncApiDocument | undefined
+
+  it('writes document-level selected security to the store', async () => {
+    const documentName = 'channels'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createAsyncApiDocument() })
+
+    const mutators = authMutatorsFactory({
+      store,
+      document: store.workspace.activeDocument ?? null,
+    })
+
+    await mutators.updateSelectedSecuritySchemes({
+      selectedRequirements: [],
+      newSchemes: [
+        {
+          name: 'BearerAuth',
+          scheme: { type: 'http', scheme: 'bearer' },
+        },
+      ],
+      meta: { type: 'document' },
+    })
+
+    // The new scheme is registered on the AsyncAPI document's components.
+    const securitySchemes = (
+      getActiveAsyncApiDocument(store)?.components as { securitySchemes?: Record<string, unknown> }
+    )?.securitySchemes
+    expect(securitySchemes?.['BearerAuth']).toEqual({ type: 'http', scheme: 'bearer' })
+
+    // And the document-level selection is recorded in the auth store.
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes).toEqual([{ BearerAuth: [] }])
+    expect(selected.selectedIndex).toBe(0)
+  })
+
+  it('ignores operation-level selection updates on AsyncAPI documents', async () => {
+    const documentName = 'channels'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createAsyncApiDocument() })
+
+    const mutators = authMutatorsFactory({
+      store,
+      document: store.workspace.activeDocument ?? null,
+    })
+
+    await mutators.updateSelectedSecuritySchemes({
+      selectedRequirements: [{ BearerAuth: [] }],
+      newSchemes: [{ name: 'BearerAuth', scheme: { type: 'http', scheme: 'bearer' } }],
+      meta: { type: 'operation', path: '/echo', method: 'get' },
+    })
+
+    // No operation-level state is written.
+    expect(
+      store.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: '/echo', method: 'get' }),
+    ).toBeUndefined()
+    // The new scheme is also not registered, because the mutator bails before touching components.
+    const securitySchemes = (
+      getActiveAsyncApiDocument(store)?.components as { securitySchemes?: Record<string, unknown> }
+    )?.securitySchemes
+    expect(securitySchemes?.['BearerAuth']).toBeUndefined()
+  })
+
+  it('clears document-level selection on AsyncAPI documents', async () => {
+    const documentName = 'channels'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createAsyncApiDocument() })
+
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
+    )
+
+    const mutators = authMutatorsFactory({
+      store,
+      document: store.workspace.activeDocument ?? null,
+    })
+    mutators.clearSelectedSecuritySchemes({ meta: { type: 'document' } })
+
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toBeUndefined()
+  })
+
+  it('updates security scheme definitions on AsyncAPI documents', async () => {
+    const documentName = 'channels'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createAsyncApiDocument({
+        components: {
+          securitySchemes: {
+            ApiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+          },
+        },
+      }),
+    })
+
+    const mutators = authMutatorsFactory({
+      store,
+      document: store.workspace.activeDocument ?? null,
+    })
+    mutators.updateSecurityScheme({
+      name: 'ApiKey',
+      payload: { type: 'apiKey', name: 'X-NEW-KEY' },
+    })
+
+    const securitySchemes = (
+      getActiveAsyncApiDocument(store)?.components as { securitySchemes?: Record<string, unknown> }
+    )?.securitySchemes
+    const scheme = securitySchemes?.['ApiKey'] as Record<string, unknown>
+    expect(scheme['name']).toBe('X-NEW-KEY')
+  })
+
+  it('stores and clears security scheme secrets on AsyncAPI documents', async () => {
+    const documentName = 'channels'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createAsyncApiDocument() })
+
+    const mutators = authMutatorsFactory({
+      store,
+      document: store.workspace.activeDocument ?? null,
+    })
+
+    mutators.updateSecuritySchemeSecrets({
+      name: 'BearerAuth',
+      overwrite: true,
+      payload: { type: 'http', 'x-scalar-secret-token': 'token-value' },
+    })
+
+    expect(store.auth.getAuthSecrets(documentName, 'BearerAuth')).toMatchObject({
+      type: 'http',
+      'x-scalar-secret-token': 'token-value',
+    })
+
+    mutators.clearSecuritySchemeSecrets({ name: 'BearerAuth' })
+    expect(store.auth.getAuthSecrets(documentName, 'BearerAuth')).toBeUndefined()
+  })
+
+  it('updates the document-level active auth tab on AsyncAPI documents', async () => {
+    const documentName = 'channels'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createAsyncApiDocument() })
+
+    const mutators = authMutatorsFactory({
+      store,
+      document: store.workspace.activeDocument ?? null,
+    })
+
+    mutators.updateSelectedAuthTab({ index: 2, meta: { type: 'document' } })
+
+    const result = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(result)
+    expect(result.selectedIndex).toBe(2)
+    expect(result.selectedSchemes).toEqual([])
+  })
+
+  it('removes AsyncAPI security schemes and document-level selections in deleteSecurityScheme', async () => {
+    const documentName = 'channels'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createAsyncApiDocument({
+        components: {
+          securitySchemes: {
+            BearerAuth: { type: 'http', scheme: 'bearer' },
+            ApiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+          },
+        },
+      }),
+    })
+
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }, { ApiKey: [] }] },
+    )
+
+    deleteSecurityScheme(store, store.workspace.activeDocument ?? null, { names: ['BearerAuth'] })
+
+    const securitySchemes = (
+      getActiveAsyncApiDocument(store)?.components as { securitySchemes?: Record<string, unknown> }
+    )?.securitySchemes
+    expect(securitySchemes?.['BearerAuth']).toBeUndefined()
+    expect(securitySchemes?.['ApiKey']).toBeDefined()
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes).toEqual([{ ApiKey: [] }])
   })
 })

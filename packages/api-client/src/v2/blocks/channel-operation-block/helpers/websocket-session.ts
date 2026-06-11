@@ -21,6 +21,19 @@ export type WebSocketFrame = {
   opcode: WebSocketFrameOpcode
 }
 
+export type WebSocketConnectionLogEntry = {
+  id: string
+  type: 'connection'
+  status: 'connected' | 'disconnected' | 'error'
+  timestamp: number
+  message: string
+  detail?: string
+  details?: {
+    label: string
+    value: string
+  }[]
+}
+
 export type WebSocketCloseInfo = {
   code: number
   reason: string

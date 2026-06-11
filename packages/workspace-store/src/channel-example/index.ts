@@ -10,7 +10,7 @@ export {
   mergeWsBindings,
 } from './build-connection-url'
 export type { ChannelMessageEntry } from './get-all-channel-messages'
-export { getAllChannelMessages } from './get-all-channel-messages'
+export { getAllChannelMessages, getSendChannelMessages } from './get-all-channel-messages'
 export { getAsyncApiSecurityRequirements } from './get-asyncapi-security-requirements'
 export { getChannelConnectionContext } from './get-channel-connection-context'
 export { getChannelConnectionSecurityRequirements } from './get-channel-connection-security'

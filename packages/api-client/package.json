@@ -26,6 +26,7 @@
     "build": "vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:styles": "shx cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "dev": "vite ./playground/modal -c ./vite.config.ts",
+    "dev:channel-operation": "vite ./playground/channel-operation -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest --run",
     "test:benchmark": "vitest bench",
@@ -189,6 +190,16 @@
       "types": "./dist/v2/features/operation/index.d.ts",
       "default": "./dist/v2/features/operation/index.js"
     },
+    "./v2/features/channel-operation": {
+      "import": "./dist/v2/features/channel-operation/index.js",
+      "types": "./dist/v2/features/channel-operation/index.d.ts",
+      "default": "./dist/v2/features/channel-operation/index.js"
+    },
+    "./v2/blocks/channel-operation-block": {
+      "import": "./dist/v2/blocks/channel-operation-block/index.js",
+      "types": "./dist/v2/blocks/channel-operation-block/index.d.ts",
+      "default": "./dist/v2/blocks/channel-operation-block/index.js"
+    },
     "./v2/workspace-events": {
       "import": "./dist/v2/workspace-events.js",
       "types": "./dist/v2/workspace-events.d.ts",
@@ -298,6 +309,11 @@
       "import": "./dist/v2/features/operation/index.js",
       "types": "./dist/v2/features/operation/index.d.ts",
       "default": "./dist/v2/features/operation/index.js"
+    },
+    "./features/channel-operation": {
+      "import": "./dist/v2/features/channel-operation/index.js",
+      "types": "./dist/v2/features/channel-operation/index.d.ts",
+      "default": "./dist/v2/features/channel-operation/index.js"
     },
     "./features/search": {
       "import": "./dist/v2/features/search/index.js",
