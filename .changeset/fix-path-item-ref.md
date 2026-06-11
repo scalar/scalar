@@ -1,5 +1,7 @@
 ---
 '@scalar/workspace-store': patch
+'@scalar/schemas': patch
+'@scalar/types': patch
 '@scalar/api-client': patch
 '@scalar/api-reference': patch
 '@scalar/oas-utils': patch
