@@ -69,6 +69,29 @@ const formatJsonBody = (text?: string): string => {
 }
 
 /**
+ * Builds the CURLOPT_POSTFIELDS statement.
+ *
+ * Multi-line bodies (like pretty-printed JSON) are emitted as adjacent C string
+ * literals — one per line — so the generated code stays readable instead of
+ * collapsing the whole payload onto a single line of escaped text.
+ */
+const buildPostFields = (value: string): string[] => {
+  const sourceLines = value.split('\n')
+
+  if (sourceLines.length <= 1) {
+    return [`  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "${escapeCString(value)}");`]
+  }
+
+  return [
+    '  curl_easy_setopt(curl, CURLOPT_POSTFIELDS,',
+    ...sourceLines.map((line, index) => {
+      const isLastLine = index === sourceLines.length - 1
+      return `    "${escapeCString(line)}${isLastLine ? '' : '\\n'}"${isLastLine ? ');' : ''}`
+    }),
+  ]
+}
+
+/**
  * c/libcurl
  */
 export const cLibcurl: Plugin = {
@@ -165,10 +188,10 @@ export const cLibcurl: Plugin = {
           lines.push('', `  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "${escapeCString(formBody)}");`)
         }
       } else if (body.mimeType === 'application/json' && body.text !== undefined) {
-        lines.push('', `  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "${escapeCString(formatJsonBody(body.text))}");`)
+        lines.push('', ...buildPostFields(formatJsonBody(body.text)))
       } else if (body.text !== undefined) {
         const fallbackBody = body.mimeType === 'application/octet-stream' ? body.text : formatJsonBody(body.text)
-        lines.push('', `  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "${escapeCString(fallbackBody)}");`)
+        lines.push('', ...buildPostFields(fallbackBody))
       }
     }
 
