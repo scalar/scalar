@@ -4,12 +4,12 @@ import { cLibcurl } from './libcurl'
 
 describe('cLibcurl', () => {
   const expectBaseRequest = (result: string, method: string, url: string): void => {
-    expect(result).toContain(`#include <curl/curl.h>`)
+    expect(result).toContain('#include <curl/curl.h>')
     expect(result).toContain(`curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "${method}");`)
     expect(result).toContain(`curl_easy_setopt(curl, CURLOPT_URL, "${url}");`)
-    expect(result).toContain(`CURLcode res = curl_easy_perform(curl);`)
-    expect(result).toContain(`curl_easy_cleanup(curl);`)
-    expect(result).toContain(`curl_global_cleanup();`)
+    expect(result).toContain('CURLcode res = curl_easy_perform(curl);')
+    expect(result).toContain('curl_easy_cleanup(curl);')
+    expect(result).toContain('curl_global_cleanup();')
   }
 
   it('returns a basic request', () => {
@@ -75,7 +75,14 @@ describe('cLibcurl', () => {
     })
 
     expectBaseRequest(result, 'POST', 'https://example.com')
-    expect(result).toContain('curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "{\\n  \\"hello\\": \\"world\\"\\n}");')
+    expect(result).toContain(
+      [
+        '  curl_easy_setopt(curl, CURLOPT_POSTFIELDS,',
+        '    "{\\n"',
+        '    "  \\"hello\\": \\"world\\"\\n"',
+        '    "}");',
+      ].join('\n'),
+    )
   })
 
   it('has query string', () => {
@@ -356,7 +363,14 @@ describe('cLibcurl', () => {
     })
 
     expectBaseRequest(result, 'POST', 'https://example.com')
-    expect(result).toContain('curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "{\\n  \\"foo\\": \\"bar\\"\\n}");')
+    expect(result).toContain(
+      [
+        '  curl_easy_setopt(curl, CURLOPT_POSTFIELDS,',
+        '    "{\\n"',
+        '    "  \\"foo\\": \\"bar\\"\\n"',
+        '    "}");',
+      ].join('\n'),
+    )
   })
 
   it('handles url-encoded form data with special characters', () => {
