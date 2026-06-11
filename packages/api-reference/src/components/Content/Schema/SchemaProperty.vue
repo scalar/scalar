@@ -35,6 +35,9 @@ import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
  * So you should basically use the optimizedValue everywhere in the component.
  */
 
+/** Composition keywords that hold a list of schemas and can be flattened when they contain a single member. */
+const SINGLE_ITEM_COMPOSITIONS = ['oneOf', 'anyOf', 'allOf'] as const
+
 const props = withDefaults(
   defineProps<{
     is?: string | Component
@@ -165,10 +168,10 @@ const compositionsToRender = computed(() =>
 /**
  * Get resolved array items for rendering.
  *
- * When the items are wrapped in a single-item `allOf` (e.g. `items: { allOf: [{ type: 'object', ... }] }`), we
- * flatten that wrapper into its plain object form. The wrapper is equivalent to the bare object, but keeping the
- * `allOf` keyword makes the items render through an extra schema layer, which adds an unnecessary level of nesting
- * and duplicates the item description. See https://github.com/scalar/scalar/issues/5900
+ * When the items are wrapped in a single-item composition (e.g. `items: { allOf: [{ type: 'object', ... }] }`), we
+ * flatten that wrapper into its plain form. A composition with a single member is equivalent to that member, so
+ * keeping the composition keyword only makes the items render through an extra schema layer, which adds an
+ * unnecessary level of nesting and duplicates the item description. See https://github.com/scalar/scalar/issues/5900
  */
 const resolvedArrayItems = computed(() => {
   const value = optimizedValue.value
@@ -177,16 +180,12 @@ const resolvedArrayItems = computed(() => {
   }
 
   const items = resolve.schema(value.items)
-  if (
-    items &&
-    'allOf' in items &&
-    Array.isArray(items.allOf) &&
-    items.allOf.length === 1
-  ) {
-    return optimizeValueForDisplay(items)
-  }
+  const hasSingleItemComposition = SINGLE_ITEM_COMPOSITIONS.some(
+    (keyword) =>
+      Array.isArray(items?.[keyword]) && items[keyword]?.length === 1,
+  )
 
-  return items
+  return hasSingleItemComposition ? optimizeValueForDisplay(items) : items
 })
 
 /**
