@@ -5,6 +5,13 @@ import type { TableRow } from '@/v2/blocks/request-block/components/RequestTable
 
 type ParameterType = 'path' | 'cookie' | 'header' | 'query'
 
+type ParameterUpsertPayload = {
+  name: string
+  value: string
+  isDisabled: boolean
+  shouldRenameExpandedRow?: boolean
+}
+
 const isEmptyValue = (value: unknown): boolean => value === undefined || value === null || value === ''
 
 /** Parse a parameter key like `filter[a][b]` into its path segments `['filter', 'a', 'b']`. */
@@ -40,7 +47,7 @@ const getEditedValuePath = (typedName: string, parameterName: string | undefined
 const getExpandedObjectPayload = (
   row: TableRow,
   context: TableRow[],
-  payload?: { name: string; value: string; isDisabled: boolean },
+  payload?: ParameterUpsertPayload,
 ): { name: string; value: Record<string, unknown>; isDisabled: boolean } => {
   const value: Record<string, unknown> = {}
 
@@ -59,9 +66,12 @@ const getExpandedObjectPayload = (
       continue
     }
 
-    // For the edited row, honor the key the user typed so the rename reaches the query.
+    // Key edits are debounced while the user is still typing. Only committed key edits can move
+    // the value to a new object path; regular value updates keep the stable source path.
     const path = isEditedRow
-      ? getEditedValuePath(payload.name, row.originalParameter?.name, contextRow.sourceParameterValuePath)
+      ? payload.shouldRenameExpandedRow
+        ? getEditedValuePath(payload.name, row.originalParameter?.name, contextRow.sourceParameterValuePath)
+        : contextRow.sourceParameterValuePath
       : contextRow.sourceParameterValuePath
 
     setValueAtPath(value, path, nextValue)
@@ -135,8 +145,9 @@ export const createParameterHandlers = (
         type,
         meta,
       }),
-    upsert: (index: number, payload: { name: string; value: string; isDisabled: boolean }) => {
+    upsert: (index: number, payload: ParameterUpsertPayload) => {
       const row = context[index]
+      const { shouldRenameExpandedRow, ...parameterPayload } = payload
 
       if (index < defaultParameters + globalParameters) {
         const extraParameterType = index < defaultParameters ? 'default' : 'global'
@@ -154,11 +165,11 @@ export const createParameterHandlers = (
 
         // When the key of an expanded row changes, retire the old schema path so the original
         // property name does not pop back up as an empty suggestion next to the renamed row.
-        if (isExpandedRow && row && payload.name !== row.name) {
+        if (isExpandedRow && row && shouldRenameExpandedRow && payload.name !== row.name) {
           onRenameExpandedRow?.(row)
         }
 
-        const nextPayload = isExpandedRow && row ? getExpandedObjectPayload(row, context, payload) : payload
+        const nextPayload = isExpandedRow && row ? getExpandedObjectPayload(row, context, payload) : parameterPayload
 
         return eventBus.emit(
           'operation:upsert:parameter',
