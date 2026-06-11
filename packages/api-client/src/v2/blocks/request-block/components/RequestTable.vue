@@ -4,6 +4,7 @@ import { computed } from 'vue'
 
 import RequestTableRow, {
   type TableRow,
+  type TableRowUpsertPayload,
 } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 import {
   DataTable,
@@ -32,15 +33,7 @@ const {
  * Make this component more generic that can be used also for the operation body
  */
 const emit = defineEmits<{
-  (
-    e: 'upsertRow',
-    index: number,
-    payload: {
-      name: string
-      value: string | File | undefined
-      isDisabled: boolean
-    },
-  ): void
+  (e: 'upsertRow', index: number, payload: TableRowUpsertPayload): void
   (e: 'deleteRow', index: number): void
 
   /**

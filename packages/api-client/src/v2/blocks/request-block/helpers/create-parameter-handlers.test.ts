@@ -152,7 +152,12 @@ describe('createParameterHandlers', () => {
     const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context })
 
     // The user renames the "status" key to "state".
-    handlers.upsert(0, { name: 'state', value: 'active', isDisabled: false })
+    handlers.upsert(0, {
+      name: 'state',
+      value: 'active',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith(
       'operation:upsert:parameter',
@@ -191,7 +196,12 @@ describe('createParameterHandlers', () => {
       onRenameExpandedRow,
     })
 
-    handlers.upsert(0, { name: 'state', value: 'active', isDisabled: false })
+    handlers.upsert(0, {
+      name: 'state',
+      value: 'active',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
 
     expect(onRenameExpandedRow).toHaveBeenCalledTimes(1)
     expect(onRenameExpandedRow).toHaveBeenCalledWith(row)
@@ -237,7 +247,12 @@ describe('createParameterHandlers', () => {
     const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context })
 
     // The user renames "filter[role]" to a nested "filter[user][role]".
-    handlers.upsert(0, { name: 'filter[user][role]', value: 'admin', isDisabled: false })
+    handlers.upsert(0, {
+      name: 'filter[user][role]',
+      value: 'admin',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
 
     expect(mockEventBus.emit).toHaveBeenCalledWith(
       'operation:upsert:parameter',
@@ -246,6 +261,48 @@ describe('createParameterHandlers', () => {
         payload: {
           name: 'filter',
           value: { user: { role: 'admin' } },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
+  it('keeps expanded row values at their source path during partial key edits', () => {
+    const parentParameter = {
+      name: 'filter',
+      in: 'query',
+    } as const
+    const context: TableRow[] = [
+      {
+        name: 'filter[role]',
+        value: 'admin',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        sourceParameterValuePath: ['role'],
+      },
+    ]
+    const onRenameExpandedRow = vi.fn()
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context,
+      onRenameExpandedRow,
+    })
+
+    handlers.upsert(0, { name: 'filter[user]', value: 'admin', isDisabled: false })
+
+    expect(onRenameExpandedRow).not.toHaveBeenCalled()
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filter',
+          value: { role: 'admin' },
           isDisabled: false,
         },
         originalParameter: parentParameter,
