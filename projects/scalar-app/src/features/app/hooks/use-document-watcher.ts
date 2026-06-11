@@ -188,9 +188,10 @@ export const useDocumentWatcher = ({
         // Exponential backoff on failure
         handleFailure()
       }
-    } catch {
+    } catch (error) {
       // A rebase that throws (e.g. a loader exception when the source file
       // disappeared) must not kill the polling loop — back off and retry.
+      console.error(`[document-watcher] Failed to rebase document '${documentNameValue}':`, error)
       handleFailure()
     }
   }
