@@ -1,5 +1,17 @@
 # @scalar/workspace-store
 
+## 0.54.3
+
+### Patch Changes
+
+- [#9446](https://github.com/scalar/scalar/pull/9446): Fix `anyOf`/`oneOf` array query parameters (e.g. `Optional[List[str]]`) being sent as a single string instead of repeated query parameters
+- [#9480](https://github.com/scalar/scalar/pull/9480): Do not send a Basic `Authorization` header when both the username and password are empty, instead of falling back to a `username:password` placeholder
+- [#9342](https://github.com/scalar/scalar/pull/9342): fix: resolve operations when OpenAPI path items use `$ref`
+
+  Path entries and webhooks can reference `components.pathItems` instead of inlining operations. Navigation, mutators, search, and markdown export now resolve path-item references before reading HTTP methods and path-level parameters.
+
+- [#9418](https://github.com/scalar/scalar/pull/9418): Keep nested JSON multipart field types after editing the request body form. Editing a form row no longer turns a nested object's booleans, numbers, and arrays into strings on the wire.
+
 ## 0.54.2
 
 ### Patch Changes

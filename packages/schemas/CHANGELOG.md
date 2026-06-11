@@ -1,5 +1,13 @@
 # @scalar/schemas
 
+## 0.4.3
+
+### Patch Changes
+
+- [#9342](https://github.com/scalar/scalar/pull/9342): fix: resolve operations when OpenAPI path items use `$ref`
+
+  Path entries and webhooks can reference `components.pathItems` instead of inlining operations. Navigation, mutators, search, and markdown export now resolve path-item references before reading HTTP methods and path-level parameters.
+
 ## 0.4.2
 
 ### Patch Changes

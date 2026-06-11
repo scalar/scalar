@@ -1,5 +1,16 @@
 # @scalar/mock-server
 
+## 0.11.0
+
+### Minor Changes
+
+- [#9466](https://github.com/scalar/scalar/pull/9466): Validate incoming requests against the matched operation by default. Path/query parameters and the `application/json` request body are checked against their schema, and contract violations return a `422` with an `application/problem+json` body listing every violation. Set `validateRequest: false` to opt out and always return a mock response.
+
+### Patch Changes
+
+- [#9467](https://github.com/scalar/scalar/pull/9467): Fix security checking: evaluate `security` as OR-of-ANDs, inherit document-level security when an operation defines none, and validate credential shape (well-formed Basic and Bearer)
+- [#9464](https://github.com/scalar/scalar/pull/9464): Add `Prefer` header support to control mock responses: use `code=<status>` to request a specific response status and `example=<name>` to pick a named example from the `examples` map. Also adds support for the OpenAPI `examples` map (previously only the singular `example` was used).
+
 ## 0.10.19
 
 ## 0.10.18

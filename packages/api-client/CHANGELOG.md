@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 3.10.3
+
+### Patch Changes
+
+- [#9482](https://github.com/scalar/scalar/pull/9482): Fix the auth scheme dropdown not opening when multiple client apps are on the page (for example, the API reference modal). Each modal app now gets a unique id prefix, so teleport targets no longer collide and the popover renders in the visible app instead of a hidden one
+- [#9342](https://github.com/scalar/scalar/pull/9342): fix: resolve operations when OpenAPI path items use `$ref`
+
+  Path entries and webhooks can reference `components.pathItems` instead of inlining operations. Navigation, mutators, search, and markdown export now resolve path-item references before reading HTTP methods and path-level parameters.
+
+- [#9498](https://github.com/scalar/scalar/pull/9498): Sync the SDK installation tabs with the operation code examples: picking a language under "Client Libraries" now switches every operation's code sample to that language's custom example
+
 ## 3.10.2
 
 ## 3.10.1
