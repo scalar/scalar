@@ -1,4 +1,5 @@
 import type { Difference } from '@scalar/json-magic/diff'
+import { isHttpUrl } from '@scalar/json-magic/helpers/is-http-url'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type MaybeRefOrGetter, computed, onBeforeUnmount, toValue, watch } from 'vue'
@@ -167,10 +168,11 @@ export const useDocumentWatcher = ({
       return
     }
 
-    const result = await storeValue.rebaseDocument({
-      name: documentNameValue,
-      url: sourceUrl,
-    })
+    // Local file paths must go through the file loader — passing them as `url`
+    // would send them to the HTTP fetcher, which rejects non-http(s) sources.
+    const result = await storeValue.rebaseDocument(
+      isHttpUrl(sourceUrl) ? { name: documentNameValue, url: sourceUrl } : { name: documentNameValue, path: sourceUrl },
+    )
 
     if (result?.ok) {
       // On conflicts, prefer remote changes by automatically choosing the first option for each conflict tuple
