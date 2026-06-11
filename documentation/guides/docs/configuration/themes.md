@@ -19,27 +19,4 @@ Set the theme in the `siteConfig` object of your `scalar.config.json` file:
 
 ## Available Themes
 
-| Theme        | Description                         |
-| ------------ | ----------------------------------- |
-| `default`    | The default theme                   |
-| `alternate`  | An alternative light/dark theme     |
-| `moon`       | A softer, moon-inspired palette     |
-| `purple`     | Purple accent colors                |
-| `solarized`  | Based on the Solarized color scheme |
-| `bluePlanet` | Blue tones with a planetary feel    |
-| `deepSpace`  | Dark theme with deep space colors   |
-| `saturn`     | Warm, Saturn-inspired tones         |
-| `kepler`     | A cosmic, Kepler-inspired theme     |
-| `mars`       | Red and warm Mars-inspired colors   |
-| `laserwave`  | Retro synthwave-inspired colors     |
-
-To apply no theme at all (feeling dangerous, eh?), pass `none`:
-
-```json
-// scalar.config.json
-{
-  "siteConfig": {
-    "theme": "none"
-  }
-}
-```
+Your documentation site and your API references share the same theme system. For the full list of built-in themes, how to disable theming with `none`, and how to customize colors, fonts, and layouts with CSS variables, see the [Themes reference](../../../themes.md).
