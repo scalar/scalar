@@ -57,8 +57,8 @@ export function serveExample(givenConfiguration?: Partial<HtmlRenderingConfigura
     // Serve the JS bundle
     app.get('/scalar.js', (c) => c.text(readFileSync(pathToJavaScriptBundle, 'utf8')))
 
-    // Serve the examples directory
-    app.get('/examples/*', serveStatic({ root: './' }))
+    // Serve the examples directory (moved under public/ so the build emits them)
+    app.get('/examples/*', serveStatic({ root: './public' }))
 
     // Serve static files from the current directory
     app.get('*', (c) => {
