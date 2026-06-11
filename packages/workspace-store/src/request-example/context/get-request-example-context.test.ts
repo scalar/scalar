@@ -230,4 +230,118 @@ describe('getRequestExampleContext', () => {
       }),
     ])
   })
+
+  describe('webhooks', () => {
+    const createDocumentWithWebhook = (): OpenApiDocument =>
+      createMinimalDocument({
+        webhooks: {
+          newPet: {
+            post: {
+              operationId: 'newPetWebhook',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { name: { type: 'string' } } },
+                  },
+                },
+              },
+              responses: {
+                '200': { description: 'Acknowledged' },
+              },
+            },
+          },
+        },
+      })
+
+    it('resolves the operation from document.webhooks when isWebhook is true', async () => {
+      const workspaceStore = createWorkspaceStore()
+      await workspaceStore.addDocument({
+        name: 'scalar-galaxy',
+        document: createDocumentWithWebhook(),
+      })
+
+      const result = getRequestExampleContext(workspaceStore, 'scalar-galaxy', {
+        path: 'newPet',
+        method: 'post',
+        exampleName: 'default',
+        isWebhook: true,
+      })
+
+      expect(result.ok).toBe(true)
+      assert(result.ok)
+      expect(result.data.operation.operationId).toBe('newPetWebhook')
+    })
+
+    it('falls back to fallbackDocument webhooks when the document is not in the workspace', () => {
+      const workspaceStore = createWorkspaceStore()
+      const fallbackDocument = createDocumentWithWebhook()
+
+      const result = getRequestExampleContext(
+        workspaceStore,
+        'not-in-workspace',
+        { path: 'newPet', method: 'post', exampleName: 'default', isWebhook: true },
+        { fallbackDocument },
+      )
+
+      expect(result.ok).toBe(true)
+      assert(result.ok)
+      expect(result.data.operation.operationId).toBe('newPetWebhook')
+    })
+
+    it('returns a webhook-specific error when the webhook name is unknown', async () => {
+      const workspaceStore = createWorkspaceStore()
+      await workspaceStore.addDocument({
+        name: 'scalar-galaxy',
+        document: createDocumentWithWebhook(),
+      })
+
+      const result = getRequestExampleContext(workspaceStore, 'scalar-galaxy', {
+        path: 'unknownWebhook',
+        method: 'post',
+        exampleName: 'default',
+        isWebhook: true,
+      })
+
+      expect(result.ok).toBe(false)
+      assert(!result.ok)
+      expect(result.error).toContain('Webhook unknownWebhook not found')
+    })
+
+    it('returns a webhook-specific error when the method is missing on the webhook', async () => {
+      const workspaceStore = createWorkspaceStore()
+      await workspaceStore.addDocument({
+        name: 'scalar-galaxy',
+        document: createDocumentWithWebhook(),
+      })
+
+      const result = getRequestExampleContext(workspaceStore, 'scalar-galaxy', {
+        path: 'newPet',
+        method: 'get',
+        exampleName: 'default',
+        isWebhook: true,
+      })
+
+      expect(result.ok).toBe(false)
+      assert(!result.ok)
+      expect(result.error).toContain('Method get not found on webhook newPet')
+    })
+
+    it('does not match a webhook name when isWebhook is false (default)', async () => {
+      const workspaceStore = createWorkspaceStore()
+      await workspaceStore.addDocument({
+        name: 'scalar-galaxy',
+        document: createDocumentWithWebhook(),
+      })
+
+      const result = getRequestExampleContext(workspaceStore, 'scalar-galaxy', {
+        path: 'newPet',
+        method: 'post',
+        exampleName: 'default',
+      })
+
+      expect(result.ok).toBe(false)
+      assert(!result.ok)
+      expect(result.error).toContain('Path newPet not found')
+    })
+  })
 })

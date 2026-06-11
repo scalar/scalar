@@ -18,12 +18,14 @@ export type OperationProps = {
   eventBus: WorkspaceEventBus
   /** The layout of the client */
   layout: ClientLayout
-  /** The API path currently selected (e.g. "/users/{id}") */
+  /** The API path currently selected (e.g. "/users/{id}"), or webhook name when `isWebhook` is true */
   path?: string
   /** The HTTP method for the currently selected API path (e.g. GET, POST) */
   method?: HttpMethod
   /** The name of the currently selected example (for examples within an endpoint) */
   exampleName?: string
+  /** When true, `path` is treated as a webhook name and resolved from `document.webhooks` */
+  isWebhook?: boolean
   /** The currently active environment */
   environment: XScalarEnvironment
   /** The workspace store */
@@ -67,6 +69,7 @@ const {
   workspaceStore,
   plugins,
   documentSlug,
+  isWebhook,
 } = defineProps<
   OperationProps & {
     /** Selected anyOf/oneOf request-body variants keyed by schema path */
@@ -86,7 +89,7 @@ const requestExample = computed(() => {
   const result = getRequestExampleContext(
     workspaceStore,
     documentSlug,
-    { path, method, exampleName },
+    { path, method, exampleName, isWebhook },
     {
       baseServerUrl: toValue(options)?.baseServerURL,
       fallbackDocument: document,

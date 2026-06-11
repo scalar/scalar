@@ -495,6 +495,7 @@ describe('resolve-route-parameters', () => {
       path: '/users',
       method: 'get',
       example: 'default',
+      isWebhook: false,
     })
   })
 
@@ -517,6 +518,7 @@ describe('resolve-route-parameters', () => {
       path: '/pets',
       method: 'post',
       example: 'default',
+      isWebhook: false,
     })
   })
 
@@ -553,6 +555,7 @@ describe('resolve-route-parameters', () => {
       path: undefined,
       method: undefined,
       example: 'default',
+      isWebhook: false,
     })
   })
 
@@ -575,6 +578,7 @@ describe('resolve-route-parameters', () => {
       path: undefined,
       method: undefined,
       example: 'default',
+      isWebhook: false,
     })
   })
 
@@ -600,5 +604,55 @@ describe('resolve-route-parameters', () => {
     expect(result.documentSlug).toBe('active-doc')
     expect(result.path).toBe('/new')
     expect(result.method).toBe('post')
+  })
+
+  describe('webhooks', () => {
+    it('resolves "default" path to the first webhook name when isWebhook is true', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'my-doc',
+        document: getDocument({
+          webhooks: { newPet: { post: { summary: 'New pet webhook' } } },
+        }),
+      })
+
+      const result = resolveRouteParameters(store, {
+        documentSlug: 'my-doc',
+        path: 'default',
+        method: 'default',
+        example: 'default',
+        isWebhook: true,
+      })
+
+      expect(result.path).toBe('newPet')
+      expect(result.method).toBe('post')
+      expect(result.isWebhook).toBe(true)
+    })
+
+    it('preserves an explicit webhook name and method', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'my-doc',
+        document: getDocument({
+          webhooks: { orderShipped: { post: { summary: 'Shipped' } } },
+        }),
+      })
+
+      const result = resolveRouteParameters(store, {
+        documentSlug: 'my-doc',
+        path: 'orderShipped',
+        method: 'post',
+        example: 'default',
+        isWebhook: true,
+      })
+
+      expect(result).toEqual({
+        documentSlug: 'my-doc',
+        path: 'orderShipped',
+        method: 'post',
+        example: 'default',
+        isWebhook: true,
+      })
+    })
   })
 })
