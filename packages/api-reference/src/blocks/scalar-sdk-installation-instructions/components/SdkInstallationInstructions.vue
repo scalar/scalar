@@ -79,36 +79,34 @@ const select = (index: number) => {
   }
 }
 
-// Mirror the global selection into the active tab. When the selection is a
-// built-in client, or a custom language this document does not ship an install
-// entry for, we leave the current tab as-is rather than forcing a switch.
+// Keep the active tab aligned with the global selection, re-evaluating whenever
+// either the selection or the available SDKs change. Watching `sdkClientIds`
+// (not just `selectedClient`) is what stops the intro tab and the operation
+// samples from disagreeing after the SDK list is reordered or resized: the tab
+// follows the selected language to its new position. When the selection is a
+// built-in client (or a language this document has no install entry for) we keep
+// the current tab, only clamping it back into range if the list shrank past it.
 watch(
-  () => selectedClient,
-  (client) => {
-    if (!client) {
-      return
-    }
+  [() => selectedClient, sdkClientIds],
+  ([client, ids]) => {
+    const matched = client ? ids.findIndex((id) => id === client) : -1
 
-    const index = sdkClientIds.value.findIndex((id) => id === client)
-    if (index >= 0) {
-      selectedIndex.value = index
+    if (matched >= 0) {
+      selectedIndex.value = matched
+    } else if (selectedIndex.value > ids.length - 1) {
+      selectedIndex.value = 0
     }
   },
   { immediate: true },
 )
 
-// Keep the selection in range and re-measure whenever the set of SDKs changes.
-// Keying on the languages (not just the count) also catches documents that swap
-// in a different set of the same size, which would otherwise leave the cached
-// tab widths — and the "More" overflow logic — stale.
+// Re-measure whenever the set of SDKs changes. Keying on the languages (not just
+// the count) also catches documents that swap in a different set of the same
+// size, which would otherwise leave the cached tab widths — and the "More"
+// overflow logic — stale.
 watch(
   () => sdks.value.map((sdk) => sdk.lang).join('\n'),
-  () => {
-    if (selectedIndex.value > sdks.value.length - 1) {
-      selectedIndex.value = 0
-    }
-    void nextTick(measure)
-  },
+  () => void nextTick(measure),
 )
 
 const tabsRef = ref<HTMLElement>()

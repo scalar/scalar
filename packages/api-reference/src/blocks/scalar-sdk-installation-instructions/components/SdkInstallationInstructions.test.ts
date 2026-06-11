@@ -154,6 +154,36 @@ describe('SdkInstallationInstructions', () => {
     expect(tabs()[0]?.attributes('aria-selected')).toBe('true')
   })
 
+  it('follows the selected language when the SDK list is reordered', async () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        selectedClient: 'custom/python',
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', description: 'Install for TypeScript' },
+          { lang: 'Python', description: 'Install for Python' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    const tabs = () => wrapper.findAll('[role="tab"]')
+    expect(tabs()[1]?.text()).toBe('Python')
+    expect(tabs()[1]?.attributes('aria-selected')).toBe('true')
+
+    // Reordering the list (selection unchanged) must keep the active tab on the
+    // selected language, not on its old index — otherwise the intro tab and the
+    // operation samples would disagree.
+    await wrapper.setProps({
+      xScalarSdkInstallation: [
+        { lang: 'Python', description: 'Install for Python' },
+        { lang: 'TypeScript', description: 'Install for TypeScript' },
+      ],
+    })
+
+    expect(tabs()[0]?.text()).toBe('Python')
+    expect(tabs()[0]?.attributes('aria-selected')).toBe('true')
+  })
+
   it('keeps the current tab when the selected client is not one of its languages', () => {
     const wrapper = mount(SdkInstallationInstructions, {
       props: {
