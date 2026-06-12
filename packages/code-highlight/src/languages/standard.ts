@@ -44,7 +44,9 @@ import swift from 'highlight.js/lib/languages/swift'
 import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
 import yaml from 'highlight.js/lib/languages/yaml'
+
 import curl from './curl'
+import { extendSdkLanguage } from './sdk'
 
 /**
  * We group languages into three categories based on their popularity and usage.
@@ -67,28 +69,28 @@ import curl from './curl'
  */
 export const standardLanguages = {
   bash,
-  c,
+  c: extendSdkLanguage(c),
   clojure,
-  cpp,
-  csharp,
+  cpp: extendSdkLanguage(cpp),
+  csharp: extendSdkLanguage(csharp),
   css,
   curl,
-  dart,
+  dart: extendSdkLanguage(dart),
   diff,
   docker: dockerfile,
   dockerfile,
   elixir,
   fsharp,
-  go,
+  go: extendSdkLanguage(go),
   graphql,
   haskell,
   html: xml,
   http,
   ini,
-  java,
+  java: extendSdkLanguage(java),
   javascript,
   json,
-  kotlin,
+  kotlin: extendSdkLanguage(kotlin),
   less,
   lua,
   makefile,
@@ -102,15 +104,15 @@ export const standardLanguages = {
   plaintext,
   powershell,
   properties,
-  python,
+  python: extendSdkLanguage(python),
   r,
-  ruby,
-  rust,
+  ruby: extendSdkLanguage(ruby),
+  rust: extendSdkLanguage(rust),
   scala,
   scss,
   shell,
   sql,
-  swift,
+  swift: extendSdkLanguage(swift),
   toml: ini,
   typescript,
   xml,

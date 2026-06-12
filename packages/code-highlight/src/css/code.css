@@ -65,6 +65,10 @@
     color: var(--scalar-color-purple);
   }
 
+  .hljs-operator {
+    color: var(--scalar-color-purple);
+  }
+
   /** Function names when declaring and calling */
   .hljs-title.function_ {
     color: var(--scalar-color-orange);
