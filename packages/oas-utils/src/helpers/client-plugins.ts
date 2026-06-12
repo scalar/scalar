@@ -48,6 +48,22 @@ type ClientPluginHooks = {
     variablesStore?: VariablesStore
   }) => void | Promise<void>
   /**
+   * Runs after the fetch `Request` has been built, right before it is sent. The request passed
+   * here is the exact object handed to fetch, so header mutations apply to the outgoing request
+   * and the body bytes match what goes over the wire (important for request signing, where a
+   * rebuilt multipart body would get a different boundary). Mutations to the request builder
+   * have no effect at this stage; use the `beforeRequest` hook for those.
+   */
+  requestReady: (payload: {
+    /** The exact fetch Request that will be sent. Mutate its headers to modify the outgoing request. */
+    request: Request
+    /** Request builder the request was built from. Mutating it has no effect at this stage. */
+    requestBuilder: RequestFactory
+    document: OpenApiDocument
+    operation: OperationObject
+    variablesStore?: VariablesStore
+  }) => void | Promise<void>
+  /**
    * Runs after a response is received. Receives the current document and operation so plugins can
    * modify the response after it is received (for example, adding headers or modifying the body).
    */

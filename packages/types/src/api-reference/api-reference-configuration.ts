@@ -178,6 +178,23 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     | ((a: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => Promise<void> | void)
     | undefined
   >,
+  /** Fired right before the outbound request is sent; callback receives the exact fetch Request that goes over the wire. Experimental API. */
+  onRequestReady: z
+    .function({
+      input: [
+        z.object({
+          request: z.instanceof(Request),
+          requestBuilder: z.unknown(),
+          envVariables: z.record(z.string(), z.string()),
+        }),
+      ],
+      // Why no output? https://github.com/scalar/scalar/pull/7047
+      // output: z.union([z.void(), z.promise(z.void())]),
+    })
+    .optional() as z.ZodType<
+    | ((a: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => Promise<void> | void)
+    | undefined
+  >,
   /**
    * onShowMore is fired when the user clicks the "Show more" button on the references
    * @param tagId - The ID of the tag that was clicked
@@ -479,6 +496,35 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
    * ```
    */
   onBeforeRequest?: (input: {
+    request: Request
+    requestBuilder: any
+    envVariables: Record<string, string>
+  }) => void | Promise<void> | undefined
+  /**
+   * Fired after the outbound fetch `Request` has been built, right before it is sent. The `request` is the exact
+   * object handed to fetch: mutating its headers modifies the outgoing request, and hashing its body produces a
+   * hash that matches what the server receives (useful for request signing — a rebuilt `multipart/form-data` body
+   * would get a different boundary).
+   *
+   * Use `onBeforeRequest` instead when you need to mutate the request builder (method, path, query, body,
+   * security); those mutations have no effect at this stage because the request is already built.
+   *
+   * **Experimental:** This API may change in minor releases.
+   *
+   * @param input - Hook argument from the integration layer.
+   * @param input.request - The exact fetch API `Request` that will be sent. Mutate its headers to modify the outgoing request.
+   * @param input.requestBuilder - The builder the request was built from, for inspection. Mutating it has no effect at this stage.
+   * @param input.envVariables - Resolved environment variables for the active environment.
+   * @returns void or a promise that resolves when the hook finishes
+   * @example
+   * ```ts
+   * onRequestReady: async ({ request }) => {
+   *   const bodyHash = await hash(await request.clone().arrayBuffer())
+   *   request.headers.set('X-Body-Hash', bodyHash)
+   * }
+   * ```
+   */
+  onRequestReady?: (input: {
     request: Request
     requestBuilder: any
     envVariables: Record<string, string>
