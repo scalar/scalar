@@ -109,6 +109,26 @@ describe('sendRequest', () => {
     expect(result.response.status).toBe(200)
   })
 
+  it('sends the pre-built request as-is so hook mutations and body bytes are preserved', async () => {
+    const requestInit: RequestInit = { method: 'POST', body: '{"data":"test"}' }
+    const preBuiltRequest = new Request(MOCK_URL, requestInit)
+    preBuiltRequest.headers.set('X-Signature', 'abc123')
+
+    const customFetch = vi.fn().mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
+
+    const [error] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, requestInit],
+      request: preBuiltRequest,
+      customFetch,
+    })
+
+    expect(error).toBe(null)
+    expect(customFetch).toHaveBeenCalledTimes(1)
+    // The exact same Request instance must reach fetch, not a rebuilt copy
+    expect(customFetch).toHaveBeenCalledWith(preBuiltRequest)
+  })
+
   it('uses customFetch instead of global fetch when provided', async () => {
     const requestInit: RequestInit = {}
     const customFetch = vi.fn().mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
