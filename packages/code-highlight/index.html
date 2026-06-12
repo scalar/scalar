@@ -27,7 +27,8 @@
 
       code {
         background-color: var(--scalar-background-2);
-        width: 500px;
+        display: block;
+        width: min(960px, calc(100vw - 32px));
         overflow-x: auto;
         scrollbar-width: thin;
       }
@@ -53,7 +54,7 @@
     </style>
     <script type="module"></script>
   </head>
-  <body class="dark-mode">
+  <body class="scalar-app dark-mode">
     <button
       id="dark-mode-btn"
       type="button">

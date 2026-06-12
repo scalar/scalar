@@ -181,7 +181,7 @@ request.AddParameter("application/json", "{\n  \"id\": 1,\n  \"name\": \"Mars\",
 IRestResponse response = client.Execute(request);
 `
 
-createCodeBlock(csharp, 'C#', 'c++')
+createCodeBlock(csharp, 'C#', 'csharp')
 
 // ---------------------------------------------------------------------------
 // PHP
