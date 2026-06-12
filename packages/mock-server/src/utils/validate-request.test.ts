@@ -82,6 +82,372 @@ describe('validate-request', () => {
     expect(valid.status).toBe(200)
   })
 
+  it('returns 422 for a missing required header param and coerces a correct one', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'X-Api-Version', in: 'header', required: true, schema: { type: 'integer' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const missing = await server.request('/items')
+    expect(missing.status).toBe(422)
+    expect((await missing.json()).violations[0]).toMatchObject({ location: 'header', path: '/X-Api-Version' })
+
+    const wrongType = await server.request('/items', { headers: { 'X-Api-Version': 'abc' } })
+    expect(wrongType.status).toBe(422)
+    expect((await wrongType.json()).violations[0]).toMatchObject({ location: 'header' })
+
+    const valid = await server.request('/items', { headers: { 'X-Api-Version': '2' } })
+    expect(valid.status).toBe(200)
+  })
+
+  it('matches header parameter names case-insensitively', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'X-Api-Version', in: 'header', required: true, schema: { type: 'string' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // The client sends a differently cased header name, which must still satisfy the requirement.
+    const response = await server.request('/items', { headers: { 'x-api-version': '2024-01' } })
+    expect(response.status).toBe(200)
+  })
+
+  it('ignores Accept, Content-Type, and Authorization header parameters', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        { name: 'Accept', in: 'header', required: true, schema: { type: 'string' } },
+        { name: 'Content-Type', in: 'header', required: true, schema: { type: 'string' } },
+        { name: 'Authorization', in: 'header', required: true, schema: { type: 'string' } },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // These headers are defined elsewhere in OpenAPI, so they are not enforced as parameters.
+    const response = await server.request('/items')
+    expect(response.status).toBe(200)
+  })
+
+  it('returns 422 for a missing required cookie param and coerces a correct one', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'session', in: 'cookie', required: true, schema: { type: 'integer' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const missing = await server.request('/items')
+    expect(missing.status).toBe(422)
+    expect((await missing.json()).violations[0]).toMatchObject({ location: 'cookie', path: '/session' })
+
+    const wrongType = await server.request('/items', { headers: { Cookie: 'session=abc' } })
+    expect(wrongType.status).toBe(422)
+    expect((await wrongType.json()).violations[0]).toMatchObject({ location: 'cookie' })
+
+    const valid = await server.request('/items', { headers: { Cookie: 'session=42' } })
+    expect(valid.status).toBe(200)
+  })
+
+  it('passes when an optional header or cookie param is absent', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        { name: 'X-Api-Version', in: 'header', required: false, schema: { type: 'string' } },
+        { name: 'session', in: 'cookie', required: false, schema: { type: 'string' } },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request('/items')
+    expect(response.status).toBe(200)
+  })
+
+  it('enforces a required header param that declares no schema', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'X-Request-Id', in: 'header', required: true }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const missing = await server.request('/items')
+    expect(missing.status).toBe(422)
+    expect((await missing.json()).violations[0]).toMatchObject({ location: 'header', path: '/X-Request-Id' })
+
+    const present = await server.request('/items', { headers: { 'X-Request-Id': 'abc' } })
+    expect(present.status).toBe(200)
+  })
+
+  it('aggregates violations across header, query, and body in one response', async () => {
+    const document = documentWith('/items', 'post', {
+      parameters: [
+        { name: 'X-Api-Version', in: 'header', required: true, schema: { type: 'integer' } },
+        { name: 'limit', in: 'query', required: true, schema: { type: 'integer' } },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { type: 'object', required: ['name'], properties: { name: { type: 'string' } } },
+          },
+        },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // Every location is violated at once: missing header, missing query, and a body missing `name`.
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    })
+
+    expect(response.status).toBe(422)
+    const locations = (await response.json()).violations.map((violation: { location: string }) => violation.location)
+    expect(locations).toEqual(expect.arrayContaining(['header', 'query', 'body']))
+  })
+
+  it('validates exploded form array query params from repeated values', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'ids', in: 'query', required: true, schema: { type: 'array', items: { type: 'integer' } } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // `?ids=1&ids=2&ids=3` is the default (form, explode) serialization for an array query param.
+    const valid = await server.request('/items?ids=1&ids=2&ids=3')
+    expect(valid.status).toBe(200)
+
+    // A non-integer element must be reported, not silently coerced away.
+    const invalid = await server.request('/items?ids=1&ids=abc')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'query' })
+  })
+
+  it('validates comma- and pipe-delimited array query params', async () => {
+    const comma = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'ids',
+          in: 'query',
+          required: true,
+          explode: false,
+          schema: { type: 'array', items: { type: 'integer' }, minItems: 2 },
+        },
+      ],
+    })
+
+    const commaServer = await createMockServer({ document: comma, validateRequest: true })
+    expect((await commaServer.request('/items?ids=1,2,3')).status).toBe(200)
+
+    const pipe = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'ids',
+          in: 'query',
+          required: true,
+          style: 'pipeDelimited',
+          schema: { type: 'array', items: { type: 'integer' }, minItems: 2 },
+        },
+      ],
+    })
+
+    const pipeServer = await createMockServer({ document: pipe, validateRequest: true })
+    // A single value cannot satisfy `minItems: 2`, proving the value is parsed as an array, not a string.
+    expect((await pipeServer.request('/items?ids=1')).status).toBe(422)
+    expect((await pipeServer.request('/items?ids=1|2|3')).status).toBe(200)
+  })
+
+  it('validates comma-separated array params in path, header, and cookie', async () => {
+    const document = documentWith('/items/{ids}', 'get', {
+      parameters: [
+        { name: 'ids', in: 'path', required: true, schema: { type: 'array', items: { type: 'integer' } } },
+        { name: 'X-Tags', in: 'header', required: true, schema: { type: 'array', items: { type: 'string' } } },
+        // Cookies default to `form`/explode, so comma-joined arrays must declare `explode: false`.
+        {
+          name: 'roles',
+          in: 'cookie',
+          required: true,
+          explode: false,
+          schema: { type: 'array', items: { type: 'integer' } },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const valid = await server.request('/items/1,2,3', {
+      headers: { 'X-Tags': 'a,b,c', Cookie: 'roles=1,2' },
+    })
+    expect(valid.status).toBe(200)
+
+    // A wrong-typed element in the comma-separated cookie array must fail.
+    const invalid = await server.request('/items/1,2,3', {
+      headers: { 'X-Tags': 'a,b', Cookie: 'roles=1,nope' },
+    })
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'cookie' })
+  })
+
+  it('validates deepObject query params', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          required: true,
+          style: 'deepObject',
+          explode: true,
+          schema: {
+            type: 'object',
+            required: ['min'],
+            properties: { min: { type: 'integer' }, max: { type: 'integer' } },
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // `?filter[min]=1&filter[max]=9` deserializes to `{ min: 1, max: 9 }` before validation.
+    const valid = await server.request('/items?filter[min]=1&filter[max]=9')
+    expect(valid.status).toBe(200)
+
+    // A non-integer property is reported rather than coerced away.
+    const invalid = await server.request('/items?filter[min]=abc')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'query' })
+  })
+
+  it('validates exploded form object query params from top-level keys', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'color',
+          in: 'query',
+          required: true,
+          schema: {
+            type: 'object',
+            required: ['r'],
+            properties: { r: { type: 'integer' }, g: { type: 'integer' } },
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // The default object serialization (form, explode) spreads properties across top-level keys.
+    const valid = await server.request('/items?r=100&g=200')
+    expect(valid.status).toBe(200)
+
+    const invalid = await server.request('/items?g=200')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'query' })
+  })
+
+  it('validates comma-separated object params in path and header', async () => {
+    const document = documentWith('/items/{point}', 'get', {
+      parameters: [
+        {
+          name: 'point',
+          in: 'path',
+          required: true,
+          schema: { type: 'object', properties: { x: { type: 'integer' }, y: { type: 'integer' } } },
+        },
+        {
+          name: 'X-Color',
+          in: 'header',
+          required: true,
+          explode: true,
+          schema: { type: 'object', properties: { r: { type: 'integer' }, g: { type: 'integer' } } },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // Path simple (non-exploded): `x,1,y,2`; header simple exploded: `r=100,g=200`.
+    const valid = await server.request('/items/x,1,y,2', { headers: { 'X-Color': 'r=100,g=200' } })
+    expect(valid.status).toBe(200)
+
+    const invalid = await server.request('/items/x,nope,y,2', { headers: { 'X-Color': 'r=100,g=200' } })
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'path' })
+  })
+
+  it('validates label-style array and object path params', async () => {
+    const arrayDoc = documentWith('/items/{ids}', 'get', {
+      parameters: [
+        {
+          name: 'ids',
+          in: 'path',
+          required: true,
+          style: 'label',
+          schema: { type: 'array', items: { type: 'integer' }, minItems: 2 },
+        },
+      ],
+    })
+
+    const arrayServer = await createMockServer({ document: arrayDoc, validateRequest: true })
+    expect((await arrayServer.request('/items/.1.2.3')).status).toBe(200)
+    // A single element cannot meet `minItems: 2`, proving the dot-list is parsed as an array.
+    expect((await arrayServer.request('/items/.1')).status).toBe(422)
+
+    const objectDoc = documentWith('/points/{point}', 'get', {
+      parameters: [
+        {
+          name: 'point',
+          in: 'path',
+          required: true,
+          style: 'label',
+          explode: true,
+          schema: { type: 'object', required: ['x'], properties: { x: { type: 'integer' }, y: { type: 'integer' } } },
+        },
+      ],
+    })
+
+    const objectServer = await createMockServer({ document: objectDoc, validateRequest: true })
+    expect((await objectServer.request('/points/.x=1.y=2')).status).toBe(200)
+    expect((await objectServer.request('/points/.x=nope')).status).toBe(422)
+  })
+
+  it('validates matrix-style array and object path params', async () => {
+    const arrayDoc = documentWith('/items/{ids}', 'get', {
+      parameters: [
+        {
+          name: 'ids',
+          in: 'path',
+          required: true,
+          style: 'matrix',
+          explode: true,
+          schema: { type: 'array', items: { type: 'integer' } },
+        },
+      ],
+    })
+
+    const arrayServer = await createMockServer({ document: arrayDoc, validateRequest: true })
+    expect((await arrayServer.request('/items/;ids=1;ids=2;ids=3')).status).toBe(200)
+    expect((await arrayServer.request('/items/;ids=1;ids=nope')).status).toBe(422)
+
+    const objectDoc = documentWith('/points/{point}', 'get', {
+      parameters: [
+        {
+          name: 'point',
+          in: 'path',
+          required: true,
+          style: 'matrix',
+          schema: { type: 'object', required: ['x'], properties: { x: { type: 'integer' }, y: { type: 'integer' } } },
+        },
+      ],
+    })
+
+    const objectServer = await createMockServer({ document: objectDoc, validateRequest: true })
+    // Non-exploded matrix object: `;point=x,1,y,2`.
+    expect((await objectServer.request('/points/;point=x,1,y,2')).status).toBe(200)
+    expect((await objectServer.request('/points/;point=x,nope')).status).toBe(422)
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {

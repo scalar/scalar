@@ -5,9 +5,34 @@ import type { ErrorObject, ValidateFunction } from 'ajv'
 import Ajv2020 from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
 import type { Context, MiddlewareHandler } from 'hono'
+import { getCookie } from 'hono/cookie'
+
+import {
+  type ParameterLocation,
+  deserializeArrayParameter,
+  deserializeObjectParameter,
+  isArraySchema,
+  isObjectSchema,
+  resolveSerialization,
+} from './deserialize-parameter'
 
 /** Where a validation violation was found in the request */
-type ViolationLocation = 'body' | 'query' | 'path'
+type ViolationLocation = 'body' | 'query' | 'path' | 'header' | 'cookie'
+
+/** A declared parameter, describing how to read and deserialize its value from the request */
+type ParameterDescriptor = {
+  name: string
+  /** Resolved serialization style (for example `form`, `simple`, `pipeDelimited`) */
+  style: string
+  /** Resolved `explode` flag, applying the OpenAPI default for the style */
+  explode: boolean
+  /** Whether the parameter schema is an array, which needs delimiter-aware deserialization */
+  isArray: boolean
+  /** Whether the parameter schema is an object, which needs key/value deserialization */
+  isObject: boolean
+  /** Declared object property names, used to gather exploded `form` objects from the query map */
+  propertyNames: string[]
+}
 
 /** A single request validation violation, mapped from an Ajv error */
 type Violation = {
@@ -21,23 +46,41 @@ type Violation = {
 type CompiledValidators = {
   path: ValidateFunction | null
   query: ValidateFunction | null
+  header: ValidateFunction | null
+  cookie: ValidateFunction | null
+  /** Declared parameters per location, used to gather and deserialize their values from the request */
+  pathParameters: ParameterDescriptor[]
+  queryParameters: ParameterDescriptor[]
+  headerParameters: ParameterDescriptor[]
+  cookieParameters: ParameterDescriptor[]
   body: ValidateFunction | null
   /** Whether the request body is required by the operation */
   bodyRequired: boolean
 }
 
 /**
- * Build a JSON Schema object for the parameters declared `in` the given location.
+ * Header parameters named `Accept`, `Content-Type`, or `Authorization` are defined elsewhere in
+ * OpenAPI (through `content` and `security`), so the spec says such parameter definitions SHALL be
+ * ignored. We compare case-insensitively because header names are case-insensitive.
+ */
+const IGNORED_HEADER_PARAMETERS = new Set(['accept', 'content-type', 'authorization'])
+
+/**
+ * Build a JSON Schema object for the parameters declared `in` the given location, alongside a
+ * descriptor for each declared parameter.
  *
  * Parameters arrive as strings, so the caller compiles these with `coerceTypes: true` to let
- * `type: integer`/`boolean` validate correctly. Returns `null` when there is nothing to validate.
+ * `type: integer`/`boolean` validate correctly. The descriptors let the middleware gather only
+ * declared values and deserialize array parameters by their `style`/`explode`. Returns `null` when
+ * there is nothing to validate.
  */
 const buildParameterSchema = (
   parameters: OpenAPIV3_1.OperationObject['parameters'],
-  location: 'path' | 'query',
-): Record<string, unknown> | null => {
+  location: ParameterLocation,
+): { schema: Record<string, unknown>; parameters: ParameterDescriptor[] } | null => {
   const properties: Record<string, unknown> = {}
   const required: string[] = []
+  const descriptors: ParameterDescriptor[] = []
 
   for (const parameterOrRef of parameters ?? []) {
     const parameter = getResolvedRef(parameterOrRef)
@@ -46,8 +89,31 @@ const buildParameterSchema = (
       continue
     }
 
-    if (parameter.schema) {
-      properties[parameter.name] = getResolvedRefDeep(parameter.schema)
+    // Per the OpenAPI spec, these header parameters are defined elsewhere and ignored as parameters.
+    if (location === 'header' && IGNORED_HEADER_PARAMETERS.has(parameter.name.toLowerCase())) {
+      continue
+    }
+
+    const resolvedSchema = parameter.schema
+      ? (getResolvedRefDeep(parameter.schema) as Record<string, unknown>)
+      : undefined
+    const { style, explode } = resolveSerialization(location, parameter.style, parameter.explode)
+
+    // Property names let exploded `form` objects be gathered from matching top-level query keys.
+    const schemaProperties = resolvedSchema?.properties as Record<string, unknown> | undefined
+    const propertyNames = schemaProperties ? Object.keys(schemaProperties) : []
+
+    descriptors.push({
+      name: parameter.name,
+      style,
+      explode,
+      isArray: isArraySchema(resolvedSchema),
+      isObject: isObjectSchema(resolvedSchema),
+      propertyNames,
+    })
+
+    if (resolvedSchema) {
+      properties[parameter.name] = resolvedSchema
     }
 
     if (parameter.required) {
@@ -60,7 +126,7 @@ const buildParameterSchema = (
   }
 
   // Allow undeclared parameters to pass through; we only enforce what the operation declares.
-  return { type: 'object', properties, required, additionalProperties: true }
+  return { schema: { type: 'object', properties, required, additionalProperties: true }, parameters: descriptors }
 }
 
 /**
@@ -135,6 +201,11 @@ const compileValidators = (
   // Path-item parameters apply to every operation, so fold them in before building the schemas.
   const parameters = mergeParameters(pathItemParameters, operation.parameters)
 
+  const pathParameters = buildParameterSchema(parameters, 'path')
+  const queryParameters = buildParameterSchema(parameters, 'query')
+  const headerParameters = buildParameterSchema(parameters, 'header')
+  const cookieParameters = buildParameterSchema(parameters, 'cookie')
+
   const requestBody = getResolvedRef(operation.requestBody)
   // Build the body schema defensively; resolving a malformed `$ref` should not crash setup.
   let bodySchema: Record<string, unknown> | null = null
@@ -146,8 +217,14 @@ const compileValidators = (
   }
 
   return {
-    path: compileSchema(parameterAjv, buildParameterSchema(parameters, 'path'), 'path parameter'),
-    query: compileSchema(parameterAjv, buildParameterSchema(parameters, 'query'), 'query parameter'),
+    path: compileSchema(parameterAjv, pathParameters?.schema ?? null, 'path parameter'),
+    query: compileSchema(parameterAjv, queryParameters?.schema ?? null, 'query parameter'),
+    header: compileSchema(parameterAjv, headerParameters?.schema ?? null, 'header parameter'),
+    cookie: compileSchema(parameterAjv, cookieParameters?.schema ?? null, 'cookie parameter'),
+    pathParameters: pathParameters?.parameters ?? [],
+    queryParameters: queryParameters?.parameters ?? [],
+    headerParameters: headerParameters?.parameters ?? [],
+    cookieParameters: cookieParameters?.parameters ?? [],
     body: compileSchema(bodyAjv, bodySchema, 'request body'),
     // Required-body enforcement is independent of whether the body schema compiles.
     bodyRequired: requestBody?.required === true,
@@ -155,8 +232,9 @@ const compileValidators = (
 }
 
 /**
- * Map Ajv errors into our violation shape. For path/query parameters the offending parameter name
- * is prepended to the message so the response is readable without cross-referencing the pointer.
+ * Map Ajv errors into our violation shape. For non-body parameters (path, query, header, cookie) the
+ * offending parameter name is prepended to the message so the response is readable without
+ * cross-referencing the pointer.
  */
 const mapErrors = (errors: ErrorObject[] | null | undefined, location: ViolationLocation): Violation[] =>
   (errors ?? []).map((error) => {
@@ -190,8 +268,8 @@ const isJsonRequest = (c: Context): boolean => {
  * violation the middleware short-circuits with a `422` and a `application/problem+json` body;
  * otherwise it calls `next()` and the normal mock handler runs.
  *
- * TODO: Parity follow-ups, intentionally deferred in this slice — response validation,
- * header/cookie parameter validation, non-JSON body validation, and validation proxy mode.
+ * TODO: Parity follow-ups, intentionally deferred — response validation, non-JSON body validation,
+ * and validation proxy mode.
  */
 export const validateRequest = (
   operation: OpenAPIV3_1.OperationObject,
@@ -202,19 +280,84 @@ export const validateRequest = (
   return async (c, next): Promise<Response | void> => {
     const violations: Violation[] = []
 
+    /**
+     * Gather declared parameter values for one location into a plain object for validation. Array and
+     * object parameters are deserialized by their `style`/`explode`; everything else is read as a
+     * single string. Values are looked up by declared name (rather than dumping every request value)
+     * so header names match case-insensitively and only declared parameters are enforced.
+     *
+     * `getValues` (repeated query keys) and `queryMap` (the full query map) are only supplied for the
+     * query location, where exploded arrays and `deepObject`/exploded-`form` objects need them.
+     */
+    const gather = (
+      descriptors: ParameterDescriptor[],
+      getValue: (name: string) => string | undefined,
+      getValues?: (name: string) => string[] | undefined,
+      queryMap?: () => Record<string, string>,
+    ): Record<string, unknown> => {
+      const data: Record<string, unknown> = {}
+      for (const descriptor of descriptors) {
+        let value: unknown
+        if (descriptor.isArray) {
+          value = deserializeArrayParameter({
+            style: descriptor.style,
+            explode: descriptor.explode,
+            single: getValue(descriptor.name),
+            multi: getValues?.(descriptor.name),
+          })
+        } else if (descriptor.isObject) {
+          value = deserializeObjectParameter({
+            style: descriptor.style,
+            explode: descriptor.explode,
+            single: getValue(descriptor.name),
+            query: queryMap?.(),
+            name: descriptor.name,
+            propertyNames: descriptor.propertyNames,
+          })
+        } else {
+          value = getValue(descriptor.name)
+        }
+        if (value !== undefined) {
+          data[descriptor.name] = value
+        }
+      }
+      return data
+    }
+
     // Path parameters (coerced from strings)
     if (validators.path) {
-      const data: Record<string, unknown> = { ...c.req.param() }
+      const data = gather(validators.pathParameters, (name) => c.req.param(name))
       if (!validators.path(data)) {
         violations.push(...mapErrors(validators.path.errors, 'path'))
       }
     }
 
-    // Query parameters (coerced from strings)
+    // Query parameters (coerced from strings; repeated keys feed exploded arrays, the query map feeds objects)
     if (validators.query) {
-      const data: Record<string, unknown> = { ...c.req.query() }
+      const data = gather(
+        validators.queryParameters,
+        (name) => c.req.query(name),
+        (name) => c.req.queries(name),
+        () => c.req.query(),
+      )
       if (!validators.query(data)) {
         violations.push(...mapErrors(validators.query.errors, 'query'))
+      }
+    }
+
+    // Header parameters (coerced from strings; names are case-insensitive)
+    if (validators.header) {
+      const data = gather(validators.headerParameters, (name) => c.req.header(name))
+      if (!validators.header(data)) {
+        violations.push(...mapErrors(validators.header.errors, 'header'))
+      }
+    }
+
+    // Cookie parameters (coerced from strings)
+    if (validators.cookie) {
+      const data = gather(validators.cookieParameters, (name) => getCookie(c, name))
+      if (!validators.cookie(data)) {
+        violations.push(...mapErrors(validators.cookie.errors, 'cookie'))
       }
     }
 
