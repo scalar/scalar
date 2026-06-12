@@ -62,7 +62,7 @@
 
   /** Attribute and property access such as `client.reports` */
   .hljs-property {
-    color: var(--scalar-color-1);
+    color: var(--scalar-color-yellow);
   }
 
   /** Language indicators such as `new`, `const`, or `function` in JS  */
