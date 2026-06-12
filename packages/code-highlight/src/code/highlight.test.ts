@@ -176,4 +176,4 @@ auto books = client.books().list(ListBooksParams{.limit = 10});`,
 })
 
 const hasHighlightedSecret = (html: string): boolean =>
-  /<span style="color:var\(--scalar-color-(?!2\))[^"]*">["']?secret["']?<\/span>/.test(html)
+  /<span style="color:var\(--scalar-color-(?!2\))[^"]*">[^<]*secret[^<]*<\/span>/.test(html)
