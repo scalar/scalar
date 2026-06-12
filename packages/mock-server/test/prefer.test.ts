@@ -68,6 +68,36 @@ describe('Prefer header', () => {
       expect(response.status).toBe(200)
       expect(await response.json()).toEqual({ status: 'ok' })
     })
+
+    it('uses a success response by default when the operation also defines errors', async () => {
+      const server = await createMockServer({
+        document: {
+          openapi: '3.1.0',
+          info: baseInfo,
+          paths: {
+            '/jobs': {
+              post: {
+                responses: {
+                  '202': {
+                    description: 'Accepted',
+                    content: { 'application/json': { example: { status: 'queued' } } },
+                  },
+                  '404': {
+                    description: 'Not Found',
+                    content: { 'application/json': { example: { error: 'not found' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const response = await server.request('/jobs', { method: 'POST' })
+
+      expect(response.status).toBe(202)
+      expect(await response.json()).toEqual({ status: 'queued' })
+    })
   })
 
   describe('example directive', () => {
