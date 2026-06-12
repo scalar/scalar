@@ -6,12 +6,13 @@ import json from 'highlight.js/lib/languages/json'
 import less from 'highlight.js/lib/languages/less'
 import markdown from 'highlight.js/lib/languages/markdown'
 import plaintext from 'highlight.js/lib/languages/plaintext'
-import python from 'highlight.js/lib/languages/python'
 import scss from 'highlight.js/lib/languages/scss'
 import shell from 'highlight.js/lib/languages/shell'
 import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
 import yaml from 'highlight.js/lib/languages/yaml'
+
+import python from './python'
 
 const basicLanguages: Record<string, LanguageFn> = {
   bash,

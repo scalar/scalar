@@ -188,7 +188,3 @@
 .hljs.language-objectivec .hljs-built_in {
   color: var(--scalar-color-orange);
 }
-
-.hljs-built_in {
-  color: var(--scalar-color-orange);
-}
