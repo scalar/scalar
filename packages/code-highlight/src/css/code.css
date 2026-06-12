@@ -57,6 +57,11 @@
   /** Class initializers such as `Array` or `Date` */
   /** Type declarations such as `Record` */
   .hljs-title.class_ {
+    color: var(--scalar-color-green);
+  }
+
+  /** Attribute and property access such as `client.reports` */
+  .hljs-property {
     color: var(--scalar-color-1);
   }
 

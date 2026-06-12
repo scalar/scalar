@@ -9,16 +9,29 @@ hljs.registerLanguage('python', python)
 const highlight = (code: string) => hljs.highlight(code, { language: 'python' }).value
 
 describe('python', () => {
-  it('highlights function and method calls as function titles', () => {
+  it('highlights capitalized constructor calls as class titles', () => {
     const result = highlight('Profound(api_key="")')
 
-    expect(result).toContain('<span class="hljs-title function_">Profound</span>')
+    expect(result).toContain('<span class="hljs-title class_">Profound</span>')
   })
 
-  it('highlights chained method calls', () => {
+  it('highlights lowercase function calls as function titles', () => {
+    const result = highlight('get(value)')
+
+    expect(result).toContain('<span class="hljs-title function_">get</span>')
+  })
+
+  it('highlights chained method calls as function titles, not properties', () => {
     const result = highlight('client.reports.visibility.query()')
 
     expect(result).toContain('<span class="hljs-title function_">query</span>')
+  })
+
+  it('highlights intermediate attribute access as properties', () => {
+    const result = highlight('client.reports.visibility.query()')
+
+    expect(result).toContain('<span class="hljs-property">reports</span>')
+    expect(result).toContain('<span class="hljs-property">visibility</span>')
   })
 
   it('highlights keyword arguments and assignment targets as attributes', () => {
