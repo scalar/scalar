@@ -59,6 +59,63 @@ const contentCurl = String.raw`curl --request PUT \
   --header 'Authorization: Bearer 123234324'
 `
 
+const sdkSnippets = [
+  {
+    label: 'Kotlin',
+    lang: 'kotlin',
+    content: `val client = ScalarClient(token = "secret")
+val books = client.books.list(limit = 10)`,
+  },
+  {
+    label: 'Ruby',
+    lang: 'ruby',
+    content: `client = Scalar::Client.new(token: "secret")
+books = client.books.list(limit: 10)`,
+  },
+  {
+    label: 'Java',
+    lang: 'java',
+    content: `ScalarClient client = new ScalarClient("secret");
+List<Book> books = client.books().list(10);`,
+  },
+  {
+    label: 'C#',
+    lang: 'csharp',
+    content: `var client = new ScalarClient("secret");
+var books = await client.Books.ListAsync(limit: 10);`,
+  },
+  {
+    label: 'Swift',
+    lang: 'swift',
+    content: `let client = ScalarClient(token: "secret")
+let books = try await client.books.list(limit: 10)`,
+  },
+  {
+    label: 'Rust',
+    lang: 'rust',
+    content: `let client = ScalarClient::new("secret");
+let books = client.books().list(ListBooksParams { limit: 10 }).await?;`,
+  },
+  {
+    label: 'Dart',
+    lang: 'dart',
+    content: `final client = ScalarClient(token: 'secret');
+final books = await client.books.list(limit: 10);`,
+  },
+  {
+    label: 'C++',
+    lang: 'cpp',
+    content: `ScalarClient client("secret");
+auto books = client.books().list(ListBooksParams{.limit = 10});`,
+  },
+]
+
+const defaultSdkSnippet = {
+  content: `val client = ScalarClient(token = "secret")
+val books = client.books.list(limit = 10)`,
+  lang: 'kotlin',
+}
+
 /**
  * Syntax highlighting in a light weight component
  */
@@ -162,4 +219,27 @@ export const HideCredentials: Story = {
     lang: 'curl',
     hideCredentials: ['123234324'],
   },
+}
+
+export const SdkLanguages: Story = {
+  args: defaultSdkSnippet,
+  render: () => ({
+    components: { ScalarCodeBlock },
+    setup() {
+      return { sdkSnippets }
+    },
+    template: `
+<div class="grid min-h-dvh w-dvw gap-4 bg-b-1 p-4 md:grid-cols-2">
+  <section v-for="snippet in sdkSnippets" :key="snippet.lang" class="flex min-w-0 flex-col gap-2">
+    <h3 class="text-c-1 font-medium">{{ snippet.label }}</h3>
+    <ScalarCodeBlock
+      class="min-h-0 min-w-0 rounded border"
+      :content="snippet.content"
+      :lang="snippet.lang"
+      copy="always"
+      lineNumbers />
+  </section>
+</div>
+    `,
+  }),
 }
