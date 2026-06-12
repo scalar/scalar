@@ -224,10 +224,13 @@ const highlightedCoverage = (html: string, source: string): number => {
   return Number((highlightedChars / sourceChars).toFixed(2))
 }
 
+const htmlEntities = {
+  '&amp;': '&',
+  '&gt;': '>',
+  '&lt;': '<',
+  '&quot;': '"',
+  '&#x27;': "'",
+} as const satisfies Record<string, string>
+
 const decodeHtml = (value: string): string =>
-  value
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#x27;', "'")
-    .replaceAll('&amp;', '&')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
+  value.replace(/&(?:amp|gt|lt|quot|#x27);/g, (entity) => htmlEntities[entity as keyof typeof htmlEntities])
