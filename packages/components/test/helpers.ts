@@ -17,7 +17,12 @@ export type Device = keyof typeof devices
 
 export type TestBody = Parameters<typeof test>[2]
 
-export type SnapshotFn = (suffix?: string) => Promise<void>
+export type SnapshotFn = (
+  suffix?: string,
+  options?: {
+    maxDiffPixelRatio?: number
+  },
+) => Promise<void>
 
 export type StoryTestArgs = Record<string, string | number | boolean | null | undefined>
 
@@ -196,7 +201,7 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
 
   // Snapshot helper bound to current test settings
   snapshot: async ({ page, background, crop, colorModes, component: c, story: s }, use, testInfo) => {
-    const takeSnapshot: SnapshotFn = async (suffix?: string): Promise<void> => {
+    const takeSnapshot: SnapshotFn = async (suffix, options): Promise<void> => {
       const { story } = componentDetailsFromContext(c, s, testInfo)
       const target = crop === 'viewport' ? page : page.locator(crop === 'component' ? '#storybook-root > *' : 'body')
       for (const colorMode of colorModes) {
@@ -206,6 +211,7 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
         await expect(target).toHaveScreenshot(filename, {
           omitBackground: !background,
           stylePath: background ? undefined : transparentCssPath,
+          ...options,
         })
       }
     }
