@@ -156,21 +156,24 @@ auto books = client.books().list(ListBooksParams{.limit = 10});`,
         lang,
         hasSeveralTokenColors: new Set(colors).size >= 4,
         hasFunctionColor: html.includes('var(--scalar-color-orange)'),
-        hasStringColor: html.includes('var(--scalar-color-blue)'),
+        hasStringLiteralColor: hasHighlightedSecret(html),
       })),
     ).toStrictEqual([
-      { lang: 'typescript', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'python', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'go', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'kotlin', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'ruby', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'java', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'csharp', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'php', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'swift', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'rust', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'dart', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
-      { lang: 'cpp', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringColor: true },
+      { lang: 'typescript', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'python', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'go', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'kotlin', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'ruby', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'java', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'csharp', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'php', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'swift', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'rust', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'dart', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
+      { lang: 'cpp', hasSeveralTokenColors: true, hasFunctionColor: true, hasStringLiteralColor: true },
     ])
   })
 })
+
+const hasHighlightedSecret = (html: string): boolean =>
+  /<span style="color:var\(--scalar-color-(?!2\))[^"]*">["']?secret["']?<\/span>/.test(html)
