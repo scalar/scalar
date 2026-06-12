@@ -115,7 +115,8 @@
   }
   .t-editor__page-nav,
   .page-nav,
-  .content .page-nav {
+  .content .page-nav,
+  .t-editor .page-header {
     display: none;
   }
   main.content {
@@ -145,8 +146,15 @@
     width: calc(100dvw - var(--scalar-sidebar-width));
     margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
   }
+  .hero.hero {
+    margin-top: 88px;
+  }
+  .small-test {
+    max-width: 550px;
+    margin-top: 44px;
+    position: relative;
+  }
   .customers-hero {
-    max-width: 680px;
     position: relative;
     text-wrap: balance;
   }
@@ -479,7 +487,7 @@
     }
   }
   @media (max-width: 720px) {
-    .customers-hero {
+    .customers-hero.hero {
       margin-top: 40px;
     }
     .customers-hero-actions {
