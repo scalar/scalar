@@ -2,7 +2,7 @@
 /**
  * Scalar Code Block component
  *
- * Renders syntax-highlighted code using highlight.js.
+ * Renders syntax-highlighted code.
  * Supports line numbers, credential masking, and an optional copy button.
  *
  * @example
@@ -30,7 +30,7 @@ type BaseProps = {
 }
 
 /**
- * Uses highlight.js for syntax highlighting
+ * Uses @scalar/code-highlight for syntax highlighting
  *
  * Requires at least one of content or prettyPrintedContent
  */

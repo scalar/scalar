@@ -9,9 +9,10 @@ import { lowlightLanguageMappings } from '@/constants'
 import { rehypeHighlight } from '@/rehype-highlight'
 
 import { codeBlockLinesPlugin } from './line-numbers'
+import { highlightWithShiki } from './shiki'
 
 /**
- * Syntax highlights a code string using the `rehype-highlight` library.
+ * Syntax highlights a code string.
  */
 export function syntaxHighlight(
   codeString: string,
@@ -33,6 +34,15 @@ export function syntaxHighlight(
 
     return true
   })
+
+  const shikiHtml = highlightWithShiki(codeString, {
+    lang: options.lang,
+    lineNumbers: options.lineNumbers,
+  })
+
+  if (shikiHtml) {
+    return maskCredentials(shikiHtml, credentials)
+  }
 
   // Classname is used by lowlight to select the language model
   const className = `language-${lowlightLanguageMappings[options.lang] ?? options.lang}`
@@ -59,15 +69,7 @@ export function syntaxHighlight(
   const htmlString = html.toString()
 
   // Replace any credentials with a wrapper element
-  return credentials.length
-    ? credentials.reduce(
-        (acc, credential) =>
-          acc
-            .split(credential)
-            .join(`<span class="credential"><span class="credential-value">${credential}</span></span>`),
-        htmlString,
-      )
-    : htmlString
+  return maskCredentials(htmlString, credentials)
 }
 
 /**
@@ -86,3 +88,14 @@ function injectRawCodeStringPlugin(rawCodeString: string) {
     })
   }
 }
+
+const maskCredentials = (htmlString: string, credentials: string[]): string =>
+  credentials.length
+    ? credentials.reduce(
+        (acc, credential) =>
+          acc
+            .split(credential)
+            .join(`<span class="credential"><span class="credential-value">${credential}</span></span>`),
+        htmlString,
+      )
+    : htmlString

@@ -57,9 +57,8 @@ describe('ScalarCodeBlock', () => {
     expect(code.element.nodeName.toLowerCase()).toBe('code')
 
     // Confirm the syntax highlighting has been applied
-    expect(code.html()).toBe(
-      `<code class="hljs language-javascript"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>()</code>`,
-    )
+    expect(code.html()).toContain('class="hljs language-javascript"')
+    expect(code.html()).toContain('var(--scalar-color-orange)')
   })
 
   it('renders a schema', async () => {
@@ -99,24 +98,9 @@ describe('ScalarCodeBlock', () => {
     expect(code.element.nodeName.toLowerCase()).toBe('code')
 
     // Confirm the syntax highlighting has been applied
-    expect(code.html()).toBe(`<code class="hljs language-json"><span class="hljs-punctuation">{</span>
-  <span class="hljs-attr">"description"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"successful operation"</span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">"schema"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-    <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"object"</span><span class="hljs-punctuation">,</span>
-    <span class="hljs-attr">"properties"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-      <span class="hljs-attr">"code"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-        <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"integer"</span><span class="hljs-punctuation">,</span>
-        <span class="hljs-attr">"format"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"int32"</span>
-      <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
-      <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-        <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"string"</span>
-      <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
-      <span class="hljs-attr">"message"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-        <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"string"</span>
-      <span class="hljs-punctuation">}</span>
-    <span class="hljs-punctuation">}</span>
-  <span class="hljs-punctuation">}</span>
-<span class="hljs-punctuation">}</span></code>`)
+    expect(code.html()).toContain('class="hljs language-json"')
+    expect(code.html()).toContain('var(--scalar-color-blue)')
+    expect(code.html()).toContain('successful operation')
   })
 
   describe('ScalarCodeBlockCopy', () => {
