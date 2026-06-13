@@ -186,6 +186,166 @@ describe('plugin-manager', () => {
     })
   })
 
+  describe('getViewComponents - content.start', () => {
+    it('returns empty array when no plugins have content.start views', () => {
+      const mockPlugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        views: {
+          'content.end': [{ component: 'EndComponent' }],
+        },
+      })
+
+      const manager = createPluginManager({ plugins: [mockPlugin] })
+      const components = manager.getViewComponents('content.start')
+      expect(components).toEqual([])
+    })
+
+    it('returns components for content.start view', () => {
+      const mockComponent = 'StartComponent'
+      const mockPlugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        views: {
+          'content.start': [
+            {
+              component: mockComponent,
+              props: { title: 'My Custom Page' },
+            },
+          ],
+        },
+      })
+
+      const manager = createPluginManager({ plugins: [mockPlugin] })
+      const components = manager.getViewComponents('content.start')
+      expect(components).toEqual([
+        {
+          component: mockComponent,
+          props: { title: 'My Custom Page' },
+        },
+      ])
+    })
+
+    it('returns components from both content.start and content.end independently', () => {
+      const mockPlugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        views: {
+          'content.start': [{ component: 'StartComponent' }],
+          'content.end': [{ component: 'EndComponent' }],
+        },
+      })
+
+      const manager = createPluginManager({ plugins: [mockPlugin] })
+      expect(manager.getViewComponents('content.start')).toEqual([{ component: 'StartComponent' }])
+      expect(manager.getViewComponents('content.end')).toEqual([{ component: 'EndComponent' }])
+    })
+  })
+
+  describe('getSidebarEntries', () => {
+    it('returns empty array when no plugins have sidebar config', () => {
+      const mockPlugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        views: {
+          'content.start': [{ component: 'StartComponent' }],
+        },
+      })
+
+      const manager = createPluginManager({ plugins: [mockPlugin] })
+      expect(manager.getSidebarEntries()).toEqual([])
+    })
+
+    it('returns empty array when sidebar.show is false', () => {
+      const mockPlugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        views: {
+          'content.start': [
+            {
+              component: 'StartComponent',
+              sidebar: { show: false, label: 'Hidden Page' },
+            },
+          ],
+        },
+      })
+
+      const manager = createPluginManager({ plugins: [mockPlugin] })
+      expect(manager.getSidebarEntries()).toEqual([])
+    })
+
+    it('returns entries when sidebar.show is true', () => {
+      const mockPlugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        views: {
+          'content.start': [
+            {
+              component: 'StartComponent',
+              sidebar: { show: true, label: 'Getting Started' },
+            },
+          ],
+        },
+      })
+
+      const manager = createPluginManager({ plugins: [mockPlugin] })
+      expect(manager.getSidebarEntries()).toEqual([
+        { label: 'Getting Started', icon: undefined, viewName: 'content.start', index: 0 },
+      ])
+    })
+
+    it('returns entries with icon when provided', () => {
+      const mockPlugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        views: {
+          'content.end': [
+            {
+              component: 'EndComponent',
+              sidebar: { show: true, label: 'Changelog', icon: 'history' },
+            },
+          ],
+        },
+      })
+
+      const manager = createPluginManager({ plugins: [mockPlugin] })
+      expect(manager.getSidebarEntries()).toEqual([
+        { label: 'Changelog', icon: 'history', viewName: 'content.end', index: 0 },
+      ])
+    })
+
+    it('returns multiple sidebar entries from mixed views', () => {
+      const mockPlugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        views: {
+          'content.start': [
+            {
+              component: 'Page1',
+              sidebar: { show: true, label: 'Overview' },
+            },
+            {
+              component: 'Page2',
+              // No sidebar — should not appear
+            },
+          ],
+          'content.end': [
+            {
+              component: 'Footer',
+              sidebar: { show: true, label: 'Support' },
+            },
+          ],
+        },
+      })
+
+      const manager = createPluginManager({ plugins: [mockPlugin] })
+      expect(manager.getSidebarEntries()).toEqual([
+        { label: 'Overview', icon: undefined, viewName: 'content.start', index: 0 },
+        { label: 'Support', icon: undefined, viewName: 'content.end', index: 0 },
+      ])
+    })
+  })
+
   describe('lifecycle hooks', () => {
     it('notifyInit calls onInit on all plugins with config', () => {
       const onInit1 = vi.fn()

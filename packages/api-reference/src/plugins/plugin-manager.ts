@@ -46,7 +46,7 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Get all components for a specific view from registered plugins
      */
-    getViewComponents: (viewName: 'content.end'): ViewComponent[] => {
+    getViewComponents: (viewName: 'content.start' | 'content.end'): ViewComponent[] => {
       const components: ViewComponent[] = []
 
       for (const plugin of registeredPlugins.values()) {
@@ -99,6 +99,34 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
       }
 
       return apiClientPlugins
+    },
+
+    /**
+     * Get all sidebar entries from plugin views
+     */
+    getSidebarEntries: (): { label: string; icon?: string; viewName: string; index: number }[] => {
+      const entries: { label: string; icon?: string; viewName: string; index: number }[] = []
+
+      for (const plugin of registeredPlugins.values()) {
+        const viewNames = ['content.start', 'content.end'] as const
+        for (const viewName of viewNames) {
+          const viewComponents = plugin.views?.[viewName]
+          if (viewComponents) {
+            viewComponents.forEach((vc: ViewComponent, index: number) => {
+              if (vc.sidebar?.show && vc.sidebar?.label) {
+                entries.push({
+                  label: vc.sidebar.label,
+                  icon: vc.sidebar.icon,
+                  viewName,
+                  index,
+                })
+              }
+            })
+          }
+        }
+      }
+
+      return entries
     },
   }
 }
