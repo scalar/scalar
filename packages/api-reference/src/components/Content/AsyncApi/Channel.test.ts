@@ -154,4 +154,60 @@ describe('Channel', () => {
 
     expect(wrapper.text()).not.toContain('Parameters')
   })
+
+  const documentWithOperation = (): AsyncApiDocument =>
+    ({
+      asyncapi: '3.0.0',
+      info: { title: 'Streaming API', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      channels: { userSignedUp: { address: 'user/signedup' } },
+      operations: {
+        onUserSignedUp: { action: 'receive', channel: { $ref: '#/channels/userSignedUp' } },
+      },
+    }) as AsyncApiDocument
+
+  const channelWithOperation = (): TraversedAsyncApiChannel =>
+    createChannel({
+      children: [
+        {
+          type: 'asyncapi-operation',
+          id: 'doc/channel/userSignedUp/operation/onUserSignedUp',
+          title: 'On user signed up',
+          operationName: 'onUserSignedUp',
+          action: 'receive',
+          channelName: 'userSignedUp',
+          channelAddress: 'user/signedup',
+        },
+      ],
+    })
+
+  it('renders operation children nested under the channel in the modern layout', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: channelWithOperation(),
+        document: documentWithOperation(),
+        layout: 'modern',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
+    expect(wrapper.text()).toContain('On user signed up')
+  })
+
+  it('renders operation children nested under the channel in the classic layout', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: channelWithOperation(),
+        document: documentWithOperation(),
+        layout: 'classic',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
+    expect(wrapper.text()).toContain('On user signed up')
+  })
 })
