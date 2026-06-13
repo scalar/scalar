@@ -27,7 +27,7 @@ function createDocument(operation: Record<string, unknown>): AsyncApiDocument {
       userSignedUp: { address: 'user/signedup' },
     },
     operations: { onUserSignedUp: operation },
-  } as AsyncApiDocument
+  } as unknown as AsyncApiDocument
 }
 
 describe('Operation', () => {
@@ -104,7 +104,7 @@ describe('Operation', () => {
           operations: {
             onUserSignedUp: { action: 'receive', channel: { $ref: '#/channels/userSignedUp' } },
           },
-        } as AsyncApiDocument,
+        } as unknown as AsyncApiDocument,
         eventBus: null,
       },
     })

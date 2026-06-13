@@ -16,7 +16,7 @@ import { computed, useId, useTemplateRef } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import { Schema } from '@/components/Content/Schema'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
-import { SectionHeaderTag } from '@/components/Section'
+import { SectionHeader, SectionHeaderTag } from '@/components/Section'
 import {
   getAsyncApiMessageHeadersSchema,
   getAsyncApiMessagePayloadSchema,
