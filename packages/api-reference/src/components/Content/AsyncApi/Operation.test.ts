@@ -5,10 +5,12 @@ import { describe, expect, it } from 'vitest'
 
 import Operation from './Operation.vue'
 
+const OPERATION_ID = 'doc/channel/userSignedUp/operation/onUserSignedUp'
+
 function createOperation(overrides: Partial<TraversedAsyncApiOperation> = {}): TraversedAsyncApiOperation {
   return {
     type: 'asyncapi-operation',
-    id: 'doc/channel/userSignedUp/operation/onUserSignedUp',
+    id: OPERATION_ID,
     title: 'On user signed up',
     operationName: 'onUserSignedUp',
     action: 'receive',
@@ -59,7 +61,7 @@ describe('Operation', () => {
     expect(wrapper.find('.operation-action').text()).toBe('send')
   })
 
-  it('renders the operation description', () => {
+  it('renders the operation description (the operation header is not collapsible)', () => {
     const wrapper = mount(Operation, {
       props: {
         operation: createOperation(),
@@ -75,7 +77,7 @@ describe('Operation', () => {
     expect(wrapper.text()).toContain('Fired whenever a user signs up.')
   })
 
-  it('renders nested message children', () => {
+  it('renders a message accordion for each message child', () => {
     const wrapper = mount(Operation, {
       props: {
         operation: createOperation({
@@ -109,6 +111,7 @@ describe('Operation', () => {
       },
     })
 
+    // Message renders (collapsed); its title shows in the accordion header.
     expect(wrapper.findComponent({ name: 'Message' }).exists()).toBe(true)
     expect(wrapper.text()).toContain('User signed up')
   })

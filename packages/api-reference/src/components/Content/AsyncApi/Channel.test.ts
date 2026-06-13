@@ -210,4 +210,25 @@ describe('Channel', () => {
     expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
     expect(wrapper.text()).toContain('On user signed up')
   })
+
+  // Regression: both layouts must forward `expandedItems` to Operation so sidebar
+  // navigation can expand the nested message accordions.
+  it.each(['modern', 'classic'] as const)('forwards expandedItems to the operation in the %s layout', (layout) => {
+    const expandedItems = { 'doc/channel/userSignedUp/operation/onUserSignedUp': true }
+    const wrapper = mount(Channel, {
+      props: {
+        channel: channelWithOperation(),
+        document: documentWithOperation(),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+        expandedItems,
+      },
+    })
+
+    const operation = wrapper.findComponent({ name: 'Operation' })
+    expect(operation.exists()).toBe(true)
+    // The original bug passed a disconnected empty object here; assert the map is forwarded.
+    expect(operation.props('expandedItems')).toEqual(expandedItems)
+  })
 })

@@ -11,12 +11,12 @@ import {
   mergeSiblingReferences,
 } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
-import { computed, useId, useTemplateRef } from 'vue'
+import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Schema } from '@/components/Content/Schema'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
-import { SectionHeader, SectionHeaderTag } from '@/components/Section'
+import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
 import {
   getAsyncApiMessageHeadersSchema,
   getAsyncApiMessagePayloadSchema,
@@ -31,11 +31,19 @@ type SchemaRenderOptions = Pick<
   | 'expandAllSchemaProperties'
 >
 
-const { message, document, eventBus, options } = defineProps<{
+const {
+  message,
+  document,
+  eventBus,
+  options,
+  expandedItems = {},
+} = defineProps<{
   message: TraversedAsyncApiMessage
   document: AsyncApiDocument
   eventBus: WorkspaceEventBus | null
   options?: Partial<SchemaRenderOptions>
+  /** Map of navigation item id to expanded state, shared with the sidebar. */
+  expandedItems?: Record<string, boolean>
 }>()
 
 const headerId = useId()
@@ -92,6 +100,28 @@ const schemaOptions = computed<SchemaOptions>(() => ({
   orderSchemaPropertiesBy: options?.orderSchemaPropertiesBy ?? 'preserve',
   expandAllSchemaProperties: options?.expandAllSchemaProperties ?? false,
 }))
+
+/**
+ * Accordion open state. Kept locally so clicking the header always toggles
+ * immediately, and seeded/synced from the shared sidebar expansion map so
+ * expanding the message in the sidebar (or deep-linking to it) opens it here too.
+ */
+const isExpanded = ref(expandedItems[message.id] ?? false)
+
+watch(
+  () => expandedItems[message.id],
+  (value) => {
+    if (value !== undefined) {
+      isExpanded.value = value
+    }
+  },
+)
+
+/** Toggling the accordion updates local state and keeps the sidebar in sync. */
+const onToggle = (open: boolean) => {
+  isExpanded.value = open
+  eventBus?.emit('toggle:nav-item', { id: message.id, open })
+}
 </script>
 
 <template>
@@ -99,57 +129,71 @@ const schemaOptions = computed<SchemaOptions>(() => ({
     :id="message.id"
     ref="section"
     class="message">
-    <SectionHeader>
-      <Anchor
-        @copyAnchorUrl="
-          () => eventBus?.emit('copy-url:nav-item', { id: message.id })
-        ">
-        <SectionHeaderTag
-          :id="headerId"
-          :level="4">
-          {{ headingText }}
-        </SectionHeaderTag>
-      </Anchor>
-    </SectionHeader>
+    <SectionAccordion
+      class="message-accordion"
+      :modelValue="isExpanded"
+      @update:modelValue="onToggle">
+      <template #title>
+        <Anchor
+          @copyAnchorUrl="
+            () => eventBus?.emit('copy-url:nav-item', { id: message.id })
+          ">
+          <SectionHeaderTag
+            :id="headerId"
+            class="message-title"
+            :level="4">
+            {{ headingText }}
+          </SectionHeaderTag>
+        </Anchor>
+      </template>
 
-    <ScalarMarkdown
-      v-if="description"
-      class="message-description"
-      :value="description"
-      withImages />
+      <ScalarMarkdown
+        v-if="description"
+        class="message-description"
+        :value="description"
+        withImages />
 
-    <div
-      v-if="headersSchema"
-      class="message-schema">
-      <div class="message-schema-title">Headers</div>
-      <Schema
-        compact
-        :eventBus="eventBus"
-        name="Headers"
-        noncollapsible
-        :options="schemaOptions"
-        :schema="headersSchema" />
-    </div>
+      <div
+        v-if="headersSchema"
+        class="message-schema">
+        <div class="message-schema-title">Headers</div>
+        <Schema
+          compact
+          :eventBus="eventBus"
+          name="Headers"
+          noncollapsible
+          :options="schemaOptions"
+          :schema="headersSchema" />
+      </div>
 
-    <div
-      v-if="payloadSchema"
-      class="message-schema">
-      <div class="message-schema-title">Payload</div>
-      <Schema
-        compact
-        :eventBus="eventBus"
-        name="Payload"
-        noncollapsible
-        :options="schemaOptions"
-        :schema="payloadSchema" />
-    </div>
+      <div
+        v-if="payloadSchema"
+        class="message-schema">
+        <div class="message-schema-title">Payload</div>
+        <Schema
+          compact
+          :eventBus="eventBus"
+          name="Payload"
+          noncollapsible
+          :options="schemaOptions"
+          :schema="payloadSchema" />
+      </div>
+    </SectionAccordion>
   </div>
 </template>
 
 <style scoped>
 .message {
-  margin-top: 24px;
   scroll-margin-top: var(--refs-viewport-offset);
+}
+.message-title {
+  font-size: var(--scalar-heading-4);
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color-1);
+}
+/* Pad the expanded body so the description and schemas don't sit flush against the border. */
+.message-accordion :deep(.section-accordion-content-card) {
+  padding: 12px;
 }
 .message-description {
   padding-bottom: 4px;
@@ -157,6 +201,9 @@ const schemaOptions = computed<SchemaOptions>(() => ({
 }
 .message-schema {
   margin-top: 12px;
+}
+.message-schema:first-child {
+  margin-top: 0;
 }
 .message-schema-title {
   font-size: var(--scalar-font-size-2);
