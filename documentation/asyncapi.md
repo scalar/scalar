@@ -17,7 +17,7 @@ The reference renders the AsyncAPI document grouped by channel. For each channel
 - The channel title (or address) and description.
 - The channel address **parameters**.
 - Each **operation** on the channel, nested beneath it, with its `send`/`receive` action, title, and summary/description.
-- Each **message** under its operation, with the message description and its **headers** and **payload** schemas.
+- Each **message** under its operation, shown as a collapsible accordion. Expanding a message reveals its description and its **headers** and **payload** schemas. Messages start collapsed and stay in sync with the sidebar, so selecting a message in the navigation (or opening a deep link to it) expands it here too.
 
 Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
 

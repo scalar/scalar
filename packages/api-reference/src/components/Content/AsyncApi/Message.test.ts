@@ -1,14 +1,17 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { nextTick, reactive } from 'vue'
 
 import Message from './Message.vue'
+
+const MESSAGE_ID = 'doc/channel/userSignedUp/operation/onUserSignedUp/message/userSignedUp'
 
 function createMessage(overrides: Partial<TraversedAsyncApiMessage> = {}): TraversedAsyncApiMessage {
   return {
     type: 'asyncapi-message',
-    id: 'doc/channel/userSignedUp/operation/onUserSignedUp/message/userSignedUp',
+    id: MESSAGE_ID,
     title: 'User signed up',
     messageName: 'userSignedUp',
     channelName: 'userSignedUp',
@@ -30,21 +33,86 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
   } as AsyncApiDocument
 }
 
+/** Expand this message's accordion so the body (description, schemas) renders. */
+const expanded = { [MESSAGE_ID]: true }
+
 describe('Message', () => {
-  it('renders the message title and description', () => {
+  it('renders the message title in the collapsed header', () => {
     const wrapper = mount(Message, {
       props: {
         message: createMessage(),
-        document: createDocument({ title: 'User signed up', description: 'Emitted on signup.' }),
+        document: createDocument({ title: 'User signed up', payload: { type: 'object' } }),
         eventBus: null,
       },
     })
 
     expect(wrapper.text()).toContain('User signed up')
+  })
+
+  it('keeps the body collapsed by default and shows it once expanded', () => {
+    const props = {
+      message: createMessage(),
+      document: createDocument({ description: 'Emitted on signup.', payload: { type: 'object' } }),
+      eventBus: null,
+    }
+
+    const collapsed = mount(Message, { props })
+    expect(collapsed.text()).not.toContain('Emitted on signup.')
+
+    const open = mount(Message, { props: { ...props, expandedItems: expanded } })
+    expect(open.text()).toContain('Emitted on signup.')
+  })
+
+  it('opens the accordion on click even without an event bus', async () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({ description: 'Emitted on signup.', payload: { type: 'object' } }),
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).not.toContain('Emitted on signup.')
+    await wrapper.find('.section-accordion-button').trigger('click')
     expect(wrapper.text()).toContain('Emitted on signup.')
   })
 
-  it('renders the payload schema', () => {
+  it('opens when the shared expandedItems map is updated (sidebar navigation)', async () => {
+    const expandedItems = reactive<Record<string, boolean>>({})
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({ description: 'Emitted on signup.', payload: { type: 'object' } }),
+        eventBus: null,
+        expandedItems,
+      },
+    })
+
+    expect(wrapper.text()).not.toContain('Emitted on signup.')
+
+    // Mirror what sidebarState.setExpanded does on navigation: mutate the shared map.
+    expandedItems[MESSAGE_ID] = true
+    await nextTick()
+
+    expect(wrapper.text()).toContain('Emitted on signup.')
+  })
+
+  it('emits toggle:nav-item when the accordion is toggled', async () => {
+    const emit = vi.fn()
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({ payload: { type: 'object' } }),
+        eventBus: { emit } as never,
+      },
+    })
+
+    await wrapper.find('.section-accordion-button').trigger('click')
+
+    expect(emit).toHaveBeenCalledWith('toggle:nav-item', { id: MESSAGE_ID, open: true })
+  })
+
+  it('renders the payload schema when expanded', () => {
     const wrapper = mount(Message, {
       props: {
         message: createMessage(),
@@ -52,6 +120,7 @@ describe('Message', () => {
           payload: { type: 'object', properties: { id: { type: 'string' } } },
         }),
         eventBus: null,
+        expandedItems: expanded,
       },
     })
 
@@ -59,7 +128,7 @@ describe('Message', () => {
     expect(wrapper.text()).toContain('id')
   })
 
-  it('unwraps a Multi Format Schema payload', () => {
+  it('unwraps a Multi Format Schema payload when expanded', () => {
     const wrapper = mount(Message, {
       props: {
         message: createMessage(),
@@ -70,6 +139,7 @@ describe('Message', () => {
           },
         }),
         eventBus: null,
+        expandedItems: expanded,
       },
     })
 
@@ -77,7 +147,7 @@ describe('Message', () => {
     expect(wrapper.text()).toContain('email')
   })
 
-  it('renders message headers when present', () => {
+  it('renders message headers when present and expanded', () => {
     const wrapper = mount(Message, {
       props: {
         message: createMessage(),
@@ -85,6 +155,7 @@ describe('Message', () => {
           headers: { type: 'object', properties: { 'x-token': { type: 'string' } } },
         }),
         eventBus: null,
+        expandedItems: expanded,
       },
     })
 
@@ -98,6 +169,7 @@ describe('Message', () => {
         message: createMessage(),
         document: createDocument({ title: 'User signed up' }),
         eventBus: null,
+        expandedItems: expanded,
       },
     })
 

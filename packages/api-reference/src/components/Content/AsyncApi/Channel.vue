@@ -39,15 +39,24 @@ type ParameterListOptions = Pick<
   | 'expandAllSchemaProperties'
 >
 
-const { channel, document, layout, isCollapsed, eventBus, options } =
-  defineProps<{
-    channel: TraversedAsyncApiChannel
-    document: AsyncApiDocument
-    layout: 'classic' | 'modern'
-    isCollapsed: boolean
-    eventBus: WorkspaceEventBus | null
-    options?: Partial<ParameterListOptions>
-  }>()
+const {
+  channel,
+  document,
+  layout,
+  isCollapsed,
+  eventBus,
+  options,
+  expandedItems = {},
+} = defineProps<{
+  channel: TraversedAsyncApiChannel
+  document: AsyncApiDocument
+  layout: 'classic' | 'modern'
+  isCollapsed: boolean
+  eventBus: WorkspaceEventBus | null
+  options?: Partial<ParameterListOptions>
+  /** Map of navigation item id to expanded state, shared with the sidebar. */
+  expandedItems?: Record<string, boolean>
+}>()
 
 const headerId = useId()
 
@@ -138,6 +147,7 @@ const operations = computed(() =>
       :key="operation.id"
       :document="document"
       :eventBus="eventBus"
+      :expandedItems="expandedItems"
       :operation="operation"
       :options="options" />
   </SectionContainerAccordion>
@@ -180,6 +190,7 @@ const operations = computed(() =>
           :key="operation.id"
           :document="document"
           :eventBus="eventBus"
+          :expandedItems="expandedItems"
           :operation="operation"
           :options="options" />
       </SectionContent>
