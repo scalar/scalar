@@ -2,7 +2,7 @@
 
 We're in the process of adding [AsyncAPI](https://www.asyncapi.com/) support.
 
-You can already load AsyncAPI documents. The rendering is very limited, though:
+You can load AsyncAPI documents the same way you load OpenAPI documents:
 
 ```javascript
 Scalar.createApiReference('#app', {
@@ -10,4 +10,18 @@ Scalar.createApiReference('#app', {
 })
 ```
 
-The process is tracked on GitHub in [issue #7080](https://github.com/scalar/scalar/issues/7080). You can subscribe to the issue to receive updates.
+## What renders
+
+The reference renders the AsyncAPI document grouped by channel. For each channel you'll see:
+
+- The channel title (or address) and description.
+- The channel address **parameters**.
+- Each **operation** on the channel, nested beneath it, with its `send`/`receive` action, title, and summary/description.
+- Each **message** under its operation, with the message description and its **headers** and **payload** schemas.
+
+Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
+
+Rendering works in both the `modern` and `classic` layouts.
+
+> [!NOTE]
+> AsyncAPI support is still a work in progress, so not every part of the specification is rendered yet. The progress is tracked on GitHub in [issue #7080](https://github.com/scalar/scalar/issues/7080) — subscribe there to receive updates.
