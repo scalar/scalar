@@ -1,6 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
@@ -8,6 +7,7 @@ import type { StatusCode } from 'hono/utils/http-status'
 
 import { buildHandlerContext } from '@/utils/build-handler-context'
 import { executeHandler } from '@/utils/execute-handler'
+import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
 import { selectResponseExample } from '@/utils/select-response-example'
 
@@ -58,17 +58,22 @@ function getExampleFromResponse(
     return null
   }
 
+  const responseSchema = acceptedResponse.schema ? getResolvedRef(acceptedResponse.schema) : undefined
+
   // Extract example (named, singular, or first) or generate from schema
   const selectedExample = selectResponseExample(acceptedResponse, exampleName)
 
   return selectedExample
-    ? selectedExample.value
-    : acceptedResponse.schema
-      ? getExampleFromSchema(getResolvedRefDeep(acceptedResponse.schema), {
-          emptyString: 'string',
-          variables: c.req.param(),
-          mode: 'read',
-        })
+    ? normalizeResponseBody(selectedExample.value, responseSchema)
+    : responseSchema
+      ? normalizeResponseBody(
+          getExampleFromSchema(responseSchema, {
+            emptyString: 'string',
+            variables: c.req.param(),
+            mode: 'read',
+          }),
+          responseSchema,
+        )
       : null
 }
 
