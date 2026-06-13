@@ -164,7 +164,7 @@ describe('Channel', () => {
       operations: {
         onUserSignedUp: { action: 'receive', channel: { $ref: '#/channels/userSignedUp' } },
       },
-    }) as AsyncApiDocument
+    }) as unknown as AsyncApiDocument
 
   const channelWithOperation = (): TraversedAsyncApiChannel =>
     createChannel({
