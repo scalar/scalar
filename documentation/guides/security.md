@@ -13,15 +13,6 @@ Scalar helps teams create API interfaces built for developers and agents, includ
 - **GDPR privacy:** Scalar publishes European privacy rights and data processing details in our [Privacy Policy](/legal/privacy-policy).
 - **Trust Center:** Security documentation and compliance materials are available at [trust.scalar.com](https://trust.scalar.com).
 
-<div class="flex items-center gap-3" aria-label="Compliance badges">
-  <a href="https://trust.scalar.com" target="_blank" rel="noreferrer" aria-label="View Scalar Trust Center">
-    <img src="/security/aicpa-soc-2-seal.png" alt="SOC 2 logo" width="56" height="56" style="width: 56px; height: 56px; object-fit: contain;" />
-  </a>
-  <a href="https://trust.scalar.com" target="_blank" rel="noreferrer" aria-label="View Scalar Trust Center">
-    <img src="/security/gdpr-compliant-badge.svg" alt="GDPR compliant badge" width="56" height="56" style="width: 56px; height: 56px; object-fit: contain;" />
-  </a>
-</div>
-
 ## Access controls
 
 Use Scalar as a controlled surface for API descriptions, SDK generation, MCP installations, registry workflows, and developer tooling.
