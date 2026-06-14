@@ -1,0 +1,146 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="360"
+  height="360"
+  viewBox="0 0 360 360"
+  role="img"
+  aria-labelledby="title desc"
+  shape-rendering="geometricPrecision"
+  text-rendering="geometricPrecision">
+  <title id="title">GDPR compliant badge</title>
+  <desc id="desc">
+    A custom Scalar badge for GDPR-compliant privacy controls.
+  </desc>
+  <defs>
+    <linearGradient
+      id="gdpr-blue"
+      x1="42"
+      x2="318"
+      y1="54"
+      y2="306"
+      gradientUnits="userSpaceOnUse">
+      <stop
+        offset="0"
+        stop-color="#0099ff" />
+      <stop
+        offset="0.52"
+        stop-color="#1264d8" />
+      <stop
+        offset="1"
+        stop-color="#0d318f" />
+    </linearGradient>
+    <linearGradient
+      id="gdpr-ring"
+      x1="30"
+      x2="330"
+      y1="180"
+      y2="180"
+      gradientUnits="userSpaceOnUse">
+      <stop
+        offset="0"
+        stop-color="#19c7ff" />
+      <stop
+        offset="1"
+        stop-color="#194eb4" />
+    </linearGradient>
+  </defs>
+  <circle
+    cx="180"
+    cy="180"
+    r="176"
+    fill="none" />
+  <circle
+    cx="180"
+    cy="180"
+    r="171"
+    fill="url(#gdpr-ring)" />
+  <circle
+    cx="180"
+    cy="180"
+    r="139"
+    fill="url(#gdpr-blue)" />
+  <circle
+    cx="180"
+    cy="180"
+    r="119"
+    fill="none"
+    stroke="#fff"
+    stroke-dasharray="7 9"
+    stroke-linecap="round"
+    stroke-opacity=".5"
+    stroke-width="2" />
+  <g
+    fill="#fff"
+    opacity=".9">
+    <circle
+      cx="180"
+      cy="58"
+      r="6" />
+    <circle
+      cx="241"
+      cy="74"
+      r="6" />
+    <circle
+      cx="286"
+      cy="119"
+      r="6" />
+    <circle
+      cx="302"
+      cy="180"
+      r="6" />
+    <circle
+      cx="286"
+      cy="241"
+      r="6" />
+    <circle
+      cx="241"
+      cy="286"
+      r="6" />
+    <circle
+      cx="180"
+      cy="302"
+      r="6" />
+    <circle
+      cx="119"
+      cy="286"
+      r="6" />
+    <circle
+      cx="74"
+      cy="241"
+      r="6" />
+    <circle
+      cx="58"
+      cy="180"
+      r="6" />
+    <circle
+      cx="74"
+      cy="119"
+      r="6" />
+    <circle
+      cx="119"
+      cy="74"
+      r="6" />
+  </g>
+  <text
+    x="180"
+    y="179"
+    fill="#fff"
+    font-family="Inter, Arial, sans-serif"
+    font-size="66"
+    font-weight="500"
+    letter-spacing="2"
+    text-anchor="middle">
+    GDPR
+  </text>
+  <text
+    x="180"
+    y="226"
+    fill="#fff"
+    font-family="Inter, Arial, sans-serif"
+    font-size="20"
+    font-weight="600"
+    letter-spacing="4"
+    text-anchor="middle">
+    COMPLIANT
+  </text>
+</svg>
