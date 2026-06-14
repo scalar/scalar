@@ -836,6 +836,40 @@
               ]
             }
           },
+          "/security": {
+            "title": "Security",
+            "icon": "phosphor/regular/shield-check",
+            "description": "Learn how Scalar approaches security, privacy, identity, access controls, and responsible disclosure.",
+            "filepath": "documentation/guides/security.md",
+            "type": "page",
+            "showInSidebar": false,
+            "head": {
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/security"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Learn how Scalar approaches security, privacy, identity, access controls, and responsible disclosure."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Security - Scalar"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Learn how Scalar approaches security, privacy, identity, access controls, and responsible disclosure."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
           "/products": {
             "type": "group",
             "title": "Products",

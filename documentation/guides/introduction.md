@@ -385,6 +385,34 @@
           <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
         </span>
         <p class="text-c-3 text-base text-balance">The API company.</p>
+        <div class="footer-trust-badges" aria-label="Compliance badges">
+          <a
+            class="footer-trust-badge-link"
+            href="https://trust.scalar.com"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="View Scalar Trust Center"
+          >
+            <img
+              class="footer-trust-badge-soc"
+              src="/security/aicpa-soc-2-seal.png"
+              alt="SOC 2 logo"
+            />
+          </a>
+          <a
+            class="footer-trust-badge-link"
+            href="https://trust.scalar.com"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="View Scalar Trust Center"
+          >
+            <img
+              class="footer-trust-badge-gdpr"
+              src="/security/gdpr-compliant-badge.svg"
+              alt="GDPR compliant badge"
+            />
+          </a>
+        </div>
         <div class="footer-socials" aria-label="Social links">
           <a class="footer-social-link" href="https://twitter.com/scalar" target="_blank" aria-label="Scalar on X">
             <scalar-icon src="phosphor/bold/x-logo"></scalar-icon>
@@ -404,16 +432,19 @@
       <div class="footer-links text-base">
         <div class="footer-link-group flex flex-col gap-2">
           <b>Products</b>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/docs/getting-started" target="_blank">Docs</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/agent/getting-started" target="_blank">MCP & Agent</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/sdks/getting-started" target="_blank">SDKs</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/registry/getting-started" target="_blank">Registry</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-client/getting-started" target="_blank">API Client</a>
         </div>
         <div class="footer-link-group flex flex-col gap-2">
           <b>Company</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/security" target="_blank">Security</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/brand">Brand</a>
           <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
         </div>
@@ -826,7 +857,8 @@
   .footer-content span,
   .footer-content p,
   .footer-content a,
-  .footer-content button {
+  .footer-content button,
+  .footer-content img {
     position: relative;
     z-index: 1;
   }
@@ -842,12 +874,34 @@
     gap: 8px;
     margin-top: 36px;
   }
+  .footer-trust-badges {
+    display: flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 12px;
+    margin-top: 22px;
+  }
+  .footer-trust-badge-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 74px;
+    height: 74px;
+    outline-offset: 4px;
+  }
+  .footer-trust-badge-soc,
+  .footer-trust-badge-gdpr {
+    display: block;
+    width: 68px;
+    height: 68px;
+    object-fit: contain;
+  }
   @media screen and (min-width: 1001px) {
     .introduction.footer {
       padding-bottom: 80px;
     }
     .footer-socials {
-      margin-top: 120px;
+      margin-top: 72px;
     }
   }
   .footer-social-link {

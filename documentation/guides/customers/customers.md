@@ -84,16 +84,19 @@
       <div class="footer-links text-base">
         <div class="footer-link-group flex flex-col gap-2">
           <b>Products</b>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/docs/getting-started" target="_blank">Docs</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/agent/getting-started" target="_blank">MCP & Agent</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/sdks/getting-started" target="_blank">SDKs</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/registry/getting-started" target="_blank">Registry</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-client/getting-started" target="_blank">API Client</a>
         </div>
         <div class="footer-link-group flex flex-col gap-2">
           <b>Company</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/security" target="_blank">Security</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/brand">Brand</a>
           <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
         </div>
