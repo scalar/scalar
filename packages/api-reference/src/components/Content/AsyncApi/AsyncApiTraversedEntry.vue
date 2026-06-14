@@ -97,6 +97,7 @@ const getModelSchema = (name: string) => getAsyncApiModelSchema(document, name)
       :channel="entry"
       :document="document"
       :eventBus="eventBus"
+      :expandedItems="expandedItems"
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"
       :options="options" />

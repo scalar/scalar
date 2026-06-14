@@ -10,7 +10,10 @@ import {
   getResolvedRef,
   mergeSiblingReferences,
 } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { TraversedAsyncApiChannel } from '@scalar/workspace-store/schemas/navigation'
+import type {
+  TraversedAsyncApiChannel,
+  TraversedAsyncApiOperation,
+} from '@scalar/workspace-store/schemas/navigation'
 import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -25,6 +28,7 @@ import {
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
+import Operation from './Operation.vue'
 
 /** Subset of the configuration the shared `ParameterList` renderer needs. */
 type ParameterListOptions = Pick<
@@ -35,15 +39,24 @@ type ParameterListOptions = Pick<
   | 'expandAllSchemaProperties'
 >
 
-const { channel, document, layout, isCollapsed, eventBus, options } =
-  defineProps<{
-    channel: TraversedAsyncApiChannel
-    document: AsyncApiDocument
-    layout: 'classic' | 'modern'
-    isCollapsed: boolean
-    eventBus: WorkspaceEventBus | null
-    options?: Partial<ParameterListOptions>
-  }>()
+const {
+  channel,
+  document,
+  layout,
+  isCollapsed,
+  eventBus,
+  options,
+  expandedItems = {},
+} = defineProps<{
+  channel: TraversedAsyncApiChannel
+  document: AsyncApiDocument
+  layout: 'classic' | 'modern'
+  isCollapsed: boolean
+  eventBus: WorkspaceEventBus | null
+  options?: Partial<ParameterListOptions>
+  /** Map of navigation item id to expanded state, shared with the sidebar. */
+  expandedItems?: Record<string, boolean>
+}>()
 
 const headerId = useId()
 
@@ -86,6 +99,14 @@ const parameterListOptions = computed<ParameterListOptions>(() => ({
   orderSchemaPropertiesBy: options?.orderSchemaPropertiesBy ?? 'preserve',
   expandAllSchemaProperties: options?.expandAllSchemaProperties ?? false,
 }))
+
+/** Operations that target this channel, rendered nested beneath the channel content. */
+const operations = computed(() =>
+  (channel.children ?? []).filter(
+    (child): child is TraversedAsyncApiOperation =>
+      child.type === 'asyncapi-operation',
+  ),
+)
 </script>
 
 <template>
@@ -121,6 +142,14 @@ const parameterListOptions = computed<ParameterListOptions>(() => ({
       :parameters="parameters">
       <template #title>Parameters</template>
     </ParameterList>
+    <Operation
+      v-for="operation in operations"
+      :key="operation.id"
+      :document="document"
+      :eventBus="eventBus"
+      :expandedItems="expandedItems"
+      :operation="operation"
+      :options="options" />
   </SectionContainerAccordion>
 
   <SectionContainer
@@ -156,6 +185,14 @@ const parameterListOptions = computed<ParameterListOptions>(() => ({
           :parameters="parameters">
           <template #title>Parameters</template>
         </ParameterList>
+        <Operation
+          v-for="operation in operations"
+          :key="operation.id"
+          :document="document"
+          :eventBus="eventBus"
+          :expandedItems="expandedItems"
+          :operation="operation"
+          :options="options" />
       </SectionContent>
     </Section>
   </SectionContainer>

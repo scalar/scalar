@@ -1,14 +1,8 @@
-import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-/**
- * A resolved `components.schemas` entry may be a JSON Schema object, a boolean (`true`/`false`)
- * schema, or a Multi Format Schema wrapper, so accept only plain objects and treat them as the
- * `SchemaObject` the shared Model rendering and search helpers expect.
- */
-const isSchemaObject = (value: unknown): value is SchemaObject => isObject(value)
+import { unwrapAsyncApiSchema } from './get-async-api-message-payload-schema'
 
 /**
  * Resolves a named schema from an AsyncAPI document's `components.schemas` into the `SchemaObject`
@@ -29,15 +23,7 @@ export const getAsyncApiModelSchema = (document: AsyncApiDocument, name: string)
   // Merge siblings at the components level so schemas declared alongside a `$ref` are kept.
   const components = getResolvedRef(document.components, mergeSiblingReferences)
   const entry = components.schemas?.[name]
-  if (entry === undefined) {
-    return undefined
-  }
 
-  // Resolve the schema itself the same way OpenAPI model rendering does (plain `$ref-value`).
-  const resolved = getResolvedRef(entry)
-
-  // Multi Format Schema Objects carry the real schema under `schema`; unwrap to that payload.
-  const schema = isObject(resolved) && 'schemaFormat' in resolved ? getResolvedRef(resolved.schema) : resolved
-
-  return isSchemaObject(schema) ? schema : undefined
+  // Resolve `$ref`s and unwrap Multi Format Schema Objects into the plain JSON Schema shape.
+  return unwrapAsyncApiSchema(entry)
 }
