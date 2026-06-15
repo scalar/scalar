@@ -81,6 +81,7 @@ const mountWithProps = (
     collectionType: 'document' | 'operation'
     path: string
     method: string
+    options: Record<string, unknown>
   }> = {},
 ) => {
   const document = custom.document ?? baseDocument
@@ -108,6 +109,7 @@ const mountWithProps = (
         collectionType: custom.collectionType ?? 'document',
         path: custom.path,
         method: (custom.method ?? 'get') as HttpMethod | undefined,
+        options: custom.options,
       },
     }),
     eventBus,
@@ -177,6 +179,38 @@ describe('document collection', () => {
       url: 'https://api.example.com',
       description: 'Production Server',
     })
+  })
+
+  it('forwards customFetch from route options into the AuthSelector options', () => {
+    const customFetch = vi.fn()
+    const { wrapper } = mountWithProps({
+      collectionType: 'document',
+      options: { customFetch, oauth2RedirectUri: 'https://example.com/callback' },
+    })
+
+    const authSelector = wrapper.findComponent(AuthSelector)
+    expect(authSelector.props('options')).toEqual({
+      customFetch,
+      oauth2RedirectUri: 'https://example.com/callback',
+    })
+  })
+
+  it('forwards customFetch even without an oauth2RedirectUri', () => {
+    const customFetch = vi.fn()
+    const { wrapper } = mountWithProps({
+      collectionType: 'document',
+      options: { customFetch },
+    })
+
+    const authSelector = wrapper.findComponent(AuthSelector)
+    expect(authSelector.props('options')?.customFetch).toBe(customFetch)
+  })
+
+  it('leaves AuthSelector options undefined when no relevant overrides are set', () => {
+    const { wrapper } = mountWithProps({ collectionType: 'document' })
+
+    const authSelector = wrapper.findComponent(AuthSelector)
+    expect(authSelector.props('options')).toBeUndefined()
   })
 
   it('handles missing security and securitySchemes gracefully', () => {
