@@ -423,8 +423,9 @@ describe('validate-request', () => {
     })
 
     const arrayServer = await createMockServer({ document: arrayDoc, validateRequest: true })
-    expect((await arrayServer.request('/items/.1.2.3')).status).toBe(200)
-    // A single element cannot meet `minItems: 2`, proving the dot-list is parsed as an array.
+    // `label` defaults to `explode: false`, where elements are comma-separated after the leading dot.
+    expect((await arrayServer.request('/items/.1,2,3')).status).toBe(200)
+    // A single element cannot meet `minItems: 2`, proving the list is parsed as an array.
     expect((await arrayServer.request('/items/.1')).status).toBe(422)
 
     const objectDoc = documentWith('/points/{point}', 'get', {
@@ -443,6 +444,23 @@ describe('validate-request', () => {
     const objectServer = await createMockServer({ document: objectDoc, validateRequest: true })
     expect((await objectServer.request('/points/.x=1.y=2')).status).toBe(200)
     expect((await objectServer.request('/points/.x=nope')).status).toBe(422)
+
+    // Non-exploded `label` objects (the default) carry comma-separated key,value pairs: `.x,1,y,2`.
+    const nonExplodedDoc = documentWith('/points/{point}', 'get', {
+      parameters: [
+        {
+          name: 'point',
+          in: 'path',
+          required: true,
+          style: 'label',
+          schema: { type: 'object', required: ['x'], properties: { x: { type: 'integer' }, y: { type: 'integer' } } },
+        },
+      ],
+    })
+
+    const nonExplodedServer = await createMockServer({ document: nonExplodedDoc, validateRequest: true })
+    expect((await nonExplodedServer.request('/points/.x,1,y,2')).status).toBe(200)
+    expect((await nonExplodedServer.request('/points/.x,nope')).status).toBe(422)
   })
 
   it('validates matrix-style array and object path params', async () => {

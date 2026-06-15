@@ -91,8 +91,9 @@ describe('deserialize-parameter', () => {
       expect(deserializeArrayParameter({ style: 'simple', explode: false, single: 'a, b, c' })).toEqual(['a', 'b', 'c'])
     })
 
-    it('parses label arrays (dot-prefixed, dot-separated)', () => {
-      expect(deserializeArrayParameter({ style: 'label', explode: false, single: '.1.2.3' })).toEqual(['1', '2', '3'])
+    it('parses label arrays (comma-separated when not exploded, dot-separated when exploded)', () => {
+      // Per the spec Style Examples: non-exploded `label` is `.blue,black,brown`, exploded is `.blue.black.brown`.
+      expect(deserializeArrayParameter({ style: 'label', explode: false, single: '.1,2,3' })).toEqual(['1', '2', '3'])
       expect(deserializeArrayParameter({ style: 'label', explode: true, single: '.1.2.3' })).toEqual(['1', '2', '3'])
     })
 
@@ -253,12 +254,23 @@ describe('deserialize-parameter', () => {
       ).toEqual({ R: '100', G: '200' })
     })
 
-    it('parses label objects (dot-prefixed) for both explode modes', () => {
+    it('parses label objects (comma-separated when not exploded, dot key=value when exploded)', () => {
+      // Per the spec Style Examples: non-exploded `label` object is `.R,100,G,200`, exploded is `.R=100.G=200`.
       expect(
-        deserializeObjectParameter({ style: 'label', explode: false, single: '.R.100.G.200', name: 'color' }),
+        deserializeObjectParameter({ style: 'label', explode: false, single: '.R,100,G,200', name: 'color' }),
       ).toEqual({ R: '100', G: '200' })
       expect(
         deserializeObjectParameter({ style: 'label', explode: true, single: '.R=100.G=200', name: 'color' }),
+      ).toEqual({ R: '100', G: '200' })
+    })
+
+    it('parses spaceDelimited and pipeDelimited objects as delimiter-separated key,value lists', () => {
+      // Per the spec Style Examples: `color=R%20100%20G%20200` (space) / `color=R%7C100%7CG%7C200` (pipe).
+      expect(
+        deserializeObjectParameter({ style: 'spaceDelimited', explode: false, single: 'R 100 G 200', name: 'color' }),
+      ).toEqual({ R: '100', G: '200' })
+      expect(
+        deserializeObjectParameter({ style: 'pipeDelimited', explode: false, single: 'R|100|G|200', name: 'color' }),
       ).toEqual({ R: '100', G: '200' })
     })
 

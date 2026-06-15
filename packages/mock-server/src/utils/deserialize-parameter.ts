@@ -105,10 +105,14 @@ const matrixSegments = (value: string): string[] =>
     .split(';')
     .filter((segment) => segment.length > 0)
 
-/** Split a `label`-encoded value into its `.`-separated parts, dropping the leading `.`. Empty means no parts. */
-const labelParts = (value: string): string[] => {
+/**
+ * Split a `label`-encoded value into its parts, dropping the leading `.`. Per the OpenAPI serialization
+ * rules a non-exploded `label` value is comma-separated (`.blue,black,brown`, `.R,100,G,200`) while an
+ * exploded one is dot-separated (`.blue.black.brown`, `.R=100.G=200`). An empty value means no parts.
+ */
+const labelParts = (value: string, explode: boolean): string[] => {
   const inner = stripPrefix(value, '.')
-  return inner === '' ? [] : inner.split('.')
+  return inner === '' ? [] : inner.split(explode ? '.' : ',')
 }
 
 /** Build an object from a list of `key=value` segments (for example `['R=100', 'G=200']`). */
@@ -186,8 +190,9 @@ export const deserializeArrayParameter = ({
       // optional whitespace after the comma in header list values (`a, b, c`), so trim each element.
       return single === undefined ? undefined : single === '' ? [] : single.split(',').map((element) => element.trim())
     case 'label':
-      // Path `label` arrays are dot-prefixed and dot-separated (`.1.2.3`), regardless of `explode`.
-      return single === undefined ? undefined : labelParts(single)
+      // Path `label` arrays are dot-prefixed. Non-exploded values are comma-separated (`.1,2,3`),
+      // exploded values are dot-separated (`.1.2.3`).
+      return single === undefined ? undefined : labelParts(single, explode)
     case 'matrix':
       return parseMatrixArray(single, explode)
     default:
@@ -286,13 +291,13 @@ export const deserializeObjectParameter = ({
     return parsePairs(single, ',')
   }
 
-  // `label` (path): dot-prefixed and dot-separated. Exploded uses `key=value`, e.g. `.R=100.G=200`;
-  // non-exploded alternates key and value, e.g. `.R.100.G.200`.
+  // `label` (path): dot-prefixed. Exploded uses dot-separated `key=value`, e.g. `.R=100.G=200`;
+  // non-exploded alternates comma-separated key and value, e.g. `.R,100,G,200`.
   if (style === 'label') {
     if (single === undefined) {
       return undefined
     }
-    const parts = labelParts(single)
+    const parts = labelParts(single, explode)
     return explode ? pairsFromList(parts) : alternatingFromList(parts)
   }
 
@@ -308,6 +313,15 @@ export const deserializeObjectParameter = ({
     }
     const [first] = segments
     return first === undefined ? {} : alternatingFromList(valueAfterEquals(first).split(','))
+  }
+
+  // `spaceDelimited` / `pipeDelimited` (query): a flat alternating key,value list joined by the
+  // delimiter, e.g. `R 100 G 200` or `R|100|G|200`. Only defined for the non-exploded form.
+  if (style === 'spaceDelimited') {
+    return parseAlternating(single, ' ')
+  }
+  if (style === 'pipeDelimited') {
+    return parseAlternating(single, '|')
   }
 
   // Non-exploded `form` and `simple`: a flat list alternating key, value, e.g. `R,100,G,200`.
