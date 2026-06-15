@@ -43,8 +43,12 @@ const python: LanguageFn = (hljs) => {
   ].map((word) => word.replace(/\|\d+$/, ''))
 
   // Negative lookahead that rejects an excluded word when it is the thing being
-  // called (for example `print(`), so it keeps its original scope.
-  const notReserved = regex.concat('(?!', reserved.map((word) => `${word}\\s*\\(`).join('|'), ')')
+  // called (for example `print(`), so it keeps its original scope. The trailing
+  // call lookahead below already guarantees a `(`, so we only need to assert the
+  // identifier is not exactly a reserved word; a word boundary does that without
+  // a `\s*` quantifier, which would otherwise let the lookahead backtrack over
+  // runs of whitespace and scan in polynomial time on untrusted input.
+  const notReserved = regex.concat('(?!(?:', reserved.join('|'), ')\\b)')
 
   const functionCall = {
     scope: 'title.function',
