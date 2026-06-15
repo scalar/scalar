@@ -1,0 +1,33 @@
+import { expect, test } from '@playwright/test'
+import { serveExample } from '@test/utils/serve-example'
+
+test.describe('onBeforeRequest', () => {
+  test('fires before a request is sent from the client', async ({ page }) => {
+    const example = await serveExample({
+      onBeforeRequest: () => {
+        ;(window as unknown as Record<string, unknown>).__beforeRequest = true
+      },
+      content: {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        // A relative server resolves to the example origin, so the request gets
+        // an actual (same-origin) response without needing the proxy.
+        servers: [{ url: '/' }],
+        paths: {
+          '/ping': { get: { summary: 'Ping', tags: ['Health'] } },
+        },
+      },
+    })
+
+    await page.goto(example)
+
+    await page.getByRole('button', { name: 'Test Request (get /ping)', exact: true }).click()
+
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await page.getByRole('dialog').getByRole('button', { name: 'Send Request' }).click()
+
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as Record<string, unknown>).__beforeRequest))
+      .toBe(true)
+  })
+})
