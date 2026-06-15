@@ -355,8 +355,6 @@ type ExtendedConfiguration = {
   plugins?: ApiReferencePlugin[]
   /** Allows the user to inject an editor for the spec */
   isEditable: boolean
-  /** Controls whether the references show a loading state in the intro */
-  isLoading: boolean
   /** Whether to show models in the sidebar, search, and content. */
   hideModels: boolean
   /** Label for the components.schemas section (`Models`, `Schemas`, or any custom string). */
