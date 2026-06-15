@@ -35,9 +35,26 @@ const viewComponentSchema = z.object({
    * Additional props to pass to the component
    */
   props: z.record(z.string(), z.any()).optional(),
+  /**
+   * Sidebar configuration for this view component.
+   * If provided with `show: true`, an entry will be shown in the sidebar.
+   * Set `show: false` or omit to hide from the sidebar.
+   */
+  sidebar: z
+    .object({
+      /** Whether to show in sidebar */
+      show: z.boolean().default(false),
+      /** Label to display in the sidebar */
+      label: z.string(),
+    })
+    .optional(),
 })
 
 const viewsSchema = z.object({
+  /**
+   * Renders before the Introduction/Info section
+   */
+  'content.start': z.array(viewComponentSchema).optional(),
   /**
    * Renders after the Models section
    */

@@ -125,7 +125,22 @@ Plugins can inject components at specific locations in the API Reference using v
 
 #### Available Views
 
+- `content.start` - Before the Introduction/Info section
 - `content.end` - After the Models section
+
+#### Sidebar Visibility
+
+View components can optionally appear in the sidebar. Add a `sidebar` configuration to control this. Clicking the entry scrolls to the component, and the entry highlights as it scrolls into view, just like the built-in sections.
+
+```typescript
+{
+  component: CustomComponent,
+  sidebar: {
+    show: true,       // true = visible in sidebar, false/omitted = hidden
+    label: 'My Page', // Display text in the sidebar
+  },
+}
+```
 
 #### Example
 
@@ -139,9 +154,20 @@ export const FeedbackPlugin = (): ApiReferencePlugin => {
       name: 'feedback-plugin',
       extensions: [],
       views: {
+        'content.start': [
+          {
+            component: CustomComponent,
+            // Show in sidebar
+            sidebar: {
+              show: true,
+              label: 'Getting Started',
+            },
+          },
+        ],
         'content.end': [
           {
             component: CustomComponent,
+            // Not shown in sidebar (omitted)
           },
         ],
       },
@@ -172,6 +198,34 @@ export const FeedbackPlugin = (): ApiReferencePlugin => {
           {
             component: CustomComponent,
             renderer: ReactRenderer,
+          },
+        ],
+      },
+    }
+  }
+}
+```
+
+With sidebar visibility:
+
+```typescript
+import { ReactRenderer } from '@scalar/react-renderer'
+import { CustomComponent } from './components/CustomComponent'
+
+export const FeedbackPlugin = (): ApiReferencePlugin => {
+  return () => {
+    return {
+      name: 'feedback-plugin',
+      extensions: [],
+      views: {
+        'content.start': [
+          {
+            component: CustomComponent,
+            renderer: ReactRenderer,
+            sidebar: {
+              show: true,
+              label: 'Support',
+            },
           },
         ],
       },
