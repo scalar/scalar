@@ -135,6 +135,51 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('stores array leaves of expanded deepObject rows as arrays, not comma-joined strings', () => {
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const context: TableRow[] = [
+      {
+        name: 'filters[applicationInstanceId][in][]',
+        // The table always shows the comma-joined display string for an array.
+        value: '1,2',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        schema: { type: 'array', items: { type: 'string' } },
+        sourceParameterValuePath: ['applicationInstanceId', 'in'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context })
+
+    handlers.upsert(0, { name: 'filters[applicationInstanceId][in][]', value: '1,2', isDisabled: false })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: {
+            applicationInstanceId: {
+              in: ['1', '2'],
+            },
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
   it('renames a form-expanded property row by moving the value to the typed key', () => {
     const parentParameter = {
       name: 'filters',
