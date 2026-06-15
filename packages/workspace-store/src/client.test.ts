@@ -3860,7 +3860,7 @@ describe('create-workspace-store', () => {
       const store = createWorkspaceStore()
       await store.addDocument({ name: documentName, document: getDocument() })
 
-      const active = store.workspace.activeDocument!
+      const active = getActiveOpenApiDocument(store)!
       active['x-scalar-watch-mode'] = true
       active['x-scalar-selected-server'] = 'my-server-uid'
       active['x-scalar-environments'] = { staging: { color: '#FFFFFF', variables: [] } }
@@ -3876,7 +3876,7 @@ describe('create-workspace-store', () => {
       assert(result.ok)
       await result.applyChanges({ resolvedConflicts: [] })
 
-      const doc = store.workspace.documents[documentName]!
+      const doc = getOpenApiDocument(store, documentName)!
       expect(doc.info?.title).toBe('Updated upstream')
       expect(doc['x-scalar-watch-mode']).toBe(true)
       expect(doc['x-scalar-selected-server']).toBe('my-server-uid')
