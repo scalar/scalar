@@ -743,6 +743,38 @@ describe('serializeDeepObjectStyle', () => {
     })
   })
 
+  describe('nested arrays', () => {
+    it('serializes nested arrays with the trailing bracket convention', () => {
+      // Regression test for https://github.com/scalar/scalar/issues/9492
+      // deepObject array values should expand to repeated `key[]` entries
+      // (filters[applicationInstanceId][in][]=1&filters[applicationInstanceId][in][]=2)
+      // instead of collapsing into a single comma-joined value.
+      const value = { applicationInstanceId: { in: [1, 2] } }
+      const result = serializeDeepObjectStyle('filters', value)
+      expect(result).toEqual([
+        { key: 'filters[applicationInstanceId][in][]', value: '1' },
+        { key: 'filters[applicationInstanceId][in][]', value: '2' },
+      ])
+    })
+
+    it('serializes a top-level array property with trailing brackets', () => {
+      const result = serializeDeepObjectStyle('filter', { tags: ['a', 'b'] })
+      expect(result).toEqual([
+        { key: 'filter[tags][]', value: 'a' },
+        { key: 'filter[tags][]', value: 'b' },
+      ])
+    })
+
+    it('keeps other properties alongside array values', () => {
+      const result = serializeDeepObjectStyle('filter', { ids: [1, 2], role: 'admin' })
+      expect(result).toEqual([
+        { key: 'filter[ids][]', value: '1' },
+        { key: 'filter[ids][]', value: '2' },
+        { key: 'filter[role]', value: 'admin' },
+      ])
+    })
+  })
+
   describe('edge cases', () => {
     it('handles empty objects', () => {
       const result = serializeDeepObjectStyle('filter', {})
