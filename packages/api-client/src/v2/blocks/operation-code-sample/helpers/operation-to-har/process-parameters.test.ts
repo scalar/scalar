@@ -771,6 +771,37 @@ describe('parameter styles', () => {
         { name: 'tags', value: 'c' },
       ])
     })
+
+    it('expands nested arrays with the trailing bracket convention', () => {
+      // Regression test for https://github.com/scalar/scalar/issues/9492
+      const result = runProcessParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'filters',
+            in: 'query',
+            required: true,
+            style: 'deepObject',
+            explode: true,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                applicationInstanceId: {
+                  type: 'object',
+                  properties: { in: { type: 'array', items: { type: 'integer' } } },
+                },
+              },
+              example: { applicationInstanceId: { in: [1, 2] } },
+            }),
+          },
+        ],
+      })
+
+      expect(result.queryString).toEqual([
+        { name: 'filters[applicationInstanceId][in][]', value: '1' },
+        { name: 'filters[applicationInstanceId][in][]', value: '2' },
+      ])
+    })
   })
 
   describe('header parameters', () => {
