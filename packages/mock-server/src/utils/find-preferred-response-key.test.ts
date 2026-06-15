@@ -3,12 +3,20 @@ import { describe, expect, it } from 'vitest'
 import { findPreferredResponseKey } from './find-preferred-response-key'
 
 describe('findPreferredResponseKey', () => {
-  it('returns default over 200', () => {
-    expect(findPreferredResponseKey(['default', '200'])).toBe('default')
+  it('prefers a defined 2xx success over default', () => {
+    expect(findPreferredResponseKey(['default', '200'])).toBe('200')
   })
 
-  it('returns default over other success responses', () => {
-    expect(findPreferredResponseKey(['default', '202'])).toBe('default')
+  it('prefers a concrete error response over default', () => {
+    expect(findPreferredResponseKey(['default', '404'])).toBe('404')
+  })
+
+  it('falls back to default when only informational responses are defined alongside it', () => {
+    expect(findPreferredResponseKey(['default', '100'])).toBe('default')
+  })
+
+  it('uses default when it is the only response', () => {
+    expect(findPreferredResponseKey(['default'])).toBe('default')
   })
 
   it(`returns 201 if it's the only one`, () => {
@@ -49,6 +57,18 @@ describe('findPreferredResponseKey', () => {
 
   it('prefers an explicit 2xx code over a 2XX range', () => {
     expect(findPreferredResponseKey(['2XX', '200'])).toBe('200')
+  })
+
+  it('prefers an explicit 2xx code over a 2XX range even when the code is higher', () => {
+    expect(findPreferredResponseKey(['2XX', '201'])).toBe('201')
+  })
+
+  it('prefers an explicit error code over a 4XX range', () => {
+    expect(findPreferredResponseKey(['4XX', '404'])).toBe('404')
+  })
+
+  it('returns undefined when only non-status keys are defined', () => {
+    expect(findPreferredResponseKey(['x-extension'])).toBe(undefined)
   })
 
   it('ignores a 1XX range when other codes are defined', () => {

@@ -128,6 +128,62 @@ describe('Prefer header', () => {
       expect(response.status).toBe(200)
       expect(await response.json()).toEqual({ status: 'queued' })
     })
+
+    it('prefers a defined 2xx success over the default response', async () => {
+      const server = await createMockServer({
+        document: {
+          openapi: '3.1.0',
+          info: baseInfo,
+          paths: {
+            '/things': {
+              get: {
+                responses: {
+                  default: {
+                    description: 'Unexpected error',
+                    content: { 'application/json': { example: { error: 'unexpected' } } },
+                  },
+                  '200': {
+                    description: 'OK',
+                    content: { 'application/json': { example: { status: 'ok' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const response = await server.request('/things')
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({ status: 'ok' })
+    })
+
+    it('falls back to the default response when no concrete code is defined', async () => {
+      const server = await createMockServer({
+        document: {
+          openapi: '3.1.0',
+          info: baseInfo,
+          paths: {
+            '/things': {
+              get: {
+                responses: {
+                  default: {
+                    description: 'Unexpected error',
+                    content: { 'application/json': { example: { error: 'unexpected' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const response = await server.request('/things')
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({ error: 'unexpected' })
+    })
   })
 
   describe('example directive', () => {
