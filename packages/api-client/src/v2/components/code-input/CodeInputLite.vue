@@ -524,6 +524,9 @@ const updateDropdownVisibility = (): void => {
   }
 
   dropdownQuery.value = text.slice(lastOpen + 2)
+  // Make sure the combobox has an id before it advertises `aria-expanded`, so
+  // `aria-controls` always resolves to the listbox we are about to render.
+  ensureComponentId()
   showDropdown.value = true
 
   // Anchor under the caret; `getBoundingClientRect` gives the caret rect in one read.
