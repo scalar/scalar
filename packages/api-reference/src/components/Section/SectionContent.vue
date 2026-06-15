@@ -1,22 +1,6 @@
-<script setup lang="ts">
-import LoadingSkeleton from '../LoadingSkeleton.vue'
-
-withDefaults(
-  defineProps<{
-    loading?: boolean
-  }>(),
-  {
-    loading: false,
-  },
-)
-</script>
-
 <template>
   <div class="section-content">
-    <slot v-if="!loading" />
-    <template v-else>
-      <LoadingSkeleton :lines="8" />
-    </template>
+    <slot />
   </div>
 </template>
 
