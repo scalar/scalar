@@ -114,55 +114,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
 </div>
 
 
-<div class="getting-started footer">
-  <div class="footer-content">
-      <div class="flex flex-col gap-2">
-        <span class="text-c-1">
-          <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
-        </span>
-        <p class="text-c-3 text-base text-balance">The API company.</p>
-        <div class="footer-socials" aria-label="Social links">
-          <a class="footer-social-link" href="https://twitter.com/scalar" target="_blank" aria-label="Scalar on X">
-            <scalar-icon src="phosphor/bold/x-logo"></scalar-icon>
-          </a>
-          <a class="footer-social-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="Scalar on GitHub">
-            <scalar-icon src="phosphor/fill/github-logo"></scalar-icon>
-          </a>
-          <a class="footer-social-link" href="https://discord.gg/scalar" target="_blank" aria-label="Scalar on Discord">
-            <scalar-icon src="phosphor/fill/discord-logo"></scalar-icon>
-          </a>
-          <a class="footer-social-link" href="https://www.linkedin.com/company/scalar-org" target="_blank" aria-label="Scalar on LinkedIn">
-            <scalar-icon src="phosphor/fill/linkedin-logo"></scalar-icon>
-          </a>
-        </div>
-        <p class="text-c-3 text-base text-balance">© API Documentation, Inc.</p>
-      </div>
-      <div class="footer-links text-base">
-        <div class="footer-link-group flex flex-col gap-2">
-          <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/docs/getting-started" target="_blank">Docs</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/agent/getting-started" target="_blank">MCP & Agent</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/sdks/getting-started" target="_blank">SDKs</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/registry/getting-started" target="_blank">Registry</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-client/getting-started" target="_blank">API Client</a>
-        </div>
-        <div class="footer-link-group flex flex-col gap-2">
-          <b>Company</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/security" target="_blank">Security</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/brand">Brand</a>
-          <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
-        </div>
-      </div>
-  </div>
-  <div class="footer-animation">
-    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
-  </div>
-</div>
-
 <div class="sticker-filter-effect">
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
 </div>
@@ -542,7 +493,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
   .t-editor__page-nav,
   .notify-container,
   .subheading,
-  :not(.getting-started).footer,
   .t-editor .page-header,
   .content .page-nav,
   .t-doc__toc {
@@ -571,7 +521,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
     --scalar-toc-width: 0;
   }
   .hero.hero {
-    margin-top: 88px;
+    margin-top: 78px;
   }
   .small-test {
     max-width: 680px;
@@ -748,104 +698,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
   .mb-11 {
     margin-bottom: 44px;
   }
-  /* footer */
-  .getting-started.footer {
-    position: relative;
-    overflow: hidden;
-    width: calc(100% + 96px);
-    margin: 0 0 68px -48px;
-    background: var(--scalar-background-2);
-    border-radius: var(--scalar-radius-lg);
-    padding-inline: 20px;
-    padding-bottom: 200px;
-  }
-  .footer-animation {
-    margin-inline: -20px;
-  }
-  .footer-animation svg {
-    position: absolute;
-    bottom: 0;
-  }
-  .fa-gradient,
-  .fa-gradient-2 {
-    background: linear-gradient(90deg, var(--scalar-color-blue), var(--scalar-color-yellow) 8.3%, var(--scalar-color-green) 16.6%, var(--scalar-color-accent) 24.9%, var(--scalar-color-orange) 33.2%, var(--scalar-color-purple) 41.5%, var(--scalar-color-blue) 49.8%, var(--scalar-color-yellow) 58.1%, var(--scalar-color-green) 66.4%, var(--scalar-color-accent) 74.7%, var(--scalar-color-orange) 83%, var(--scalar-color-purple) 91.3%, var(--scalar-color-blue));
-  }
-  .footer-content {
-    display: flex;
-    gap: 48px;
-    max-width: var(--scalar-container-width);
-    width: 100%;
-    margin: auto;
-    padding-top: 48px;
-  }
-  .footer-content > * {
-    flex: 1;
-  }
-  .footer-links {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 48px;
-  }
-  .footer-content span,
-  .footer-content p,
-  .footer-content a,
-  .footer-content button {
-    position: relative;
-    z-index: 1;
-  }
-  .footer-content a,
-  .footer-content a:hover,
-  .footer-content a:visited,
-  .footer-content button {
-    text-decoration: none;
-    text-decoration-line: none;
-  }
-  .footer-socials {
-    display: flex;
-    gap: 8px;
-    margin-top: 36px;
-  }
-  @media screen and (min-width: 1001px) {
-    .getting-started.footer {
-      padding-bottom: 80px;
-    }
-    .footer-socials {
-      margin-top: 120px;
-    }
-  }
-  .footer-social-link {
-    display: inline-flex;
-    width: 28px;
-    height: 28px;
-    align-items: center;
-    justify-content: center;
-    color: var(--scalar-color-2);
-    text-decoration: none;
-  }
-  .footer-social-link:hover,
-  .footer-social-link:visited {
-    color: var(--scalar-color-1);
-    text-decoration: none;
-  }
-  .footer-social-link scalar-icon,
-  .footer-social-link svg {
-    width: 18px;
-    height: 18px;
-  }
-  @media screen and (max-width: 1379px) {
-    .getting-started.footer {
-      --scalar-container-sidebar-gap: calc(
-        (
-          (100dvw - var(--scalar-container-width) - var(--scalar-sidebar-width)) /
-            2
-        )
-      );
-      width: calc(100dvw - var(--scalar-sidebar-width));
-      margin-bottom: 0;
-      margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
-      border-radius: 0;
-    }
-  }
   .light-mode .dark-image {
     display: none;
   }
@@ -872,12 +724,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
       padding-inline: 30px;
     }
     .container-full {
-      --scalar-container-sidebar-gap: 30px;
-      width: 100dvw;
-      padding-inline: 30px;
-      margin-inline: -30px;
-    }
-    .getting-started.footer {
       --scalar-container-sidebar-gap: 30px;
       width: 100dvw;
       padding-inline: 30px;
@@ -918,17 +764,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
     }
     .expander .expander-content {
       visibility: visible;
-    }
-    .footer-content {
-      flex-direction: column;
-    }
-    .footer-content > * {
-      flex: initial;
-    }
-  }
-  @media screen and (max-width: 600px) {
-    .footer-links {
-      grid-template-columns: 1fr;
     }
   }
 </style>
