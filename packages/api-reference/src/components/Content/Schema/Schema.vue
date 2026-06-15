@@ -131,6 +131,10 @@ const isOnScrollTargetPath = computed((): boolean => {
  * expanded by default while cyclic branches remain collapsed to avoid recursion
  * loops. We also open any disclosure on the path to the current scroll target so
  * deep links resolve even when the property is collapsed.
+ *
+ * Note: the Disclosure only reads this at mount, so it expands collapsed
+ * properties on a fresh navigation (the schema mounts after the target is set),
+ * not when the target changes for an already-mounted disclosure.
  */
 const defaultOpen = computed(
   (): boolean =>

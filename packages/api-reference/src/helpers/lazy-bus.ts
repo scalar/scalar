@@ -35,6 +35,17 @@ export const firstLazyLoadComplete = ref(false)
  */
 export const scrollTargetId = ref<string>('')
 
+/**
+ * Clears the scroll target once we are done with it, so a stale target cannot
+ * re-open a disclosure the user later collapsed (or that remounts). Guarded by
+ * the id so a newer navigation that started during the scroll retry is kept.
+ */
+const clearScrollTarget = (id: string): void => {
+  if (scrollTargetId.value === id) {
+    scrollTargetId.value = ''
+  }
+}
+
 /** List of unique identifiers that are blocking intersection */
 const intersectionBlockers = reactive<Set<string>>(new Set())
 
@@ -307,11 +318,13 @@ const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailur
   const element = document.getElementById(id)
   if (element) {
     element.scrollIntoView({ block: 'start' })
+    clearScrollTarget(id)
     onComplete()
   } else if (Date.now() < stopTime) {
     requestAnimationFrame(() => tryScroll(id, stopTime, onComplete, onFailure))
   } else {
     // If the scroll has expired we enable intersection again
+    clearScrollTarget(id)
     onComplete()
     onFailure?.()
   }
