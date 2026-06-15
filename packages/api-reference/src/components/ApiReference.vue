@@ -1438,7 +1438,15 @@ const showMCPButton = computed(() => {
 /* ----------------------------------------------------- */
 /* Responsive / Mobile Layout */
 
-@media (max-width: 1000px) {
+/*
+ * Stop just below the `lg` breakpoint (1000px). The sidebar visibility is driven
+ * by Tailwind's `lg:` variant, which is `min-width: 1000px` and therefore treats
+ * exactly 1000px as desktop. A `max-width: 1000px` query would make the grid
+ * switch to the mobile (stacked) layout at the very same width, so the desktop
+ * sidebar would render on top of the content. `width < 1000px` is the exact
+ * complement of `lg:` (`width >= 1000px`), keeping the two in sync.
+ */
+@media (width < 1000px) {
   /* Keep toolbar hidden on mobile without forcing desktop display mode. */
   .references-developer-tools {
     display: none;
@@ -1478,7 +1486,8 @@ const showMCPButton = computed(() => {
 * TODO: @brynn move this to the sidebar block OR the ApiReferenceStandalone component
 * when the new elements are available
 */
-@media (max-width: 1000px) {
+/* Match the layout breakpoint above so the mobile header height is only applied below `lg`. */
+@media (width < 1000px) {
   .scalar-api-references-standalone-mobile:not(.references-classic) {
     --scalar-header-height: 50px;
   }
