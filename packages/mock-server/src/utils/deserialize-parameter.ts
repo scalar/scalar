@@ -247,6 +247,7 @@ export const deserializeObjectParameter = ({
   map,
   name,
   propertyNames,
+  reservedKeys,
 }: {
   style: string
   explode: boolean
@@ -261,6 +262,12 @@ export const deserializeObjectParameter = ({
   name: string
   /** Declared object property names, used to gather exploded `form` objects from the location map */
   propertyNames?: string[] | undefined
+  /**
+   * Names of the other parameters declared in the same location. A free-form exploded object (no declared
+   * properties) claims the remaining keys, so these are excluded to avoid swallowing a sibling parameter's
+   * value (for example a required free-form `meta` must not be satisfied by a `limit` query key).
+   */
+  reservedKeys?: Set<string> | undefined
 }): Record<string, string | string[]> | undefined => {
   // `deepObject`: properties are encoded as bracketed query keys, e.g. `color[R]=100`.
   if (style === 'deepObject') {
@@ -269,13 +276,13 @@ export const deserializeObjectParameter = ({
 
   // Exploded `form`: each property is its own top-level key, e.g. `R=100&G=200` (one cookie per property
   // for cookies). With declared properties we gather exactly those; a free-form object (no declared
-  // properties) claims every key in the location, since there is no other way to bound it.
+  // properties) claims every remaining key in the location, excluding keys owned by sibling parameters.
   if (style === 'form' && explode) {
     if (!map) {
       return undefined
     }
 
-    const keys = propertyNames?.length ? propertyNames : Object.keys(map)
+    const keys = propertyNames?.length ? propertyNames : Object.keys(map).filter((key) => !reservedKeys?.has(key))
     const result: Record<string, string | string[]> = {}
     for (const property of keys) {
       const value = map[property]

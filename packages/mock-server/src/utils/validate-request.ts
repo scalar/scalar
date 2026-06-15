@@ -317,6 +317,10 @@ export const validateRequest = (
       getValues?: (name: string) => string[] | undefined,
       getMap?: () => Record<string, string | string[]>,
     ): Record<string, unknown> => {
+      // Names of every declared parameter in this location, so a free-form exploded object does not
+      // swallow a sibling parameter's key (e.g. a required free-form object satisfied by `?limit=5`).
+      const declaredNames = new Set(descriptors.map((descriptor) => descriptor.name))
+
       const data: Record<string, unknown> = {}
       for (const descriptor of descriptors) {
         let value: unknown
@@ -335,6 +339,7 @@ export const validateRequest = (
             map: getMap?.(),
             name: descriptor.name,
             propertyNames: descriptor.propertyNames,
+            reservedKeys: declaredNames,
           })
         } else {
           value = getValue(descriptor.name)

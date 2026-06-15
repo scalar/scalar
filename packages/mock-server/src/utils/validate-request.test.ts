@@ -874,6 +874,26 @@ describe('validate-request', () => {
     expect((await missing.json()).violations[0]).toMatchObject({ location: 'query' })
   })
 
+  it('does not let a free-form object swallow a sibling parameter to appear present', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        { name: 'meta', in: 'query', required: true, schema: { type: 'object' } },
+        { name: 'limit', in: 'query', schema: { type: 'integer' } },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // `limit` is a declared sibling, so it must not satisfy the required free-form `meta` object.
+    const onlySibling = await server.request('/items?limit=5')
+    expect(onlySibling.status).toBe(422)
+    expect((await onlySibling.json()).violations[0]).toMatchObject({ location: 'query', message: 'meta is required' })
+
+    // A genuine free-form property alongside the sibling is accepted.
+    const withMeta = await server.request('/items?limit=5&foo=1')
+    expect(withMeta.status).toBe(200)
+  })
+
   it('keeps repeated values for an array-valued deepObject property', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [
