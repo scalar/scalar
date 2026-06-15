@@ -232,6 +232,134 @@ describe('createParameterRows', () => {
     )
   })
 
+  it('keeps a renamed form property in its original slot via renamedValuePaths', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      schema: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          category: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // "status" was renamed to "state", so the value carries the new key in the first slot.
+          value: { state: 'active', category: 'books' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['status'], to: ['state'] }],
+    })
+
+    // The renamed row stays where "status" was instead of being appended after "category".
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [
+        { name: 'state', value: 'active', path: ['state'] },
+        { name: 'category', value: 'books', path: ['category'] },
+      ],
+    )
+  })
+
+  it('keeps a renamed deepObject property in its original slot via renamedValuePaths', () => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: {
+          role: { type: 'string' },
+          team: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          value: { user: { role: 'admin' }, team: 'core' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['role'], to: ['user', 'role'] }],
+    })
+
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [
+        { name: 'filter[user][role]', value: 'admin', path: ['user', 'role'] },
+        { name: 'filter[team]', value: 'core', path: ['team'] },
+      ],
+    )
+  })
+
+  it('does not duplicate the old key while the debounced value move is pending', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      schema: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          category: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // The rename is recorded immediately, but the value move is debounced, so the value still
+          // carries the old "status" key for a moment.
+          value: { status: 'active', category: 'books' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['status'], to: ['state'] }],
+    })
+
+    // Only one row for the renamed property, showing the value from the old path as a fallback.
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [
+        { name: 'state', value: 'active', path: ['state'] },
+        { name: 'category', value: 'books', path: ['category'] },
+      ],
+    )
+  })
+
+  it('hides a renamed row once its new path is also deleted', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      schema: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          category: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // Deleting the renamed row removes its value, so only "category" remains.
+          value: { category: 'books' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['status'], to: ['state'] }],
+      hiddenValuePaths: [['state']],
+    })
+
+    expect(rows.map((row) => row.name)).toStrictEqual(['category'])
+  })
+
   it('omits expanded rows hidden by path', () => {
     const parameter: ParameterObject = {
       name: 'pageable',

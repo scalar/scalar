@@ -100,7 +100,7 @@ export const createParameterHandlers = (
     defaultParameters?: number
     globalParameters?: number
     onDeleteExpandedRow?: (row: TableRow) => void
-    onRenameExpandedRow?: (row: TableRow) => void
+    onRenameExpandedRow?: (row: TableRow, newValuePath: string[]) => void
   },
 ) => {
   const offset = defaultParameters + globalParameters
@@ -163,10 +163,15 @@ export const createParameterHandlers = (
       if (index >= offset) {
         const isExpandedRow = Boolean(row?.sourceParameterValuePath && row.originalParameter)
 
-        // When the key of an expanded row changes, retire the old schema path so the original
-        // property name does not pop back up as an empty suggestion next to the renamed row.
+        // When the key of an expanded row changes, report the new value path so the row keeps its
+        // original slot (rendered in place of the old schema property) instead of jumping to the end.
         if (isExpandedRow && row && shouldRenameExpandedRow && payload.name !== row.name) {
-          onRenameExpandedRow?.(row)
+          const newValuePath = getEditedValuePath(
+            payload.name,
+            row.originalParameter?.name,
+            row.sourceParameterValuePath ?? [],
+          )
+          onRenameExpandedRow?.(row, newValuePath)
         }
 
         const nextPayload = isExpandedRow && row ? getExpandedObjectPayload(row, context, payload) : parameterPayload

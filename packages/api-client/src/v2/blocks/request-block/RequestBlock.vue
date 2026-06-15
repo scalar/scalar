@@ -112,6 +112,11 @@ const meta = computed(() => ({
 
 const deletedExpandedParameterPaths = ref<Record<string, string[][]>>({})
 
+/** Renamed expanded rows, tracked as old-schema-path -> typed-value-path per parameter. */
+const renamedExpandedParameterPaths = ref<
+  Record<string, { from: string[]; to: string[] }[]>
+>({})
+
 const getExpandedParameterKey = (parameter: {
   in: string
   name: string
@@ -122,6 +127,15 @@ const getHiddenValuePaths = (parameter: {
   name: string
 }): string[][] =>
   deletedExpandedParameterPaths.value[getExpandedParameterKey(parameter)] ?? []
+
+const getRenamedValuePaths = (parameter: {
+  in: string
+  name: string
+}): { from: string[]; to: string[] }[] =>
+  renamedExpandedParameterPaths.value[getExpandedParameterKey(parameter)] ?? []
+
+const pathsEqual = (a: string[], b: string[]): boolean =>
+  a.length === b.length && a.every((segment, index) => segment === b[index])
 
 /**
  * Hides the schema path of an expanded row so it does not reappear as an empty suggestion. Used
@@ -142,6 +156,38 @@ const hideExpandedRowPath = (row: TableRow): void => {
   }
 }
 
+/**
+ * Records that an expanded row was renamed from its current value path to the typed one, so the
+ * read side can render the renamed key in the original property's slot instead of appending it to
+ * the end of the table. Repeated renames of the same row stay anchored to the original schema path.
+ */
+const recordExpandedRowRename = (
+  row: TableRow,
+  newValuePath: string[],
+): void => {
+  if (!row.originalParameter || !row.sourceParameterValuePath) {
+    return
+  }
+
+  const from = row.sourceParameterValuePath
+  const key = getExpandedParameterKey(row.originalParameter)
+  const existing = renamedExpandedParameterPaths.value[key] ?? []
+
+  // If this row was already renamed, the row's current path is the previous target. Re-anchor that
+  // entry to the new target so a second rename does not create an orphaned mapping.
+  const chained = existing.find((entry) => pathsEqual(entry.to, from))
+  const next = chained
+    ? existing.map((entry) =>
+        entry === chained ? { from: entry.from, to: newValuePath } : entry,
+      )
+    : [...existing, { from, to: newValuePath }]
+
+  renamedExpandedParameterPaths.value = {
+    ...renamedExpandedParameterPaths.value,
+    [key]: next,
+  }
+}
+
 /** Parameters grouped by type (path, query, header, cookie) */
 const sections = computed(() =>
   groupBy(
@@ -151,6 +197,8 @@ const sections = computed(() =>
         createParameterRows(param, exampleKey, {
           hiddenValuePaths:
             param.in === 'query' ? getHiddenValuePaths(param) : [],
+          renamedValuePaths:
+            param.in === 'query' ? getRenamedValuePaths(param) : [],
         }).map((row) => ({
           ...row,
           in: param.in,
@@ -396,7 +444,7 @@ const parameterHandlers = computed(() => ({
   query: createParameterHandlers('query', eventBus, meta.value, {
     context: sections.value.query ?? [],
     onDeleteExpandedRow: hideExpandedRowPath,
-    onRenameExpandedRow: hideExpandedRowPath,
+    onRenameExpandedRow: recordExpandedRowRename,
   }),
 }))
 

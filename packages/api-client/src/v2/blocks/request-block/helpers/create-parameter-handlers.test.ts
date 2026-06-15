@@ -178,7 +178,7 @@ describe('createParameterHandlers', () => {
     )
   })
 
-  it('retires the old key when an expanded row is renamed', () => {
+  it('reports the renamed value path when an expanded row is renamed', () => {
     const parentParameter = {
       name: 'filters',
       in: 'query',
@@ -204,7 +204,35 @@ describe('createParameterHandlers', () => {
     })
 
     expect(onRenameExpandedRow).toHaveBeenCalledTimes(1)
-    expect(onRenameExpandedRow).toHaveBeenCalledWith(row)
+    expect(onRenameExpandedRow).toHaveBeenCalledWith(row, ['state'])
+  })
+
+  it('reports the nested value path when a deepObject row is renamed', () => {
+    const parentParameter = {
+      name: 'filter',
+      in: 'query',
+    } as const
+    const row: TableRow = {
+      name: 'filter[role]',
+      value: 'admin',
+      isDisabled: false,
+      originalParameter: parentParameter,
+      sourceParameterValuePath: ['role'],
+    }
+    const onRenameExpandedRow = vi.fn()
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context: [row],
+      onRenameExpandedRow,
+    })
+
+    handlers.upsert(0, {
+      name: 'filter[user][role]',
+      value: 'admin',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+
+    expect(onRenameExpandedRow).toHaveBeenCalledWith(row, ['user', 'role'])
   })
 
   it('does not retire the key when an expanded row value changes but the key does not', () => {
