@@ -447,6 +447,76 @@ describe('RequestBlock', () => {
     ])
   })
 
+  it('clears renamed expanded query rows when the operation changes', async () => {
+    const pageable = {
+      name: 'pageable',
+      in: 'query',
+      required: false,
+      schema: {
+        type: 'object',
+        properties: {
+          page: {
+            type: 'integer',
+            format: 'int32',
+          },
+          size: {
+            type: 'integer',
+            format: 'int32',
+          },
+        },
+      },
+    } satisfies NonNullable<OperationObject['parameters']>[number]
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        operation: {
+          summary: '',
+          parameters: [pageable],
+        },
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const getQueryParams = () => {
+      const queryParams = wrapper
+        .findAllComponents({ name: 'RequestParams' })
+        .find((component) => (component.props() as { title: string }).title === 'Query Parameters')
+
+      if (!queryParams) {
+        throw new Error('Query parameters section not found')
+      }
+
+      return queryParams
+    }
+
+    // Rename the first expanded row ("page" -> "pageX") by committing the key edit on blur.
+    getQueryParams().vm.$emit('upsert', 0, {
+      name: 'pageX',
+      value: '',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+    await nextTick()
+
+    expect((getQueryParams().props() as { rows: TableRow[] }).rows.map((row) => row.name)).toStrictEqual([
+      'pageX',
+      'size',
+    ])
+
+    // Switching to another operation must drop the rename mapping, otherwise it would leak onto a
+    // different request that happens to share the same query parameter name.
+    await wrapper.setProps({ path: 'http://example.com/bar' })
+
+    expect((getQueryParams().props() as { rows: TableRow[] }).rows.map((row) => row.name)).toStrictEqual([
+      'page',
+      'size',
+    ])
+  })
+
   it('re-emits parameter deleteAll for Cookies with mapped type', () => {
     const eventBus = createWorkspaceEventBus()
     const fn = vi.fn()

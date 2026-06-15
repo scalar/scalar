@@ -412,10 +412,14 @@ watch(
   },
 )
 
+// Expanded-row bookkeeping is keyed by `in:name`, which is not unique across operations or
+// examples. Reset both maps when the operation or example changes so stale delete/rename mappings
+// do not leak onto another request that happens to share a query parameter name.
 watch(
   () => [method, path, exampleKey],
   () => {
     deletedExpandedParameterPaths.value = {}
+    renamedExpandedParameterPaths.value = {}
   },
 )
 
