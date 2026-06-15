@@ -5,7 +5,8 @@ test.describe('onDocumentSelect', () => {
   test('fires when switching between documents', async ({ page }) => {
     const example = await serveExample({
       onDocumentSelect: () => {
-        ;(window as unknown as Record<string, unknown>).__documentSelected = true
+        const win = window as unknown as Record<string, number>
+        win.__documentSelectCount = (win.__documentSelectCount ?? 0) + 1
       },
       sources: [
         {
@@ -31,11 +32,17 @@ test.describe('onDocumentSelect', () => {
 
     await page.goto(example)
 
+    // `onDocumentSelect` may also fire once for the initially loaded document, so
+    // we capture the count just before switching and assert the switch increments it.
     await page.locator('.document-selector').getByRole('button').click()
+    const countBeforeSwitch = await page.evaluate(
+      () => (window as unknown as Record<string, number>).__documentSelectCount ?? 0,
+    )
+
     await page.getByRole('option', { name: 'Second API' }).click()
 
     await expect
-      .poll(() => page.evaluate(() => (window as unknown as Record<string, unknown>).__documentSelected))
-      .toBe(true)
+      .poll(() => page.evaluate(() => (window as unknown as Record<string, number>).__documentSelectCount ?? 0))
+      .toBeGreaterThan(countBeforeSwitch)
   })
 })

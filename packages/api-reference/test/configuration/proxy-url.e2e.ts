@@ -24,7 +24,9 @@ test.describe('proxyUrl', () => {
     await page.getByRole('button', { name: 'Test Request (get /data)', exact: true }).click()
     await expect(page.getByRole('dialog')).toBeVisible()
 
-    const proxyRequest = page.waitForRequest((request) => request.url().startsWith('https://proxy.example.com'))
+    // Match on the parsed origin so the check cannot be fooled by a host like
+    // `proxy.example.com.evil.com`
+    const proxyRequest = page.waitForRequest((request) => new URL(request.url()).origin === 'https://proxy.example.com')
 
     await page.getByRole('dialog').getByRole('button', { name: 'Send Request' }).click()
 
