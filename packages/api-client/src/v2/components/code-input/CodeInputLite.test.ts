@@ -83,6 +83,17 @@ describe('CodeInputLite', () => {
     expect(wrapper.find('.code-input-lite').classes()).toContain('code-input-lite--empty')
   })
 
+  it('keeps the placeholder when only whitespace residue remains', async () => {
+    // contenteditable can leave an invisible non-breaking space behind after
+    // some delete sequences. The field looks empty, so the placeholder must
+    // still show even though the serialized value is not strictly length 0.
+    const wrapper = mountInput({ modelValue: '', placeholder: 'Enter a URL' })
+    const editor = wrapper.find('.code-input-lite__editor')
+    ;(editor.element as HTMLDivElement).textContent = '\u00A0'
+    await editor.trigger('input')
+    expect(wrapper.find('.code-input-lite').classes()).toContain('code-input-lite--empty')
+  })
+
   it('emits update:modelValue when the user types', async () => {
     const wrapper = mountInput({ modelValue: '' })
     const editor = wrapper.find('.code-input-lite__editor')
@@ -813,6 +824,20 @@ describe('CodeInputLite', () => {
       })
       expect(wrapper.findComponent({ name: 'DataTableInputSelect' }).exists()).toBe(false)
       expect(wrapper.find('.code-input-lite__editor').exists()).toBe(true)
+    })
+
+    it('shows the placeholder after switching from select mode to an empty editor', async () => {
+      // A value cell can start in select mode (enum/examples) holding a value,
+      // then be recycled into the empty "add row" editor. The empty editor must
+      // regain its placeholder rather than keep the stale non-empty state.
+      const wrapper = mountInput({ modelValue: '10', enum: ['10', '20'], placeholder: 'Value' })
+      expect(wrapper.find('.code-input-lite__editor').exists()).toBe(false)
+
+      await wrapper.setProps({ enum: [], modelValue: '' })
+      await nextTick()
+
+      expect(wrapper.find('.code-input-lite__editor').exists()).toBe(true)
+      expect(wrapper.find('.code-input-lite').classes()).toContain('code-input-lite--empty')
     })
   })
 

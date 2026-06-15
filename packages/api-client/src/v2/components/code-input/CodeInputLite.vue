@@ -152,6 +152,18 @@ const activeOptionId = computed(
 const isFocused = ref(false)
 const isEmpty = ref(true)
 
+/**
+ * Whether the serialized value should count as empty for placeholder display.
+ *
+ * `contenteditable` can leave behind invisible residue after some delete
+ * sequences — most commonly a non-breaking space (` `) — which makes a
+ * visually empty field report a non-zero length and silently drop its
+ * placeholder. Trimming covers that case; ` ` counts as whitespace, so a
+ * field that only holds editor residue is treated as empty. This affects the
+ * placeholder flag only, never the value emitted via `serializeEditor`.
+ */
+const isBlankValue = (text: string): boolean => text.trim().length === 0
+
 // ───────────────────────────────────────────────────────────────────
 // Rendering-mode detection (parity with CodeInput's select dispatch)
 // ───────────────────────────────────────────────────────────────────
@@ -270,7 +282,7 @@ const renderModel = (text: string): void => {
     if (text) {
       editor.appendChild(document.createTextNode(text))
     }
-    isEmpty.value = text.length === 0
+    isEmpty.value = isBlankValue(text)
     return
   }
 
@@ -564,7 +576,7 @@ const emitChange = (
 
 const handleInput = (): void => {
   const text = serializeEditor()
-  isEmpty.value = text.length === 0
+  isEmpty.value = isBlankValue(text)
 
   // Only rebuild when the pill set changes (e.g. `}}` closed a pattern, or
   // a value was pasted). Skipping it for plain-text edits preserves the
@@ -691,7 +703,7 @@ onMounted(() => {
   lastPillSignature = pillSignature(initial, withVariables)
   lastEnvKey = computeEnvKey()
   renderModel(initial)
-  isEmpty.value = initial.length === 0
+  isEmpty.value = isBlankValue(initial)
 
   // `autofocus` on a contenteditable div is not honoured natively, so focus
   // the editor ourselves when the consumer passes the attribute.
@@ -704,12 +716,16 @@ watch(
   () => modelValue,
   (next) => {
     const serialized = serializeValue(next)
+    // Always sync the placeholder flag, even when the DOM already matches and we
+    // skip the rebuild below. Otherwise a value cell that switches from select
+    // mode (no editor element) into the empty editor keeps a stale `isEmpty`,
+    // and the placeholder silently disappears.
+    isEmpty.value = isBlankValue(serialized)
     if (serializeEditor() === serialized) {
       return
     }
     lastPillSignature = pillSignature(serialized, withVariables)
     renderModel(serialized)
-    isEmpty.value = serialized.length === 0
   },
 )
 
@@ -773,7 +789,7 @@ defineExpose({
     }
     lastPillSignature = pillSignature(next, withVariables)
     renderModel(next)
-    isEmpty.value = next.length === 0
+    isEmpty.value = isBlankValue(next)
   },
   /** Read the current value as a `{{name}}`-bearing string. */
   getValue: (): string => serializeEditor(),
