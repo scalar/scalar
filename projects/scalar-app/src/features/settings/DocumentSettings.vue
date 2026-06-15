@@ -3,7 +3,9 @@ import { DeleteSidebarListElement } from '@scalar/api-client/components/Sidebar'
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarModal, useModal } from '@scalar/components/modal'
+import { ScalarTextInput } from '@scalar/components/text-input'
 import { ScalarToggle } from '@scalar/components/toggle'
+import { ref, watch } from 'vue'
 
 import Section from './components/Section.vue'
 import DeleteRegistryConfirmModal from './DeleteRegistryConfirmModal.vue'
@@ -52,6 +54,8 @@ const emit = defineEmits<{
   (e: 'delete:document'): void
   /** Update watch mode status */
   (e: 'update:watchMode', value: boolean): void
+  /** Re-point the document at a different source url */
+  (e: 'update:documentUrl', value: string): void
   /**
    * Fired when the user confirms the destructive "Delete this version"
    * flow. The parent owns the actual adapter call and resolves `done`
@@ -80,6 +84,48 @@ const emit = defineEmits<{
 const deleteModal = useModal()
 const deleteVersionModal = useModal()
 const deleteRegistryDocumentModal = useModal()
+
+/**
+ * Local edit state for the Watch Mode source url. The link is swapped
+ * for a text input while editing so the user can re-point the document
+ * at a different source without having to delete and re-import it.
+ */
+const isEditingSource = ref(false)
+const sourceDraft = ref(documentUrl ?? '')
+
+// Keep the draft in sync when the source changes elsewhere, but never
+// clobber what the user is currently typing.
+watch(
+  () => documentUrl,
+  (value) => {
+    if (!isEditingSource.value) {
+      sourceDraft.value = value ?? ''
+    }
+  },
+)
+
+const startEditingSource = () => {
+  sourceDraft.value = documentUrl ?? ''
+  isEditingSource.value = true
+}
+
+const cancelEditingSource = () => {
+  sourceDraft.value = documentUrl ?? ''
+  isEditingSource.value = false
+}
+
+const saveSource = () => {
+  const next = sourceDraft.value.trim()
+
+  // Nothing to do when the source did not actually change.
+  if (next === (documentUrl ?? '')) {
+    isEditingSource.value = false
+    return
+  }
+
+  emit('update:documentUrl', next)
+  isEditingSource.value = false
+}
 
 /**
  * Handles the delete button click.
@@ -145,30 +191,71 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
             :modelValue="watchMode ?? false"
             @update:modelValue="(value) => emit('update:watchMode', value)" />
         </div>
-        <div class="text-c-1 flex items-center overflow-x-auto border-t py-1.5">
-          <div class="flex items-center">
-            <template v-if="documentUrl">
-              <span class="bg-b-2 sticky left-0 pr-2 pl-3">Source</span>
-              <a
-                class="text-c-2 group rounded pr-3 no-underline hover:underline"
-                :href="documentUrl"
-                target="_blank">
-                {{ documentUrl }}
-                <ScalarIcon
-                  class="ml-1 hidden w-2.5 group-hover:inline"
-                  icon="ExternalLink" />
-              </a>
-            </template>
-            <template v-else>
+        <div class="text-c-1 flex items-center border-t py-1.5">
+          <!-- Editing: re-point the document at a different source url. -->
+          <template v-if="isEditingSource">
+            <span class="pr-2 pl-3">Source</span>
+            <ScalarTextInput
+              v-model="sourceDraft"
+              autofocus
+              class="min-w-0 flex-1"
+              placeholder="https://example.com/openapi.json"
+              @keydown.enter="saveSource"
+              @keydown.esc="cancelEditingSource" />
+            <div class="flex shrink-0 items-center gap-2 pr-3 pl-2">
+              <ScalarButton
+                size="sm"
+                variant="ghost"
+                @click="cancelEditingSource">
+                Cancel
+              </ScalarButton>
+              <ScalarButton
+                size="sm"
+                @click="saveSource">
+                Save
+              </ScalarButton>
+            </div>
+          </template>
+          <!-- Existing source: link out, with an affordance to edit it. -->
+          <div
+            v-else-if="documentUrl"
+            class="flex w-full items-center overflow-x-auto">
+            <span class="bg-b-2 sticky left-0 pr-2 pl-3">Source</span>
+            <a
+              class="text-c-2 group rounded pr-3 no-underline hover:underline"
+              :href="documentUrl"
+              target="_blank">
+              {{ documentUrl }}
               <ScalarIcon
-                class="text-c-2 mr-2 ml-3 w-4"
-                icon="NotAllowed"
-                size="sm" />
-              <span class="text-c-2 pr-3">
-                No URL configured. Try importing an OpenAPI document from an
-                URL.
-              </span>
-            </template>
+                class="ml-1 hidden w-2.5 group-hover:inline"
+                icon="ExternalLink" />
+            </a>
+            <ScalarButton
+              class="bg-b-2 sticky right-0 ml-auto shrink-0"
+              size="sm"
+              variant="ghost"
+              @click="startEditingSource">
+              Edit
+            </ScalarButton>
+          </div>
+          <!-- No source yet: let the user add one to enable watch mode. -->
+          <div
+            v-else
+            class="flex w-full items-center">
+            <ScalarIcon
+              class="text-c-2 mr-2 ml-3 w-4"
+              icon="NotAllowed"
+              size="sm" />
+            <span class="text-c-2 pr-3">
+              No URL configured. Try importing an OpenAPI document from an URL.
+            </span>
+            <ScalarButton
+              class="mr-3 ml-auto shrink-0"
+              size="sm"
+              variant="ghost"
+              @click="startEditingSource">
+              Add
+            </ScalarButton>
           </div>
         </div>
       </div>

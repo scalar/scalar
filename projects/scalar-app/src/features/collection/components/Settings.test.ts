@@ -196,6 +196,18 @@ describe('Settings', () => {
       expect(mockEventBus.emit).toHaveBeenCalledWith('document:update:watch-mode', false)
     })
 
+    it('emits document:update:extension when DocumentSettings emits update:documentUrl', async () => {
+      const props = createDocumentProps()
+      const wrapper = mount(Settings, { props })
+
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+      await documentSettings.vm.$emit('update:documentUrl', 'https://example.com/openapi/v1.json')
+
+      expect(mockEventBus.emit).toHaveBeenCalledWith('document:update:extension', {
+        'x-scalar-original-source-url': 'https://example.com/openapi/v1.json',
+      })
+    })
+
     it('emits workspace:update:theme when CollectionSettings emits update:themeId', async () => {
       const props = createWorkspaceProps()
       const wrapper = mount(Settings, { props })
