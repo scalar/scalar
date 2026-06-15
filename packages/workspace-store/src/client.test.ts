@@ -3854,6 +3854,73 @@ describe('create-workspace-store', () => {
 
       expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBe(false)
     })
+
+    it('preserves document-level UI settings and user servers across a rebase', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: documentName, document: getDocument() })
+
+      const active = getActiveOpenApiDocument(store)!
+      active['x-scalar-watch-mode'] = true
+      active['x-scalar-selected-server'] = 'my-server-uid'
+      active['x-scalar-environments'] = { staging: { color: '#FFFFFF', variables: [] } }
+      // A custom sidebar order, expressed with the real navigation entry IDs.
+      // Reverse the default order so the rebase has something non-trivial to
+      // restore — without the preservation it resets to the default order.
+      const customOrder = [...(active['x-scalar-order'] ?? [])].reverse()
+      active['x-scalar-order'] = customOrder
+      // Servers configured by the user — the upstream document defines none
+      active.servers = [{ url: 'http://localhost:1234' }]
+
+      // Bake the settings into the saved baseline. This is what makes the test
+      // meaningful: as unsaved local edits they would survive the rebase merge
+      // on their own, so the regression would not be caught. Once they are part
+      // of the baseline, the incoming upstream diff carries a deletion for each
+      // (upstream has none), and only the explicit preservation keeps them.
+      await store.saveDocument(documentName)
+
+      const upstream = {
+        ...getDocument(),
+        info: { title: 'Updated upstream', version: '1.0.0' },
+      }
+
+      const result = await store.rebaseDocument({ name: documentName, document: upstream })
+      assert(result.ok)
+      await result.applyChanges({ resolvedConflicts: [] })
+
+      const doc = getOpenApiDocument(store, documentName)!
+      expect(doc.info?.title).toBe('Updated upstream')
+      expect(doc['x-scalar-watch-mode']).toBe(true)
+      expect(doc['x-scalar-selected-server']).toBe('my-server-uid')
+      expect(doc['x-scalar-environments']).toEqual({ staging: { color: '#FFFFFF', variables: [] } })
+      expect(doc['x-scalar-order']).toEqual(customOrder)
+      expect(doc.servers).toEqual([{ url: 'http://localhost:1234' }])
+    })
+
+    it('keeps upstream servers authoritative when the upstream document defines them', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: documentName, document: getDocument() })
+
+      const active = getActiveOpenApiDocument(store)!
+      // A user server baked into the baseline
+      active.servers = [{ url: 'http://localhost:1234' }]
+      await store.saveDocument(documentName)
+
+      // Upstream now ships its own servers — those must win over the local ones.
+      const upstream = {
+        ...getDocument(),
+        info: { title: 'Updated upstream', version: '1.0.0' },
+        servers: [{ url: 'https://api.example.com' }],
+      }
+
+      const result = await store.rebaseDocument({ name: documentName, document: upstream })
+      assert(result.ok)
+      await result.applyChanges({ resolvedConflicts: [] })
+
+      const doc = getOpenApiDocument(store, documentName)!
+      expect(doc.servers).toEqual([{ url: 'https://api.example.com' }])
+    })
   })
 
   describe('navigation generation', () => {
