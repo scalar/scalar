@@ -98,6 +98,36 @@ describe('Prefer header', () => {
       expect(response.status).toBe(202)
       expect(await response.json()).toEqual({ status: 'queued' })
     })
+
+    it('selects a 2XX range response and maps it to a concrete status', async () => {
+      const server = await createMockServer({
+        document: {
+          openapi: '3.1.0',
+          info: baseInfo,
+          paths: {
+            '/jobs': {
+              post: {
+                responses: {
+                  '2XX': {
+                    description: 'Success',
+                    content: { 'application/json': { example: { status: 'queued' } } },
+                  },
+                  '4XX': {
+                    description: 'Client Error',
+                    content: { 'application/json': { example: { error: 'bad request' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const response = await server.request('/jobs', { method: 'POST' })
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({ status: 'queued' })
+    })
   })
 
   describe('example directive', () => {

@@ -31,6 +31,34 @@ describe('findPreferredResponseKey', () => {
     expect(findPreferredResponseKey(['500', '404'])).toBe('404')
   })
 
+  it('ignores informational 1xx responses when other codes are defined', () => {
+    expect(findPreferredResponseKey(['100', '404'])).toBe('404')
+  })
+
+  it('prefers a 2xx success over an informational 1xx response', () => {
+    expect(findPreferredResponseKey(['100', '200'])).toBe('200')
+  })
+
+  it('falls back to a 1xx response when nothing else is defined', () => {
+    expect(findPreferredResponseKey(['100'])).toBe('100')
+  })
+
+  it('treats a 2XX range as a success response', () => {
+    expect(findPreferredResponseKey(['2XX', '404'])).toBe('2XX')
+  })
+
+  it('prefers an explicit 2xx code over a 2XX range', () => {
+    expect(findPreferredResponseKey(['2XX', '200'])).toBe('200')
+  })
+
+  it('ignores a 1XX range when other codes are defined', () => {
+    expect(findPreferredResponseKey(['1XX', '500'])).toBe('500')
+  })
+
+  it('orders range patterns by their lowest member', () => {
+    expect(findPreferredResponseKey(['5XX', '4XX'])).toBe('4XX')
+  })
+
   it(`uses what's there`, () => {
     expect(findPreferredResponseKey(['301'])).toBe('301')
   })
