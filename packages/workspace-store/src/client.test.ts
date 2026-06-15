@@ -3864,6 +3864,11 @@ describe('create-workspace-store', () => {
       active['x-scalar-watch-mode'] = true
       active['x-scalar-selected-server'] = 'my-server-uid'
       active['x-scalar-environments'] = { staging: { color: '#FFFFFF', variables: [] } }
+      // A custom sidebar order, expressed with the real navigation entry IDs.
+      // Reverse the default order so the rebase has something non-trivial to
+      // restore — without the preservation it resets to the default order.
+      const customOrder = [...(active['x-scalar-order'] ?? [])].reverse()
+      active['x-scalar-order'] = customOrder
       // Servers configured by the user — the upstream document defines none
       active.servers = [{ url: 'http://localhost:1234' }]
 
@@ -3888,6 +3893,7 @@ describe('create-workspace-store', () => {
       expect(doc['x-scalar-watch-mode']).toBe(true)
       expect(doc['x-scalar-selected-server']).toBe('my-server-uid')
       expect(doc['x-scalar-environments']).toEqual({ staging: { color: '#FFFFFF', variables: [] } })
+      expect(doc['x-scalar-order']).toEqual(customOrder)
       expect(doc.servers).toEqual([{ url: 'http://localhost:1234' }])
     })
 
