@@ -891,4 +891,40 @@ describe('validate-request', () => {
     expect(empty.status).toBe(422)
     expect((await empty.json()).violations[0]).toMatchObject({ location: 'query' })
   })
+
+  it('trims optional whitespace in a simple-style header array', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'X-Tags',
+          in: 'header',
+          schema: { type: 'array', items: { type: 'string', enum: ['a', 'b', 'c'] } },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // The client sends the comma-separated header with whitespace, as HTTP allows; each element must
+    // still match the enum rather than carrying a leading space.
+    const valid = await server.request('/items', { headers: { 'X-Tags': 'a, b, c' } })
+    expect(valid.status).toBe(200)
+  })
+
+  it('reports a missing required parameter as "<name> is required"', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request('/items')
+    expect(response.status).toBe(422)
+    // The message must read clearly instead of "limit must have required property 'limit'".
+    expect((await response.json()).violations[0]).toMatchObject({
+      location: 'query',
+      path: '/limit',
+      message: 'limit is required',
+    })
+  })
 })

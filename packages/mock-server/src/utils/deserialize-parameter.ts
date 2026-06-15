@@ -99,6 +99,18 @@ const valueAfterEquals = (segment: string): string => {
   return equals === -1 ? segment : segment.slice(equals + 1)
 }
 
+/** Split a `matrix`-encoded value into its `;`-separated segments, dropping the leading `;` and empties. */
+const matrixSegments = (value: string): string[] =>
+  stripPrefix(value, ';')
+    .split(';')
+    .filter((segment) => segment.length > 0)
+
+/** Split a `label`-encoded value into its `.`-separated parts, dropping the leading `.`. Empty means no parts. */
+const labelParts = (value: string): string[] => {
+  const inner = stripPrefix(value, '.')
+  return inner === '' ? [] : inner.split('.')
+}
+
 /** Build an object from a list of `key=value` segments (for example `['R=100', 'G=200']`). */
 const pairsFromList = (parts: string[]): Record<string, string> => {
   const result: Record<string, string> = {}
@@ -134,9 +146,7 @@ const parseMatrixArray = (value: string | undefined, explode: boolean): string[]
     return undefined
   }
 
-  const segments = stripPrefix(value, ';')
-    .split(';')
-    .filter((segment) => segment.length > 0)
+  const segments = matrixSegments(value)
 
   if (explode) {
     return segments.map(valueAfterEquals)
@@ -172,16 +182,12 @@ export const deserializeArrayParameter = ({
     case 'pipeDelimited':
       return explode ? (multi ?? wrap(single)) : split(single, '|')
     case 'simple':
-      // Path and header arrays are always comma-separated; `explode` does not change the delimiter.
-      return split(single, ',')
-    case 'label': {
+      // Path and header arrays are comma-separated; `explode` does not change the delimiter. HTTP allows
+      // optional whitespace after the comma in header list values (`a, b, c`), so trim each element.
+      return single === undefined ? undefined : single === '' ? [] : single.split(',').map((element) => element.trim())
+    case 'label':
       // Path `label` arrays are dot-prefixed and dot-separated (`.1.2.3`), regardless of `explode`.
-      if (single === undefined) {
-        return undefined
-      }
-      const inner = stripPrefix(single, '.')
-      return inner === '' ? [] : inner.split('.')
-    }
+      return single === undefined ? undefined : labelParts(single)
     case 'matrix':
       return parseMatrixArray(single, explode)
     default:
@@ -233,7 +239,7 @@ export const deserializeObjectParameter = ({
   style,
   explode,
   single,
-  query,
+  map,
   name,
   propertyNames,
 }: {
@@ -246,28 +252,28 @@ export const deserializeObjectParameter = ({
    * objects (query top-level keys, or one cookie per property). A key with repeated query values carries
    * a string array so array-valued object properties survive deserialization.
    */
-  query?: Record<string, string | string[]> | undefined
+  map?: Record<string, string | string[]> | undefined
   name: string
-  /** Declared object property names, used to gather exploded `form` objects from the query map */
+  /** Declared object property names, used to gather exploded `form` objects from the location map */
   propertyNames?: string[] | undefined
 }): Record<string, string | string[]> | undefined => {
   // `deepObject`: properties are encoded as bracketed query keys, e.g. `color[R]=100`.
   if (style === 'deepObject') {
-    return query ? parseDeepObject(query, name) : undefined
+    return map ? parseDeepObject(map, name) : undefined
   }
 
   // Exploded `form`: each property is its own top-level key, e.g. `R=100&G=200` (one cookie per property
   // for cookies). With declared properties we gather exactly those; a free-form object (no declared
   // properties) claims every key in the location, since there is no other way to bound it.
   if (style === 'form' && explode) {
-    if (!query) {
+    if (!map) {
       return undefined
     }
 
-    const keys = propertyNames?.length ? propertyNames : Object.keys(query)
+    const keys = propertyNames?.length ? propertyNames : Object.keys(map)
     const result: Record<string, string | string[]> = {}
     for (const property of keys) {
-      const value = query[property]
+      const value = map[property]
       if (value !== undefined) {
         result[property] = value
       }
@@ -286,7 +292,7 @@ export const deserializeObjectParameter = ({
     if (single === undefined) {
       return undefined
     }
-    const parts = stripPrefix(single, '.').split('.')
+    const parts = labelParts(single)
     return explode ? pairsFromList(parts) : alternatingFromList(parts)
   }
 
@@ -296,9 +302,7 @@ export const deserializeObjectParameter = ({
     if (single === undefined) {
       return undefined
     }
-    const segments = stripPrefix(single, ';')
-      .split(';')
-      .filter((segment) => segment.length > 0)
+    const segments = matrixSegments(single)
     if (explode) {
       return pairsFromList(segments)
     }

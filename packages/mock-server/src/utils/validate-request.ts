@@ -257,6 +257,13 @@ const mapErrors = (errors: ErrorObject[] | null | undefined, location: Violation
         : ''
     const path = error.instancePath || (missingProperty ? `/${missingProperty}` : '')
 
+    // A missing parameter surfaces as a top-level `required` error whose `missingProperty` is the
+    // parameter name. Phrase it as "<name> is required" instead of the confusing, self-referential
+    // "<name> must have required property '<name>'" that Ajv produces against the synthetic wrapper.
+    if (location !== 'body' && missingProperty && !error.instancePath) {
+      return { location, path, message: `${missingProperty} is required` }
+    }
+
     const name = error.instancePath.replace(/^\//, '') || missingProperty
     const message = location !== 'body' && name ? `${name} ${error.message ?? ''}`.trim() : (error.message ?? '')
 
@@ -325,7 +332,7 @@ export const validateRequest = (
             style: descriptor.style,
             explode: descriptor.explode,
             single: getValue(descriptor.name),
-            query: getMap?.(),
+            map: getMap?.(),
             name: descriptor.name,
             propertyNames: descriptor.propertyNames,
           })
@@ -339,48 +346,57 @@ export const validateRequest = (
       return data
     }
 
-    // Path parameters (coerced from strings)
-    if (validators.path) {
-      const data = gather(validators.pathParameters, (name) => c.req.param(name))
-      if (!validators.path(data)) {
-        violations.push(...mapErrors(validators.path.errors, 'path'))
-      }
-    }
+    // Validate each parameter location with its own request accessors. Values are coerced from strings.
+    // The differences between locations are only the accessors:
+    //  - query supplies `getValues` (repeated keys feed exploded arrays) and a `getMap` that keeps
+    //    repeated keys as arrays, so an array-valued object property (`filter[tags]=a&filter[tags]=b`)
+    //    survives deserialization;
+    //  - cookie supplies a `getMap` (each exploded `form` object property is its own cookie);
+    //  - header names are matched case-insensitively by Hono's `c.req.header`.
+    const parameterLocations: Array<{
+      validator: ValidateFunction | null
+      descriptors: ParameterDescriptor[]
+      location: Extract<ViolationLocation, ParameterLocation>
+      getValue: (name: string) => string | undefined
+      getValues?: (name: string) => string[] | undefined
+      getMap?: () => Record<string, string | string[]>
+    }> = [
+      {
+        validator: validators.path,
+        descriptors: validators.pathParameters,
+        location: 'path',
+        getValue: (name) => c.req.param(name),
+      },
+      {
+        validator: validators.query,
+        descriptors: validators.queryParameters,
+        location: 'query',
+        getValue: (name) => c.req.query(name),
+        getValues: (name) => c.req.queries(name),
+        getMap: () => mapRepeatedValues(c.req.queries()),
+      },
+      {
+        validator: validators.header,
+        descriptors: validators.headerParameters,
+        location: 'header',
+        getValue: (name) => c.req.header(name),
+      },
+      {
+        validator: validators.cookie,
+        descriptors: validators.cookieParameters,
+        location: 'cookie',
+        getValue: (name) => getCookie(c, name),
+        getMap: () => getCookie(c),
+      },
+    ]
 
-    // Query parameters (coerced from strings; repeated keys feed exploded arrays, the query map feeds objects)
-    if (validators.query) {
-      const data = gather(
-        validators.queryParameters,
-        (name) => c.req.query(name),
-        (name) => c.req.queries(name),
-        // Collapse single values to strings but keep repeated keys as arrays, so an array-valued
-        // object property (for example `filter[tags]=a&filter[tags]=b`) survives deserialization.
-        () => mapRepeatedValues(c.req.queries()),
-      )
-      if (!validators.query(data)) {
-        violations.push(...mapErrors(validators.query.errors, 'query'))
+    for (const { validator, descriptors, location, getValue, getValues, getMap } of parameterLocations) {
+      if (!validator) {
+        continue
       }
-    }
-
-    // Header parameters (coerced from strings; names are case-insensitive)
-    if (validators.header) {
-      const data = gather(validators.headerParameters, (name) => c.req.header(name))
-      if (!validators.header(data)) {
-        violations.push(...mapErrors(validators.header.errors, 'header'))
-      }
-    }
-
-    // Cookie parameters (coerced from strings; the full cookie map feeds exploded `form` objects,
-    // where each property is sent as its own cookie)
-    if (validators.cookie) {
-      const data = gather(
-        validators.cookieParameters,
-        (name) => getCookie(c, name),
-        undefined,
-        () => getCookie(c),
-      )
-      if (!validators.cookie(data)) {
-        violations.push(...mapErrors(validators.cookie.errors, 'cookie'))
+      const data = gather(descriptors, getValue, getValues, getMap)
+      if (!validator(data)) {
+        violations.push(...mapErrors(validator.errors, location))
       }
     }
 

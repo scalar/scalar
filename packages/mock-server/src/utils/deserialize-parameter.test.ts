@@ -86,6 +86,11 @@ describe('deserialize-parameter', () => {
       expect(deserializeArrayParameter({ style: 'simple', explode: true, single: '1,2,3' })).toEqual(['1', '2', '3'])
     })
 
+    it('trims optional whitespace after commas in simple-style (header) arrays', () => {
+      // HTTP allows OWS after the comma in header list values, e.g. `X-Tags: a, b, c`.
+      expect(deserializeArrayParameter({ style: 'simple', explode: false, single: 'a, b, c' })).toEqual(['a', 'b', 'c'])
+    })
+
     it('parses label arrays (dot-prefixed, dot-separated)', () => {
       expect(deserializeArrayParameter({ style: 'label', explode: false, single: '.1.2.3' })).toEqual(['1', '2', '3'])
       expect(deserializeArrayParameter({ style: 'label', explode: true, single: '.1.2.3' })).toEqual(['1', '2', '3'])
@@ -141,7 +146,7 @@ describe('deserialize-parameter', () => {
         deserializeObjectParameter({ style: 'form', explode: false, single: undefined, name: 'color' }),
       ).toBeUndefined()
       expect(
-        deserializeObjectParameter({ style: 'deepObject', explode: true, single: undefined, name: 'color', query: {} }),
+        deserializeObjectParameter({ style: 'deepObject', explode: true, single: undefined, name: 'color', map: {} }),
       ).toBeUndefined()
     })
 
@@ -152,7 +157,7 @@ describe('deserialize-parameter', () => {
           explode: true,
           single: undefined,
           name: 'color',
-          query: { 'color[R]': '100', 'color[G]': '200', other: 'x' },
+          map: { 'color[R]': '100', 'color[G]': '200', other: 'x' },
         }),
       ).toEqual({ R: '100', G: '200' })
     })
@@ -164,7 +169,7 @@ describe('deserialize-parameter', () => {
           explode: true,
           single: undefined,
           name: 'color',
-          query: { R: '100', G: '200', unrelated: 'x' },
+          map: { R: '100', G: '200', unrelated: 'x' },
           propertyNames: ['R', 'G', 'B'],
         }),
       ).toEqual({ R: '100', G: '200' })
@@ -179,7 +184,7 @@ describe('deserialize-parameter', () => {
           explode: true,
           single: undefined,
           name: 'meta',
-          query: { x: '1', y: '2' },
+          map: { x: '1', y: '2' },
           propertyNames: [],
         }),
       ).toEqual({ x: '1', y: '2' })
@@ -190,7 +195,7 @@ describe('deserialize-parameter', () => {
           explode: true,
           single: undefined,
           name: 'meta',
-          query: {},
+          map: {},
           propertyNames: [],
         }),
       ).toBeUndefined()
@@ -203,7 +208,7 @@ describe('deserialize-parameter', () => {
           explode: true,
           single: undefined,
           name: 'filter',
-          query: { 'filter[tags]': ['a', 'b'] },
+          map: { 'filter[tags]': ['a', 'b'] },
           propertyNames: ['tags'],
         }),
       ).toEqual({ tags: ['a', 'b'] })
@@ -213,7 +218,7 @@ describe('deserialize-parameter', () => {
           explode: true,
           single: undefined,
           name: 'color',
-          query: { tags: ['a', 'b'], r: '1' },
+          map: { tags: ['a', 'b'], r: '1' },
           propertyNames: ['tags', 'r'],
         }),
       ).toEqual({ tags: ['a', 'b'], r: '1' })
@@ -227,7 +232,7 @@ describe('deserialize-parameter', () => {
           explode: true,
           single: undefined,
           name: 'filter',
-          query: { 'filter[a][b]': '1', 'filter[min]': '5' },
+          map: { 'filter[a][b]': '1', 'filter[min]': '5' },
           propertyNames: ['min'],
         }),
       ).toEqual({ min: '5' })
