@@ -137,13 +137,6 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     .optional(),
   /** Custom CSS to be added to the page */
   customCss: z.string().optional(),
-  /** onSpecUpdate is fired on spec/swagger content change */
-  onSpecUpdate: z
-    .function({
-      input: [z.string()],
-      output: z.void(),
-    })
-    .optional(),
   /** onServerChange is fired on selected server change */
   onServerChange: z
     .function({

@@ -1536,17 +1536,3 @@ Callback function that is triggered when a user clicks on any item in the sideba
   }
 }
 ```
-
-#### onSpecUpdate
-
-**Type:** `(spec: string) => void`
-
-You can listen to changes with onSpecUpdate that runs on spec/swagger content change.
-
-```javascript
-{
-  onSpecUpdate: (value: string) => {
-    console.log('Content updated:', value)
-  }
-}
-```

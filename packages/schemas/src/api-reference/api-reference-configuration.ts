@@ -112,9 +112,6 @@ export const apiReferenceConfigurationSchema = intersection([
     customCss: optional(string(), {
       typeComment: 'Custom CSS to be added to the page',
     }),
-    onSpecUpdate: optional(fn<(input: string) => void>(), {
-      typeComment: 'onSpecUpdate is fired on spec/swagger content change',
-    }),
     onServerChange: optional(fn<(input: string) => void>(), {
       typeComment: 'onServerChange is fired on selected server change',
     }),
