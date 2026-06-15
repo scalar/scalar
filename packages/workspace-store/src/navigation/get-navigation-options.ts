@@ -36,8 +36,11 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
 
     // -------- Default text id generation logic --------
     if (props.type === 'text') {
+      // Keep the `${documentId}/description/` prefix so heading ids round-trip
+      // through the URL the same way tags, models, operations, and webhooks do.
+      // The custom slug only replaces the trailing segment.
       if (options?.generateHeadingSlug) {
-        return options?.generateHeadingSlug({ slug: props.slug })
+        return `${documentId}/description/${options.generateHeadingSlug({ slug: props.slug })}`
       }
 
       if (props.slug) {

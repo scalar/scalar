@@ -1244,8 +1244,8 @@ const showMCPButton = computed(() => {
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"
           :headingSlugGenerator="
-            mergedConfig.generateHeadingSlug ??
-            ((heading) => `${activeSlug}/description/${heading.slug}`)
+            (heading) =>
+              `${activeSlug}/description/${mergedConfig.generateHeadingSlug?.({ slug: heading.slug }) ?? heading.slug}`
           "
           :infoSectionId
           :items="sidebarItems"

@@ -100,7 +100,7 @@ describe('get-navigation-options', () => {
       depth: 1,
       value: 'Introduction',
     })
-    expect(id).toBe('custom-heading-intro')
+    expect(id).toBe('api/description/custom-heading-intro')
   })
 
   it('generates tag ID with default slug', () => {

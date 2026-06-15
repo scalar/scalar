@@ -1155,19 +1155,19 @@ Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_A
 
 **Type:** `(heading: Heading) => string`
 
-Customize how heading URLs are generated. This function receives the heading and returns a string ID that controls the entire URL hash.
+Customize how heading URLs are generated. This function receives the heading and returns a string ID. Note that `description/` will automatically be prepended to the result.
 
 > Note: This must be passed through JavaScript, setting a data attribute will not work.
 
 ```javascript
 // Default behavior - results in hash: #description/heading-slug
 {
-  generateHeadingSlug: (heading) => `#description/${heading.slug}`
+  generateHeadingSlug: (heading) => heading.slug
 }
 
-// Custom example
+// Custom example - results in hash: #description/custom-heading-slug
 {
-  generateHeadingSlug: (heading) => `#custom-section/${heading.slug}`
+  generateHeadingSlug: (heading) => `custom-${heading.slug}`
 }
 ```
 
