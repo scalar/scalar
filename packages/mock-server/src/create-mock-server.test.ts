@@ -573,6 +573,106 @@ describe('createMockServer', () => {
     })
   })
 
+  it('GET /foobar -> wraps schema examples for array responses', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          foo: {
+                            type: 'string',
+                          },
+                        },
+                      },
+                      example: {
+                        foo: 'bar',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual([
+      {
+        foo: 'bar',
+      },
+    ])
+  })
+
+  it('GET /foobar -> wraps media type examples for array responses', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          foo: {
+                            type: 'string',
+                          },
+                        },
+                      },
+                    },
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual([
+      {
+        foo: 'bar',
+      },
+    ])
+  })
+
   it('GET /foobar/{id} -> example from schema', async () => {
     const document = {
       openapi: '3.1.0',

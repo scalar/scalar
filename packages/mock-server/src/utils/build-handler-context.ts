@@ -7,6 +7,7 @@ import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 
 import { store } from '../libs/store'
+import { normalizeResponseBody } from './normalize-response-body'
 import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper'
 
 /**
@@ -73,15 +74,20 @@ function getExampleFromResponse(
     return null
   }
 
+  const responseSchema = acceptedResponse.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined
+
   // Extract example from example property or generate from schema
   return acceptedResponse.example !== undefined
-    ? acceptedResponse.example
-    : acceptedResponse.schema
-      ? getExampleFromSchema(getResolvedRefDeep(acceptedResponse.schema), {
-          emptyString: 'string',
-          variables: c.req.param(),
-          mode: 'read',
-        })
+    ? normalizeResponseBody(acceptedResponse.example, responseSchema)
+    : responseSchema
+      ? normalizeResponseBody(
+          getExampleFromSchema(responseSchema, {
+            emptyString: 'string',
+            variables: c.req.param(),
+            mode: 'read',
+          }),
+          responseSchema,
+        )
       : null
 }
 

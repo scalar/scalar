@@ -8,6 +8,7 @@ import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
+import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
 import { selectResponseExample } from '@/utils/select-response-example'
 
@@ -82,15 +83,19 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   // Body: a named/singular/first example if one is defined, otherwise generate
   // a value from the schema. `Prefer: example=<name>` picks a named example.
   const selectedExample = selectResponseExample(acceptedResponse, prefer.example)
+  const responseSchema = acceptedResponse?.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined
 
   const body = selectedExample
-    ? selectedExample.value
-    : acceptedResponse?.schema
-      ? getExampleFromSchema(getResolvedRefDeep(acceptedResponse.schema), {
-          emptyString: 'string',
-          variables: c.req.param(),
-          mode: 'read',
-        })
+    ? normalizeResponseBody(selectedExample.value, responseSchema)
+    : responseSchema
+      ? normalizeResponseBody(
+          getExampleFromSchema(responseSchema, {
+            emptyString: 'string',
+            variables: c.req.param(),
+            mode: 'read',
+          }),
+          responseSchema,
+        )
       : null
 
   c.status(statusCode)
