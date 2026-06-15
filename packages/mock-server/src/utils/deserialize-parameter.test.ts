@@ -40,6 +40,14 @@ describe('deserialize-parameter', () => {
       expect(isArraySchema({ type: 'object' })).toBe(false)
       expect(isArraySchema(undefined)).toBe(false)
     })
+
+    it('detects array schemas wrapped in anyOf/oneOf/allOf composition', () => {
+      // FastAPI/Pydantic `Optional[List[str]]` is emitted as `anyOf: [{ type: 'array' }, { type: 'null' }]`.
+      expect(isArraySchema({ anyOf: [{ type: 'array', items: { type: 'string' } }, { type: 'null' }] })).toBe(true)
+      expect(isArraySchema({ oneOf: [{ type: 'array', items: {} }] })).toBe(true)
+      expect(isArraySchema({ allOf: [{ items: { type: 'string' } }] })).toBe(true)
+      expect(isArraySchema({ anyOf: [{ type: 'string' }, { type: 'null' }] })).toBe(false)
+    })
   })
 
   describe('deserializeArrayParameter', () => {
@@ -95,6 +103,15 @@ describe('deserialize-parameter', () => {
         '3',
       ])
     })
+
+    it('deserializes an empty value as an empty array rather than a phantom element', () => {
+      // `?ids=` is zero elements, not `['']`; otherwise it would satisfy `minItems: 1` while the empty
+      // string fails the element type check.
+      expect(deserializeArrayParameter({ style: 'form', explode: false, single: '' })).toEqual([])
+      expect(deserializeArrayParameter({ style: 'simple', explode: false, single: '' })).toEqual([])
+      expect(deserializeArrayParameter({ style: 'spaceDelimited', explode: false, single: '' })).toEqual([])
+      expect(deserializeArrayParameter({ style: 'label', explode: false, single: '.' })).toEqual([])
+    })
   })
 
   describe('isObjectSchema', () => {
@@ -108,6 +125,13 @@ describe('deserialize-parameter', () => {
       expect(isObjectSchema({ type: 'array', items: {} })).toBe(false)
       expect(isObjectSchema({ type: 'string' })).toBe(false)
       expect(isObjectSchema(undefined)).toBe(false)
+    })
+
+    it('detects object schemas wrapped in anyOf/oneOf/allOf composition', () => {
+      expect(isObjectSchema({ anyOf: [{ type: 'object', properties: { r: {} } }, { type: 'null' }] })).toBe(true)
+      expect(isObjectSchema({ allOf: [{ type: 'object' }] })).toBe(true)
+      expect(isObjectSchema({ oneOf: [{ properties: { r: {} } }] })).toBe(true)
+      expect(isObjectSchema({ anyOf: [{ type: 'string' }] })).toBe(false)
     })
   })
 
@@ -144,6 +168,69 @@ describe('deserialize-parameter', () => {
           propertyNames: ['R', 'G', 'B'],
         }),
       ).toEqual({ R: '100', G: '200' })
+    })
+
+    it('gathers a free-form exploded object (no declared properties) from every key in the map', () => {
+      // A `type: object` parameter with no declared `properties` claims every key in the location;
+      // otherwise a present value would be wrongly treated as a missing required parameter.
+      expect(
+        deserializeObjectParameter({
+          style: 'form',
+          explode: true,
+          single: undefined,
+          name: 'meta',
+          query: { x: '1', y: '2' },
+          propertyNames: [],
+        }),
+      ).toEqual({ x: '1', y: '2' })
+      // Truly absent stays undefined so `required` enforcement still works.
+      expect(
+        deserializeObjectParameter({
+          style: 'form',
+          explode: true,
+          single: undefined,
+          name: 'meta',
+          query: {},
+          propertyNames: [],
+        }),
+      ).toBeUndefined()
+    })
+
+    it('keeps array-valued properties when a deepObject or form key repeats', () => {
+      expect(
+        deserializeObjectParameter({
+          style: 'deepObject',
+          explode: true,
+          single: undefined,
+          name: 'filter',
+          query: { 'filter[tags]': ['a', 'b'] },
+          propertyNames: ['tags'],
+        }),
+      ).toEqual({ tags: ['a', 'b'] })
+      expect(
+        deserializeObjectParameter({
+          style: 'form',
+          explode: true,
+          single: undefined,
+          name: 'color',
+          query: { tags: ['a', 'b'], r: '1' },
+          propertyNames: ['tags', 'r'],
+        }),
+      ).toEqual({ tags: ['a', 'b'], r: '1' })
+    })
+
+    it('ignores deepObject keys with nested brackets instead of emitting a corrupt property', () => {
+      // `deepObject` defines only a single level of nesting, so `filter[a][b]` must not become `a][b`.
+      expect(
+        deserializeObjectParameter({
+          style: 'deepObject',
+          explode: true,
+          single: undefined,
+          name: 'filter',
+          query: { 'filter[a][b]': '1', 'filter[min]': '5' },
+          propertyNames: ['min'],
+        }),
+      ).toEqual({ min: '5' })
     })
 
     it('parses non-exploded form/simple objects as alternating key,value', () => {

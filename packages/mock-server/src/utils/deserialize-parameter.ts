@@ -31,6 +31,31 @@ export const resolveSerialization = (
   return { style: resolvedStyle, explode: explode ?? resolvedStyle === 'form' }
 }
 
+/**
+ * Whether any composed subschema satisfies the predicate, looking through `anyOf`/`oneOf`/`allOf`.
+ *
+ * Optional array/object parameters are commonly described as `anyOf: [{ type: 'array' }, { type: 'null' }]`
+ * (for example FastAPI/Pydantic `Optional[List[str]]`). Without unwrapping these we would treat the value
+ * as a plain string and skip style-aware deserialization. Mirrors `getStructuredType` in
+ * `@scalar/workspace-store`'s `de-serialize-parameter`.
+ */
+const matchesComposedSchema = (
+  schema: Record<string, unknown>,
+  predicate: (schema: Record<string, unknown>) => boolean,
+): boolean => {
+  for (const keyword of ['anyOf', 'oneOf', 'allOf'] as const) {
+    const subSchemas = schema[keyword]
+    if (Array.isArray(subSchemas)) {
+      for (const subSchema of subSchemas) {
+        if (subSchema && typeof subSchema === 'object' && predicate(subSchema as Record<string, unknown>)) {
+          return true
+        }
+      }
+    }
+  }
+  return false
+}
+
 /** Whether a resolved schema describes an array, including the OpenAPI 3.1 `type: ['array', 'null']` form. */
 export const isArraySchema = (schema: Record<string, unknown> | undefined): boolean => {
   if (!schema) {
@@ -38,7 +63,10 @@ export const isArraySchema = (schema: Record<string, unknown> | undefined): bool
   }
 
   const type = schema.type
-  return type === 'array' || (Array.isArray(type) && type.includes('array')) || 'items' in schema
+  if (type === 'array' || (Array.isArray(type) && type.includes('array')) || 'items' in schema) {
+    return true
+  }
+  return matchesComposedSchema(schema, isArraySchema)
 }
 
 /** Whether a resolved schema describes an object, including the OpenAPI 3.1 `type: ['object', 'null']` form. */
@@ -48,13 +76,18 @@ export const isObjectSchema = (schema: Record<string, unknown> | undefined): boo
   }
 
   const type = schema.type
-  return type === 'object' || (Array.isArray(type) && type.includes('object')) || 'properties' in schema
+  if (type === 'object' || (Array.isArray(type) && type.includes('object')) || 'properties' in schema) {
+    return true
+  }
+  return matchesComposedSchema(schema, isObjectSchema)
 }
 
 const wrap = (value: string | undefined): string[] | undefined => (value === undefined ? undefined : [value])
 
+// An empty value is an empty list, not a one-element list of the empty string. Otherwise `?ids=`
+// would satisfy a `minItems: 1` array while failing the element type check on `''`.
 const split = (value: string | undefined, delimiter: string): string[] | undefined =>
-  value === undefined ? undefined : value.split(delimiter)
+  value === undefined ? undefined : value === '' ? [] : value.split(delimiter)
 
 /** Drop a leading prefix (for example the `.` of `label` or the `;` of `matrix`) when present. */
 const stripPrefix = (value: string, prefix: string): string =>
@@ -141,9 +174,14 @@ export const deserializeArrayParameter = ({
     case 'simple':
       // Path and header arrays are always comma-separated; `explode` does not change the delimiter.
       return split(single, ',')
-    case 'label':
+    case 'label': {
       // Path `label` arrays are dot-prefixed and dot-separated (`.1.2.3`), regardless of `explode`.
-      return single === undefined ? undefined : stripPrefix(single, '.').split('.')
+      if (single === undefined) {
+        return undefined
+      }
+      const inner = stripPrefix(single, '.')
+      return inner === '' ? [] : inner.split('.')
+    }
     case 'matrix':
       return parseMatrixArray(single, explode)
     default:
@@ -161,13 +199,23 @@ const parsePairs = (value: string | undefined, delimiter: string): Record<string
   value === undefined ? undefined : pairsFromList(value.split(delimiter))
 
 /** Parse `name[R]=100&name[G]=200` from the query map into an object. */
-const parseDeepObject = (query: Record<string, string>, name: string): Record<string, string> | undefined => {
+const parseDeepObject = (
+  query: Record<string, string | string[]>,
+  name: string,
+): Record<string, string | string[]> | undefined => {
   const prefix = `${name}[`
-  const result: Record<string, string> = {}
+  const result: Record<string, string | string[]> = {}
   for (const [key, value] of Object.entries(query)) {
-    if (key.startsWith(prefix) && key.endsWith(']')) {
-      result[key.slice(prefix.length, -1)] = value
+    if (!key.startsWith(prefix) || !key.endsWith(']')) {
+      continue
     }
+    const property = key.slice(prefix.length, -1)
+    // `deepObject` only defines a single level of nesting, so ignore keys like `name[a][b]` whose
+    // property still contains brackets rather than emitting a corrupt `a][b` property.
+    if (property.includes('[') || property.includes(']')) {
+      continue
+    }
+    result[property] = value
   }
   return Object.keys(result).length > 0 ? result : undefined
 }
@@ -178,8 +226,8 @@ const parseDeepObject = (query: Record<string, string>, name: string): Record<st
  * object's property schemas.
  *
  * Returns `undefined` when the parameter is absent so the caller can enforce `required` separately.
- * Unsupported encodings (for example exploded `form` objects with no declared properties) also return
- * `undefined` and are left unvalidated rather than rejected.
+ * Property values are strings, except for repeated query keys (an array-valued property such as
+ * `filter[tags]=a&filter[tags]=b`), which stay as a string array.
  */
 export const deserializeObjectParameter = ({
   style,
@@ -195,26 +243,30 @@ export const deserializeObjectParameter = ({
   single: string | undefined
   /**
    * The full key/value map for the location, needed for `deepObject` (query only) and exploded `form`
-   * objects (query top-level keys, or one cookie per property)
+   * objects (query top-level keys, or one cookie per property). A key with repeated query values carries
+   * a string array so array-valued object properties survive deserialization.
    */
-  query?: Record<string, string> | undefined
+  query?: Record<string, string | string[]> | undefined
   name: string
   /** Declared object property names, used to gather exploded `form` objects from the query map */
   propertyNames?: string[] | undefined
-}): Record<string, string> | undefined => {
+}): Record<string, string | string[]> | undefined => {
   // `deepObject`: properties are encoded as bracketed query keys, e.g. `color[R]=100`.
   if (style === 'deepObject') {
     return query ? parseDeepObject(query, name) : undefined
   }
 
-  // Exploded `form`: each property is its own top-level query key, e.g. `R=100&G=200`.
+  // Exploded `form`: each property is its own top-level key, e.g. `R=100&G=200` (one cookie per property
+  // for cookies). With declared properties we gather exactly those; a free-form object (no declared
+  // properties) claims every key in the location, since there is no other way to bound it.
   if (style === 'form' && explode) {
-    if (!query || !propertyNames?.length) {
+    if (!query) {
       return undefined
     }
 
-    const result: Record<string, string> = {}
-    for (const property of propertyNames) {
+    const keys = propertyNames?.length ? propertyNames : Object.keys(query)
+    const result: Record<string, string | string[]> = {}
+    for (const property of keys) {
       const value = query[property]
       if (value !== undefined) {
         result[property] = value

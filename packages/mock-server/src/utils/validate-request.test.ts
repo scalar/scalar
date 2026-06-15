@@ -815,4 +815,80 @@ describe('validate-request', () => {
     expect(ok.status).toBe(200)
     expect(onRequest).toHaveBeenCalledTimes(2)
   })
+
+  it('deserializes array params whose schema is wrapped in anyOf (Optional[List])', async () => {
+    // FastAPI/Pydantic `Optional[List[int]]` is emitted as `anyOf: [{ type: 'array' }, { type: 'null' }]`.
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'ids',
+          in: 'query',
+          schema: { anyOf: [{ type: 'array', items: { type: 'integer' } }, { type: 'null' }] },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // Repeated keys are the default form/explode array encoding and must validate as a structured array.
+    const valid = await server.request('/items?ids=1&ids=2&ids=3')
+    expect(valid.status).toBe(200)
+
+    const invalid = await server.request('/items?ids=1&ids=nope')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'query' })
+  })
+
+  it('accepts a present free-form object query param instead of reporting it missing', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'meta', in: 'query', required: true, schema: { type: 'object' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // Default form/explode sends each property as its own key; the object is present, so this is valid.
+    const valid = await server.request('/items?foo=1&bar=2')
+    expect(valid.status).toBe(200)
+
+    // With no properties at all the required object is genuinely absent.
+    const missing = await server.request('/items')
+    expect(missing.status).toBe(422)
+    expect((await missing.json()).violations[0]).toMatchObject({ location: 'query' })
+  })
+
+  it('keeps repeated values for an array-valued deepObject property', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          style: 'deepObject',
+          explode: true,
+          schema: {
+            type: 'object',
+            properties: { tags: { type: 'array', items: { type: 'string' } } },
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // `filter[tags]=a&filter[tags]=b` must validate as a two-element array, not a single dropped value.
+    const valid = await server.request('/items?filter[tags]=a&filter[tags]=b')
+    expect(valid.status).toBe(200)
+  })
+
+  it('treats an empty array query value as zero elements against minItems', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'ids', in: 'query', schema: { type: 'array', items: { type: 'integer' }, minItems: 1 } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // `?ids=` is an empty array, so the `minItems: 1` constraint must fail rather than pass on a phantom ''.
+    const empty = await server.request('/items?ids=')
+    expect(empty.status).toBe(422)
+    expect((await empty.json()).violations[0]).toMatchObject({ location: 'query' })
+  })
 })

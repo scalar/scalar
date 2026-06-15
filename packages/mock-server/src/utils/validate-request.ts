@@ -66,6 +66,19 @@ type CompiledValidators = {
 const IGNORED_HEADER_PARAMETERS = new Set(['accept', 'content-type', 'authorization'])
 
 /**
+ * Collapse a `key -> string[]` map (as returned by Hono's `c.req.queries()`) into a `key -> string |
+ * string[]` map: a single value becomes a plain string, while repeated keys keep their array so
+ * array-valued object properties are not silently truncated to the first value.
+ */
+const mapRepeatedValues = (values: Record<string, string[]>): Record<string, string | string[]> => {
+  const map: Record<string, string | string[]> = {}
+  for (const [key, list] of Object.entries(values)) {
+    map[key] = list.length > 1 ? list : (list[0] ?? '')
+  }
+  return map
+}
+
+/**
  * Build a JSON Schema object for the parameters declared `in` the given location, alongside a
  * descriptor for each declared parameter.
  *
@@ -295,7 +308,7 @@ export const validateRequest = (
       descriptors: ParameterDescriptor[],
       getValue: (name: string) => string | undefined,
       getValues?: (name: string) => string[] | undefined,
-      getMap?: () => Record<string, string>,
+      getMap?: () => Record<string, string | string[]>,
     ): Record<string, unknown> => {
       const data: Record<string, unknown> = {}
       for (const descriptor of descriptors) {
@@ -340,7 +353,9 @@ export const validateRequest = (
         validators.queryParameters,
         (name) => c.req.query(name),
         (name) => c.req.queries(name),
-        () => c.req.query(),
+        // Collapse single values to strings but keep repeated keys as arrays, so an array-valued
+        // object property (for example `filter[tags]=a&filter[tags]=b`) survives deserialization.
+        () => mapRepeatedValues(c.req.queries()),
       )
       if (!validators.query(data)) {
         violations.push(...mapErrors(validators.query.errors, 'query'))
