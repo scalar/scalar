@@ -21,6 +21,8 @@ type HighlightOptions = {
   subset?: ReadonlyArray<string> | null | undefined
   /** Option to autodetect languages */
   detect?: boolean
+  /** Extra class name(s) to add to highlighted `<code>` elements (optional) */
+  className?: ReadonlyArray<string> | string | null | undefined
 }
 
 const emptyOptions: HighlightOptions = {}
@@ -38,6 +40,7 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
   const plainText = settings.plainText
   const prefix = settings.prefix
   const subset = settings.subset
+  const extraClassNames = typeof settings.className === 'string' ? [settings.className] : (settings.className ?? [])
   let name = 'hljs'
 
   // Create a lowlight instance if not provided
@@ -71,6 +74,13 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
 
       if (!node.properties.className.includes(name)) {
         node.properties.className.unshift(name)
+      }
+
+      // Add any extra class names (e.g. Scalar's `custom-scroll` styling)
+      for (const extraClassName of extraClassNames) {
+        if (!node.properties.className.includes(extraClassName)) {
+          node.properties.className.push(extraClassName)
+        }
       }
 
       let result: Root | undefined

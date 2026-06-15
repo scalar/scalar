@@ -74,25 +74,6 @@ const htmlFragmentParser = unified().use(rehypeParse, { fragment: true })
 const htmlFragmentStringifier = unified().use(rehypeStringify)
 
 /**
- * Adds Scalar's scrollbar styling to highlighted Markdown code blocks.
- */
-const addCustomScrollToHighlightedCode = () => (tree: HastRoot) => {
-  visit(tree, 'element', (node: HastElement) => {
-    if (node.tagName !== 'code') {
-      return
-    }
-
-    const className = node.properties.className
-
-    if (!Array.isArray(className) || !className.includes('hljs') || className.includes('custom-scroll')) {
-      return
-    }
-
-    className.push('custom-scroll')
-  })
-}
-
-/**
  * Parse inline markdown and return children from the generated paragraph.
  */
 const extractInlineChildrenFromMarkdown = (value: string): HastElementContent[] => {
@@ -201,9 +182,9 @@ export function htmlFromMarkdown(
       languages: standardLanguages,
       // Enable auto detection
       detect: true,
+      // Adds Scalar's custom scrollbar styling to highlighted code blocks
+      className: 'custom-scroll',
     })
-    // Adds Scalar's custom scrollbar class to highlighted code blocks
-    .use(addCustomScrollToHighlightedCode)
     // Adds target="_blank" to external links
     .use(rehypeExternalLinks, { target: '_blank' })
     // Formats the HTML
