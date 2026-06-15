@@ -143,6 +143,16 @@ const x = 42;
     expect(html.trim()).toContain('hljs')
   })
 
+  it('adds custom scroll class to highlighted code blocks', () => {
+    const html = htmlFromMarkdown(`
+\`\`\`sh
+curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
+\`\`\`
+`)
+
+    expect(html.trim()).toContain('class="hljs language-sh custom-scroll"')
+  })
+
   it('preserves class attributes on elements', () => {
     const html = htmlFromMarkdown('<div class="custom-class">Content</div>')
 

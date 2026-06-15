@@ -182,6 +182,8 @@ export function htmlFromMarkdown(
       languages: standardLanguages,
       // Enable auto detection
       detect: true,
+      // Adds Scalar's custom scrollbar styling to highlighted code blocks
+      className: 'custom-scroll',
     })
     // Adds target="_blank" to external links
     .use(rehypeExternalLinks, { target: '_blank' })
