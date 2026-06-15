@@ -3867,6 +3867,13 @@ describe('create-workspace-store', () => {
       // Servers configured by the user — the upstream document defines none
       active.servers = [{ url: 'http://localhost:1234' }]
 
+      // Bake the settings into the saved baseline. This is what makes the test
+      // meaningful: as unsaved local edits they would survive the rebase merge
+      // on their own, so the regression would not be caught. Once they are part
+      // of the baseline, the incoming upstream diff carries a deletion for each
+      // (upstream has none), and only the explicit preservation keeps them.
+      await store.saveDocument(documentName)
+
       const upstream = {
         ...getDocument(),
         info: { title: 'Updated upstream', version: '1.0.0' },
@@ -3882,6 +3889,31 @@ describe('create-workspace-store', () => {
       expect(doc['x-scalar-selected-server']).toBe('my-server-uid')
       expect(doc['x-scalar-environments']).toEqual({ staging: { color: '#FFFFFF', variables: [] } })
       expect(doc.servers).toEqual([{ url: 'http://localhost:1234' }])
+    })
+
+    it('keeps upstream servers authoritative when the upstream document defines them', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: documentName, document: getDocument() })
+
+      const active = getActiveOpenApiDocument(store)!
+      // A user server baked into the baseline
+      active.servers = [{ url: 'http://localhost:1234' }]
+      await store.saveDocument(documentName)
+
+      // Upstream now ships its own servers — those must win over the local ones.
+      const upstream = {
+        ...getDocument(),
+        info: { title: 'Updated upstream', version: '1.0.0' },
+        servers: [{ url: 'https://api.example.com' }],
+      }
+
+      const result = await store.rebaseDocument({ name: documentName, document: upstream })
+      assert(result.ok)
+      await result.applyChanges({ resolvedConflicts: [] })
+
+      const doc = getOpenApiDocument(store, documentName)!
+      expect(doc.servers).toEqual([{ url: 'https://api.example.com' }])
     })
   })
 
