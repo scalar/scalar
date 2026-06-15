@@ -462,8 +462,8 @@
 
 <style>
   :root {
-    --scalar-text-decoration: none;
-    --scalar-text-decoration-hover: none;
+    --scalar-text-decoration: underline;
+    --scalar-text-decoration-hover: underline;
   }
   .t-editor__page-title,
   .t-editor__page-nav,
