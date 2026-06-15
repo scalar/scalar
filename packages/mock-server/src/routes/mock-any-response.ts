@@ -38,8 +38,11 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
     return c.json({ error: 'No response defined for this operation.' })
   }
 
-  // Status code
-  const statusCode = Number.parseInt(responseKey === 'default' ? '200' : (responseKey ?? '200'), 10) as StatusCode
+  // Status code. `default` and range patterns like `2XX` map to their lowest concrete code (e.g. 200).
+  const statusCode = Number.parseInt(
+    responseKey && responseKey !== 'default' ? responseKey.replace(/XX$/i, '00') : '200',
+    10,
+  ) as StatusCode
 
   // Headers
   const headers = selectedResponse?.headers ?? {}

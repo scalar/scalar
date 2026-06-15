@@ -68,6 +68,122 @@ describe('Prefer header', () => {
       expect(response.status).toBe(200)
       expect(await response.json()).toEqual({ status: 'ok' })
     })
+
+    it('uses a success response by default when the operation also defines errors', async () => {
+      const server = await createMockServer({
+        document: {
+          openapi: '3.1.0',
+          info: baseInfo,
+          paths: {
+            '/jobs': {
+              post: {
+                responses: {
+                  '202': {
+                    description: 'Accepted',
+                    content: { 'application/json': { example: { status: 'queued' } } },
+                  },
+                  '404': {
+                    description: 'Not Found',
+                    content: { 'application/json': { example: { error: 'not found' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const response = await server.request('/jobs', { method: 'POST' })
+
+      expect(response.status).toBe(202)
+      expect(await response.json()).toEqual({ status: 'queued' })
+    })
+
+    it('selects a 2XX range response and maps it to a concrete status', async () => {
+      const server = await createMockServer({
+        document: {
+          openapi: '3.1.0',
+          info: baseInfo,
+          paths: {
+            '/jobs': {
+              post: {
+                responses: {
+                  '2XX': {
+                    description: 'Success',
+                    content: { 'application/json': { example: { status: 'queued' } } },
+                  },
+                  '4XX': {
+                    description: 'Client Error',
+                    content: { 'application/json': { example: { error: 'bad request' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const response = await server.request('/jobs', { method: 'POST' })
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({ status: 'queued' })
+    })
+
+    it('prefers a defined 2xx success over the default response', async () => {
+      const server = await createMockServer({
+        document: {
+          openapi: '3.1.0',
+          info: baseInfo,
+          paths: {
+            '/things': {
+              get: {
+                responses: {
+                  default: {
+                    description: 'Unexpected error',
+                    content: { 'application/json': { example: { error: 'unexpected' } } },
+                  },
+                  '200': {
+                    description: 'OK',
+                    content: { 'application/json': { example: { status: 'ok' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const response = await server.request('/things')
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({ status: 'ok' })
+    })
+
+    it('falls back to the default response when no concrete code is defined', async () => {
+      const server = await createMockServer({
+        document: {
+          openapi: '3.1.0',
+          info: baseInfo,
+          paths: {
+            '/things': {
+              get: {
+                responses: {
+                  default: {
+                    description: 'Unexpected error',
+                    content: { 'application/json': { example: { error: 'unexpected' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const response = await server.request('/things')
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({ error: 'unexpected' })
+    })
   })
 
   describe('example directive', () => {
