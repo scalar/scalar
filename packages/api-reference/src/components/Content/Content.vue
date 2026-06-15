@@ -56,8 +56,11 @@ const {
   eventBus,
   options,
   authStore,
+  documentSlug,
 } = defineProps<{
   infoSectionId: string
+  /** Slug of the active document, used to scope plugin view ids for navigation and deep-linking */
+  documentSlug: string
   /** The subset of the configuration object required for the content component */
   options: Pick<
     ApiReferenceConfigurationRaw,
@@ -201,6 +204,7 @@ onMounted(() => {
 
     <!-- Render plugins at content.start view -->
     <RenderPlugins
+      :documentSlug
       :eventBus
       :options
       viewName="content.start" />
@@ -312,6 +316,7 @@ onMounted(() => {
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins
+      :documentSlug
       :eventBus
       :options
       viewName="content.end" />

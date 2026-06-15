@@ -64,7 +64,7 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      const components = manager.getViewComponents('content.end')
+      const components = manager.getViewComponents('content.end', 'my-doc')
       expect(components).toEqual([])
     })
 
@@ -84,10 +84,10 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      const components = manager.getViewComponents('content.end')
+      const components = manager.getViewComponents('content.end', 'my-doc')
       expect(components).toEqual([
         {
-          id: 'plugin-view/testPlugin/content.end/0',
+          id: 'my-doc/plugin-view/testPlugin/content.end/0',
           component: mockComponent,
           props: { customProp: 'test value' },
         },
@@ -125,15 +125,15 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin1, mockPlugin2] })
-      const components = manager.getViewComponents('content.end')
+      const components = manager.getViewComponents('content.end', 'my-doc')
       expect(components).toEqual([
         {
-          id: 'plugin-view/testPlugin1/content.end/0',
+          id: 'my-doc/plugin-view/testPlugin1/content.end/0',
           component: mockComponent1,
           props: { value: 'first' },
         },
         {
-          id: 'plugin-view/testPlugin2/content.end/0',
+          id: 'my-doc/plugin-view/testPlugin2/content.end/0',
           component: mockComponent2,
           props: { value: 'second' },
         },
@@ -155,7 +155,7 @@ describe('plugin-manager', () => {
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
       // @ts-expect-error testing invalid view
-      const components = manager.getViewComponents('non-existent-view')
+      const components = manager.getViewComponents('non-existent-view', 'my-doc')
       expect(components).toEqual([])
     })
 
@@ -179,10 +179,10 @@ describe('plugin-manager', () => {
       const extensions = manager.getSpecificationExtensions('x-test')
       expect(extensions).toEqual([{ name: 'x-test', component: 'extensionComponent' }])
 
-      const components = manager.getViewComponents('content.end')
+      const components = manager.getViewComponents('content.end', 'my-doc')
       expect(components).toEqual([
         {
-          id: 'plugin-view/testPlugin/content.end/0',
+          id: 'my-doc/plugin-view/testPlugin/content.end/0',
           component: mockComponent,
           renderer: 'MockRenderer',
         },
@@ -201,7 +201,7 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      const components = manager.getViewComponents('content.start')
+      const components = manager.getViewComponents('content.start', 'my-doc')
       expect(components).toEqual([])
     })
 
@@ -221,10 +221,10 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      const components = manager.getViewComponents('content.start')
+      const components = manager.getViewComponents('content.start', 'my-doc')
       expect(components).toEqual([
         {
-          id: 'plugin-view/testPlugin/content.start/0',
+          id: 'my-doc/plugin-view/testPlugin/content.start/0',
           component: mockComponent,
           props: { title: 'My Custom Page' },
         },
@@ -242,11 +242,11 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      expect(manager.getViewComponents('content.start')).toEqual([
-        { id: 'plugin-view/testPlugin/content.start/0', component: 'StartComponent' },
+      expect(manager.getViewComponents('content.start', 'my-doc')).toEqual([
+        { id: 'my-doc/plugin-view/testPlugin/content.start/0', component: 'StartComponent' },
       ])
-      expect(manager.getViewComponents('content.end')).toEqual([
-        { id: 'plugin-view/testPlugin/content.end/0', component: 'EndComponent' },
+      expect(manager.getViewComponents('content.end', 'my-doc')).toEqual([
+        { id: 'my-doc/plugin-view/testPlugin/content.end/0', component: 'EndComponent' },
       ])
     })
   })
@@ -262,7 +262,7 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      expect(manager.getSidebarEntries()).toEqual([])
+      expect(manager.getSidebarEntries('my-doc')).toEqual([])
     })
 
     it('returns empty array when sidebar.show is false', () => {
@@ -280,7 +280,7 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      expect(manager.getSidebarEntries()).toEqual([])
+      expect(manager.getSidebarEntries('my-doc')).toEqual([])
     })
 
     it('returns entries when sidebar.show is true', () => {
@@ -298,8 +298,8 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      expect(manager.getSidebarEntries()).toEqual([
-        { id: 'plugin-view/testPlugin/content.start/0', label: 'Getting Started', viewName: 'content.start' },
+      expect(manager.getSidebarEntries('my-doc')).toEqual([
+        { id: 'my-doc/plugin-view/testPlugin/content.start/0', label: 'Getting Started', viewName: 'content.start' },
       ])
     })
 
@@ -318,8 +318,8 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      expect(manager.getSidebarEntries()).toEqual([
-        { id: 'plugin-view/testPlugin/content.end/0', label: 'Changelog', viewName: 'content.end' },
+      expect(manager.getSidebarEntries('my-doc')).toEqual([
+        { id: 'my-doc/plugin-view/testPlugin/content.end/0', label: 'Changelog', viewName: 'content.end' },
       ])
     })
 
@@ -348,9 +348,9 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      expect(manager.getSidebarEntries()).toEqual([
-        { id: 'plugin-view/testPlugin/content.start/0', label: 'Overview', viewName: 'content.start' },
-        { id: 'plugin-view/testPlugin/content.end/0', label: 'Support', viewName: 'content.end' },
+      expect(manager.getSidebarEntries('my-doc')).toEqual([
+        { id: 'my-doc/plugin-view/testPlugin/content.start/0', label: 'Overview', viewName: 'content.start' },
+        { id: 'my-doc/plugin-view/testPlugin/content.end/0', label: 'Support', viewName: 'content.end' },
       ])
     })
   })

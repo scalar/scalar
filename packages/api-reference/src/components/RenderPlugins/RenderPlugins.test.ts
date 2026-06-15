@@ -32,6 +32,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
@@ -64,6 +65,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
@@ -100,6 +102,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
@@ -141,6 +144,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
@@ -184,6 +188,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
@@ -232,6 +237,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
@@ -281,6 +287,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
@@ -324,6 +331,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
@@ -355,6 +363,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
@@ -386,10 +395,11 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
-      expect(getViewComponentsMock).toHaveBeenCalledWith('content.end')
+      expect(getViewComponentsMock).toHaveBeenCalledWith('content.end', 'my-doc')
       expect(getViewComponentsMock).toHaveBeenCalledTimes(1)
     })
 
@@ -411,10 +421,11 @@ describe('RenderPlugins', () => {
           // @ts-expect-error just for the test
           viewName: 'custom.view.name',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
-      expect(getViewComponentsMock).toHaveBeenCalledWith('custom.view.name')
+      expect(getViewComponentsMock).toHaveBeenCalledWith('custom.view.name', 'my-doc')
     })
   })
 
@@ -429,7 +440,7 @@ describe('RenderPlugins', () => {
       vi.mocked(usePluginManager).mockReturnValue({
         getViewComponents: vi.fn().mockReturnValue([
           {
-            id: 'plugin-view/my-plugin/content.start/0',
+            id: 'my-doc/plugin-view/my-plugin/content.start/0',
             component: TestComponent,
             sidebar: { show: true, label: 'Getting Started' },
           },
@@ -446,11 +457,12 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.start',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
       // The wrapper id mirrors the sidebar entry id so scroll navigation can find it
-      expect(wrapper.find('[id="plugin-view/my-plugin/content.start/0"]').exists()).toBe(true)
+      expect(wrapper.find('[id="my-doc/plugin-view/my-plugin/content.start/0"]').exists()).toBe(true)
     })
   })
 
@@ -475,6 +487,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 
@@ -503,6 +516,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: {},
+          documentSlug: 'my-doc',
         },
       })
 
@@ -532,6 +546,7 @@ describe('RenderPlugins', () => {
         props: {
           viewName: 'content.end',
           options: mockOptions,
+          documentSlug: 'my-doc',
         },
       })
 

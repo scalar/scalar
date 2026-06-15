@@ -379,19 +379,21 @@ const activeSearchableDocument = computed(
  * navigation and scroll-spy logic can scroll to and highlight it. Plugins are static for
  * the lifetime of the manager, so this only needs to be resolved once.
  */
-const pluginSidebarEntries = pluginManager
-  .getSidebarEntries()
-  .reduce<Record<'content.start' | 'content.end', TraversedEntry[]>>(
-    (grouped, entry) => {
-      grouped[entry.viewName].push({
-        id: entry.id,
-        title: entry.label,
-        type: 'text',
-      })
-      return grouped
-    },
-    { 'content.start': [], 'content.end': [] },
-  )
+const pluginSidebarEntries = computed(() =>
+  pluginManager
+    .getSidebarEntries(activeSlug.value)
+    .reduce<Record<'content.start' | 'content.end', TraversedEntry[]>>(
+      (grouped, entry) => {
+        grouped[entry.viewName].push({
+          id: entry.id,
+          title: entry.label,
+          type: 'text',
+        })
+        return grouped
+      },
+      { 'content.start': [], 'content.end': [] },
+    ),
+)
 
 /**
  * Create top level sidebar entries for each document
@@ -408,9 +410,9 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
       const childrenWithPlugins =
         slug === activeSlug.value
           ? [
-              ...pluginSidebarEntries['content.start'],
+              ...pluginSidebarEntries.value['content.start'],
               ...children,
-              ...pluginSidebarEntries['content.end'],
+              ...pluginSidebarEntries.value['content.end'],
             ]
           : children
 
@@ -1276,6 +1278,7 @@ const showMCPButton = computed(() => {
           :authStore="clientStore.auth"
           :clientDocument="clientStore.workspace.activeDocument"
           :document="workspaceStore.workspace.activeDocument"
+          :documentSlug="activeSlug"
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"

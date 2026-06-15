@@ -32,9 +32,13 @@ type PluginSidebarEntry = {
  * The same id is used as the DOM element id (so scroll navigation can find it) and as the
  * sidebar navigation entry id (so clicking it scrolls to the element). Keeping both in sync
  * is what lets plugin views participate in the existing scroll-spy and navigation logic.
+ *
+ * The id is prefixed with the document slug so it matches the navigation id convention. That is
+ * what lets URL deep-linking work: `getIdFromUrl` re-prepends the document slug on initial load,
+ * so a hash like `plugin-view/<plugin>/<view>/<index>` resolves back to this exact id.
  */
-const getPluginViewId = (pluginName: string, viewName: PluginViewName, index: number): string =>
-  `plugin-view/${pluginName}/${viewName}/${index}`
+const getPluginViewId = (documentSlug: string, pluginName: string, viewName: PluginViewName, index: number): string =>
+  `${documentSlug}/plugin-view/${pluginName}/${viewName}/${index}`
 
 /**
  * Create the plugin manager store
@@ -71,17 +75,18 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Get all components for a specific view from registered plugins.
      *
-     * Each component carries a stable `id` so the rendered DOM element and the sidebar entry
-     * (see `getSidebarEntries`) share the same id and stay in sync for scroll navigation.
+     * Each component carries a stable `id` (scoped to the active document slug) so the rendered
+     * DOM element and the sidebar entry (see `getSidebarEntries`) share the same id and stay in
+     * sync for scroll navigation and deep-linking.
      */
-    getViewComponents: (viewName: PluginViewName): PluginViewComponent[] => {
+    getViewComponents: (viewName: PluginViewName, documentSlug: string): PluginViewComponent[] => {
       const components: PluginViewComponent[] = []
 
       for (const plugin of registeredPlugins.values()) {
         const viewComponents = plugin.views?.[viewName]
         if (viewComponents) {
           viewComponents.forEach((component: ViewComponent, index: number) => {
-            components.push({ ...component, id: getPluginViewId(plugin.name, viewName, index) })
+            components.push({ ...component, id: getPluginViewId(documentSlug, plugin.name, viewName, index) })
           })
         }
       }
@@ -138,7 +143,7 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
      * id of the rendered component (see `getViewComponents`), so the API Reference can add it
      * to the sidebar navigation and scrolling/active-tracking work out of the box.
      */
-    getSidebarEntries: (): PluginSidebarEntry[] => {
+    getSidebarEntries: (documentSlug: string): PluginSidebarEntry[] => {
       const entries: PluginSidebarEntry[] = []
 
       for (const plugin of registeredPlugins.values()) {
@@ -147,7 +152,7 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
           viewComponents?.forEach((component: ViewComponent, index: number) => {
             if (component.sidebar?.show && component.sidebar.label) {
               entries.push({
-                id: getPluginViewId(plugin.name, viewName, index),
+                id: getPluginViewId(documentSlug, plugin.name, viewName, index),
                 label: component.sidebar.label,
                 viewName,
               })
