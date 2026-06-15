@@ -5,6 +5,15 @@
  * jump once the document has loaded.
  */
 import { SectionColumn, SectionColumns } from '@/components/Section'
+
+const { hasAside = true } = defineProps<{
+  /**
+   * Whether the selector cards live in a sticky aside column (modern layout)
+   * or in a row below the description (classic layout). Mirrors the
+   * `$slots.aside` check in the loaded layout.
+   */
+  hasAside?: boolean
+}>()
 </script>
 
 <template>
@@ -41,8 +50,8 @@ import { SectionColumn, SectionColumns } from '@/components/Section'
           <div class="introduction-skeleton h-4 w-1/2 rounded" />
         </div>
       </SectionColumn>
-      <SectionColumn>
-        <!-- Selector cards: server, authentication and client libraries -->
+      <!-- Modern layout: selector cards in a sticky aside column -->
+      <SectionColumn v-if="hasAside">
         <div class="sticky-cards gap-3">
           <div class="introduction-skeleton h-20 w-full rounded-lg" />
           <div class="introduction-skeleton h-28 w-full rounded-lg" />
@@ -50,6 +59,14 @@ import { SectionColumn, SectionColumns } from '@/components/Section'
         </div>
       </SectionColumn>
     </SectionColumns>
+    <!-- Classic layout: selector cards in a row below the description -->
+    <div
+      v-if="!hasAside"
+      class="flex flex-col gap-3 sm:flex-row sm:gap-6">
+      <div class="introduction-skeleton h-28 w-full flex-1 rounded-lg" />
+      <div class="introduction-skeleton h-28 w-full flex-1 rounded-lg" />
+      <div class="introduction-skeleton h-28 w-full flex-1 rounded-lg" />
+    </div>
   </div>
 </template>
 

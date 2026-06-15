@@ -49,7 +49,9 @@ defineProps<{
       ">
       <SectionContent>
         <!-- While the document loads we show a skeleton that mirrors this layout. -->
-        <IntroductionLoading v-if="!info" />
+        <IntroductionLoading
+          v-if="!info"
+          :hasAside="Boolean($slots.aside)" />
 
         <template v-else>
           <div class="flex gap-1.5">
