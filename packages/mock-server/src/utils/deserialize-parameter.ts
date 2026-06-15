@@ -193,7 +193,10 @@ export const deserializeObjectParameter = ({
   explode: boolean
   /** The single value (for example `R,100,G,200`) as read from path, query, header, or cookie */
   single: string | undefined
-  /** The full query map, needed for `deepObject` and exploded `form` objects (query only) */
+  /**
+   * The full key/value map for the location, needed for `deepObject` (query only) and exploded `form`
+   * objects (query top-level keys, or one cookie per property)
+   */
   query?: Record<string, string> | undefined
   name: string
   /** Declared object property names, used to gather exploded `form` objects from the query map */

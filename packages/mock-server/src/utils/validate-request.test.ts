@@ -376,6 +376,39 @@ describe('validate-request', () => {
     expect((await invalid.json()).violations[0]).toMatchObject({ location: 'path' })
   })
 
+  it('validates exploded form object cookie params from per-property cookies', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'color',
+          in: 'cookie',
+          required: true,
+          schema: {
+            type: 'object',
+            required: ['r'],
+            properties: { r: { type: 'integer' }, g: { type: 'integer' } },
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // Cookies default to `form`/explode, so each object property is sent as its own cookie.
+    const valid = await server.request('/items', { headers: { Cookie: 'r=100; g=200' } })
+    expect(valid.status).toBe(200)
+
+    // A wrong-typed property must fail rather than slip through unvalidated.
+    const wrongType = await server.request('/items', { headers: { Cookie: 'r=nope; g=200' } })
+    expect(wrongType.status).toBe(422)
+    expect((await wrongType.json()).violations[0]).toMatchObject({ location: 'cookie' })
+
+    // A missing required property must fail rather than report a false missing-parameter.
+    const missing = await server.request('/items', { headers: { Cookie: 'g=200' } })
+    expect(missing.status).toBe(422)
+    expect((await missing.json()).violations[0]).toMatchObject({ location: 'cookie' })
+  })
+
   it('validates label-style array and object path params', async () => {
     const arrayDoc = documentWith('/items/{ids}', 'get', {
       parameters: [

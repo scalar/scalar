@@ -286,14 +286,16 @@ export const validateRequest = (
      * single string. Values are looked up by declared name (rather than dumping every request value)
      * so header names match case-insensitively and only declared parameters are enforced.
      *
-     * `getValues` (repeated query keys) and `queryMap` (the full query map) are only supplied for the
-     * query location, where exploded arrays and `deepObject`/exploded-`form` objects need them.
+     * `getValues` (repeated query keys) is only supplied for the query location, where exploded arrays
+     * need it. `getMap` returns the full key/value map for the location and is supplied for query and
+     * cookie, where exploded-`form` objects (and query `deepObject`) spread properties across keys —
+     * for cookies each object property is its own cookie (`Cookie: r=100; g=200`).
      */
     const gather = (
       descriptors: ParameterDescriptor[],
       getValue: (name: string) => string | undefined,
       getValues?: (name: string) => string[] | undefined,
-      queryMap?: () => Record<string, string>,
+      getMap?: () => Record<string, string>,
     ): Record<string, unknown> => {
       const data: Record<string, unknown> = {}
       for (const descriptor of descriptors) {
@@ -310,7 +312,7 @@ export const validateRequest = (
             style: descriptor.style,
             explode: descriptor.explode,
             single: getValue(descriptor.name),
-            query: queryMap?.(),
+            query: getMap?.(),
             name: descriptor.name,
             propertyNames: descriptor.propertyNames,
           })
@@ -353,9 +355,15 @@ export const validateRequest = (
       }
     }
 
-    // Cookie parameters (coerced from strings)
+    // Cookie parameters (coerced from strings; the full cookie map feeds exploded `form` objects,
+    // where each property is sent as its own cookie)
     if (validators.cookie) {
-      const data = gather(validators.cookieParameters, (name) => getCookie(c, name))
+      const data = gather(
+        validators.cookieParameters,
+        (name) => getCookie(c, name),
+        undefined,
+        () => getCookie(c),
+      )
       if (!validators.cookie(data)) {
         violations.push(...mapErrors(validators.cookie.errors, 'cookie'))
       }
