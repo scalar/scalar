@@ -104,7 +104,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
         acceptedContentType?.includes('xml')
         ? json2xml(body as Record<string, unknown>)
         : // JSON
-          JSON.stringify(body, null, 2)
+          JSON.stringify(body)
       : typeof body === 'string'
         ? // String
           body
