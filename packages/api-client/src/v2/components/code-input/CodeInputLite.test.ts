@@ -267,6 +267,23 @@ describe('CodeInputLite', () => {
     expect(wrapper.findComponent({ name: 'EnvironmentVariablesDropdown' }).exists()).toBe(false)
   })
 
+  it('defers pill rendering until an IME composition ends', async () => {
+    const wrapper = mountInput({ modelValue: '' })
+    const editor = wrapper.get('.code-input-lite__editor')
+
+    // A full variable forms mid-composition. Rebuilding the DOM now would
+    // cancel the IME, so the editor must stay as raw text until it commits.
+    await editor.trigger('compositionstart')
+    ;(editor.element as HTMLDivElement).textContent = '{{baseUrl}}'
+    await editor.trigger('input')
+    expect(editor.element.querySelectorAll('.scalar-pill').length).toBe(0)
+
+    // Once the composition commits, the pill renders.
+    await editor.trigger('compositionend')
+    await nextTick()
+    expect(editor.element.querySelectorAll('.scalar-pill').length).toBe(1)
+  })
+
   describe('combobox accessibility', () => {
     it('exposes combobox semantics on the editor when variables are enabled', () => {
       const editor = mountInput({ modelValue: '' }).get('.code-input-lite__editor')

@@ -153,6 +153,13 @@ const isFocused = ref(false)
 const isEmpty = ref(true)
 
 /**
+ * True while an IME composition is in progress. Rebuilding the editor DOM
+ * mid-composition (e.g. when `{{` forms a pill) cancels the composition, so we
+ * defer those rebuilds until `compositionend`.
+ */
+const isComposing = ref(false)
+
+/**
  * Whether the serialized value should count as empty for placeholder display.
  *
  * `contenteditable` can leave behind invisible residue after some delete
@@ -581,8 +588,10 @@ const handleInput = (): void => {
   // Only rebuild when the pill set changes (e.g. `}}` closed a pattern, or
   // a value was pasted). Skipping it for plain-text edits preserves the
   // live selection — important for IME composition and double-click select.
+  // Also defer while composing; `handleCompositionEnd` re-runs this path so the
+  // rebuild happens once the IME has committed its text.
   const sig = pillSignature(text, withVariables)
-  if (sig !== lastPillSignature) {
+  if (!isComposing.value && sig !== lastPillSignature) {
     const caret = getModelCaret()
     lastPillSignature = sig
     renderModel(text)
@@ -592,6 +601,17 @@ const handleInput = (): void => {
   }
 
   emitChange(text)
+}
+
+const handleCompositionStart = (): void => {
+  isComposing.value = true
+}
+
+const handleCompositionEnd = (): void => {
+  isComposing.value = false
+  // Run the deferred input path now that the composition has committed, so any
+  // pill that formed during composition is rendered.
+  handleInput()
 }
 
 const handleFocus = (): void => {
@@ -873,6 +893,8 @@ defineExpose({
       spellcheck="false"
       @blur="handleBlur"
       @click="handleEditorClick"
+      @compositionend="handleCompositionEnd"
+      @compositionstart="handleCompositionStart"
       @focus="handleFocus"
       @input="handleInput"
       @keydown="handleKeyDown"
