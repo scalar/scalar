@@ -149,6 +149,42 @@
     color: var(--scalar-color-3);
     user-select: none;
   }
+
+  /* ------------------------------------------------------------- */
+  /* Shiki output (used by ScalarCodeBlock). Token colors come from */
+  /* inline styles that reference Scalar's CSS variables, so only   */
+  /* structural styling is needed here.                             */
+  code.scalar-code-highlight {
+    all: unset;
+    font-size: inherit;
+    font-family: var(--scalar-font-code);
+    color: var(--scalar-color-2);
+    counter-reset: linenumber;
+  }
+
+  code.scalar-code-highlight * {
+    font-size: inherit;
+    font-family: var(--scalar-font-code);
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.4;
+    tab-size: 4;
+  }
+
+  /** Line numbers are only rendered when explicitly enabled */
+  code.scalar-code-highlight.line-numbers .line::before {
+    color: var(--scalar-color-3);
+    display: inline-block;
+    counter-increment: linenumber;
+    content: counter(linenumber);
+    margin-right: 0.875rem;
+    /* Variable is set on the code element when line numbers are used */
+    min-width: calc(var(--line-digits) * 1ch);
+    text-align: right;
+  }
 }
 
 /* -------------------------------------------------------------- */

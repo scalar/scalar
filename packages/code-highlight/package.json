@@ -77,6 +77,11 @@
   ],
   "sideEffects": false,
   "dependencies": {
+    "@shikijs/core": "^3.23.0",
+    "@shikijs/engine-javascript": "^3.23.0",
+    "@shikijs/langs": "^3.23.0",
+    "@shikijs/types": "^3.23.0",
+    "hast-util-to-html": "^9.0.5",
     "hast-util-to-text": "^4.0.2",
     "highlight.js": "^11.11.1",
     "lowlight": "^3.3.0",

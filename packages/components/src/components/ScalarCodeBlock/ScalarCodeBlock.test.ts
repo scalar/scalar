@@ -56,10 +56,18 @@ describe('ScalarCodeBlock', () => {
     expect(code.exists()).toBe(true)
     expect(code.element.nodeName.toLowerCase()).toBe('code')
 
-    // Confirm the syntax highlighting has been applied
-    expect(code.html()).toBe(
-      `<code class="hljs language-javascript"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>()</code>`,
-    )
+    // Shiki highlights asynchronously (the grammar is loaded on demand), so wait
+    // for the highlighted output to replace the plain fallback
+    await vi.waitFor(() => {
+      expect(wrapper.find('code').classes()).toContain('language-javascript')
+    })
+
+    const highlighted = wrapper.find('code')
+    expect(highlighted.classes()).toContain('scalar-code-highlight')
+    // The original code is preserved as text content
+    expect(highlighted.text()).toBe('console.log()')
+    // Tokens are coloured via inline styles that reference Scalar's CSS variables
+    expect(highlighted.html()).toContain('var(--scalar-color-')
   })
 
   it('renders a schema', async () => {
@@ -98,25 +106,19 @@ describe('ScalarCodeBlock', () => {
     expect(code.exists()).toBe(true)
     expect(code.element.nodeName.toLowerCase()).toBe('code')
 
-    // Confirm the syntax highlighting has been applied
-    expect(code.html()).toBe(`<code class="hljs language-json"><span class="hljs-punctuation">{</span>
-  <span class="hljs-attr">"description"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"successful operation"</span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">"schema"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-    <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"object"</span><span class="hljs-punctuation">,</span>
-    <span class="hljs-attr">"properties"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-      <span class="hljs-attr">"code"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-        <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"integer"</span><span class="hljs-punctuation">,</span>
-        <span class="hljs-attr">"format"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"int32"</span>
-      <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
-      <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-        <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"string"</span>
-      <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
-      <span class="hljs-attr">"message"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-        <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"string"</span>
-      <span class="hljs-punctuation">}</span>
-    <span class="hljs-punctuation">}</span>
-  <span class="hljs-punctuation">}</span>
-<span class="hljs-punctuation">}</span></code>`)
+    // Shiki highlights asynchronously (the grammar is loaded on demand), so wait
+    // for the highlighted output to replace the plain fallback
+    await vi.waitFor(() => {
+      expect(wrapper.find('code').classes()).toContain('language-json')
+    })
+
+    const highlighted = wrapper.find('code')
+    expect(highlighted.classes()).toContain('scalar-code-highlight')
+    // The pretty-printed JSON is preserved as text content
+    expect(highlighted.text()).toContain('"description": "successful operation"')
+    expect(highlighted.text()).toContain('"format": "int32"')
+    // Tokens are coloured via inline styles that reference Scalar's CSS variables
+    expect(highlighted.html()).toContain('var(--scalar-color-')
   })
 
   describe('ScalarCodeBlockCopy', () => {

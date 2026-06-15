@@ -1,14 +1,19 @@
+import { toHtml } from 'hast-util-to-html'
+import { createLowlight } from 'lowlight'
 import { describe, expect, it } from 'vitest'
 
-import { syntaxHighlight } from '../code/highlight'
-import { standardLanguages } from './index'
+import python from './python'
 
 /**
  * These tests cover the custom Python grammar that adds call-site highlighting
  * on top of the bundled highlight.js grammar (DOC-5618).
+ *
+ * Code blocks are highlighted with Shiki, but this grammar is still shipped and
+ * used by the markdown pipeline, so it is unit-tested directly against lowlight.
  */
 describe('python', () => {
-  const highlight = (code: string) => syntaxHighlight(code, { lang: 'python', languages: standardLanguages })
+  const lowlight = createLowlight({ python })
+  const highlight = (code: string) => toHtml(lowlight.highlight('python', code))
 
   it('highlights method and function call sites as function titles', () => {
     const result = highlight('conn.request("POST", "/users")\nres.getresponse()')

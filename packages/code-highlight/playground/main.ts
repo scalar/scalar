@@ -11,7 +11,6 @@ import codeExampleLarge from '../src/constants?raw'
 
 import '../src/css/code.css'
 
-import { standardLanguages } from '../src/languages'
 import { htmlFromMarkdown } from '../src/markdown/markdown'
 // @ts-expect-error vite not looking for raw types
 import markdownFile from './markdown-test.md?raw'
@@ -27,13 +26,14 @@ function createHeader(text: string) {
 function createCodeBlock(content: string, name: string, lang: string, mask?: string[]) {
   createHeader(name)
   const el = document.createElement('div')
-  el.innerHTML = syntaxHighlight(content, {
+  document.body.appendChild(el)
+  void syntaxHighlight(content, {
     lang,
-    languages: standardLanguages,
     lineNumbers: true,
     maskCredentials: mask,
+  }).then((html) => {
+    el.innerHTML = html
   })
-  document.body.appendChild(el)
 }
 
 document.getElementById('dark-mode-btn')?.addEventListener('click', () => {

@@ -1,27 +1,30 @@
-import type { Element, Root } from 'hast'
-import type { LanguageFn } from 'highlight.js'
-import rehypeParse from 'rehype-parse'
-import rehypeStringify from 'rehype-stringify'
-import { type Plugin, unified } from 'unified'
-import { visit } from 'unist-util-visit'
+import type { Element, ElementContent } from 'hast'
+import { toHtml } from 'hast-util-to-html'
 
-import { lowlightLanguageMappings } from '@/constants'
-import { rehypeHighlight } from '@/rehype-highlight'
+import { getShikiHighlighter, loadLanguage } from '../shiki/highlighter'
+import { SCALAR_THEME_NAME } from '../shiki/theme'
 
-import { codeBlockLinesPlugin } from './line-numbers'
+/** Class added to the rendered `<code>` element so the CSS can target it. */
+const CODE_CLASS = 'scalar-code-highlight'
 
 /**
- * Syntax highlights a code string using the `rehype-highlight` library.
+ * Syntax highlights a code string with Shiki.
+ *
+ * Only the Shiki core is loaded up front; the grammar for `lang` is fetched on
+ * demand the first time it is needed (and cached afterwards), so each language
+ * is its own lazily loaded chunk.
+ *
+ * Returns the inner `<code>` element as an HTML string (without a wrapping
+ * `<pre>`), ready to be injected into a `<pre>` by the caller.
  */
-export function syntaxHighlight(
+export async function syntaxHighlight(
   codeString: string,
   options: {
     lang: string
-    languages: Record<string, LanguageFn>
     lineNumbers?: boolean
     maskCredentials?: string | string[]
   },
-) {
+): Promise<string> {
   // Simple restriction on credentials to prevent unexpected behavior
   const credentials = (
     typeof options?.maskCredentials === 'string' ? [options.maskCredentials] : (options?.maskCredentials ?? [])
@@ -34,29 +37,41 @@ export function syntaxHighlight(
     return true
   })
 
-  // Classname is used by lowlight to select the language model
-  const className = `language-${lowlightLanguageMappings[options.lang] ?? options.lang}`
+  const highlighter = await getShikiHighlighter()
 
-  // biome-ignore lint/suspicious/noEmptyBlockStatements: empty plugin
-  const nullPlugin = (() => {}) satisfies Plugin
+  // Resolve the language and lazily load its grammar (falls back to plain text)
+  const lang = await loadLanguage(options.lang)
 
-  const html = unified()
-    // Parses markdown
-    .use(rehypeParse, { fragment: true })
-    // Raw code string must be injected after initial hast parsing
-    // so that HTML code is not parsed into the hast tree
-    .use(injectRawCodeStringPlugin(codeString))
-    // Syntax highlighting
-    .use(rehypeHighlight, {
-      languages: options.languages,
-    })
-    .use(options?.lineNumbers ? codeBlockLinesPlugin : nullPlugin)
-    // Converts the HTML AST to a string
-    .use(rehypeStringify)
-    // Run the pipeline
-    .processSync(`<pre><code class="${className}"></code></pre>`)
+  const tree = highlighter.codeToHast(codeString, {
+    lang,
+    theme: SCALAR_THEME_NAME,
+  })
 
-  const htmlString = html.toString()
+  // Shiki wraps everything in `<pre><code>`. We only want the `<code>` element
+  // so it can be dropped straight into the caller's own `<pre>`.
+  const pre = tree.children.find((node): node is Element => node.type === 'element' && node.tagName === 'pre')
+  const code = pre?.children.find((node): node is Element => node.type === 'element' && node.tagName === 'code')
+
+  if (!code) {
+    return `<code class="${CODE_CLASS}"></code>`
+  }
+
+  const classNames = [CODE_CLASS, `language-${lang}`]
+
+  if (options?.lineNumbers) {
+    classNames.push('line-numbers')
+
+    // Size the line-number gutter to fit the largest line number.
+    const lineCount = code.children.filter(
+      (node) => node.type === 'element' && asClassList(node).includes('line'),
+    ).length
+
+    code.properties.style = `--line-digits: ${Math.max(1, lineCount).toString().length}`
+  }
+
+  code.properties.className = classNames
+
+  const htmlString = toHtml(code)
 
   // Replace any credentials with a wrapper element
   return credentials.length
@@ -70,19 +85,17 @@ export function syntaxHighlight(
     : htmlString
 }
 
-/**
- * To prevent unified from parsing any content of the code string we inject
- * it as a raw text node into the AST tree as a child of the code element
- */
-function injectRawCodeStringPlugin(rawCodeString: string) {
-  return () => (tree: Root) => {
-    visit(tree, 'element', (node: Element) => {
-      if (node.tagName === 'code') {
-        node.children.push({
-          type: 'text',
-          value: rawCodeString,
-        })
-      }
-    })
+/** Read a hast element's class list as an array of strings. */
+function asClassList(node: ElementContent): string[] {
+  if (node.type !== 'element') {
+    return []
   }
+
+  const className = node.properties?.className
+
+  if (Array.isArray(className)) {
+    return className.map(String)
+  }
+
+  return typeof className === 'string' ? className.split(' ') : []
 }

@@ -13,9 +13,9 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
 
-import { standardLanguages } from '@/languages'
-import { rehypeAlert } from '@/rehype-alert'
-import { rehypeHighlight } from '@/rehype-highlight'
+import { standardLanguages } from '../languages'
+import { rehypeAlert } from '../rehype-alert'
+import { rehypeHighlight } from '../rehype-highlight'
 
 type Options = {
   transform?: (node: Node) => Node

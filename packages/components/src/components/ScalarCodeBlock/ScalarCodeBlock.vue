@@ -2,7 +2,7 @@
 /**
  * Scalar Code Block component
  *
- * Renders syntax-highlighted code using highlight.js.
+ * Renders syntax-highlighted code using Shiki.
  * Supports line numbers, credential masking, and an optional copy button.
  *
  * @example
@@ -12,10 +12,10 @@ export default {}
 </script>
 <script lang="ts" setup>
 import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
-import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
+import { syntaxHighlight } from '@scalar/code-highlight'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, useId } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 
 import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
 import type { StandardLanguageKey } from './types'
@@ -67,17 +67,61 @@ const prettyContent = computed(
   () => prettyPrintedContent || prettyPrintJson(content ?? ''),
 )
 
-const highlightedCode = computed(() => {
-  const html = syntaxHighlight(prettyContent.value, {
-    lang: lang.trim(),
-    languages: standardLanguages,
-    lineNumbers: lineNumbers,
-    maskCredentials: hideCredentials,
-  })
+/** Escape raw code so it is safe to inject before Shiki finishes highlighting */
+const escapeHtml = (value: string) =>
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-  // Need to remove the wrapping <pre> element so we can use v-html without another wrapper
-  return html.slice(5, -6)
-})
+/** Wrap credential substrings so they are masked, even in the plain fallback */
+const maskCredentials = (escaped: string) => {
+  const credentials = (
+    typeof hideCredentials === 'string'
+      ? [hideCredentials]
+      : (hideCredentials ?? [])
+  ).filter((credential) => credential.length >= 3)
+
+  return credentials.reduce((acc, credential) => {
+    const masked = escapeHtml(credential)
+    return acc
+      .split(masked)
+      .join(
+        `<span class="credential"><span class="credential-value">${masked}</span></span>`,
+      )
+  }, escaped)
+}
+
+/** Plain (unhighlighted) markup shown until Shiki resolves the highlighted output */
+const plainCode = (value: string) =>
+  `<code class="scalar-code-highlight">${maskCredentials(escapeHtml(value))}</code>`
+
+/**
+ * Shiki highlights asynchronously (the core loads once, then each grammar is
+ * fetched on demand), so render escaped plain text first and swap in the
+ * highlighted markup once it is ready.
+ */
+const highlightedCode = ref(plainCode(prettyContent.value))
+
+/** Tracks the latest highlight request so stale async results are discarded */
+let highlightRequestId = 0
+
+watch(
+  () => [prettyContent.value, lang, lineNumbers, hideCredentials] as const,
+  async () => {
+    const requestId = ++highlightRequestId
+    const content = prettyContent.value
+
+    const html = await syntaxHighlight(content, {
+      lang: lang.trim(),
+      lineNumbers,
+      maskCredentials: hideCredentials,
+    })
+
+    // Ignore results from superseded requests
+    if (requestId === highlightRequestId) {
+      highlightedCode.value = html
+    }
+  },
+  { immediate: true },
+)
 
 /** Determine if the content is a single line */
 const isOneLine = computed(() => !prettyContent.value.includes('\n'))

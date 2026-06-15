@@ -1562,6 +1562,21 @@ importers:
 
   packages/code-highlight:
     dependencies:
+      '@shikijs/core':
+        specifier: ^3.23.0
+        version: 3.23.0
+      '@shikijs/engine-javascript':
+        specifier: ^3.23.0
+        version: 3.23.0
+      '@shikijs/langs':
+        specifier: ^3.23.0
+        version: 3.23.0
+      '@shikijs/types':
+        specifier: ^3.23.0
+        version: 3.23.0
+      hast-util-to-html:
+        specifier: ^9.0.5
+        version: 9.0.5
       hast-util-to-text:
         specifier: ^4.0.2
         version: 4.0.2
@@ -17560,6 +17575,7 @@ packages:
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
     engines: {node: ^18 || >=20}
+    deprecated: unmaintained
     hasBin: true
     peerDependencies:
       typescript: ^5.0.0
@@ -18553,6 +18569,9 @@ packages:
 
   vue-component-type-helpers@3.3.3:
     resolution: {integrity: sha512-x4nsFpy5Pe8fqPzp/5vkTPeTTDBpAx4WVtV47Ejt0+2FQrq4pRRsJs7JmYRqMFzTu/LW+pCWEjQ3YVCkPV7f9g==}
+
+  vue-component-type-helpers@3.3.4:
+    resolution: {integrity: sha512-joip1uZTaQR0nD23N400gIdJ7xY+WiiiMA/BCKz842gvGBknqDQAzklUvDEhqFvvrhQY8S2ZANBMu4X70VMFGw==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -25606,7 +25625,7 @@ snapshots:
       storybook: 10.3.5(@testing-library/dom@10.4.1)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       type-fest: 2.19.0
       vue: 3.5.30(typescript@5.9.3)
-      vue-component-type-helpers: 3.3.3
+      vue-component-type-helpers: 3.3.4
 
   '@sveltejs/acorn-typescript@1.0.5(acorn@8.16.0)':
     dependencies:
@@ -38444,6 +38463,8 @@ snapshots:
   vue-component-type-helpers@2.2.10: {}
 
   vue-component-type-helpers@3.3.3: {}
+
+  vue-component-type-helpers@3.3.4: {}
 
   vue-demi@0.14.10(vue@3.5.30(typescript@5.9.3)):
     dependencies:
