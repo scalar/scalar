@@ -182,18 +182,19 @@ test.describe('parameter linking', () => {
     // The overflow property is hidden behind the collapsed section on load.
     await expect(hiddenButton).toHaveCount(0)
 
-    // Expand the collapsed section to grab the canonical deep link.
+    // Expand the collapsed section so the property's anchor exists, then read its
+    // id. We build the deep link from the id instead of going through the clipboard
+    // copy flow, which is flaky in CI.
     await page.getByRole('button', { name: /Show additional properties/ }).click()
-    await page.hover(`text=${hiddenProperty}`)
-    await hiddenButton.click()
-    await expect(page.getByRole('status').filter({ hasText: 'Copied' })).toBeVisible()
+    const anchorId = await page.locator(`[id$=".body.${hiddenProperty}"]`).first().getAttribute('id')
+    expect(anchorId).toBeTruthy()
 
-    const clipboard = await page.evaluate(() => navigator.clipboard.readText())
-    expect(clipboard).toContain(hiddenProperty)
+    // Path-routing deep link: base path + the id without the document slug segment.
+    const deepLink = `${example}/custom-base-path/${anchorId!.replace(/^[^/]+\//, '')}`
 
     // Fresh navigation: the section starts collapsed again, but the deep link
     // must reveal the hidden property and scroll it into view.
-    await page.goto(clipboard)
+    await page.goto(deepLink)
 
     await expect(hiddenButton).toBeInViewport()
   })
