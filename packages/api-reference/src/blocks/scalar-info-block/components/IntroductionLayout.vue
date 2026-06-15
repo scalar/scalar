@@ -21,6 +21,7 @@ import { SpecificationExtension } from '@/features/specification-extension'
 import InfoDescription from './InfoDescription.vue'
 import InfoLinks from './InfoLinks.vue'
 import InfoVersion from './InfoVersion.vue'
+import IntroductionLoading from './IntroductionLoading.vue'
 import SpecificationVersion from './SpecificationVersion.vue'
 
 defineProps<{
@@ -46,44 +47,44 @@ defineProps<{
       @intersecting="
         () => id && eventBus?.emit('intersecting:nav-item', { id })
       ">
-      <SectionContent :loading="!info">
-        <div class="flex gap-1.5">
-          <InfoVersion
-            v-if="info"
-            :version="info?.version" />
-          <SpecificationVersion
-            :documentType
-            :version="specificationVersion" />
-        </div>
-        <SectionHeader
-          :loading="!info?.title"
-          tight>
-          <SectionHeaderTag :level="1">
-            {{ info?.title }}
-          </SectionHeaderTag>
-          <template #links>
-            <InfoLinks
-              v-if="info"
-              :externalDocs="externalDocs"
-              :info="info" />
-          </template>
-        </SectionHeader>
-        <SectionColumns>
-          <SectionColumn>
-            <slot name="download-link" />
-            <InfoDescription
-              :description="info?.description"
-              :eventBus="eventBus"
-              :headingSlugGenerator="headingSlugGenerator" />
-          </SectionColumn>
-          <SectionColumn v-if="$slots.aside">
-            <div class="sticky-cards">
-              <slot name="aside" />
-            </div>
-          </SectionColumn>
-        </SectionColumns>
-        <SpecificationExtension :value="documentExtensions" />
-        <SpecificationExtension :value="infoExtensions" />
+      <SectionContent>
+        <!-- While the document loads we show a skeleton that mirrors this layout. -->
+        <IntroductionLoading v-if="!info" />
+
+        <template v-else>
+          <div class="flex gap-1.5">
+            <InfoVersion :version="info?.version" />
+            <SpecificationVersion
+              :documentType
+              :version="specificationVersion" />
+          </div>
+          <SectionHeader tight>
+            <SectionHeaderTag :level="1">
+              {{ info?.title }}
+            </SectionHeaderTag>
+            <template #links>
+              <InfoLinks
+                :externalDocs="externalDocs"
+                :info="info" />
+            </template>
+          </SectionHeader>
+          <SectionColumns>
+            <SectionColumn>
+              <slot name="download-link" />
+              <InfoDescription
+                :description="info?.description"
+                :eventBus="eventBus"
+                :headingSlugGenerator="headingSlugGenerator" />
+            </SectionColumn>
+            <SectionColumn v-if="$slots.aside">
+              <div class="sticky-cards">
+                <slot name="aside" />
+              </div>
+            </SectionColumn>
+          </SectionColumns>
+          <SpecificationExtension :value="documentExtensions" />
+          <SpecificationExtension :value="infoExtensions" />
+        </template>
       </SectionContent>
       <slot name="after" />
     </Section>
