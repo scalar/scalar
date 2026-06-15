@@ -8,7 +8,7 @@ import type {
   ReferenceType,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import { isArraySchema, isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import type { TableRow } from '../components/RequestTableRow.vue'
 import { getParameterSchema } from './get-parameter-schema'
@@ -242,11 +242,21 @@ const getExpandedPropertyRows = ({
       })
     }
 
+    const leafValue = getValueAtPath(value, path)
+
+    // deepObject array values serialize with the trailing-bracket convention
+    // (filter[ids][]=1&filter[ids][]=2), so mirror that in the displayed name. We base this on the
+    // resolved value too, since the schema can be a composition (anyOf) that hides the array type.
+    // The bracket is display-only — `sourceParameterValuePath` stays bracket-free so write-back
+    // still reassembles the value object correctly.
+    const displayName =
+      mode === 'deepObject' && (isArraySchema(resolvedPropertySchema) || Array.isArray(leafValue)) ? `${name}[]` : name
+
     return [
       toTableRow({
         parameter,
-        name,
-        value: getValueAtPath(value, path),
+        name: displayName,
+        value: leafValue,
         description: resolvedPropertySchema.description ?? parameter.description,
         schema: resolvedPropertySchema,
         isRequired: requiredProperties.has(propertyName),
