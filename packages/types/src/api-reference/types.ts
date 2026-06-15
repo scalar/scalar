@@ -200,9 +200,10 @@ export type ViewComponent = {
   renderer?: unknown
   props?: Record<string, any>
   sidebar?: {
+    /** Whether to show an entry for this view in the sidebar */
     show: boolean
+    /** Label to display in the sidebar */
     label: string
-    icon?: string
   }
 }
 

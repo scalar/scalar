@@ -37,8 +37,8 @@ const viewComponentSchema = z.object({
   props: z.record(z.string(), z.any()).optional(),
   /**
    * Sidebar configuration for this view component.
-   * If provided, an entry will be shown in the sidebar.
-   * Set to false or omit to hide from sidebar.
+   * If provided with `show: true`, an entry will be shown in the sidebar.
+   * Set `show: false` or omit to hide from the sidebar.
    */
   sidebar: z
     .object({
@@ -46,8 +46,6 @@ const viewComponentSchema = z.object({
       show: z.boolean().default(false),
       /** Label to display in the sidebar */
       label: z.string(),
-      /** Optional icon name */
-      icon: z.string().optional(),
     })
     .optional(),
 })

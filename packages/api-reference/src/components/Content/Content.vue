@@ -201,6 +201,7 @@ onMounted(() => {
 
     <!-- Render plugins at content.start view -->
     <RenderPlugins
+      :eventBus
       :options
       viewName="content.start" />
 
@@ -311,6 +312,7 @@ onMounted(() => {
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins
+      :eventBus
       :options
       viewName="content.end" />
 

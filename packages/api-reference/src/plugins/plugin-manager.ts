@@ -11,6 +11,31 @@ type CreatePluginManagerParams = {
   plugins?: ApiReferencePlugin[]
 }
 
+/** Plugin view slots that can render custom components in the content area */
+const PLUGIN_VIEW_NAMES = ['content.start', 'content.end'] as const
+
+type PluginViewName = (typeof PLUGIN_VIEW_NAMES)[number]
+
+/** A plugin view component paired with the stable id used for the DOM and sidebar navigation */
+export type PluginViewComponent = ViewComponent & { id: string }
+
+/** A sidebar entry contributed by a plugin view */
+type PluginSidebarEntry = {
+  id: string
+  label: string
+  viewName: PluginViewName
+}
+
+/**
+ * Build a stable, unique id for a plugin view component.
+ *
+ * The same id is used as the DOM element id (so scroll navigation can find it) and as the
+ * sidebar navigation entry id (so clicking it scrolls to the element). Keeping both in sync
+ * is what lets plugin views participate in the existing scroll-spy and navigation logic.
+ */
+const getPluginViewId = (pluginName: string, viewName: PluginViewName, index: number): string =>
+  `plugin-view/${pluginName}/${viewName}/${index}`
+
 /**
  * Create the plugin manager store
  *
@@ -44,15 +69,20 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     },
 
     /**
-     * Get all components for a specific view from registered plugins
+     * Get all components for a specific view from registered plugins.
+     *
+     * Each component carries a stable `id` so the rendered DOM element and the sidebar entry
+     * (see `getSidebarEntries`) share the same id and stay in sync for scroll navigation.
      */
-    getViewComponents: (viewName: 'content.start' | 'content.end'): ViewComponent[] => {
-      const components: ViewComponent[] = []
+    getViewComponents: (viewName: PluginViewName): PluginViewComponent[] => {
+      const components: PluginViewComponent[] = []
 
       for (const plugin of registeredPlugins.values()) {
         const viewComponents = plugin.views?.[viewName]
         if (viewComponents) {
-          components.push(...viewComponents)
+          viewComponents.forEach((component: ViewComponent, index: number) => {
+            components.push({ ...component, id: getPluginViewId(plugin.name, viewName, index) })
+          })
         }
       }
 
@@ -102,27 +132,27 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     },
 
     /**
-     * Get all sidebar entries from plugin views
+     * Get all sidebar entries contributed by plugin views.
+     *
+     * Only views that opt in via `sidebar.show` are returned. Each entry's `id` matches the
+     * id of the rendered component (see `getViewComponents`), so the API Reference can add it
+     * to the sidebar navigation and scrolling/active-tracking work out of the box.
      */
-    getSidebarEntries: (): { label: string; icon?: string; viewName: string; index: number }[] => {
-      const entries: { label: string; icon?: string; viewName: string; index: number }[] = []
+    getSidebarEntries: (): PluginSidebarEntry[] => {
+      const entries: PluginSidebarEntry[] = []
 
       for (const plugin of registeredPlugins.values()) {
-        const viewNames = ['content.start', 'content.end'] as const
-        for (const viewName of viewNames) {
+        for (const viewName of PLUGIN_VIEW_NAMES) {
           const viewComponents = plugin.views?.[viewName]
-          if (viewComponents) {
-            viewComponents.forEach((vc: ViewComponent, index: number) => {
-              if (vc.sidebar?.show && vc.sidebar?.label) {
-                entries.push({
-                  label: vc.sidebar.label,
-                  icon: vc.sidebar.icon,
-                  viewName,
-                  index,
-                })
-              }
-            })
-          }
+          viewComponents?.forEach((component: ViewComponent, index: number) => {
+            if (component.sidebar?.show && component.sidebar.label) {
+              entries.push({
+                id: getPluginViewId(plugin.name, viewName, index),
+                label: component.sidebar.label,
+                viewName,
+              })
+            }
+          })
         }
       }
 

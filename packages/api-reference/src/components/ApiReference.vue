@@ -373,20 +373,56 @@ const activeSearchableDocument = computed(
 )
 
 /**
+ * Sidebar entries contributed by plugin views (content.start / content.end).
+ *
+ * Each entry reuses the same id as the rendered plugin component, so the existing
+ * navigation and scroll-spy logic can scroll to and highlight it. Plugins are static for
+ * the lifetime of the manager, so this only needs to be resolved once.
+ */
+const pluginSidebarEntries = pluginManager
+  .getSidebarEntries()
+  .reduce<Record<'content.start' | 'content.end', TraversedEntry[]>>(
+    (grouped, entry) => {
+      grouped[entry.viewName].push({
+        id: entry.id,
+        title: entry.label,
+        type: 'text',
+      })
+      return grouped
+    },
+    { 'content.start': [], 'content.end': [] },
+  )
+
+/**
  * Create top level sidebar entries for each document
  * This allows sharing a single sidebar state for across the workspace
  */
 const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
   return Object.entries(workspaceStore.workspace.documents).map(
-    ([slug, document]) => ({
-      id: slug,
-      type: 'document',
-      description: document.info.description,
-      name: document.info.title ?? slug,
-      title: document.info.title ?? slug,
+    ([slug, document]) => {
       // Both OpenAPI and AsyncAPI documents carry an `x-scalar-navigation` tree.
-      children: document['x-scalar-navigation']?.children ?? [],
-    }),
+      const children = document['x-scalar-navigation']?.children ?? []
+
+      // Plugin views render once for the active document, so only surface their sidebar
+      // entries there. `content.start` sits above the Introduction, `content.end` below.
+      const childrenWithPlugins =
+        slug === activeSlug.value
+          ? [
+              ...pluginSidebarEntries['content.start'],
+              ...children,
+              ...pluginSidebarEntries['content.end'],
+            ]
+          : children
+
+      return {
+        id: slug,
+        type: 'document',
+        description: document.info.description,
+        name: document.info.title ?? slug,
+        title: document.info.title ?? slug,
+        children: childrenWithPlugins,
+      }
+    },
   )
 })
 

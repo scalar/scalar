@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import { usePluginManager } from '@/plugins'
 
-const { viewName, options } = defineProps<{
+import RenderPluginView from './RenderPluginView.vue'
+
+const { viewName, options, eventBus } = defineProps<{
   viewName: 'content.start' | 'content.end'
   options: Record<string, any>
+  eventBus?: WorkspaceEventBus
 }>()
 
 const { getViewComponents } = usePluginManager()
@@ -13,32 +16,14 @@ const components = getViewComponents(viewName)
 </script>
 
 <template>
-  <template v-if="components.length">
-    <div class="plugin-view">
-      <template
-        v-for="(item, _index) in components"
-        :key="_index">
-        <ScalarErrorBoundary>
-          <div :id="`plugin-view-${viewName}-${_index}`">
-            <template v-if="item.renderer">
-              <!-- Custom renderer (e.g. React) -->
-              <component
-                :is="item.renderer"
-                v-bind="{
-                  component: item.component,
-                  options,
-                  ...item.props,
-                }" />
-            </template>
-            <template v-else>
-              <!-- Vue component -->
-              <component
-                :is="item.component"
-                v-bind="{ options, ...item.props }" />
-            </template>
-          </div>
-        </ScalarErrorBoundary>
-      </template>
-    </div>
-  </template>
+  <div
+    v-if="components.length"
+    class="plugin-view">
+    <RenderPluginView
+      v-for="item in components"
+      :key="item.id"
+      :eventBus="eventBus"
+      :item="item"
+      :options="options" />
+  </div>
 </template>

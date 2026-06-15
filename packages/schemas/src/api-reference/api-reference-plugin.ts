@@ -1,4 +1,4 @@
-import { type Static, any, array, fn, object, optional, record, string, unknown } from '@scalar/validation'
+import { type Static, any, array, boolean, fn, object, optional, record, string, unknown } from '@scalar/validation'
 
 const openApiExtensionSchema = object({
   name: string({
@@ -28,9 +28,8 @@ const viewComponentSchema = object({
   }),
   sidebar: optional(
     object({
-      show: any(),
+      show: boolean(),
       label: string(),
-      icon: optional(string()),
     }),
     {
       typeComment: 'Sidebar configuration. Set show: true to display in sidebar.',

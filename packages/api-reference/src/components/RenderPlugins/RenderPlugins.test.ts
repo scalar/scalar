@@ -418,6 +418,42 @@ describe('RenderPlugins', () => {
     })
   })
 
+  describe('navigation wiring', () => {
+    it('renders each view with its id so navigation can scroll to it', () => {
+      const TestComponent = {
+        name: 'TestComponent',
+        template: '<div class="test-component">Test</div>',
+        props: ['options'],
+      }
+
+      vi.mocked(usePluginManager).mockReturnValue({
+        getViewComponents: vi.fn().mockReturnValue([
+          {
+            id: 'plugin-view/my-plugin/content.start/0',
+            component: TestComponent,
+            sidebar: { show: true, label: 'Getting Started' },
+          },
+        ]),
+        getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
+        getSidebarEntries: vi.fn().mockReturnValue([]),
+      })
+
+      const wrapper = mount(RenderPlugins, {
+        props: {
+          viewName: 'content.start',
+          options: mockOptions,
+        },
+      })
+
+      // The wrapper id mirrors the sidebar entry id so scroll navigation can find it
+      expect(wrapper.find('[id="plugin-view/my-plugin/content.start/0"]').exists()).toBe(true)
+    })
+  })
+
   describe('edge cases', () => {
     it('handles components with no props gracefully', () => {
       const TestComponent = {

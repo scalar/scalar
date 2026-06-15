@@ -130,7 +130,7 @@ Plugins can inject components at specific locations in the API Reference using v
 
 #### Sidebar Visibility
 
-View components can optionally appear in the sidebar. Add a `sidebar` configuration to control this:
+View components can optionally appear in the sidebar. Add a `sidebar` configuration to control this. Clicking the entry scrolls to the component, and the entry highlights as it scrolls into view, just like the built-in sections.
 
 ```typescript
 {
@@ -138,7 +138,6 @@ View components can optionally appear in the sidebar. Add a `sidebar` configurat
   sidebar: {
     show: true,       // true = visible in sidebar, false/omitted = hidden
     label: 'My Page', // Display text in the sidebar
-    icon: 'book',     // Optional icon name
   },
 }
 ```

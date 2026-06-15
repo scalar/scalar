@@ -87,6 +87,7 @@ describe('plugin-manager', () => {
       const components = manager.getViewComponents('content.end')
       expect(components).toEqual([
         {
+          id: 'plugin-view/testPlugin/content.end/0',
           component: mockComponent,
           props: { customProp: 'test value' },
         },
@@ -127,10 +128,12 @@ describe('plugin-manager', () => {
       const components = manager.getViewComponents('content.end')
       expect(components).toEqual([
         {
+          id: 'plugin-view/testPlugin1/content.end/0',
           component: mockComponent1,
           props: { value: 'first' },
         },
         {
+          id: 'plugin-view/testPlugin2/content.end/0',
           component: mockComponent2,
           props: { value: 'second' },
         },
@@ -179,6 +182,7 @@ describe('plugin-manager', () => {
       const components = manager.getViewComponents('content.end')
       expect(components).toEqual([
         {
+          id: 'plugin-view/testPlugin/content.end/0',
           component: mockComponent,
           renderer: 'MockRenderer',
         },
@@ -220,6 +224,7 @@ describe('plugin-manager', () => {
       const components = manager.getViewComponents('content.start')
       expect(components).toEqual([
         {
+          id: 'plugin-view/testPlugin/content.start/0',
           component: mockComponent,
           props: { title: 'My Custom Page' },
         },
@@ -237,8 +242,12 @@ describe('plugin-manager', () => {
       })
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
-      expect(manager.getViewComponents('content.start')).toEqual([{ component: 'StartComponent' }])
-      expect(manager.getViewComponents('content.end')).toEqual([{ component: 'EndComponent' }])
+      expect(manager.getViewComponents('content.start')).toEqual([
+        { id: 'plugin-view/testPlugin/content.start/0', component: 'StartComponent' },
+      ])
+      expect(manager.getViewComponents('content.end')).toEqual([
+        { id: 'plugin-view/testPlugin/content.end/0', component: 'EndComponent' },
+      ])
     })
   })
 
@@ -290,11 +299,11 @@ describe('plugin-manager', () => {
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
       expect(manager.getSidebarEntries()).toEqual([
-        { label: 'Getting Started', icon: undefined, viewName: 'content.start', index: 0 },
+        { id: 'plugin-view/testPlugin/content.start/0', label: 'Getting Started', viewName: 'content.start' },
       ])
     })
 
-    it('returns entries with icon when provided', () => {
+    it('returns entries for content.end views', () => {
       const mockPlugin: ApiReferencePlugin = () => ({
         name: 'testPlugin',
         extensions: [],
@@ -302,7 +311,7 @@ describe('plugin-manager', () => {
           'content.end': [
             {
               component: 'EndComponent',
-              sidebar: { show: true, label: 'Changelog', icon: 'history' },
+              sidebar: { show: true, label: 'Changelog' },
             },
           ],
         },
@@ -310,7 +319,7 @@ describe('plugin-manager', () => {
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
       expect(manager.getSidebarEntries()).toEqual([
-        { label: 'Changelog', icon: 'history', viewName: 'content.end', index: 0 },
+        { id: 'plugin-view/testPlugin/content.end/0', label: 'Changelog', viewName: 'content.end' },
       ])
     })
 
@@ -340,8 +349,8 @@ describe('plugin-manager', () => {
 
       const manager = createPluginManager({ plugins: [mockPlugin] })
       expect(manager.getSidebarEntries()).toEqual([
-        { label: 'Overview', icon: undefined, viewName: 'content.start', index: 0 },
-        { label: 'Support', icon: undefined, viewName: 'content.end', index: 0 },
+        { id: 'plugin-view/testPlugin/content.start/0', label: 'Overview', viewName: 'content.start' },
+        { id: 'plugin-view/testPlugin/content.end/0', label: 'Support', viewName: 'content.end' },
       ])
     })
   })
