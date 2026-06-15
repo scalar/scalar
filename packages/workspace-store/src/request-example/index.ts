@@ -25,6 +25,7 @@ export {
   buildRequest,
   buildRequestSecurity,
   deSerializeParameter,
+  deSerializeSchemaValue,
   filterGlobalCookie,
   getEnvironmentVariables,
   getExample,

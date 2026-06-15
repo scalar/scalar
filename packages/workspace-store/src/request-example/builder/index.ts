@@ -10,7 +10,7 @@ export {
   buildRequest,
   resolveExecutableRequestUrl,
 } from './build-request'
-export { deSerializeParameter } from './header/de-serialize-parameter'
+export { deSerializeParameter, deSerializeSchemaValue } from './header/de-serialize-parameter'
 export { filterGlobalCookie } from './header/filter-global-cookies'
 export {
   serializeContentValue,

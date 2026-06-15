@@ -13,7 +13,7 @@ export const deSerializeParameter = (example: unknown, param: ParameterObject) =
     return deSerializeContentExample(example, Object.keys(param.content ?? {})[0] ?? '')
   }
   if ('schema' in param) {
-    return deSerializeSchemaExample(example, param.schema)
+    return deSerializeSchemaValue(example, param.schema)
   }
 
   return example
@@ -76,12 +76,18 @@ const getStructuredType = (schema: unknown): 'array' | 'object' | undefined => {
 }
 
 /**
- * Schema-based parameters from the request editor.
+ * Coerces a single schema-typed value from the request editor (always a string from CodeInput)
+ * back into the structure its schema describes.
  *
- * Primitives (`string`, `integer`, `number`, `boolean`, `null`) are left as the typed string
+ * Primitives (`string`, `integer`, `number`, `boolean`, `null`) are left as the typed string.
  * Only `array` and `object` values are parsed so OpenAPI style serialization can expand them.
+ *
+ * Exposed on its own (not just through {@link deSerializeParameter}) so callers that reassemble an
+ * expanded object parameter from individual rows — e.g. a `deepObject` query parameter edited row by
+ * row in the API client — can coerce each leaf against its property schema. Otherwise an edited array
+ * leaf stays the comma-joined display string and collapses back into a single `key=1,2` entry.
  */
-const deSerializeSchemaExample = (example: unknown, schema: ParameterWithSchemaObject['schema']) => {
+export const deSerializeSchemaValue = (example: unknown, schema: ParameterWithSchemaObject['schema']) => {
   if (typeof example === 'string') {
     const type = getStructuredType(schema)
 

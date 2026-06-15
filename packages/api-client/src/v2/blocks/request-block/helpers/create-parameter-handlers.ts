@@ -1,5 +1,6 @@
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
 import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { deSerializeSchemaValue } from '@scalar/workspace-store/request-example'
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 
@@ -74,7 +75,12 @@ const getExpandedObjectPayload = (
         : contextRow.sourceParameterValuePath
       : contextRow.sourceParameterValuePath
 
-    setValueAtPath(value, path, nextValue)
+    // Rows always hold the string the user sees, so an array leaf arrives comma-joined ("1,2").
+    // Coerce it back against the property schema before storing — otherwise deepObject/form
+    // serialization re-collapses it into a single `key=1,2` entry instead of repeating `key[]=1&key[]=2`.
+    const leafValue = contextRow.schema ? deSerializeSchemaValue(nextValue, contextRow.schema) : nextValue
+
+    setValueAtPath(value, path, leafValue)
   }
 
   return {
