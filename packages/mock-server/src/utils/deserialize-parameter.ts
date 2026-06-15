@@ -276,13 +276,16 @@ export const deserializeObjectParameter = ({
 
   // Exploded `form`: each property is its own top-level key, e.g. `R=100&G=200` (one cookie per property
   // for cookies). With declared properties we gather exactly those; a free-form object (no declared
-  // properties) claims every remaining key in the location, excluding keys owned by sibling parameters.
+  // properties) claims every remaining key in the location, excluding keys owned by *other* declared
+  // parameters. Its own name stays claimable, so a property named like the parameter is not dropped.
   if (style === 'form' && explode) {
     if (!map) {
       return undefined
     }
 
-    const keys = propertyNames?.length ? propertyNames : Object.keys(map).filter((key) => !reservedKeys?.has(key))
+    const keys = propertyNames?.length
+      ? propertyNames
+      : Object.keys(map).filter((key) => key === name || !reservedKeys?.has(key))
     const result: Record<string, string | string[]> = {}
     for (const property of keys) {
       const value = map[property]

@@ -894,6 +894,42 @@ describe('validate-request', () => {
     expect(withMeta.status).toBe(200)
   })
 
+  it('lets a free-form object claim a property that matches its own parameter name', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [{ name: 'meta', in: 'query', required: true, schema: { type: 'object' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // `?meta=1` is the object property `meta`, not an absent parameter; excluding only siblings keeps it.
+    const valid = await server.request('/items?meta=1')
+    expect(valid.status).toBe(200)
+  })
+
+  it('does not falsely reject object input whose schema allows both array and object', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          required: true,
+          schema: {
+            anyOf: [
+              { type: 'array', items: { type: 'integer' } },
+              { type: 'object', properties: { x: { type: 'integer' } } },
+            ],
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // Object-style input must not be parsed with array rules (which would drop it and report it missing).
+    const valid = await server.request('/items?x=1')
+    expect(valid.status).toBe(200)
+  })
+
   it('keeps repeated values for an array-valued deepObject property', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [

@@ -139,6 +139,18 @@ describe('deserialize-parameter', () => {
       expect(isObjectSchema({ oneOf: [{ properties: { r: {} } }] })).toBe(true)
       expect(isObjectSchema({ anyOf: [{ type: 'string' }] })).toBe(false)
     })
+
+    it('reports both array and object for a union that allows either', () => {
+      // A union of array and object sets both flags; the gather step resolves the ambiguity (object wins).
+      const union = {
+        anyOf: [
+          { type: 'array', items: {} },
+          { type: 'object', properties: { x: {} } },
+        ],
+      }
+      expect(isArraySchema(union)).toBe(true)
+      expect(isObjectSchema(union)).toBe(true)
+    })
   })
 
   describe('deserializeObjectParameter', () => {
@@ -174,6 +186,21 @@ describe('deserialize-parameter', () => {
           propertyNames: ['R', 'G', 'B'],
         }),
       ).toEqual({ R: '100', G: '200' })
+    })
+
+    it('keeps a property matching the parameter name while excluding sibling parameter keys', () => {
+      // `reservedKeys` includes the object's own name, but its own key must stay claimable as a property.
+      expect(
+        deserializeObjectParameter({
+          style: 'form',
+          explode: true,
+          single: undefined,
+          name: 'meta',
+          map: { meta: '1', limit: '5' },
+          propertyNames: [],
+          reservedKeys: new Set(['meta', 'limit']),
+        }),
+      ).toEqual({ meta: '1' })
     })
 
     it('gathers a free-form exploded object (no declared properties) from every key in the map', () => {

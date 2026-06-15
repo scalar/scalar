@@ -324,14 +324,10 @@ export const validateRequest = (
       const data: Record<string, unknown> = {}
       for (const descriptor of descriptors) {
         let value: unknown
-        if (descriptor.isArray) {
-          value = deserializeArrayParameter({
-            style: descriptor.style,
-            explode: descriptor.explode,
-            single: getValue(descriptor.name),
-            multi: getValues?.(descriptor.name),
-          })
-        } else if (descriptor.isObject) {
+        // A schema composed with `anyOf`/`oneOf`/`allOf` can look like both an array and an object. Prefer
+        // the object reading in that case: its key/value gathering is the most lenient and avoids a false
+        // "required" failure that array rules would produce for object-style input.
+        if (descriptor.isObject) {
           value = deserializeObjectParameter({
             style: descriptor.style,
             explode: descriptor.explode,
@@ -340,6 +336,13 @@ export const validateRequest = (
             name: descriptor.name,
             propertyNames: descriptor.propertyNames,
             reservedKeys: declaredNames,
+          })
+        } else if (descriptor.isArray) {
+          value = deserializeArrayParameter({
+            style: descriptor.style,
+            explode: descriptor.explode,
+            single: getValue(descriptor.name),
+            multi: getValues?.(descriptor.name),
           })
         } else {
           value = getValue(descriptor.name)
