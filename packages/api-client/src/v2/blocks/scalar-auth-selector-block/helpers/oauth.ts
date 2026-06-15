@@ -133,10 +133,7 @@ export const authorizeOauth2 = async (
   proxyUrl: string,
   /** Flattened environment variables used to resolve server URL templates like `{protocol}` */
   environmentVariables: Record<string, string> = {},
-  /**
-   * Fetch implementation used for the token request. Falls back to the global `fetch`, but the
-   * desktop app passes an IPC-backed fetch so token exchanges leave the renderer's network stack.
-   */
+  /** Fetch used for the token request; the desktop app passes an IPC-backed fetch (see {@link authorizeServers}). */
   customFetch?: CustomFetch,
 ): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
@@ -320,7 +317,7 @@ const authorizeServers = async (
     code,
     pkce,
     proxyUrl,
-    customFetch,
+    customFetch = fetch,
   }: {
     code?: string
     pkce?: PKCEState | null
@@ -414,7 +411,7 @@ const authorizeServers = async (
       : tokenUrl
 
     // Make the call
-    const resp = await (customFetch ?? fetch)(url, {
+    const resp = await customFetch(url, {
       method: 'POST',
       headers,
       body: formData,
@@ -456,11 +453,8 @@ export const refreshOauth2Token = async (
   activeServer: ServerObject | null,
   /** Flattened environment variables used to resolve server URL templates */
   environmentVariables: Record<string, string> = {},
-  /**
-   * Fetch implementation used for the refresh request. Falls back to the global `fetch`, but the
-   * desktop app passes an IPC-backed fetch so token refreshes leave the renderer's network stack.
-   */
-  customFetch?: CustomFetch,
+  /** Fetch used for the refresh request; the desktop app passes an IPC-backed fetch so it leaves the renderer's network stack. */
+  customFetch: CustomFetch = fetch,
 ): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
 
@@ -516,7 +510,7 @@ export const refreshOauth2Token = async (
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', absoluteRefreshUrl]]).toString()}`
       : absoluteRefreshUrl
 
-    const resp = await (customFetch ?? fetch)(url, {
+    const resp = await customFetch(url, {
       method: 'POST',
       headers,
       body: formData,

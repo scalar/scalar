@@ -28,7 +28,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId } from 'vue'
 
-import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import DeleteRequestAuthModal from '@/v2/blocks/scalar-auth-selector-block/components/DeleteRequestAuthModal.vue'
 import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import {
@@ -55,7 +54,6 @@ const {
   server,
   title,
   options,
-  customFetch,
 } = defineProps<{
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
@@ -74,8 +72,6 @@ const {
   title: string
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
-  /** Optional fetch override (IPC-backed on desktop) forwarded to OAuth2/OIDC flows */
-  customFetch?: CustomFetch
 }>()
 
 const titleId = useId()
@@ -301,7 +297,6 @@ defineExpose({
     <!-- Auth Table -->
     <RequestAuthDataTable
       :activeAuthIndex="selectedSecurity?.selectedIndex ?? 0"
-      :customFetch
       :environment
       :eventBus
       :isStatic

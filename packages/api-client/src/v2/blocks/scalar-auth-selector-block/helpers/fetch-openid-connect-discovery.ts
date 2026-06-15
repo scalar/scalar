@@ -38,14 +38,13 @@ export const OPENID_SCOPE = 'openid'
  *
  * @param url - The OpenID Connect discovery URL or issuer URL
  * @param proxyUrl - Optional CORS proxy to route the request through
- * @param customFetch - Fetch implementation to use. Falls back to the global `fetch`, but the
- *   desktop app passes an IPC-backed fetch so discovery requests leave the renderer's network stack.
+ * @param customFetch - Fetch used for the discovery request; the desktop app passes an IPC-backed fetch so it leaves the renderer's network stack.
  * @returns The discovery document or an error
  */
 export const fetchOpenIDConnectDiscovery = async (
   url: string,
   proxyUrl: string,
-  customFetch?: CustomFetch,
+  customFetch: CustomFetch = fetch,
 ): Promise<ErrorResponse<OpenIDConnectDiscovery>> => {
   try {
     // If the URL does not end with the well-known path, append it
@@ -66,7 +65,7 @@ export const fetchOpenIDConnectDiscovery = async (
     }
 
     const proxiedUrl = redirectToProxy(proxyUrl, discoveryUrl)
-    const response = await (customFetch ?? fetch)(proxiedUrl)
+    const response = await customFetch(proxiedUrl)
 
     if (!response.ok) {
       return [

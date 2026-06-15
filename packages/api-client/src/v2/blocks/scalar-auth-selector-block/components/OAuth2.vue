@@ -1,6 +1,12 @@
 <script lang="ts">
 /**  Any config options required for the OAuth2 flow */
-export type OAuth2Options = Pick<ApiClientConfiguration, 'oauth2RedirectUri'>
+export type OAuth2Options = Pick<
+  ApiClientConfiguration,
+  'oauth2RedirectUri'
+> & {
+  /** Optional fetch override (IPC-backed on desktop) used for token exchange, refresh, and OIDC discovery */
+  customFetch?: typeof fetch
+}
 </script>
 
 <script setup lang="ts">
@@ -31,7 +37,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
-import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import {
   authorizeOauth2,
@@ -53,7 +58,6 @@ const {
   eventBus,
   name,
   options = {},
-  customFetch,
 } = defineProps<{
   /** Current environment configuration */
   environment: XScalarEnvironment
@@ -75,8 +79,6 @@ const {
   eventBus: WorkspaceEventBus
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
-  /** Optional fetch override (IPC-backed on desktop) used for token exchange and refresh */
-  customFetch?: CustomFetch
 }>()
 
 const emits = defineEmits<{
@@ -256,7 +258,7 @@ const handleAuthorize = async (): Promise<void> => {
     server,
     proxyUrl,
     getEnvironmentVariables(environment),
-    customFetch,
+    options.customFetch,
   )
 
   await loader.clear()
@@ -305,7 +307,7 @@ const handleRefresh = async (): Promise<void> => {
     proxyUrl,
     server,
     getEnvironmentVariables(environment),
-    customFetch,
+    options.customFetch,
   )
 
   await loader.clear()

@@ -21,7 +21,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { capitalize, computed, ref } from 'vue'
 
-import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
 
 import OAuth2, { type OAuth2Options } from './OAuth2.vue'
@@ -43,7 +42,6 @@ const {
   server,
   eventBus,
   options,
-  customFetch,
 } = defineProps<{
   /** Current environment configuration */
   environment: XScalarEnvironment
@@ -61,8 +59,6 @@ const {
   eventBus: WorkspaceEventBus
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
-  /** Optional fetch override (IPC-backed on desktop) forwarded to OAuth2/OIDC flows */
-  customFetch?: CustomFetch
 }>()
 
 const emits = defineEmits<{
@@ -342,7 +338,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           scheme?.type === 'openIdConnect' &&
           !Object.keys(scheme.flows ?? {}).length
         "
-        :customFetch
+        :customFetch="options?.customFetch"
         :environment
         :eventBus
         :getStaticBorderClass
@@ -372,7 +368,6 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
         :key="key">
         <OAuth2
           v-if="scheme.flows && isFlowActive(key, ind)"
-          :customFetch
           :environment
           :eventBus
           :flows="scheme.flows"

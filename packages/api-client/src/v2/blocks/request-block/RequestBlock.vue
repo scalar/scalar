@@ -32,7 +32,6 @@ import { computed, ref, useId, watch } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
@@ -78,8 +77,6 @@ export type RequestBlockProps = {
   defaultHeaders: Record<string, string>
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
-  /** Optional fetch override (IPC-backed on desktop) forwarded to OAuth2/OIDC flows */
-  customFetch?: CustomFetch
 }
 
 const {
@@ -499,7 +496,6 @@ const updateOperationExtension = (
         v-show="isSectionVisible('Auth') && !isAuthHidden"
         :id="filterIds.Auth"
         :createAnySecurityScheme="layout !== 'modal'"
-        :customFetch
         :defaultOpen="isAuthDefaultOpen"
         :environment
         :eventBus

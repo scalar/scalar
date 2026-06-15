@@ -9,7 +9,6 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import type { SecuritySchemeOption } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 import { DataTable } from '@/v2/components/data-table'
@@ -47,8 +46,6 @@ const {
   meta: AuthMeta
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
-  /** Optional fetch override (IPC-backed on desktop) forwarded to OAuth2/OIDC flows */
-  customFetch?: CustomFetch
 }>()
 
 /** Currently selected authentication scheme based on the active tab index */
@@ -134,7 +131,6 @@ defineExpose({
       :columns="['']"
       presentational>
       <RequestAuthTab
-        :customFetch
         :environment
         :eventBus
         :isStatic
