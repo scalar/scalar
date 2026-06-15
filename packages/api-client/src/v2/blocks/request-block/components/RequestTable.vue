@@ -110,7 +110,7 @@ const displayData = computed(() => {
   padding: 5px 8px;
 }
 :deep(.scalar-pill:not(:last-of-type)) {
-  margin-right: 0.5px;
+  margin-right: 0.15em;
 }
 :deep(.scalar-pill:not(:first-of-type)) {
   margin-left: 0.5px;

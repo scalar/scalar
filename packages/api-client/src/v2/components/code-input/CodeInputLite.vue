@@ -958,14 +958,16 @@ defineExpose({
 /* Pill styling. Each pill is `<span contenteditable="false">name</span>` —
    an atomic widget; the caret lands before or after it, never inside. */
 .scalar-pill {
-  color: var(--scalar-color-1);
+  color: var(--scalar-color-2);
   border-radius: 30px;
   display: inline-block;
-  font-size: inherit;
+  font-family: var(--scalar-font-code);
+  font-size: 0.9em;
   line-height: 1.4;
   vertical-align: baseline;
   background: var(--scalar-background-3);
-  padding: 0 0.5em;
+  padding: 0.125em 0.6em;
+  margin-right: 0.35em;
   cursor: text;
   /* Single click selects the whole pill — chip/mention model, deletes in one go. */
   user-select: all;
