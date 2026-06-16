@@ -23,6 +23,22 @@ test.describe('ScalarTooltip', () => {
   test('Base', takeTooltipSnapshot())
 })
 
+test.describe('ScalarTooltip alignment', () => {
+  // Edge-aligned placements (`-start` / `-end`) must line the tooltip's visible
+  // edge up with the target's edge: the offset gap should only sit on the side
+  // facing the target, never on the aligned edge. `top-start` is representative
+  // of the case the offset bug regressed on. We reuse the Base story and drive
+  // the placement through the story args.
+  test.use({
+    component: 'ScalarTooltip',
+    story: 'Base',
+    args: { placement: 'top-start' },
+    viewport: { width: 320, height: 200 },
+  })
+
+  test('aligns the tooltip edge with the target', takeTooltipSnapshot('top-start'))
+})
+
 test.describe('ScalarHotkeyTooltip', () => {
   const stories = ['Hotkey', 'Label and Hotkey']
 
