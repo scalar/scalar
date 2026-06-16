@@ -25,11 +25,20 @@ import {
 } from './ref-definitions'
 import { type ReferenceObject, ReferenceObjectSchema } from './reference'
 
-export type SchemaReferenceType<Value> = Value | (ReferenceObject & { '$ref-value': unknown })
+export type SchemaReferenceType<Value> = Value | (ReferenceObject & { '$ref-value'?: unknown })
 
+/**
+ * A schema position can hold either a schema object or a reference to one.
+ *
+ * The reference variant comes first and keeps `$ref-value` optional on purpose: an
+ * unresolved reference (for example a sparse chunk `$ref` produced by the server
+ * store) is just `{ $ref }` with no resolved value yet. If the reference variant
+ * required `$ref-value`, coercion would fall through to the schema-object variant
+ * and silently drop the `$ref`, which breaks lazy chunk resolution.
+ */
 const schemaOrReference = Type.Union([
+  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Optional(Type.Unknown()) })),
   SchemaObjectRef,
-  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Unknown() })),
 ])
 
 const PrimitiveSchemaTypeSchema = Type.Union([

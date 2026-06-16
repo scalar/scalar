@@ -485,8 +485,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  // TODO: See (1*) note
-  it.skip('correctly resolve chunks from the remote server', async () => {
+  it('correctly resolve chunks from the remote server', async () => {
     server.get('/*', (req, res) => {
       const path = req.url
       const contents = serverStore.get(path)
