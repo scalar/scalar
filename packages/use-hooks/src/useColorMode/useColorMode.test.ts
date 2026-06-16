@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, onMounted } from 'vue'
 
 import { useColorMode } from './useColorMode'
 
@@ -31,6 +31,10 @@ describe('useColorMode', () => {
 
     // Provide a default matchMedia mock since jsdom does not implement it
     window.matchMedia = vi.fn().mockImplementation(createMatchMediaMock('light'))
+
+    // `systemPreference` is shared module state, so reset it to a fresh `'light'` baseline before
+    // each test. A throwaway hook resolves it via the immediate (mocked) `onMounted` above.
+    useColorMode()
   })
 
   it('defaults to system mode preference', () => {
@@ -223,6 +227,71 @@ describe('useColorMode', () => {
 
     const { colorMode } = useColorMode({ initialColorMode: 'dark' })
     expect(colorMode.value).toBe('system')
+  })
+
+  it('defers the system preference to onMounted to stay hydration-safe', async () => {
+    // A dark system preference that, like the real one, only exists on the client.
+    vi.spyOn(window, 'matchMedia').mockImplementation(createMatchMediaMock('dark'))
+
+    // Capture the onMounted callback instead of running it right away, so we can
+    // inspect the pre-mount render that has to match the server.
+    let mountedCallback: (() => void) | undefined
+    vi.mocked(onMounted).mockImplementationOnce((fn) => {
+      mountedCallback = fn as () => void
+    })
+
+    const { darkLightMode } = useColorMode()
+
+    // Before mount it matches the server default, not the dark system preference.
+    expect(darkLightMode.value).toBe('light')
+
+    // After mount it upgrades to the real system preference.
+    mountedCallback?.()
+    await nextTick()
+    expect(darkLightMode.value).toBe('dark')
+  })
+
+  it('keeps the body class aligned with the toggle before mount', async () => {
+    // A dark system preference that only exists on the client (resolved in onMounted).
+    vi.spyOn(window, 'matchMedia').mockImplementation(createMatchMediaMock('dark'))
+
+    // Defer the mount so we can inspect the pre-mount render that has to match the server.
+    let mountedCallback: (() => void) | undefined
+    vi.mocked(onMounted).mockImplementationOnce((fn) => {
+      mountedCallback = fn as () => void
+    })
+
+    const { darkLightMode } = useColorMode()
+    await nextTick()
+
+    // Before mount the body must agree with the light toggle, not the dark system preference.
+    expect(darkLightMode.value).toBe('light')
+    expect(document.body.classList.contains('light-mode')).toBe(true)
+    expect(document.body.classList.contains('dark-mode')).toBe(false)
+
+    // After mount the body and the toggle upgrade to the real preference together.
+    mountedCallback?.()
+    await nextTick()
+    expect(darkLightMode.value).toBe('dark')
+    expect(document.body.classList.contains('dark-mode')).toBe(true)
+    expect(document.body.classList.contains('light-mode')).toBe(false)
+  })
+
+  it('shares the resolved system preference across instances', async () => {
+    vi.spyOn(window, 'matchMedia').mockImplementation(createMatchMediaMock('dark'))
+
+    // The first instance never mounts, so it still reports the server default on its own.
+    vi.mocked(onMounted).mockImplementationOnce(() => {})
+    const first = useColorMode()
+    expect(first.darkLightMode.value).toBe('light')
+
+    // A second instance mounts and resolves the real (dark) preference.
+    const second = useColorMode()
+    await nextTick()
+
+    // Because the preference is shared, the still-unmounted first instance agrees immediately.
+    expect(second.darkLightMode.value).toBe('dark')
+    expect(first.darkLightMode.value).toBe('dark')
   })
 
   it('handles missing matchMedia gracefully', ({ onTestFinished }) => {
