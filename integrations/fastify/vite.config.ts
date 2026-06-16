@@ -8,8 +8,8 @@ import pkg from './package.json'
 
 const require = createRequire(import.meta.url)
 
-const VIRTUAL_ID = 'virtual:scalar-standalone-js'
-const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_ID}`
+/** The source module whose contents are replaced with the inlined script. */
+const INLINE_TARGET = 'src/utils/getJavaScriptFile.ts'
 
 /**
  * Resolve the path to the standalone build of `@scalar/api-reference`.
@@ -25,43 +25,39 @@ const resolveStandalonePath = () => {
 }
 
 /**
- * Inline the `@scalar/api-reference` standalone script as a string.
+ * Inline the `@scalar/api-reference` standalone script into the build output.
  *
- * This is what makes the plugin bundler-safe: the script ends up embedded in the
- * output instead of being read from disk at runtime, so it survives whatever
- * bundler the consuming application uses.
+ * `getJavaScriptFile` reads the script from disk at runtime, which keeps `tsx`
+ * (the dev playground) and the tests working. For the published bundle that
+ * runtime read is undesirable — it breaks once a consumer bundles their app —
+ * so here we replace the whole module with the script inlined as a string. We
+ * only do this for `vite build` (not dev or tests) via `apply: 'build'`.
  */
 const inlineStandalone = (): Plugin => ({
   name: 'scalar:inline-standalone',
-  // Run before Vite's resolver so the virtual id is never treated as an
-  // external package (which happens under Vitest's SSR transform).
-  enforce: 'pre',
-  resolveId(id) {
-    if (id === VIRTUAL_ID) {
-      return RESOLVED_VIRTUAL_ID
-    }
-    return null
-  },
+  apply: 'build',
   load(id) {
-    if (id === RESOLVED_VIRTUAL_ID) {
-      let contents: string
-      let standalonePath: string
-      try {
-        standalonePath = resolveStandalonePath()
-        contents = fs.readFileSync(standalonePath, 'utf-8')
-      } catch (cause) {
-        // Fail fast with a clear hint: this only happens when the dependency
-        // has not been built yet (CI always builds it first via Turbo's `^build`).
-        throw new Error(
-          '[@scalar/fastify-api-reference] Could not read the standalone build of `@scalar/api-reference`. Build `@scalar/api-reference` before bundling this package (e.g. `pnpm build:packages`).',
-          { cause },
-        )
-      }
-      // Track the file so a rebuild is triggered when the standalone changes.
-      this.addWatchFile(standalonePath)
-      return `export default ${JSON.stringify(contents)}`
+    if (!id.replace(/\\/g, '/').endsWith(INLINE_TARGET)) {
+      return null
     }
-    return null
+
+    let standalonePath: string
+    let contents: string
+    try {
+      standalonePath = resolveStandalonePath()
+      contents = fs.readFileSync(standalonePath, 'utf-8')
+    } catch (cause) {
+      // Fail fast with a clear hint: this only happens when the dependency has
+      // not been built yet (CI always builds it first via Turbo's `^build`).
+      throw new Error(
+        '[@scalar/fastify-api-reference] Could not read the standalone build of `@scalar/api-reference`. Build `@scalar/api-reference` before bundling this package (e.g. `pnpm build:packages`).',
+        { cause },
+      )
+    }
+
+    // Track the file so a rebuild is triggered when the standalone changes.
+    this.addWatchFile(standalonePath)
+    return `export function getJavaScriptFile() { return ${JSON.stringify(contents)} }`
   },
 })
 

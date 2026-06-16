@@ -1,14 +1,32 @@
-// The standalone build of `@scalar/api-reference` is inlined into the bundle at
-// build time (see `vite.config.ts`). We do this on purpose: the previous
-// implementation read the file from disk at runtime via `import.meta.url`, which
-// broke whenever a consumer bundled their Fastify app (for example into a Docker
-// image), because the asset was no longer next to the compiled plugin.
-// Inlining the script makes this package self-contained and bundler-safe.
-import standalone from 'virtual:scalar-standalone-js'
+import fs from 'node:fs'
+import { createRequire } from 'node:module'
+import path from 'node:path'
+
+const require = createRequire(import.meta.url)
 
 /**
- * Return the bundled Scalar standalone JavaScript as a string.
+ * Return the standalone build of `@scalar/api-reference` as a string.
+ *
+ * This implementation reads the script from disk and is what runs during
+ * development (the playground executes the source directly via `tsx`) and in
+ * tests, where `@scalar/api-reference` is available as a workspace dependency.
+ *
+ * For the published package, the Vite build replaces this module with the
+ * script inlined as a string (see `vite.config.ts`). That is what makes the
+ * plugin bundler-safe: the output is self-contained and no longer reads the
+ * file at runtime, so it survives whatever bundler the consuming application
+ * uses (for example when bundling a Fastify app into a Docker image).
  */
-export function getJavaScriptFile() {
-  return standalone
+export function getJavaScriptFile(): string {
+  try {
+    // The main entry resolves to `<pkg>/dist/index.js`, so the standalone build
+    // sits next to it under `browser/`.
+    const entry = require.resolve('@scalar/api-reference')
+    return fs.readFileSync(path.join(path.dirname(entry), 'browser/standalone.js'), 'utf-8')
+  } catch (cause) {
+    throw new Error(
+      '[@scalar/fastify-api-reference] Could not read the standalone build of `@scalar/api-reference`. Build `@scalar/api-reference` first (e.g. `pnpm build:packages`).',
+      { cause },
+    )
+  }
 }
