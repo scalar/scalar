@@ -42,13 +42,13 @@ const inlineStandalone = (): Plugin => ({
     }
 
     let standalonePath: string
-    let contents: string
     try {
       standalonePath = resolveStandalonePath()
-      contents = fs.readFileSync(standalonePath, 'utf-8')
+      // Confirm the file exists so we can fail with a clear hint instead of a
+      // cryptic resolver error. This only happens when the dependency has not
+      // been built yet (CI always builds it first via Turbo's `^build`).
+      fs.accessSync(standalonePath)
     } catch (cause) {
-      // Fail fast with a clear hint: this only happens when the dependency has
-      // not been built yet (CI always builds it first via Turbo's `^build`).
       throw new Error(
         '[@scalar/fastify-api-reference] Could not read the standalone build of `@scalar/api-reference`. Build `@scalar/api-reference` before bundling this package (e.g. `pnpm build:packages`).',
         { cause },
@@ -57,7 +57,12 @@ const inlineStandalone = (): Plugin => ({
 
     // Track the file so a rebuild is triggered when the standalone changes.
     this.addWatchFile(standalonePath)
-    return `export function getJavaScriptFile() { return ${JSON.stringify(contents)} }`
+
+    // Let Vite inline the file via its `?raw` loader. The file contents never
+    // flow through generated code here — we only reference the resolved path —
+    // so the inlining is handled (and escaped) by Vite itself.
+    const rawSpecifier = `${standalonePath.replace(/\\/g, '/')}?raw`
+    return `import standalone from ${JSON.stringify(rawSpecifier)}\nexport function getJavaScriptFile() { return standalone }`
   },
 })
 
