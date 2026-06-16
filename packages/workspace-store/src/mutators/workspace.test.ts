@@ -7,6 +7,7 @@ import {
   updateActiveProxy,
   updateColorMode,
   updateSelectedClient,
+  updateSelectedExample,
   updateTheme,
 } from './workspace'
 
@@ -265,6 +266,21 @@ describe('updateSelectedClient', () => {
     updateSelectedClient(workspace, 'js/fetch')
 
     expect(workspace['x-scalar-default-client']).toBe('js/fetch')
+  })
+})
+
+describe('updateSelectedExample', () => {
+  it('does nothing when workspace is null', () => {
+    updateSelectedExample(null, 'useCase1')
+    // Should not throw
+  })
+
+  it('sets x-scalar-default-example to an example key', () => {
+    const workspace = createWorkspace()
+
+    updateSelectedExample(workspace, 'useCase1')
+
+    expect(workspace['x-scalar-default-example']).toBe('useCase1')
   })
 })
 
