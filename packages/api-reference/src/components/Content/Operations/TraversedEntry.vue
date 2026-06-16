@@ -63,6 +63,8 @@ const {
   securitySchemes: MergedSecuritySchemes
   /** Currently selected http client for the document */
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  /** Currently selected example key, shared across operations for in-sync example pickers */
+  selectedExample: WorkspaceStore['workspace']['x-scalar-default-example']
   /** Used to determine if an entry is collapsed */
   expandedItems: Record<string, boolean>
   /** The event bus for the handling all events. */
@@ -128,6 +130,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :pathValue="getPathValue(entry)"
         :securitySchemes="securitySchemes"
         :selectedClient="selectedClient"
+        :selectedExample="selectedExample"
         :server="selectedServer" />
     </SectionContainer>
 
@@ -153,6 +156,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :options
           :securitySchemes
           :selectedClient
+          :selectedExample
           :selectedServer>
         </TraversedEntry>
       </template>
@@ -179,6 +183,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :options
         :securitySchemes
         :selectedClient
+        :selectedExample
         :selectedServer>
       </TraversedEntry>
     </div>
@@ -202,6 +207,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :options
         :securitySchemes
         :selectedClient
+        :selectedExample
         :selectedServer>
       </TraversedEntry>
     </ModelTag>

@@ -9,6 +9,7 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExample } from '@scalar/workspace-store/request-example'
 import type {
@@ -30,8 +31,16 @@ import { normalizeMimeTypeObject } from './helpers/normalize-mime-type-object'
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
  */
 
-const { responses } = defineProps<{
+const { responses, selectedExample, eventBus } = defineProps<{
   responses: ResponsesObject
+  /**
+   * The document-wide selected example key. Honored only when the current response defines an
+   * example with the same key, so response example pickers stay in sync between operations without
+   * blanking out responses that do not share that key.
+   */
+  selectedExample?: string
+  /** Event bus, used to broadcast the selected example so other operations can follow */
+  eventBus?: WorkspaceEventBus
 }>()
 
 const id = useId()
@@ -94,9 +103,37 @@ const hasMultipleExamples = computed<boolean>(
     Object.keys(currentResponseContent.value?.examples ?? {}).length > 1,
 )
 
-const selectedExampleKey = ref<string>(
-  Object.keys(currentResponseContent.value?.examples ?? {})[0] ?? '',
+const selectedExampleKey = ref<string>('')
+
+/** Resolve the example key to show, preferring the document-wide selection when this response has it */
+const resolveExampleKey = (preferred: string | undefined): string => {
+  const keys = Object.keys(currentResponseContent.value?.examples ?? {})
+  if (preferred && keys.includes(preferred)) {
+    return preferred
+  }
+  // Keep the current example when it is still valid, otherwise fall back to the first one
+  if (selectedExampleKey.value && keys.includes(selectedExampleKey.value)) {
+    return selectedExampleKey.value
+  }
+  return keys[0] ?? ''
+}
+
+// Initialize from the document-wide selection, falling back to the first example
+selectedExampleKey.value = resolveExampleKey(selectedExample)
+
+// Follow the document-wide selection when it changes and this response has that example
+watch(
+  () => selectedExample,
+  (preferred) => {
+    selectedExampleKey.value = resolveExampleKey(preferred)
+  },
 )
+
+/** Select an example and sync the choice across the document so other operations follow */
+const selectExample = (key: string) => {
+  selectedExampleKey.value = key
+  eventBus?.emit('workspace:update:selected-example', key)
+}
 
 /** Get the current example to display */
 const currentExample = computed(() => {
@@ -115,7 +152,8 @@ const currentExample = computed(() => {
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
-  selectedExampleKey.value = ''
+  // Re-apply the document-wide selection for the newly selected response, falling back to its first example
+  selectedExampleKey.value = resolveExampleKey(selectedExample)
 }
 
 const showSchema = ref(false)
@@ -177,9 +215,10 @@ const showSchema = ref(false)
       class="response-card-footer">
       <ExamplePicker
         v-if="hasMultipleExamples"
-        v-model="selectedExampleKey"
         class="response-example-selector px-0"
-        :examples="currentResponseContent?.examples" />
+        :examples="currentResponseContent?.examples"
+        :modelValue="selectedExampleKey"
+        @update:modelValue="selectExample" />
       <div class="response-description">
         <ScalarMarkdown
           v-if="currentResponse?.description"

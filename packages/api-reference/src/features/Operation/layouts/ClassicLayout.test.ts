@@ -135,6 +135,7 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
   path: '/widgets',
   requiredSecurity,
   selectedClient: 'shell/curl',
+  selectedExample: '',
   selectedSecuritySchemes: [],
   selectedServer,
 }

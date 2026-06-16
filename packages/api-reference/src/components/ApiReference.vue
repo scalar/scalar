@@ -1302,6 +1302,9 @@ const showMCPButton = computed(() => {
           :options="mergedConfig"
           :xScalarDefaultClient="
             clientStore.workspace['x-scalar-default-client']
+          "
+          :xScalarDefaultExample="
+            clientStore.workspace['x-scalar-default-example']
           ">
           <template #start>
             <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->

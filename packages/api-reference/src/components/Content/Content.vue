@@ -86,6 +86,7 @@ const {
   clientDocument: WorkspaceDocument | undefined
   authStore: AuthStore
   xScalarDefaultClient: Workspace['x-scalar-default-client']
+  xScalarDefaultExample: Workspace['x-scalar-default-example']
   items: TraversedEntryType[]
   expandedItems: Record<string, boolean>
   eventBus: WorkspaceEventBus
@@ -302,6 +303,7 @@ onMounted(() => {
       :options
       :securitySchemes
       :selectedClient="xScalarDefaultClient"
+      :selectedExample="xScalarDefaultExample"
       :selectedServer>
     </TraversedEntry>
 

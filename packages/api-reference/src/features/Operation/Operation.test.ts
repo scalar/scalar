@@ -78,6 +78,7 @@ const mountOperationWithConfig = (
     authStore: workspaceStore.auth,
     isWebhook: false,
     selectedClient: 'c/fetch',
+    selectedExample: '',
     eventBus,
   }
 

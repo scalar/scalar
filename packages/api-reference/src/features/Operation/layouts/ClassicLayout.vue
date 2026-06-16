@@ -59,6 +59,7 @@ const {
   selectedServer,
   selectedSecuritySchemes,
   selectedClient,
+  selectedExample,
 } = defineProps<
   Omit<
     OperationProps,
@@ -79,9 +80,6 @@ const {
 
 const operationTitle = computed(() => operation.summary || path || '')
 const operationExtensions = computed(() => getXKeysFromObject(operation))
-
-/** Track the currently selected example for passing to the modal */
-const selectedExampleKey = ref<string>('')
 
 /** Track the selected request body content type so the code sample stays in sync */
 const selectedRequestBodyContentType = ref<string | undefined>()
@@ -170,7 +168,7 @@ const { copyToClipboard } = useClipboard()
           v-if="active && !isWebhook"
           :id
           :eventBus
-          :exampleName="selectedExampleKey"
+          :exampleName="selectedExample"
           :method
           :path
           :requestBodyCompositionSelection="
@@ -245,7 +243,9 @@ const { copyToClipboard } = useClipboard()
       <ExampleResponses
         v-if="operation.responses"
         class="operation-example-card"
-        :responses="operation.responses" />
+        :eventBus
+        :responses="operation.responses"
+        :selectedExample />
 
       <!-- New Example Request -->
       <div>
@@ -257,7 +257,6 @@ const { copyToClipboard } = useClipboard()
         <ScalarErrorBoundary>
           <OperationCodeSample
             :key="requestBodyCompositionSelectionKey"
-            v-model:selectedExample="selectedExampleKey"
             class="operation-example-card"
             :clientOptions
             :eventBus
@@ -272,6 +271,7 @@ const { copyToClipboard } = useClipboard()
             :securitySchemes="selectedSecuritySchemes"
             :selectedClient
             :selectedContentType="selectedRequestBodyContentType"
+            :selectedExample
             :selectedServer />
         </ScalarErrorBoundary>
       </div>
