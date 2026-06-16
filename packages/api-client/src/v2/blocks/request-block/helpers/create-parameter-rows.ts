@@ -1,4 +1,5 @@
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { deSerializeParameter, getExample } from '@scalar/workspace-store/request-example'
 import type {
@@ -252,7 +253,7 @@ const getExpandedPropertyRows = ({
  * objects, mirroring how the rows and serialization are built.
  */
 const collectValueLeafPaths = (value: unknown, mode: ExpansionMode): string[][] => {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+  if (!isObject(value)) {
     return []
   }
 
@@ -262,15 +263,15 @@ const collectValueLeafPaths = (value: unknown, mode: ExpansionMode): string[][] 
     for (const [key, val] of Object.entries(node)) {
       const path = [...prefix, key]
 
-      if (mode === 'deepObject' && val !== null && typeof val === 'object' && !Array.isArray(val)) {
-        walk(val as Record<string, unknown>, path)
+      if (mode === 'deepObject' && isObject(val)) {
+        walk(val, path)
       } else {
         paths.push(path)
       }
     }
   }
 
-  walk(value as Record<string, unknown>, [])
+  walk(value, [])
 
   return paths
 }
