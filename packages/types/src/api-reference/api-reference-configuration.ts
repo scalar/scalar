@@ -55,11 +55,6 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   isEditable: z.boolean().optional().default(false).catch(false),
   /**
-   * Controls whether the references show a loading state in the intro
-   * @default false
-   */
-  isLoading: z.boolean().optional().default(false).catch(false),
-  /**
    * Whether to show models in the sidebar, search, and content.
    * @default false
    */

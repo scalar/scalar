@@ -43,10 +43,6 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment: 'Allows the user to inject an editor for the spec',
     }),
-    isLoading: boolean({
-      default: false,
-      typeComment: 'Controls whether the references show a loading state in the intro',
-    }),
     hideModels: boolean({
       default: false,
       typeComment: 'Whether to show models in the sidebar, search, and content.',

@@ -791,20 +791,6 @@ and each **value** specifies the visibility behavior for the clients of that lan
 }
 ```
 
-#### isLoading
-
-**Type:** `boolean`
-
-Controls whether the references show a loading state in the intro section. Useful when you want to indicate that content is being loaded.
-
-**Default:** `false`
-
-```javascript
-{
-  isLoading: true
-}
-```
-
 #### layout
 
 **Type:** `'modern' | 'classic'`
