@@ -44,8 +44,19 @@ const inlineStandalone = (): Plugin => ({
   },
   load(id) {
     if (id === RESOLVED_VIRTUAL_ID) {
-      const standalonePath = resolveStandalonePath()
-      const contents = fs.readFileSync(standalonePath, 'utf-8')
+      let contents: string
+      let standalonePath: string
+      try {
+        standalonePath = resolveStandalonePath()
+        contents = fs.readFileSync(standalonePath, 'utf-8')
+      } catch (cause) {
+        // Fail fast with a clear hint: this only happens when the dependency
+        // has not been built yet (CI always builds it first via Turbo's `^build`).
+        throw new Error(
+          '[@scalar/fastify-api-reference] Could not read the standalone build of `@scalar/api-reference`. Build `@scalar/api-reference` before bundling this package (e.g. `pnpm build:packages`).',
+          { cause },
+        )
+      }
       // Track the file so a rebuild is triggered when the standalone changes.
       this.addWatchFile(standalonePath)
       return `export default ${JSON.stringify(contents)}`
