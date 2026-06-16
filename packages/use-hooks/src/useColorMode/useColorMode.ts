@@ -3,6 +3,18 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const colorMode = ref<ColorMode>('dark')
 
+/**
+ * Reactive snapshot of the system preference, shared across every `useColorMode` instance.
+ *
+ * It defaults to `'light'` so the first client render matches the server, where
+ * `window`/`matchMedia` do not exist. We resolve the real value in `onMounted` to avoid a
+ * hydration mismatch in anything bound to the color mode (for example the dark-mode toggle).
+ *
+ * It lives at module scope (like `colorMode`) so all instances agree on a single value instead
+ * of each holding its own copy that resolves at a different mount time.
+ */
+const systemPreference = ref<DarkLightMode>('light')
+
 const colorModeSchema = union([literal('system'), literal('dark'), literal('light')])
 
 /** Possible color modes */
@@ -57,16 +69,6 @@ export function useColorMode(
     return window?.matchMedia('(prefers-color-scheme: dark)')?.matches ? 'dark' : 'light'
   }
 
-  /**
-   * Reactive snapshot of the system preference.
-   *
-   * It defaults to `'light'` so the first client render matches the server,
-   * where `window`/`matchMedia` do not exist. We resolve the real value in
-   * `onMounted` to avoid a hydration mismatch in anything bound to the color
-   * mode (for example the dark-mode toggle).
-   */
-  const systemPreference = ref<DarkLightMode>('light')
-
   /** Writable computed ref for dark/light mode with system preference applied */
   const darkLightMode = computed<DarkLightMode>({
     get: () => (colorMode.value === 'system' ? systemPreference.value : colorMode.value),
@@ -80,12 +82,14 @@ export function useColorMode(
   })
 
   /** Applies the appropriate color mode class to the body. */
-  function applyColorMode(mode: ColorMode): void {
+  function applyColorMode(): void {
     if (typeof document === 'undefined' || typeof window === 'undefined') {
       return
     }
 
-    const classMode = overrideColorMode ?? (mode === 'system' ? getSystemModePreference() : mode)
+    // Read from the deferred `systemPreference` ref (not `getSystemModePreference()` directly) so
+    // the body class agrees with `darkLightMode`/the toggle before `onMounted` resolves the real value.
+    const classMode = overrideColorMode ?? (colorMode.value === 'system' ? systemPreference.value : colorMode.value)
 
     if (classMode === 'dark') {
       document.body.classList.add('dark-mode')
@@ -104,14 +108,12 @@ export function useColorMode(
 
   colorMode.value = overrideColorMode ?? savedColorMode ?? initialColorMode
 
-  // Watch for colorMode changes and update the body class
-  watch(colorMode, applyColorMode, { immediate: true })
+  // Watch for color mode or system preference changes and update the body class. Watching
+  // `systemPreference` means resolving it in `onMounted` (or an OS theme change) re-applies the class.
+  watch([colorMode, systemPreference], applyColorMode, { immediate: true })
 
   const handleChange = () => {
     systemPreference.value = getSystemModePreference()
-    if (colorMode.value === 'system') {
-      applyColorMode('system')
-    }
   }
 
   const mediaQuery = ref<MediaQueryList | null>(null)
