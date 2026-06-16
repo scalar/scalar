@@ -15,7 +15,7 @@ import { computed, ref, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
-import { CodeInput } from '@/v2/components/code-input'
+import { CodeInputLite } from '@/v2/components/code-input'
 import {
   DataTableCell,
   DataTableCheckbox,
@@ -139,12 +139,6 @@ const enumValue = computed<string[]>(() => {
   return []
 })
 
-const minimumValue = computed(() =>
-  data.schema && 'minimum' in data.schema ? data.schema.minimum : undefined,
-)
-const maximumValue = computed(() =>
-  data.schema && 'maximum' in data.schema ? data.schema.maximum : undefined,
-)
 const typeValue = computed(() =>
   data.schema && 'type' in data.schema ? data.schema.type : undefined,
 )
@@ -192,41 +186,30 @@ const handleUpdateRow = (
 
     <!-- Name -->
     <DataTableCell>
-      <CodeInput
+      <CodeInputLite
         :aria-label="`${label} Key`"
-        disableCloseBrackets
         :disabled="data.isReadonly"
-        disableEnter
-        disableTabIndent
         :environment="environment"
-        lineWrapping
         :modelValue="name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
         @navigate="(route) => emit('navigate', route)"
-        @selectVariable="(v: string) => handleUpdateRow({ name: v })"
         @update:modelValue="(v) => handleUpdateRow({ name: v })" />
     </DataTableCell>
 
     <!-- Value -->
     <DataTableCell>
-      <CodeInput
+      <CodeInputLite
         :aria-label="`${label} Value`"
-        class="pr-6 group-hover:pr-10 group-has-[.cm-focused]:pr-10"
+        class="pr-6 group-hover:pr-10 group-has-[.code-input-lite__editor:focus]:pr-10"
         :default="defaultValue"
-        disableCloseBrackets
         :disabled="data.isReadonly"
-        disableEnter
-        disableTabIndent
         :enum="enumValue"
         :environment="environment"
         :examples="
           data.schema?.examples?.map((example) => String(example)) ?? []
         "
         :linethrough="data.isOverridden"
-        lineWrapping
-        :max="maximumValue"
-        :min="minimumValue"
         :modelValue="displayValue"
         placeholder="Value"
         :type="typeValue"
@@ -240,7 +223,7 @@ const handleUpdateRow = (
               !data.isRequired &&
               data.isReadonly !== true
             "
-            class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.cm-focused]:flex"
+            class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.code-input-lite__editor:focus]:flex"
             size="sm"
             variant="ghost"
             @click="emit('deleteRow')">
@@ -267,7 +250,7 @@ const handleUpdateRow = (
             :schema="data.schema"
             :value />
         </template>
-      </CodeInput>
+      </CodeInputLite>
     </DataTableCell>
 
     <!-- File upload -->
