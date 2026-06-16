@@ -24,7 +24,16 @@ const { info, externalDocs } = defineProps<{
 /** Additional named links from the `x-scalar-links` extension (e.g. privacy policy, imprint) */
 const links = computed(() => {
   const value = (info as InfoObject)['x-scalar-links']
-  return value ?? []
+
+  // Guard against malformed extension values from the OpenAPI document (a string, a single object, …)
+  // so we only ever render well-formed `{ name, url }` entries.
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  return value.filter(
+    (link) => typeof link?.name === 'string' && typeof link?.url === 'string',
+  )
 })
 
 /** Whether there is at least one link to show, so we do not render an empty list */
