@@ -148,7 +148,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
     await keyInput?.vm.$emit('update:modelValue', 'filter[user]')
 
     expect(wrapper.emitted('upsertRow')).toBeUndefined()
@@ -159,6 +159,56 @@ describe('RequestTableRow', () => {
       name: 'filter[user][role]',
       value: 'admin',
       isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+  })
+
+  it('does not emit when the key input is blurred without a change', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'token', value: 'value', isDisabled: true },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    await keyInput?.vm.$emit('blur', 'token')
+
+    // Focusing and blurring without typing should neither re-emit the row nor re-enable it.
+    expect(wrapper.emitted('upsertRow')).toBeUndefined()
+  })
+
+  it('keeps the disabled state when an expanded row key is renamed on blur', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: {
+          name: 'filter[role]',
+          value: 'admin',
+          isDisabled: true,
+          originalParameter: { name: 'filter', in: 'query' },
+          sourceParameterValuePath: ['role'],
+        },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    await keyInput?.vm.$emit('blur', 'filter[user]')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toStrictEqual({
+      name: 'filter[user]',
+      value: 'admin',
+      isDisabled: true,
       shouldRenameExpandedRow: true,
     })
   })

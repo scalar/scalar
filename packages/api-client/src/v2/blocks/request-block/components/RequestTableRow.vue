@@ -185,6 +185,23 @@ const handleUpdateRow = (
       : {}),
   })
 }
+
+/**
+ * Commit a key edit when the input loses focus. Expanded-object rows defer their rename to blur (see
+ * handleUpdateRow), so we only emit when the key actually changed — focusing and blurring the field
+ * without typing should not re-emit the row or silently reset its disabled state. The current
+ * disabled state is passed through so a renamed row keeps it.
+ */
+const handleKeyBlur = (newName: string): void => {
+  if (newName === data.name) {
+    return
+  }
+
+  handleUpdateRow(
+    { name: newName, isDisabled: isDisabled.value },
+    { shouldRenameExpandedRow: Boolean(data.sourceParameterValuePath) },
+  )
+}
 </script>
 
 <template>
@@ -209,15 +226,7 @@ const handleUpdateRow = (
         :modelValue="name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
-        @blur="
-          (v) =>
-            handleUpdateRow(
-              { name: v },
-              {
-                shouldRenameExpandedRow: Boolean(data.sourceParameterValuePath),
-              },
-            )
-        "
+        @blur="(v) => handleKeyBlur(v)"
         @navigate="(route) => emit('navigate', route)"
         @update:modelValue="(v) => handleUpdateRow({ name: v })" />
     </DataTableCell>
