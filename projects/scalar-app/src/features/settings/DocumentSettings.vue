@@ -5,7 +5,7 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarModal, useModal } from '@scalar/components/modal'
 import { ScalarTextInput } from '@scalar/components/text-input'
 import { ScalarToggle } from '@scalar/components/toggle'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import Section from './components/Section.vue'
 import DeleteRegistryConfirmModal from './DeleteRegistryConfirmModal.vue'
@@ -93,12 +93,20 @@ const deleteRegistryDocumentModal = useModal()
 const isEditingSource = ref(false)
 const sourceDraft = ref(documentUrl ?? '')
 
-// Keep the draft in sync when the source changes elsewhere, but never
-// clobber what the user is currently typing.
+// The trimmed draft drives both the empty-guard on the Save button and
+// the value we emit, so the two never disagree.
+const trimmedSourceDraft = computed(() => sourceDraft.value.trim())
+
+// Keep the draft in sync when the source changes elsewhere. While the
+// user is editing we only follow along when they have not diverged from
+// the value they started with (the draft still matches the previous
+// prop). That way in-flight typing is never clobbered, but the async
+// echo of a just-saved url does not leave us seeded from a stale prop
+// either - reopening Edit right after a save shows the new source.
 watch(
   () => documentUrl,
-  (value) => {
-    if (!isEditingSource.value) {
+  (value, oldValue) => {
+    if (!isEditingSource.value || sourceDraft.value === (oldValue ?? '')) {
       sourceDraft.value = value ?? ''
     }
   },
@@ -115,7 +123,15 @@ const cancelEditingSource = () => {
 }
 
 const saveSource = () => {
-  const next = sourceDraft.value.trim()
+  const next = trimmedSourceDraft.value
+
+  // Watch mode needs a url to poll, so we never persist an empty source.
+  // Clearing it would disable the toggle and strand watch mode in its
+  // current state. The Save button is disabled here too; this guards the
+  // Enter-to-save path.
+  if (!next) {
+    return
+  }
 
   // Nothing to do when the source did not actually change.
   if (next === (documentUrl ?? '')) {
@@ -210,6 +226,7 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
                 Cancel
               </ScalarButton>
               <ScalarButton
+                :disabled="!trimmedSourceDraft"
                 size="sm"
                 @click="saveSource">
                 Save

@@ -91,6 +91,83 @@ describe('DocumentSettings', () => {
       expect(wrapper.get('a').attributes('href')).toBe('https://example.com/openapi.json')
     })
 
+    it('does not persist an empty source', async () => {
+      const wrapper = mount(DocumentSettings, {
+        props: {
+          documentUrl: 'https://example.com/openapi.json',
+          title: 'Test API',
+        },
+      })
+
+      await findButtonByText(wrapper, 'Edit')?.trigger('click')
+      await wrapper.get(SOURCE_INPUT).setValue('   ')
+
+      // The Save button is disabled, and clicking it or pressing Enter
+      // both bail rather than persisting an empty source.
+      const saveButton = findButtonByText(wrapper, 'Save')
+      expect(saveButton?.attributes('aria-disabled')).toBe('true')
+      await saveButton?.trigger('click')
+      await wrapper.get(SOURCE_INPUT).trigger('keydown.enter')
+
+      expect(wrapper.emitted('update:documentUrl')).toBeUndefined()
+    })
+
+    it('seeds the editor from a source that updated while idle', async () => {
+      const wrapper = mount(DocumentSettings, {
+        props: {
+          documentUrl: 'https://example.com/openapi.json',
+          title: 'Test API',
+        },
+      })
+
+      // The source is re-pointed elsewhere (for example by the store echo
+      // of a previous save) while the editor is closed.
+      await wrapper.setProps({
+        documentUrl: 'https://example.com/openapi/v1.json',
+      })
+
+      await findButtonByText(wrapper, 'Edit')?.trigger('click')
+      expect((wrapper.get(SOURCE_INPUT).element as HTMLInputElement).value).toBe('https://example.com/openapi/v1.json')
+    })
+
+    it('follows an async source update when the draft is untouched', async () => {
+      const wrapper = mount(DocumentSettings, {
+        props: {
+          documentUrl: 'https://example.com/openapi.json',
+          title: 'Test API',
+        },
+      })
+
+      // Reopen Edit before the prop catches up, then let the store echo the
+      // new url. Because the user has not typed anything, the editor follows
+      // the incoming value instead of staying on the stale one.
+      await findButtonByText(wrapper, 'Edit')?.trigger('click')
+      await wrapper.setProps({
+        documentUrl: 'https://example.com/openapi/v1.json',
+      })
+
+      expect((wrapper.get(SOURCE_INPUT).element as HTMLInputElement).value).toBe('https://example.com/openapi/v1.json')
+    })
+
+    it('keeps in-flight typing when the source updates elsewhere', async () => {
+      const wrapper = mount(DocumentSettings, {
+        props: {
+          documentUrl: 'https://example.com/openapi.json',
+          title: 'Test API',
+        },
+      })
+
+      await findButtonByText(wrapper, 'Edit')?.trigger('click')
+      await wrapper.get(SOURCE_INPUT).setValue('https://example.com/typing.json')
+
+      // An external update must not clobber what the user is typing.
+      await wrapper.setProps({
+        documentUrl: 'https://example.com/openapi/v1.json',
+      })
+
+      expect((wrapper.get(SOURCE_INPUT).element as HTMLInputElement).value).toBe('https://example.com/typing.json')
+    })
+
     it('lets the user add a source when none is configured', async () => {
       const wrapper = mount(DocumentSettings, {
         props: {
