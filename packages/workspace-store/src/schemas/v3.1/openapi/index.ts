@@ -20,6 +20,7 @@ import { XScalarEnvironments } from '@/schemas/extensions/document/x-scalar-envi
 import { XScalarIcon } from '@/schemas/extensions/document/x-scalar-icon'
 import { XScalarIgnore } from '@/schemas/extensions/document/x-scalar-ignore'
 import { XScalarIsDirty } from '@/schemas/extensions/document/x-scalar-is-dirty'
+import { XScalarLinks } from '@/schemas/extensions/document/x-scalar-links'
 import { XScalarOriginalDocumentHash } from '@/schemas/extensions/document/x-scalar-original-document-hash'
 import { XScalarOriginalSourceUrl } from '@/schemas/extensions/document/x-scalar-original-source-url'
 import { XScalarRegistryMeta } from '@/schemas/extensions/document/x-scalar-registry-meta'
@@ -112,6 +113,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
       { typeName: 'InfoObject' },
     ),
     XScalarSdkInstallation,
+    XScalarLinks,
   ])
 
   const serverVariable = object(
