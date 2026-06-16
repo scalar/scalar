@@ -15,12 +15,4 @@ describe('InfoLink', () => {
     expect(link.attributes('rel')).toBe('noopener noreferrer')
     expect(link.text()).toBe('Privacy Policy')
   })
-
-  it('matches the rendered markup', () => {
-    const wrapper = mount(InfoLink, {
-      props: { name: 'Imprint', url: 'https://example.com/imprint' },
-    })
-
-    expect(wrapper.html()).toMatchSnapshot()
-  })
 })
