@@ -247,10 +247,13 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns false for array with items as non-object', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      // Use a raw schema here instead of coerceValue: coercion normalizes a
+      // non-object `items` into a reference placeholder, which would defeat the
+      // `typeof value.items !== 'object'` guard this test is meant to exercise.
+      const schema = {
         type: 'array',
         items: 'string',
-      })
+      } as unknown as SchemaObject
 
       expect(hasComplexArrayItems(schema)).toBe(false)
     })
