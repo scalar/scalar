@@ -65,6 +65,40 @@ describe('Schema', () => {
       expect(text).not.toContain('This description should not be shown')
     })
 
+    it('renders the request body allOf description only once', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          name: 'Request Body',
+          eventBus: null,
+          compact: true,
+          noncollapsible: true,
+          // The request body passes this context down to the composition
+          schemaContext: 'requestBody',
+          compositionPath: ['requestBody'],
+          schema: coerceValue(SchemaObjectSchema, {
+            allOf: [
+              {
+                type: 'object',
+                description: 'Base description',
+                properties: { name: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                description: 'Overriding description',
+                properties: { email: { type: 'string' } },
+              },
+            ],
+          }),
+          options: {},
+        },
+      })
+
+      // The merged description is shown on the outer card, so the nested merged
+      // schema must not repeat it (see https://github.com/scalar/scalar/pull/9546)
+      const occurrences = wrapper.text().split('Overriding description').length - 1
+      expect(occurrences).toBe(1)
+    })
+
     it('does show the allOf description', () => {
       const wrapper = mount(Schema, {
         props: {

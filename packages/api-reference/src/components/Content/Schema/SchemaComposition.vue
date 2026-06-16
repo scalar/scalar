@@ -199,6 +199,7 @@ if (
       :compositionPath="compositionPath"
       :discriminator="discriminator"
       :eventBus="eventBus"
+      :hideDescription="schemaContext === 'requestBody'"
       :hideHeading="hideHeading"
       :hideModelNames
       :level="level + 1"

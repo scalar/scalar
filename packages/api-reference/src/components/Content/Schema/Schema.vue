@@ -150,7 +150,9 @@ const schemaDescription = computed(() => {
 
   // For the request body we want to show the description of the merged allOf schema.
   // Merging keeps the base description (when set) and otherwise lets the last allOf
-  // member win, matching how the merged composition is rendered below.
+  // member win, matching how the merged composition is rendered below. The nested
+  // merged Schema in `SchemaComposition` hides its own description in this case so
+  // the text is not rendered twice.
   if (schema?.allOf && schema.allOf.length > 0 && name === 'Request Body') {
     return mergeAllOfSchemas(schema)?.description || null
   }
