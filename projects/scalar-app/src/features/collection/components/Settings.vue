@@ -26,6 +26,17 @@ const handleUpdateWatchMode = (watchMode: boolean) => {
   eventBus.emit('document:update:watch-mode', watchMode)
 }
 
+/**
+ * Re-points the document at a different source url. We reuse the generic
+ * extension-update event, which merges the field into the document root,
+ * so the watch poller picks up the new source without a restart.
+ */
+const handleUpdateDocumentUrl = (documentUrl: string) => {
+  eventBus.emit('document:update:extension', {
+    'x-scalar-original-source-url': documentUrl,
+  })
+}
+
 const handleUpdateThemeSlug = (themeSlug?: string) => {
   eventBus.emit('workspace:update:theme', themeSlug)
 }
@@ -206,6 +217,7 @@ const handleDeleteRegistryDocument = async ({
     "
     @delete:registryDocument="handleDeleteRegistryDocument"
     @delete:registryVersion="handleDeleteRegistryVersion"
+    @update:documentUrl="handleUpdateDocumentUrl"
     @update:watchMode="handleUpdateWatchMode" />
   <CollectionSettings
     v-else
