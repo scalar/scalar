@@ -395,8 +395,6 @@ type ExtendedConfiguration = {
   }
   /** Custom CSS to be added to the page */
   customCss?: string
-  /** onSpecUpdate is fired on spec/swagger content change */
-  onSpecUpdate?: (input: string) => void
   /** onServerChange is fired on selected server change */
   onServerChange?: (input: string) => void
   /** onDocumentSelect is fired when the config is selected */
