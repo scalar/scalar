@@ -138,7 +138,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       "
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
-      :isLoading="false"
       :layout="options.layout"
       :moreThanOneTag="entries.filter(isTag).length > 1"
       :tag="entry">

@@ -20,7 +20,6 @@ const { tag, headerId, isCollapsed } = defineProps<{
   tag: TraversedTag
   headerId?: string
   isCollapsed?: boolean
-  isLoading?: boolean
   eventBus: WorkspaceEventBus | null
 }>()
 </script>
@@ -32,7 +31,7 @@ const { tag, headerId, isCollapsed } = defineProps<{
     @intersecting="
       () => eventBus?.emit('intersecting:nav-item', { id: tag.id })
     ">
-    <SectionHeader v-show="!isLoading">
+    <SectionHeader>
       <Anchor
         @copyAnchorUrl="
           () => eventBus?.emit('copy-url:nav-item', { id: tag.id })
@@ -45,7 +44,7 @@ const { tag, headerId, isCollapsed } = defineProps<{
         </SectionHeaderTag>
       </Anchor>
     </SectionHeader>
-    <SectionContent :loading="isLoading">
+    <SectionContent>
       <SectionColumns>
         <SectionColumn>
           <ScalarMarkdown

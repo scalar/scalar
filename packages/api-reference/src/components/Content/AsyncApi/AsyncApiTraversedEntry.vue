@@ -107,7 +107,6 @@ const getModelSchema = (name: string) => getAsyncApiModelSchema(document, name)
       "
       :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
-      :isLoading="false"
       :layout="options.layout"
       :moreThanOneTag="entries.filter(isTag).length > 1"
       :tag="entry">

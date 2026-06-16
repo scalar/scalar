@@ -55,27 +55,17 @@ describe('IntroductionLayout', () => {
     expect(wrapper.html()).toContain('Terms of Service')
   })
 
-  it('renders loading state when info is empty', () => {
-    const example: OpenApiDocument = {
-      openapi: '3.1.1',
-      info: {
-        title: '',
-        description: '',
-        version: '',
-      },
-
-      'x-scalar-original-document-hash': '',
-    }
-
+  it('renders the loading skeleton while the document has no info yet', () => {
     const wrapper = mount(IntroductionLayout, {
       props: {
         ...mockProps,
-        info: example.info,
-        externalDocs: example.externalDocs,
+        info: undefined,
       },
     })
 
-    expect(wrapper.find('.loading').exists()).toBe(true)
+    // The skeleton mirrors the introduction layout instead of generic bars.
+    expect(wrapper.find('.introduction-loading').exists()).toBe(true)
+    expect(wrapper.find('.introduction-skeleton').exists()).toBe(true)
   })
 
   /**

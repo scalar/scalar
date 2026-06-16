@@ -11,7 +11,6 @@ import TagSection from './TagSection.vue'
 const { tag, moreThanOneTag } = defineProps<{
   tag: TraversedTag
   moreThanOneTag: boolean
-  isLoading: boolean
   isCollapsed: boolean
   eventBus: WorkspaceEventBus | null
 }>()
@@ -35,7 +34,6 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
       :eventBus="eventBus"
       :headerId="headerId"
       :isCollapsed="isCollapsed"
-      :isLoading="isLoading"
       :tag="tag" />
     <ShowMoreButton
       v-if="isCollapsed && moreThanOneTag && hasChildren"
