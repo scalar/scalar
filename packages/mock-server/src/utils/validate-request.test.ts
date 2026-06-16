@@ -967,6 +967,31 @@ describe('validate-request', () => {
     expect(valid.status).toBe(200)
   })
 
+  it('deserializes array input whose schema allows both array and object', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          required: true,
+          schema: {
+            anyOf: [
+              { type: 'array', items: { type: 'integer' } },
+              { type: 'object', properties: { x: { type: 'integer' } } },
+            ],
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // Array-style input under the parameter's own key must be read as an array, not gathered as an object
+    // (which would find none of the object branch's declared properties and report `filter` missing).
+    const valid = await server.request('/items?filter=1&filter=2')
+    expect(valid.status).toBe(200)
+  })
+
   it('keeps repeated values for an array-valued deepObject property', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [

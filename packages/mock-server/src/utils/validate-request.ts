@@ -323,29 +323,39 @@ export const validateRequest = (
       // swallow a sibling parameter's key (e.g. a required free-form object satisfied by `?limit=5`).
       const declaredNames = new Set(descriptors.map((descriptor) => descriptor.name))
 
+      const readAsObject = (descriptor: ParameterDescriptor): unknown =>
+        deserializeObjectParameter({
+          style: descriptor.style,
+          explode: descriptor.explode,
+          single: getValue(descriptor.name),
+          map: getMap?.(),
+          name: descriptor.name,
+          propertyNames: descriptor.propertyNames,
+          reservedKeys: declaredNames,
+        })
+
+      const readAsArray = (descriptor: ParameterDescriptor): unknown =>
+        deserializeArrayParameter({
+          style: descriptor.style,
+          explode: descriptor.explode,
+          single: getValue(descriptor.name),
+          multi: getValues?.(descriptor.name),
+        })
+
       const data: Record<string, unknown> = {}
       for (const descriptor of descriptors) {
         let value: unknown
-        // A schema composed with `anyOf`/`oneOf`/`allOf` can look like both an array and an object. Prefer
-        // the object reading in that case: its key/value gathering is the most lenient and avoids a false
-        // "required" failure that array rules would produce for object-style input.
-        if (descriptor.isObject) {
-          value = deserializeObjectParameter({
-            style: descriptor.style,
-            explode: descriptor.explode,
-            single: getValue(descriptor.name),
-            map: getMap?.(),
-            name: descriptor.name,
-            propertyNames: descriptor.propertyNames,
-            reservedKeys: declaredNames,
-          })
+        if (descriptor.isArray && descriptor.isObject) {
+          // A schema composed with `anyOf`/`oneOf`/`allOf` can look like both an array and an object, and
+          // form encoding cannot say which the client meant. Read it as an array first — that only yields a
+          // value when the request carries the parameter's own (possibly repeated) key — and fall back to the
+          // object reading otherwise. This parses array-style input (`?filter=1&filter=2`) as an array while
+          // still letting object-style input (properties spread across other keys) be gathered as an object.
+          value = readAsArray(descriptor) ?? readAsObject(descriptor)
+        } else if (descriptor.isObject) {
+          value = readAsObject(descriptor)
         } else if (descriptor.isArray) {
-          value = deserializeArrayParameter({
-            style: descriptor.style,
-            explode: descriptor.explode,
-            single: getValue(descriptor.name),
-            multi: getValues?.(descriptor.name),
-          })
+          value = readAsArray(descriptor)
         } else {
           value = getValue(descriptor.name)
         }
