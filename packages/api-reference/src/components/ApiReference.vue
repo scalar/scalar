@@ -151,7 +151,17 @@ const { copyToClipboard } = useClipboard()
  */
 const isDevelopment = import.meta.env.DEV
 
-const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
+/**
+ * Whether scrollbars take up screen real estate.
+ *
+ * This defaults to `false` so the first client render matches the server (where
+ * there is no DOM to measure). The real value is resolved in `onMounted` to
+ * avoid a hydration mismatch on the root class.
+ */
+const obtrusiveScrollbars = ref(false)
+onMounted(() => {
+  obtrusiveScrollbars.value = hasObtrusiveScrollbars()
+})
 
 const eventBus = createWorkspaceEventBus({ debug: isDevelopment })
 const isSidebarOpen = ref(false)
