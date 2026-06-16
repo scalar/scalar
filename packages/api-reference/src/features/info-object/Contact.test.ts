@@ -46,6 +46,24 @@ describe('Contact', () => {
     expect(links[1]?.text()).toBe('')
   })
 
+  it('wraps each link separately so a divider renders between them', () => {
+    const wrapper = mount(Contact, {
+      props: {
+        value: {
+          name: 'Support Team',
+          email: 'support@example.com',
+          url: 'https://support.example.com',
+        },
+      },
+    })
+
+    // Each link lives in its own bordered wrapper, like the other info links
+    const wrappers = wrapper.findAll('div.group')
+    expect(wrappers).toHaveLength(2)
+    expect(wrappers[0]?.find('a').attributes('href')).toBe('mailto:support@example.com')
+    expect(wrappers[1]?.find('a').attributes('href')).toBe('https://support.example.com')
+  })
+
   it('renders the name as plain text when no email or url is provided', () => {
     const wrapper = mount(Contact, {
       props: { value: { name: 'Support Team' } },
