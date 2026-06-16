@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <!--
+    ESM CDN example for testing and development.
+
+    Unlike `cdn.html` (which loads the inlined UMD bundle from jsdelivr), this page
+    loads the locally-built, code-split ESM bundle. Syntax-highlighting grammars are
+    fetched on demand: open the Network tab and switch a request's language (or the
+    selected example) to watch a single `chunks/<language>-*.js` request load the
+    first time each language appears, then stay cached.
+
+    Prerequisites:
+      1. Build the ESM standalone bundle: `pnpm build:standalone:esm`
+      2. Serve this directory and open `/cdn.esm.html`: `pnpm dev:standalone`
+  -->
+  <head>
+    <title>Scalar API Reference (ESM)</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <div id="app"></div>
+
+    <!-- Initialize the Scalar API Reference from the local code-split ESM build -->
+    <script type="module">
+      import { createApiReference } from './dist/browser/standalone.esm.js'
+      import { sources } from './test/utils/sources.ts'
+
+      createApiReference('#app', {
+        sources,
+        persistAuth: true,
+        // Avoid CORS issues
+        proxyUrl: 'https://proxy.scalar.com',
+      })
+    </script>
+  </body>
+</html>
