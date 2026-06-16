@@ -5,6 +5,14 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 /**
+ * Schema keywords whose value should reflect the *last* occurrence when merging
+ * `allOf` members. Most keywords keep the first occurrence, but for human-facing
+ * annotations a later subschema is expected to override an earlier one — matching
+ * OpenAPI/JSON Schema tooling like Swagger UI.
+ */
+const LAST_WINS_KEYS = new Set<string>(['description', 'title'])
+
+/**
  * Merges multiple OpenAPI schema objects into a single schema object.
  * Handles nested allOf compositions and merges properties recursively.
  *
@@ -185,9 +193,11 @@ const mergeSchemaIntoResult = (
     else if (key === 'allOf') {
       continue
     }
-    // For all other properties, preserve the first occurrence or override if specified
+    // For all other properties, preserve the first occurrence or override if specified.
+    // Annotation keywords (see LAST_WINS_KEYS) always take the latest value so a later
+    // allOf member can override an earlier one.
     else {
-      if (override || result[key] === undefined) {
+      if (override || LAST_WINS_KEYS.has(key as string) || result[key] === undefined) {
         result[key] = value
       }
     }

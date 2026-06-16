@@ -36,7 +36,7 @@ describe('Schema', () => {
       expect(text).toContain('This description should be shown')
     })
 
-    it('shows the first description with allOf composition', () => {
+    it('shows the overriding description with allOf composition', () => {
       const wrapper = mount(Schema, {
         props: {
           name: 'Request Body',
@@ -45,12 +45,12 @@ describe('Schema', () => {
             allOf: [
               {
                 type: 'object',
-                description: 'This description should be shown',
+                description: 'This description should not be shown',
                 properties: { name: { type: 'string' } },
               },
               {
                 type: 'object',
-                description: 'This description should not be shown',
+                description: 'This description should be shown',
                 properties: { email: { type: 'string' } },
               },
             ],
@@ -60,6 +60,7 @@ describe('Schema', () => {
       })
 
       const text = wrapper.text()
+      // A later allOf member overrides the earlier description
       expect(text).toContain('This description should be shown')
       expect(text).not.toContain('This description should not be shown')
     })

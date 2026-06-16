@@ -15,6 +15,7 @@ import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
+import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
@@ -147,9 +148,11 @@ const schemaDescription = computed(() => {
     return null
   }
 
-  // For the request body we want to show the base description or the first allOf schema description
+  // For the request body we want to show the description of the merged allOf schema.
+  // Merging keeps the base description (when set) and otherwise lets the last allOf
+  // member win, matching how the merged composition is rendered below.
   if (schema?.allOf && schema.allOf.length > 0 && name === 'Request Body') {
-    return schema.description || schema.allOf[0]?.description || null
+    return mergeAllOfSchemas(schema)?.description || null
   }
 
   // Don't show description if there's no description or it's not a string
