@@ -11,6 +11,7 @@ import { computed, inject, provide } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
+import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
@@ -108,13 +109,36 @@ const shouldForceExpand = computed(
 const shouldShowToggle = computed((): boolean => !noncollapsible && level > 0)
 
 /**
+ * Whether this schema sits on the path to the current anchor/scroll target.
+ *
+ * Property anchors are dot-joined breadcrumbs, so every disclosure that wraps
+ * the target has a breadcrumb that is a prefix of the target id. Opening those
+ * disclosures is what makes deep links to collapsed (hidden) properties work
+ * without forcing every schema open via `expandAllSchemaProperties`.
+ */
+const isOnScrollTargetPath = computed((): boolean => {
+  if (!breadcrumb?.length) {
+    return false
+  }
+  const path = breadcrumb.join('.')
+  const target = scrollTargetId.value
+  return target === path || target.startsWith(`${path}.`)
+})
+
+/**
  * Whether the disclosure starts expanded. Non-collapsible schemas are always
  * open. When `expandAllSchemaProperties` is enabled, finite branches start
  * expanded by default while cyclic branches remain collapsed to avoid recursion
- * loops.
+ * loops. We also open any disclosure on the path to the current scroll target so
+ * deep links resolve even when the property is collapsed.
+ *
+ * Note: the Disclosure only reads this at mount, so it expands collapsed
+ * properties on a fresh navigation (the schema mounts after the target is set),
+ * not when the target changes for an already-mounted disclosure.
  */
 const defaultOpen = computed(
-  (): boolean => noncollapsible || shouldForceExpand.value,
+  (): boolean =>
+    noncollapsible || shouldForceExpand.value || isOnScrollTargetPath.value,
 )
 
 /** Gets the description to show for the schema */

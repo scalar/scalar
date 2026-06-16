@@ -1,8 +1,9 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
+import { scrollTargetId } from '../../../helpers/lazy-bus'
 import Schema from './Schema.vue'
 
 describe('Schema', () => {
@@ -889,6 +890,104 @@ describe('Schema', () => {
       // The deepest property is visible and the collapse toggle remains available.
       expect(wrapper.text()).toContain('leaf')
       expect(wrapper.find('button').exists()).toBe(true)
+    })
+  })
+
+  describe('scroll target auto-expand', () => {
+    afterEach(() => {
+      // Reset the shared anchor target so it does not leak into other tests.
+      scrollTargetId.value = ''
+    })
+
+    it('stays collapsed when no anchor target points at a child property', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          // This disclosure wraps the children of `foo` (breadcrumb root.foo).
+          schema: {
+            type: 'object',
+            properties: {
+              bar: { type: 'string' },
+            },
+          },
+          breadcrumb: ['root', 'foo'],
+          level: 1,
+          eventBus: null,
+          options: {},
+        },
+      })
+
+      // The disclosure is collapsed by default, so the child is not rendered.
+      expect(wrapper.text()).not.toContain('bar')
+    })
+
+    it('expands a collapsed disclosure when the anchor target is a child property', () => {
+      // Mimic landing on a deep link to `root.foo.bar` while `foo` is collapsed.
+      scrollTargetId.value = 'root.foo.bar'
+
+      const wrapper = mount(Schema, {
+        props: {
+          // This disclosure wraps the children of `foo` (breadcrumb root.foo).
+          schema: {
+            type: 'object',
+            properties: {
+              bar: { type: 'string' },
+            },
+          },
+          breadcrumb: ['root', 'foo'],
+          level: 1,
+          eventBus: null,
+          options: {},
+        },
+      })
+
+      // The disclosure on the path to the target opens itself so the target renders.
+      expect(wrapper.text()).toContain('bar')
+    })
+
+    it('expands a collapsed >12 properties section when the anchor target lives inside it', () => {
+      // The collapsed "additional properties" section hides overflow properties
+      // behind a toggle. A deep link to one of them must still reveal it.
+      scrollTargetId.value = 'root.overflowProp'
+
+      const wrapper = mount(Schema, {
+        props: {
+          schema: {
+            type: 'object',
+            properties: {
+              overflowProp: { type: 'string' },
+            },
+          },
+          breadcrumb: ['root'],
+          additionalProperties: true,
+          eventBus: null,
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('overflowProp')
+    })
+
+    it('does not expand unrelated collapsed disclosures', () => {
+      // A target for a different branch must not force this disclosure open.
+      scrollTargetId.value = 'root.somethingElse.bar'
+
+      const wrapper = mount(Schema, {
+        props: {
+          // This disclosure wraps the children of `foo` (breadcrumb root.foo).
+          schema: {
+            type: 'object',
+            properties: {
+              bar: { type: 'string' },
+            },
+          },
+          breadcrumb: ['root', 'foo'],
+          level: 1,
+          eventBus: null,
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).not.toContain('bar')
     })
   })
 })
