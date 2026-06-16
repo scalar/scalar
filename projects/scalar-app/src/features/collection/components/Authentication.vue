@@ -148,15 +148,21 @@ const server = computed(() => {
   )
 })
 
-/** Auth selector only needs OAuth2-specific option overrides. */
+/**
+ * Auth selector only needs the OAuth2-specific option overrides plus the
+ * custom fetch. On desktop, `customFetch` is the IPC-backed fetch that routes
+ * OAuth2/OIDC token exchange, refresh, and discovery through the main process
+ * so they leave the renderer's network stack (and stay within the tightened CSP).
+ */
 const authOptions = computed<OAuth2Options | undefined>(() => {
   const routeOptions = toValue(options)
-  if (!routeOptions?.oauth2RedirectUri) {
+  if (!routeOptions?.oauth2RedirectUri && !routeOptions?.customFetch) {
     return undefined
   }
 
   return {
     oauth2RedirectUri: routeOptions.oauth2RedirectUri,
+    customFetch: routeOptions.customFetch,
   }
 })
 
