@@ -21,6 +21,9 @@ const meta = {
     placement: {
       control: 'select',
       options: placements,
+      // The mapping lets Storybook resolve the placement when it is set through
+      // the story URL args (used by the alignment e2e snapshots).
+      mapping: Object.fromEntries(placements.map((p) => [p, p])),
     },
     offset: {
       control: { type: 'range', min: 0, max: 30, step: 1 },
