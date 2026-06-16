@@ -467,6 +467,27 @@ info:
 | lang        | string | **REQUIRED**. The language or platform of the SDK (for example `TypeScript`, `Java`, `Python`).   |
 | description | string | The installation instructions for this language. Supports Markdown, including fenced code blocks. |
 
+## x-scalar-links
+
+Add named links next to the contact, license and terms of service links in the introduction. This is handy for the legal texts that some countries require on public websites, like a privacy policy or an imprint.
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0
++  x-scalar-links:
++  - name: Privacy Policy
++    url: https://example.com/privacy
++  - name: Imprint
++    url: https://example.com/imprint
+```
+
+| Option | Type   | Description                                       |
+| ------ | ------ | ------------------------------------------------- |
+| name   | string | **REQUIRED**. The label to display for the link.  |
+| url    | string | **REQUIRED**. The URL the link points to.         |
+
 ## x-pre-request
 
 Add pre-request scripts to operations or at the document level. Scripts run before the request is sent and can modify headers, set variables, or prepare authentication. See [Scripts in the API Client](/products/api-client/scripts) for the full guide.
