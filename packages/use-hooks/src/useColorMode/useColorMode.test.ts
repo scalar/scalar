@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, onMounted } from 'vue'
 
 import { useColorMode } from './useColorMode'
 
@@ -223,6 +223,28 @@ describe('useColorMode', () => {
 
     const { colorMode } = useColorMode({ initialColorMode: 'dark' })
     expect(colorMode.value).toBe('system')
+  })
+
+  it('defers the system preference to onMounted to stay hydration-safe', async () => {
+    // A dark system preference that, like the real one, only exists on the client.
+    vi.spyOn(window, 'matchMedia').mockImplementation(createMatchMediaMock('dark'))
+
+    // Capture the onMounted callback instead of running it right away, so we can
+    // inspect the pre-mount render that has to match the server.
+    let mountedCallback: (() => void) | undefined
+    vi.mocked(onMounted).mockImplementationOnce((fn) => {
+      mountedCallback = fn as () => void
+    })
+
+    const { darkLightMode } = useColorMode()
+
+    // Before mount it matches the server default, not the dark system preference.
+    expect(darkLightMode.value).toBe('light')
+
+    // After mount it upgrades to the real system preference.
+    mountedCallback?.()
+    await nextTick()
+    expect(darkLightMode.value).toBe('dark')
   })
 
   it('handles missing matchMedia gracefully', ({ onTestFinished }) => {

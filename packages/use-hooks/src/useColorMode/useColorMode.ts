@@ -57,9 +57,19 @@ export function useColorMode(
     return window?.matchMedia('(prefers-color-scheme: dark)')?.matches ? 'dark' : 'light'
   }
 
+  /**
+   * Reactive snapshot of the system preference.
+   *
+   * It defaults to `'light'` so the first client render matches the server,
+   * where `window`/`matchMedia` do not exist. We resolve the real value in
+   * `onMounted` to avoid a hydration mismatch in anything bound to the color
+   * mode (for example the dark-mode toggle).
+   */
+  const systemPreference = ref<DarkLightMode>('light')
+
   /** Writable computed ref for dark/light mode with system preference applied */
   const darkLightMode = computed<DarkLightMode>({
-    get: () => (colorMode.value === 'system' ? getSystemModePreference() : colorMode.value),
+    get: () => (colorMode.value === 'system' ? systemPreference.value : colorMode.value),
     set: setColorMode,
   })
 
@@ -97,11 +107,20 @@ export function useColorMode(
   // Watch for colorMode changes and update the body class
   watch(colorMode, applyColorMode, { immediate: true })
 
-  const handleChange = () => colorMode.value === 'system' && applyColorMode('system')
+  const handleChange = () => {
+    systemPreference.value = getSystemModePreference()
+    if (colorMode.value === 'system') {
+      applyColorMode('system')
+    }
+  }
 
   const mediaQuery = ref<MediaQueryList | null>(null)
   // Listen to system preference changes
   onMounted(() => {
+    // Now that we are on the client, resolve the real system preference so the
+    // color mode updates after hydration instead of mismatching the server.
+    systemPreference.value = getSystemModePreference()
+
     if (typeof window !== 'undefined' && typeof window?.matchMedia === 'function') {
       mediaQuery.value = window.matchMedia('(prefers-color-scheme: dark)')
       mediaQuery.value?.addEventListener('change', handleChange)
