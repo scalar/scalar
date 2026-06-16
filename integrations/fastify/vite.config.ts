@@ -3,7 +3,6 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import { type Plugin, defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
 
 import pkg from './package.json'
 
@@ -73,7 +72,7 @@ export default defineConfig({
       },
     },
   },
-  plugins: [inlineStandalone(), dts({ insertTypesEntry: true, rollupTypes: true })],
+  plugins: [inlineStandalone()],
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),

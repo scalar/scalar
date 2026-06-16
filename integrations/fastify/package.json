@@ -22,7 +22,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm types:check && vite build",
+    "build": "pnpm types:check && vite build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "tsx watch playground/index.ts",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5053:5053 fastify-api-reference",
@@ -74,7 +74,6 @@
     "@scalar/helpers": "workspace:*",
     "fastify": "^4.0.0",
     "vite": "catalog:*",
-    "vite-plugin-dts": "^4.3.0",
     "vitest": "catalog:*",
     "yaml": "catalog:*"
   }
