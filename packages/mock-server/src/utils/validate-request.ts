@@ -11,6 +11,7 @@ import {
   type ParameterLocation,
   deserializeArrayParameter,
   deserializeObjectParameter,
+  getObjectPropertyNames,
   isArraySchema,
   isObjectSchema,
   resolveSerialization,
@@ -112,9 +113,10 @@ const buildParameterSchema = (
       : undefined
     const { style, explode } = resolveSerialization(location, parameter.style, parameter.explode)
 
-    // Property names let exploded `form` objects be gathered from matching top-level query keys.
-    const schemaProperties = resolvedSchema?.properties as Record<string, unknown> | undefined
-    const propertyNames = schemaProperties ? Object.keys(schemaProperties) : []
+    // Property names let exploded `form` objects be gathered from matching top-level query keys. They
+    // are collected through any `anyOf`/`oneOf`/`allOf` composition so a composed object schema does not
+    // fall back to free-form gathering and claim unrelated keys.
+    const propertyNames = getObjectPropertyNames(resolvedSchema)
 
     descriptors.push({
       name: parameter.name,

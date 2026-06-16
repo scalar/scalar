@@ -346,6 +346,43 @@ describe('validate-request', () => {
     expect((await invalid.json()).violations[0]).toMatchObject({ location: 'query' })
   })
 
+  it('gathers exploded form object query params declared through anyOf composition', async () => {
+    // An optional object (FastAPI/Pydantic `Optional[…]`) keeps its properties on a subschema, so the top
+    // level looks empty. The property names must still be collected so the exploded `form` object is
+    // gathered from its declared keys. Otherwise it falls back to free-form gathering and claims every
+    // undeclared key (such as `extra` below), which the `additionalProperties: false` inner schema rejects.
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'color',
+          in: 'query',
+          required: true,
+          schema: {
+            anyOf: [
+              {
+                type: 'object',
+                required: ['r'],
+                additionalProperties: false,
+                properties: { r: { type: 'integer' }, g: { type: 'integer' } },
+              },
+              { type: 'null' },
+            ],
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // An undeclared `extra` key must not be swallowed into `color` and trip `additionalProperties: false`.
+    const valid = await server.request('/items?r=100&g=200&extra=oops')
+    expect(valid.status).toBe(200)
+
+    const invalid = await server.request('/items?extra=oops')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'query' })
+  })
+
   it('validates comma-separated object params in path and header', async () => {
     const document = documentWith('/items/{point}', 'get', {
       parameters: [

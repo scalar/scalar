@@ -82,6 +82,44 @@ export const isObjectSchema = (schema: Record<string, unknown> | undefined): boo
   return matchesComposedSchema(schema, isObjectSchema)
 }
 
+/**
+ * Collect the declared property names of an object schema, looking through `anyOf`/`oneOf`/`allOf`.
+ *
+ * `isObjectSchema` unwraps composed schemas (for example an optional object written as
+ * `anyOf: [{ type: 'object', properties: {…} }, { type: 'null' }]`), so property extraction has to do the
+ * same. Otherwise the names live on a subschema, the top level looks empty, and exploded `form` objects
+ * fall back to free-form gathering — claiming unrelated keys and failing `additionalProperties: false`.
+ */
+export const getObjectPropertyNames = (schema: Record<string, unknown> | undefined): string[] => {
+  if (!schema) {
+    return []
+  }
+
+  const names = new Set<string>()
+
+  const properties = schema.properties
+  if (properties && typeof properties === 'object') {
+    for (const key of Object.keys(properties)) {
+      names.add(key)
+    }
+  }
+
+  for (const keyword of ['anyOf', 'oneOf', 'allOf'] as const) {
+    const subSchemas = schema[keyword]
+    if (Array.isArray(subSchemas)) {
+      for (const subSchema of subSchemas) {
+        if (subSchema && typeof subSchema === 'object') {
+          for (const name of getObjectPropertyNames(subSchema as Record<string, unknown>)) {
+            names.add(name)
+          }
+        }
+      }
+    }
+  }
+
+  return [...names]
+}
+
 const wrap = (value: string | undefined): string[] | undefined => (value === undefined ? undefined : [value])
 
 // An empty value is an empty list, not a one-element list of the empty string. Otherwise `?ids=`

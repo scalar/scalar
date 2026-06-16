@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   deserializeArrayParameter,
   deserializeObjectParameter,
+  getObjectPropertyNames,
   isArraySchema,
   isObjectSchema,
   resolveSerialization,
@@ -150,6 +151,36 @@ describe('deserialize-parameter', () => {
       }
       expect(isArraySchema(union)).toBe(true)
       expect(isObjectSchema(union)).toBe(true)
+    })
+  })
+
+  describe('getObjectPropertyNames', () => {
+    it('reads top-level properties', () => {
+      expect(getObjectPropertyNames({ type: 'object', properties: { r: {}, g: {}, b: {} } })).toEqual(['r', 'g', 'b'])
+    })
+
+    it('returns an empty list for schemas without properties', () => {
+      expect(getObjectPropertyNames({ type: 'string' })).toEqual([])
+      expect(getObjectPropertyNames(undefined)).toEqual([])
+    })
+
+    it('collects properties through anyOf/oneOf/allOf composition', () => {
+      // An optional object (FastAPI/Pydantic `Optional[…]`) keeps its properties on a subschema, so the
+      // top level looks empty; without unwrapping, exploded `form` objects fall back to free-form gathering.
+      expect(
+        getObjectPropertyNames({ anyOf: [{ type: 'object', properties: { r: {}, g: {} } }, { type: 'null' }] }),
+      ).toEqual(['r', 'g'])
+      expect(getObjectPropertyNames({ allOf: [{ properties: { a: {} } }, { properties: { b: {} } }] })).toEqual([
+        'a',
+        'b',
+      ])
+    })
+
+    it('merges top-level and composed properties without duplicates', () => {
+      expect(getObjectPropertyNames({ properties: { a: {} }, oneOf: [{ properties: { a: {}, b: {} } }] })).toEqual([
+        'a',
+        'b',
+      ])
     })
   })
 
