@@ -193,6 +193,7 @@ describe('TRACKED_EVENTS', () => {
     'workspace:update:color-mode',
     'workspace:update:theme',
     'workspace:update:selected-client',
+    'workspace:update:selected-example',
     'workspace:update:active-proxy',
     'workspace:update:active-environment',
     'update:dark-mode',
