@@ -11,6 +11,7 @@ export { XScalarEnvVar, XScalarEnvironment, XScalarEnvironments } from './x-scal
 export { XScalarIcon } from './x-scalar-icon'
 export { XScalarIgnore } from './x-scalar-ignore'
 export { XScalarIsDirty } from './x-scalar-is-dirty'
+export { XScalarLinks } from './x-scalar-links'
 export { XScalarNavigation } from './x-scalar-navigation'
 export { XScalarOriginalDocumentHash } from './x-scalar-original-document-hash'
 export { XScalarOriginalSourceUrl } from './x-scalar-original-source-url'
