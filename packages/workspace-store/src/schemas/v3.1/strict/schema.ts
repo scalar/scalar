@@ -30,15 +30,21 @@ export type SchemaReferenceType<Value> = Value | (ReferenceObject & { '$ref-valu
 /**
  * A schema position can hold either a schema object or a reference to one.
  *
- * The reference variant comes first and keeps `$ref-value` optional on purpose: an
- * unresolved reference (for example a sparse chunk `$ref` produced by the server
- * store) is just `{ $ref }` with no resolved value yet. If the reference variant
- * required `$ref-value`, coercion would fall through to the schema-object variant
- * and silently drop the `$ref`, which breaks lazy chunk resolution.
+ * The reference variant keeps `$ref-value` optional on purpose: an unresolved
+ * reference (for example a sparse chunk `$ref` produced by the server store) is
+ * just `{ $ref }` with no resolved value yet. If the reference variant required
+ * `$ref-value`, such a value would match neither variant, so coercion would fall
+ * back to the schema-object variant and silently drop the `$ref`, which breaks
+ * lazy chunk resolution. With `$ref-value` optional the `{ $ref }` already matches
+ * the reference variant and is preserved unchanged, independent of order.
+ *
+ * The schema-object variant comes first so that a value matching neither variant
+ * (genuinely invalid input, never a reference) falls back to an empty schema
+ * object rather than a bogus `{ $ref: '' }` that would read as a real reference.
  */
 const schemaOrReference = Type.Union([
-  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Optional(Type.Unknown()) })),
   SchemaObjectRef,
+  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Optional(Type.Unknown()) })),
 ])
 
 const PrimitiveSchemaTypeSchema = Type.Union([
