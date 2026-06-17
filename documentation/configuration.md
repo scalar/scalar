@@ -1338,7 +1338,7 @@ Callback fired before the outbound request is sent from the embedded API client.
 
 **`request`** is a fetch API [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) built from the builder for backward compatibility. Using it as the primary way to customize outbound traffic is going to be **deprecated**; prefer **`requestBuilder`**. The API Reference passes both `request` and `requestBuilder` to this callback.
 
-> Note: The `request` here is **not** the object that is sent over the wire; the actual request is rebuilt from `requestBuilder` after this callback runs. If you need the exact outgoing request (for example, to hash a `multipart/form-data` body for request signing), use [`onRequestReady`](#onrequestready) instead.
+> Note: The `request` here is **not** the object that is sent over the wire; the actual request is rebuilt from `requestBuilder` after this callback runs. If you need the exact outgoing request (for example, to hash a `multipart/form-data` body for request signing), use [`onRequestBuilt`](#onrequestbuilt) instead.
 
 ```javascript
 {
@@ -1469,7 +1469,7 @@ Callback that triggers as soon as the references are lazy loaded.
 }
 ```
 
-#### onRequestReady
+#### onRequestBuilt
 
 **Type:** `({ request: Request; requestBuilder: RequestFactory; envVariables: Record<string, string> }) => void | Promise<void>`
 
@@ -1477,13 +1477,13 @@ Callback fired after the outbound fetch [`Request`](https://developer.mozilla.or
 
 This makes it the right hook for request signing. A request rebuilt from the builder would not work for `multipart/form-data` bodies, because every rebuild generates a fresh random multipart boundary.
 
-Use [`onBeforeRequest`](#onbeforerequest) instead when you need to mutate the request builder (method, path, query, body, security); those mutations have no effect in `onRequestReady` because the request is already built.
+Use [`onBeforeRequest`](#onbeforerequest) instead when you need to mutate the request builder (method, path, query, body, security); those mutations have no effect in `onRequestBuilt` because the request is already built.
 
 > **Experimental:** This API may change in minor releases.
 
 ```javascript
 {
-  onRequestReady: async ({ request }) => {
+  onRequestBuilt: async ({ request }) => {
     // Hash the exact body bytes that are sent over the wire
     const bodyBytes = await request.clone().arrayBuffer()
     const digest = await crypto.subtle.digest('SHA-256', bodyBytes)

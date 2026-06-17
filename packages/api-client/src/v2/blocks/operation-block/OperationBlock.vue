@@ -287,12 +287,12 @@ const handleExecute = async () => {
   // Store the abort controller for cancellation
   abortController.value = built.data.controller
 
-  // Build the fetch Request once so the requestReady hook observes the exact bytes that are
+  // Build the fetch Request once so the requestBuilt hook observes the exact bytes that are
   // sent. Rebuilding it later would generate a different multipart boundary, which breaks
   // plugins that hash the body (for example, request signing).
   const request = buildSafeBodyRequest(...built.data.requestPayload)
 
-  // Execute the requestReady hook (plugins receive the exact fetch Request that will be sent)
+  // Execute the requestBuilt hook (plugins receive the exact fetch Request that will be sent)
   await executeHook(
     {
       request,
@@ -301,7 +301,7 @@ const handleExecute = async () => {
       operation,
       variablesStore,
     },
-    'requestReady',
+    'requestBuilt',
     plugins,
   )
 

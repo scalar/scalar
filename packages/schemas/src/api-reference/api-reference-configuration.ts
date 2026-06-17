@@ -130,7 +130,7 @@ export const apiReferenceConfigurationSchema = intersection([
           'Fired before the outbound request is built; callback receives a mutable request builder. Experimental API.',
       },
     ),
-    onRequestReady: optional(
+    onRequestBuilt: optional(
       fn<
         (input: {
           request: Request

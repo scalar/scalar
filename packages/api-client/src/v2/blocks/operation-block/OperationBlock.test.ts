@@ -662,7 +662,7 @@ describe('OperationBlock', () => {
     })
   })
 
-  it('passes the exact Request observed by the requestReady hook to sendRequest', async () => {
+  it('passes the exact Request observed by the requestBuilt hook to sendRequest', async () => {
     vi.mocked(sendRequest).mockResolvedValue([
       null,
       {
@@ -679,10 +679,10 @@ describe('OperationBlock', () => {
 
     await triggerExecute(wrapper)
 
-    const requestReadyCall = vi.mocked(executeHook).mock.calls.find((call) => call[1] === 'requestReady')
-    expect(requestReadyCall).toBeDefined()
+    const requestBuiltCall = vi.mocked(executeHook).mock.calls.find((call) => call[1] === 'requestBuilt')
+    expect(requestBuiltCall).toBeDefined()
 
-    const hookRequest = (requestReadyCall?.[0] as { request: Request }).request
+    const hookRequest = (requestBuiltCall?.[0] as { request: Request }).request
     expect(hookRequest).toBeInstanceOf(Request)
 
     // The hook and the fetch call must observe the same Request instance, so header
@@ -691,7 +691,7 @@ describe('OperationBlock', () => {
     expect(sendRequestCall?.request).toBe(hookRequest)
   })
 
-  it('multipart body hash computed in the requestReady hook matches the request that is sent', async () => {
+  it('multipart body hash computed in the requestBuilt hook matches the request that is sent', async () => {
     const sha256Base64 = async (request: Request): Promise<string> => {
       const bytes = new Uint8Array(await request.clone().arrayBuffer())
       return createHash('sha256').update(bytes).digest('base64')
@@ -721,7 +721,7 @@ describe('OperationBlock', () => {
     let hookHash: string | undefined
     const signingPlugin: ClientPlugin = {
       hooks: {
-        requestReady: async ({ request }) => {
+        requestBuilt: async ({ request }) => {
           hookHash = await sha256Base64(request)
         },
       },

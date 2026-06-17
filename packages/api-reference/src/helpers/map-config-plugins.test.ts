@@ -39,7 +39,7 @@ const beforePayload = (requestBuilder: RequestFactory) => ({
   operation,
 })
 
-const requestReadyPayload = (
+const requestBuiltPayload = (
   requestBuilder: RequestFactory,
   request: Request = new Request('https://example.com/api/test'),
 ) => ({
@@ -463,56 +463,56 @@ describe('mapConfigPlugins', () => {
     expect(capturedRequest.headers.get('X-Static')).toBe('static-value')
   })
 
-  it('transforms onRequestReady callback into a ClientPlugin with requestReady hook', async () => {
+  it('transforms onRequestBuilt callback into a ClientPlugin with requestBuilt hook', async () => {
     const mockRequestBuilder = createMockFactory()
     const fetchRequest = new Request('https://example.com/api/test', { method: 'GET' })
 
-    const onRequestReadyMock = vi.fn()
+    const onRequestBuiltMock = vi.fn()
 
     const config = computed(() => ({
-      onRequestReady: onRequestReadyMock as any,
+      onRequestBuilt: onRequestBuiltMock as any,
     })) as ComputedRef<ApiReferenceConfigurationRaw>
 
     const plugins: ClientPlugin[] = mapConfigPlugins(config, createMockEnvironment())
 
     expect(plugins).toHaveLength(1)
-    expect(plugins[0]?.hooks).toHaveProperty('requestReady')
+    expect(plugins[0]?.hooks).toHaveProperty('requestBuilt')
 
-    const requestReadyHook = plugins[0]?.hooks?.requestReady
-    assert(requestReadyHook)
+    const requestBuiltHook = plugins[0]?.hooks?.requestBuilt
+    assert(requestBuiltHook)
 
-    await requestReadyHook(requestReadyPayload(mockRequestBuilder, fetchRequest))
+    await requestBuiltHook(requestBuiltPayload(mockRequestBuilder, fetchRequest))
 
-    expect(onRequestReadyMock).toHaveBeenCalledTimes(1)
-    expect(onRequestReadyMock).toHaveBeenCalledWith({
+    expect(onRequestBuiltMock).toHaveBeenCalledTimes(1)
+    expect(onRequestBuiltMock).toHaveBeenCalledWith({
       envVariables: expect.any(Object),
       request: fetchRequest,
       requestBuilder: mockRequestBuilder,
     })
   })
 
-  it('passes the exact request instance to onRequestReady so header mutations apply', async () => {
+  it('passes the exact request instance to onRequestBuilt so header mutations apply', async () => {
     const fetchRequest = new Request('https://example.com/api/test', { method: 'GET' })
 
-    const onRequestReadyMock = vi.fn(({ request }: { request: Request }) => {
+    const onRequestBuiltMock = vi.fn(({ request }: { request: Request }) => {
       request.headers.set('X-Signature', 'abc123')
     })
 
     const config = computed(() => ({
-      onRequestReady: onRequestReadyMock as any,
+      onRequestBuilt: onRequestBuiltMock as any,
     })) as ComputedRef<ApiReferenceConfigurationRaw>
 
     const plugins: ClientPlugin[] = mapConfigPlugins(config, createMockEnvironment())
 
-    const requestReadyHook = plugins[0]?.hooks?.requestReady
-    assert(requestReadyHook)
+    const requestBuiltHook = plugins[0]?.hooks?.requestBuilt
+    assert(requestBuiltHook)
 
-    await requestReadyHook(requestReadyPayload(createMockFactory(), fetchRequest))
+    await requestBuiltHook(requestBuiltPayload(createMockFactory(), fetchRequest))
 
     expect(fetchRequest.headers.get('X-Signature')).toBe('abc123')
   })
 
-  it('lets onRequestReady hash the same multipart body bytes that are sent over the wire', async () => {
+  it('lets onRequestBuilt hash the same multipart body bytes that are sent over the wire', async () => {
     // Multipart bodies are the critical case: every `new Request` with a FormData body
     // generates a fresh random boundary, so only the exact request instance produces
     // a hash that matches what the server receives
@@ -524,27 +524,27 @@ describe('mapConfigPlugins', () => {
     })
 
     let observedBytes: Uint8Array | undefined
-    const onRequestReadyMock = vi.fn(async ({ request }: { request: Request }) => {
+    const onRequestBuiltMock = vi.fn(async ({ request }: { request: Request }) => {
       observedBytes = new Uint8Array(await request.clone().arrayBuffer())
     })
 
     const config = computed(() => ({
-      onRequestReady: onRequestReadyMock as any,
+      onRequestBuilt: onRequestBuiltMock as any,
     })) as ComputedRef<ApiReferenceConfigurationRaw>
 
     const plugins: ClientPlugin[] = mapConfigPlugins(config, createMockEnvironment())
 
-    const requestReadyHook = plugins[0]?.hooks?.requestReady
-    assert(requestReadyHook)
+    const requestBuiltHook = plugins[0]?.hooks?.requestBuilt
+    assert(requestBuiltHook)
 
-    await requestReadyHook(requestReadyPayload(createMockFactory(), fetchRequest))
+    await requestBuiltHook(requestBuiltPayload(createMockFactory(), fetchRequest))
 
     const sentBytes = new Uint8Array(await fetchRequest.arrayBuffer())
     assert(observedBytes)
     expect(observedBytes).toEqual(sentBytes)
   })
 
-  it('passes environment variables resolved from the environment to onRequestReady', async () => {
+  it('passes environment variables resolved from the environment to onRequestBuilt', async () => {
     const environment = createMockEnvironment([
       { name: 'API_TOKEN', value: 'secret-token-123' },
       {
@@ -555,27 +555,27 @@ describe('mapConfigPlugins', () => {
 
     let capturedEnvVariables: Record<string, string> | undefined
 
-    const onRequestReadyMock = vi.fn(({ envVariables }: { envVariables: Record<string, string> }) => {
+    const onRequestBuiltMock = vi.fn(({ envVariables }: { envVariables: Record<string, string> }) => {
       capturedEnvVariables = envVariables
     })
 
     const config = computed(() => ({
-      onRequestReady: onRequestReadyMock as any,
+      onRequestBuilt: onRequestBuiltMock as any,
     })) as ComputedRef<ApiReferenceConfigurationRaw>
 
     const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
 
-    const requestReadyHook = plugins[0]?.hooks?.requestReady
-    assert(requestReadyHook)
+    const requestBuiltHook = plugins[0]?.hooks?.requestBuilt
+    assert(requestBuiltHook)
 
-    await requestReadyHook(requestReadyPayload(createMockFactory()))
+    await requestBuiltHook(requestBuiltPayload(createMockFactory()))
 
     assert(capturedEnvVariables)
     expect(capturedEnvVariables['API_TOKEN']).toBe('secret-token-123')
     expect(capturedEnvVariables['ENV_WITH_DEFAULT']).toBe('default-value')
   })
 
-  it('adds and removes the requestReady hook when onRequestReady changes in config', async () => {
+  it('adds and removes the requestBuilt hook when onRequestBuilt changes in config', async () => {
     const fn = vi.fn()
 
     const config = ref({}) as unknown as Ref<ApiReferenceConfigurationRaw>
@@ -588,17 +588,17 @@ describe('mapConfigPlugins', () => {
     const hooks = plugins[0]?.hooks
     assert(hooks)
 
-    expect(hooks.requestReady).toBeUndefined()
+    expect(hooks.requestBuilt).toBeUndefined()
 
-    config.value.onRequestReady = fn
+    config.value.onRequestBuilt = fn
     await nextTick()
 
-    await hooks.requestReady?.(requestReadyPayload(createMockFactory()))
+    await hooks.requestBuilt?.(requestBuiltPayload(createMockFactory()))
     expect(fn).toHaveBeenCalledTimes(1)
 
-    config.value.onRequestReady = undefined
+    config.value.onRequestBuilt = undefined
     await nextTick()
 
-    expect(hooks.requestReady).toBeUndefined()
+    expect(hooks.requestBuilt).toBeUndefined()
   })
 })

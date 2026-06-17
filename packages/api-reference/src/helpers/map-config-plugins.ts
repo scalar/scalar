@@ -8,11 +8,11 @@ import { type ComputedRef, watch } from 'vue'
 /**
  * Maps API reference configuration callbacks to client plugins.
  *
- * This function transforms the onBeforeRequest, onRequestReady, and onRequestSent
+ * This function transforms the onBeforeRequest, onRequestBuilt, and onRequestSent
  * callbacks into the new plugin hook system. The mapping is reactive, so changes
  * to the configuration will automatically update the plugin hooks.
  *
- * Note: onRequestReady is mapped to the requestReady hook so the callback receives
+ * Note: onRequestBuilt is mapped to the requestBuilt hook so the callback receives
  * the exact fetch Request that is sent over the wire. Mutating its headers modifies
  * the outgoing request, and hashing its body produces a hash that matches what the
  * server receives (a rebuilt multipart body would get a different boundary).
@@ -35,11 +35,11 @@ export const mapConfigPlugins = (
   watch(
     [
       () => config.value.onBeforeRequest,
-      () => config.value.onRequestReady,
+      () => config.value.onRequestBuilt,
       () => config.value.onRequestSent,
       () => environment.value,
     ],
-    ([onBeforeRequest, onRequestReady, onRequestSent, environment]) => {
+    ([onBeforeRequest, onRequestBuilt, onRequestSent, environment]) => {
       // Get the environment variables for the current environment
       const envVariables = getEnvironmentVariables(environment)
 
@@ -71,13 +71,13 @@ export const mapConfigPlugins = (
         : undefined
 
       /**
-       * Maps onRequestReady to the requestReady hook. The payload request is the
+       * Maps onRequestBuilt to the requestBuilt hook. The payload request is the
        * exact fetch Request that will be sent, so header mutations apply and body
        * hashes match what goes over the wire.
        */
-      plugin.hooks.requestReady = onRequestReady
+      plugin.hooks.requestBuilt = onRequestBuilt
         ? async (payload) => {
-            await onRequestReady({
+            await onRequestBuilt({
               request: payload.request,
               requestBuilder: payload.requestBuilder,
               envVariables,

@@ -406,7 +406,7 @@ type ExtendedConfiguration = {
     | ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>)
     | undefined
   /** Fired right before the outbound request is sent; callback receives the exact fetch Request that goes over the wire. Experimental API. */
-  onRequestReady?:
+  onRequestBuilt?:
     | ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>)
     | undefined
   /** onShowMore is fired when the user clicks the "Show more" button on the references */
@@ -513,6 +513,10 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
    * Fired before the outbound request is built and sent. Mutate the **request builder** so the eventual fetch call
    * reflects your changes (method, path, headers, body, and related fields).
    *
+   * The `request` passed here is **not** the object sent over the wire; the actual request is rebuilt from the builder
+   * afterwards. Use `onRequestBuilt` instead when you need the exact outgoing request (for example, to hash a
+   * `multipart/form-data` body for request signing).
+   *
    * **Experimental:** The builder matches {@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}
    * (`import type { RequestFactory } from '@scalar/workspace-store/request-example'`). That shape is still experimental and may change in minor releases.
    *
@@ -552,13 +556,13 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
    * @returns void or a promise that resolves when the hook finishes
    * @example
    * ```ts
-   * onRequestReady: async ({ request }) => {
+   * onRequestBuilt: async ({ request }) => {
    *   const bodyHash = await hash(await request.clone().arrayBuffer())
    *   request.headers.set('X-Body-Hash', bodyHash)
    * }
    * ```
    */
-  onRequestReady?: (input: {
+  onRequestBuilt?: (input: {
     request: Request
     requestBuilder: any
     envVariables: Record<string, string>
