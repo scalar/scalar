@@ -1,5 +1,9 @@
+import { createHash } from 'node:crypto'
+
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
+import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import { err, ok } from '@scalar/helpers/types/result'
+import { type ClientPlugin, executeHook } from '@scalar/oas-utils/helpers'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
@@ -28,9 +32,14 @@ vi.mock('@scalar/workspace-store/request-example', async (importOriginal) => {
 
 vi.mock('./helpers/send-request')
 
-vi.mock('@scalar/oas-utils/helpers', () => ({
-  executeHook: vi.fn(async (payload: unknown) => payload),
-}))
+vi.mock('@scalar/oas-utils/helpers', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@scalar/oas-utils/helpers')>()
+  return {
+    ...actual,
+    // Wrap the real implementation so plugin hooks run while calls remain inspectable
+    executeHook: vi.fn(actual.executeHook),
+  }
+})
 
 /**
  * Mock the toast composable to capture toast calls in tests.
@@ -304,6 +313,7 @@ describe('OperationBlock', () => {
     expect(sendRequest).toHaveBeenCalledWith({
       isUsingProxy: false,
       requestPayload: ['https://api.example.com/api/users', expect.objectContaining({ method: 'GET' })],
+      request: expect.any(Request),
       plugins: [],
     })
   })
@@ -647,8 +657,92 @@ describe('OperationBlock', () => {
     expect(sendRequest).toHaveBeenCalledWith({
       isUsingProxy: true,
       requestPayload: [expect.any(String), expect.any(Object)],
+      request: expect.any(Request),
       plugins: [],
     })
+  })
+
+  it('passes the exact Request observed by the requestBuilt hook to sendRequest', async () => {
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    await triggerExecute(wrapper)
+
+    const requestBuiltCall = vi.mocked(executeHook).mock.calls.find((call) => call[1] === 'requestBuilt')
+    expect(requestBuiltCall).toBeDefined()
+
+    const hookRequest = (requestBuiltCall?.[0] as { request: Request }).request
+    expect(hookRequest).toBeInstanceOf(Request)
+
+    // The hook and the fetch call must observe the same Request instance, so header
+    // mutations apply and body hashes match what goes over the wire
+    const sendRequestCall = vi.mocked(sendRequest).mock.calls.at(-1)?.[0]
+    expect(sendRequestCall?.request).toBe(hookRequest)
+  })
+
+  it('multipart body hash computed in the requestBuilt hook matches the request that is sent', async () => {
+    const sha256Base64 = async (request: Request): Promise<string> => {
+      const bytes = new Uint8Array(await request.clone().arrayBuffer())
+      return createHash('sha256').update(bytes).digest('base64')
+    }
+
+    const formData = new FormData()
+    formData.append('field', 'value')
+
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: new AbortController(),
+        requestPayload: ['https://api.example.com/upload', { method: 'POST', body: formData }],
+        isUsingProxy: false,
+      }),
+    )
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://api.example.com/upload', { method: 'POST' }],
+        response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
+      },
+    ])
+
+    let hookHash: string | undefined
+    const signingPlugin: ClientPlugin = {
+      hooks: {
+        requestBuilt: async ({ request }) => {
+          hookHash = await sha256Base64(request)
+        },
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: { ...createDefaultProps(), plugins: [signingPlugin] },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(hookHash).toBeDefined()
+
+    const sentRequest = vi.mocked(sendRequest).mock.calls.at(-1)?.[0].request
+    expect(sentRequest).toBeInstanceOf(Request)
+    expect(await sha256Base64(sentRequest as Request)).toBe(hookHash)
+
+    // Guards the regression this feature fixes: rebuilding from the same FormData
+    // generates a fresh random multipart boundary, so a rebuilt request hashes differently
+    const rebuiltRequest = buildSafeBodyRequest('https://api.example.com/upload', { method: 'POST', body: formData })
+    expect(await sha256Base64(rebuiltRequest)).not.toBe(hookHash)
   })
 
   it('stores response after successful request execution', async () => {

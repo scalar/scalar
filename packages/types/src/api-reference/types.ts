@@ -405,6 +405,10 @@ type ExtendedConfiguration = {
   onBeforeRequest?:
     | ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>)
     | undefined
+  /** Fired right before the outbound request is sent; callback receives the exact fetch Request that goes over the wire. Experimental API. */
+  onRequestBuilt?:
+    | ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>)
+    | undefined
   /** onShowMore is fired when the user clicks the "Show more" button on the references */
   onShowMore?: (tagId: string) => void | Promise<void>
   /** onSidebarClick is fired when the user clicks on a sidebar item */
@@ -509,6 +513,10 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
    * Fired before the outbound request is built and sent. Mutate the **request builder** so the eventual fetch call
    * reflects your changes (method, path, headers, body, and related fields).
    *
+   * The `request` passed here is **not** the object sent over the wire; the actual request is rebuilt from the builder
+   * afterwards. Use `onRequestBuilt` instead when you need the exact outgoing request (for example, to hash a
+   * `multipart/form-data` body for request signing).
+   *
    * **Experimental:** The builder matches {@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}
    * (`import type { RequestFactory } from '@scalar/workspace-store/request-example'`). That shape is still experimental and may change in minor releases.
    *
@@ -526,6 +534,35 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
    * ```
    */
   onBeforeRequest?: (input: {
+    request: Request
+    requestBuilder: any
+    envVariables: Record<string, string>
+  }) => void | Promise<void> | undefined
+  /**
+   * Fired after the outbound fetch `Request` has been built, right before it is sent. The `request` is the exact
+   * object handed to fetch: mutating its headers modifies the outgoing request, and hashing its body produces a
+   * hash that matches what the server receives (useful for request signing — a rebuilt `multipart/form-data` body
+   * would get a different boundary).
+   *
+   * Use `onBeforeRequest` instead when you need to mutate the request builder (method, path, query, body,
+   * security); those mutations have no effect at this stage because the request is already built.
+   *
+   * **Experimental:** This API may change in minor releases.
+   *
+   * @param input - Hook argument from the integration layer.
+   * @param input.request - The exact fetch API `Request` that will be sent. Mutate its headers to modify the outgoing request.
+   * @param input.requestBuilder - The builder the request was built from, for inspection. Mutating it has no effect at this stage.
+   * @param input.envVariables - Resolved environment variables for the active environment.
+   * @returns void or a promise that resolves when the hook finishes
+   * @example
+   * ```ts
+   * onRequestBuilt: async ({ request }) => {
+   *   const bodyHash = await hash(await request.clone().arrayBuffer())
+   *   request.headers.set('X-Body-Hash', bodyHash)
+   * }
+   * ```
+   */
+  onRequestBuilt?: (input: {
     request: Request
     requestBuilder: any
     envVariables: Record<string, string>

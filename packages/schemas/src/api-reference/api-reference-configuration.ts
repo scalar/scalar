@@ -130,6 +130,19 @@ export const apiReferenceConfigurationSchema = intersection([
           'Fired before the outbound request is built; callback receives a mutable request builder. Experimental API.',
       },
     ),
+    onRequestBuilt: optional(
+      fn<
+        (input: {
+          request: Request
+          requestBuilder: unknown
+          envVariables: Record<string, string>
+        }) => Promise<void> | void
+      >(),
+      {
+        typeComment:
+          'Fired right before the outbound request is sent; callback receives the exact fetch Request that goes over the wire. Experimental API.',
+      },
+    ),
     onShowMore: optional(fn<(tagId: string) => Promise<void> | void>(), {
       typeComment: 'onShowMore is fired when the user clicks the "Show more" button on the references',
     }),

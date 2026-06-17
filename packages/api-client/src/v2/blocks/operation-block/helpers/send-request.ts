@@ -70,11 +70,18 @@ export type CustomFetch = typeof fetch
 export const sendRequest = async ({
   isUsingProxy,
   requestPayload,
+  request,
   plugins = [],
   customFetch = fetch,
 }: {
   isUsingProxy: boolean
   requestPayload: RequestPayload
+  /**
+   * Pre-built fetch Request to send as-is. When provided, it is used instead of rebuilding
+   * from the request payload so plugin hooks observe the exact bytes that go over the wire
+   * (rebuilding a multipart body generates a different boundary).
+   */
+  request?: Request
   /** Registered client plugins for custom content type handling */
   plugins?: ClientPlugin[]
   /** Optional custom fetch implementation, overrides the global fetch */
@@ -94,7 +101,7 @@ export const sendRequest = async ({
     // In electron we allow GET requests to have a body
     const response = isElectron()
       ? await customFetch(...requestPayload)
-      : await customFetch(buildSafeBodyRequest(...requestPayload))
+      : await customFetch(request ?? buildSafeBodyRequest(...requestPayload))
 
     const endTime = performance.now()
     const timestamp = Date.now()
