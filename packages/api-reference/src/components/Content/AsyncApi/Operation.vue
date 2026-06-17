@@ -1,16 +1,7 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
-import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
-import type {
-  AsyncApiDocument,
-  AsyncApiOperationObject,
-} from '@scalar/types/asyncapi/3.1'
-import { resolveOperationWithTraits } from '@scalar/workspace-store/channel-example'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  getResolvedRef,
-  mergeSiblingReferences,
-} from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   TraversedAsyncApiMessage,
   TraversedAsyncApiOperation,
@@ -21,15 +12,14 @@ import { Anchor } from '@/components/Anchor'
 import { SectionHeaderTag } from '@/components/Section'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
+import { filterChildrenByType } from './helpers/filter-children-by-type'
+import { pickHeading } from './helpers/pick-heading'
+import { resolveAsyncApiOperation } from './helpers/resolve-async-api-nodes'
 import Message from './Message.vue'
 
 /** Subset of the configuration the nested `Message`/`Schema` renderers need. */
-type OperationOptions = Pick<
-  ApiReferenceConfigurationRaw,
-  | 'orderRequiredPropertiesFirst'
-  | 'orderSchemaPropertiesBy'
-  | 'expandAllSchemaProperties'
->
+type OperationOptions = AsyncApiSchemaRenderOptions
 
 const {
   operation,
@@ -58,39 +48,31 @@ useIntersection(section, () =>
  * Operation traits are merged in (matching the channel connection UI) so trait-only
  * fields render as part of the operation.
  */
-const resolvedOperation = computed<AsyncApiOperationObject | undefined>(() => {
-  const node = document.operations?.[operation.operationName]
-  if (!node) {
-    return undefined
-  }
-  return resolveOperationWithTraits(
-    getResolvedRef(node, mergeSiblingReferences),
-  )
-})
+const resolvedOperation = computed(() =>
+  resolveAsyncApiOperation(document, operation.operationName),
+)
 
 /** Heading prefers title, then summary, then the operation map key. */
-const headingText = computed(
-  () =>
-    resolvedOperation.value?.title?.trim() ||
-    operation.title ||
+const headingText = computed(() =>
+  pickHeading(
+    resolvedOperation.value?.title,
+    operation.title,
     operation.operationName,
+  ),
 )
 
 const description = computed(
   () =>
-    resolvedOperation.value?.description ??
-    resolvedOperation.value?.summary ??
+    resolvedOperation.value?.description ||
+    resolvedOperation.value?.summary ||
     '',
 )
 
-/** `send`/`receive` action shown as a small badge next to the heading. */
-const action = computed(() => operation.action)
-
 /** Only the message children of this operation. */
 const messages = computed(() =>
-  (operation.children ?? []).filter(
-    (child): child is TraversedAsyncApiMessage =>
-      child.type === 'asyncapi-message',
+  filterChildrenByType<TraversedAsyncApiMessage>(
+    operation.children,
+    'asyncapi-message',
   ),
 )
 </script>
@@ -100,12 +82,12 @@ const messages = computed(() =>
     :id="operation.id"
     ref="section"
     class="operation"
-    :class="`operation--${action}`">
+    :class="`operation--${operation.action}`">
     <div class="operation-header">
       <span
         class="operation-action"
-        :class="`operation-action--${action}`">
-        {{ action }}
+        :class="`operation-action--${operation.action}`">
+        {{ operation.action }}
       </span>
       <Anchor
         @copyAnchorUrl="

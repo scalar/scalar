@@ -1,15 +1,8 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
-import type {
-  AsyncApiChannelObject,
-  AsyncApiDocument,
-} from '@scalar/types/asyncapi/3.1'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  getResolvedRef,
-  mergeSiblingReferences,
-} from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   TraversedAsyncApiChannel,
   TraversedAsyncApiOperation,
@@ -28,16 +21,18 @@ import {
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
+import {
+  resolveSchemaRenderOptions,
+  type AsyncApiSchemaRenderOptions,
+} from './helpers/async-api-render-options'
+import { filterChildrenByType } from './helpers/filter-children-by-type'
+import { pickHeading } from './helpers/pick-heading'
+import { resolveAsyncApiChannel } from './helpers/resolve-async-api-nodes'
 import Operation from './Operation.vue'
 
 /** Subset of the configuration the shared `ParameterList` renderer needs. */
-type ParameterListOptions = Pick<
-  ApiReferenceConfigurationRaw,
-  | 'hideModels'
-  | 'orderRequiredPropertiesFirst'
-  | 'orderSchemaPropertiesBy'
-  | 'expandAllSchemaProperties'
->
+type ParameterListOptions = AsyncApiSchemaRenderOptions &
+  Pick<ApiReferenceConfigurationRaw, 'hideModels'>
 
 const {
   channel,
@@ -64,10 +59,9 @@ const headerId = useId()
  * Resolve the channel from the document so we can read its description.
  * The navigation entry only carries the address and identifying keys.
  */
-const resolvedChannel = computed<AsyncApiChannelObject | undefined>(() => {
-  const node = document.channels?.[channel.channelName]
-  return node ? getResolvedRef(node, mergeSiblingReferences) : undefined
-})
+const resolvedChannel = computed(() =>
+  resolveAsyncApiChannel(document, channel.channelName),
+)
 
 const description = computed(() => resolvedChannel.value?.description ?? '')
 
@@ -75,14 +69,13 @@ const description = computed(() => resolvedChannel.value?.description ?? '')
  * Heading shown above each channel section.
  *
  * Prefers the human-friendly `channel.title` when it is set, then falls back
- * to `channel.address`, and finally to the channel map key.
- * `channel.channelAddress` already encodes the address-or-key fallback during
- * navigation traversal, so we only need to overlay `title` on top of it.
+ * to `channel.address`. `channel.channelAddress` already encodes the
+ * address-or-key fallback during navigation traversal, so we only need to
+ * overlay `title` on top of it.
  */
-const headingText = computed(() => {
-  const title = resolvedChannel.value?.title?.trim()
-  return title || channel.channelAddress
-})
+const headingText = computed(() =>
+  pickHeading(resolvedChannel.value?.title, channel.channelAddress),
+)
 
 /**
  * Channel address parameters mapped into the OpenAPI parameter shape so we can reuse the shared
@@ -95,16 +88,14 @@ const parameters = computed(() =>
 /** Fill in defaults so the shared renderer always receives a complete options object. */
 const parameterListOptions = computed<ParameterListOptions>(() => ({
   hideModels: options?.hideModels ?? false,
-  orderRequiredPropertiesFirst: options?.orderRequiredPropertiesFirst ?? false,
-  orderSchemaPropertiesBy: options?.orderSchemaPropertiesBy ?? 'preserve',
-  expandAllSchemaProperties: options?.expandAllSchemaProperties ?? false,
+  ...resolveSchemaRenderOptions(options),
 }))
 
 /** Operations that target this channel, rendered nested beneath the channel content. */
 const operations = computed(() =>
-  (channel.children ?? []).filter(
-    (child): child is TraversedAsyncApiOperation =>
-      child.type === 'asyncapi-operation',
+  filterChildrenByType<TraversedAsyncApiOperation>(
+    channel.children,
+    'asyncapi-operation',
   ),
 )
 </script>

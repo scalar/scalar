@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
-import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
-import type {
-  AsyncApiDocument,
-  AsyncApiMessageObject,
-} from '@scalar/types/asyncapi/3.1'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  getResolvedRef,
-  mergeSiblingReferences,
-} from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
@@ -23,13 +15,15 @@ import {
 } from '@/helpers/get-async-api-message-payload-schema'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import {
+  resolveSchemaRenderOptions,
+  type AsyncApiSchemaRenderOptions,
+} from './helpers/async-api-render-options'
+import { pickHeading } from './helpers/pick-heading'
+import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
+
 /** Subset of the configuration the shared `Schema` renderer needs. */
-type SchemaRenderOptions = Pick<
-  ApiReferenceConfigurationRaw,
-  | 'orderRequiredPropertiesFirst'
-  | 'orderSchemaPropertiesBy'
-  | 'expandAllSchemaProperties'
->
+type SchemaRenderOptions = AsyncApiSchemaRenderOptions
 
 const {
   message,
@@ -57,26 +51,18 @@ useIntersection(section, () =>
  * Resolve the message from the channel it lives on. The navigation entry only
  * carries the identifying keys, so we walk `document.channels[channelName].messages`.
  */
-const resolvedMessage = computed<AsyncApiMessageObject | undefined>(() => {
-  const channelNode = document.channels?.[message.channelName]
-  const channel = channelNode
-    ? getResolvedRef(channelNode, mergeSiblingReferences)
-    : undefined
-  const node = channel?.messages?.[message.messageName]
-  return node ? getResolvedRef(node, mergeSiblingReferences) : undefined
-})
+const resolvedMessage = computed(() =>
+  resolveAsyncApiMessage(document, message.channelName, message.messageName),
+)
 
 /** Heading prefers the human-friendly title, falling back to the message map key. */
-const headingText = computed(
-  () =>
-    resolvedMessage.value?.title?.trim() ||
-    message.title ||
-    message.messageName,
+const headingText = computed(() =>
+  pickHeading(resolvedMessage.value?.title, message.title, message.messageName),
 )
 
 const description = computed(
   () =>
-    resolvedMessage.value?.description ?? resolvedMessage.value?.summary ?? '',
+    resolvedMessage.value?.description || resolvedMessage.value?.summary || '',
 )
 
 /** Payload schema, unwrapped from `$ref`s and Multi Format Schema wrappers. */
@@ -96,9 +82,7 @@ const headersSchema = computed(() =>
 /** Fill in defaults so the shared Schema renderer always receives a complete options object. */
 const schemaOptions = computed<SchemaOptions>(() => ({
   hideReadOnly: false,
-  orderRequiredPropertiesFirst: options?.orderRequiredPropertiesFirst ?? false,
-  orderSchemaPropertiesBy: options?.orderSchemaPropertiesBy ?? 'preserve',
-  expandAllSchemaProperties: options?.expandAllSchemaProperties ?? false,
+  ...resolveSchemaRenderOptions(options),
 }))
 
 /**
