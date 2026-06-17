@@ -54,4 +54,9 @@ export default defineConfig({
     // E2E: browsers in Docker hit the host Vite server with this Host header (see playwright.config baseURL).
     allowedHosts: ['host.docker.internal'],
   },
+  preview: {
+    // E2E pre-builds the app and serves it with `vite preview`; browsers in Docker reach it with
+    // this Host header (see playwright.config baseURL), so it must be allowed here too.
+    allowedHosts: ['host.docker.internal'],
+  },
 })
