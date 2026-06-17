@@ -158,6 +158,7 @@ const getExpandedPropertyRows = ({
   isDisabled,
   hiddenValuePaths,
   renamedValuePaths,
+  renameTargetPaths,
 }: {
   parameter: ParameterObject
   schema: Extract<SchemaObject, { type: 'object' }>
@@ -168,6 +169,7 @@ const getExpandedPropertyRows = ({
   isDisabled: boolean
   hiddenValuePaths: ReadonlySet<string>
   renamedValuePaths: ReadonlyMap<string, string[]>
+  renameTargetPaths: ReadonlySet<string>
 }): TableRow[] => {
   if (!schema.properties) {
     return []
@@ -213,6 +215,13 @@ const getExpandedPropertyRows = ({
       ]
     }
 
+    // Another property was renamed onto this path (for example "a" renamed to an existing "b").
+    // The renamed row already occupies this slot, so skip the schema-derived row to avoid rendering
+    // two rows for the same value path.
+    if (renameTargetPaths.has(toPathKey(path))) {
+      return []
+    }
+
     // Only deepObject style recurses into nested objects. The OpenAPI 3.1 spec says form-style
     // explode flattens only the top-level properties.
     const shouldRecurse =
@@ -229,6 +238,7 @@ const getExpandedPropertyRows = ({
         isDisabled,
         hiddenValuePaths,
         renamedValuePaths,
+        renameTargetPaths,
       })
     }
 
@@ -358,6 +368,8 @@ export const createParameterRows = (
 
   const hiddenValuePaths = new Set(options.hiddenValuePaths?.map(toPathKey) ?? [])
   const renamedValuePaths = new Map((options.renamedValuePaths ?? []).map(({ from, to }) => [toPathKey(from), to]))
+  // Paths a property was renamed onto, used to suppress the colliding schema-derived row.
+  const renameTargetPaths = new Set((options.renamedValuePaths ?? []).map(({ to }) => toPathKey(to)))
 
   const rows = getExpandedPropertyRows({
     parameter,
@@ -370,6 +382,7 @@ export const createParameterRows = (
     isDisabled,
     hiddenValuePaths,
     renamedValuePaths,
+    renameTargetPaths,
   })
 
   // Surface keys present in the value but not in the schema (for example a renamed property) so the

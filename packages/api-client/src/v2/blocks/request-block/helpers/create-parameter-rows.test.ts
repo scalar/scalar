@@ -332,6 +332,68 @@ describe('createParameterRows', () => {
     )
   })
 
+  it('does not duplicate a row when a property is renamed onto another schema property', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      schema: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          category: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // "status" was renamed to the existing "category" property.
+          value: { category: 'active' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['status'], to: ['category'] }],
+    })
+
+    // Only the renamed row remains in the "status" slot; the schema row for "category" is suppressed
+    // so the same value path is not rendered twice.
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [{ name: 'category', value: 'active', path: ['category'] }],
+    )
+  })
+
+  it('does not duplicate a deepObject row when a property is renamed onto another schema property', () => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: {
+          role: { type: 'string' },
+          team: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // "role" was renamed onto the existing "team" property.
+          value: { team: 'admin' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['role'], to: ['team'] }],
+    })
+
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [{ name: 'filter[team]', value: 'admin', path: ['team'] }],
+    )
+  })
+
   it('hides a renamed row once its new path is also deleted', () => {
     const parameter: ParameterObject = {
       name: 'filters',
