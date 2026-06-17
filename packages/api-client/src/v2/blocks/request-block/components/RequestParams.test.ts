@@ -1,8 +1,8 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { isParamDisabled } from '@scalar/workspace-store/request-example'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import { isParamDisabled } from '../helpers/is-param-disabled'
 import RequestParams from './RequestParams.vue'
 
 const environment = {

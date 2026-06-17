@@ -1,7 +1,7 @@
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { deSerializeParameter, getExample } from '@scalar/workspace-store/request-example'
+import { deSerializeParameter, getExample, isParamDisabled } from '@scalar/workspace-store/request-example'
 import type {
   ParameterObject,
   ParameterWithSchemaObject,
@@ -12,7 +12,6 @@ import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type
 
 import type { TableRow } from '../components/RequestTableRow.vue'
 import { getParameterSchema } from './get-parameter-schema'
-import { isParamDisabled } from './is-param-disabled'
 
 type ParameterWithRequiredSchema = ParameterWithSchemaObject & {
   schema: ReferenceType<SchemaObject>
