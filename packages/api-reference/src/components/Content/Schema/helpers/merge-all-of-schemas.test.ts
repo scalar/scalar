@@ -586,15 +586,60 @@ describe('mergeAllOfSchemas', () => {
       ],
     }
 
+    // Base properties stay on the merged schema while the oneOf/anyOf
+    // compositions are preserved, so the variant selectors keep rendering
+    // instead of being flattened into a single object.
     expect(mergeAllOfSchemas(schema as any)).toEqual({
       properties: {
         a: { type: 'string', example: 'foo' },
-        b: { type: 'number', example: 42 },
-        c: { type: 'boolean', example: true },
-        d: { type: 'integer', example: 7 },
-        e: { type: 'array', items: { type: 'string' }, example: ['x', 'y'] },
       },
+      oneOf: [
+        { properties: { b: { type: 'number', example: 42 } } },
+        { properties: { c: { type: 'boolean', example: true } } },
+      ],
+      anyOf: [
+        { properties: { d: { type: 'integer', example: 7 } } },
+        { properties: { e: { type: 'array', items: { type: 'string' }, example: ['x', 'y'] } } },
+      ],
     })
+  })
+
+  it('preserves a oneOf composition nested inside allOf (issue #5577)', () => {
+    const schema = {
+      title: 'ConversionCreationRequest',
+      allOf: [
+        {
+          type: 'object',
+          properties: {
+            customerComment: { type: 'string' },
+          },
+        },
+        {
+          oneOf: [
+            {
+              allOf: [{ title: 'With Quote Id', type: 'object', properties: { quoteId: { type: 'string' } } }],
+            },
+            {
+              allOf: [
+                {
+                  title: 'With Currency Pair',
+                  type: 'object',
+                  properties: { sourceCurrencyCode: { type: 'string' }, destinationCurrencyCode: { type: 'string' } },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const merged = mergeAllOfSchemas(schema as any) as any
+
+    // The base property renders alongside the preserved oneOf variants.
+    expect(merged.properties).toEqual({ customerComment: { type: 'string' } })
+    expect(merged.oneOf).toHaveLength(2)
+    expect(merged.oneOf[0].allOf[0].title).toBe('With Quote Id')
+    expect(merged.oneOf[1].allOf[0].title).toBe('With Currency Pair')
   })
 
   it('preserves title from first schema that has them', () => {

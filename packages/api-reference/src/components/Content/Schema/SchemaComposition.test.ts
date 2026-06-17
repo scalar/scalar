@@ -416,4 +416,41 @@ describe('SchemaComposition', () => {
       },
     ])
   })
+
+  it('keeps a oneOf composition nested inside allOf (issue #5577)', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        eventBus: null,
+        composition: 'allOf',
+        schema: coerceValue(SchemaObjectSchema, {
+          title: 'ConversionCreationRequest',
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                customerComment: { type: 'string' },
+              },
+            },
+            {
+              oneOf: [
+                { title: 'With Quote Id', type: 'object', properties: { quoteId: { type: 'string' } } },
+                { title: 'With Currency Pair', type: 'object', properties: { sourceCurrencyCode: { type: 'string' } } },
+              ],
+            },
+          ],
+        }),
+        level: 0,
+        options: {},
+      },
+    })
+
+    // The merged schema handed to Schema keeps both the base property and the
+    // oneOf variants, so the variant selector still renders.
+    const schemaValue = wrapper.findComponent({ name: 'Schema' }).props('schema') as any
+
+    expect(schemaValue.properties).toMatchObject({ customerComment: { type: 'string' } })
+    expect(schemaValue.oneOf).toHaveLength(2)
+    expect(schemaValue.oneOf[0].title).toBe('With Quote Id')
+    expect(schemaValue.oneOf[1].title).toBe('With Currency Pair')
+  })
 })
