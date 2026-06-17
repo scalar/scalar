@@ -1,5 +1,11 @@
 # @scalar/aspire
 
+## 0.10.4
+
+### Patch Changes
+
+- [#9525](https://github.com/scalar/scalar/pull/9525): Pin MessagePack to 2.5.301 to resolve a transitive high-severity advisory (CVE-2026-48109) pulled in via Aspire.Hosting
+
 ## 0.10.3
 
 ## 0.10.2

@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 3.10.4
+
+### Patch Changes
+
+- [#9319](https://github.com/scalar/scalar/pull/9319): feat: route OAuth2 token exchange/refresh and OpenID Connect discovery through the configured `customFetch`
+
+  The auth selector now forwards the client's `customFetch` to the OAuth2 and OpenID Connect flows. This lets the Electron desktop app pipe these requests over IPC (like regular API requests) instead of the renderer's network stack, so the desktop Content Security Policy can lock down `connect-src`. When no `customFetch` is provided the flows fall back to the global `fetch`, so web behavior is unchanged.
+
+- [#9138](https://github.com/scalar/scalar/pull/9138): feat(api-client): add CodeInputLite, a lightweight contenteditable variable input that replaces CodeMirror in the request, auth, and environment tables for better performance
+
 ## 3.10.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # scalar-app
 
+## 1.1.9
+
+### Patch Changes
+
+- [#9533](https://github.com/scalar/scalar/pull/9533): Make the Watch Mode source URL editable in document settings, so you can re-point a document at a different source without deleting and re-importing it
+
 ## 1.1.8
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.9.17
+
+### Patch Changes
+
+- [#9501](https://github.com/scalar/scalar/pull/9501): Pretty-print JSON bodies in the C/libcurl snippet across multiple lines instead of cramming the whole payload onto a single line
+
 ## 0.9.16
 
 ## 0.9.15

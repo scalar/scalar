@@ -1,5 +1,13 @@
 # @scalar/mock-server
 
+## 0.11.1
+
+### Patch Changes
+
+- [#9518](https://github.com/scalar/scalar/pull/9518): fix: compact generated JSON mock responses so finite JSONL and NDJSON bodies stay valid as single-line events.
+- [#9517](https://github.com/scalar/scalar/pull/9517): fix: improve default response selection when mocking operations with multiple response codes. The mock server now prefers the lowest 2xx success, then the lowest non-informational code, then the `default` catch-all, only falling back to a 1xx response when nothing else is defined. Status code range patterns like `2XX` are supported and treated as their lowest member, with explicit codes taking precedence over the range that covers them.
+- [#9519](https://github.com/scalar/scalar/pull/9519): fix: wrap singular examples in arrays when the response schema is an array.
+
 ## 0.11.0
 
 ### Minor Changes

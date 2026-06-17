@@ -1,5 +1,12 @@
 # @scalar/workspace-store
 
+## 0.54.4
+
+### Patch Changes
+
+- [#9465](https://github.com/scalar/scalar/pull/9465): Resolve JSON Schema 2020-12 `$dynamicRef` against the active `$dynamicAnchor` when generating examples, so generic patterns like `PaginatedResponse<T>` and recursive trees produce concrete example data instead of empty placeholders
+- [#9494](https://github.com/scalar/scalar/pull/9494): Preserve document-level UI settings (watch mode, selected server, environments, sidebar order) and user-configured servers across `rebaseDocument` — previously every rebase (e.g. a watch mode pull) silently wiped them
+
 ## 0.54.3
 
 ### Patch Changes
