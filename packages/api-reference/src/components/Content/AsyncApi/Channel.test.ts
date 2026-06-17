@@ -154,4 +154,81 @@ describe('Channel', () => {
 
     expect(wrapper.text()).not.toContain('Parameters')
   })
+
+  const documentWithOperation = (): AsyncApiDocument =>
+    ({
+      asyncapi: '3.0.0',
+      info: { title: 'Streaming API', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      channels: { userSignedUp: { address: 'user/signedup' } },
+      operations: {
+        onUserSignedUp: { action: 'receive', channel: { $ref: '#/channels/userSignedUp' } },
+      },
+    }) as unknown as AsyncApiDocument
+
+  const channelWithOperation = (): TraversedAsyncApiChannel =>
+    createChannel({
+      children: [
+        {
+          type: 'asyncapi-operation',
+          id: 'doc/channel/userSignedUp/operation/onUserSignedUp',
+          title: 'On user signed up',
+          operationName: 'onUserSignedUp',
+          action: 'receive',
+          channelName: 'userSignedUp',
+          channelAddress: 'user/signedup',
+        },
+      ],
+    })
+
+  it('renders operation children nested under the channel in the modern layout', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: channelWithOperation(),
+        document: documentWithOperation(),
+        layout: 'modern',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
+    expect(wrapper.text()).toContain('On user signed up')
+  })
+
+  it('renders operation children nested under the channel in the classic layout', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: channelWithOperation(),
+        document: documentWithOperation(),
+        layout: 'classic',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
+    expect(wrapper.text()).toContain('On user signed up')
+  })
+
+  // Regression: both layouts must forward `expandedItems` to Operation so sidebar
+  // navigation can expand the nested message accordions.
+  it.each(['modern', 'classic'] as const)('forwards expandedItems to the operation in the %s layout', (layout) => {
+    const expandedItems = { 'doc/channel/userSignedUp/operation/onUserSignedUp': true }
+    const wrapper = mount(Channel, {
+      props: {
+        channel: channelWithOperation(),
+        document: documentWithOperation(),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+        expandedItems,
+      },
+    })
+
+    const operation = wrapper.findComponent({ name: 'Operation' })
+    expect(operation.exists()).toBe(true)
+    // The original bug passed a disconnected empty object here; assert the map is forwarded.
+    expect(operation.props('expandedItems')).toEqual(expandedItems)
+  })
 })
