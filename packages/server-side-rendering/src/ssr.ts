@@ -254,22 +254,6 @@ function escapeFunctionSourceForInlineScript(source: string): string {
     .replace(/\u2029/g, '\\u2029')
 }
 
-/** Add consistent indentation to multiline strings embedded in HTML output. */
-const addIndent = (str: string, spaces: number = 2, initialIndent: boolean = false): string => {
-  const indent = ' '.repeat(spaces)
-  const lines = str.split('\n')
-
-  return lines
-    .map((line, index) => {
-      if (index === 0 && !initialIndent) {
-        return line
-      }
-
-      return `${indent}${line}`
-    })
-    .join('\n')
-}
-
 /**
  * Reject function values that would otherwise be silently dropped by JSON.stringify.
  * SSR only supports top-level function props and top-level arrays containing functions,
@@ -295,8 +279,7 @@ const assertNoNestedFunctions = (value: unknown, path: string): void => {
 
 const serializeJsonValue = (value: unknown): string => escapeJsonForInlineScript(JSON.stringify(value))
 
-const serializeJsonObject = (value: Record<string, unknown>): string =>
-  escapeJsonForInlineScript(JSON.stringify(value, null, 2))
+const serializeJsonObject = (value: Record<string, unknown>): string => escapeJsonForInlineScript(JSON.stringify(value))
 
 const serializePropertyKey = (key: string): string => escapeJsonForInlineScript(JSON.stringify(key))
 
@@ -320,14 +303,15 @@ const serializeArrayProperty = (key: string, value: unknown[]): string =>
   `${serializePropertyKey(key)}: ${serializeArrayWithFunctions(value, key)}`
 
 const mergeSerializedProperties = (jsonObjectLiteral: string, dynamicProperties: string[]): string => {
-  const formattedDynamicProperties = addIndent(dynamicProperties.join(',\n'), 8, true)
+  const joinedDynamicProperties = dynamicProperties.join(', ')
 
   if (jsonObjectLiteral === '{}') {
-    return `{\n${formattedDynamicProperties}\n      }`
+    return `{ ${joinedDynamicProperties} }`
   }
 
-  const jsonWithoutClosingBrace = jsonObjectLiteral.split('\n').slice(0, -1).join('\n')
-  return `${jsonWithoutClosingBrace},\n${formattedDynamicProperties}\n      }`
+  /** Drop the trailing `}` of the compact JSON literal so we can append the dynamic properties. */
+  const jsonWithoutClosingBrace = jsonObjectLiteral.slice(0, -1)
+  return `${jsonWithoutClosingBrace}, ${joinedDynamicProperties} }`
 }
 
 /**
@@ -356,13 +340,12 @@ export function serializeConfigToJs(config: Record<string, unknown>): string {
   })
 
   const jsonString = serializeJsonObject(restConfig)
-  const indentedJsonString = addIndent(jsonString, 6)
 
   if (dynamicProperties.length === 0) {
-    return indentedJsonString
+    return jsonString
   }
 
-  return mergeSerializedProperties(indentedJsonString, dynamicProperties)
+  return mergeSerializedProperties(jsonString, dynamicProperties)
 }
 
 /**
