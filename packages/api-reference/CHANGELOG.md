@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.60.0
+
+### Minor Changes
+
+- [#9478](https://github.com/scalar/scalar/pull/9478): Add `content.start` plugin view slot and `sidebar` visibility option for plugin view components.
+  - **`content.start`**: A new view slot that renders custom plugin components **before** the Introduction/Info section (at the top of the content area).
+  - **`sidebar` option on `ViewComponent`**: Plugins can now opt-in to display a sidebar entry for their custom views by providing `sidebar: { show: true, label: 'My Page' }`. Omitting `sidebar` or setting `show: false` hides the entry from the sidebar. The entry hooks into the existing navigation, so clicking it scrolls to the plugin view and it highlights as it scrolls into view.
+
+### Patch Changes
+
+- [#9504](https://github.com/scalar/scalar/pull/9504): Fix extra nesting and duplicated description when array items are wrapped in a single-item composition (`allOf`, `oneOf`, or `anyOf`)
+- [#9526](https://github.com/scalar/scalar/pull/9526): Fix anchor links to schema properties that are hidden inside collapsed sections. Deep links now expand the disclosures on the path to the target property and scroll to it, so links work without enabling `expandAllSchemaProperties`.
+- [#9484](https://github.com/scalar/scalar/pull/9484): Fix the schema description being hidden for responses when `expandAllResponses` is enabled. A response's own description and its content schema's description are now both shown.
+- [#9531](https://github.com/scalar/scalar/pull/9531): fix: the introduction loading skeleton now mirrors the actual layout (badges, title, links, description and selector cards) instead of generic stacked bars, so the page no longer jumps once the document loads
+- [#9524](https://github.com/scalar/scalar/pull/9524): Fix sidebar overlapping the content at exactly 1000px wide. The layout grid switched to the mobile (stacked) layout at `max-width: 1000px` while the sidebar visibility is driven by Tailwind's `lg:` variant (`min-width: 1000px`), so both fired at 1000px. The mobile breakpoint now uses `width < 1000px`, the exact complement of `lg:`, so 1000px is treated as desktop.
+
 ## 1.59.3
 
 ### Patch Changes

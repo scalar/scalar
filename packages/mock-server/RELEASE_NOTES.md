@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.11.1 (2026-06-17)
+
+### Smarter response selection and format fixes
+
+This release improves how the mock server chooses which response to return when your API defines multiple status codes, and fixes edge cases with line-delimited JSON formats and array responses.
+
+- The mock server now prefers 2xx success responses over error codes when no specific status is requested, making default mocks more realistic
+- JSONL and NDJSON responses are now correctly formatted as single-line records instead of pretty-printed JSON
+- Singular examples are automatically wrapped in arrays when the response schema expects an array
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0111)
+
 ## 0.11.0 (2026-06-11)
 
 ### Request validation and improved authentication

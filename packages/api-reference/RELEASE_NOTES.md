@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.60.0 (2026-06-17)
+
+### Plugin view slots, sidebar customization, and layout polish
+
+This release adds a new plugin extension point at the top of your documentation and lets plugin views appear in the sidebar. It also ships a handful of fixes that improve deep linking, schema rendering, and responsive layout behavior.
+
+- Plugins can now inject components before the introduction section with the new content.start view slot
+- Plugin views can opt in to sidebar navigation with the sidebar visibility option
+- Deep links to nested schema properties now expand collapsed sections and scroll into view automatically
+- The introduction loading skeleton now mirrors the real layout so the page does not jump when your document loads
+- Fixed sidebar overlap at exactly 1000px wide by aligning mobile and desktop breakpoints
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1600)
+
 ## 1.59.3 (2026-06-11)
 
 ### Path item references, redirects, and SDK tab sync

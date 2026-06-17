@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.6.47
+
+### Patch Changes
+
+- [#9528](https://github.com/scalar/scalar/pull/9528): Remove the unused `onSpecUpdate` configuration option. It was never wired to a consumer, so the callback never fired.
+
 ## 0.6.46
 
 ## 0.6.45

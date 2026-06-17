@@ -1,5 +1,7 @@
 # @scalar/oas-utils
 
+## 0.18.5
+
 ## 0.18.4
 
 ### Patch Changes

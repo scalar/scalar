@@ -1,5 +1,30 @@
 [
   {
+    "version": "1.1.9",
+    "date": "2026-06-17",
+    "title": "Editable Watch Mode sources and improved input performance",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release makes it easier to manage Watch Mode documents and improves responsiveness across request, authentication, and environment variable tables."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Edit the Watch Mode source URL directly in document settings without needing to delete and re-import your collection",
+          "Faster, more responsive input fields for parameters, headers, and environment variables with the new lightweight CodeInputLite component",
+          "OAuth2 and OpenID Connect token requests now route through the desktop app's secure IPC layer"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#119",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.1.8",
     "date": "2026-06-11",
     "title": "Path item references and SDK tab sync",

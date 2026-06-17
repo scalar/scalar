@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.4.7
+
+### Patch Changes
+
+- [#9540](https://github.com/scalar/scalar/pull/9540): Fix an SSR hydration mismatch in the color-mode toggle: the system preference is now resolved after mount so the first client render matches the server.
+
 ## 0.4.6
 
 ## 0.4.5

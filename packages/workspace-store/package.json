@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.54.3",
+  "version": "0.54.4",
   "engines": {
     "node": ">=22"
   },
