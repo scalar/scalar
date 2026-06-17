@@ -990,4 +990,70 @@ describe('Schema', () => {
       expect(wrapper.text()).not.toContain('bar')
     })
   })
+
+  // See https://github.com/scalar/scalar/issues/8593
+  describe('factoring schemas', () => {
+    const renderText = (schema: unknown) =>
+      mount(Schema, {
+        props: {
+          options: { expandAllSchemaProperties: true },
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, schema),
+        },
+      }).text()
+
+    it('renders properties factored out alongside anyOf', () => {
+      const text = renderText({
+        type: 'object',
+        anyOf: [
+          { not: { required: ['another'] }, required: ['one'] },
+          { not: { required: ['one'] }, required: ['another'] },
+          { not: { required: ['one', 'another'] } },
+        ],
+        properties: {
+          one: { type: 'string', description: 'The one.' },
+          another: { type: 'string', description: 'Just another.' },
+        },
+      })
+
+      expect(text).toContain('one')
+      expect(text).toContain('another')
+    })
+
+    it('renders properties factored out alongside allOf containing anyOf', () => {
+      const text = renderText({
+        type: 'object',
+        allOf: [
+          {
+            anyOf: [
+              { not: { required: ['another'] }, required: ['one'] },
+              { not: { required: ['one'] }, required: ['another'] },
+              { not: { required: ['one', 'another'] } },
+            ],
+          },
+        ],
+        properties: {
+          one: { type: 'string' },
+          another: { type: 'string' },
+        },
+      })
+
+      expect(text).toContain('one')
+      expect(text).toContain('another')
+    })
+
+    it('renders object properties even when a not constraint is present', () => {
+      const text = renderText({
+        type: 'object',
+        properties: {
+          one: { type: 'string' },
+          another: { type: 'string' },
+        },
+        not: { required: ['one'] },
+      })
+
+      expect(text).toContain('one')
+      expect(text).toContain('another')
+    })
+  })
 })
