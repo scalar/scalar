@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { defineComponent } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 
 import { ScalarMenu } from './'
 
@@ -58,7 +58,9 @@ describe('ScalarMenu', () => {
     const wrapper = mount(WithSlot, { attachTo: document.body })
     try {
       await trigger(wrapper).trigger('click')
-      await wrapper.get('[data-testid="products-close"]').trigger('click')
+      const productsCloseButton = document.body.querySelector<HTMLElement>('[data-testid="products-close"]')
+      productsCloseButton?.click()
+      await nextTick()
       expect(trigger(wrapper).attributes('aria-expanded')).toBe('false')
     } finally {
       wrapper.unmount()
@@ -78,9 +80,7 @@ describe('ScalarMenu', () => {
     const wrapper = mount(WithProfile, { attachTo: document.body })
     try {
       await trigger(wrapper).trigger('click')
-      const profileSlot = document.body.querySelector<HTMLElement>(
-        '[data-testid="profile-slot"]',
-      )
+      const profileSlot = document.body.querySelector<HTMLElement>('[data-testid="profile-slot"]')
       expect(profileSlot?.textContent).toContain('Workspace')
     } finally {
       wrapper.unmount()
@@ -160,9 +160,7 @@ describe('ScalarMenu', () => {
     const wrapper = mount(WithSections, { attachTo: document.body })
     try {
       await trigger(wrapper).trigger('click')
-      const customSection = document.body.querySelector<HTMLElement>(
-        '[data-testid="custom-sections"]',
-      )
+      const customSection = document.body.querySelector<HTMLElement>('[data-testid="custom-sections"]')
       expect(customSection?.textContent).toContain('Only custom sections')
       expect(bodyText()).not.toContain('Terms & Conditions')
     } finally {
@@ -177,9 +175,7 @@ describe('ScalarMenu', () => {
     })
     try {
       await trigger(wrapper).trigger('click')
-      expect(
-        document.body.querySelector('[data-testid="menu-surface"]'),
-      ).not.toBeNull()
+      expect(document.body.querySelector('[data-testid="menu-surface"]')).not.toBeNull()
     } finally {
       wrapper.unmount()
     }
