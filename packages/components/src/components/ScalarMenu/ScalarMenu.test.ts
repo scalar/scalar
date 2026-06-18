@@ -8,6 +8,7 @@ import { ScalarMenu } from './'
 const triggerSelector = 'button[aria-expanded]'
 
 const trigger = (wrapper: ReturnType<typeof mount>) => wrapper.get(triggerSelector)
+const bodyText = () => document.body.textContent ?? ''
 
 describe('ScalarMenu', () => {
   it('exposes Open Menu as the default trigger label while closed', () => {
@@ -24,8 +25,8 @@ describe('ScalarMenu', () => {
     const wrapper = mount(ScalarMenu, { attachTo: document.body })
     try {
       await trigger(wrapper).trigger('click')
-      expect(wrapper.text()).toContain('Dashboard')
-      expect(wrapper.text()).toContain('Client')
+      expect(bodyText()).toContain('Dashboard')
+      expect(bodyText()).toContain('Client')
     } finally {
       wrapper.unmount()
     }
@@ -77,7 +78,10 @@ describe('ScalarMenu', () => {
     const wrapper = mount(WithProfile, { attachTo: document.body })
     try {
       await trigger(wrapper).trigger('click')
-      expect(wrapper.get('[data-testid="profile-slot"]').text()).toContain('Workspace')
+      const profileSlot = document.body.querySelector<HTMLElement>(
+        '[data-testid="profile-slot"]',
+      )
+      expect(profileSlot?.textContent).toContain('Workspace')
     } finally {
       wrapper.unmount()
     }
@@ -156,8 +160,11 @@ describe('ScalarMenu', () => {
     const wrapper = mount(WithSections, { attachTo: document.body })
     try {
       await trigger(wrapper).trigger('click')
-      expect(wrapper.get('[data-testid="custom-sections"]').text()).toContain('Only custom sections')
-      expect(wrapper.text()).not.toContain('Terms & Conditions')
+      const customSection = document.body.querySelector<HTMLElement>(
+        '[data-testid="custom-sections"]',
+      )
+      expect(customSection?.textContent).toContain('Only custom sections')
+      expect(bodyText()).not.toContain('Terms & Conditions')
     } finally {
       wrapper.unmount()
     }
@@ -170,7 +177,9 @@ describe('ScalarMenu', () => {
     })
     try {
       await trigger(wrapper).trigger('click')
-      expect(wrapper.find('[data-testid="menu-surface"]').exists()).toBe(true)
+      expect(
+        document.body.querySelector('[data-testid="menu-surface"]'),
+      ).not.toBeNull()
     } finally {
       wrapper.unmount()
     }
