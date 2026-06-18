@@ -14,7 +14,7 @@ Run a local development server to see your changes in real-time:
 npx @scalar/cli project preview
 ```
 
-This starts a live preview at `http://localhost:7971` where every edit you make is instantly visible.
+This starts a live preview at `http://localhost:7970` where every edit you make is instantly visible.
 
 Read more about [Preview deployments](deployment/preview-deployments.md) and the [CLI](deployment/cli.md).
 

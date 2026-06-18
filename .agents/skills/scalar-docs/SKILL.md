@@ -368,7 +368,7 @@ npx @scalar/cli project preview
 | ------- | ----------- |
 | `npx @scalar/cli project init` | Create scalar.config.json |
 | `npx @scalar/cli project check-config` | Validate config |
-| `npx @scalar/cli project preview` | Local preview (port 7971) |
+| `npx @scalar/cli project preview` | Local preview (port 7970) |
 | `npx @scalar/cli project publish` | Publish from local files |
 | `npx @scalar/cli project publish --github` | Publish from linked GitHub repo |
 | `npx @scalar/cli project upgrade` | Migrate from Docs 1.0 |
