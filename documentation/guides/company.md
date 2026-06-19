@@ -1,8 +1,12 @@
 # Company
 
-## Our Story
 
 Scalar started from a simple frustration: APIs had become the center of modern software, but the interfaces around them were still scattered across docs, SDK generators, testing tools, and internal workflows.
+
+<a href="#careers" aria-label="Join Scalar community on Discord" class="expander-hover-link t-editor__anchor">Explore Careers  →</a>
+
+
+## Our Story
 
 We believe those surfaces should move together. When an API evolves, the documentation, client libraries, MCP servers, and testing experience should stay in sync instead of drifting into separate versions of the truth.
 
