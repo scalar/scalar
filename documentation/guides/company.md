@@ -92,95 +92,89 @@ The teams who build with Scalar are shaping the API platforms other developers d
 ## Backed by the Best
 
 <section class="company-investors company-investors-layout" aria-label="Investors">
-  <div class="company-investors-column">
-    <article class="company-investor-feature">
-      <div class="company-investor-logo company-investor-logo-kindred">
-        <div
-          class="company-team-sticker company-investor-sticker sticker-5"
-          data-company-sticker
-          data-company-sticker-id-prefix="kindred-investor-sticker">
-          <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/kindred-sticker-final.svg"></scalar-icon>
-        </div>
+  <article class="company-investor-feature">
+    <div class="company-investor-logo company-investor-logo-kindred">
+      <div
+        class="company-team-sticker company-investor-sticker sticker-5"
+        data-company-sticker
+        data-company-sticker-id-prefix="kindred-investor-sticker">
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/kindred-sticker-final.svg"></scalar-icon>
       </div>
-      <div class="company-investor-lines">
-        <span class="company-investor-name-line">Steve Jang</span>
-        <span class="company-investor-title-line">Kindred</span>
-      </div>
-    </article>
-    <div class="company-investor-list">
-      <article class="company-investor-person">
-        <span class="company-investor-name-line">Consectetur Adipiscing</span>
-        <span class="company-investor-title-line">Elit sed do</span>
-      </article>
-      <article class="company-investor-person">
-        <span class="company-investor-name-line">Tempor Incididunt</span>
-        <span class="company-investor-title-line">Ut labore</span>
-      </article>
-      <article class="company-investor-person">
-        <span class="company-investor-name-line">Magna Aliqua</span>
-        <span class="company-investor-title-line">Et dolore</span>
-      </article>
     </div>
+    <div class="company-investor-lines">
+      <span class="company-investor-name-line">Steve Jang</span>
+      <span class="company-investor-title-line">Kindred</span>
+    </div>
+  </article>
+  <article class="company-investor-feature">
+    <div class="company-investor-logo company-investor-logo-general-catalyst">
+      <div
+        class="company-team-sticker company-investor-sticker sticker-6"
+        data-company-sticker
+        data-company-sticker-id-prefix="gc-investor-sticker">
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/gc-sticker-final.svg"></scalar-icon>
+      </div>
+    </div>
+    <div class="company-investor-lines">
+      <span class="company-investor-name-line">Trevor Oelschig</span>
+      <span class="company-investor-title-line">General Catalyst</span>
+    </div>
+  </article>
+  <article class="company-investor-feature">
+    <div class="company-investor-logo company-investor-logo-abstract">
+      <div
+        class="company-team-sticker company-investor-sticker sticker-7"
+        data-company-sticker
+        data-company-sticker-id-prefix="abstract-investor-sticker">
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/abstract-sticker-final.svg"></scalar-icon>
+      </div>
+    </div>
+    <div class="company-investor-lines">
+      <span class="company-investor-name-line">Ramtin Naimi</span>
+      <span class="company-investor-title-line">Abstract</span>
+    </div>
+  </article>
+  <div class="company-investor-list">
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Consectetur Adipiscing</span>
+      <span class="company-investor-title-line">Elit sed do</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Tempor Incididunt</span>
+      <span class="company-investor-title-line">Ut labore</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Magna Aliqua</span>
+      <span class="company-investor-title-line">Et dolore</span>
+    </article>
   </div>
-  <div class="company-investors-column">
-    <article class="company-investor-feature">
-      <div class="company-investor-logo company-investor-logo-general-catalyst">
-        <div
-          class="company-team-sticker company-investor-sticker sticker-6"
-          data-company-sticker
-          data-company-sticker-id-prefix="gc-investor-sticker">
-          <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/gc-sticker-final.svg"></scalar-icon>
-        </div>
-      </div>
-      <div class="company-investor-lines">
-        <span class="company-investor-name-line">Trevor Oelschig</span>
-        <span class="company-investor-title-line">General Catalyst</span>
-      </div>
+  <div class="company-investor-list">
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Quis Nostrud</span>
+      <span class="company-investor-title-line">Exercitation ullamco</span>
     </article>
-    <div class="company-investor-list">
-      <article class="company-investor-person">
-        <span class="company-investor-name-line">Quis Nostrud</span>
-        <span class="company-investor-title-line">Exercitation ullamco</span>
-      </article>
-      <article class="company-investor-person">
-        <span class="company-investor-name-line">Laboris Nisi</span>
-        <span class="company-investor-title-line">Ut aliquip</span>
-      </article>
-      <article class="company-investor-person">
-        <span class="company-investor-name-line">Commodo Consequat</span>
-        <span class="company-investor-title-line">Duis aute</span>
-      </article>
-    </div>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Laboris Nisi</span>
+      <span class="company-investor-title-line">Ut aliquip</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Commodo Consequat</span>
+      <span class="company-investor-title-line">Duis aute</span>
+    </article>
   </div>
-  <div class="company-investors-column">
-    <article class="company-investor-feature">
-      <div class="company-investor-logo company-investor-logo-abstract">
-        <div
-          class="company-team-sticker company-investor-sticker sticker-7"
-          data-company-sticker
-          data-company-sticker-id-prefix="abstract-investor-sticker">
-          <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/abstract-sticker-final.svg"></scalar-icon>
-        </div>
-      </div>
-      <div class="company-investor-lines">
-        <span class="company-investor-name-line">Ramtin Naimi</span>
-        <span class="company-investor-title-line">Abstract</span>
-      </div>
+  <div class="company-investor-list">
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Cillum Dolore</span>
+      <span class="company-investor-title-line">Eu fugiat</span>
     </article>
-    <div class="company-investor-list">
-      <article class="company-investor-person">
-        <span class="company-investor-name-line">Cillum Dolore</span>
-        <span class="company-investor-title-line">Eu fugiat</span>
-      </article>
-      <article class="company-investor-person">
-        <span class="company-investor-name-line">Nulla Pariatur</span>
-        <span class="company-investor-title-line">Excepteur sint</span>
-      </article>
-      <article class="company-investor-person">
-        <span class="company-investor-name-line">Occaecat Cupidatat</span>
-        <span class="company-investor-title-line">Non proident</span>
-      </article>
-    </div>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Nulla Pariatur</span>
+      <span class="company-investor-title-line">Excepteur sint</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Occaecat Cupidatat</span>
+      <span class="company-investor-title-line">Non proident</span>
+    </article>
   </div>
 </section>
 
@@ -195,6 +189,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
     height: auto;
     margin: 24px 0;
     object-fit: cover;
+  }
+  main.content {
+    overflow-x: clip;
   }
   .company-team {
     display: grid;
@@ -360,11 +357,10 @@ The teams who build with Scalar are shaping the API platforms other developers d
   }
   .company-investors-layout {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 80px 12px;
     margin: 24px 0 56px;
   }
-  .company-investors-column,
   .company-investor-feature,
   .company-investor-list,
   .company-investor-lines,
@@ -373,8 +369,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
     min-width: 0;
     flex-direction: column;
   }
-  .company-investors-column {
-    gap: 80px;
+  .company-investor-feature,
+  .company-investor-list {
+    grid-column: span 2;
   }
   .company-investor-feature {
     gap: 8px;
@@ -388,7 +385,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
     box-sizing: border-box;
     position: relative;
     overflow: visible;
-    background: color-mix(in srgb, var(--scalar-background-2) var(--scalar-background-1));
+    background: color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1));
     box-shadow: inset 0 0 0 9px var(--company-investor-logo-background, var(--scalar-background-2));
     border-radius: var(--scalar-radius);
   }
@@ -405,20 +402,10 @@ The teams who build with Scalar are shaping the API platforms other developers d
     --company-investor-logo-background: #f8efe3;
   }
   .company-investor-sticker {
-    --flap-width: 1280px;
-    --investor-sticker-corner-peel-active-x: 24%;
-    --investor-sticker-corner-peel-active-y: 38%;
-    --investor-sticker-corner-peel-hover-x: 15%;
-    --investor-sticker-corner-peel-hover-y: 24%;
-    --sticker-peelback-hover: 18%;
-    --sticker-peelback-active: 30%;
     --sticker-rotate: 0deg;
     width: min(92%, 260px);
+    height: auto;
     aspect-ratio: 16 / 9;
-  }
-  .company-investor-sticker .sticker-container {
-    top: 0 !important;
-    left: 0 !important;
   }
   .company-investor-sticker foreignObject,
   .company-investor-sticker .sticker-container,
@@ -430,68 +417,30 @@ The teams who build with Scalar are shaping the API platforms other developers d
   .company-investor-sticker .flap svg {
     overflow: visible !important;
   }
-  .company-investor-sticker .sticker-lighting svg,
-  .company-investor-sticker .shadow svg,
-  .company-investor-sticker .flap svg {
-    transform: none !important;
+  .company-investor-sticker .sticker-container {
+    transform: rotate(var(--sticker-rotate)) !important;
+    transform-origin: center;
+    transition: transform 180ms ease;
   }
   .company-investor-sticker .shadow,
-  .company-investor-sticker .flap {
-    display: none;
+  .company-investor-sticker .flap,
+  .company-investor-sticker .flap-lighting {
+    display: none !important;
   }
-  .company-investor-sticker .sticker-container::after {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 2;
-    display: block;
-    width: 0;
-    height: 0;
-    background: linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--scalar-background-1) 92%, transparent),
-      var(--scalar-background-3)
-    );
-    box-shadow: -4px 4px 8px color-mix(in srgb, var(--scalar-color-1) 14%, transparent);
-    clip-path: polygon(100% 0, 0 0, 100% 100%);
-    content: '';
-    opacity: 0;
-    pointer-events: none;
-    transition:
-      width var(--sticker-peel-hover-easing),
-      height var(--sticker-peel-hover-easing),
-      opacity 0.15s ease;
-  }
-  .company-investor-sticker .sticker-container:hover .sticker-main {
-    clip-path: polygon(
-      var(--sticker-start) var(--sticker-start),
-      calc(100% - var(--investor-sticker-corner-peel-hover-x)) var(--sticker-start),
-      var(--sticker-end) var(--investor-sticker-corner-peel-hover-y),
-      var(--sticker-end) var(--sticker-end),
-      var(--sticker-start) var(--sticker-end)
-    );
-  }
+  .company-investor-sticker .sticker-container:hover .sticker-main,
   .company-investor-sticker .sticker-container:active .sticker-main {
-    clip-path: polygon(
-      var(--sticker-start) var(--sticker-start),
-      calc(100% - var(--investor-sticker-corner-peel-active-x)) var(--sticker-start),
-      var(--sticker-end) var(--investor-sticker-corner-peel-active-y),
-      var(--sticker-end) var(--sticker-end),
-      var(--sticker-start) var(--sticker-end)
-    );
+    clip-path: none !important;
   }
-  .company-investor-sticker .sticker-container:hover::after {
-    width: var(--investor-sticker-corner-peel-hover-x);
-    height: var(--investor-sticker-corner-peel-hover-y);
-    opacity: 1;
+  .company-investor-logo:hover .company-investor-sticker .sticker-container,
+  .company-investor-sticker:hover .sticker-container {
+    --sticker-rotate: 3deg;
   }
-  .company-investor-sticker .sticker-container:active::after {
-    width: var(--investor-sticker-corner-peel-active-x);
-    height: var(--investor-sticker-corner-peel-active-y);
-    opacity: 1;
+  .company-investor-logo:active .company-investor-sticker .sticker-container,
+  .company-investor-sticker:active .sticker-container {
+    --sticker-rotate: 2deg;
   }
   .company-investor-logo-general-catalyst {
-    --company-investor-logo-background: #dbf5ff
+    --company-investor-logo-background: #dbf5ff;
   }
   .company-investor-logo-abstract {
     --company-investor-logo-background: #dedddb;
@@ -506,6 +455,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
   .company-investor-name-line,
   .company-investor-title-line {
     display: block;
+    overflow-wrap: anywhere;
   }
   .company-investor-name-line {
     color: var(--scalar-color-1);
@@ -522,30 +472,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .company-investors-layout {
-      grid-template-columns: repeat(3, 260px);
-      overflow-x: auto;
-      padding-bottom: 8px;
-    }
-    .company-investors-column {
-      display: contents;
-    }
-    .company-investors-column:nth-child(1) .company-investor-feature {
-      order: 1;
-    }
-    .company-investors-column:nth-child(2) .company-investor-feature {
-      order: 2;
-    }
-    .company-investors-column:nth-child(3) .company-investor-feature {
-      order: 3;
-    }
-    .company-investors-column:nth-child(1) .company-investor-list {
-      order: 4;
-    }
-    .company-investors-column:nth-child(2) .company-investor-list {
-      order: 5;
-    }
-    .company-investors-column:nth-child(3) .company-investor-list {
-      order: 6;
+      gap: 56px 12px;
     }
     .company-team .company-team-member .company-team-member-image {
       width: 190px;
@@ -562,26 +489,6 @@ The teams who build with Scalar are shaping the API platforms other developers d
       left: 0;
       width: 190px;
       height: 190px;
-      transform: none;
-    }
-    .company-investor-logo {
-      justify-content: flex-start;
-      width: 260px;
-      height: 146.25px;
-      min-height: 0;
-      aspect-ratio: auto;
-      overflow: visible;
-      background: none;
-      box-shadow: none;
-      border-radius: 0;
-    }
-    .company-investor-sticker {
-      top: 0;
-      right: auto;
-      bottom: auto;
-      left: 0;
-      width: 260px;
-      height: 146.25px;
       transform: none;
     }
     .company-team-member:nth-child(n) .company-team-member-name,
@@ -602,6 +509,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
     }
     .company-investors-layout {
       gap: 40px 12px;
+    }
+    .company-investor-list {
+      grid-column: span 3;
     }
     .company-team-member:nth-child(n) .company-team-member-name,
     .company-team-member:nth-child(n) .company-team-member-title {
