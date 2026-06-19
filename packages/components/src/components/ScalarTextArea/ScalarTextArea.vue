@@ -36,7 +36,7 @@ onMounted(() => {
     is="div"
     v-bind="
       stylingAttrsCx(
-        'custom-scroll flex items-start text-c-1 min-h-0 shrink cursor-text leading-snug',
+        'custom-scroll flex items-start text-c-1 min-h-0 shrink cursor-text leading-snug focus-within:bg-b-1',
       )
     "
     @click="textarea?.focus()">
@@ -44,6 +44,6 @@ onMounted(() => {
       ref="textarea"
       v-model="model"
       v-bind="otherAttrs"
-      class="w-full resize-none border-none bg-transparent text-sm focus-within:outline-none" />
+      class="w-full resize-none border-none bg-transparent placeholder:font-[inherit] focus-within:outline-none" />
   </ScalarFormInput>
 </template>
