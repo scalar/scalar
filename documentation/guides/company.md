@@ -412,9 +412,14 @@ The teams who build with Scalar are shaping the API platforms other developers d
     --sticker-peelback-hover: 10%;
     --sticker-peelback-active: 18%;
     --sticker-rotate: 0deg;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 50%;
     width: min(92%, 260px);
     height: auto;
     aspect-ratio: 16 / 9;
+    transform: translate(-50%, -50%) translateZ(0);
   }
   .company-investor-sticker foreignObject,
   .company-investor-sticker .sticker-container,
