@@ -120,20 +120,6 @@ The teams who build with Scalar are shaping the API platforms other developers d
       <span class="company-investor-title-line">General Catalyst</span>
     </div>
   </article>
-  <article class="company-investor-feature">
-    <div class="company-investor-logo company-investor-logo-abstract">
-      <div
-        class="company-team-sticker company-investor-sticker sticker-7"
-        data-company-sticker
-        data-company-sticker-id-prefix="abstract-investor-sticker">
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/abstract-sticker-final.svg"></scalar-icon>
-      </div>
-    </div>
-    <div class="company-investor-lines">
-      <span class="company-investor-name-line">Ramtin Naimi</span>
-      <span class="company-investor-title-line">Abstract</span>
-    </div>
-  </article>
   <div class="company-investor-list">
     <article class="company-investor-person">
       <span class="company-investor-name-line">Consectetur Adipiscing</span>
@@ -197,6 +183,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     margin: 24px 0 56px;
+    gap: 12px;
   }
   .company-team-member {
     display: flex;
@@ -265,14 +252,6 @@ The teams who build with Scalar are shaping the API platforms other developers d
   .company-team-member-title {
     margin: 0;
     padding-left: 0;
-  }
-  .company-team-member:nth-child(3n + 2) .company-team-member-name,
-  .company-team-member:nth-child(3n + 2) .company-team-member-title {
-    padding-left: 4px;
-  }
-  .company-team-member:nth-child(3n) .company-team-member-name,
-  .company-team-member:nth-child(3n) .company-team-member-title {
-    padding-left: 8px;
   }
   .company-team-member-name {
     color: var(--scalar-color-1);
@@ -364,7 +343,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
   }
   .company-investors-layout {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 80px 12px;
     margin: 24px 0 56px;
   }
@@ -378,7 +357,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
   }
   .company-investor-feature,
   .company-investor-list {
-    grid-column: span 2;
+    grid-column: span 1;
   }
   .company-investor-feature {
     gap: 8px;
@@ -416,7 +395,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
     right: auto;
     bottom: auto;
     left: 50%;
-    width: min(92%, 260px);
+    width: min(92%, 360px);
     height: auto;
     aspect-ratio: 16 / 9;
     transform: translate(-50%, -50%) translateZ(0);
@@ -501,14 +480,6 @@ The teams who build with Scalar are shaping the API platforms other developers d
       height: 190px;
       transform: none;
     }
-    .company-team-member:nth-child(n) .company-team-member-name,
-    .company-team-member:nth-child(n) .company-team-member-title {
-      padding-left: 0;
-    }
-    .company-team-member:nth-child(even) .company-team-member-name,
-    .company-team-member:nth-child(even) .company-team-member-title {
-      padding-left: 6px;
-    }
   }
   @media (max-width: 760px) {
     .company-team {
@@ -519,13 +490,6 @@ The teams who build with Scalar are shaping the API platforms other developers d
     }
     .company-investors-layout {
       gap: 40px 12px;
-    }
-    .company-investor-list {
-      grid-column: span 3;
-    }
-    .company-team-member:nth-child(n) .company-team-member-name,
-    .company-team-member:nth-child(n) .company-team-member-title {
-      padding-left: 0;
     }
   }
 </style>
