@@ -206,17 +206,24 @@ The teams who build with Scalar are shaping the API platforms other developers d
   }
   .company-team-member-image {
     --company-team-member-background-dark: color-mix(in srgb, var(--company-team-member-background), black 7%);
+    --company-team-sticker-size: 190px;
+    --company-team-sticker-offset-x: -4px;
+    --company-team-gradient-center-x: calc(var(--company-team-sticker-size) / 2);
+    --company-team-gradient-inner-radius: 82px;
+    --company-team-gradient-outer-radius: 95px;
     position: relative;
     display: block;
     width: 100%;
     aspect-ratio: 1;
     margin-bottom: 8px;
     background: radial-gradient(
+      circle at var(--company-team-gradient-center-x) 50%,
       color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1)),
-      color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1)) 54%,
-      var(--company-team-member-background-dark) 54%,
-      var(--company-team-member-background-dark) 60%,
-      transparent 60%,
+      color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1))
+        var(--company-team-gradient-inner-radius),
+      var(--company-team-member-background-dark) var(--company-team-gradient-inner-radius),
+      var(--company-team-member-background-dark) var(--company-team-gradient-outer-radius),
+      transparent var(--company-team-gradient-outer-radius),
       transparent
     );
     border-radius: 0;
@@ -292,7 +299,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
     top: 50%;
     right: auto;
     bottom: auto;
-    left: 50%;
+    left: calc(var(--company-team-gradient-center-x) + var(--company-team-sticker-offset-x));
     display: block;
     width: 190px;
     height: 190px;
@@ -305,7 +312,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
     top: 50%;
     right: auto;
     bottom: auto;
-    left: 50%;
+    left: calc(var(--company-team-gradient-center-x) + var(--company-team-sticker-offset-x));
     z-index: auto;
   }
   .company-team-section .company-team-member:nth-child(1) .company-team-sticker,
