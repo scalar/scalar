@@ -402,6 +402,8 @@ The teams who build with Scalar are shaping the API platforms other developers d
     --company-investor-logo-background: #f8efe3;
   }
   .company-investor-sticker {
+    --sticker-peelback-hover: 10%;
+    --sticker-peelback-active: 18%;
     --sticker-rotate: 0deg;
     width: min(92%, 260px);
     height: auto;
