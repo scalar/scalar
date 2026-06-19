@@ -6,11 +6,11 @@ Scalar started from a simple frustration: APIs had become the center of modern s
 
 We believe those surfaces should move together. When an API evolves, the documentation, client libraries, MCP servers, and testing experience should stay in sync instead of drifting into separate versions of the truth.
 
+<img class="company-hero-image rounded" src="/marc-cam-scalar.jpg" alt="Marc and Cam from Scalar" width="5251" height="3501" decoding="async" />
+
 That is why Scalar is built around OpenAPI and a developer experience that feels polished from the first page to the last request. Teams can write with Markdown and MDX, generate references from OpenAPI and AsyncAPI, ship type-safe SDKs, and bring the same source of truth into CI/CD.
 
 The teams who build with Scalar are shaping the API platforms other developers depend on every day. Our work is to make those APIs easier to understand, easier to test, and easier to trust.
-
-<img class="company-hero-image rounded" src="/marc-cam-scalar.jpg" alt="Marc and Cam from Scalar" width="5251" height="3501" decoding="async" />
 
 ## Team
 
@@ -87,6 +87,18 @@ The teams who build with Scalar are shaping the API platforms other developers d
     <p class="company-team-member-name">Peter</p>
     <p class="company-team-member-title">Software Engineer</p>
   </article>
+  <article class="company-team-member">
+    <div class="company-team-member-image company-team-member-image-joinus">
+      <div
+        class="company-team-sticker sticker-2"
+        data-company-sticker
+        data-company-sticker-id-prefix="joinus-team-sticker">
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/joinus-sticker-final.svg"></scalar-icon>
+      </div>
+    </div>
+    <p class="company-team-member-name">Join Us</p>
+    <p class="company-team-member-title">We are hiring</p>
+  </article>
 </section>
 
 ## Backed by the Best
@@ -158,22 +170,22 @@ The teams who build with Scalar are shaping the API platforms other developers d
     <article class="company-career-row">
       <span class="company-career-role">Product Engineer</span>
       <span class="company-career-location">North America</span>
-      <a class="company-career-link" href="https://scalar.com/careers">Learn more</a>
+      <a class="company-career-link t-editor__anchor" href="https://scalar.com/careers">Learn more</a>
     </article>
     <article class="company-career-row">
       <span class="company-career-role">Senior / Staff Fullstack Engineer</span>
       <span class="company-career-location">Europe, North America</span>
-      <a class="company-career-link" href="https://scalar.com/careers">Learn more</a>
+      <a class="company-career-link t-editor__anchor" href="https://scalar.com/careers">Learn more</a>
     </article>
     <article class="company-career-row">
       <span class="company-career-role">Senior / Staff Product Engineer</span>
       <span class="company-career-location">Europe, North America</span>
-      <a class="company-career-link" href="https://scalar.com/careers">Learn more</a>
+      <a class="company-career-link t-editor__anchor" href="https://scalar.com/careers">Learn more</a>
     </article>
     <article class="company-career-row">
       <span class="company-career-role">Senior / Staff Product Engineer, AI</span>
       <span class="company-career-location">North America</span>
-      <a class="company-career-link" href="https://scalar.com/careers">Learn more</a>
+      <a class="company-career-link t-editor__anchor" href="https://scalar.com/careers">Learn more</a>
     </article>
   </div>
 </section>
@@ -262,6 +274,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
   .company-team-member-image-amrit {
     --company-team-member-background: #feb98e;
   }
+  .company-team-member-image-joinus {
+    --company-team-member-background: #ffe78e;
+  }
   .company-team-member-name,
   .company-team-member-title {
     margin: 0;
@@ -310,7 +325,8 @@ The teams who build with Scalar are shaping the API platforms other developers d
   }
   .company-team-section .company-team-member:nth-child(1) .company-team-sticker,
   .company-team-section .company-team-member:nth-child(2) .company-team-sticker,
-  .company-team-section .company-team-member:nth-child(6) .company-team-sticker {
+  .company-team-section .company-team-member:nth-child(6) .company-team-sticker,
+  .company-team-section .company-team-member:nth-child(9) .company-team-sticker {
     --sticker-rotate: 7deg;
   }
   .company-team-section .company-team-member:nth-child(3) .company-team-sticker {
@@ -480,22 +496,20 @@ The teams who build with Scalar are shaping the API platforms other developers d
     line-height: var(--scalar-line-height-2);
   }
   .company-careers-list {
-    margin-top: 32px;
+    margin-top: 12px;
     border-top: var(--scalar-border-width) solid var(--scalar-border-color);
   }
   .company-career-row {
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr) auto;
-    gap: 24px;
     align-items: center;
-    padding: 28px 0;
+    padding: 16px 0;
     border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   }
   .company-career-role,
   .company-career-location,
   .company-career-link {
     font-size: var(--scalar-heading-3);
-    line-height: var(--scalar-line-height-2);
   }
   .company-career-role {
     color: var(--scalar-color-1);
@@ -503,16 +517,6 @@ The teams who build with Scalar are shaping the API platforms other developers d
   }
   .company-career-location {
     color: var(--scalar-color-3);
-  }
-  .company-career-link {
-    color: var(--scalar-color-accent);
-    font-weight: var(--scalar-semibold);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .company-career-link:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
   }
   @media (max-width: 1279px) {
     .company-team {
@@ -545,9 +549,6 @@ The teams who build with Scalar are shaping the API platforms other developers d
     }
     .company-investors-layout {
       gap: 40px 12px;
-    }
-    .company-careers-list {
-      margin-top: 20px;
     }
     .company-career-row {
       grid-template-columns: minmax(0, 1fr) auto;

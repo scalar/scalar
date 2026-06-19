@@ -625,6 +625,12 @@
     margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
     height: 100%;
   }
+  @media screen and (max-width: 1000px) {
+    .logowall.logowall:before {
+      width: 100dvw;
+      margin-left: -24px;
+    }
+  }
   .logowall.logowall:before {
     content: "";
     background: linear-gradient(transparent,var(--scalar-background-1) 55%);
