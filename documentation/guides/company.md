@@ -98,7 +98,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
         class="company-team-sticker company-investor-sticker sticker-5"
         data-company-sticker
         data-company-sticker-id-prefix="kindred-investor-sticker">
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/kindred-sticker-final.svg"></scalar-icon>
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/kindred-final-converted.svg"></scalar-icon>
       </div>
     </div>
     <div class="company-investor-lines">
@@ -422,14 +422,10 @@ The teams who build with Scalar are shaping the API platforms other developers d
     transform-origin: center;
     transition: transform 180ms ease;
   }
-  .company-investor-sticker .shadow,
-  .company-investor-sticker .flap,
-  .company-investor-sticker .flap-lighting {
-    display: none !important;
-  }
-  .company-investor-sticker .sticker-container:hover .sticker-main,
-  .company-investor-sticker .sticker-container:active .sticker-main {
-    clip-path: none !important;
+  .company-investor-sticker .sticker-lighting svg,
+  .company-investor-sticker .shadow svg,
+  .company-investor-sticker .flap svg {
+    transform: none !important;
   }
   .company-investor-logo:hover .company-investor-sticker .sticker-container,
   .company-investor-sticker:hover .sticker-container {
