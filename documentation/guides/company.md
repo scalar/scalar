@@ -93,20 +93,6 @@ The teams who build with Scalar are shaping the API platforms other developers d
 
 <section class="company-investors company-investors-layout" aria-label="Investors">
   <article class="company-investor-feature">
-    <div class="company-investor-logo company-investor-logo-kindred">
-      <div
-        class="company-team-sticker company-investor-sticker sticker-5"
-        data-company-sticker
-        data-company-sticker-id-prefix="kindred-investor-sticker">
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/kindred-final-converted.svg"></scalar-icon>
-      </div>
-    </div>
-    <div class="company-investor-lines">
-      <span class="company-investor-name-line">Steve Jang</span>
-      <span class="company-investor-title-line">Kindred</span>
-    </div>
-  </article>
-  <article class="company-investor-feature">
     <div class="company-investor-logo company-investor-logo-general-catalyst">
       <div
         class="company-team-sticker company-investor-sticker sticker-6"
@@ -118,6 +104,20 @@ The teams who build with Scalar are shaping the API platforms other developers d
     <div class="company-investor-lines">
       <span class="company-investor-name-line">Trevor Oelschig</span>
       <span class="company-investor-title-line">General Catalyst</span>
+    </div>
+  </article>
+  <article class="company-investor-feature">
+    <div class="company-investor-logo company-investor-logo-kindred">
+      <div
+        class="company-team-sticker company-investor-sticker sticker-5"
+        data-company-sticker
+        data-company-sticker-id-prefix="kindred-investor-sticker">
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/kindred-final-converted.svg"></scalar-icon>
+      </div>
+    </div>
+    <div class="company-investor-lines">
+      <span class="company-investor-name-line">Steve Jang</span>
+      <span class="company-investor-title-line">Kindred</span>
     </div>
   </article>
   <div class="company-investor-list">
@@ -148,18 +148,32 @@ The teams who build with Scalar are shaping the API platforms other developers d
       <span class="company-investor-title-line">Duis aute</span>
     </article>
   </div>
-  <div class="company-investor-list">
-    <article class="company-investor-person">
-      <span class="company-investor-name-line">Cillum Dolore</span>
-      <span class="company-investor-title-line">Eu fugiat</span>
+</section>
+
+## Careers
+
+<section class="company-careers" aria-label="Open engineering roles">
+  <div class="company-careers-heading" role="heading" aria-level="3">Engineering</div>
+  <div class="company-careers-list">
+    <article class="company-career-row">
+      <span class="company-career-role">Product Engineer</span>
+      <span class="company-career-location">North America</span>
+      <a class="company-career-link" href="https://scalar.com/careers">Learn more</a>
     </article>
-    <article class="company-investor-person">
-      <span class="company-investor-name-line">Nulla Pariatur</span>
-      <span class="company-investor-title-line">Excepteur sint</span>
+    <article class="company-career-row">
+      <span class="company-career-role">Senior / Staff Fullstack Engineer</span>
+      <span class="company-career-location">Europe, North America</span>
+      <a class="company-career-link" href="https://scalar.com/careers">Learn more</a>
     </article>
-    <article class="company-investor-person">
-      <span class="company-investor-name-line">Occaecat Cupidatat</span>
-      <span class="company-investor-title-line">Non proident</span>
+    <article class="company-career-row">
+      <span class="company-career-role">Senior / Staff Product Engineer</span>
+      <span class="company-career-location">Europe, North America</span>
+      <a class="company-career-link" href="https://scalar.com/careers">Learn more</a>
+    </article>
+    <article class="company-career-row">
+      <span class="company-career-role">Senior / Staff Product Engineer, AI</span>
+      <span class="company-career-location">North America</span>
+      <a class="company-career-link" href="https://scalar.com/careers">Learn more</a>
     </article>
   </div>
 </section>
@@ -194,7 +208,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
   .company-team-member-image {
     --company-team-member-background-dark: color-mix(in srgb, var(--company-team-member-background), black 7%);
     --company-team-sticker-size: 190px;
-    --company-team-sticker-offset-x: -4px;
+    --company-team-sticker-offset-x: -1px;
     --company-team-gradient-center-x: calc(var(--company-team-sticker-size) / 2);
     --company-team-gradient-inner-radius: 82px;
     --company-team-gradient-outer-radius: 95px;
@@ -344,7 +358,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
   .company-investors-layout {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 80px 12px;
+    gap: 48px 12px;
     margin: 24px 0 56px;
   }
   .company-investor-feature,
@@ -388,16 +402,15 @@ The teams who build with Scalar are shaping the API platforms other developers d
     --company-investor-logo-background: #f8efe3;
   }
   .company-investor-sticker {
-    --sticker-peelback-hover: 10%;
-    --sticker-peelback-active: 18%;
+    --sticker-peelback-hover: 8%;
+    --sticker-peelback-active: 16%;
     --sticker-rotate: 0deg;
     top: 50%;
     right: auto;
     bottom: auto;
     left: 50%;
-    width: min(92%, 360px);
+    width: min(98%, 360px);
     height: auto;
-    aspect-ratio: 16 / 9;
     transform: translate(-50%, -50%) translateZ(0);
   }
   .company-investor-sticker foreignObject,
@@ -422,11 +435,11 @@ The teams who build with Scalar are shaping the API platforms other developers d
   }
   .company-investor-logo:hover .company-investor-sticker .sticker-container,
   .company-investor-sticker:hover .sticker-container {
-    --sticker-rotate: 3deg;
+    --sticker-rotate: 5deg;
   }
   .company-investor-logo:active .company-investor-sticker .sticker-container,
   .company-investor-sticker:active .sticker-container {
-    --sticker-rotate: 2deg;
+    --sticker-rotate: 5deg;
   }
   .company-investor-logo-general-catalyst {
     --company-investor-logo-background: #dbf5ff;
@@ -456,6 +469,51 @@ The teams who build with Scalar are shaping the API platforms other developers d
     font-size: var(--scalar-font-size-2);
     line-height: var(--scalar-line-height-2);
   }
+  .company-careers {
+    margin: 24px 0 56px;
+  }
+  .company-careers-heading {
+    margin: 0;
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-heading-3);
+    font-weight: var(--scalar-semibold);
+    line-height: var(--scalar-line-height-2);
+  }
+  .company-careers-list {
+    margin-top: 32px;
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  }
+  .company-career-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr) auto;
+    gap: 24px;
+    align-items: center;
+    padding: 28px 0;
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+  }
+  .company-career-role,
+  .company-career-location,
+  .company-career-link {
+    font-size: var(--scalar-heading-3);
+    line-height: var(--scalar-line-height-2);
+  }
+  .company-career-role {
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+  }
+  .company-career-location {
+    color: var(--scalar-color-3);
+  }
+  .company-career-link {
+    color: var(--scalar-color-accent);
+    font-weight: var(--scalar-semibold);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .company-career-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
   @media (max-width: 1279px) {
     .company-team {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -483,13 +541,26 @@ The teams who build with Scalar are shaping the API platforms other developers d
   }
   @media (max-width: 760px) {
     .company-team {
-      gap: 20px 0;
-    }
-    .company-team {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .company-investors-layout {
       gap: 40px 12px;
+    }
+    .company-careers-list {
+      margin-top: 20px;
+    }
+    .company-career-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 4px 16px;
+      padding: 20px 0;
+    }
+    .company-career-role {
+      grid-column: 1 / -1;
+    }
+    .company-career-link {
+      align-self: start;
+      grid-column: 2;
+      grid-row: 2;
     }
   }
 </style>
