@@ -25,7 +25,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
         <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/marc-sticker.svg"></scalar-icon>
       </div>
     </div>
-    <p class="company-team-member-name">Marc</p>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/marc-laventure/" target="_blank" rel="noopener noreferrer">Marc</a>
+    </p>
     <p class="company-team-member-title">CEO / Cofounder</p>
   </article>
   <article class="company-team-member">
@@ -34,16 +36,20 @@ The teams who build with Scalar are shaping the API platforms other developers d
         <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/brynn-sticker-final.svg"></scalar-icon>
       </div>
     </div>
-    <p class="company-team-member-name">Brynn</p>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/bnhwkr/" target="_blank" rel="noopener noreferrer">Brynn</a>
+    </p>
     <p class="company-team-member-title">Designer / Developer</p>
   </article>
   <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-hans">
       <div class="company-team-sticker sticker-2" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/hans-sticker.svg"></scalar-icon>
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/hans-sticker-final.svg"></scalar-icon>
       </div>
     </div>
-    <p class="company-team-member-name">Hans</p>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/hans-pagel-35303a18a/" target="_blank" rel="noopener noreferrer">Hans</a>
+    </p>
     <p class="company-team-member-title">Software Engineer</p>
   </article>
   <article class="company-team-member">
@@ -52,7 +58,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
         <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/redis-sticker-final.svg"></scalar-icon>
       </div>
     </div>
-    <p class="company-team-member-name">Redis</p>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/redis-stasa-14b2aa24a/" target="_blank" rel="noopener noreferrer">Redis</a>
+    </p>
     <p class="company-team-member-title">Software Engineer</p>
   </article>
   <article class="company-team-member">
@@ -61,7 +69,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
         <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/amrit-sticker-final.svg"></scalar-icon>
       </div>
     </div>
-    <p class="company-team-member-name">Amrit</p>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/amrit-kahlon/" target="_blank" rel="noopener noreferrer">Amrit</a>
+    </p>
     <p class="company-team-member-title">Software Engineer</p>
   </article>
   <article class="company-team-member">
@@ -70,7 +80,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
         <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/cam-sticker-final.svg"></scalar-icon>
       </div>
     </div>
-    <p class="company-team-member-name">Cam</p>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/cameron-rohani-5ba99a99/" target="_blank" rel="noopener noreferrer">Cam</a>
+    </p>
     <p class="company-team-member-title">Designer / Developer</p>
   </article>
   <article class="company-team-member">
@@ -79,7 +91,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
         <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/geoff-sticker-final.svg"></scalar-icon>
       </div>
     </div>
-    <p class="company-team-member-name">Geoff</p>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/geoffgscott/" target="_blank" rel="noopener noreferrer">Geoff</a>
+    </p>
     <p class="company-team-member-title">Software Engineer</p>
   </article>
   <article class="company-team-member">
@@ -88,7 +102,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
         <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/peter-sticker-final.svg"></scalar-icon>
       </div>
     </div>
-    <p class="company-team-member-name">Peter</p>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/peter-mcgrath-cpa-795470111/" target="_blank" rel="noopener noreferrer">Peter</a>
+    </p>
     <p class="company-team-member-title">Software Engineer</p>
   </article>
   <article class="company-team-member">
@@ -100,7 +116,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
         <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/joinus-sticker-final.svg"></scalar-icon>
       </div>
     </div>
-    <p class="company-team-member-name">Join Us</p>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="#careers">Join Us</a>
+    </p>
     <p class="company-team-member-title">We are hiring</p>
   </article>
 </section>
