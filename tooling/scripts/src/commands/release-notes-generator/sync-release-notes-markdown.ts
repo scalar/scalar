@@ -1,32 +1,38 @@
-import { buildReleaseNotesPreamble } from '@scalar/helpers/markdown/release-notes'
+import { spawn } from 'node:child_process'
+
 import { Command } from 'commander'
 
-import { findReleaseNotesProductByJsonPath } from './products'
-import { resolveUserPath } from './resolve-user-path'
-import { readReleaseNotesJsonFile } from './write-release-notes-json'
-import { writeReleaseNotesMarkdown } from './write-release-notes-markdown'
-
-type SyncOptions = {
-  json: string
-  markdown: string
+const getForwardedArgs = (): string[] => {
+  const commandIndex = process.argv.indexOf('sync-release-notes-markdown')
+  return commandIndex === -1 ? [] : process.argv.slice(commandIndex + 1)
 }
 
-/**
- * Regenerate the derived `RELEASE_NOTES.md` from the source-of-truth JSON
- * without touching the JSON file or calling the AI release-notes generator.
- */
+const runPackageCli = async (args: readonly string[]): Promise<void> => {
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn(
+      'pnpm',
+      ['--filter', '@scalar/release-notes', 'start', 'sync-release-notes-markdown', ...args],
+      {
+        cwd: process.env.INIT_CWD ?? process.cwd(),
+        stdio: 'inherit',
+      },
+    )
+
+    child.on('error', reject)
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve()
+        return
+      }
+      reject(new Error(`@scalar/release-notes exited with code ${String(code)}`))
+    })
+  })
+}
+
 export const syncReleaseNotesMarkdown = new Command('sync-release-notes-markdown')
-  .description(
-    'Regenerate RELEASE_NOTES.md from RELEASE_NOTES.json (no AI, no JSON writes). Preserves entry order from the JSON file.',
-  )
-  .requiredOption('-j, --json <path>', 'Path to RELEASE_NOTES.json')
-  .requiredOption('-m, --markdown <path>', 'Path to the derived RELEASE_NOTES.md to write')
-  .action(async (options: SyncOptions) => {
-    const jsonPath = resolveUserPath(options.json)
-    const markdownPath = resolveUserPath(options.markdown)
-    const entries = await readReleaseNotesJsonFile(jsonPath)
-    const product = findReleaseNotesProductByJsonPath(jsonPath)
-    const preamble = buildReleaseNotesPreamble(product?.displayName)
-    const result = await writeReleaseNotesMarkdown({ path: markdownPath, entries, preamble })
-    console.log(`${result.created ? 'Created' : 'Updated'} ${result.path}`)
+  .description('Forward to the publishable @scalar/release-notes CLI.')
+  .allowUnknownOption(true)
+  .allowExcessArguments(true)
+  .action(async () => {
+    await runPackageCli(getForwardedArgs())
   })
