@@ -19,8 +19,10 @@ import {
   textFromNode,
 } from '@scalar/code-highlight'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, useTemplateRef } from 'vue'
+import { useColorMode } from '@scalar/use-hooks/useColorMode'
+import { computed, onMounted, useTemplateRef, watch } from 'vue'
 
+import { renderMermaidDiagrams } from './renderMermaid'
 import type { ScalarMarkdownProps } from './types'
 
 const {
@@ -78,6 +80,23 @@ const html = computed(() => {
     transformType,
   })
 })
+
+const { isDarkMode } = useColorMode()
+
+/**
+ * Render any Mermaid diagram placeholders in the rendered markdown.
+ *
+ * The markdown pipeline emits ```mermaid blocks as placeholders; Mermaid is loaded lazily and only
+ * when a diagram is actually present (see `renderMermaidDiagrams`).
+ */
+const renderDiagrams = () =>
+  renderMermaidDiagrams(templateRef.value, { isDark: isDarkMode.value })
+
+onMounted(renderDiagrams)
+
+// Re-render when the content or the color mode changes. `flush: 'post'` ensures the DOM produced by
+// `v-html` exists before we look for placeholders.
+watch([html, isDarkMode], renderDiagrams, { flush: 'post' })
 </script>
 <template>
   <div
@@ -481,6 +500,36 @@ const html = computed(() => {
     overflow-x: auto;
     max-width: 100%;
     min-width: 100px;
+  }
+
+  /* Mermaid diagrams */
+  .markdown pre.mermaid-diagram {
+    display: flex;
+    justify-content: center;
+    margin: var(--markdown-spacing-md) 0;
+    padding: var(--markdown-spacing-md);
+    border: var(--markdown-border);
+    border-radius: var(--scalar-radius);
+    background: var(--scalar-background-2);
+    overflow-x: auto;
+  }
+
+  /* Before the SVG is rendered the raw source is shown as plain text */
+  .markdown pre.mermaid-diagram:not([data-mermaid-state='rendered']) {
+    display: block;
+    white-space: pre;
+    font-family: var(--scalar-font-code);
+    font-size: var(--scalar-small);
+  }
+
+  /* On render failure keep the source readable */
+  .markdown pre.mermaid-diagram[data-mermaid-state='error'] {
+    color: var(--scalar-color-red);
+  }
+
+  .markdown pre.mermaid-diagram[data-mermaid-state='rendered'] svg {
+    max-width: 100%;
+    height: auto;
   }
 
   /* Horizontal rules */

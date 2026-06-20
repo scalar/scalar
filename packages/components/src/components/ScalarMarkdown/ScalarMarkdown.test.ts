@@ -1,7 +1,18 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
+
+const { renderMock, initializeMock } = vi.hoisted(() => ({
+  renderMock: vi.fn(async (_id: string, _source: string) => ({
+    svg: '<svg class="mermaid-svg"></svg>',
+  })),
+  initializeMock: vi.fn(),
+}))
+
+vi.mock('mermaid', () => ({
+  default: { initialize: initializeMock, render: renderMock },
+}))
 
 describe('ScalarMarkdown', () => {
   it('renders properly with basic markdown', () => {
@@ -119,6 +130,43 @@ describe('ScalarMarkdown', () => {
     expect(wrapper.find('img').exists()).toBe(true)
     expect(wrapper.find('img').attributes('alt')).toBe('Jupiter with Great Red Spot')
     expect(wrapper.find('img').attributes('src')).toBe('https://cdn.scalar.com/photos/jupiter.jpg')
+  })
+
+  describe('mermaid diagrams', () => {
+    const mermaidValue = ['```mermaid', 'graph TD;', 'A-->B;', '```'].join('\n')
+
+    it('emits a placeholder for mermaid code blocks', () => {
+      const wrapper = mount(ScalarMarkdown, { props: { value: mermaidValue } })
+
+      const placeholder = wrapper.find('pre.mermaid-diagram')
+      expect(placeholder.exists()).toBe(true)
+      expect(placeholder.text()).toContain('graph TD;')
+      // Mermaid blocks are not highlighted as code
+      expect(wrapper.find('code').exists()).toBe(false)
+    })
+
+    it('renders the diagram into SVG on mount', async () => {
+      const wrapper = mount(ScalarMarkdown, { props: { value: mermaidValue } })
+
+      // Wait for the lazy import and the async render to settle
+      await flushPromises()
+      await flushPromises()
+
+      const placeholder = wrapper.find('pre.mermaid-diagram')
+      expect(renderMock).toHaveBeenCalled()
+      expect(renderMock.mock.calls[0]?.[1]).toContain('graph TD;')
+      expect(placeholder.attributes('data-mermaid-state')).toBe('rendered')
+      expect(placeholder.find('svg.mermaid-svg').exists()).toBe(true)
+    })
+
+    it('does not load mermaid when there is no diagram', async () => {
+      renderMock.mockClear()
+
+      mount(ScalarMarkdown, { props: { value: '# Just a heading' } })
+      await flushPromises()
+
+      expect(renderMock).not.toHaveBeenCalled()
+    })
   })
 
   it('parses inline markdown in HTML paragraphs', () => {

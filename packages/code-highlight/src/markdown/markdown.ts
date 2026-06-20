@@ -16,6 +16,7 @@ import { SKIP, visit } from 'unist-util-visit'
 import { standardLanguages } from '@/languages'
 import { rehypeAlert } from '@/rehype-alert'
 import { rehypeHighlight } from '@/rehype-highlight'
+import { rehypeMermaid } from '@/rehype-mermaid'
 
 type Options = {
   transform?: (node: Node) => Node
@@ -177,6 +178,9 @@ export function htmlFromMarkdown(
       // Strip content of dangerous elements, not just the tags
       strip: ['script', 'style', 'object', 'embed', 'form'],
     })
+    // Turn ```mermaid blocks into client-renderable placeholders (before highlighting so they
+    // are not treated as code)
+    .use(rehypeMermaid)
     // Syntax highlighting
     .use(rehypeHighlight, {
       languages: standardLanguages,

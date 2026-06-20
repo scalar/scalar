@@ -75,6 +75,7 @@ catalogs:
     jsdom: 27.4.0
     jsonc-parser: 3.3.1
     jwt-decode: 4.0.0
+    mermaid: 11.15.0
     microdiff: ^1.5.0
     monaco-editor: 0.54.0
     monaco-yaml: 5.4.1
