@@ -141,8 +141,8 @@ describe('ScalarMarkdown', () => {
       const placeholder = wrapper.find('pre.mermaid-diagram')
       expect(placeholder.exists()).toBe(true)
       expect(placeholder.text()).toContain('graph TD;')
-      // Mermaid blocks are not highlighted as code
-      expect(wrapper.find('code').exists()).toBe(false)
+      // Mermaid blocks are not syntax-highlighted
+      expect(wrapper.find('.hljs').exists()).toBe(false)
     })
 
     it('renders the diagram into SVG on mount', async () => {

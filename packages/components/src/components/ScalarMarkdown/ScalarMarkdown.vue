@@ -522,6 +522,14 @@ watch([html, isDarkMode], renderDiagrams, { flush: 'post' })
     font-size: var(--scalar-small);
   }
 
+  /* Neutralize the code chip styling on the source wrapper (it is replaced once rendered) */
+  .markdown pre.mermaid-diagram code {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    font-size: inherit;
+  }
+
   /* On render failure keep the source readable */
   .markdown pre.mermaid-diagram[data-mermaid-state='error'] {
     color: var(--scalar-color-red);

@@ -123,6 +123,32 @@ function example() {
 ```
 ````
 
+## Diagrams
+
+Render [Mermaid](https://mermaid.js.org/) diagrams with a fenced code block using the `mermaid` language. Diagrams follow the active light or dark color mode.
+
+<Preview>
+
+```mermaid
+sequenceDiagram
+  Client->>API: GET /planets
+  API->>Database: SELECT * FROM planets
+  Database-->>API: rows
+  API-->>Client: 200 OK
+```
+
+</Preview>
+
+````md
+```mermaid
+sequenceDiagram
+  Client->>API: GET /planets
+  API->>Database: SELECT * FROM planets
+  Database-->>API: rows
+  API-->>Client: 200 OK
+```
+````
+
 ## Blockquotes
 
 Quote text with `>`, spanning multiple lines as needed.

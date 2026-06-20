@@ -7,19 +7,22 @@ describe('rehypeMermaid', () => {
     const html = htmlFromMarkdown(['```mermaid', 'graph TD;', 'A-->B;', '```'].join('\n'))
 
     expect(html).toContain('<pre class="mermaid-diagram">')
-    // The diagram source is preserved as plain text for the client to render
+    // The diagram source is preserved as text for the client to render
     expect(html).toContain('graph TD;')
     // It should not be highlighted as a code block
     expect(html).not.toContain('language-mermaid')
     expect(html).not.toContain('hljs')
+    expect(html).toContain('no-highlight')
   })
 
-  it('keeps the raw mermaid source without wrapping it in a code element', () => {
-    const html = htmlFromMarkdown(['```mermaid', 'sequenceDiagram', 'Alice->>Bob: Hi', '```'].join('\n'))
+  it('preserves newlines in the mermaid source', () => {
+    const html = htmlFromMarkdown(
+      ['```mermaid', 'sequenceDiagram', 'Alice->>Bob: Hi', 'Bob-->>Alice: Yo', '```'].join('\n'),
+    )
 
     expect(html).toContain('<pre class="mermaid-diagram">')
-    expect(html).toContain('sequenceDiagram')
-    expect(html).not.toContain('<code')
+    // Statements stay on separate lines so Mermaid can parse them (it does not use separators here)
+    expect(html).toContain('sequenceDiagram\nAlice->>Bob: Hi\nBob-->>Alice: Yo')
   })
 
   it('does not affect other fenced code blocks', () => {

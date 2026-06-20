@@ -1,12 +1,11 @@
 import type { Element, Root } from 'hast'
-import { toText } from 'hast-util-to-text'
 import { visit } from 'unist-util-visit'
 
 /**
  * Class name applied to the placeholder element that holds a Mermaid diagram source.
  *
  * The actual diagram is rendered on the client (Mermaid needs a browser to measure text and lay
- * out the SVG), so this plugin only emits a stable placeholder that keeps the source as plain text.
+ * out the SVG), so this plugin only marks a stable placeholder that keeps the source as text.
  * Consumers find these elements after the HTML is in the DOM and swap in the rendered SVG.
  */
 const MERMAID_DIAGRAM_CLASS = 'mermaid-diagram'
@@ -35,12 +34,15 @@ function getLanguage(node: Element): string {
 }
 
 /**
- * Rehype plugin that turns ```mermaid fenced code blocks into client-renderable placeholders.
+ * Rehype plugin that marks ```mermaid fenced code blocks for client-side rendering.
  *
  * A `<pre><code class="language-mermaid">…</code></pre>` becomes
- * `<pre class="mermaid-diagram">…source…</pre>`. Dropping the inner `<code>` element keeps the
- * syntax highlighter from touching it, while the source survives as plain text for the client to
- * render. Run this before the highlighter so Mermaid blocks are not highlighted as code.
+ * `<pre class="mermaid-diagram"><code class="no-highlight">…source…</code></pre>`. The `no-highlight`
+ * class keeps the syntax highlighter off it, and keeping the `<code>` wrapper preserves the source
+ * verbatim (including newlines) through `rehype-format`, which collapses whitespace in a bare
+ * `<pre>`. The client reads the element's text content and swaps in the rendered SVG.
+ *
+ * Run this before the highlighter so Mermaid blocks are not highlighted as code.
  */
 export function rehypeMermaid() {
   return (tree: Root) => {
@@ -53,10 +55,10 @@ export function rehypeMermaid() {
         return
       }
 
-      const source = toText(node)
-
+      // Mark the wrapper so the client can find and render the diagram.
       parent.properties = { ...parent.properties, className: [MERMAID_DIAGRAM_CLASS] }
-      parent.children = [{ type: 'text', value: source }]
+      // Opt the code out of syntax highlighting while keeping the source text (and its newlines).
+      node.properties = { ...node.properties, className: ['no-highlight'] }
     })
   }
 }

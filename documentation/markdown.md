@@ -11,6 +11,7 @@ What's working here, is probably also working in the API reference:
 - tables
 - images
 - alerts
+- diagrams (with Mermaid)
 - …
 
 ## Alerts
@@ -33,6 +34,21 @@ The following alert types are supported:
 
 [Have a look at our OpenAPI example](https://github.com/scalar/scalar/blob/main/packages/galaxy/src/documents/3.1.yaml)
 to see more examples.
+
+## Mermaid diagrams
+
+You can embed [Mermaid](https://mermaid.js.org/) diagrams by using a fenced code block with the `mermaid` language.
+They are rendered as diagrams in the API reference and follow the active light or dark color mode.
+
+````markdown
+```mermaid
+sequenceDiagram
+  Client->>API: GET /planets
+  API->>Database: SELECT * FROM planets
+  Database-->>API: rows
+  API-->>Client: 200 OK
+```
+````
 
 > Note: Not everything is supported in all places. For example, you can use images in most places, but not in parameter
 > descriptions.
