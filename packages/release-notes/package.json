@@ -22,6 +22,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "schema:generate": "tsx scripts/generate-schema.ts",
+    "schema:generate:stage": "tsx scripts/stage-generated-schema.ts",
     "start": "node dist/cli.js",
     "test": "vitest --run",
     "types:check": "tsgo --noEmit"
@@ -41,14 +43,11 @@
       "types": "./dist/cli.d.ts",
       "default": "./dist/cli.js"
     },
-    "./scalar-preset": {
-      "import": "./dist/scalar-preset.js",
-      "types": "./dist/scalar-preset.d.ts",
-      "default": "./dist/scalar-preset.js"
-    }
+    "./schema": "./schemas/release-notes.schema.json"
   },
   "files": [
     "dist",
+    "schemas",
     "README.md",
     "CHANGELOG.md"
   ],
@@ -65,6 +64,7 @@
   "devDependencies": {
     "@types/node": "catalog:*",
     "@types/semver": "catalog:*",
+    "tsx": "catalog:*",
     "vitest": "catalog:*"
   }
 }

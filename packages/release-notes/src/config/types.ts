@@ -47,15 +47,6 @@ export type GithubOptions = {
   token?: string
 }
 
-export type SchemaOptions = {
-  /** Path to write the generated JSON Schema. */
-  path?: string | null
-  /** JSON Schema `$id`. */
-  id?: string
-  /** JSON Schema title. */
-  title?: string
-}
-
 /**
  * Pluggable AI provider contract used by the generic release notes generator.
  */
@@ -78,12 +69,10 @@ export type ReleaseNotesConfig = {
   provider?: ReleaseNotesProvider
   products?: readonly ReleaseNotesProduct[]
   github?: GithubOptions
-  schema?: SchemaOptions
   prompts?: PromptOptions
 }
 
 export type ResolvedReleaseNotesConfig = Required<Pick<ReleaseNotesConfig, 'github' | 'prompts'>> &
   Omit<ReleaseNotesConfig, 'github' | 'prompts'> & {
-    schema: SchemaOptions
     products: readonly ReleaseNotesProduct[]
   }

@@ -11,7 +11,6 @@ export type {
   ReleaseNotesProduct,
   ReleaseNotesProvider,
   ResolvedReleaseNotesConfig,
-  SchemaOptions,
 } from './config/types'
 export { getChangedPathsForReleaseFiltering } from './core/detect-versioned-changelog-paths'
 export { extractChangelogSection } from './core/extract-changelog-section'
@@ -42,6 +41,7 @@ export {
 } from './types'
 export { mergeReleaseNotes, readReleaseNotesJsonFile, writeReleaseNoteJson } from './writers/write-release-notes-json'
 export { writeReleaseNotesMarkdown } from './writers/write-release-notes-markdown'
+export type { ReleaseNotesJsonSchemaMetadata } from './writers/write-release-notes-schema'
 export {
   DEFAULT_RELEASE_NOTES_SCHEMA_ID,
   DEFAULT_RELEASE_NOTES_SCHEMA_PATH,

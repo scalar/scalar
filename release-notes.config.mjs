@@ -40,11 +40,6 @@ export default defineReleaseNotesConfig({
     repo: 'scalar/scalar',
     baseBranch: 'main',
   },
-  schema: {
-    path: SCALAR_RELEASE_NOTES_SCHEMA_PATH,
-    id: 'https://scalar.com/schemas/release-notes.schema.json',
-    title: 'Scalar release notes',
-  },
   prompts: {
     productDescriptionFallback: 'a Scalar product',
   },

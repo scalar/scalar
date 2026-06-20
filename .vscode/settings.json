@@ -98,7 +98,7 @@
   "json.schemas": [
     {
       "fileMatch": ["**/RELEASE_NOTES.json"],
-      "url": "./tooling/scripts/schemas/RELEASE_NOTES.schema.json"
+      "url": "./packages/release-notes/schemas/release-notes.schema.json"
     }
   ]
 }

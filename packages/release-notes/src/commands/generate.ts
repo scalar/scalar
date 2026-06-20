@@ -3,9 +3,7 @@ import { Command } from 'commander'
 import { type CliConfigOverrides, createBuiltInProvider, readReleaseNotesConfig } from '../config/read-config'
 import type { BuiltInProviderName, ReleaseNotesConfig, ReleaseNotesProduct } from '../config/types'
 import { getChangedPathsForReleaseFiltering } from '../core/detect-versioned-changelog-paths'
-import { resolveUserPath } from '../core/paths'
 import { runReleaseNotesGeneratorForProduct } from '../core/run-release-notes-generator'
-import { writeReleaseNotesJsonSchema } from '../writers/write-release-notes-schema'
 
 type CommandOptions = {
   all?: boolean
@@ -14,8 +12,6 @@ type CommandOptions = {
   changelog?: string
   output?: string
   markdown?: string
-  schema?: string
-  noSchema?: boolean
   version?: string
   dependencyChangelog: string[]
   date?: string
@@ -63,8 +59,6 @@ const resolveCliOverrides = (options: CommandOptions): CliConfigOverrides => {
     apiKeyEnv: options.apiKeyEnv,
     repo: options.repo,
     baseBranch: options.baseBranch,
-    schema: options.schema === '' ? null : options.schema,
-    noSchema: options.noSchema,
   }
 }
 
@@ -79,11 +73,6 @@ export const createReleaseNotesGeneratorCommand = (baseConfig: ReleaseNotesConfi
     .option('-c, --changelog <path>', 'Path to the package CHANGELOG.md')
     .option('-o, --output <path>', 'Path to the package RELEASE_NOTES.json to update')
     .option('-m, --markdown <path>', 'Optional path to a derived RELEASE_NOTES.md')
-    .option(
-      '-s, --schema <path>',
-      'Optional path to the shared RELEASE_NOTES.schema.json. Pass an empty string to skip.',
-    )
-    .option('--no-schema', 'Skip schema generation')
     .option('-v, --version <semver>', 'Version that was just released')
     .option(
       '-d, --dependency-changelog <path>',
@@ -142,15 +131,6 @@ export const createReleaseNotesGeneratorCommand = (baseConfig: ReleaseNotesConfi
           github: config.github,
           prompts: config.prompts,
         })
-      }
-
-      if (!options.dryRun && config.schema.path) {
-        const schemaResult = await writeReleaseNotesJsonSchema({
-          path: resolveUserPath(config.schema.path),
-          id: config.schema.id,
-          title: config.schema.title,
-        })
-        console.log(`${schemaResult.changed ? 'Updated' : 'Unchanged'} ${schemaResult.path}`)
       }
     })
 }

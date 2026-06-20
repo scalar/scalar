@@ -3,16 +3,20 @@ import { dirname } from 'node:path'
 
 import { z } from 'zod'
 
-import type { SchemaOptions } from '../config/types'
 import { releaseNotesFileSchema } from '../types'
 
-export const DEFAULT_RELEASE_NOTES_SCHEMA_PATH = 'RELEASE_NOTES.schema.json'
+export const DEFAULT_RELEASE_NOTES_SCHEMA_PATH = 'schemas/release-notes.schema.json'
 export const DEFAULT_RELEASE_NOTES_SCHEMA_ID = 'https://scalar.com/schemas/release-notes.schema.json'
 export const DEFAULT_RELEASE_NOTES_SCHEMA_TITLE = 'Release notes'
 
-export const buildReleaseNotesJsonSchema = (
-  options: Pick<SchemaOptions, 'id' | 'title'> = {},
-): Record<string, unknown> => {
+export type ReleaseNotesJsonSchemaMetadata = {
+  /** JSON Schema `$id`. */
+  id?: string
+  /** JSON Schema title. */
+  title?: string
+}
+
+export const buildReleaseNotesJsonSchema = (options: ReleaseNotesJsonSchemaMetadata = {}): Record<string, unknown> => {
   const schema = z.toJSONSchema(releaseNotesFileSchema, {
     target: 'draft-2020-12',
     unrepresentable: 'any',
@@ -26,7 +30,7 @@ export const buildReleaseNotesJsonSchema = (
   }
 }
 
-type WriteSchemaOptions = SchemaOptions & {
+type WriteSchemaOptions = ReleaseNotesJsonSchemaMetadata & {
   path: string
 }
 

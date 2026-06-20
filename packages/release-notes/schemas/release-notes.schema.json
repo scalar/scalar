@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://scalar.com/schemas/release-notes.schema.json",
-  "title": "Scalar release notes",
+  "title": "Release notes",
   "type": "array",
   "items": {
     "type": "object",
@@ -23,7 +23,7 @@
         "description": "Short, sentence-case headline summarizing the release."
       },
       "content": {
-        "description": "Body copy and rich blocks after the headline: `paragraph` for intro text, `list` for bullet highlights, then headings, media, and optional `href` blocks (for example full release notes).",
+        "description": "Body copy and rich blocks after the headline: `paragraph` for intro text, `list` for bullet highlights, then headings, media, and optional `href` blocks.",
         "maxItems": 40,
         "type": "array",
         "items": {
@@ -226,7 +226,7 @@
     },
     "required": ["version", "date", "title"],
     "additionalProperties": false,
-    "description": "A single curated release note rendered in the \"What's new\" modal."
+    "description": "A single curated release note."
   },
-  "description": "Curated, user-facing release notes for a Scalar product. Newest entry first."
+  "description": "Curated, user-facing release notes. Newest entry first."
 }

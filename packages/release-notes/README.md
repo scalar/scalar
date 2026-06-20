@@ -1,6 +1,6 @@
 # @scalar/release-notes
 
-Generate curated release notes from Changesets-style `CHANGELOG.md` files and write a stable `RELEASE_NOTES.json` file, with optional derived Markdown and JSON Schema output.
+Generate curated release notes from Changesets-style `CHANGELOG.md` files and write a stable `RELEASE_NOTES.json` file, with optional derived Markdown output.
 
 ## Install
 
@@ -42,11 +42,6 @@ export default defineReleaseNotesConfig({
     token: process.env.GITHUB_TOKEN,
     baseBranch: 'main',
   },
-  schema: {
-    path: 'tooling/schemas/RELEASE_NOTES.schema.json',
-    id: 'https://example.com/schemas/release-notes.schema.json',
-    title: 'Release notes',
-  },
   products: [
     {
       slug: 'client',
@@ -62,6 +57,8 @@ export default defineReleaseNotesConfig({
 ```
 
 JavaScript, JSON, and TypeScript config files are discovered by name. TypeScript config loading depends on your runtime being able to import `.ts` files, for example through `tsx`.
+
+The published JSON Schema for `RELEASE_NOTES.json` is available at `@scalar/release-notes/schema`.
 
 ## Providers
 
