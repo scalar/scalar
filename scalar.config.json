@@ -845,6 +845,9 @@
             "description": "Learn about Scalar, the API platform built for developers and agents.",
             "filepath": "documentation/guides/company.md",
             "type": "page",
+            "layout": {
+              "pageActions": false
+            },
             "head": {
               "scripts": [
                 {

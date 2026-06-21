@@ -16,7 +16,7 @@ That is why Scalar is built around OpenAPI and a developer experience that feels
 
 The teams who build with Scalar are shaping the API platforms other developers depend on every day. Our work is to make those APIs easier to understand, easier to test, and easier to trust.
 
-## Team
+## Our Team
 
 <section class="company-team company-team-section" aria-label="Team members">
   <article class="company-team-member">
@@ -26,9 +26,64 @@ The teams who build with Scalar are shaping the API platforms other developers d
       </div>
     </div>
     <p class="company-team-member-name">
-      <a class="t-editor__anchor" href="https://www.linkedin.com/in/marc-laventure/" target="_blank" rel="noopener noreferrer">Marc</a>
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/marc-laventure/" target="_blank" rel="noopener noreferrer">Marc Laventure</a>
     </p>
-    <p class="company-team-member-title">CEO / Cofounder</p>
+    <p class="company-team-member-title">CEO / Co-Founder</p>
+  </article>
+  <article class="company-team-member">
+    <div class="company-team-member-image company-team-member-image-cam">
+      <div class="company-team-sticker sticker-1" data-company-sticker>
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/cam-sticker-final.svg"></scalar-icon>
+      </div>
+    </div>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/cameron-rohani-5ba99a99/" target="_blank" rel="noopener noreferrer">Cameron Rohani</a>
+    </p>
+    <p class="company-team-member-title">Co-Founder</p>
+  </article>
+  <article class="company-team-member">
+    <div class="company-team-member-image company-team-member-image-hans">
+      <div class="company-team-sticker sticker-2" data-company-sticker>
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/hans-sticker-final.svg"></scalar-icon>
+      </div>
+    </div>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/hans-pagel-35303a18a/" target="_blank" rel="noopener noreferrer">Hans Pagel</a>
+    </p>
+    <p class="company-team-member-title">Co-Founder</p>
+  </article>
+  <article class="company-team-member">
+    <div class="company-team-member-image company-team-member-image-peter">
+      <div class="company-team-sticker sticker-4" data-company-sticker>
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/peter-sticker-final.svg"></scalar-icon>
+      </div>
+    </div>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/peter-mcgrath-cpa-795470111/" target="_blank" rel="noopener noreferrer">Peter McGrath</a>
+    </p>
+    <p class="company-team-member-title">COO</p>
+  </article>
+  <article class="company-team-member">
+    <div class="company-team-member-image company-team-member-image-geoff">
+      <div class="company-team-sticker sticker-3" data-company-sticker>
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/geoff-sticker-final.svg"></scalar-icon>
+      </div>
+    </div>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/geoffgscott/" target="_blank" rel="noopener noreferrer">Geoff</a>
+    </p>
+    <p class="company-team-member-title">Head of Engineering</p>
+  </article>
+   <article class="company-team-member">
+    <div class="company-team-member-image company-team-member-image-amrit">
+      <div class="company-team-sticker sticker-4" data-company-sticker>
+        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/amrit-sticker-final.svg"></scalar-icon>
+      </div>
+    </div>
+    <p class="company-team-member-name">
+      <a class="t-editor__anchor" href="https://www.linkedin.com/in/amrit-kahlon/" target="_blank" rel="noopener noreferrer">Amrit</a>
+    </p>
+    <p class="company-team-member-title">Staff Software Engineer</p>
   </article>
   <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-brynn">
@@ -42,17 +97,6 @@ The teams who build with Scalar are shaping the API platforms other developers d
     <p class="company-team-member-title">Designer / Developer</p>
   </article>
   <article class="company-team-member">
-    <div class="company-team-member-image company-team-member-image-hans">
-      <div class="company-team-sticker sticker-2" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/hans-sticker-final.svg"></scalar-icon>
-      </div>
-    </div>
-    <p class="company-team-member-name">
-      <a class="t-editor__anchor" href="https://www.linkedin.com/in/hans-pagel-35303a18a/" target="_blank" rel="noopener noreferrer">Hans</a>
-    </p>
-    <p class="company-team-member-title">Software Engineer</p>
-  </article>
-  <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-redis">
       <div class="company-team-sticker sticker-3" data-company-sticker>
         <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/redis-sticker-final.svg"></scalar-icon>
@@ -61,52 +105,9 @@ The teams who build with Scalar are shaping the API platforms other developers d
     <p class="company-team-member-name">
       <a class="t-editor__anchor" href="https://www.linkedin.com/in/redis-stasa-14b2aa24a/" target="_blank" rel="noopener noreferrer">Redis</a>
     </p>
-    <p class="company-team-member-title">Software Engineer</p>
+    <p class="company-team-member-title">Senior Software Engineer</p>
   </article>
-  <article class="company-team-member">
-    <div class="company-team-member-image company-team-member-image-amrit">
-      <div class="company-team-sticker sticker-4" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/amrit-sticker-final.svg"></scalar-icon>
-      </div>
-    </div>
-    <p class="company-team-member-name">
-      <a class="t-editor__anchor" href="https://www.linkedin.com/in/amrit-kahlon/" target="_blank" rel="noopener noreferrer">Amrit</a>
-    </p>
-    <p class="company-team-member-title">Software Engineer</p>
-  </article>
-  <article class="company-team-member">
-    <div class="company-team-member-image company-team-member-image-cam">
-      <div class="company-team-sticker sticker-1" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/cam-sticker-final.svg"></scalar-icon>
-      </div>
-    </div>
-    <p class="company-team-member-name">
-      <a class="t-editor__anchor" href="https://www.linkedin.com/in/cameron-rohani-5ba99a99/" target="_blank" rel="noopener noreferrer">Cam</a>
-    </p>
-    <p class="company-team-member-title">Designer / Developer</p>
-  </article>
-  <article class="company-team-member">
-    <div class="company-team-member-image company-team-member-image-geoff">
-      <div class="company-team-sticker sticker-3" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/geoff-sticker-final.svg"></scalar-icon>
-      </div>
-    </div>
-    <p class="company-team-member-name">
-      <a class="t-editor__anchor" href="https://www.linkedin.com/in/geoffgscott/" target="_blank" rel="noopener noreferrer">Geoff</a>
-    </p>
-    <p class="company-team-member-title">Software Engineer</p>
-  </article>
-  <article class="company-team-member">
-    <div class="company-team-member-image company-team-member-image-peter">
-      <div class="company-team-sticker sticker-4" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/peter-sticker-final.svg"></scalar-icon>
-      </div>
-    </div>
-    <p class="company-team-member-name">
-      <a class="t-editor__anchor" href="https://www.linkedin.com/in/peter-mcgrath-cpa-795470111/" target="_blank" rel="noopener noreferrer">Peter</a>
-    </p>
-    <p class="company-team-member-title">Software Engineer</p>
-  </article>
+
   <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-joinus">
       <div
@@ -123,7 +124,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
   </article>
 </section>
 
-## Backed by the Best
+## Our Investors
 
 <section class="company-investors company-investors-layout" aria-label="Investors">
   <article class="company-investor-feature">
@@ -137,7 +138,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
     </div>
     <div class="company-investor-lines">
       <span class="company-investor-name-line">Trevor Oelschig</span>
-      <span class="company-investor-title-line">General Catalyst</span>
+      <span class="company-investor-title-line">Managing Director, General Catalyst</span>
     </div>
   </article>
   <article class="company-investor-feature">
@@ -151,35 +152,91 @@ The teams who build with Scalar are shaping the API platforms other developers d
     </div>
     <div class="company-investor-lines">
       <span class="company-investor-name-line">Steve Jang</span>
-      <span class="company-investor-title-line">Kindred</span>
+      <span class="company-investor-title-line">Managing Director, Kindred</span>
     </div>
   </article>
   <div class="company-investor-list">
     <article class="company-investor-person">
-      <span class="company-investor-name-line">Consectetur Adipiscing</span>
-      <span class="company-investor-title-line">Elit sed do</span>
+      <span class="company-investor-name-line">Guillermo Rauch</span>
+      <span class="company-investor-title-line">CEO, Vercel</span>
     </article>
     <article class="company-investor-person">
-      <span class="company-investor-name-line">Tempor Incididunt</span>
-      <span class="company-investor-title-line">Ut labore</span>
+      <span class="company-investor-name-line">David Cramer</span>
+      <span class="company-investor-title-line">Founder, Sentry</span>
     </article>
     <article class="company-investor-person">
-      <span class="company-investor-name-line">Magna Aliqua</span>
-      <span class="company-investor-title-line">Et dolore</span>
+      <span class="company-investor-name-line">Colin Sidoti</span>
+      <span class="company-investor-title-line">Founder, Clerk</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Paul Klein</span>
+      <span class="company-investor-title-line">Founder, Browserbase</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Koen Bok</span>
+      <span class="company-investor-title-line">Co-Founder, Framer</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Geige Vandentop</span>
+      <span class="company-investor-title-line">Co-Founder, Streamyard</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Sebastien Chopin</span>
+      <span class="company-investor-title-line">Founder, Nuxt</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">John Phamous</span>
+      <span class="company-investor-title-line">Design Engineer, Vercel</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Kyle Parrish</span>
+      <span class="company-investor-title-line">Early, Figma</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Moe Amaya</span>
+      <span class="company-investor-title-line">Founder, Operate</span>
     </article>
   </div>
   <div class="company-investor-list">
     <article class="company-investor-person">
-      <span class="company-investor-name-line">Quis Nostrud</span>
-      <span class="company-investor-title-line">Exercitation ullamco</span>
+      <span class="company-investor-name-line">Ramtin Naimi</span>
+      <span class="company-investor-title-line">Founder, Abstract</span>
     </article>
     <article class="company-investor-person">
-      <span class="company-investor-name-line">Laboris Nisi</span>
-      <span class="company-investor-title-line">Ut aliquip</span>
+      <span class="company-investor-name-line">Tom Preston-Werner</span>
+      <span class="company-investor-title-line">Founder, GitHub</span>
     </article>
     <article class="company-investor-person">
-      <span class="company-investor-name-line">Commodo Consequat</span>
-      <span class="company-investor-title-line">Duis aute</span>
+      <span class="company-investor-name-line">Cassidy Williams</span>
+      <span class="company-investor-title-line">Senior Director, GitHub</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Soleio</span>
+      <span class="company-investor-title-line">Designer × Investor</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Jorn van Dijk</span>
+      <span class="company-investor-title-line">Co-Founder, Framer</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Andrew Miklas</span>
+      <span class="company-investor-title-line">Founder, PagerDuty</span>
+    </article>
+        <article class="company-investor-person">
+      <span class="company-investor-name-line">Dan Briggs</span>
+      <span class="company-investor-title-line">Co-Founder, Streamyard</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Ben Lang</span>
+      <span class="company-investor-title-line">Early, Notion</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Pim De Witte</span>
+      <span class="company-investor-title-line">Founder, General Intuition</span>
+    </article>
+    <article class="company-investor-person">
+      <span class="company-investor-name-line">Annie Luchsinger</span>
+      <span class="company-investor-title-line">Founder, Breakers</span>
     </article>
   </div>
 </section>
@@ -190,24 +247,19 @@ The teams who build with Scalar are shaping the API platforms other developers d
   <div class="company-careers-heading" role="heading" aria-level="3">Engineering</div>
   <div class="company-careers-list">
     <article class="company-career-row">
-      <span class="company-career-role">Product Engineer</span>
-      <span class="company-career-location">North America</span>
-      <a class="company-career-link t-editor__anchor" href="https://scalar.com/careers">Learn more</a>
-    </article>
-    <article class="company-career-row">
       <span class="company-career-role">Senior / Staff Fullstack Engineer</span>
-      <span class="company-career-location">Europe, North America</span>
-      <a class="company-career-link t-editor__anchor" href="https://scalar.com/careers">Learn more</a>
+      <span class="company-career-location">Europe, North America, Remote</span>
+      <a class="company-career-link t-editor__anchor" target="_blank" href="https://jobs.ashbyhq.com/scalar">Learn more</a>
     </article>
     <article class="company-career-row">
       <span class="company-career-role">Senior / Staff Product Engineer</span>
-      <span class="company-career-location">Europe, North America</span>
-      <a class="company-career-link t-editor__anchor" href="https://scalar.com/careers">Learn more</a>
+      <span class="company-career-location">Europe, North America, Remote</span>
+      <a class="company-career-link t-editor__anchor" target="_blank" href="https://jobs.ashbyhq.com/scalar">Learn more</a>
     </article>
     <article class="company-career-row">
-      <span class="company-career-role">Senior / Staff Product Engineer, AI</span>
-      <span class="company-career-location">North America</span>
-      <a class="company-career-link t-editor__anchor" href="https://scalar.com/careers">Learn more</a>
+      <span class="company-career-role">Senior / Staff Platform Engineer</span>
+      <span class="company-career-location">Europe, North America, Remote</span>
+      <a class="company-career-link t-editor__anchor" target="_blank" href="https://jobs.ashbyhq.com/scalar">Learn more</a>
     </article>
   </div>
 </section>
