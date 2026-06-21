@@ -246,21 +246,21 @@ The teams who build with Scalar are shaping the API platforms other developers d
 <section class="company-careers" aria-label="Open engineering roles">
   <div class="company-careers-heading" role="heading" aria-level="3">Engineering</div>
   <div class="company-careers-list">
-    <article class="company-career-row">
-      <span class="company-career-role">Senior / Staff Fullstack Engineer</span>
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar">
+      <span class="company-career-role t-editor__anchor">Senior / Staff Fullstack Engineer</span>
       <span class="company-career-location">Europe, North America, Remote</span>
-      <a class="company-career-link t-editor__anchor" target="_blank" href="https://jobs.ashbyhq.com/scalar">Learn more</a>
-    </article>
-    <article class="company-career-row">
-      <span class="company-career-role">Senior / Staff Product Engineer</span>
+      <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
+    </a>
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar">
+      <span class="company-career-role t-editor__anchor">Senior / Staff Product Engineer</span>
       <span class="company-career-location">Europe, North America, Remote</span>
-      <a class="company-career-link t-editor__anchor" target="_blank" href="https://jobs.ashbyhq.com/scalar">Learn more</a>
-    </article>
-    <article class="company-career-row">
-      <span class="company-career-role">Senior / Staff Platform Engineer</span>
+      <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
+    </a>
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar">
+      <span class="company-career-role t-editor__anchor">Senior / Staff Platform Engineer</span>
       <span class="company-career-location">Europe, North America, Remote</span>
-      <a class="company-career-link t-editor__anchor" target="_blank" href="https://jobs.ashbyhq.com/scalar">Learn more</a>
-    </article>
+      <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
+    </a>
   </div>
 </section>
 
@@ -575,21 +575,46 @@ The teams who build with Scalar are shaping the API platforms other developers d
   }
   .company-career-row {
     display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr) auto;
+    grid-template-columns: minmax(0, calc((100% - 12px) / 2)) minmax(0, 1fr) auto;
+    gap: 12px;
     align-items: center;
     padding: 16px 0;
     border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    position: relative;
+    color: inherit;
+    text-decoration: none;
+    width: 100%;
+  }
+  .company-career-row:hover {
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .company-career-row:hover:before {
+    content: "";
+    position: absolute;
+    left: -12px;
+    width: calc(100% + 24px);
+    background: var(--scalar-background-2);
+    height: calc(100% + 1px);
+    top: -.5px;
+    border-radius: var(--scalar-radius);
   }
   .company-career-role,
-  .company-career-location,
-  .company-career-link {
+  .company-career-location {
     font-size: var(--scalar-heading-3);
+    position: relative;
   }
   .company-career-role {
     color: var(--scalar-color-1);
     font-weight: var(--scalar-semibold);
   }
   .company-career-location {
+    color: var(--scalar-color-3);
+    font-weight: 400;
+    text-decoration: none;
+  }
+  .company-career-row scalar-icon {
+    position: relative;
     color: var(--scalar-color-3);
   }
   @media (max-width: 1279px) {
@@ -632,7 +657,7 @@ The teams who build with Scalar are shaping the API platforms other developers d
     .company-career-role {
       grid-column: 1 / -1;
     }
-    .company-career-link {
+    .company-career-row scalar-icon {
       align-self: start;
       grid-column: 2;
       grid-row: 2;
