@@ -2,6 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
@@ -15,12 +16,17 @@ import {
 } from '@/helpers/get-async-api-message-payload-schema'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiLabels from './AsyncApiLabels.vue'
 import {
   resolveSchemaRenderOptions,
   type AsyncApiSchemaRenderOptions,
 } from './helpers/async-api-render-options'
+import { getChannelServerLabels } from './helpers/get-async-api-labels'
 import { pickHeading } from './helpers/pick-heading'
-import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
+import {
+  resolveAsyncApiChannel,
+  resolveAsyncApiMessage,
+} from './helpers/resolve-async-api-nodes'
 
 /** Subset of the configuration the shared `Schema` renderer needs. */
 type SchemaRenderOptions = AsyncApiSchemaRenderOptions
@@ -64,6 +70,35 @@ const description = computed(
   () =>
     resolvedMessage.value?.description || resolvedMessage.value?.summary || '',
 )
+
+/**
+ * Protocol keys declared directly on the message's protocol-specific `bindings`
+ * (for example `ws`, `kafka`). The bindings object may be a `$ref`, so it is resolved
+ * before reading the keys.
+ */
+const messageBindingProtocols = computed(() => {
+  const bindings = resolvedMessage.value?.bindings
+  if (!bindings) {
+    return []
+  }
+  const resolved = getResolvedRef(bindings)
+  return Object.entries(resolved)
+    .filter(([, value]) => value != null)
+    .map(([protocol]) => protocol)
+})
+
+/**
+ * Protocol labels for the message. A message is carried over whatever protocols its
+ * channel's servers speak, so we start from the channel's server protocols and union in
+ * any extra protocols the message declares its own bindings for. Without this a
+ * multi-protocol message would only surface the single protocol it happens to declare a
+ * binding for (or none at all).
+ */
+const protocolLabels = computed(() => {
+  const channel = resolveAsyncApiChannel(document, message.channelName)
+  const { protocols } = getChannelServerLabels(document, channel)
+  return [...new Set([...protocols, ...messageBindingProtocols.value])]
+})
 
 /** Payload schema, unwrapped from `$ref`s and Multi Format Schema wrappers. */
 const payloadSchema = computed(() =>
@@ -129,6 +164,9 @@ const onToggle = (open: boolean) => {
             {{ headingText }}
           </SectionHeaderTag>
         </Anchor>
+        <AsyncApiLabels
+          class="message-labels"
+          :protocols="protocolLabels" />
       </template>
 
       <ScalarMarkdown
@@ -174,6 +212,13 @@ const onToggle = (open: boolean) => {
   font-size: var(--scalar-heading-4);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
+}
+/* Lay the heading and protocol labels out on a single wrapping row. */
+.message-accordion :deep(.section-accordion-button-content) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 /* Pad the expanded body so the description and schemas don't sit flush against the border. */
 .message-accordion :deep(.section-accordion-content-card) {

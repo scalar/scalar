@@ -20,12 +20,14 @@ import {
 } from '@/components/Section'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
+import AsyncApiLabels from './AsyncApiLabels.vue'
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
 import {
   resolveSchemaRenderOptions,
   type AsyncApiSchemaRenderOptions,
 } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
+import { getChannelServerLabels } from './helpers/get-async-api-labels'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiChannel } from './helpers/resolve-async-api-nodes'
 import Operation from './Operation.vue'
@@ -91,6 +93,14 @@ const parameterListOptions = computed<ParameterListOptions>(() => ({
   ...resolveSchemaRenderOptions(options),
 }))
 
+/**
+ * Server-name and protocol labels for the channel, resolved from `document.servers`
+ * (restricted to `channel.servers` when declared) and rendered as pills in the header.
+ */
+const labels = computed(() =>
+  getChannelServerLabels(document, resolvedChannel.value),
+)
+
 /** Operations that target this channel, rendered nested beneath the channel content. */
 const operations = computed(() =>
   filterChildrenByType<TraversedAsyncApiOperation>(
@@ -121,6 +131,10 @@ const operations = computed(() =>
           </SectionHeaderTag>
         </Anchor>
       </SectionHeader>
+      <AsyncApiLabels
+        class="channel-labels"
+        :protocols="labels.protocols"
+        :servers="labels.servers" />
       <ScalarMarkdown
         class="channel-description"
         :value="description"
@@ -166,6 +180,10 @@ const operations = computed(() =>
         </Anchor>
       </SectionHeader>
       <SectionContent>
+        <AsyncApiLabels
+          class="channel-labels"
+          :protocols="labels.protocols"
+          :servers="labels.servers" />
         <ScalarMarkdown
           :value="description"
           withImages />
@@ -192,6 +210,9 @@ const operations = computed(() =>
 <style scoped>
 .channel-section {
   margin-bottom: 48px;
+}
+.channel-labels {
+  margin-bottom: 8px;
 }
 .channel-description {
   padding-bottom: 4px;
