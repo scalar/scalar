@@ -39,7 +39,11 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { coerce } from '@scalar/validation'
-import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
+import {
+  getAsyncApiProtocols,
+  getAsyncApiServerOptions,
+  getAsyncApiServers,
+} from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
@@ -69,6 +73,10 @@ import {
   watch,
 } from 'vue'
 
+import {
+  filterAsyncApiNavigation,
+  SidebarFilter,
+} from '@/blocks/scalar-asyncapi-sidebar-filters-block'
 import {
   AgentScalarButton,
   AgentScalarDrawer,
@@ -237,6 +245,42 @@ const documentOptionList = computed(() =>
     id: c.slug,
   })),
 )
+
+/**
+ * AsyncAPI sidebar filters (protocol + server).
+ *
+ * These mirror the document picker: stacked dropdowns at the top of the sidebar
+ * that narrow the visible operations. State resets whenever the active document
+ * changes so a filter never leaks across documents.
+ */
+const selectedProtocol = ref<string>('')
+const selectedServer = ref<string>('')
+
+/** The active document, narrowed to AsyncAPI (or `null` for OpenAPI documents). */
+const activeAsyncApiDocument = computed(() => {
+  const document = workspaceStore.workspace.activeDocument
+  return isAsyncApiDocument(document) ? document : null
+})
+
+/** Protocol picker options, including the leading "All protocols" entry. */
+const protocolOptions = computed(() =>
+  activeAsyncApiDocument.value
+    ? getAsyncApiProtocols(activeAsyncApiDocument.value)
+    : [],
+)
+
+/** Server picker options, including the leading "All servers" entry. */
+const serverFilterOptions = computed(() =>
+  activeAsyncApiDocument.value
+    ? getAsyncApiServerOptions(activeAsyncApiDocument.value)
+    : [],
+)
+
+// Reset the filters when switching documents.
+watch(activeSlug, () => {
+  selectedProtocol.value = ''
+  selectedServer.value = ''
+})
 
 /** Configuration overrides to apply to the selected document (from the localhost toolbar) */
 const configurationOverrides = ref<
@@ -584,10 +628,19 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
     return []
   }
 
-  const docItems =
+  const rawDocItems =
     sidebarState.items.value.find(
       (item): item is TraversedTag => item.id === activeSlug.value,
     )?.children ?? []
+
+  // Apply the AsyncAPI protocol/server filters to the sidebar tree. This is a no-op
+  // for OpenAPI documents and when no filter is selected.
+  const docItems = activeAsyncApiDocument.value
+    ? filterAsyncApiNavigation(rawDocItems, activeAsyncApiDocument.value, {
+        protocol: selectedProtocol.value,
+        server: selectedServer.value,
+      })
+    : rawDocItems
 
   // When the default open all tags configuration is enabled we open all the children of the document
   if (config.defaultOpenAllTags) {
@@ -1363,6 +1416,14 @@ const showMCPButton = computed(() => {
                 :options="documentOptionList"
                 @update:modelValue="changeSelectedDocument" />
 
+              <!-- AsyncAPI protocol + server filters (only render with >1 choice) -->
+              <SidebarFilter
+                v-model="selectedProtocol"
+                :options="protocolOptions" />
+              <SidebarFilter
+                v-model="selectedServer"
+                :options="serverFilterOptions" />
+
               <!-- Search -->
               <div
                 v-if="!mergedConfig.hideSearch"
@@ -1479,6 +1540,12 @@ const showMCPButton = computed(() => {
                   :modelValue="activeSlug"
                   :options="documentOptionList"
                   @update:modelValue="changeSelectedDocument" />
+                <SidebarFilter
+                  v-model="selectedProtocol"
+                  :options="protocolOptions" />
+                <SidebarFilter
+                  v-model="selectedServer"
+                  :options="serverFilterOptions" />
               </div>
               <SearchButton
                 v-if="!mergedConfig.hideSearch"
