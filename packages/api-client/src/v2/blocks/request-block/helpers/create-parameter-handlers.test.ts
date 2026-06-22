@@ -346,6 +346,59 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('ignores the display-only trailing brackets when renaming a deepObject array leaf', () => {
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const row: TableRow = {
+      name: 'filters[applicationInstanceId][in][]',
+      value: '1,2',
+      isDisabled: false,
+      originalParameter: parentParameter,
+      schema: { type: 'array', items: { type: 'string' } },
+      sourceParameterValuePath: ['applicationInstanceId', 'in'],
+    }
+    const onRenameExpandedRow = vi.fn()
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context: [row],
+      onRenameExpandedRow,
+    })
+
+    // The user renames the leaf key; the trailing `[]` it still carries must not leak into the path.
+    handlers.upsert(0, {
+      name: 'filters[applicationInstanceId][notIn][]',
+      value: '1,2',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+
+    expect(onRenameExpandedRow).toHaveBeenCalledWith(row, ['applicationInstanceId', 'notIn'])
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: {
+            applicationInstanceId: {
+              notIn: ['1', '2'],
+            },
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
   it('keeps expanded row values at their source path during partial key edits', () => {
     const parentParameter = {
       name: 'filter',
