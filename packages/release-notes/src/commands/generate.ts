@@ -1,6 +1,12 @@
 import { Command } from 'commander'
 
-import { type CliConfigOverrides, createBuiltInProvider, readReleaseNotesConfig } from '../config/read-config'
+import {
+  type CliConfigOverrides,
+  createBuiltInProvider,
+  getBuiltInProviderApiKeyEnv,
+  hasBuiltInProviderApiKey,
+  readReleaseNotesConfig,
+} from '../config/read-config'
 import type { BuiltInProviderName, ReleaseNotesConfig, ReleaseNotesProduct } from '../config/types'
 import { getChangedPathsForReleaseFiltering } from '../core/detect-versioned-changelog-paths'
 import { runReleaseNotesGeneratorForProduct } from '../core/run-release-notes-generator'
@@ -93,10 +99,22 @@ export const createReleaseNotesGeneratorCommand = (baseConfig: ReleaseNotesConfi
     .action(async (options: CommandOptions) => {
       const cliOverrides = resolveCliOverrides(options)
       const config = await readReleaseNotesConfig(cliOverrides, baseConfig)
+
+      const builtInProvider = cliOverrides.provider ?? 'anthropic'
+
+      // When relying on a built-in provider, skip gracefully if its API key is missing.
+      // This keeps `pnpm release:version --all` from failing on forks, contributor
+      // machines, or CI that do not have the provider secret configured.
+      if (!config.provider && !hasBuiltInProviderApiKey(builtInProvider, options.apiKeyEnv)) {
+        const envName = getBuiltInProviderApiKeyEnv(builtInProvider, options.apiKeyEnv)
+        console.warn(`${envName} is not set; skipping release-notes generation.`)
+        return
+      }
+
       const provider =
         config.provider ??
         createBuiltInProvider({
-          provider: cliOverrides.provider ?? 'anthropic',
+          provider: builtInProvider,
           model: options.model,
           apiKeyEnv: options.apiKeyEnv,
         })

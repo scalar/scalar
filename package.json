@@ -69,7 +69,7 @@
     "types:build": "turbo types:build",
     "renovate:validate": "pnpm dlx --package renovate renovate-config-validator",
     "script": "pnpm --filter @scalar-internal/build-scripts start",
-    "release:version": "changeset version && pnpm --filter @scalar/release-notes build && pnpm --filter @scalar/release-notes start --all && pnpm format"
+    "release:version": "changeset version && pnpm --filter @scalar/release-notes... build && pnpm --filter @scalar/release-notes start --all && pnpm format"
   },
   "remarkConfig": {
     "plugins": [

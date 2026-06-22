@@ -60,12 +60,16 @@ const loadConfigFile = async (path: string): Promise<ReleaseNotesConfig> => {
   return module.default as ReleaseNotesConfig
 }
 
-const getApiKey = (provider: BuiltInProviderName, apiKeyEnv?: string): string | undefined => {
-  if (apiKeyEnv) {
-    return process.env[apiKeyEnv]
-  }
-  return provider === 'anthropic' ? process.env.ANTHROPIC_API_KEY : process.env.OPENAI_API_KEY
-}
+/** Default environment variable that holds the API key for a built-in provider. */
+export const getBuiltInProviderApiKeyEnv = (provider: BuiltInProviderName, apiKeyEnv?: string): string =>
+  apiKeyEnv ?? (provider === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY')
+
+const getApiKey = (provider: BuiltInProviderName, apiKeyEnv?: string): string | undefined =>
+  process.env[getBuiltInProviderApiKeyEnv(provider, apiKeyEnv)]
+
+/** Whether the API key for a built-in provider is available (and non-empty) in the environment. */
+export const hasBuiltInProviderApiKey = (provider: BuiltInProviderName, apiKeyEnv?: string): boolean =>
+  Boolean(getApiKey(provider, apiKeyEnv))
 
 export const createBuiltInProvider = (options: {
   provider: BuiltInProviderName
