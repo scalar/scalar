@@ -84,7 +84,7 @@ docker run -p 3000:3000 \
 
 The container automatically:
 - Scans the `/docs` directory recursively
-- Finds OpenAPI documents (`.json`, `.yaml`, `.yml` files)
+- Finds OpenAPI and AsyncAPI documents (`.json`, `.yaml`, `.yml` files)
 - Uses the first valid document found
 
 ### Priority Order
@@ -124,6 +124,23 @@ Your OpenAPI document is automatically served at:
 The format is automatically determined based on your source document.
 
 This helps with debugging and monitoring during development.
+
+### AsyncAPI Documents
+
+The Docker image also mocks event-driven APIs. When the provided document is an [AsyncAPI 3.1](https://www.asyncapi.com/) definition (detected by its top-level `asyncapi` field), the container starts the AsyncAPI mock instead of the REST mock — no extra flag is required. Each channel is served over **WebSocket** (`ws`/`wss` channels) or **Server-Sent Events** (`sse`, or `http`/`https` server-push channels), with messages generated from the channel's payload schemas.
+
+WebSocket and SSE channels are served on the same port as the rest of the server, so the usual port mapping is all you need:
+
+```bash
+docker run -p 3000:3000 \
+  -v ./asyncapi.yaml:/docs/asyncapi.yaml:ro \
+  scalarapi/mock-server
+
+# Connect a WebSocket client to a channel route, e.g.
+# npx wscat -c ws://localhost:3000/<channel-address>
+```
+
+See the [AsyncAPI mocking guide](asyncapi.md) for supported transports and how messages are generated.
 
 ## Docker Compose
 
