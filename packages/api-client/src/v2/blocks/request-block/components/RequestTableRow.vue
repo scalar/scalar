@@ -52,6 +52,13 @@ export type TableRow = {
   sourceParameterValuePath?: string[]
 }
 
+export type TableRowUpsertPayload = {
+  name: string
+  value: string | File
+  isDisabled: boolean
+  shouldRenameExpandedRow?: boolean
+}
+
 const {
   data,
   environment,
@@ -68,10 +75,7 @@ const {
 }>()
 
 const emit = defineEmits<{
-  (
-    e: 'upsertRow',
-    payload: { name: string; value: string | File; isDisabled: boolean },
-  ): void
+  (e: 'upsertRow', payload: TableRowUpsertPayload): void
   (e: 'deleteRow'): void
   (e: 'uploadFile'): void
   (e: 'removeFile'): void
@@ -150,6 +154,7 @@ const validationResult = computed(() =>
 /** Handle row updates while preserving existing properties */
 const handleUpdateRow = (
   payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
+  options: { shouldRenameExpandedRow?: boolean } = {},
 ): void => {
   // Update our local state
   if (payload.name !== undefined) {
@@ -162,12 +167,40 @@ const handleUpdateRow = (
   // Is disabled should always be false unless you explicitly set it to true
   isDisabled.value = payload.isDisabled ?? false
 
+  if (
+    payload.name !== undefined &&
+    data.sourceParameterValuePath &&
+    !options.shouldRenameExpandedRow
+  ) {
+    return
+  }
+
   // Emit all of the local state
   emit('upsertRow', {
     name: name.value,
     value: value.value,
     isDisabled: isDisabled.value,
+    ...(options.shouldRenameExpandedRow
+      ? { shouldRenameExpandedRow: true }
+      : {}),
   })
+}
+
+/**
+ * Commit a key edit when the input loses focus. Expanded-object rows defer their rename to blur (see
+ * handleUpdateRow), so we only emit when the key actually changed — focusing and blurring the field
+ * without typing should not re-emit the row or silently reset its disabled state. The current
+ * disabled state is passed through so a renamed row keeps it.
+ */
+const handleKeyBlur = (newName: string): void => {
+  if (newName === data.name) {
+    return
+  }
+
+  handleUpdateRow(
+    { name: newName, isDisabled: isDisabled.value },
+    { shouldRenameExpandedRow: Boolean(data.sourceParameterValuePath) },
+  )
 }
 </script>
 
@@ -193,6 +226,7 @@ const handleUpdateRow = (
         :modelValue="name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
+        @blur="(v) => handleKeyBlur(v)"
         @navigate="(route) => emit('navigate', route)"
         @update:modelValue="(v) => handleUpdateRow({ name: v })" />
     </DataTableCell>
