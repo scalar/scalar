@@ -57,10 +57,12 @@
   },
   "dependencies": {
     "@faker-js/faker": "catalog:*",
+    "@hono/node-ws": "catalog:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",

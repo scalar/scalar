@@ -14,6 +14,7 @@ A powerful Node.js mock server that automatically generates realistic API respon
 - Generates realistic mock data based on your schemas
 - Handles authentication and responds with defined HTTP headers
 - Supports Swagger 2.0 and OpenAPI 3.x documents
+- Mocks event-driven APIs from AsyncAPI 3.1 documents over WebSocket and SSE
 - Write custom JavaScript handlers for dynamic responses
 - Automatically seed initial data on server startup
 - Validates incoming requests against your OpenAPI contract
@@ -305,3 +306,9 @@ Use the `x-handler` extension to write custom JavaScript code for handling reque
 Use the `x-seed` extension on your schemas to automatically populate initial data when the server starts. Perfect for having realistic test data available immediately.
 
 [Learn more about data seeding →](data-seeding.md)
+
+### AsyncAPI Mocking
+
+Point the mock server at an AsyncAPI 3.1 document to mock event-driven APIs. Channels are served over WebSocket and Server-Sent Events, and messages are generated from each message's payload schema. Additional protocols can be plugged in through the `transports` extension point.
+
+[Learn more about AsyncAPI mocking →](asyncapi.md)
