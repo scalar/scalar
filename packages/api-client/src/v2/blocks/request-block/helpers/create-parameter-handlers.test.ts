@@ -180,6 +180,52 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('keeps a schema-less deepObject array leaf as an array via its trailing-bracket name', () => {
+    // Renamed and unmapped expanded rows carry no schema, but they keep the display-only `[]` marker.
+    // Editing such a leaf must still store an array so deepObject serialization repeats `key[]=...`.
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const context: TableRow[] = [
+      {
+        name: 'filters[applicationInstanceId][notIn][]',
+        value: '1,2',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        schema: undefined,
+        sourceParameterValuePath: ['applicationInstanceId', 'notIn'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context })
+
+    handlers.upsert(0, { name: 'filters[applicationInstanceId][notIn][]', value: '3,4', isDisabled: false })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: {
+            applicationInstanceId: {
+              notIn: ['3', '4'],
+            },
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
   it('keeps form-style array leaves verbatim when an unrelated sibling row is edited', () => {
     // Form-style object parameter (the query default) with an array property whose value carries a
     // meaningful comma, e.g. Spring pageable `sort=username,asc`. Splitting it into ['username','asc']

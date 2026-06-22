@@ -89,11 +89,14 @@ const getExpandedObjectPayload = (
       : contextRow.sourceParameterValuePath
 
     // Rows always hold the string the user sees, so a deepObject array leaf arrives comma-joined
-    // ("1,2"). Coerce it back against the property schema before storing — otherwise deepObject
-    // serialization re-collapses it into a single `key[in]=1,2` entry instead of repeating
-    // `key[in][]=1&key[in][]=2`.
-    const leafValue =
-      isDeepObjectParameter && contextRow.schema ? deSerializeSchemaValue(nextValue, contextRow.schema) : nextValue
+    // ("1,2"). Coerce it back to an array before storing — otherwise deepObject serialization
+    // re-collapses it into a single `key[in]=1,2` entry instead of repeating `key[in][]=1&key[in][]=2`.
+    //
+    // The property schema is the primary signal, but renamed and unmapped rows clear it. Those rows
+    // still carry the display-only `[]` marker on their name, so fall back to it to keep recognizing
+    // the leaf as an array.
+    const leafSchema = contextRow.schema ?? (contextRow.name.endsWith('[]') ? ({ type: 'array' } as const) : undefined)
+    const leafValue = isDeepObjectParameter && leafSchema ? deSerializeSchemaValue(nextValue, leafSchema) : nextValue
 
     setValueAtPath(value, path, leafValue)
   }
