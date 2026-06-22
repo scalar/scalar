@@ -54,4 +54,15 @@ scalar
 
 bookService.WithEnvironment("Keycloak", keycloak.GetEndpoint("http"));
 
+// Mock a backend straight from an OpenAPI document — no real service required.
+// Other resources can depend on `petstoreMock` as if it were the real API, and the
+// mock serves its resolved document at `/openapi.json` for the API Reference to render.
+var petstoreMock = builder
+    .AddScalarMockServer("petstore-mock", options =>
+    {
+        options.WithDocumentUrl(
+            "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/_archive_/schemas/v3.0/pass/petstore.yaml");
+    })
+    .WithExternalHttpEndpoints();
+
 builder.Build().Run();
