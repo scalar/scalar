@@ -258,6 +258,41 @@ describe('Schema', () => {
       // The discriminator property keeps its label inside the selected variant.
       expect(wrapper.text()).toContain('Discriminator')
     })
+
+    // https://github.com/scalar/scalar/issues/7472
+    // A schema may factor its common properties out alongside an explicit
+    // `oneOf` and a `discriminator.mapping`. The explicit composition already
+    // renders the selector, so the factored-out properties must not infer a
+    // second one from the same mapping.
+    it('does not infer a second selector for factored properties next to an explicit oneOf', () => {
+      const document = {
+        components: {
+          schemas: {
+            A: { type: 'object', title: 'A', properties: { aId: { type: 'string' } } },
+            B: { type: 'object', title: 'B', properties: { bId: { type: 'string' } } },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: coerceValue(SchemaObjectSchema, {
+            discriminator: {
+              propertyName: 'kind',
+              mapping: { a: '#/components/schemas/A', b: '#/components/schemas/B' },
+            },
+            oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+            properties: { kind: { type: 'string' } },
+          }),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      // Exactly one variant selector, from the explicit oneOf.
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+    })
   })
 
   describe('additionalProperties Vue prop', () => {

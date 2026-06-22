@@ -284,4 +284,62 @@ describe('RequestBody', () => {
 
     expect(wrapper.props('selectedContentType')).toBe('application/x-www-form-urlencoded')
   })
+
+  // https://github.com/scalar/scalar/issues/7472
+  // A discriminator base renders as a single variant selector. When it has more
+  // than twelve properties the body is normally split into visible/collapsed
+  // blocks, but a discriminator schema must not be split, otherwise each block
+  // would render its own duplicate selector.
+  it('renders a single variant selector for a discriminator schema with many properties', () => {
+    const properties: Record<string, { type: string }> = { $type: { type: 'string' } }
+    for (let index = 0; index < 13; index++) {
+      properties[`prop${index}`] = { type: 'string' }
+    }
+
+    const baseClass = {
+      type: 'object',
+      discriminator: {
+        propertyName: '$type',
+        mapping: {
+          Base: '#/components/schemas/BaseClass',
+          Derived: '#/components/schemas/DerivedClass',
+        },
+      },
+      properties,
+    }
+
+    const document = {
+      components: {
+        schemas: {
+          BaseClass: baseClass,
+          DerivedClass: {
+            allOf: [
+              { $ref: '#/components/schemas/BaseClass' },
+              { type: 'object', properties: { derivedInt: { type: 'integer' } } },
+            ],
+          },
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: null,
+        // Expand everything so a duplicate selector in the collapsed block would
+        // also be rendered (and therefore caught) rather than hidden.
+        options: { ...defaultRequestOptions, expandAllSchemaProperties: true },
+        document: document as never,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, baseClass),
+            },
+          },
+        },
+      },
+      slots: { title: 'Body' },
+    })
+
+    expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+  })
 })
