@@ -992,6 +992,32 @@ describe('validate-request', () => {
     expect(valid.status).toBe(200)
   })
 
+  it('falls back to object reading for a union param when the array reading is empty', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          required: true,
+          schema: {
+            anyOf: [
+              { type: 'array', items: { type: 'integer' } },
+              { type: 'object', properties: { x: { type: 'integer' } } },
+            ],
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    // A lone empty value deserializes the array branch to `[]`. Since that is not array-shaped input, the
+    // object reading must still run so object-style input (`filter=` plus the `x` property) is gathered as
+    // `{ x: 1 }` instead of being locked to an empty array that fails the array branch's item validation.
+    const valid = await server.request('/items?filter=&x=1')
+    expect(valid.status).toBe(200)
+  })
+
   it('keeps repeated values for an array-valued deepObject property', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [

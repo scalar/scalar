@@ -347,11 +347,14 @@ export const validateRequest = (
         let value: unknown
         if (descriptor.isArray && descriptor.isObject) {
           // A schema composed with `anyOf`/`oneOf`/`allOf` can look like both an array and an object, and
-          // form encoding cannot say which the client meant. Read it as an array first — that only yields a
-          // value when the request carries the parameter's own (possibly repeated) key — and fall back to the
+          // form encoding cannot say which the client meant. Prefer a non-empty array — that only happens
+          // when the request carries the parameter's own (possibly repeated) key — and fall back to the
           // object reading otherwise. This parses array-style input (`?filter=1&filter=2`) as an array while
           // still letting object-style input (properties spread across other keys) be gathered as an object.
-          value = readAsArray(descriptor) ?? readAsObject(descriptor)
+          // A lone empty value (`?filter=`) deserializes to `[]`, which is not array-shaped input, so it must
+          // not short-circuit the object fallback; the empty array is only kept when no object value is found.
+          const asArray = readAsArray(descriptor)
+          value = Array.isArray(asArray) && asArray.length > 0 ? asArray : (readAsObject(descriptor) ?? asArray)
         } else if (descriptor.isObject) {
           value = readAsObject(descriptor)
         } else if (descriptor.isArray) {
