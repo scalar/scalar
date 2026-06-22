@@ -66,6 +66,17 @@ const substituteTemplate = (template: string, options: SubstitutionOptions): str
   return result
 }
 
+/**
+ * Normalizes an AsyncAPI `protocol` for comparison: trimmed and lowercased.
+ *
+ * Returns `undefined` when the protocol is missing or blank, so callers can treat
+ * "no protocol" distinctly instead of comparing against an empty string.
+ */
+export const normalizeProtocol = (protocol: string | undefined): string | undefined => {
+  const normalized = protocol?.trim().toLowerCase()
+  return normalized ? normalized : undefined
+}
+
 /** Maps AsyncAPI `server.protocol` to a URL scheme (MVP: ws and wss). */
 export const getUrlSchemeFromProtocol = (protocol: string): string => protocol.trim().toLowerCase()
 

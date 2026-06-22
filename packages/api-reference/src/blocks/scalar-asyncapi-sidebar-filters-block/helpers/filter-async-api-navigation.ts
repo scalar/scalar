@@ -1,24 +1,28 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import {
-  ALL_PROTOCOLS,
-  ALL_SERVERS,
-  operationMatchesProtocol,
-  operationMatchesServer,
+  ALL,
+  type AsyncApiReachabilityContext,
+  createReachabilityContext,
+  getOperationReachability,
 } from '@scalar/workspace-store/channel-example'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
 /** The currently selected sidebar filters. Empty / sentinel values disable a filter. */
 export type AsyncApiNavigationFilter = {
-  /** Selected protocol id, or {@link ALL_PROTOCOLS} / undefined for no protocol filter. */
+  /** Selected protocol id, or {@link ALL} / undefined for no protocol filter. */
   protocol?: string
-  /** Selected server name, or {@link ALL_SERVERS} / undefined for no server filter. */
+  /** Selected server name, or {@link ALL} / undefined for no server filter. */
   server?: string
 }
 
 /** Whether the filter would keep every entry, so the tree can be returned untouched. */
 const isNoopFilter = ({ protocol, server }: AsyncApiNavigationFilter): boolean =>
-  (!protocol || protocol === ALL_PROTOCOLS) && (!server || server === ALL_SERVERS)
+  (!protocol || protocol === ALL) && (!server || server === ALL)
+
+/** Whether a selection (protocol or server) keeps an operation, given the set it is reachable through. */
+const selectionMatches = (reachable: Set<string>, selected: string | undefined): boolean =>
+  !selected || selected === ALL || reachable.has(selected)
 
 /**
  * Filters one navigation entry against the selected protocol/server.
@@ -28,12 +32,16 @@ const isNoopFilter = ({ protocol, server }: AsyncApiNavigationFilter): boolean =
  *   children left (so empty channels and tags disappear from the sidebar).
  * - Everything else (description, models, schemas) passes through unchanged.
  *
+ * `context` carries the document-level lookups so they are built once per filter
+ * pass rather than recomputed for every operation.
+ *
  * Returns `null` when the entry should be removed.
  */
 const filterEntry = (
   entry: TraversedEntry,
   document: AsyncApiDocument,
   filter: AsyncApiNavigationFilter,
+  context: AsyncApiReachabilityContext,
 ): TraversedEntry | null => {
   if (entry.type === 'asyncapi-operation') {
     const operationNode = document.operations?.[entry.operationName]
@@ -42,10 +50,13 @@ const filterEntry = (
       return entry
     }
 
-    const operation = getResolvedRef(operationNode)
-    const keep =
-      operationMatchesProtocol(document, operation, filter.protocol) &&
-      operationMatchesServer(document, operation, filter.server)
+    // Resolve the same way the navigation traversal did, so sibling overrides
+    // (e.g. an inline `channel` alongside a `$ref`) are honored consistently.
+    const operation = getResolvedRef(operationNode, mergeSiblingReferences)
+
+    // Resolve the operation's reachability once, then test both selections against it.
+    const { protocols, serverNames } = getOperationReachability(document, operation, context)
+    const keep = selectionMatches(protocols, filter.protocol) && selectionMatches(serverNames, filter.server)
 
     return keep ? entry : null
   }
@@ -53,7 +64,7 @@ const filterEntry = (
   if (entry.type === 'asyncapi-channel' || entry.type === 'tag') {
     const originalChildren = entry.children ?? []
     const children = originalChildren.flatMap((child) => {
-      const filtered = filterEntry(child, document, filter)
+      const filtered = filterEntry(child, document, filter, context)
       return filtered ? [filtered] : []
     })
 
@@ -83,8 +94,11 @@ export const filterAsyncApiNavigation = (
     return entries
   }
 
+  // Build the document-level reachability lookups once for the whole pass.
+  const context = createReachabilityContext(document)
+
   return entries.flatMap((entry) => {
-    const filtered = filterEntry(entry, document, filter)
+    const filtered = filterEntry(entry, document, filter, context)
     return filtered ? [filtered] : []
   })
 }

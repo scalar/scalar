@@ -39,11 +39,7 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { coerce } from '@scalar/validation'
-import {
-  getAsyncApiProtocols,
-  getAsyncApiServerOptions,
-  getAsyncApiServers,
-} from '@scalar/workspace-store/channel-example'
+import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
@@ -74,8 +70,8 @@ import {
 } from 'vue'
 
 import {
+  AsyncApiSidebarFilters,
   filterAsyncApiNavigation,
-  SidebarFilter,
 } from '@/blocks/scalar-asyncapi-sidebar-filters-block'
 import {
   AgentScalarButton,
@@ -261,20 +257,6 @@ const activeAsyncApiDocument = computed(() => {
   const document = workspaceStore.workspace.activeDocument
   return isAsyncApiDocument(document) ? document : null
 })
-
-/** Protocol picker options, including the leading "All protocols" entry. */
-const protocolOptions = computed(() =>
-  activeAsyncApiDocument.value
-    ? getAsyncApiProtocols(activeAsyncApiDocument.value)
-    : [],
-)
-
-/** Server picker options, including the leading "All servers" entry. */
-const serverFilterOptions = computed(() =>
-  activeAsyncApiDocument.value
-    ? getAsyncApiServerOptions(activeAsyncApiDocument.value)
-    : [],
-)
 
 // Reset the filters when switching documents.
 watch(activeSlug, () => {
@@ -1417,12 +1399,10 @@ const showMCPButton = computed(() => {
                 @update:modelValue="changeSelectedDocument" />
 
               <!-- AsyncAPI protocol + server filters (only render with >1 choice) -->
-              <SidebarFilter
-                v-model="selectedProtocol"
-                :options="protocolOptions" />
-              <SidebarFilter
-                v-model="selectedServer"
-                :options="serverFilterOptions" />
+              <AsyncApiSidebarFilters
+                v-model:protocol="selectedProtocol"
+                v-model:server="selectedServer"
+                :document="activeAsyncApiDocument" />
 
               <!-- Search -->
               <div
@@ -1540,12 +1520,10 @@ const showMCPButton = computed(() => {
                   :modelValue="activeSlug"
                   :options="documentOptionList"
                   @update:modelValue="changeSelectedDocument" />
-                <SidebarFilter
-                  v-model="selectedProtocol"
-                  :options="protocolOptions" />
-                <SidebarFilter
-                  v-model="selectedServer"
-                  :options="serverFilterOptions" />
+                <AsyncApiSidebarFilters
+                  v-model:protocol="selectedProtocol"
+                  v-model:server="selectedServer"
+                  :document="activeAsyncApiDocument" />
               </div>
               <SearchButton
                 v-if="!mergedConfig.hideSearch"

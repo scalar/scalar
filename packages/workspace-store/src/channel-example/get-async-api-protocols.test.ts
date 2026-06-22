@@ -2,11 +2,12 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import {
-  ALL_PROTOCOLS,
-  ALL_SERVERS,
+  ALL,
+  createReachabilityContext,
   getAsyncApiProtocols,
   getAsyncApiServerOptions,
   getOperationProtocols,
+  getOperationReachability,
   getOperationServerNames,
   operationMatchesProtocol,
   operationMatchesServer,
@@ -48,16 +49,14 @@ const operation = (name: keyof NonNullable<AsyncApiDocument['operations']>) => {
 describe('getAsyncApiProtocols', () => {
   it('returns an "All protocols" entry plus each unique server protocol, sorted', () => {
     expect(getAsyncApiProtocols(document)).toEqual([
-      { id: ALL_PROTOCOLS, label: 'All protocols' },
+      { id: ALL, label: 'All protocols' },
       { id: 'mqtt', label: 'MQTT' },
       { id: 'wss', label: 'WSS' },
     ])
   })
 
   it('returns only the "All protocols" entry when the document has no servers', () => {
-    expect(getAsyncApiProtocols({ ...document, servers: undefined })).toEqual([
-      { id: ALL_PROTOCOLS, label: 'All protocols' },
-    ])
+    expect(getAsyncApiProtocols({ ...document, servers: undefined })).toEqual([{ id: ALL, label: 'All protocols' }])
   })
 })
 
@@ -74,7 +73,7 @@ describe('getOperationProtocols', () => {
 describe('operationMatchesProtocol', () => {
   it('keeps every operation when no protocol (or "all") is selected', () => {
     expect(operationMatchesProtocol(document, operation('receiveSensor'), undefined)).toBe(true)
-    expect(operationMatchesProtocol(document, operation('receiveSensor'), ALL_PROTOCOLS)).toBe(true)
+    expect(operationMatchesProtocol(document, operation('receiveSensor'), ALL)).toBe(true)
   })
 
   it('filters out operations whose channel cannot use the selected protocol', () => {
@@ -86,7 +85,7 @@ describe('operationMatchesProtocol', () => {
 describe('getAsyncApiServerOptions', () => {
   it('returns an "All servers" entry plus each server labelled with its protocol', () => {
     expect(getAsyncApiServerOptions(document)).toEqual([
-      { id: ALL_SERVERS, label: 'All servers' },
+      { id: ALL, label: 'All servers' },
       { id: 'websocket', label: 'websocket (wss)' },
       { id: 'mqtt', label: 'mqtt (mqtt)' },
     ])
@@ -106,11 +105,31 @@ describe('getOperationServerNames', () => {
 describe('operationMatchesServer', () => {
   it('keeps every operation when no server (or "all") is selected', () => {
     expect(operationMatchesServer(document, operation('receiveSensor'), undefined)).toBe(true)
-    expect(operationMatchesServer(document, operation('receiveSensor'), ALL_SERVERS)).toBe(true)
+    expect(operationMatchesServer(document, operation('receiveSensor'), ALL)).toBe(true)
   })
 
   it('filters out operations whose channel is not reachable through the selected server', () => {
     expect(operationMatchesServer(document, operation('receiveSensor'), 'websocket')).toBe(false)
     expect(operationMatchesServer(document, operation('receiveSensor'), 'mqtt')).toBe(true)
+  })
+})
+
+describe('getOperationReachability', () => {
+  it('resolves both the servers and their protocols for a pinned channel in one pass', () => {
+    const reachability = getOperationReachability(document, operation('receiveSensor'))
+    expect([...reachability.serverNames]).toEqual(['mqtt'])
+    expect([...reachability.protocols]).toEqual(['mqtt'])
+  })
+
+  it('reuses a shared context so matchers do not rebuild document-level lookups per operation', () => {
+    const context = createReachabilityContext(document)
+    expect(context.serverProtocols.get('websocket')).toBe('wss')
+    expect([...context.allServerNames].sort()).toEqual(['mqtt', 'websocket'])
+
+    // Passing the context yields the same result as computing it standalone.
+    expect([...getOperationReachability(document, operation('sendChat'), context).serverNames].sort()).toEqual([
+      'mqtt',
+      'websocket',
+    ])
   })
 })

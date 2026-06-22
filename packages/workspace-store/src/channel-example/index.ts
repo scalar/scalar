@@ -11,13 +11,19 @@ export {
 } from './build-connection-url'
 export type { ChannelMessageEntry } from './get-all-channel-messages'
 export { getAllChannelMessages } from './get-all-channel-messages'
-export type { AsyncApiProtocolOption, AsyncApiServerOption } from './get-async-api-protocols'
+export type {
+  AsyncApiProtocolOption,
+  AsyncApiReachabilityContext,
+  AsyncApiServerOption,
+  OperationReachability,
+} from './get-async-api-protocols'
 export {
-  ALL_PROTOCOLS,
-  ALL_SERVERS,
+  ALL,
+  createReachabilityContext,
   getAsyncApiProtocols,
   getAsyncApiServerOptions,
   getOperationProtocols,
+  getOperationReachability,
   getOperationServerNames,
   operationMatchesProtocol,
   operationMatchesServer,
