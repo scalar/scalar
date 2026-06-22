@@ -366,18 +366,18 @@ We are the API company, giving you industry-best interfaces for your APIs so you
 <section class="company-careers" aria-label="Open engineering roles">
   <div class="company-careers-heading" role="heading" aria-level="3">Engineering</div>
   <div class="company-careers-list">
-    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar">
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/aa017463-43c4-407c-b6c9-b59076f01d82">
       <span class="company-career-role t-editor__anchor">Senior / Staff Fullstack Engineer</span>
       <span class="company-career-location">Europe, North America, Remote</span>
       <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
     </a>
-    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar">
-      <span class="company-career-role t-editor__anchor">Senior / Staff Product Engineer</span>
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/77ff0d8b-37ea-4185-b3fd-6f6cc64c08fd">
+      <span class="company-career-role t-editor__anchor">Senior / Staff Platform Engineer</span>
       <span class="company-career-location">Europe, North America, Remote</span>
       <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
     </a>
-    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar">
-      <span class="company-career-role t-editor__anchor">Senior / Staff Platform Engineer</span>
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/aa017463-43c4-407c-b6c9-b59076f01d82">
+      <span class="company-career-role t-editor__anchor">Senior / Staff Product Engineer</span>
       <span class="company-career-location">Europe, North America, Remote</span>
       <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
     </a>
