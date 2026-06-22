@@ -14,8 +14,10 @@ A powerful Node.js mock server that automatically generates realistic API respon
 - Generates realistic mock data based on your schemas
 - Handles authentication and responds with defined HTTP headers
 - Supports Swagger 2.0 and OpenAPI 3.x documents
+- Mocks event-driven APIs from AsyncAPI 3.1 documents over WebSocket and SSE
 - Write custom JavaScript handlers for dynamic responses
 - Automatically seed initial data on server startup
+- Validates incoming requests against your OpenAPI contract
 
 ## Quickstart
 
@@ -186,7 +188,112 @@ The given OpenAPI document is automatically exposed:
 
 - `/openapi.json` and `/openapi.yaml`
 
+### Selecting responses
+
+By default the mock server picks a response (and its status code) for you and returns the first example it can find. You can override both with the standard [`Prefer` header](https://www.rfc-editor.org/rfc/rfc7240), just like [Stoplight Prism](https://github.com/stoplightio/prism).
+
+Use `code=<status>` to request a specific response status:
+
+```bash
+# Returns the 404 response defined for the operation
+curl http://localhost:3000/users/1 -H 'Prefer: code=404'
+```
+
+Use `example=<name>` to pick a named example from the `examples` map:
+
+```bash
+# Returns the `bob` example from the response
+curl http://localhost:3000/users -H 'Prefer: example=bob'
+```
+
+Both directives are independent and can be combined. `code=` picks the response, then `example=` picks the example within it:
+
+```bash
+curl http://localhost:3000/users -H 'Prefer: code=422, example=missingEmail'
+```
+
+Unknown values fall back to the default behavior, so an undefined status code or example name never errors.
+
+To define multiple examples, use the `examples` map on the response media type:
+
+```typescript
+const document = {
+  openapi: '3.1.1',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {
+    '/users': {
+      get: {
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                examples: {
+                  alice: {
+                    value: { name: 'Alice' },
+                  },
+                  bob: {
+                    value: { name: 'Bob' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+```
+
 ## Advanced Features
+
+### Request Validation
+
+The mock server enforces your OpenAPI contract by default. Each request is validated against the matched operation before a mock response is generated:
+
+- **Path, query, header, and cookie parameters** declared in the operation are validated against their schema. Values arrive as strings, so `type: integer`/`boolean` are coerced before validation (for example `?limit=10` becomes the number `10`). Required parameters are enforced. Header names are matched case-insensitively, and the `Accept`, `Content-Type`, and `Authorization` headers are ignored as parameters because OpenAPI defines them elsewhere.
+- **Array parameters** are deserialized according to their `style` and `explode` before validation. Exploded `form` arrays read repeated query keys (`?ids=1&ids=2`), while `form` (non-exploded), `spaceDelimited`, and `pipeDelimited` query arrays, `simple` path and header arrays, `form` cookie arrays, and the `label` (`/.1.2.3`) and `matrix` (`/;ids=1;ids=2`) path styles are split on their delimiter.
+- **Object parameters** are deserialized too: `deepObject` (`?filter[min]=1&filter[max]=9`), exploded `form` (properties as top-level keys, `?r=100&g=200`), `form`/`simple`/`label`/`matrix` in both explode modes (for example `r,100,g,200`, `r=100,g=200`, or `;point=x,1,y,2`).
+- **JSON request bodies** are validated against `requestBody.content['application/json'].schema`, and `requestBody.required` is enforced.
+
+When a request violates the contract, the server responds with `422 Unprocessable Entity` and a `application/problem+json` body listing every violation, instead of a mock response.
+
+To turn this off and always return a mock response regardless of the request, set `validateRequest: false`:
+
+```ts
+import { createMockServer } from '@scalar/mock-server'
+
+const app = await createMockServer({
+  document,
+  // Opt out of request validation
+  validateRequest: false,
+})
+```
+
+A failing request (for example a missing required `limit` query parameter and a wrong-typed body field) returns:
+
+```http
+HTTP/1.1 422 Unprocessable Entity
+Content-Type: application/problem+json
+```
+
+```json
+{
+  "error": "Request validation failed",
+  "violations": [
+    { "location": "query", "path": "/limit", "message": "limit must be integer" },
+    { "location": "body", "path": "/age", "message": "must be integer" }
+  ]
+}
+```
+
+Each violation reports its `location` (`path`, `query`, `header`, `cookie`, or `body`), a `path` pointing at the offending value, and a human-readable `message`. All violations are returned at once, not just the first.
+
+> This validates path, query, header, and cookie parameters (across every OpenAPI serialization style, including array and object values), plus JSON request bodies. Response validation, non-JSON bodies, and proxy mode are planned follow-ups.
 
 ### Custom Request Handlers
 
@@ -199,3 +306,9 @@ Use the `x-handler` extension to write custom JavaScript code for handling reque
 Use the `x-seed` extension on your schemas to automatically populate initial data when the server starts. Perfect for having realistic test data available immediately.
 
 [Learn more about data seeding →](data-seeding.md)
+
+### AsyncAPI Mocking
+
+Point the mock server at an AsyncAPI 3.1 document to mock event-driven APIs. Channels are served over WebSocket and Server-Sent Events, and messages are generated from each message's payload schema. Additional protocols can be plugged in through the `transports` extension point.
+
+[Learn more about AsyncAPI mocking →](asyncapi.md)

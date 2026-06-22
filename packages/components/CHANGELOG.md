@@ -1,5 +1,38 @@
 # @scalar/components
 
+## 0.27.3
+
+### Patch Changes
+
+- [#9565](https://github.com/scalar/scalar/pull/9565): Apply the themed placeholder color and font to textarea placeholders so they match input placeholders
+
+## 0.27.2
+
+### Patch Changes
+
+- [#9536](https://github.com/scalar/scalar/pull/9536): Fix `ScalarTooltip` offset gap on `-start` / `-end` placements. The offset was applied as uniform padding on all four sides of the tooltip, which shifted the visible box inward by the offset amount on edge-aligned placements (e.g. `top-start`, `bottom-end`) since Floating UI aligns the floating element's edge with the target's edge. The offset gap is now applied only to the side facing the target, so the tooltip lines up flush with the target on the start/end axis.
+
+## 0.27.1
+
+## 0.27.0
+
+### Minor Changes
+
+- [#9388](https://github.com/scalar/scalar/pull/9388): Add `ScalarVirtualCodeBlock` component with copy button support for virtualized code blocks
+
+### Patch Changes
+
+- [#9397](https://github.com/scalar/scalar/pull/9397): fix(components): vertically center the copy button for single-line code blocks
+- [#9421](https://github.com/scalar/scalar/pull/9421): fix(api-reference): avoid SSR hydration mismatch from the search shortcut and teleport ids
+
+  The macOS search shortcut symbol was derived from `navigator` during render, so a Mac client hydrated `⌘` where the server sent `⌃`. The platform is now resolved after mount. Teleport target ids and the search modal ids also switched from `nanoid()` to Vue's SSR-stable `useId()`.
+
+## 0.26.1
+
+### Patch Changes
+
+- [#9381](https://github.com/scalar/scalar/pull/9381): Disable font ligatures in ScalarCodeBlock so code renders with literal characters
+
 ## 0.26.0
 
 ### Minor Changes

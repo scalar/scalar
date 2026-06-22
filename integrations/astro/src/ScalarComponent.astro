@@ -1,8 +1,21 @@
 ---
 import { renderApiReference, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
 
+import ScalarClient from './ScalarClient.astro'
+
 export interface Props {
   configuration: Partial<HtmlRenderingConfiguration>
+  /**
+   * How the API reference is rendered.
+   *
+   * - `'static'` (default) renders a full HTML document ahead of time. Its
+   *   embedded script only runs on a hard page load.
+   * - `'client'` renders an empty container and mounts Scalar in the browser,
+   *   re-mounting around Astro view-transition events. Use this on Starlight
+   *   pages and other Astro sites with client-side navigation, where the
+   *   static script would otherwise only render after a manual refresh.
+   */
+  renderMode?: 'static' | 'client'
 }
 
 /**
@@ -13,18 +26,19 @@ const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
   // _integration: 'astro',
 }
 
-const { configuration } = Astro.props
+const { configuration, renderMode = 'static' } = Astro.props
 
 const finalConfiguration = {
   ...DEFAULT_CONFIGURATION,
   ...configuration,
 }
-const { cdn, pageTitle, ...config } = finalConfiguration
-const html = renderApiReference({
-  config,
-  cdn,
-  pageTitle,
-})
+const { cdn, pageTitle, nonce, ...config } = finalConfiguration
 ---
 
-<div set:html={html}></div>
+{
+  renderMode === 'client' ? (
+    <ScalarClient config={config} cdn={cdn} nonce={nonce} />
+  ) : (
+    <div set:html={renderApiReference({ config, cdn, pageTitle, nonce })} />
+  )
+}

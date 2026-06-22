@@ -88,7 +88,7 @@ describe('de-serialize-parameter', () => {
       expect(result).toEqual({ data: 'value' })
     })
 
-    it('parses boolean string when schema type is boolean', () => {
+    it('keeps boolean strings unchanged when schema type is boolean', () => {
       const param: ParameterWithSchemaObject = {
         name: 'test',
         in: 'query',
@@ -100,10 +100,10 @@ describe('de-serialize-parameter', () => {
 
       const result = deSerializeParameter(example, param)
 
-      expect(result).toBe(true)
+      expect(result).toBe('true')
     })
 
-    it('parses number string when schema type is number', () => {
+    it('keeps number strings unchanged when schema type is number', () => {
       const param: ParameterWithSchemaObject = {
         name: 'test',
         in: 'query',
@@ -115,10 +115,10 @@ describe('de-serialize-parameter', () => {
 
       const result = deSerializeParameter(example, param)
 
-      expect(result).toBe(42.5)
+      expect(result).toBe('42.5')
     })
 
-    it('parses integer string when schema type is integer', () => {
+    it('keeps integer strings unchanged when schema type is integer', () => {
       const param: ParameterWithSchemaObject = {
         name: 'test',
         in: 'query',
@@ -130,10 +130,25 @@ describe('de-serialize-parameter', () => {
 
       const result = deSerializeParameter(example, param)
 
-      expect(result).toBe(123)
+      expect(result).toBe('123')
     })
 
-    it('parses null string when schema type is null', () => {
+    it('keeps integers larger than Number.MAX_SAFE_INTEGER as strings', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'id',
+        in: 'path',
+        schema: {
+          type: 'integer',
+        },
+      }
+      const example = '1507323546366377984'
+
+      const result = deSerializeParameter(example, param)
+
+      expect(result).toBe('1507323546366377984')
+    })
+
+    it('keeps null keyword strings unchanged when schema type is null', () => {
       const param: ParameterWithSchemaObject = {
         name: 'test',
         in: 'query',
@@ -145,7 +160,7 @@ describe('de-serialize-parameter', () => {
 
       const result = deSerializeParameter(example, param)
 
-      expect(result).toBe(null)
+      expect(result).toBe('null')
     })
 
     it('does not parse string when schema type is string', () => {
@@ -358,6 +373,31 @@ describe('de-serialize-parameter', () => {
       const result = deSerializeParameter(example, param)
 
       expect(result).toEqual(['item1', 'item2'])
+    })
+
+    it('splits comma-separated string into array when array type is wrapped in anyOf', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'id',
+        in: 'query',
+        schema: {
+          anyOf: [{ type: 'array', items: { type: 'string' } }, { type: 'null' }],
+        } as ParameterWithSchemaObject['schema'],
+      }
+
+      expect(deSerializeParameter('a,b', param)).toEqual(['a', 'b'])
+      expect(deSerializeParameter('["a","b"]', param)).toEqual(['a', 'b'])
+    })
+
+    it('parses JSON object when object type is wrapped in oneOf', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'filter',
+        in: 'query',
+        schema: {
+          oneOf: [{ type: 'object' }, { type: 'null' }],
+        } as ParameterWithSchemaObject['schema'],
+      }
+
+      expect(deSerializeParameter('{"a":1}', param)).toEqual({ a: 1 })
     })
 
     it('handles complex nested JSON with content type', () => {

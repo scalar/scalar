@@ -1,7 +1,14 @@
 ---
 import { ScalarComponent } from '@scalar/astro'
+
+import Layout from '../layouts/Layout.astro'
 ---
 
-<ScalarComponent configuration={{
-	url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-}} />
+<Layout>
+  <ScalarComponent
+    renderMode="client"
+    configuration={{
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+    }}
+  />
+</Layout>

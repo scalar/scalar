@@ -18,14 +18,14 @@
     "testing",
     "react"
   ],
-  "version": "0.9.41",
+  "version": "0.9.48",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
     "dev": "vite ./playground -c ./vite.config.ts",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "main": "./dist/index.js",

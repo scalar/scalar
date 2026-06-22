@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { useTemplateRef } from 'vue'
 
 import { useIntersection } from '@/hooks/use-intersection'
@@ -9,7 +12,7 @@ import { useIntersection } from '@/hooks/use-intersection'
 import ClassicLayout from './components/ClassicLayout.vue'
 import ModernLayout from './components/ModernLayout.vue'
 
-const { schema, isCollapsed, id, options, eventBus } = defineProps<{
+const { schema, isCollapsed, id, options, eventBus, document } = defineProps<{
   id: string
   name: string
   options: Pick<
@@ -17,11 +20,14 @@ const { schema, isCollapsed, id, options, eventBus } = defineProps<{
     | 'layout'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
+    | 'expandAllSchemaProperties'
     | 'hideModels'
   >
   schema: SchemaObject | undefined
   isCollapsed: boolean
   eventBus: WorkspaceEventBus
+  /** The document the model belongs to, used to resolve schema references for display */
+  document?: OpenApiDocument
 }>()
 
 const section = useTemplateRef<HTMLElement>('section')
@@ -35,6 +41,7 @@ useIntersection(section, () => eventBus?.emit('intersecting:nav-item', { id }))
     <ClassicLayout
       v-if="options.layout === 'classic'"
       :id
+      :document
       :eventBus
       :isCollapsed
       :name
@@ -43,6 +50,7 @@ useIntersection(section, () => eventBus?.emit('intersecting:nav-item', { id }))
     <ModernLayout
       v-else
       :id
+      :document
       :eventBus
       :isCollapsed
       :name

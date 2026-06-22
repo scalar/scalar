@@ -1,17 +1,23 @@
-<div class="hero-animation container-full">
-  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
+# Getting Started
+
+Documentation that stays in sync with your API and code. Pull content from GitHub, get previews on every pull request, deploy on merge, or publish from anywhere with the CLI.
+
+The site you are reading was built with Docs. Teams use it to combine product guides, API references, OpenAPI-powered search, and release-ready developer portals in one place.
+
+<div class="flex gap-2">
+  <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get Started</a>
+  <a class="t-editor__button button__secondary" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
 </div>
-<div class="flex flex-col gap-3 hero small-test">
-  <scalar-heading level="2" slug="scalar-docs" class="text-balance">
-    Docs
-  </scalar-heading>
-  <p>
-    Documentation that stays in sync with your API and code. Pull content from GitHub, get previews on every pull request, deploy on merge, or publish from anywhere with the CLI.
-  </p>
-  <p>
-    The site you're looking at was built using Docs. It's not just us, those wonderful folks use it too:
-  </p>
-</div>
+
+<scalar-image
+  class="docs-hero-image"
+  src="/api-docs-static-zoom.svg"
+  src-dark="/api-docs-static-zoom-dark.svg"
+  alt="Scalar Docs interface"
+  size="full">
+</scalar-image>
+
+
 <div class="logowall">
   <div class="logowall-item">
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
@@ -31,13 +37,13 @@
   <div class="logowall-item">
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
   </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
+  </div>
 </div>
-
-<div class="mt-10">
-  <scalar-image src="/api-docs-static-zoom.svg" src-dark="/api-docs-static-zoom-dark.svg"></scalar-image>
-</div>
-<div class="flex">
-  <div class="full-container-constrained">
 
 <div class="feature">
   <h2>Your documentation, always up to date</h2>
@@ -105,598 +111,193 @@
   </div>
 </div>
 
+## Create docs in three steps
+
+<scalar-steps>
+  <scalar-step title="Start a project" icon="phosphor/regular/folder-plus">
+Create a Docs project from the dashboard, the [Starter Kit](starter-kit.md), or any folder that contains a `scalar.config.json` file.
+
+```bash
+npx @scalar/cli project preview
+```
+  </scalar-step>
+
+  <scalar-step title="Add guides and APIs" icon="phosphor/regular/book-open">
+Write guides in Markdown or MDX, then add OpenAPI documents for interactive API references.
+
+```json
+{
+  "navigation": {
+    "routes": {
+      "/getting-started": {
+        "type": "page",
+        "filepath": "docs/getting-started.md"
+      }
+    }
+  }
+}
+```
+  </scalar-step>
+
+  <scalar-step title="Preview, publish, and sync" icon="phosphor/regular/git-branch">
+Use preview deployments for review, publish from the CLI, or connect GitHub Actions for automatic deployments.
+
+```bash
+npx @scalar/cli project publish
+```
+  </scalar-step>
+</scalar-steps>
+
 ## The modern API documentation
 
-Include interactive API references, for a single API or for hundreds of APIs. All based on the OpenAPI standard. And the best part: Your documentation stays in sync with your actual API.
+Include interactive API references for a single API or hundreds of APIs. Everything is based on the OpenAPI standard, so your documentation can stay in sync with the API description your team already maintains.
 
-> [!TIP]
-> Just need an API Reference and that's all? Use the [API Reference](../../guides/api-references/getting-started.md). It is open-source, free, and has integrations for all REST API frameworks.
+<scalar-callout type="info" icon="phosphor/regular/info">
+  Just need an API reference? Use the [API Reference](../../guides/api-references/getting-started.md). It is open source, free, and has integrations for REST API frameworks.
+</scalar-callout>
 
 ## Write anywhere
 
-Put your content where you want: in your repository, any folder, or the Scalar Editor.
+| Source | Description |
+| ------ | ----------- |
+| **GitHub** | Keep content and OpenAPI documents in your repository. Use [preview deployments](deployment/preview-deployments.md), [automatic deployment](deployment/automatic-deployment.md), [GitHub Actions](deployment/github-actions.md), and [scalar.config.json](configuration/scalar.config.json.md). |
+| **Any folder or CLI** | Work from any folder or repository without granting repository access. Publish with [`npx @scalar/cli project publish`](deployment/cli.md). |
+| **Web editor** | Edit and store docs at [docs.scalar.com](https://docs.scalar.com). No Git required. |
 
-| Source                   | Description                                                                                                                                                                                                                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **GitHub** (recommended) | Content and OpenAPI in your repository. CI/CD: [preview deployments](deployment/preview-deployments.md), [automatic deployment](deployment/automatic-deployment.md), [GitHub Actions](deployment/github-actions.md), [scalar.config.json](configuration/scalar.config.json.md). |
-| **Any folder / CLI**     | No repository access needed. Content in any folder or repository, run [`npx @scalar/cli project publish`](deployment/cli.md).                                                                                                                                                   |
-| **Web editor**           | Edit and store docs at [docs.scalar.com](https://docs.scalar.com). No Git required.                                                                                                                                                                                             |
+## Plans
 
-## Plans: Free, Pro, Enterprise
-
-|                                                                                                  | Free | Pro | Enterprise |
-| ------------------------------------------------------------------------------------------------ | ---- | --- | ---------- |
-| Subdomains, API references, themes, custom HTML/CSS/JS, email domain access                      | ✓    | ✓   | ✓          |
-| Custom domains, Guides, versions, Git Sync, Markdown + MDX, landing pages, full developer portal |      | ✓   | ✓          |
-| SSO/SAML, RBAC, priority support, dedicated Slack/Teams                                          |      |     | ✓          |
-
+| Feature | Free | Pro | Enterprise |
+| ------- | ---- | --- | ---------- |
+| Subdomains, API references, themes, email domain access | Included | Included | Included |
+| Custom domains, guides, versions, Git Sync, Markdown, MDX, and landing pages | - | Included | Included |
+| SSO/SAML, RBAC, priority support, and dedicated Slack or Teams support | - | - | Included |
 
 [See the full comparison](../pricing.md) for Docs and the other Scalar products.
 
-<div class="feature">
-  <div class="cta flex flex-col gap-3 small-test">
-    <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">What are you waiting for?</scalar-heading>
-  <p>
-    We're committed to enabling developers and companies to practice the highest
-    of API industry standards.
-  </p>
-  <div class="flex gap-2 mb-11">
-    <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
-  </div>
-  <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank" aria-label="Join Scalar community on Discord">Community →</a>
-  <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
-  <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank" aria-label="Contact Scalar support">Contact Us →</a>
-</div>
-</div>
-</div>
-  <div class="resources-cta sticky">
-    <div class="resources-cta-container">
-      <p class="mt-3 mb-1 pl-2">
-        <b class="font-medium">Additional Reading</b>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/scalar.config.json"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon>Configuration</a>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/deployment/automatic-deployment"><scalar-icon src="phosphor/bold/arrow-square-out"></scalar-icon> Automatic Deployment</a>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/deployment/preview-deployments"><scalar-icon src="phosphor/bold/code"></scalar-icon> Preview Deployments</a>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/deployment/cli"><scalar-icon src="phosphor/bold/terminal"></scalar-icon> CLI</a>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/starter-kit"><scalar-icon src="phosphor/bold/rocket-launch"></scalar-icon> Starter Kit</a>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/themes"><scalar-icon src="phosphor/bold/palette"></scalar-icon> Themes</a>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/private-docs"><scalar-icon src="phosphor/bold/users"></scalar-icon> Private Docs</a>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/ask-ai"><scalar-icon src="phosphor/bold/headset"></scalar-icon> Ask AI</a>
-      </p>
-      <p class="mt-3 mb-1 pl-2">
-        <b class="font-medium">Community</b>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://discord.gg/scalar" target="_blank"><scalar-icon src="phosphor/bold/discord-logo"></scalar-icon> Discord</a>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://twitter.com/scalar" target="_blank"><scalar-icon src="phosphor/bold/twitter-logo"></scalar-icon> Twitter</a>
-      </p>
-      <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://github.com/scalar/scalar" target="_blank"><scalar-icon src="phosphor/bold/github-logo"></scalar-icon> GitHub</a>
-      </p>
-    </div>
-  </div>
+## Ready to publish?
+
+We are committed to enabling developers and companies to practice the highest API industry standards.
+
+<div class="flex gap-2">
+  <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
+  <a class="t-editor__button button__secondary" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a demo</a>
 </div>
 
-<div class="expander-container">
-  <div class="expander-hover">
-    <div class="expander-hover-preview">
-      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
-      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-        <object class="sticker-clip-client" width="156" height="110"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
-      </div>
-      <div class="expander-hover-title">API Client</div>
-      <div class="expander">
-        <div class="expander-content">
-          Minimal, powerful, fully open-source API Client built on open standards by us + our community.
-        </div>
-      </div>
-      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank" aria-label="Learn more about API Client">Learn More</a>
-    </div>
-  </div>
-  <div class="expander-hover">
-    <div class="expander-hover-preview">
-      <img alt="SDKs Preview" class="light-image" src="/sdks-static.svg" />
-      <img alt="SDKs Preview" class="dark-image" src="/sdks-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-        <object class="sticker-clip-sdk" width="145" height="145"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></object>
-      </div>
-      <div class="expander-hover-title">SDKs</div>
-      <div class="expander">
-        <div class="expander-content">
-          Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
-        </div>
-      </div>
-      <a class="expander-hover-link" href="/products/sdks/getting-started" aria-label="Learn more about SDKs">Learn More</a>
-    </div>
-  </div>
-  <div class="expander-hover">
-    <div class="expander-hover-preview">
-      <img alt="API Registry Preview" class="light-image" src="/registry-static.svg" />
-      <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-      <object class="sticker-clip-registry" width="136" height="186"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></object>
-      </div>
-      <div class="expander-hover-title">API Registry</div>
-      <div class="expander">
-        <div class="expander-content">
-          Managing & versioning OpenAPI Documents with a deep Git integration.
-        </div>
-      </div>
-      <a class="expander-hover-link" href="/products/registry/getting-started" aria-label="Learn more about API Registry">Learn More</a>
-    </div>
-  </div>
-  <div class="expander-hover">
-    <div class="expander-hover-preview">
-      <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
-      <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-        <object class="sticker-clip-docs" width="113" height="143" data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></object>
-      </div>
-      <div class="expander-hover-title">Docs</div>
-      <div class="expander">
-        <div class="expander-content">
-          Documentation that stays in sync with your API. Markdown, MDX, Git Sync, and stunning API references.
-        </div>
-      </div>
-      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about Docs">Learn More</a>
-    </div>
-  </div>
-</div>
-<div class="getting-started footer container-full">
-  <div class="footer-content">
-      <div>
-        <span class="text-c-1">
-          <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
-        </span>
-        <p class="mt-10 text-c-3 text-sm text-balance">The API company.</p>
-        <p class="mt-5 text-c-3 text-sm text-balance">© API Documentation, Inc.</p>
-      </div>
-      <div class="flex text-sm">
-        <div class="w-1/3 flex flex-col gap-2">
-          <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">Docs</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
-        </div>
-        <div class="w-1/3 flex flex-col gap-2">
-          <b>Company</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/brand">Brand</a>
-          <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
-        </div>
-        <div class="w-1/3 flex flex-col gap-2">
-          <b>Socials</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly Twitter)</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">GitHub</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
-        </div>
-      </div>
-  </div>
-  <!-- footer animation -->
-  <div class="footer-animation">
-    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
-  </div>
-</div>
 <style>
-  :root {
-    --scalar-text-decoration: none;
-    --scalar-text-decoration-hover: none;
-  }
   .t-editor__anchor {
     --font-visited: none;
   }
-  .resources-cta-container {
-    border-radius: var(--scalar-radius-lg);
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
-    width: 100%;
-    padding: 12px 8px;
-  }
-  .resources-cta {
-    max-height: fit-content;
-    width: 100%;
-    top: 12px;
-    padding-top: 50px;
-    padding-bottom: 200px;
-  }
-  .full-container-constrained {
-    max-width: 720px;
-    padding-right: 40px;
-  }
-  .full-container-constrained > .t-editor__heading {
-    margin-top: 44px;
-  }
-  .full-container-constrained > .t-editor__paragraph {
-    margin-top: 12px;
-  }
-  .hero-animation  {
-    position: absolute;
-    top: 0;
-    z-index: -1;
-    transform: scaleY(-1);
-    margin-top: 0;
-  }
-  .hero-animation .fa {
-    --fa-orange: rgba(49, 215, 250, .25);
-    --fa-yellow: #0189fc;
-    --fa-red: rgba(54, 114, 255,0);
-    --scalar-background-2: var(--scalar-background-1)
-  }
-  @supports (color: color(display-p3 1 1 1)) {
-    .hero-animation .fa {
-      --fa-orange: color(display-p3 0.19 0.57 0.98 / 0.25);
-      --fa-yellow: color(display-p3 0 0.67 0.99);
-      --fa-red: color(display-p3 0.21 0.43 1 / 0);
-    }
-  }
-  .t-editor__page-title,
-  .t-editor__page-nav,
-  .notify-container,
-  .subheading,
-  :not(.getting-started).footer,
-  .t-editor .page-header,
-  .content .page-nav {
-    display: none;
-  }
+
   main.content {
     overflow-x: clip;
   }
+
+  .t-editor.page {
+    position: relative;
+  }
+
   .t-doc .layout-header {
     z-index: 10000;
   }
+
   .t-editor__button {
     min-width: 160px;
     justify-content: center;
   }
-  .t-editor .editor-content,
-  .t-editor {
-    padding-bottom: 0;
-  }
-  h3.t-editor__heading,
-  h2.t-editor__heading {
-    --font-size: var(--scalar-heading-1);
-      margin-top: 0;
-  }
-  :root {
-    --scalar-container-width: 960px;
-  }
-  .hero.hero {
-    margin-top: 88px;
-  }
-  .small-test {
-    max-width: 680px;
-    text-wrap: balance;
-    margin-top: 44px;
-    position: relative;
-  }
-  .t-editor .editor-static .page-node,
-  .t-editor .page-node,
-  .t-editor .content {
-    max-width: var(--scalar-container-width);
-    padding-bottom: 0;
-    margin-bottom: 0;
-  }
-  .container {
-    width: var(--scalar-container-width);
-    margin: auto;
-    position: relative;
-  }
+
   .container-full {
     --scalar-container-sidebar-gap: calc(
       (
-        (100dvw - var(--scalar-container-width) - var(--scalar-sidebar-width)) /
-          2
-      )
+        100dvw - var(--scalar-container-width, 960px) -
+          var(--scalar-sidebar-width, 0px) - var(--scalar-toc-width, 0px)
+      ) / 2
     );
-    width: calc(100dvw - var(--scalar-sidebar-width));
-    margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
+    width: calc(100dvw - var(--scalar-sidebar-width, 0px));
+    margin-left: min(calc(-1 * var(--scalar-container-sidebar-gap)), -50px);
   }
-  .t-editor.page {
-    position: relative;
-    margin-right: unset;
+
+  .docs-hero-image {
+    margin-top: 32px;
   }
-  .container {
-    width: 900px;
-    margin: auto;
-    position: relative;
+
+  .docs-hero-image {
+    width: 150%;
+    max-width: auto;
   }
-  /* logos */
+
   .logowall.logowall {
     margin-top: 48px;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     align-items: center;
     gap: 40px;
   }
+
   .logowall-item {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
   }
+
   .logowall-item svg {
-    width: 100%;
+    width: fit-content;
     height: auto;
     max-height: 24px;
   }
+
   .ign-logo__fill {
     fill: var(--scalar-color-1);
   }
+
   .fill-current-bg {
     fill: var(--scalar-background-1);
   }
-  /* feature */
+
   .feature {
     padding: 60px 0 !important;
   }
+
   .feature-container {
     gap: 6px;
     margin-top: 32px;
   }
+
   .feature-item {
     flex: 0 0 calc(50% - 6px);
   }
-  /* new stuff  */
-  .expander {
-    display: grid;
-    grid-template-rows: 0fr;
-    overflow: hidden;
-    opacity: 0;
-    transition: grid-template-rows 0.25s, opacity 0.25s ease-in-out;
-  }
-  .expander-content {
-    min-height: 0;
-    margin-bottom: 12px;
-    margin-top: 6px;
-    line-height: 1.45;
-    font-size: 14px;
-  }
-  .expander-hover {
-    height: 370px;
-    position: relative;
-  }
-  .expander-hover:hover .expander {
-    grid-template-rows: 1fr;
-    opacity: 1;
-    transition: grid-template-rows 0.5s, opacity 0.5s ease-in-out;
-  }
-  .expander.expanded .expander-content {
-    visibility: visible;
-  }
-  .expander-hover-title {
-    font-size: 20px;
-    font-weight: var(--scalar-semibold);
-    margin-top: 24px;
-  }
-  .expander-hover-link {
-    --font-color: var(--scalar-color-2);
-    --font-visited: var(--scalar-color-2);
-    color: var(--font-color, var(--scalar-color-1));
-    font-weight: var(--scalar-semibold);
-    text-underline-offset: 0.25rem;
-    text-decoration-thickness: 1px;
-    text-decoration: underline;
-    text-decoration-color: color-mix(
-      in srgb,
-      var(--font-color, var(--scalar-color-1)) 30%,
-      transparent
-    );
-    margin-top: 6px;
-  }
-  .expander-hover:hover .expander-hover-link {
-    --font-color: var(--scalar-color-1);
-  }
-  .expander-hover-preview {
-    position: absolute;
-    left: -120px;
-    top: -220px;
-    width: 1100px;
-    mask-image: radial-gradient(circle at top left, black 25%, transparent 40%);
-    pointer-events: none;
-    opacity: 0;
-    transition: all 0.3s ease-in-out;
-    transform: rotate(1deg) translate3d(-10px, -10px, 0);
-    max-height: 500px;
-    overflow: hidden;
-  }
-  .expander-hover .relative {
-    z-index: 1;
-  }
-  .expander-hover:hover .expander-hover-preview {
-    opacity: 1;
-    transform: rotate(2deg) translate3d(0, 0, 0);
-    transition: all 0.3s ease-in-out 0.2s;
-  }
-  .expander-hover-preview img {
-    margin-left: 0;
-    mask-image: linear-gradient(black, transparent);
-    width: 100%;
-  }
-  .expander-hover-sticker {
-    height: 143px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    position: relative;
-    margin-left: -12px;
-    transition: transform 0.3s ease-in-out;
-    justify-content: flex-start;
-  }
-  .expander-hover-sticker object {
-    pointer-events: none;
-  }
-  .expander-hover-sticker img {
-    max-height: initial;
-    margin-left: initial;
-  }
-  .expander-hover:hover .expander-hover-sticker {
-    transform: rotate(-3deg);
-  }
-  .expander-container {
-    display: flex;
-    gap: 44px;
-  }
-  .cta {
-    padding: 80px 0;
-    margin-top: 0 !important;
-  }
-  .mb-11 {
-    margin-bottom: 44px;
-  }
-  /* footer */
-  .getting-started.footer {
-    position: relative;
-    overflow: hidden;
-    background: var(--scalar-background-2);
-    padding-inline: 20px;
-    padding-bottom: 200px;
-    margin-top: 100px;
-  }
-  .footer-animation {
-    margin-inline: -20px;
-  }
-  .footer-animation svg {
-    position: absolute;
-    bottom: 0;
-  }
-  .footer-content {
-    display: flex;
-    gap: 48px;
-    max-width: var(--scalar-container-width);
-    width: 100%;
-    margin: auto;
-    padding-top: 92px;
-  }
-  .footer-content > * {
-    flex: 1;
-  }
-  .footer-content span,
-  .footer-content p,
-  .footer-content a,
-  .footer-content button {
-    position: relative;
-    z-index: 1;
-  }
-  .w-1\/3 {
-    width: 33.33%
-  }
-  .light-mode .dark-image {
-    display: none;
-  }
-  .dark-mode .light-image {
-    display: none;
-  }
-  .sticker-clip-client {
-    clip-path: path("M158 91.9102C158 95.8908 154.773 99.1172 150.792 99.1172L147.269 99.1172L147.269 105.78C147.268 107.948 145.511 109.705 143.343 109.705L86.2051 109.705C84.0373 109.705 82.2795 107.948 82.2793 105.78L82.2793 99.1172L7.208 99.1172C3.22741 99.1172 1.10673e-05 95.8908 -4.01752e-06 91.9101L-3.50643e-06 80.2178C-3.47119e-06 79.4117 0.135571 78.6109 0.400387 77.8496L25.7949 4.83984C26.8028 1.94219 29.5346 -5.6154e-06 32.6025 -5.4813e-06L150.792 -3.15072e-07C154.773 -1.41078e-07 158 3.22654 158 7.20703L158 91.9102Z")
-  }
-  .sticker-clip-sdk {
-    clip-path: path("M60.0562 8.61129C65.9233 -1.83053 81.0294 -1.61478 86.5955 8.99068L142.416 115.353C144.543 119.406 141.567 124.259 136.991 124.201L114.679 123.918L114.138 135.797C113.962 139.654 110.761 142.678 106.9 142.634L32.9393 141.782C29.1212 141.738 26.0084 138.707 25.864 134.891L25.406 122.787L6.28841 122.544C1.70363 122.486 -1.1476 117.543 1.09835 113.545L60.0562 8.61129Z")
-  }
-  .sticker-clip-registry {
-    clip-path: path("M71.0986 1.13334C75.8537 -0.596969 81.1116 1.85514 82.8428 6.6099L90.3037 27.1079H98.5059C104.199 27.108 108.814 31.7235 108.814 37.4165V77.9663L121.32 112.329C119.703 112.128 118.003 112.298 116.351 112.899C110.96 114.861 108.12 120.659 110.009 125.848C111.898 131.038 117.8 133.654 123.191 131.692C124.844 131.091 126.254 130.127 127.364 128.933L134.608 148.835C136.339 153.591 133.887 158.849 129.132 160.58L73.3945 180.866C68.6393 182.596 63.3816 180.145 61.6504 175.39L58.958 167.994H2.29102C1.02582 167.994 0 166.968 0 165.703V29.398C0.000538247 28.1333 1.02616 27.1079 2.29102 27.1079H9.8125C10.6721 24.5603 12.6383 22.4116 15.3613 21.4204L71.0986 1.13334Z")
-  }
-  .sticker-clip-docs {
-    overflow: hidden;
-    border-radius: 20px;
-  }
-  @media screen and (max-width: 1280px) {
-      .resources-cta {
-        display: none;
-      }
-      .full-container-constrained {
-        padding-right: 0px;
-        max-width: 100%;
-      }
-    }
+
   @media screen and (max-width: 1000px) {
-    .t-doc {
-      --scalar-sidebar-width: 0px;
-    }
-    .hero.hero {
-      margin-top: 188px;
-    }
-    .t-editor.page {
-      padding-inline: 30px;
-    }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
       width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
     }
+
     .hero-animation {
       margin-top: -100px !important;
       padding-inline: 0;
       margin-inline: 0;
     }
+
     .logowall.logowall {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       column-gap: 20px;
       row-gap: 40px;
     }
+
     .logowall-item {
       justify-content: start;
     }
+
     .logowall-item svg {
       max-width: 100%;
       height: 100%;
       max-height: 20px;
     }
+
     .feature-item {
       flex: 0 0 calc(100% - 22px);
-    }
-    .expander-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      row-gap: 0;
-    }
-    .expander-hover {
-      width: auto;
-    }
-    .expander-hover .expander {
-      grid-template-rows: 1fr;
-      opacity: 1;
-    }
-    .expander .expander-content {
-      visibility: visible;
-    }
-    .footer-content {
-      flex-direction: column;
-    }
-    .footer-content > * {
-      flex: initial;
     }
   }
 </style>

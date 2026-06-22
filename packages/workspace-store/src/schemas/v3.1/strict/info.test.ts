@@ -80,13 +80,11 @@ describe('info', () => {
         version: '1.0.0',
         'x-scalar-sdk-installation': [
           {
-            lang: 'npm',
-            source: 'npm install my-api-sdk',
+            lang: 'TypeScript',
             description: 'Install my-api-sdk',
           },
           {
-            lang: 'yarn',
-            source: 'yarn add my-api-sdk',
+            lang: 'Python',
             description: 'Install my-api-sdk',
           },
         ],
@@ -100,13 +98,11 @@ describe('info', () => {
         version: '1.0.0',
         'x-scalar-sdk-installation': [
           {
-            lang: 'npm',
-            source: 'npm install my-api-sdk',
+            lang: 'TypeScript',
             description: 'Install my-api-sdk',
           },
           {
-            lang: 'yarn',
-            source: 'yarn add my-api-sdk',
+            lang: 'Python',
             description: 'Install my-api-sdk',
           },
         ],

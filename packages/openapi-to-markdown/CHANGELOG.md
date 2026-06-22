@@ -1,5 +1,25 @@
 # @scalar/openapi-to-markdown
 
+## 0.5.27
+
+## 0.5.26
+
+## 0.5.25
+
+### Patch Changes
+
+- [#9342](https://github.com/scalar/scalar/pull/9342): fix: resolve operations when OpenAPI path items use `$ref`
+
+  Path entries and webhooks can reference `components.pathItems` instead of inlining operations. Navigation, mutators, search, and markdown export now resolve path-item references before reading HTTP methods and path-level parameters.
+
+## 0.5.24
+
+## 0.5.23
+
+## 0.5.22
+
+## 0.5.21
+
 ## 0.5.20
 
 ## 0.5.19

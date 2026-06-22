@@ -69,7 +69,6 @@ import {
   ComponentsObjectRef,
   ExternalDocumentationObjectRef,
   InfoObjectRef,
-  PathItemObjectRef,
   PathsObjectRef,
   REF_DEFINITIONS,
   SecurityRequirementObjectRef,
@@ -143,7 +142,7 @@ const OpenApiDocumentSchemaDefinition = compose(
     /** The available paths and operations for the API. */
     paths: Type.Optional(PathsObjectRef),
     /** The incoming webhooks that MAY be received as part of this API and that the API consumer MAY choose to implement. Closely related to the callbacks feature, this section describes requests initiated other than by an API call, for example by an out of band registration. The key name is a unique string to refer to each webhook, while the (optionally referenced) Path Item Object describes a request that may be initiated by the API provider and the expected responses. An example is available. */
-    webhooks: Type.Optional(Type.Record(Type.String(), PathItemObjectRef)),
+    webhooks: Type.Optional(PathsObjectRef),
     /** An element to hold various Objects for the OpenAPI Description. */
     components: Type.Optional(ComponentsObjectRef),
     /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement ({}) can be included in the array. */

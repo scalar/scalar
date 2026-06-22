@@ -1,5 +1,6 @@
-import { normalize, toYaml } from '@scalar/openapi-parser'
+import { normalize } from '@scalar/json-magic/helpers/normalize'
 import type { Context } from 'hono'
+import { stringify as toYaml } from 'yaml'
 
 /**
  * OpenAPI endpoints

@@ -30,7 +30,7 @@ const reference = object(
  * Use for `components.schemas` and schema composition (`allOf`, `properties`, `items`, and similar)
  * where references follow JSON Schema / OpenAPI schema rules only.
  */
-export const normalRef = (inner: Schema): Schema => union([inner, reference])
+export const normalRef = (inner: Schema): Schema => union([reference, inner])
 
 const e = (value: unknown) => {
   if (isObject(value) && '$ref' in value) {

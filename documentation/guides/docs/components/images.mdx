@@ -1,0 +1,133 @@
+import Preview from './Preview.mdx'
+
+# Images
+
+Images render responsive figures with optional captions, links, and dark-mode variants.
+
+The examples below reference images from your [assets directory](/products/docs/content/assets) using root-relative paths (e.g. `/marc-cam-scalar.jpg`). You can also pass a full URL to any external image.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `src` | `string` | _required_ | URL or relative path to the image. Relative paths resolve against `assetsDir` from `scalar.config.json`. |
+| `src-dark` | `string` | — | Dark-mode variant of `src`. Falls back to `src` when not set. |
+| `alt` | `string` | — | Alt text for accessibility. |
+| `caption` | `string` | — | Caption shown below the image. |
+| `width` | `number` | — | Display width in pixels. |
+| `height` | `number` | — | Display height in pixels. |
+| `href` | `string` | — | When set, wraps the image in a link to this URL. |
+| `size` | `'actual'` `'custom'` `'full'` | `actual` | Sizing strategy. `actual` uses the image's natural size, `custom` uses `width`/`height`, `full` stretches to container width. |
+
+## Examples
+
+### Basic Image
+
+<Preview>
+  <Image
+    src="/marc-cam-scalar.jpg"
+    alt="Two Scalar team members working at a desk"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-image
+  src="/marc-cam-scalar.jpg"
+  alt="Two Scalar team members working at a desk">
+</scalar-image>
+```
+```mdx MDX
+<Image
+  src="/marc-cam-scalar.jpg"
+  alt="Two Scalar team members working at a desk"
+/>
+```
+</CodeGroup>
+
+### With a Caption
+
+<Preview>
+  <Image
+    src="/marc-cam-scalar.jpg"
+    alt="Two Scalar team members working at a desk"
+    caption="Hard at work at Scalar"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-image
+  src="/marc-cam-scalar.jpg"
+  alt="Two Scalar team members working at a desk"
+  caption="Hard at work at Scalar">
+</scalar-image>
+```
+```mdx MDX
+<Image
+  src="/marc-cam-scalar.jpg"
+  alt="Two Scalar team members working at a desk"
+  caption="Hard at work at Scalar"
+/>
+```
+</CodeGroup>
+
+### Light and Dark Variants
+
+<Preview>
+  <Image
+    src="/brand/scalar-wordmark-light.png"
+    src-dark="/brand/scalar-wordmark-dark.png"
+    alt="Scalar wordmark"
+    size="custom"
+    width={300}
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-image
+  src="/brand/scalar-wordmark-light.png"
+  src-dark="/brand/scalar-wordmark-dark.png"
+  alt="Scalar wordmark"
+  size="custom"
+  width="300">
+</scalar-image>
+```
+```mdx MDX
+<Image
+  src="/brand/scalar-wordmark-light.png"
+  src-dark="/brand/scalar-wordmark-dark.png"
+  alt="Scalar wordmark"
+  size="custom"
+  width={300}
+/>
+```
+</CodeGroup>
+
+### Clickable Image
+
+<Preview>
+  <Image
+    src="/marc-cam-scalar.jpg"
+    alt="Visit Scalar"
+    href="https://scalar.com"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-image
+  src="/marc-cam-scalar.jpg"
+  alt="Visit Scalar"
+  href="https://scalar.com">
+</scalar-image>
+```
+```mdx MDX
+<Image
+  src="/marc-cam-scalar.jpg"
+  alt="Visit Scalar"
+  href="https://scalar.com"
+/>
+```
+</CodeGroup>

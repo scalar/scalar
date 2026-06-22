@@ -114,7 +114,7 @@ const { cx } = useBindCx()
       class="scalar-code-copy absolute"
       :class="[
         isOneLine
-          ? 'top-[calc(10px+0.5lh)] -translate-y-1/2 m-0 right-1'
+          ? 'top-1/2 -translate-y-1/2 m-0 right-1'
           : 'top-2.5 right-2.5',
         { 'opacity-100': copy === 'always' },
       ]"
@@ -137,6 +137,11 @@ const { cx } = useBindCx()
 <style>
 @reference '../../style.css';
 @import '@scalar/code-highlight/css/code.css';
+
+/** Disable font ligatures so code renders with literal characters */
+.scalar-code-block pre {
+  font-variant-ligatures: none;
+}
 
 /** Make the copy button label backdrop match the background */
 .scalar-code-block.bg-b-1 .scalar-code-copy-backdrop {

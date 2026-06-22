@@ -51,7 +51,7 @@ describe('generateCodeSnippet', () => {
     expect(result).toBe("fetch('https://api.example.com/users/{userId}')")
   })
 
-  it('resolves each custom code sample by its index, even when languages match', () => {
+  it('resolves each custom code sample by its language-keyed id, even when languages match', () => {
     const customCodeSamples: XCodeSample[] = [
       {
         lang: 'python',
@@ -65,11 +65,11 @@ describe('generateCodeSnippet', () => {
       },
     ]
 
-    // Two samples share a language, but each index resolves to its own source
-    expect(generateCodeSnippet({ ...baseParams, clientId: 'custom/0', customCodeSamples })).toBe(
+    // Two samples share a language, but each id resolves to its own source
+    expect(generateCodeSnippet({ ...baseParams, clientId: 'custom/python', customCodeSamples })).toBe(
       'response = svix.application.list()',
     )
-    expect(generateCodeSnippet({ ...baseParams, clientId: 'custom/1', customCodeSamples })).toBe(
+    expect(generateCodeSnippet({ ...baseParams, clientId: 'custom/python/1', customCodeSamples })).toBe(
       'response = await svix.application.list()',
     )
   })

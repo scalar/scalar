@@ -23,6 +23,7 @@
     "@playwright/test": "catalog:*",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "catalog:*",
+    "@typescript/native-preview": "7.0.0-dev.20260603.1",
     "cross-env": "catalog:*",
     "eslint": "^9.38.0",
     "eslint-plugin-vue": "^9.31.0",
@@ -68,7 +69,7 @@
     "types:build": "turbo types:build",
     "renovate:validate": "pnpm dlx --package renovate renovate-config-validator",
     "script": "pnpm --filter @scalar-internal/build-scripts start",
-    "release:version": "changeset version && pnpm --filter @scalar/helpers build && pnpm --filter @scalar-internal/build-scripts start release-notes-generator --all && pnpm format"
+    "release:version": "changeset version && pnpm --filter @scalar/release-notes... build && pnpm --filter @scalar/release-notes start --all && pnpm format"
   },
   "remarkConfig": {
     "plugins": [

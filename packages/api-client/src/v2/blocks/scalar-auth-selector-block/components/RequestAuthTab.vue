@@ -338,6 +338,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           scheme?.type === 'openIdConnect' &&
           !Object.keys(scheme.flows ?? {}).length
         "
+        :customFetch="options?.customFetch"
         :environment
         :eventBus
         :getStaticBorderClass

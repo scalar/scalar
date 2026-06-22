@@ -541,6 +541,25 @@ By default response sections are closed in the operations. This flag will open t
 }
 ```
 
+
+#### expandAllSchemaProperties
+
+**Type:** `boolean`
+
+When true, nested child properties are expanded by default. The
+"Show/Hide Child Attributes" toggle stays available so users can collapse
+sections manually.
+
+Warning: this can cause performance issues on big documents.
+
+**Default:** `false`
+
+```javascript
+{
+  expandAllSchemaProperties: true
+}
+```
+
 #### favicon
 
 **Type:** `string`
@@ -620,6 +639,20 @@ Whether models (`components.schemas` or `definitions`) should be shown in the si
 ```javascript
 {
   hideModels: true
+}
+```
+
+#### modelsSectionLabel
+
+**Type:** `'Models' | 'Schemas' | string`
+
+Label for the `components.schemas` section in the sidebar, main content, and search. Use `Schemas` for OpenAPI terminology; `Models` is the default for backward compatibility. Any custom string is supported.
+
+**Default:** `'Models'`
+
+```javascript
+{
+  modelsSectionLabel: 'Schemas'
 }
 ```
 
@@ -755,20 +788,6 @@ and each **value** specifies the visibility behavior for the clients of that lan
     js: true,
     shell: ['httpie'], // show all except `httpie`
   },
-}
-```
-
-#### isLoading
-
-**Type:** `boolean`
-
-Controls whether the references show a loading state in the intro section. Useful when you want to indicate that content is being loaded.
-
-**Default:** `false`
-
-```javascript
-{
-  isLoading: true
 }
 ```
 
@@ -1319,6 +1338,8 @@ Callback fired before the outbound request is sent from the embedded API client.
 
 **`request`** is a fetch API [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) built from the builder for backward compatibility. Using it as the primary way to customize outbound traffic is going to be **deprecated**; prefer **`requestBuilder`**. The API Reference passes both `request` and `requestBuilder` to this callback.
 
+> Note: The `request` here is **not** the object that is sent over the wire; the actual request is rebuilt from `requestBuilder` after this callback runs. If you need the exact outgoing request (for example, to hash a `multipart/form-data` body for request signing), use [`onRequestBuilt`](#onrequestbuilt) instead.
+
 ```javascript
 {
   onBeforeRequest: ({ requestBuilder }) => {
@@ -1448,6 +1469,32 @@ Callback that triggers as soon as the references are lazy loaded.
 }
 ```
 
+#### onRequestBuilt
+
+**Type:** `({ request: Request; requestBuilder: RequestFactory; envVariables: Record<string, string> }) => void | Promise<void>`
+
+Callback fired after the outbound fetch [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) has been built, right before it is sent from the embedded API client. The `request` is the **exact object handed to fetch**: mutating its headers modifies the outgoing request, and hashing its body produces a hash that matches what the server receives.
+
+This makes it the right hook for request signing. A request rebuilt from the builder would not work for `multipart/form-data` bodies, because every rebuild generates a fresh random multipart boundary.
+
+Use [`onBeforeRequest`](#onbeforerequest) instead when you need to mutate the request builder (method, path, query, body, security); those mutations have no effect in `onRequestBuilt` because the request is already built.
+
+> **Experimental:** This API may change in minor releases.
+
+```javascript
+{
+  onRequestBuilt: async ({ request }) => {
+    // Hash the exact body bytes that are sent over the wire
+    const bodyBytes = await request.clone().arrayBuffer()
+    const digest = await crypto.subtle.digest('SHA-256', bodyBytes)
+    const bodyHashB64 = btoa(String.fromCharCode(...new Uint8Array(digest)))
+
+    // Header mutations apply to the outgoing request
+    request.headers.set('X-Body-Hash', bodyHashB64)
+  }
+}
+```
+
 #### onRequestSent
 
 **Type:** `(request: string) => void`
@@ -1500,20 +1547,6 @@ Callback function that is triggered when a user clicks on any item in the sideba
 {
   onSidebarClick: (href) => {
     console.log('Sidebar item clicked:', href)
-  }
-}
-```
-
-#### onSpecUpdate
-
-**Type:** `(spec: string) => void`
-
-You can listen to changes with onSpecUpdate that runs on spec/swagger content change.
-
-```javascript
-{
-  onSpecUpdate: (value: string) => {
-    console.log('Content updated:', value)
   }
 }
 ```

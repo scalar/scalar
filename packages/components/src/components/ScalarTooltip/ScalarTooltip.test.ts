@@ -94,6 +94,30 @@ describe('ScalarTooltip', () => {
     expect(tooltip?.style.getPropertyValue('--scalar-tooltip-offset')).toBe('10px')
   })
 
+  it('reflects the placement side via the data-side attribute', async () => {
+    const wrapper = mount(ScalarTooltip, {
+      props: {
+        content: 'Tooltip Content',
+        placement: 'bottom-start',
+      },
+      slots: {
+        default: '<button>Hover me</button>',
+      },
+    })
+
+    // Wait for the event listeners to be added
+    await nextTick()
+
+    // Show tooltip
+    await wrapper.find('button').trigger('mouseenter')
+    await vi.runAllTimers()
+    await nextTick()
+
+    // The data-side should be the side the tooltip sits on (without the alignment suffix)
+    const tooltip = document.getElementById(ELEMENT_ID)
+    expect(tooltip?.dataset.side).toBe('bottom')
+  })
+
   it('updates tooltip content when content prop changes', async () => {
     const wrapper = mount(ScalarTooltip, {
       props: {

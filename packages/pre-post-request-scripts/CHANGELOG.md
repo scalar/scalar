@@ -1,5 +1,23 @@
 # @scalar/scripts
 
+## 0.4.25
+
+## 0.4.24
+
+## 0.4.23
+
+## 0.4.22
+
+## 0.4.21
+
+## 0.4.20
+
+## 0.4.19
+
+### Patch Changes
+
+- [#9338](https://github.com/scalar/scalar/pull/9338): perf: warm up the request scripts sandbox on mount when scripts are present, so the first request no longer pays the sandbox cold-start cost
+
 ## 0.4.18
 
 ### Patch Changes

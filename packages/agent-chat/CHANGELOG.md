@@ -1,5 +1,23 @@
 # @scalar/agent-chat
 
+## 0.12.12
+
+## 0.12.11
+
+## 0.12.10
+
+## 0.12.9
+
+## 0.12.8
+
+## 0.12.7
+
+### Patch Changes
+
+- [#9445](https://github.com/scalar/scalar/pull/9445): Update neverpanic to 0.0.8, which drops the TypeScript peer dependency and removes the unmet peer warning on install
+
+## 0.12.6
+
 ## 0.12.5
 
 ## 0.12.4

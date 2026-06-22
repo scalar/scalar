@@ -78,7 +78,7 @@ public static class DistributedApplicationBuilderExtensions
             });
     }
 
-    internal static void RemoveOtlpExporterAnnotations(ScalarResource resource)
+    internal static void RemoveOtlpExporterAnnotations(IResource resource)
     {
         var otlpExporterAnnotations = resource.Annotations.OfType<OtlpExporterAnnotation>().ToArray();
         foreach (var annotation in otlpExporterAnnotations)

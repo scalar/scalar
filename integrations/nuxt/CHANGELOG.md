@@ -1,5 +1,29 @@
 # @scalar/nuxt
 
+## 0.6.48
+
+## 0.6.47
+
+### Patch Changes
+
+- [#9528](https://github.com/scalar/scalar/pull/9528): Remove the unused `onSpecUpdate` configuration option. It was never wired to a consumer, so the callback never fired.
+
+## 0.6.46
+
+## 0.6.45
+
+## 0.6.44
+
+### Patch Changes
+
+- [#9447](https://github.com/scalar/scalar/pull/9447): fix(nuxt): pre-bundle @vercel/oidc so the docs page renders under pnpm
+
+  Under pnpm's strict node_modules layout, `@vercel/oidc` (pulled in transitively by the AI assistant) was served as raw CommonJS and broke the docs page. It is now pre-bundled by Vite when it is hoisted into the project. The other CommonJS offenders are fixed at their source packages instead.
+
+## 0.6.43
+
+## 0.6.42
+
 ## 0.6.41
 
 ## 0.6.40

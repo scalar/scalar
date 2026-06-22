@@ -42,7 +42,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInputLite' })
     expect(codeInputs[0]?.props('modelValue')).toBe('test-key')
     expect(codeInputs[1]?.props('modelValue')).toBe('test-value')
   })
@@ -118,7 +118,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
     await keyInput?.vm.$emit('update:modelValue', 'new-key')
 
     expect(wrapper.emitted('upsertRow')).toBeTruthy()
@@ -126,6 +126,90 @@ describe('RequestTableRow', () => {
       name: 'new-key',
       value: 'value',
       isDisabled: false,
+    })
+  })
+
+  it('keeps expanded row key edits local until blur', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: {
+          name: 'filter[role]',
+          value: 'admin',
+          isDisabled: false,
+          originalParameter: { name: 'filter', in: 'query' },
+          sourceParameterValuePath: ['role'],
+        },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    await keyInput?.vm.$emit('update:modelValue', 'filter[user]')
+
+    expect(wrapper.emitted('upsertRow')).toBeUndefined()
+
+    await keyInput?.vm.$emit('blur', 'filter[user][role]')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toStrictEqual({
+      name: 'filter[user][role]',
+      value: 'admin',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+  })
+
+  it('does not emit when the key input is blurred without a change', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'token', value: 'value', isDisabled: true },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    await keyInput?.vm.$emit('blur', 'token')
+
+    // Focusing and blurring without typing should neither re-emit the row nor re-enable it.
+    expect(wrapper.emitted('upsertRow')).toBeUndefined()
+  })
+
+  it('keeps the disabled state when an expanded row key is renamed on blur', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: {
+          name: 'filter[role]',
+          value: 'admin',
+          isDisabled: true,
+          originalParameter: { name: 'filter', in: 'query' },
+          sourceParameterValuePath: ['role'],
+        },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    await keyInput?.vm.$emit('blur', 'filter[user]')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toStrictEqual({
+      name: 'filter[user]',
+      value: 'admin',
+      isDisabled: true,
+      shouldRenameExpandedRow: true,
     })
   })
 
@@ -142,7 +226,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
     await valueInput?.vm.$emit('update:modelValue', 'new-value')
 
     expect(wrapper.emitted('upsertRow')).toBeTruthy()
@@ -166,7 +250,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInputLite' })
     expect(codeInputs[0]?.props('disabled')).toBe(true)
     expect(codeInputs[1]?.props('disabled')).toBe(true)
   })
@@ -276,7 +360,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
     expect(keyInput?.props('required')).toBe(true)
   })
 
@@ -294,7 +378,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
     await keyInput?.vm.$emit('update:modelValue', 'new-name')
 
     expect(wrapper.emitted('upsertRow')).toBeTruthy()
@@ -554,7 +638,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
     await keyInput?.vm.$emit('update:modelValue', 'new-name')
 
     expect(wrapper.emitted('upsertRow')).toBeTruthy()
@@ -743,7 +827,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
       expect(valueInput?.props('enum')).toEqual(['active', 'inactive', 'pending'])
     })
 
@@ -766,7 +850,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
       expect(valueInput?.props('enum')).toEqual([])
     })
 
@@ -786,7 +870,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
       expect(valueInput?.props('enum')).toEqual([])
     })
 
@@ -813,7 +897,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
       expect(valueInput?.props('enum')).toEqual(['tag1', 'tag2', 'tag3'])
     })
 
@@ -840,7 +924,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
       // When items has a $ref, getResolvedRef should be called
       // We expect an empty array since we do not have a real ref resolver in tests
       expect(valueInput?.props('enum')).toEqual([])
@@ -868,7 +952,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
       expect(valueInput?.props('enum')).toEqual([])
     })
 
@@ -892,7 +976,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
       // Enum values are converted to strings for display in the select dropdown
       expect(valueInput?.props('enum')).toEqual(['1', '2', '3', '4', '5'])
     })
@@ -917,7 +1001,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
       // Enum values are converted to strings for display in the select dropdown
       expect(valueInput?.props('enum')).toEqual(['value1', '2', 'null', 'true'])
     })
@@ -942,7 +1026,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
       expect(valueInput?.props('enum')).toEqual([])
     })
   })

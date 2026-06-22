@@ -25,12 +25,39 @@ import {
 } from './ref-definitions'
 import { type ReferenceObject, ReferenceObjectSchema } from './reference'
 
-export type SchemaReferenceType<Value> = Value | (ReferenceObject & { '$ref-value': unknown })
+export type SchemaReferenceType<Value> = Value | (ReferenceObject & { '$ref-value'?: unknown })
 
+/**
+ * A schema position can hold either a schema object or a reference to one.
+ *
+ * The reference variant keeps `$ref-value` optional on purpose: an unresolved
+ * reference (for example a sparse chunk `$ref` produced by the server store) is
+ * just `{ $ref }` with no resolved value yet. If the reference variant required
+ * `$ref-value`, such a value would match neither variant, so coercion would fall
+ * back to the schema-object variant and silently drop the `$ref`, which breaks
+ * lazy chunk resolution. With `$ref-value` optional the `{ $ref }` already matches
+ * the reference variant and is preserved unchanged, independent of order.
+ *
+ * The schema-object variant comes first so that a value matching neither variant
+ * (genuinely invalid input, never a reference) falls back to an empty schema
+ * object rather than a bogus `{ $ref: '' }` that would read as a real reference.
+ */
 const schemaOrReference = Type.Union([
   SchemaObjectRef,
-  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Unknown() })),
+  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Optional(Type.Unknown()) })),
 ])
+
+const PrimitiveSchemaTypeSchema = Type.Union([
+  Type.Literal('null'),
+  Type.Literal('boolean'),
+  Type.Literal('string'),
+  Type.Literal('number'),
+  Type.Literal('integer'),
+  Type.Literal('object'),
+  Type.Literal('array'),
+])
+
+type PrimitiveSchemaType = 'null' | 'boolean' | 'string' | 'number' | 'integer' | 'object' | 'array'
 
 /** We use this type to ensure that we are parsing a schema object as every property can be optional */
 type _InternalType = CoreProperties & {
@@ -39,30 +66,14 @@ type _InternalType = CoreProperties & {
 
 /**
  * Primitive types that don't have additional validation properties.
- * These types (null, boolean, string, number, integer, object, array) can be used
+ * These types (null, boolean) can be used
  * without additional validation constraints.
- *
- * TODO: Type array will actually validate against every union type but we can cross that bridge when we come to it
  */
 const OtherTypes = Type.Object({
-  type: Type.Union([
-    Type.Literal('null'),
-    Type.Literal('boolean'),
-    Type.Array(
-      Type.Union([
-        Type.Literal('null'),
-        Type.Literal('boolean'),
-        Type.Literal('string'),
-        Type.Literal('number'),
-        Type.Literal('integer'),
-        Type.Literal('object'),
-        Type.Literal('array'),
-      ]),
-    ),
-  ]),
+  type: Type.Union([Type.Literal('null'), Type.Literal('boolean')]),
 })
 
-type OtherType = 'boolean' | 'null' | ('string' | 'number' | 'boolean' | 'object' | 'null' | 'integer' | 'array')[]
+type OtherType = 'boolean' | 'null'
 
 type OtherTypes = CoreProperties & {
   type: OtherType
@@ -91,6 +102,22 @@ type Extensions = XScalarIgnore &
   XTags
 
 const CorePropertiesWithSchema = Type.Object({
+  /**
+   * JSON Schema 2020-12 core reference keywords.
+   *
+   * OpenAPI 3.1 adopts the JSON Schema 2020-12 dialect for Schema Objects, which means a schema may carry an
+   * identifier (`$id`), a plain-name anchor (`$anchor`), and the dynamic binding keywords (`$dynamicAnchor` /
+   * `$dynamicRef`) used for generic and recursive patterns such as `PaginatedResponse<T>`. We keep these typed so
+   * the keywords survive parsing instead of being dropped as unknown properties. Resolution of `$dynamicRef`
+   * against the active `$dynamicAnchor` is tracked separately, see https://github.com/scalar/scalar/issues/9414.
+   */
+  $id: Type.Optional(Type.String()),
+  /** Plain-name anchor that other schemas can reference with `#anchor`. */
+  $anchor: Type.Optional(Type.String()),
+  /** Dynamic anchor, the target a matching `$dynamicRef` resolves to within the dynamic scope. */
+  $dynamicAnchor: Type.Optional(Type.String()),
+  /** Dynamic reference, resolved against the outermost matching `$dynamicAnchor` in the dynamic scope. */
+  $dynamicRef: Type.Optional(Type.String()),
   name: Type.Optional(Type.String()),
   /** A title for the schema. */
   title: Type.Optional(Type.String()),
@@ -142,6 +169,22 @@ const CorePropertiesWithSchema = Type.Object({
 })
 
 type CoreProperties = {
+  /**
+   * JSON Schema 2020-12 core reference keywords.
+   *
+   * OpenAPI 3.1 adopts the JSON Schema 2020-12 dialect for Schema Objects, which means a schema may carry an
+   * identifier (`$id`), a plain-name anchor (`$anchor`), and the dynamic binding keywords (`$dynamicAnchor` /
+   * `$dynamicRef`) used for generic and recursive patterns such as `PaginatedResponse<T>`. We keep these typed so
+   * the keywords survive parsing instead of being dropped as unknown properties. Resolution of `$dynamicRef`
+   * against the active `$dynamicAnchor` is tracked separately, see https://github.com/scalar/scalar/issues/9414.
+   */
+  $id?: string
+  /** Plain-name anchor that other schemas can reference with `#anchor`. */
+  $anchor?: string
+  /** Dynamic anchor, the target a matching `$dynamicRef` resolves to within the dynamic scope. */
+  $dynamicAnchor?: string
+  /** Dynamic reference, resolved against the outermost matching `$dynamicAnchor` in the dynamic scope. */
+  $dynamicRef?: string
   name?: string
   /** A title for the schema. */
   title?: string
@@ -195,10 +238,7 @@ type CoreProperties = {
 /**
  * Numeric validation properties for number and integer types.
  */
-const NumericProperties = Type.Object({
-  type: Type.Union([Type.Literal('number'), Type.Literal('integer')]),
-  /** Different subtypes */
-  format: Type.Optional(Type.String()),
+const NumericValidationKeywords = Type.Object({
   /** Number must be a multiple of this value. */
   multipleOf: Type.Optional(Type.Number()),
   /** Maximum value (inclusive). */
@@ -211,26 +251,16 @@ const NumericProperties = Type.Object({
   exclusiveMinimum: Type.Optional(Type.Number({ minimum: 0 })),
 })
 
-type NumericObject = CoreProperties & {
-  type: 'number' | 'integer'
-  /** Different subtypes */
-  format?:
-    | 'int8'
-    | 'int16'
-    | 'int32'
-    | 'int64'
-    | 'uint8'
-    | 'uint16'
-    | 'uint32'
-    | 'uint64'
-    | 'double-int'
-    | 'float'
-    | 'double'
-    | 'decimal'
-    | 'decimal128'
-    | 'sf-integer'
-    | 'sf-decimal'
-    | (string & {})
+const NumericProperties = compose(
+  Type.Object({
+    type: Type.Union([Type.Literal('number'), Type.Literal('integer')]),
+    /** Different subtypes */
+    format: Type.Optional(Type.String()),
+  }),
+  NumericValidationKeywords,
+)
+
+type NumericKeywords = {
   /** Number must be a multiple of this value. */
   multipleOf?: number
   /** Maximum value (inclusive). */
@@ -241,15 +271,37 @@ type NumericObject = CoreProperties & {
   minimum?: number
   /** Minimum value (exclusive). */
   exclusiveMinimum?: number
-} & Extensions
+}
+
+type NumericFormat =
+  | 'int8'
+  | 'int16'
+  | 'int32'
+  | 'int64'
+  | 'uint8'
+  | 'uint16'
+  | 'uint32'
+  | 'uint64'
+  | 'double-int'
+  | 'float'
+  | 'double'
+  | 'decimal'
+  | 'decimal128'
+  | 'sf-integer'
+  | 'sf-decimal'
+  | (string & {})
+
+type NumericObject = CoreProperties &
+  NumericKeywords & {
+    type: 'number' | 'integer'
+    /** Different subtypes */
+    format?: NumericFormat
+  } & Extensions
 
 /**
  * String validation properties for string types.
  */
-const StringValidationProperties = Type.Object({
-  type: Type.Literal('string'),
-  /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
-  format: Type.Optional(Type.String()),
+const StringValidationKeywords = Type.Object({
   /** Maximum string length. */
   maxLength: Type.Optional(Type.Integer({ minimum: 0 })),
   /** Minimum string length. */
@@ -257,6 +309,15 @@ const StringValidationProperties = Type.Object({
   /** Regular expression pattern. */
   pattern: Type.Optional(Type.String()),
 })
+
+const StringValidationProperties = compose(
+  Type.Object({
+    type: Type.Literal('string'),
+    /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
+    format: Type.Optional(Type.String()),
+  }),
+  StringValidationKeywords,
+)
 
 /**
  * Supported string formats in OpenAPI schemas.
@@ -306,20 +367,23 @@ type StringFormat =
   | 'sf-boolean'
   | (string & {})
 
-type StringObject = CoreProperties & {
-  type: 'string'
-  /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
-  format?: StringFormat
+type StringKeywords = {
   /** Maximum string length. */
   maxLength?: number
   /** Minimum string length. */
   minLength?: number
   /** Regular expression pattern. */
   pattern?: string
-} & Extensions
+}
 
-const ArrayValidationPropertiesWithSchema = Type.Object({
-  type: Type.Literal('array'),
+type StringObject = CoreProperties &
+  StringKeywords & {
+    type: 'string'
+    /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
+    format?: StringFormat
+  } & Extensions
+
+const ArrayValidationKeywordsWithSchema = Type.Object({
   /** Maximum number of items in array. */
   maxItems: Type.Optional(Type.Integer({ minimum: 0 })),
   /** Minimum number of items in array. */
@@ -332,8 +396,14 @@ const ArrayValidationPropertiesWithSchema = Type.Object({
   prefixItems: Type.Optional(Type.Array(schemaOrReference)),
 })
 
-type ArrayObject = CoreProperties & {
-  type: 'array'
+const ArrayValidationPropertiesWithSchema = compose(
+  Type.Object({
+    type: Type.Literal('array'),
+  }),
+  ArrayValidationKeywordsWithSchema,
+)
+
+type ArrayKeywords = {
   /** Maximum number of items in array. */
   maxItems?: number
   /** Minimum number of items in array. */
@@ -344,10 +414,14 @@ type ArrayObject = CoreProperties & {
   items?: SchemaReferenceType<SchemaObject>
   /** Schema for tuple validation. */
   prefixItems?: SchemaReferenceType<SchemaObject>[]
-} & Extensions
+}
 
-const ObjectValidationPropertiesWithSchema = Type.Object({
-  type: Type.Literal('object'),
+type ArrayObject = CoreProperties &
+  ArrayKeywords & {
+    type: 'array'
+  } & Extensions
+
+const ObjectValidationKeywordsWithSchema = Type.Object({
   /** Maximum number of properties. */
   maxProperties: Type.Optional(Type.Integer({ minimum: 0 })),
   /** Minimum number of properties. */
@@ -364,8 +438,14 @@ const ObjectValidationPropertiesWithSchema = Type.Object({
   propertyNames: Type.Optional(schemaOrReference),
 })
 
-type ObjectObject = CoreProperties & {
-  type: 'object'
+const ObjectValidationPropertiesWithSchema = compose(
+  Type.Object({
+    type: Type.Literal('object'),
+  }),
+  ObjectValidationKeywordsWithSchema,
+)
+
+type ObjectKeywords = {
   /** Maximum number of properties. */
   maxProperties?: number
   /** Minimum number of properties. */
@@ -380,7 +460,34 @@ type ObjectObject = CoreProperties & {
   patternProperties?: Record<string, SchemaReferenceType<SchemaObject>>
   /** Constraints on property names (JSON Schema propertyNames keyword). */
   propertyNames?: SchemaReferenceType<SchemaObject>
-} & Extensions
+}
+
+type ObjectObject = CoreProperties &
+  ObjectKeywords & {
+    type: 'object'
+  } & Extensions
+
+const MultiTypeValidationPropertiesWithSchema = compose(
+  Type.Object({
+    type: Type.Array(PrimitiveSchemaTypeSchema),
+    /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
+    format: Type.Optional(Type.String()),
+  }),
+  NumericValidationKeywords,
+  StringValidationKeywords,
+  ArrayValidationKeywordsWithSchema,
+  ObjectValidationKeywordsWithSchema,
+)
+
+type MultiTypeObject = CoreProperties &
+  NumericKeywords &
+  StringKeywords &
+  ArrayKeywords &
+  ObjectKeywords & {
+    type: PrimitiveSchemaType[]
+    /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
+    format?: StringFormat | NumericFormat
+  } & Extensions
 
 /** Builds the recursive schema schema */
 export const SchemaObjectSchemaDefinition = Type.Union([
@@ -394,7 +501,15 @@ export const SchemaObjectSchemaDefinition = Type.Union([
   compose(StringValidationProperties, CorePropertiesWithSchema, Extensions),
   compose(ObjectValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
   compose(ArrayValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
+  compose(MultiTypeValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
 ])
 
-export type SchemaObject = _InternalType | OtherTypes | NumericObject | StringObject | ObjectObject | ArrayObject
+export type SchemaObject =
+  | _InternalType
+  | OtherTypes
+  | MultiTypeObject
+  | NumericObject
+  | StringObject
+  | ObjectObject
+  | ArrayObject
 export type MaybeRefSchemaObject = SchemaReferenceType<SchemaObject>

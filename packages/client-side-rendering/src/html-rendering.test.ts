@@ -108,6 +108,37 @@ describe('html-rendering', () => {
       const html = renderApiReference({ config: {}, cdn: 'https://example.com/scalar.js' })
       expect(html).toContain('https://example.com/scalar.js')
     })
+
+    it('applies the nonce to the inline script, style and CDN script tags', () => {
+      const html = renderApiReference({ config: { customCss: 'body { color: red }' }, nonce: 'r4nd0m' })
+      // CDN script
+      expect(html).toContain(
+        '<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference" nonce="r4nd0m"></script>',
+      )
+      // Inline init script
+      expect(html).toContain('<script type="text/javascript" nonce="r4nd0m">')
+      // Inline style
+      expect(html).toContain('<style type="text/css" nonce="r4nd0m">')
+    })
+
+    it('emits a csp-nonce meta tag so the bundle can nonce its injected styles', () => {
+      const html = renderApiReference({ config: {}, nonce: 'r4nd0m' })
+      expect(html).toContain('<meta property="csp-nonce" content="r4nd0m" />')
+    })
+
+    it('does not emit nonce attributes or the meta tag when no nonce is provided', () => {
+      const html = renderApiReference({ config: { customCss: 'body { color: red }' } })
+      expect(html).not.toContain('nonce=')
+      expect(html).not.toContain('csp-nonce')
+      expect(html).toContain('<style type="text/css">')
+      expect(html).toContain('<script type="text/javascript">')
+    })
+
+    it('escapes the nonce to prevent attribute injection', () => {
+      const html = renderApiReference({ config: {}, nonce: '"><script>alert(1)</script>' })
+      expect(html).not.toContain('"><script>alert(1)')
+      expect(html).toContain('nonce="&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;"')
+    })
   })
 
   describe('getScriptTags', () => {
@@ -126,6 +157,16 @@ describe('html-rendering', () => {
       expect(tags).toContain('https://example.com/script.js')
     })
 
+    it('applies the nonce to both script tags when provided', () => {
+      const tags = getScriptTags(
+        apiReferenceConfigurationWithSourceSchema({}),
+        'https://example.com/script.js',
+        'abc123',
+      )
+      expect(tags).toContain('<script src="https://example.com/script.js" nonce="abc123"></script>')
+      expect(tags).toContain('<script type="text/javascript" nonce="abc123">')
+    })
+
     it('preserves function properties in configuration', () => {
       const config = {
         tagsSorter: (a, b) => a.name.localeCompare(b.name),
@@ -137,7 +178,6 @@ describe('html-rendering', () => {
         generateWebhookSlug: (webhook) => `webhook-${webhook.name}`,
         onLoaded: () => console.log('loaded'),
         redirect: (path) => path.replace('/old', '/new'),
-        onSpecUpdate: (spec) => console.log('spec updated', spec),
         onServerChange: (server) => console.log('server changed', server),
         onDocumentSelect: () => console.log('document changed'),
         onBeforeRequest: ({ request }) => console.log('before request', request),
@@ -158,7 +198,6 @@ describe('html-rendering', () => {
       expect(tags).toContain('"generateWebhookSlug": (webhook) => `webhook-${webhook.name}`')
       expect(tags).toContain('"onLoaded": () => console.log("loaded")')
       expect(tags).toContain('"redirect": (path) => path.replace("/old", "/new")')
-      expect(tags).toContain('"onSpecUpdate": (spec) => console.log("spec updated", spec)')
       expect(tags).toContain('"onServerChange": (server) => console.log("server changed", server)')
       expect(tags).toContain('"onDocumentSelect": () => console.log("document changed")')
       expect(tags).toContain('"onBeforeRequest": ({ request }) => console.log("before request", request)')

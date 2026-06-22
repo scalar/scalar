@@ -18,13 +18,13 @@
     "rest",
     "testing"
   ],
-  "version": "3.8.5",
+  "version": "3.11.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "build:styles": "cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
+    "build:styles": "shx cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "dev": "vite ./playground/modal -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest --run",
@@ -335,7 +335,6 @@
     "@types/har-format": "^1.2.16",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
-    "cookie": "catalog:*",
     "focus-trap": "^7.8.0",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",

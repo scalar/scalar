@@ -4,6 +4,7 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
@@ -51,8 +52,10 @@ const {
     | 'layout'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
+    | 'expandAllSchemaProperties'
     | 'showOperationId'
     | 'hideModels'
+    | 'modelsSectionLabel'
   >
   /** Currently selected server for the document */
   selectedServer: ServerObject | null
@@ -94,8 +97,8 @@ const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
 
 function getPathValue(entry: TraversedOperation | TraversedWebhook) {
   return isWebhook(entry)
-    ? document.webhooks?.[entry.name]
-    : document.paths?.[entry.path]
+    ? getResolvedPathItem(document.webhooks?.[entry.name])
+    : getResolvedPathItem(document.paths?.[entry.path])
 }
 </script>
 
@@ -135,7 +138,6 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       "
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
-      :isLoading="false"
       :layout="options.layout"
       :moreThanOneTag="entries.filter(isTag).length > 1"
       :tag="entry">
@@ -156,21 +158,30 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       </template>
     </Tag>
 
-    <!-- Display tag grop entries for modern layout (flattened) -->
-    <TraversedEntry
+    <!-- Display tag group entries for modern layout (flattened) -->
+    <!--
+      The wrapping element carries the tag group id so it remains a scroll
+      target. Modern layout flattens groups and renders no header of their own,
+      so without this anchor, selecting a tag group (from search or the sidebar)
+      would have nothing to scroll to.
+    -->
+    <div
       v-else-if="isTagGroup(entry)"
-      :authStore
-      :clientOptions
-      :document
-      :entries="entry.children || []"
-      :eventBus
-      :expandedItems
-      :level="level + 1"
-      :options
-      :securitySchemes
-      :selectedClient
-      :selectedServer>
-    </TraversedEntry>
+      :id="entry.id">
+      <TraversedEntry
+        :authStore
+        :clientOptions
+        :document
+        :entries="entry.children || []"
+        :eventBus
+        :expandedItems
+        :level="level + 1"
+        :options
+        :securitySchemes
+        :selectedClient
+        :selectedServer>
+      </TraversedEntry>
+    </div>
 
     <!-- Models -->
     <ModelTag
@@ -178,7 +189,8 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :id="entry.id"
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
-      :layout="options.layout">
+      :layout="options.layout"
+      :modelsSectionLabel="options.modelsSectionLabel">
       <TraversedEntry
         :authStore
         :clientOptions
@@ -197,6 +209,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     <Model
       v-else-if="isModel(entry) && document.components?.schemas?.[entry.name]"
       :id="entry.id"
+      :document
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
       :name="entry.name"

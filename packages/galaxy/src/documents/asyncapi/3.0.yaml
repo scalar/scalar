@@ -1,4 +1,5 @@
 asyncapi: 3.0.0
+id: 'urn:com:scalar:galaxy:events'
 info:
   title: Scalar Galaxy Events
   version: 1.0.0
@@ -42,18 +43,47 @@ info:
 servers:
   production:
     host: galaxy.scalar.com
+    pathname: '/ws/{version}'
     protocol: wss
+    protocolVersion: '13'
     description: Production WebSocket server for real-time events
+    variables:
+      version:
+        enum:
+          - v1
+          - v2
+        default: v1
+        description: The API version to connect to
+        examples:
+          - v1
     security:
       - $ref: '#/components/securitySchemes/bearerAuth'
       - $ref: '#/components/securitySchemes/httpApiKey'
+      - $ref: '#/components/securitySchemes/oauth2'
     tags:
       - name: production
         description: Production environment
   development:
-    host: localhost:8080
+    host: '{host}:{port}'
+    pathname: '/ws/{version}'
     protocol: ws
     description: Local development server
+    variables:
+      host:
+        default: localhost
+        description: Hostname of the local development server
+      port:
+        enum:
+          - '8080'
+          - '9000'
+        default: '8080'
+        description: Port the local development server listens on
+      version:
+        enum:
+          - v1
+          - v2
+        default: v1
+        description: The API version to connect to
     security: []
     tags:
       - name: development
@@ -63,6 +93,7 @@ channels:
   planetEvents:
     address: 'planets/{planetId}/events'
     title: Planet Events
+    summary: Real-time event stream for a single planet.
     description: |
       Real-time events related to specific planets. Subscribe to get notified about:
 
@@ -109,6 +140,7 @@ channels:
   userEvents:
     address: 'users/{userId}/events'
     title: User Events
+    summary: Authentication and profile events for a single user.
     description: |
       User-related events including authentication, profile changes, and activity tracking.
 
@@ -135,6 +167,7 @@ channels:
   systemEvents:
     address: 'system/events'
     title: System Events
+    summary: Broadcast channel for system-wide notifications and alerts.
     description: |
       System-wide events including maintenance notifications, rate limit alerts, and security events.
 
@@ -156,6 +189,7 @@ channels:
   celestialBodyEvents:
     address: 'celestial-bodies/events'
     title: Celestial Body Events
+    summary: Aggregated event stream for every celestial body in the galaxy.
     description: |
       Events related to all types of celestial bodies (planets, satellites, asteroids, comets).
 
@@ -186,17 +220,79 @@ channels:
               minimum: 0
               maximum: 1
               description: Filter by minimum habitability index
+  subscriptionAck:
+    address: 'subscriptions/ack'
+    title: Subscription Acknowledgement
+    summary: Confirmation that a subscription request was processed.
+    description: |
+      Channel the server uses to acknowledge a subscription operation, letting the client know whether the subscription was accepted.
+    messages:
+      subscriptionAcknowledged:
+        $ref: '#/components/messages/SubscriptionAcknowledged'
+    tags:
+      - name: System
+    bindings:
+      ws:
+        method: GET
+  planetRequest:
+    address: 'planets/{planetId}/get'
+    title: Planet Request
+    summary: Request a single planet over the request/reply channel.
+    description: |
+      Channel a client uses to request a planet by its ID. The planet is delivered back on the reply channel.
+    parameters:
+      planetId:
+        $ref: '#/components/parameters/planetId'
+    messages:
+      getPlanet:
+        $ref: '#/components/messages/GetPlanetRequest'
+    tags:
+      - name: Planets
+    bindings:
+      ws:
+        method: GET
+  planetResponse:
+    address: 'planets/{planetId}/response'
+    title: Planet Response
+    summary: Reply channel that carries the requested planet.
+    description: |
+      Channel the server uses to reply to a planet request with the planet data.
+    parameters:
+      planetId:
+        $ref: '#/components/parameters/planetId'
+    messages:
+      planet:
+        $ref: '#/components/messages/PlanetResponse'
+    tags:
+      - name: Planets
+    bindings:
+      ws:
+        method: GET
 operations:
   subscribeToPlanetEvents:
     action: receive
     channel:
       $ref: '#/channels/planetEvents'
     title: Subscribe to Planet Events
+    summary: Receive real-time events for a single planet.
     description: Subscribe to real-time events for a specific planet
     traits:
       - $ref: '#/components/operationTraits/authenticated'
     tags:
       - name: Planets
+    messages:
+      - $ref: '#/channels/planetEvents/messages/planetCreated'
+      - $ref: '#/channels/planetEvents/messages/planetUpdated'
+      - $ref: '#/channels/planetEvents/messages/planetDeleted'
+      - $ref: '#/channels/planetEvents/messages/planetExploded'
+      - $ref: '#/channels/planetEvents/messages/satelliteDiscovered'
+      - $ref: '#/channels/planetEvents/messages/atmosphereChanged'
+      - $ref: '#/channels/planetEvents/messages/imageUploaded'
+    reply:
+      channel:
+        $ref: '#/channels/subscriptionAck'
+      messages:
+        - $ref: '#/channels/subscriptionAck/messages/subscriptionAcknowledged'
     bindings:
       ws:
         bindingVersion: 0.1.0
@@ -206,12 +302,24 @@ operations:
     channel:
       $ref: '#/channels/userEvents'
     title: Subscribe to User Events
+    summary: Receive authentication and profile events for a single user.
     description: Subscribe to events for a specific user (requires authentication)
     traits:
       - $ref: '#/components/operationTraits/authenticated'
       - $ref: '#/components/operationTraits/rateLimited'
     tags:
       - name: Users
+    messages:
+      - $ref: '#/channels/userEvents/messages/userSignedUp'
+      - $ref: '#/channels/userEvents/messages/userAuthenticated'
+      - $ref: '#/channels/userEvents/messages/userProfileUpdated'
+      - $ref: '#/channels/userEvents/messages/userDeleted'
+      - $ref: '#/channels/userEvents/messages/loginAttempt'
+    reply:
+      channel:
+        $ref: '#/channels/subscriptionAck'
+      messages:
+        - $ref: '#/channels/subscriptionAck/messages/subscriptionAcknowledged'
     bindings:
       ws:
         bindingVersion: 0.1.0
@@ -221,9 +329,20 @@ operations:
     channel:
       $ref: '#/channels/systemEvents'
     title: Subscribe to System Events
+    summary: Receive system-wide notifications and alerts.
     description: Subscribe to system-wide notifications and alerts
     tags:
       - name: System
+    messages:
+      - $ref: '#/channels/systemEvents/messages/systemMaintenance'
+      - $ref: '#/channels/systemEvents/messages/rateLimitExceeded'
+      - $ref: '#/channels/systemEvents/messages/securityAlert'
+      - $ref: '#/channels/systemEvents/messages/apiVersionDeprecated'
+    reply:
+      channel:
+        $ref: '#/channels/subscriptionAck'
+      messages:
+        - $ref: '#/channels/subscriptionAck/messages/subscriptionAcknowledged'
     bindings:
       ws:
         bindingVersion: 0.1.0
@@ -233,11 +352,48 @@ operations:
     channel:
       $ref: '#/channels/celestialBodyEvents'
     title: Subscribe to Celestial Body Events
+    summary: Receive events for every celestial body in the galaxy.
     description: Subscribe to events for all celestial bodies in the galaxy
     traits:
       - $ref: '#/components/operationTraits/rateLimited'
     tags:
       - name: Celestial Bodies
+    messages:
+      - $ref: '#/channels/celestialBodyEvents/messages/celestialBodyCreated'
+      - $ref: '#/channels/celestialBodyEvents/messages/celestialBodyUpdated'
+      - $ref: '#/channels/celestialBodyEvents/messages/orbitalCollision'
+      - $ref: '#/channels/celestialBodyEvents/messages/newDiscovery'
+    reply:
+      channel:
+        $ref: '#/channels/subscriptionAck'
+      messages:
+        - $ref: '#/channels/subscriptionAck/messages/subscriptionAcknowledged'
+    bindings:
+      ws:
+        bindingVersion: 0.1.0
+        method: GET
+  getPlanet:
+    action: send
+    channel:
+      $ref: '#/channels/planetRequest'
+    title: Get a Planet
+    summary: Request a single planet and receive it in the reply.
+    description: |
+      A request/reply operation. The client sends a request for a planet by ID, and the server replies with the planet on the reply channel.
+    traits:
+      - $ref: '#/components/operationTraits/authenticated'
+    tags:
+      - name: Planets
+    messages:
+      - $ref: '#/channels/planetRequest/messages/getPlanet'
+    reply:
+      address:
+        location: '$message.header#/replyTo'
+        description: The client provides the reply address in the replyTo header
+      channel:
+        $ref: '#/channels/planetResponse'
+      messages:
+        - $ref: '#/channels/planetResponse/messages/planet'
     bindings:
       ws:
         bindingVersion: 0.1.0
@@ -256,7 +412,16 @@ components:
       description: API key for WebSocket authentication
     oauth2:
       type: oauth2
+      description: OAuth 2.0 authentication for WebSocket connections
       flows:
+        authorizationCode:
+          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
+          tokenUrl: https://galaxy.scalar.com/oauth/token
+          refreshUrl: https://galaxy.scalar.com/oauth/refresh
+          availableScopes:
+            read:events: Subscribe to events
+            write:events: Publish events (admin only)
+            read:user:events: Subscribe to user events
         implicit:
           authorizationUrl: https://galaxy.scalar.com/oauth/authorize
           availableScopes:
@@ -266,16 +431,34 @@ components:
   parameters:
     planetId:
       description: The ID of the planet
+      default: '1'
+      examples:
+        - '1'
+        - '4'
+      location: '$message.payload#/planet/id'
     userId:
       description: The ID of the user
+      enum:
+        - '1'
+        - '2'
+        - '100'
+      examples:
+        - '1'
+      location: '$message.payload#/user/id'
   operationTraits:
     authenticated:
       description: This operation requires authentication
       security:
         - $ref: '#/components/securitySchemes/bearerAuth'
         - $ref: '#/components/securitySchemes/httpApiKey'
+      tags:
+        - name: Authentication
+          description: Operations that require a valid bearer token or API key
     rateLimited:
       description: This operation is subject to rate limiting
+      tags:
+        - name: Rate Limiting
+          description: Operations that are throttled to protect the system
       bindings:
         ws:
           bindingVersion: 0.1.0
@@ -288,6 +471,23 @@ components:
               X-RateLimit-Remaining:
                 type: integer
                 description: Remaining requests in current window
+  messageTraits:
+    commonHeaders:
+      headers:
+        type: object
+        properties:
+          correlationId:
+            type: string
+            format: uuid
+            description: Correlation ID used to trace a message and any related reply
+          x-request-id:
+            type: string
+            description: Unique identifier for the request that produced the message
+        required:
+          - correlationId
+      correlationId:
+        location: '$message.header#/correlationId'
+        description: Correlates a request with its reply via the correlationId header
   messages:
     PlanetCreated:
       name: PlanetCreated
@@ -302,6 +502,8 @@ components:
         3. This event published to subscribers
         4. Optional webhook callbacks triggered
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/PlanetCreatedEvent'
       tags:
@@ -356,6 +558,8 @@ components:
       summary: An existing planet has been modified
       description: Published when planet properties are updated via the REST API
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/PlanetUpdatedEvent'
       tags:
@@ -395,10 +599,12 @@ components:
       title: Planet Deleted Event
       summary: A planet has been removed from the galaxy
       description: |
-        ⚠️ Warning: This event indicates a planet has been deleted.
+        Warning: This event indicates a planet has been deleted.
 
         This is a destructive operation that may affect related celestial bodies and data.
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/PlanetDeletedEvent'
       tags:
@@ -425,10 +631,12 @@ components:
       title: Planet Exploded Event
       summary: A planet has experienced a cosmic explosion
       description: |
-        🚨 Cosmic Event: A planet has exploded due to natural or artificial causes.
+        Cosmic Event: A planet has exploded due to natural or artificial causes.
 
         This is a rare but dramatic event that may create new celestial bodies or affect nearby objects.
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/PlanetExplodedEvent'
       tags:
@@ -469,6 +677,8 @@ components:
       summary: A new satellite has been discovered orbiting a planet
       description: Published when a new moon, asteroid, or other satellite is found
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/SatelliteDiscoveredEvent'
       tags:
@@ -504,6 +714,8 @@ components:
       summary: A planet's atmosphere composition has changed
       description: Published when atmospheric properties are modified
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/AtmosphereChangedEvent'
       tags:
@@ -541,6 +753,8 @@ components:
       summary: A new image has been uploaded for a planet
       description: Published when a planet image is successfully uploaded
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/ImageUploadedEvent'
       tags:
@@ -575,6 +789,8 @@ components:
       summary: A new user has registered in the Scalar Galaxy
       description: Published when a user successfully creates an account
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/UserSignedUpEvent'
       tags:
@@ -606,6 +822,8 @@ components:
       summary: A user has successfully authenticated
       description: Published when a user logs in or refreshes their token
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/UserAuthenticatedEvent'
       tags:
@@ -640,6 +858,8 @@ components:
       summary: A user's profile information has been modified
       description: Published when user profile data is updated
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/UserProfileUpdatedEvent'
       tags:
@@ -671,6 +891,8 @@ components:
       summary: A user account has been deleted
       description: Published when a user account is permanently removed
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/UserDeletedEvent'
       tags:
@@ -701,6 +923,8 @@ components:
       summary: A user login attempt has been made
       description: Published for both successful and failed login attempts
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/LoginAttemptEvent'
       tags:
@@ -733,6 +957,8 @@ components:
       summary: System maintenance has been scheduled or is in progress
       description: Published for planned and emergency maintenance events
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/SystemMaintenanceEvent'
       tags:
@@ -768,6 +994,8 @@ components:
       summary: A user or system has exceeded rate limits
       description: Published when rate limits are exceeded
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/RateLimitExceededEvent'
       tags:
@@ -802,6 +1030,8 @@ components:
       summary: A security-related event has been detected
       description: Published for security incidents and suspicious activity
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/SecurityAlertEvent'
       tags:
@@ -839,6 +1069,8 @@ components:
       summary: An API version has been deprecated
       description: Published when API versions are marked as deprecated
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/ApiVersionDeprecatedEvent'
       tags:
@@ -872,6 +1104,8 @@ components:
       summary: A new celestial body has been added to the galaxy
       description: Published when any type of celestial body is created
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/CelestialBodyCreatedEvent'
       tags:
@@ -905,6 +1139,8 @@ components:
       summary: An existing celestial body has been modified
       description: Published when celestial body properties are updated
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/CelestialBodyUpdatedEvent'
       tags:
@@ -943,6 +1179,8 @@ components:
       summary: Two celestial bodies have collided
       description: Published when orbital collisions occur
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/OrbitalCollisionEvent'
       tags:
@@ -982,6 +1220,8 @@ components:
       summary: A significant astronomical discovery has been made
       description: Published for major discoveries and breakthroughs
       contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/NewDiscoveryEvent'
       tags:
@@ -1016,6 +1256,76 @@ components:
             metadata:
               source: 'research-team'
               discoveryId: 'disc_20240116'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    SubscriptionAcknowledged:
+      name: SubscriptionAcknowledged
+      title: Subscription Acknowledged Event
+      summary: A subscription request has been acknowledged
+      description: Sent by the server to confirm whether a subscription was accepted
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
+      payload:
+        $ref: '#/components/schemas/SubscriptionAcknowledgedEvent'
+      tags:
+        - name: System
+      examples:
+        - name: Subscription Accepted
+          summary: A subscription request was accepted
+          payload:
+            subscriptionId: 'sub_1234567890'
+            status: 'subscribed'
+            timestamp: '2024-01-15T14:30:00Z'
+            metadata:
+              source: 'subscription-service'
+              requestId: 'req_sub123'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    GetPlanetRequest:
+      name: GetPlanetRequest
+      title: Get Planet Request
+      summary: A request for a single planet by ID
+      description: Sent by the client to request a planet over the request/reply channel
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
+      payload:
+        $ref: '#/components/schemas/GetPlanetRequestEvent'
+      tags:
+        - name: Planets
+      examples:
+        - name: Get Mars
+          summary: Request the planet with ID 4
+          payload:
+            requestId: 'req_1234567890'
+            planetId: 4
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    PlanetResponse:
+      name: PlanetResponse
+      title: Planet Response
+      summary: The planet returned in reply to a request
+      description: Sent by the server with the requested planet data
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/commonHeaders'
+      payload:
+        $ref: '#/components/schemas/Planet'
+      tags:
+        - name: Planets
+      examples:
+        - name: Mars
+          summary: The planet with ID 4
+          payload:
+            id: 4
+            name: 'Mars'
+            description: 'The red planet'
+            type: 'terrestrial'
+            habitabilityIndex: 0.68
       bindings:
         ws:
           bindingVersion: 0.1.0
@@ -1759,6 +2069,33 @@ components:
               format: uri
         metadata:
           $ref: '#/components/schemas/EventMetadata'
+    SubscriptionAcknowledgedEvent:
+      type: object
+      required: [subscriptionId, status, timestamp]
+      properties:
+        subscriptionId:
+          type: string
+          description: Unique identifier for the subscription
+        status:
+          type: string
+          enum: ['subscribed', 'rejected']
+          description: Whether the subscription was accepted
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    GetPlanetRequestEvent:
+      type: object
+      required: [requestId, planetId]
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier used to correlate the request with its reply
+        planetId:
+          type: integer
+          format: int64
+          description: The ID of the planet to fetch
     # Shared schemas
     EventMetadata:
       type: object

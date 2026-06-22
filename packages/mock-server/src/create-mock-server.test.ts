@@ -72,9 +72,87 @@ describe('createMockServer', () => {
     const response = await server.request('/foobar')
 
     expect(response.status).toBe(200)
-    expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
+    expect(response.headers.get('Content-Type')).toBe('application/json')
+    expect(await response.text()).toBe('{"foo":"bar"}')
+  })
+
+  it('GET /foobar -> compact NDJSON example', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/x-ndjson': {
+                    example: {
+                      foo: 'bar',
+                      count: 1,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toBe('application/x-ndjson')
+    expect(await response.text()).toBe('{"foo":"bar","count":1}')
+  })
+
+  it('GET /foobar -> compact JSONL schema-generated body', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/jsonl': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        foo: {
+                          type: 'string',
+                          example: 'bar',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toBe('application/jsonl')
+    expect(await response.text()).toBe('{"foo":"bar"}')
   })
 
   it('GET /foobar -> omits writeOnly properties in responses', async () => {
@@ -493,6 +571,106 @@ describe('createMockServer', () => {
     expect(await response.json()).toMatchObject({
       foo: 'bar',
     })
+  })
+
+  it('GET /foobar -> wraps schema examples for array responses', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          foo: {
+                            type: 'string',
+                          },
+                        },
+                      },
+                      example: {
+                        foo: 'bar',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual([
+      {
+        foo: 'bar',
+      },
+    ])
+  })
+
+  it('GET /foobar -> wraps media type examples for array responses', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          foo: {
+                            type: 'string',
+                          },
+                        },
+                      },
+                    },
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual([
+      {
+        foo: 'bar',
+      },
+    ])
   })
 
   it('GET /foobar/{id} -> example from schema', async () => {

@@ -12,7 +12,7 @@ const FEATURED_CLIENTS = [
 
 /** Whether or not a client is in the featured list */
 export const isFeaturedClient = (
-  clientId: AvailableClients[number] | undefined,
+  clientId: string | undefined,
   featuredClients: AvailableClients[number][] = FEATURED_CLIENTS,
 ) => Boolean(clientId && featuredClients.includes(clientId as (typeof featuredClients)[number]))
 

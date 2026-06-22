@@ -1,5 +1,167 @@
 [
   {
+    "version": "1.61.0",
+    "date": "2026-06-22",
+    "title": "AsyncAPI operations, messages, and protocols now render inline",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release brings AsyncAPI documentation to parity with dedicated AsyncAPI tools by rendering operations and their message payloads inside each channel. Server and protocol labels now appear throughout, making it clear which servers and transports each channel and message uses."
+      },
+      {
+        "type": "list",
+        "items": [
+          "AsyncAPI operations and their messages (with payload and header schemas) now render nested inside each channel in both modern and classic layouts",
+          "Channel headers show which servers they are available on and their protocols, while message headers display every protocol they are carried over",
+          "New requestBuilt client plugin hook and onRequestBuilt callback expose the exact fetch Request sent over the wire, enabling request signing with accurate body hashes",
+          "Fixed oneOf and anyOf being dropped when nested inside allOf, so composition variants now render alongside merged base properties",
+          "Object properties factored out alongside composition keywords (anyOf, oneOf, allOf, not) now render correctly instead of being hidden"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1610",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "1.60.0",
+    "date": "2026-06-17",
+    "title": "Plugin view slots, sidebar customization, and layout polish",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release adds a new plugin extension point at the top of your documentation and lets plugin views appear in the sidebar. It also ships a handful of fixes that improve deep linking, schema rendering, and responsive layout behavior."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Plugins can now inject components before the introduction section with the new content.start view slot",
+          "Plugin views can opt in to sidebar navigation with the sidebar visibility option",
+          "Deep links to nested schema properties now expand collapsed sections and scroll into view automatically",
+          "The introduction loading skeleton now mirrors the real layout so the page does not jump when your document loads",
+          "Fixed sidebar overlap at exactly 1000px wide by aligning mobile and desktop breakpoints"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1600",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "1.59.3",
+    "date": "2026-06-11",
+    "title": "Path item references, redirects, and SDK tab sync",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release fixes rendering when path items use component references, improves navigation for custom section labels, and syncs SDK installation tabs with code examples across all operations."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Operations now appear correctly when OpenAPI path items reference components.pathItems instead of inlining methods",
+          "Old model bookmarks automatically redirect to custom section slugs when you have renamed the models section",
+          "Selecting a language in SDK installation tabs now switches every operation's code sample to that language",
+          "Empty info link lists no longer push down the download button on mobile"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1593",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "1.59.2",
+    "date": "2026-06-09",
+    "title": "Restore deprecated source field for SDK installation commands",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The deprecated `source` field on `x-scalar-sdk-installation` is now supported again for backward compatibility. When present, it is automatically appended to the `description` as a fenced code block, or used on its own when there is no `description`. The `description` field remains the recommended way to document installation commands."
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1592",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "1.59.1",
+    "date": "2026-06-09",
+    "title": "Fixed examples panel layout in operation view",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1591",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "1.59.0",
+    "date": "2026-06-08",
+    "title": "AsyncAPI server and channel parameters, CSP nonce support, and expanded schemas",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release brings full AsyncAPI server selection and channel parameter rendering to the API reference, adds Content Security Policy support with a nonce option for strict script-src, and introduces an expandAllSchemaProperties configuration to show nested properties by default."
+      },
+      {
+        "type": "list",
+        "items": [
+          "AsyncAPI channel address parameters are now rendered in the API reference, showing their enum, default, and example values alongside operation parameters",
+          "A server selector for AsyncAPI documents displays constructed connection URLs and persists selection and variable changes to the workspace store",
+          "Pass a nonce option to run the API reference under a strict script-src Content Security Policy with no unsafe-inline or unsafe-eval",
+          "The new expandAllSchemaProperties configuration expands nested schema properties by default while keeping manual collapse controls available",
+          "Custom SDK installation instructions from x-scalar-sdk-installation now render in the introduction card with support for rich Markdown and multiple code blocks per language"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1590",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "1.58.0",
+    "date": "2026-06-01",
+    "title": "AsyncAPI support and improved bundle performance",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release brings AsyncAPI documents closer to feature parity with OpenAPI. AsyncAPI specs now render schemas as Models, display channels in the content area, and surface introduction headings in the sidebar and search. We also shipped a new ESM standalone bundle with code splitting that reduces the initial load by over 500 KB."
+      },
+      {
+        "type": "list",
+        "items": [
+          "AsyncAPI schemas render as Models in the sidebar, content, and search alongside OpenAPI schemas",
+          "AsyncAPI channels appear in the content area with their address and description, grouped by tags when configured",
+          "New ESM standalone bundle with code splitting drops initial load from 3.32 MB to 2.73 MB by lazy-loading the API client modal and icon library",
+          "Configure the Models section label with `modelsSectionLabel` to use OpenAPI-style Schemas terminology or custom labels",
+          "Customize the browser tab title with `setPageTitle`, called whenever the section in view changes"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1580",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.57.5",
     "date": "2026-05-27",
     "title": "Response content type selector works with expanded responses",

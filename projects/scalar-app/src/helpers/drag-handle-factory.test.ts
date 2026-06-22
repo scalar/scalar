@@ -1,5 +1,7 @@
 import { createSidebarState } from '@scalar/sidebar'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
@@ -445,7 +447,7 @@ describe('handleDragEnd', () => {
 
     // Verify the operation was moved
     const updatedDoc = (store.workspace.documents as Record<string, OpenApiDocument>)['circular-doc']
-    const peopleOp = updatedDoc?.paths?.['/people']?.get as
+    const peopleOp = getResolvedRef(getPathItemOperation(updatedDoc?.paths?.['/people'], 'get')) as
       | { tags?: string[]; responses?: Record<string, unknown> }
       | undefined
 

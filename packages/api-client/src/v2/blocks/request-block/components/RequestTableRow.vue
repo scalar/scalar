@@ -15,7 +15,7 @@ import { computed, ref, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
-import { CodeInput } from '@/v2/components/code-input'
+import { CodeInputLite } from '@/v2/components/code-input'
 import {
   DataTableCell,
   DataTableCheckbox,
@@ -52,6 +52,13 @@ export type TableRow = {
   sourceParameterValuePath?: string[]
 }
 
+export type TableRowUpsertPayload = {
+  name: string
+  value: string | File
+  isDisabled: boolean
+  shouldRenameExpandedRow?: boolean
+}
+
 const {
   data,
   environment,
@@ -68,10 +75,7 @@ const {
 }>()
 
 const emit = defineEmits<{
-  (
-    e: 'upsertRow',
-    payload: { name: string; value: string | File; isDisabled: boolean },
-  ): void
+  (e: 'upsertRow', payload: TableRowUpsertPayload): void
   (e: 'deleteRow'): void
   (e: 'uploadFile'): void
   (e: 'removeFile'): void
@@ -139,12 +143,6 @@ const enumValue = computed<string[]>(() => {
   return []
 })
 
-const minimumValue = computed(() =>
-  data.schema && 'minimum' in data.schema ? data.schema.minimum : undefined,
-)
-const maximumValue = computed(() =>
-  data.schema && 'maximum' in data.schema ? data.schema.maximum : undefined,
-)
 const typeValue = computed(() =>
   data.schema && 'type' in data.schema ? data.schema.type : undefined,
 )
@@ -156,6 +154,7 @@ const validationResult = computed(() =>
 /** Handle row updates while preserving existing properties */
 const handleUpdateRow = (
   payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
+  options: { shouldRenameExpandedRow?: boolean } = {},
 ): void => {
   // Update our local state
   if (payload.name !== undefined) {
@@ -168,12 +167,40 @@ const handleUpdateRow = (
   // Is disabled should always be false unless you explicitly set it to true
   isDisabled.value = payload.isDisabled ?? false
 
+  if (
+    payload.name !== undefined &&
+    data.sourceParameterValuePath &&
+    !options.shouldRenameExpandedRow
+  ) {
+    return
+  }
+
   // Emit all of the local state
   emit('upsertRow', {
     name: name.value,
     value: value.value,
     isDisabled: isDisabled.value,
+    ...(options.shouldRenameExpandedRow
+      ? { shouldRenameExpandedRow: true }
+      : {}),
   })
+}
+
+/**
+ * Commit a key edit when the input loses focus. Expanded-object rows defer their rename to blur (see
+ * handleUpdateRow), so we only emit when the key actually changed — focusing and blurring the field
+ * without typing should not re-emit the row or silently reset its disabled state. The current
+ * disabled state is passed through so a renamed row keeps it.
+ */
+const handleKeyBlur = (newName: string): void => {
+  if (newName === data.name) {
+    return
+  }
+
+  handleUpdateRow(
+    { name: newName, isDisabled: isDisabled.value },
+    { shouldRenameExpandedRow: Boolean(data.sourceParameterValuePath) },
+  )
 }
 </script>
 
@@ -192,41 +219,31 @@ const handleUpdateRow = (
 
     <!-- Name -->
     <DataTableCell>
-      <CodeInput
+      <CodeInputLite
         :aria-label="`${label} Key`"
-        disableCloseBrackets
         :disabled="data.isReadonly"
-        disableEnter
-        disableTabIndent
         :environment="environment"
-        lineWrapping
         :modelValue="name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
+        @blur="(v) => handleKeyBlur(v)"
         @navigate="(route) => emit('navigate', route)"
-        @selectVariable="(v: string) => handleUpdateRow({ name: v })"
         @update:modelValue="(v) => handleUpdateRow({ name: v })" />
     </DataTableCell>
 
     <!-- Value -->
     <DataTableCell>
-      <CodeInput
+      <CodeInputLite
         :aria-label="`${label} Value`"
-        class="pr-6 group-hover:pr-10 group-has-[.cm-focused]:pr-10"
+        class="pr-6 group-hover:pr-10 group-has-[.code-input-lite__editor:focus]:pr-10"
         :default="defaultValue"
-        disableCloseBrackets
         :disabled="data.isReadonly"
-        disableEnter
-        disableTabIndent
         :enum="enumValue"
         :environment="environment"
         :examples="
           data.schema?.examples?.map((example) => String(example)) ?? []
         "
         :linethrough="data.isOverridden"
-        lineWrapping
-        :max="maximumValue"
-        :min="minimumValue"
         :modelValue="displayValue"
         placeholder="Value"
         :type="typeValue"
@@ -240,7 +257,7 @@ const handleUpdateRow = (
               !data.isRequired &&
               data.isReadonly !== true
             "
-            class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.cm-focused]:flex"
+            class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.code-input-lite__editor:focus]:flex"
             size="sm"
             variant="ghost"
             @click="emit('deleteRow')">
@@ -267,7 +284,7 @@ const handleUpdateRow = (
             :schema="data.schema"
             :value />
         </template>
-      </CodeInput>
+      </CodeInputLite>
     </DataTableCell>
 
     <!-- File upload -->

@@ -147,6 +147,8 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'server:update:variables': undefined,
   'server:update:selected': undefined,
   'server:clear:servers': undefined,
+  'asyncapi-server:update:selected': undefined,
+  'asyncapi-server:update:variables': undefined,
   'tabs:update:tabs': undefined,
   'tabs:close:tab': undefined,
   'tabs:close:other-tabs': undefined,

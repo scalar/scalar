@@ -42,6 +42,18 @@ export type ApiClientModal = {
 }
 
 /**
+ * Monotonic counter used to give every modal Vue app a unique `idPrefix`.
+ *
+ * Vue derives `useId()` values (and therefore our teleport target ids) from the app's
+ * `idPrefix`. When more than one client app mounts on the same page — for example, the
+ * API reference embeds this modal alongside another client instance — a shared prefix
+ * makes both apps emit identical ids. A teleported popover then resolves to the first
+ * matching target in the DOM, which can be a hidden app, so the popover never appears.
+ * A per-app suffix keeps the ids unique across instances.
+ */
+let modalAppCount = 0
+
+/**
  * Creates the API Client Modal.
  *
  * The modal does not require a router. Instead, navigation is handled by setting
@@ -149,8 +161,9 @@ export const createApiClientModal = ({
     { immediate: true },
   )
 
-  // Use a unique id prefix to prevent collisions with other Vue apps on the page
-  app.config.idPrefix = 'scalar-client'
+  // Use a unique id prefix to prevent collisions with other Vue apps on the page.
+  // The suffix keeps the prefix unique even when several client apps mount together.
+  app.config.idPrefix = `scalar-client-${modalAppCount++}`
 
   /** Mount the modal to a given element. */
   const mount = (mountingEl: HTMLElement | null = el): void => {

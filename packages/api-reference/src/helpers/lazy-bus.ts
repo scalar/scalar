@@ -24,6 +24,28 @@ const SCROLL_RETRY_MS = 3000
 /** Tracks when the initial load is complete. */
 export const firstLazyLoadComplete = ref(false)
 
+/**
+ * The id of the element we are currently scrolling to (the anchor target).
+ *
+ * Schema properties live inside collapsible disclosures that are not part of the
+ * navigation tree, so the lazy bus cannot expand them the way it expands sidebar
+ * parents. Instead we publish the active target here and let each collapsible
+ * schema disclosure open itself when its breadcrumb is on the path to the target.
+ * This is what makes deep links to hidden (collapsed) schema properties work.
+ */
+export const scrollTargetId = ref<string>('')
+
+/**
+ * Clears the scroll target once we are done with it, so a stale target cannot
+ * re-open a disclosure the user later collapsed (or that remounts). Guarded by
+ * the id so a newer navigation that started during the scroll retry is kept.
+ */
+const clearScrollTarget = (id: string): void => {
+  if (scrollTargetId.value === id) {
+    scrollTargetId.value = ''
+  }
+}
+
 /** List of unique identifiers that are blocking intersection */
 const intersectionBlockers = reactive<Set<string>>(new Set())
 
@@ -242,6 +264,11 @@ export const scrollToLazy = (
   const unblock = blockIntersection()
   const { rawId } = getSchemaParamsFromId(id)
 
+  // Publish the target so collapsible schema disclosures on the path can open
+  // themselves. Schema properties are not in the navigation tree, so this is the
+  // only way the scroll target inside a collapsed schema becomes reachable.
+  scrollTargetId.value = id
+
   addToPriorityQueue(id)
   addToPriorityQueue(rawId)
 
@@ -291,11 +318,13 @@ const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailur
   const element = document.getElementById(id)
   if (element) {
     element.scrollIntoView({ block: 'start' })
+    clearScrollTarget(id)
     onComplete()
   } else if (Date.now() < stopTime) {
     requestAnimationFrame(() => tryScroll(id, stopTime, onComplete, onFailure))
   } else {
     // If the scroll has expired we enable intersection again
+    clearScrollTarget(id)
     onComplete()
     onFailure?.()
   }

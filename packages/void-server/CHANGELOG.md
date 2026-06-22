@@ -1,5 +1,13 @@
 # @scalar/void-server
 
+## 2.5.1
+
+## 2.5.0
+
+### Minor Changes
+
+- [#9346](https://github.com/scalar/scalar/pull/9346): feat: add WebSocket echo endpoint with connection timeout
+
 ## 2.4.13
 
 ## 2.4.12

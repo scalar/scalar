@@ -130,6 +130,30 @@ describe('executeHook', () => {
     expect(result.requestBuilder.headers.get('X-Async')).toBe('completed')
   })
 
+  it('executes requestBuilt hooks with the exact request instance so mutations apply', async () => {
+    const requestBuilder = createFactory()
+    const request = new Request('https://example.com/api/test', { method: 'GET' })
+
+    const plugin: ClientPlugin = {
+      hooks: {
+        requestBuilt: async (payload) => {
+          await new Promise((resolve) => setTimeout(resolve, 10))
+
+          payload.request.headers.set('X-Signature', 'abc123')
+        },
+      },
+    }
+
+    const result = await executeHook(
+      { request, requestBuilder, document: {} as never, operation: {} as never },
+      'requestBuilt',
+      [plugin],
+    )
+
+    expect(result.request).toBe(request)
+    expect(request.headers.get('X-Signature')).toBe('abc123')
+  })
+
   it('maintains type safety with HookPayloadMap for different hook types', async () => {
     const requestBuilder = createFactory()
     const beforeRequestPlugin: ClientPlugin = {

@@ -1,0 +1,68 @@
+{
+  "name": "@scalar/release-notes",
+  "description": "Generate curated release notes from Changesets changelogs with pluggable AI providers",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/release-notes"
+  },
+  "keywords": [
+    "release-notes",
+    "changelog",
+    "changesets",
+    "ai"
+  ],
+  "version": "0.1.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "schema:generate": "tsx scripts/generate-schema.ts",
+    "schema:generate:stage": "tsx scripts/stage-generated-schema.ts",
+    "start": "node dist/cli.js",
+    "test": "vitest --run",
+    "types:check": "tsgo --noEmit"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./cli": {
+      "import": "./dist/cli.js",
+      "types": "./dist/cli.d.ts",
+      "default": "./dist/cli.js"
+    },
+    "./schema": "./schemas/release-notes.schema.json"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "bin": {
+    "scalar-release-notes": "dist/cli.js"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@scalar/helpers": "workspace:*",
+    "commander": "catalog:*",
+    "zod": "catalog:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:*",
+    "tsx": "catalog:*",
+    "vitest": "catalog:*"
+  }
+}

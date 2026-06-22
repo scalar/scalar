@@ -1,5 +1,35 @@
 # @scalar/aspire
 
+## 0.11.0
+
+### Minor Changes
+
+- [#9571](https://github.com/scalar/scalar/pull/9571): feat(dotnet): add `AddScalarMockServer` to run a Scalar Mock Server as an Aspire resource
+
+  Adds `AddScalarMockServer`, which registers the `scalarapi/mock-server` container as an Aspire resource that generates realistic mock API responses from an OpenAPI/Swagger document — so other resources can depend on it as if it were the real service. The document can be supplied inline (`WithDocument`), from a local file (`WithDocumentFile`), from a URL (`WithDocumentUrl`), or derived from another resource's endpoint (`WithDocumentFrom`).
+
+## 0.10.4
+
+### Patch Changes
+
+- [#9525](https://github.com/scalar/scalar/pull/9525): Pin MessagePack to 2.5.301 to resolve a transitive high-severity advisory (CVE-2026-48109) pulled in via Aspire.Hosting
+
+## 0.10.3
+
+## 0.10.2
+
+## 0.10.1
+
+## 0.10.0
+
+### Minor Changes
+
+- [#9413](https://github.com/scalar/scalar/pull/9413): feat(dotnet): add AsyncAPI document support
+
+  Adds `AddAsyncApiDocument`, `AddAsyncApiDocuments`, and `WithAsyncApiRoutePattern` so AsyncAPI documents can be registered alongside OpenAPI documents in the same Scalar API Reference. AsyncAPI documents use a separate default route pattern (`/asyncapi/{documentName}.json`) that is resolved lazily at configuration time.
+
+## 0.9.42
+
 ## 0.9.41
 
 ### Patch Changes

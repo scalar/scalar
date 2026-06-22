@@ -4,6 +4,10 @@ import { mapHiddenClientsConfig } from '@scalar/api-client/modal/map-hidden-clie
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
+import {
+  getAsyncApiServers,
+  getSelectedAsyncApiServer,
+} from '@scalar/workspace-store/channel-example'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
@@ -24,9 +28,14 @@ import type {
 } from '@scalar/workspace-store/schemas/workspace'
 import { computed, onMounted } from 'vue'
 
+import { AsyncApiServerSelector } from '@/blocks/scalar-asyncapi-server-selector-block'
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
+import {
+  getRenderableSdks,
+  SdkInstallationInstructions,
+} from '@/blocks/scalar-sdk-installation-instructions'
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import { AsyncApiTraversedEntry } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
@@ -47,8 +56,11 @@ const {
   eventBus,
   options,
   authStore,
+  documentSlug,
 } = defineProps<{
   infoSectionId: string
+  /** Slug of the active document, used to scope plugin view ids for navigation and deep-linking */
+  documentSlug: string
   /** The subset of the configuration object required for the content component */
   options: Pick<
     ApiReferenceConfigurationRaw,
@@ -59,13 +71,16 @@ const {
     | 'hiddenClients'
     | 'hideTestRequestButton'
     | 'layout'
+    | 'oauth2RedirectUri'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
+    | 'expandAllSchemaProperties'
     | 'persistAuth'
     | 'proxyUrl'
     | 'servers'
     | 'showOperationId'
     | 'hideModels'
+    | 'modelsSectionLabel'
   >
   document: WorkspaceDocument | undefined
   clientDocument: WorkspaceDocument | undefined
@@ -85,6 +100,15 @@ const clientOptions = computed(() =>
 )
 
 /**
+ * Custom SDK installation instructions that actually have something to render.
+ * Entries with only a `lang` are ignored so we can fall back to the client
+ * selector instead of showing an empty card.
+ */
+const sdkInstallation = computed(() =>
+  getRenderableSdks(openApiDocument.value?.info?.['x-scalar-sdk-installation']),
+)
+
+/**
  * Narrow the (possibly AsyncAPI) documents to OpenAPI documents. api-reference
  * is OpenAPI-native, so AsyncAPI fields surface as undefined/empty.
  */
@@ -98,6 +122,11 @@ const openApiClientDocument = computed(() =>
 /** AsyncAPI narrow, used to render the (currently channel-only) AsyncAPI content tree. */
 const asyncApiDocument = computed(() =>
   isAsyncApiDocument(document) ? document : undefined,
+)
+
+/** AsyncAPI narrow of the client document, where server selection/variables are persisted. */
+const asyncApiClientDocument = computed(() =>
+  isAsyncApiDocument(clientDocument) ? clientDocument : undefined,
 )
 
 const documentType = computed(() => getDocumentType(document))
@@ -133,6 +162,24 @@ const selectedServer = computed(() =>
   ),
 )
 
+/**
+ * Compute the AsyncAPI servers (all protocols, not just WebSocket) for the
+ * document-level server selector.
+ */
+const asyncApiServers = computed(() =>
+  asyncApiClientDocument.value
+    ? getAsyncApiServers(asyncApiClientDocument.value, { webSocketOnly: false })
+    : [],
+)
+
+/** Compute the selected AsyncAPI server for the document */
+const asyncApiSelectedServer = computed(() =>
+  getSelectedAsyncApiServer(
+    asyncApiClientDocument.value ?? null,
+    asyncApiServers.value,
+  ),
+)
+
 /** Merge authentication config with the document security schemes */
 const securitySchemes = computed(() =>
   mergeSecurity(
@@ -140,6 +187,7 @@ const securitySchemes = computed(() =>
     options.authentication?.securitySchemes,
     authStore,
     openApiClientDocument.value?.['x-scalar-navigation']?.name ?? '',
+    options.oauth2RedirectUri,
   ),
 )
 
@@ -153,6 +201,13 @@ onMounted(() => {
 
   <div class="narrow-references-container">
     <slot name="start" />
+
+    <!-- Render plugins at content.start view -->
+    <RenderPlugins
+      :documentSlug
+      :eventBus
+      :options
+      viewName="content.start" />
 
     <!-- Introduction -->
 
@@ -182,6 +237,18 @@ onMounted(() => {
           </IntroductionCardItem>
         </ScalarErrorBoundary>
 
+        <!-- AsyncAPI Server Selector -->
+        <ScalarErrorBoundary>
+          <IntroductionCardItem
+            v-if="asyncApiServers.length"
+            class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
+            <AsyncApiServerSelector
+              :eventBus
+              :selectedServer="asyncApiSelectedServer"
+              :servers="asyncApiServers" />
+          </IntroductionCardItem>
+        </ScalarErrorBoundary>
+
         <!-- Auth selector -->
         <ScalarErrorBoundary>
           <IntroductionCardItem
@@ -198,19 +265,25 @@ onMounted(() => {
           </IntroductionCardItem>
         </ScalarErrorBoundary>
 
-        <!-- Client selector -->
+        <!-- Custom SDK installation instructions, or the generic client selector -->
         <ScalarErrorBoundary>
           <IntroductionCardItem
-            v-if="clientOptions.length"
+            v-if="sdkInstallation.length"
+            class="introduction-card-item scalar-reference-intro-clients">
+            <SdkInstallationInstructions
+              class="introduction-card-item scalar-reference-intro-clients"
+              :eventBus
+              :selectedClient="xScalarDefaultClient"
+              :xScalarSdkInstallation="sdkInstallation" />
+          </IntroductionCardItem>
+          <IntroductionCardItem
+            v-else-if="clientOptions.length && !asyncApiDocument"
             class="introduction-card-item scalar-reference-intro-clients">
             <ClientSelector
               class="introduction-card-item scalar-reference-intro-clients"
               :clientOptions
               :eventBus
-              :selectedClient="xScalarDefaultClient"
-              :xScalarSdkInstallation="
-                openApiDocument?.info?.['x-scalar-sdk-installation']
-              " />
+              :selectedClient="xScalarDefaultClient" />
           </IntroductionCardItem>
         </ScalarErrorBoundary>
       </template>
@@ -243,6 +316,8 @@ onMounted(() => {
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins
+      :documentSlug
+      :eventBus
       :options
       viewName="content.end" />
 

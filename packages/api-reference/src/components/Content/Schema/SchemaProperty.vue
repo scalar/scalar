@@ -12,6 +12,7 @@ import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SpecificationExtension } from '@/features/specification-extension'
 
@@ -33,6 +34,9 @@ import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
  * We're using `optimizeValueForDisplay` to merge null types in compositions (anyOf, allOf, oneOf, not).
  * So you should basically use the optimizedValue everywhere in the component.
  */
+
+/** Composition keywords that hold a list of schemas and can be flattened when they contain a single member. */
+const SINGLE_ITEM_COMPOSITIONS = ['oneOf', 'anyOf', 'allOf'] as const
 
 const props = withDefaults(
   defineProps<{
@@ -61,6 +65,8 @@ const props = withDefaults(
     compositionPath?: string[]
     /** Internal path segment for this property when building nested composition keys */
     compositionPathSegment?: string
+    /** Stable identity of this property's schema, used for cycle detection. */
+    cycleKey?: unknown
   }>(),
   {
     level: 0,
@@ -107,10 +113,28 @@ const shouldRenderObjectProperties = computed(() => {
     return false
   }
 
-  return (
-    isTypeObject(value) &&
-    ('properties' in value || 'additionalProperties' in value)
-  )
+  if (!('properties' in value || 'additionalProperties' in value)) {
+    return false
+  }
+
+  // `allOf` already merges the factored-out sibling `properties` into its
+  // rendered result (see `mergeAllOfSchemas`), so rendering a separate object
+  // block here would show those properties twice. Let the composition handle it.
+  if ('allOf' in value) {
+    return false
+  }
+
+  // A schema may factor its common `properties` out to the top level alongside
+  // a composition keyword (anyOf/oneOf/not), as described in the JSON Schema
+  // "factoring schemas" guide. `isTypeObject` deliberately rejects such schemas
+  // so the composition is rendered, but the factored-out properties must still
+  // show. Unlike `allOf`, these compositions do not merge sibling properties.
+  // Render them unless the schema is an explicit non-object (scalar or array)
+  // type. See https://github.com/scalar/scalar/issues/8593
+  const type = (value as { type?: unknown }).type
+  const isExplicitNonObject = typeof type === 'string' && type !== 'object'
+
+  return isTypeObject(value) || !isExplicitNonObject
 })
 
 /** Determine if array of objects should be rendered */
@@ -137,16 +161,36 @@ const displayDescription = computed(() =>
 )
 
 /**
- * When the property already renders the description, avoid repeating it in the nested object schema card.
+ * The schema used to render the object's own properties.
+ *
+ * Composition keywords are stripped so the nested object renders only its
+ * properties. The compositions are rendered separately below; leaving them here
+ * would route the nested `Schema` back through `SchemaProperty` and recurse.
+ *
+ * When the property already renders the description, we also drop it to avoid
+ * repeating it in the nested object schema card.
  */
 const objectSchemaForChildren = computed(() => {
   const value = optimizedValue.value
-  if (!value || !displayDescription.value || !('description' in value)) {
+  if (!value) {
     return value
   }
 
-  const { description: _description, ...schemaWithoutDescription } = value
-  return schemaWithoutDescription as SchemaObject
+  const {
+    oneOf: _oneOf,
+    anyOf: _anyOf,
+    allOf: _allOf,
+    not: _not,
+    ...objectSchema
+  } = value as Record<string, unknown>
+
+  if (displayDescription.value && 'description' in objectSchema) {
+    const { description: _description, ...schemaWithoutDescription } =
+      objectSchema
+    return schemaWithoutDescription as SchemaObject
+  }
+
+  return objectSchema as SchemaObject
 })
 
 /** Determine if property heading should be displayed */
@@ -156,16 +200,42 @@ const shouldDisplayHeadingComputed = computed(() =>
 
 /** Computes which compositions should be rendered and with which values */
 const compositionsToRender = computed(() =>
-  getCompositionsToRender(optimizedValue.value),
+  getCompositionsToRender(optimizedValue.value, props.options.document),
 )
 
-/** Get resolved array items for rendering */
+/**
+ * Get resolved array items for rendering.
+ *
+ * When the items are wrapped in a single-item composition (e.g. `items: { allOf: [{ type: 'object', ... }] }`), we
+ * flatten that wrapper into its plain form. A composition with a single member is equivalent to that member, so
+ * keeping the composition keyword only makes the items render through an extra schema layer, which adds an
+ * unnecessary level of nesting and duplicates the item description. See https://github.com/scalar/scalar/issues/5900
+ */
 const resolvedArrayItems = computed(() => {
   const value = optimizedValue.value
   if (!value || !isArraySchema(value) || typeof value.items !== 'object') {
     return undefined
   }
-  return resolve.schema(value.items)
+
+  const items = resolve.schema(value.items)
+  const hasSingleItemComposition = SINGLE_ITEM_COMPOSITIONS.some(
+    (keyword) =>
+      Array.isArray(items?.[keyword]) && items[keyword]?.length === 1,
+  )
+
+  return hasSingleItemComposition ? optimizeValueForDisplay(items) : items
+})
+
+/**
+ * Cycle key for the array items schema, derived from the raw (unresolved) items
+ * so a self-referential array element is detected as a cycle.
+ */
+const arrayItemsCycleKey = computed(() => {
+  const value = optimizedValue.value
+  if (!value || !isArraySchema(value)) {
+    return undefined
+  }
+  return getCycleKey(value.items)
 })
 
 /** Check if discriminator matches current property */
@@ -255,6 +325,7 @@ const isDiscriminatorProperty = computed(() =>
         :breadcrumb="childBreadcrumb"
         :compact="compact"
         :compositionPath="currentCompositionPath"
+        :cycleKey="cycleKey"
         :eventBus="eventBus"
         :hideModelNames
         :level="level + 1"
@@ -272,6 +343,7 @@ const isDiscriminatorProperty = computed(() =>
       <Schema
         :compact="compact"
         :compositionPath="arrayItemsCompositionPath"
+        :cycleKey="arrayItemsCycleKey"
         :eventBus="eventBus"
         :hideModelNames
         :level="level + 1"

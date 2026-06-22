@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
@@ -10,6 +9,7 @@ import type {
 import { computed } from 'vue'
 
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
 import { sortPropertyNames } from '@/components/Content/Schema/helpers/sort-property-names'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 
@@ -123,11 +123,6 @@ const getPropertySchema = (
   if (!property) {
     return undefined
   }
-
-  if ('$ref' in property && typeof property.$ref === 'string') {
-    return getResolvedRef(property) as SchemaObject
-  }
-
   return resolve.schema(property)
 }
 
@@ -188,6 +183,8 @@ const getAdditionalPropertiesValue = (
       :compact
       :compositionPath="compositionPath"
       :compositionPathSegment="property"
+      :cycleKey="getCycleKey(schema.properties[property])"
+      :description="getPropertyDescription(schema.properties[property])"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -196,7 +193,6 @@ const getAdditionalPropertiesValue = (
       :name="property"
       :options="options"
       :required="schema.required?.includes(property)"
-      :description="getPropertyDescription(schema.properties[property])"
       :schema="getPropertySchema(schema.properties[property])"
       :schemaContext="schemaContext" />
   </template>
@@ -210,6 +206,8 @@ const getAdditionalPropertiesValue = (
       :compact
       :compositionPath="compositionPath"
       :compositionPathSegment="key"
+      :cycleKey="getCycleKey(property)"
+      :description="getPropertyDescription(property)"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -217,7 +215,6 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
-      :description="getPropertyDescription(property)"
       :schema="getPropertySchema(property)"
       :schemaContext="schemaContext" />
   </template>
@@ -234,6 +231,7 @@ const getAdditionalPropertiesValue = (
           schema.propertyNames,
         )
       "
+      :cycleKey="getCycleKey(schema.additionalProperties)"
       :discriminator
       :eventBus="eventBus"
       :hideHeading

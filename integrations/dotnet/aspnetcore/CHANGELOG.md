@@ -1,5 +1,25 @@
 # @scalar/aspnetcore
 
+## 2.16.5
+
+## 2.16.4
+
+## 2.16.3
+
+## 2.16.2
+
+## 2.16.1
+
+## 2.16.0
+
+### Minor Changes
+
+- [#9413](https://github.com/scalar/scalar/pull/9413): feat(dotnet): add AsyncAPI document support
+
+  Adds `AddAsyncApiDocument`, `AddAsyncApiDocuments`, and `WithAsyncApiRoutePattern` so AsyncAPI documents can be registered alongside OpenAPI documents in the same Scalar API Reference. AsyncAPI documents use a separate default route pattern (`/asyncapi/{documentName}.json`) that is resolved lazily at configuration time.
+
+## 2.15.3
+
 ## 2.15.2
 
 ## 2.15.1

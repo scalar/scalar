@@ -1,0 +1,79 @@
+name: JS Tests
+
+# Reusable workflow with the JS-side test suites required for every PR and
+# every push to main. The test-packages sharding loop and the test-projects
+# discovery loop live here exactly once so pr.yml and main.yml cannot drift.
+#
+# Both jobs consume the pre-built `build-output` artifact via restore-build —
+# the caller's build job is the single source of truth.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test-packages:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shard-index: [1, 2, 3]
+        shard-total: [3]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Check built declaration alias imports
+        if: matrix.shard-index == 1
+        run: pnpm lint:check:dist-dts-aliases
+      - name: Run tests
+        run: |
+          dirs=()
+          for dir in packages/*/; do
+            if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
+              dirs+=("$dir")
+            fi
+          done
+          args=()
+          for i in "${!dirs[@]}"; do
+            if (( i % ${{ matrix.shard-total }} == ${{ matrix.shard-index }} - 1 )); then
+              args+=(--filter "./${dirs[$i]%/}")
+            fi
+          done
+          if [ ${#args[@]} -eq 0 ]; then
+            echo "No packages assigned to this shard, skipping."
+            exit 0
+          fi
+          pnpm turbo "${args[@]}" test
+
+  # pnpm workspaces under projects/* with a `test` script. Excludes
+  # projects/proxy-scalar-com (Go) — those run in test-proxy-server.
+  test-projects:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Run project tests
+        run: |
+          args=()
+          for dir in projects/*/; do
+            [ -f "${dir}package.json" ] || continue
+            [ "${dir}" = 'projects/proxy-scalar-com/' ] && continue
+            if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
+              args+=(--filter "./${dir%/}")
+            fi
+          done
+          if [ ${#args[@]} -eq 0 ]; then
+            echo "No projects with a pnpm test script (excluding Go proxy), skipping."
+            exit 0
+          fi
+          pnpm turbo "${args[@]}" test

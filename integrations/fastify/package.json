@@ -17,7 +17,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.57.5",
+  "version": "1.61.0",
   "engines": {
     "node": ">=22"
   },
@@ -28,7 +28,7 @@
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5053:5053 fastify-api-reference",
     "test": "vitest --run",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",

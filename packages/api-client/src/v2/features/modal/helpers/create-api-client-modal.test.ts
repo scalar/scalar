@@ -682,4 +682,29 @@ describe('createApiClientModal', () => {
       'x-scalar-is-dirty': true,
     })
   })
+
+  it('assigns a unique id prefix to each modal app instance', async () => {
+    const workspaceStore = await setupWorkspaceStore()
+
+    const first = createApiClientModal({
+      el: mountElement,
+      workspaceStore,
+      mountOnInitialize: false,
+      eventBus: createTestEventBus(),
+    })
+    const second = createApiClientModal({
+      el: mountElement,
+      workspaceStore,
+      mountOnInitialize: false,
+      eventBus: createTestEventBus(),
+    })
+    createdApps.push(first.app, second.app)
+
+    // Each app needs its own id namespace. Vue derives `useId()` (and our teleport
+    // target ids) from `idPrefix`, so a shared prefix makes two client apps emit
+    // colliding ids and a teleported popover can resolve to the wrong (hidden) app.
+    expect(first.app.config.idPrefix).toMatch(/^scalar-client-\d+$/)
+    expect(second.app.config.idPrefix).toMatch(/^scalar-client-\d+$/)
+    expect(first.app.config.idPrefix).not.toBe(second.app.config.idPrefix)
+  })
 })

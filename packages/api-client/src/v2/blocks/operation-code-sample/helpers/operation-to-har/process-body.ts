@@ -4,10 +4,7 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExample,
   getExampleFromSchema,
-  serializeDeepObjectStyle,
-  serializeFormStyle,
-  serializePipeDelimitedStyle,
-  serializeSpaceDelimitedStyle,
+  serializeFormPropertyWithEncoding,
 } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
@@ -24,18 +21,6 @@ type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example' | 'r
 }
 
 type MultipartEncodingMap = MediaTypeObject['encoding']
-
-/**
- * Stringify a value emitted by `serializeFormStyle` into a HAR param value.
- *
- * Form-style serialization only addresses one level of nesting per RFC6570;
- * deeper structures (an object or array still sitting in `entry.value`) are
- * spec-undefined. JSON-stringify them so authors get readable output instead
- * of `String(value)` returning `"[object Object]"`. Primitives pass through
- * `String()` to preserve the existing wire shape (e.g. `true` → `"true"`).
- */
-const stringifyEntryValue = (value: unknown): string =>
-  value !== null && typeof value === 'object' ? JSON.stringify(value) : String(value)
 
 /**
  * Converts a form-data body into HAR `Param[]` entries for `multipart/form-data`
@@ -96,83 +81,16 @@ const objectToFormParams = (
     const explicitContentType = hasFormStyle || !isMultipart ? undefined : partEncoding?.contentType
 
     /**
-     * Per OpenAPI 3.1.x Encoding Object: when style/explode/allowReserved is set on a
-     * `multipart/form-data` or `application/x-www-form-urlencoded` part, the value is
-     * serialized as if it were a query-style parameter and contentType is ignored. For
-     * multipart the query delimiters are stripped per §Appendix C; HAR represents both
-     * content types via `PostData.params`, so the same shape works for both.
-     *
-     * Primitives skip this branch and fall through to the String(value) path below since
-     * style is a no-op for primitives. Files skip too, as do arrays containing Files —
-     * RFC6570 expansion of binary data is undefined per §Appendix C, and the array branch
-     * below already emits one `@filename` part per File.
-     *
-     * allowReserved only affects percent-encoding, which is a no-op at the HAR layer per
-     * OAS 3.1.2 ("`allowReserved` has no effect" for multipart); its presence still opts
-     * into this branch per spec.
+     * When the encoding sets style/explode/allowReserved, serialize the value RFC6570-style
+     * (bracket/exploded notation) and ignore contentType. See `serializeFormPropertyWithEncoding`
+     * for the per-style rules; it returns null for primitives, Files, and arrays of Files, which
+     * then fall through to the dedicated branches below. HAR represents multipart and urlencoded
+     * the same way via `PostData.params`, so the resulting parts work for both.
      */
-    if (
-      !parentKey &&
-      hasFormStyle &&
-      typeof value === 'object' &&
-      value !== null &&
-      !(value instanceof File) &&
-      !(Array.isArray(value) && value.some((item) => item instanceof File))
-    ) {
-      const unpacked = unpackProxyObject(value)
-      /**
-       * OAS 3.1.x Encoding Object: encoding follows query-parameter defaults — when no
-       * `style` is set, the default is "form"; when no `explode` is set, the default is
-       * `true` for "form" and `false` for every other style.
-       */
-      const style = partEncoding?.style ?? 'form'
-      const explode = partEncoding?.explode ?? style === 'form'
-
-      if (style === 'deepObject') {
-        if (Array.isArray(unpacked)) {
-          /**
-           * OAS 3.1.1 marks deepObject-on-array as n/a; fall back to the form/explode:true
-           * shape so the array still reaches the wire instead of being silently dropped.
-           */
-          const serialized = serializeFormStyle(unpacked, true)
-          if (Array.isArray(serialized)) {
-            for (const entry of serialized) {
-              params.push({ name: entry.key || key, value: stringifyEntryValue(entry.value) })
-            }
-          } else {
-            params.push({ name: key, value: String(serialized) })
-          }
-        } else {
-          /**
-           * explode:false with deepObject is undefined per spec; we invoke the serializer
-           * either way so authors get useful output instead of nothing.
-           */
-          for (const entry of serializeDeepObjectStyle(key, unpacked)) {
-            params.push({ name: entry.key, value: String(entry.value) })
-          }
-        }
-      } else if (style === 'spaceDelimited') {
-        params.push({ name: key, value: String(serializeSpaceDelimitedStyle(unpacked)) })
-      } else if (style === 'pipeDelimited') {
-        params.push({ name: key, value: String(serializePipeDelimitedStyle(unpacked)) })
-      } else {
-        const serialized = serializeFormStyle(unpacked, explode)
-        if (Array.isArray(serialized)) {
-          for (const entry of serialized) {
-            /**
-             * Arrays: entry.key === '' → fall back to the outer name.
-             * Objects: entry.key is the inner property name (spec strips the outer name).
-             *
-             * Nested objects/arrays inside entry.value are spec-undefined (RFC6570 form-style
-             * only addresses one level of nesting); JSON-stringify them instead of letting
-             * String() emit "[object Object]". The escape hatch for cleaner output is
-             * style: deepObject + explode: true.
-             */
-            params.push({ name: entry.key || key, value: stringifyEntryValue(entry.value) })
-          }
-        } else {
-          params.push({ name: key, value: String(serialized) })
-        }
+    const styleParams = parentKey ? null : serializeFormPropertyWithEncoding(key, value, partEncoding)
+    if (styleParams) {
+      for (const param of styleParams) {
+        params.push({ name: param.key, value: param.value })
       }
     } else if (value instanceof File) {
       /**

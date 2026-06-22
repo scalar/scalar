@@ -4,7 +4,10 @@ import type {
   ParameterWithSchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-/** Helper that de-serializes the example value based on the parameter type */
+/**
+ * Coerces a parameter example from the UI (always a string from CodeInput) into a value
+ * request building can serialize. Only structured types are parsed; primitives stay as strings.
+ */
 export const deSerializeParameter = (example: unknown, param: ParameterObject) => {
   if ('content' in param) {
     return deSerializeContentExample(example, Object.keys(param.content ?? {})[0] ?? '')
@@ -16,41 +19,80 @@ export const deSerializeParameter = (example: unknown, param: ParameterObject) =
   return example
 }
 
-/** De-serialize the example value based on the content type */
+/**
+ * Content-based parameters (e.g. `application/json`) may hold full JSON payloads;
+ * parse those so nested structure is available to serializers.
+ */
 const deSerializeContentExample = (example: unknown, contentType: string) => {
   if (typeof example === 'string' && contentType.includes('json')) {
     try {
       return JSON.parse(example)
     } catch {
-      // Ignore the error and return the original example
+      return example
     }
   }
   return example
 }
 
-/** Create a set of all the types we wish to parse as JSON */
-const parseableTypesSet = new Set(['array', 'object', 'boolean', 'number', 'integer', 'null'])
+/** Schema types that must become arrays/objects — serializers branch on `Array.isArray` / objects. */
+const structuredSchemaTypes = new Set(['array', 'object'])
 
-/** De-serialize the example value based on the schema type */
+/**
+ * Find the structured (`array` or `object`) type a schema represents, looking through
+ * `anyOf`/`oneOf`/`allOf` composition.
+ *
+ * Optional array/object parameters are commonly described as `anyOf: [{ type: 'array' }, { type: 'null' }]`
+ * (e.g. FastAPI/Pydantic `Optional[List[str]]`). Without unwrapping these we would treat the value as a
+ * plain string and send a single `id=a,b` query parameter instead of repeating `id=a&id=b`.
+ */
+const getStructuredType = (schema: unknown): 'array' | 'object' | undefined => {
+  const resolved = getResolvedRef(schema)
+  if (!resolved || typeof resolved !== 'object') {
+    return undefined
+  }
+
+  if ('type' in resolved && resolved.type) {
+    const type = Array.isArray(resolved.type)
+      ? resolved.type.find((t: string) => structuredSchemaTypes.has(t))
+      : resolved.type
+    if (type === 'array' || type === 'object') {
+      return type
+    }
+  }
+
+  for (const key of ['anyOf', 'oneOf', 'allOf'] as const) {
+    const subSchemas = (resolved as Record<string, unknown>)[key]
+    if (Array.isArray(subSchemas)) {
+      for (const subSchema of subSchemas) {
+        const type = getStructuredType(subSchema)
+        if (type) {
+          return type
+        }
+      }
+    }
+  }
+
+  return undefined
+}
+
+/**
+ * Schema-based parameters from the request editor.
+ *
+ * Primitives (`string`, `integer`, `number`, `boolean`, `null`) are left as the typed string
+ * Only `array` and `object` values are parsed so OpenAPI style serialization can expand them.
+ */
 const deSerializeSchemaExample = (example: unknown, schema: ParameterWithSchemaObject['schema']) => {
-  const resolvedSchema = getResolvedRef(schema)
+  if (typeof example === 'string') {
+    const type = getStructuredType(schema)
 
-  if (typeof example === 'string' && resolvedSchema && 'type' in resolvedSchema) {
-    const type = Array.isArray(resolvedSchema.type) ? resolvedSchema.type[0] : resolvedSchema.type
-
-    if (type && parseableTypesSet.has(type)) {
+    if (type) {
       try {
         return JSON.parse(example)
       } catch {
-        // For array types, fall back to splitting comma-separated values.
-        // Users commonly enter array values as "foo,bar" or "foo, bar" in the UI
-        // text field, which is not valid JSON. Per the OpenAPI spec, the default
-        // serialization for query array parameters is style=form + explode=true,
-        // meaning each value should be sent as a separate query parameter.
+        // Arrays: users often type `foo,bar` instead of JSON — split to match default form+explode query style.
         if (type === 'array') {
           return example.split(/,\s?/).filter((v) => v !== '')
         }
-        // Ignore the error and return the original example for other types
       }
     }
   }

@@ -37,6 +37,7 @@ import {
 } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, watch, type ComputedRef } from 'vue'
 
@@ -196,7 +197,7 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
 
   if (
     isOpenApiDocument(document) &&
-    document.paths?.[normalizedRequestPath.value]?.[method]
+    getPathItemOperation(document.paths?.[normalizedRequestPath.value], method)
   ) {
     return `A ${method.toUpperCase()} operation at "${normalizedRequestPath.value}" already exists in "${documentLabel}". Try a different path or method.`
   }

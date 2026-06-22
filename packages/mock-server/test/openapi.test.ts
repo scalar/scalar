@@ -1,5 +1,6 @@
-import { normalize, toYaml } from '@scalar/openapi-parser'
+import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { describe, expect, it } from 'vitest'
+import { stringify as toYaml } from 'yaml'
 
 import { createMockServer } from '../src/create-mock-server'
 

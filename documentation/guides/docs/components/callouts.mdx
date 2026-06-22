@@ -1,0 +1,108 @@
+import Preview from './Preview.mdx'
+
+# Callouts
+
+Callouts are highlighted boxes that draw attention to important information. Each type has its own color and icon.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `type` | `'neutral'` `'success'` `'danger'` `'warning'` `'info'` | `neutral` | Visual style and default icon. Accepts the aliases `warn` and `information`. |
+| `icon` | `string` | — | Overrides the default icon for the type. Accepts a built-in [icon key](/products/docs/components/icons#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](/products/docs/components/icons#custom-icons). |
+
+## Examples
+
+### Basic Callout
+
+<Preview>
+  <Callout type="info">This is an informational message.</Callout>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-callout type="info">
+  This is an informational message.
+</scalar-callout>
+```
+```mdx MDX
+<Callout type="info">
+  This is an informational message.
+</Callout>
+```
+</CodeGroup>
+
+### All Types
+
+<Preview>
+  <Callout type="neutral">Neutral message.</Callout>
+  <Callout type="info">Informational message.</Callout>
+  <Callout type="success">Success message.</Callout>
+  <Callout type="warning">Warning message.</Callout>
+  <Callout type="danger">Something went wrong.</Callout>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-callout type="neutral">Neutral message.</scalar-callout>
+<scalar-callout type="info">Informational message.</scalar-callout>
+<scalar-callout type="success">Success message.</scalar-callout>
+<scalar-callout type="warning">Warning message.</scalar-callout>
+<scalar-callout type="danger">Something went wrong.</scalar-callout>
+```
+```mdx MDX
+<Callout type="neutral">Neutral message.</Callout>
+<Callout type="info">Informational message.</Callout>
+<Callout type="success">Success message.</Callout>
+<Callout type="warning">Warning message.</Callout>
+<Callout type="danger">Something went wrong.</Callout>
+```
+</CodeGroup>
+
+### Custom Icon
+
+<Preview>
+  <Callout type="success" icon="phosphor/regular/check-circle">
+    Operation completed successfully!
+  </Callout>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-callout type="success" icon="phosphor/regular/check-circle">
+  Operation completed successfully!
+</scalar-callout>
+```
+```mdx MDX
+<Callout type="success" icon="phosphor/regular/check-circle">
+  Operation completed successfully!
+</Callout>
+```
+</CodeGroup>
+
+## MDX Shortcuts
+
+In MDX, the following named components are equivalent to `<Callout>` with a preset `type`:
+
+| Component | Equivalent |
+| --------- | ---------- |
+| `<Note>` | `<Callout type="info">` |
+| `<Tip>` | `<Callout type="success" icon="lightbulb">` |
+| `<Warning>` | `<Callout type="warning">` |
+| `<Danger>` | `<Callout type="danger">` |
+| `<Check>` | `<Callout type="success">` |
+| `<Info>` | `<Callout type="neutral">` |
+
+<Preview>
+  <Note>Useful information that's good to know.</Note>
+  <Tip>Helpful advice for getting more out of a feature.</Tip>
+  <Warning>Something to be careful about.</Warning>
+  <Danger>Watch out — this can break things.</Danger>
+</Preview>
+
+```mdx MDX
+<Note>Useful information that's good to know.</Note>
+<Tip>Helpful advice for getting more out of a feature.</Tip>
+<Warning>Something to be careful about.</Warning>
+<Danger>Watch out — this can break things.</Danger>
+```

@@ -73,16 +73,45 @@ const initDraggableElements = debounce(() => {
     document.addEventListener('mousemove', (t) => {
       updateLightPosition(t.clientX, t.clientY), updateDragPosition(t)
     })
-  const i = document.querySelectorAll('.fa i')
-  let a = null
-  i.forEach((e) => {
-    e.addEventListener('mouseenter', function () {
-      i.forEach((t) => t.classList.remove('active'))
-      this.classList.add('active')
-      a = this
+  console.log(`Initialized ${draggables.length} draggable elements`)
+})
+
+/* Footer Animation */
+function setFooterAnimationActive(item) {
+  const items = document.querySelectorAll('.footer-animation .fa i')
+
+  items.forEach((target) => target.classList.remove('active'))
+  item.classList.add('active')
+}
+
+document.addEventListener(
+  'mouseover',
+  (event) => {
+    const item = event.target.closest?.('.footer-animation .fa i')
+    if (!item) return
+
+    setFooterAnimationActive(item)
+  },
+  { passive: true },
+)
+
+const initFooterAnimation = debounce(() => {
+  const items = document.querySelectorAll('.footer-animation .fa i')
+  if (!items.length) return
+
+  items.forEach((item) => {
+    if (item.dataset.footerAnimationBound === 'true') return
+
+    item.dataset.footerAnimationBound = 'true'
+    item.addEventListener('mouseenter', () => {
+      setFooterAnimationActive(item)
+    })
+    item.addEventListener('mouseover', () => {
+      setFooterAnimationActive(item)
     })
   })
-  console.log(`Initialized ${draggables.length} draggable elements`)
+
+  console.log(`Initialized ${items.length} footer animation elements`)
 })
 
 /* Slide Gallery */
@@ -147,6 +176,7 @@ const initGallery = debounce(() => {
 })
 
 initDraggableElements()
+initFooterAnimation()
 initGallery()
 
 const observer = new MutationObserver((records) => {
@@ -155,6 +185,7 @@ const observer = new MutationObserver((records) => {
   }
 
   initDraggableElements()
+  initFooterAnimation()
   initGallery()
 })
 

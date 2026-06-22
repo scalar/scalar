@@ -163,6 +163,197 @@ describe('buildRequestBody', () => {
     expect(result.value[0].value.type).toBe('application/json')
   })
 
+  describe('encoding style/explode', () => {
+    it('breaks a multipart object into deepObject bracket-notation parts', () => {
+      const requestBody = {
+        content: {
+          'multipart/form-data': {
+            encoding: {
+              address: { style: 'deepObject' as const, explode: true },
+            },
+            examples: {
+              default: {
+                value: { address: { street: 'Main', city: 'Berlin' } },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'formdata',
+        value: [
+          { type: 'text', key: 'address[street]', value: 'Main' },
+          { type: 'text', key: 'address[city]', value: 'Berlin' },
+        ],
+      })
+    })
+
+    it('explodes a multipart object into one part per property under style: form', () => {
+      const requestBody = {
+        content: {
+          'multipart/form-data': {
+            encoding: {
+              address: { style: 'form' as const, explode: true },
+            },
+            examples: {
+              default: {
+                value: { address: { street: 'Main', city: 'Berlin' } },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'formdata',
+        value: [
+          { type: 'text', key: 'street', value: 'Main' },
+          { type: 'text', key: 'city', value: 'Berlin' },
+        ],
+      })
+    })
+
+    it('regroups dotted UI rows then serializes them with bracket notation', () => {
+      const requestBody = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'multipart/form-data': {
+            encoding: {
+              address: { style: 'deepObject', explode: true },
+            },
+            schema: {
+              type: 'object',
+              properties: {
+                address: {
+                  type: 'object',
+                  properties: {
+                    street: { type: 'string' },
+                    city: { type: 'string' },
+                  },
+                },
+              },
+            },
+            examples: {
+              default: {
+                value: [
+                  { name: 'address.street', value: 'Main' },
+                  { name: 'address.city', value: 'Berlin' },
+                ],
+              },
+            },
+          },
+        },
+      })
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'formdata',
+        value: [
+          { type: 'text', key: 'address[street]', value: 'Main' },
+          { type: 'text', key: 'address[city]', value: 'Berlin' },
+        ],
+      })
+    })
+
+    it('ignores encoding.contentType when a style is set', () => {
+      const requestBody = {
+        content: {
+          'multipart/form-data': {
+            encoding: {
+              address: { style: 'form' as const, explode: true, contentType: 'application/json' },
+            },
+            examples: {
+              default: {
+                value: { address: { city: 'Berlin' } },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'formdata',
+        value: [{ type: 'text', key: 'city', value: 'Berlin' }],
+      })
+    })
+
+    it('serializes urlencoded objects with bracket notation under style: deepObject', () => {
+      const requestBody = {
+        content: {
+          'application/x-www-form-urlencoded': {
+            encoding: {
+              filter: { style: 'deepObject' as const, explode: true },
+            },
+            examples: {
+              default: {
+                value: { filter: { status: 'active', role: 'admin' } },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'urlencoded',
+        value: [
+          { key: 'filter[status]', value: 'active' },
+          { key: 'filter[role]', value: 'admin' },
+        ],
+      })
+    })
+
+    it('drops a styled empty object instead of emitting an empty part', () => {
+      const requestBody = {
+        content: {
+          'multipart/form-data': {
+            encoding: {
+              address: { style: 'form' as const, explode: true },
+            },
+            examples: {
+              default: {
+                value: { address: {} },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({ mode: 'formdata', value: [] })
+    })
+
+    it('keeps JSON-stringifying multipart objects without an encoding style', () => {
+      const requestBody = {
+        content: {
+          'multipart/form-data': {
+            examples: {
+              default: {
+                value: { address: { city: 'Berlin' } },
+              },
+            },
+          },
+        },
+      }
+
+      const result = buildRequestBody(requestBody, 'default')
+
+      expect(result).toEqual({
+        mode: 'formdata',
+        value: [{ type: 'text', key: 'address', value: '{"city":"Berlin"}' }],
+      })
+    })
+  })
+
   it('builds URLSearchParams for application/x-www-form-urlencoded content type', () => {
     const requestBody = {
       content: {
@@ -738,6 +929,188 @@ describe('buildRequestBody', () => {
       { type: 'text', key: 'middle', value: 'second' },
       { type: 'text', key: 'after', value: 'third' },
     ])
+  })
+
+  it('restores leaf types when regrouping dotted multipart rows back into a JSON part', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              jsonField: {
+                type: 'object',
+                properties: {
+                  isSomething: { type: 'boolean' },
+                  mood: { type: 'array', items: { type: 'string' } },
+                  count: { type: 'integer' },
+                  meta: { type: 'object' },
+                },
+              },
+              stringField: { type: 'string' },
+            },
+          },
+          examples: {
+            default: {
+              // The shape the store holds after the user edits a form row: dotted names with
+              // every value stringified for display.
+              value: [
+                { name: 'jsonField.isSomething', value: 'false' },
+                { name: 'jsonField.mood', value: '[]' },
+                { name: 'jsonField.count', value: '3' },
+                { name: 'jsonField.meta', value: '{"a":1}' },
+                { name: 'stringField', value: 'hi' },
+              ],
+            },
+          },
+        },
+      },
+    })
+
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    // The nested JSON part keeps the schema-declared types instead of string-typing them.
+    expect(result.value).toEqual([
+      {
+        type: 'text',
+        key: 'jsonField',
+        value: JSON.stringify({ isSomething: false, mood: [], count: 3, meta: { a: 1 } }),
+      },
+      { type: 'text', key: 'stringField', value: 'hi' },
+    ])
+  })
+
+  it('keeps stringy leaf values as strings when the schema allows a string', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              jsonField: {
+                type: 'object',
+                properties: {
+                  // String field whose value happens to look like a boolean.
+                  label: { type: 'string' },
+                  // Union allowing string keeps the raw text rather than guessing a type.
+                  nullableText: { type: ['string', 'null'] },
+                  // Non-string type but the value is not valid JSON for it: stay untouched.
+                  flag: { type: 'boolean' },
+                },
+              },
+            },
+          },
+          examples: {
+            default: {
+              value: [
+                { name: 'jsonField.label', value: 'false' },
+                { name: 'jsonField.nullableText', value: 'true' },
+                { name: 'jsonField.flag', value: 'yes' },
+              ],
+            },
+          },
+        },
+      },
+    })
+
+    const result = buildRequestBody(requestBody, 'default')
+    assert(result?.mode === 'formdata')
+
+    expect(result.value).toEqual([
+      {
+        type: 'text',
+        key: 'jsonField',
+        value: JSON.stringify({ label: 'false', nullableText: 'true', flag: 'yes' }),
+      },
+    ])
+  })
+
+  it('keeps a fractional value as a string for an integer-only leaf but coerces a whole number', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              jsonField: {
+                type: 'object',
+                properties: {
+                  // Integer-only leaf: a whole number coerces, a fractional value does not.
+                  whole: { type: 'integer' },
+                  fractional: { type: 'integer' },
+                  // A leaf allowing `number` accepts the fractional value.
+                  ratio: { type: 'number' },
+                },
+              },
+            },
+          },
+          examples: {
+            default: {
+              value: [
+                { name: 'jsonField.whole', value: '3' },
+                { name: 'jsonField.fractional', value: '3.14' },
+                { name: 'jsonField.ratio', value: '3.14' },
+              ],
+            },
+          },
+        },
+      },
+    })
+
+    const result = buildRequestBody(requestBody, 'default')
+    assert(result?.mode === 'formdata')
+
+    // The fractional value stays a string under the integer-only leaf; the whole number and the
+    // number-typed leaf are coerced.
+    expect(result.value).toEqual([
+      {
+        type: 'text',
+        key: 'jsonField',
+        value: JSON.stringify({ whole: 3, fractional: '3.14', ratio: 3.14 }),
+      },
+    ])
+  })
+
+  it('follows $ref sibling overrides when coercing a regrouped leaf type', () => {
+    // OpenAPI 3.1 allows annotations alongside a $ref, and they take precedence over the
+    // referenced schema. Here the leaf references a boolean schema but a sibling `type: 'string'`
+    // overrides it, so the merged leaf is a string and the stringified value must stay a string
+    // instead of being parsed back into a boolean. Build the body raw so the $ref siblings survive.
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              jsonField: {
+                type: 'object',
+                properties: {
+                  overridden: {
+                    $ref: '#/components/schemas/Flag',
+                    '$ref-value': { type: 'boolean' },
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+          examples: {
+            default: {
+              value: [{ name: 'jsonField.overridden', value: 'false' }],
+            },
+          },
+        },
+      },
+    }
+
+    // The strict reference schema does not model annotations alongside a $ref, so cast the raw
+    // body — real workspace data can carry these siblings, which is what mergeSiblingReferences handles.
+    const result = buildRequestBody(requestBody as Parameters<typeof buildRequestBody>[0], 'default')
+    assert(result?.mode === 'formdata')
+
+    expect(result.value).toEqual([{ type: 'text', key: 'jsonField', value: JSON.stringify({ overridden: 'false' }) }])
   })
 
   it('keeps a flat multipart row whose name happens to contain dots (filename)', () => {

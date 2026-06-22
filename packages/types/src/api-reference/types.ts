@@ -199,6 +199,12 @@ export type ViewComponent = {
   component: unknown
   renderer?: unknown
   props?: Record<string, any>
+  sidebar?: {
+    /** Whether to show an entry for this view in the sidebar */
+    show: boolean
+    /** Label to display in the sidebar */
+    label: string
+  }
 }
 
 export type LifecycleHooks = {
@@ -211,6 +217,7 @@ export type ApiReferencePlugin = () => {
   name: string
   extensions: SpecificationExtension[]
   views?: {
+    'content.start'?: ViewComponent[]
     'content.end'?: ViewComponent[]
   }
   hooks?: LifecycleHooks
@@ -328,6 +335,12 @@ export type BaseConfiguration = {
   externalUrls: ExternalUrls
 }
 
+/** User-facing label for the components.schemas section in the sidebar, content, and search. */
+export type ModelsSectionLabel = 'Models' | 'Schemas' | (string & {})
+
+/** Default label for the components.schemas section. Preserves the historical `Models` wording and the `#models` hash. */
+export const DEFAULT_MODELS_SECTION_LABEL: ModelsSectionLabel = 'Models'
+
 type ExtendedConfiguration = {
   /** The layout to use for the references */
   layout: 'modern' | 'classic'
@@ -349,10 +362,10 @@ type ExtendedConfiguration = {
   plugins?: ApiReferencePlugin[]
   /** Allows the user to inject an editor for the spec */
   isEditable: boolean
-  /** Controls whether the references show a loading state in the intro */
-  isLoading: boolean
   /** Whether to show models in the sidebar, search, and content. */
   hideModels: boolean
+  /** Label for the components.schemas section (`Models`, `Schemas`, or any custom string). */
+  modelsSectionLabel?: ModelsSectionLabel
   /** Sets the file type of the document to download, set to `none` to hide the download button */
   documentDownloadType: 'both' | 'yaml' | 'json' | 'direct' | 'none'
   /** @deprecated Use `documentDownloadType: 'none'` instead */
@@ -382,8 +395,6 @@ type ExtendedConfiguration = {
   }
   /** Custom CSS to be added to the page */
   customCss?: string
-  /** onSpecUpdate is fired on spec/swagger content change */
-  onSpecUpdate?: (input: string) => void
   /** onServerChange is fired on selected server change */
   onServerChange?: (input: string) => void
   /** onDocumentSelect is fired when the config is selected */
@@ -392,6 +403,10 @@ type ExtendedConfiguration = {
   onLoaded?: (slug: string) => void | Promise<void>
   /** Fired before the outbound request is built; callback receives a mutable request builder. Experimental API. */
   onBeforeRequest?:
+    | ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>)
+    | undefined
+  /** Fired right before the outbound request is sent; callback receives the exact fetch Request that goes over the wire. Experimental API. */
+  onRequestBuilt?:
     | ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>)
     | undefined
   /** onShowMore is fired when the user clicks the "Show more" button on the references */
@@ -440,6 +455,8 @@ type ExtendedConfiguration = {
   expandAllModelSections: boolean
   /** Whether to expand all responses by default. Warning: this can cause performance issues on big documents */
   expandAllResponses: boolean
+  /** Whether to expand all nested schema properties. Warning: this can cause performance issues on big documents */
+  expandAllSchemaProperties: boolean
   /** Function to sort tags */
   tagsSorter?: 'alpha' | ((a: any, b: any) => number)
   /** Function to sort operations */
@@ -496,6 +513,10 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
    * Fired before the outbound request is built and sent. Mutate the **request builder** so the eventual fetch call
    * reflects your changes (method, path, headers, body, and related fields).
    *
+   * The `request` passed here is **not** the object sent over the wire; the actual request is rebuilt from the builder
+   * afterwards. Use `onRequestBuilt` instead when you need the exact outgoing request (for example, to hash a
+   * `multipart/form-data` body for request signing).
+   *
    * **Experimental:** The builder matches {@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}
    * (`import type { RequestFactory } from '@scalar/workspace-store/request-example'`). That shape is still experimental and may change in minor releases.
    *
@@ -513,6 +534,35 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
    * ```
    */
   onBeforeRequest?: (input: {
+    request: Request
+    requestBuilder: any
+    envVariables: Record<string, string>
+  }) => void | Promise<void> | undefined
+  /**
+   * Fired after the outbound fetch `Request` has been built, right before it is sent. The `request` is the exact
+   * object handed to fetch: mutating its headers modifies the outgoing request, and hashing its body produces a
+   * hash that matches what the server receives (useful for request signing — a rebuilt `multipart/form-data` body
+   * would get a different boundary).
+   *
+   * Use `onBeforeRequest` instead when you need to mutate the request builder (method, path, query, body,
+   * security); those mutations have no effect at this stage because the request is already built.
+   *
+   * **Experimental:** This API may change in minor releases.
+   *
+   * @param input - Hook argument from the integration layer.
+   * @param input.request - The exact fetch API `Request` that will be sent. Mutate its headers to modify the outgoing request.
+   * @param input.requestBuilder - The builder the request was built from, for inspection. Mutating it has no effect at this stage.
+   * @param input.envVariables - Resolved environment variables for the active environment.
+   * @returns void or a promise that resolves when the hook finishes
+   * @example
+   * ```ts
+   * onRequestBuilt: async ({ request }) => {
+   *   const bodyHash = await hash(await request.clone().arrayBuffer())
+   *   request.headers.set('X-Body-Hash', bodyHash)
+   * }
+   * ```
+   */
+  onRequestBuilt?: (input: {
     request: Request
     requestBuilder: any
     envVariables: Record<string, string>

@@ -8,19 +8,22 @@ const isLinux = process.platform === 'linux' && !CI
 const APP_PORT = 5077
 
 /**
- * Vite dev server for the web entrypoint (`vite.config.ts` → `root: entrypoints/web`). Listens on
- * all interfaces so Docker (e.g. macOS `host.docker.internal`) can reach it when using
+ * Build the web entrypoint (`vite.config.ts` → `root: entrypoints/web`) once, then serve it with
+ * `vite preview`. Pre-building avoids paying Vite's on-demand compilation (Monaco, the API client,
+ * etc.) inside the first test's timeout budget, which made cold CI runs flaky. The preview server
+ * listens on all interfaces so Docker (e.g. macOS `host.docker.internal`) can reach it when using
  * {@link getDockerServer}.
- */
-/**
- * Force non-Mac hotkey glyphs in the browser so {@link ScalarHotkey} matches Linux CI when developers
- * run E2E on macOS (same OpenAPI client bundle as production; only symbol set is pinned).
+ *
+ * `VITE_SCALAR_HOTKEY_SYMBOL_SET=non-mac` forces non-Mac hotkey glyphs so {@link ScalarHotkey}
+ * matches Linux CI when developers run E2E on macOS. It is baked in at build time, so it must be set
+ * on `vite build` (not `vite preview`).
  */
 const viteWebPlayground = {
-  command: `VITE_SCALAR_HOTKEY_SYMBOL_SET=non-mac pnpm exec vite --config vite.config.ts --host 0.0.0.0 --port ${APP_PORT} --strictPort`,
+  command: `VITE_SCALAR_HOTKEY_SYMBOL_SET=non-mac pnpm exec vite build --config vite.config.ts && pnpm exec vite preview --config vite.config.ts --host 0.0.0.0 --port ${APP_PORT} --strictPort`,
   url: `http://127.0.0.1:${APP_PORT}`,
   reuseExistingServer: !CI,
-  timeout: 120_000,
+  // Generous timeout: the command builds the app before the preview server comes up.
+  timeout: 240_000,
 } as const
 
 /**

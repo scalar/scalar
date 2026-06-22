@@ -7,13 +7,16 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { computed, inject, provide } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
+import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
+import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
+import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
@@ -33,6 +36,7 @@ const {
   options,
   schemaContext,
   compositionPath,
+  cycleKey,
 } = defineProps<{
   schema?: SchemaObject
   /** Track how deep we've gone */
@@ -63,15 +67,80 @@ const {
   schemaContext?: string
   /** Internal path used to sync nested request body compositions with the code sample */
   compositionPath?: string[]
+  /**
+   * Stable identity of this schema node, derived from its raw (unresolved)
+   * value by the parent. Used to detect self-referential cycles. See
+   * {@link getCycleKey}.
+   */
+  cycleKey?: unknown
 }>()
+
+/**
+ * Cycle-safe `expandAllSchemaProperties`.
+ *
+ * We track ancestor schema keys along the current render path. A node is
+ * treated as cyclic when its key is already present in the ancestor set, which
+ * indicates that rendering has looped back onto a self-referential schema.
+ *
+ * This lets us default-expand finite branches while stopping automatic
+ * expansion only at cycle boundaries, preventing infinite recursion.
+ */
+const ancestors = inject(SCHEMA_ANCESTORS_SYMBOL, undefined)
+
+const isCyclic = computed(
+  (): boolean => cycleKey != null && !!ancestors?.has(cycleKey),
+)
+
+// Re-provide the ancestor set augmented with this node so descendants can
+// detect cycles back to it. Built once at setup; a node's key is stable.
+const childAncestors = new Set<unknown>(ancestors ?? [])
+if (cycleKey != null) {
+  childAncestors.add(cycleKey)
+}
+provide(SCHEMA_ANCESTORS_SYMBOL, childAncestors)
+
+const shouldForceExpand = computed(
+  (): boolean => !!options.expandAllSchemaProperties && !isCyclic.value,
+)
 
 /**
  * Determines whether to show the collapse/expand toggle button.
  * We hide the toggle for non-collapsible schemas and root-level schemas.
  */
-const shouldShowToggle = computed((): boolean => {
-  return !noncollapsible && level > 0
+const shouldShowToggle = computed((): boolean => !noncollapsible && level > 0)
+
+/**
+ * Whether this schema sits on the path to the current anchor/scroll target.
+ *
+ * Property anchors are dot-joined breadcrumbs, so every disclosure that wraps
+ * the target has a breadcrumb that is a prefix of the target id. Opening those
+ * disclosures is what makes deep links to collapsed (hidden) properties work
+ * without forcing every schema open via `expandAllSchemaProperties`.
+ */
+const isOnScrollTargetPath = computed((): boolean => {
+  if (!breadcrumb?.length) {
+    return false
+  }
+  const path = breadcrumb.join('.')
+  const target = scrollTargetId.value
+  return target === path || target.startsWith(`${path}.`)
 })
+
+/**
+ * Whether the disclosure starts expanded. Non-collapsible schemas are always
+ * open. When `expandAllSchemaProperties` is enabled, finite branches start
+ * expanded by default while cyclic branches remain collapsed to avoid recursion
+ * loops. We also open any disclosure on the path to the current scroll target so
+ * deep links resolve even when the property is collapsed.
+ *
+ * Note: the Disclosure only reads this at mount, so it expands collapsed
+ * properties on a fresh navigation (the schema mounts after the target is set),
+ * not when the target changes for an already-mounted disclosure.
+ */
+const defaultOpen = computed(
+  (): boolean =>
+    noncollapsible || shouldForceExpand.value || isOnScrollTargetPath.value,
+)
 
 /** Gets the description to show for the schema */
 const schemaDescription = computed(() => {
@@ -79,9 +148,13 @@ const schemaDescription = computed(() => {
     return null
   }
 
-  // For the request body we want to show the base description or the first allOf schema description
+  // For the request body we want to show the description of the merged allOf schema.
+  // Merging keeps the base description (when set) and otherwise lets the last allOf
+  // member win, matching how the merged composition is rendered below. The nested
+  // merged Schema in `SchemaComposition` hides its own description in this case so
+  // the text is not rendered twice.
   if (schema?.allOf && schema.allOf.length > 0 && name === 'Request Body') {
-    return schema.description || schema.allOf[0]?.description || null
+    return mergeAllOfSchemas(schema)?.description || null
   }
 
   // Don't show description if there's no description or it's not a string
@@ -108,13 +181,17 @@ const schemaDescription = computed(() => {
 })
 
 // Prevent click action if noncollapsible
-const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
+const handleClick = (e: MouseEvent) => {
+  if (noncollapsible) {
+    e.stopPropagation()
+  }
+}
 </script>
 <template>
   <Disclosure
     v-if="typeof schema === 'object' && Object.keys(schema).length"
     v-slot="{ open }"
-    :defaultOpen="noncollapsible">
+    :defaultOpen="defaultOpen">
     <div
       class="schema-card"
       :class="[

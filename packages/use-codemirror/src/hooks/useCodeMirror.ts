@@ -27,9 +27,9 @@ import {
 import { type MaybeRefOrGetter, type Ref, computed, onBeforeUnmount, ref, toValue, watch } from 'vue'
 
 const CHEVRON_DOWN =
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m18 10-6 6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m18 10-6 6-6-6" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 const CHEVRON_RIGHT =
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 
 import { customTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
@@ -316,6 +316,28 @@ function getCodeMirrorExtensions({
       },
       '.cm-gutterElement': {
         lineHeight: '22px',
+      },
+      // Center the fold chevron within the line and give it a muted, interactive look
+      '.cm-foldGutter .cm-gutterElement': {
+        display: 'flex',
+        alignItems: 'center',
+        // Nudge the chevron off the line numbers so it sits between them and the code
+        paddingLeft: '4px',
+      },
+      '.cm-foldMarker': {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '22px',
+        color: 'var(--scalar-color-3)',
+        cursor: 'pointer',
+      },
+      '.cm-foldMarker:hover': {
+        color: 'var(--scalar-color-1)',
+      },
+      '.cm-foldMarker svg': {
+        width: '16px',
+        height: '16px',
       },
       '.cm-tooltip': {
         background: 'var(--scalar-background-1)',

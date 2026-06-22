@@ -1,5 +1,7 @@
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { describe, expect, it } from 'vitest'
 
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
@@ -8,6 +10,8 @@ import {
   clearServers,
   deleteServer,
   initializeServers,
+  updateAsyncApiServerVariables,
+  updateSelectedAsyncApiServer,
   updateSelectedServer,
   updateServer,
   updateServerVariables,
@@ -64,7 +68,7 @@ describe('initializeServers', () => {
     const result = initializeServers(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
 
     expect(result).toEqual([])
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.servers).toEqual([])
   })
 
@@ -83,7 +87,7 @@ describe('initializeServers', () => {
     const result = initializeServers(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
 
     expect(result).toEqual([])
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.servers).toEqual([])
   })
 
@@ -139,7 +143,7 @@ describe('addServer', () => {
     const result = addServer(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
 
     expect(result).toBeDefined()
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.servers).toHaveLength(1)
     expect(operation?.servers?.[0]).toEqual(result)
   })
@@ -202,7 +206,7 @@ describe('addServer', () => {
       meta: { type: 'operation', path: '/users', method: 'get' },
     })
 
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.servers?.[0]?.url).toBe('https://api.example.com')
     expect(operation?.['x-scalar-selected-server']).toBe('https://api.example.com')
   })
@@ -472,7 +476,7 @@ describe('updateServer', () => {
     })
 
     expect(result?.url).toBe('https://api-v2.example.com')
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.servers?.[0]?.url).toBe('https://api-v2.example.com')
   })
 })
@@ -533,7 +537,7 @@ describe('deleteServer', () => {
 
     deleteServer(document, { index: 0, meta: { type: 'operation', path: '/users', method: 'get' } })
 
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.servers).toHaveLength(1)
     expect(operation?.servers?.[0]?.url).toBe('https://dev.example.com')
   })
@@ -593,7 +597,7 @@ describe('clearServers', () => {
 
     clearServers(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
 
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.servers).toBeUndefined()
     expect(operation?.['x-scalar-selected-server']).toBeUndefined()
   })
@@ -618,7 +622,7 @@ describe('clearServers', () => {
     expect(document.servers?.[0]?.url).toBe('https://doc.example.com')
     expect(document['x-scalar-selected-server']).toBe('https://doc.example.com')
 
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.servers).toBeUndefined()
     expect(operation?.['x-scalar-selected-server']).toBeUndefined()
   })
@@ -779,7 +783,7 @@ describe('updateServerVariables', () => {
     })
 
     expect(result?.default).toBe('staging')
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.servers?.[0]?.variables?.env?.default).toBe('staging')
   })
 })
@@ -1040,7 +1044,7 @@ describe('updateSelectedServer', () => {
     })
 
     expect(result).toBe('https://api.example.com')
-    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    const operation = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
     expect(operation?.['x-scalar-selected-server']).toBe('https://api.example.com')
   })
 })
@@ -1244,5 +1248,106 @@ describe('x-scalar-selected-server tracking', () => {
       expect(document.servers).toHaveLength(0)
       expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
     })
+  })
+})
+
+/**
+ * Helper to create a minimal AsyncApiDocument for testing.
+ */
+function createAsyncApiDocument(initial?: Partial<AsyncApiDocument>): AsyncApiDocument {
+  return {
+    asyncapi: '3.0.0',
+    info: { title: 'Test', version: '1.0.0' },
+    ...initial,
+  } as AsyncApiDocument
+}
+
+describe('updateSelectedAsyncApiServer', () => {
+  it('selects a server by name', () => {
+    const document = createAsyncApiDocument({
+      servers: {
+        production: { host: 'broker.example.com', protocol: 'wss' },
+        development: { host: 'localhost:8080', protocol: 'ws' },
+      },
+    })
+
+    const result = updateSelectedAsyncApiServer(document, { name: 'development' })
+
+    expect(result).toBe('development')
+    expect(document['x-scalar-selected-server']).toBe('development')
+  })
+
+  it('keeps the server selected when it is selected again', () => {
+    const document = createAsyncApiDocument({
+      servers: { production: { host: 'broker.example.com', protocol: 'wss' } },
+      'x-scalar-selected-server': 'production',
+    })
+
+    const result = updateSelectedAsyncApiServer(document, { name: 'production' })
+
+    expect(result).toBe('production')
+    expect(document['x-scalar-selected-server']).toBe('production')
+  })
+
+  it('returns undefined for non-AsyncAPI documents', () => {
+    const document = createDocument({ servers: [{ url: 'https://api.example.com' }] })
+
+    const result = updateSelectedAsyncApiServer(document, { name: 'production' })
+
+    expect(result).toBeUndefined()
+  })
+})
+
+describe('updateAsyncApiServerVariables', () => {
+  it('updates a server variable default by server name', () => {
+    const document = createAsyncApiDocument({
+      servers: {
+        production: {
+          host: '{environment}.example.com',
+          protocol: 'wss',
+          variables: {
+            environment: { default: 'api', enum: ['api', 'staging', 'dev'] },
+          },
+        },
+      },
+    })
+
+    const result = updateAsyncApiServerVariables(document, {
+      name: 'production',
+      key: 'environment',
+      value: 'staging',
+    })
+
+    expect(result?.default).toBe('staging')
+    const environment = getResolvedRef(document.servers?.production)?.variables?.environment
+    expect(environment ? getResolvedRef(environment).default : undefined).toBe('staging')
+  })
+
+  it('returns undefined when the variable is not found', () => {
+    const document = createAsyncApiDocument({
+      servers: { production: { host: 'broker.example.com', protocol: 'wss' } },
+    })
+
+    const result = updateAsyncApiServerVariables(document, {
+      name: 'production',
+      key: 'environment',
+      value: 'staging',
+    })
+
+    expect(result).toBeUndefined()
+  })
+
+  it('returns undefined for non-AsyncAPI documents', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://{environment}.example.com', variables: { environment: { default: 'api' } } }],
+    })
+
+    const result = updateAsyncApiServerVariables(document, {
+      name: '0',
+      key: 'environment',
+      value: 'staging',
+    })
+
+    expect(result).toBeUndefined()
   })
 })

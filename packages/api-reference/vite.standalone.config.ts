@@ -45,7 +45,15 @@ export default defineConfig({
   plugins: [
     vue(),
     tailwindcss(),
-    cssInjectedByJsPlugin(),
+    // Tag the single injected <style> with a known id so the runtime can detach
+    // it on `destroy()`. Without this, the global styles linger in <head> after
+    // SPA-style navigation (Turbo Drive, htmx). Keep the id in sync with
+    // `STANDALONE_STYLE_ID` in `src/standalone/lib/html-api.ts`.
+    //
+    // `useStrictCSP` makes the injected <style> read its nonce from a
+    // `<meta property="csp-nonce">` tag, so the bundle's CSS can be served under a strict
+    // Content Security Policy. See the `nonce` option in @scalar/client-side-rendering.
+    cssInjectedByJsPlugin({ attributes: { id: 'scalar-style' }, useStrictCSP: true }),
     webpackStats(),
     banner({
       outDir: 'dist/browser',

@@ -85,7 +85,7 @@ describe('mergeAllOfSchemas', () => {
     })
   })
 
-  it('preserves first type and description when duplicates exist', () => {
+  it('preserves first type but lets a later allOf member override the description', () => {
     const schema = {
       allOf: [
         {
@@ -94,18 +94,75 @@ describe('mergeAllOfSchemas', () => {
         },
         {
           type: 'array', // Should be ignored
-          description: 'Second description', // Should be ignored
+          description: 'Second description', // Overrides the first description
         },
       ],
     }
 
     expect(mergeAllOfSchemas(schema as any)).toEqual({
       type: 'object',
-      description: 'First description',
+      description: 'Second description',
     })
   })
 
-  it('preserves the original type and description when duplicates exist', () => {
+  it('lets a later allOf member override the title', () => {
+    const schema = {
+      allOf: [
+        {
+          type: 'object',
+          title: 'First title',
+        },
+        {
+          type: 'object',
+          title: 'Second title', // Overrides the first title
+        },
+      ],
+    }
+
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
+      type: 'object',
+      title: 'Second title',
+    })
+  })
+
+  it('lets an inline allOf member override a referenced base schema description (#6974)', () => {
+    // Mirrors the reported issue: a base schema is extended via allOf and the
+    // extending member redefines the description and title.
+    const schema = {
+      title: 'UserDetailsHeader',
+      allOf: [
+        {
+          type: 'object',
+          title: 'BaseUser',
+          description: 'Base user information',
+          properties: {
+            id: { type: 'integer', description: 'Unique user ID' },
+          },
+        },
+        {
+          type: 'object',
+          title: 'UserDetails',
+          description: 'Full user information',
+          properties: {
+            address: { type: 'string', description: 'Street address' },
+          },
+        },
+      ],
+    }
+
+    expect(mergeAllOfSchemas(schema as any)).toMatchObject({
+      // A later allOf member overrides the referenced base description
+      description: 'Full user information',
+      // The base (top-level) title still takes precedence over allOf members
+      title: 'UserDetailsHeader',
+      properties: {
+        id: { description: 'Unique user ID' },
+        address: { description: 'Street address' },
+      },
+    })
+  })
+
+  it('lets the base description take precedence over allOf member descriptions', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'array',
       description: 'Original description',
@@ -493,7 +550,7 @@ describe('mergeAllOfSchemas', () => {
           'type': 'array',
           'description': 'List of recording sessions',
           'items': {
-            'description': 'List of recording files.',
+            'description': 'This is the one to check',
             'type': 'object',
             'properties': {
               'session_id': {
@@ -586,18 +643,63 @@ describe('mergeAllOfSchemas', () => {
       ],
     }
 
+    // Base properties stay on the merged schema while the oneOf/anyOf
+    // compositions are preserved, so the variant selectors keep rendering
+    // instead of being flattened into a single object.
     expect(mergeAllOfSchemas(schema as any)).toEqual({
       properties: {
         a: { type: 'string', example: 'foo' },
-        b: { type: 'number', example: 42 },
-        c: { type: 'boolean', example: true },
-        d: { type: 'integer', example: 7 },
-        e: { type: 'array', items: { type: 'string' }, example: ['x', 'y'] },
       },
+      oneOf: [
+        { properties: { b: { type: 'number', example: 42 } } },
+        { properties: { c: { type: 'boolean', example: true } } },
+      ],
+      anyOf: [
+        { properties: { d: { type: 'integer', example: 7 } } },
+        { properties: { e: { type: 'array', items: { type: 'string' }, example: ['x', 'y'] } } },
+      ],
     })
   })
 
-  it('preserves title from first schema that has them', () => {
+  it('preserves a oneOf composition nested inside allOf (issue #5577)', () => {
+    const schema = {
+      title: 'ConversionCreationRequest',
+      allOf: [
+        {
+          type: 'object',
+          properties: {
+            customerComment: { type: 'string' },
+          },
+        },
+        {
+          oneOf: [
+            {
+              allOf: [{ title: 'With Quote Id', type: 'object', properties: { quoteId: { type: 'string' } } }],
+            },
+            {
+              allOf: [
+                {
+                  title: 'With Currency Pair',
+                  type: 'object',
+                  properties: { sourceCurrencyCode: { type: 'string' }, destinationCurrencyCode: { type: 'string' } },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const merged = mergeAllOfSchemas(schema as any) as any
+
+    // The base property renders alongside the preserved oneOf variants.
+    expect(merged.properties).toEqual({ customerComment: { type: 'string' } })
+    expect(merged.oneOf).toHaveLength(2)
+    expect(merged.oneOf[0].allOf[0].title).toBe('With Quote Id')
+    expect(merged.oneOf[1].allOf[0].title).toBe('With Currency Pair')
+  })
+
+  it('lets a later allOf member override the title', () => {
     const schema = {
       allOf: [
         {
@@ -608,7 +710,7 @@ describe('mergeAllOfSchemas', () => {
           },
         },
         {
-          title: 'Should be ignored',
+          title: 'Overrides the first title',
           type: 'object',
           properties: {
             size: { type: 'number' },
@@ -618,7 +720,7 @@ describe('mergeAllOfSchemas', () => {
     }
 
     expect(mergeAllOfSchemas(schema as any)).toEqual({
-      title: 'Planet',
+      title: 'Overrides the first title',
       type: 'object',
       properties: {
         name: { type: 'string' },
@@ -864,8 +966,9 @@ describe('mergeAllOfSchemas', () => {
     expect(mergeAllOfSchemas(schema as any)).toStrictEqual({
       type: 'object',
       format: 'date-time',
-      description: 'Second description',
-      title: 'First title',
+      // description and title reflect the last allOf member that defines them
+      description: 'Third description',
+      title: 'Second title',
       contentMediaType: 'application/json',
       enum: ['value1', 'value2', 'value3', 'value4', 'value5', 'value6'],
       properties: { a: { type: 'string' }, b: { description: 'First b' } },
@@ -992,8 +1095,9 @@ describe('mergeAllOfSchemas', () => {
     expect(result).toMatchObject({
       type: 'object',
       format: 'custom-format',
-      title: 'First Schema',
-      description: 'First description',
+      // title and description reflect the last allOf member that defines them
+      title: 'Second Schema',
+      description: 'Second description',
       default: { defaultValue: 'test' },
       enum: ['value1', 'value2'],
       const: 'constant-value',

@@ -34,7 +34,7 @@ const config = ref<TooltipConfiguration>()
 // ---------------------------------------------------------------------------
 
 // Set up floating UI
-const { floatingStyles } = useFloating(
+const { floatingStyles, placement } = useFloating(
   computed(() => unref(config.value?.targetRef)),
   el,
   {
@@ -43,6 +43,18 @@ const { floatingStyles } = useFloating(
     middleware: computed(() => [flip(), shift()]),
   },
 )
+
+// Expose the resolved placement side (post-flip) so the CSS can apply the offset
+// gap only on the side facing the target. We key off the side (the part before
+// the '-') because that is where the tooltip sits relative to the target. The
+// initial side is set synchronously when the tooltip is shown (see the config
+// watcher below); this watcher keeps it in sync once Floating UI flips it.
+watch(placement, (value) => {
+  if (!el.value || !value) {
+    return
+  }
+  el.value.dataset.side = value.split('-')[0]
+})
 
 // Update the tooltip element's positioning when Floating UI updates the styles
 watch(floatingStyles, () => {
@@ -74,6 +86,13 @@ watch(
       // Show the tooltip
       const offset = unref(opts?.offset) ?? DEFAULT_OFFSET
       el.value.style.setProperty('--scalar-tooltip-offset', `${offset}px`)
+
+      // Set the side the tooltip sits on so the offset gap is only applied to
+      // the target-facing side. Floating UI defaults to 'bottom' when no
+      // placement is provided; the placement watcher above refines this after
+      // any flip.
+      el.value.dataset.side = (unref(opts?.placement) ?? 'bottom').split('-')[0]
+
       el.value.style.setProperty('display', 'block')
     } else {
       // Clear the tooltip content

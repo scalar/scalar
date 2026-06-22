@@ -12,10 +12,10 @@ This is an internal tool used within the Scalar monorepo. To use it, run command
 pnpm --filter @scalar-internal/build-scripts start <command>
 ```
 
-Or use the shorthand script if available:
+Or use the shorthand script:
 
 ```bash
-pnpm scripts <command>
+pnpm script <command>
 ```
 
 ## Commands
@@ -167,81 +167,6 @@ Scans `documentation/blog/` for markdown files matching `YYYY-MM-DD-slug.md`, th
 ```bash
 pnpm --filter @scalar-internal/build-scripts start generate-blog
 ```
-
-### `release-notes-generator`
-
-Turn a Changesets-style `CHANGELOG.md` section into an AI-written, user-facing release note and append it to a product's `RELEASE_NOTES.json`. The JSON file is the source of truth for curated release notes on [scalar.com/changelog](https://scalar.com/changelog) and, for the API Client, the in-app "What's new" modal.
-
-A derived `RELEASE_NOTES.md` is regenerated from the same JSON on every run, so humans browsing the repo still see a friendly view.
-
-The command runs as part of `pnpm release:version` in CI (via the root `release:version` script), so new entries land in the same "chore: release" pull request as the `CHANGELOG.md` and version bumps.
-
-**Registered products** (see `tooling/scripts/src/commands/release-notes-generator/products.ts`):
-
-| Product | JSON source of truth |
-|---------|---------------------|
-| API Client | `projects/scalar-app/RELEASE_NOTES.json` |
-| API Reference | `packages/api-reference/RELEASE_NOTES.json` |
-| Agent | `packages/agent-chat/RELEASE_NOTES.json` |
-| Mock Server | `packages/mock-server/RELEASE_NOTES.json` |
-
-The shared JSON Schema lives at `tooling/scripts/schemas/RELEASE_NOTES.schema.json` and validates every `RELEASE_NOTES.json` file in the repo.
-
-**What it does:**
-1. Reads the section of a package's `CHANGELOG.md` that was added by `pnpm changeset version`.
-2. Optionally reads the just-released sections of one or more dependency `CHANGELOG.md` files and folds them into the same release note as additional context. Useful when the parent package is a thin shell over a dependency (for example `scalar-app` on top of `@scalar/api-client`).
-3. Pulls the title and description of every PR referenced from those sections so the model has the human-written context, not just the one-line commit subject.
-4. Asks Anthropic Claude to summarise the result in the same Linear-style tone used by existing curated release notes.
-5. Validates the model output against a Zod schema shared across all products.
-6. Inserts the generated note into `RELEASE_NOTES.json` (creating it if missing). Re-running for the same version replaces the previous entry in place, so the operation is idempotent.
-7. Regenerates the sibling `RELEASE_NOTES.md` from the freshly merged JSON entries so the human-friendly view stays in lock-step with the source of truth.
-8. Updates the shared `RELEASE_NOTES.schema.json` when not using `--dry-run`.
-
-**Usage (all products — default in CI):**
-
-With `--all`, the command reads `git diff --name-only HEAD` (run immediately after `changeset version`) and only calls the AI for products whose `CHANGELOG.md` or `package.json` changed, or whose configured dependency changelogs changed. Unchanged products are skipped so a single-package release does not regenerate notes for every product.
-
-```bash
-ANTHROPIC_API_KEY=sk-ant-... \
-  pnpm --filter @scalar-internal/build-scripts start release-notes-generator --all
-```
-
-Pass `--force` with `--all` to regenerate release notes for every registered product regardless of git diff (local debugging).
-
-**Usage (single product):**
-```bash
-ANTHROPIC_API_KEY=sk-ant-... \
-  pnpm --filter @scalar-internal/build-scripts start release-notes-generator \
-    --package scalar-app \
-    --changelog projects/scalar-app/CHANGELOG.md \
-    --output projects/scalar-app/RELEASE_NOTES.json \
-    --dependency-changelog packages/api-client/CHANGELOG.md
-```
-
-The version is auto-detected from the `package.json` next to `--changelog`. Pass `--version 1.1.0` explicitly to override it.
-
-`--output` (`-o`) is the path to the source-of-truth `RELEASE_NOTES.json`. Hand-editing the JSON is supported - the next generator run preserves every entry except the one matching the released version, which is replaced in place.
-
-`--dependency-changelog` (`-d`) accepts any number of paths. Each one must sit next to a `package.json` so the command can read the just-bumped version and pull the matching `## <version>` section. Each dependency uses its own version, since Changesets bumps every package independently inside the same release. Missing files or sections are skipped with a warning rather than failing the run.
-
-Add `--dry-run` to print generated notes without touching files on disk.
-
-### `sync-release-notes-markdown`
-
-Rewrite the derived `RELEASE_NOTES.md` from an existing `RELEASE_NOTES.json` only. Use this after hand-editing the JSON so the markdown mirror stays in sync without running the AI generator or reading `CHANGELOG.md`.
-
-**Usage:**
-```bash
-pnpm --filter @scalar-internal/build-scripts start sync-release-notes-markdown \
-  --json projects/scalar-app/RELEASE_NOTES.json \
-  --markdown projects/scalar-app/RELEASE_NOTES.md
-```
-
-The command preserves the order of entries exactly as they appear in the JSON file. It exits with an error if the JSON file is missing, not valid JSON, not a root-level array, or contains no valid entries after schema validation (warnings are printed for individual bad entries when at least one entry is still valid).
-
-**Authentication:**
-- **Anthropic** - reads `ANTHROPIC_API_KEY` from the environment. When the variable is missing the command prints a warning and exits successfully so contributors and PR builds running `pnpm changeset version` locally without the secret are not blocked.
-- **GitHub** - reads `GITHUB_TOKEN` from the environment to fetch PR titles and descriptions. The repo is public, so an unauthenticated call works too, but the 60 requests / hour / IP rate limit is easy to blow through in CI. Failures (no token, rate limited, network blip) degrade silently to a CHANGELOG-only prompt rather than failing the release pipeline.
 
 ### `generate-readme`
 

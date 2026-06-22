@@ -16,7 +16,7 @@
     "swagger",
     "petstore"
   ],
-  "version": "0.6.4",
+  "version": "0.6.7",
   "engines": {
     "node": ">=22"
   },
@@ -24,8 +24,9 @@
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && tsx scripts/post-build.ts",
     "dev": "pnpx @scalar/cli document serve ./src/documents/3.1.yaml --watch",
     "dev:live": "cd src/documents && pnpx http-server --cors",
+    "lint": "npx @scalar/cli document lint src/documents/3.1.yaml --rule ./galaxy.ruleset.yaml",
     "test": "vitest --run",
-    "types:check": "tsc --noEmit",
+    "types:check": "tsgo --noEmit",
     "validate": "bash scripts/validate.sh"
   },
   "type": "module",

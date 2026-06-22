@@ -4,12 +4,8 @@ import {
   DEFAULT_CLIENT,
   type ClientOptionGroup,
 } from '@scalar/api-client/blocks/operation-code-sample'
-import { ScalarCodeBlock } from '@scalar/components/code-block'
-import { ScalarMarkdown } from '@scalar/components/markdown'
-import type { AvailableClient } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
-import { computed, useId, useTemplateRef } from 'vue'
+import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
 import {
   getFeaturedClients,
@@ -20,16 +16,13 @@ import ClientDropdown from './ClientDropdown.vue'
 
 const {
   clientOptions,
-  xScalarSdkInstallation,
   eventBus,
   selectedClient = DEFAULT_CLIENT,
 } = defineProps<{
-  /** Selected SDK installation instructions */
-  xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
-  /** The currently selected Http Client */
-  selectedClient?: AvailableClient
+  /** The currently selected Http Client (a built-in client id or a custom sample id) */
+  selectedClient?: string
   /** Event bus */
   eventBus: WorkspaceEventBus
 }>()
@@ -37,13 +30,43 @@ const {
 const headingId = useId()
 const morePanel = useId()
 
+/**
+ * Whether a selection is a custom code sample (e.g. `custom/python`) rather than
+ * a built-in client. Custom samples are matched by the `custom/` id prefix, which
+ * mirrors the `^custom/` pattern enforced on the stored default client.
+ */
+const isCustomSelection = (client: string | undefined) =>
+  Boolean(client?.startsWith('custom/'))
+
+/**
+ * The generic client this selector actually displays.
+ *
+ * The introduction selector only represents the built-in HTTP clients. Custom
+ * code samples are operation-specific and "always just have the generic
+ * clients", so when one is selected globally we keep showing the last generic
+ * client here instead of switching to (and failing to render) a custom sample.
+ */
+const activeClient = ref(
+  isCustomSelection(selectedClient) ? DEFAULT_CLIENT : selectedClient,
+)
+
+watch(
+  () => selectedClient,
+  (newClient) => {
+    if (!isCustomSelection(newClient)) {
+      activeClient.value = newClient
+    }
+  },
+)
+
 /** Grab the option for the currently selected Http Client */
 const selectedClientOption = computed(
   () =>
     clientOptions.flatMap(
       (optionGroup) =>
-        optionGroup.options.find((option) => option.id === selectedClient) ??
-        [],
+        optionGroup.options.find(
+          (option) => option.id === activeClient.value,
+        ) ?? [],
     )[0],
 )
 
@@ -53,7 +76,7 @@ const featuredClients = computed(() => getFeaturedClients(clientOptions))
 /** Currently selected tab index */
 const tabIndex = computed(() =>
   featuredClients.value.findIndex(
-    (featuredClient) => selectedClient === featuredClient.id,
+    (featuredClient) => activeClient.value === featuredClient.id,
   ),
 )
 
@@ -69,30 +92,6 @@ const onTabSelect = (i: number) => {
 
   eventBus.emit('workspace:update:selected-client', client.id)
 }
-
-const installationInstructions = computed(() => {
-  // Check whether we have instructions at all
-  if (
-    !Array.isArray(xScalarSdkInstallation) ||
-    !xScalarSdkInstallation?.length
-  ) {
-    return undefined
-  }
-
-  // Find the instructions for the current language
-  const instruction = xScalarSdkInstallation.find((instruction) => {
-    const targetKey = selectedClient?.split('/')[0]?.toLowerCase()
-    return instruction.lang.toLowerCase() === targetKey
-  })
-
-  // Nothing found?
-  if (!instruction) {
-    return undefined
-  }
-
-  // Got it!
-  return instruction
-})
 
 defineExpose({
   selectedClientOption,
@@ -121,37 +120,12 @@ defineExpose({
           :eventBus
           :featuredClients
           :morePanel
-          :selectedClient />
+          :selectedClient="activeClient" />
       </TabList>
 
       <!-- Content -->
       <TabPanels>
-        <template
-          v-if="
-            installationInstructions?.source ||
-            installationInstructions?.description
-          ">
-          <div
-            v-if="installationInstructions.description"
-            class="selected-client card-footer -outline-offset-2"
-            :class="installationInstructions.source && 'rounded-b-none'"
-            role="tabpanel"
-            tabindex="0">
-            <ScalarMarkdown :value="installationInstructions.description" />
-          </div>
-          <div
-            v-if="installationInstructions.source"
-            class="selected-client card-footer border-t-0 p-0"
-            role="tabpanel"
-            tabindex="1">
-            <ScalarCodeBlock
-              class="rounded-b-lg *:first:p-3"
-              :content="installationInstructions.source"
-              copy="always"
-              lang="shell" />
-          </div>
-        </template>
-        <template v-else-if="isFeaturedClient(selectedClient)">
+        <template v-if="isFeaturedClient(activeClient)">
           <TabPanel
             v-for="client in featuredClients"
             :key="client.id"
@@ -199,8 +173,5 @@ defineExpose({
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-top-left-radius: var(--scalar-radius-xl);
   border-top-right-radius: var(--scalar-radius-xl);
-}
-:deep(.scalar-codeblock-pre .hljs) {
-  margin-top: 8px;
 }
 </style>

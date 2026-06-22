@@ -1,4 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
@@ -12,6 +13,7 @@ import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
 import { processOpenApiDocument } from '@/utils/process-openapi-document'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
+import { validateRequest } from '@/utils/validate-request'
 
 import { store } from './libs/store'
 import { mockAnyResponse } from './routes/mock-any-response'
@@ -32,7 +34,8 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   const schemas = schema?.components?.schemas
   if (schemas) {
     for (const [schemaName, schemaObject] of Object.entries(schemas)) {
-      const seedCode = (schemaObject as any)?.['x-seed']
+      // Merge `$ref` siblings so an `x-seed` placed next to a `$ref` is preserved (OpenAPI 3.1 semantics)
+      const seedCode = (getResolvedRef(schemaObject, mergeSiblingReferences) as any)?.['x-seed']
 
       if (seedCode && typeof seedCode === 'string') {
         try {
@@ -68,16 +71,38 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   const paths = schema?.paths ?? {}
 
   Object.keys(paths).forEach((path) => {
-    const methods = Object.keys(getOperations(paths[path])) as HttpMethod[]
+    // A path item may itself be a `$ref`, so resolve it before reading its operations.
+    const pathItem = getResolvedRef(paths[path])
+    const methods = Object.keys(getOperations(pathItem)) as HttpMethod[]
 
     /** Keys for all operations of a specified path */
     methods.forEach((method) => {
       const route = honoRouteFromPath(path)
-      const operation = schema?.paths?.[path]?.[method] as OpenAPIV3_1.OperationObject
+      const operation = pathItem?.[method] as OpenAPIV3_1.OperationObject
+
+      // Operation-level security overrides the global requirement, so fall back to the
+      // document-wide `security` when the operation does not define its own.
+      const effectiveSecurity = operation.security ?? schema?.security
 
       // Check if authentication is required for this operation
-      if (isAuthenticationRequired(operation.security)) {
+      if (isAuthenticationRequired(effectiveSecurity)) {
         app[method](route, handleAuthentication(schema, operation))
+      }
+
+      // Notify the `onRequest` callback before validation runs, so it fires for every request —
+      // including ones the validation middleware rejects with a `422`.
+      if (configuration.onRequest) {
+        app[method](route, async (c, next) => {
+          configuration.onRequest?.({ context: c, operation })
+          await next()
+        })
+      }
+
+      // Validate the incoming request against the operation contract (on by default;
+      // opt out with `validateRequest: false`). Runs after authentication but before the
+      // mock handler. Validators are compiled once here, so there is no per-request recompilation.
+      if (configuration.validateRequest !== false) {
+        app[method](route, validateRequest(operation, pathItem?.parameters))
       }
 
       // Check if operation has x-handler extension
@@ -87,9 +112,9 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
       // Route to appropriate handler
       if (hasHandler) {
-        app[method](route, (c) => mockHandlerResponse(c, operation, configuration))
+        app[method](route, (c) => mockHandlerResponse(c, operation))
       } else {
-        app[method](route, (c) => mockAnyResponse(c, operation, configuration))
+        app[method](route, (c) => mockAnyResponse(c, operation))
       }
     })
   })

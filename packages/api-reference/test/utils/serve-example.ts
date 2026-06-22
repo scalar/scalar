@@ -18,9 +18,9 @@ const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
   cdn: '/scalar.js',
   url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
   proxyUrl: 'https://proxy.scalar.com',
-  // TODO: Remove this once the CDN supports the showDeveloperTools attribute
-  // @ts-expect-error - we need this until next release (after 1.39.3)
-  showToolbar: 'never',
+  // Title drives the document slug used in URLs (`scalar-galaxy`) so tests can
+  // construct deterministic deep links without each one having to set this.
+  title: 'Scalar Galaxy',
   showDeveloperTools: 'never', // Hide the toolbar by default for snapshots
 }
 
@@ -54,8 +54,8 @@ export function serveExample(givenConfiguration?: Partial<HtmlRenderingConfigura
     // Serve the JS bundle
     app.get('/scalar.js', (c) => c.text(readFileSync(pathToJavaScriptBundle, 'utf8')))
 
-    // Serve the examples directory
-    app.get('/examples/*', serveStatic({ root: './' }))
+    // Serve the examples directory (moved under public/ so the build emits them)
+    app.get('/examples/*', serveStatic({ root: './public' }))
 
     // Serve static files from the current directory
     app.get('*', (c) => {

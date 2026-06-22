@@ -15,7 +15,7 @@
     "http testing",
     "hono"
   ],
-  "version": "2.4.13",
+  "version": "2.5.1",
   "engines": {
     "node": ">=22"
   },
@@ -23,7 +23,7 @@
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "tsx playground/index.ts",
     "test": "vitest --run",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",

@@ -19,6 +19,7 @@ import {
 } from '@scalar/components/color-mode-toggle'
 import { addScalarClassesToHeadless } from '@scalar/components/helpers'
 import { ScalarSidebarFooter } from '@scalar/components/sidebar'
+import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import {
@@ -28,6 +29,7 @@ import {
 } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
+  DEFAULT_MODELS_SECTION_LABEL,
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationRaw,
@@ -36,6 +38,7 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { coerce } from '@scalar/validation'
+import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
@@ -46,7 +49,10 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
-import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import {
+  isAsyncApiDocument,
+  isOpenApiDocument,
+} from '@scalar/workspace-store/schemas/type-guards'
 import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
@@ -79,6 +85,7 @@ import {
   getIdFromUrl,
   makeUrlFromId,
   matchesBasePath,
+  redirectUrl,
 } from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
@@ -228,14 +235,22 @@ const configurationOverrides = ref<
 >({})
 
 /** Any dev toolbar modifications are merged with the active configuration */
-const mergedConfig = computed<ApiReferenceConfiguration>(() => ({
-  // Provides a default set of values when the lookup fails
-  ...coerce(apiReferenceConfigurationSchema, {}),
-  // The active configuration based on the slug
-  ...configList.value[activeSlug.value]?.config,
-  // Any overrides from the localhost toolbar
-  ...configurationOverrides.value,
-}))
+const mergedConfig = computed<ApiReferenceConfiguration>(() => {
+  const merged = {
+    // Provides a default set of values when the lookup fails
+    ...coerce(apiReferenceConfigurationSchema, {}),
+    // The active configuration based on the slug
+    ...configList.value[activeSlug.value]?.config,
+    // Any overrides from the localhost toolbar
+    ...configurationOverrides.value,
+  }
+
+  return {
+    ...merged,
+    modelsSectionLabel:
+      merged.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL,
+  }
+})
 
 /** Convenience break out var to determine which routing mode we are using */
 const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
@@ -244,6 +259,18 @@ const themeStyle = computed(() =>
   getThemeStyles(mergedConfig.value.theme, {
     fonts: mergedConfig.value.withDefaultFonts,
   }),
+)
+
+/**
+ * Custom CSS plus the theme styles, injected into a single `<style>` tag.
+ *
+ * This is rendered with `v-html` so the CSS is emitted verbatim. Interpolating
+ * it as text content makes Vue HTML-escape characters like `"` into `&quot;` on
+ * the server while the client keeps `"`, which both breaks the CSS and causes a
+ * hydration mismatch.
+ */
+const styleContent = computed(
+  () => `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`,
 )
 
 /** Plugin injection is not reactive. All plugins must be provided at first render */
@@ -259,6 +286,23 @@ pluginManager.notifyInit(mergedConfig.value)
 watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
+
+// Rewrite outdated `model/` and `models/` schema URLs to the current models
+// section slug so bookmarks from before the slug changed keep resolving.
+if (typeof window !== 'undefined') {
+  const canonical = redirectUrl(
+    window.location.href,
+    slugify(
+      mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL,
+    ),
+    activeSlug.value,
+    isMultiDocument.value,
+    mergedConfig.value.pathRouting?.basePath,
+  )
+  if (canonical) {
+    window.history.replaceState({}, '', canonical.toString())
+  }
+}
 
 // Front-end redirect
 if (mergedConfig.value.redirect && typeof window !== 'undefined') {
@@ -341,20 +385,58 @@ const activeSearchableDocument = computed(
 )
 
 /**
+ * Sidebar entries contributed by plugin views (content.start / content.end).
+ *
+ * Each entry reuses the same id as the rendered plugin component, so the existing
+ * navigation and scroll-spy logic can scroll to and highlight it. Plugins are static for
+ * the lifetime of the manager, so this only needs to be resolved once.
+ */
+const pluginSidebarEntries = computed(() =>
+  pluginManager
+    .getSidebarEntries(activeSlug.value)
+    .reduce<Record<'content.start' | 'content.end', TraversedEntry[]>>(
+      (grouped, entry) => {
+        grouped[entry.viewName].push({
+          id: entry.id,
+          title: entry.label,
+          type: 'text',
+        })
+        return grouped
+      },
+      { 'content.start': [], 'content.end': [] },
+    ),
+)
+
+/**
  * Create top level sidebar entries for each document
  * This allows sharing a single sidebar state for across the workspace
  */
 const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
   return Object.entries(workspaceStore.workspace.documents).map(
-    ([slug, document]) => ({
-      id: slug,
-      type: 'document',
-      description: document.info.description,
-      name: document.info.title ?? slug,
-      title: document.info.title ?? slug,
+    ([slug, document]) => {
       // Both OpenAPI and AsyncAPI documents carry an `x-scalar-navigation` tree.
-      children: document['x-scalar-navigation']?.children ?? [],
-    }),
+      const children = document['x-scalar-navigation']?.children ?? []
+
+      // Plugin views render once for the active document, so only surface their sidebar
+      // entries there. `content.start` sits above the Introduction, `content.end` below.
+      const childrenWithPlugins =
+        slug === activeSlug.value
+          ? [
+              ...pluginSidebarEntries.value['content.start'],
+              ...children,
+              ...pluginSidebarEntries.value['content.end'],
+            ]
+          : children
+
+      return {
+        id: slug,
+        type: 'document',
+        description: document.info.description,
+        name: document.info.title ?? slug,
+        title: document.info.title ?? slug,
+        children: childrenWithPlugins,
+      }
+    },
   )
 })
 
@@ -842,6 +924,23 @@ eventBus.on('server:update:selected', ({ url }) =>
   mergedConfig.value.onServerChange?.(url),
 )
 
+/**
+ * AsyncAPI servers are keyed by name, so resolve the selected name to its
+ * constructed connection URL before firing onServerChange, keeping the callback
+ * payload consistent with OpenAPI (a URL string).
+ */
+eventBus.on('asyncapi-server:update:selected', ({ name }) => {
+  const document = clientStore.workspace.activeDocument
+  if (!isAsyncApiDocument(document)) {
+    return
+  }
+
+  const server = getAsyncApiServers(document, { webSocketOnly: false }).find(
+    (s) => s.name === name,
+  )
+  mergedConfig.value.onServerChange?.(server?.url ?? name)
+})
+
 /** Download the document from the store */
 eventBus.on('ui:download:document', ({ format }) => {
   const document = workspaceStore.exportActiveDocument(format)
@@ -996,11 +1095,15 @@ const documentStartRef = useTemplateRef<HTMLElement>('documentStartRef')
  * observer are intersecting simultaneously, so the section observer does not re-fire on its own.
  * The `onExit` callback bridges that gap by finding whichever section is at the viewport center
  * and re-emitting the nav event for it.
+ *
+ * We emit the Introduction entry rather than the document slug so this sentinel and the Introduction
+ * section's own intersection observer resolve to the same entry. Otherwise the two race at the top of
+ * the document and the tab title flickers between the section title and the document title.
  */
 useIntersection(
   documentStartRef,
   () => {
-    eventBus.emit('intersecting:nav-item', { id: activeSlug.value })
+    eventBus.emit('intersecting:nav-item', { id: infoSectionId.value })
   },
   {
     onExit: () => {
@@ -1054,10 +1157,9 @@ const showMCPButton = computed(() => {
   <!-- SingleApiReference -->
   <div>
     <!-- Inject any custom CSS directly into a style tag -->
-    <component :is="'style'">
-      {{ mergedConfig.customCss }}
-      {{ themeStyle }}
-    </component>
+    <component
+      :is="'style'"
+      v-html="styleContent" />
     <div
       ref="documentEl"
       class="scalar-app scalar-api-reference references-layout"
@@ -1094,6 +1196,7 @@ const showMCPButton = computed(() => {
             :document="activeSearchableDocument"
             :eventBus="eventBus"
             :hideModels="mergedConfig.hideModels"
+            :modelsSectionLabel="mergedConfig.modelsSectionLabel"
             :searchHotKey="mergedConfig.searchHotKey"
             :showSidebar="mergedConfig.showSidebar" />
         </template>
@@ -1130,6 +1233,7 @@ const showMCPButton = computed(() => {
                   :document="activeSearchableDocument"
                   :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
+                  :modelsSectionLabel="mergedConfig.modelsSectionLabel"
                   :searchHotKey="mergedConfig.searchHotKey" />
 
                 <AgentScalarButton v-if="agent.agentEnabled.value" />
@@ -1185,6 +1289,7 @@ const showMCPButton = computed(() => {
           :authStore="clientStore.auth"
           :clientDocument="clientStore.workspace.activeDocument"
           :document="workspaceStore.workspace.activeDocument"
+          :documentSlug="activeSlug"
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"
@@ -1224,6 +1329,7 @@ const showMCPButton = computed(() => {
                 :document="activeSearchableDocument"
                 :eventBus="eventBus"
                 :hideModels="mergedConfig.hideModels"
+                :modelsSectionLabel="mergedConfig.modelsSectionLabel"
                 :searchHotKey="mergedConfig.searchHotKey" />
               <template #dark-mode-toggle>
                 <ScalarColorModeToggleIcon
@@ -1382,7 +1488,15 @@ const showMCPButton = computed(() => {
 /* ----------------------------------------------------- */
 /* Responsive / Mobile Layout */
 
-@media (max-width: 1000px) {
+/*
+ * Stop just below the `lg` breakpoint (1000px). The sidebar visibility is driven
+ * by Tailwind's `lg:` variant, which is `min-width: 1000px` and therefore treats
+ * exactly 1000px as desktop. A `max-width: 1000px` query would make the grid
+ * switch to the mobile (stacked) layout at the very same width, so the desktop
+ * sidebar would render on top of the content. `width < 1000px` is the exact
+ * complement of `lg:` (`width >= 1000px`), keeping the two in sync.
+ */
+@media (width < 1000px) {
   /* Keep toolbar hidden on mobile without forcing desktop display mode. */
   .references-developer-tools {
     display: none;
@@ -1422,7 +1536,8 @@ const showMCPButton = computed(() => {
 * TODO: @brynn move this to the sidebar block OR the ApiReferenceStandalone component
 * when the new elements are available
 */
-@media (max-width: 1000px) {
+/* Match the layout breakpoint above so the mobile header height is only applied below `lg`. */
+@media (width < 1000px) {
   .scalar-api-references-standalone-mobile:not(.references-classic) {
     --scalar-header-height: 50px;
   }

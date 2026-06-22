@@ -1,5 +1,9 @@
 # @scalar/postman-to-openapi
 
+## 0.7.10
+
+## 0.7.9
+
 ## 0.7.8
 
 ## 0.7.7

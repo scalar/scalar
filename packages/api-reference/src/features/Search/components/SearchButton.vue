@@ -4,6 +4,10 @@ import { useModal } from '@scalar/components/modal'
 import { ScalarSidebarSearchButton } from '@scalar/components/sidebar'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
+import {
+  DEFAULT_MODELS_SECTION_LABEL,
+  type ModelsSectionLabel,
+} from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -11,16 +15,33 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import SearchModal from './SearchModal.vue'
 
-const { searchHotKey = 'k', hideModels = false } = defineProps<{
+const {
+  searchHotKey = 'k',
+  modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL,
+} = defineProps<{
   forceIcon?: boolean
   searchHotKey?: string
   hideModels?: boolean
+  modelsSectionLabel?: ModelsSectionLabel
   document?: OpenApiDocument | AsyncApiDocument
   eventBus: WorkspaceEventBus
 }>()
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
 const modalState = useModal()
+
+/**
+ * Whether the user is on macOS, used to show the correct shortcut symbol.
+ *
+ * This must default to `false` so the server-rendered markup and the first
+ * client render agree. Detecting the platform relies on `navigator`, which is
+ * unavailable during SSR, so we resolve it after mount to avoid a hydration
+ * mismatch.
+ */
+const isMac = ref(false)
+onMounted(() => {
+  isMac.value = isMacOS()
+})
 
 const handleHotKey = (e: KeyboardEvent) => {
   if ((isMacOS() ? e.metaKey : e.ctrlKey) && e.key === searchHotKey) {
@@ -75,7 +96,7 @@ function handleClick() {
       Search
     </span>
     <template #shortcut>
-      <template v-if="isMacOS()">
+      <template v-if="isMac">
         <span class="sr-only">Command</span>
         <span aria-hidden="true">⌘</span>
       </template>
@@ -90,6 +111,6 @@ function handleClick() {
   <SearchModal
     :document
     :eventBus="eventBus"
-    :hideModels="hideModels"
-    :modalState="modalState" />
+    :modalState="modalState"
+    :modelsSectionLabel="modelsSectionLabel" />
 </template>

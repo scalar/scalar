@@ -311,6 +311,23 @@ describe('tag group rendering', () => {
     expect(wrapper.text()).toContain('Get Users')
   })
 
+  it('exposes the tag group id as a scroll anchor', () => {
+    // Modern layout flattens tag groups, so the group needs its own anchor
+    // element. Without it, selecting the group from search or the sidebar has
+    // nothing to scroll to.
+    const tagGroup = createMockTagGroup({
+      id: 'tag-group/auth',
+      children: [createMockOperation({ id: 'group-op-1', title: 'Get Users', path: '/users', method: 'get' })],
+    })
+    const entries: TraversedEntry[] = [tagGroup]
+
+    const wrapper = mount(TraversedEntryComponent, {
+      props: makeMockProps(entries),
+    })
+
+    expect(wrapper.find('#tag-group\\/auth').exists()).toBe(true)
+  })
+
   it('renders empty tag group correctly', () => {
     const tagGroup = createMockTagGroup({ children: [] })
     const entries: TraversedEntry[] = [tagGroup]

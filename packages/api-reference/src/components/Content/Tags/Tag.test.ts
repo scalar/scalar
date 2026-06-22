@@ -23,7 +23,6 @@ describe('Tag', () => {
           tag: mockTag,
           layout: 'classic',
           moreThanOneTag: true,
-          isLoading: false,
           isCollapsed: false,
           onShowMore: undefined,
         },
@@ -42,7 +41,6 @@ describe('Tag', () => {
           layout: 'modern',
           moreThanOneTag: true,
           isCollapsed: false,
-          isLoading: false,
           onShowMore: undefined,
         },
       })
@@ -62,7 +60,6 @@ describe('Tag', () => {
           layout: 'classic',
           isCollapsed: false,
           moreThanOneTag: true,
-          isLoading: false,
           onShowMore: undefined,
         },
       })
@@ -79,7 +76,6 @@ describe('Tag', () => {
           layout: 'modern',
           isCollapsed: false,
           moreThanOneTag: false,
-          isLoading: false,
           onShowMore: undefined,
         },
       })
@@ -99,7 +95,6 @@ describe('Tag', () => {
           layout: 'classic',
           moreThanOneTag: true,
           isCollapsed: false,
-          isLoading: false,
           onShowMore: undefined,
         },
         slots: {
@@ -118,7 +113,6 @@ describe('Tag', () => {
           tag: mockTag,
           layout: 'modern',
           moreThanOneTag: false, // Set to false so slot is rendered
-          isLoading: false,
           isCollapsed: false,
           onShowMore: undefined,
         },

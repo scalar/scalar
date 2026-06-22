@@ -1617,6 +1617,28 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           originalDocuments[name] = mergedDocument
           intermediateDocuments[name] = deepClone(mergedDocument)
 
+          // Document-level UI settings never come from the upstream source and
+          // would otherwise be wiped on every rebase. Carry over only the keys
+          // that are actually set so we don't spread `undefined` into the
+          // rebuilt document. The strict document type does not declare every
+          // x-scalar-* UI extension, so read them through an untyped view.
+          const isOpenApi = isOpenApiDocument(activeDocumentRaw)
+          const environments = isOpenApi ? activeDocumentRaw['x-scalar-environments'] : undefined
+          const order = isOpenApi ? activeDocumentRaw['x-scalar-order'] : undefined
+
+          // Keep user-configured servers when the merged document has none
+          // (build-time generated specs typically declare no servers). When the
+          // merged result already carries servers — whether from upstream or
+          // preserved local edits — those stay authoritative.
+          const mergedServers = (mergedDocument as Record<string, unknown>).servers
+          const activeServers = (activeDocumentRaw as Record<string, unknown>).servers
+          const mergedHasServers = Array.isArray(mergedServers) && mergedServers.length > 0
+          const activeHasServers = Array.isArray(activeServers) && activeServers.length > 0
+          const preservedServers =
+            !isAsyncApiDocument(mergedDocument) && !mergedHasServers && activeHasServers
+              ? deepClone(activeServers)
+              : undefined
+
           // add the new active document to the workspace but don't re-initialize
           await addInMemoryDocument({
             ...input,
@@ -1634,6 +1656,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               ...input.meta,
               // Preserve the registry meta
               'x-scalar-registry-meta': activeDocumentRaw['x-scalar-registry-meta'],
+              // Preserve document-level UI settings (see note above).
+              'x-scalar-watch-mode': activeDocumentRaw['x-scalar-watch-mode'],
+              'x-scalar-selected-server': activeDocumentRaw['x-scalar-selected-server'],
+              ...(environments !== undefined ? { 'x-scalar-environments': environments } : {}),
+              ...(order !== undefined ? { 'x-scalar-order': order } : {}),
+              ...(preservedServers !== undefined ? { servers: preservedServers } : {}),
               // Flag local edits that need pushing - see note above.
               'x-scalar-is-dirty': hasLocalChangesAgainstUpstream,
             },

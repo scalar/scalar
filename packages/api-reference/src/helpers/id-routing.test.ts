@@ -8,6 +8,7 @@ import {
   getSchemaParamsFromId,
   makeUrlFromId,
   matchesBasePath,
+  redirectUrl,
   sanitizeBasePath,
 } from './id-routing'
 
@@ -824,5 +825,179 @@ describe('makeUrlFromId', () => {
   it('handles id with only slashes in multi-document mode', () => {
     const result = makeUrlFromId('///', undefined, true)
     expect(result?.hash).toBe('#///')
+  })
+})
+
+describe('redirectUrl', () => {
+  describe('multi-document hash routing', () => {
+    it('rewrites a top-level legacy hash', () => {
+      const result = redirectUrl('https://example.com/#default/model/User', 'models', 'default', true)
+      expect(result?.hash).toBe('#default/models/User')
+    })
+
+    it('rewrites a tagged legacy hash', () => {
+      const result = redirectUrl('https://example.com/#default/tag/pets/model/Pet', 'models', 'default', true)
+      expect(result?.hash).toBe('#default/tag/pets/models/Pet')
+    })
+
+    it('rewrites a tag-group legacy hash', () => {
+      const result = redirectUrl(
+        'https://example.com/#default/tag-group/0/tag/pets/model/Pet',
+        'models',
+        'default',
+        true,
+      )
+      expect(result?.hash).toBe('#default/tag-group/0/tag/pets/models/Pet')
+    })
+
+    it('uses a custom slug when the label is not the default', () => {
+      const result = redirectUrl('https://example.com/#default/model/User', 'schemas', 'default', true)
+      expect(result?.hash).toBe('#default/schemas/User')
+    })
+
+    it('preserves schema sub-paths after the model name', () => {
+      const result = redirectUrl('https://example.com/#default/model/User.body.id', 'models', 'default', true)
+      expect(result?.hash).toBe('#default/models/User.body.id')
+    })
+
+    it('returns null when the URL has no legacy segment', () => {
+      expect(redirectUrl('https://example.com/#default/models/User', 'models', 'default', true)).toBeNull()
+      expect(redirectUrl('https://example.com/#default/tag/pets', 'models', 'default', true)).toBeNull()
+    })
+
+    it('does not touch the section-level `/models` hash', () => {
+      expect(redirectUrl('https://example.com/#default/models', 'models', 'default', true)).toBeNull()
+    })
+
+    it('leaves operation paths whose raw path contains `/model/` untouched', () => {
+      // POST /model/train — common AI/ML endpoint
+      expect(redirectUrl('https://example.com/#default/POST/model/train', 'models', 'default', true)).toBeNull()
+      // POST /v1/model/train — `/model/` deeper in the path
+      expect(redirectUrl('https://example.com/#default/POST/v1/model/train', 'models', 'default', true)).toBeNull()
+    })
+
+    it('leaves operations under a tag named "model" untouched', () => {
+      expect(redirectUrl('https://example.com/#default/tag/model/POST/foo', 'models', 'default', true)).toBeNull()
+    })
+  })
+
+  describe('single-document hash routing', () => {
+    it('rewrites a top-level legacy hash', () => {
+      const result = redirectUrl('https://example.com/#model/User', 'models', 'default', false)
+      expect(result?.hash).toBe('#models/User')
+    })
+
+    it('rewrites a legacy hash that still includes the doc slug', () => {
+      // Old bookmarks (or hand-typed URLs) sometimes include the doc slug even in single-doc mode.
+      const result = redirectUrl('https://example.com/#default/model/User', 'models', 'default', false)
+      expect(result?.hash).toBe('#default/models/User')
+    })
+
+    it('returns null for tagged legacy hashes (ambiguous with tag named "model")', () => {
+      // We cannot tell `#tag/<slug>/model/<name>` apart from an operation under a tag named "model"
+      // once the document slug is stripped, so we leave these alone.
+      expect(redirectUrl('https://example.com/#tag/pets/model/Pet', 'models', 'default', false)).toBeNull()
+    })
+
+    it('leaves operation paths containing `/model/` untouched', () => {
+      expect(redirectUrl('https://example.com/#POST/model/train', 'models', 'default', false)).toBeNull()
+    })
+  })
+
+  describe('path routing', () => {
+    it('rewrites a legacy pathname in multi-doc mode', () => {
+      const result = redirectUrl('https://example.com/docs/default/model/User', 'models', 'default', true, '/docs')
+      expect(result?.pathname).toBe('/docs/default/models/User')
+    })
+
+    it('rewrites a legacy pathname in single-doc mode', () => {
+      const result = redirectUrl('https://example.com/docs/model/User', 'models', 'default', false, '/docs')
+      expect(result?.pathname).toBe('/docs/models/User')
+    })
+
+    it('leaves operation pathnames untouched', () => {
+      expect(
+        redirectUrl('https://example.com/docs/default/POST/model/train', 'models', 'default', true, '/docs'),
+      ).toBeNull()
+    })
+
+    it('still rewrites a legacy hash bookmark left over from before path routing', () => {
+      // A `#default/model/User` fragment can linger from when the docs used hash routing. Path
+      // routing reads the id from the pathname, but we fall back to the hash so the old bookmark
+      // is still canonicalized.
+      const result = redirectUrl('https://example.com/docs/#default/model/User', 'models', 'default', true, '/docs')
+      expect(result?.hash).toBe('#default/models/User')
+    })
+
+    it('rewrites both the legacy pathname and a stale legacy hash in one pass', () => {
+      // When the id is legacy in both the pathname and a leftover hash, neither should survive the
+      // redirect — otherwise the address bar shows a corrected path next to an outdated hash.
+      const result = redirectUrl(
+        'https://example.com/docs/default/model/User#default/model/User',
+        'models',
+        'default',
+        true,
+        '/docs',
+      )
+      expect(result?.pathname).toBe('/docs/default/models/User')
+      expect(result?.hash).toBe('#default/models/User')
+    })
+  })
+
+  describe('hash base path routing', () => {
+    it('rewrites a legacy segment behind the hash base path', () => {
+      const result = redirectUrl('https://example.com/#/docs/default/model/User', 'models', 'default', true, '#/docs')
+      expect(result?.hash).toBe('#/docs/default/models/User')
+    })
+
+    it('still rewrites a legacy hash bookmark left over from before the base path was configured', () => {
+      // A bare `#default/model/User` fragment can linger from before the hash base path was set.
+      // The base-stripping carrier yields no id, so we fall back to the bare hash.
+      const result = redirectUrl('https://example.com/#default/model/User', 'models', 'default', true, '#/docs')
+      expect(result?.hash).toBe('#default/models/User')
+    })
+  })
+
+  describe('customized models section slug', () => {
+    it('rewrites a `models` segment to the customized slug', () => {
+      const result = redirectUrl('https://example.com/#default/models/User', 'schemas', 'default', true)
+      expect(result?.hash).toBe('#default/schemas/User')
+    })
+
+    it('rewrites a tagged `models` segment to the customized slug', () => {
+      const result = redirectUrl('https://example.com/#default/tag/pets/models/Pet', 'schemas', 'default', true)
+      expect(result?.hash).toBe('#default/tag/pets/schemas/Pet')
+    })
+
+    it('rewrites a `models` pathname to the customized slug', () => {
+      const result = redirectUrl('https://example.com/docs/default/models/User', 'schemas', 'default', true, '/docs')
+      expect(result?.pathname).toBe('/docs/default/schemas/User')
+    })
+
+    it('rewrites a top-level `models` segment in single-doc mode', () => {
+      const result = redirectUrl('https://example.com/#models/User', 'schemas', 'default', false)
+      expect(result?.hash).toBe('#schemas/User')
+    })
+
+    it('still rewrites the singular `model` segment to the customized slug', () => {
+      const result = redirectUrl('https://example.com/#default/model/User', 'schemas', 'default', true)
+      expect(result?.hash).toBe('#default/schemas/User')
+    })
+
+    it('leaves the `models` segment alone when the slug is the default', () => {
+      expect(redirectUrl('https://example.com/#default/models/User', 'models', 'default', true)).toBeNull()
+    })
+
+    it('leaves operation paths containing `/models/` untouched', () => {
+      expect(redirectUrl('https://example.com/#default/POST/models/train', 'schemas', 'default', true)).toBeNull()
+    })
+
+    it('leaves a tagged `models` segment alone without a doc slug (ambiguous)', () => {
+      expect(redirectUrl('https://example.com/#tag/pets/models/Pet', 'schemas', 'default', false)).toBeNull()
+    })
+  })
+
+  it('returns null when the document slug is empty', () => {
+    expect(redirectUrl('https://example.com/#default/model/User', 'models', '', true)).toBeNull()
   })
 })

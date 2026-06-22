@@ -5,6 +5,12 @@ import { findVariables } from '@scalar/helpers/regex/find-variables'
 
 import type { WorkspaceStore } from '@/client'
 import type { OperationEvents } from '@/events/definitions/operation'
+import {
+  deletePathItemOperation,
+  getPathItemOperation,
+  pathItemIsEmpty,
+  setPathItemOperation,
+} from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { syncParametersForPathChange } from '@/mutators/operation/helpers/sync-path-parameters'
@@ -59,7 +65,7 @@ export const createOperation = (
   preventPollution(method)
 
   /** Create the operation in the document */
-  document.paths[normalizedPath][method] = operation
+  setPathItemOperation(document.paths[normalizedPath], method, operation)
 
   // Make sure that we are selecting the new operation server
   const { servers } = operation
@@ -119,7 +125,7 @@ export const updateOperationMeta = (
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method as HttpMethod])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method as HttpMethod))
   if (!operation) {
     console.error('Operation not found', { meta, document })
     return
@@ -175,7 +181,7 @@ export const updateOperationPathMethod = (
   }
 
   // Check for conflicts at the target location
-  if (document.paths?.[finalPath]?.[finalMethod as HttpMethod]) {
+  if (getPathItemOperation(document.paths?.[finalPath], finalMethod as HttpMethod)) {
     callback('conflict', blurTargetSelector)
     return
   }
@@ -186,7 +192,7 @@ export const updateOperationPathMethod = (
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method as HttpMethod])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method as HttpMethod))
   if (!operation) {
     console.error('Operation not found', { meta, document })
     return
@@ -239,15 +245,14 @@ export const updateOperationPathMethod = (
   preventPollution(finalMethod)
 
   // Move the operation to the new location
-  document.paths[finalPath][finalMethod] = unpackProxyObject(operation)
+  setPathItemOperation(document.paths[finalPath], finalMethod as HttpMethod, unpackProxyObject(operation))
 
   // Remove the operation from the old location
-  const oldPathItems = document.paths[meta.path]
-  if (oldPathItems && isHttpMethod(meta.method)) {
-    delete oldPathItems[meta.method]
+  if (isHttpMethod(meta.method)) {
+    deletePathItemOperation(document.paths[meta.path], meta.method)
 
-    // If the old path has no more operations, remove the path entry
-    if (Object.keys(oldPathItems).length === 0) {
+    // If the old path is now empty, remove the path entry (path-level metadata is kept otherwise)
+    if (pathItemIsEmpty(document.paths[meta.path])) {
       delete document.paths[meta.path]
     }
   }
@@ -281,10 +286,10 @@ export const deleteOperation = (
   preventPollution(meta.path)
   preventPollution(meta.method)
 
-  delete document.paths?.[meta.path]?.[meta.method]
+  deletePathItemOperation(document.paths?.[meta.path], meta.method)
 
-  // If the path has no more operations, remove the path entry
-  if (Object.keys(document.paths?.[meta.path] ?? {}).length === 0) {
+  // If the path is now empty, remove the path entry (path-level metadata is kept otherwise)
+  if (pathItemIsEmpty(document.paths?.[meta.path])) {
     delete document.paths?.[meta.path]
   }
 }
@@ -306,7 +311,7 @@ export const createOperationDraftExample = (
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[path]?.[method])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[path], method))
   if (!operation) {
     console.error('Operation not found', { path, method })
     return
@@ -341,7 +346,7 @@ export const deleteOperationExample = (
   }
 
   // Get the operation object for the given path and method
-  const operation = getResolvedRef(document.paths?.[path]?.[method])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[path], method))
   if (!operation) {
     return
   }
@@ -403,7 +408,7 @@ export const renameOperationExample = (
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[path]?.[method])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[path], method))
   if (!operation) {
     return
   }

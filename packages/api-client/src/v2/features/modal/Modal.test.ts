@@ -371,6 +371,64 @@ describe('Modal', () => {
     expect(operation.props('layout')).toBe('modal')
   })
 
+  it('passes the document name (not the slugified navigation id) as documentSlug', async () => {
+    // The auth store keys secrets by the document name, but the navigation `id` is a
+    // slugified version of it. When the name is not slug-safe (common for `sources`
+    // documents with an explicit slug), passing the `id` here would make the runner
+    // read auth secrets under a different key than they were written, dropping the
+    // typed token. See https://github.com/scalar/scalar/issues/9554.
+    const rawName = 'My API'
+    const rawStore = createWorkspaceStore()
+    await rawStore.addDocument({
+      name: rawName,
+      document: getDocument({ paths: { '/users': { get: { summary: 'Get users' } } } }),
+    })
+    rawStore.update('x-scalar-active-document', rawName)
+
+    const rawDocumentSlug = computed<string | undefined>(() => rawName)
+    const rawPath = computed<string | undefined>(() => '/users')
+    const rawMethod = computed<'get' | 'post' | undefined>(() => 'get')
+    const rawExampleName = computed<string | undefined>(() => 'default')
+
+    const document = computed<OpenApiDocument | null>(
+      () => (rawStore.workspace.documents[rawName] as OpenApiDocument | undefined) ?? null,
+    )
+    const modalState = useModal()
+    modalState.open = true
+
+    const wrapper = mount(Modal, {
+      props: {
+        workspaceStore: rawStore,
+        document,
+        path: rawPath,
+        method: rawMethod,
+        options: createModalOptions(),
+        plugins: [],
+        exampleName: rawExampleName,
+        requestBodyCompositionSelection: ref<Record<string, number>>({}),
+        modalState,
+        sidebarState: useModalSidebar({
+          workspaceStore: rawStore,
+          documentSlug: rawDocumentSlug,
+          path: rawPath,
+          method: rawMethod,
+          exampleName: rawExampleName,
+          route: vi.fn(),
+        }),
+        eventBus: mockEventBus,
+      },
+      attachTo: '#scalar-modal-test',
+    })
+    await waitForUpdates()
+
+    const navigation = document.value?.['x-scalar-navigation']
+    expect(navigation?.name).toBe(rawName)
+    expect(navigation?.id).toBe('my-api')
+
+    const operation = wrapper.findComponent({ name: 'Operation' })
+    expect(operation.props('documentSlug')).toBe(rawName)
+  })
+
   it('has correct accessibility attributes', async () => {
     const { props, modalState } = createProps()
     modalState.open = true

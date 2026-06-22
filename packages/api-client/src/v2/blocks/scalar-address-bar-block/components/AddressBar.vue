@@ -676,4 +676,8 @@ defineExpose({
   outline-width: 1px;
   outline-style: solid;
 }
+.address-bar-bg-states:has(.cm-focused) .fade-left,
+.address-bar-bg-states:has(.cm-focused) .fade-right {
+  --scalar-address-bar-bg: var(--scalar-background-1);
+}
 </style>

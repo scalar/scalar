@@ -27,6 +27,13 @@ public partial class ScalarOptions
     public string OpenApiRoutePattern { get; set; } = "/openapi/{documentName}.json";
 
     /// <summary>
+    /// Controls the route pattern of the AsyncAPI document.
+    /// Can also be a complete URL to a remote AsyncAPI document, just be aware of CORS restrictions in this case.
+    /// The pattern can include the '{documentName}' placeholder which will be replaced with the document name.
+    /// </summary>
+    public string AsyncApiRoutePattern { get; set; } = "/asyncapi/{documentName}.json";
+
+    /// <summary>
     /// Controls the proxy URL for API requests.
     /// </summary>
     [StringSyntax(StringSyntaxAttribute.Uri)]

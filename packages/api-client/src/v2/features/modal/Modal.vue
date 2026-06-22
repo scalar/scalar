@@ -180,7 +180,7 @@ defineExpose({
         :activeWorkspace="activeWorkspace"
         class="flex-1"
         :document="document.value"
-        :documentSlug="document.value['x-scalar-navigation']?.id ?? ''"
+        :documentSlug="document.value['x-scalar-navigation']?.name ?? ''"
         :environment
         :eventBus
         :exampleName="exampleName?.value"

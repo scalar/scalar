@@ -2,17 +2,6 @@
   "$schema": "./node_modules/knip/schema.json",
   // Catalog entries from ignored workspaces are falsely reported as unused
   "exclude": ["catalog"],
-  "ignoreWorkspaces": [
-    // Allows a progressive adoption
-    "examples/nestjs/**",
-    "examples/nextjs-api-reference/**",
-    "examples/react/**",
-    "examples/react-webpack/**",
-    "examples/ssg/**",
-    "examples/sveltekit/**",
-    "examples/web/**",
-    "projects/proxy-scalar-com/**"
-  ],
   "ignoreFiles": [
     // CSS files imported via @import or Vue components — knip cannot trace CSS imports
     "**/*.css",
@@ -23,9 +12,12 @@
     "documentation/assets/apollo.js",
     "documentation/assets/vector.js",
     "documentation/assets/brand.js",
-    "documentation/assets/enterprise-contact-form.js"
+    "documentation/assets/enterprise-contact-form.js",
+    "documentation/assets/company.js"
   ],
   "ignore": [
+    // Loaded at runtime by `@scalar/release-notes` (release:version script), not statically imported
+    "release-notes.config.ts",
     // We will use this in the future, just removed it from the workspace store for now
     "packages/workspace-store/src/schemas/reference-config/index.ts",
     // Generated migration types — exports are used by downstream consumers
@@ -40,8 +32,9 @@
     "tailwindcss",
     // Used as vitest environment in test files via @vitest-environment jsdom
     "jsdom",
-    // The following values needs to be re-checked once more packages are included
+    // Used by root tsconfig.json
     "tsconfig-paths",
+    //
     "typescript-language-server"
   ],
   "ignoreBinaries": ["netlify"],
@@ -297,8 +290,17 @@
     "packages/react-renderer": {
       "ignoreDependencies": ["react", "react-dom", "vue"]
     },
+    "examples/nestjs/nestjs-api-reference-express": {
+      "entry": ["src/main.ts", "test/app.e2e-spec.ts"]
+    },
+    "examples/nestjs/nestjs-api-reference-fastify": {
+      "entry": ["src/main.ts", "test/app.e2e-spec.ts"]
+    },
     "examples/nuxt": {
       "ignoreDependencies": ["@scalar/nuxt"]
+    },
+    "examples/sveltekit": {
+      "entry": ["src/lib/index.ts"]
     },
     "integrations/django-ninja": {
       "ignoreBinaries": ["python"]
@@ -309,7 +311,6 @@
       ]
     },
     "integrations/docusaurus": {
-      "ignoreFiles": ["playground/.docusaurus/**"],
       "docusaurus": {
         "config": ["playground/docusaurus.config.ts"],
         "entry": [
@@ -380,8 +381,6 @@
         "src/module.ts",
         "src/runtime/components/ScalarApiReference.vue",
         "src/runtime/pages/ScalarPage.vue",
-        "src/shims/extend.js",
-        "src/shims/debug.js",
         "playground/nuxt.config.ts",
         "playground/layouts/default.vue",
         "playground/pages/index.vue",
@@ -390,6 +389,13 @@
       ],
       "ignoreDependencies": [
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
+      ]
+    },
+    "integrations/sveltekit": {
+      "ignoreDependencies": [
+        // Automatically added to devDependencies by `pnpm script packages format`
+        // because it's a peer dependency but not used directly.
+        "@sveltejs/kit"
       ]
     },
     "projects/galaxy-scalar-com": {
@@ -430,12 +436,8 @@
         "electron.vite.config.ts"
       ]
     },
-    "integrations/sveltekit": {
-      "ignoreDependencies": [
-        // Automatically added to devDependencies by `pnpm script packages format`
-        // because it's a peer dependency but not used directly.
-        "@sveltejs/kit"
-      ]
+    "projects/proxy-scalar-com": {
+      "ignoreBinaries": ["go"]
     }
   }
 }

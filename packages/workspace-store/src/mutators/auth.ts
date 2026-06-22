@@ -1,6 +1,7 @@
 import type { WorkspaceStore } from '@/client'
 import type { AuthEvents } from '@/events/definitions/auth'
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
+import { forEachPathItemOperation, getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-security-requirement'
 import { mergeObjects } from '@/helpers/merge-object'
@@ -271,7 +272,7 @@ export const updateSelectedAuthTab = (
   }
 
   // Ensure the path/method exists in the document
-  if (meta.type === 'operation' && document.paths?.[meta.path]?.[meta.method] === undefined) {
+  if (meta.type === 'operation' && getPathItemOperation(document.paths?.[meta.path], meta.method) === undefined) {
     return
   }
 
@@ -467,11 +468,8 @@ const walkSelectedSchemes = (
 
   apply({ type: 'document', documentName })
 
-  Object.entries(document.paths ?? {}).forEach(([path, pathItemObject]) => {
-    Object.entries(pathItemObject).forEach(([method, operation]) => {
-      if (typeof operation !== 'object') {
-        return
-      }
+  Object.entries(document.paths ?? {}).forEach(([path, pathItemRef]) => {
+    forEachPathItemOperation(pathItemRef, (method) => {
       apply({ type: 'operation', documentName, path, method })
     })
   })
@@ -657,15 +655,10 @@ export const deleteSecurityScheme = (
   }
 
   // -- For each path and operation, remove deleted security schemes from operation-level security and custom extension
-  Object.entries(document.paths ?? {}).forEach(([path, pathItemObject]) => {
-    Object.entries(pathItemObject).forEach(([method, operation]) => {
-      if (typeof operation !== 'object') {
-        // Ignore operations that are not objects (could be undefined)
-        return
-      }
-
+  Object.entries(document.paths ?? {}).forEach(([path, pathItemRef]) => {
+    forEachPathItemOperation(pathItemRef, (method, operationRef) => {
       // Get mutable reference for the operation (could resolve $ref proxies)
-      const resolvedOperation = getResolvedRef(operation)
+      const resolvedOperation = getResolvedRef(operationRef)
 
       // Remove from operation-level security array
       if ('security' in resolvedOperation && resolvedOperation['security']) {

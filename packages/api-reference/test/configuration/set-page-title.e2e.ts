@@ -47,8 +47,8 @@ test.describe('setPageTitle', () => {
 
     await page.goto(example)
 
-    // On load the document start is in view, so the title reflects the document itself
-    await expect(page).toHaveTitle('Galaxy API › Galaxy API')
+    // On load the top of the document is in view, so the title reflects the Introduction section
+    await expect(page).toHaveTitle('Galaxy API › Introduction')
 
     // Scrolling a later operation into view updates the title without any click
     await page

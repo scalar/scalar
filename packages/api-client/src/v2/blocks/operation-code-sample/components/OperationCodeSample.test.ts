@@ -347,6 +347,35 @@ describe('RequestExample', () => {
       const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
       expect(combobox.props('modelValue').id).toBe('python/requests')
     })
+
+    it('re-resolves the local client when navigating to another operation', async () => {
+      // Operation with a Python custom sample, selected globally by language
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          selectedClient: 'custom/python' as AvailableClient,
+          operation: {
+            ...mockOperation,
+            'x-codeSamples': [{ lang: 'python', label: 'Python SDK', source: 'first.operation()' }],
+          },
+        },
+      })
+
+      const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
+      expect(combobox.props('modelValue').id).toBe('custom/python')
+
+      // Navigate to an operation that has no Python sample. The stored id stays
+      // the same, so the local client must re-resolve instead of going stale.
+      await wrapper.setProps({
+        operation: {
+          ...mockOperation,
+          'x-codeSamples': [{ lang: 'go', label: 'Go SDK', source: 'second.operation()' }],
+        },
+      })
+      await nextTick()
+
+      expect(combobox.props('modelValue').id).toBe('custom/go')
+    })
   })
 
   describe('Example Selection', () => {
@@ -612,6 +641,51 @@ describe('RequestExample', () => {
       })
 
       expect(wrapper.find('[data-testid="client-picker"]').exists()).toBe(true)
+    })
+  })
+
+  describe('Single Client', () => {
+    const singleClientOptions: ClientOptionGroup[] = [
+      {
+        label: 'JavaScript',
+        key: 'js',
+        options: [
+          {
+            id: 'js/fetch',
+            label: 'Fetch API',
+            lang: 'js',
+            title: 'JavaScript Fetch API',
+            targetKey: 'js',
+            targetTitle: 'JavaScript',
+            clientKey: 'fetch',
+          },
+        ],
+      },
+    ]
+
+    it('renders the client label without a dropdown when only one client is available', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          clientOptions: singleClientOptions,
+        },
+      })
+
+      // No dropdown should be rendered for a single client
+      expect(wrapper.findComponent({ name: 'ScalarCombobox' }).exists()).toBe(false)
+
+      // The client title should still be shown as a plain label
+      const label = wrapper.find('[data-testid="client-picker"]')
+      expect(label.exists()).toBe(true)
+      expect(label.text()).toContain('JavaScript Fetch API')
+    })
+
+    it('renders a dropdown when more than one client is available', () => {
+      const wrapper = mount(RequestExample, {
+        props: defaultProps,
+      })
+
+      expect(wrapper.findComponent({ name: 'ScalarCombobox' }).exists()).toBe(true)
     })
   })
 

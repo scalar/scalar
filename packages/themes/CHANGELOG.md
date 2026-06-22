@@ -1,5 +1,29 @@
 # @scalar/themes
 
+## 0.16.1
+
+### Patch Changes
+
+- [#9565](https://github.com/scalar/scalar/pull/9565): Apply the themed placeholder color and font to textarea placeholders so they match input placeholders
+
+## 0.16.0
+
+### Minor Changes
+
+- [#9415](https://github.com/scalar/scalar/pull/9415): Ship the Scalar design-system agent skill with the package.
+
+  `@scalar/themes` now bundles the `scalar-design-system` skill (design tokens, theming, a `@scalar/components` reference, and a Paper design-tool bridge) under `skills/`. Agents do not auto-discover skills inside `node_modules`, so link or copy `node_modules/@scalar/themes/skills/scalar-design-system` into your project's `.claude/skills` to use it.
+
+### Patch Changes
+
+- [#9371](https://github.com/scalar/scalar/pull/9371): Use the correct system fonts when withDefaultFonts is set to false
+
+## 0.15.6
+
+### Patch Changes
+
+- [#9268](https://github.com/scalar/scalar/pull/9268): fix button text color variables to use pure white instead of semi-transparent white in dark themes.
+
 ## 0.15.5
 
 ### Patch Changes

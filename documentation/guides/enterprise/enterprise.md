@@ -14,7 +14,7 @@
 
 <br>
 
-<h4 class="text-c-2 mt-10">Trusted by the world's best API teams</h4>
+<h4 class="text-c-3 mt-10 font-normal">Trusted by the world's best API teams</h4>
 
 <div class="logowall">
   <div class="logowall-item">
@@ -114,49 +114,14 @@ Validate contracts early so exploration and testing stay tied to the same API de
 </div>
 
 
-<div class="getting-started footer container-full">
-  <div class="footer-content">
-      <div>
-        <span class="text-c-1">
-          <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
-        </span>
-        <p class="mt-10 text-c-3 text-sm text-balance">The API company.</p>
-        <p class="mt-5 text-c-3 text-sm text-balance">© API Documentation, Inc.</p>
-      </div>
-      <div class="flex text-sm">
-        <div class="w-1/3 flex flex-col gap-2">
-          <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">Docs</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
-        </div>
-        <div class="w-1/3 flex flex-col gap-2">
-          <b>Company</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="/brand">Brand</a>
-          <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
-        </div>
-        <div class="w-1/3 flex flex-col gap-2">
-          <b>Socials</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly Twitter)</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">GitHub</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
-        </div>
-      </div>
-  </div>
-  <div class="footer-animation">
-    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
-  </div>
+<div class="sticker-filter-effect">
+  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
 </div>
 
 <style>
   :root {
-    --scalar-text-decoration: none;
-    --scalar-text-decoration-hover: none;
+    --scalar-text-decoration: underline;
+    --scalar-text-decoration-hover: underline;
   }
   .t-editor__anchor {
     --font-visited: none;
@@ -528,7 +493,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
   .t-editor__page-nav,
   .notify-container,
   .subheading,
-  :not(.getting-started).footer,
   .t-editor .page-header,
   .content .page-nav,
   .t-doc__toc {
@@ -557,7 +521,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
     --scalar-toc-width: 0;
   }
   .hero.hero {
-    margin-top: 88px;
+    margin-top: 78px;
   }
   .small-test {
     max-width: 680px;
@@ -571,6 +535,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
     max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
+    margin-top: 0;
   }
   .container {
     width: var(--scalar-container-width);
@@ -733,43 +698,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
   .mb-11 {
     margin-bottom: 44px;
   }
-  /* footer */
-  .getting-started.footer {
-    position: relative;
-    overflow: hidden;
-    background: var(--scalar-background-2);
-    padding-inline: 20px;
-    padding-bottom: 200px;
-    margin-top: 100px;
-  }
-  .footer-animation {
-    margin-inline: -20px;
-  }
-  .footer-animation svg {
-    position: absolute;
-    bottom: 0;
-  }
-  .footer-content {
-    display: flex;
-    gap: 48px;
-    max-width: var(--scalar-container-width);
-    width: 100%;
-    margin: auto;
-    padding-top: 92px;
-  }
-  .footer-content > * {
-    flex: 1;
-  }
-  .footer-content span,
-  .footer-content p,
-  .footer-content a,
-  .footer-content button {
-    position: relative;
-    z-index: 1;
-  }
-  .w-1\/3 {
-    width: 33.33%
-  }
   .light-mode .dark-image {
     display: none;
   }
@@ -836,12 +764,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
     }
     .expander .expander-content {
       visibility: visible;
-    }
-    .footer-content {
-      flex-direction: column;
-    }
-    .footer-content > * {
-      flex: initial;
     }
   }
 </style>

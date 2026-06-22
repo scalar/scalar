@@ -5,11 +5,10 @@ import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import ClassicLayout from './components/ClassicLayout.vue'
 import ModernLayout from './components/ModernLayout.vue'
 
-const { tag, layout, moreThanOneTag, isLoading } = defineProps<{
+const { tag, layout, moreThanOneTag } = defineProps<{
   tag: TraversedTag
   layout: 'classic' | 'modern'
   moreThanOneTag: boolean
-  isLoading: boolean
   isCollapsed: boolean
   eventBus: WorkspaceEventBus | null
 }>()
@@ -29,7 +28,6 @@ const { tag, layout, moreThanOneTag, isLoading } = defineProps<{
     <ModernLayout
       :eventBus="eventBus"
       :isCollapsed="isCollapsed"
-      :isLoading="isLoading"
       :layout="layout"
       :moreThanOneTag="moreThanOneTag"
       :tag="tag">

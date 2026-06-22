@@ -533,6 +533,7 @@ defineExpose({
     :dropdownPosition="dropdownPosition"
     :environment="environment"
     :query="dropdownQuery"
+    @close="showDropdown = false"
     @redirect="emit('navigate', { page: 'document', path: 'environment' })"
     @select="handleDropdownSelect" />
 </template>

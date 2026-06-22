@@ -16,14 +16,14 @@
     "scalar",
     "references"
   ],
-  "version": "0.3.19",
+  "version": "0.3.26",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "next dev playground -p 5066",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "exports": {

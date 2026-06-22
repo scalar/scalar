@@ -173,6 +173,255 @@ describe('createParameterRows', () => {
     expect(updatedRows[1]?.value).toBe('20')
   })
 
+  it('surfaces a renamed form property as its own row', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      schema: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // The user renamed "status" to "state", so the value carries a key the schema does not describe.
+          value: { state: 'active' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default')
+
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [
+        { name: 'status', value: '', path: ['status'] },
+        { name: 'state', value: 'active', path: ['state'] },
+      ],
+    )
+  })
+
+  it('surfaces a renamed deepObject property with bracket notation', () => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: {
+          role: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          value: { user: { role: 'admin' } },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default')
+
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [
+        { name: 'filter[role]', value: '', path: ['role'] },
+        { name: 'filter[user][role]', value: 'admin', path: ['user', 'role'] },
+      ],
+    )
+  })
+
+  it('keeps a renamed form property in its original slot via renamedValuePaths', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      schema: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          category: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // "status" was renamed to "state", so the value carries the new key in the first slot.
+          value: { state: 'active', category: 'books' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['status'], to: ['state'] }],
+    })
+
+    // The renamed row stays where "status" was instead of being appended after "category".
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [
+        { name: 'state', value: 'active', path: ['state'] },
+        { name: 'category', value: 'books', path: ['category'] },
+      ],
+    )
+  })
+
+  it('keeps a renamed deepObject property in its original slot via renamedValuePaths', () => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: {
+          role: { type: 'string' },
+          team: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          value: { user: { role: 'admin' }, team: 'core' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['role'], to: ['user', 'role'] }],
+    })
+
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [
+        { name: 'filter[user][role]', value: 'admin', path: ['user', 'role'] },
+        { name: 'filter[team]', value: 'core', path: ['team'] },
+      ],
+    )
+  })
+
+  it('does not duplicate the old key while the debounced value move is pending', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      schema: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          category: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // The rename is recorded immediately, but the value move is debounced, so the value still
+          // carries the old "status" key for a moment.
+          value: { status: 'active', category: 'books' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['status'], to: ['state'] }],
+    })
+
+    // Only one row for the renamed property, showing the value from the old path as a fallback.
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [
+        { name: 'state', value: 'active', path: ['state'] },
+        { name: 'category', value: 'books', path: ['category'] },
+      ],
+    )
+  })
+
+  it('does not duplicate a row when a property is renamed onto another schema property', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      schema: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          category: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // "status" was renamed to the existing "category" property.
+          value: { category: 'active' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['status'], to: ['category'] }],
+    })
+
+    // Only the renamed row remains in the "status" slot; the schema row for "category" is suppressed
+    // so the same value path is not rendered twice.
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [{ name: 'category', value: 'active', path: ['category'] }],
+    )
+  })
+
+  it('does not duplicate a deepObject row when a property is renamed onto another schema property', () => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: {
+          role: { type: 'string' },
+          team: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // "role" was renamed onto the existing "team" property.
+          value: { team: 'admin' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['role'], to: ['team'] }],
+    })
+
+    expect(rows.map((row) => ({ name: row.name, value: row.value, path: row.sourceParameterValuePath }))).toStrictEqual(
+      [{ name: 'filter[team]', value: 'admin', path: ['team'] }],
+    )
+  })
+
+  it('hides a renamed row once its new path is also deleted', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      schema: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          category: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          // Deleting the renamed row removes its value, so only "category" remains.
+          value: { category: 'books' },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default', {
+      renamedValuePaths: [{ from: ['status'], to: ['state'] }],
+      hiddenValuePaths: [['state']],
+    })
+
+    expect(rows.map((row) => row.name)).toStrictEqual(['category'])
+  })
+
   it('omits expanded rows hidden by path', () => {
     const parameter: ParameterObject = {
       name: 'pageable',

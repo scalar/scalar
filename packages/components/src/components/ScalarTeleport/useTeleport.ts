@@ -1,5 +1,4 @@
-import { nanoid } from 'nanoid'
-import { type InjectionKey, inject, provide } from 'vue'
+import { type InjectionKey, inject, provide, useId } from 'vue'
 
 /**
  * The teleport target
@@ -21,7 +20,9 @@ export const useTeleport = () => inject(TELEPORT_SYMBOL, 'body')
  * @see https://vuejs.org/guide/components/provide-inject.html#provide-inject
  */
 export const useProvideTeleport = (id?: string) => {
-  const targetId = id ?? `scalar-teleport-${nanoid()}`
+  // `useId` produces ids that are stable across SSR and client hydration,
+  // avoiding a mismatch on the teleport target id.
+  const targetId = id ?? `scalar-teleport-${useId()}`
   provide(TELEPORT_SYMBOL, `#${targetId}`)
   return targetId
 }

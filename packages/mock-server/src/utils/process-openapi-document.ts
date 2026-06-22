@@ -1,18 +1,20 @@
 import { bundle } from '@scalar/json-magic/bundle'
-import { parseJson } from '@scalar/json-magic/bundle/plugins/node'
-import { parseYaml } from '@scalar/json-magic/bundle/plugins/node'
-import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { fetchUrls } from '@scalar/json-magic/bundle/plugins/node'
-import { dereference } from '@scalar/openapi-parser'
+import { fetchUrls, parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { upgrade } from '@scalar/openapi-upgrader'
 
 /**
  * Processes an OpenAPI document by bundling external references, upgrading to OpenAPI 3.1,
- * and dereferencing the document.
+ * and wrapping it so internal references stay intact but resolve lazily.
+ *
+ * Unlike a full dereference, the returned document keeps `$ref` nodes in place. Consumers
+ * resolve them on demand with `getResolvedRef` from `@scalar/workspace-store`, which reads the
+ * `$ref-value` exposed by the magic proxy. This avoids eagerly flattening (and duplicating)
+ * the whole document up front.
  *
  * @param document - The OpenAPI document to process. Can be a string (URL/path) or an object.
- * @returns A promise that resolves to the dereferenced OpenAPI 3.1 document.
+ * @returns A promise that resolves to the OpenAPI 3.1 document with lazily resolvable references.
  * @throws Error if the document cannot be processed or is invalid.
  */
 export async function processOpenApiDocument(
@@ -63,26 +65,7 @@ export async function processOpenApiDocument(
     throw new Error('Upgraded document is invalid: upgrade returned null or undefined')
   }
 
-  // Dereference the document
-  const dereferenceResult = dereference(upgraded)
-
-  // Check for dereference errors
-  if (dereferenceResult.errors && dereferenceResult.errors.length > 0) {
-    const errorMessages = dereferenceResult.errors.map((err) => err.message).join(', ')
-    throw new Error(`Failed to dereference OpenAPI document: ${errorMessages}`)
-  }
-
-  // Extract the schema from the dereference result
-  const schema = dereferenceResult.schema
-
-  if (!schema) {
-    throw new Error('Dereference result does not contain a schema')
-  }
-
-  // Ensure the schema is a valid OpenAPI 3.1 document
-  if (typeof schema !== 'object') {
-    throw new Error('Dereferenced schema is invalid: expected an object')
-  }
-
-  return schema as OpenAPIV3_1.Document
+  // Wrap the document in a magic proxy so internal references resolve lazily via `$ref-value`.
+  // External references were already pulled inline by `bundle` above, so only local `$ref`s remain.
+  return createMagicProxy(upgraded) as OpenAPIV3_1.Document
 }

@@ -33,6 +33,12 @@ export const sources = [
     url: 'https://registry.scalar.com/@scalar/schemas/asyncapi?format=json',
   },
   {
+    title: 'Scalar Galaxy Events (AsyncAPI, Classic Layout)',
+    slug: 'scalar-galaxy-events-classic',
+    url: 'https://registry.scalar.com/@scalar/schemas/asyncapi?format=json',
+    layout: 'classic',
+  },
+  {
     title: 'Tag Groups',
     slug: 'tag-groups',
     content: {
@@ -138,6 +144,11 @@ export const sources = [
     title: 'Relative URL Example',
     slug: 'relative-url',
     url: 'examples/openapi.json',
+  },
+  {
+    title: 'SDK Examples',
+    slug: 'sdk-examples',
+    url: 'examples/sdk-examples.yaml',
   },
   {
     title: 'Long Strings Example',

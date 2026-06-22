@@ -1,5 +1,6 @@
 export { getExampleFromBody } from './body/get-request-body-example'
 export { getSelectedBodyContentType } from './body/get-selected-body-content-type'
+export { type SerializedFormProperty, serializeFormPropertyWithEncoding } from './body/serialize-form-property'
 export {
   BUILD_REQUEST_FAILED,
   type BuildRequestData,

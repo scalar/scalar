@@ -19,7 +19,7 @@
     "export",
     "scalar"
   ],
-  "version": "0.7.8",
+  "version": "0.7.10",
   "engines": {
     "node": ">=22"
   },
@@ -27,7 +27,7 @@
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "evaluate": "tsx ./scripts/evaluate/run.ts",
     "test": "vitest --run",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",

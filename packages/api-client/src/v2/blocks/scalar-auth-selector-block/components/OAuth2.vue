@@ -1,6 +1,12 @@
 <script lang="ts">
 /**  Any config options required for the OAuth2 flow */
-export type OAuth2Options = Pick<ApiClientConfiguration, 'oauth2RedirectUri'>
+export type OAuth2Options = Pick<
+  ApiClientConfiguration,
+  'oauth2RedirectUri'
+> & {
+  /** Optional fetch override (IPC-backed on desktop) used for token exchange, refresh, and OIDC discovery */
+  customFetch?: typeof fetch
+}
 </script>
 
 <script setup lang="ts">
@@ -252,6 +258,7 @@ const handleAuthorize = async (): Promise<void> => {
     server,
     proxyUrl,
     getEnvironmentVariables(environment),
+    options.customFetch,
   )
 
   await loader.clear()
@@ -300,6 +307,7 @@ const handleRefresh = async (): Promise<void> => {
     proxyUrl,
     server,
     getEnvironmentVariables(environment),
+    options.customFetch,
   )
 
   await loader.clear()

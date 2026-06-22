@@ -84,6 +84,28 @@ describe('paths', () => {
       expect(result).toEqual({})
     })
 
+    it('parses path items that are reference objects', () => {
+      const validInput = {
+        '/users': {
+          $ref: '#/components/pathItems/UsersPath',
+          '$ref-value': {
+            get: {
+              summary: 'Get users',
+              responses: {
+                '200': {
+                  description: 'OK',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = coerceValue(PathsObjectSchema, validInput)
+
+      expect(result).toEqual(validInput)
+    })
+
     it('fails when given non-object input', () => {
       const invalidInput = 'not an object'
 

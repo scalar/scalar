@@ -1,3 +1,4 @@
+import { DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
 import {
   any,
   array,
@@ -42,13 +43,13 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment: 'Allows the user to inject an editor for the spec',
     }),
-    isLoading: boolean({
-      default: false,
-      typeComment: 'Controls whether the references show a loading state in the intro',
-    }),
     hideModels: boolean({
       default: false,
       typeComment: 'Whether to show models in the sidebar, search, and content.',
+    }),
+    modelsSectionLabel: optional(union([literal('Models'), literal('Schemas'), string()]), {
+      typeComment:
+        'Label for the components.schemas section in the sidebar, content, and search. Use `Schemas` for OpenAPI terminology.',
     }),
     documentDownloadType: union(
       [literal('both'), literal('yaml'), literal('json'), literal('direct'), literal('none')],
@@ -107,9 +108,6 @@ export const apiReferenceConfigurationSchema = intersection([
     customCss: optional(string(), {
       typeComment: 'Custom CSS to be added to the page',
     }),
-    onSpecUpdate: optional(fn<(input: string) => void>(), {
-      typeComment: 'onSpecUpdate is fired on spec/swagger content change',
-    }),
     onServerChange: optional(fn<(input: string) => void>(), {
       typeComment: 'onServerChange is fired on selected server change',
     }),
@@ -130,6 +128,19 @@ export const apiReferenceConfigurationSchema = intersection([
       {
         typeComment:
           'Fired before the outbound request is built; callback receives a mutable request builder. Experimental API.',
+      },
+    ),
+    onRequestBuilt: optional(
+      fn<
+        (input: {
+          request: Request
+          requestBuilder: unknown
+          envVariables: Record<string, string>
+        }) => Promise<void> | void
+      >(),
+      {
+        typeComment:
+          'Fired right before the outbound request is sent; callback receives the exact fetch Request that goes over the wire. Experimental API.',
       },
     ),
     onShowMore: optional(fn<(tagId: string) => Promise<void> | void>(), {
@@ -209,6 +220,11 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment:
         'Whether to expand all responses by default. Warning: this can cause performance issues on big documents',
+    }),
+    expandAllSchemaProperties: boolean({
+      default: false,
+      typeComment:
+        'Whether to expand all nested schema properties by default. The Show/Hide Child Attributes toggle remains available so nested sections can still be collapsed manually. Warning: this can cause performance issues on big documents',
     }),
     tagsSorter: optional(union([literal('alpha'), fn<(a: any, b: any) => number>()]), {
       typeComment: 'Function to sort tags',
@@ -296,6 +312,8 @@ export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => 
     // @ts-expect-error - We're deleting the deprecated attribute
     delete input.showToolbar
   }
+
+  input.modelsSectionLabel ??= DEFAULT_MODELS_SECTION_LABEL
 
   return input
 }

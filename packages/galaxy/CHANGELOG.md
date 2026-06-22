@@ -1,5 +1,24 @@
 # @scalar/galaxy
 
+## 0.6.7
+
+### Patch Changes
+
+- [#9455](https://github.com/scalar/scalar/pull/9455): Add a description to the `Create a celestial body` operation
+
+## 0.6.6
+
+### Patch Changes
+
+- [#9434](https://github.com/scalar/scalar/pull/9434): Flesh out the AsyncAPI example document so it covers more of the spec: a document `id`, operation trait tags, channel summaries, richer channel parameters (enum/default/examples/location), summary/messages/reply on every operation, a request/reply example (`getPlanet`) including a runtime-expression reply address, a reusable message trait with headers and a correlation ID, server variables, and a wired-up OAuth 2.0 scheme
+- [#9379](https://github.com/scalar/scalar/pull/9379): Add a `lint` script and a local Spectral ruleset (`galaxy.ruleset.yaml`) so the example document can be linted with `@scalar/cli document lint`
+
+## 0.6.5
+
+### Patch Changes
+
+- [#9349](https://github.com/scalar/scalar/pull/9349): Tag channels, operations, and messages in the AsyncAPI 3.0 sample so they group consistently with the OpenAPI document.
+
 ## 0.6.4
 
 ### Patch Changes

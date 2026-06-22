@@ -1,5 +1,18 @@
 # @scalar/code-highlight
 
+## 0.3.6
+
+### Patch Changes
+
+- [#9508](https://github.com/scalar/scalar/pull/9508): Fix Python code samples appearing mostly unstyled by highlighting function and method call sites
+- [#9506](https://github.com/scalar/scalar/pull/9506): Add Scalar scrollbar styling to highlighted Markdown code blocks.
+
+## 0.3.5
+
+### Patch Changes
+
+- [#9451](https://github.com/scalar/scalar/pull/9451): Bundle runtime dependencies into the build so CommonJS-only packages (like `extend` and `debug`) no longer leak to consumers and break Vite dev under pnpm
+
 ## 0.3.4
 
 ### Patch Changes

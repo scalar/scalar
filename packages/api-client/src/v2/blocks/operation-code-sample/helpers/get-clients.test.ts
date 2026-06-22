@@ -54,14 +54,14 @@ describe('getClients', () => {
       key: 'custom',
       options: [
         {
-          id: 'custom/0',
+          id: 'custom/python',
           lang: 'python',
           clientKey: 'custom',
           title: 'Custom Python Example',
           label: 'Custom Python Example',
         },
         {
-          id: 'custom/1',
+          id: 'custom/js',
           lang: 'js',
           clientKey: 'custom',
           title: 'Custom JS Example',
@@ -104,31 +104,31 @@ describe('getClients', () => {
     expect(firstGroup?.label).toBe('Code Examples')
     expect(firstGroup?.options).toHaveLength(3)
 
-    // When both lang and label are missing, should use the generated ID
+    // When both lang and label are missing, the id falls back to the plaintext language
     const firstOption = result[0]?.options[0]
     expect(firstOption).toBeDefined()
     expect(firstOption).toMatchObject({
-      id: 'custom/0',
+      id: 'custom/plaintext',
       lang: 'plaintext',
-      title: 'custom/0',
-      label: 'custom/0',
+      title: 'custom/plaintext',
+      label: 'custom/plaintext',
     })
 
-    // When label is missing, should use lang
+    // When label is missing, should use the formatted language name
     const secondOption = result[0]?.options[1]
     expect(secondOption).toBeDefined()
     expect(secondOption).toMatchObject({
-      id: 'custom/1',
+      id: 'custom/ruby',
       lang: 'ruby',
-      title: 'ruby',
-      label: 'ruby',
+      title: 'Ruby',
+      label: 'Ruby',
     })
 
-    // When lang is missing, should use label and default to plaintext
+    // When lang is missing, should use the label; a repeated language is suffixed to stay unique
     const thirdOption = result[0]?.options[2]
     expect(thirdOption).toBeDefined()
     expect(thirdOption).toMatchObject({
-      id: 'custom/2',
+      id: 'custom/plaintext/1',
       lang: 'plaintext',
       title: 'Special Example',
       label: 'Special Example',
@@ -250,7 +250,7 @@ describe('getClients', () => {
     const firstPythonOption = result[0]?.options[0]
     expect(firstPythonOption).toBeDefined()
     expect(firstPythonOption).toMatchObject({
-      id: 'custom/0',
+      id: 'custom/python',
       lang: 'python',
       label: 'Python Example 1',
     })
@@ -258,7 +258,7 @@ describe('getClients', () => {
     const secondPythonOption = result[0]?.options[1]
     expect(secondPythonOption).toBeDefined()
     expect(secondPythonOption).toMatchObject({
-      id: 'custom/1',
+      id: 'custom/python/1',
       lang: 'python',
       label: 'Python Example 2',
     })
@@ -269,7 +269,7 @@ describe('getClients', () => {
     const cppOption = result[0]?.options[2]
     expect(cppOption).toBeDefined()
     expect(cppOption).toMatchObject({
-      id: 'custom/2',
+      id: 'custom/c++',
       lang: 'c++',
       label: 'C++ Example',
     })
@@ -277,12 +277,44 @@ describe('getClients', () => {
     const objcOption = result[0]?.options[3]
     expect(objcOption).toBeDefined()
     expect(objcOption).toMatchObject({
-      id: 'custom/3',
+      id: 'custom/objective-c',
       lang: 'objective-c',
       label: 'Objective-C Example',
     })
 
     // Original client options should still be present
     expect(result[1]).toEqual(clientOptions[0])
+  })
+
+  /**
+   * Test 5: Verifies the group label is configurable so SDK-provider samples can be
+   * surfaced under "SDK" while generic samples stay under the default "Code Examples".
+   */
+  it('uses the provided label for the custom samples group', () => {
+    const customCodeSamples: XCodeSample[] = [
+      {
+        lang: 'python',
+        label: 'List accounts',
+        source: 'client.accounts.list()',
+      },
+    ]
+
+    const result = getClients(customCodeSamples, [], 'SDK')
+
+    expect(result[0]?.label).toBe('SDK')
+  })
+
+  it('defaults the group label to "Code Examples"', () => {
+    const customCodeSamples: XCodeSample[] = [
+      {
+        lang: 'python',
+        label: 'List accounts',
+        source: 'client.accounts.list()',
+      },
+    ]
+
+    const result = getClients(customCodeSamples, [])
+
+    expect(result[0]?.label).toBe('Code Examples')
   })
 })

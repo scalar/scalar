@@ -5,20 +5,28 @@ import type {
   ExternalDocumentationObject,
   InfoObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed } from 'vue'
 
 import { LinkList } from '@/components/LinkList'
 import { ExternalDocs } from '@/features/external-docs'
 import { Contact, License, TermsOfService } from '@/features/info-object'
 
-defineProps<{
+const { info, externalDocs } = defineProps<{
   info: InfoObject | AsyncApiInfoObject
   externalDocs?: ExternalDocumentationObject
 }>()
+
+/** Whether there is at least one link to show, so we do not render an empty list */
+const hasLinks = computed(() =>
+  Boolean(externalDocs || info.contact || info.license || info.termsOfService),
+)
 </script>
 
 <template>
-  <LinkList>
-    <ExternalDocs :value="externalDocs" />
+  <LinkList v-if="hasLinks">
+    <ExternalDocs
+      v-if="externalDocs"
+      :value="externalDocs" />
     <Contact
       v-if="info.contact"
       :value="info.contact" />

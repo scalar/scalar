@@ -89,14 +89,21 @@ describe('buildRequestSecurity', () => {
       expect(result[0].in).toBe('header')
     })
 
-    it('handles basic auth with empty credentials', () => {
+    it('omits the Authorization header when both basic credentials are empty', () => {
       basic['x-scalar-secret-username'] = ''
+      basic['x-scalar-secret-password'] = ''
+      const result = buildRequestSecurity([basic])
+      expect(result).toEqual([])
+    })
+
+    it('keeps basic auth when only the username is set', () => {
+      basic['x-scalar-secret-username'] = 'scalar'
       basic['x-scalar-secret-password'] = ''
       const result = buildRequestSecurity([basic])
       expect(result).toHaveLength(1)
       assert(result[0])
       expect(result[0].name).toBe('Authorization')
-      expect(result[0].value).toBe('username:password')
+      expect(result[0].value).toBe('scalar:')
       expect(result[0].format).toBe('basic')
       expect(result[0].in).toBe('header')
     })

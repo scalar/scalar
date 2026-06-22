@@ -36,9 +36,11 @@ export const shellCurl: Plugin = {
     // Build curl command parts
     const parts: string[] = ['curl']
 
-    // URL (quote if has query parameters or special characters)
+    // Build the URL, joining extra query parameters with `&` when the URL already carries a query string
+    const baseUrl = normalizedRequest.url ?? ''
+    const separator = baseUrl.includes('?') ? '&' : '?'
     const queryString = normalizedRequest.queryString?.length
-      ? '?' +
+      ? separator +
         normalizedRequest.queryString
           .map((param) => {
             // Ensure both name and value are fully URI encoded
@@ -46,9 +48,10 @@ export const shellCurl: Plugin = {
           })
           .join('&')
       : ''
-    const url = `${normalizedRequest.url}${queryString}`
-    const hasSpecialChars = /[\s<>[\]{}|\\^%$]/.test(url)
-    const urlPart = queryString || hasSpecialChars ? `'${url}'` : url
+    const url = `${baseUrl}${queryString}`
+    // Quote the URL whenever it contains anything the shell could interpret (spaces, query separators, globs, …)
+    const isShellSafe = /^[A-Za-z0-9._~:/%@+,=-]*$/.test(url)
+    const urlPart = isShellSafe ? url : `'${escapeSingleQuotes(url)}'`
     parts[0] = `curl ${urlPart}`
 
     // Method

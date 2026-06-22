@@ -8,7 +8,7 @@ import type {
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed } from 'vue'
 
-import { CodeInput } from '@/v2/components/code-input'
+import { CodeInputLite } from '@/v2/components/code-input'
 import {
   DataTable,
   DataTableCell,
@@ -114,12 +114,9 @@ const handleVariableDelete = (index: number): void =>
       class="group/row">
       <!-- Name -->
       <DataTableCell>
-        <CodeInput
+        <CodeInputLite
           aria-label="Environment Variable Name"
-          disableCloseBrackets
-          disableTabIndent
           :environment="undefined"
-          lineWrapping
           :modelValue="row.name"
           placeholder="Name"
           @update:modelValue="
@@ -129,11 +126,9 @@ const handleVariableDelete = (index: number): void =>
 
       <!-- Value -->
       <DataTableCell>
-        <CodeInput
+        <CodeInputLite
           aria-label="Environment Variable Value"
-          disableTabIndent
           :environment="undefined"
-          lineWrapping
           :modelValue="row.value"
           placeholder="Value"
           @update:modelValue="
@@ -156,30 +151,16 @@ const handleVariableDelete = (index: number): void =>
   </DataTable>
 </template>
 <style scoped>
-:deep(.cm-editor) {
-  padding: 0;
-}
-:deep(.cm-content) {
-  align-items: center;
+:deep(.code-input-lite__editor) {
   background-color: transparent;
-  display: flex;
   font-family: var(--scalar-font);
   font-size: var(--scalar-small);
   padding: 5px 8px;
-  width: 100%;
 }
-:deep(.cm-content):has(.cm-pill) {
-  padding: 5px 8px;
+:deep(.scalar-pill:not(:last-of-type)) {
+  margin-right: 0.15em;
 }
-:deep(.cm-content .cm-pill:not(:last-of-type)) {
-  margin-right: 0.5px;
-}
-:deep(.cm-content .cm-pill:not(:first-of-type)) {
+:deep(.scalar-pill:not(:first-of-type)) {
   margin-left: 0.5px;
-}
-:deep(.cm-line) {
-  overflow: hidden;
-  padding: 0;
-  text-overflow: ellipsis;
 }
 </style>

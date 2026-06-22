@@ -1,0 +1,183 @@
+import Preview from './Preview.mdx'
+
+# Tabs
+
+Tabs organize content into multiple panels behind a row of clickable headers. Useful for showing the same example in several languages, splitting up reference material, or hiding optional details until they're requested.
+
+## Properties
+
+### Tabs
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `default` | `string` | — | Title of the tab that should be active on load. Matched case-insensitively against the `title` of each child. When omitted, the first tab is active. |
+
+### Tab
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` | `string` | _required_ | Label shown in the tab header. |
+| `id` | `string` | _auto-generated_ | Unique identifier. Auto-generated from the title when not provided — usually fine to leave out. |
+
+## Examples
+
+### Basic Tabs
+
+Each tab can hold rich markdown — headings, lists, links, and emphasis.
+
+<Preview>
+  <Tabs>
+    <Tab title="Documentation">
+      Generate beautiful, interactive API reference docs straight from your OpenAPI document.
+
+      - Try requests right in the browser
+      - Auto-generated code samples
+      - Full-text search across every endpoint
+    </Tab>
+    <Tab title="API Client">
+      A standalone client for testing and debugging your APIs.
+
+      - Save and organize requests
+      - Environment variables and secrets
+      - Works offline as a desktop app
+    </Tab>
+    <Tab title="Registry">
+      Host and version your OpenAPI documents in one place.
+
+      - Share docs with your whole team
+      - Automatic versioning on every push
+      - Connect a custom domain
+    </Tab>
+  </Tabs>
+</Preview>
+
+<CodeGroup>
+````md Markdown
+<scalar-tabs>
+  <scalar-tab title="Documentation">
+Generate beautiful, interactive API reference docs straight from your OpenAPI document.
+
+- Try requests right in the browser
+- Auto-generated code samples
+- Full-text search across every endpoint
+  </scalar-tab>
+  <scalar-tab title="API Client">
+A standalone client for testing and debugging your APIs.
+
+- Save and organize requests
+- Environment variables and secrets
+- Works offline as a desktop app
+  </scalar-tab>
+  <scalar-tab title="Registry">
+Host and version your OpenAPI documents in one place.
+
+- Share docs with your whole team
+- Automatic versioning on every push
+- Connect a custom domain
+  </scalar-tab>
+</scalar-tabs>
+````
+````mdx MDX
+<Tabs>
+  <Tab title="Documentation">
+    Generate beautiful, interactive API reference docs straight from your OpenAPI document.
+
+    - Try requests right in the browser
+    - Auto-generated code samples
+    - Full-text search across every endpoint
+  </Tab>
+  <Tab title="API Client">
+    A standalone client for testing and debugging your APIs.
+
+    - Save and organize requests
+    - Environment variables and secrets
+    - Works offline as a desktop app
+  </Tab>
+  <Tab title="Registry">
+    Host and version your OpenAPI documents in one place.
+
+    - Share docs with your whole team
+    - Automatic versioning on every push
+    - Connect a custom domain
+  </Tab>
+</Tabs>
+````
+</CodeGroup>
+
+### Default Tab
+
+The `default` prop matches the `title` of a child tab (case-insensitively).
+
+<Preview>
+  <Tabs default="Production">
+    <Tab title="Local">Pointing at your local server.</Tab>
+    <Tab title="Production">Production is shown first.</Tab>
+  </Tabs>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-tabs default="Production">
+  <scalar-tab title="Local">Pointing at your local server.</scalar-tab>
+  <scalar-tab title="Production">Production is shown first.</scalar-tab>
+</scalar-tabs>
+```
+```mdx MDX
+<Tabs default="Production">
+  <Tab title="Local">Pointing at your local server.</Tab>
+  <Tab title="Production">Production is shown first.</Tab>
+</Tabs>
+```
+</CodeGroup>
+
+### Rich Components
+
+Tabs can hold any other component — cards, callouts, images, and more.
+
+<Preview>
+  <Tabs>
+    <Tab title="Cards">
+      <Row cols={2}>
+        <Card title="Fast" icon="phosphor/regular/lightning">
+          Renders instantly, even for large API descriptions.
+        </Card>
+        <Card title="Themeable" icon="phosphor/regular/palette">
+          Match your brand with CSS variables and design tokens.
+        </Card>
+      </Row>
+    </Tab>
+    <Tab title="Callout">
+      <Callout type="info">
+        Anything you can write on a page works inside a tab.
+      </Callout>
+    </Tab>
+    <Tab title="Image">
+      <Image src="/marc-cam-scalar.jpg" alt="The Scalar team at work" />
+    </Tab>
+  </Tabs>
+</Preview>
+
+<CodeGroup>
+```mdx MDX
+<Tabs>
+  <Tab title="Cards">
+    <Row cols={2}>
+      <Card title="Fast" icon="phosphor/regular/lightning">
+        Renders instantly, even for large API descriptions.
+      </Card>
+      <Card title="Themeable" icon="phosphor/regular/palette">
+        Match your brand with CSS variables and design tokens.
+      </Card>
+    </Row>
+  </Tab>
+  <Tab title="Callout">
+    <Callout type="info">
+      Anything you can write on a page works inside a tab.
+    </Callout>
+  </Tab>
+  <Tab title="Image">
+    <Image src="/marc-cam-scalar.jpg" alt="The Scalar team at work" />
+  </Tab>
+</Tabs>
+```
+</CodeGroup>

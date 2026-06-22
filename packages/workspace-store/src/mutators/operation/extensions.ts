@@ -1,4 +1,5 @@
 import type { OperationEvents } from '@/events'
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
@@ -23,7 +24,7 @@ export const updateOperationExtension = (
   if (!isOpenApiDocument(document)) {
     return
   }
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method))
   if (!operation) {
     return
   }

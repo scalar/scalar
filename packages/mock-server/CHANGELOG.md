@@ -1,5 +1,45 @@
 # @scalar/mock-server
 
+## 0.12.0
+
+### Minor Changes
+
+- [#9572](https://github.com/scalar/scalar/pull/9572): Add `createAsyncApiMockServer` to mock event-driven APIs from an AsyncAPI 3.1 document. Channels are served over WebSocket and SSE, with messages generated from each message's payload schema (the same generator the REST mocker uses). Additional protocols (e.g. SignalR) can be added through the `transports` extension point. The Docker mock server now auto-detects AsyncAPI documents.
+- [#9486](https://github.com/scalar/scalar/pull/9486): Extend request validation to cover all parameter locations and serialization styles. Header (`in: header`) and cookie (`in: cookie`) parameters are now validated against their schema, with case-insensitive header matching and the `Accept`/`Content-Type`/`Authorization` headers ignored per the OpenAPI specification. Array and object parameters are deserialized by their `style`/`explode` before validation — `form`, `simple`, `spaceDelimited`, `pipeDelimited`, `deepObject`, `label`, and `matrix` — so values like `?ids=1&ids=2`, `?filter[min]=1`, or `/;point=x,1,y,2` validate against their schema instead of being rejected as a raw string. Violations are reported with a `header`, `cookie`, `path`, or `query` location.
+
+## 0.11.1
+
+### Patch Changes
+
+- [#9518](https://github.com/scalar/scalar/pull/9518): fix: compact generated JSON mock responses so finite JSONL and NDJSON bodies stay valid as single-line events.
+- [#9517](https://github.com/scalar/scalar/pull/9517): fix: improve default response selection when mocking operations with multiple response codes. The mock server now prefers the lowest 2xx success, then the lowest non-informational code, then the `default` catch-all, only falling back to a 1xx response when nothing else is defined. Status code range patterns like `2XX` are supported and treated as their lowest member, with explicit codes taking precedence over the range that covers them.
+- [#9519](https://github.com/scalar/scalar/pull/9519): fix: wrap singular examples in arrays when the response schema is an array.
+
+## 0.11.0
+
+### Minor Changes
+
+- [#9466](https://github.com/scalar/scalar/pull/9466): Validate incoming requests against the matched operation by default. Path/query parameters and the `application/json` request body are checked against their schema, and contract violations return a `422` with an `application/problem+json` body listing every violation. Set `validateRequest: false` to opt out and always return a mock response.
+
+### Patch Changes
+
+- [#9467](https://github.com/scalar/scalar/pull/9467): Fix security checking: evaluate `security` as OR-of-ANDs, inherit document-level security when an operation defines none, and validate credential shape (well-formed Basic and Bearer)
+- [#9464](https://github.com/scalar/scalar/pull/9464): Add `Prefer` header support to control mock responses: use `code=<status>` to request a specific response status and `example=<name>` to pick a named example from the `examples` map. Also adds support for the OpenAPI `examples` map (previously only the singular `example` was used).
+
+## 0.10.19
+
+## 0.10.18
+
+## 0.10.17
+
+### Patch Changes
+
+- [#9437](https://github.com/scalar/scalar/pull/9437): chore(mock-server): resolve OpenAPI references with `@scalar/workspace-store` instead of `@scalar/openapi-parser`
+
+  The mock server no longer eagerly dereferences the whole document. It now keeps `$ref` nodes intact via the `@scalar/json-magic` magic proxy and resolves them lazily with `getResolvedRef`/`getResolvedRefDeep` from `@scalar/workspace-store`. The `/openapi.{json,yaml}` endpoints use `@scalar/json-magic` and `yaml` for normalization and serialization. This drops the `@scalar/openapi-parser` dependency. Behavior is unchanged.
+
+## 0.10.16
+
 ## 0.10.15
 
 ## 0.10.14

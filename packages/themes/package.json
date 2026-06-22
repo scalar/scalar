@@ -15,13 +15,13 @@
     "css-variables",
     "scalar"
   ],
-  "version": "0.15.5",
+  "version": "0.16.1",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -39,6 +39,7 @@
   },
   "files": [
     "dist",
+    "skills",
     "CHANGELOG.md"
   ],
   "dependencies": {

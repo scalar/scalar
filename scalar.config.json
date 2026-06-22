@@ -6,7 +6,6 @@
     "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
   },
   "assetsDir": "documentation/assets",
-  "insertPageTitles": false,
   "siteConfig": {
     "subdomain": "scalar",
     "customDomain": "scalar.com",
@@ -106,6 +105,9 @@
         }
       ]
     },
+    "footer": {
+      "filepath": "documentation/footer.html"
+    },
     "logo": {
       "darkMode": "https://cdn.scalar.com/marketing/landing/logo-dark.svg",
       "lightMode": "https://cdn.scalar.com/marketing/landing/logo-light.svg"
@@ -130,7 +132,7 @@
         },
         {
           "from": "/scalar/access",
-          "to": "/products/docs/access"
+          "to": "/products/docs/configuration/private-docs"
         },
         {
           "from": "/scalar-api",
@@ -158,7 +160,7 @@
         },
         {
           "from": "/scalar/access",
-          "to": "/products/docs/access"
+          "to": "/products/docs/configuration/private-docs"
         },
         {
           "from": "/scalar/scalar-docs/getting-started",
@@ -166,11 +168,11 @@
         },
         {
           "from": "/scalar/scalar-docs/github-sync",
-          "to": "/products/docs/github-sync"
+          "to": "/products/docs/configuration/scalar.config.json"
         },
         {
           "from": "/scalar/scalar-docs/github-actions",
-          "to": "/products/docs/github-actions"
+          "to": "/products/docs/deployment/github-actions"
         },
         {
           "from": "/scalar/scalar-docs/redirects",
@@ -542,15 +544,15 @@
         },
         {
           "from": "/products/mock-server/changelog",
-          "to": "/changelog/mock-server"
+          "to": "/resources/changelog/mock-server"
         },
         {
           "from": "/tools/mock-server/changelog",
-          "to": "/changelog/mock-server"
+          "to": "/resources/changelog/mock-server"
         },
         {
           "from": "/products/api-references/changelog",
-          "to": "/changelog/api-reference"
+          "to": "/resources/changelog/api-reference"
         },
         {
           "from": "/download",
@@ -566,23 +568,23 @@
         },
         {
           "from": "/migration/swagger-ui",
-          "to": "/guides/migration/swagger-ui"
+          "to": "/resources/migration/swagger-ui"
         },
         {
           "from": "/migration/stoplight",
-          "to": "/guides/migration/stoplight"
+          "to": "/resources/migration/stoplight"
         },
         {
           "from": "/migration/api-hub",
-          "to": "/guides/migration/api-hub"
+          "to": "/resources/migration/api-hub"
         },
         {
           "from": "/migration/bump",
-          "to": "/guides/migration/bump"
+          "to": "/resources/migration/bump"
         },
         {
           "from": "/migration/zuplo",
-          "to": "/guides/migration/zuplo"
+          "to": "/resources/migration/zuplo"
         },
         {
           "from": "/products/docs/github-actions",
@@ -610,7 +612,95 @@
         },
         {
           "from": "/blog/oss-pledge-2024",
-          "to": "/blog/posts/2024-09-21-oss-pledge"
+          "to": "/blog/posts/2024-09-01-oss-pledge"
+        },
+        {
+          "from": "/blog",
+          "to": "/resources/blog"
+        },
+        {
+          "from": "/changelog",
+          "to": "/resources/changelog"
+        },
+        {
+          "from": "/changelog/agent",
+          "to": "/resources/changelog/agent"
+        },
+        {
+          "from": "/changelog/api-client",
+          "to": "/resources/changelog/api-client"
+        },
+        {
+          "from": "/changelog/api-reference",
+          "to": "/resources/changelog/api-reference"
+        },
+        {
+          "from": "/changelog/mock-server",
+          "to": "/resources/changelog/mock-server"
+        },
+        {
+          "from": "/guides",
+          "to": "/resources/migration/swagger-ui"
+        },
+        {
+          "from": "/guides/migration",
+          "to": "/resources/migration/swagger-ui"
+        },
+        {
+          "from": "/guides/migration/api-hub",
+          "to": "/resources/migration/api-hub"
+        },
+        {
+          "from": "/guides/migration/bump",
+          "to": "/resources/migration/bump"
+        },
+        {
+          "from": "/guides/migration/stoplight",
+          "to": "/resources/migration/stoplight"
+        },
+        {
+          "from": "/guides/migration/swagger-ui",
+          "to": "/resources/migration/swagger-ui"
+        },
+        {
+          "from": "/guides/migration/zuplo",
+          "to": "/resources/migration/zuplo"
+        },
+        {
+          "from": "/guides/sso",
+          "to": "/resources/sso/getting-started"
+        },
+        {
+          "from": "/guides/sso/getting-started",
+          "to": "/resources/sso/getting-started"
+        },
+        {
+          "from": "/guides/sso/providers",
+          "to": "/resources/sso/providers/auth0"
+        },
+        {
+          "from": "/guides/sso/providers/auth0",
+          "to": "/resources/sso/providers/auth0"
+        },
+        {
+          "from": "/guides/sso/providers/google",
+          "to": "/resources/sso/providers/google"
+        },
+        {
+          "from": "/guides/sso/providers/microsoft-entra-id",
+          "to": "/resources/sso/providers/microsoft-entra-id"
+        },
+        {
+          "from": "/guides/sso/providers/okta",
+          "to": "/resources/sso/providers/okta"
+        },
+        {
+          "from": "/guides/sso/providers/onelogin",
+          "to": "/resources/sso/providers/onelogin"
+        },
+        {
+          "from": "/guides/sso/providers/ping-identity",
+          "to": "/resources/sso/providers/ping-identity"
         }
       ]
     }
@@ -651,8 +741,8 @@
             "type": "page",
             "filepath": "documentation/guides/introduction.md",
             "title": "Introduction",
-            "description": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve.",
             "icon": "phosphor/regular/house",
+            "description": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve.",
             "layout": {
               "toc": false
             },
@@ -675,150 +765,10 @@
               ]
             }
           },
-          "/enterprise": {
-            "title": "Enterprise",
-            "type": "page",
-            "filepath": "documentation/guides/enterprise/enterprise.md",
-            "showInSidebar": false,
-            "head": {
-              "scripts": [
-                {
-                  "path": "documentation/assets/enterprise-contact-form.js"
-                }
-              ]
-            },
-            "layout": {
-              "toc": false
-            }
-          },
-          "/customers/partech": {
-            "type": "page",
-            "title": "How PAR Technology Corporation Enhanced Its Developer Experience With a Modern, Open Standards Platform",
-            "filepath": "documentation/guides/customers/partech.md",
-            "showInSidebar": false,
-            "head": {
-              "meta": [
-                {
-                  "property": "og:image",
-                  "name": "og:image",
-                  "content": "https://scalar.com/partech-branding.png"
-                }
-              ]
-            },
-            "layout": {
-              "toc": false,
-              "sidebar": false,
-              "search": {
-                "enabled": false
-              }
-            }
-          },
-          "/brand": {
-            "title": "Brand",
-            "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
-            "icon": "phosphor/regular/palette",
-            "filepath": "documentation/guides/brand.md",
-            "type": "page",
-            "showInSidebar": false,
-            "head": {
-              "scripts": [
-                {
-                  "path": "documentation/assets/brand.js"
-                }
-              ],
-              "links": [
-                {
-                  "rel": "canonical",
-                  "href": "https://scalar.com/brand"
-                }
-              ],
-              "meta": [
-                {
-                  "name": "description",
-                  "content": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets."
-                },
-                {
-                  "property": "og:title",
-                  "content": "Scalar Brand Guidelines"
-                },
-                {
-                  "property": "og:description",
-                  "content": "Download the Scalar logo, wordmark, icon, and brand color palette."
-                },
-                {
-                  "name": "robots",
-                  "content": "index, follow"
-                }
-              ]
-            }
-          },
-          "/changelog": {
-            "type": "group",
-            "title": "Changelog",
-            "icon": "phosphor/regular/list-bullets",
-            "mode": "nested",
-            "children": {
-              "": {
-                "type": "page",
-                "title": "Changelog",
-                "filepath": "documentation/changelog/index.md",
-                "description": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server.",
-                "layout": {
-                  "toc": false
-                },
-                "head": {
-                  "links": [
-                    {
-                      "rel": "canonical",
-                      "href": "https://scalar.com/changelog"
-                    }
-                  ],
-                  "meta": [
-                    {
-                      "name": "description",
-                      "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
-                    },
-                    {
-                      "property": "og:title",
-                      "content": "Changelog - Scalar"
-                    },
-                    {
-                      "property": "og:description",
-                      "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
-                    },
-                    {
-                      "name": "robots",
-                      "content": "index, follow"
-                    }
-                  ]
-                }
-              },
-              "api-client": {
-                "type": "page",
-                "title": "API Client",
-                "filepath": "projects/scalar-app/RELEASE_NOTES.md"
-              },
-              "api-reference": {
-                "type": "page",
-                "title": "API Reference",
-                "filepath": "packages/api-reference/RELEASE_NOTES.md"
-              },
-              "agent": {
-                "type": "page",
-                "title": "Agent",
-                "filepath": "packages/agent-chat/RELEASE_NOTES.md"
-              },
-              "mock-server": {
-                "type": "page",
-                "title": "Mock Server",
-                "filepath": "packages/mock-server/RELEASE_NOTES.md"
-              }
-            }
-          },
           "/pricing": {
             "title": "Pricing",
+            "icon": "phosphor/regular/currency-dollar-simple",
             "description": "Transparent pricing for developer documentation, SDKs, and API tools. Start free and scale as you grow.",
-            "icon": "phosphor/regular/coin-vertical",
             "filepath": "documentation/guides/pricing.md",
             "type": "page",
             "layout": {
@@ -851,10 +801,125 @@
               ]
             }
           },
+          "/customers": {
+            "title": "Customers",
+            "icon": "phosphor/regular/user-focus",
+            "description": "Trusted by the world's best API teams.",
+            "filepath": "documentation/guides/customers/customers.md",
+            "type": "page",
+            "layout": {
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false
+            },
+            "head": {
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/customers"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Trusted by the world's best API teams."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Customers - Scalar"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Trusted by the world's best API teams."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/company": {
+            "title": "Company",
+            "icon": "phosphor/regular/buildings",
+            "description": "Learn about Scalar, the API platform built for developers and agents.",
+            "filepath": "documentation/guides/company.md",
+            "type": "page",
+            "layout": {
+              "pageActions": false
+            },
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/company.js"
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/company"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Learn about Scalar, the API platform built for developers and agents."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Company - Scalar"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Learn about Scalar, the API platform built for developers and agents."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/security": {
+            "title": "Security",
+            "icon": "phosphor/regular/shield-check",
+            "description": "Learn how Scalar approaches security, privacy, identity, access controls, and responsible disclosure.",
+            "filepath": "documentation/guides/security.md",
+            "type": "page",
+            "showInSidebar": false,
+            "head": {
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/security"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Learn how Scalar approaches security, privacy, identity, access controls, and responsible disclosure."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Security - Scalar"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Learn how Scalar approaches security, privacy, identity, access controls, and responsible disclosure."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
           "/products": {
             "type": "group",
             "title": "Products",
-            "mode": "flat",
+            "icon": "phosphor/regular/compass",
+            "mode": "folder",
+            "open": true,
             "children": {
               "/docs": {
                 "title": "Docs",
@@ -868,9 +933,6 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Learn how to create and publish stunning developer documentation with Docs in minutes.",
-                    "layout": {
-                      "toc": false
-                    },
                     "head": {
                       "links": [
                         {
@@ -1129,7 +1191,7 @@
                     "icon": "phosphor/regular/puzzle-piece",
                     "children": {
                       "markdown-support": {
-                        "filepath": "documentation/guides/docs/components/markdown-support.md",
+                        "filepath": "documentation/guides/docs/components/markdown-support.mdx",
                         "type": "page",
                         "title": "Markdown Support",
                         "description": "Full markdown syntax reference including tables, lists, links, images, and GitHub-flavored markdown features.",
@@ -1153,27 +1215,27 @@
                         }
                       },
                       "buttons": {
-                        "filepath": "documentation/guides/docs/components/buttons.md",
+                        "filepath": "documentation/guides/docs/components/buttons.mdx",
                         "type": "page",
                         "title": "Buttons"
                       },
                       "callouts": {
-                        "filepath": "documentation/guides/docs/components/callouts.md",
+                        "filepath": "documentation/guides/docs/components/callouts.mdx",
                         "type": "page",
                         "title": "Callouts"
                       },
                       "math": {
-                        "filepath": "documentation/guides/docs/components/math.md",
+                        "filepath": "documentation/guides/docs/components/math.mdx",
                         "type": "page",
                         "title": "Math"
                       },
                       "embeds": {
-                        "filepath": "documentation/guides/docs/components/embeds.md",
+                        "filepath": "documentation/guides/docs/components/embeds.mdx",
                         "type": "page",
                         "title": "Embeds"
                       },
                       "code-blocks": {
-                        "filepath": "documentation/guides/docs/components/code-blocks.md",
+                        "filepath": "documentation/guides/docs/components/code-blocks.mdx",
                         "type": "page",
                         "title": "Code Blocks",
                         "description": "Syntax highlighting for 100+ programming languages with line numbers, highlighting, and copy-to-clipboard functionality.",
@@ -1197,47 +1259,47 @@
                         }
                       },
                       "images": {
-                        "filepath": "documentation/guides/docs/components/images.md",
+                        "filepath": "documentation/guides/docs/components/images.mdx",
                         "type": "page",
                         "title": "Images"
                       },
                       "icons": {
-                        "filepath": "documentation/guides/docs/components/icons.md",
+                        "filepath": "documentation/guides/docs/components/icons.mdx",
                         "type": "page",
                         "title": "Icons"
                       },
                       "tabs": {
-                        "filepath": "documentation/guides/docs/components/tabs.md",
+                        "filepath": "documentation/guides/docs/components/tabs.mdx",
                         "type": "page",
                         "title": "Tabs"
                       },
                       "tables": {
-                        "filepath": "documentation/guides/docs/components/tables.md",
+                        "filepath": "documentation/guides/docs/components/tables.mdx",
                         "type": "page",
                         "title": "Tables"
                       },
                       "steps": {
-                        "filepath": "documentation/guides/docs/components/steps.md",
+                        "filepath": "documentation/guides/docs/components/steps.mdx",
                         "type": "page",
                         "title": "Steps"
                       },
                       "cards": {
-                        "filepath": "documentation/guides/docs/components/cards.md",
+                        "filepath": "documentation/guides/docs/components/cards.mdx",
                         "type": "page",
                         "title": "Cards"
                       },
                       "details": {
-                        "filepath": "documentation/guides/docs/components/details.md",
+                        "filepath": "documentation/guides/docs/components/details.mdx",
                         "type": "page",
                         "title": "Details"
                       },
                       "page-link": {
-                        "filepath": "documentation/guides/docs/components/page-link.md",
+                        "filepath": "documentation/guides/docs/components/page-link.mdx",
                         "type": "page",
                         "title": "Page Link"
                       },
                       "row": {
-                        "filepath": "documentation/guides/docs/components/row.md",
+                        "filepath": "documentation/guides/docs/components/row.mdx",
                         "type": "page",
                         "title": "Row"
                       }
@@ -1257,9 +1319,6 @@
                     "type": "page",
                     "filepath": "documentation/guides/agent/getting-started.md",
                     "description": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI.",
-                    "layout": {
-                      "toc": false
-                    },
                     "head": {
                       "links": [
                         {
@@ -1353,7 +1412,7 @@
               },
               "/sdks": {
                 "title": "SDKs",
-                "description": "Generate production-ready SDKs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
+                "description": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
                 "type": "group",
                 "mode": "nested",
                 "icon": "phosphor/regular/package",
@@ -1363,9 +1422,6 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Automatically generate type-safe SDKs from OpenAPI specifications in multiple programming languages.",
-                    "layout": {
-                      "toc": false
-                    },
                     "head": {
                       "links": [
                         {
@@ -1404,6 +1460,12 @@
                     "mode": "flat",
                     "icon": "phosphor/regular/plug",
                     "children": {
+                      "overview": {
+                        "filepath": "documentation/guides/sdks/configuration.md",
+                        "type": "page",
+                        "title": "Configuration",
+                        "description": "Configure Scalar SDK generation targets, environments, resources, client settings, pagination, and publishing."
+                      },
                       "typescript": {
                         "title": "TypeScript",
                         "filepath": "documentation/guides/sdks/configuration/typescript.md",
@@ -1414,33 +1476,38 @@
                         "filepath": "documentation/guides/sdks/configuration/python.md",
                         "type": "page"
                       },
+                      "cli": {
+                        "filepath": "documentation/guides/sdks/cli.md",
+                        "type": "page",
+                        "title": "CLI"
+                      },
                       "go": {
-                        "title": "Go",
+                        "title": "Go (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/go.md",
                         "type": "page"
                       },
                       "java": {
-                        "title": "Java",
+                        "title": "Java (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/java.md",
                         "type": "page"
                       },
                       "csharp": {
-                        "title": "C#",
+                        "title": "C# (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/csharp.md",
                         "type": "page"
                       },
                       "php": {
-                        "title": "PHP",
+                        "title": "PHP (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/php.md",
                         "type": "page"
                       },
                       "ruby": {
-                        "title": "Ruby",
+                        "title": "Ruby (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/ruby.md",
                         "type": "page"
                       },
                       "swift": {
-                        "title": "Swift",
+                        "title": "Swift (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/swift.md",
                         "type": "page"
                       }
@@ -1460,9 +1527,6 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Store, version, and manage your OpenAPI specifications in a centralized registry with automated CI/CD workflows.",
-                    "layout": {
-                      "toc": false
-                    },
                     "head": {
                       "links": [
                         {
@@ -1990,9 +2054,6 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "A modern, open-source API client built on the OpenAPI standard with offline-first design and cross-platform support.",
-                    "layout": {
-                      "toc": false
-                    },
                     "head": {
                       "links": [
                         {
@@ -2379,7 +2440,8 @@
           "/tools": {
             "type": "group",
             "title": "Tools",
-            "mode": "flat",
+            "icon": "phosphor/regular/compass-tool",
+            "mode": "folder",
             "children": {
               "/cli": {
                 "title": "Scalar CLI",
@@ -2555,18 +2617,94 @@
               }
             }
           },
-          "/guides": {
-            "title": "Guides",
+          "/enterprise": {
+            "title": "Enterprise",
+            "type": "page",
+            "filepath": "documentation/guides/enterprise/enterprise.md",
+            "showInSidebar": false,
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/enterprise-contact-form.js"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
+            }
+          },
+          "/customers/partech": {
+            "type": "page",
+            "title": "How PAR Technology Corporation Enhanced Its Developer Experience With a Modern, Open Standards Platform",
+            "filepath": "documentation/guides/customers/partech.md",
+            "showInSidebar": false,
+            "head": {
+              "meta": [
+                {
+                  "property": "og:image",
+                  "name": "og:image",
+                  "content": "https://scalar.com/partech-branding.png"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false,
+              "sidebar": false,
+              "search": {
+                "enabled": false
+              }
+            }
+          },
+          "/brand": {
+            "title": "Brand",
+            "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
+            "icon": "phosphor/regular/palette",
+            "filepath": "documentation/guides/brand.md",
+            "type": "page",
+            "showInSidebar": false,
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/brand.js"
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/brand"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar Brand Guidelines"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Download the Scalar logo, wordmark, icon, and brand color palette."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/resources": {
             "type": "group",
+            "title": "Resources",
             "mode": "flat",
-            "icon": "phosphor/regular/notebook",
             "children": {
-              "/migration": {
+              "migration": {
                 "title": "Migration",
+                "icon": "phosphor/regular/arrows-split",
                 "description": "Step-by-step guides for migrating from Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo to Scalar.",
                 "type": "group",
                 "mode": "nested",
-                "icon": "phosphor/regular/caret-circle-right",
                 "children": {
                   "swagger-ui": {
                     "title": "Swagger UI",
@@ -2577,7 +2715,7 @@
                       "links": [
                         {
                           "rel": "canonical",
-                          "href": "https://scalar.com/guides/migration/swagger-ui"
+                          "href": "https://scalar.com/resources/migration/swagger-ui"
                         }
                       ],
                       "meta": [
@@ -2622,12 +2760,12 @@
                   }
                 }
               },
-              "/sso": {
+              "sso": {
                 "title": "SSO/SAML",
+                "icon": "phosphor/regular/keyhole",
                 "description": "Configure single sign-on with Okta, Google, Microsoft Entra ID, Auth0, and other SAML providers for secure authentication.",
                 "type": "group",
                 "mode": "nested",
-                "icon": "phosphor/regular/key",
                 "children": {
                   "getting-started": {
                     "title": "Getting Started",
@@ -2638,7 +2776,7 @@
                       "links": [
                         {
                           "rel": "canonical",
-                          "href": "https://scalar.com/guides/sso/getting-started"
+                          "href": "https://scalar.com/resources/sso/getting-started"
                         }
                       ],
                       "meta": [
@@ -2699,12 +2837,89 @@
                     }
                   }
                 }
+              },
+              "changelog": {
+                "type": "group",
+                "title": "Changelog",
+                "icon": "phosphor/regular/git-diff",
+                "mode": "folder",
+                "page": {
+                  "type": "page",
+                  "title": "Changelog",
+                  "filepath": "documentation/changelog/index.md",
+                  "description": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server.",
+                  "layout": {
+                    "toc": false
+                  },
+                  "head": {
+                    "links": [
+                      {
+                        "rel": "canonical",
+                        "href": "https://scalar.com/resources/changelog"
+                      }
+                    ],
+                    "meta": [
+                      {
+                        "name": "description",
+                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
+                      },
+                      {
+                        "property": "og:title",
+                        "content": "Changelog - Scalar"
+                      },
+                      {
+                        "property": "og:description",
+                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
+                      },
+                      {
+                        "name": "robots",
+                        "content": "index, follow"
+                      }
+                    ]
+                  }
+                },
+                "children": {
+                  "/api-client": {
+                    "type": "page",
+                    "title": "API Client",
+                    "filepath": "projects/scalar-app/RELEASE_NOTES.md",
+                    "icon": "phosphor/regular/paper-plane-tilt"
+                  },
+                  "/api-reference": {
+                    "type": "page",
+                    "title": "API Reference",
+                    "filepath": "packages/api-reference/RELEASE_NOTES.md",
+                    "icon": "phosphor/regular/notebook"
+                  },
+                  "/agent": {
+                    "type": "page",
+                    "title": "Agent",
+                    "filepath": "packages/agent-chat/RELEASE_NOTES.md",
+                    "icon": "phosphor/regular/sparkle"
+                  },
+                  "/mock-server": {
+                    "type": "page",
+                    "title": "Mock Server",
+                    "filepath": "packages/mock-server/RELEASE_NOTES.md",
+                    "icon": "phosphor/regular/cloud"
+                  }
+                }
+              },
+              "blog": {
+                "type": "page",
+                "title": "Blog",
+                "icon": "phosphor/regular/newspaper",
+                "filepath": "documentation/blog/index.md",
+                "showInSidebar": true,
+                "layout": {
+                  "toc": false
+                }
               }
             }
           },
           "/contact": {
             "type": "group",
-            "title": "Let's Chat",
+            "title": "Support",
             "mode": "flat",
             "children": {
               "/github": {
@@ -2714,27 +2929,17 @@
                 "type": "link"
               },
               "/email": {
-                "title": "Support",
-                "icon": "phosphor/regular/envelope",
+                "title": "Email",
+                "icon": "phosphor/regular/envelope-simple-open",
                 "url": "mailto:support@scalar.com",
                 "type": "link"
               },
               "/demo": {
-                "title": "Book a Demo",
-                "icon": "phosphor/regular/monitor",
+                "title": "Demo",
+                "icon": "phosphor/regular/user-rectangle",
                 "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
                 "type": "link"
               }
-            }
-          },
-          "/blog": {
-            "type": "page",
-            "title": "Blog",
-            "filepath": "documentation/blog/index.md",
-            "showInSidebar": true,
-            "icon": "phosphor/regular/books",
-            "layout": {
-              "toc": false
             }
           },
           "/blog/posts/2026-04-11-oss-pledge": {

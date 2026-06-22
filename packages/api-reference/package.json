@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.57.5",
+  "version": "1.61.0",
   "engines": {
     "node": ">=22"
   },
@@ -29,7 +29,7 @@
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
     "build:standalone:esm": "vite build -c vite.standalone.esm.config.ts",
-    "build:styles": "cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
+    "build:styles": "shx cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
@@ -98,6 +98,8 @@
     "dist",
     "!dist/browser/webpack-stats.json",
     "!dist/browser/webpack-stats.esm.json",
+    "!dist/examples",
+    "!dist/browser/examples",
     "CHANGELOG.md"
   ],
   "browser": "./dist/browser/standalone.js",

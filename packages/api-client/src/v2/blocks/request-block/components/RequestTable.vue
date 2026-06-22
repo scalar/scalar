@@ -4,6 +4,7 @@ import { computed } from 'vue'
 
 import RequestTableRow, {
   type TableRow,
+  type TableRowUpsertPayload,
 } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 import {
   DataTable,
@@ -32,15 +33,7 @@ const {
  * Make this component more generic that can be used also for the operation body
  */
 const emit = defineEmits<{
-  (
-    e: 'upsertRow',
-    index: number,
-    payload: {
-      name: string
-      value: string | File | undefined
-      isDisabled: boolean
-    },
-  ): void
+  (e: 'upsertRow', index: number, payload: TableRowUpsertPayload): void
   (e: 'deleteRow', index: number): void
 
   /**
@@ -103,31 +96,17 @@ const displayData = computed(() => {
   </DataTable>
 </template>
 <style scoped>
-:deep(.cm-editor) {
-  padding: 0;
-}
-:deep(.cm-content) {
-  align-items: center;
+:deep(.code-input-lite__editor) {
   background-color: transparent;
-  display: flex;
   font-family: var(--scalar-font);
   font-size: var(--scalar-small);
   padding: 5px 8px;
-  width: 100%;
 }
-:deep(.cm-content):has(.cm-pill) {
-  padding: 5px 8px;
+:deep(.scalar-pill:not(:last-of-type)) {
+  margin-right: 0.15em;
 }
-:deep(.cm-content .cm-pill:not(:last-of-type)) {
-  margin-right: 0.5px;
-}
-:deep(.cm-content .cm-pill:not(:first-of-type)) {
+:deep(.scalar-pill:not(:first-of-type)) {
   margin-left: 0.5px;
-}
-:deep(.cm-line) {
-  overflow: hidden;
-  padding: 0;
-  text-overflow: ellipsis;
 }
 .filemask {
   mask-image: linear-gradient(

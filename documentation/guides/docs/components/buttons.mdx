@@ -1,0 +1,92 @@
+import Preview from './Preview.mdx'
+
+# Buttons
+
+Buttons are interactive elements that link to external resources or other pages. Each button can include an icon and, by default, opens links in a new tab.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` | `string` | _required_ | The label shown on the button. |
+| `href` | `string` | _required_ | The URL the button links to. |
+| `icon` | `string` | — | Icon shown before the label. Accepts a built-in [icon key](/products/docs/components/icons#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](/products/docs/components/icons#custom-icons). |
+| `variant` | `'primary'` `'secondary'` | `primary` | Visual style of the button. |
+| `target` | `'_blank'` `'_self'` | `_blank` | Where the link opens. `_blank` adds `rel="noopener noreferrer"` automatically. |
+
+## Examples
+
+### Basic Button
+
+<Preview>
+  <Button title="View Documentation" href="https://docs.scalar.com" />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-button
+  title="View Documentation"
+  href="https://docs.scalar.com">
+</scalar-button>
+```
+```mdx MDX
+<Button
+  title="View Documentation"
+  href="https://docs.scalar.com"
+/>
+```
+</CodeGroup>
+
+### Button with Icon
+
+<Preview>
+  <Button
+    title="Download SDK"
+    href="https://github.com/scalar/scalar"
+    icon="phosphor/regular/download"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-button
+  title="Download SDK"
+  href="https://github.com/scalar/scalar"
+  icon="phosphor/regular/download">
+</scalar-button>
+```
+```mdx MDX
+<Button
+  title="Download SDK"
+  href="https://github.com/scalar/scalar"
+  icon="phosphor/regular/download"
+/>
+```
+</CodeGroup>
+
+### Secondary Variant
+
+<Preview>
+  <Button
+    title="Learn More"
+    href="https://scalar.com"
+    variant="secondary"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-button
+  title="Learn More"
+  href="https://scalar.com"
+  variant="secondary">
+</scalar-button>
+```
+```mdx MDX
+<Button
+  title="Learn More"
+  href="https://scalar.com"
+  variant="secondary"
+/>
+```
+</CodeGroup>

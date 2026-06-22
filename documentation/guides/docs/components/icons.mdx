@@ -1,0 +1,164 @@
+import Preview from './Preview.mdx'
+
+# Icons
+
+Icons render scalable vector graphics from the built-in [Phosphor](https://phosphoricons.com/) and [Simple Icons](https://simpleicons.org/) libraries, or from a direct URL.
+
+## Built-in Icons
+
+Scalar bundles two icon libraries you can reference by key — no hosting required.
+
+**Phosphor** — reference with `phosphor/<variant>/<name>`. Available variants are `regular`, `bold`, `duotone`, `fill`, `light`, and `thin` (e.g. `phosphor/fill/heart`). A bare name like `heart` defaults to the `regular` variant.
+
+**Simple Icons** — brand and logo icons, referenced with `simple/<name>` using the Simple Icons slug (e.g. `simple/github`).
+
+<Row>
+  <Button title="Browse Phosphor" href="https://phosphoricons.com" icon="phosphor/regular/magnifying-glass" />
+  <Button title="Browse Simple Icons" href="https://simpleicons.org" icon="phosphor/regular/magnifying-glass" />
+</Row>
+
+## Custom Icons
+
+For anything outside the built-in libraries, pass a direct URL to `src`.
+
+SVG files are fetched and inlined directly into the page instead of being rendered inside an `<img>` tag. This lets them inherit color from the surrounding text: any `fill` or `stroke` set to `currentColor` in your SVG follows the current text color, so the icon adapts to light mode, dark mode, and your theme automatically. Set your SVG's fills and strokes to `currentColor` to make a custom icon themeable.
+
+Other image formats (PNG, JPG, and so on) render as a standard `<img>` and cannot be recolored.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `src` | `string` | _required_ | Phosphor key, Simple Icons key, or full URL to an SVG/image. |
+| `title` | `string` | — | Accessible label read by screen readers. |
+| `size` | `string` | — | CSS size for both width and height (e.g. `16px`, `1.5em`, `2rem`). |
+
+## Examples
+
+### Basic Icon
+
+<Preview>
+  <Icon src="phosphor/regular/check-circle" title="Success indicator" />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-icon
+  src="phosphor/regular/check-circle"
+  title="Success indicator">
+</scalar-icon>
+```
+```mdx MDX
+<Icon
+  src="phosphor/regular/check-circle"
+  title="Success indicator"
+/>
+```
+</CodeGroup>
+
+### Phosphor Variants
+
+<Preview>
+  <div className="flex gap-1">
+    <Icon src="phosphor/regular/heart" size="24px" />
+    <Icon src="phosphor/bold/heart" size="24px" />
+    <Icon src="phosphor/duotone/heart" size="24px" />
+    <Icon src="phosphor/fill/heart" size="24px" />
+    <Icon src="phosphor/light/heart" size="24px" />
+    <Icon src="phosphor/thin/heart" size="24px" />
+  </div>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-icon src="phosphor/regular/heart" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/bold/heart" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/duotone/heart" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/fill/heart" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/light/heart" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/thin/heart" size="24px"></scalar-icon>
+```
+```mdx MDX
+<Icon src="phosphor/regular/heart" size="24px" />
+<Icon src="phosphor/bold/heart" size="24px" />
+<Icon src="phosphor/duotone/heart" size="24px" />
+<Icon src="phosphor/fill/heart" size="24px" />
+<Icon src="phosphor/light/heart" size="24px" />
+<Icon src="phosphor/thin/heart" size="24px" />
+```
+</CodeGroup>
+
+### Simple Icons
+
+<Preview>
+  <div className="flex gap-1">
+    <Icon src="simple/github" size="24px" />
+    <Icon src="simple/figma" size="24px" />
+    <Icon src="simple/slack" size="24px" />
+  </div>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-icon src="simple/github" size="24px"></scalar-icon>
+<scalar-icon src="simple/figma" size="24px"></scalar-icon>
+<scalar-icon src="simple/slack" size="24px"></scalar-icon>
+```
+```mdx MDX
+<Icon src="simple/github" size="24px" />
+<Icon src="simple/figma" size="24px" />
+<Icon src="simple/slack" size="24px" />
+```
+</CodeGroup>
+
+### Sizes
+
+<Preview>
+  <div className="flex gap-1">
+    <Icon src="phosphor/regular/star" size="16px" />
+    <Icon src="phosphor/regular/star" size="24px" />
+    <Icon src="phosphor/regular/star" size="2rem" />
+  </div>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-icon src="phosphor/regular/star" size="16px"></scalar-icon>
+<scalar-icon src="phosphor/regular/star" size="24px"></scalar-icon>
+<scalar-icon src="phosphor/regular/star" size="2rem"></scalar-icon>
+```
+```mdx MDX
+<Icon src="phosphor/regular/star" size="16px" />
+<Icon src="phosphor/regular/star" size="24px" />
+<Icon src="phosphor/regular/star" size="2rem" />
+```
+</CodeGroup>
+
+### Icon from a URL
+
+`src` also accepts a direct URL to an SVG or image file.
+
+<Preview>
+  <Icon
+    src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
+    title="Scalar logo"
+    size="4em"
+  />
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-icon
+  src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
+  title="Scalar logo"
+  size="4em">
+</scalar-icon>
+```
+```mdx MDX
+<Icon
+  src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
+  title="Scalar logo"
+  size="4em"
+/>
+```
+</CodeGroup>

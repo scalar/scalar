@@ -1,5 +1,88 @@
 # @scalar/api-client
 
+## 3.11.0
+
+### Minor Changes
+
+- [#9515](https://github.com/scalar/scalar/pull/9515): feat: add `requestBuilt` client plugin hook and `onRequestBuilt` configuration callback that receive the exact fetch `Request` that is sent over the wire
+
+  The hook runs after the request has been built, right before it is sent. Header mutations apply to the outgoing request and the body bytes match what the server receives, which makes request signing possible: hashing the body of a rebuilt `multipart/form-data` request would produce a different multipart boundary than the request that is actually sent.
+
+### Patch Changes
+
+- [#9558](https://github.com/scalar/scalar/pull/9558): Fix the request runner dropping a manually typed auth token when the document name is not slug-safe (e.g. documents loaded via `sources`). The modal now reads auth secrets under the same document key they are written to.
+- [#9497](https://github.com/scalar/scalar/pull/9497): Fix renaming an auto-expanded query parameter row: the committed key is applied to the request and persists in the table without writing partial in-progress edits, and the original key no longer reappears as an empty suggestion
+
+## 3.10.4
+
+### Patch Changes
+
+- [#9319](https://github.com/scalar/scalar/pull/9319): feat: route OAuth2 token exchange/refresh and OpenID Connect discovery through the configured `customFetch`
+
+  The auth selector now forwards the client's `customFetch` to the OAuth2 and OpenID Connect flows. This lets the Electron desktop app pipe these requests over IPC (like regular API requests) instead of the renderer's network stack, so the desktop Content Security Policy can lock down `connect-src`. When no `customFetch` is provided the flows fall back to the global `fetch`, so web behavior is unchanged.
+
+- [#9138](https://github.com/scalar/scalar/pull/9138): feat(api-client): add CodeInputLite, a lightweight contenteditable variable input that replaces CodeMirror in the request, auth, and environment tables for better performance
+
+## 3.10.3
+
+### Patch Changes
+
+- [#9482](https://github.com/scalar/scalar/pull/9482): Fix the auth scheme dropdown not opening when multiple client apps are on the page (for example, the API reference modal). Each modal app now gets a unique id prefix, so teleport targets no longer collide and the popover renders in the visible app instead of a hidden one
+- [#9342](https://github.com/scalar/scalar/pull/9342): fix: resolve operations when OpenAPI path items use `$ref`
+
+  Path entries and webhooks can reference `components.pathItems` instead of inlining operations. Navigation, mutators, search, and markdown export now resolve path-item references before reading HTTP methods and path-level parameters.
+
+- [#9498](https://github.com/scalar/scalar/pull/9498): Sync the SDK installation tabs with the operation code examples: picking a language under "Client Libraries" now switches every operation's code sample to that language's custom example
+
+## 3.10.2
+
+## 3.10.1
+
+### Patch Changes
+
+- [#9449](https://github.com/scalar/scalar/pull/9449): Replace the CommonJS-only `cookie` dependency with an in-repo ESM `serializeCookie` helper
+
+## 3.10.0
+
+### Minor Changes
+
+- [#9398](https://github.com/scalar/scalar/pull/9398): feat: read code samples from x-readme, x-stainless and x-scalar extensions
+
+  In addition to `x-codeSamples`, the code sample picker now reads custom samples from `x-scalar-examples`, `x-stainless-snippets`, `x-stainless-examples`, and `x-readme.code-samples`. When more than one is present on an operation, the highest-priority source is used (x-scalar-examples > x-stainless-snippets > x-stainless-examples > x-readme > x-codeSamples).
+
+### Patch Changes
+
+- [#9438](https://github.com/scalar/scalar/pull/9438): feat(api-reference): add an AsyncAPI server selector
+
+  Adds a server selector for AsyncAPI documents in the API reference introduction. It mirrors the OpenAPI server selector but works with the AsyncAPI server shape (a named map of `host`/`protocol`/`pathname`), labelling each server with its constructed connection URL.
+
+  Server selection and variable changes are now persisted to the workspace store via new `asyncapi-server:update:selected` and `asyncapi-server:update:variables` events and their mutators, mirroring the OpenAPI wiring.
+
+- [#9404](https://github.com/scalar/scalar/pull/9404): Send `multipart/form-data` and `application/x-www-form-urlencoded` object properties using their OpenAPI encoding `style`/`explode` (for example `style: deepObject` produces `address[city]=...` bracket notation) instead of always JSON-stringifying them. The request sent over the wire now matches the generated code snippet.
+- [#9408](https://github.com/scalar/scalar/pull/9408): Render the client library name as a plain label instead of a dropdown when only a single client is available
+
+## 3.9.0
+
+### Minor Changes
+
+- [#9341](https://github.com/scalar/scalar/pull/9341): feat: add WebSocket session transport and plugin hooks for AsyncAPI
+
+  Add WebSocketSession with connect, send, and close helpers, plus connectWebSocket orchestration using Result-based errors. Extend ClientPlugin with optional webSocketHooks (beforeConnect, onWebSocketMessage, onWebSocketClose).
+
+### Patch Changes
+
+- [#9310](https://github.com/scalar/scalar/pull/9310): Add an ESM standalone build (`dist/browser/standalone.esm.js`) alongside the existing UMD bundle. The new bundle works as a side-effect script (registers `window.Scalar.createApiReference` and reads `data-*` configuration) and exports `createApiReference` for direct ESM consumers. It is fully minified through Rolldown's native minifier and uses code splitting so heavy features load asynchronously after first paint:
+  - The API client modal (request editor, response viewer, CodeMirror) is now `await import`'d inside `onMounted` instead of statically imported, moving ~265 KB into a `chunks/modal-*.js` chunk that loads in the background.
+  - The Agent Scalar chat interface (already wrapped in `defineAsyncComponent`) becomes a real `chunks/AgentScalarChatInterface-*.js` chunk (~200 KB), loaded only when the agent is enabled.
+  - The 84 per-icon dynamic imports from `@scalar/icons/library` are coalesced into a single `chunks/icons-*.js`.
+
+  Net effect: initial sync load drops from ~3.32 MB (UMD) to ~2.73 MB (ESM) — a ~570 KB improvement — while total bundle size shrinks by ~140 KB.
+
+  Also adds an `@scalar/api-client/modal/map-hidden-clients-config` deep export so consumers that only need the lightweight client-list helper don't pull the full modal barrel into their static graph.
+
+- [#9323](https://github.com/scalar/scalar/pull/9323): Fixed `x-codeSamples` entries that share a `lang`: multiple code samples with the same language but different labels (e.g. separate sync and async examples) were all marked selected and showed the same snippet. Each sample is now keyed by its position, so every one stays individually selectable.
+- [#9338](https://github.com/scalar/scalar/pull/9338): perf: warm up the request scripts sandbox on mount when scripts are present, so the first request no longer pays the sandbox cold-start cost
+
 ## 3.8.5
 
 ### Patch Changes

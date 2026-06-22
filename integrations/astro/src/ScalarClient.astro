@@ -1,0 +1,38 @@
+---
+import { getConfiguration, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
+
+interface Props {
+  config: Omit<Partial<HtmlRenderingConfiguration>, 'cdn' | 'pageTitle'>
+  cdn?: string
+  /**
+   * A Content Security Policy nonce, forwarded to the client so it can stamp
+   * the dynamically injected CDN `<script>` and the `csp-nonce` meta tag that
+   * the standalone bundle reads when nonce-ing its runtime styles.
+   *
+   * Note: this does not nonce the bootstrap `<script>` below — Astro bundles
+   * and emits that tag itself, so its CSP handling is Astro's (see the comment
+   * on the script). Under a strict `script-src`, allow Astro's own scripts via
+   * its `experimental.csp` flag or `'self'`.
+   */
+  nonce?: string
+}
+
+const { config, cdn, nonce } = Astro.props
+---
+
+<div data-scalar-client data-configuration={JSON.stringify(getConfiguration(config))} data-cdn={cdn} data-nonce={nonce}></div>
+
+{/*
+  Astro bundles this script and resolves the `./client` import, but that also
+  means Astro — not Scalar — emits the final `<script>` tag, so we cannot stamp
+  the user's `nonce` on it: adding a `nonce` attribute opts the script out of
+  bundling and leaves the import unresolved. Under a strict `script-src`, allow
+  Astro's own scripts via its `experimental.csp` flag (which nonces them) or
+  `'self'`. The nonce still reaches what Scalar controls — the CDN script and
+  the runtime styles — applied from `client.ts` via `data-nonce`.
+*/}
+<script>
+  import { initScalarClient } from './client'
+
+  initScalarClient()
+</script>

@@ -1,5 +1,5 @@
 # Default code owners (overwritten by more specific entries)
-* @marclave @hanspagel @amritk @bgrcs
+* @marclave @hanspagel @amritk @bgrcs @hwkr
 
 # Changesets
 /.changeset
@@ -21,6 +21,6 @@
 /packages/themes @marclave @hanspagel @amritk @bgrcs @hwkr @cameronrohani
 /packages/use-hooks @marclave @hanspagel @amritk @bgrcs @hwkr @cameronrohani
 /packages/use-toasts @marclave @hanspagel @amritk @bgrcs @hwkr @cameronrohani
-/documentation @marclave @hanspagel @bgrcs @hwkr @cameronrohani
+/documentation @marclave @hanspagel @amritk @bgrcs @hwkr @cameronrohani
 /scalar.config.json @marclave @hanspagel @bgrcs @hwkr @cameronrohani
 /*.md @marclave @hanspagel @bgrcs @hwkr @cameronrohani

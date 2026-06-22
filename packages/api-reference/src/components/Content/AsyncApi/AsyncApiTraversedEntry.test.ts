@@ -46,7 +46,13 @@ describe('AsyncApiTraversedEntry', () => {
         // `Lazy` only renders its slot when the entry is expanded; mark both
         // so the assertion can see the rendered `<Tag>` for the regular tag.
         expandedItems: { tag: true, group: true },
-        options: { layout: 'modern' },
+        options: {
+          layout: 'modern',
+          hideModels: false,
+          expandAllSchemaProperties: false,
+          orderSchemaPropertiesBy: 'preserve',
+          orderRequiredPropertiesFirst: true,
+        },
         eventBus: null as never,
       },
     })

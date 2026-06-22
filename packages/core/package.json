@@ -11,14 +11,14 @@
     "directory": "packages/core"
   },
   "keywords": [],
-  "version": "0.5.12",
+  "version": "0.5.19",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest --run",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "exports": {

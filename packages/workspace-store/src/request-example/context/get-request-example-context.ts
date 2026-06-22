@@ -3,6 +3,7 @@ import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@/client'
 import type { SelectedSecurity } from '@/entities/auth'
 import type { AuthMeta, ServerMeta } from '@/events'
+import { getPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 import { getActiveEnvironment } from '@/request-example/context/environment'
@@ -88,7 +89,7 @@ export const getRequestExampleContext = (
     }
   }
 
-  const pathItem = getResolvedRef(document.paths?.[path])
+  const pathItem = getResolvedPathItem(document.paths?.[path])
   if (!pathItem) {
     return {
       ok: false,
@@ -96,7 +97,7 @@ export const getRequestExampleContext = (
     }
   }
 
-  const resolvedOperation = getResolvedRef(pathItem[method])
+  const resolvedOperation = getResolvedRef(getPathItemOperation(document.paths?.[path], method))
   if (!resolvedOperation) {
     return {
       ok: false,

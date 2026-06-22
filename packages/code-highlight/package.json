@@ -16,15 +16,15 @@
     "lowlight",
     "highlightjs"
   ],
-  "version": "0.3.4",
+  "version": "0.3.6",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && shx cp -r src/css dist/css",
+    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly && tsc-alias -p tsconfig.build.json && shx cp -r src/css dist/css",
     "dev": "vite",
     "test": "vitest --run",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
