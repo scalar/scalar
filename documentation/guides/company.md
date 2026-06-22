@@ -301,7 +301,7 @@ We are the API company, giving you industry-best interfaces for your APIs so you
       <span class="company-investor-title-line">Co-Founder, Streamyard</span>
     </article>
     <article class="company-investor-person">
-      <span class="company-investor-name-line">Sebastien Chopin</span>
+      <span class="company-investor-name-line">Sébastien Chopin</span>
       <span class="company-investor-title-line">Founder, Nuxt</span>
     </article>
     <article class="company-investor-person">
