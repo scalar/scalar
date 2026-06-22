@@ -23,6 +23,6 @@ describe('generate', () => {
 
     await expect(createReleaseNotesGeneratorCommand().parseAsync(['--all'], { from: 'user' })).resolves.toBeDefined()
 
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('ANTHROPIC_API_KEY is not set'))
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('skipping release-notes generation'))
   })
 })

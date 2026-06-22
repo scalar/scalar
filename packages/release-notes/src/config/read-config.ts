@@ -61,7 +61,7 @@ const loadConfigFile = async (path: string): Promise<ReleaseNotesConfig> => {
 }
 
 /** Default environment variable that holds the API key for a built-in provider. */
-export const getBuiltInProviderApiKeyEnv = (provider: BuiltInProviderName, apiKeyEnv?: string): string =>
+const getBuiltInProviderApiKeyEnv = (provider: BuiltInProviderName, apiKeyEnv?: string): string =>
   apiKeyEnv ?? (provider === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY')
 
 const getApiKey = (provider: BuiltInProviderName, apiKeyEnv?: string): string | undefined =>
