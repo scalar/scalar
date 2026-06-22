@@ -92,7 +92,7 @@ function scanForDocument(dir: string): string | null {
           return found
         }
       } else if (file.match(/\.(json|ya?ml)$/i)) {
-        if (isOpenApiDocument(fullPath)) {
+        if (isApiDocument(fullPath)) {
           return fullPath
         }
       }
@@ -104,14 +104,16 @@ function scanForDocument(dir: string): string | null {
   return null
 }
 
-function isOpenApiDocument(filePath: string): boolean {
+function isApiDocument(filePath: string): boolean {
   try {
     const content = readFileSync(filePath, 'utf8')
     return (
       content.includes('openapi:') ||
       content.includes('"openapi"') ||
       content.includes('swagger:') ||
-      content.includes('"swagger"')
+      content.includes('"swagger"') ||
+      content.includes('asyncapi:') ||
+      content.includes('"asyncapi"')
     )
   } catch {
     return false
