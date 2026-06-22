@@ -29,8 +29,19 @@ We are the API company, giving you industry-best interfaces for your APIs so you
 <section class="company-team company-team-section" aria-label="Team members">
   <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-marc">
-      <div class="company-team-sticker sticker-1" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/marc-sticker.svg"></scalar-icon>
+      <div
+        class="company-team-sticker sticker-1"
+        data-company-sticker
+        data-company-sticker-id-prefix="marc-team-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/marc-sticker.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/marc-sticker.svg"></scalar-icon>
       </div>
     </div>
     <p class="company-team-member-name">
@@ -40,8 +51,19 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   </article>
   <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-cam">
-      <div class="company-team-sticker sticker-1" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/cam-sticker-final.svg"></scalar-icon>
+      <div
+        class="company-team-sticker sticker-1"
+        data-company-sticker
+        data-company-sticker-id-prefix="cam-team-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/cam-sticker-final.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/cam-sticker-final.svg"></scalar-icon>
       </div>
     </div>
     <p class="company-team-member-name">
@@ -51,8 +73,19 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   </article>
   <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-hans">
-      <div class="company-team-sticker sticker-2" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/hans-sticker-final.svg"></scalar-icon>
+      <div
+        class="company-team-sticker sticker-2"
+        data-company-sticker
+        data-company-sticker-id-prefix="hans-team-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/hans-sticker-final.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/hans-sticker-final.svg"></scalar-icon>
       </div>
     </div>
     <p class="company-team-member-name">
@@ -62,8 +95,19 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   </article>
   <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-peter">
-      <div class="company-team-sticker sticker-4" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/peter-sticker-final.svg"></scalar-icon>
+      <div
+        class="company-team-sticker sticker-4"
+        data-company-sticker
+        data-company-sticker-id-prefix="peter-team-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/peter-sticker-final.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/peter-sticker-final.svg"></scalar-icon>
       </div>
     </div>
     <p class="company-team-member-name">
@@ -73,8 +117,19 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   </article>
   <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-geoff">
-      <div class="company-team-sticker sticker-3" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/geoff-sticker-final.svg"></scalar-icon>
+      <div
+        class="company-team-sticker sticker-3"
+        data-company-sticker
+        data-company-sticker-id-prefix="geoff-team-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/geoff-sticker-final.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/geoff-sticker-final.svg"></scalar-icon>
       </div>
     </div>
     <p class="company-team-member-name">
@@ -84,8 +139,19 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   </article>
    <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-amrit">
-      <div class="company-team-sticker sticker-4" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/amrit-sticker-final.svg"></scalar-icon>
+      <div
+        class="company-team-sticker sticker-4"
+        data-company-sticker
+        data-company-sticker-id-prefix="amrit-team-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/amrit-sticker-final.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/amrit-sticker-final.svg"></scalar-icon>
       </div>
     </div>
     <p class="company-team-member-name">
@@ -95,8 +161,19 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   </article>
   <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-brynn">
-      <div class="company-team-sticker sticker-1" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/brynn-sticker-final.svg"></scalar-icon>
+      <div
+        class="company-team-sticker sticker-1"
+        data-company-sticker
+        data-company-sticker-id-prefix="brynn-team-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/brynn-sticker-final.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/brynn-sticker-final.svg"></scalar-icon>
       </div>
     </div>
     <p class="company-team-member-name">
@@ -106,8 +183,19 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   </article>
   <article class="company-team-member">
     <div class="company-team-member-image company-team-member-image-redis">
-      <div class="company-team-sticker sticker-3" data-company-sticker>
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/redis-sticker-final.svg"></scalar-icon>
+      <div
+        class="company-team-sticker sticker-3"
+        data-company-sticker
+        data-company-sticker-id-prefix="redis-team-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/redis-sticker-final.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/redis-sticker-final.svg"></scalar-icon>
       </div>
     </div>
     <p class="company-team-member-name">
@@ -122,7 +210,15 @@ We are the API company, giving you industry-best interfaces for your APIs so you
         class="company-team-sticker sticker-2"
         data-company-sticker
         data-company-sticker-id-prefix="joinus-team-sticker">
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/joinus-sticker-final.svg"></scalar-icon>
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/joinus-sticker-final.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/joinus-sticker-final.svg"></scalar-icon>
       </div>
     </div>
     <p class="company-team-member-name">
@@ -141,7 +237,15 @@ We are the API company, giving you industry-best interfaces for your APIs so you
         class="company-team-sticker company-investor-sticker sticker-6"
         data-company-sticker
         data-company-sticker-id-prefix="gc-investor-sticker">
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/gc-sticker-final.svg"></scalar-icon>
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/gc-sticker-final.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/gc-sticker-final.svg"></scalar-icon>
       </div>
     </div>
     <div class="company-investor-lines">
@@ -155,7 +259,15 @@ We are the API company, giving you industry-best interfaces for your APIs so you
         class="company-team-sticker company-investor-sticker sticker-5"
         data-company-sticker
         data-company-sticker-id-prefix="kindred-investor-sticker">
-        <scalar-icon src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/kindred-final-converted.svg"></scalar-icon>
+        <img
+          class="company-team-sticker-static"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/kindred-final-converted.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <scalar-icon
+          class="company-team-sticker-interactive"
+          src="https://storage.googleapis.com/scalar-production-cdn/marketing/landing/kindred-final-converted.svg"></scalar-icon>
       </div>
     </div>
     <div class="company-investor-lines">
@@ -446,6 +558,43 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   .company-team-sticker .flap-lighting {
     filter: none;
   }
+  .company-team-sticker--static {
+    cursor: default;
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+  .company-team-sticker-static {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    transform: rotate(var(--sticker-rotate, 0deg));
+    transform-origin: center;
+  }
+  .company-team-sticker-interactive {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  @media (hover: none), (pointer: coarse) {
+    .company-team-sticker-interactive {
+      display: none !important;
+    }
+    .company-team-sticker-static {
+      display: block;
+    }
+    .company-team .company-team-sticker {
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      transform: none;
+    }
+    .company-sticker-filter-effect {
+      display: none;
+    }
+  }
   .company-sticker-filter-effect {
     position: absolute;
     width: 0;
@@ -633,21 +782,26 @@ We are the API company, giving you industry-best interfaces for your APIs so you
       gap: 56px 12px;
     }
     .company-team .company-team-member .company-team-member-image {
-      width: 190px;
-      height: 190px;
-      aspect-ratio: auto;
-      overflow: visible;
-      background: none;
+      width: 100%;
+      max-width: 190px;
+      height: auto;
+      aspect-ratio: 1;
+      overflow: hidden;
       border-radius: 0;
     }
     .company-team .company-team-sticker {
-      top: 0;
+      top: 50%;
       right: auto;
       bottom: auto;
-      left: 0;
-      width: 190px;
-      height: 190px;
-      transform: none;
+      left: 50%;
+      width: 100%;
+      max-width: 190px;
+      height: auto;
+      aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+    }
+    .company-investor-logo {
+      overflow: hidden;
     }
   }
   @media (max-width: 760px) {

@@ -1,11 +1,15 @@
 ;(() => {
   const stickerSelector = '[data-company-sticker]'
+  const interactiveStickerSelector = `${stickerSelector} .company-team-sticker-interactive`
   const stickerClassPattern = /^sticker-\d+$/
   const stickerFilterLimit = 9
+  const stickerRootSelector = '.company-team-section, .company-investors-layout'
+  const isInteractiveDevice = window.matchMedia('(hover: hover) and (pointer: fine)').matches
   let currentSticker = null
   let dragOffsetX = 0
   let dragOffsetY = 0
   let highestZIndex = 1000
+  let prepareTimeout = null
   const svgReferenceAttributes = ['clip-path', 'filter', 'fill', 'href', 'mask', 'stroke', 'style', 'xlink:href']
 
   const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -80,32 +84,26 @@
     svg.dataset.companyStickerIdsNamespaced = prefix
   }
 
-  // Temporarily disabled while profiling sticker drag performance.
-  // const updateLightPosition = (clientX, clientY) => {
-  //   document.querySelectorAll(stickerSelector).forEach((sticker, index) => {
-  //     const rect = sticker.getBoundingClientRect()
-  //     const isInside = clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom
-  //
-  //     if (!isInside) {
-  //       return
-  //     }
-  //
-  //     const stickerNumber = getStickerNumber(sticker, index)
-  //     const x = clientX - rect.left
-  //     const y = clientY - rect.top
-  //     const light = document.getElementById(`light${stickerNumber}`)
-  //     const flippedLight = document.getElementById(`lightFlipped${stickerNumber}`)
-  //
-  //     sticker.style.setProperty('--company-sticker-light-x', `${(x / rect.width) * 100}%`)
-  //     sticker.style.setProperty('--company-sticker-light-y', `${(y / rect.height) * 100}%`)
-  //     light?.setAttribute('x', x)
-  //     light?.setAttribute('y', y)
-  //     flippedLight?.setAttribute('x', x)
-  //     flippedLight?.setAttribute('y', rect.height - y)
-  //   })
-  // }
+  const removeStickerFilterEffects = () => {
+    document.querySelector('.company-sticker-filter-effect')?.remove()
+  }
+
+  const blockInteractiveStickerLoads = () => {
+    if (isInteractiveDevice) {
+      return
+    }
+
+    document.querySelectorAll(interactiveStickerSelector).forEach((icon) => {
+      icon.removeAttribute('src')
+    })
+  }
 
   const prepareCompanyStickers = () => {
+    if (!isInteractiveDevice) {
+      blockInteractiveStickerLoads()
+      return
+    }
+
     document.querySelectorAll(stickerSelector).forEach((sticker, index) => {
       namespaceStickerSvgIds(sticker)
 
@@ -142,30 +140,71 @@
     })
   }
 
-  document.addEventListener('mousemove', (event) => {
-    // updateLightPosition(event.clientX, event.clientY)
+  const schedulePrepareCompanyStickers = () => {
+    clearTimeout(prepareTimeout)
+    prepareTimeout = setTimeout(prepareCompanyStickers, 50)
+  }
 
-    if (!currentSticker) {
+  const observeStickerRoots = () => {
+    const roots = document.querySelectorAll(stickerRootSelector)
+
+    if (!roots.length) {
       return
     }
 
-    const offset = getContainingBlockOffset(currentSticker)
+    const observer = new MutationObserver((records) => {
+      const hasElementAdded = records.some((record) =>
+        [...record.addedNodes].some((node) => node.nodeType === Node.ELEMENT_NODE),
+      )
 
-    currentSticker.style.left = `${event.clientX - dragOffsetX - offset.left}px`
-    currentSticker.style.top = `${event.clientY - dragOffsetY - offset.top}px`
-  })
+      if (!hasElementAdded) {
+        return
+      }
 
-  document.addEventListener('mouseup', () => {
-    currentSticker = null
-  })
+      schedulePrepareCompanyStickers()
+    })
 
-  prepareCompanyStickers()
+    roots.forEach((root) => {
+      observer.observe(root, { childList: true, subtree: true })
+    })
+  }
 
-  const observer = new MutationObserver((records) => {
-    if (records.some((record) => record.addedNodes.length)) {
-      prepareCompanyStickers()
+  const init = () => {
+    if (!isInteractiveDevice) {
+      removeStickerFilterEffects()
+      blockInteractiveStickerLoads()
+      return
     }
-  })
 
-  observer.observe(document.documentElement || document.body, { childList: true, subtree: true })
+    prepareCompanyStickers()
+    observeStickerRoots()
+  }
+
+  if (!isInteractiveDevice) {
+    removeStickerFilterEffects()
+    blockInteractiveStickerLoads()
+  }
+
+  if (isInteractiveDevice) {
+    document.addEventListener('mousemove', (event) => {
+      if (!currentSticker) {
+        return
+      }
+
+      const offset = getContainingBlockOffset(currentSticker)
+
+      currentSticker.style.left = `${event.clientX - dragOffsetX - offset.left}px`
+      currentSticker.style.top = `${event.clientY - dragOffsetY - offset.top}px`
+    })
+
+    document.addEventListener('mouseup', () => {
+      currentSticker = null
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true })
+  } else {
+    init()
+  }
 })()
