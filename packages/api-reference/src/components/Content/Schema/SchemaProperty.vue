@@ -113,10 +113,28 @@ const shouldRenderObjectProperties = computed(() => {
     return false
   }
 
-  return (
-    isTypeObject(value) &&
-    ('properties' in value || 'additionalProperties' in value)
-  )
+  if (!('properties' in value || 'additionalProperties' in value)) {
+    return false
+  }
+
+  // `allOf` already merges the factored-out sibling `properties` into its
+  // rendered result (see `mergeAllOfSchemas`), so rendering a separate object
+  // block here would show those properties twice. Let the composition handle it.
+  if ('allOf' in value) {
+    return false
+  }
+
+  // A schema may factor its common `properties` out to the top level alongside
+  // a composition keyword (anyOf/oneOf/not), as described in the JSON Schema
+  // "factoring schemas" guide. `isTypeObject` deliberately rejects such schemas
+  // so the composition is rendered, but the factored-out properties must still
+  // show. Unlike `allOf`, these compositions do not merge sibling properties.
+  // Render them unless the schema is an explicit non-object (scalar or array)
+  // type. See https://github.com/scalar/scalar/issues/8593
+  const type = (value as { type?: unknown }).type
+  const isExplicitNonObject = typeof type === 'string' && type !== 'object'
+
+  return isTypeObject(value) || !isExplicitNonObject
 })
 
 /** Determine if array of objects should be rendered */
@@ -143,16 +161,36 @@ const displayDescription = computed(() =>
 )
 
 /**
- * When the property already renders the description, avoid repeating it in the nested object schema card.
+ * The schema used to render the object's own properties.
+ *
+ * Composition keywords are stripped so the nested object renders only its
+ * properties. The compositions are rendered separately below; leaving them here
+ * would route the nested `Schema` back through `SchemaProperty` and recurse.
+ *
+ * When the property already renders the description, we also drop it to avoid
+ * repeating it in the nested object schema card.
  */
 const objectSchemaForChildren = computed(() => {
   const value = optimizedValue.value
-  if (!value || !displayDescription.value || !('description' in value)) {
+  if (!value) {
     return value
   }
 
-  const { description: _description, ...schemaWithoutDescription } = value
-  return schemaWithoutDescription as SchemaObject
+  const {
+    oneOf: _oneOf,
+    anyOf: _anyOf,
+    allOf: _allOf,
+    not: _not,
+    ...objectSchema
+  } = value as Record<string, unknown>
+
+  if (displayDescription.value && 'description' in objectSchema) {
+    const { description: _description, ...schemaWithoutDescription } =
+      objectSchema
+    return schemaWithoutDescription as SchemaObject
+  }
+
+  return objectSchema as SchemaObject
 })
 
 /** Determine if property heading should be displayed */
