@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.10 (2026-06-22)
+
+### Request signing, auth token fixes, and parameter editing improvements
+
+This release adds a new hook for request signing use cases, fixes auth tokens being dropped when document names contain spaces or special characters, and improves the behavior of query parameter renaming in the request editor.
+
+- New requestBuilt hook and onRequestBuilt callback receive the exact fetch Request sent over the wire, making request body signing possible for multipart/form-data and other use cases
+- Fixed Bearer tokens being dropped when documents loaded via sources have non-slug-safe names (spaces, special characters)
+- Renaming auto-expanded query parameter keys now commits the change on blur and persists in both the request and table
+- Header mutations in the new requestBuilt hook apply to the outgoing request (unlike onBeforeRequest which rebuilds after the callback)
+- Query parameters not defined in the schema are now surfaced as their own rows after renaming
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1110)
+
 ## 1.1.9 (2026-06-17)
 
 ### Editable Watch Mode sources and improved input performance

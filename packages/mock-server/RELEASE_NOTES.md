@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.0 (2026-06-22)
+
+### Mock AsyncAPI documents and validate all parameter styles
+
+The mock server can now generate event-driven APIs from AsyncAPI 3.1 documents, serving channels over WebSocket and Server-Sent Events. Request validation has been extended to cover header and cookie parameters, and all OpenAPI serialization styles are now deserialized before validation.
+
+- AsyncAPI 3.1 documents are mocked through a new createAsyncApiMockServer function that serves channels over WebSocket and SSE.
+- Messages are generated from payload schemas using the same generator as REST endpoints, and custom transports can be added through an extension point.
+- The Docker mock server auto-detects AsyncAPI documents and starts the event-driven engine automatically.
+- Header and cookie parameters are validated against their schemas, with case-insensitive header matching and spec-compliant filtering of Accept, Content-Type, and Authorization.
+- Array and object parameters are deserialized by their OpenAPI style (form, simple, deepObject, label, matrix, and delimiter styles) before validation, so complex query strings and path segments validate correctly.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0120)
+
 ## 0.11.1 (2026-06-17)
 
 ### Smarter response selection and format fixes
