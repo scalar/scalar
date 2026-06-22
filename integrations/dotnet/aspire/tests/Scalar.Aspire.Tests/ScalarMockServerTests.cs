@@ -142,8 +142,11 @@ public class ScalarMockServerTests
             .AddScalarMockServer("contract-mock")
             .WithDocumentFrom(api, routePattern: "/openapi/v1.json");
 
-        // The target is referenced so service discovery resolves its endpoint inside the container.
-        mock.Resource.Annotations.OfType<EnvironmentCallbackAnnotation>().Should().NotBeEmpty();
+        // WithReference relates the mock to the target so service discovery resolves its endpoint
+        // inside the container. A mock server without WithDocumentFrom has no such relationship, so this
+        // proves the reference was added rather than just any environment callback.
+        mock.Resource.Annotations.OfType<ResourceRelationshipAnnotation>()
+            .Should().Contain(relationship => relationship.Resource.Name == "contract");
     }
 
     // Runs ConfigureEnvironment and resolves any IValueProvider (e.g. endpoint references) to strings.
