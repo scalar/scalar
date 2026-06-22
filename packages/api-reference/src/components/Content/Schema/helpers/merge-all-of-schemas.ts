@@ -171,18 +171,14 @@ const mergeSchemaIntoResult = (
     }
     // OneOf/AnyOf
     else if (key === 'oneOf' || key === 'anyOf') {
-      // Merge oneOf/anyOf subschema
-      if (Array.isArray(value)) {
-        if (!('properties' in result)) {
-          // @ts-expect-error
-          result.properties = {}
-        }
-        for (const _option of value) {
-          const option = resolve.schema(_option)
-          if (option && 'properties' in option && 'properties' in result) {
-            mergePropertiesIntoResult(result.properties, option.properties, seenRefs)
-          }
-        }
+      // Preserve the composition itself so its variants keep rendering as a
+      // selector. Flattening the option properties into the parent would drop
+      // the variant structure entirely and silently lose branches that have no
+      // top-level `properties` (for example branches that are themselves an
+      // `allOf`). The sibling `allOf` members stay on `result` as base
+      // properties, which the Schema component renders above the selector.
+      if (Array.isArray(value) && value.length > 0 && (override || result[key] === undefined)) {
+        result[key] = value
       }
     }
     // Skip allOf as it's handled at a higher level
