@@ -66,17 +66,18 @@ const selectedResponseIndex = ref<number>(0)
  * Without this, the index can become out of bounds and cause a mismatch
  * between the visible tabs and the displayed content.
  *
- * We also reset `selectedExampleKey` to match the behavior of `changeTab`,
- * since the new response may not have the same example keys.
+ * We re-resolve `selectedExampleKey` the same way `changeTab` does, so the picker keeps the
+ * document-wide selection when the newly active response defines it instead of being blanked out.
  */
 watch(statusCodesWithContent, (codes) => {
   if (codes.length === 0) {
     selectedResponseIndex.value = 0
-    selectedExampleKey.value = ''
   } else if (selectedResponseIndex.value >= codes.length) {
     selectedResponseIndex.value = codes.length - 1
-    selectedExampleKey.value = ''
+  } else {
+    return
   }
+  selectedExampleKey.value = resolveExampleKey(selectedExample)
 })
 
 // Return the whole response object

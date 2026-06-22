@@ -253,7 +253,9 @@ watch(
     if (
       !Object.keys(requestBodyExamples.value).includes(localExampleKey.value)
     ) {
-      localExampleKey.value = Object.keys(requestBodyExamples.value)[0] ?? ''
+      // Re-resolve so the new content type still follows the document-wide selection when it has
+      // that key, instead of always snapping back to the first example
+      localExampleKey.value = resolveExampleKey(selectedExample)
     }
   },
 )

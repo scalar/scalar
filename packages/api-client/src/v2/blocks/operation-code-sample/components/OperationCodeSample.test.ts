@@ -456,6 +456,43 @@ describe('RequestExample', () => {
       expect(emitted?.[emitted.length - 1]).toEqual(['example2'])
     })
 
+    it('follows the document-wide selection after a content-type change when the new type has that example', async () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/json': {
+              examples: {
+                jsonOnly: { value: { a: 1 } },
+              },
+            },
+            'text/plain': {
+              examples: {
+                // First key differs from the synced selection, so a naive reset would pick "other"
+                other: { value: 'other' },
+                shared: { value: 'shared' },
+              },
+            },
+          },
+        },
+      }
+
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          operation,
+          selectedContentType: 'application/json',
+          selectedExample: 'shared',
+        },
+      })
+
+      // Switch to a content type whose first example is not the synced one, but which still has it
+      await wrapper.setProps({ selectedContentType: 'text/plain' })
+      await nextTick()
+
+      const emitted = wrapper.emitted('update:exampleKey')
+      expect(emitted?.[emitted.length - 1]).toEqual(['shared'])
+    })
+
     it('selects first example by default when no example is provided', () => {
       const wrapper = mount(RequestExample, {
         props: {
