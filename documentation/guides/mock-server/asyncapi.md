@@ -81,6 +81,8 @@ For each message the mock server, in order of preference:
 
 Channel addresses with path parameters (for example `rooms/{roomId}`) become route parameters (`/rooms/:roomId`).
 
+> The SSE transport emits one message per `receive` operation and then closes the stream, rather than streaming continuously. Reconnect (or let your SSE client reconnect) to get another batch.
+
 ## Document detection
 
 The Docker mock server and CLI automatically detect AsyncAPI documents (by their top-level `asyncapi` field) and start the AsyncAPI mock instead of the REST mock — no extra flag is required.

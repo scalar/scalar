@@ -36,8 +36,13 @@ export const websocketTransport: MockTransport = {
           log(`[ws] recv ${channel.route}: ${incoming}`)
           onMessage?.({ channel: channel.id, direction: 'in', payload: incoming })
 
-          // Echo a generated reply for the channel's send operation (if any).
-          const reply = generateMessage(channel, sendOperation?.messages[0]?.id)
+          // Only echo a reply when the channel declares a `send` operation. Receive-only channels
+          // (server push) stay quiet on inbound frames instead of fabricating an unsolicited reply.
+          if (!sendOperation) {
+            return
+          }
+
+          const reply = generateMessage(channel, sendOperation.messages[0]?.id)
           if (reply) {
             ws.send(reply.data)
             onMessage?.({ channel: channel.id, direction: 'out', payload: reply.data })

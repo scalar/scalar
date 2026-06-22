@@ -9,15 +9,5 @@ import { websocketTransport } from './websocket'
  */
 export const defaultTransports: MockTransport[] = [websocketTransport, sseTransport]
 
-export type {
-  MessageDirection,
-  MockMessage,
-  MockTransport,
-  ResolvedChannel,
-  ResolvedMessage,
-  ResolvedOperation,
-  TransportContext,
-} from '@/transports/types'
-
 export { sseTransport } from './sse'
 export { websocketTransport } from './websocket'

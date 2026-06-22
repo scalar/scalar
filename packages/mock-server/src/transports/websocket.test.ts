@@ -30,7 +30,7 @@ channel.operations[0]!.messages = channel.messages
 channel.operations[1]!.messages = channel.messages
 
 /** Register the transport against fakes and return the captured WebSocket event handlers. */
-function register() {
+function register(target: ResolvedChannel = channel) {
   let handlers: any
   const context: TransportContext = {
     app: {
@@ -45,7 +45,7 @@ function register() {
     log: vi.fn(),
   }
 
-  websocketTransport.register(channel, context)
+  websocketTransport.register(target, context)
   return { handlers, onMessage: context.onMessage as ReturnType<typeof vi.fn> }
 }
 
@@ -79,5 +79,22 @@ describe('websocketTransport', () => {
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ direction: 'in', payload: '{"text":"hi"}' }))
     expect(sent).toHaveLength(1)
     expect(JSON.parse(sent[0]!)).toHaveProperty('text')
+  })
+
+  it('does not echo inbound messages on receive-only channels', () => {
+    // A channel with only a receive (push) operation should stay quiet on inbound frames.
+    const receiveOnly: ResolvedChannel = {
+      ...channel,
+      operations: [{ id: 'receive', action: 'receive', messages: channel.messages }],
+    }
+    const { handlers, onMessage } = register(receiveOnly)
+    const sent: string[] = []
+    const ws = { send: (data: string) => sent.push(data) }
+
+    handlers.onMessage({ data: '{"text":"hi"}' }, ws)
+
+    expect(sent).toHaveLength(0)
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ direction: 'in', payload: '{"text":"hi"}' }))
+    expect(onMessage).not.toHaveBeenCalledWith(expect.objectContaining({ direction: 'out' }))
   })
 })

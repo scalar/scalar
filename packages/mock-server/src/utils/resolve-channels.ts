@@ -85,12 +85,14 @@ export function resolveChannels(document: AsyncApiDocument): ResolvedChannel[] {
     const channel = getResolvedRef(rawChannel as any) as Record<string, any>
     const address = typeof channel.address === 'string' ? channel.address : channelId
 
-    // Channel-level messages, keyed by message id.
+    // Channel-level messages, keyed by their `channels.*.messages` key. Operation `$ref`s point at
+    // this key, which can differ from the message's `name` (and therefore from `message.id`), so the
+    // lookup map is keyed by the original key rather than the resolved id.
     const messageEntries = Object.entries((channel.messages ?? {}) as Record<string, unknown>)
     const messages = messageEntries.map(([messageId, message]) =>
       resolveMessage(messageId, message, document.defaultContentType),
     )
-    const messagesById = new Map(messages.map((message) => [message.id, message]))
+    const messagesByKey = new Map(messageEntries.map(([key], index) => [key, messages[index]!]))
 
     // Operations that target this channel, matched via their `channel` `$ref`.
     const channelOperations: ResolvedOperation[] = Object.entries(operations)
@@ -105,7 +107,7 @@ export function resolveChannels(document: AsyncApiDocument): ResolvedChannel[] {
           ? operation.messages
               .map((message: any) => message?.['$ref'])
               .filter((ref: unknown): ref is string => typeof ref === 'string')
-              .map((ref: string) => messagesById.get(refTail(ref)))
+              .map((ref: string) => messagesByKey.get(refTail(ref)))
               .filter((message: ResolvedMessage | undefined): message is ResolvedMessage => message !== undefined)
           : messages
 

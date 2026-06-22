@@ -88,6 +88,37 @@ describe('resolveChannels', () => {
     expect(prices.operations[0]!.messages.map((message) => message.id)).toEqual(['priceUpdate'])
   })
 
+  it('matches operation message subsets by channel key even when the message defines a different name', async () => {
+    const document = await processAsyncApiDocument({
+      asyncapi: '3.1.0',
+      info: { title: 'Named', version: '1.0.0' },
+      servers: { production: { host: 'localhost', protocol: 'sse' } },
+      channels: {
+        feed: {
+          address: 'feed',
+          messages: {
+            // The message key (`update`) differs from its declared `name` (`UpdateEvent`).
+            update: { name: 'UpdateEvent', payload: { type: 'object', properties: { id: { type: 'string' } } } },
+            heartbeat: { payload: { type: 'string' } },
+          },
+        },
+      },
+      operations: {
+        streamFeed: {
+          action: 'receive',
+          channel: { $ref: '#/channels/feed' },
+          messages: [{ $ref: '#/channels/feed/messages/update' }],
+        },
+      },
+    })
+
+    const feed = resolveChannels(document)[0]!
+
+    // The resolved id reflects the message `name`, while the operation still resolves via the key.
+    expect(feed.messages.map((message) => message.id)).toEqual(['UpdateEvent', 'heartbeat'])
+    expect(feed.operations[0]!.messages.map((message) => message.id)).toEqual(['UpdateEvent'])
+  })
+
   it('infers the ws protocol from channel bindings when servers are absent', async () => {
     const document = await processAsyncApiDocument({
       asyncapi: '3.1.0',
