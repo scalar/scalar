@@ -15,6 +15,10 @@
   width: 50%;
 }
 
+.sidebar-mobile-menu {
+  z-index: 123123123123 !important;
+}
+
 /* Component Preview Styles */
 
 .scalar-component-preview {
