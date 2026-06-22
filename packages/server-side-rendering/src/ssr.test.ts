@@ -261,7 +261,7 @@ describe('ssr', () => {
     it('serializes configuration into the hydration script', async () => {
       const html = await renderApiReference({ config: { url: 'https://example.com/api.json' }, css: '' })
 
-      expect(html).toContain('"url": "https://example.com/api.json"')
+      expect(html).toContain('"url":"https://example.com/api.json"')
     })
 
     it('prevents script breakout in hydration config serialization', async () => {
@@ -273,9 +273,7 @@ describe('ssr', () => {
       })
 
       expect(html).not.toContain('</script><script>window.__pwned=1</script>')
-      expect(html).toContain(
-        '"title": "\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=1\\u003c/script\\u003e"',
-      )
+      expect(html).toContain('"title":"\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=1\\u003c/script\\u003e"')
     })
 
     it('preserves top-level function properties in hydration config serialization', async () => {
@@ -288,7 +286,7 @@ describe('ssr', () => {
       })
 
       expect(html).toContain('Scalar.createApiReference')
-      expect(html).toContain('"url": "https://example.com/api.json"')
+      expect(html).toContain('"url":"https://example.com/api.json"')
       expect(html).toContain('"onLoaded": () => console.log("loaded")')
     })
 
@@ -315,7 +313,7 @@ describe('ssr', () => {
         ],
       })
 
-      expect(result).toContain('"theme": "kepler"')
+      expect(result).toContain('"theme":"kepler"')
       expect(result).toContain('"hooks": [() => "ready", {"label":"stable"}]')
     })
 
