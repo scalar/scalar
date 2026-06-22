@@ -5,6 +5,8 @@
   const stickerFilterLimit = 9
   const stickerRootSelector = '.company-team-section, .company-investors-layout'
   const isInteractiveDevice = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+  const isSafari = /^((?!chrome|android).)*safari/i.test(window.navigator.userAgent)
+  const shouldUseStaticStickers = !isInteractiveDevice || isSafari
   let currentSticker = null
   let dragOffsetX = 0
   let dragOffsetY = 0
@@ -36,11 +38,72 @@
     return { left: rect.left, top: rect.top }
   }
 
+  const getSvgAspectRatio = (svg) => {
+    const viewBox = svg.viewBox?.baseVal
+
+    if (viewBox?.width && viewBox?.height) {
+      return viewBox.width / viewBox.height
+    }
+
+    const width = Number.parseFloat(svg.getAttribute('width') || '')
+    const height = Number.parseFloat(svg.getAttribute('height') || '')
+
+    return width && height ? width / height : 1
+  }
+
+  const getStickerViewportSize = (sticker, svg) => {
+    const stickerStyles = window.getComputedStyle(sticker)
+    let width = Number.parseFloat(stickerStyles.width)
+    let height = Number.parseFloat(stickerStyles.height)
+
+    if (sticker.classList.contains('company-investor-sticker')) {
+      const logo = sticker.closest('.company-investor-logo')
+      const logoWidth = logo?.getBoundingClientRect().width || width
+      const aspectRatio = getSvgAspectRatio(svg)
+
+      width = Math.min(logoWidth * 0.98, 360)
+      height = width / aspectRatio
+    }
+
+    if (!width || !height) {
+      const rect = sticker.getBoundingClientRect()
+
+      width ||= rect.width || 190
+      height ||= rect.height || width
+    }
+
+    return {
+      height: Math.round(height),
+      width: Math.round(width),
+    }
+  }
+
+  const normalizeStickerSvgViewport = (sticker, svg) => {
+    const { height, width } = getStickerViewportSize(sticker, svg)
+
+    sticker.style.width = `${width}px`
+    sticker.style.height = `${height}px`
+    svg.setAttribute('width', String(width))
+    svg.setAttribute('height', String(height))
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet')
+    svg.style.display = 'block'
+    svg.style.width = '100%'
+    svg.style.height = '100%'
+    svg.style.maxWidth = '100%'
+    svg.style.maxHeight = '100%'
+  }
+
   const namespaceStickerSvgIds = (sticker) => {
     const prefix = sticker.dataset.companyStickerIdPrefix
     const svg = sticker.querySelector('svg')
 
-    if (!prefix || !svg || svg.dataset.companyStickerIdsNamespaced === prefix) {
+    if (!svg) {
+      return
+    }
+
+    normalizeStickerSvgViewport(sticker, svg)
+
+    if (!prefix || svg.dataset.companyStickerIdsNamespaced === prefix) {
       return
     }
 
@@ -89,7 +152,7 @@
   }
 
   const blockInteractiveStickerLoads = () => {
-    if (isInteractiveDevice) {
+    if (!shouldUseStaticStickers) {
       return
     }
 
@@ -99,7 +162,7 @@
   }
 
   const prepareCompanyStickers = () => {
-    if (!isInteractiveDevice) {
+    if (shouldUseStaticStickers) {
       blockInteractiveStickerLoads()
       return
     }
@@ -170,7 +233,8 @@
   }
 
   const init = () => {
-    if (!isInteractiveDevice) {
+    if (shouldUseStaticStickers) {
+      document.documentElement.classList.add('company-stickers-static')
       removeStickerFilterEffects()
       blockInteractiveStickerLoads()
       return
@@ -180,12 +244,13 @@
     observeStickerRoots()
   }
 
-  if (!isInteractiveDevice) {
+  if (shouldUseStaticStickers) {
+    document.documentElement.classList.add('company-stickers-static')
     removeStickerFilterEffects()
     blockInteractiveStickerLoads()
   }
 
-  if (isInteractiveDevice) {
+  if (!shouldUseStaticStickers) {
     document.addEventListener('mousemove', (event) => {
       if (!currentSticker) {
         return
@@ -200,6 +265,8 @@
     document.addEventListener('mouseup', () => {
       currentSticker = null
     })
+
+    window.addEventListener('resize', schedulePrepareCompanyStickers)
   }
 
   if (document.readyState === 'loading') {

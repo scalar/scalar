@@ -275,7 +275,7 @@ We are the API company, giving you industry-best interfaces for your APIs so you
       <span class="company-investor-title-line">Managing Director, Kindred</span>
     </div>
   </article>
-  <div class="company-investor-list">
+  <div class="company-investor-list text-base">
     <article class="company-investor-person">
       <span class="company-investor-name-line">Guillermo Rauch</span>
       <span class="company-investor-title-line">CEO, Vercel</span>
@@ -316,8 +316,6 @@ We are the API company, giving you industry-best interfaces for your APIs so you
       <span class="company-investor-name-line">Moe Amaya</span>
       <span class="company-investor-title-line">Founder, Operate</span>
     </article>
-  </div>
-  <div class="company-investor-list">
     <article class="company-investor-person">
       <span class="company-investor-name-line">Ramtin Naimi</span>
       <span class="company-investor-title-line">Founder, Abstract</span>
@@ -342,7 +340,7 @@ We are the API company, giving you industry-best interfaces for your APIs so you
       <span class="company-investor-name-line">Andrew Miklas</span>
       <span class="company-investor-title-line">Founder, PagerDuty</span>
     </article>
-        <article class="company-investor-person">
+    <article class="company-investor-person">
       <span class="company-investor-name-line">Dan Briggs</span>
       <span class="company-investor-title-line">Co-Founder, Streamyard</span>
     </article>
@@ -508,6 +506,7 @@ We are the API company, giving you industry-best interfaces for your APIs so you
     aspect-ratio: auto;
     cursor: grab;
     clip-path: none;
+    overflow: hidden;
     transform: translate(-50%, -50%) translateZ(0);
   }
   .company-team .company-team-sticker {
@@ -550,9 +549,11 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   }
   .company-team-sticker > svg {
     display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    overflow: visible !important;
   }
   .company-team-sticker .sticker-lighting,
   .company-team-sticker .flap-lighting {
@@ -574,8 +575,20 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   }
   .company-team-sticker-interactive {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: visible !important;
+  }
+  .company-stickers-static .company-team-sticker-interactive {
+    display: none !important;
+  }
+  .company-stickers-static .company-team-sticker {
+    cursor: default;
+  }
+  .company-stickers-static .company-team-sticker-static {
+    display: block;
   }
   @media (hover: none), (pointer: coarse) {
     .company-team-sticker-interactive {
@@ -616,9 +629,14 @@ We are the API company, giving you industry-best interfaces for your APIs so you
     min-width: 0;
     flex-direction: column;
   }
-  .company-investor-feature,
-  .company-investor-list {
+  .company-investor-feature {
     grid-column: span 1;
+  }
+  .company-investor-list {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 12px;
   }
   .company-investor-feature {
     gap: 8px;
@@ -658,6 +676,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
     left: 50%;
     width: min(98%, 360px);
     height: auto;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
     transform: translate(-50%, -50%) translateZ(0);
   }
   .company-investor-sticker foreignObject,
@@ -698,9 +718,6 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   .company-investor-person {
     gap: 4px;
   }
-  .company-investor-list {
-    gap: 32px;
-  }
   .company-investor-name-line,
   .company-investor-title-line {
     display: block;
@@ -708,12 +725,10 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   }
   .company-investor-name-line {
     color: var(--scalar-color-1);
-    font-size: var(--scalar-heading-3);
     font-weight: var(--scalar-semibold);
   }
   .company-investor-title-line {
     color: var(--scalar-color-3);
-    font-size: var(--scalar-font-size-2);
     line-height: var(--scalar-line-height-2);
   }
   .company-careers {
@@ -804,11 +819,23 @@ We are the API company, giving you industry-best interfaces for your APIs so you
       overflow: hidden;
     }
   }
+  @media (max-width: 999px) {
+    .company-team-member-image {
+      background: transparent;
+    }
+    .company-investor-logo {
+      box-shadow: none;
+    }
+  }
   @media (max-width: 760px) {
     .company-team {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .company-investors-layout {
+      gap: 40px 12px;
+    }
+    .company-investor-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 40px 12px;
     }
     .company-career-row {
