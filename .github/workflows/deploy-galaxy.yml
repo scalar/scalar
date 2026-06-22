@@ -66,7 +66,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./projects/galaxy-scalar-com/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=pr-${{ inputs.pr-number }} --commit-hash=${{ inputs.sha }}
+          command: pages deploy --cwd ./projects/galaxy-scalar-com/cloudflare --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=pr-${{ inputs.pr-number }} --commit-hash=${{ inputs.sha }}
 
       # Main branch deploy — production (release) or staging (other commits),
       # decided by the active environment's CLOUDFLARE_PAGES_PROJECT.
@@ -77,7 +77,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./projects/galaxy-scalar-com/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=main --commit-hash=${{ inputs.sha }}
+          command: pages deploy --cwd ./projects/galaxy-scalar-com/cloudflare --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=main --commit-hash=${{ inputs.sha }}
 
       # Only set the preview URL when deploying from a PR — merge and release
       # deploys have no PR comment to link back to.

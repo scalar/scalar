@@ -1,0 +1,23 @@
+// Pages deployment config for galaxy-scalar-com.
+//
+// Wrangler reads compatibility settings for `pages deploy` from this file (or
+// the dashboard), NOT from the `build` script's `--compatibility-*` flags —
+// those only configure the dry-run bundle. Keeping the flag here applies it to
+// both the production and preview environments, so the worker's `node:*`
+// imports resolve at runtime.
+//
+// Why this lives in a `cloudflare/` subdirectory rather than the project root:
+//   - Pages rejects `--config <custom path>`, so the file must use the default
+//     `wrangler.jsonc` name and be discovered via the directory wrangler runs in.
+//   - A `wrangler.jsonc` in the project root would be auto-discovered by the
+//     `build` script's `wrangler deploy --dry-run` (a Workers command) and fail
+//     with "you've run a Workers-specific command in a Pages project".
+// Wrangler only searches its working directory, so the deploy workflow points
+// `--cwd` here while the build (run from the project root) never sees it.
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "galaxy-scalar-com",
+  "pages_build_output_dir": "../dist",
+  "compatibility_date": "2026-04-28",
+  "compatibility_flags": ["nodejs_compat"]
+}
