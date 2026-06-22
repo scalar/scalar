@@ -32,6 +32,8 @@ const props = withDefaults(
     hideModelNames?: boolean
     /** When the schema was resolved from a $ref, pass the ref name so it displays as e.g. "Data" instead of "object". */
     modelName?: string | null
+    /** Resolved propertyNames schema, used to surface key constraints like `format` for additional properties. */
+    propertyNames?: SchemaObject
     eventBus?: WorkspaceEventBus | null
   }>(),
   {
@@ -243,6 +245,27 @@ const displayType = computed(() => {
   return getSchemaType(props.value)
 })
 
+/**
+ * Type and format of the property keys, derived from the propertyNames schema.
+ *
+ * For a map keyed by UUIDs this renders e.g. "string · uuid" so the key
+ * constraints are not lost. Returns undefined when there is nothing to show.
+ */
+const propertyNamesDetail = computed(() => {
+  const schema = props.propertyNames
+  if (!schema) {
+    return undefined
+  }
+
+  const parts = [getSchemaType(schema)]
+  if ('format' in schema && typeof schema.format === 'string') {
+    parts.push(schema.format)
+  }
+
+  const detail = parts.filter(Boolean).join(' · ')
+  return detail.length > 0 ? detail : undefined
+})
+
 const exampleValue = computed(() => {
   // Treat only `undefined` as "not set" — `null` is a valid example value on a nullable schema.
   if (
@@ -299,6 +322,14 @@ const exampleValue = computed(() => {
           </LinkButton>
           <template v-else>{{ modelLink.label }}</template>
         </template>
+      </SchemaPropertyDetail>
+
+      <!-- Key constraints from propertyNames (e.g. "keys: string · uuid") -->
+      <SchemaPropertyDetail
+        v-if="propertyNamesDetail"
+        truncate>
+        <template #prefix>keys:</template>
+        {{ propertyNamesDetail }}
       </SchemaPropertyDetail>
 
       <!-- Dynamic validation properties from composable -->
