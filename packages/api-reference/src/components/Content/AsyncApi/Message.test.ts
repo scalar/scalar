@@ -175,4 +175,71 @@ describe('Message', () => {
 
     expect(wrapper.text()).not.toContain('Payload')
   })
+
+  const documentWithServers = (message: Record<string, unknown>): AsyncApiDocument =>
+    ({
+      asyncapi: '3.0.0',
+      info: { title: 'Streaming API', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      servers: {
+        production: { host: 'galaxy.scalar.com', protocol: 'wss' },
+        development: { host: 'localhost', protocol: 'ws' },
+      },
+      channels: {
+        userSignedUp: {
+          address: 'user/signedup',
+          messages: { userSignedUp: message },
+        },
+      },
+    }) as unknown as AsyncApiDocument
+
+  it("exposes every protocol the message's channel servers speak, even without bindings", () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: documentWithServers({ title: 'User signed up' }),
+        eventBus: null,
+      },
+    })
+
+    const protocols = wrapper.findAll('.async-api-label--protocol').map((el) => el.text())
+    expect(protocols).toContain('wss')
+    expect(protocols).toContain('ws')
+  })
+
+  it('unions message binding protocols with the channel server protocols', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: documentWithServers({
+          title: 'User signed up',
+          // Declares a kafka binding that no server speaks; it should still surface.
+          bindings: { kafka: { groupId: 'g1' } },
+        }),
+        eventBus: null,
+      },
+    })
+
+    const protocols = wrapper.findAll('.async-api-label--protocol').map((el) => el.text())
+    expect(protocols).toContain('wss')
+    expect(protocols).toContain('ws')
+    expect(protocols).toContain('kafka')
+  })
+
+  it('falls back to message binding protocols when no servers are defined', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({
+          title: 'User signed up',
+          bindings: { ws: { method: 'GET' }, mqtt: {} },
+        }),
+        eventBus: null,
+      },
+    })
+
+    const protocols = wrapper.findAll('.async-api-label--protocol').map((el) => el.text())
+    expect(protocols).toContain('ws')
+    expect(protocols).toContain('mqtt')
+  })
 })

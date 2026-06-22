@@ -211,6 +211,83 @@ describe('Channel', () => {
     expect(wrapper.text()).toContain('On user signed up')
   })
 
+  const documentWithServers = (channel: Record<string, unknown> = { address: 'user/signedup' }): AsyncApiDocument =>
+    ({
+      asyncapi: '3.0.0',
+      info: { title: 'Streaming API', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      servers: {
+        production: { host: 'galaxy.scalar.com', protocol: 'wss' },
+        development: { host: 'localhost', protocol: 'ws' },
+      },
+      channels: { userSignedUp: channel },
+    }) as unknown as AsyncApiDocument
+
+  it.each(['modern', 'classic'] as const)(
+    'renders server and protocol labels for every document server in the %s layout',
+    (layout) => {
+      const wrapper = mount(Channel, {
+        props: {
+          channel: createChannel(),
+          document: documentWithServers(),
+          layout,
+          isCollapsed: false,
+          eventBus: null,
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).toContain('production')
+      expect(text).toContain('development')
+      expect(text).toContain('wss')
+      expect(text).toContain('ws')
+    },
+  )
+
+  it('restricts labels to the servers the channel declares', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        document: documentWithServers({
+          address: 'user/signedup',
+          servers: [{ $ref: '#/servers/production' }],
+        }),
+        layout: 'modern',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    const text = wrapper.text()
+    expect(text).toContain('production')
+    expect(text).toContain('wss')
+    expect(text).not.toContain('development')
+  })
+
+  it('de-duplicates protocols shared across servers', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        document: {
+          asyncapi: '3.0.0',
+          info: { title: 'Streaming API', version: '1.0.0' },
+          'x-scalar-original-document-hash': '',
+          servers: {
+            primary: { host: 'a.example.com', protocol: 'wss' },
+            secondary: { host: 'b.example.com', protocol: 'wss' },
+          },
+          channels: { userSignedUp: { address: 'user/signedup' } },
+        } as unknown as AsyncApiDocument,
+        layout: 'modern',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    // Both server names show, but the shared protocol only renders once.
+    expect(wrapper.findAll('.async-api-label--protocol')).toHaveLength(1)
+  })
+
   // Regression: both layouts must forward `expandedItems` to Operation so sidebar
   // navigation can expand the nested message accordions.
   it.each(['modern', 'classic'] as const)('forwards expandedItems to the operation in the %s layout', (layout) => {

@@ -2,6 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
@@ -15,12 +16,17 @@ import {
 } from '@/helpers/get-async-api-message-payload-schema'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiLabels from './AsyncApiLabels.vue'
 import {
   resolveSchemaRenderOptions,
   type AsyncApiSchemaRenderOptions,
 } from './helpers/async-api-render-options'
+import { getChannelServerLabels } from './helpers/get-async-api-labels'
 import { pickHeading } from './helpers/pick-heading'
-import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
+import {
+  resolveAsyncApiChannel,
+  resolveAsyncApiMessage,
+} from './helpers/resolve-async-api-nodes'
 
 /** Subset of the configuration the shared `Schema` renderer needs. */
 type SchemaRenderOptions = AsyncApiSchemaRenderOptions
@@ -64,6 +70,36 @@ const description = computed(
   () =>
     resolvedMessage.value?.description || resolvedMessage.value?.summary || '',
 )
+
+/**
+ * Protocol keys declared directly on the message's protocol-specific `bindings`
+ * (for example `ws`, `kafka`). The bindings object may be a `$ref`, so it is resolved
+ * before reading the keys. Keys are lowercased to match the server protocols (which the
+ * helper normalizes), so the union below de-duplicates case-insensitively.
+ */
+const messageBindingProtocols = computed(() => {
+  const bindings = resolvedMessage.value?.bindings
+  if (!bindings) {
+    return []
+  }
+  const resolved = getResolvedRef(bindings)
+  return Object.entries(resolved)
+    .filter(([, value]) => value != null)
+    .map(([protocol]) => protocol.toLowerCase())
+})
+
+/**
+ * Protocol labels for the message. A message is carried over whatever protocols its
+ * channel's servers speak, so we start from the channel's server protocols and union in
+ * any extra protocols the message declares its own bindings for. Without this a
+ * multi-protocol message would only surface the single protocol it happens to declare a
+ * binding for (or none at all).
+ */
+const protocolLabels = computed(() => {
+  const channel = resolveAsyncApiChannel(document, message.channelName)
+  const { protocols } = getChannelServerLabels(document, channel)
+  return [...new Set([...protocols, ...messageBindingProtocols.value])]
+})
 
 /** Payload schema, unwrapped from `$ref`s and Multi Format Schema wrappers. */
 const payloadSchema = computed(() =>
@@ -122,12 +158,15 @@ const onToggle = (open: boolean) => {
           @copyAnchorUrl="
             () => eventBus?.emit('copy-url:nav-item', { id: message.id })
           ">
-          <SectionHeaderTag
-            :id="headerId"
-            class="message-title"
-            :level="4">
-            {{ headingText }}
-          </SectionHeaderTag>
+          <span class="message-heading">
+            <SectionHeaderTag
+              :id="headerId"
+              class="message-title"
+              :level="4">
+              {{ headingText }}
+            </SectionHeaderTag>
+            <AsyncApiLabels :protocols="protocolLabels" />
+          </span>
         </Anchor>
       </template>
 
@@ -174,6 +213,17 @@ const onToggle = (open: boolean) => {
   font-size: var(--scalar-heading-4);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
+}
+/*
+ * Lay the heading and protocol labels out on one wrapping row. The labels live inside the
+ * Anchor slot so the copy-anchor "#" button (absolutely positioned just past the end of the
+ * slot content on hover) trails after the last pill instead of overlapping the first one.
+ */
+.message-heading {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 /* Pad the expanded body so the description and schemas don't sit flush against the border. */
 .message-accordion :deep(.section-accordion-content-card) {
