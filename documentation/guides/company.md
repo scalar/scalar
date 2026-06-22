@@ -1,20 +1,28 @@
 # Company
 
+Building on a great API is one of the best feelings in software: every desired interface is right there and it all just works. Building on a bad one is the opposite: out-of-date docs, no SDK in your favourite language and no MCP server. We started Scalar to solve this.
 
-Scalar started from a simple frustration: APIs had become the center of modern software, but the interfaces around them were still scattered across docs, SDK generators, testing tools, and internal workflows.
+As a small team (10) of engineers and designers, we wear a lot of hats and obsess over our craft. We think every company deserves Stripe-level docs, SDKs, and MCP servers from day zero, not just the ones with a platform team to build them.
+
 
 <a href="#careers" aria-label="Join Scalar community on Discord" class="expander-hover-link t-editor__anchor">Explore Careers  →</a>
 
 
 ## Our Story
 
-We believe those surfaces should move together. When an API evolves, the documentation, client libraries, MCP servers, and testing experience should stay in sync instead of drifting into separate versions of the truth.
+Three things drive everything we build: accessibility, API-first, and open-source. Accessibility is about that "just works" feeling. When integration is easy, people build — so we obsess over the path to the first successful request.
+
+API-first is how a business scales for what's coming. If your product is built around a clean API, it's ready for whatever consumes it next, including Agents & LLMs.
 
 <img class="company-hero-image rounded" src="/marc-cam-scalar.jpg" alt="Marc and Cam from Scalar" width="5251" height="3501" decoding="async" />
 
-That is why Scalar is built around OpenAPI and a developer experience that feels polished from the first page to the last request. Teams can write with Markdown and MDX, generate references from OpenAPI and AsyncAPI, ship type-safe SDKs, and bring the same source of truth into CI/CD.
+Open-source is in our DNA. [Twelve years](https://github.com/jasperproject/jasperproject.github.io/pull/15) ago I built a Twitter module for Jasper, an open-source voice assistant — my first real contribution to something bigger than myself. It got merged, and that feeling of being part of something people actually used never left.
 
-The teams who build with Scalar are shaping the API platforms other developers depend on every day. Our work is to make those APIs easier to understand, easier to test, and easier to trust.
+Today our whole team contributes to and maintains repositories across the open-source API ecosystem, and we care about that work meticulously. Done right, open-source is transparent, it builds the shared standards everyone relies on, like OpenAPI, it accelerates innovation, and it brings people together. It's core to who we are, not a marketing line.
+
+We're fans of show-don't-tell, so the best intro to Scalar is using it: the docs you're reading now, our SDKs and API Client, the Agent/MCP servers for chatting with APIs, and our GitHub for everything open-source.
+
+We are the API company, giving you industry-best interfaces for your APIs so you don't have to build the undifferentiated work yourself.
 
 ## Our Team
 
