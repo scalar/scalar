@@ -151,6 +151,24 @@ const selectedComposition = computed(
 )
 
 /**
+ * The request body card renders the merged `allOf` description on its outer card
+ * (see `Schema.vue`), but only for the top-level request body schema. For that
+ * single composition we hide the nested merged `Schema`'s description so the text
+ * is not shown twice. Nested request-body compositions (deeper properties) are
+ * not shown on the outer card and would otherwise lose their description
+ * entirely, because the property row already skips it when `allOf` is present.
+ *
+ * The top-level request body composition is the one whose `compositionPath` is
+ * still the request body root (`['requestBody']`); nested compositions append
+ * property segments and therefore have a longer path.
+ */
+const isRequestBodyRootComposition = computed(
+  () =>
+    props.schemaContext === 'requestBody' &&
+    props.compositionPath?.length === 1,
+)
+
+/**
  * Cycle key for the selected composition member, derived from its raw
  * (unresolved) value so a member that references an ancestor is detected as a
  * cycle.
@@ -199,7 +217,7 @@ if (
       :compositionPath="compositionPath"
       :discriminator="discriminator"
       :eventBus="eventBus"
-      :hideDescription="schemaContext === 'requestBody'"
+      :hideDescription="isRequestBodyRootComposition"
       :hideHeading="hideHeading"
       :hideModelNames
       :level="level + 1"

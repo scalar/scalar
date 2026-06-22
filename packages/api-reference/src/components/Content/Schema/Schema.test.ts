@@ -99,6 +99,41 @@ describe('Schema', () => {
       expect(occurrences).toBe(1)
     })
 
+    it('keeps the description of a nested request body allOf property', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          name: 'Request Body',
+          eventBus: null,
+          compact: true,
+          noncollapsible: true,
+          // The request body passes this context down to the composition
+          schemaContext: 'requestBody',
+          compositionPath: ['requestBody'],
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              // A property whose schema is an allOf. The property row skips the
+              // description, so the nested merged schema is the only place it can
+              // appear and must not be hidden (see
+              // https://github.com/scalar/scalar/pull/9546).
+              user: {
+                allOf: [
+                  {
+                    type: 'object',
+                    description: 'Nested user information',
+                    properties: { name: { type: 'string' } },
+                  },
+                ],
+              },
+            },
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Nested user information')
+    })
+
     it('does show the allOf description', () => {
       const wrapper = mount(Schema, {
         props: {
