@@ -58,12 +58,10 @@
   "dependencies": {
     "@scalar/helpers": "workspace:*",
     "commander": "catalog:*",
-    "semver": "catalog:*",
     "zod": "catalog:*"
   },
   "devDependencies": {
     "@types/node": "catalog:*",
-    "@types/semver": "catalog:*",
     "tsx": "catalog:*",
     "vitest": "catalog:*"
   }

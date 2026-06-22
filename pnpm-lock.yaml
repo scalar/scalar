@@ -2237,9 +2237,6 @@ importers:
       commander:
         specifier: catalog:*
         version: 13.1.0
-      semver:
-        specifier: catalog:*
-        version: 7.7.2
       zod:
         specifier: catalog:*
         version: 4.3.5
@@ -2247,9 +2244,6 @@ importers:
       '@types/node':
         specifier: ^24.1.0
         version: 24.10.13
-      '@types/semver':
-        specifier: catalog:*
-        version: 7.5.8
       tsx:
         specifier: catalog:*
         version: 4.19.4
