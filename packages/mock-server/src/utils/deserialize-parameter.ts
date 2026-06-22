@@ -127,6 +127,21 @@ const wrap = (value: string | undefined): string[] | undefined => (value === und
 const split = (value: string | undefined, delimiter: string): string[] | undefined =>
   value === undefined ? undefined : value === '' ? [] : value.split(delimiter)
 
+/**
+ * Build an exploded array from the repeated values (query) or the single value (other locations).
+ *
+ * A lone empty value (`?ids=`) is an empty array, not `['']`, matching the non-exploded `split`
+ * behaviour so an optional empty array is not rejected on its element type and `minItems` runs as
+ * intended. An explicitly repeated empty (`?ids=a&ids=`) keeps every element.
+ */
+const explodedArray = (single: string | undefined, multi: string[] | undefined): string[] | undefined => {
+  const values = multi ?? wrap(single)
+  if (values === undefined) {
+    return undefined
+  }
+  return values.length === 1 && values[0] === '' ? [] : values
+}
+
 /** Drop a leading prefix (for example the `.` of `label` or the `;` of `matrix`) when present. */
 const stripPrefix = (value: string, prefix: string): string =>
   value.startsWith(prefix) ? value.slice(prefix.length) : value
@@ -220,9 +235,9 @@ export const deserializeArrayParameter = ({
 }): string[] | undefined => {
   switch (style) {
     case 'spaceDelimited':
-      return explode ? (multi ?? wrap(single)) : split(single, ' ')
+      return explode ? explodedArray(single, multi) : split(single, ' ')
     case 'pipeDelimited':
-      return explode ? (multi ?? wrap(single)) : split(single, '|')
+      return explode ? explodedArray(single, multi) : split(single, '|')
     case 'simple':
       // Path and header arrays are comma-separated; `explode` does not change the delimiter. HTTP allows
       // optional whitespace after the comma in header list values (`a, b, c`), so trim each element.
@@ -235,7 +250,7 @@ export const deserializeArrayParameter = ({
       return parseMatrixArray(single, explode)
     default:
       // `form` (and any unrecognised style): an exploded array repeats the key, otherwise it is comma-joined.
-      return explode ? (multi ?? wrap(single)) : split(single, ',')
+      return explode ? explodedArray(single, multi) : split(single, ',')
   }
 }
 

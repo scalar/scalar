@@ -119,6 +119,25 @@ describe('deserialize-parameter', () => {
       expect(deserializeArrayParameter({ style: 'spaceDelimited', explode: false, single: '' })).toEqual([])
       expect(deserializeArrayParameter({ style: 'label', explode: false, single: '.' })).toEqual([])
     })
+
+    it('deserializes an empty exploded value as an empty array, not a phantom element', () => {
+      // Exploded `form` is the query default, so `?ids=` must also be zero elements (matching the
+      // non-exploded styles) rather than the `['']` that a naive repeated-value read would produce.
+      expect(deserializeArrayParameter({ style: 'form', explode: true, single: '', multi: [''] })).toEqual([])
+      expect(deserializeArrayParameter({ style: 'spaceDelimited', explode: true, single: '', multi: [''] })).toEqual([])
+      expect(deserializeArrayParameter({ style: 'pipeDelimited', explode: true, single: '', multi: [''] })).toEqual([])
+      // A non-query exploded location has no repeated values, only the single empty string.
+      expect(deserializeArrayParameter({ style: 'form', explode: true, single: '' })).toEqual([])
+    })
+
+    it('keeps an explicitly repeated empty element in an exploded array', () => {
+      // `?ids=a&ids=` is two elements the client chose to send, so the empty one is preserved; only a
+      // lone empty value collapses to an empty array.
+      expect(deserializeArrayParameter({ style: 'form', explode: true, single: 'a', multi: ['a', ''] })).toEqual([
+        'a',
+        '',
+      ])
+    })
   })
 
   describe('isObjectSchema', () => {
