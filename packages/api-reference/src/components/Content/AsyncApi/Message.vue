@@ -158,16 +158,16 @@ const onToggle = (open: boolean) => {
           @copyAnchorUrl="
             () => eventBus?.emit('copy-url:nav-item', { id: message.id })
           ">
-          <SectionHeaderTag
-            :id="headerId"
-            class="message-title"
-            :level="4">
-            {{ headingText }}
-          </SectionHeaderTag>
+          <span class="message-heading">
+            <SectionHeaderTag
+              :id="headerId"
+              class="message-title"
+              :level="4">
+              {{ headingText }}
+            </SectionHeaderTag>
+            <AsyncApiLabels :protocols="protocolLabels" />
+          </span>
         </Anchor>
-        <AsyncApiLabels
-          class="message-labels"
-          :protocols="protocolLabels" />
       </template>
 
       <ScalarMarkdown
@@ -214,9 +214,13 @@ const onToggle = (open: boolean) => {
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
 }
-/* Lay the heading and protocol labels out on a single wrapping row. */
-.message-accordion :deep(.section-accordion-button-content) {
-  display: flex;
+/*
+ * Lay the heading and protocol labels out on one wrapping row. The labels live inside the
+ * Anchor slot so the copy-anchor "#" button (absolutely positioned just past the end of the
+ * slot content on hover) trails after the last pill instead of overlapping the first one.
+ */
+.message-heading {
+  display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
