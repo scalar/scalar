@@ -14,10 +14,12 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
+import { inferDiscriminatorMappingComposition } from './helpers/get-compositions-to-render'
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
+import SchemaComposition from './SchemaComposition.vue'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
@@ -186,6 +188,21 @@ const schemaDescription = computed(() => {
   return schema.description
 })
 
+/**
+ * Some generators (for example NSwag) describe a polymorphic base type as a
+ * plain object with a `discriminator.mapping` but no explicit `oneOf`. We infer
+ * the variant composition from the mapping so the selector still renders.
+ *
+ * The `discriminator` prop is only set when this schema is already a variant
+ * being rendered inside a `SchemaComposition`; skipping the inference in that
+ * case avoids re-inferring (and recursing) on a self-referential mapping.
+ */
+const inferredDiscriminatorComposition = computed(() =>
+  schema && !discriminator
+    ? inferDiscriminatorMappingComposition(schema, options.document)
+    : null,
+)
+
 // Prevent click action if noncollapsible
 const handleClick = (e: MouseEvent) => {
   if (noncollapsible) {
@@ -290,9 +307,25 @@ const handleClick = (e: MouseEvent) => {
           v-if="!additionalProperties || open"
           as="ul"
           :static="!shouldShowToggle">
+          <!-- Variant selector inferred from a discriminator mapping -->
+          <SchemaComposition
+            v-if="inferredDiscriminatorComposition"
+            :breadcrumb
+            :compact
+            composition="oneOf"
+            :compositionPath="compositionPath"
+            :discriminator="schema?.discriminator"
+            :eventBus="eventBus"
+            :hideHeading
+            :hideModelNames
+            :level="level"
+            :name="name"
+            :options
+            :schema="inferredDiscriminatorComposition"
+            :schemaContext="schemaContext" />
           <!-- Object properties -->
           <SchemaObjectProperties
-            v-if="isTypeObject(schema)"
+            v-else-if="isTypeObject(schema)"
             :breadcrumb
             :compact
             :compositionPath="compositionPath"

@@ -17,7 +17,16 @@ type DocumentSchemaLookup = Pick<OpenApiDocument, 'components'>
 const normalizeDiscriminatorMappingRef = (value: string) =>
   value.startsWith('#/') || value.includes('/') ? value : `#/components/schemas/${value}`
 
-const inferDiscriminatorMappingComposition = (
+/**
+ * Builds a synthetic `oneOf` composition from a `discriminator.mapping` when the
+ * schema declares a mapping but no explicit `oneOf`/`anyOf`. This is the shape
+ * NSwag emits for polymorphic types, where the base type is a plain object with
+ * a discriminator mapping pointing at the concrete variants.
+ *
+ * Returns `null` when there is nothing to infer (an explicit composition is
+ * already present, no document to resolve refs against, or no resolvable refs).
+ */
+export const inferDiscriminatorMappingComposition = (
   value: SchemaObject,
   document?: DocumentSchemaLookup,
 ): SchemaObject | null => {

@@ -206,6 +206,58 @@ describe('Schema', () => {
 
       expect(wrapper.text()).toContain('Parent schema description')
     })
+
+    // https://github.com/scalar/scalar/issues/7472
+    // NSwag emits the base type as a plain object with a `discriminator.mapping`
+    // but no `oneOf`/`anyOf`. The variant dropdown should still be inferred from
+    // the mapping.
+    it('renders a variant dropdown for an object schema with only discriminator mapping', () => {
+      const document = {
+        components: {
+          schemas: {
+            BaseClass: {
+              type: 'object',
+              discriminator: {
+                propertyName: '$type',
+                mapping: {
+                  Base: '#/components/schemas/BaseClass',
+                  Derived: '#/components/schemas/DerivedClass',
+                },
+              },
+              required: ['$type'],
+              properties: {
+                baseInt: { type: 'integer', format: 'int32' },
+                $type: { type: 'string' },
+              },
+            },
+            DerivedClass: {
+              allOf: [
+                { $ref: '#/components/schemas/BaseClass' },
+                { type: 'object', properties: { derivedInt: { type: 'integer' } } },
+              ],
+            },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: coerceValue(SchemaObjectSchema, document.components.schemas.BaseClass),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      // The composition selector (variant dropdown) should be rendered with the
+      // variants inferred from the mapping.
+      expect(wrapper.find('.composition-selector').exists()).toBe(true)
+      expect(wrapper.text()).toContain('One of')
+      expect(wrapper.text()).toContain('BaseClass')
+
+      // The discriminator property keeps its label inside the selected variant.
+      expect(wrapper.text()).toContain('Discriminator')
+    })
   })
 
   describe('additionalProperties Vue prop', () => {
