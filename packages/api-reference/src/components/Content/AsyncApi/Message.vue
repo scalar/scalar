@@ -74,7 +74,8 @@ const description = computed(
 /**
  * Protocol keys declared directly on the message's protocol-specific `bindings`
  * (for example `ws`, `kafka`). The bindings object may be a `$ref`, so it is resolved
- * before reading the keys.
+ * before reading the keys. Keys are lowercased to match the server protocols (which the
+ * helper normalizes), so the union below de-duplicates case-insensitively.
  */
 const messageBindingProtocols = computed(() => {
   const bindings = resolvedMessage.value?.bindings
@@ -84,7 +85,7 @@ const messageBindingProtocols = computed(() => {
   const resolved = getResolvedRef(bindings)
   return Object.entries(resolved)
     .filter(([, value]) => value != null)
-    .map(([protocol]) => protocol)
+    .map(([protocol]) => protocol.toLowerCase())
 })
 
 /**

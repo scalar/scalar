@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import { Badge } from '@/components/Badge'
+
 const { servers = [], protocols = [] } = defineProps<{
   /** Names of the servers an entry is available on. */
   servers?: string[]
@@ -18,23 +20,23 @@ const hasLabels = computed(() => servers.length > 0 || protocols.length > 0)
     class="async-api-labels">
     <template v-if="servers.length">
       <span class="sr-only">Servers:</span>
-      <span
+      <Badge
         v-for="server in servers"
         :key="`server-${server}`"
-        class="async-api-label async-api-label--server"
+        class="async-api-label--server"
         :title="server">
         {{ server }}
-      </span>
+      </Badge>
     </template>
     <template v-if="protocols.length">
       <span class="sr-only">Protocols:</span>
-      <span
+      <Badge
         v-for="protocol in protocols"
         :key="`protocol-${protocol}`"
-        class="async-api-label async-api-label--protocol"
+        class="async-api-label--protocol"
         :title="protocol">
         {{ protocol }}
-      </span>
+      </Badge>
     </template>
   </div>
 </template>
@@ -46,22 +48,8 @@ const hasLabels = computed(() => servers.length > 0 || protocols.length > 0)
   align-items: center;
   gap: 6px;
 }
-.async-api-label {
-  font-size: var(--scalar-mini);
-  font-weight: var(--scalar-semibold);
-  line-height: 1.4;
-  border-radius: 12px;
-  padding: 2px 8px;
-  display: inline-flex;
-  align-items: center;
-}
-.async-api-label--server {
-  color: var(--scalar-color-2);
-  background: var(--scalar-background-2);
-}
+/* Protocols read as identifiers, so render them uppercase to set them apart from server names. */
 .async-api-label--protocol {
-  color: var(--scalar-color-1);
-  background: var(--scalar-background-3);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
