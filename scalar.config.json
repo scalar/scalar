@@ -806,7 +806,9 @@
             "filepath": "documentation/guides/customers/customers.md",
             "type": "page",
             "layout": {
-              "toc": false
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false
             },
             "head": {
               "links": [
