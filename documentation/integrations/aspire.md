@@ -388,6 +388,76 @@ var scalar = builder.AddScalarApiReference(options =>
 });
 ```
 
+## Mock Server
+
+`AddScalarMockServer` registers a [Scalar Mock Server](https://github.com/scalar/scalar/tree/main/packages/mock-server) as an Aspire resource. The mock server generates realistic API responses directly from an OpenAPI/Swagger document, so you can stand up a fake backend—for a service that does not exist yet, an external dependency, or a frontend that needs stable data—without writing any handlers. Other resources can depend on the mock via service discovery just like any real service.
+
+The mock server runs as the published `scalarapi/mock-server` container, so the same container [prerequisite](#prerequisites) (Docker or Podman) applies.
+
+### Quick Start
+
+```csharp
+using Scalar.Aspire;
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+// Mock a backend straight from an OpenAPI document
+var petstore = builder.AddScalarMockServer("petstore", options =>
+{
+    options.WithDocumentUrl("https://example.com/openapi.json");
+});
+
+// Other resources can depend on the mock as if it were the real service
+builder.AddProject<Projects.BookService>("book-service")
+    .WithReference(petstore);
+
+builder.Build().Run();
+```
+
+The mock server serves the resolved OpenAPI document at `/openapi.json` and `/openapi.yaml`, and responds to every operation defined in the document.
+
+### Document Sources
+
+Exactly one document source must be configured. Choose the one that matches where your OpenAPI document lives:
+
+```csharp
+// Inline content (JSON or YAML), embedded into the container — no volume mount required
+builder.AddScalarMockServer("inline", options => options.WithDocument(openApiString));
+
+// Read a local file at AppHost build time and provide it inline
+builder.AddScalarMockServer("from-file", options => options.WithDocumentFile("./openapi/petstore.yaml"));
+
+// Fetch from an absolute URL on startup
+builder.AddScalarMockServer("from-url", options =>
+    options.WithDocumentUrl("https://example.com/openapi.json"));
+```
+
+### Deriving the Document From Another Resource
+
+Use `WithDocumentFrom` to point the mock server at another resource's OpenAPI endpoint. The endpoint is resolved through Aspire service discovery at runtime:
+
+```csharp
+var contract = builder.AddProject<Projects.ContractService>("contract");
+
+var mock = builder
+    .AddScalarMockServer("contract-mock")
+    .WithDocumentFrom(contract, routePattern: "/openapi/v1.json");
+```
+
+By default the resource's HTTP endpoint is used; pass `endpointName` to select a specific endpoint (for example, `"https"`).
+
+### Exposing and Rendering the Mock
+
+Call `WithExternalHttpEndpoints()` to reach the mock from outside the AppHost, and register it with the API Reference like any other service (its document is served at `/openapi.json`):
+
+```csharp
+var mock = builder
+    .AddScalarMockServer("petstore", options => options.WithDocumentUrl("https://example.com/openapi.json"))
+    .WithExternalHttpEndpoints();
+
+scalar.WithApiReference(mock, options => options.WithOpenApiRoutePattern("/openapi.json"));
+```
+
 ## Additional Resources
 
 For more advanced configuration options see the [.NET ASP.NET Core documentation](aspnetcore/integration.md#configuration-options). Many configuration options are similar between `Scalar.AspNetCore` and `Scalar.Aspire` integrations, including [Agent](aspnetcore/integration.md#agent) (AI chat).
