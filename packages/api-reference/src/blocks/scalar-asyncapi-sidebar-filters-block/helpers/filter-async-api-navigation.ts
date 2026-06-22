@@ -9,7 +9,7 @@ import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
 /** The currently selected sidebar filters. Empty / sentinel values disable a filter. */
-export type AsyncApiNavigationFilter = {
+type AsyncApiNavigationFilter = {
   /** Selected protocol id, or {@link ALL} / undefined for no protocol filter. */
   protocol?: string
   /** Selected server name, or {@link ALL} / undefined for no server filter. */

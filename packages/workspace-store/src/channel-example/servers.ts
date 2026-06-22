@@ -46,7 +46,7 @@ export type AsyncApiServerEntry = {
 const resolveServer = (server: NonNullable<AsyncApiDocument['servers']>[string]): AsyncApiServerObject =>
   getResolvedRef(server)
 
-export const getServerNameFromRef = (ref: string): string | undefined => getNameFromRef(ref, ['servers'])
+const getServerNameFromRef = (ref: string): string | undefined => getNameFromRef(ref, ['servers'])
 
 /**
  * Collects the names of `document.servers` entries that the channel is restricted to.
