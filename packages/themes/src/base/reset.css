@@ -85,7 +85,9 @@
   }
 
   /** Style placeholder text */
-  input::placeholder {
+  input::placeholder,
+  text-area::placeholder,
+  ::-webkit-input-placeholder {
     color: var(--scalar-color-3);
     font-family: var(--scalar-font);
   }
