@@ -206,7 +206,9 @@ test.describe('scalar-app-page-tour.e2e', () => {
     await seedLongRequestUrlDocument(page)
 
     const longOperationExample = `/@local/default/document/${LONG_URL_TEST_DOCUMENT}/path/${encodeURIComponent(LONG_REQUEST_PATH)}/method/get/example/default`
-    await page.goto(longOperationExample, { waitUntil: 'load', timeout: 60_000 })
+    // Navigate within the SPA via the router so the document seeded above survives. A full page
+    // reload would race the debounced workspace persistence and sometimes rehydrate without it.
+    await page.evaluate((path) => window.dumpAppState().router.push(path), longOperationExample)
     await expect(page).toHaveURL(/\/example\/default/)
     await page.locator('[data-addressbar-action="send"]').first().waitFor({ state: 'visible', timeout: 60_000 })
     await snapshotMain(page, 'operation-example-long-request-url')

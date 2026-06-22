@@ -224,14 +224,12 @@ export const runRequestScriptsCspScenario = async (page: Page): Promise<void> =>
 
     await seedScriptDocument(page, mockServer.origin)
 
-    await page.evaluate((documentName) => {
+    // Navigate within the SPA via the router so the in-memory document seeded above survives.
+    // A full page reload would race the debounced workspace persistence and sometimes rehydrate
+    // without the seeded document, leaving the operation view (and its send button) unrendered.
+    await page.evaluate(async (documentName) => {
       const path = `/@local/default/document/${documentName}/path/%252Fscripts/method/get/example/default`
-      if (window.location.href.startsWith('file:')) {
-        window.location.hash = path
-        return
-      }
-
-      window.location.assign(path)
+      await window.dumpAppState().router.push(path)
     }, SCRIPT_TEST_DOCUMENT)
     await expect(page).toHaveURL(new RegExp(`/document/${SCRIPT_TEST_DOCUMENT}/.*example/default`))
 
