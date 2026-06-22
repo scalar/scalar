@@ -117,12 +117,20 @@ const shouldRenderObjectProperties = computed(() => {
     return false
   }
 
+  // `allOf` already merges the factored-out sibling `properties` into its
+  // rendered result (see `mergeAllOfSchemas`), so rendering a separate object
+  // block here would show those properties twice. Let the composition handle it.
+  if ('allOf' in value) {
+    return false
+  }
+
   // A schema may factor its common `properties` out to the top level alongside
-  // a composition keyword (anyOf/oneOf/allOf/not), as described in the JSON
-  // Schema "factoring schemas" guide. `isTypeObject` deliberately rejects such
-  // schemas so the composition is rendered, but the factored-out properties
-  // must still show. Render them unless the schema is an explicit non-object
-  // (scalar or array) type. See https://github.com/scalar/scalar/issues/8593
+  // a composition keyword (anyOf/oneOf/not), as described in the JSON Schema
+  // "factoring schemas" guide. `isTypeObject` deliberately rejects such schemas
+  // so the composition is rendered, but the factored-out properties must still
+  // show. Unlike `allOf`, these compositions do not merge sibling properties.
+  // Render them unless the schema is an explicit non-object (scalar or array)
+  // type. See https://github.com/scalar/scalar/issues/8593
   const type = (value as { type?: unknown }).type
   const isExplicitNonObject = typeof type === 'string' && type !== 'object'
 

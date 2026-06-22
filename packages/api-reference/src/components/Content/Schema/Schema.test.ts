@@ -1055,5 +1055,25 @@ describe('Schema', () => {
       expect(text).toContain('one')
       expect(text).toContain('another')
     })
+
+    it('does not duplicate properties factored out alongside allOf', () => {
+      // `allOf` already merges the factored-out sibling `properties` into its
+      // rendered result, so they must not also render in a separate object
+      // block. Two members keep the `allOf` intact (a single member is flattened
+      // away before rendering).
+      const text = renderText({
+        type: 'object',
+        allOf: [{ properties: { fromAllOfA: { type: 'string' } } }, { properties: { fromAllOfB: { type: 'string' } } }],
+        properties: {
+          factoredProperty: { type: 'string' },
+        },
+      })
+
+      const countOccurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1
+
+      expect(countOccurrences(text, 'factoredProperty')).toBe(1)
+      expect(countOccurrences(text, 'fromAllOfA')).toBe(1)
+      expect(countOccurrences(text, 'fromAllOfB')).toBe(1)
+    })
   })
 })
