@@ -169,6 +169,11 @@ const displayDescription = computed(() =>
  * properties. The compositions are rendered separately below; leaving them here
  * would route the nested `Schema` back through `SchemaProperty` and recurse.
  *
+ * The `discriminator` is stripped too: its variant selector is part of the
+ * composition rendered below (including the one inferred from a bare
+ * `discriminator.mapping`), so keeping it here would make the nested `Schema`
+ * infer and render a second, identical selector.
+ *
  * When the property already renders the description, we also drop it to avoid
  * repeating it in the nested object schema card.
  */
@@ -183,6 +188,7 @@ const objectSchemaForChildren = computed(() => {
     anyOf: _anyOf,
     allOf: _allOf,
     not: _not,
+    discriminator: _discriminator,
     ...objectSchema
   } = value as Record<string, unknown>
 

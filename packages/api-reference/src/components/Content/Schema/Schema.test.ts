@@ -293,6 +293,58 @@ describe('Schema', () => {
       // Exactly one variant selector, from the explicit oneOf.
       expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
     })
+
+    // https://github.com/scalar/scalar/issues/7472
+    // A nested property whose schema only declares a `discriminator.mapping`
+    // already gets its selector from `SchemaProperty` (via
+    // `getCompositionsToRender`). The object-properties child must not infer a
+    // second, identical selector.
+    it('does not infer a duplicate selector for a nested discriminator-mapping property', () => {
+      const petSchema = {
+        type: 'object',
+        discriminator: {
+          propertyName: '$type',
+          mapping: {
+            Base: '#/components/schemas/BaseClass',
+            Derived: '#/components/schemas/DerivedClass',
+          },
+        },
+        properties: {
+          baseInt: { type: 'integer' },
+          $type: { type: 'string' },
+        },
+      }
+
+      const document = {
+        components: {
+          schemas: {
+            BaseClass: petSchema,
+            DerivedClass: {
+              allOf: [
+                { $ref: '#/components/schemas/BaseClass' },
+                { type: 'object', properties: { derivedInt: { type: 'integer' } } },
+              ],
+            },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: { pet: petSchema },
+          }),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      // The object's own properties still render alongside the selector.
+      expect(wrapper.text()).toContain('baseInt')
+    })
   })
 
   describe('additionalProperties Vue prop', () => {
