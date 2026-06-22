@@ -180,6 +180,59 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('keeps form-style array leaves verbatim when an unrelated sibling row is edited', () => {
+    // Form-style object parameter (the query default) with an array property whose value carries a
+    // meaningful comma, e.g. Spring pageable `sort=username,asc`. Splitting it into ['username','asc']
+    // would change the emitted query, so the leaf must survive an unrelated edit untouched.
+    const parentParameter = {
+      name: 'pageable',
+      in: 'query',
+    } as const
+    const context: TableRow[] = [
+      {
+        name: 'sort',
+        value: 'username,asc',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        schema: { type: 'array', items: { type: 'string' } },
+        sourceParameterValuePath: ['sort'],
+      },
+      {
+        name: 'page',
+        value: '0',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        schema: { type: 'integer' },
+        sourceParameterValuePath: ['page'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context })
+
+    // The user edits the unrelated "page" row.
+    handlers.upsert(1, { name: 'page', value: '1', isDisabled: false })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'pageable',
+          value: {
+            sort: 'username,asc',
+            page: '1',
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-1',
+      },
+    )
+  })
+
   it('renames a form-expanded property row by moving the value to the typed key', () => {
     const parentParameter = {
       name: 'filters',

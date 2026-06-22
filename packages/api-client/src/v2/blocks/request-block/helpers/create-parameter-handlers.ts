@@ -58,6 +58,13 @@ const getExpandedObjectPayload = (
 ): { name: string; value: Record<string, unknown>; isDisabled: boolean } => {
   const value: Record<string, unknown> = {}
 
+  // Only deepObject leaves use the comma-to-array coercion below. The trailing-bracket array
+  // convention (`key[]=1&key[]=2`) is deepObject-specific, and deepObject leaves never carry a
+  // meaningful comma. Form-style object parameters can (e.g. Spring `sort=username,asc`), so they
+  // keep their leaves verbatim.
+  const parameter = row.originalParameter
+  const isDeepObjectParameter = Boolean(parameter && 'style' in parameter && parameter.style === 'deepObject')
+
   for (const contextRow of context) {
     if (contextRow.originalParameter !== row.originalParameter || !contextRow.sourceParameterValuePath) {
       continue
@@ -81,10 +88,12 @@ const getExpandedObjectPayload = (
         : contextRow.sourceParameterValuePath
       : contextRow.sourceParameterValuePath
 
-    // Rows always hold the string the user sees, so an array leaf arrives comma-joined ("1,2").
-    // Coerce it back against the property schema before storing — otherwise deepObject/form
-    // serialization re-collapses it into a single `key=1,2` entry instead of repeating `key[]=1&key[]=2`.
-    const leafValue = contextRow.schema ? deSerializeSchemaValue(nextValue, contextRow.schema) : nextValue
+    // Rows always hold the string the user sees, so a deepObject array leaf arrives comma-joined
+    // ("1,2"). Coerce it back against the property schema before storing — otherwise deepObject
+    // serialization re-collapses it into a single `key[in]=1,2` entry instead of repeating
+    // `key[in][]=1&key[in][]=2`.
+    const leafValue =
+      isDeepObjectParameter && contextRow.schema ? deSerializeSchemaValue(nextValue, contextRow.schema) : nextValue
 
     setValueAtPath(value, path, leafValue)
   }
