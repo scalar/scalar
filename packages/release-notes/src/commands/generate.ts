@@ -109,7 +109,8 @@ export const createReleaseNotesGeneratorCommand = (baseConfig: ReleaseNotesConfi
       // environment variable name. The env var name is harmless to log, but keeping
       // it out of the message avoids a false-positive clear-text-logging alert from
       // CodeQL, whose name-based heuristic flags anything derived from `apiKeyEnv`.
-      if (!config.provider && !hasBuiltInProviderApiKey(builtInProvider, options.apiKeyEnv)) {
+      const usesBuiltInProvider = Boolean(cliOverrides.provider) || !config.provider
+      if (usesBuiltInProvider && !hasBuiltInProviderApiKey(builtInProvider, options.apiKeyEnv)) {
         console.warn(`No API key set for the ${builtInProvider} provider; skipping release-notes generation.`)
         return
       }
