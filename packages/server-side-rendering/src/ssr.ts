@@ -255,11 +255,29 @@ function escapeFunctionSourceForInlineScript(source: string): string {
 }
 
 /**
- * Reject function values that would otherwise be silently dropped by JSON.stringify.
- * SSR only supports top-level function props and top-level arrays containing functions,
- * matching the client-side renderer behavior.
+ * Cheap recursive check for a function nested anywhere in a value.
+ *
+ * This runs on the full configuration for every render, so it deliberately avoids
+ * building path strings (the common case has no functions and never needs them).
  */
-const assertNoNestedFunctions = (value: unknown, path: string): void => {
+const containsNestedFunction = (value: unknown): boolean => {
+  if (typeof value === 'function') {
+    return true
+  }
+
+  if (Array.isArray(value)) {
+    return value.some(containsNestedFunction)
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.values(value).some(containsNestedFunction)
+  }
+
+  return false
+}
+
+/** Walk the value to build the precise path of the first nested function and throw. */
+const throwNestedFunctionError = (value: unknown, path: string): void => {
   if (typeof value === 'function') {
     throw new Error(
       `Cannot serialize function at "${path}" for SSR hydration. ` +
@@ -268,12 +286,26 @@ const assertNoNestedFunctions = (value: unknown, path: string): void => {
   }
 
   if (Array.isArray(value)) {
-    value.forEach((item, index) => assertNoNestedFunctions(item, `${path}[${index}]`))
+    value.forEach((item, index) => throwNestedFunctionError(item, `${path}[${index}]`))
     return
   }
 
   if (value && typeof value === 'object') {
-    Object.entries(value).forEach(([key, nestedValue]) => assertNoNestedFunctions(nestedValue, `${path}.${key}`))
+    Object.entries(value).forEach(([key, nestedValue]) => throwNestedFunctionError(nestedValue, `${path}.${key}`))
+  }
+}
+
+/**
+ * Reject function values that would otherwise be silently dropped by JSON.stringify.
+ * SSR only supports top-level function props and top-level arrays containing functions,
+ * matching the client-side renderer behavior.
+ *
+ * The cheap detection pass runs every render; the expensive path-building pass only
+ * runs in the rare case where a nested function is actually present.
+ */
+const assertNoNestedFunctions = (value: unknown, path: string): void => {
+  if (containsNestedFunction(value)) {
+    throwNestedFunctionError(value, path)
   }
 }
 
