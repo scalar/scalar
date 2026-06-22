@@ -54,7 +54,7 @@ public static class ScalarMockServerBuilderExtensions
         // The mock server does not require OTLP endpoint references to run.
         builder.Eventing.Subscribe<BeforeStartEvent>((_, _) =>
         {
-            RemoveOtlpExporterAnnotations(resource);
+            DistributedApplicationBuilderExtensions.RemoveOtlpExporterAnnotations(resource);
             return Task.CompletedTask;
         });
 
@@ -120,15 +120,6 @@ public static class ScalarMockServerBuilderExtensions
         else if (options.DocumentUrl is not null)
         {
             environmentVariables.Add(OpenApiDocumentUrl, options.DocumentUrl);
-        }
-    }
-
-    private static void RemoveOtlpExporterAnnotations(ScalarMockServerResource resource)
-    {
-        var otlpExporterAnnotations = resource.Annotations.OfType<OtlpExporterAnnotation>().ToArray();
-        foreach (var annotation in otlpExporterAnnotations)
-        {
-            resource.Annotations.Remove(annotation);
         }
     }
 }

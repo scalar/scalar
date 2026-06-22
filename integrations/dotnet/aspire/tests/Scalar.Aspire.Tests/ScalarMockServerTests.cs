@@ -29,6 +29,30 @@ public class ScalarMockServerTests
     }
 
     [Fact]
+    public void Options_WithDocumentFile_ReadsFileAsInlineContentExclusively()
+    {
+        var path = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(path, "openapi: 3.1.0");
+
+            var options = new ScalarMockServerOptions().WithDocumentUrl("https://example.com/openapi.json");
+
+            options.WithDocumentFile(path);
+
+            options.HasDocument.Should().BeTrue();
+            // The file is read at AppHost build time and provided inline.
+            options.DocumentContent.Should().Be("openapi: 3.1.0");
+            // Switching source clears the previous one — only one source is ever active.
+            options.DocumentUrl.Should().BeNull();
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
     public async Task ConfigureEnvironment_WithDocument_SetsOpenApiDocumentEnvVar()
     {
         var resource = new ScalarMockServerResource(MockServerResourceName);
@@ -78,6 +102,48 @@ public class ScalarMockServerTests
 
         envVars.Should().ContainKey(EnvironmentVariables.OpenApiDocumentUrl)
             .WhoseValue.Should().Be("http://localhost:5000/openapi/v1.json");
+    }
+
+    [Fact]
+    public void AddScalarMockServer_WithoutName_UsesDefaultResourceName()
+    {
+        var builder = DistributedApplication.CreateBuilder([]);
+
+        var mock = builder.AddScalarMockServer(options => options.WithDocument("openapi: 3.1.0"));
+
+        mock.Resource.Name.Should().Be("mock-server");
+    }
+
+    [Fact]
+    public void AddScalarMockServer_WiresContainerImagePortAndHealthCheck()
+    {
+        var builder = DistributedApplication.CreateBuilder([]);
+
+        var mock = builder.AddScalarMockServer("petstore", options => options.WithDocument("openapi: 3.1.0"));
+
+        var image = mock.Resource.Annotations.OfType<ContainerImageAnnotation>().Should().ContainSingle().Subject;
+        image.Image.Should().Be("scalarapi/mock-server");
+
+        // The container listens on port 3000 internally.
+        mock.Resource.Annotations.OfType<EndpointAnnotation>()
+            .Should().ContainSingle(e => e.TargetPort == 3000);
+
+        // A health check is registered so dependents can wait on the mock being ready.
+        mock.Resource.Annotations.OfType<HealthCheckAnnotation>().Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void WithDocumentFrom_AddsServiceDiscoveryReferenceToTarget()
+    {
+        var builder = DistributedApplication.CreateBuilder([]);
+
+        var api = builder.AddResource(new TestApiResource("contract"));
+        var mock = builder
+            .AddScalarMockServer("contract-mock")
+            .WithDocumentFrom(api, routePattern: "/openapi/v1.json");
+
+        // The target is referenced so service discovery resolves its endpoint inside the container.
+        mock.Resource.Annotations.OfType<EnvironmentCallbackAnnotation>().Should().NotBeEmpty();
     }
 
     // Runs ConfigureEnvironment and resolves any IValueProvider (e.g. endpoint references) to strings.
