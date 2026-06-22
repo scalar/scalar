@@ -1,5 +1,7 @@
 # @scalar/nuxt
 
+## 0.6.48
+
 ## 0.6.47
 
 ### Patch Changes

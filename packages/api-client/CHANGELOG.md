@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 3.11.0
+
+### Minor Changes
+
+- [#9515](https://github.com/scalar/scalar/pull/9515): feat: add `requestBuilt` client plugin hook and `onRequestBuilt` configuration callback that receive the exact fetch `Request` that is sent over the wire
+
+  The hook runs after the request has been built, right before it is sent. Header mutations apply to the outgoing request and the body bytes match what the server receives, which makes request signing possible: hashing the body of a rebuilt `multipart/form-data` request would produce a different multipart boundary than the request that is actually sent.
+
+### Patch Changes
+
+- [#9558](https://github.com/scalar/scalar/pull/9558): Fix the request runner dropping a manually typed auth token when the document name is not slug-safe (e.g. documents loaded via `sources`). The modal now reads auth secrets under the same document key they are written to.
+- [#9497](https://github.com/scalar/scalar/pull/9497): Fix renaming an auto-expanded query parameter row: the committed key is applied to the request and persists in the table without writing partial in-progress edits, and the original key no longer reappears as an empty suggestion
+
 ## 3.10.4
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.61.0
+
+### Minor Changes
+
+- [#9520](https://github.com/scalar/scalar/pull/9520): Render AsyncAPI operations and their messages (with payload and header schemas) nested inside each channel, in both the modern and classic layouts
+- [#9569](https://github.com/scalar/scalar/pull/9569): Show server and protocol labels when rendering AsyncAPI channels and messages: each channel header lists the servers it's available on and their protocols, and each message surfaces every protocol it's carried over (its channel's server protocols unioned with its own binding protocols)
+- [#9515](https://github.com/scalar/scalar/pull/9515): feat: add `requestBuilt` client plugin hook and `onRequestBuilt` configuration callback that receive the exact fetch `Request` that is sent over the wire
+
+  The hook runs after the request has been built, right before it is sent. Header mutations apply to the outgoing request and the body bytes match what the server receives, which makes request signing possible: hashing the body of a rebuilt `multipart/form-data` request would produce a different multipart boundary than the request that is actually sent.
+
+### Patch Changes
+
+- [#9559](https://github.com/scalar/scalar/pull/9559): Render an object's own properties when they are factored out alongside a composition keyword (`anyOf`/`oneOf`/`allOf`/`not`)
+- [#9542](https://github.com/scalar/scalar/pull/9542): Fix an SSR hydration mismatch in the injected `<style>` tag: the CSS is now rendered verbatim instead of being HTML-escaped on the server (`"` became `&quot;`), which broke font styles and caused a hydration mismatch.
+- [#9546](https://github.com/scalar/scalar/pull/9546): fix: let a later `allOf` member override the `description` and `title` of an earlier one
+- [#9557](https://github.com/scalar/scalar/pull/9557): Fix `oneOf`/`anyOf` being dropped when nested inside an `allOf`. The composition is now preserved so its variants keep rendering alongside the merged base properties, instead of only the first `allOf` member showing up.
+
 ## 1.60.0
 
 ### Minor Changes

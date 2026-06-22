@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.61.0 (2026-06-22)
+
+### AsyncAPI operations, messages, and protocols now render inline
+
+This release brings AsyncAPI documentation to parity with dedicated AsyncAPI tools by rendering operations and their message payloads inside each channel. Server and protocol labels now appear throughout, making it clear which servers and transports each channel and message uses.
+
+- AsyncAPI operations and their messages (with payload and header schemas) now render nested inside each channel in both modern and classic layouts
+- Channel headers show which servers they are available on and their protocols, while message headers display every protocol they are carried over
+- New requestBuilt client plugin hook and onRequestBuilt callback expose the exact fetch Request sent over the wire, enabling request signing with accurate body hashes
+- Fixed oneOf and anyOf being dropped when nested inside allOf, so composition variants now render alongside merged base properties
+- Object properties factored out alongside composition keywords (anyOf, oneOf, allOf, not) now render correctly instead of being hidden
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1610)
+
 ## 1.60.0 (2026-06-17)
 
 ### Plugin view slots, sidebar customization, and layout polish
