@@ -240,6 +240,20 @@ const displayType = computed(() => {
   if (!props.value) {
     return ''
   }
+
+  // When an array's *items* have a model name, the link already shows it (e.g.
+  // "Resource[]"), so the generic "array object[]" type would be redundant.
+  // This only applies when the array itself is not a named model.
+  if (
+    isArraySchema(props.value) &&
+    props.value.items &&
+    !props.modelName &&
+    !getModelNameFromSchema(props.value) &&
+    getModelNameFromSchema(props.value.items)
+  ) {
+    return 'array'
+  }
+
   return getSchemaType(props.value)
 })
 

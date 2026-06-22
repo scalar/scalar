@@ -151,7 +151,8 @@ describe('SchemaPropertyHeading', () => {
     })
 
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array object[]')
+    expect(detailsElement.text()).toContain('array')
+    expect(detailsElement.text()).not.toContain('object[]')
     expect(detailsElement.text()).toContain('Model[]')
   })
 
@@ -204,7 +205,8 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array object[]')
+    expect(detailsElement.text()).toContain('array')
+    expect(detailsElement.text()).not.toContain('object[]')
     expect(detailsElement.text()).toContain('FooModel[]')
   })
 
@@ -232,7 +234,8 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array object[]')
+    expect(detailsElement.text()).toContain('array')
+    expect(detailsElement.text()).not.toContain('object[]')
     expect(detailsElement.text()).toContain('BarModel[]')
   })
 
