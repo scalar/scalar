@@ -26,11 +26,11 @@ export const sourceConfigurationSchema = object({
   }),
   title: optional(string(), {
     typeComment:
-      'The title of the OpenAPI document. @deprecated Please move `title` to the top level and remove the `spec` prefix.',
+      'The title of the OpenAPI document. Used for the page title and the document name in the dropdown. With multiple `sources`, set this per source.',
   }),
   slug: optional(string(), {
     typeComment:
-      'The slug of the OpenAPI document used in the URL. @deprecated Please move `slug` to the top level and remove the `spec` prefix.',
+      'The slug of the OpenAPI document used in the URL. If none is passed, the title will be used. With multiple `sources`, set this per source.',
   }),
   spec: optional(
     object({

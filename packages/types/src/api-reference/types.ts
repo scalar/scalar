@@ -473,9 +473,9 @@ export type SourceConfiguration = {
   url?: string
   /** Directly embed the OpenAPI document. Can be a string, object, function returning an object, or null. It is recommended to pass a URL instead of content. */
   content?: string | null | Record<string, any> | (() => string | any)
-  /** The title of the OpenAPI document. @deprecated Please move `title` to the top level and remove the `spec` prefix. */
+  /** The title of the OpenAPI document. Used for the page title and the document name in the dropdown. With multiple `sources`, set this per source. */
   title?: string
-  /** The slug of the OpenAPI document used in the URL. @deprecated Please move `slug` to the top level and remove the `spec` prefix. */
+  /** The slug of the OpenAPI document used in the URL. If none is passed, the title will be used. With multiple `sources`, set this per source. */
   slug?: string
   /** @deprecated Use `url` and `content` on the top level instead. */
   spec?: {
