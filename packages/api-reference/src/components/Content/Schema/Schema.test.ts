@@ -36,7 +36,7 @@ describe('Schema', () => {
       expect(text).toContain('This description should be shown')
     })
 
-    it('shows the first description with allOf composition', () => {
+    it('shows the overriding description with allOf composition', () => {
       const wrapper = mount(Schema, {
         props: {
           name: 'Request Body',
@@ -45,12 +45,12 @@ describe('Schema', () => {
             allOf: [
               {
                 type: 'object',
-                description: 'This description should be shown',
+                description: 'This description should not be shown',
                 properties: { name: { type: 'string' } },
               },
               {
                 type: 'object',
-                description: 'This description should not be shown',
+                description: 'This description should be shown',
                 properties: { email: { type: 'string' } },
               },
             ],
@@ -60,8 +60,78 @@ describe('Schema', () => {
       })
 
       const text = wrapper.text()
+      // A later allOf member overrides the earlier description
       expect(text).toContain('This description should be shown')
       expect(text).not.toContain('This description should not be shown')
+    })
+
+    it('renders the request body allOf description only once', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          name: 'Request Body',
+          eventBus: null,
+          compact: true,
+          noncollapsible: true,
+          // The request body passes this context down to the composition
+          schemaContext: 'requestBody',
+          compositionPath: ['requestBody'],
+          schema: coerceValue(SchemaObjectSchema, {
+            allOf: [
+              {
+                type: 'object',
+                description: 'Base description',
+                properties: { name: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                description: 'Overriding description',
+                properties: { email: { type: 'string' } },
+              },
+            ],
+          }),
+          options: {},
+        },
+      })
+
+      // The merged description is shown on the outer card, so the nested merged
+      // schema must not repeat it (see https://github.com/scalar/scalar/pull/9546)
+      const occurrences = wrapper.text().split('Overriding description').length - 1
+      expect(occurrences).toBe(1)
+    })
+
+    it('keeps the description of a nested request body allOf property', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          name: 'Request Body',
+          eventBus: null,
+          compact: true,
+          noncollapsible: true,
+          // The request body passes this context down to the composition
+          schemaContext: 'requestBody',
+          compositionPath: ['requestBody'],
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              // A property whose schema is an allOf. The property row skips the
+              // description, so the nested merged schema is the only place it can
+              // appear and must not be hidden (see
+              // https://github.com/scalar/scalar/pull/9546).
+              user: {
+                allOf: [
+                  {
+                    type: 'object',
+                    description: 'Nested user information',
+                    properties: { name: { type: 'string' } },
+                  },
+                ],
+              },
+            },
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Nested user information')
     })
 
     it('does show the allOf description', () => {

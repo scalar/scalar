@@ -59,6 +59,54 @@ test.describe('schema rendering', () => {
     await expect(modelsRegion).toHaveScreenshot('all-models-collapsed.png')
   })
 
+  test('lets a later allOf member override the description and title (#6974)', async ({ page }) => {
+    const example = await serveExample({
+      content: {
+        openapi: '3.1.0',
+        info: { title: 'allOf override', version: '1.0' },
+        paths: {},
+        components: {
+          schemas: {
+            UserBase: {
+              type: 'object',
+              title: 'BaseUser',
+              description: 'Base user information',
+              properties: {
+                id: { type: 'integer', description: 'Unique user ID' },
+                email: { type: 'string', description: 'User email address' },
+              },
+            },
+            User: {
+              title: 'UserDetailsHeader',
+              allOf: [
+                { $ref: '#/components/schemas/UserBase' },
+                {
+                  type: 'object',
+                  title: 'UserDetails',
+                  description: 'Full user information',
+                  properties: { address: { type: 'string', description: 'Street address' } },
+                },
+              ],
+            },
+          },
+        },
+      },
+    })
+
+    await page.goto(`${example}#models`)
+    await page.setViewportSize({ width: 800, height: 600 })
+
+    const modelsRegion = page.getByRole('region', { name: 'Models' })
+    // The top-level title takes precedence over the allOf members
+    await modelsRegion.getByRole('button', { name: 'UserDetailsHeader' }).click()
+
+    // The later allOf member overrides the referenced base description
+    await expect(modelsRegion.getByText('Full user information')).toBeVisible()
+    await expect(modelsRegion.getByText('Base user information')).toHaveCount(0)
+
+    await expect(modelsRegion).toHaveScreenshot('allof-description-override.png')
+  })
+
   test('expands nested object children', async ({ page }) => {
     const example = await serveExample({ content: modelNames })
 
