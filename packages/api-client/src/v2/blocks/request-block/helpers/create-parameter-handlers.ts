@@ -23,7 +23,13 @@ const parseBracketKey = (name: string): string[] => {
     segments.push(head)
   }
   for (const match of name.matchAll(/\[([^\]]*)\]/g)) {
-    segments.push(match[1] ?? '')
+    const segment = match[1] ?? ''
+    // Skip empty `[]` segments. The trailing brackets on a deepObject array leaf
+    // (`filters[id][in][]`) are display-only and are not part of the value path — keeping them would
+    // add a bogus empty key that drops the value on write-back and corrupts rename tracking.
+    if (segment !== '') {
+      segments.push(segment)
+    }
   }
   return segments
 }
