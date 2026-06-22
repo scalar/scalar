@@ -147,6 +147,7 @@ import {
   ref,
   useId,
   watch,
+  watchEffect,
   type ComponentPublicInstance,
 } from 'vue'
 
@@ -182,6 +183,17 @@ const {
   globalCookies,
   requestBodyCompositionSelection,
 } = defineProps<OperationCodeSampleProps>()
+
+const emit = defineEmits<{
+  /**
+   * Emitted whenever the example key actually shown for this operation changes.
+   *
+   * This is the resolved local key (not the raw document-wide selection), so layouts that render
+   * the test-request button outside this component can open the client with the same example the
+   * snippet displays.
+   */
+  (e: 'update:exampleKey', value: string): void
+}>()
 
 defineSlots<{
   header: () => unknown
@@ -245,6 +257,12 @@ watch(
     }
   },
 )
+
+// Keep the parent informed of the resolved key so a test-request button rendered outside this
+// component (e.g. the classic layout header) opens the client with the example the snippet shows
+watchEffect(() => {
+  emit('update:exampleKey', localExampleKey.value)
+})
 
 /** Select an example locally and sync the choice across the document */
 const selectExample = (key: string) => {

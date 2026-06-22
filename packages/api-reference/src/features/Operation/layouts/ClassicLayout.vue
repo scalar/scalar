@@ -84,6 +84,16 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
 /** Track the selected request body content type so the code sample stays in sync */
 const selectedRequestBodyContentType = ref<string | undefined>()
 
+/**
+ * The example key actually shown in the request snippet for this operation.
+ *
+ * The test-request button lives in the accordion header, outside `OperationCodeSample`, so it
+ * cannot read the resolved key from the footer slot like the modern layout does. We mirror it here
+ * so the button opens the client with the same example the snippet displays, even when this
+ * operation does not share the document-wide selection.
+ */
+const resolvedExampleKey = ref<string>('')
+
 /** Selected request body oneOf/anyOf variants; synced with schema dropdowns and code sample */
 const requestBodyCompositionSelection = ref<RequestBodyCompositionSelection>({})
 
@@ -168,7 +178,7 @@ const { copyToClipboard } = useClipboard()
           v-if="active && !isWebhook"
           :id
           :eventBus
-          :exampleName="selectedExample"
+          :exampleName="resolvedExampleKey"
           :method
           :path
           :requestBodyCompositionSelection="
@@ -272,7 +282,8 @@ const { copyToClipboard } = useClipboard()
             :selectedClient
             :selectedContentType="selectedRequestBodyContentType"
             :selectedExample
-            :selectedServer />
+            :selectedServer
+            @update:exampleKey="resolvedExampleKey = $event" />
         </ScalarErrorBoundary>
       </div>
     </div>

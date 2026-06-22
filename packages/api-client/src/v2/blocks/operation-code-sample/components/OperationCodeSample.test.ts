@@ -401,6 +401,61 @@ describe('RequestExample', () => {
       }
     })
 
+    it('emits update:exampleKey with the resolved key on mount', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          selectedContentType: 'application/json',
+        },
+      })
+
+      const emitted = wrapper.emitted('update:exampleKey')
+      expect(emitted?.[emitted.length - 1]).toEqual(['example1'])
+    })
+
+    it('emits update:exampleKey with the document-wide selection when the operation has it', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          selectedContentType: 'application/json',
+          selectedExample: 'example2',
+        },
+      })
+
+      const emitted = wrapper.emitted('update:exampleKey')
+      expect(emitted?.[emitted.length - 1]).toEqual(['example2'])
+    })
+
+    it('emits update:exampleKey with the local key when the operation lacks the document-wide selection', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          selectedContentType: 'application/json',
+          // This operation does not define a "missing" example, so it should keep its own first one
+          selectedExample: 'missing',
+        },
+      })
+
+      const emitted = wrapper.emitted('update:exampleKey')
+      expect(emitted?.[emitted.length - 1]).toEqual(['example1'])
+    })
+
+    it('emits update:exampleKey when the user picks an example', async () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          selectedContentType: 'application/json',
+        },
+      })
+
+      const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
+      await examplePicker.vm.$emit('update:modelValue', 'example2')
+      await nextTick()
+
+      const emitted = wrapper.emitted('update:exampleKey')
+      expect(emitted?.[emitted.length - 1]).toEqual(['example2'])
+    })
+
     it('selects first example by default when no example is provided', () => {
       const wrapper = mount(RequestExample, {
         props: {
