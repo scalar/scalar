@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.16.1
+
+### Patch Changes
+
+- [#9565](https://github.com/scalar/scalar/pull/9565): Apply the themed placeholder color and font to textarea placeholders so they match input placeholders
+
 ## 0.16.0
 
 ### Minor Changes

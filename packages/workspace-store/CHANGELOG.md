@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.54.5
+
+### Patch Changes
+
+- [#9549](https://github.com/scalar/scalar/pull/9549): Preserve `$ref` reference objects when coercing schemas, so unresolved chunk references (from the server-side workspace store) survive instead of being dropped. This is a prerequisite for resolving lazily-loaded chunks transitively (an operation chunk can now reference component chunks).
+
 ## 0.54.4
 
 ### Patch Changes

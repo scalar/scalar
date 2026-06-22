@@ -1,5 +1,12 @@
 # @scalar/server-side-rendering
 
+## 0.1.27
+
+### Patch Changes
+
+- [#9555](https://github.com/scalar/scalar/pull/9555): Serialize the hydration config compactly instead of pretty-printed. This shrinks the inline hydration script in every server-rendered page and speeds up serialization for large configs.
+- [#9556](https://github.com/scalar/scalar/pull/9556): Speed up the per-render check that rejects nested functions in the config. The common case (no functions) now skips building path strings for every node, while the precise error message is still produced when a nested function is found.
+
 ## 0.1.26
 
 ## 0.1.25

@@ -1,5 +1,7 @@
 # @scalar/nextjs-openapi
 
+## 0.3.26
+
 ## 0.3.25
 
 ## 0.3.24

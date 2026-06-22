@@ -1,5 +1,12 @@
 # @scalar/mock-server
 
+## 0.12.0
+
+### Minor Changes
+
+- [#9572](https://github.com/scalar/scalar/pull/9572): Add `createAsyncApiMockServer` to mock event-driven APIs from an AsyncAPI 3.1 document. Channels are served over WebSocket and SSE, with messages generated from each message's payload schema (the same generator the REST mocker uses). Additional protocols (e.g. SignalR) can be added through the `transports` extension point. The Docker mock server now auto-detects AsyncAPI documents.
+- [#9486](https://github.com/scalar/scalar/pull/9486): Extend request validation to cover all parameter locations and serialization styles. Header (`in: header`) and cookie (`in: cookie`) parameters are now validated against their schema, with case-insensitive header matching and the `Accept`/`Content-Type`/`Authorization` headers ignored per the OpenAPI specification. Array and object parameters are deserialized by their `style`/`explode` before validation — `form`, `simple`, `spaceDelimited`, `pipeDelimited`, `deepObject`, `label`, and `matrix` — so values like `?ids=1&ids=2`, `?filter[min]=1`, or `/;point=x,1,y,2` validate against their schema instead of being rejected as a raw string. Violations are reported with a `header`, `cookie`, `path`, or `query` location.
+
 ## 0.11.1
 
 ### Patch Changes
