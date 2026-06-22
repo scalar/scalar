@@ -261,6 +261,18 @@ const themeStyle = computed(() =>
   }),
 )
 
+/**
+ * Custom CSS plus the theme styles, injected into a single `<style>` tag.
+ *
+ * This is rendered with `v-html` so the CSS is emitted verbatim. Interpolating
+ * it as text content makes Vue HTML-escape characters like `"` into `&quot;` on
+ * the server while the client keeps `"`, which both breaks the CSS and causes a
+ * hydration mismatch.
+ */
+const styleContent = computed(
+  () => `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`,
+)
+
 /** Plugin injection is not reactive. All plugins must be provided at first render */
 const pluginManager = createPluginManager({
   plugins: Object.values(configList.value).flatMap(
@@ -1145,10 +1157,9 @@ const showMCPButton = computed(() => {
   <!-- SingleApiReference -->
   <div>
     <!-- Inject any custom CSS directly into a style tag -->
-    <component :is="'style'">
-      {{ mergedConfig.customCss }}
-      {{ themeStyle }}
-    </component>
+    <component
+      :is="'style'"
+      v-html="styleContent" />
     <div
       ref="documentEl"
       class="scalar-app scalar-api-reference references-layout"
