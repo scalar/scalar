@@ -2,7 +2,7 @@ import type { ProductPromptContext, PromptOptions, ReleaseNotesProvider } from '
 import { type ReleaseNote, aiReleaseNoteSchema, buildReleaseNoteFromAiOutput } from '../types'
 import type { PullRequestSummary } from './fetch-pull-requests'
 
-export const DEFAULT_MAX_OUTPUT_TOKENS = 1024
+const DEFAULT_MAX_OUTPUT_TOKENS = 1024
 
 /**
  * One CHANGELOG section pulled from a dependency that ships inside the release.

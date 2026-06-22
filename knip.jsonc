@@ -16,6 +16,8 @@
     "documentation/assets/company.js"
   ],
   "ignore": [
+    // Loaded at runtime by `@scalar/release-notes` (release:version script), not statically imported
+    "release-notes.config.ts",
     // We will use this in the future, just removed it from the workspace store for now
     "packages/workspace-store/src/schemas/reference-config/index.ts",
     // Generated migration types — exports are used by downstream consumers

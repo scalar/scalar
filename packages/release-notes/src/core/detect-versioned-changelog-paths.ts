@@ -14,7 +14,7 @@ const normalizeRepoRelativePath = (inputPath: string): string => {
   return relative(repoRoot, absolute).replace(/\\/g, '/')
 }
 
-export const getVersionedPathsForChangelog = (changelogPath: string): string[] => {
+const getVersionedPathsForChangelog = (changelogPath: string): string[] => {
   const normalizedChangelog = normalizeRepoRelativePath(changelogPath)
   const packageJsonPath = join(dirname(normalizedChangelog), 'package.json').replace(/\\/g, '/')
   return [normalizedChangelog, packageJsonPath]
