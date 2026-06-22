@@ -120,6 +120,15 @@ const toTableRow = ({
 const getExpandedRowName = (parameter: ParameterObject, path: string[], mode: ExpansionMode): string =>
   mode === 'deepObject' ? `${parameter.name}${path.map((segment) => `[${segment}]`).join('')}` : (path[0] ?? '')
 
+/**
+ * Appends the display-only trailing `[]` to deepObject array leaves so the name matches the
+ * serialized `parent[ids][]=1&parent[ids][]=2` form. The bracket is display-only — the row's
+ * `sourceParameterValuePath` stays bracket-free. It also lets write-back recognize the leaf as an
+ * array even on renamed and unmapped rows, which carry no schema.
+ */
+const withArrayBracket = (name: string, mode: ExpansionMode, isArray: boolean): string =>
+  mode === 'deepObject' && isArray ? `${name}[]` : name
+
 /** Build the single-row representation used when a parameter is not expanded. */
 const toSingleParameterRow = (
   parameter: ParameterObject,
@@ -199,12 +208,14 @@ const getExpandedPropertyRows = ({
       // The value move is debounced, so until it lands the value still sits at the old schema path.
       // Fall back to it so the renamed row shows its value immediately instead of flickering empty.
       const renamedValue = getValueAtPath(value, renamedTo)
+      const effectiveValue = renamedValue === undefined ? getValueAtPath(value, path) : renamedValue
 
       return [
         toTableRow({
           parameter,
-          name: getExpandedRowName(parameter, renamedTo, mode),
-          value: renamedValue === undefined ? getValueAtPath(value, path) : renamedValue,
+          // The renamed key carries no schema, so the value's array-ness drives the `[]` marker.
+          name: withArrayBracket(getExpandedRowName(parameter, renamedTo, mode), mode, Array.isArray(effectiveValue)),
+          value: effectiveValue,
           description: parameter.description,
           // The renamed key no longer maps to the schema property, so it carries no schema.
           schema: undefined,
@@ -247,10 +258,7 @@ const getExpandedPropertyRows = ({
     // deepObject array values serialize with the trailing-bracket convention
     // (filter[ids][]=1&filter[ids][]=2), so mirror that in the displayed name. We base this on the
     // resolved value too, since the schema can be a composition (anyOf) that hides the array type.
-    // The bracket is display-only — `sourceParameterValuePath` stays bracket-free so write-back
-    // still reassembles the value object correctly.
-    const displayName =
-      mode === 'deepObject' && (isArraySchema(resolvedPropertySchema) || Array.isArray(leafValue)) ? `${name}[]` : name
+    const displayName = withArrayBracket(name, mode, isArraySchema(resolvedPropertySchema) || Array.isArray(leafValue))
 
     return [
       toTableRow({
@@ -327,18 +335,21 @@ const getUnmappedValueRows = ({
   // only suppresses empty schema suggestions, so it is intentionally not applied here.
   return collectValueLeafPaths(value, mode)
     .filter((path) => !seen.has(toPathKey(path)))
-    .map((path) =>
-      toTableRow({
+    .map((path) => {
+      const leafValue = getValueAtPath(value, path)
+
+      return toTableRow({
         parameter,
-        name: getExpandedRowName(parameter, path, mode),
-        value: getValueAtPath(value, path),
+        // No schema describes these rows, so the value's array-ness drives the `[]` marker.
+        name: withArrayBracket(getExpandedRowName(parameter, path, mode), mode, Array.isArray(leafValue)),
+        value: leafValue,
         description: parameter.description,
         schema: undefined,
         isRequired: false,
         isDisabled,
         sourceParameterValuePath: path,
-      }),
-    )
+      })
+    })
 }
 
 /**
