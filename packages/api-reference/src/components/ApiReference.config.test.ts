@@ -1,5 +1,5 @@
-import type { ClientOptionGroup } from '@scalar/api-client/blocks/operation-code-sample'
 import * as apiClientModalModule from '@scalar/api-client/modal'
+import type { ClientOptionGroup } from '@scalar/blocks/code-example'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

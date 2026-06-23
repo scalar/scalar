@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { OperationCodeSample } from '@scalar/api-client/blocks/operation-code-sample'
+import { CodeExample } from '@scalar/blocks/code-example'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
@@ -183,7 +183,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           This block is kept before the examples in source order on purpose: the
           request body schema (via SchemaComposition) seeds the shared
           requestBodyCompositionSelection on mount, which drives the
-          OperationCodeSample's :key. Mounting the details first means the code
+          CodeExample's :key. Mounting the details first means the code
           sample reads the final key on its first render and is never remounted —
           a remount would reset the selected client and tear down an open client
           picker. The grid (see grid-template-areas below) still paints the
@@ -228,7 +228,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
 
           <!-- New Example Request -->
           <ScalarErrorBoundary>
-            <OperationCodeSample
+            <CodeExample
               :key="requestBodyCompositionSelectionKey"
               :clientOptions
               :eventBus
@@ -268,7 +268,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
                     " />
                 </div>
               </template>
-            </OperationCodeSample>
+            </CodeExample>
           </ScalarErrorBoundary>
 
           <ScalarErrorBoundary>
