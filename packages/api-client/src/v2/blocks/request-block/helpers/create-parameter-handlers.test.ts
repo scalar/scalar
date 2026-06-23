@@ -226,6 +226,49 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('coerces a deepObject array leaf via its marker even when the property schema is not an array', () => {
+    // The `[]` marker is added when the schema OR the stored value is an array, so a leaf can carry it
+    // under a non-array (e.g. free-form) schema. The marker must still win, otherwise the array
+    // serializes comma-joined while the row label implies repeated `key[]=...` entries.
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const context: TableRow[] = [
+      {
+        name: 'filters[tags][]',
+        value: '1,2',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        schema: { type: 'string' },
+        sourceParameterValuePath: ['tags'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context })
+
+    handlers.upsert(0, { name: 'filters[tags][]', value: '1,2', isDisabled: false })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: { tags: ['1', '2'] },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
   it('keeps form-style array leaves verbatim when an unrelated sibling row is edited', () => {
     // Form-style object parameter (the query default) with an array property whose value carries a
     // meaningful comma, e.g. Spring pageable `sort=username,asc`. Splitting it into ['username','asc']

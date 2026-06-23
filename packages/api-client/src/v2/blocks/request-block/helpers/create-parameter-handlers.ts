@@ -99,20 +99,20 @@ const getExpandedObjectPayload = (
     // ("1,2"). Coerce it back to an array before storing — otherwise deepObject serialization
     // re-collapses it into a single `key[in]=1,2` entry instead of repeating `key[in][]=1&key[in][]=2`.
     //
-    // A committed rename can turn the leaf into (or out of) an array, and at that point the row's
-    // `schema` and `name` both still describe the old key, so trust only the array marker on the
-    // freshly typed name. Renaming an array leaf to a scalar key must not store a one-element array.
-    //
-    // Otherwise the property schema is the primary signal, but renamed and unmapped rows clear it.
-    // Those rows still carry the display-only array marker on their name, so fall back to it to keep
-    // recognizing the leaf as an array. Use the same `][]` test as `parseBracketKey` so a genuinely
-    // empty key (`filters[]`) is not misread as an array and comma-split.
+    // The display-only `][]` marker is the authoritative array signal: a leaf gets it whenever its
+    // schema OR its stored value is an array, so it must win over a non-array property schema, which
+    // would otherwise skip the coercion and serialize the array comma-joined. A committed rename
+    // re-derives the marker from the freshly typed name, since the row's `schema` and `name` still
+    // describe the old key — renaming an array leaf to a scalar key must not store a one-element array.
+    // Non-array leaves fall back to the property schema so object leaves still coerce; renamed rows
+    // have no reliable schema, so they rely on the marker alone.
     const isCommittedRename = isEditedRow && Boolean(payload.shouldRenameExpandedRow)
-    const leafSchema = isCommittedRename
-      ? hasArrayMarker(payload.name)
-        ? ({ type: 'array' } as const)
-        : undefined
-      : (contextRow.schema ?? (hasArrayMarker(contextRow.name) ? ({ type: 'array' } as const) : undefined))
+    const hasArrayLeafMarker = hasArrayMarker(isCommittedRename ? payload.name : contextRow.name)
+    const leafSchema = hasArrayLeafMarker
+      ? ({ type: 'array' } as const)
+      : isCommittedRename
+        ? undefined
+        : contextRow.schema
     const leafValue = isDeepObjectParameter && leafSchema ? deSerializeSchemaValue(nextValue, leafSchema) : nextValue
 
     setValueAtPath(value, path, leafValue)
