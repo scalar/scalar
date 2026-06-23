@@ -341,6 +341,156 @@ export type ModelsSectionLabel = 'Models' | 'Schemas' | (string & {})
 /** Default label for the components.schemas section. Preserves the historical `Models` wording and the `#models` hash. */
 export const DEFAULT_MODELS_SECTION_LABEL: ModelsSectionLabel = 'Models'
 
+/** Built-in locale identifiers shipped with the API Reference UI. */
+export type ApiReferenceBuiltInLocale = 'en' | 'ru' | 'es' | 'fr' | 'de' | 'zh-CN' | 'ar'
+
+/** Locale identifier used to select built-in translations. */
+export type ApiReferenceLocale = ApiReferenceBuiltInLocale | (string & {})
+
+/** Text direction used by the rendered API Reference. */
+export type ApiReferenceTextDirection = 'ltr' | 'rtl'
+
+/** Text direction configuration. `auto` derives the direction from the locale. */
+export type ApiReferenceTextDirectionPreference = ApiReferenceTextDirection | 'auto'
+
+/** User-facing UI copy for API Reference shell labels. */
+export type ApiReferenceTranslations = {
+  common: {
+    additionalProperties: string
+    const: string
+    deprecated: string
+    description: string
+    discriminator: string
+    enum: string
+    format: string
+    greaterThan: string
+    httpMethod: string
+    keys: string
+    lessThan: string
+    max: string
+    min: string
+    maxLength: string
+    minLength: string
+    multipleOf: string
+    nullable: string
+    path: string
+    pattern: string
+    propertyNames: string
+    readOnly: string
+    required: string
+    hideValues: string
+    showAllValues: string
+    type: string
+    unique: string
+    values: string
+    writeOnly: string
+  }
+  search: {
+    label: string
+    open: string
+    placeholder: string
+    clear: string
+    keyboardShortcut: string
+    command: string
+    control: string
+    results: string
+    navigate: string
+    select: string
+    instructions: string
+    entryHeading: string
+    entryOperation: string
+    entryTag: string
+    entryTagGroup: string
+    entryWebhook: string
+  }
+  navigation: {
+    introduction: string
+    closeGroup: string
+    closeMenu: string
+    openGroup: string
+    openMenu: string
+    operations: string
+    webhooks: string
+  }
+  server: {
+    label: string
+    select: string
+  }
+  clientLibraries: {
+    heading: string
+    more: string
+    selectAll: string
+  }
+  operation: {
+    body: string
+    cookies: string
+    headers: string
+    pathParameters: string
+    queryParameters: string
+    requestBody: string
+    responses: string
+    testRequest: string
+    webhook: string
+  }
+  response: {
+    exampleResponses: string
+    noBody: string
+    showSchema: string
+    status: string
+  }
+  download: {
+    openapi: string
+    asyncapi: string
+  }
+  models: {
+    label: string
+  }
+  actions: {
+    copyLink: string
+    copyLinkTo: string
+    copyToClipboard: string
+    copyEndpointUrl: string
+    showMore: string
+  }
+  agent: {
+    askAi: string
+    askAiAgent: string
+    close: string
+  }
+  mcp: {
+    generate: string
+    connect: string
+  }
+  developerTools: {
+    title: string
+    configure: string
+    share: string
+    deploy: string
+  }
+  footer: {
+    poweredByScalar: string
+  }
+  authentication: {
+    accepts: string
+    allOf: string
+    authentication: string
+    optional: string
+    oneOf: string
+    required: string
+    requires: string
+  }
+}
+
+/** API Reference i18n configuration. */
+export type ApiReferenceI18n = {
+  /** Locale used for built-in UI translations. */
+  locale?: ApiReferenceLocale
+  /** Text direction. `auto` derives direction from locale. */
+  direction?: ApiReferenceTextDirectionPreference
+  /** Custom UI translations. Values are merged with the built-in locale and English fallback. */
+  translations?: PartialDeep<ApiReferenceTranslations>
+}
+
 type ExtendedConfiguration = {
   /** The layout to use for the references */
   layout: 'modern' | 'classic'
@@ -366,6 +516,8 @@ type ExtendedConfiguration = {
   hideModels: boolean
   /** Label for the components.schemas section (`Models`, `Schemas`, or any custom string). */
   modelsSectionLabel?: ModelsSectionLabel
+  /** API Reference UI localization configuration. */
+  i18n?: ApiReferenceI18n
   /** Sets the file type of the document to download, set to `none` to hide the download button */
   documentDownloadType: 'both' | 'yaml' | 'json' | 'direct' | 'none'
   /** @deprecated Use `documentDownloadType: 'none'` instead */

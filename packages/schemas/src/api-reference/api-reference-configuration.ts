@@ -51,6 +51,17 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Label for the components.schemas section in the sidebar, content, and search. Use `Schemas` for OpenAPI terminology.',
     }),
+    i18n: optional(
+      object({
+        locale: optional(string()),
+        direction: optional(union([literal('ltr'), literal('rtl'), literal('auto')])),
+        translations: optional(record(string(), any())),
+      }),
+      {
+        typeComment:
+          'API Reference UI localization. Select a built-in locale, override labels, and control LTR/RTL rendering.',
+      },
+    ),
     documentDownloadType: union(
       [literal('both'), literal('yaml'), literal('json'), literal('direct'), literal('none')],
       {
