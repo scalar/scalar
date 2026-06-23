@@ -760,6 +760,9 @@ importers:
 
   integrations/docusaurus:
     dependencies:
+      '@scalar/client-side-rendering':
+        specifier: workspace:*
+        version: link:../../packages/client-side-rendering
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types

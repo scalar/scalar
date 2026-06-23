@@ -2,6 +2,7 @@ import path from 'node:path'
 
 import type { LoadContext, Plugin } from '@docusaurus/types'
 import { normalizeUrl } from '@docusaurus/utils'
+import { serializeConfigToJs } from '@scalar/client-side-rendering'
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
 
 export type ScalarOptions = {
@@ -79,12 +80,19 @@ const ScalarDocusaurus = (
         })
       }
 
+      // Serialize the configuration to a JavaScript object literal here, in Node, while the config
+      // functions (onBeforeRequest, request hooks, sorters, …) are still live. Docusaurus JSON-serializes
+      // route props when it generates its routes module, which would otherwise silently drop every
+      // function-valued option. See https://github.com/scalar/scalar/issues/6933.
+      const givenConfiguration = content.configuration ?? {}
+      const configuration = Array.isArray(givenConfiguration) ? (givenConfiguration[0] ?? {}) : givenConfiguration
+
       // Add the appropriate route based on the module system
       addRoute({
         path: normalizeUrl([baseUrl, defaultOptions.route ?? '/scalar']),
         component: path.resolve(__dirname, './ScalarDocusaurus'),
         exact: true,
-        ...content,
+        configuration: serializeConfigToJs({ ...configuration, hideDarkModeToggle: true } as Record<string, unknown>),
       })
     },
   }

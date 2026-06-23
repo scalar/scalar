@@ -6,7 +6,7 @@ import type { ApiReferenceConfigurationWithSource } from '@scalar/types/api-refe
 import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
-import { getConfiguration, getScriptTags, renderApiReference } from './html-rendering'
+import { getConfiguration, getScriptTags, renderApiReference, serializeConfigToJs } from './html-rendering'
 
 describe('html-rendering', () => {
   describe('renderApiReference', () => {
@@ -375,6 +375,30 @@ describe('html-rendering', () => {
     it('returns custom CDN URL when provided', () => {
       const { cdn } = coerce(htmlRenderingConfigurationSchema, { cdn: 'https://example.com/script.js' })
       expect(cdn).toBe('https://example.com/script.js')
+    })
+  })
+
+  describe('serializeConfigToJs', () => {
+    it('serializes a plain configuration to a JSON-like object literal', () => {
+      const result = serializeConfigToJs({ url: 'https://example.com/openapi.json', theme: 'purple' })
+      expect(result).toContain('"url": "https://example.com/openapi.json"')
+      expect(result).toContain('"theme": "purple"')
+    })
+
+    it('preserves functions as live JavaScript source', () => {
+      const result = serializeConfigToJs({
+        url: 'https://example.com/openapi.json',
+        onBeforeRequest: ({ request }: { request: Request }) => request.headers.set('Authorization', 'Bearer token'),
+      })
+      expect(result).toContain('onBeforeRequest')
+      expect(result).toContain('request.headers.set')
+      expect(result).toContain('Authorization')
+      expect(result).toContain('Bearer token')
+    })
+
+    it('serializes a config that only contains functions', () => {
+      const result = serializeConfigToJs({ onLoaded: () => undefined })
+      expect(result).toContain('"onLoaded":')
     })
   })
 

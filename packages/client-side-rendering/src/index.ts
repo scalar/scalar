@@ -5,4 +5,5 @@ export {
   getConfiguration,
   getScriptTags,
   renderApiReference,
+  serializeConfigToJs,
 } from './html-rendering'

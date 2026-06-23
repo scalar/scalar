@@ -400,15 +400,59 @@ describe('ScalarDocusaurus', () => {
         actions: mockActions,
       })
 
-      expect(mockActions.addRoute).toHaveBeenCalledWith(
+      // The configuration is serialized to a JavaScript object literal string so it survives
+      // Docusaurus' JSON serialization of route props.
+      const route = mockActions.addRoute.mock.calls[0][0]
+      expect(route).toEqual(
         expect.objectContaining({
           path: '/scalar',
           exact: true,
-          configuration: {
-            theme: 'purple',
-          },
         }),
       )
+      expect(typeof route.configuration).toBe('string')
+      expect(route.configuration).toContain('"theme": "purple"')
+    })
+
+    it('preserves function-valued configuration options through serialization', () => {
+      const mockContext = {
+        siteConfig: {
+          baseUrl: '/',
+          themeConfig: {
+            navbar: {
+              items: [],
+            },
+          },
+        },
+      } as any
+
+      const mockActions = {
+        addRoute: vi.fn(),
+      } as any
+
+      const plugin = ScalarDocusaurus(mockContext, {
+        label: 'Scalar',
+        route: '/scalar',
+      })
+
+      plugin.contentLoaded?.({
+        content: {
+          configuration: {
+            url: 'https://example.com/openapi.json',
+            onBeforeRequest: ({ request }: { request: Request }) => {
+              request.headers.set('Authorization', 'Bearer token')
+            },
+          },
+        } as any,
+        actions: mockActions,
+      })
+
+      const route = mockActions.addRoute.mock.calls[0][0]
+
+      // The callback survives as live JavaScript source instead of being dropped by JSON.stringify.
+      expect(route.configuration).toContain('onBeforeRequest')
+      expect(route.configuration).toContain('request.headers.set')
+      expect(route.configuration).toContain('Authorization')
+      expect(route.configuration).toContain('"url": "https://example.com/openapi.json"')
     })
 
     it('uses default route when none specified', () => {

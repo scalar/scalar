@@ -141,12 +141,17 @@ const serializeArrayWithFunctions = (arr: unknown[]): string => {
 }
 
 /**
- * The script tags to load the @scalar/api-reference package from the CDN.
+ * Serialize a configuration object to a JavaScript object literal string.
  *
- * When a `nonce` is provided it is applied to both script tags so they are allowed under a strict
- * `script-src` Content Security Policy.
+ * Unlike `JSON.stringify`, this preserves function-valued properties (for example `onBeforeRequest`
+ * or the request hooks) by emitting them as literal JavaScript source via `Function.prototype.toString()`.
+ * That is what lets callbacks survive being written into an inline `<script>` tag, or across any other
+ * boundary that would otherwise JSON-serialize the configuration and silently drop functions.
+ *
+ * Note: functions must be arrow functions or `function` expressions. Object method shorthand
+ * (`onBeforeRequest(request) {}`) does not serialize to a valid standalone expression.
  */
-export function getScriptTags(configuration: Record<string, unknown>, cdn?: string, nonce?: string): string {
+export function serializeConfigToJs(configuration: Record<string, unknown>): string {
   const restConfig = { ...configuration }
 
   const functionProps: string[] = []
@@ -167,16 +172,26 @@ export function getScriptTags(configuration: Record<string, unknown>, cdn?: stri
     .map((line, index) => (index === 0 ? line : `      ${line}`))
     .join('\n')
 
-  let configString = indentedJsonString
-
-  if (functionProps.length > 0) {
-    if (jsonString === '{}') {
-      configString = `{\n        ${functionProps.join(',\n        ')}\n      }`
-    } else {
-      const jsonWithoutClosingBrace = indentedJsonString.split('\n').slice(0, -1).join('\n')
-      configString = `${jsonWithoutClosingBrace},\n        ${functionProps.join(',\n        ')}\n      }`
-    }
+  if (functionProps.length === 0) {
+    return indentedJsonString
   }
+
+  if (jsonString === '{}') {
+    return `{\n        ${functionProps.join(',\n        ')}\n      }`
+  }
+
+  const jsonWithoutClosingBrace = indentedJsonString.split('\n').slice(0, -1).join('\n')
+  return `${jsonWithoutClosingBrace},\n        ${functionProps.join(',\n        ')}\n      }`
+}
+
+/**
+ * The script tags to load the @scalar/api-reference package from the CDN.
+ *
+ * When a `nonce` is provided it is applied to both script tags so they are allowed under a strict
+ * `script-src` Content Security Policy.
+ */
+export function getScriptTags(configuration: Record<string, unknown>, cdn?: string, nonce?: string): string {
+  const configString = serializeConfigToJs(configuration)
 
   const nonceAttr = nonceAttribute(nonce)
 
