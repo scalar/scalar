@@ -358,6 +358,6 @@ createCodeBlock(mojo, 'Mojo', 'mojo')
 
 createHeader('Markdown')
 const markdown = document.createElement('div')
-markdown.classList.add('markdown')
+markdown.classList.add('code-card', 'markdown')
 markdown.innerHTML = await htmlFromMarkdown(markdownFile)
 document.body.appendChild(markdown)
