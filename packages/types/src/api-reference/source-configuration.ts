@@ -55,9 +55,9 @@ export const sourceConfigurationSchema = z.object({
   /**
    * The title of the OpenAPI document.
    *
-   * @example 'Scalar Galaxy'
+   * Used for the page title and the document name in the dropdown. With multiple `sources`, set this per source.
    *
-   * @deprecated Please move `title` to the top level and remove the `spec` prefix.
+   * @example 'Scalar Galaxy'
    */
   title: z.string().optional(),
   /**
@@ -67,9 +67,9 @@ export const sourceConfigurationSchema = z.object({
    *
    * If no title is used, it'll just use the index.
    *
-   * @example 'scalar-galaxy'
+   * With multiple `sources`, set this per source.
    *
-   * @deprecated Please move `slug` to the top level and remove the `spec` prefix.
+   * @example 'scalar-galaxy'
    */
   slug: z.string().optional(),
   /**
