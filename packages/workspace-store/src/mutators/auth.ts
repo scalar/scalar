@@ -403,17 +403,25 @@ export const updateSelectedScopes = (
     return
   }
 
-  // Apply a single-scope toggle against the stored value, or replace the whole list for bulk actions.
-  // Toggling against the stored scopes (instead of a list the component computed from a possibly-stale
-  // prop) is what keeps rapid successive clicks from overwriting each other.
-  if (scope !== undefined) {
-    const currentScopes = Array.isArray(nextScheme[name]) ? nextScheme[name] : []
-    nextScheme[name] = selected
-      ? Array.from(new Set([...currentScopes, scope]))
-      : currentScopes.filter((current) => current !== scope)
-  } else {
-    nextScheme[name] = scopes ?? []
+  // Resolve the next scope list. A single-scope toggle (`scope` + `selected`) is applied against the
+  // value currently in the store, which is what keeps rapid successive clicks from overwriting each
+  // other with a list the component computed from a possibly-stale prop. Bulk actions pass an absolute
+  // `scopes` list instead. A payload carrying neither is ignored rather than silently clearing.
+  const resolveNextScopes = (): string[] | undefined => {
+    if (scope !== undefined && selected !== undefined) {
+      const currentScopes = Array.isArray(nextScheme[name]) ? nextScheme[name] : []
+      return selected
+        ? Array.from(new Set([...currentScopes, scope]))
+        : currentScopes.filter((current) => current !== scope)
+    }
+    return scopes
   }
+
+  const nextScopes = resolveNextScopes()
+  if (nextScopes === undefined) {
+    return
+  }
+  nextScheme[name] = nextScopes
 
   store?.auth.setAuthSelectedSchemas(
     meta.type === 'document'

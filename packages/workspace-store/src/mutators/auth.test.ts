@@ -1036,6 +1036,47 @@ describe('updateSelectedScopes', () => {
     assert(selected)
     expect(selected.selectedSchemes[0]).toEqual({ oauth2: ['read'] })
   })
+
+  it('ignores a single-scope payload that omits `selected` instead of deselecting', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createDocument({}) })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read'] }] },
+    )
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scope: 'read',
+      meta: { type: 'document' },
+    })
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes[0]).toEqual({ OAuth: ['read'] })
+  })
+
+  it('ignores a payload that provides neither `scopes` nor `scope` instead of clearing', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createDocument({}) })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read', 'write'] }] },
+    )
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      meta: { type: 'document' },
+    })
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes[0]).toEqual({ OAuth: ['read', 'write'] })
+  })
 })
 
 describe('deleteSecurityScheme', () => {
