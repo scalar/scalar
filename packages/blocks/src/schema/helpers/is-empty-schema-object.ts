@@ -1,6 +1,6 @@
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import { isTypeObject } from './is-type-object'
 
 /**
  * Determines if the given schema is an empty object schema.

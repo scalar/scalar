@@ -1,8 +1,7 @@
 <script setup lang="ts">
+import { ScalarBadge } from '@scalar/components/badge'
 import type { XBadge } from '@scalar/workspace-store/schemas/extensions/operation'
 import { computed } from 'vue'
-
-import { Badge } from '@/components/Badge'
 
 const { position, badges } = defineProps<{
   position: 'before' | 'after'
@@ -27,9 +26,9 @@ const filteredBadges = computed<XBadge[]>(() => {
     <template
       v-for="badge in filteredBadges"
       :key="badge.name">
-      <Badge :color="badge.color">
+      <ScalarBadge :color="badge.color">
         {{ badge.name }}
-      </Badge>
+      </ScalarBadge>
     </template>
   </template>
 </template>

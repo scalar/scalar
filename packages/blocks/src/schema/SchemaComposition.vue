@@ -13,18 +13,17 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, inject, ref, watch } from 'vue'
 
-import type { SchemaOptions } from '@/components/Content/Schema/types'
-import {
-  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
-  type RequestBodyCompositionSelection,
-} from '@/features/Operation/request-body-composition-index'
-
 import { getSchemaType } from './helpers/get-schema-type'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { type CompositionKeyword } from './helpers/schema-composition'
 import { getCycleKey } from './helpers/schema-cycle'
 import { getModelNameFromSchema } from './helpers/schema-name'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+} from './injection-keys'
 import Schema from './Schema.vue'
+import type { SchemaOptions } from './types'
 
 const props = withDefaults(
   defineProps<{

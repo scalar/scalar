@@ -7,6 +7,7 @@ import {
 } from '@scalar/components/card'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { ScalarScreenReader } from '@scalar/components/screen-reader'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -18,7 +19,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, toValue, useId, watch } from 'vue'
 
-import ScreenReader from '@/components/ScreenReader.vue'
 import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
 
 import ExampleResponse from './ExampleResponse.vue'
@@ -170,7 +170,7 @@ const showSchema = ref(false)
         v-for="statusCode in statusCodesWithContent"
         :key="statusCode"
         :aria-controls="id">
-        <ScreenReader>Status:</ScreenReader>
+        <ScalarScreenReader>Status:</ScalarScreenReader>
         {{ statusCode }}
       </ExampleResponseTab>
 

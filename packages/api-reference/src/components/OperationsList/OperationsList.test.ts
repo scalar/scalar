@@ -223,7 +223,7 @@ describe('OperationsList', () => {
     expect(operationsListItems[0]?.props('operation')).toEqual(webhooks[0])
   })
 
-  it('renders ScreenReader component with tag title', () => {
+  it('renders ScalarScreenReader component with tag title', () => {
     const operations = [createMockOperation()]
     const tag = createMockTag({
       children: operations,
@@ -234,7 +234,7 @@ describe('OperationsList', () => {
       props: { tag, eventBus: null },
     })
 
-    const screenReader = wrapper.findComponent({ name: 'ScreenReader' })
+    const screenReader = wrapper.findComponent({ name: 'ScalarScreenReader' })
     expect(screenReader.exists()).toBe(true)
     expect(screenReader.text()).toBe('User Management')
   })

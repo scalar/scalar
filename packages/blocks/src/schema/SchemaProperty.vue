@@ -8,25 +8,24 @@ import type {
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
-import { computed, type Component } from 'vue'
-
-import { WithBreadcrumb } from '@/components/Anchor'
-import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
-import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
-import type { SchemaOptions } from '@/components/Content/Schema/types'
-import { SpecificationExtension } from '@/features/specification-extension'
+import { computed, inject, type Component } from 'vue'
 
 import { getCompositionsToRender } from './helpers/get-compositions-to-render'
 import { getEnumValues } from './helpers/get-enum-values'
 import { getPropertyDescription } from './helpers/get-property-description'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
+import { isTypeObject } from './helpers/is-type-object'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
+import { getCycleKey } from './helpers/schema-cycle'
 import { shouldDisplayDescription } from './helpers/should-display-description'
 import { shouldDisplayHeading } from './helpers/should-display-heading'
+import { SCHEMA_EXTENSIONS_RENDERER_SYMBOL } from './injection-keys'
 import Schema from './Schema.vue'
 import SchemaComposition from './SchemaComposition.vue'
 import SchemaEnums from './SchemaEnums.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
+import type { SchemaOptions } from './types'
+import WithBreadcrumb from './WithBreadcrumb.vue'
 
 /**
  * Note: We're taking in a prop called `value` which should be a JSON Schema.
@@ -79,6 +78,13 @@ const props = withDefaults(
 )
 
 /** Simplified composition with `null` type. */
+/**
+ * Optional renderer for specification extensions (`x-*` keys), provided by the
+ * host. Renders nothing when the host does not wire one up, so the block has no
+ * dependency on any plugin system.
+ */
+const SpecificationExtension = inject(SCHEMA_EXTENSIONS_RENDERER_SYMBOL, null)
+
 const optimizedValue = computed(() => optimizeValueForDisplay(props.schema))
 
 const childBreadcrumb = computed<string[] | undefined>(() =>
@@ -375,7 +381,10 @@ const isDiscriminatorProperty = computed(() =>
       :options="options"
       :schema="compositionData.value"
       :schemaContext="schemaContext" />
-    <SpecificationExtension :value="optimizedValue" />
+    <component
+      :is="SpecificationExtension"
+      v-if="SpecificationExtension"
+      :value="optimizedValue" />
   </component>
 </template>
 

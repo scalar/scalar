@@ -1,9 +1,8 @@
 <script lang="ts" setup>
+import { ScalarBadge } from '@scalar/components/badge'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
-
-import Badge from '@/components/Badge/Badge.vue'
 
 const {
   eventBus,
@@ -60,7 +59,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
       type="button"
       @click.prevent="() => handleDownloadClick('json')">
       <span>{{ label }}</span>
-      <Badge class="extension hidden group-hover:flex">json</Badge>
+      <ScalarBadge class="extension hidden group-hover:flex">json</ScalarBadge>
     </button>
 
     <!-- YAML -->
@@ -70,7 +69,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
       type="button"
       @click.prevent="() => handleDownloadClick('yaml')">
       <span>{{ label }}</span>
-      <Badge class="extension hidden group-hover:flex">yaml</Badge>
+      <ScalarBadge class="extension hidden group-hover:flex">yaml</ScalarBadge>
     </button>
   </div>
 </template>

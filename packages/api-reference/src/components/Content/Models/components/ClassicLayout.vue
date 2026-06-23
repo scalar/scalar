@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { SchemaHeading, SchemaProperty } from '@scalar/blocks/schema'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -9,8 +10,6 @@ import type {
 
 import { Anchor } from '@/components/Anchor'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
-
-import { SchemaHeading, SchemaProperty } from '../../Schema'
 
 const { eventBus, id, options, document } = defineProps<{
   id: string

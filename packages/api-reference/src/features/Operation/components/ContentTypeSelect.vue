@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarListbox } from '@scalar/components/listbox'
+import { ScalarScreenReader } from '@scalar/components/screen-reader'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
-
-import ScreenReader from '@/components/ScreenReader.vue'
 
 const { content } = defineProps<{
   content: Record<string, MediaTypeObject> | undefined
@@ -62,7 +61,7 @@ const contentTypeSelect = cva({
       variant="ghost"
       v-bind="$attrs"
       @click.stop>
-      <ScreenReader>Selected Content Type:</ScreenReader>
+      <ScalarScreenReader>Selected Content Type:</ScalarScreenReader>
       <span>{{ selectedContentType }}</span>
       <ScalarIconCaretDown
         class="size-2.75 transition-transform duration-100"

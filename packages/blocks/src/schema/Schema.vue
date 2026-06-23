@@ -2,24 +2,23 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { ScalarScreenReader } from '@scalar/components/screen-reader'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, inject, provide } from 'vue'
-
-import type { SchemaOptions } from '@/components/Content/Schema/types'
-import ScreenReader from '@/components/ScreenReader.vue'
-import { scrollTargetId } from '@/helpers/lazy-bus'
+import { computed, inject, provide, ref } from 'vue'
 
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
+import { SCHEMA_SCROLL_TARGET_SYMBOL } from './injection-keys'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
+import type { SchemaOptions } from './types'
 
 const {
   schema,
@@ -87,6 +86,12 @@ const {
  */
 const ancestors = inject(SCHEMA_ANCESTORS_SYMBOL, undefined)
 
+/**
+ * Current anchor/scroll target, provided by the host. Defaults to an empty ref
+ * so the schema renders normally when no host wires up deep-link expansion.
+ */
+const scrollTarget = inject(SCHEMA_SCROLL_TARGET_SYMBOL, ref(''))
+
 const isCyclic = computed(
   (): boolean => cycleKey != null && !!ancestors?.has(cycleKey),
 )
@@ -122,7 +127,7 @@ const isOnScrollTargetPath = computed((): boolean => {
     return false
   }
   const path = breadcrumb.join('.')
-  const target = scrollTargetId.value
+  const target = scrollTarget.value
   return target === path || target.startsWith(`${path}.`)
 })
 
@@ -229,7 +234,7 @@ const handleClick = (e: MouseEvent) => {
               icon="Add"
               size="sm" />
             Show additional properties
-            <ScreenReader v-if="name">for {{ name }}</ScreenReader>
+            <ScalarScreenReader v-if="name">for {{ name }}</ScalarScreenReader>
           </DisclosureButton>
         </div>
 
@@ -255,7 +260,7 @@ const handleClick = (e: MouseEvent) => {
             <template v-else>
               Show {{ schema?.title ?? 'Child Attributes' }}
             </template>
-            <ScreenReader v-if="name">for {{ name }}</ScreenReader>
+            <ScalarScreenReader v-if="name">for {{ name }}</ScalarScreenReader>
           </template>
           <template v-else>
             <ScalarIcon

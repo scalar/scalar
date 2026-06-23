@@ -46,6 +46,11 @@
       "import": "./dist/code-example/index.js",
       "types": "./dist/code-example/index.d.ts",
       "default": "./dist/code-example/index.js"
+    },
+    "./schema": {
+      "import": "./dist/schema/index.js",
+      "types": "./dist/schema/index.d.ts",
+      "default": "./dist/schema/index.js"
     }
   },
   "files": [
@@ -53,12 +58,14 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
+    "@scalar/use-hooks": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@types/har-format": "^1.2.16",
     "js-base64": "catalog:*",

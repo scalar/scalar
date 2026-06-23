@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Schema, SchemaHeading } from '@scalar/blocks/schema'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
@@ -7,8 +8,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
-
-import { Schema, SchemaHeading } from '../../Schema'
 
 const { schema, options, document } = defineProps<{
   id: string

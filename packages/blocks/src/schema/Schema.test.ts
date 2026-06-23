@@ -1,10 +1,22 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { config, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
+import { ref } from 'vue'
 
-import { scrollTargetId } from '../../../helpers/lazy-bus'
+import { SCHEMA_SCROLL_TARGET_SYMBOL } from './injection-keys'
 import Schema from './Schema.vue'
+
+/**
+ * The schema reads the active anchor/scroll target through injection. Provide a
+ * shared ref here so these tests can drive deep-link auto-expansion the same way
+ * the host (the API reference) does.
+ */
+const scrollTargetId = ref('')
+config.global.provide = {
+  ...config.global.provide,
+  [SCHEMA_SCROLL_TARGET_SYMBOL]: scrollTargetId,
+}
 
 describe('Schema', () => {
   describe('shouldShowDescription computed property', () => {
