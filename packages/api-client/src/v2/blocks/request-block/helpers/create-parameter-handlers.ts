@@ -15,16 +15,20 @@ type ParameterUpsertPayload = {
 
 const isEmptyValue = (value: unknown): boolean => value === undefined || value === null || value === ''
 
+/**
+ * Whether a row name carries the display-only deepObject array marker (`filters[id][in][]`). The
+ * marker is only ever appended after a real path bracket, so it always shows up as `][]`. That lets
+ * us tell it apart from a genuinely empty key: an interior empty (`filters[][in]`) or a lone empty
+ * group (`filters[]`, value path `['']`) is not a marker and keeps its segment.
+ */
+const hasArrayMarker = (name: string): boolean => name.endsWith('][]')
+
 /** Parse a parameter key like `filter[a][b]` into its path segments `['filter', 'a', 'b']`. */
 const parseBracketKey = (name: string): string[] => {
-  // Strip the trailing array marker first. The trailing brackets on a deepObject array leaf
-  // (`filters[id][in][]`) are display-only, not part of the value path — keeping them would add a
-  // bogus empty key that drops the value on write-back and corrupts rename tracking.
-  //
-  // The marker is only ever appended after a real path bracket, so it always shows up as `][]`. That
-  // lets us tell it apart from a genuinely empty key: an interior empty (`filters[][in]`) or a lone
-  // empty group (`filters[]`, value path `['']`) keeps its segment and still resolves to the right key.
-  const withoutArrayMarker = name.endsWith('][]') ? name.slice(0, -2) : name
+  // Strip the trailing array marker first. The trailing brackets on a deepObject array leaf are
+  // display-only, not part of the value path — keeping them would add a bogus empty key that drops
+  // the value on write-back and corrupts rename tracking.
+  const withoutArrayMarker = hasArrayMarker(name) ? name.slice(0, -2) : name
 
   const segments: string[] = []
   const head = withoutArrayMarker.match(/^[^[\]]*/)?.[0] ?? ''
@@ -96,9 +100,10 @@ const getExpandedObjectPayload = (
     // re-collapses it into a single `key[in]=1,2` entry instead of repeating `key[in][]=1&key[in][]=2`.
     //
     // The property schema is the primary signal, but renamed and unmapped rows clear it. Those rows
-    // still carry the display-only `[]` marker on their name, so fall back to it to keep recognizing
-    // the leaf as an array.
-    const leafSchema = contextRow.schema ?? (contextRow.name.endsWith('[]') ? ({ type: 'array' } as const) : undefined)
+    // still carry the display-only array marker on their name, so fall back to it to keep recognizing
+    // the leaf as an array. Use the same `][]` test as `parseBracketKey` so a genuinely empty key
+    // (`filters[]`) is not misread as an array and comma-split.
+    const leafSchema = contextRow.schema ?? (hasArrayMarker(contextRow.name) ? ({ type: 'array' } as const) : undefined)
     const leafValue = isDeepObjectParameter && leafSchema ? deSerializeSchemaValue(nextValue, leafSchema) : nextValue
 
     setValueAtPath(value, path, leafValue)
