@@ -498,6 +498,52 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('does not coerce a renamed deepObject array leaf to an array when the new key is a scalar', () => {
+    // Renaming a `...[in][]` leaf to a plain `...[status]` key drops the array marker. The row still
+    // carries the stale array schema and old name, so coercion must follow the freshly typed name and
+    // store the scalar verbatim instead of wrapping it in a one-element array.
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const row: TableRow = {
+      name: 'filters[applicationInstanceId][in][]',
+      value: 'active',
+      isDisabled: false,
+      originalParameter: parentParameter,
+      schema: { type: 'array', items: { type: 'string' } },
+      sourceParameterValuePath: ['applicationInstanceId', 'in'],
+    }
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context: [row] })
+
+    handlers.upsert(0, {
+      name: 'filters[applicationInstanceId][status]',
+      value: 'active',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: { applicationInstanceId: { status: 'active' } },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
   it('treats a lone empty bracket group as a real key, not a stripped array marker', () => {
     // Regression guard for the marker stripping: the display-only `[]` is only ever appended after a
     // real path bracket (`filters[id][]`), so it always shows up as `][]`. A lone empty group
