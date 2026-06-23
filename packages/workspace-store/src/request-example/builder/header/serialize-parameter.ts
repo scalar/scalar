@@ -230,24 +230,36 @@ export const serializePipeDelimitedStyle = (value: unknown): string => {
  *
  * DeepObject: color[R]=100&color[G]=200&color[B]=150
  * Nested: user[name][first]=Alex&user[name][last]=Smith&user[role]=admin
+ * Arrays: filter[ids][]=1&filter[ids][]=2 (the common trailing-bracket convention)
  */
 export const serializeDeepObjectStyle = (paramName: string, value: unknown): Array<{ key: string; value: string }> => {
   const result: Array<{ key: string; value: string }> = []
+
+  /**
+   * Appends a single value at the given key, recursing into nested objects and arrays.
+   *
+   * Array values use the de-facto `key[]` convention (qs, PHP, Rails) so that each item becomes
+   * its own query entry instead of collapsing into a comma-joined string. The OpenAPI spec leaves
+   * deepObject-on-array undefined, but this matches what most servers expect.
+   */
+  const append = (fullKey: string, val: unknown): void => {
+    if (Array.isArray(val)) {
+      for (const item of val) {
+        append(`${fullKey}[]`, item)
+      }
+    } else if (typeof val === 'object' && val !== null) {
+      flatten(val as Record<string, unknown>, fullKey)
+    } else {
+      result.push({ key: fullKey, value: String(val) })
+    }
+  }
 
   /**
    * Recursively flattens nested objects into deepObject notation.
    */
   const flatten = (obj: Record<string, unknown>, prefix: string): void => {
     for (const [key, val] of Object.entries(obj)) {
-      const fullKey = `${prefix}[${key}]`
-
-      if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
-        // Recursively flatten nested objects
-        flatten(val as Record<string, unknown>, fullKey)
-      } else {
-        // Add primitive values
-        result.push({ key: fullKey, value: String(val) })
-      }
+      append(`${prefix}[${key}]`, val)
     }
   }
 
