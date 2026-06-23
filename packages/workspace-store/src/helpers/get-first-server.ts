@@ -1,11 +1,12 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
+
+import { getResolvedRef } from './get-resolved-ref'
 
 /**
  * Iterate through all available servers and pick the first one
  *
  * @example
- * getFirstServer([operation.servers, pathItem.servers, server])
+ * getFirstServer(operation.servers, pathItem.servers, document.servers)
  */
 export const getFirstServer = (...availableServers: (ServerObject[] | ServerObject | null)[]): ServerObject | null => {
   for (const serverSource of availableServers) {
