@@ -21,7 +21,7 @@ vi.mock('@/hooks/use-auth', () => ({
  * without actually hitting the network. The `queryFn` is never executed;
  * tests drive `mockQueryData` directly.
  */
-const mockQueryData = ref<{ teams?: Array<{ uid: string; slug: string; name: string }> } | undefined>(undefined)
+const mockQueryData = ref<Array<{ uid: string; slug: string; name: string }> | undefined>(undefined)
 vi.mock('@tanstack/vue-query', () => ({
   useQuery: () => ({
     data: mockQueryData,
@@ -37,7 +37,7 @@ vi.mock('@/helpers/scalar-client', () => ({
   DEFAULT_REFETCH_INTERVAL: 60_000,
   scalarClient: {
     teams: {
-      listTeams: vi.fn(),
+      list: vi.fn(),
     },
   },
 }))
@@ -70,7 +70,7 @@ describe('useTeams', () => {
     })
 
     it('returns the teams array when query resolves', () => {
-      mockQueryData.value = { teams: [teamAlpha, teamBeta] }
+      mockQueryData.value = [teamAlpha, teamBeta]
 
       const { teams } = useTeams()
       expect(teams.value).toEqual([teamAlpha, teamBeta])
@@ -82,7 +82,7 @@ describe('useTeams', () => {
   // -------------------------------------------------------------------------
   describe('currentTeam', () => {
     it('finds the team matching tokenData.teamUid', () => {
-      mockQueryData.value = { teams: [teamAlpha, teamBeta] }
+      mockQueryData.value = [teamAlpha, teamBeta]
       mockTokenData.value = { teamUid: 'team-beta-uid' }
 
       const { currentTeam } = useTeams()
@@ -90,7 +90,7 @@ describe('useTeams', () => {
     })
 
     it('is undefined when no team matches', () => {
-      mockQueryData.value = { teams: [teamAlpha, teamBeta] }
+      mockQueryData.value = [teamAlpha, teamBeta]
       mockTokenData.value = { teamUid: 'non-existent-uid' }
 
       const { currentTeam } = useTeams()
@@ -108,7 +108,7 @@ describe('useTeams', () => {
     })
 
     it('returns the team slug when a matching team exists', () => {
-      mockQueryData.value = { teams: [teamAlpha, teamBeta] }
+      mockQueryData.value = [teamAlpha, teamBeta]
       mockTokenData.value = { teamUid: 'team-alpha-uid' }
 
       const { currentTeamSlug } = useTeams()
@@ -121,7 +121,7 @@ describe('useTeams', () => {
   // -------------------------------------------------------------------------
   describe('reactivity', () => {
     it('updates currentTeamSlug when tokenData changes (team switch)', async () => {
-      mockQueryData.value = { teams: [teamAlpha, teamBeta] }
+      mockQueryData.value = [teamAlpha, teamBeta]
       mockTokenData.value = { teamUid: 'team-alpha-uid' }
 
       const { currentTeamSlug, currentTeam } = useTeams()

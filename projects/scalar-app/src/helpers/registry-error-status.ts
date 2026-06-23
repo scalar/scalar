@@ -2,12 +2,10 @@
  * Reads the HTTP status code off a thrown SDK error so the registry
  * adapters can map it onto our discriminated error union.
  *
- * The Scalar SDK exposes the HTTP response on `error.httpMeta.response`
- * for every `ScalarError` subclass (the generic `APIError` returned for
- * unmatched 4XX/5XX responses, plus the per-status `FourHundred`,
- * `FourHundredAndOne`, ... classes). Older SDK builds put `statusCode`
- * directly on the error, so we keep a fallback for that shape to stay
- * compatible while consumers upgrade.
+ * The Scalar SDK exposes the HTTP status directly on `error.status`.
+ * Older SDK builds put the response on `error.httpMeta.response`, or
+ * put `statusCode` directly on the error, so we keep fallbacks for
+ * those shapes to stay compatible while consumers upgrade.
  *
  * Returns `undefined` for non-HTTP errors (e.g. network or abort errors)
  * so callers can treat that case as "request never reached the server".
@@ -18,8 +16,13 @@ const getRegistryErrorStatusCode = (error: unknown): number | undefined => {
   }
 
   const candidate = error as {
+    status?: unknown
     statusCode?: unknown
     httpMeta?: { response?: { status?: unknown } }
+  }
+
+  if (typeof candidate.status === 'number') {
+    return candidate.status
   }
 
   const fromHttpMeta = candidate.httpMeta?.response?.status

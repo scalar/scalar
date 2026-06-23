@@ -57,14 +57,13 @@ export const useThemes = ({
     {
       queryKey,
       queryFn: async (): Promise<Theme[]> => {
-        const response = await scalarClient.themes.listThemes()
-        const themes = response.themes ?? []
+        const themes = await scalarClient.themes.list()
 
         const bodies: string[] = await Promise.all(
           themes.map((t: { slug: string }) =>
             queryClient.fetchQuery<string>({
               queryKey: ['themes', t.slug],
-              queryFn: () => scalarClient.themes.getTheme({ slug: t.slug }).then((r) => r.res ?? ''),
+              queryFn: () => scalarClient.themes.retrieve(t.slug),
               staleTime: DEFAULT_REFETCH_INTERVAL,
             }),
           ),

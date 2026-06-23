@@ -70,8 +70,8 @@ catalogs:
       specifier: 1.59.1
       version: 1.59.1
     '@scalar/sdk':
-      specifier: 0.1.5
-      version: 0.1.5
+      specifier: 0.2.6
+      version: 0.2.6
     '@scalar/typebox':
       specifier: 0.1.3
       version: 0.1.3
@@ -2701,7 +2701,7 @@ importers:
         version: link:../../packages/pre-post-request-scripts
       '@scalar/sdk':
         specifier: catalog:*
-        version: 0.1.5(zod@4.3.5)
+        version: 0.2.6
       '@scalar/sidebar':
         specifier: workspace:*
         version: link:../../packages/sidebar
@@ -8025,10 +8025,8 @@ packages:
   '@rushstack/ts-command-line@4.23.2':
     resolution: {integrity: sha512-JJ7XZX5K3ThBBva38aomgsPv1L7FV6XmSOcR6HtM7HDFZJkepqT65imw26h9ggGqMjsY0R9jcl30tzKcVj9aOQ==}
 
-  '@scalar/sdk@0.1.5':
-    resolution: {integrity: sha512-cy0CYFxes5K3ynL2geJideflngegtspD14p67qa0k3iaBFL4QwUJ3rKgMD4m8Qjmj1cTTRVLzQrg0bgXL+l+Ew==}
-    peerDependencies:
-      zod: '>= 3'
+  '@scalar/sdk@0.2.6':
+    resolution: {integrity: sha512-b42JORTKUuA32AqWFp4FtTuCJB4Ixqzy4gEQDrNsyO1ke2F6T1iSMEd2r4fgjFG+yw11MAnmsf459dvSrwFh5A==}
 
   '@scalar/typebox@0.1.3':
     resolution: {integrity: sha512-lU055AUccECZMIfGA0z/C1StYmboAYIPJLDFBzOO81yXBi35Pxdq+I4fWX6iUZ8qcoHneiLGk9jAUM1rA93iEg==}
@@ -25380,9 +25378,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@scalar/sdk@0.1.5(zod@4.3.5)':
-    dependencies:
-      zod: 4.3.5
+  '@scalar/sdk@0.2.6': {}
 
   '@scalar/typebox@0.1.3': {}
 
