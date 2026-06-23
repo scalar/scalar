@@ -19,10 +19,11 @@ defineProps<{
 
 <template>
   <template v-if="value">
+    <!-- Each link gets its own wrapper so the dividers render between them -->
     <div
+      v-if="value.email"
       class="group flex items-center last:border-r-0 xl:border-r xl:first:ml-auto">
       <a
-        v-if="value.email"
         :class="variants({ link: true })"
         :href="`mailto:${value.email}`">
         <ScalarIconEnvelopeSimple
@@ -30,8 +31,11 @@ defineProps<{
           class="size-3 text-current" />
         <span class="ml-1 empty:hidden">{{ value.name }}</span>
       </a>
+    </div>
+    <div
+      v-if="value.url"
+      class="group flex items-center last:border-r-0 xl:border-r xl:first:ml-auto">
       <a
-        v-if="value.url"
         :class="variants({ link: true })"
         :href="value.url"
         rel="noopener noreferrer"
@@ -44,9 +48,11 @@ defineProps<{
           value.email ? '' : value.name
         }}</span>
       </a>
-      <span
-        v-else-if="!value.email && value.name"
-        :class="variants({ link: false })">
+    </div>
+    <div
+      v-else-if="!value.email && value.name"
+      class="group flex items-center last:border-r-0 xl:border-r xl:first:ml-auto">
+      <span :class="variants({ link: false })">
         {{ value.name }}
       </span>
     </div>
