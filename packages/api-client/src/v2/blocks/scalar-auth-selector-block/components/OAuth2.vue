@@ -85,7 +85,10 @@ const {
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:selectedScopes', payload: { scopes: string[] }): void
+  (
+    e: 'update:selectedScopes',
+    payload: { scopes?: string[]; scope?: string; selected?: boolean },
+  ): void
   (
     e: 'upsert:scope',
     payload: Omit<ApiReferenceEvents['auth:upsert:scopes'], 'name'>,
