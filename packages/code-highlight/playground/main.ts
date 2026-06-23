@@ -27,6 +27,7 @@ function createHeader(text: string) {
 function createCodeBlock(content: string, name: string, lang: string, mask?: string[]) {
   createHeader(name)
   const el = document.createElement('div')
+  el.classList.add('code-card')
   el.innerHTML = syntaxHighlight(content, {
     lang,
     languages: standardLanguages,
@@ -312,6 +313,46 @@ response = requests.post(url, json=payload, headers=headers)
 print(response.json())`
 
 createCodeBlock(py, 'Python', 'python')
+
+// ---------------------------------------------------------------------------
+// Mojo
+
+const mojo = String.raw`from collections import List
+
+alias WIDTH = 8
+alias Floats = SIMD[DType.float32, WIDTH]
+
+trait Greetable:
+    fn greet(self) -> String:
+        ...
+
+struct Planet(Greetable):
+    var name: String
+    var radius: Float64
+
+    fn __init__(out self, name: String, radius: Float64):
+        self.name = name
+        self.radius = radius
+
+    fn greet(self) -> String:
+        return "Hello from " + self.name
+
+fn scale(inout values: Floats, owned factor: Float32):
+    values = values * factor
+
+fn main() raises:
+    var planets = List[Planet]()
+    planets.append(Planet("Mars", 3389.5))
+
+    for i in range(len(planets)):
+        print(planets[i].greet())
+
+    var vec = Floats(1.0)
+    scale(vec, 2.0)
+    print(vec)`
+
+createCodeBlock(mojo, 'Mojo', 'mojo')
+
 // ---------------------------------------------------------------------------
 // Markdown render example
 
