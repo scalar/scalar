@@ -148,6 +148,107 @@ describe('mount', () => {
     expect(element.textContent).toMatch(/post/i)
   })
 
+  it('reads the selected example from the store, not just the initial option', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Petstore', version: '1.0.0' },
+        paths: {
+          '/hello': {
+            post: {
+              requestBody: {
+                content: {
+                  'application/json': {
+                    examples: {
+                      first: { value: { name: 'first-example' } },
+                      second: { value: { name: 'second-example' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Another block (or a previous pick) set the document-wide example. The block
+    // must honor the store over its own `selectedExample` seed.
+    store.workspace['x-scalar-default-example'] = 'second'
+
+    const element = document.createElement('div')
+    document.body.appendChild(element)
+    mounted.push(createCodeExample(element, { store, path: '/hello', method: 'post', selectedExample: 'first' }))
+
+    expect(element.textContent).toContain('second-example')
+    expect(element.textContent).not.toContain('first-example')
+  })
+
+  it('derives the server from the active document when no server is passed', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Petstore', version: '1.0.0' },
+        servers: [{ url: 'https://api.example.com' }],
+        paths: {
+          '/hello': {
+            post: {
+              requestBody: {
+                content: { 'application/json': { schema: { type: 'object' } } },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const element = document.createElement('div')
+    document.body.appendChild(element)
+    mounted.push(createCodeExample(element, { store, path: '/hello', method: 'post' }))
+
+    expect(element.textContent).toContain('api.example.com')
+  })
+
+  it('keeps the operation and its server from the same document when the operation disappears', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Petstore', version: '1.0.0' },
+        servers: [{ url: 'https://api.example.com' }],
+        paths: { '/hello': { post: { requestBody: { content: { 'application/json': { schema: {} } } } } } },
+      },
+    })
+
+    const element = document.createElement('div')
+    document.body.appendChild(element)
+    mounted.push(createCodeExample(element, { store, path: '/hello', method: 'post' }))
+    expect(element.textContent).toContain('api.example.com')
+
+    // Swap to a document that lacks the operation but defines a different server.
+    // The block must keep the last operation paired with the server it came from,
+    // never the new document's server, so a snippet never mixes two specs.
+    await store.addDocument({
+      name: 'other',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Other', version: '1.0.0' },
+        servers: [{ url: 'https://other.example.com' }],
+        paths: {},
+      },
+    })
+    store.workspace['x-scalar-active-document'] = 'other'
+    await nextTick()
+
+    expect(element.textContent).toContain('api.example.com')
+    expect(element.textContent).not.toContain('other.example.com')
+  })
+
   it('clears the rendered content when destroyed', async () => {
     const store = await createStore()
     const element = document.createElement('div')

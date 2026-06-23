@@ -3,6 +3,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
@@ -21,8 +22,22 @@ export type CreateCodeExampleOptions = {
   method: HttpMethod
   /** Pre-selected client ID, e.g. 'shell/curl'. */
   selectedClient?: AvailableClients[number]
-  /** Server object override used to build the example request. */
+  /**
+   * Server object override used to build the example request.
+   *
+   * When omitted, the server is derived from the active document (operation,
+   * then path item, then document level), mirroring the API reference. Pass
+   * `null` to force "no server".
+   */
   selectedServer?: ServerObject | null
+  /**
+   * Pre-selected example key for parameters and the request body.
+   *
+   * The store is the source of truth once an example is picked, so
+   * `x-scalar-default-example` wins over this initial seed and the selection
+   * round-trips through the store like the client selection does.
+   */
+  selectedExample?: string
   /** Security schemes applicable to the operation. */
   securitySchemes?: SecuritySchemeObjectSecret[]
   /**
@@ -65,40 +80,70 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
   // stale, so the selection would not survive a re-render or be shared with
   // other blocks reading from the same store.
   const mutators = generateClientMutators(options.store)
-  const unsubscribe = eventBus.on('workspace:update:selected-client', (payload) =>
+  const unsubscribeClient = eventBus.on('workspace:update:selected-client', (payload) =>
     mutators.workspace().workspace.updateSelectedClient(payload),
   )
 
-  /** Resolve the operation from the active document for the configured path and method. */
-  const resolveOperation = (): OperationObject | undefined => {
+  // Persist example changes back to the store as well, mirroring the client
+  // round-trip above. The block emits `workspace:update:selected-example` when
+  // the user picks an example; without this the choice would never reach
+  // `x-scalar-default-example` (read below) and would neither survive a
+  // re-render nor sync to other blocks reading from the same store.
+  const unsubscribeExample = eventBus.on('workspace:update:selected-example', (payload) =>
+    mutators.workspace().workspace.updateSelectedExample(payload),
+  )
+
+  type OperationContext = { operation: OperationObject; server: ServerObject | null }
+
+  /**
+   * Resolve the operation and its effective server from the active document.
+   *
+   * The server is resolved from the same document the operation came from
+   * (operation, then path item, then document level), so a snippet never pairs
+   * an operation with a server URL from a different spec.
+   */
+  const resolveContext = (): OperationContext | undefined => {
     // The active document may be an AsyncAPI document, which has no `paths`.
     const activeDocument = options.store.workspace.activeDocument
-    const paths = activeDocument && 'paths' in activeDocument ? activeDocument.paths : undefined
-    const pathItem = getResolvedRef(paths?.[options.path])
-    return getResolvedRef(pathItem?.[options.method])
+    if (!activeDocument || !('paths' in activeDocument)) {
+      return undefined
+    }
+    const pathItem = getResolvedRef(activeDocument.paths?.[options.path])
+    const operation = getResolvedRef(pathItem?.[options.method])
+    if (!operation) {
+      return undefined
+    }
+    const server = getFirstServer(operation.servers ?? null, pathItem?.servers ?? null, activeDocument.servers ?? null)
+    return { operation, server }
   }
 
   // Fail loudly if the path and method do not point at an operation in the store,
   // mirroring the "element not found" guard above.
-  if (!resolveOperation()) {
+  if (!resolveContext()) {
     throw new Error(`Operation not found: ${options.method.toUpperCase()} ${options.path}`)
   }
 
-  // Remember the last operation that resolved so a transient miss (e.g. the active
+  // Remember the last context that resolved so a transient miss (e.g. the active
   // document is swapped to one without this path or method after mount) keeps
-  // rendering the previous operation instead of feeding `undefined` to the block.
-  let lastOperation: OperationObject | undefined
+  // rendering the previous operation, paired with the server it actually came
+  // from, instead of feeding `undefined` to the block.
+  let lastContext: OperationContext | undefined
+
+  /** Current operation + server, falling back to the last good resolution on a transient miss. */
+  const currentContext = (): OperationContext => {
+    const context = resolveContext()
+    if (context) {
+      lastContext = context
+    }
+    return (context ?? lastContext) as OperationContext
+  }
 
   // Props are getters so the block tracks the reactive store (active document,
-  // `x-scalar-default-client`) live. Option fields are read at their current value;
-  // change the client or server through the store to drive re-renders.
+  // `x-scalar-default-client`, `x-scalar-default-example`) live. Change the
+  // client, example, or server through the store to drive re-renders.
   const props = reactive<CodeExampleProps>({
     get operation(): OperationObject {
-      const operation = resolveOperation()
-      if (operation) {
-        lastOperation = operation
-      }
-      return (operation ?? lastOperation) as OperationObject
+      return currentContext().operation
     },
     get method() {
       return options.method
@@ -117,8 +162,15 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
       // round-trips through the subscription above.
       return options.store.workspace['x-scalar-default-client'] ?? options.selectedClient
     },
+    get selectedExample() {
+      // Same as the client: the store wins over the initial seed so the example
+      // selection survives re-renders and syncs across blocks.
+      return options.store.workspace['x-scalar-default-example'] ?? options.selectedExample
+    },
     get selectedServer() {
-      return options.selectedServer ?? null
+      // An explicit option wins (including an explicit `null` for "no server");
+      // otherwise derive it from the same document the operation resolved from.
+      return options.selectedServer !== undefined ? options.selectedServer : currentContext().server
     },
   })
 
@@ -140,7 +192,8 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
   return {
     app,
     destroy: () => {
-      unsubscribe()
+      unsubscribeClient()
+      unsubscribeExample()
       app.unmount()
     },
   }
