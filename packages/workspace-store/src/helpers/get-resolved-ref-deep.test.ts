@@ -222,6 +222,28 @@ describe('edge cases', () => {
     expect(result).toEqual([])
   })
 
+  it('preserves keywords declared alongside a $ref, with siblings overriding the target', () => {
+    const node = {
+      $ref: '#/components/schemas/Paginated',
+      '$ref-value': { type: 'object', description: 'generic' },
+      // A $defs binding declared next to the $ref (the `Paginated<Planet>` pattern).
+      $defs: {
+        itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet', '$ref-value': { type: 'string' } },
+      },
+      description: 'specialized',
+    }
+
+    const result = getResolvedRefDeep(node)
+
+    expect(result).toEqual({
+      type: 'object',
+      // Sibling wins over the resolved target.
+      description: 'specialized',
+      // Sibling $defs is preserved and its nested $ref resolved.
+      $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'string' } },
+    })
+  })
+
   it('should handle refs with no $ref-value', () => {
     const invalidRef = { $ref: '#/invalid' }
     const result = getResolvedRefDeep(invalidRef)
