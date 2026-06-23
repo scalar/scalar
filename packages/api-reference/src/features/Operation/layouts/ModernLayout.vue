@@ -53,6 +53,7 @@ const {
   selectedServer,
   selectedSecuritySchemes,
   selectedClient,
+  selectedExample,
 } = defineProps<
   Omit<
     OperationProps,
@@ -242,6 +243,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
               :securitySchemes="selectedSecuritySchemes"
               :selectedClient
               :selectedContentType="selectedRequestBodyContentType"
+              :selectedExample
               :selectedServer>
               <template #header>
                 <OperationPath
@@ -272,7 +274,9 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           <ScalarErrorBoundary>
             <ExampleResponses
               v-if="operation.responses"
+              :eventBus
               :responses="operation.responses"
+              :selectedExample
               style="margin-top: 12px" />
           </ScalarErrorBoundary>
         </div>

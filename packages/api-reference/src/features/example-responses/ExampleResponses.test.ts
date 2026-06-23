@@ -710,6 +710,68 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).not.toContain('Example 2')
   })
 
+  it('keeps the document-wide example when the status code list shrinks and the index clamps', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        selectedExample: 'example2',
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                examples: {
+                  example1: { value: { message: 'TwoHundred One' } },
+                  example2: { value: { message: 'TwoHundred Two' } },
+                },
+              },
+            },
+          },
+          '404': {
+            description: 'Not found',
+            content: {
+              'application/json': {
+                examples: {
+                  example2: { value: { message: 'NotFound Two' } },
+                  example3: { value: { message: 'NotFound Three' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Move to the second tab (404), which also defines example2
+    const tabList = wrapper.findComponent({ name: 'ExampleResponseTabList' })
+    await tabList.vm.$emit('change', 1)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('NotFound Two')
+
+    // Drop the 404 response so the list shrinks and the index clamps back to 200
+    await wrapper.setProps({
+      responses: {
+        '200': {
+          description: 'OK',
+          content: {
+            'application/json': {
+              examples: {
+                example1: { value: { message: 'TwoHundred One' } },
+                example2: { value: { message: 'TwoHundred Two' } },
+              },
+            },
+          },
+        },
+      },
+    })
+    await wrapper.vm.$nextTick()
+
+    // The picker keeps the synced example (example2) instead of blanking out to the first one
+    const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(examplePicker.props('modelValue')).toBe('example2')
+    expect(wrapper.text()).toContain('TwoHundred Two')
+    expect(wrapper.text()).not.toContain('TwoHundred One')
+  })
+
   it('renders explicit 204 response tab and shows No Body', () => {
     const wrapper = mount(ExampleResponses, {
       props: {

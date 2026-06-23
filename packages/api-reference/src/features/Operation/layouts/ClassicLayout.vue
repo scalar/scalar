@@ -59,6 +59,7 @@ const {
   selectedServer,
   selectedSecuritySchemes,
   selectedClient,
+  selectedExample,
 } = defineProps<
   Omit<
     OperationProps,
@@ -80,11 +81,18 @@ const {
 const operationTitle = computed(() => operation.summary || path || '')
 const operationExtensions = computed(() => getXKeysFromObject(operation))
 
-/** Track the currently selected example for passing to the modal */
-const selectedExampleKey = ref<string>('')
-
 /** Track the selected request body content type so the code sample stays in sync */
 const selectedRequestBodyContentType = ref<string | undefined>()
+
+/**
+ * The example key actually shown in the request snippet for this operation.
+ *
+ * The test-request button lives in the accordion header, outside `OperationCodeSample`, so it
+ * cannot read the resolved key from the footer slot like the modern layout does. We mirror it here
+ * so the button opens the client with the same example the snippet displays, even when this
+ * operation does not share the document-wide selection.
+ */
+const resolvedExampleKey = ref<string>('')
 
 /** Selected request body oneOf/anyOf variants; synced with schema dropdowns and code sample */
 const requestBodyCompositionSelection = ref<RequestBodyCompositionSelection>({})
@@ -170,7 +178,7 @@ const { copyToClipboard } = useClipboard()
           v-if="active && !isWebhook"
           :id
           :eventBus
-          :exampleName="selectedExampleKey"
+          :exampleName="resolvedExampleKey"
           :method
           :path
           :requestBodyCompositionSelection="
@@ -245,7 +253,9 @@ const { copyToClipboard } = useClipboard()
       <ExampleResponses
         v-if="operation.responses"
         class="operation-example-card"
-        :responses="operation.responses" />
+        :eventBus
+        :responses="operation.responses"
+        :selectedExample />
 
       <!-- New Example Request -->
       <div>
@@ -257,7 +267,6 @@ const { copyToClipboard } = useClipboard()
         <ScalarErrorBoundary>
           <OperationCodeSample
             :key="requestBodyCompositionSelectionKey"
-            v-model:selectedExample="selectedExampleKey"
             class="operation-example-card"
             :clientOptions
             :eventBus
@@ -272,7 +281,9 @@ const { copyToClipboard } = useClipboard()
             :securitySchemes="selectedSecuritySchemes"
             :selectedClient
             :selectedContentType="selectedRequestBodyContentType"
-            :selectedServer />
+            :selectedExample
+            :selectedServer
+            @update:exampleKey="resolvedExampleKey = $event" />
         </ScalarErrorBoundary>
       </div>
     </div>

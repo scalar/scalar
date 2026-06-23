@@ -24,6 +24,14 @@ export type WorkspaceEvents = {
    */
   'workspace:update:selected-client': string
   /**
+   * Update the selected example on the workspace.
+   *
+   * The payload is an example key (from an operation's `examples` map). Sharing it across the
+   * document keeps request and response example pickers in sync between operations: picking
+   * "Use case 1" on one operation selects the example with the same key everywhere it exists.
+   */
+  'workspace:update:selected-example': string
+  /**
    * Update the active environment on the workspace
    */
   'workspace:update:active-environment': string | null

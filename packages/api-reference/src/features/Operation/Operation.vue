@@ -37,6 +37,8 @@ export type OperationProps = {
   isWebhook: boolean
   /** The currently selected client for the document */
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  /** The currently selected example key, shared across operations for in-sync example pickers */
+  selectedExample: WorkspaceStore['workspace']['x-scalar-default-example']
   /** The event bus */
   eventBus: WorkspaceEventBus
   /** The auth store */
@@ -159,6 +161,7 @@ const selectedSecuritySchemes = computed(() =>
       :path
       :requiredSecurity
       :selectedClient
+      :selectedExample
       :selectedSecuritySchemes
       :selectedServer />
     <ModernLayout
@@ -174,6 +177,7 @@ const selectedSecuritySchemes = computed(() =>
       :path
       :requiredSecurity
       :selectedClient
+      :selectedExample
       :selectedSecuritySchemes
       :selectedServer />
   </template>

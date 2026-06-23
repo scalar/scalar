@@ -126,6 +126,7 @@ const makeMockProps = (entries: TraversedEntry[]): ComponentProps<typeof Travers
   entries,
   selectedServer: mockServer,
   selectedClient: mockStore.workspace['x-scalar-default-client'],
+  selectedExample: mockStore.workspace['x-scalar-default-example'],
   expandedItems: {},
   securitySchemes: {},
   eventBus,

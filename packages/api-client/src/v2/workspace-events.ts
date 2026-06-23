@@ -92,6 +92,13 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
+  eventBus.on('workspace:update:selected-example', (payload) =>
+    withHook(
+      'workspace:update:selected-example',
+      mutators.value.workspace().workspace.updateSelectedExample,
+      hooks,
+    )(payload),
+  )
   eventBus.on('workspace:update:active-environment', (payload) =>
     withHook(
       'workspace:update:active-environment',

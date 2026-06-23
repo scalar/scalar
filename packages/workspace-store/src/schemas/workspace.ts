@@ -37,6 +37,9 @@ export const WorkspaceMetaSchema = Type.Partial(
         ...AVAILABLE_CLIENTS.map((client) => Type.Literal(client)),
         Type.String({ pattern: '^custom/' }),
       ]),
+      // The example key (from an operation's `examples` map) selected across the document,
+      // so request and response example pickers stay in sync between operations
+      [extensions.workspace.defaultExample]: Type.String(),
       [extensions.workspace.activeDocument]: Type.String(),
       [extensions.workspace.theme]: Type.String(),
       [extensions.workspace.sidebarWidth]: Type.Number({ default: 288 }),
@@ -53,6 +56,8 @@ export type WorkspaceMeta = {
   // Typed as a plain string to avoid tripping TypeScript's "union too complex" limit when
   // this type flows into a Vue `defineProps`; valid values are enforced at runtime.
   [extensions.workspace.defaultClient]?: string
+  // The example key shared across the document so example pickers stay in sync between operations
+  [extensions.workspace.defaultExample]?: string
   [extensions.workspace.activeDocument]?: string
   [extensions.workspace.theme]?: string
   [extensions.workspace.sidebarWidth]?: number

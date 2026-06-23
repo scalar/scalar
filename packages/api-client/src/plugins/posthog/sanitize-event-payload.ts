@@ -107,6 +107,7 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'workspace:update:color-mode': empty,
   'workspace:update:theme': empty,
   'workspace:update:selected-client': empty,
+  'workspace:update:selected-example': empty,
   'workspace:update:active-proxy': (payload) => ({ enabled: !!payload }),
   'workspace:update:active-environment': empty,
 

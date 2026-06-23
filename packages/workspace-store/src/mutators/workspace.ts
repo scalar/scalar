@@ -87,6 +87,22 @@ export const updateSelectedClient = (
   workspace['x-scalar-default-client'] = payload
 }
 
+/**
+ * Updates the selected example on the workspace
+ *
+ * @param workspace - The workspace to update the selected example in
+ * @param payload - The example key to select across the document
+ */
+export const updateSelectedExample = (
+  workspace: Workspace | null,
+  payload: WorkspaceEvents['workspace:update:selected-example'],
+) => {
+  if (!workspace) {
+    return
+  }
+  workspace['x-scalar-default-example'] = payload
+}
+
 export const workspaceMutatorsFactory = ({ workspace }: { workspace: Workspace | null }) => {
   return {
     updateActiveProxy: (payload: WorkspaceEvents['workspace:update:active-proxy']) =>
@@ -95,6 +111,8 @@ export const workspaceMutatorsFactory = ({ workspace }: { workspace: Workspace |
     updateTheme: (payload: WorkspaceEvents['workspace:update:theme']) => updateTheme(workspace, payload),
     updateSelectedClient: (payload: WorkspaceEvents['workspace:update:selected-client']) =>
       updateSelectedClient(workspace, payload),
+    updateSelectedExample: (payload: WorkspaceEvents['workspace:update:selected-example']) =>
+      updateSelectedExample(workspace, payload),
     updateActiveEnvironment: (payload: WorkspaceEvents['workspace:update:active-environment']) =>
       updateActiveEnvironment(workspace, payload),
   }

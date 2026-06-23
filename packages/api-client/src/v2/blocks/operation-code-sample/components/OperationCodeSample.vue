@@ -31,7 +31,11 @@ export type OperationCodeSampleProps = {
    */
   selectedContentType?: string
   /**
-   * Example name to use for resolving example values for parameters AND requestBody
+   * Example name to use for resolving example values for parameters AND requestBody.
+   *
+   * This is the document-wide selection: it is honored only when this operation defines an example
+   * with the same key, so picking an example on one operation syncs the rest without blanking out
+   * operations that do not share that key.
    *
    * @example "limited"
    * ```ts
@@ -109,7 +113,7 @@ export type OperationCodeSampleProps = {
  * this component does not have much of its own state but operates on props and custom events
  *
  * @event workspace:update:selected-client - Emitted when the selected client changes
- * @event scalar-update-selected-example - removed for now, we can bring it back when we need it
+ * @event workspace:update:selected-example - Emitted when the selected example changes, so other operations can sync
  */
 export default {}
 </script>
@@ -143,6 +147,7 @@ import {
   ref,
   useId,
   watch,
+  watchEffect,
   type ComponentPublicInstance,
 } from 'vue'
 
@@ -167,6 +172,7 @@ const {
   selectedClient,
   selectedServer = null,
   selectedContentType,
+  selectedExample,
   securitySchemes = [],
   method,
   eventBus,
@@ -177,6 +183,17 @@ const {
   globalCookies,
   requestBodyCompositionSelection,
 } = defineProps<OperationCodeSampleProps>()
+
+const emit = defineEmits<{
+  /**
+   * Emitted whenever the example key actually shown for this operation changes.
+   *
+   * This is the resolved local key (not the raw document-wide selection), so layouts that render
+   * the test-request button outside this component can open the client with the same example the
+   * snippet displays.
+   */
+  (e: 'update:exampleKey', value: string): void
+}>()
 
 defineSlots<{
   header: () => unknown
@@ -194,27 +211,66 @@ const requestBodyExamples = computed(() => {
   return examples
 })
 
-/** The currently selected example key with v-model support */
-const selectedExampleKey = defineModel<string>('selectedExample', {
-  default: '',
+/**
+ * The example key actually shown for this operation.
+ *
+ * `selectedExample` is the document-wide selection that syncs across operations. We honor it only
+ * when this operation actually defines that key, otherwise we keep the local example: a selection
+ * on one operation should never blank out an operation that does not share the same example.
+ */
+const localExampleKey = ref('')
+
+/** Resolve the key to display, preferring the document-wide selection when this operation has it */
+const resolveExampleKey = (preferred: string | undefined): string => {
+  const keys = Object.keys(requestBodyExamples.value)
+  if (preferred && keys.includes(preferred)) {
+    return preferred
+  }
+  // Keep the current local example when it is still valid, otherwise fall back to the first one
+  if (localExampleKey.value && keys.includes(localExampleKey.value)) {
+    return localExampleKey.value
+  }
+  return keys[0] ?? ''
+}
+
+// Set the initial example from the document-wide selection, falling back to the first example
+onBeforeMount(() => {
+  localExampleKey.value = resolveExampleKey(selectedExample)
 })
 
-// Set default value to the first example
-onBeforeMount(() => {
-  selectedExampleKey.value ||= Object.keys(requestBodyExamples.value)[0] ?? ''
-})
+// Follow the document-wide selection when it changes and this operation has that example
+watch(
+  () => selectedExample,
+  (preferred) => {
+    localExampleKey.value = resolveExampleKey(preferred)
+  },
+)
 
 /** Reset the selected example key if the content type changes and the new content type doesn't have the previously selected example */
 watch(
   () => selectedContentType,
   () => {
     if (
-      !Object.keys(requestBodyExamples.value).includes(selectedExampleKey.value)
+      !Object.keys(requestBodyExamples.value).includes(localExampleKey.value)
     ) {
-      selectedExampleKey.value = Object.keys(requestBodyExamples.value)[0] ?? ''
+      // Re-resolve so the new content type still follows the document-wide selection when it has
+      // that key, instead of always snapping back to the first example
+      localExampleKey.value = resolveExampleKey(selectedExample)
     }
   },
 )
+
+// Keep the parent informed of the resolved key so a test-request button rendered outside this
+// component (e.g. the classic layout header) opens the client with the example the snippet shows
+watchEffect(() => {
+  emit('update:exampleKey', localExampleKey.value)
+})
+
+/** Select an example locally and sync the choice across the document */
+const selectExample = (key: string) => {
+  localExampleKey.value = key
+  eventBus.emit('workspace:update:selected-example', key)
+}
 
 /** Grab any custom code samples from the operation */
 const customCodeSamples = computed(() => getCustomCodeSamples(operation))
@@ -260,7 +316,7 @@ const webhookHar = computed(() => {
       operation,
       method,
       path,
-      example: selectedExampleKey.value,
+      example: localExampleKey.value,
       requestBodyCompositionSelection,
       defaultDisabledParameters: false,
     })
@@ -287,7 +343,7 @@ const generatedCode = computed<string>(() => {
     contentType: selectedContentType,
     server: selectedServer,
     securitySchemes,
-    example: selectedExampleKey.value,
+    example: localExampleKey.value,
     globalCookies,
     requestBodyCompositionSelection,
   })
@@ -434,14 +490,15 @@ const id = useId()
         class="request-card-footer-addon">
         <template v-if="Object.keys(requestBodyExamples).length">
           <ExamplePicker
-            v-model="selectedExampleKey"
-            :examples="requestBodyExamples" />
+            :examples="requestBodyExamples"
+            :modelValue="localExampleKey"
+            @update:modelValue="selectExample" />
         </template>
       </div>
 
       <!-- Footer -->
       <slot
-        :exampleName="selectedExampleKey"
+        :exampleName="localExampleKey"
         name="footer" />
     </ScalarCardFooter>
   </ScalarCard>
@@ -459,7 +516,7 @@ const id = useId()
         <slot name="header" />
       </div>
       <slot
-        :exampleName="selectedExampleKey"
+        :exampleName="localExampleKey"
         name="footer" />
     </ScalarCardSection>
   </ScalarCard>
