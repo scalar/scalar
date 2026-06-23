@@ -34,6 +34,11 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
     'PACKAGE_VERSION': `"${version}"`,
+    // Stamp this version onto bundled sub-packages (e.g. @scalar/blocks) whose
+    // own PACKAGE_VERSION is already baked into their prebuilt dist. Without this
+    // the request-snippet User-Agent would report the block library's version
+    // (e.g. Scalar/0.0.0) instead of the API reference version shipped here.
+    'OVERRIDE_PACKAGE_VERSION': `"${version}"`,
   },
   resolve: {
     alias: {
