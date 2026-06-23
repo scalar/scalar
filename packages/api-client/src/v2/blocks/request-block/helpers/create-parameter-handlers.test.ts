@@ -498,6 +498,61 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('treats a lone empty bracket group as a real key, not a stripped array marker', () => {
+    // Regression guard for the marker stripping: the display-only `[]` is only ever appended after a
+    // real path bracket (`filters[id][]`), so it always shows up as `][]`. A lone empty group
+    // (`filters[]`) is a genuine empty key and must keep its segment. Otherwise the rename collapses
+    // the path to `['filters']` and the value is written under the parameter name instead.
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const row: TableRow = {
+      name: 'filters[applicationInstanceId][in][]',
+      value: '1,2',
+      isDisabled: false,
+      originalParameter: parentParameter,
+      schema: { type: 'array', items: { type: 'string' } },
+      sourceParameterValuePath: ['applicationInstanceId', 'in'],
+    }
+    const onRenameExpandedRow = vi.fn()
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context: [row],
+      onRenameExpandedRow,
+    })
+
+    // The user renames the leaf to the empty key. The path is `['']`, not `['filters']`.
+    handlers.upsert(0, {
+      name: 'filters[]',
+      value: '1,2',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+
+    expect(onRenameExpandedRow).toHaveBeenCalledWith(row, [''])
+    // `setValueAtPath` does not support empty keys, so the value is simply not stored — the point is
+    // that it is never misrouted to a `filters` key (which is what dropping the empty segment caused).
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: {},
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
   it('keeps expanded row values at their source path during partial key edits', () => {
     const parentParameter = {
       name: 'filter',

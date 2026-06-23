@@ -17,19 +17,22 @@ const isEmptyValue = (value: unknown): boolean => value === undefined || value =
 
 /** Parse a parameter key like `filter[a][b]` into its path segments `['filter', 'a', 'b']`. */
 const parseBracketKey = (name: string): string[] => {
+  // Strip the trailing array marker first. The trailing brackets on a deepObject array leaf
+  // (`filters[id][in][]`) are display-only, not part of the value path — keeping them would add a
+  // bogus empty key that drops the value on write-back and corrupts rename tracking.
+  //
+  // The marker is only ever appended after a real path bracket, so it always shows up as `][]`. That
+  // lets us tell it apart from a genuinely empty key: an interior empty (`filters[][in]`) or a lone
+  // empty group (`filters[]`, value path `['']`) keeps its segment and still resolves to the right key.
+  const withoutArrayMarker = name.endsWith('][]') ? name.slice(0, -2) : name
+
   const segments: string[] = []
-  const head = name.match(/^[^[\]]*/)?.[0] ?? ''
+  const head = withoutArrayMarker.match(/^[^[\]]*/)?.[0] ?? ''
   if (head) {
     segments.push(head)
   }
-  for (const match of name.matchAll(/\[([^\]]*)\]/g)) {
-    const segment = match[1] ?? ''
-    // Skip empty `[]` segments. The trailing brackets on a deepObject array leaf
-    // (`filters[id][in][]`) are display-only and are not part of the value path — keeping them would
-    // add a bogus empty key that drops the value on write-back and corrupts rename tracking.
-    if (segment !== '') {
-      segments.push(segment)
-    }
+  for (const match of withoutArrayMarker.matchAll(/\[([^\]]*)\]/g)) {
+    segments.push(match[1] ?? '')
   }
   return segments
 }
