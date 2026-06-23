@@ -3,11 +3,14 @@ import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconCopy, ScalarIconInfo } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 import ApiReferenceToolbarPopover from './ApiReferenceToolbarPopover.vue'
 
 const CONFIG_SETTING = 'showDeveloperTools: "never"'
 
 const { copyToClipboard } = useClipboard()
+const { translate } = useApiReferenceI18n()
 </script>
 <template>
   <ApiReferenceToolbarPopover
@@ -18,7 +21,7 @@ const { copyToClipboard } = useClipboard()
         class="text-c-2 hover:text-c-1 hover:bg-b-2 ml-auto flex items-center gap-1 rounded px-2 py-2.25 text-base leading-none"
         type="button">
         <ScalarIconInfo />
-        Developer Tools
+        {{ translate('developerTools.title') }}
       </button>
     </template>
     <div class="-m-2 flex flex-col gap-2 leading-relaxed">
@@ -35,7 +38,7 @@ const { copyToClipboard } = useClipboard()
           <ScalarIconButton
             class="-m-1 p-1.25"
             :icon="ScalarIconCopy"
-            label="Copy link to clipboard"
+            :label="translate('actions.copyToClipboard')"
             size="sm"
             @click="copyToClipboard(CONFIG_SETTING)" />
         </div>

@@ -26,6 +26,7 @@ import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
+import { useApiReferenceI18n } from '@/features/i18n'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
@@ -77,6 +78,7 @@ const {
     document?: OpenApiDocument
   }
 >()
+const { translate } = useApiReferenceI18n()
 
 const operationTitle = computed(() => operation.summary || path || '')
 const operationExtensions = computed(() => getXKeysFromObject(operation))
@@ -152,7 +154,9 @@ const { copyToClipboard } = useClipboard()
               <Badge
                 v-if="isWebhook"
                 class="font-code text-green flex w-fit items-center justify-center gap-1">
-                <ScalarIconWebhooksLogo weight="bold" />Webhook
+                <ScalarIconWebhooksLogo weight="bold" />{{
+                  translate('operation.webhook')
+                }}
               </Badge>
 
               <!-- x-badges before -->
@@ -196,7 +200,7 @@ const { copyToClipboard } = useClipboard()
       <ScalarIconButton
         class="endpoint-copy p-0.5"
         :icon="ScalarIconCopy"
-        label="Copy endpoint URL"
+        :label="translate('actions.copyEndpointUrl')"
         size="xs"
         variant="ghost"
         @click.stop="copyToClipboard(path)" />
@@ -206,7 +210,7 @@ const { copyToClipboard } = useClipboard()
       #description>
       <ScalarMarkdown
         :anchorPrefix="id"
-        aria-label="Operation Description"
+        :aria-label="translate('common.description')"
         role="group"
         transformType="heading"
         :value="operation.description"

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ScalarIconSparkle } from '@scalar/icons'
 
+import { useApiReferenceI18n } from '@/features/i18n'
 import { useAgentContext } from '@/hooks/use-agent'
 
 const agentContext = useAgentContext()
+const { translate } = useApiReferenceI18n()
 </script>
 
 <template>
@@ -12,6 +14,6 @@ const agentContext = useAgentContext()
     type="button"
     @click="agentContext?.toggleAgent()">
     <ScalarIconSparkle />
-    Ask AI
+    {{ translate('agent.askAi') }}
   </button>
 </template>

@@ -8,6 +8,7 @@ import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { nextTick } from 'vue'
 
+import { useApiReferenceI18n } from '@/features/i18n'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 const props = defineProps<{
@@ -21,6 +22,7 @@ const props = defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
+const { translate } = useApiReferenceI18n()
 
 const { toast } = useToasts()
 
@@ -162,7 +164,7 @@ function openRegisterLink(documentUrl: string) {
           stroke-linecap="round"
           stroke-width="12" />
       </svg>
-      Generate MCP
+      {{ translate('mcp.generate') }}
       <ScalarIconArrowUpRight class="mcp-nav ml-auto size-4" />
     </div>
     <!-- you do have an MCP added -->
@@ -170,7 +172,7 @@ function openRegisterLink(documentUrl: string) {
       v-else
       class="scalar-mcp-layer-link"
       @click="copyToClipboard(config?.url ?? '')">
-      Connect MCP
+      {{ translate('mcp.connect') }}
       <svg
         class="mcp-logo ml-auto"
         fill="none"

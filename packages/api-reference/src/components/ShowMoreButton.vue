@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ScalarIconCaretDown } from '@scalar/icons'
+
+import { useApiReferenceI18n } from '@/features/i18n'
+
+const { translate } = useApiReferenceI18n()
 </script>
 
 <template>
   <button
     class="show-more"
     type="button">
-    Show More
+    {{ translate('actions.showMore') }}
     <ScalarIconCaretDown
       class="text-c-2 mt-0.25 size-3"
       weight="bold" />

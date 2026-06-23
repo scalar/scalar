@@ -2,10 +2,13 @@
 import { ScalarIconLink } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 const { breadcrumb } = defineProps<{
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
 }>()
+const { translate } = useApiReferenceI18n()
 </script>
 
 <template>
@@ -27,7 +30,7 @@ const { breadcrumb } = defineProps<{
           class="size-3"
           weight="bold" />
         <span class="sr-only">
-          <slot name="sr-label">Copy link to <slot /></slot>
+          <slot name="sr-label">{{ translate('actions.copyLink') }}</slot>
         </span>
       </button>
     </div>

@@ -4,6 +4,8 @@ import { ScalarIconHash } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { useId } from 'vue'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 import ScreenReader from '../ScreenReader.vue'
 
 const emit = defineEmits<{
@@ -11,6 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const labelId = useId()
+const { translate } = useApiReferenceI18n()
 
 const { cx } = useBindCx()
 </script>
@@ -32,7 +35,7 @@ const { cx } = useBindCx()
         <ScalarIconHash
           aria-hidden="true"
           class="size-4.5" />
-        <ScreenReader>Copy link</ScreenReader>
+        <ScreenReader>{{ translate('actions.copyLink') }}</ScreenReader>
       </ScalarButton>
     </span>
   </span>

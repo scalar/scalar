@@ -5,6 +5,8 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 const { target, servers, selectedServer } = defineProps<{
   /** The selected server URL */
   selectedServer: ServerObject | null
@@ -18,6 +20,8 @@ const emit = defineEmits<{
   /** Emitted when the selected server changes */
   (e: 'update:modelValue', value: string): void
 }>()
+
+const { translate } = useApiReferenceI18n()
 
 const serverOptions = computed(() =>
   servers.map((server) => ({
@@ -56,9 +60,9 @@ defineExpose({
     <ScalarButton
       class="bg-b-1 text-c-1 h-auto w-full justify-start gap-1.5 overflow-x-auto rounded-t-none !rounded-b-xl px-3 py-1.5 text-base/5.25 font-normal whitespace-nowrap -outline-offset-1"
       variant="ghost">
-      <span class="sr-only">Server:</span>
+      <span class="sr-only">{{ translate('server.label') }}:</span>
       <span class="overflow-x-auto">{{
-        serverUrlWithoutTrailingSlash || 'Select a server'
+        serverUrlWithoutTrailingSlash || translate('server.select')
       }}</span>
       <ScalarIconCaretDown
         class="text-c-2 ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
@@ -68,7 +72,7 @@ defineExpose({
   <div
     v-else
     class="text-c-1 flex h-auto w-full items-center gap-0.75 !rounded-b-xl px-3 py-1.5 text-base leading-[20px] whitespace-nowrap">
-    <span class="sr-only">Server:</span>
+    <span class="sr-only">{{ translate('server.label') }}:</span>
     <span class="overflow-x-auto">{{ serverUrlWithoutTrailingSlash }}</span>
   </div>
 </template>

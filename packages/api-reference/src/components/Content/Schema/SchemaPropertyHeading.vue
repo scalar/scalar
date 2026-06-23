@@ -13,6 +13,7 @@ import { computed, toRef } from 'vue'
 import { Badge } from '@/components/Badge'
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
+import { useApiReferenceI18n } from '@/features/i18n'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelNameFromSchema } from './helpers/schema-name'
@@ -44,6 +45,7 @@ const props = withDefaults(
     eventBus: null,
   },
 )
+const { translate } = useApiReferenceI18n()
 
 // Convert to reactive refs for composables
 const valueRef = toRef(props, 'value')
@@ -102,7 +104,7 @@ const validationProperties = computed(() => {
     if (schema.uniqueItems) {
       properties.push({
         key: 'unique-items',
-        value: 'unique!',
+        value: `${translate('common.unique')}!`,
       })
     }
   }
@@ -112,7 +114,7 @@ const validationProperties = computed(() => {
     if (schema.minLength) {
       properties.push({
         key: 'min-length',
-        prefix: 'min length: ',
+        prefix: `${translate('common.minLength')}: `,
         value: schema.minLength,
       })
     }
@@ -120,7 +122,7 @@ const validationProperties = computed(() => {
     if (schema.maxLength) {
       properties.push({
         key: 'max-length',
-        prefix: 'max length: ',
+        prefix: `${translate('common.maxLength')}: `,
         value: schema.maxLength,
       })
     }
@@ -152,7 +154,7 @@ const validationProperties = computed(() => {
     if (isDefined(schema.exclusiveMinimum)) {
       properties.push({
         key: 'exclusive-minimum',
-        prefix: 'greater than: ',
+        prefix: `${translate('common.greaterThan')}: `,
         value: schema.exclusiveMinimum,
       })
     }
@@ -160,7 +162,7 @@ const validationProperties = computed(() => {
     if (isDefined(schema.minimum)) {
       properties.push({
         key: 'minimum',
-        prefix: 'min: ',
+        prefix: `${translate('common.min')}: `,
         value: schema.minimum,
       })
     }
@@ -168,7 +170,7 @@ const validationProperties = computed(() => {
     if (isDefined(schema.exclusiveMaximum)) {
       properties.push({
         key: 'exclusive-maximum',
-        prefix: 'less than: ',
+        prefix: `${translate('common.lessThan')}: `,
         value: schema.exclusiveMaximum,
       })
     }
@@ -176,7 +178,7 @@ const validationProperties = computed(() => {
     if (isDefined(schema.maximum)) {
       properties.push({
         key: 'maximum',
-        prefix: 'max: ',
+        prefix: `${translate('common.max')}: `,
         value: schema.maximum,
       })
     }
@@ -184,7 +186,7 @@ const validationProperties = computed(() => {
     if (isDefined(schema.multipleOf)) {
       properties.push({
         key: 'multiple-of',
-        prefix: 'multiple of: ',
+        prefix: `${translate('common.multipleOf')}: `,
         value: schema.multipleOf,
       })
     }
@@ -301,14 +303,15 @@ const exampleValue = computed(() => {
     <div
       v-if="props.isDiscriminator"
       class="property-discriminator">
-      Discriminator
+      {{ translate('common.discriminator') }}
     </div>
     <template v-if="props.value">
       <!-- Type information -->
       <SchemaPropertyDetail
         v-if="shouldShowType"
         truncate>
-        <ScreenReader>Type: </ScreenReader>{{ displayType
+        <ScreenReader>{{ translate('common.type') }}: </ScreenReader
+        >{{ displayType
         }}<template v-if="modelLink">
           ·
           <LinkButton
@@ -328,7 +331,7 @@ const exampleValue = computed(() => {
       <SchemaPropertyDetail
         v-if="propertyNamesDetail"
         truncate>
-        <template #prefix>keys:</template>
+        <template #prefix>{{ translate('common.keys') }}:</template>
         {{ propertyNamesDetail }}
       </SchemaPropertyDetail>
 
@@ -338,9 +341,11 @@ const exampleValue = computed(() => {
         :key="property.key"
         :code="property.code"
         :truncate="property.truncate">
-        <ScreenReader v-if="property.key === 'format'">Format:</ScreenReader>
+        <ScreenReader v-if="property.key === 'format'">
+          {{ translate('common.format') }}:
+        </ScreenReader>
         <ScreenReader v-else-if="property.key === 'pattern'">
-          Pattern:
+          {{ translate('common.pattern') }}:
         </ScreenReader>
         <template
           v-if="property.prefix"
@@ -351,7 +356,9 @@ const exampleValue = computed(() => {
       </SchemaPropertyDetail>
 
       <!-- Enum indicator -->
-      <SchemaPropertyDetail v-if="props.enum">enum</SchemaPropertyDetail>
+      <SchemaPropertyDetail v-if="props.enum">
+        {{ translate('common.enum') }}
+      </SchemaPropertyDetail>
     </template>
     <div
       v-if="props.additional"
@@ -359,42 +366,42 @@ const exampleValue = computed(() => {
       <template v-if="props.value?.['x-additionalPropertiesName']">
         {{ props.value['x-additionalPropertiesName'] }}
       </template>
-      <template v-else>additional properties</template>
+      <template v-else>{{ translate('common.additionalProperties') }}</template>
     </div>
     <div
       v-if="props.value?.deprecated"
       class="property-deprecated">
-      <Badge>deprecated</Badge>
+      <Badge>{{ translate('common.deprecated') }}</Badge>
     </div>
     <!-- Don't use `isDefined` here, we want to show `const` when the value is `null` -->
     <div
       v-if="constValue !== undefined"
       class="property-const">
       <SchemaPropertyDetail truncate>
-        <template #prefix>const: </template>
+        <template #prefix>{{ translate('common.const') }}: </template>
         <RenderString :value="constValue" />
       </SchemaPropertyDetail>
     </div>
     <template v-else>
       <!-- Shows only when a composition is used (so props.value?.type is undefined) -->
       <SchemaPropertyDetail v-if="(props.value as any)?.nullable === true">
-        nullable
+        {{ translate('common.nullable') }}
       </SchemaPropertyDetail>
     </template>
     <div
       v-if="props.value?.writeOnly"
       class="property-write-only">
-      write-only
+      {{ translate('common.writeOnly') }}
     </div>
     <div
       v-else-if="props.value?.readOnly"
       class="property-read-only">
-      read-only
+      {{ translate('common.readOnly') }}
     </div>
     <div
       v-if="props.required"
       class="property-required">
-      required
+      {{ translate('common.required') }}
     </div>
     <SchemaPropertyDefault :value="props.value?.default" />
     <SchemaPropertyExamples

@@ -29,11 +29,14 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed, useId } from 'vue'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 import Selector from './Selector.vue'
 
 const { eventBus, servers, selectedServer } = defineProps<SelectorProps>()
 
 const id = useId()
+const { translate } = useApiReferenceI18n()
 
 /**
  * Normalize AsyncAPI server variables into the shape the shared
@@ -82,7 +85,7 @@ const updateServerVariable = (key: string, value: string) => {
 <template>
   <label
     class="bg-b-2 flex h-8 items-center rounded-t-xl border-x border-t px-3 py-2.5 font-medium">
-    Server
+    {{ translate('server.label') }}
   </label>
   <div
     :id="id"

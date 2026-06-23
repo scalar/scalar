@@ -16,9 +16,23 @@ const MAX_SEARCH_RESULTS = 25
 export function useSearchIndex(
   document: MaybeRefOrGetter<OpenApiDocument | AsyncApiDocument | undefined>,
   modelsSectionLabel: MaybeRefOrGetter<ModelsSectionLabel | undefined> = DEFAULT_MODELS_SECTION_LABEL,
+  labels: MaybeRefOrGetter<{
+    heading: string
+    tagGroup: string
+    webhook: string
+    webhooks: string
+    introduction: string
+  }> = {
+    heading: 'Heading',
+    tagGroup: 'Tag Group',
+    webhook: 'Webhook',
+    webhooks: 'Webhooks',
+    introduction: 'Introduction',
+  },
 ) {
   const searchIndex = computed<FuseData[]>(() =>
     createSearchIndex(toValue(document), {
+      labels: toValue(labels),
       modelsSectionLabel: toValue(modelsSectionLabel) ?? DEFAULT_MODELS_SECTION_LABEL,
     }),
   )

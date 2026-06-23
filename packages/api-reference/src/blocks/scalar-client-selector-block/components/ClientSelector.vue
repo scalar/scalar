@@ -11,6 +11,7 @@ import {
   getFeaturedClients,
   isFeaturedClient,
 } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
+import { useApiReferenceI18n } from '@/features/i18n'
 
 import ClientDropdown from './ClientDropdown.vue'
 
@@ -29,6 +30,7 @@ const {
 
 const headingId = useId()
 const morePanel = useId()
+const { translate } = useApiReferenceI18n()
 
 /**
  * Whether a selection is a custom code sample (e.g. `custom/python`) rather than
@@ -108,7 +110,7 @@ defineExpose({
       <div
         :id="headingId"
         class="client-libraries-heading">
-        Client Libraries
+        {{ translate('clientLibraries.heading') }}
       </div>
 
       <!-- Tabs -->

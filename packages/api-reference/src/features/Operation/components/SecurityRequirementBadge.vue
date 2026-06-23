@@ -3,6 +3,7 @@ import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconLockSimple, ScalarIconLockSimpleOpen } from '@scalar/icons'
 import { computed } from 'vue'
 
+import { useApiReferenceI18n } from '@/features/i18n'
 import SecurityRequirementBadgeScheme from '@/features/Operation/components/SecurityRequirementBadgeScheme.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 
@@ -10,13 +11,18 @@ const { requiredSecurity, hideLabel = false } = defineProps<{
   requiredSecurity: RequiredSecurity
   hideLabel?: boolean
 }>()
+const { translate } = useApiReferenceI18n()
 
 const label = computed(() =>
-  requiredSecurity.state === 'required' ? 'Auth Required' : 'Auth Optional',
+  requiredSecurity.state === 'required'
+    ? translate('authentication.required')
+    : translate('authentication.optional'),
 )
 
 const verb = computed(() =>
-  requiredSecurity.state === 'required' ? 'Requires' : 'Accepts',
+  requiredSecurity.state === 'required'
+    ? translate('authentication.requires')
+    : translate('authentication.accepts'),
 )
 
 /** Single group, single scheme — shown inline in the header. */
@@ -72,9 +78,15 @@ const isOrAlternatives = computed(
               class="contents"
               :scheme="requiredSecurity.requirements[0]!.schemes[0]!" />
           </template>
-          <template v-else-if="isOrAlternatives">one of:</template>
-          <template v-else-if="isAndGroup">all of:</template>
-          <template v-else>authentication</template>
+          <template v-else-if="isOrAlternatives">
+            {{ translate('authentication.oneOf') }}
+          </template>
+          <template v-else-if="isAndGroup">
+            {{ translate('authentication.allOf') }}
+          </template>
+          <template v-else>{{
+            translate('authentication.authentication')
+          }}</template>
         </div>
 
         <!-- Multiple OR alternatives -->

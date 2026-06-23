@@ -3,11 +3,14 @@ import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconList, ScalarIconX } from '@scalar/icons'
 import { cva } from '@scalar/use-hooks/useBindCx'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 defineProps<{
   breadcrumb: string
   isSidebarOpen: boolean
   showSidebar: boolean
 }>()
+const { translate } = useApiReferenceI18n()
 
 const emit = defineEmits<{
   (e: 'toggleSidebar'): void
@@ -44,7 +47,11 @@ const variants = cva({
       <ScalarIconButton
         v-if="showSidebar"
         :icon="isSidebarOpen ? ScalarIconX : ScalarIconList"
-        :label="isSidebarOpen ? 'Close Menu' : 'Open Menu'"
+        :label="
+          isSidebarOpen
+            ? translate('navigation.closeMenu')
+            : translate('navigation.openMenu')
+        "
         size="md"
         @click="emit('toggleSidebar')" />
 

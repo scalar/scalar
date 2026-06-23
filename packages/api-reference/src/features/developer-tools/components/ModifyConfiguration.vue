@@ -6,6 +6,8 @@ import { type ThemeId } from '@scalar/themes'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { computed } from 'vue'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 import ApiReferenceToolbarConfigLayout from './ApiReferenceToolbarConfigLayout.vue'
 import ApiReferenceToolbarConfigLayoutOptions from './ApiReferenceToolbarConfigLayoutOptions.vue'
 import ApiReferenceToolbarConfigTheme from './ApiReferenceToolbarConfigTheme.vue'
@@ -16,6 +18,7 @@ const { configuration } = defineProps<{
 }>()
 
 const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
+const { translate } = useApiReferenceI18n()
 
 const snippet = computed<string>(() => {
   return prettyPrintJson({
@@ -37,7 +40,7 @@ const layout = computed<'modern' | 'classic'>({
 </script>
 <template>
   <ApiReferenceToolbarPopover class="w-120">
-    <template #label>Configure</template>
+    <template #label>{{ translate('developerTools.configure') }}</template>
     <ScalarFormSection>
       <template #label>Scalar Configuration</template>
       <ScalarCodeBlock
