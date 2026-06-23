@@ -907,6 +907,135 @@ describe('updateSelectedScopes', () => {
     // selectedIndex from the stored target is preserved (the fallback would have recomputed it).
     expect(selected.selectedIndex).toBe(0)
   })
+
+  it('toggles a single scope on against the stored selection', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createDocument({}) })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read'] }] },
+    )
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scope: 'write',
+      selected: true,
+      meta: { type: 'document' },
+    })
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes[0]).toEqual({ OAuth: ['read', 'write'] })
+  })
+
+  it('toggles a single scope off against the stored selection', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createDocument({}) })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read', 'write'] }] },
+    )
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scope: 'read',
+      selected: false,
+      meta: { type: 'document' },
+    })
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes[0]).toEqual({ OAuth: ['write'] })
+  })
+
+  it('does not duplicate a scope that is already selected when toggled on', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createDocument({}) })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read'] }] },
+    )
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scope: 'read',
+      selected: true,
+      meta: { type: 'document' },
+    })
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes[0]).toEqual({ OAuth: ['read'] })
+  })
+
+  it('composes successive single-scope toggles without dropping earlier ones (issue #9589)', async () => {
+    // Reproduces the rapid-click race: each toggle is applied against the stored selection, so two
+    // quick clicks accumulate instead of the second overwriting the first with a stale snapshot.
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createDocument({}) })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: [] }] },
+    )
+    const document = store.workspace.activeDocument!
+
+    updateSelectedScopes(store, document, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scope: 'read',
+      selected: true,
+      meta: { type: 'document' },
+    })
+    updateSelectedScopes(store, document, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scope: 'write',
+      selected: true,
+      meta: { type: 'document' },
+    })
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes[0]).toEqual({ OAuth: ['read', 'write'] })
+  })
+
+  it('toggles a single scope on the preferredSecurityScheme fallback when nothing is stored', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({
+        components: {
+          securitySchemes: {
+            oauth2: {
+              type: 'oauth2',
+              flows: { clientCredentials: { tokenUrl: 'https://example.com/token', refreshUrl: '', scopes: {} } },
+            },
+          },
+        },
+      }),
+    })
+
+    // Nothing stored — simulates preferredSecurityScheme. The first toggle must still land.
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['oauth2'],
+      name: 'oauth2',
+      scope: 'read',
+      selected: true,
+      meta: { type: 'document' },
+    })
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes[0]).toEqual({ oauth2: ['read'] })
+  })
 })
 
 describe('deleteSecurityScheme', () => {
