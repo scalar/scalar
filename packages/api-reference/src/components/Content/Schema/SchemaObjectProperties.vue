@@ -111,6 +111,19 @@ const additionalPropertiesEnum = computed(() => {
 })
 
 /**
+ * The resolved propertyNames schema for the property keys.
+ *
+ * Surfaces key constraints such as `format` (for example `uuid`) so they are
+ * not lost when rendering a map of additional properties.
+ */
+const additionalPropertiesKeySchema = computed(() => {
+  if (!isTypeObject(schema) || !schema.additionalProperties) {
+    return undefined
+  }
+  return schema.propertyNames ? resolve.schema(schema.propertyNames) : undefined
+})
+
+/**
  * Keep sibling property descriptions separate from the referenced schema.
  *
  * This allows us to render both:
@@ -246,6 +259,7 @@ const getAdditionalPropertiesValue = (
       noncollapsible
       :options="options"
       :propertyNamesEnum="additionalPropertiesEnum"
+      :propertyNamesSchema="additionalPropertiesKeySchema"
       :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
       :schemaContext="schemaContext"
       variant="additionalProperties" />

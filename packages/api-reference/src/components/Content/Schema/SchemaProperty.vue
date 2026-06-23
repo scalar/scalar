@@ -59,6 +59,8 @@ const props = withDefaults(
     options: SchemaOptions
     /** Enum values for property names (from JSON Schema propertyNames keyword). */
     propertyNamesEnum?: string[]
+    /** Resolved propertyNames schema, used to show key constraints like `format`. */
+    propertyNamesSchema?: SchemaObject
     /** When "requestBody", composition selection is synced with the example snippet */
     schemaContext?: string
     /** Internal path used to sync nested request body compositions with the code sample */
@@ -262,6 +264,7 @@ const isDiscriminatorProperty = computed(() =>
       :hideModelNames
       :isDiscriminator="isDiscriminatorProperty"
       :modelName="modelName"
+      :propertyNames="propertyNamesSchema"
       :required
       :value="optimizedValue">
       <template
