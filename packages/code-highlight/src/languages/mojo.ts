@@ -107,14 +107,17 @@ const mojo: LanguageFn = (hljs) => {
 
   // Negative lookahead that rejects an excluded word when it is the thing being
   // called, so it keeps its original scope. A word boundary asserts the
-  // identifier is not exactly a reserved word without a `\s*` quantifier, which
-  // would otherwise scan in polynomial time on untrusted input.
+  // identifier is not exactly a reserved word.
   const notReserved = regex.concat('(?!(?:', reserved.join('|'), ')\\b)')
 
+  // The call lookahead asserts a `(` immediately after the identifier. We do not
+  // allow whitespace before it (no `\s*`): the grammar runs this rule at every
+  // identifier in untrusted input, so an unbounded whitespace scan would make
+  // matching polynomial. Real call sites are written `foo(`, not `foo (`.
   const functionCall = {
     scope: 'title.function',
     relevance: 0,
-    match: regex.concat(/\b/, notReserved, IDENT_RE, regex.lookahead(/\s*\(/)),
+    match: regex.concat(/\b/, notReserved, IDENT_RE, regex.lookahead(/\(/)),
   }
 
   return {
