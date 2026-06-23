@@ -64,7 +64,7 @@
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "ajv": "^8.17.1",
+    "ajv": "^8.18.0",
     "ajv-formats": "^3.0.1",
     "hono": "catalog:*",
     "yaml": "catalog:*"
