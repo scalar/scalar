@@ -7,7 +7,7 @@ import type {
   HoveredItem,
   UseDraggableOptions,
 } from '@/hooks/use-draggable'
-import type { Item, Layout } from '@/types'
+import type { Item, Layout, SidebarOptions } from '@/types'
 
 import SidebarItem from './SidebarItem.vue'
 
@@ -37,15 +37,7 @@ const {
    * Sidebar configuration options.
    * - operationTitleSource: sets whether operations show their path or summary as the display title.
    */
-  options?: Partial<{
-    operationTitleSource: 'path' | 'summary'
-    /**
-     * Whether to hide the default examples for operations if there are no other examples.
-     *
-     * @default false
-     */
-    hideOperationDefaultExamples: boolean
-  }>
+  options?: SidebarOptions
   /**
    * The indentation in pixels to apply to nested items/groups in the sidebar.
    */
