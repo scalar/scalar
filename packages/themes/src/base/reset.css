@@ -84,6 +84,12 @@
     border-width: 1px;
   }
 
+  /** Keep text controls aligned with the active writing direction by default. */
+  input,
+  textarea {
+    text-align: start;
+  }
+
   /** Style placeholder text */
   input::placeholder,
   text-area::placeholder,
