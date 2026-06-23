@@ -29,6 +29,13 @@ describe('api-reference-configuration', () => {
         documentDownloadType: 'both',
         hideSearch: false,
         darkMode: true,
+        i18n: {
+          locale: 'es',
+          direction: 'auto',
+          translations: {
+            search: { label: 'Buscar' },
+          },
+        },
         forceDarkModeState: 'dark',
         hideDarkModeToggle: false,
         searchHotKey: 'k',
@@ -52,6 +59,20 @@ describe('api-reference-configuration', () => {
       }
 
       expect(() => coerce(apiReferenceConfigurationSchema, completeConfig)).not.toThrow()
+    })
+
+    it('validates i18n configuration', () => {
+      const config = {
+        i18n: {
+          locale: 'ar',
+          direction: 'rtl',
+          translations: {
+            operation: { testRequest: 'اختبار الطلب' },
+          },
+        },
+      }
+
+      expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject(config)
     })
 
     it('validates oauth2RedirectUri configuration', () => {

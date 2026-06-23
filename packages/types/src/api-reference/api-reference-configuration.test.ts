@@ -24,6 +24,15 @@ describe('api-reference-configuration', () => {
         isEditable: true,
         showSidebar: true,
         hideModels: false,
+        i18n: {
+          locale: 'es',
+          direction: 'auto',
+          translations: {
+            search: {
+              label: 'Buscar',
+            },
+          },
+        },
         hideTestRequestButton: false,
         documentDownloadType: 'both',
         hideSearch: false,
@@ -65,6 +74,22 @@ describe('api-reference-configuration', () => {
       const config = { hiddenClients: true }
 
       expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({ hiddenClients: true })
+    })
+
+    it('validates i18n configuration', () => {
+      const config = {
+        i18n: {
+          locale: 'ar',
+          direction: 'rtl',
+          translations: {
+            operation: {
+              testRequest: 'اختبار الطلب',
+            },
+          },
+        },
+      }
+
+      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject(config)
     })
 
     it('validates theme enum values', () => {
