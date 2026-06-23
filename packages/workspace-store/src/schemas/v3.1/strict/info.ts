@@ -1,6 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import { type XScalarLinks, XScalarLinksSchema } from '@/schemas/extensions/document/x-scalar-links'
 import {
   type XScalarSdkInstallation,
   XScalarSdkInstallationSchema,
@@ -31,6 +32,7 @@ export const InfoObjectSchemaDefinition = compose(
     license: Type.Optional(LicenseObjectRef),
   }),
   XScalarSdkInstallationSchema,
+  XScalarLinksSchema,
 )
 
 /**
@@ -51,4 +53,5 @@ export type InfoObject = {
   contact?: ContactObject
   /** The license information for the exposed API. */
   license?: LicenseObject
-} & XScalarSdkInstallation
+} & XScalarSdkInstallation &
+  XScalarLinks

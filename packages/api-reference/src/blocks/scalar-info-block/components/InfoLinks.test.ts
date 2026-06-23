@@ -126,6 +126,88 @@ describe('InfoLinks', () => {
     expect(termsOfService.exists()).toBe(false)
   })
 
+  it('renders an InfoLink for each x-scalar-links entry', () => {
+    const wrapper = mount(InfoLinks, {
+      props: {
+        info: {
+          ...mockInfo,
+          'x-scalar-links': [
+            { name: 'Privacy Policy', url: 'https://example.com/privacy' },
+            { name: 'Imprint', url: 'https://example.com/imprint' },
+          ],
+        },
+      },
+    })
+
+    const infoLinks = wrapper.findAllComponents({ name: 'InfoLink' })
+    expect(infoLinks).toHaveLength(2)
+    expect(infoLinks[0]?.props()).toEqual({
+      name: 'Privacy Policy',
+      url: 'https://example.com/privacy',
+    })
+    expect(infoLinks[1]?.props()).toEqual({
+      name: 'Imprint',
+      url: 'https://example.com/imprint',
+    })
+  })
+
+  it('renders LinkList when only x-scalar-links is provided', () => {
+    const wrapper = mount(InfoLinks, {
+      props: {
+        info: {
+          ...mockInfo,
+          'x-scalar-links': [{ name: 'Imprint', url: 'https://example.com/imprint' }],
+        },
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'LinkList' }).exists()).toBe(true)
+    expect(wrapper.findAllComponents({ name: 'InfoLink' })).toHaveLength(1)
+  })
+
+  it('ignores a malformed non-array x-scalar-links value', () => {
+    const wrapper = mount(InfoLinks, {
+      props: {
+        // A string instead of an array is invalid and should not render any links.
+        info: { ...mockInfo, 'x-scalar-links': 'https://example.com/privacy' as never },
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'LinkList' }).exists()).toBe(false)
+    expect(wrapper.findAllComponents({ name: 'InfoLink' })).toHaveLength(0)
+  })
+
+  it('skips x-scalar-links entries without a name or url', () => {
+    const wrapper = mount(InfoLinks, {
+      props: {
+        info: {
+          ...mockInfo,
+          'x-scalar-links': [
+            { name: 'Privacy Policy', url: 'https://example.com/privacy' },
+            // Malformed entries that should be filtered out.
+            { name: 'Missing URL' },
+            'not an object',
+          ] as never,
+        },
+      },
+    })
+
+    const infoLinks = wrapper.findAllComponents({ name: 'InfoLink' })
+    expect(infoLinks).toHaveLength(1)
+    expect(infoLinks[0]?.props()).toEqual({
+      name: 'Privacy Policy',
+      url: 'https://example.com/privacy',
+    })
+  })
+
+  it('does not render any InfoLink when x-scalar-links is absent', () => {
+    const wrapper = mount(InfoLinks, {
+      props: { info: { ...mockInfo, termsOfService: mockTermsOfService } },
+    })
+
+    expect(wrapper.findAllComponents({ name: 'InfoLink' })).toHaveLength(0)
+  })
+
   it('renders all components when all info properties are provided', () => {
     const fullInfo = {
       ...mockInfo,
