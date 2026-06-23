@@ -8,20 +8,20 @@ import { type ComputedRef, type InjectionKey, type MaybeRefOrGetter, computed, i
 
 import { DEFAULT_API_REFERENCE_LOCALE, RTL_LOCALES, apiReferenceTranslations } from './translations'
 
-export type ApiReferenceI18nContext = {
+type ApiReferenceI18nContext = {
   locale: ComputedRef<ApiReferenceLocale>
   direction: ComputedRef<ApiReferenceTextDirection>
   translations: ComputedRef<ApiReferenceTranslations>
   translate: (key: string, params?: Record<string, number | string>) => string
 }
 
-export type ResolvedApiReferenceI18n = {
+type ResolvedApiReferenceI18n = {
   locale: ApiReferenceLocale
   direction: ApiReferenceTextDirection
   translations: ApiReferenceTranslations
 }
 
-export const API_REFERENCE_I18N_SYMBOL: InjectionKey<ApiReferenceI18nContext> = Symbol('API_REFERENCE_I18N')
+const API_REFERENCE_I18N_SYMBOL: InjectionKey<ApiReferenceI18nContext> = Symbol('API_REFERENCE_I18N')
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -54,7 +54,7 @@ const mergeDeep = <T extends Record<string, unknown>>(base: T, override?: unknow
   return result as T
 }
 
-export const resolveBuiltInLocale = (locale?: ApiReferenceLocale): keyof typeof apiReferenceTranslations => {
+const resolveBuiltInLocale = (locale?: ApiReferenceLocale): keyof typeof apiReferenceTranslations => {
   if (!locale) {
     return DEFAULT_API_REFERENCE_LOCALE
   }
@@ -75,7 +75,7 @@ export const resolveBuiltInLocale = (locale?: ApiReferenceLocale): keyof typeof 
   return (match as keyof typeof apiReferenceTranslations | undefined) ?? DEFAULT_API_REFERENCE_LOCALE
 }
 
-export const resolveApiReferenceDirection = (i18n?: ApiReferenceI18n): ApiReferenceTextDirection => {
+const resolveApiReferenceDirection = (i18n?: ApiReferenceI18n): ApiReferenceTextDirection => {
   if (i18n?.direction && i18n.direction !== 'auto') {
     return i18n.direction
   }
@@ -110,7 +110,7 @@ const getTranslationValue = (translations: ApiReferenceTranslations, key: string
     return value[segment]
   }, translations)
 
-export const translateApiReference = (
+const translateApiReference = (
   translations: ApiReferenceTranslations,
   key: string,
   params?: Record<string, number | string>,
