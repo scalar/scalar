@@ -8,6 +8,8 @@ import type {
   OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 import Header from './Header.vue'
 
 const { headers, breadcrumb } = defineProps<{
@@ -20,6 +22,7 @@ const { headers, breadcrumb } = defineProps<{
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   expandAllSchemaProperties: boolean | undefined
 }>()
+const { translate } = useApiReferenceI18n()
 </script>
 <template>
   <Disclosure v-slot="{ open }">
@@ -39,8 +42,12 @@ const { headers, breadcrumb } = defineProps<{
             :class="{ 'headers-card-title-icon--open': open }"
             icon="Add"
             size="sm" />
-          <template v-if="open"> Hide Headers </template>
-          <template v-else> Show Headers </template>
+          <template v-if="open">
+            {{ translate('operation.hideHeaders') }}
+          </template>
+          <template v-else>
+            {{ translate('operation.showHeaders') }}
+          </template>
         </DisclosureButton>
         <DisclosurePanel>
           <template
@@ -50,11 +57,11 @@ const { headers, breadcrumb } = defineProps<{
               :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
               :document="document"
               :eventBus="eventBus"
+              :expandAllSchemaProperties="expandAllSchemaProperties"
               :header="getResolvedRef(header)"
               :name="key"
               :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
-              :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
-              :expandAllSchemaProperties="expandAllSchemaProperties" />
+              :orderSchemaPropertiesBy="orderSchemaPropertiesBy" />
           </template>
         </DisclosurePanel>
       </div>

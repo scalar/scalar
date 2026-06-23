@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 
 import { Badge } from '@/components/Badge'
+import { useApiReferenceI18n } from '@/features/i18n'
 
 const { servers = [], protocols = [] } = defineProps<{
   /** Names of the servers an entry is available on. */
@@ -9,6 +10,7 @@ const { servers = [], protocols = [] } = defineProps<{
   /** Protocol identifiers (for example `wss`, `kafka`) shown as uppercase pills. */
   protocols?: string[]
 }>()
+const { translate } = useApiReferenceI18n()
 
 /** Hide the whole row when there is nothing to show. */
 const hasLabels = computed(() => servers.length > 0 || protocols.length > 0)
@@ -19,7 +21,7 @@ const hasLabels = computed(() => servers.length > 0 || protocols.length > 0)
     v-if="hasLabels"
     class="async-api-labels">
     <template v-if="servers.length">
-      <span class="sr-only">Servers:</span>
+      <span class="sr-only">{{ translate('asyncapi.servers') }}:</span>
       <Badge
         v-for="server in servers"
         :key="`server-${server}`"
@@ -29,7 +31,7 @@ const hasLabels = computed(() => servers.length > 0 || protocols.length > 0)
       </Badge>
     </template>
     <template v-if="protocols.length">
-      <span class="sr-only">Protocols:</span>
+      <span class="sr-only">{{ translate('asyncapi.protocols') }}:</span>
       <Badge
         v-for="protocol in protocols"
         :key="`protocol-${protocol}`"

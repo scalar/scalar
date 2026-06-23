@@ -411,10 +411,21 @@ export type ApiReferenceTranslations = {
     openMenu: string
     operations: string
     webhooks: string
+    endpoints: string
+    showAllEndpoints: string
+    sidebarFor: string
+    collapsed: string
   }
   server: {
     label: string
     select: string
+  }
+  info: {
+    termsOfService: string
+  }
+  asyncapi: {
+    servers: string
+    protocols: string
   }
   clientLibraries: {
     heading: string
@@ -431,12 +442,33 @@ export type ApiReferenceTranslations = {
     responses: string
     testRequest: string
     webhook: string
+    selectedContentType: string
+    hideHeaders: string
+    showHeaders: string
+    callbacks: string
   }
   response: {
     exampleResponses: string
     noBody: string
     showSchema: string
     status: string
+  }
+  schema: {
+    example: string
+    examples: string
+    default: string
+    schema: string
+    emptyObject: string
+    showAdditionalProperties: string
+    childAttributes: string
+    hideChildAttributes: string
+    showChildAttributes: string
+    forName: string
+    showSchemaDetails: string
+    oneOf: string
+    anyOf: string
+    allOf: string
+    unknownType: string
   }
   download: {
     openapi: string
@@ -466,11 +498,76 @@ export type ApiReferenceTranslations = {
     configure: string
     share: string
     deploy: string
+    scalarConfiguration: string
+    theme: string
+    layout: string
+    layoutOptions: string
+    intro: string
+    disableToolbarBefore: string
+    disableToolbarAfter: string
+    localhostOnly: string
+    layoutModern: string
+    layoutClassic: string
+    showSidebar: string
+    defaultOpenFirstTag: string
+    defaultOpenAllTags: string
+    expandAll: string
+    expandAllResponses: string
+    hideClientButton: string
+    hideDarkModeToggle: string
+    hideModels: string
+    hideSearch: string
+    showOperationId: string
+    hideTestRequestButton: string
+    scalarDocs: string
+    deployDescription: string
+    shareTitle: string
+    shareDescription: string
+    uploadDocument: string
+    temporaryLinkExpiration: string
+    deployOnScalar: string
+    deployFree: string
+    additionalFeaturesMightRequire: string
+    generate: string
+    passwordProtection: string
+    customDomains: string
+    freeFormContent: string
+    cdnInfrastructure: string
+    pullFromGitHub: string
+    markdownMdx: string
+    spectralLinting: string
+    jsonSchemaHosting: string
+    askAi: string
+    mcpServers: string
+    unableToExportDocument: string
+    unknownError: string
+  }
+  gettingStarted: {
+    swaggerEditor: string
+    description: string
+    showExample: string
+    uploadFile: string
+    integrations: string
+    theming: string
+    features: string
+    customize: string
+    customizeDescription: string
+    testing: string
+    testingDescription: string
+    search: string
+    searchDescription: string
+    hosting: string
+    hostingDescription: string
+    openApiSwagger: string
+    openApiSwaggerDescription: string
+    codeSamples: string
+    codeSamplesDescription: string
   }
   footer: {
     poweredByScalar: string
   }
   authentication: {
+    title: string
     accepts: string
     allOf: string
     authentication: string

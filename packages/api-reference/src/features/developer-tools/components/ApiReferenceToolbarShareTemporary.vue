@@ -6,6 +6,7 @@ import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
+import { useApiReferenceI18n } from '@/features/i18n'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 import ApiReferenceToolbarBlurb from './ApiReferenceToolbarBlurb.vue'
@@ -17,6 +18,7 @@ const { workspace, externalUrls } = defineProps<{
 
 const { toast } = useToasts()
 const loader = useLoadingState()
+const { translate } = useApiReferenceI18n()
 
 const tempDocUrl = defineModel<string>('url')
 
@@ -30,7 +32,7 @@ async function generateTemporaryLink() {
   const document = workspace.exportActiveDocument('json')
 
   if (!document) {
-    toast('Unable to export active document', 'error')
+    toast(translate('developerTools.unableToExportDocument'), 'error')
     await loader.invalidate()
     return
   }
@@ -41,7 +43,9 @@ async function generateTemporaryLink() {
     tempDocUrl.value = url
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : 'An unknown error occurred'
+      error instanceof Error
+        ? error.message
+        : translate('developerTools.unknownError')
     toast(message, 'error')
     await loader.invalidate()
   }
@@ -62,10 +66,10 @@ async function generateTemporaryLink() {
       :loader
       variant="gradient"
       @click="generateTemporaryLink">
-      Upload Document
+      {{ translate('developerTools.uploadDocument') }}
     </ScalarButton>
   </template>
   <ApiReferenceToolbarBlurb class="-mt-1">
-    Your document will automatically be deleted after 7 days.
+    {{ translate('developerTools.temporaryLinkExpiration') }}
   </ApiReferenceToolbarBlurb>
 </template>

@@ -14,6 +14,8 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 const { document, environment, eventBus, options, securitySchemes, authStore } =
   defineProps<{
     options: Pick<
@@ -27,6 +29,7 @@ const { document, environment, eventBus, options, securitySchemes, authStore } =
     selectedServer: ServerObject | null
     environment: XScalarEnvironment
   }>()
+const { translate } = useApiReferenceI18n()
 
 /** Compute what the security requirements should be for the document */
 const securityRequirements = computed(() =>
@@ -74,5 +77,5 @@ const selectedSecurity = computed(() =>
     :securitySchemes
     :selectedSecurity
     :server="selectedServer"
-    title="Authentication" />
+    :title="translate('authentication.title')" />
 </template>

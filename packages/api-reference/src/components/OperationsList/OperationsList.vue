@@ -41,7 +41,7 @@ const operationsAndWebhooks = computed(() => {
       </ScalarCardHeader>
       <ScalarCardSection class="custom-scroll max-h-[60vh]">
         <ul
-          :aria-label="`${tag.title} endpoints`"
+          :aria-label="translate('navigation.endpoints', { name: tag.title })"
           class="endpoints">
           <OperationsListItem
             v-for="operationOrWebhook in operationsAndWebhooks"

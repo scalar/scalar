@@ -19,10 +19,9 @@ const { translate } = useApiReferenceI18n()
   <ApiReferenceToolbarPopover class="w-120">
     <template #label>{{ translate('developerTools.deploy') }}</template>
     <ScalarFormSection>
-      <template #label>Scalar Docs</template>
+      <template #label>{{ translate('developerTools.scalarDocs') }}</template>
       <p class="text-c-2 mb-2 leading-normal">
-        Deploy your documentation on Scalar, the modern documentation platform
-        for your API and everything else.
+        {{ translate('developerTools.deployDescription') }}
       </p>
       <ApiReferenceToolbarShareRegister
         :externalUrls

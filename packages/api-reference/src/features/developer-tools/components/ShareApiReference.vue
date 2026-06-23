@@ -18,10 +18,9 @@ const { translate } = useApiReferenceI18n()
   <ApiReferenceToolbarPopover class="w-120">
     <template #label>{{ translate('developerTools.share') }}</template>
     <ScalarFormSection>
-      <template #label>Share your API Reference</template>
+      <template #label>{{ translate('developerTools.shareTitle') }}</template>
       <p class="text-c-2 mb-2 leading-normal">
-        Upload your OpenAPI document to share your API Reference with others. As
-        easy as pressing a button.
+        {{ translate('developerTools.shareDescription') }}
       </p>
       <ApiReferenceToolbarShareTemporary
         :externalUrls

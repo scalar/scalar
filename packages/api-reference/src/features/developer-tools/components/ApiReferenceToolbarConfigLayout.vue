@@ -5,19 +5,21 @@ import {
 } from '@scalar/components/checkbox-input'
 import { computed } from 'vue'
 
-const ModernOption = { label: 'Modern', value: 'modern' } as const
-const ClassicOption = { label: 'Classic', value: 'classic' } as const
-
-const options = [
-  ModernOption,
-  ClassicOption,
-] as const satisfies ScalarCheckboxOption[]
+import { useApiReferenceI18n } from '@/features/i18n'
 
 const model = defineModel<'modern' | 'classic'>()
+const { translate } = useApiReferenceI18n()
 
-const selected = computed<(typeof options)[number]>({
-  get: () => (model.value === 'modern' ? ModernOption : ClassicOption),
-  set: (option) => (model.value = option.value),
+const options = computed<ScalarCheckboxOption[]>(() => [
+  { label: translate('developerTools.layoutModern'), value: 'modern' },
+  { label: translate('developerTools.layoutClassic'), value: 'classic' },
+])
+
+const selected = computed<ScalarCheckboxOption>({
+  get: () =>
+    options.value.find((option) => option.value === model.value) ??
+    options.value[0]!,
+  set: (option) => (model.value = option.value as 'modern' | 'classic'),
 })
 </script>
 <template>

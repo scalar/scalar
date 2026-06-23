@@ -25,13 +25,9 @@ const { translate } = useApiReferenceI18n()
       </button>
     </template>
     <div class="-m-2 flex flex-col gap-2 leading-relaxed">
+      <div>{{ translate('developerTools.intro') }}</div>
       <div>
-        The developer tools allow you to customize the appearance and behavior
-        of your documentation. You can also share your documentation using the
-        Scalar Registry.
-      </div>
-      <div>
-        To disable the toolbar, set
+        {{ translate('developerTools.disableToolbarBefore') }}
         <div
           class="bg-b-2 inline-flex items-center gap-0.5 rounded border px-1 py-0.5 text-sm">
           <code class="font-code">{{ CONFIG_SETTING }}</code>
@@ -42,11 +38,11 @@ const { translate } = useApiReferenceI18n()
             size="sm"
             @click="copyToClipboard(CONFIG_SETTING)" />
         </div>
-        in your configuration.
+        {{ translate('developerTools.disableToolbarAfter') }}
       </div>
     </div>
     <template #info>
-      The developer tools will only appear when running on localhost.
+      {{ translate('developerTools.localhostOnly') }}
     </template>
   </ApiReferenceToolbarPopover>
 </template>

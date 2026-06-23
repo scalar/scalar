@@ -2,9 +2,12 @@
 import { ScalarIconScroll } from '@scalar/icons'
 import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 defineProps<{
   value?: InfoObject['termsOfService']
 }>()
+const { translate } = useApiReferenceI18n()
 </script>
 
 <template>
@@ -14,12 +17,14 @@ defineProps<{
       <a
         class="text-c-1 hover:bg-b-2 mr-2 flex min-h-7 min-w-7 items-center rounded-lg border px-2 py-1 no-underline group-last:mr-0 xl:border-none"
         :href="value"
-        target="_blank"
-        rel="noopener noreferrer">
+        rel="noopener noreferrer"
+        target="_blank">
         <ScalarIconScroll
-          weight="bold"
-          class="size-3 text-current" />
-        <span class="ml-1 empty:hidden">Terms of Service</span>
+          class="size-3 text-current"
+          weight="bold" />
+        <span class="ml-1 empty:hidden">
+          {{ translate('info.termsOfService') }}
+        </span>
       </a>
     </div>
   </template>

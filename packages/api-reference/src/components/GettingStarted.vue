@@ -2,16 +2,19 @@
 import { ScalarButton } from '@scalar/components/button'
 import { themeLabels, type ThemeId } from '@scalar/themes'
 
+import { useApiReferenceI18n } from '@/features/i18n'
+
 defineProps<{
   theme: ThemeId
 }>()
-
 const emits = defineEmits<{
   (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
   (e: 'loadSwaggerFile'): void
   (e: 'linkSwaggerFile'): void
   (e: 'updateContent', value: string): void
 }>()
+
+const { translate } = useApiReferenceI18n()
 
 const themeIds: ThemeId[] = [
   'default',
@@ -49,29 +52,31 @@ async function fetchExampleSpecification() {
             fill-rule="evenodd" />
         </svg>
       </div>
-      <h1 class="start-h1">Swagger Editor</h1>
+      <h1 class="start-h1">
+        {{ translate('gettingStarted.swaggerEditor') }}
+      </h1>
       <p class="start-p">
-        Welcome to the Scalar API References + Swagger Editor, a Free &
-        Open-Source tool that takes your Swagger/OAS file and generates
-        Beautiful API references.
+        {{ translate('gettingStarted.description') }}
       </p>
       <div class="start-cta">
         <ScalarButton
           class="w-full"
           @click="fetchExampleSpecification">
-          Show Example
+          {{ translate('gettingStarted.showExample') }}
         </ScalarButton>
         <ScalarButton
           class="w-full"
           variant="outlined"
           @click="$emit('loadSwaggerFile')">
-          Upload File
+          {{ translate('gettingStarted.uploadFile') }}
         </ScalarButton>
       </div>
     </div>
     <div class="start-row">
       <div class="start-section start-section-integrations">
-        <div class="start-h2">INTEGRATIONS</div>
+        <div class="start-h2">
+          {{ translate('gettingStarted.integrations') }}
+        </div>
         <a
           class="start-item"
           href="https://github.com/scalar/scalar/tree/main/integrations/fastify#readme"
@@ -174,7 +179,9 @@ async function fetchExampleSpecification() {
         </a>
       </div>
       <div class="start-section start-section-colors">
-        <p class="start-h2">THEMING</p>
+        <p class="start-h2">
+          {{ translate('gettingStarted.theming') }}
+        </p>
         <div
           v-for="themeId in themeIds"
           :key="themeId"
@@ -187,31 +194,33 @@ async function fetchExampleSpecification() {
         </div>
       </div>
     </div>
-    <p class="start-h1">Features</p>
+    <p class="start-h1">{{ translate('gettingStarted.features') }}</p>
     <ul class="start-ul">
       <li>
-        <p class="start-h3">Customize</p>
-        Bring your typography & color palettes, or use our themes!
+        <p class="start-h3">{{ translate('gettingStarted.customize') }}</p>
+        {{ translate('gettingStarted.customizeDescription') }}
       </li>
       <li>
-        <p class="start-h3">Testing</p>
-        A deeply integrated Rest API Client (Also Free & Open-Source)
+        <p class="start-h3">{{ translate('gettingStarted.testing') }}</p>
+        {{ translate('gettingStarted.testingDescription') }}
       </li>
       <li>
-        <p class="start-h3">Search</p>
-        Fully integrated Search (Using fuse.js)
+        <p class="start-h3">{{ translate('gettingStarted.search') }}</p>
+        {{ translate('gettingStarted.searchDescription') }}
       </li>
       <li>
-        <p class="start-h3">Hosting</p>
-        Free subdomain hosting on https://apidocumentation.com
+        <p class="start-h3">{{ translate('gettingStarted.hosting') }}</p>
+        {{ translate('gettingStarted.hostingDescription') }}
       </li>
       <li>
-        <p class="start-h3">OpenAPI & Swagger</p>
-        Support for OpenAPI 3.1, OpenAPI 3.0, and Swagger 2.0
+        <p class="start-h3">
+          {{ translate('gettingStarted.openApiSwagger') }}
+        </p>
+        {{ translate('gettingStarted.openApiSwaggerDescription') }}
       </li>
       <li>
-        <p class="start-h3">Code Samples</p>
-        Code samples to show off your API in most popular languages
+        <p class="start-h3">{{ translate('gettingStarted.codeSamples') }}</p>
+        {{ translate('gettingStarted.codeSamplesDescription') }}
       </li>
     </ul>
   </div>

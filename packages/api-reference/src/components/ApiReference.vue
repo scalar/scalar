@@ -1,4 +1,5 @@
 <script lang="ts">
+/* global PACKAGE_VERSION */
 // Injected by Vite at build time (see vite.config.ts and vite.standalone.config.ts).
 // Read via process.env so the constant is replaced inline without pulling package.json
 // into the TypeScript program — that would expand rootDir and emit declarations under dist/src/.
@@ -1232,14 +1233,14 @@ const showMCPButton = computed(() => {
   <!-- SingleApiReference -->
   <div>
     <!-- Inject any custom CSS directly into a style tag -->
+    <!-- eslint-disable vue/no-v-text-v-html-on-component -->
     <component
       :is="'style'"
       v-html="styleContent" />
+    <!-- eslint-enable vue/no-v-text-v-html-on-component -->
     <div
       ref="documentEl"
       class="scalar-app scalar-api-reference references-layout"
-      :dir="apiReferenceI18n.direction.value"
-      :lang="apiReferenceI18n.locale.value"
       :class="[
         {
           'scalar-api-references-standalone-mobile': mergedConfig.showSidebar,
@@ -1250,7 +1251,9 @@ const showMCPButton = computed(() => {
           'references-classic': mergedConfig.layout === 'classic',
         },
         $attrs.class,
-      ]">
+      ]"
+      :dir="apiReferenceI18n.direction.value"
+      :lang="apiReferenceI18n.locale.value">
       <!-- Agent Scalar -->
       <AgentScalarDrawer
         v-if="agent.agentEnabled.value"
@@ -1280,9 +1283,12 @@ const showMCPButton = computed(() => {
         <template #sidebar="{ sidebarClasses }">
           <ScalarSidebar
             v-if="mergedConfig.showSidebar && mergedConfig.layout === 'modern'"
-            :aria-label="`Sidebar for ${
-              workspaceStore.workspace.activeDocument?.info?.title
-            }`"
+            :aria-label="
+              apiReferenceI18n.translate('navigation.sidebarFor', {
+                name:
+                  workspaceStore.workspace.activeDocument?.info?.title ?? '',
+              })
+            "
             class="t-doc__sidebar"
             :class="sidebarClasses"
             :isExpanded="sidebarState.isExpanded"
