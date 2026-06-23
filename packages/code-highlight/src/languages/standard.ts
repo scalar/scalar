@@ -45,6 +45,7 @@ import xml from 'highlight.js/lib/languages/xml'
 import yaml from 'highlight.js/lib/languages/yaml'
 
 import curl from './curl'
+import mojo from './mojo'
 import python from './python'
 
 /**
@@ -95,6 +96,7 @@ export const standardLanguages = {
   makefile,
   markdown,
   matlab,
+  mojo,
   nginx,
   objectivec,
   ocaml,
