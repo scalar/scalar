@@ -61,9 +61,9 @@ defineExpose({
       class="bg-b-1 text-c-1 h-auto w-full justify-start gap-1.5 overflow-x-auto rounded-t-none !rounded-b-xl px-3 py-1.5 text-base/5.25 font-normal whitespace-nowrap -outline-offset-1"
       variant="ghost">
       <span class="sr-only">{{ translate('server.label') }}:</span>
-      <span class="overflow-x-auto">{{
-        serverUrlWithoutTrailingSlash || translate('server.select')
-      }}</span>
+      <span class="overflow-x-auto">
+        {{ serverUrlWithoutTrailingSlash || translate('server.select') }}
+      </span>
       <ScalarIconCaretDown
         class="text-c-2 ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
         weight="bold" />

@@ -154,9 +154,8 @@ const { copyToClipboard } = useClipboard()
               <Badge
                 v-if="isWebhook"
                 class="font-code text-green flex w-fit items-center justify-center gap-1">
-                <ScalarIconWebhooksLogo weight="bold" />{{
-                  translate('operation.webhook')
-                }}
+                <ScalarIconWebhooksLogo weight="bold" />
+                {{ translate('operation.webhook') }}
               </Badge>
 
               <!-- x-badges before -->

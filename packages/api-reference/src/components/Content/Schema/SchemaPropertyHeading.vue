@@ -310,9 +310,9 @@ const exampleValue = computed(() => {
       <SchemaPropertyDetail
         v-if="shouldShowType"
         truncate>
-        <ScreenReader>{{ translate('common.type') }}: </ScreenReader
-        >{{ displayType
-        }}<template v-if="modelLink">
+        <ScreenReader>{{ translate('common.type') }}:</ScreenReader>
+        {{ displayType }}
+        <template v-if="modelLink">
           ·
           <LinkButton
             v-if="props.eventBus && modelLink.schemaKey"

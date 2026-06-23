@@ -84,9 +84,9 @@ const isOrAlternatives = computed(
           <template v-else-if="isAndGroup">
             {{ translate('authentication.allOf') }}
           </template>
-          <template v-else>{{
-            translate('authentication.authentication')
-          }}</template>
+          <template v-else>
+            {{ translate('authentication.authentication') }}
+          </template>
         </div>
 
         <!-- Multiple OR alternatives -->

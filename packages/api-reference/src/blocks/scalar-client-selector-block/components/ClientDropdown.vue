@@ -131,9 +131,9 @@ const selectedTargetKey = computed(
           class="client-libraries-text client-libraries-text-more">
           {{ translate('clientLibraries.more') }}
         </span>
-        <span class="sr-only">{{
-          translate('clientLibraries.selectAll')
-        }}</span>
+        <span class="sr-only">
+          {{ translate('clientLibraries.selectAll') }}
+        </span>
       </button>
     </ScalarCombobox>
   </div>
