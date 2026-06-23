@@ -3,7 +3,6 @@ import { assert, describe, expect, it } from 'vitest'
 
 import {
   type SecuritySchemeGroup,
-  type SecuritySchemeOption,
   formatComplexScheme,
   formatScheme,
   getSecuritySchemeOptions,
@@ -421,7 +420,8 @@ describe('security-scheme', () => {
 
     it('should filter out required schemes from available options', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
-      const result = getSecuritySchemeOptions(security, securitySchemes, [])
+      // Offering schemes the operation does not declare only happens when arbitrary auth is allowed
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       const groups = result as SecuritySchemeGroup[]
       const availableOptions = groups[1]!.options
@@ -464,7 +464,8 @@ describe('security-scheme', () => {
         undefinedScheme: undefined,
       } as unknown as NonNullable<ComponentsObject['securitySchemes']>
 
-      const result = getSecuritySchemeOptions(security, securitySchemesWithUndefined, [])
+      // Resolving every defined scheme into the available list only happens when arbitrary auth is allowed
+      const result = getSecuritySchemeOptions(security, securitySchemesWithUndefined, [], true)
 
       const groups = result as SecuritySchemeGroup[]
       const availableOptions = groups[1]!.options
@@ -649,14 +650,55 @@ describe('security-scheme', () => {
       expect(groups[2]!.options.length).toBeGreaterThan(0)
     })
 
-    it('should return flat available list when canAddNewAuth is false and no required schemes', () => {
+    it('returns no options for an empty security requirement when arbitrary auth is not allowed', () => {
+      // `security: []` removes the security declaration entirely, so nothing is selectable.
       const security: NonNullable<OpenApiDocument['security']> = []
       const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
 
-      // Should return flat SecuritySchemeOption[] (not grouped)
+      // Should return a flat SecuritySchemeOption[] (not grouped) with no entries
       expect(Array.isArray(result)).toBe(true)
-      expect(result.length).toBe(4)
-      expect((result[0] as SecuritySchemeOption).label).toBe('apiKey')
+      expect(result).toHaveLength(0)
+    })
+
+    /**
+     * Regression tests for https://github.com/scalar/scalar/issues/7400
+     *
+     * When arbitrary auth is not allowed (reference docs and the request modal), the operation's
+     * declared `security` is authoritative. Schemes that merely exist under
+     * `components.securitySchemes` must not be offered, otherwise users can pick auth a request
+     * does not accept.
+     */
+    describe('respects the declared operation security (issue #7400)', () => {
+      it('offers nothing when the operation opts out with security: []', () => {
+        const security: NonNullable<OpenApiDocument['security']> = []
+        const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+
+        expect(result).toHaveLength(0)
+      })
+
+      it('offers only the declared scheme and not the other defined ones', () => {
+        const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
+        const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+
+        const groups = result as SecuritySchemeGroup[]
+        const required = groups[0]!.options
+        const available = groups[1]!.options
+
+        // Only the declared scheme is selectable
+        expect(required.map((option) => option.label)).toStrictEqual(['apiKey'])
+        // Schemes the operation does not declare are not offered
+        expect(available).toHaveLength(0)
+      })
+
+      it('offers every declared alternative when the operation lists multiple', () => {
+        const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }, { httpBasic: [] }]
+        const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+
+        const groups = result as SecuritySchemeGroup[]
+        const required = groups[0]!.options
+
+        expect(required.map((option) => option.label)).toStrictEqual(['apiKey', 'httpBasic'])
+      })
     })
 
     it('should handle when selected schemes do not exist in the available options but not duplicate them', () => {
