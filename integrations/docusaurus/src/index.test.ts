@@ -455,6 +455,81 @@ describe('ScalarDocusaurus', () => {
       expect(route.configuration).toContain('"url": "https://example.com/openapi.json"')
     })
 
+    it('evaluates a function-valued content at build time instead of shipping it to the browser', () => {
+      const mockContext = {
+        siteConfig: {
+          baseUrl: '/',
+          themeConfig: {
+            navbar: {
+              items: [],
+            },
+          },
+        },
+      } as any
+
+      const mockActions = {
+        addRoute: vi.fn(),
+      } as any
+
+      const plugin = ScalarDocusaurus(mockContext, {
+        label: 'Scalar',
+        route: '/scalar',
+      })
+
+      plugin.contentLoaded?.({
+        content: {
+          configuration: {
+            content: () => ({ openapi: '3.1.0', info: { title: 'Generated', version: '1.0.0' } }),
+          },
+        } as any,
+        actions: mockActions,
+      })
+
+      const route = mockActions.addRoute.mock.calls[0][0]
+
+      // The function ran in Node and only its result is serialized, so no callback leaks into the browser.
+      expect(route.configuration).toContain('"openapi": "3.1.0"')
+      expect(route.configuration).toContain('"title": "Generated"')
+      expect(route.configuration).not.toContain('=>')
+    })
+
+    it('drops content when a url is also provided, matching the CDN HTML path', () => {
+      const mockContext = {
+        siteConfig: {
+          baseUrl: '/',
+          themeConfig: {
+            navbar: {
+              items: [],
+            },
+          },
+        },
+      } as any
+
+      const mockActions = {
+        addRoute: vi.fn(),
+      } as any
+
+      const plugin = ScalarDocusaurus(mockContext, {
+        label: 'Scalar',
+        route: '/scalar',
+      })
+
+      plugin.contentLoaded?.({
+        content: {
+          configuration: {
+            url: 'https://example.com/openapi.json',
+            content: () => ({ openapi: '3.1.0' }),
+          },
+        } as any,
+        actions: mockActions,
+      })
+
+      const route = mockActions.addRoute.mock.calls[0][0]
+
+      expect(route.configuration).toContain('"url": "https://example.com/openapi.json"')
+      expect(route.configuration).not.toContain('content')
+    })
+
     it('uses default route when none specified', () => {
       const mockContext = {
         siteConfig: {

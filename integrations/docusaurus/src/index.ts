@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import type { LoadContext, Plugin } from '@docusaurus/types'
 import { normalizeUrl } from '@docusaurus/utils'
-import { serializeConfigToJs } from '@scalar/client-side-rendering'
+import { getConfiguration, serializeConfigToJs } from '@scalar/client-side-rendering'
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
 
 export type ScalarOptions = {
@@ -87,12 +87,20 @@ const ScalarDocusaurus = (
       const givenConfiguration = content.configuration ?? {}
       const configuration = Array.isArray(givenConfiguration) ? (givenConfiguration[0] ?? {}) : givenConfiguration
 
+      // Normalize the configuration in Node first, exactly like the CDN HTML path does: this evaluates a
+      // function-valued `content` at build time (it must not be shipped to the browser) and reconciles
+      // `content` vs `url`. Only then do we serialize the remaining live functions for the browser.
+      const normalizedConfiguration = getConfiguration({ ...configuration, hideDarkModeToggle: true } as Record<
+        string,
+        unknown
+      >)
+
       // Add the appropriate route based on the module system
       addRoute({
         path: normalizeUrl([baseUrl, defaultOptions.route ?? '/scalar']),
         component: path.resolve(__dirname, './ScalarDocusaurus'),
         exact: true,
-        configuration: serializeConfigToJs({ ...configuration, hideDarkModeToggle: true } as Record<string, unknown>),
+        configuration: serializeConfigToJs(normalizedConfiguration),
       })
     },
   }
