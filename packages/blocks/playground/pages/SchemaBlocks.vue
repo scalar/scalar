@@ -180,17 +180,8 @@ const instances: Array<{ destroy: () => void }> = []
 
 onMounted(() => {
   for (const { name, schema } of schemas) {
-    // Each schema gets a labelled cell so the example is easy to identify.
-    const cell = document.createElement('div')
-    cell.className = 'schema-cell'
-
-    const label = document.createElement('div')
-    label.className = 'schema-label'
-    label.textContent = name
-
     const mount = document.createElement('div')
-    cell.append(label, mount)
-    grid.value?.append(cell)
+    grid.value?.append(mount)
 
     instances.push(createSchema(mount, { schema, name }))
   }
@@ -215,15 +206,5 @@ onBeforeUnmount(() => {
   align-items: start;
   gap: 24px;
   padding: 24px;
-}
-.schema-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.schema-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--scalar-color-2, #6b7280);
 }
 </style>
