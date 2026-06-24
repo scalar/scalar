@@ -81,13 +81,22 @@ export const createSchema = (el: HTMLElement | string, options: CreateSchemaOpti
     return document && 'paths' in document ? document : undefined
   }
 
+  // Remember the last schema that resolved so a transient miss (e.g. the active
+  // document is swapped to one without this pointer after mount) keeps rendering
+  // the previous schema instead of flashing empty, mirroring createCodeExample.
+  let lastSchema: SchemaObject | undefined
+
   /** Current schema, resolved live from the store when a pointer is used. */
   const currentSchema = (): SchemaObject | undefined => {
     if (options.schema) {
       return options.schema
     }
     if (options.store && options.pointer) {
-      return getValueByPointer(activeDocument(), options.pointer) as SchemaObject | undefined
+      const resolved = getValueByPointer(activeDocument(), options.pointer) as SchemaObject | undefined
+      if (resolved) {
+        lastSchema = resolved
+      }
+      return resolved ?? lastSchema
     }
     return undefined
   }
