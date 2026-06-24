@@ -208,7 +208,7 @@ describe('DownloadLink', () => {
     it('renders Badge component with correct content', () => {
       const wrapper = createWrapper({ documentDownloadType: 'json' })
 
-      const badge = wrapper.findComponent({ name: 'Badge' })
+      const badge = wrapper.findComponent({ name: 'ScalarBadge' })
       expect(badge.exists()).toBe(true)
       expect(badge.classes()).toContain('extension')
       expect(badge.classes()).toContain('hidden')

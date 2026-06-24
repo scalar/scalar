@@ -12,7 +12,7 @@ describe('SpecificationVersion', () => {
     })
 
     expect(wrapper.text()).toBe('OpenAPI 3.1.0')
-    expect(wrapper.findComponent({ name: 'Badge' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'ScalarBadge' }).exists()).toBe(true)
   })
 
   it('renders an AsyncAPI badge when documentType is asyncapi', () => {
@@ -24,7 +24,7 @@ describe('SpecificationVersion', () => {
     })
 
     expect(wrapper.text()).toBe('AsyncAPI 3.0.0')
-    expect(wrapper.findComponent({ name: 'Badge' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'ScalarBadge' }).exists()).toBe(true)
   })
 
   it('renders an OpenAPI badge when documentType is openapi', () => {
@@ -44,6 +44,6 @@ describe('SpecificationVersion', () => {
     })
 
     expect(wrapper.text()).toBe('')
-    expect(wrapper.findComponent({ name: 'Badge' }).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'ScalarBadge' }).exists()).toBe(false)
   })
 })
