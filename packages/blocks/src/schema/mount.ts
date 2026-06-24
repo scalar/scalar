@@ -3,7 +3,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { createApp, h, reactive } from 'vue'
+import { computed, createApp, h, reactive } from 'vue'
 
 import Schema from './Schema.vue'
 import type { SchemaOptions } from './types'
@@ -85,7 +85,7 @@ const resolvePointer = (document: unknown, pointer: string): SchemaObject | unde
 export const createSchema = (el: HTMLElement | string, options: CreateSchemaOptions) => {
   const element = typeof el === 'string' ? document.querySelector(el) : el
   if (!element) {
-    throw new Error(`Element not found: ${el}`)
+    throw new Error(`Element not found${typeof el === 'string' ? `: ${el}` : ''}`)
   }
 
   // The schema tree expects an event bus for anchor/copy interactions. The
@@ -115,6 +115,20 @@ export const createSchema = (el: HTMLElement | string, options: CreateSchemaOpti
     throw new Error('No schema to render: pass `schema`, or `store` and a resolvable `pointer`.')
   }
 
+  /**
+   * Display options forwarded to the schema tree.
+   *
+   * Memoized so the object identity only changes when the active document does.
+   * The options are prop-drilled through every node in the tree, so a fresh
+   * object on each read would invalidate that prop everywhere and force
+   * needless re-renders. The active document is defaulted in so discriminator
+   * `mapping` references resolve, unless the caller supplied their own.
+   */
+  const resolvedOptions = computed<SchemaOptions>(() => ({
+    document: activeDocument(),
+    ...options.options,
+  }))
+
   // Props are getters so the block tracks the reactive store (active document)
   // live when rendering from a pointer.
   const props = reactive({
@@ -129,9 +143,7 @@ export const createSchema = (el: HTMLElement | string, options: CreateSchemaOpti
     // reference does when it embeds a schema on its own (see AsyncApi Message).
     noncollapsible: true,
     get options(): SchemaOptions {
-      // Default the document to the active one so discriminator `mapping`
-      // references resolve, unless the caller supplied their own.
-      return { document: activeDocument(), ...options.options }
+      return resolvedOptions.value
     },
   })
 

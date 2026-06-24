@@ -67,7 +67,7 @@ const getWrapperClass = (darkMode: boolean | undefined): string =>
 export const createCodeExample = (el: HTMLElement | string, options: CreateCodeExampleOptions) => {
   const element = typeof el === 'string' ? document.querySelector(el) : el
   if (!element) {
-    throw new Error(`Element not found: ${el}`)
+    throw new Error(`Element not found${typeof el === 'string' ? `: ${el}` : ''}`)
   }
 
   const eventBus = createWorkspaceEventBus()
