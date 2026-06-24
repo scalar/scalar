@@ -45,11 +45,17 @@ toTest.forEach((source) => {
     // Nested Model
     await models.getByRole('button', { name: 'Satellite' }).click()
     const satelliteModel = await models.getByRole('region', { name: 'Satellite' })
-    const enumItem = satelliteModel.getByRole('listitem').filter({ hasText: 'Type: stringenum' })
+    const enumItem = satelliteModel
+      .getByRole('listitem')
+      .filter({ hasText: 'Type: string' })
+      .filter({ hasText: 'enum' })
     await expect(enumItem).toHaveScreenshot(`${slug}-model-enum.png`)
 
     await models.getByRole('button', { name: 'orbit', expanded: false }).click()
-    const nestedItem = satelliteModel.getByRole('listitem').filter({ hasText: 'orbitType: object' })
+    const nestedItem = satelliteModel
+      .getByRole('listitem')
+      .filter({ hasText: 'orbit' })
+      .filter({ hasText: 'Type: object' })
     await expect(nestedItem).toHaveScreenshot(`${slug}-model-nested.png`)
 
     // Discriminator
