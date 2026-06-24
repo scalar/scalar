@@ -59,6 +59,7 @@ export const ar = {
     endpoints: 'نقاط نهاية {name}',
     showAllEndpoints: 'إظهار كل نقاط نهاية {name}',
     sidebarFor: 'الشريط الجانبي لـ {name}',
+    mainContent: 'وثائق واجهة برمجة التطبيقات لـ {name}',
     collapsed: 'مطوي',
     webhooks: 'خطافات الويب',
   },

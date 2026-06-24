@@ -60,6 +60,7 @@ export const ru = {
     endpoints: 'Эндпоинты {name}',
     showAllEndpoints: 'Показать все эндпоинты {name}',
     sidebarFor: 'Боковая панель для {name}',
+    mainContent: 'Документация API для {name}',
     collapsed: 'Свернуто',
     webhooks: 'Вебхуки',
   },

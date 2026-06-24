@@ -59,6 +59,7 @@ export const en = {
     endpoints: '{name} endpoints',
     showAllEndpoints: 'Show all {name} endpoints',
     sidebarFor: 'Sidebar for {name}',
+    mainContent: 'API documentation for {name}',
     collapsed: 'Collapsed',
     webhooks: 'Webhooks',
   },

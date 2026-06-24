@@ -60,6 +60,7 @@ export const de = {
     endpoints: '{name}-Endpunkte',
     showAllEndpoints: 'Alle {name}-Endpunkte anzeigen',
     sidebarFor: 'Seitenleiste für {name}',
+    mainContent: 'API-Dokumentation für {name}',
     collapsed: 'Eingeklappt',
     webhooks: 'Webhooks',
   },

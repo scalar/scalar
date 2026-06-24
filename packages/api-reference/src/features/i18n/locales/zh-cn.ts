@@ -59,6 +59,7 @@ export const zhCn = {
     endpoints: '{name} 端点',
     showAllEndpoints: '显示 {name} 的所有端点',
     sidebarFor: '{name} 的侧边栏',
+    mainContent: '{name} 的 API 文档',
     collapsed: '已折叠',
     webhooks: 'Webhooks',
   },

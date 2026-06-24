@@ -414,6 +414,7 @@ export type ApiReferenceTranslations = {
     endpoints: string
     showAllEndpoints: string
     sidebarFor: string
+    mainContent: string
     collapsed: string
   }
   server: {

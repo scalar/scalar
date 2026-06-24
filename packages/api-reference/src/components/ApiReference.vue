@@ -289,6 +289,14 @@ const sidebarOptions = computed(() => ({
   },
 }))
 
+/**
+ * Locale string for the `lang` attribute. We normalize underscores to hyphens so values like
+ * `es_MX` become valid BCP-47 language tags (`es-MX`).
+ */
+const documentLang = computed(() =>
+  apiReferenceI18n.locale.value.replace('_', '-'),
+)
+
 /** Convenience break out var to determine which routing mode we are using */
 const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
 
@@ -1294,7 +1302,7 @@ const showMCPButton = computed(() => {
         $attrs.class,
       ]"
       :dir="apiReferenceI18n.direction.value"
-      :lang="apiReferenceI18n.locale.value">
+      :lang="documentLang">
       <!-- Agent Scalar -->
       <AgentScalarDrawer
         v-if="agent.agentEnabled.value"
@@ -1416,9 +1424,11 @@ const showMCPButton = computed(() => {
 
       <!-- Primary Content -->
       <main
-        :aria-label="`Open API Documentation for ${
-          workspaceStore.workspace.activeDocument?.info?.title
-        }`"
+        :aria-label="
+          apiReferenceI18n.translate('navigation.mainContent', {
+            name: workspaceStore.workspace.activeDocument?.info?.title ?? '',
+          })
+        "
         class="references-rendered"
         :inert="agent.showAgent.value">
         <Content

@@ -60,6 +60,7 @@ export const fr = {
     endpoints: 'Endpoints de {name}',
     showAllEndpoints: 'Afficher tous les endpoints de {name}',
     sidebarFor: 'Barre latérale pour {name}',
+    mainContent: 'Documentation de l’API pour {name}',
     collapsed: 'Réduit',
     webhooks: 'Webhooks',
   },
