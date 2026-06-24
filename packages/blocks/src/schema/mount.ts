@@ -125,6 +125,9 @@ export const createSchema = (el: HTMLElement | string, options: CreateSchemaOpti
       return options.name
     },
     eventBus,
+    // Render the standalone block expanded and full-width, like the API
+    // reference does when it embeds a schema on its own (see AsyncApi Message).
+    noncollapsible: true,
     get options(): SchemaOptions {
       // Default the document to the active one so discriminator `mapping`
       // references resolve, unless the caller supplied their own.

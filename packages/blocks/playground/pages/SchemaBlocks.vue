@@ -4,10 +4,10 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { createSchema } from '../../src/schema'
 
-/** A handful of schemas that exercise the different schema renderings. */
+/** A set of schemas that exercise the different schema renderings. */
 const schemas: Array<{ name: string; schema: SchemaObject }> = [
   {
-    name: 'User',
+    name: 'User (object)',
     schema: {
       type: 'object',
       required: ['id', 'email'],
@@ -29,7 +29,7 @@ const schemas: Array<{ name: string; schema: SchemaObject }> = [
     },
   },
   {
-    name: 'Pet (composition)',
+    name: 'Pet (oneOf)',
     schema: {
       oneOf: [
         {
@@ -52,13 +52,124 @@ const schemas: Array<{ name: string; schema: SchemaObject }> = [
     },
   },
   {
-    name: 'Pagination',
+    name: 'Pagination (constraints)',
     schema: {
       type: 'object',
       properties: {
         page: { type: 'integer', minimum: 1, default: 1 },
         perPage: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
         total: { type: 'integer', readOnly: true },
+      },
+    },
+  },
+  {
+    name: 'Address (nested object)',
+    schema: {
+      type: 'object',
+      required: ['street', 'city'],
+      properties: {
+        street: { type: 'string' },
+        city: { type: 'string' },
+        geo: {
+          type: 'object',
+          description: 'Geographic coordinates',
+          properties: {
+            lat: { type: 'number', format: 'float' },
+            lng: { type: 'number', format: 'float' },
+          },
+        },
+      },
+    },
+  },
+  {
+    name: 'Order (array of objects)',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+        status: {
+          type: 'string',
+          enum: ['pending', 'paid', 'shipped', 'cancelled'],
+        },
+        createdAt: { type: 'string', format: 'date-time' },
+        items: {
+          type: 'array',
+          minItems: 1,
+          items: {
+            type: 'object',
+            properties: {
+              sku: { type: 'string' },
+              quantity: { type: 'integer', minimum: 1 },
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    name: 'Animal (allOf)',
+    schema: {
+      allOf: [
+        {
+          type: 'object',
+          title: 'Base',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+          },
+        },
+        {
+          type: 'object',
+          title: 'Traits',
+          properties: {
+            legs: { type: 'integer', default: 4 },
+            sound: { type: 'string' },
+          },
+        },
+      ],
+    },
+  },
+  {
+    name: 'Identifier (anyOf)',
+    schema: {
+      anyOf: [
+        { type: 'string', format: 'uuid', title: 'UUID' },
+        { type: 'integer', title: 'Numeric id' },
+      ],
+    },
+  },
+  {
+    name: 'Metadata (dictionary)',
+    schema: {
+      type: 'object',
+      description: 'Free-form key/value labels',
+      additionalProperties: { type: 'string' },
+    },
+  },
+  {
+    name: 'Article (rich)',
+    schema: {
+      type: 'object',
+      required: ['title'],
+      properties: {
+        title: {
+          type: 'string',
+          minLength: 1,
+          maxLength: 120,
+          examples: ['Hello world'],
+        },
+        slug: { type: 'string', pattern: '^[a-z0-9-]+$' },
+        subtitle: { type: ['string', 'null'] },
+        secret: {
+          type: 'string',
+          writeOnly: true,
+          description: 'Only sent on write',
+        },
+        legacyId: {
+          type: 'integer',
+          deprecated: true,
+          description: 'Use `id` instead',
+        },
       },
     },
   },
@@ -69,10 +180,19 @@ const instances: Array<{ destroy: () => void }> = []
 
 onMounted(() => {
   for (const { name, schema } of schemas) {
-    const element = document.createElement('div')
-    grid.value?.append(element)
+    // Each schema gets a labelled cell so the example is easy to identify.
+    const cell = document.createElement('div')
+    cell.className = 'schema-cell'
 
-    instances.push(createSchema(element, { schema, name }))
+    const label = document.createElement('div')
+    label.className = 'schema-label'
+    label.textContent = name
+
+    const mount = document.createElement('div')
+    cell.append(label, mount)
+    grid.value?.append(cell)
+
+    instances.push(createSchema(mount, { schema, name }))
   }
 })
 
@@ -92,7 +212,18 @@ onBeforeUnmount(() => {
 .schema-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  align-items: start;
   gap: 24px;
   padding: 24px;
+}
+.schema-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.schema-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--scalar-color-2, #6b7280);
 }
 </style>
