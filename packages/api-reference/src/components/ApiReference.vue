@@ -93,6 +93,10 @@ import {
   redirectUrl,
 } from '@/helpers/id-routing'
 import {
+  INTRODUCTION_ENTRY_ID_SUFFIX,
+  isIntroductionEntry,
+} from '@/helpers/is-introduction-entry'
+import {
   scrollToLazy as _scrollToLazy,
   addToPriorityQueue,
   blockIntersection,
@@ -440,34 +444,75 @@ const pluginSidebarEntries = computed(() =>
     ),
 )
 
+/**
+ * Localize the synthetic labels we generate for the sidebar (introduction, webhooks, and the models
+ * section). Entries are only cloned when a label actually changes, so the common English-default case
+ * does not allocate a new navigation tree on every recompute.
+ */
 const localizeNavigationEntries = (
   entries: TraversedEntry[],
-): TraversedEntry[] =>
-  entries.map((entry) => {
-    const localized = { ...entry } as TraversedEntry
+): TraversedEntry[] => {
+  const introductionTitle = apiReferenceI18n.translate(
+    'navigation.introduction',
+  )
+  const webhooksTitle = apiReferenceI18n.translate('navigation.webhooks')
+  const modelsSectionLabel =
+    mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
 
-    if (localized.type === 'text' && localized.title === 'Introduction') {
-      localized.title = apiReferenceI18n.translate('navigation.introduction')
-    }
+  const localize = (list: TraversedEntry[]): TraversedEntry[] => {
+    let changed = false
 
-    if (localized.type === 'tag' && localized.isWebhooks === true) {
-      localized.title = apiReferenceI18n.translate('navigation.webhooks')
-      localized.name = apiReferenceI18n.translate('navigation.webhooks')
-    }
+    const result = list.map((entry) => {
+      let localized = entry
 
-    if (localized.type === 'models') {
-      const modelsSectionLabel =
-        mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
-      localized.title = modelsSectionLabel
-      localized.name = modelsSectionLabel
-    }
+      if (isIntroductionEntry(entry) && entry.title !== introductionTitle) {
+        localized = { ...entry, title: introductionTitle } as TraversedEntry
+      } else if (
+        entry.type === 'tag' &&
+        entry.isWebhooks === true &&
+        (entry.title !== webhooksTitle || entry.name !== webhooksTitle)
+      ) {
+        localized = {
+          ...entry,
+          title: webhooksTitle,
+          name: webhooksTitle,
+        } as TraversedEntry
+      } else if (
+        entry.type === 'models' &&
+        (entry.title !== modelsSectionLabel ||
+          entry.name !== modelsSectionLabel)
+      ) {
+        localized = {
+          ...entry,
+          title: modelsSectionLabel,
+          name: modelsSectionLabel,
+        } as TraversedEntry
+      }
 
-    if ('children' in localized && localized.children) {
-      localized.children = localizeNavigationEntries(localized.children)
-    }
+      if ('children' in entry && entry.children) {
+        const localizedChildren = localize(entry.children)
 
-    return localized
-  })
+        if (localizedChildren !== entry.children) {
+          localized =
+            localized === entry ? ({ ...entry } as TraversedEntry) : localized
+          ;(localized as { children?: TraversedEntry[] }).children =
+            localizedChildren
+        }
+      }
+
+      if (localized !== entry) {
+        changed = true
+      }
+
+      return localized
+    })
+
+    // Preserve the original reference when nothing changed to avoid downstream re-renders.
+    return changed ? result : list
+  }
+
+  return localize(entries)
+}
 
 /**
  * Create top level sidebar entries for each document
@@ -556,12 +601,8 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
 /** Find the sidebar entry that represents the introduction section */
 const infoSectionId = computed(
   () =>
-    sidebarItems.value.find(
-      (item) =>
-        item.type === 'text' &&
-        (item.title === apiReferenceI18n.translate('navigation.introduction') ||
-          item.title === 'Introduction'),
-    )?.id ?? `${activeSlug.value}/description/introduction`,
+    sidebarItems.value.find(isIntroductionEntry)?.id ??
+    `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`,
 )
 
 /** User for mobile navigation */

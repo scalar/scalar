@@ -15,6 +15,7 @@ import type {
 
 import type { FuseData } from '@/features/Search/types'
 import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
+import { isIntroductionEntry } from '@/helpers/is-introduction-entry'
 import {
   extractBodyDescriptions,
   extractBodyFieldNames,
@@ -304,7 +305,7 @@ function addEntryToIndex(
     index.push({
       id: entry.id,
       type: 'heading',
-      title: entry.title === 'Introduction' ? labels.introduction : (entry.title ?? ''),
+      title: isIntroductionEntry(entry) ? labels.introduction : (entry.title ?? ''),
       description: labels.heading,
       body: '',
       entry,
