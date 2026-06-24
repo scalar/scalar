@@ -173,6 +173,17 @@ API reference from file, Registry, or URL:
 
 Display modes: `folder` (default), `flat`, `nested`.
 
+**Single page mode:** Set `singlePage: true` to render all operations on a single page instead of creating separate pages for each operation:
+
+```json
+"/api": {
+  "type": "openapi",
+  "title": "My API",
+  "filepath": "docs/api-reference/openapi.yaml",
+  "singlePage": true
+}
+```
+
 API Reference options (authentication, theme, etc.) go in a `config` object — same options as the [API Reference configuration](https://docs.scalar.com/configuration).
 
 #### Group (`type: "group"`)

@@ -327,11 +327,42 @@ Fetch an OpenAPI document from a remote URL. The document is fetched on each pag
 }
 ```
 
+### Properties
+
+| Property     | Type                             | Required | Description                                                      |
+| ------------ | -------------------------------- | -------- | ---------------------------------------------------------------- |
+| `type`       | `"openapi"`                      | Yes      | Must be `"openapi"`                                              |
+| `title`      | `string`                         | No       | The display text in the navigation                               |
+| `filepath`   | `string`                         | No       | Relative path to the OpenAPI file                                |
+| `url`        | `string`                         | No       | URL to fetch the OpenAPI document from                           |
+| `namespace`  | `string`                         | No       | Registry namespace (when using Registry)                         |
+| `slug`       | `string`                         | No       | Registry slug (when using Registry)                              |
+| `version`    | `string`                         | No       | Registry version (when using Registry)                           |
+| `icon`       | `string`                         | No       | An icon to display next to the reference                         |
+| `mode`       | `"flat" \| "nested" \| "folder"` | No       | How the API reference is displayed in the sidebar                |
+| `singlePage` | `boolean`                        | No       | Render all operations on a single page (defaults to `false`)     |
+| `config`     | `object`                         | No       | API Reference configuration options                              |
+
 ### Display Modes
 
 - `folder` (default): Shows a single level of links with a folder icon
-- `flat` Shows a single level of links with a section title
-- `nested` Shows a sub-sidebar with breadcrumbs for deep navigation
+- `flat`: Shows a single level of links with a section title
+- `nested`: Shows a sub-sidebar with breadcrumbs for deep navigation
+
+### Single Page Mode
+
+By default, Docs creates a separate page for each API operation. Set `singlePage` to `true` to render all operations on a single page instead:
+
+```json
+"/api": {
+  "type": "openapi",
+  "title": "My API",
+  "filepath": "docs/api-reference/openapi.yaml",
+  "singlePage": true
+}
+```
+
+This is useful when you want a scrollable, single-page API reference similar to traditional API documentation layouts.
 
 ### API Reference configuration
 
