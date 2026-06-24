@@ -103,7 +103,7 @@ const activeDescendantId = computed(() => {
         :aria-controls="listboxId"
         :aria-describedby="instructionsId"
         :clearLabel="translate('search.clear')"
-        :label="translate('search.label')"
+        :label="translate('search.inputLabel')"
         :placeholder="translate('search.placeholder')"
         role="combobox"
         @blur="selectedIndex = undefined"

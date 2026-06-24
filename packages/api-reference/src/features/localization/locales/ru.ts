@@ -33,6 +33,7 @@ export const ru = {
   },
   search: {
     label: 'Поиск',
+    inputLabel: 'Введите поисковый запрос',
     open: 'Открыть поиск',
     placeholder: 'Поиск...',
     clear: 'Очистить поиск',

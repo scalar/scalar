@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarIconLink } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { computed } from 'vue'
 
 import { useApiReferenceLocalization } from '@/features/localization'
 
@@ -9,6 +10,13 @@ const { breadcrumb } = defineProps<{
   eventBus: WorkspaceEventBus | null
 }>()
 const { translate } = useApiReferenceLocalization()
+
+/** Screen-reader label for the copy-link button, naming the deep-linked item. */
+const copyLinkLabel = computed(() =>
+  translate('actions.copyLinkTo', {
+    name: breadcrumb?.[breadcrumb.length - 1] ?? '',
+  }),
+)
 </script>
 
 <template>
@@ -30,7 +38,7 @@ const { translate } = useApiReferenceLocalization()
           class="size-3"
           weight="bold" />
         <span class="sr-only">
-          <slot name="sr-label">{{ translate('actions.copyLink') }}</slot>
+          <slot name="sr-label">{{ copyLinkLabel }}</slot>
         </span>
       </button>
     </div>

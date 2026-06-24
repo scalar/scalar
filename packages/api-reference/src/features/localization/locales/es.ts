@@ -33,6 +33,7 @@ export const es = {
   },
   search: {
     label: 'Buscar',
+    inputLabel: 'Introduce tu consulta de búsqueda',
     open: 'Abrir búsqueda',
     placeholder: 'Buscar...',
     clear: 'Borrar búsqueda',

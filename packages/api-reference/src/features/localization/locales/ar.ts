@@ -33,6 +33,7 @@ export const ar = {
   },
   search: {
     label: 'بحث',
+    inputLabel: 'أدخل استعلام البحث',
     open: 'فتح البحث',
     placeholder: 'بحث...',
     clear: 'مسح البحث',

@@ -387,6 +387,7 @@ export type ApiReferenceTranslations = {
   }
   search: {
     label: string
+    inputLabel: string
     open: string
     placeholder: string
     clear: string

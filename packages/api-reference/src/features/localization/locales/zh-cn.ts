@@ -33,6 +33,7 @@ export const zhCn = {
   },
   search: {
     label: '搜索',
+    inputLabel: '输入搜索查询',
     open: '打开搜索',
     placeholder: '搜索...',
     clear: '清除搜索',
