@@ -116,6 +116,11 @@ const translateApiReference = (
   params?: Record<string, number | string>,
 ): string => {
   const value = getTranslationValue(translations, key)
+
+  if (typeof value !== 'string' && import.meta.env.DEV) {
+    console.warn(`[@scalar/api-reference] Missing i18n translation for key "${key}". Falling back to the key itself.`)
+  }
+
   const template = typeof value === 'string' ? value : key
 
   if (!params) {
