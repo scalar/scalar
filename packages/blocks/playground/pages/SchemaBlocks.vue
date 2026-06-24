@@ -2,10 +2,14 @@
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-import { createSchema } from '../../src/schema'
+import { createSchema, type SchemaOptions } from '../../src/schema'
 
 /** A set of schemas that exercise the different schema renderings. */
-const schemas: Array<{ name: string; schema: SchemaObject }> = [
+const schemas: Array<{
+  name: string
+  schema: SchemaObject
+  options?: SchemaOptions
+}> = [
   {
     name: 'User (object)',
     schema: {
@@ -107,26 +111,32 @@ const schemas: Array<{ name: string; schema: SchemaObject }> = [
     },
   },
   {
-    name: 'Animal (allOf)',
+    name: 'Pet (allOf)',
+    options: { expandAllSchemaProperties: true },
     schema: {
-      allOf: [
-        {
-          type: 'object',
-          title: 'Base',
-          properties: {
-            id: { type: 'string' },
-            name: { type: 'string' },
-          },
+      type: 'object',
+      properties: {
+        pet: {
+          allOf: [
+            {
+              type: 'object',
+              title: 'Identity',
+              properties: {
+                id: { type: 'string', format: 'uuid' },
+                name: { type: 'string' },
+              },
+            },
+            {
+              type: 'object',
+              title: 'Traits',
+              properties: {
+                legs: { type: 'integer', default: 4 },
+                sound: { type: 'string' },
+              },
+            },
+          ],
         },
-        {
-          type: 'object',
-          title: 'Traits',
-          properties: {
-            legs: { type: 'integer', default: 4 },
-            sound: { type: 'string' },
-          },
-        },
-      ],
+      },
     },
   },
   {
@@ -139,12 +149,35 @@ const schemas: Array<{ name: string; schema: SchemaObject }> = [
     },
   },
   {
-    name: 'Metadata (dictionary)',
+    name: 'Headers (dictionary)',
     schema: {
       type: 'object',
-      description: 'Free-form key/value labels',
+      description: 'Known headers plus arbitrary string values',
+      properties: {
+        'Content-Type': { type: 'string' },
+        'X-Request-Id': { type: 'string', format: 'uuid' },
+      },
       additionalProperties: { type: 'string' },
     },
+  },
+  {
+    name: 'Cancellation reason (x-enum-descriptions)',
+    options: { expandAllSchemaProperties: true },
+    schema: {
+      type: 'object',
+      properties: {
+        reason: {
+          'type': 'string',
+          'enum': ['missing_features', 'too_expensive', 'unused', 'other'],
+          'x-enum-descriptions': {
+            missing_features: 'Missing features',
+            too_expensive: 'Too expensive',
+            unused: 'No longer used',
+            other: 'Another reason',
+          },
+        },
+      },
+    } as SchemaObject,
   },
   {
     name: 'Article (rich)',
@@ -179,11 +212,11 @@ const grid = ref<HTMLDivElement | null>(null)
 const instances: Array<{ destroy: () => void }> = []
 
 onMounted(() => {
-  for (const { name, schema } of schemas) {
+  for (const { name, schema, options } of schemas) {
     const mount = document.createElement('div')
     grid.value?.append(mount)
 
-    instances.push(createSchema(mount, { schema, name }))
+    instances.push(createSchema(mount, { schema, name, options }))
   }
 })
 
