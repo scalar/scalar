@@ -196,9 +196,14 @@ const schemaDescription = computed(() => {
  * The `discriminator` prop is only set when this schema is already a variant
  * being rendered inside a `SchemaComposition`; skipping the inference in that
  * case avoids re-inferring (and recursing) on a self-referential mapping.
+ *
+ * The inference is restricted to plain object schemas (`isTypeObject`). A schema
+ * carrying its own composition keyword (`allOf`/`not`) is rendered by the
+ * `SchemaProperty` branch below; inferring a selector there would replace that
+ * keyword's output with the variant dropdown instead of rendering both.
  */
 const inferredDiscriminatorComposition = computed(() =>
-  schema && !discriminator
+  schema && !discriminator && isTypeObject(schema)
     ? inferDiscriminatorMappingComposition(schema, options.document)
     : null,
 )

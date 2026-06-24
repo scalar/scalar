@@ -345,6 +345,52 @@ describe('Schema', () => {
       // The object's own properties still render alongside the selector.
       expect(wrapper.text()).toContain('baseInt')
     })
+
+    // https://github.com/scalar/scalar/issues/7472
+    // A schema that carries its own `allOf` (plus a `discriminator.mapping`) must
+    // keep rendering the `allOf` members. Inference is gated to plain object
+    // schemas (`isTypeObject`), so the mapping does not replace the `allOf`
+    // output with a variant dropdown — the `allOf` members render as before.
+    it('keeps rendering allOf members for a schema that also has a discriminator mapping', () => {
+      const document = {
+        components: {
+          schemas: {
+            Base: {
+              type: 'object',
+              properties: { baseInt: { type: 'integer' } },
+            },
+            Derived: {
+              type: 'object',
+              properties: { derivedInt: { type: 'integer' } },
+            },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: coerceValue(SchemaObjectSchema, {
+            // The `allOf` member carries a property that only appears when the
+            // merged `allOf` renders, not in the inferred oneOf variants.
+            allOf: [{ type: 'object', properties: { sharedAllOfProp: { type: 'string' } } }],
+            discriminator: {
+              propertyName: '$type',
+              mapping: {
+                Base: '#/components/schemas/Base',
+                Derived: '#/components/schemas/Derived',
+              },
+            },
+          }),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      // The allOf member still renders — it was previously replaced by the
+      // inferred variant dropdown alone.
+      expect(wrapper.text()).toContain('sharedAllOfProp')
+    })
   })
 
   describe('additionalProperties Vue prop', () => {
