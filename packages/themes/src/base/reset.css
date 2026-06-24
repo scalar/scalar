@@ -84,8 +84,16 @@
     border-width: 1px;
   }
 
-  /** Keep text controls aligned with the active writing direction by default. */
+  /**
+   * Align text form controls to the writing direction by default.
+   *
+   * The universal reset above sets `text-align: inherit`, which overrides the controls' built-in
+   * `start` alignment with whatever an ancestor resolves to — including a physical `left` from a
+   * Tailwind `text-left` utility, which does not flip for RTL. Re-asserting the logical `start`
+   * keeps inputs reading correctly in both LTR and RTL documents.
+   */
   input,
+  select,
   textarea {
     text-align: start;
   }
