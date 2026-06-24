@@ -2,7 +2,7 @@
 import { ScalarIcon } from '@scalar/components/icon'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import { formatValue } from './helpers/format-value'
 
@@ -11,7 +11,7 @@ defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 </script>
 <template>
   <template v-if="value !== undefined">

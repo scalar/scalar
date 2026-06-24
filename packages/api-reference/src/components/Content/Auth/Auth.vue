@@ -14,7 +14,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 const { document, environment, eventBus, options, securitySchemes, authStore } =
   defineProps<{
@@ -29,7 +29,7 @@ const { document, environment, eventBus, options, securitySchemes, authStore } =
     selectedServer: ServerObject | null
     environment: XScalarEnvironment
   }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /** Compute what the security requirements should be for the document */
 const securityRequirements = computed(() =>

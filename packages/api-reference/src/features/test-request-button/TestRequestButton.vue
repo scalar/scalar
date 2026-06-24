@@ -4,7 +4,7 @@ import { ScalarIconPlay } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import ScreenReader from '@/components/ScreenReader.vue'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 const {
   id,
@@ -21,7 +21,7 @@ const {
   exampleName?: string
   requestBodyCompositionSelection?: Record<string, number>
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /** Route via ID and optionally with example name */
 const handleClick = () => {

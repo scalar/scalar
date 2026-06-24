@@ -10,7 +10,7 @@ test.setTimeout(60_000)
 test('Arabic locale', async ({ page }) => {
   const example = await serveExample({
     ...galaxy,
-    i18n: {
+    localization: {
       locale: 'ar',
     },
   })

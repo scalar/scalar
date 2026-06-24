@@ -7,7 +7,7 @@ import type {
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import ApiReferenceToolbarTitle from './components/ApiReferenceToolbarTitle.vue'
 import DeployApiReference from './components/DeployApiReference.vue'
@@ -21,7 +21,7 @@ const { configuration, externalUrls } = defineProps<{
 }>()
 
 const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const showDeveloperTools = computed<boolean>(() => {
   if (configuration?.showDeveloperTools === 'always') {

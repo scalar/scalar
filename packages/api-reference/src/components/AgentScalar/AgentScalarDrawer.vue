@@ -8,7 +8,7 @@ import type {
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { defineAsyncComponent } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 import { useAgentContext } from '@/hooks/use-agent'
 
 defineProps<{
@@ -18,7 +18,7 @@ defineProps<{
 }>()
 
 const agentContext = useAgentContext()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const AgentScalarChatInterface = defineAsyncComponent(
   async () => import('./AgentScalarChatInterface.vue'),

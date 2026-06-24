@@ -15,7 +15,7 @@ import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
 import { isFeaturedClient } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 const { clientOptions, featuredClients, eventBus, selectedClient } =
   defineProps<{
@@ -30,7 +30,7 @@ const { clientOptions, featuredClients, eventBus, selectedClient } =
   }>()
 
 const containerRef = ref<HTMLElement>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /**
  * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function

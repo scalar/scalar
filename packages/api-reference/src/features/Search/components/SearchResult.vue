@@ -15,7 +15,7 @@ import {
 import type { FuseResult } from 'fuse.js'
 import { computed } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 import type { EntryType, FuseData } from '@/features/Search/types'
 
 const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
@@ -24,7 +24,7 @@ const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
   result: FuseResult<FuseData>
   modelsSectionLabel?: ModelsSectionLabel
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
   heading: ScalarIconTextAlignLeft,

@@ -4,7 +4,7 @@ import { ScalarIconHash } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { useId } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import ScreenReader from '../ScreenReader.vue'
 
@@ -13,7 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const labelId = useId()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const { cx } = useBindCx()
 </script>

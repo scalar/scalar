@@ -16,7 +16,7 @@ import {
   sortPropertyNames,
 } from '@/components/Content/Schema/helpers/sort-property-names'
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
@@ -33,7 +33,7 @@ const { requestBody, options, document } = defineProps<{
     expandAllSchemaProperties: boolean | undefined
   }
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /**
  * The maximum number of properties to show in the request body schema.

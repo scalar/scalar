@@ -3,9 +3,9 @@ import { ScalarFloatingBackdrop } from '@scalar/components/floating'
 import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 </script>
 
 <template>

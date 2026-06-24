@@ -29,7 +29,7 @@ describe('api-reference-configuration', () => {
         documentDownloadType: 'both',
         hideSearch: false,
         darkMode: true,
-        i18n: {
+        localization: {
           locale: 'es',
           direction: 'auto',
           translations: {
@@ -61,9 +61,9 @@ describe('api-reference-configuration', () => {
       expect(() => coerce(apiReferenceConfigurationSchema, completeConfig)).not.toThrow()
     })
 
-    it('validates i18n configuration', () => {
+    it('validates localization configuration', () => {
       const config = {
-        i18n: {
+        localization: {
           locale: 'ar',
           direction: 'rtl',
           translations: {

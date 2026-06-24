@@ -5,7 +5,7 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import { formatExample } from './helpers/format-example'
 
@@ -15,7 +15,7 @@ const { examples, example } = defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 // `null` is a meaningful example value for nullable schemas, so only treat
 // `undefined` as "not provided".

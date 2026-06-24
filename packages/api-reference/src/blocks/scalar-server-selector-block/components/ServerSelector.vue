@@ -27,14 +27,14 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { useId } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import Selector from './Selector.vue'
 
 const { eventBus, servers, selectedServer } = defineProps<SelectorProps>()
 
 const id = useId()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /** Update the selected server */
 const updateServer = (newServer: string) => {

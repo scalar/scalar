@@ -24,7 +24,7 @@ describe('api-reference-configuration', () => {
         isEditable: true,
         showSidebar: true,
         hideModels: false,
-        i18n: {
+        localization: {
           locale: 'es',
           direction: 'auto',
           translations: {
@@ -76,9 +76,9 @@ describe('api-reference-configuration', () => {
       expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({ hiddenClients: true })
     })
 
-    it('validates i18n configuration', () => {
+    it('validates localization configuration', () => {
       const config = {
-        i18n: {
+        localization: {
           locale: 'ar',
           direction: 'rtl',
           translations: {

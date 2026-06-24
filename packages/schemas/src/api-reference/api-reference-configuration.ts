@@ -51,7 +51,7 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Label for the components.schemas section in the sidebar, content, and search. Use `Schemas` for OpenAPI terminology.',
     }),
-    i18n: optional(
+    localization: optional(
       object({
         locale: optional(string()),
         direction: optional(union([literal('ltr'), literal('rtl'), literal('auto')])),

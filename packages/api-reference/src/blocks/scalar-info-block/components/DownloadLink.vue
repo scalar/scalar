@@ -4,7 +4,7 @@ import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
 
 import Badge from '@/components/Badge/Badge.vue'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 const {
   eventBus,
@@ -24,7 +24,7 @@ const {
   /** The kind of document being rendered. Drives the button label. */
   documentType?: 'openapi' | 'asyncapi'
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const label = computed(() =>
   documentType === 'asyncapi'

@@ -2,7 +2,7 @@
 import { ScalarButton } from '@scalar/components/button'
 import { themeLabels, type ThemeId } from '@scalar/themes'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 defineProps<{
   theme: ThemeId
@@ -14,7 +14,7 @@ const emits = defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const themeIds: ThemeId[] = [
   'default',

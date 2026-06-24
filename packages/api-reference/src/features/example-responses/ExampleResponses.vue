@@ -20,7 +20,7 @@ import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
@@ -43,7 +43,7 @@ const { responses, selectedExample, eventBus } = defineProps<{
   /** Event bus, used to broadcast the selected example so other operations can follow */
   eventBus?: WorkspaceEventBus
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const id = useId()
 const { copyToClipboard } = useClipboard()

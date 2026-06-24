@@ -2,13 +2,13 @@
 import { ScalarIconLink } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 const { breadcrumb } = defineProps<{
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 </script>
 
 <template>

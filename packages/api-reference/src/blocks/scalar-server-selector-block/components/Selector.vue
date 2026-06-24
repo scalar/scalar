@@ -5,7 +5,7 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 const { target, servers, selectedServer } = defineProps<{
   /** The selected server URL */
@@ -21,7 +21,7 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const serverOptions = computed(() =>
   servers.map((server) => ({

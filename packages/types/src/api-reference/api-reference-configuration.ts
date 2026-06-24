@@ -5,19 +5,19 @@ import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 import { NEW_PROXY_URL, OLD_PROXY_URL, baseConfigurationSchema } from './base-configuration'
 import { type SourceConfiguration, sourceConfigurationSchema } from './source-configuration'
-import type { ApiReferenceI18n } from './types'
+import type { ApiReferenceLocalization } from './types'
 import { DEFAULT_MODELS_SECTION_LABEL } from './types'
 
 // Zod Schemas don't work well with async functions, so we use a custom type instead.
 const fetchLikeSchema = z.custom<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>()
 
-const apiReferenceI18nSchema = z
+const apiReferenceLocalizationSchema = z
   .object({
     locale: z.string().optional(),
     direction: z.enum(['ltr', 'rtl', 'auto']).optional().catch('auto'),
     translations: z.record(z.string(), z.unknown()).optional(),
   })
-  .optional() as ZodType<ApiReferenceI18n | undefined>
+  .optional() as ZodType<ApiReferenceLocalization | undefined>
 
 /**
  * Standard configuration for the Api Reference.
@@ -84,7 +84,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * Use `locale` to select one of the built-in locale packs, `translations` to override UI labels,
    * and `direction` to control LTR/RTL rendering.
    */
-  i18n: apiReferenceI18nSchema,
+  localization: apiReferenceLocalizationSchema,
   /**
    * Sets the file type of the document to download, set to `none` to hide the download button
    * @default 'both'

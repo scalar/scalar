@@ -79,9 +79,9 @@ import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
 import {
-  provideApiReferenceI18n,
-  resolveApiReferenceI18n,
-} from '@/features/i18n'
+  provideApiReferenceLocalization,
+  resolveApiReferenceLocalization,
+} from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
@@ -247,7 +247,7 @@ const withLocalizedConfigurationDefaults = (
   config: ApiReferenceConfiguration,
   activeConfig: Partial<ApiReferenceConfiguration> | undefined,
 ): ApiReferenceConfiguration => {
-  const i18n = resolveApiReferenceI18n(config.i18n)
+  const localization = resolveApiReferenceLocalization(config.localization)
   const configuredModelsSectionLabel =
     configurationOverrides.value.modelsSectionLabel ??
     (activeConfig?.modelsSectionLabel !== DEFAULT_MODELS_SECTION_LABEL
@@ -258,7 +258,7 @@ const withLocalizedConfigurationDefaults = (
     ...config,
     modelsSectionLabel:
       configuredModelsSectionLabel ??
-      i18n.translations.models.label ??
+      localization.translations.models.label ??
       DEFAULT_MODELS_SECTION_LABEL,
   }
 }
@@ -278,14 +278,16 @@ const mergedConfig = computed<ApiReferenceConfiguration>(() => {
   return withLocalizedConfigurationDefaults(merged, activeConfig)
 })
 
-const apiReferenceI18n = provideApiReferenceI18n(() => mergedConfig.value.i18n)
+const apiReferenceLocalization = provideApiReferenceLocalization(
+  () => mergedConfig.value.localization,
+)
 
 const sidebarOptions = computed(() => ({
   ...mergedConfig.value,
   labels: {
-    closeGroup: apiReferenceI18n.translate('navigation.closeGroup'),
-    httpMethod: apiReferenceI18n.translate('common.httpMethod'),
-    openGroup: apiReferenceI18n.translate('navigation.openGroup'),
+    closeGroup: apiReferenceLocalization.translate('navigation.closeGroup'),
+    httpMethod: apiReferenceLocalization.translate('common.httpMethod'),
+    openGroup: apiReferenceLocalization.translate('navigation.openGroup'),
   },
 }))
 
@@ -294,7 +296,7 @@ const sidebarOptions = computed(() => ({
  * `es_MX` become valid BCP-47 language tags (`es-MX`).
  */
 const documentLang = computed(() =>
-  apiReferenceI18n.locale.value.replace('_', '-'),
+  apiReferenceLocalization.locale.value.replace('_', '-'),
 )
 
 /** Convenience break out var to determine which routing mode we are using */
@@ -460,10 +462,12 @@ const pluginSidebarEntries = computed(() =>
 const localizeNavigationEntries = (
   entries: TraversedEntry[],
 ): TraversedEntry[] => {
-  const introductionTitle = apiReferenceI18n.translate(
+  const introductionTitle = apiReferenceLocalization.translate(
     'navigation.introduction',
   )
-  const webhooksTitle = apiReferenceI18n.translate('navigation.webhooks')
+  const webhooksTitle = apiReferenceLocalization.translate(
+    'navigation.webhooks',
+  )
   const modelsSectionLabel =
     mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
 
@@ -1301,7 +1305,7 @@ const showMCPButton = computed(() => {
         },
         $attrs.class,
       ]"
-      :dir="apiReferenceI18n.direction.value"
+      :dir="apiReferenceLocalization.direction.value"
       :lang="documentLang">
       <!-- Agent Scalar -->
       <AgentScalarDrawer
@@ -1333,7 +1337,7 @@ const showMCPButton = computed(() => {
           <ScalarSidebar
             v-if="mergedConfig.showSidebar && mergedConfig.layout === 'modern'"
             :aria-label="
-              apiReferenceI18n.translate('navigation.sidebarFor', {
+              apiReferenceLocalization.translate('navigation.sidebarFor', {
                 name:
                   workspaceStore.workspace.activeDocument?.info?.title ?? '',
               })
@@ -1401,7 +1405,11 @@ const showMCPButton = computed(() => {
                       class="no-underline hover:underline"
                       href="https://www.scalar.com"
                       target="_blank">
-                      {{ apiReferenceI18n.translate('footer.poweredByScalar') }}
+                      {{
+                        apiReferenceLocalization.translate(
+                          'footer.poweredByScalar',
+                        )
+                      }}
                     </a>
                   </template>
                   <!-- Override the dark mode toggle slot to hide it -->
@@ -1425,7 +1433,7 @@ const showMCPButton = computed(() => {
       <!-- Primary Content -->
       <main
         :aria-label="
-          apiReferenceI18n.translate('navigation.mainContent', {
+          apiReferenceLocalization.translate('navigation.mainContent', {
             name: workspaceStore.workspace.activeDocument?.info?.title ?? '',
           })
         "

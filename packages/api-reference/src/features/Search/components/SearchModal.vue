@@ -8,7 +8,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId, watch } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 import { useSearchIndex } from '@/features/Search/hooks/useSearchIndex'
 
 import SearchResult from './SearchResult.vue'
@@ -19,7 +19,7 @@ const props = defineProps<{
   eventBus: WorkspaceEventBus
   modelsSectionLabel?: ModelsSectionLabel
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /** Base id for the search form */
 const id = useId()

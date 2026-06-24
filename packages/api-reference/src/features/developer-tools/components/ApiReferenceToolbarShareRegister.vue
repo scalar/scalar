@@ -15,7 +15,7 @@ import { type ScalarIconComponent } from '@scalar/icons/types'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import ApiReferenceToolbarBlurb from './ApiReferenceToolbarBlurb.vue'
 import ApiReferenceToolbarRegisterButton from './ApiReferenceToolbarRegisterButton.vue'
@@ -24,7 +24,7 @@ const { workspace, externalUrls } = defineProps<{
   workspace: WorkspaceStore
   externalUrls: ExternalUrls
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const FEATURES = [
   { icon: ScalarIconLockSimple, labelKey: 'developerTools.passwordProtection' },

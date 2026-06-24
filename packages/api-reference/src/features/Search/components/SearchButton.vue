@@ -13,7 +13,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import SearchModal from './SearchModal.vue'
 
@@ -31,7 +31,7 @@ const {
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
 const modalState = useModal()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /**
  * Whether the user is on macOS, used to show the correct shortcut symbol.

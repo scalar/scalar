@@ -29,14 +29,14 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed, useId } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import Selector from './Selector.vue'
 
 const { eventBus, servers, selectedServer } = defineProps<SelectorProps>()
 
 const id = useId()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /**
  * Normalize AsyncAPI server variables into the shape the shared

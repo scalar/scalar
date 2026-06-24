@@ -14,7 +14,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
 const { tag, headerId, isCollapsed } = defineProps<{
@@ -23,7 +23,7 @@ const { tag, headerId, isCollapsed } = defineProps<{
   isCollapsed?: boolean
   eventBus: WorkspaceEventBus | null
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 </script>
 <template>
   <Section

@@ -579,8 +579,8 @@ export type ApiReferenceTranslations = {
   }
 }
 
-/** API Reference i18n configuration. */
-export type ApiReferenceI18n = {
+/** API Reference localization configuration. */
+export type ApiReferenceLocalization = {
   /** Locale used for built-in UI translations. */
   locale?: ApiReferenceLocale
   /** Text direction. `auto` derives direction from locale. */
@@ -615,7 +615,7 @@ type ExtendedConfiguration = {
   /** Label for the components.schemas section (`Models`, `Schemas`, or any custom string). */
   modelsSectionLabel?: ModelsSectionLabel
   /** API Reference UI localization configuration. */
-  i18n?: ApiReferenceI18n
+  localization?: ApiReferenceLocalization
   /** Sets the file type of the document to download, set to `none` to hide the download button */
   documentDownloadType: 'both' | 'yaml' | 'json' | 'direct' | 'none'
   /** @deprecated Use `documentDownloadType: 'none'` instead */

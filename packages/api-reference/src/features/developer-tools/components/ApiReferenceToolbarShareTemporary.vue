@@ -6,7 +6,7 @@ import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 import ApiReferenceToolbarBlurb from './ApiReferenceToolbarBlurb.vue'
@@ -18,7 +18,7 @@ const { workspace, externalUrls } = defineProps<{
 
 const { toast } = useToasts()
 const loader = useLoadingState()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const tempDocUrl = defineModel<string>('url')
 

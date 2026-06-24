@@ -13,7 +13,7 @@ import { computed, toRef } from 'vue'
 import { Badge } from '@/components/Badge'
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelNameFromSchema } from './helpers/schema-name'
@@ -45,7 +45,7 @@ const props = withDefaults(
     eventBus: null,
   },
 )
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 // Convert to reactive refs for composables
 const valueRef = toRef(props, 'value')

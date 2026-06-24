@@ -9,7 +9,7 @@ import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import OperationsListItem from './OperationsListItem.vue'
 
@@ -17,7 +17,7 @@ const { tag } = defineProps<{
   tag: TraversedTag
   eventBus: WorkspaceEventBus | null
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const operationsAndWebhooks = computed(() => {
   return (

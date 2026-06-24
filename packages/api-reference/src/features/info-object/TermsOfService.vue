@@ -2,12 +2,12 @@
 import { ScalarIconScroll } from '@scalar/icons'
 import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 defineProps<{
   value?: InfoObject['termsOfService']
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 </script>
 
 <template>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ScalarIconSparkle } from '@scalar/icons'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 import { useAgentContext } from '@/hooks/use-agent'
 
 const agentContext = useAgentContext()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 </script>
 
 <template>

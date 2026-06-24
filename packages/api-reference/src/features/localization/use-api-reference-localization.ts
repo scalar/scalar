@@ -1,6 +1,6 @@
 import type {
-  ApiReferenceI18n,
   ApiReferenceLocale,
+  ApiReferenceLocalization,
   ApiReferenceTextDirection,
   ApiReferenceTranslations,
 } from '@scalar/types/api-reference'
@@ -8,20 +8,21 @@ import { type ComputedRef, type InjectionKey, type MaybeRefOrGetter, computed, i
 
 import { DEFAULT_API_REFERENCE_LOCALE, RTL_LOCALES, apiReferenceTranslations } from './translations'
 
-type ApiReferenceI18nContext = {
+type ApiReferenceLocalizationContext = {
   locale: ComputedRef<ApiReferenceLocale>
   direction: ComputedRef<ApiReferenceTextDirection>
   translations: ComputedRef<ApiReferenceTranslations>
   translate: (key: string, params?: Record<string, number | string>) => string
 }
 
-type ResolvedApiReferenceI18n = {
+type ResolvedApiReferenceLocalization = {
   locale: ApiReferenceLocale
   direction: ApiReferenceTextDirection
   translations: ApiReferenceTranslations
 }
 
-const API_REFERENCE_I18N_SYMBOL: InjectionKey<ApiReferenceI18nContext> = Symbol('API_REFERENCE_I18N')
+const API_REFERENCE_LOCALIZATION_SYMBOL: InjectionKey<ApiReferenceLocalizationContext> =
+  Symbol('API_REFERENCE_LOCALIZATION')
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -75,28 +76,30 @@ const resolveBuiltInLocale = (locale?: ApiReferenceLocale): keyof typeof apiRefe
   return (match as keyof typeof apiReferenceTranslations | undefined) ?? DEFAULT_API_REFERENCE_LOCALE
 }
 
-const resolveApiReferenceDirection = (i18n?: ApiReferenceI18n): ApiReferenceTextDirection => {
-  if (i18n?.direction && i18n.direction !== 'auto') {
-    return i18n.direction
+const resolveApiReferenceDirection = (localization?: ApiReferenceLocalization): ApiReferenceTextDirection => {
+  if (localization?.direction && localization.direction !== 'auto') {
+    return localization.direction
   }
 
-  const locale = i18n?.locale ?? DEFAULT_API_REFERENCE_LOCALE
+  const locale = localization?.locale ?? DEFAULT_API_REFERENCE_LOCALE
   const language = locale.replace('_', '-').split('-')[0]?.toLowerCase()
 
   return language && RTL_LOCALES.has(language) ? 'rtl' : 'ltr'
 }
 
-export const resolveApiReferenceI18n = (i18n?: ApiReferenceI18n): ResolvedApiReferenceI18n => {
-  const locale = i18n?.locale ?? DEFAULT_API_REFERENCE_LOCALE
+export const resolveApiReferenceLocalization = (
+  localization?: ApiReferenceLocalization,
+): ResolvedApiReferenceLocalization => {
+  const locale = localization?.locale ?? DEFAULT_API_REFERENCE_LOCALE
   const builtInLocale = resolveBuiltInLocale(locale)
   const translations = mergeDeep(
     mergeDeep(apiReferenceTranslations.en, apiReferenceTranslations[builtInLocale]),
-    i18n?.translations,
+    localization?.translations,
   )
 
   return {
     locale,
-    direction: resolveApiReferenceDirection(i18n),
+    direction: resolveApiReferenceDirection(localization),
     translations,
   }
 }
@@ -118,7 +121,7 @@ const translateApiReference = (
   const value = getTranslationValue(translations, key)
 
   if (typeof value !== 'string' && import.meta.env.DEV) {
-    console.warn(`[@scalar/api-reference] Missing i18n translation for key "${key}". Falling back to the key itself.`)
+    console.warn(`[@scalar/api-reference] Missing translation for key "${key}". Falling back to the key itself.`)
   }
 
   const template = typeof value === 'string' ? value : key
@@ -133,10 +136,10 @@ const translateApiReference = (
   )
 }
 
-const createApiReferenceI18nContext = (
-  i18n: MaybeRefOrGetter<ApiReferenceI18n | undefined>,
-): ApiReferenceI18nContext => {
-  const resolved = computed(() => resolveApiReferenceI18n(toValue(i18n)))
+const createApiReferenceLocalizationContext = (
+  localization: MaybeRefOrGetter<ApiReferenceLocalization | undefined>,
+): ApiReferenceLocalizationContext => {
+  const resolved = computed(() => resolveApiReferenceLocalization(toValue(localization)))
 
   return {
     locale: computed(() => resolved.value.locale),
@@ -146,13 +149,15 @@ const createApiReferenceI18nContext = (
   }
 }
 
-export const provideApiReferenceI18n = (i18n: MaybeRefOrGetter<ApiReferenceI18n | undefined>) => {
-  const context = createApiReferenceI18nContext(i18n)
+export const provideApiReferenceLocalization = (
+  localization: MaybeRefOrGetter<ApiReferenceLocalization | undefined>,
+) => {
+  const context = createApiReferenceLocalizationContext(localization)
 
-  provide(API_REFERENCE_I18N_SYMBOL, context)
+  provide(API_REFERENCE_LOCALIZATION_SYMBOL, context)
 
   return context
 }
 
-export const useApiReferenceI18n = (): ApiReferenceI18nContext =>
-  inject(API_REFERENCE_I18N_SYMBOL, createApiReferenceI18nContext(undefined))
+export const useApiReferenceLocalization = (): ApiReferenceLocalizationContext =>
+  inject(API_REFERENCE_LOCALIZATION_SYMBOL, createApiReferenceLocalizationContext(undefined))

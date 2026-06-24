@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 import { Badge } from '@/components/Badge'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 const { servers = [], protocols = [] } = defineProps<{
   /** Names of the servers an entry is available on. */
@@ -10,7 +10,7 @@ const { servers = [], protocols = [] } = defineProps<{
   /** Protocol identifiers (for example `wss`, `kafka`) shown as uppercase pills. */
   protocols?: string[]
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /** Hide the whole row when there is nothing to show. */
 const hasLabels = computed(() => servers.length > 0 || protocols.length > 0)

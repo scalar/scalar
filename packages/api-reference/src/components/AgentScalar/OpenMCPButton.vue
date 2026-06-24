@@ -8,7 +8,7 @@ import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { nextTick } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 const props = defineProps<{
@@ -22,7 +22,7 @@ const props = defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const { toast } = useToasts()
 

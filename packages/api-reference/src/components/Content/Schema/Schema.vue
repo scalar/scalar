@@ -11,7 +11,7 @@ import { computed, inject, provide } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
@@ -75,7 +75,7 @@ const {
    */
   cycleKey?: unknown
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /**
  * Cycle-safe `expandAllSchemaProperties`.

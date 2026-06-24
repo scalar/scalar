@@ -16,7 +16,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
 import InfoDescription from './InfoDescription.vue'
@@ -37,7 +37,7 @@ defineProps<{
   eventBus: WorkspaceEventBus | null
 }>()
 
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 </script>
 
 <template>

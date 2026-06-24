@@ -11,7 +11,7 @@ import {
   getFeaturedClients,
   isFeaturedClient,
 } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import ClientDropdown from './ClientDropdown.vue'
 
@@ -30,7 +30,7 @@ const {
 
 const headingId = useId()
 const morePanel = useId()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /**
  * Whether a selection is a custom code sample (e.g. `custom/python`) rather than

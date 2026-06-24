@@ -656,7 +656,7 @@ Label for the `components.schemas` section in the sidebar, main content, and sea
 }
 ```
 
-#### i18n
+#### localization
 
 **Type:** `{ locale?: string, direction?: 'ltr' | 'rtl' | 'auto', translations?: object }`
 
@@ -671,7 +671,7 @@ and Arabic (`ar`) renders right-to-left by default.
 
 ```javascript
 {
-  i18n: {
+  localization: {
     locale: 'es',
     direction: 'auto',
     translations: {

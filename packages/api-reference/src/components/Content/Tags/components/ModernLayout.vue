@@ -5,7 +5,7 @@ import { computed, useId } from 'vue'
 
 import { SectionContainer } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 import TagSection from './TagSection.vue'
 
@@ -15,7 +15,7 @@ const { tag, moreThanOneTag } = defineProps<{
   isCollapsed: boolean
   eventBus: WorkspaceEventBus | null
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 const headerId = useId()
 

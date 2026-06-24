@@ -11,13 +11,13 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { useApiReferenceI18n } from '@/features/i18n'
+import { useApiReferenceLocalization } from '@/features/localization'
 
 const { example, response } = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject | undefined
 }>()
-const { translate } = useApiReferenceI18n()
+const { translate } = useApiReferenceLocalization()
 
 /** Get content from the appropriate source */
 const getContent = () => {
