@@ -135,6 +135,193 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('stores array leaves of expanded deepObject rows as arrays, not comma-joined strings', () => {
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const context: TableRow[] = [
+      {
+        name: 'filters[applicationInstanceId][in][]',
+        // The table always shows the comma-joined display string for an array.
+        value: '1,2',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        schema: { type: 'array', items: { type: 'string' } },
+        sourceParameterValuePath: ['applicationInstanceId', 'in'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context })
+
+    handlers.upsert(0, { name: 'filters[applicationInstanceId][in][]', value: '1,2', isDisabled: false })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: {
+            applicationInstanceId: {
+              in: ['1', '2'],
+            },
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
+  it('keeps a schema-less deepObject array leaf as an array via its trailing-bracket name', () => {
+    // Renamed and unmapped expanded rows carry no schema, but they keep the display-only `[]` marker.
+    // Editing such a leaf must still store an array so deepObject serialization repeats `key[]=...`.
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const context: TableRow[] = [
+      {
+        name: 'filters[applicationInstanceId][notIn][]',
+        value: '1,2',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        schema: undefined,
+        sourceParameterValuePath: ['applicationInstanceId', 'notIn'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context })
+
+    handlers.upsert(0, { name: 'filters[applicationInstanceId][notIn][]', value: '3,4', isDisabled: false })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: {
+            applicationInstanceId: {
+              notIn: ['3', '4'],
+            },
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
+  it('coerces a deepObject array leaf via its marker even when the property schema is not an array', () => {
+    // The `[]` marker is added when the schema OR the stored value is an array, so a leaf can carry it
+    // under a non-array (e.g. free-form) schema. The marker must still win, otherwise the array
+    // serializes comma-joined while the row label implies repeated `key[]=...` entries.
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const context: TableRow[] = [
+      {
+        name: 'filters[tags][]',
+        value: '1,2',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        schema: { type: 'string' },
+        sourceParameterValuePath: ['tags'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context })
+
+    handlers.upsert(0, { name: 'filters[tags][]', value: '1,2', isDisabled: false })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: { tags: ['1', '2'] },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
+  it('keeps form-style array leaves verbatim when an unrelated sibling row is edited', () => {
+    // Form-style object parameter (the query default) with an array property whose value carries a
+    // meaningful comma, e.g. Spring pageable `sort=username,asc`. Splitting it into ['username','asc']
+    // would change the emitted query, so the leaf must survive an unrelated edit untouched.
+    const parentParameter = {
+      name: 'pageable',
+      in: 'query',
+    } as const
+    const context: TableRow[] = [
+      {
+        name: 'sort',
+        value: 'username,asc',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        schema: { type: 'array', items: { type: 'string' } },
+        sourceParameterValuePath: ['sort'],
+      },
+      {
+        name: 'page',
+        value: '0',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        schema: { type: 'integer' },
+        sourceParameterValuePath: ['page'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context })
+
+    // The user edits the unrelated "page" row.
+    handlers.upsert(1, { name: 'page', value: '1', isDisabled: false })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'pageable',
+          value: {
+            sort: 'username,asc',
+            page: '1',
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-1',
+      },
+    )
+  })
+
   it('renames a form-expanded property row by moving the value to the typed key', () => {
     const parentParameter = {
       name: 'filters',
@@ -289,6 +476,160 @@ describe('createParameterHandlers', () => {
         payload: {
           name: 'filter',
           value: { user: { role: 'admin' } },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
+  it('ignores the display-only trailing brackets when renaming a deepObject array leaf', () => {
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const row: TableRow = {
+      name: 'filters[applicationInstanceId][in][]',
+      value: '1,2',
+      isDisabled: false,
+      originalParameter: parentParameter,
+      schema: { type: 'array', items: { type: 'string' } },
+      sourceParameterValuePath: ['applicationInstanceId', 'in'],
+    }
+    const onRenameExpandedRow = vi.fn()
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context: [row],
+      onRenameExpandedRow,
+    })
+
+    // The user renames the leaf key; the trailing `[]` it still carries must not leak into the path.
+    handlers.upsert(0, {
+      name: 'filters[applicationInstanceId][notIn][]',
+      value: '1,2',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+
+    expect(onRenameExpandedRow).toHaveBeenCalledWith(row, ['applicationInstanceId', 'notIn'])
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: {
+            applicationInstanceId: {
+              notIn: ['1', '2'],
+            },
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
+  it('does not coerce a renamed deepObject array leaf to an array when the new key is a scalar', () => {
+    // Renaming a `...[in][]` leaf to a plain `...[status]` key drops the array marker. The row still
+    // carries the stale array schema and old name, so coercion must follow the freshly typed name and
+    // store the scalar verbatim instead of wrapping it in a one-element array.
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const row: TableRow = {
+      name: 'filters[applicationInstanceId][in][]',
+      value: 'active',
+      isDisabled: false,
+      originalParameter: parentParameter,
+      schema: { type: 'array', items: { type: 'string' } },
+      sourceParameterValuePath: ['applicationInstanceId', 'in'],
+    }
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, { context: [row] })
+
+    handlers.upsert(0, {
+      name: 'filters[applicationInstanceId][status]',
+      value: 'active',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: { applicationInstanceId: { status: 'active' } },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-0',
+      },
+    )
+  })
+
+  it('treats a lone empty bracket group as a real key, not a stripped array marker', () => {
+    // Regression guard for the marker stripping: the display-only `[]` is only ever appended after a
+    // real path bracket (`filters[id][]`), so it always shows up as `][]`. A lone empty group
+    // (`filters[]`) is a genuine empty key and must keep its segment. Otherwise the rename collapses
+    // the path to `['filters']` and the value is written under the parameter name instead.
+    const parentParameter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+    } as const
+    const row: TableRow = {
+      name: 'filters[applicationInstanceId][in][]',
+      value: '1,2',
+      isDisabled: false,
+      originalParameter: parentParameter,
+      schema: { type: 'array', items: { type: 'string' } },
+      sourceParameterValuePath: ['applicationInstanceId', 'in'],
+    }
+    const onRenameExpandedRow = vi.fn()
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context: [row],
+      onRenameExpandedRow,
+    })
+
+    // The user renames the leaf to the empty key. The path is `['']`, not `['filters']`.
+    handlers.upsert(0, {
+      name: 'filters[]',
+      value: '1,2',
+      isDisabled: false,
+      shouldRenameExpandedRow: true,
+    })
+
+    expect(onRenameExpandedRow).toHaveBeenCalledWith(row, [''])
+    // `setValueAtPath` does not support empty keys, so the value is simply not stored — the point is
+    // that it is never misrouted to a `filters` key (which is what dropping the empty segment caused).
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'filters',
+          value: {},
           isDisabled: false,
         },
         originalParameter: parentParameter,

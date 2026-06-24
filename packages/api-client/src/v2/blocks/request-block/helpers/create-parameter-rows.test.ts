@@ -139,6 +139,84 @@ describe('createParameterRows', () => {
     ])
   })
 
+  it('names deepObject array leaves with the trailing bracket convention', () => {
+    // Regression test for https://github.com/scalar/scalar/issues/9492
+    const inSchema = {
+      type: 'array',
+      items: { type: 'integer' },
+    } as const
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: {
+          applicationInstanceId: {
+            type: 'object',
+            properties: {
+              in: inSchema,
+            },
+          },
+        },
+      },
+      examples: {
+        default: {
+          value: { applicationInstanceId: { in: [1, 2] } },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    expect(createParameterRows(parameter, 'default')).toStrictEqual([
+      {
+        name: 'filters[applicationInstanceId][in][]',
+        value: '1,2',
+        description: undefined,
+        schema: inSchema,
+        isRequired: false,
+        isDisabled: false,
+        originalParameter: parameter,
+        // The path stays bracket-free so edits reassemble the value object correctly.
+        sourceParameterValuePath: ['applicationInstanceId', 'in'],
+      },
+    ])
+  })
+
+  it('names an unmapped deepObject array leaf with the trailing bracket convention', () => {
+    // A value key the schema does not describe (e.g. after a rename) still serializes as an array,
+    // so the row must keep the `[]` marker even though it carries no schema.
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: {
+          known: { type: 'string' },
+        },
+      },
+      examples: {
+        default: {
+          value: { notIn: [1, 2] },
+          'x-disabled': false,
+        },
+      },
+    }
+
+    const rows = createParameterRows(parameter, 'default')
+    const unmapped = rows.find((row) => row.sourceParameterValuePath?.[0] === 'notIn')
+
+    expect(unmapped).toMatchObject({
+      name: 'filters[notIn][]',
+      value: '1,2',
+      schema: undefined,
+      sourceParameterValuePath: ['notIn'],
+    })
+  })
+
   it('round-trips edited expanded rows back through createParameterRows', () => {
     const parameter: ParameterObject = {
       name: 'pageable',
