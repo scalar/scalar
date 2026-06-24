@@ -30,6 +30,7 @@ export const LANGUAGE_LABELS = {
   makefile: 'Makefile',
   markdown: 'Markdown',
   matlab: 'MATLAB',
+  mojo: 'Mojo',
   nginx: 'Nginx',
   objectivec: 'Objective-C',
   ocaml: 'OCaml',

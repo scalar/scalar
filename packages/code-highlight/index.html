@@ -10,26 +10,129 @@
       @import '@scalar/themes/style.css';
 
       :root {
-        --scalar-font: 'Inter';
+        --scalar-font: 'Inter', sans-serif;
       }
 
       body {
         background-color: var(--scalar-background-1);
         color: var(--scalar-color-1);
+        font-family: var(--scalar-font);
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 24px 24px 80px;
       }
 
+      /* Section labels above each code block */
       .section-header {
-        font-size: 40px;
         display: block;
-        border: 1px dotted var(--scalar-color-1);
-        padding: 12px;
+        margin: 36px 0 10px;
+        padding: 0;
+        border: none;
+        font-family: var(--scalar-font);
+        font-size: 12px;
+        font-weight: var(--scalar-semibold, 600);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--scalar-color-3);
+      }
+
+      /* Simple card wrapper around each highlighted block */
+      .code-card {
+        background-color: var(--scalar-background-2);
+        border: 1px solid var(--scalar-border-color);
+        border-radius: var(--scalar-radius-lg, 12px);
+        padding: 14px 18px;
+        overflow: hidden;
       }
 
       code {
-        background-color: var(--scalar-background-2);
-        width: 500px;
+        display: block;
+        width: 100%;
+        background-color: transparent;
         overflow-x: auto;
         scrollbar-width: thin;
+      }
+
+      /* ----------------------------------------------------------- */
+      /* Markdown demo typography                                     */
+      /* The code-highlight package only ships syntax-highlighting    */
+      /* CSS (code.css); prose styling lives in @scalar/components's  */
+      /* ScalarMarkdown component, so we mirror a small subset here   */
+      /* just for the demo.                                           */
+      .markdown {
+        font-family: var(--scalar-font);
+        line-height: 1.625;
+        color: var(--scalar-color-1);
+      }
+      .markdown > * + * {
+        margin-top: 16px;
+      }
+      .markdown h1,
+      .markdown h2,
+      .markdown h3,
+      .markdown h4,
+      .markdown h5,
+      .markdown h6 {
+        font-weight: var(--scalar-bold, 700);
+        line-height: 1.15;
+        margin: 24px 0 12px;
+      }
+      .markdown h1 {
+        font-size: 1.5rem;
+      }
+      .markdown h2,
+      .markdown h3 {
+        font-size: 1.25rem;
+      }
+      .markdown h4,
+      .markdown h5,
+      .markdown h6 {
+        font-size: 1rem;
+      }
+      .markdown a {
+        color: var(--scalar-color-blue);
+        text-decoration: underline;
+      }
+      .markdown ul,
+      .markdown ol {
+        padding-left: 1.6em;
+      }
+      .markdown ul {
+        list-style: disc;
+      }
+      .markdown ol {
+        list-style: decimal;
+      }
+      .markdown li + li {
+        margin-top: 4px;
+      }
+      .markdown blockquote {
+        margin: 0;
+        padding-left: 14px;
+        border-left: 3px solid var(--scalar-border-color);
+        color: var(--scalar-color-2);
+      }
+      .markdown hr {
+        border: none;
+        border-top: 1px solid var(--scalar-border-color);
+      }
+      .markdown :not(pre) > code {
+        display: inline;
+        width: auto;
+        padding: 2px 5px;
+        border-radius: var(--scalar-radius, 4px);
+        background-color: var(--scalar-background-3);
+        font-family: var(--scalar-font-code);
+        font-size: 0.875em;
+      }
+      .markdown table {
+        border-collapse: collapse;
+      }
+      .markdown th,
+      .markdown td {
+        border: 1px solid var(--scalar-border-color);
+        padding: 6px 10px;
+        text-align: left;
       }
 
       #dark-mode-btn {
@@ -37,8 +140,11 @@
         box-shadow: 0 0 0 1px var(--scalar-background-3);
         background-color: transparent;
         color: var(--scalar-color-1);
-        padding: 12px;
+        font-family: var(--scalar-font);
+        padding: 8px 14px;
+        margin-bottom: 8px;
         border-radius: var(--scalar-radius);
+        cursor: pointer;
         transition: box-shadow 0.2s linear;
       }
 
@@ -53,7 +159,7 @@
     </style>
     <script type="module"></script>
   </head>
-  <body class="dark-mode">
+  <body class="scalar-app dark-mode">
     <button
       id="dark-mode-btn"
       type="button">
