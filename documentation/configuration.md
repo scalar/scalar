@@ -660,26 +660,14 @@ Label for the `components.schemas` section in the sidebar, main content, and sea
 
 **Type:** `{ locale?: string, direction?: 'ltr' | 'rtl' | 'auto', translations?: object }`
 
-Localizes API Reference UI labels. The OpenAPI document itself is not translated; pass localized
-OpenAPI documents separately when you need localized descriptions, summaries, or schema text.
-
-Built-in locale packs are available for `en`, `ru`, `es`, `fr`, `de`, `zh-CN`, and `ar`.
-English is used as the fallback. `direction: 'auto'` derives the text direction from the locale,
-and Arabic (`ar`) renders right-to-left by default.
-
-**Default:** `{ locale: 'en', direction: 'ltr' }`
+Localizes the API Reference UI and controls text direction (LTR/RTL). See the dedicated
+[Localization](localization.md) page for the full reference, including the built-in locales and how
+to override individual labels.
 
 ```javascript
 {
   localization: {
-    locale: 'es',
-    direction: 'auto',
-    translations: {
-      operation: {
-        testRequest: 'Enviar solicitud de prueba',
-        responses: 'Respuestas',
-      },
-    },
+    locale: 'de',
   },
 }
 ```
