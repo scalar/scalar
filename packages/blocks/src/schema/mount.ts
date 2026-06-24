@@ -1,7 +1,7 @@
 import { ScalarTeleportRoot } from '@scalar/components/teleport'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getValueByPointer } from '@scalar/workspace-store/helpers/get-value-by-pointer'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, createApp, h, reactive } from 'vue'
 
@@ -31,6 +31,14 @@ export type CreateSchemaOptions = {
   pointer?: string
   /** Optional heading shown above the schema. */
   name?: string
+  /**
+   * Whether the root schema is rendered expanded without a collapse toggle.
+   *
+   * Defaults to `true` so a standalone schema fills its container and shows its
+   * properties, matching how the API reference embeds a lone schema. Pass
+   * `false` to render it as a collapsible disclosure instead.
+   */
+  noncollapsible?: boolean
   /** Display options forwarded to the schema tree. */
   options?: SchemaOptions
   /**
@@ -50,31 +58,6 @@ export type CreateSchemaOptions = {
  */
 const getWrapperClass = (darkMode: boolean | undefined): string =>
   ['scalar-app', darkMode === true ? 'dark-mode' : darkMode === false ? 'light-mode' : ''].filter(Boolean).join(' ')
-
-/**
- * Resolves a JSON pointer (e.g. `#/components/schemas/User`) against a document.
- *
- * Walks the document one segment at a time, resolving any `$ref` encountered
- * along the way so intermediate references do not break the lookup.
- */
-const resolvePointer = (document: unknown, pointer: string): SchemaObject | undefined => {
-  const segments = pointer
-    .replace(/^#?\//, '')
-    .split('/')
-    .filter(Boolean)
-    .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'))
-
-  let current: unknown = document
-  for (const segment of segments) {
-    current = getResolvedRef(current)
-    if (!current || typeof current !== 'object') {
-      return undefined
-    }
-    current = (current as Record<string, unknown>)[segment]
-  }
-
-  return getResolvedRef(current) as SchemaObject | undefined
-}
 
 /**
  * Mount the Schema block to a DOM element without Vue.
@@ -104,7 +87,7 @@ export const createSchema = (el: HTMLElement | string, options: CreateSchemaOpti
       return options.schema
     }
     if (options.store && options.pointer) {
-      return resolvePointer(activeDocument(), options.pointer)
+      return getValueByPointer(activeDocument(), options.pointer) as SchemaObject | undefined
     }
     return undefined
   }
@@ -139,9 +122,10 @@ export const createSchema = (el: HTMLElement | string, options: CreateSchemaOpti
       return options.name
     },
     eventBus,
-    // Render the standalone block expanded and full-width, like the API
-    // reference does when it embeds a schema on its own (see AsyncApi Message).
-    noncollapsible: true,
+    // Render the standalone block expanded and full-width by default, like the
+    // API reference does when it embeds a schema on its own (see AsyncApi
+    // Message). Consumers can opt into a collapsible root via the option.
+    noncollapsible: options.noncollapsible ?? true,
     get options(): SchemaOptions {
       return resolvedOptions.value
     },
