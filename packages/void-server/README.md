@@ -48,6 +48,25 @@ const httpServer = serve(
 attachVoidWebSocket(httpServer)
 ```
 
+### Request logging
+
+Void Server enables Hono request logging by default outside CI. Disable it when
+your platform already captures request logs:
+
+```ts
+const app = createVoidServer({
+  logger: false,
+})
+```
+
+Pass a custom logger function to control where access log lines are written:
+
+```ts
+const app = createVoidServer({
+  logger: (line) => console.info(line),
+})
+```
+
 ### WebSocket echo
 
 Call `attachVoidWebSocket(httpServer)` to enable the WebSocket echo on an existing Node HTTP server. Connect with any path (for example `ws://localhost:3000/chat`) and the server echoes any text or binary frame back unchanged.

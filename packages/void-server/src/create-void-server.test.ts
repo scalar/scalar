@@ -24,6 +24,24 @@ const extractStoredEntry = (bytes: Uint8Array): { content: string; fileName: str
 }
 
 describe('createVoidServer', () => {
+  it('can disable request logging', async () => {
+    const server = await createVoidServer({ logger: false })
+
+    expect(server.routes.some((route) => route.handler.name === 'logger2')).toBe(false)
+  })
+
+  it('accepts a custom request logger', async () => {
+    const logLines: string[] = []
+    const server = await createVoidServer({
+      logger: (line) => logLines.push(line),
+    })
+
+    await server.request('/logger-test')
+
+    expect(logLines[0]).toBe('<-- GET /logger-test')
+    expect(logLines[1]).toContain('--> GET /logger-test')
+  })
+
   it('GET /foobar', async () => {
     const server = await createVoidServer()
 
