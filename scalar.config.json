@@ -1298,10 +1298,15 @@
                         "type": "page",
                         "title": "Page Link"
                       },
+                      "grid": {
+                        "filepath": "documentation/guides/docs/components/grid.mdx",
+                        "type": "page",
+                        "title": "Grid"
+                      },
                       "row": {
                         "filepath": "documentation/guides/docs/components/row.mdx",
                         "type": "page",
-                        "title": "Row"
+                        "title": "Row (Deprecated)"
                       }
                     }
                   }
