@@ -54,7 +54,9 @@ export const apiReferenceConfigurationSchema = intersection([
     localization: optional(
       object({
         locale: optional(string()),
-        direction: optional(union([literal('ltr'), literal('rtl'), literal('auto')])),
+        // `auto` is listed first so that coerce falls back to it for invalid input,
+        // matching the `.catch('auto')` behavior of the Zod schema in @scalar/types.
+        direction: optional(union([literal('auto'), literal('ltr'), literal('rtl')])),
         translations: optional(record(string(), any())),
       }),
       {
