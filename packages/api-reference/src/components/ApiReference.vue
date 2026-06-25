@@ -54,6 +54,7 @@ import type {
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
 import {
+  getDocumentType,
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
@@ -237,12 +238,56 @@ if (typeof window !== 'undefined') {
   }
 }
 
+/** Human readable label for each supported document type */
+const DOCUMENT_TYPE_LABELS = {
+  openapi: 'OpenAPI',
+  asyncapi: 'AsyncAPI',
+} as const
+
+/**
+ * Best-effort guess of the document type from a source URL.
+ *
+ * Used as a fallback for URL documents that haven't been loaded yet, since we can't
+ * inspect their content. Many URLs hint at the type (e.g. `.../openapi.json`,
+ * `.../asyncapi.yaml`, `.../swagger.json`).
+ */
+const guessDocumentTypeFromUrl = (
+  url: string | undefined,
+): keyof typeof DOCUMENT_TYPE_LABELS | undefined => {
+  const normalized = url?.toLowerCase()
+
+  if (!normalized) {
+    return undefined
+  }
+  if (normalized.includes('asyncapi')) {
+    return 'asyncapi'
+  }
+  if (normalized.includes('openapi') || normalized.includes('swagger')) {
+    return 'openapi'
+  }
+
+  return undefined
+}
+
 /** Computed document options list for the selector logic */
 const documentOptionList = computed(() =>
-  Object.values(configList.value).map((c) => ({
-    label: c.title,
-    id: c.slug,
-  })),
+  Object.values(configList.value).map((c) => {
+    // Resolve the document type and append it as a postfix so the selector
+    // distinguishes OpenAPI vs AsyncAPI documents. Documents are loaded lazily, so:
+    // 1. Prefer the parsed document from the store (covers URL sources once loaded).
+    // 2. Fall back to the inline configuration content (available immediately).
+    // 3. As a last resort, guess from the source URL for documents not yet loaded.
+    const type =
+      getDocumentType(
+        workspaceStore.workspace.documents[c.slug] ?? c.source.content,
+      ) ?? guessDocumentTypeFromUrl(c.source.url)
+    const typeLabel = type ? DOCUMENT_TYPE_LABELS[type] : undefined
+
+    return {
+      label: typeLabel ? `${c.title} (${typeLabel})` : c.title,
+      id: c.slug,
+    }
+  }),
 )
 
 /**
