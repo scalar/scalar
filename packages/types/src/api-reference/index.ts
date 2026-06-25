@@ -13,6 +13,7 @@ export type {
   ApiReferencePlugin,
   ApiReferenceTextDirection,
   ApiReferenceTextDirectionPreference,
+  ApiReferenceTranslationKey,
   ApiReferenceTranslations,
   AuthenticationConfiguration,
   BaseConfiguration,

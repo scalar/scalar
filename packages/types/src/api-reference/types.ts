@@ -581,6 +581,21 @@ export type ApiReferenceTranslations = {
   }
 }
 
+/**
+ * Recursively flattens a nested translations object into a union of dot-path keys.
+ * For example, `{ search: { label: string } }` becomes `'search.label'`.
+ */
+type TranslationDotPaths<T, Prefix extends string = ''> = {
+  [Key in keyof T & string]: T[Key] extends string
+    ? `${Prefix}${Key}`
+    : T[Key] extends Record<string, unknown>
+      ? TranslationDotPaths<T[Key], `${Prefix}${Key}.`>
+      : never
+}[keyof T & string]
+
+/** Dot-path key into {@link ApiReferenceTranslations} (for example, `search.label` or `schema.oneOf`). */
+export type ApiReferenceTranslationKey = TranslationDotPaths<ApiReferenceTranslations>
+
 /** API Reference localization configuration. */
 export type ApiReferenceLocalization = {
   /** Locale used for built-in UI translations. */

@@ -2,6 +2,7 @@ import type {
   ApiReferenceLocale,
   ApiReferenceLocalization,
   ApiReferenceTextDirection,
+  ApiReferenceTranslationKey,
   ApiReferenceTranslations,
 } from '@scalar/types/api-reference'
 import { type ComputedRef, type InjectionKey, type MaybeRefOrGetter, computed, inject, provide, toValue } from 'vue'
@@ -12,7 +13,7 @@ type ApiReferenceLocalizationContext = {
   locale: ComputedRef<ApiReferenceLocale>
   direction: ComputedRef<ApiReferenceTextDirection>
   translations: ComputedRef<ApiReferenceTranslations>
-  translate: (key: string, params?: Record<string, number | string>) => string
+  translate: (key: ApiReferenceTranslationKey, params?: Record<string, number | string>) => string
 }
 
 type ResolvedApiReferenceLocalization = {
@@ -115,7 +116,7 @@ const getTranslationValue = (translations: ApiReferenceTranslations, key: string
 
 const translateApiReference = (
   translations: ApiReferenceTranslations,
-  key: string,
+  key: ApiReferenceTranslationKey,
   params?: Record<string, number | string>,
 ): string => {
   const value = getTranslationValue(translations, key)
