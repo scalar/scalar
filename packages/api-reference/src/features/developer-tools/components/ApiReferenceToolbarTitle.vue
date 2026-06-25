@@ -3,14 +3,14 @@ import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconCopy, ScalarIconInfo } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 import ApiReferenceToolbarPopover from './ApiReferenceToolbarPopover.vue'
 
 const CONFIG_SETTING = 'showDeveloperTools: "never"'
 
 const { copyToClipboard } = useClipboard()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 </script>
 <template>
   <ApiReferenceToolbarPopover

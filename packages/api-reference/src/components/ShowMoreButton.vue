@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconCaretDown } from '@scalar/icons'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 </script>
 
 <template>

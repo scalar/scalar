@@ -6,7 +6,7 @@ import type {
   OperationObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ParameterListItem from './ParameterListItem.vue'
@@ -26,7 +26,7 @@ const { responses } = defineProps<{
     | 'expandAllSchemaProperties'
   >
 }>()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 </script>
 <template>
   <div

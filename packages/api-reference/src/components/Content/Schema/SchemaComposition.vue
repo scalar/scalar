@@ -14,7 +14,7 @@ import type {
 import { computed, inject, ref, watch } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 import {
   REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
   type RequestBodyCompositionSelection,
@@ -61,7 +61,7 @@ const props = withDefaults(
     hideHeading: false,
   },
 )
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 /** The current composition */
 const composition = computed(() =>

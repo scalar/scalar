@@ -3,7 +3,7 @@ import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconLockSimple, ScalarIconLockSimpleOpen } from '@scalar/icons'
 import { computed } from 'vue'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 import SecurityRequirementBadgeScheme from '@/features/Operation/components/SecurityRequirementBadgeScheme.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 
@@ -11,7 +11,7 @@ const { requiredSecurity, hideLabel = false } = defineProps<{
   requiredSecurity: RequiredSecurity
   hideLabel?: boolean
 }>()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 const label = computed(() =>
   requiredSecurity.state === 'required'

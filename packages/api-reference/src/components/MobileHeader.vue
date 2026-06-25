@@ -3,14 +3,14 @@ import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconList, ScalarIconX } from '@scalar/icons'
 import { cva } from '@scalar/use-hooks/useBindCx'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 defineProps<{
   breadcrumb: string
   isSidebarOpen: boolean
   showSidebar: boolean
 }>()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 const emit = defineEmits<{
   (e: 'toggleSidebar'): void

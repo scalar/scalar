@@ -6,7 +6,7 @@ import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { nextTick } from 'vue'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 const {
@@ -23,7 +23,7 @@ const tempDocUrl = defineModel<string>('url')
 
 const { toast } = useToasts()
 const loader = useLoadingState()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 /** Open the registration link in a new tab */
 function openRegisterLink(docUrl: string) {

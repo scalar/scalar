@@ -79,8 +79,8 @@ import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
 import {
-  provideApiReferenceLocalization,
-  resolveApiReferenceLocalization,
+  provideLocalization,
+  resolveLocalization,
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
@@ -247,7 +247,7 @@ const withLocalizedConfigurationDefaults = (
   config: ApiReferenceConfiguration,
   activeConfig: Partial<ApiReferenceConfiguration> | undefined,
 ): ApiReferenceConfiguration => {
-  const localization = resolveApiReferenceLocalization(config.localization)
+  const localization = resolveLocalization(config.localization)
   const configuredModelsSectionLabel =
     configurationOverrides.value.modelsSectionLabel ??
     (activeConfig?.modelsSectionLabel !== DEFAULT_MODELS_SECTION_LABEL
@@ -278,7 +278,7 @@ const mergedConfig = computed<ApiReferenceConfiguration>(() => {
   return withLocalizedConfigurationDefaults(merged, activeConfig)
 })
 
-const apiReferenceLocalization = provideApiReferenceLocalization(
+const apiReferenceLocalization = provideLocalization(
   () => mergedConfig.value.localization,
 )
 

@@ -11,7 +11,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import Callback from './Callback.vue'
@@ -30,7 +30,7 @@ const { path, callbacks, options } = defineProps<{
     | 'expandAllSchemaProperties'
   >
 }>()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 type CallbackType = {
   name: string

@@ -3,7 +3,7 @@ import { ScalarFormSection } from '@scalar/components/form'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 import ApiReferenceToolbarPopover from './ApiReferenceToolbarPopover.vue'
 import ApiReferenceToolbarShareRegister from './ApiReferenceToolbarShareRegister.vue'
@@ -12,7 +12,7 @@ const { workspace, externalUrls } = defineProps<{
   workspace: WorkspaceStore
   externalUrls: ExternalUrls
 }>()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 </script>
 
 <template>

@@ -6,7 +6,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, ref } from 'vue'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
 
@@ -16,7 +16,7 @@ const { value } = defineProps<{
   /** Whether to display the enum for property names */
   propertyNames?: boolean
 }>()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 const ENUM_DISPLAY_THRESHOLD = 9
 const INITIAL_VISIBLE_COUNT = 5

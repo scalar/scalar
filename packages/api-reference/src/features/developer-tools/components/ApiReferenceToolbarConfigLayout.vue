@@ -5,10 +5,10 @@ import {
 } from '@scalar/components/checkbox-input'
 import { computed } from 'vue'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 const model = defineModel<'modern' | 'classic'>()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 const options = computed<ScalarCheckboxOption[]>(() => [
   { label: translate('developerTools.layoutModern'), value: 'modern' },

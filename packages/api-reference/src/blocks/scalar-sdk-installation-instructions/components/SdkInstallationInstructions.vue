@@ -18,7 +18,7 @@ import {
   watch,
 } from 'vue'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 import { getLanguageIcon } from '../helpers/language-icon'
 import { getRenderableSdks } from '../helpers/renderable-sdks'
@@ -45,7 +45,7 @@ const headingId = useId()
 /** Base id used to associate each tab with the shared panel for assistive tech */
 const baseId = useId()
 const panelId = `${baseId}-panel`
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 /** Only the SDKs that actually have something to show, with their resolved icon */
 const sdks = computed(() =>

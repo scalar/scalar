@@ -8,7 +8,7 @@ import { fr } from './locales/fr'
 import { ru } from './locales/ru'
 import { zhCn } from './locales/zh-cn'
 
-export const apiReferenceTranslations = {
+export const localeTranslations = {
   en,
   ru,
   es,
@@ -18,6 +18,6 @@ export const apiReferenceTranslations = {
   ar,
 } satisfies Record<ApiReferenceBuiltInLocale, ApiReferenceTranslations>
 
-export const DEFAULT_API_REFERENCE_LOCALE: ApiReferenceBuiltInLocale = 'en'
+export const DEFAULT_LOCALE: ApiReferenceBuiltInLocale = 'en'
 
 export const RTL_LOCALES = new Set(['ar', 'fa', 'he', 'ur'])

@@ -1,5 +1,5 @@
 export {
-  provideApiReferenceLocalization,
-  resolveApiReferenceLocalization,
-  useApiReferenceLocalization,
-} from './use-api-reference-localization'
+  provideLocalization,
+  resolveLocalization,
+  useLocalization,
+} from './use-localization'

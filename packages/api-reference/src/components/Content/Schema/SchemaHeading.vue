@@ -5,13 +5,13 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-
 import { computed } from 'vue'
 
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 const { value } = defineProps<{
   value: SchemaObject
   name?: string
 }>()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 /** Generate a failsafe type from the properties when we don't have one */
 const failsafeType = computed(() => {

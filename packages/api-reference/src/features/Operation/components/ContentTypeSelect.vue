@@ -7,12 +7,12 @@ import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 const { content } = defineProps<{
   content: Record<string, MediaTypeObject> | undefined
 }>()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 /** The selected content type with two-way binding */
 const selectedContentType = defineModel<string>({ required: true })

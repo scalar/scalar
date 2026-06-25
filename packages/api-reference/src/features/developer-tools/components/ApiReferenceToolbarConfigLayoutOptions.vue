@@ -7,7 +7,7 @@ import {
 } from '@scalar/types/api-reference'
 import { computed } from 'vue'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 type LayoutOptions = {
   showSidebar?: boolean
@@ -30,7 +30,7 @@ const { configuration } = defineProps<{
 const model = defineModel<LayoutOptions>({
   default: {},
 })
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 function getValue(key: keyof LayoutOptions, defaultValue: boolean = false) {
   return model.value[key] ?? configuration?.[key] ?? defaultValue

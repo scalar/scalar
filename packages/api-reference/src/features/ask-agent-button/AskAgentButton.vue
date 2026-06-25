@@ -2,11 +2,11 @@
 import { ScalarIconArrowUp, ScalarIconSparkle } from '@scalar/icons'
 import { ref } from 'vue'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 import { useAgentContext } from '@/hooks/use-agent'
 
 const agentContext = useAgentContext()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 const message = ref('')
 const inputRef = ref<HTMLInputElement>()

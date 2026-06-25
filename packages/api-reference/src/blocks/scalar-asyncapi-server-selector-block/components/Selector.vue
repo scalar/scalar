@@ -5,7 +5,7 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import { computed } from 'vue'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 const { target, servers, selectedServer } = defineProps<{
   /** The selected server */
@@ -21,7 +21,7 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 
 /**
  * AsyncAPI servers are a named map without a single `url`, so we key options by

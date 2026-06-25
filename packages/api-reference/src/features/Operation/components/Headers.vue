@@ -8,7 +8,7 @@ import type {
   OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import { useApiReferenceLocalization } from '@/features/localization'
+import { useLocalization } from '@/features/localization'
 
 import Header from './Header.vue'
 
@@ -22,7 +22,7 @@ const { headers, breadcrumb } = defineProps<{
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   expandAllSchemaProperties: boolean | undefined
 }>()
-const { translate } = useApiReferenceLocalization()
+const { translate } = useLocalization()
 </script>
 <template>
   <Disclosure v-slot="{ open }">

@@ -9,31 +9,30 @@ import type {
 } from '@scalar/types/api-reference'
 import { type ComputedRef, type InjectionKey, type MaybeRefOrGetter, computed, inject, provide, toValue } from 'vue'
 
-import { DEFAULT_API_REFERENCE_LOCALE, RTL_LOCALES, apiReferenceTranslations } from './translations'
+import { DEFAULT_LOCALE, RTL_LOCALES, localeTranslations } from './translations'
 
-type ApiReferenceLocalizationContext = {
+type LocalizationContext = {
   locale: ComputedRef<ApiReferenceLocale>
   direction: ComputedRef<ApiReferenceTextDirection>
   translations: ComputedRef<ApiReferenceTranslations>
   translate: (key: ApiReferenceTranslationKey, params?: Record<string, number | string>) => string
 }
 
-type ResolvedApiReferenceLocalization = {
+type ResolvedLocalization = {
   locale: ApiReferenceLocale
   direction: ApiReferenceTextDirection
   translations: ApiReferenceTranslations
 }
 
-const API_REFERENCE_LOCALIZATION_SYMBOL: InjectionKey<ApiReferenceLocalizationContext> =
-  Symbol('API_REFERENCE_LOCALIZATION')
+const LOCALIZATION_SYMBOL: InjectionKey<LocalizationContext> = Symbol('LOCALIZATION')
 
-const resolveBuiltInLocale = (locale?: ApiReferenceLocale): keyof typeof apiReferenceTranslations => {
+const resolveBuiltInLocale = (locale?: ApiReferenceLocale): keyof typeof localeTranslations => {
   if (!locale) {
-    return DEFAULT_API_REFERENCE_LOCALE
+    return DEFAULT_LOCALE
   }
 
-  if (locale in apiReferenceTranslations) {
-    return locale as keyof typeof apiReferenceTranslations
+  if (locale in localeTranslations) {
+    return locale as keyof typeof localeTranslations
   }
 
   const normalized = locale.replace('_', '-').toLowerCase()
@@ -43,35 +42,33 @@ const resolveBuiltInLocale = (locale?: ApiReferenceLocale): keyof typeof apiRefe
   }
 
   const language = normalized.split('-')[0]
-  const match = Object.keys(apiReferenceTranslations).find((key) => key.toLowerCase() === language)
+  const match = Object.keys(localeTranslations).find((key) => key.toLowerCase() === language)
 
-  return (match as keyof typeof apiReferenceTranslations | undefined) ?? DEFAULT_API_REFERENCE_LOCALE
+  return (match as keyof typeof localeTranslations | undefined) ?? DEFAULT_LOCALE
 }
 
-const resolveApiReferenceDirection = (localization?: ApiReferenceLocalization): ApiReferenceTextDirection => {
+const resolveDirection = (localization?: ApiReferenceLocalization): ApiReferenceTextDirection => {
   if (localization?.direction && localization.direction !== 'auto') {
     return localization.direction
   }
 
-  const locale = localization?.locale ?? DEFAULT_API_REFERENCE_LOCALE
+  const locale = localization?.locale ?? DEFAULT_LOCALE
   const language = locale.replace('_', '-').split('-')[0]?.toLowerCase()
 
   return language && RTL_LOCALES.has(language) ? 'rtl' : 'ltr'
 }
 
-export const resolveApiReferenceLocalization = (
-  localization?: ApiReferenceLocalization,
-): ResolvedApiReferenceLocalization => {
-  const locale = localization?.locale ?? DEFAULT_API_REFERENCE_LOCALE
+export const resolveLocalization = (localization?: ApiReferenceLocalization): ResolvedLocalization => {
+  const locale = localization?.locale ?? DEFAULT_LOCALE
   const builtInLocale = resolveBuiltInLocale(locale)
   const translations = mergeObjects(
-    mergeObjects(apiReferenceTranslations.en, apiReferenceTranslations[builtInLocale]),
+    mergeObjects(localeTranslations.en, localeTranslations[builtInLocale]),
     localization?.translations,
   )
 
   return {
     locale,
-    direction: resolveApiReferenceDirection(localization),
+    direction: resolveDirection(localization),
     translations,
   }
 }
@@ -108,10 +105,10 @@ const translateApiReference = (
   )
 }
 
-const createApiReferenceLocalizationContext = (
+const createLocalizationContext = (
   localization: MaybeRefOrGetter<ApiReferenceLocalization | undefined>,
-): ApiReferenceLocalizationContext => {
-  const resolved = computed(() => resolveApiReferenceLocalization(toValue(localization)))
+): LocalizationContext => {
+  const resolved = computed(() => resolveLocalization(toValue(localization)))
 
   return {
     locale: computed(() => resolved.value.locale),
@@ -121,15 +118,13 @@ const createApiReferenceLocalizationContext = (
   }
 }
 
-export const provideApiReferenceLocalization = (
-  localization: MaybeRefOrGetter<ApiReferenceLocalization | undefined>,
-) => {
-  const context = createApiReferenceLocalizationContext(localization)
+export const provideLocalization = (localization: MaybeRefOrGetter<ApiReferenceLocalization | undefined>) => {
+  const context = createLocalizationContext(localization)
 
-  provide(API_REFERENCE_LOCALIZATION_SYMBOL, context)
+  provide(LOCALIZATION_SYMBOL, context)
 
   return context
 }
 
-export const useApiReferenceLocalization = (): ApiReferenceLocalizationContext =>
-  inject(API_REFERENCE_LOCALIZATION_SYMBOL, createApiReferenceLocalizationContext(undefined))
+export const useLocalization = (): LocalizationContext =>
+  inject(LOCALIZATION_SYMBOL, createLocalizationContext(undefined))
