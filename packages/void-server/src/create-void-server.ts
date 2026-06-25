@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { accepts } from 'hono/accepts'
 import { cors } from 'hono/cors'
-import { logger } from 'hono/logger'
+import { logger as honoLogger } from 'hono/logger'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import { errors } from '@/utils/constants'
@@ -12,15 +12,28 @@ import { createXmlResponse } from '@/utils/create-xml-response'
 import { createZipFileResponse } from '@/utils/create-zip-file-response'
 import { getRequestData } from '@/utils/get-request-data'
 
+type VoidServerLogger = Parameters<typeof honoLogger>[0]
+
+export type CreateVoidServerOptions = {
+  /**
+   * Configure request logging.
+   *
+   * Defaults to the existing behavior: enabled outside CI, disabled in CI.
+   * Set to `false` to disable access logs, `true` to force Hono's default
+   * logger, or pass a function to customize where log lines are written.
+   */
+  logger?: boolean | VoidServerLogger
+}
+
 /**
  * Create a mock server instance
  */
-export function createVoidServer() {
+export function createVoidServer(options: CreateVoidServerOptions = {}) {
   const app = new Hono()
 
-  // Logger
-  if (!process.env.CI) {
-    app.use(logger())
+  const logger = options.logger ?? !process.env.CI
+  if (logger) {
+    app.use(honoLogger(typeof logger === 'function' ? logger : undefined))
   }
 
   // CORS headers
