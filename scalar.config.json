@@ -1471,6 +1471,12 @@
                       ]
                     }
                   },
+                  "managing": {
+                    "filepath": "documentation/guides/sdks/managing.md",
+                    "type": "page",
+                    "title": "Managing Your SDK",
+                    "description": "Build, version, download, and manage your SDK from the Scalar dashboard."
+                  },
                   "publishing": {
                     "title": "Publishing",
                     "type": "group",
@@ -1619,8 +1625,34 @@
                         "title": "Swift (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/swift.md",
                         "type": "page"
+                      },
+                      "rust": {
+                        "title": "Rust (Experimental)",
+                        "filepath": "documentation/guides/sdks/configuration/rust.md",
+                        "type": "page"
+                      },
+                      "kotlin": {
+                        "title": "Kotlin (Experimental)",
+                        "filepath": "documentation/guides/sdks/configuration/kotlin.md",
+                        "type": "page"
+                      },
+                      "dart": {
+                        "title": "Dart (Experimental)",
+                        "filepath": "documentation/guides/sdks/configuration/dart.md",
+                        "type": "page"
+                      },
+                      "cpp": {
+                        "title": "C++ (Experimental)",
+                        "filepath": "documentation/guides/sdks/configuration/cpp.md",
+                        "type": "page"
                       }
                     }
+                  },
+                  "custom-code": {
+                    "filepath": "documentation/guides/sdks/custom-code.md",
+                    "type": "page",
+                    "title": "Custom Code",
+                    "description": "Customize generated SDKs and keep your changes across regenerations with a three-way merge."
                   }
                 }
               },

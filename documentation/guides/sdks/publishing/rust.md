@@ -1,6 +1,6 @@
 # Rust (crates.io)
 
-The Rust target publishes to [crates.io](https://crates.io/). The crate name is the target's `packageName`.
+The Rust target publishes to [crates.io](https://crates.io/). The crate name is the target's `packageName`. See the [Rust configuration](../configuration/rust.md) for options.
 
 Authenticate the release with **OIDC trusted publishing** (recommended) or a **crates.io API token**.
 

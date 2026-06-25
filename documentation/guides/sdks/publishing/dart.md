@@ -1,6 +1,6 @@
 # Dart (pub.dev)
 
-The Dart target publishes to [pub.dev](https://pub.dev/). The package name is the target's `packageName`.
+The Dart target publishes to [pub.dev](https://pub.dev/). The package name is the target's `packageName`. See the [Dart configuration](../configuration/dart.md) for options.
 
 Authenticate the release with **OIDC trusted publishing** (recommended) or a **pub.dev token**.
 
