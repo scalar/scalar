@@ -1,3 +1,5 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+import { mergeObjects } from '@scalar/helpers/object/merge-objects'
 import type {
   ApiReferenceLocale,
   ApiReferenceLocalization,
@@ -24,37 +26,6 @@ type ResolvedApiReferenceLocalization = {
 
 const API_REFERENCE_LOCALIZATION_SYMBOL: InjectionKey<ApiReferenceLocalizationContext> =
   Symbol('API_REFERENCE_LOCALIZATION')
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
-
-const mergeDeep = <T extends Record<string, unknown>>(base: T, override?: unknown): T => {
-  if (!override) {
-    return { ...base }
-  }
-
-  const result: Record<string, unknown> = { ...base }
-
-  if (!isRecord(override)) {
-    return result as T
-  }
-
-  Object.entries(override).forEach(([key, value]) => {
-    if (value === undefined) {
-      return
-    }
-
-    const baseValue = result[key]
-    if (isRecord(baseValue) && isRecord(value)) {
-      result[key] = mergeDeep(baseValue, value)
-      return
-    }
-
-    result[key] = value
-  })
-
-  return result as T
-}
 
 const resolveBuiltInLocale = (locale?: ApiReferenceLocale): keyof typeof apiReferenceTranslations => {
   if (!locale) {
@@ -93,8 +64,8 @@ export const resolveApiReferenceLocalization = (
 ): ResolvedApiReferenceLocalization => {
   const locale = localization?.locale ?? DEFAULT_API_REFERENCE_LOCALE
   const builtInLocale = resolveBuiltInLocale(locale)
-  const translations = mergeDeep(
-    mergeDeep(apiReferenceTranslations.en, apiReferenceTranslations[builtInLocale]),
+  const translations = mergeObjects(
+    mergeObjects(apiReferenceTranslations.en, apiReferenceTranslations[builtInLocale]),
     localization?.translations,
   )
 
@@ -107,7 +78,7 @@ export const resolveApiReferenceLocalization = (
 
 const getTranslationValue = (translations: ApiReferenceTranslations, key: ApiReferenceTranslationKey) =>
   key.split('.').reduce<unknown>((value, segment) => {
-    if (!isRecord(value)) {
+    if (!isObject(value)) {
       return undefined
     }
 
