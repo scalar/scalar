@@ -18,10 +18,23 @@
   <description>Core framework-agnostic module for Scalar API Reference</description>
 
   <dependencies>
-    <!-- Jackson for JSON serialization -->
+    <!--
+      Jackson annotations only. This is the same artifact and package
+      (com.fasterxml.jackson.annotation) for both Jackson 2.x and 3.x, so it
+      never conflicts with the host's Jackson. The serialization engine itself
+      is resolved at runtime from whichever Jackson Databind the host provides
+      (see JacksonJsonSerializer), keeping this module compatible with both.
+    -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+
+    <!-- A concrete Jackson Databind is needed to run the tests. -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <!-- Test Dependencies -->

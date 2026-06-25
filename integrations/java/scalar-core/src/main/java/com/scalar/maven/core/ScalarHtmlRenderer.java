@@ -1,7 +1,6 @@
 package com.scalar.maven.core;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scalar.maven.core.internal.JacksonJsonSerializer;
 import com.scalar.maven.core.internal.ScalarConfiguration;
 import com.scalar.maven.core.internal.ScalarConfigurationMapper;
 
@@ -23,7 +22,6 @@ public final class ScalarHtmlRenderer {
 
     private static final String HTML_TEMPLATE_PATH = "/META-INF/resources/webjars/scalar/index.html";
     private static final String JS_BUNDLE_PATH = "/META-INF/resources/webjars/scalar/" + ScalarConstants.JS_FILENAME;
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private ScalarHtmlRenderer() {
         // Utility class - prevent instantiation
@@ -108,12 +106,8 @@ public final class ScalarHtmlRenderer {
      * @return the configuration JSON as a string
      */
     private static String buildConfigurationJson(ScalarProperties properties) {
-        try {
-            ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
-            return OBJECT_MAPPER.writeValueAsString(config);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize Scalar configuration", e);
-        }
+        ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
+        return JacksonJsonSerializer.serialize(config);
     }
 
     /**
