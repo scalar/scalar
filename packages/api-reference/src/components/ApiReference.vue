@@ -19,7 +19,10 @@ import {
   ScalarColorModeToggleIcon,
 } from '@scalar/components/color-mode-toggle'
 import { addScalarClassesToHeadless } from '@scalar/components/helpers'
-import { ScalarSidebarFooter } from '@scalar/components/sidebar'
+import {
+  ScalarSidebarFooter,
+  ScalarSidebarSection,
+} from '@scalar/components/sidebar'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
@@ -1412,15 +1415,22 @@ const showMCPButton = computed(() => {
                 <AgentScalarButton v-if="agent.agentEnabled.value" />
               </div>
 
+              <!-- Sidebar Start -->
+              <slot
+                name="sidebar-start"
+                v-bind="slotProps" />
+            </template>
+            <template #before>
               <!-- AsyncAPI protocol + server filters (only render with >1 choice) -->
               <AsyncApiSidebarFilters
                 v-model:protocol="selectedProtocol"
                 v-model:server="selectedServer"
                 :document="activeAsyncApiDocument" />
-              <!-- Sidebar Start -->
-              <slot
-                name="sidebar-start"
-                v-bind="slotProps" />
+              <ScalarSidebarSection
+                v-if="activeAsyncApiDocument"
+                class="asyncapi-sidebar-document-section">
+                Document
+              </ScalarSidebarSection>
             </template>
             <template #footer>
               <slot
@@ -1521,6 +1531,7 @@ const showMCPButton = computed(() => {
                   :options="documentOptionList"
                   @update:modelValue="changeSelectedDocument" />
                 <AsyncApiSidebarFilters
+                  is="div"
                   v-model:protocol="selectedProtocol"
                   v-model:server="selectedServer"
                   :document="activeAsyncApiDocument" />
@@ -1591,6 +1602,10 @@ const showMCPButton = computed(() => {
 /** Used to check if css is loaded */
 :root {
   --scalar-loaded-api-reference: true;
+}
+
+.asyncapi-sidebar-document-section > .group\/spacer-after {
+  height: 0;
 }
 </style>
 <style scoped>

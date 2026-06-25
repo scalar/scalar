@@ -1,29 +1,30 @@
 <script setup lang="ts">
-import { ScalarIconFunnel } from '@scalar/icons'
+import { ScalarSidebarSection } from '@scalar/components/sidebar'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import {
   getAsyncApiProtocols,
   getAsyncApiServerOptions,
 } from '@scalar/workspace-store/channel-example'
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 
 import SidebarFilter from './SidebarFilter.vue'
 
 /**
  * AsyncApiSidebarFilters
  *
- * The "Filters" card shown in the AsyncAPI sidebar: a bordered panel with a
- * funnel header and the stacked protocol + server pickers. Bundling them here
- * keeps the two sidebar layouts (modern and classic) from each repeating the
- * picker pair and the option-building logic.
+ * The "Filters" sidebar section shown for AsyncAPI documents. Bundling the
+ * native sidebar title and picker pair here keeps the two sidebar layouts
+ * (modern and classic) from each repeating the option-building logic.
  *
  * Each picker hides itself when there is nothing to choose from, and the whole
- * card hides when neither picker has a real choice — so passing an OpenAPI
+ * section hides when neither picker has a real choice — so passing an OpenAPI
  * document (or `null`) renders nothing.
  */
-const { document } = defineProps<{
+const { document, is = 'li' } = defineProps<{
   /** The active document, or `null` for OpenAPI documents (renders nothing). */
   document: AsyncApiDocument | null
+  /** Render element for the sidebar section wrapper. */
+  is?: Component | string
 }>()
 
 /** Selected protocol id; empty string clears the filter. */
@@ -48,14 +49,12 @@ const showServer = computed(() => serverOptions.value.length > 2)
 </script>
 
 <template>
-  <div
+  <ScalarSidebarSection
+    :is
     v-if="showProtocol || showServer"
-    class="asyncapi-sidebar-filters mx-3 mt-3 rounded border p-3">
-    <div class="text-c-1 mb-2.5 flex items-center gap-2 font-medium">
-      <ScalarIconFunnel class="size-4" />
-      <span class="text-base">Filters</span>
-    </div>
-    <div class="flex flex-col gap-2.5 border-t pt-2.5">
+    class="asyncapi-sidebar-filters">
+    Filters
+    <template #items>
       <SidebarFilter
         v-if="showProtocol"
         v-model="protocol"
@@ -66,6 +65,6 @@ const showServer = computed(() => serverOptions.value.length > 2)
         v-model="server"
         label="Server"
         :options="serverOptions" />
-    </div>
-  </div>
+    </template>
+  </ScalarSidebarSection>
 </template>

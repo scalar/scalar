@@ -1,0 +1,192 @@
+asyncapi: 3.0.0
+id: urn:com:scalar:examples:asyncapi-filters
+info:
+  title: AsyncAPI Sidebar Filters
+  version: 1.0.0
+  description: |
+    A compact AsyncAPI document for exercising the API reference sidebar filters.
+
+    Each channel is pinned to a different server so selecting a protocol or server
+    visibly narrows the navigation tree.
+defaultContentType: application/json
+servers:
+  websocket:
+    host: stream.example.com
+    pathname: /realtime
+    protocol: wss
+    protocolVersion: '13'
+    description: Browser clients subscribe to user-facing events over WebSockets.
+  mqtt:
+    host: mqtt.example.com
+    protocol: mqtt
+    protocolVersion: '5.0'
+    description: Devices publish telemetry over MQTT.
+  kafka:
+    host: kafka.example.com
+    protocol: kafka
+    description: Backend workers consume durable product events from Kafka.
+channels:
+  userNotifications:
+    address: users/{userId}/notifications
+    title: User notifications
+    summary: Notifications delivered to browser clients.
+    servers:
+      - $ref: '#/servers/websocket'
+    parameters:
+      userId:
+        $ref: '#/components/parameters/userId'
+    messages:
+      notification:
+        $ref: '#/components/messages/UserNotification'
+    bindings:
+      ws:
+        method: GET
+  deviceTelemetry:
+    address: devices/{deviceId}/telemetry
+    title: Device telemetry
+    summary: Sensor readings published by connected devices.
+    servers:
+      - $ref: '#/servers/mqtt'
+    parameters:
+      deviceId:
+        $ref: '#/components/parameters/deviceId'
+    messages:
+      telemetry:
+        $ref: '#/components/messages/DeviceTelemetry'
+    bindings:
+      mqtt:
+        qos: 1
+  inventoryEvents:
+    address: inventory.events
+    title: Inventory events
+    summary: Product inventory changes for backend consumers.
+    servers:
+      - $ref: '#/servers/kafka'
+    messages:
+      inventoryChanged:
+        $ref: '#/components/messages/InventoryChanged'
+    bindings:
+      kafka:
+        topic: inventory.events
+operations:
+  subscribeToUserNotifications:
+    action: receive
+    channel:
+      $ref: '#/channels/userNotifications'
+    title: Subscribe to user notifications
+    summary: Receive notifications for one user over WebSockets.
+    tags:
+      - name: Browser
+    messages:
+      - $ref: '#/channels/userNotifications/messages/notification'
+    bindings:
+      ws:
+        bindingVersion: 0.1.0
+        method: GET
+  publishDeviceTelemetry:
+    action: send
+    channel:
+      $ref: '#/channels/deviceTelemetry'
+    title: Publish device telemetry
+    summary: Send sensor readings from a device over MQTT.
+    tags:
+      - name: Devices
+    messages:
+      - $ref: '#/channels/deviceTelemetry/messages/telemetry'
+    bindings:
+      mqtt:
+        bindingVersion: 0.2.0
+        qos: 1
+  consumeInventoryEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/inventoryEvents'
+    title: Consume inventory events
+    summary: Consume product inventory updates from Kafka.
+    tags:
+      - name: Backend
+    messages:
+      - $ref: '#/channels/inventoryEvents/messages/inventoryChanged'
+    bindings:
+      kafka:
+        bindingVersion: 0.5.0
+components:
+  parameters:
+    userId:
+      description: Unique user identifier.
+      examples:
+        - usr_123
+    deviceId:
+      description: Unique device identifier.
+      examples:
+        - sensor-7
+  messages:
+    UserNotification:
+      name: user.notification
+      title: User notification
+      summary: A notification shown to a user.
+      payload:
+        $ref: '#/components/schemas/UserNotificationPayload'
+    DeviceTelemetry:
+      name: device.telemetry
+      title: Device telemetry
+      summary: A batch of readings published by a device.
+      payload:
+        $ref: '#/components/schemas/DeviceTelemetryPayload'
+    InventoryChanged:
+      name: inventory.changed
+      title: Inventory changed
+      summary: A product inventory adjustment event.
+      payload:
+        $ref: '#/components/schemas/InventoryChangedPayload'
+  schemas:
+    UserNotificationPayload:
+      type: object
+      required:
+        - id
+        - message
+      properties:
+        id:
+          type: string
+          example: ntf_123
+        message:
+          type: string
+          example: Your report is ready.
+        severity:
+          type: string
+          enum:
+            - info
+            - warning
+            - critical
+    DeviceTelemetryPayload:
+      type: object
+      required:
+        - deviceId
+        - temperature
+      properties:
+        deviceId:
+          type: string
+          example: sensor-7
+        temperature:
+          type: number
+          example: 21.4
+        battery:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 87
+    InventoryChangedPayload:
+      type: object
+      required:
+        - sku
+        - available
+      properties:
+        sku:
+          type: string
+          example: hoodie-black-m
+        available:
+          type: integer
+          example: 42
+        warehouse:
+          type: string
+          example: vancouver
