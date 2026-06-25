@@ -76,6 +76,33 @@ Linking from the dashboard sets the target's `destinations` in your SDK configur
 | `repo` | `string` | The `owner/repo` the generated SDK is pushed to. |
 | `branch` | `string` | The branch builds open pull requests against. Defaults to `main`. |
 
+## Adding repository secrets
+
+[OIDC trusted publishing](registries.md) needs no secrets. Token-based publishing, and Maven Central's GPG signing, store credentials as secrets on the SDK repository. The generated `sdk-release.yml` workflow reads them by exact name, so the name has to match.
+
+<scalar-steps>
+  <scalar-step id="secret-open" title="Open the repository's Actions secrets">
+
+In the SDK repository on GitHub, go to **Settings → Secrets and variables → Actions**.
+
+  </scalar-step>
+
+  <scalar-step id="secret-new" title="Create a new secret">
+
+Select **New repository secret**.
+
+  </scalar-step>
+
+  <scalar-step id="secret-add" title="Name it exactly and paste the value">
+
+Enter the **Name** the workflow expects (for example `NPM_TOKEN`) and paste the value, then **Add secret**. The per-language pages list the exact name each registry uses.
+
+  </scalar-step>
+</scalar-steps>
+
+> [!NOTE]
+> Secrets are scoped to the repository. If you publish several targets from one repository, add each registry's secret to that same repository.
+
 ## Unlink a repository
 
 To stop syncing, open the target and use **Unlink** under the Danger Zone. Builds stop pushing to GitHub until you reconnect. Code already in the repository, and anything already published, is left untouched.
