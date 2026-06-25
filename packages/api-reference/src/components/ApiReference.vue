@@ -1398,12 +1398,6 @@ const showMCPButton = computed(() => {
                 :options="documentOptionList"
                 @update:modelValue="changeSelectedDocument" />
 
-              <!-- AsyncAPI protocol + server filters (only render with >1 choice) -->
-              <AsyncApiSidebarFilters
-                v-model:protocol="selectedProtocol"
-                v-model:server="selectedServer"
-                :document="activeAsyncApiDocument" />
-
               <!-- Search -->
               <div
                 v-if="!mergedConfig.hideSearch"
@@ -1417,6 +1411,12 @@ const showMCPButton = computed(() => {
 
                 <AgentScalarButton v-if="agent.agentEnabled.value" />
               </div>
+
+              <!-- AsyncAPI protocol + server filters (only render with >1 choice) -->
+              <AsyncApiSidebarFilters
+                v-model:protocol="selectedProtocol"
+                v-model:server="selectedServer"
+                :document="activeAsyncApiDocument" />
               <!-- Sidebar Start -->
               <slot
                 name="sidebar-start"

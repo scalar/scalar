@@ -6,14 +6,16 @@ import { computed } from 'vue'
 /**
  * SidebarFilter
  *
- * A generic AsyncAPI sidebar filter that mirrors the multi-document `DocumentSelector`:
- * a single `ScalarListbox` dropdown rendered at the top of the sidebar. It is reused
- * for stacked filters (e.g. protocol, then server).
+ * A single labeled row inside the AsyncAPI sidebar filter card: a left-aligned
+ * label (e.g. "Protocol") next to a bordered `ScalarListbox` dropdown that fills
+ * the remaining width. Reused for the stacked protocol and server filters.
  *
  * `options` is expected to lead with an "All …" entry, which is also used as the
  * fallback selection — so the first option doubles as the cleared state.
  */
 const props = defineProps<{
+  /** Row label shown to the left of the dropdown (e.g. "Protocol"). */
+  label: string
   /** Filter options, leading with the "All …" entry that clears the filter. */
   options: { id: string; label: string }[]
   /** The currently selected option id. */
@@ -32,27 +34,28 @@ const selected = computed(
 </script>
 
 <template>
-  <!-- Only worth showing when there is a real choice beyond the "All …" entry -->
-  <div
-    v-if="options.length > 2"
-    class="asyncapi-sidebar-filter px-3 pt-3">
-    <ScalarListbox
-      v-slot="{ open }"
-      :modelValue="selected"
-      :options="options"
-      resize
-      @update:modelValue="(e) => emit('update:modelValue', e.id)">
-      <button
-        class="group/dropdown-label text-c-2 hover:text-c-1 flex w-full cursor-pointer items-center gap-1 font-medium"
-        type="button">
-        <span class="overflow-hidden text-base text-ellipsis">
-          {{ selected?.label }}
-        </span>
-        <ScalarIconCaretDown
-          class="size-3 text-current transition-transform"
-          :class="{ 'rotate-180': open }"
-          weight="bold" />
-      </button>
-    </ScalarListbox>
+  <div class="asyncapi-sidebar-filter flex items-center gap-2">
+    <span class="text-c-1 w-20 shrink-0 text-base">{{ label }}</span>
+    <div class="min-w-0 flex-1">
+      <ScalarListbox
+        v-slot="{ open }"
+        :modelValue="selected"
+        :options="options"
+        resize
+        @update:modelValue="(e) => emit('update:modelValue', e.id)">
+        <button
+          class="text-c-1 hover:bg-b-2 flex w-full cursor-pointer items-center gap-1 rounded border px-2.5 py-1.5 font-medium"
+          type="button">
+          <span
+            class="overflow-hidden text-base text-ellipsis whitespace-nowrap">
+            {{ selected?.label }}
+          </span>
+          <ScalarIconCaretDown
+            class="ml-auto size-3 shrink-0 text-current transition-transform"
+            :class="{ 'rotate-180': open }"
+            weight="bold" />
+        </button>
+      </ScalarListbox>
+    </div>
   </div>
 </template>
