@@ -81,43 +81,62 @@ export const createSchema = (el: HTMLElement | string, options: CreateSchemaOpti
     return document && 'paths' in document ? document : undefined
   }
 
-  // Remember the last schema that resolved so a transient miss (e.g. the active
-  // document is swapped to one without this pointer after mount) keeps rendering
-  // the previous schema instead of flashing empty, mirroring createCodeExample.
-  let lastSchema: SchemaObject | undefined
+  type SchemaContext = { schema: SchemaObject; document: ReturnType<typeof activeDocument> }
 
-  /** Current schema, resolved live from the store when a pointer is used. */
-  const currentSchema = (): SchemaObject | undefined => {
+  /**
+   * Resolve the schema together with the document it came from.
+   *
+   * The two are tracked as one unit so discriminator `mapping` references stay
+   * consistent with the rendered schema: a mapping like `Cat` is resolved
+   * against `document.components.schemas`, so the schema and that document have
+   * to be the same one. Returns `undefined` when the pointer does not resolve.
+   */
+  const resolveContext = (): SchemaContext | undefined => {
     if (options.schema) {
-      return options.schema
+      return { schema: options.schema, document: activeDocument() }
     }
     if (options.store && options.pointer) {
-      const resolved = getValueByPointer(activeDocument(), options.pointer) as SchemaObject | undefined
-      if (resolved) {
-        lastSchema = resolved
-      }
-      return resolved ?? lastSchema
+      const document = activeDocument()
+      const schema = getValueByPointer(document, options.pointer) as SchemaObject | undefined
+      return schema ? { schema, document } : undefined
     }
     return undefined
   }
 
   // Fail loudly when neither input resolves to a schema, mirroring the
   // "element not found" guard above.
-  if (!currentSchema()) {
+  if (!resolveContext()) {
     throw new Error('No schema to render: pass `schema`, or `store` and a resolvable `pointer`.')
+  }
+
+  // Remember the last context that resolved so a transient miss (e.g. the active
+  // document is swapped to one without this pointer after mount) keeps rendering
+  // the previous schema, paired with the document it actually came from, instead
+  // of flashing empty or resolving its discriminator mappings against the wrong
+  // document. Mirrors createCodeExample's last-context fallback.
+  let lastContext: SchemaContext | undefined
+
+  /** Current schema + document, falling back to the last good resolution on a transient miss. */
+  const currentContext = (): SchemaContext | undefined => {
+    const context = resolveContext()
+    if (context) {
+      lastContext = context
+    }
+    return context ?? lastContext
   }
 
   /**
    * Display options forwarded to the schema tree.
    *
-   * Memoized so the object identity only changes when the active document does.
+   * Memoized so the object identity only changes when the resolved context does.
    * The options are prop-drilled through every node in the tree, so a fresh
    * object on each read would invalidate that prop everywhere and force
-   * needless re-renders. The active document is defaulted in so discriminator
-   * `mapping` references resolve, unless the caller supplied their own.
+   * needless re-renders. The schema's own document is defaulted in so
+   * discriminator `mapping` references resolve, unless the caller supplied their
+   * own.
    */
   const resolvedOptions = computed<SchemaOptions>(() => ({
-    document: activeDocument(),
+    document: currentContext()?.document,
     ...options.options,
   }))
 
@@ -125,7 +144,7 @@ export const createSchema = (el: HTMLElement | string, options: CreateSchemaOpti
   // live when rendering from a pointer.
   const props = reactive({
     get schema() {
-      return currentSchema()
+      return currentContext()?.schema
     },
     get name() {
       return options.name
