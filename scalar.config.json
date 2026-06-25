@@ -244,7 +244,11 @@
         },
         {
           "from": "/scalar/scalar-sdks/publishing",
-          "to": "/products/sdks/publishing"
+          "to": "/products/sdks/publishing/overview"
+        },
+        {
+          "from": "/products/sdks/publishing",
+          "to": "/products/sdks/publishing/overview"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/typescript",
@@ -1450,9 +1454,30 @@
                     }
                   },
                   "publishing": {
-                    "filepath": "documentation/guides/sdks/publishing.md",
-                    "type": "page",
-                    "title": "Publishing"
+                    "title": "Publishing",
+                    "type": "group",
+                    "mode": "nested",
+                    "icon": "phosphor/regular/rocket-launch",
+                    "children": {
+                      "overview": {
+                        "filepath": "documentation/guides/sdks/publishing/overview.md",
+                        "type": "page",
+                        "title": "Overview",
+                        "description": "Publish generated SDKs to their package registries automatically with config-driven GitHub Actions workflows."
+                      },
+                      "github": {
+                        "filepath": "documentation/guides/sdks/publishing/github.md",
+                        "type": "page",
+                        "title": "GitHub Repositories",
+                        "description": "Link a GitHub repository to each target so every build syncs as a pull request."
+                      },
+                      "registries": {
+                        "filepath": "documentation/guides/sdks/publishing/registries.md",
+                        "type": "page",
+                        "title": "Package Registries",
+                        "description": "Set up trusted publishing or secrets for npm, PyPI, Maven Central, and every supported registry."
+                      }
+                    }
                   },
                   "configuration": {
                     "title": "Configuration",
