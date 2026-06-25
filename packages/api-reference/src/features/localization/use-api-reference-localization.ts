@@ -105,7 +105,7 @@ export const resolveApiReferenceLocalization = (
   }
 }
 
-const getTranslationValue = (translations: ApiReferenceTranslations, key: string) =>
+const getTranslationValue = (translations: ApiReferenceTranslations, key: ApiReferenceTranslationKey) =>
   key.split('.').reduce<unknown>((value, segment) => {
     if (!isRecord(value)) {
       return undefined
