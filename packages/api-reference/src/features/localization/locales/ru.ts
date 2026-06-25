@@ -117,6 +117,7 @@ export const ru = {
     oneOf: 'Один из',
     anyOf: 'Любой из',
     allOf: 'Все из',
+    not: 'Не',
     unknownType: 'неизвестный тип',
   },
   download: {

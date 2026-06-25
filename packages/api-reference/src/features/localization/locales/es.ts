@@ -116,6 +116,7 @@ export const es = {
     oneOf: 'Uno de',
     anyOf: 'Cualquiera de',
     allOf: 'Todos de',
+    not: 'No',
     unknownType: 'tipo desconocido',
   },
   download: {

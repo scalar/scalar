@@ -117,6 +117,7 @@ export const de = {
     oneOf: 'Eines von',
     anyOf: 'Beliebiges von',
     allOf: 'Alle von',
+    not: 'Nicht',
     unknownType: 'unbekannter Typ',
   },
   download: {

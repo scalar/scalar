@@ -117,6 +117,7 @@ export const fr = {
     oneOf: 'Un parmi',
     anyOf: 'N’importe lequel parmi',
     allOf: 'Tous parmi',
+    not: 'Non',
     unknownType: 'type inconnu',
   },
   download: {

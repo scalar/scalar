@@ -470,6 +470,7 @@ export type ApiReferenceTranslations = {
     oneOf: string
     anyOf: string
     allOf: string
+    not: string
     unknownType: string
   }
   download: {

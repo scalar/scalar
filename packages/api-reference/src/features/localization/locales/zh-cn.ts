@@ -116,6 +116,7 @@ export const zhCn = {
     oneOf: '其中一个',
     anyOf: '任意一个',
     allOf: '全部',
+    not: '非',
     unknownType: '未知类型',
   },
   download: {

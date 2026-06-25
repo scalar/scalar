@@ -116,6 +116,7 @@ export const ar = {
     oneOf: 'واحد من',
     anyOf: 'أي من',
     allOf: 'كل من',
+    not: 'ليس',
     unknownType: 'نوع غير معروف',
   },
   download: {
