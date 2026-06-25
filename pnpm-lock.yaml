@@ -1552,6 +1552,9 @@ importers:
 
   packages/blocks:
     dependencies:
+      '@headlessui/vue':
+        specifier: catalog:*
+        version: 1.7.23(vue@3.5.30(typescript@5.9.3))
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
@@ -1570,6 +1573,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/use-hooks':
+        specifier: workspace:*
+        version: link:../use-hooks
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store

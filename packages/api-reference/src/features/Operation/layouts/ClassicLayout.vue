@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { CodeExample } from '@scalar/blocks/code-example'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+} from '@scalar/blocks/schema'
+import { ScalarBadge } from '@scalar/components/badge'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarMarkdown } from '@scalar/components/markdown'
@@ -19,7 +24,6 @@ import type {
 import { computed, provide, ref } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
-import { Badge } from '@/components/Badge'
 import { HttpMethod } from '@/components/HttpMethod'
 import { LinkList } from '@/components/LinkList'
 import OperationPath from '@/components/OperationPath.vue'
@@ -37,10 +41,6 @@ import {
   isOperationDeprecated,
 } from '@/features/Operation/helpers/operation-stability'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import {
-  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
-  type RequestBodyCompositionSelection,
-} from '@/features/Operation/request-body-composition-index'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
@@ -141,19 +141,19 @@ const { copyToClipboard } = useClipboard()
                 {{ operationTitle }}
               </div>
               <!-- Stability badge -->
-              <Badge
+              <ScalarBadge
                 v-if="getOperationStability(operation)"
                 class="capitalize"
                 :class="getOperationStabilityColor(operation)">
                 {{ getOperationStability(operation) }}
-              </Badge>
+              </ScalarBadge>
 
               <!-- Webhook badge -->
-              <Badge
+              <ScalarBadge
                 v-if="isWebhook"
                 class="font-code text-green flex w-fit items-center justify-center gap-1">
                 <ScalarIconWebhooksLogo weight="bold" />Webhook
-              </Badge>
+              </ScalarBadge>
 
               <!-- x-badges before -->
               <XBadges

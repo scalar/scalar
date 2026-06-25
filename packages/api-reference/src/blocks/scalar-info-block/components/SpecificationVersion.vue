@@ -1,7 +1,6 @@
 <script setup lang="ts">
+import { ScalarBadge } from '@scalar/components/badge'
 import { computed } from 'vue'
-
-import { Badge } from '@/components/Badge'
 
 const { documentType = 'openapi', version } = defineProps<{
   /** The kind of document being described. Drives the badge label. */
@@ -16,5 +15,5 @@ const label = computed(() =>
 </script>
 
 <template>
-  <Badge v-if="version">{{ label }} {{ version }}</Badge>
+  <ScalarBadge v-if="version">{{ label }} {{ version }}</ScalarBadge>
 </template>

@@ -8,12 +8,11 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
-import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
-import { sortPropertyNames } from '@/components/Content/Schema/helpers/sort-property-names'
-import type { SchemaOptions } from '@/components/Content/Schema/types'
-
+import { isTypeObject } from './helpers/is-type-object'
+import { getCycleKey } from './helpers/schema-cycle'
+import { sortPropertyNames } from './helpers/sort-property-names'
 import SchemaProperty from './SchemaProperty.vue'
+import type { SchemaOptions } from './types'
 
 const { schema, discriminator, options, schemaContext, compositionPath } =
   defineProps<{

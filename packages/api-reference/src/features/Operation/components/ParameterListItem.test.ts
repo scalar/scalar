@@ -1,9 +1,8 @@
+import { SchemaProperty } from '@scalar/blocks/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { ResponseObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-
-import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 
 import ParameterListItem from './ParameterListItem.vue'
 

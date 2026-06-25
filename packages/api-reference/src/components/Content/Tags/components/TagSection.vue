@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { ScalarScreenReader } from '@scalar/components/screen-reader'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
 import { Anchor } from '@/components/Anchor'
 import { OperationsList } from '@/components/OperationsList'
-import ScreenReader from '@/components/ScreenReader.vue'
 import {
   Section,
   SectionColumn,
@@ -40,7 +40,9 @@ const { tag, headerId, isCollapsed } = defineProps<{
           :id="headerId"
           :level="2">
           {{ tag.title }}
-          <ScreenReader v-if="isCollapsed"> (Collapsed)</ScreenReader>
+          <ScalarScreenReader v-if="isCollapsed">
+            (Collapsed)</ScalarScreenReader
+          >
         </SectionHeaderTag>
       </Anchor>
     </SectionHeader>

@@ -1,3 +1,4 @@
+import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@scalar/blocks/schema'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -8,7 +9,6 @@ import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
-import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/request-body-composition-index'
 
 import ClassicLayout from './ClassicLayout.vue'
 

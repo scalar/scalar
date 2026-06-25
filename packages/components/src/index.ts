@@ -1,5 +1,6 @@
 export { compose, cva, cx, tw, useBindCx } from '@scalar/use-hooks/useBindCx'
 
+export { ScalarBadge } from './components/ScalarBadge'
 export type { ScalarButtonSize, ScalarButtonVariant } from './components/ScalarButton'
 export { ScalarButton } from './components/ScalarButton'
 export { ScalarCard, ScalarCardFooter, ScalarCardHeader, ScalarCardSection } from './components/ScalarCard'
@@ -81,6 +82,7 @@ export { ScalarModal, useModal } from './components/ScalarModal'
 export type { ScalarPopoverSlots } from './components/ScalarPopover'
 export { ScalarPopover } from './components/ScalarPopover'
 export { ScalarSavePrompt } from './components/ScalarSavePrompt'
+export { ScalarScreenReader } from './components/ScalarScreenReader'
 export { ScalarSearchInput } from './components/ScalarSearchInput'
 export { ScalarSearchResultItem, ScalarSearchResultList } from './components/ScalarSearchResults'
 export {

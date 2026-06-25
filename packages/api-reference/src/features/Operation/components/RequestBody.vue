@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import {
+  getModelNameFromSchema,
+  isTypeObject,
+  LinkButton,
+  reduceNamesToObject,
+  Schema,
+  sortPropertyNames,
+} from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -7,15 +15,6 @@ import type {
   RequestBodyObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
-
-import { Schema } from '@/components/Content/Schema'
-import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
-import { getModelNameFromSchema } from '@/components/Content/Schema/helpers/schema-name'
-import {
-  reduceNamesToObject,
-  sortPropertyNames,
-} from '@/components/Content/Schema/helpers/sort-property-names'
-import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 

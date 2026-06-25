@@ -41,6 +41,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./badge": {
+      "types": "./dist/components/ScalarBadge/index.d.ts",
+      "import": "./dist/components/ScalarBadge/index.js",
+      "default": "./dist/components/ScalarBadge/index.js"
+    },
     "./button": {
       "types": "./dist/components/ScalarButton/index.d.ts",
       "import": "./dist/components/ScalarButton/index.js",
@@ -160,6 +165,11 @@
       "types": "./dist/components/ScalarSavePrompt/index.d.ts",
       "import": "./dist/components/ScalarSavePrompt/index.js",
       "default": "./dist/components/ScalarSavePrompt/index.js"
+    },
+    "./screen-reader": {
+      "types": "./dist/components/ScalarScreenReader/index.d.ts",
+      "import": "./dist/components/ScalarScreenReader/index.js",
+      "default": "./dist/components/ScalarScreenReader/index.js"
     },
     "./search-input": {
       "types": "./dist/components/ScalarSearchInput/index.d.ts",

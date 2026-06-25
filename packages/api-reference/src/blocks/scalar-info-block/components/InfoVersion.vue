@@ -1,8 +1,7 @@
 <script setup lang="ts">
+import { ScalarBadge } from '@scalar/components/badge'
 import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
-
-import { Badge } from '@/components/Badge'
 
 const { version } = defineProps<{
   version: InfoObject['version']
@@ -21,5 +20,5 @@ const prefixedVersion = computed(() => {
 })
 </script>
 <template>
-  <Badge v-if="prefixedVersion">{{ prefixedVersion }}</Badge>
+  <ScalarBadge v-if="prefixedVersion">{{ prefixedVersion }}</ScalarBadge>
 </template>

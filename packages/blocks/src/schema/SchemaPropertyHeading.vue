@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { ScalarBadge } from '@scalar/components/badge'
+import { ScalarScreenReader } from '@scalar/components/screen-reader'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -10,12 +12,9 @@ import {
 } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, toRef } from 'vue'
 
-import { Badge } from '@/components/Badge'
-import LinkButton from '@/components/Content/Schema/LinkButton.vue'
-import ScreenReader from '@/components/ScreenReader.vue'
-
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelNameFromSchema } from './helpers/schema-name'
+import LinkButton from './LinkButton.vue'
 import RenderString from './RenderString.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
@@ -308,7 +307,7 @@ const exampleValue = computed(() => {
       <SchemaPropertyDetail
         v-if="shouldShowType"
         truncate>
-        <ScreenReader>Type: </ScreenReader>{{ displayType
+        <ScalarScreenReader>Type: </ScalarScreenReader>{{ displayType
         }}<template v-if="modelLink">
           ·
           <LinkButton
@@ -338,10 +337,12 @@ const exampleValue = computed(() => {
         :key="property.key"
         :code="property.code"
         :truncate="property.truncate">
-        <ScreenReader v-if="property.key === 'format'">Format:</ScreenReader>
-        <ScreenReader v-else-if="property.key === 'pattern'">
+        <ScalarScreenReader v-if="property.key === 'format'"
+          >Format:</ScalarScreenReader
+        >
+        <ScalarScreenReader v-else-if="property.key === 'pattern'">
           Pattern:
-        </ScreenReader>
+        </ScalarScreenReader>
         <template
           v-if="property.prefix"
           #prefix>
@@ -364,7 +365,7 @@ const exampleValue = computed(() => {
     <div
       v-if="props.value?.deprecated"
       class="property-deprecated">
-      <Badge>deprecated</Badge>
+      <ScalarBadge>deprecated</ScalarBadge>
     </div>
     <!-- Don't use `isDefined` here, we want to show `const` when the value is `null` -->
     <div

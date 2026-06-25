@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import { getRefName, SchemaProperty } from '@scalar/blocks/schema'
 import {
   ScalarMarkdown,
   ScalarMarkdownSummary,
@@ -16,8 +17,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
-import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
-import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'

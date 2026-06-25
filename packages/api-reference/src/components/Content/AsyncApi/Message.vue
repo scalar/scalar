@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Schema, type SchemaOptions } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -7,8 +8,6 @@ import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/n
 import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
-import { Schema } from '@/components/Content/Schema'
-import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
 import {
   getAsyncApiMessageHeadersSchema,

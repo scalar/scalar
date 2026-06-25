@@ -4,9 +4,8 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
-import LinkButton from '@/components/Content/Schema/LinkButton.vue'
-
 import { formatExample } from './helpers/format-example'
+import LinkButton from './LinkButton.vue'
 
 const { examples, example } = defineProps<{
   examples?: unknown
@@ -98,7 +97,7 @@ function unwrapExampleObject(value: unknown): unknown {
 </template>
 
 <style scoped>
-@reference "../../../style.css";
+@reference "../style.css";
 
 .property-example {
   display: flex;

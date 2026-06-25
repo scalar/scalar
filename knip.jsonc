@@ -104,7 +104,7 @@
       ]
     },
     "packages/blocks": {
-      "entry": ["src/code-example/index.ts"],
+      "entry": ["src/code-example/index.ts", "src/schema/index.ts"],
       "ignoreDependencies": [
         // Used only via vi.mock('@vueuse/core') in tests
         "@vueuse/core"

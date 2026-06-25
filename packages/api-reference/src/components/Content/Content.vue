@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { mapHiddenClientsConfig } from '@scalar/api-client/modal/map-hidden-clients-config'
 import { generateClientOptions } from '@scalar/blocks/code-example'
+import {
+  SCHEMA_EXTENSIONS_RENDERER_SYMBOL,
+  SCHEMA_SCROLL_TARGET_SYMBOL,
+} from '@scalar/blocks/schema'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
@@ -26,7 +30,7 @@ import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, provide } from 'vue'
 
 import { AsyncApiServerSelector } from '@/blocks/scalar-asyncapi-server-selector-block'
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
@@ -42,10 +46,14 @@ import { Auth } from '@/components/Content/Auth'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
-import { getXKeysFromObject } from '@/features/specification-extension'
+import {
+  getXKeysFromObject,
+  SpecificationExtension,
+} from '@/features/specification-extension'
 import {
   firstLazyLoadComplete,
   scheduleInitialLoadComplete,
+  scrollTargetId,
 } from '@/helpers/lazy-bus'
 
 const {
@@ -94,6 +102,13 @@ const {
   /** Heading id generator for Markdown headings */
   headingSlugGenerator: (heading: Heading) => string
 }>()
+
+// Wire the schema block to the API reference: provide the active anchor target
+// so deep links expand collapsed schema branches, and provide the plugin-driven
+// specification-extension renderer so `x-*` keys render through the plugin
+// system. The schema block falls back to no-ops when these are absent.
+provide(SCHEMA_SCROLL_TARGET_SYMBOL, scrollTargetId)
+provide(SCHEMA_EXTENSIONS_RENDERER_SYMBOL, SpecificationExtension)
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>

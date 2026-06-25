@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
 import InfoVersion from './InfoVersion.vue'
 
 describe('InfoVersion', () => {
@@ -61,7 +62,7 @@ describe('InfoVersion', () => {
         props: { version: '1.0.0' },
       })
 
-      expect(wrapper.findComponent({ name: 'Badge' }).exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'ScalarBadge' }).exists()).toBe(true)
     })
 
     it('passes correct text content to badge', () => {
