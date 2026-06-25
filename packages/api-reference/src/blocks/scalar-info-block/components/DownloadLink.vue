@@ -4,6 +4,7 @@ import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
 
 import Badge from '@/components/Badge/Badge.vue'
+import { useLocalization } from '@/features/localization'
 
 const {
   eventBus,
@@ -23,11 +24,12 @@ const {
   /** The kind of document being rendered. Drives the button label. */
   documentType?: 'openapi' | 'asyncapi'
 }>()
+const { translate } = useLocalization()
 
 const label = computed(() =>
   documentType === 'asyncapi'
-    ? 'Download AsyncAPI Document'
-    : 'Download OpenAPI Document',
+    ? translate('download.asyncapi')
+    : translate('download.openapi'),
 )
 
 // The id is retrieved at the layout level.

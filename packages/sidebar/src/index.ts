@@ -16,4 +16,4 @@ export {
   type HoveredItem,
   useDraggable,
 } from './hooks/use-draggable'
-export type { Item } from './types.ts'
+export type { Item, SidebarOptions } from './types.ts'

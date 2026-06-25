@@ -16,6 +16,10 @@ export default {}
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
+const { shortcutLabel = 'Keyboard Shortcut:' } = defineProps<{
+  shortcutLabel?: string
+}>()
+
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
@@ -30,14 +34,14 @@ const { cx } = useBindCx()
       )
     ">
     <ScalarIconMagnifyingGlass class="size-4" />
-    <span class="flex-1 text-left leading-none">
+    <span class="flex-1 text-start leading-none">
       <slot>Search...</slot>
     </span>
     <span
       v-if="$slots.shortcut"
       class="uppercase text-sidebar-c-2 leading-none py-1 px-1.25 rounded text-xs font-medium border">
-      <span class="sr-only">Keyboard Shortcut:</span>
-      <kbd>
+      <span class="sr-only">{{ shortcutLabel }}</span>
+      <kbd dir="ltr">
         <slot name="shortcut" />
       </kbd>
     </span>

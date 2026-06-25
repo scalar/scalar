@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ScalarIconCaretDown } from '@scalar/icons'
+
+import { useLocalization } from '@/features/localization'
+
+const { translate } = useLocalization()
 </script>
 
 <template>
   <button
     class="show-more"
     type="button">
-    Show More
+    {{ translate('actions.showMore') }}
     <ScalarIconCaretDown
       class="text-c-2 mt-0.25 size-3"
       weight="bold" />

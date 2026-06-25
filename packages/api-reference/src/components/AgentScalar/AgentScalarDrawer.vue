@@ -8,6 +8,7 @@ import type {
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { defineAsyncComponent } from 'vue'
 
+import { useLocalization } from '@/features/localization'
 import { useAgentContext } from '@/hooks/use-agent'
 
 defineProps<{
@@ -17,6 +18,7 @@ defineProps<{
 }>()
 
 const agentContext = useAgentContext()
+const { translate } = useLocalization()
 
 const AgentScalarChatInterface = defineAsyncComponent(
   async () => import('./AgentScalarChatInterface.vue'),
@@ -58,7 +60,7 @@ const AgentScalarChatInterface = defineAsyncComponent(
       <ScalarIconButton
         class="agent-scalar-exit-button absolute top-2 right-2"
         :icon="ScalarIconX"
-        label="Close Client"
+        :label="translate('agent.close')"
         weight="bold"
         @click="agentContext?.closeAgent()" />
     </div>

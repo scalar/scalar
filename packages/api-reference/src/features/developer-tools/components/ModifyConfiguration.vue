@@ -6,6 +6,8 @@ import { type ThemeId } from '@scalar/themes'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { computed } from 'vue'
 
+import { useLocalization } from '@/features/localization'
+
 import ApiReferenceToolbarConfigLayout from './ApiReferenceToolbarConfigLayout.vue'
 import ApiReferenceToolbarConfigLayoutOptions from './ApiReferenceToolbarConfigLayoutOptions.vue'
 import ApiReferenceToolbarConfigTheme from './ApiReferenceToolbarConfigTheme.vue'
@@ -16,6 +18,7 @@ const { configuration } = defineProps<{
 }>()
 
 const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
+const { translate } = useLocalization()
 
 const snippet = computed<string>(() => {
   return prettyPrintJson({
@@ -37,9 +40,11 @@ const layout = computed<'modern' | 'classic'>({
 </script>
 <template>
   <ApiReferenceToolbarPopover class="w-120">
-    <template #label>Configure</template>
+    <template #label>{{ translate('developerTools.configure') }}</template>
     <ScalarFormSection>
-      <template #label>Scalar Configuration</template>
+      <template #label>
+        {{ translate('developerTools.scalarConfiguration') }}
+      </template>
       <ScalarCodeBlock
         class="bg-b-1.5 flex max-h-40 flex-col rounded border text-sm"
         :content="snippet"
@@ -47,15 +52,17 @@ const layout = computed<'modern' | 'classic'>({
     </ScalarFormSection>
     <div class="flex flex-col gap-4">
       <ScalarFormField>
-        <template #label>Theme</template>
+        <template #label>{{ translate('developerTools.theme') }}</template>
         <ApiReferenceToolbarConfigTheme v-model="theme" />
       </ScalarFormField>
       <ScalarFormField>
-        <template #label>Layout</template>
+        <template #label>{{ translate('developerTools.layout') }}</template>
         <ApiReferenceToolbarConfigLayout v-model="layout" />
       </ScalarFormField>
       <ScalarFormField is="div">
-        <template #label>Layout Options</template>
+        <template #label>
+          {{ translate('developerTools.layoutOptions') }}
+        </template>
         <ApiReferenceToolbarConfigLayoutOptions
           v-model="overrides"
           :configuration />

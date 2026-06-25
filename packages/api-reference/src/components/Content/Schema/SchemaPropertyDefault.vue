@@ -2,6 +2,8 @@
 import { ScalarIcon } from '@scalar/components/icon'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
+import { useLocalization } from '@/features/localization'
+
 import { formatValue } from './helpers/format-value'
 
 defineProps<{
@@ -9,6 +11,7 @@ defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
+const { translate } = useLocalization()
 </script>
 <template>
   <template v-if="value !== undefined">
@@ -16,7 +19,7 @@ const { copyToClipboard } = useClipboard()
       <button
         class="property-default-label"
         type="button">
-        <span>Default</span>
+        <span>{{ translate('schema.default') }}</span>
       </button>
       <div class="property-default-value-list">
         <button

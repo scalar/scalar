@@ -8,6 +8,7 @@ import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { nextTick } from 'vue'
 
+import { useLocalization } from '@/features/localization'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 const props = defineProps<{
@@ -21,6 +22,7 @@ const props = defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
+const { translate } = useLocalization()
 
 const { toast } = useToasts()
 
@@ -53,7 +55,7 @@ async function generateRegisterLink() {
   const document = props.workspace.exportActiveDocument('json')
 
   if (!document) {
-    toast('Unable to export active document', 'error')
+    toast(translate('developerTools.unableToExportDocument'), 'error')
     await loader.invalidate()
     return
   }
@@ -68,7 +70,9 @@ async function generateRegisterLink() {
     await loader.clear()
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : 'An unknown error occurred'
+      error instanceof Error
+        ? error.message
+        : translate('developerTools.unknownError')
     toast(message, 'error')
     await loader.invalidate()
   }
@@ -162,7 +166,7 @@ function openRegisterLink(documentUrl: string) {
           stroke-linecap="round"
           stroke-width="12" />
       </svg>
-      Generate MCP
+      {{ translate('mcp.generate') }}
       <ScalarIconArrowUpRight class="mcp-nav ml-auto size-4" />
     </div>
     <!-- you do have an MCP added -->
@@ -170,7 +174,7 @@ function openRegisterLink(documentUrl: string) {
       v-else
       class="scalar-mcp-layer-link"
       @click="copyToClipboard(config?.url ?? '')">
-      Connect MCP
+      {{ translate('mcp.connect') }}
       <svg
         class="mcp-logo ml-auto"
         fill="none"

@@ -51,6 +51,19 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Label for the components.schemas section in the sidebar, content, and search. Use `Schemas` for OpenAPI terminology.',
     }),
+    localization: optional(
+      object({
+        locale: optional(string()),
+        // `auto` is listed first so that coerce falls back to it for invalid input,
+        // matching the `.catch('auto')` behavior of the Zod schema in @scalar/types.
+        direction: optional(union([literal('auto'), literal('ltr'), literal('rtl')])),
+        translations: optional(record(string(), any())),
+      }),
+      {
+        typeComment:
+          'API Reference UI localization. Select a built-in locale, override labels, and control LTR/RTL rendering.',
+      },
+    ),
     documentDownloadType: union(
       [literal('both'), literal('yaml'), literal('json'), literal('direct'), literal('none')],
       {

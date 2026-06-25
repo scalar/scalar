@@ -1,11 +1,22 @@
 <script setup lang="ts">
 import { ScalarIconLink } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { computed } from 'vue'
+
+import { useLocalization } from '@/features/localization'
 
 const { breadcrumb } = defineProps<{
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
 }>()
+const { translate } = useLocalization()
+
+/** Screen-reader label for the copy-link button, naming the deep-linked item. */
+const copyLinkLabel = computed(() =>
+  translate('actions.copyLinkTo', {
+    name: breadcrumb?.[breadcrumb.length - 1] ?? '',
+  }),
+)
 </script>
 
 <template>
@@ -27,7 +38,7 @@ const { breadcrumb } = defineProps<{
           class="size-3"
           weight="bold" />
         <span class="sr-only">
-          <slot name="sr-label">Copy link to <slot /></slot>
+          <slot name="sr-label">{{ copyLinkLabel }}</slot>
         </span>
       </button>
     </div>

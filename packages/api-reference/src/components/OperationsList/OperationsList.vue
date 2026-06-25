@@ -9,6 +9,7 @@ import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
+import { useLocalization } from '@/features/localization'
 
 import OperationsListItem from './OperationsListItem.vue'
 
@@ -16,6 +17,7 @@ const { tag } = defineProps<{
   tag: TraversedTag
   eventBus: WorkspaceEventBus | null
 }>()
+const { translate } = useLocalization()
 
 const operationsAndWebhooks = computed(() => {
   return (
@@ -31,11 +33,15 @@ const operationsAndWebhooks = computed(() => {
     <ScalarCard class="endpoints-card">
       <ScalarCardHeader muted>
         <ScreenReader>{{ tag.title }}</ScreenReader>
-        {{ tag.isWebhooks ? 'Webhooks' : 'Operations' }}
+        {{
+          tag.isWebhooks
+            ? translate('navigation.webhooks')
+            : translate('navigation.operations')
+        }}
       </ScalarCardHeader>
       <ScalarCardSection class="custom-scroll max-h-[60vh]">
         <ul
-          :aria-label="`${tag.title} endpoints`"
+          :aria-label="translate('navigation.endpoints', { name: tag.title })"
           class="endpoints">
           <OperationsListItem
             v-for="operationOrWebhook in operationsAndWebhooks"

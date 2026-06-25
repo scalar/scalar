@@ -16,6 +16,7 @@ import {
   sortPropertyNames,
 } from '@/components/Content/Schema/helpers/sort-property-names'
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
+import { useLocalization } from '@/features/localization'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
@@ -32,6 +33,7 @@ const { requestBody, options, document } = defineProps<{
     expandAllSchemaProperties: boolean | undefined
   }
 }>()
+const { translate } = useLocalization()
 
 /**
  * The maximum number of properties to show in the request body schema.
@@ -130,7 +132,7 @@ const shouldRenderRequestBody = computed(
 <template>
   <div
     v-if="requestBody && shouldRenderRequestBody"
-    aria-label="Request Body"
+    :aria-label="translate('operation.requestBody')"
     class="request-body"
     role="group">
     <div class="request-body-header">
@@ -157,7 +159,7 @@ const shouldRenderRequestBody = computed(
         <div
           v-if="requestBody.required"
           class="request-body-required">
-          required
+          {{ translate('common.required') }}
         </div>
         <ContentTypeSelect
           v-model="selectedContentType"
@@ -179,7 +181,7 @@ const shouldRenderRequestBody = computed(
         compact
         :compositionPath="['requestBody']"
         :eventBus="eventBus"
-        name="Request Body"
+        :name="translate('operation.requestBody')"
         noncollapsible
         :options="{
           hideReadOnly: true,
@@ -198,7 +200,7 @@ const shouldRenderRequestBody = computed(
         :compositionPath="['requestBody']"
         :eventBus="eventBus"
         hideDescription
-        name="Request Body"
+        :name="translate('operation.requestBody')"
         :options="{
           hideReadOnly: true,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
@@ -220,7 +222,7 @@ const shouldRenderRequestBody = computed(
         :compositionPath="['requestBody']"
         :eventBus="eventBus"
         :hideReadOnly="true"
-        name="Request Body"
+        :name="translate('operation.requestBody')"
         noncollapsible
         :options="{
           hideReadOnly: true,

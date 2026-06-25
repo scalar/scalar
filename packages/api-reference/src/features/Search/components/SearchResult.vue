@@ -15,6 +15,7 @@ import {
 import type { FuseResult } from 'fuse.js'
 import { computed } from 'vue'
 
+import { useLocalization } from '@/features/localization'
 import type { EntryType, FuseData } from '@/features/Search/types'
 
 const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
@@ -23,6 +24,7 @@ const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
   result: FuseResult<FuseData>
   modelsSectionLabel?: ModelsSectionLabel
 }>()
+const { translate } = useLocalization()
 
 const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
   heading: ScalarIconTextAlignLeft,
@@ -33,11 +35,11 @@ const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
 }
 
 const entryLabels = computed((): { [x in EntryType]: string } => ({
-  heading: 'Heading',
-  operation: 'Operation',
-  tag: 'Tag',
+  heading: translate('search.entryHeading'),
+  operation: translate('search.entryOperation'),
+  tag: translate('search.entryTag'),
   model: modelsSectionLabel,
-  webhook: 'Webhook',
+  webhook: translate('search.entryWebhook'),
 }))
 </script>
 
@@ -59,7 +61,7 @@ const entryLabels = computed((): { [x in EntryType]: string } => ({
             result.item.entry.type === 'operation' &&
             result.item.entry.isDeprecated
           ">
-          (Deprecated)&nbsp;
+          ({{ translate('common.deprecated') }})&nbsp;
         </template>
       </span>
       {{ result.item.title }}
@@ -78,17 +80,18 @@ const entryLabels = computed((): { [x in EntryType]: string } => ({
             aria-hidden="true"
             :method="result.item.method ?? 'get'" />
           <span class="sr-only">
-            HTTP Method: {{ result.item.method ?? 'get' }}
+            {{ translate('common.httpMethod') }}:
+            {{ result.item.method ?? 'get' }}
           </span>
         </template>
-        <span class="sr-only">Path:&nbsp;</span>
+        <span class="sr-only">{{ translate('common.path') }}:&nbsp;</span>
         {{ result.item.path }}
       </span>
     </template>
     <template
       v-else-if="result.item.description"
       #description>
-      <span class="sr-only">Description:&nbsp;</span>
+      <span class="sr-only">{{ translate('common.description') }}:&nbsp;</span>
       {{ result.item.description }}
     </template>
   </ScalarSearchResultItem>

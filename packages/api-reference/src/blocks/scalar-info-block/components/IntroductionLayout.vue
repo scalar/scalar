@@ -16,6 +16,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import { useLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
 import InfoDescription from './InfoDescription.vue'
@@ -35,6 +36,8 @@ defineProps<{
   headingSlugGenerator: (heading: Heading) => string
   eventBus: WorkspaceEventBus | null
 }>()
+
+const { translate } = useLocalization()
 </script>
 
 <template>
@@ -42,7 +45,7 @@ defineProps<{
     <!-- If the #after slot is used, we need to add a gap to the section. -->
     <Section
       :id="id"
-      aria-label="Introduction"
+      :aria-label="translate('navigation.introduction')"
       class="introduction-section z-1 gap-12"
       @intersecting="
         () => id && eventBus?.emit('intersecting:nav-item', { id })

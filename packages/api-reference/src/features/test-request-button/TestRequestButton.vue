@@ -4,6 +4,7 @@ import { ScalarIconPlay } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import ScreenReader from '@/components/ScreenReader.vue'
+import { useLocalization } from '@/features/localization'
 
 const {
   id,
@@ -20,6 +21,7 @@ const {
   exampleName?: string
   requestBodyCompositionSelection?: Record<string, number>
 }>()
+const { translate } = useLocalization()
 
 /** Route via ID and optionally with example name */
 const handleClick = () => {
@@ -45,7 +47,7 @@ const handleClick = () => {
     <ScalarIconPlay
       class="size-3"
       weight="fill" />
-    <span>Test Request</span>
+    <span>{{ translate('operation.testRequest') }}</span>
     <ScreenReader>({{ method }} {{ path }})</ScreenReader>
   </button>
 </template>

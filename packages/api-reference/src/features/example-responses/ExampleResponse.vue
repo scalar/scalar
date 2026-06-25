@@ -11,10 +11,13 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { useLocalization } from '@/features/localization'
+
 const { example, response } = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject | undefined
 }>()
+const { translate } = useLocalization()
 
 /** Get content from the appropriate source */
 const getContent = () => {
@@ -72,7 +75,7 @@ const shouldVirtualize = computed(() => {
   <div
     v-else
     class="empty-state">
-    No Body
+    {{ translate('response.noBody') }}
   </div>
 </template>
 

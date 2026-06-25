@@ -13,6 +13,8 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
+import { useLocalization } from '@/features/localization'
+
 import SearchModal from './SearchModal.vue'
 
 const {
@@ -29,6 +31,7 @@ const {
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
 const modalState = useModal()
+const { translate } = useLocalization()
 
 /**
  * Whether the user is on macOS, used to show the correct shortcut symbol.
@@ -81,27 +84,28 @@ function handleClick() {
   <ScalarIconButton
     v-if="forceIcon"
     :icon="ScalarIconMagnifyingGlass"
-    label="Search"
+    :label="translate('search.label')"
     @click="handleClick" />
   <ScalarSidebarSearchButton
     v-else
     ref="button"
     class="w-full"
     :class="$attrs.class"
+    :shortcutLabel="translate('search.keyboardShortcut')"
     @click="handleClick">
-    <span class="sr-only">Open Search</span>
+    <span class="sr-only">{{ translate('search.open') }}</span>
     <span
       aria-hidden="true"
       class="sidebar-search-placeholder">
-      Search
+      {{ translate('search.label') }}
     </span>
     <template #shortcut>
       <template v-if="isMac">
-        <span class="sr-only">Command</span>
+        <span class="sr-only">{{ translate('search.command') }}</span>
         <span aria-hidden="true">⌘</span>
       </template>
       <template v-else>
-        <span class="sr-only">CTRL</span>
+        <span class="sr-only">{{ translate('search.control') }}</span>
         <span aria-hidden="true">⌃</span>
       </template>
       {{ searchHotKey }}

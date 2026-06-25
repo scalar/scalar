@@ -2,9 +2,11 @@
 import { ScalarIconArrowUp, ScalarIconSparkle } from '@scalar/icons'
 import { ref } from 'vue'
 
+import { useLocalization } from '@/features/localization'
 import { useAgentContext } from '@/hooks/use-agent'
 
 const agentContext = useAgentContext()
+const { translate } = useLocalization()
 
 const message = ref('')
 const inputRef = ref<HTMLInputElement>()
@@ -23,13 +25,15 @@ function handleSubmit() {
     <ScalarIconSparkle
       class="size-3 shrink-0"
       weight="fill" />
-    <div class="ask-agent-scalar-input-label">Ask AI Agent</div>
+    <div class="ask-agent-scalar-input-label">
+      {{ translate('agent.askAiAgent') }}
+    </div>
     <input
       ref="inputRef"
       v-model="message"
       class="ask-agent-scalar-input"
       :class="{ 'ask-agent-scalar-input-not-empty': message.length > 0 }"
-      placeholder="Ask AI Agent" />
+      :placeholder="translate('agent.askAiAgent')" />
     <button
       class="ask-agent-scalar-send"
       type="submit">

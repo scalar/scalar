@@ -11,6 +11,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import Callback from './Callback.vue'
@@ -29,6 +30,7 @@ const { path, callbacks, options } = defineProps<{
     | 'expandAllSchemaProperties'
   >
 }>()
+const { translate } = useLocalization()
 
 type CallbackType = {
   name: string
@@ -71,11 +73,11 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
 
 <template>
   <div
-    aria-label="Callbacks"
+    :aria-label="translate('operation.callbacks')"
     class="callbacks-list gap-3"
     role="group">
     <div class="callbacks-title text-c-1 my-3 text-lg font-medium">
-      Callbacks
+      {{ translate('operation.callbacks') }}
     </div>
     <Callback
       v-for="{ callback, method, name, url } in flattenedCallbacks"

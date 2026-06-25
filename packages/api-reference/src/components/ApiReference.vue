@@ -1,4 +1,5 @@
 <script lang="ts">
+/* global PACKAGE_VERSION */
 // Injected by Vite at build time (see vite.config.ts and vite.standalone.config.ts).
 // Read via process.env so the constant is replaced inline without pulling package.json
 // into the TypeScript program — that would expand rootDir and emit declarations under dist/src/.
@@ -77,6 +78,10 @@ import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
+import {
+  provideLocalization,
+  resolveLocalization,
+} from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
@@ -87,6 +92,10 @@ import {
   matchesBasePath,
   redirectUrl,
 } from '@/helpers/id-routing'
+import {
+  INTRODUCTION_ENTRY_ID_SUFFIX,
+  isIntroductionEntry,
+} from '@/helpers/is-introduction-entry'
 import {
   scrollToLazy as _scrollToLazy,
   addToPriorityQueue,
@@ -234,23 +243,61 @@ const configurationOverrides = ref<
   Partial<Omit<ApiReferenceConfiguration, 'slug' | 'title' | ''>>
 >({})
 
+const withLocalizedConfigurationDefaults = (
+  config: ApiReferenceConfiguration,
+  activeConfig: Partial<ApiReferenceConfiguration> | undefined,
+): ApiReferenceConfiguration => {
+  const localization = resolveLocalization(config.localization)
+  const configuredModelsSectionLabel =
+    configurationOverrides.value.modelsSectionLabel ??
+    (activeConfig?.modelsSectionLabel !== DEFAULT_MODELS_SECTION_LABEL
+      ? activeConfig?.modelsSectionLabel
+      : undefined)
+
+  return {
+    ...config,
+    modelsSectionLabel:
+      configuredModelsSectionLabel ??
+      localization.translations.models.label ??
+      DEFAULT_MODELS_SECTION_LABEL,
+  }
+}
+
 /** Any dev toolbar modifications are merged with the active configuration */
 const mergedConfig = computed<ApiReferenceConfiguration>(() => {
+  const activeConfig = configList.value[activeSlug.value]?.config
   const merged = {
     // Provides a default set of values when the lookup fails
     ...coerce(apiReferenceConfigurationSchema, {}),
     // The active configuration based on the slug
-    ...configList.value[activeSlug.value]?.config,
+    ...activeConfig,
     // Any overrides from the localhost toolbar
     ...configurationOverrides.value,
   }
 
-  return {
-    ...merged,
-    modelsSectionLabel:
-      merged.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL,
-  }
+  return withLocalizedConfigurationDefaults(merged, activeConfig)
 })
+
+const apiReferenceLocalization = provideLocalization(
+  () => mergedConfig.value.localization,
+)
+
+const sidebarOptions = computed(() => ({
+  ...mergedConfig.value,
+  labels: {
+    closeGroup: apiReferenceLocalization.translate('navigation.closeGroup'),
+    httpMethod: apiReferenceLocalization.translate('common.httpMethod'),
+    openGroup: apiReferenceLocalization.translate('navigation.openGroup'),
+  },
+}))
+
+/**
+ * Locale string for the `lang` attribute. We normalize underscores to hyphens so values like
+ * `es_MX` become valid BCP-47 language tags (`es-MX`).
+ */
+const documentLang = computed(() =>
+  apiReferenceLocalization.locale.value.replace('_', '-'),
+)
 
 /** Convenience break out var to determine which routing mode we are using */
 const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
@@ -408,6 +455,78 @@ const pluginSidebarEntries = computed(() =>
 )
 
 /**
+ * Localize the synthetic labels we generate for the sidebar (introduction, webhooks, and the models
+ * section). Entries are only cloned when a label actually changes, so the common English-default case
+ * does not allocate a new navigation tree on every recompute.
+ */
+const localizeNavigationEntries = (
+  entries: TraversedEntry[],
+): TraversedEntry[] => {
+  const introductionTitle = apiReferenceLocalization.translate(
+    'navigation.introduction',
+  )
+  const webhooksTitle = apiReferenceLocalization.translate(
+    'navigation.webhooks',
+  )
+  const modelsSectionLabel =
+    mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
+
+  const localize = (list: TraversedEntry[]): TraversedEntry[] => {
+    let changed = false
+
+    const result = list.map((entry) => {
+      let localized = entry
+
+      if (isIntroductionEntry(entry) && entry.title !== introductionTitle) {
+        localized = { ...entry, title: introductionTitle } as TraversedEntry
+      } else if (
+        entry.type === 'tag' &&
+        entry.isWebhooks === true &&
+        (entry.title !== webhooksTitle || entry.name !== webhooksTitle)
+      ) {
+        localized = {
+          ...entry,
+          title: webhooksTitle,
+          name: webhooksTitle,
+        } as TraversedEntry
+      } else if (
+        entry.type === 'models' &&
+        (entry.title !== modelsSectionLabel ||
+          entry.name !== modelsSectionLabel)
+      ) {
+        localized = {
+          ...entry,
+          title: modelsSectionLabel,
+          name: modelsSectionLabel,
+        } as TraversedEntry
+      }
+
+      if ('children' in entry && entry.children) {
+        const localizedChildren = localize(entry.children)
+
+        if (localizedChildren !== entry.children) {
+          localized =
+            localized === entry ? ({ ...entry } as TraversedEntry) : localized
+          ;(localized as { children?: TraversedEntry[] }).children =
+            localizedChildren
+        }
+      }
+
+      if (localized !== entry) {
+        changed = true
+      }
+
+      return localized
+    })
+
+    // Preserve the original reference when nothing changed to avoid downstream re-renders.
+    return changed ? result : list
+  }
+
+  return localize(entries)
+}
+
+/**
  * Create top level sidebar entries for each document
  * This allows sharing a single sidebar state for across the workspace
  */
@@ -423,10 +542,10 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
         slug === activeSlug.value
           ? [
               ...pluginSidebarEntries.value['content.start'],
-              ...children,
+              ...localizeNavigationEntries(children),
               ...pluginSidebarEntries.value['content.end'],
             ]
-          : children
+          : localizeNavigationEntries(children)
 
       return {
         id: slug,
@@ -494,9 +613,8 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
 /** Find the sidebar entry that represents the introduction section */
 const infoSectionId = computed(
   () =>
-    sidebarItems.value.find(
-      (item) => item.type === 'text' && item.title === 'Introduction',
-    )?.id ?? `${activeSlug.value}/description/introduction`,
+    sidebarItems.value.find(isIntroductionEntry)?.id ??
+    `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`,
 )
 
 /** User for mobile navigation */
@@ -657,10 +775,13 @@ const changeSelectedDocument = async (
     return
   }
 
-  const config = {
-    ...normalized.config,
-    ...configurationOverrides.value,
-  }
+  const config = withLocalizedConfigurationDefaults(
+    {
+      ...normalized.config,
+      ...configurationOverrides.value,
+    },
+    normalized.config,
+  )
 
   // Store `onDocumentSelect` result to await its execution later, before calling `onLoaded`
   const onDocumentSelectPromise = config.onDocumentSelect?.()
@@ -765,6 +886,14 @@ watch(
       updated: NormalizedConfiguration,
       previous: NormalizedConfiguration | undefined,
     ) => {
+      const config = withLocalizedConfigurationDefaults(
+        {
+          ...updated.config,
+          ...configurationOverrides.value,
+        },
+        updated.config,
+      )
+
       /** If we have not loaded the document previously we don't need to handle any updates to store */
       if (!workspaceStore.workspace.documents[updated.slug]) {
         return
@@ -775,9 +904,9 @@ watch(
           {
             name: updated.slug,
             url: updated.source.url,
-            fetch: updated.config.customFetch,
+            fetch: config.customFetch,
           },
-          updated.config,
+          config,
         )
 
         return
@@ -805,7 +934,7 @@ watch(
             name: updated.slug,
             document: updated.source.content,
           },
-          updated.config,
+          config,
         )
       }
     }
@@ -1157,9 +1286,11 @@ const showMCPButton = computed(() => {
   <!-- SingleApiReference -->
   <div>
     <!-- Inject any custom CSS directly into a style tag -->
+    <!-- eslint-disable vue/no-v-text-v-html-on-component -->
     <component
       :is="'style'"
       v-html="styleContent" />
+    <!-- eslint-enable vue/no-v-text-v-html-on-component -->
     <div
       ref="documentEl"
       class="scalar-app scalar-api-reference references-layout"
@@ -1173,7 +1304,9 @@ const showMCPButton = computed(() => {
           'references-classic': mergedConfig.layout === 'classic',
         },
         $attrs.class,
-      ]">
+      ]"
+      :dir="apiReferenceLocalization.direction.value"
+      :lang="documentLang">
       <!-- Agent Scalar -->
       <AgentScalarDrawer
         v-if="agent.agentEnabled.value"
@@ -1203,14 +1336,19 @@ const showMCPButton = computed(() => {
         <template #sidebar="{ sidebarClasses }">
           <ScalarSidebar
             v-if="mergedConfig.showSidebar && mergedConfig.layout === 'modern'"
-            :aria-label="`Sidebar for ${workspaceStore.workspace.activeDocument?.info?.title}`"
+            :aria-label="
+              apiReferenceLocalization.translate('navigation.sidebarFor', {
+                name:
+                  workspaceStore.workspace.activeDocument?.info?.title ?? '',
+              })
+            "
             class="t-doc__sidebar"
             :class="sidebarClasses"
             :isExpanded="sidebarState.isExpanded"
             :isSelected="sidebarState.isSelected"
             :items="sidebarItems"
             layout="reference"
-            :options="mergedConfig"
+            :options="sidebarOptions"
             role="navigation"
             @selectItem="(id) => handleSelectSidebarEntry(id, 'sidebar')"
             @toggleGroup="
@@ -1262,6 +1400,18 @@ const showMCPButton = computed(() => {
                     :isDevelopment="isDevelopment"
                     :url="documentUrl"
                     :workspace="workspaceStore" />
+                  <template #description>
+                    <a
+                      class="no-underline hover:underline"
+                      href="https://www.scalar.com"
+                      target="_blank">
+                      {{
+                        apiReferenceLocalization.translate(
+                          'footer.poweredByScalar',
+                        )
+                      }}
+                    </a>
+                  </template>
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton
@@ -1282,7 +1432,11 @@ const showMCPButton = computed(() => {
 
       <!-- Primary Content -->
       <main
-        :aria-label="`Open API Documentation for ${workspaceStore.workspace.activeDocument?.info?.title}`"
+        :aria-label="
+          apiReferenceLocalization.translate('navigation.mainContent', {
+            name: workspaceStore.workspace.activeDocument?.info?.title ?? '',
+          })
+        "
         class="references-rendered"
         :inert="agent.showAgent.value">
         <Content

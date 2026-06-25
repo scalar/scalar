@@ -24,6 +24,8 @@ import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 defineProps<{
   loader?: LoadingState
   label?: string
+  placeholder?: string
+  clearLabel?: string
 }>()
 
 const model = defineModel<string>()
@@ -58,7 +60,7 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
       autocomplete="off"
       autocorrect="off"
       class="flex-1 appearance-none rounded border-none bg-transparent outline-none"
-      placeholder="Search..."
+      :placeholder="placeholder ?? 'Search...'"
       spellcheck="false"
       type="search" />
     <ScalarLoading
@@ -70,7 +72,7 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
       v-else-if="model"
       class="-my-1"
       :icon="ScalarIconX"
-      label="Clear Search"
+      :label="clearLabel ?? 'Clear Search'"
       size="sm"
       weight="bold"
       @click.stop.prevent="handleClear" />

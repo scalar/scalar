@@ -7,6 +7,7 @@ import HttpMethod from './HttpMethod.vue'
 defineProps<{
   method: string
   active?: boolean
+  label?: string
   webhook?: boolean
 }>()
 </script>
@@ -20,7 +21,7 @@ defineProps<{
     :method="method"
     property="--method-color"
     short>
-    <span class="sr-only">HTTP Method:&nbsp;</span>
+    <span class="sr-only">{{ label ?? 'HTTP Method' }}:&nbsp;</span>
     <slot>
       <ScalarIconWebhooksLogo
         v-if="webhook"

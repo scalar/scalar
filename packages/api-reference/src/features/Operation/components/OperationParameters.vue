@@ -9,6 +9,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { useLocalization } from '@/features/localization'
 import { flattenDeepObjectQueryParameter } from '@/features/Operation/helpers/flatten-deep-object-query-parameter'
 import { shouldIgnoreEntity } from '@/features/Operation/helpers/should-ignore-entity'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
@@ -31,6 +32,7 @@ const { parameters = [], requestBody } = defineProps<{
     | 'expandAllSchemaProperties'
   >
 }>()
+const { translate } = useLocalization()
 
 /** Thread the selected request body content type up to the layout */
 const selectedContentType = defineModel<string>('selectedContentType')
@@ -68,7 +70,7 @@ const splitParameters = computed(() =>
     :eventBus="eventBus"
     :options="options"
     :parameters="splitParameters['path']">
-    <template #title>Path Parameters</template>
+    <template #title>{{ translate('operation.pathParameters') }}</template>
   </ParameterList>
 
   <!-- Query parameters -->
@@ -78,7 +80,7 @@ const splitParameters = computed(() =>
     :eventBus="eventBus"
     :options="options"
     :parameters="splitParameters['query']">
-    <template #title>Query Parameters</template>
+    <template #title>{{ translate('operation.queryParameters') }}</template>
   </ParameterList>
 
   <!-- Headers -->
@@ -88,7 +90,7 @@ const splitParameters = computed(() =>
     :eventBus="eventBus"
     :options="options"
     :parameters="splitParameters['header']">
-    <template #title>Headers</template>
+    <template #title>{{ translate('operation.headers') }}</template>
   </ParameterList>
 
   <!-- Cookies -->
@@ -98,7 +100,7 @@ const splitParameters = computed(() =>
     :eventBus="eventBus"
     :options="options"
     :parameters="splitParameters['cookie']">
-    <template #title>Cookies</template>
+    <template #title>{{ translate('operation.cookies') }}</template>
   </ParameterList>
 
   <!-- Request body -->
@@ -110,6 +112,6 @@ const splitParameters = computed(() =>
     :eventBus="eventBus"
     :options="options"
     :requestBody="requestBody">
-    <template #title>Body</template>
+    <template #title>{{ translate('operation.body') }}</template>
   </RequestBody>
 </template>

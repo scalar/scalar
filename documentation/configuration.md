@@ -656,6 +656,22 @@ Label for the `components.schemas` section in the sidebar, main content, and sea
 }
 ```
 
+#### localization
+
+**Type:** `{ locale?: string, direction?: 'ltr' | 'rtl' | 'auto', translations?: object }`
+
+Localizes the API Reference UI and controls text direction (LTR/RTL). See the dedicated
+[Localization](localization.md) page for the full reference, including the built-in locales and how
+to override individual labels.
+
+```javascript
+{
+  localization: {
+    locale: 'de',
+  },
+}
+```
+
 #### hideSearch
 
 **Type:** `boolean`

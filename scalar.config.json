@@ -1649,6 +1649,30 @@
                       ]
                     }
                   },
+                  "localization": {
+                    "title": "Localization",
+                    "filepath": "documentation/localization.md",
+                    "type": "page",
+                    "description": "Localize the API Reference UI with built-in locales, custom label overrides, and right-to-left (RTL) support.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-references/localization"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Localize the API Reference UI with built-in locales, custom label overrides, and right-to-left (RTL) support."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "themes": {
                     "title": "Themes",
                     "filepath": "documentation/themes.md",

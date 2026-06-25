@@ -11,6 +11,7 @@ import { computed, inject, provide } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
+import { useLocalization } from '@/features/localization'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
@@ -74,6 +75,7 @@ const {
    */
   cycleKey?: unknown
 }>()
+const { translate } = useLocalization()
 
 /**
  * Cycle-safe `expandAllSchemaProperties`.
@@ -142,6 +144,10 @@ const defaultOpen = computed(
     noncollapsible || shouldForceExpand.value || isOnScrollTargetPath.value,
 )
 
+const childAttributesLabel = computed(
+  (): string => schema?.title ?? translate('schema.childAttributes'),
+)
+
 /** Gets the description to show for the schema */
 const schemaDescription = computed(() => {
   if (hideDescription) {
@@ -208,7 +214,7 @@ const handleClick = (e: MouseEvent) => {
       <div
         v-if="isEmptySchemaObject(schema)"
         class="pt-2">
-        Empty object
+        {{ translate('schema.emptyObject') }}
       </div>
       <div
         class="schema-properties"
@@ -228,8 +234,10 @@ const handleClick = (e: MouseEvent) => {
               class="schema-card-title-icon"
               icon="Add"
               size="sm" />
-            Show additional properties
-            <ScreenReader v-if="name">for {{ name }}</ScreenReader>
+            {{ translate('schema.showAdditionalProperties') }}
+            <ScreenReader v-if="name">
+              {{ translate('schema.forName', { name }) }}
+            </ScreenReader>
           </DisclosureButton>
         </div>
 
@@ -250,12 +258,22 @@ const handleClick = (e: MouseEvent) => {
               icon="Add"
               size="sm" />
             <template v-if="open">
-              Hide {{ schema?.title ?? 'Child Attributes' }}
+              {{
+                translate('schema.hideChildAttributes', {
+                  name: childAttributesLabel,
+                })
+              }}
             </template>
             <template v-else>
-              Show {{ schema?.title ?? 'Child Attributes' }}
+              {{
+                translate('schema.showChildAttributes', {
+                  name: childAttributesLabel,
+                })
+              }}
             </template>
-            <ScreenReader v-if="name">for {{ name }}</ScreenReader>
+            <ScreenReader v-if="name">
+              {{ translate('schema.forName', { name }) }}
+            </ScreenReader>
           </template>
           <template v-else>
             <ScalarIcon

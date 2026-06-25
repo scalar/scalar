@@ -15,6 +15,7 @@ import type {
 
 import type { FuseData } from '@/features/Search/types'
 import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
+import { isIntroductionEntry } from '@/helpers/is-introduction-entry'
 import {
   extractBodyDescriptions,
   extractBodyFieldNames,
@@ -102,8 +103,25 @@ function extractResponseExamples(responses: ResponsesObject | undefined): string
 }
 
 type CreateSearchIndexOptions = {
+  labels?: SearchIndexLabels
   modelsSectionLabel?: ModelsSectionLabel
 }
+
+type SearchIndexLabels = {
+  heading: string
+  tagGroup: string
+  webhook: string
+  webhooks: string
+  introduction: string
+}
+
+const DEFAULT_SEARCH_INDEX_LABELS = {
+  heading: 'Heading',
+  tagGroup: 'Tag Group',
+  webhook: 'Webhook',
+  webhooks: 'Webhooks',
+  introduction: 'Introduction',
+} satisfies SearchIndexLabels
 
 /**
  * Create a search index from a list of entries.
@@ -114,13 +132,14 @@ export function createSearchIndex(
 ): FuseData[] {
   const index: FuseData[] = []
   const modelsSectionTitle = options?.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
+  const labels = options?.labels ?? DEFAULT_SEARCH_INDEX_LABELS
 
   /**
    * Recursively processes entries and their children to build the search index.
    */
   function processEntries(entriesToProcess: TraversedEntry[]): void {
     entriesToProcess.forEach((entry) => {
-      addEntryToIndex(entry, index, document, modelsSectionTitle)
+      addEntryToIndex(entry, index, document, modelsSectionTitle, labels)
 
       // Recursively process children if they exist
       if ('children' in entry && entry.children) {
@@ -145,6 +164,7 @@ function addEntryToIndex(
   index: FuseData[],
   document: SearchableDocument | undefined,
   modelsSectionTitle: string,
+  labels: SearchIndexLabels,
 ): void {
   // OpenAPI-only branches read fields that do not exist on AsyncAPI documents (paths, webhooks,
   // components.schemas). Narrow once here so each branch can dereference safely.
@@ -230,8 +250,8 @@ function addEntryToIndex(
     index.push({
       id: entry.id,
       type: 'heading',
-      title: entry.title,
-      description: 'Heading',
+      title: modelsSectionTitle,
+      description: labels.heading,
       body: '',
       entry,
     })
@@ -244,8 +264,8 @@ function addEntryToIndex(
     index.push({
       id: entry.id,
       type: 'heading',
-      title: 'Webhooks',
-      description: 'Heading',
+      title: labels.webhooks,
+      description: labels.heading,
       body: '',
       entry,
     })
@@ -271,7 +291,7 @@ function addEntryToIndex(
     index.push({
       id: entry.id,
       title: entry.title,
-      description: 'Tag Group',
+      description: labels.tagGroup,
       type: 'tag',
       body: '',
       entry,
@@ -285,8 +305,8 @@ function addEntryToIndex(
     index.push({
       id: entry.id,
       type: 'heading',
-      title: entry.title ?? '',
-      description: 'Heading',
+      title: isIntroductionEntry(entry) ? labels.introduction : (entry.title ?? ''),
+      description: labels.heading,
       body: '',
       entry,
     })

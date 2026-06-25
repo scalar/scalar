@@ -6,6 +6,8 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, ref } from 'vue'
 
+import { useLocalization } from '@/features/localization'
+
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
 
 const { value } = defineProps<{
@@ -14,6 +16,7 @@ const { value } = defineProps<{
   /** Whether to display the enum for property names */
   propertyNames?: boolean
 }>()
+const { translate } = useLocalization()
 
 const ENUM_DISPLAY_THRESHOLD = 9
 const INITIAL_VISIBLE_COUNT = 5
@@ -111,12 +114,12 @@ const toggleExpanded = () => {
     <div
       v-if="propertyNames"
       class="property-enum-property-names">
-      property names
+      {{ translate('common.propertyNames') }}
     </div>
     <div
       v-else
       class="property-enum-property-names">
-      values
+      {{ translate('common.values') }}
     </div>
     <ul class="property-enum-values">
       <!-- Visible enum values -->
@@ -148,7 +151,11 @@ const toggleExpanded = () => {
           <ScalarIconPlus
             :class="{ 'rotate-45': isExpanded }"
             weight="bold" />
-          {{ isExpanded ? 'Hide values' : 'Show all values' }}
+          {{
+            isExpanded
+              ? translate('common.hideValues')
+              : translate('common.showAllValues')
+          }}
         </ScalarButton>
       </li>
     </ul>

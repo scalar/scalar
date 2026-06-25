@@ -2,6 +2,10 @@
 import { ScalarFloatingBackdrop } from '@scalar/components/floating'
 import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
+
+import { useLocalization } from '@/features/localization'
+
+const { translate } = useLocalization()
 </script>
 
 <template>
@@ -31,7 +35,7 @@ import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
         <ScalarIconInfo class="size-3.5 shrink-0" />
         <div>
           <slot name="info">
-            "<slot name="label" />" will only appear when running on localhost.
+            {{ translate('developerTools.localhostOnly') }}
           </slot>
         </div>
       </div>

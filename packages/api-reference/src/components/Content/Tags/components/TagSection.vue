@@ -14,6 +14,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import { useLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
 const { tag, headerId, isCollapsed } = defineProps<{
@@ -22,6 +23,7 @@ const { tag, headerId, isCollapsed } = defineProps<{
   isCollapsed?: boolean
   eventBus: WorkspaceEventBus | null
 }>()
+const { translate } = useLocalization()
 </script>
 <template>
   <Section
@@ -40,7 +42,9 @@ const { tag, headerId, isCollapsed } = defineProps<{
           :id="headerId"
           :level="2">
           {{ tag.title }}
-          <ScreenReader v-if="isCollapsed"> (Collapsed)</ScreenReader>
+          <ScreenReader v-if="isCollapsed">
+            ({{ translate('navigation.collapsed') }})
+          </ScreenReader>
         </SectionHeaderTag>
       </Anchor>
     </SectionHeader>

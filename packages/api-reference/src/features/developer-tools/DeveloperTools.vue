@@ -7,6 +7,8 @@ import type {
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
+import { useLocalization } from '@/features/localization'
+
 import ApiReferenceToolbarTitle from './components/ApiReferenceToolbarTitle.vue'
 import DeployApiReference from './components/DeployApiReference.vue'
 import ModifyConfiguration from './components/ModifyConfiguration.vue'
@@ -19,6 +21,7 @@ const { configuration, externalUrls } = defineProps<{
 }>()
 
 const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
+const { translate } = useLocalization()
 
 const showDeveloperTools = computed<boolean>(() => {
   if (configuration?.showDeveloperTools === 'always') {
@@ -39,7 +42,7 @@ const showDeveloperTools = computed<boolean>(() => {
 <template>
   <header
     v-if="showDeveloperTools"
-    aria-label="Developer Tools"
+    :aria-label="translate('developerTools.title')"
     class="api-reference-toolbar bg-b-1 relative z-1 flex h-10 justify-center border-b px-15">
     <div
       class="-mx-2 flex max-w-(--refs-content-max-width) flex-1 items-center">

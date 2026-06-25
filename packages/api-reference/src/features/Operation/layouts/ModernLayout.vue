@@ -20,6 +20,7 @@ import { Section, SectionContent, SectionHeaderTag } from '@/components/Section'
 import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
+import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
@@ -76,6 +77,7 @@ const {
     document?: OpenApiDocument
   }
 >()
+const { translate } = useLocalization()
 
 const operationTitle = computed(() => operation.summary || path || '')
 
@@ -129,7 +131,8 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           <Badge
             v-if="isWebhook"
             class="font-code text-green flex w-fit items-center justify-center gap-1">
-            <ScalarIconWebhooksLogo weight="bold" />Webhook
+            <ScalarIconWebhooksLogo weight="bold" />
+            {{ translate('operation.webhook') }}
           </Badge>
           <!-- x-badges before -->
           <XBadges
@@ -169,7 +172,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           <SpecificationExtension :value="operationExtensions" />
           <ScalarMarkdown
             :anchorPrefix="id"
-            aria-label="Operation Description"
+            :aria-label="translate('common.description')"
             role="group"
             transformType="heading"
             :value="operation.description"
