@@ -1702,6 +1702,24 @@
                     "filepath": "documentation/plugins.md",
                     "type": "page"
                   },
+                  "blocks": {
+                    "title": "Blocks",
+                    "type": "group",
+                    "mode": "flat",
+                    "icon": "phosphor/regular/squares-four",
+                    "children": {
+                      "getting-started": {
+                        "title": "Getting Started",
+                        "filepath": "documentation/guides/blocks/getting-started.md",
+                        "type": "page"
+                      },
+                      "code-example": {
+                        "title": "Code Example",
+                        "filepath": "documentation/guides/blocks/code-example.md",
+                        "type": "page"
+                      }
+                    }
+                  },
                   "openapi": {
                     "title": "OpenAPI",
                     "filepath": "documentation/openapi.md",
