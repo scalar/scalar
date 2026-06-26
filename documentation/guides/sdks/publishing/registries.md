@@ -18,7 +18,7 @@ For how publishing works end to end, see [Publishing](overview.md).
 | [PHP](php.md) | Packagist | Git tag | none |
 | [Swift](swift.md) | Swift Package Manager | Git tag | none |
 | [Dart](dart.md) | pub.dev | OIDC | none (OIDC) or `PUB_TOKEN` |
-| [CLI](cli.md) | Homebrew / macOS | Token | `HOMEBREW_TAP_TOKEN` (Homebrew only) |
+| [CLI](cli.md) | npm / Homebrew / macOS | OIDC or token | none (npm OIDC) or `NPM_TOKEN`, plus `HOMEBREW_TAP_TOKEN` for Homebrew |
 | C++ | — | — | none (built in CI, no registry) |
 
 ## Two ways to authenticate
