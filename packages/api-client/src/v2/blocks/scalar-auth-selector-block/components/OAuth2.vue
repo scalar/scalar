@@ -6,6 +6,8 @@ export type OAuth2Options = Pick<
 > & {
   /** Optional fetch override (IPC-backed on desktop) used for token exchange, refresh, and OIDC discovery */
   customFetch?: typeof fetch
+  /** Optional redirect capture (loopback-backed on desktop) for interactive OAuth2 flows */
+  captureOAuth2Callback?: CaptureOAuth2Callback
 }
 </script>
 
@@ -41,6 +43,7 @@ import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/
 import {
   authorizeOauth2,
   refreshOauth2Token,
+  type CaptureOAuth2Callback,
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
@@ -259,6 +262,7 @@ const handleAuthorize = async (): Promise<void> => {
     proxyUrl,
     getEnvironmentVariables(environment),
     options.customFetch,
+    options.captureOAuth2Callback,
   )
 
   await loader.clear()
