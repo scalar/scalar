@@ -45,13 +45,22 @@ import { isUrl } from '@/helpers/is-url'
 
 import WatchModeToggle from './WatchModeToggle.vue'
 
-const { workspaceStore, eventBus, fileLoader } = defineProps<{
+const { workspaceStore, eventBus, fileLoader, fetch } = defineProps<{
   /** The workspace store for adding documents */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting operation creation events */
   eventBus: WorkspaceEventBus
   /** Loader plugin for file import */
   fileLoader?: LoaderPlugin
+  /**
+   * Custom fetch used to retrieve documents from a URL. On desktop this is the
+   * IPC-backed fetch; the temporary draft store needs it too, otherwise the
+   * renderer's global fetch is blocked by the Content Security Policy.
+   */
+  fetch?: (
+    input: string | URL | globalThis.Request,
+    init?: RequestInit,
+  ) => Promise<Response>
 }>()
 
 const emit = defineEmits<{
@@ -148,6 +157,7 @@ const handleImport = async (
   // This is to get the title of the document so we can generate a unique slug for store
   const draftStore = createWorkspaceStore({
     fileLoader,
+    fetch,
     meta: {
       /** Ensure we use the active proxy to fetch documents */
       'x-scalar-active-proxy':

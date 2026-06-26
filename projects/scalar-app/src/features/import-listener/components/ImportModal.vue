@@ -30,6 +30,7 @@ const {
   modalState,
   isLoading = false,
   fileLoader,
+  fetch,
   defaultProxyUrl,
 } = defineProps<{
   /** The event data for the import */
@@ -40,6 +41,15 @@ const {
   isLoading?: boolean
   /** The file loader */
   fileLoader?: LoaderPlugin
+  /**
+   * Custom fetch used to retrieve documents from a URL. On desktop this is the
+   * IPC-backed fetch; the workspace store needs it too, otherwise the
+   * renderer's global fetch is blocked by the Content Security Policy.
+   */
+  fetch?: (
+    input: string | URL | globalThis.Request,
+    init?: RequestInit,
+  ) => Promise<Response>
   /** List of workspace groups */
   workspaceGroups: WorkspaceGroup[]
   /** The active workspace */
@@ -69,6 +79,7 @@ const watchMode = ref(false)
 // Create the workspace store with the file loader in order to import files
 const workspaceStore = createWorkspaceStore({
   fileLoader,
+  fetch,
   meta: {
     'x-scalar-active-proxy': defaultProxyUrl,
   },

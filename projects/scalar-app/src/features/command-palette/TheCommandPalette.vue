@@ -254,6 +254,13 @@ const paletteProps = computed(() => {
     base.activeDocumentName = activeDocumentName.value
   }
 
+  // The import command fetches documents from a URL into a temporary draft
+  // store. On desktop that store needs the IPC-backed fetch, otherwise the
+  // renderer's global fetch is blocked by the Content Security Policy.
+  if (id === 'import-from-openapi-swagger-postman-curl') {
+    base.fetch = app.options?.customFetch
+  }
+
   return base
 })
 

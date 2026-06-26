@@ -276,6 +276,7 @@ const registry = reactive({
     :activeWorkspace="app.workspace.activeWorkspace.value"
     :darkMode="app.isDarkMode.value"
     :defaultProxyUrl="app.defaultProxyUrl.value"
+    :fetch="app.options?.customFetch"
     :fileLoader="fileLoader"
     :isOnlyOneWorkspace="filteredWorkspaces.length <= 1"
     :workspaceGroups
