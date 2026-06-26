@@ -317,7 +317,9 @@ const webhookHar = computed(() => {
       path,
       example: localExampleKey.value,
       requestBodyCompositionSelection,
-      defaultDisabledParameters: false,
+      // Only required parameters are shown in code examples; optional parameters
+      // are omitted unless explicitly enabled via `x-disabled: false`.
+      defaultDisabledParameters: true,
     })
   } catch (error) {
     console.error('[webhookHar]', error)
@@ -332,7 +334,9 @@ const generatedCode = computed<string>(() => {
   }
 
   return generateCodeSnippet({
-    defaultDisabledParameters: false,
+    // Only required parameters are shown in code examples; optional parameters
+    // are omitted unless explicitly enabled via `x-disabled: false`.
+    defaultDisabledParameters: true,
     includeDefaultHeaders: integration === 'client',
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value.samples,

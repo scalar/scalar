@@ -1528,6 +1528,73 @@ describe('RequestExample', () => {
     })
   })
 
+  describe('Query parameters', () => {
+    const operationWithQueryParams: OperationObject = {
+      summary: 'Operation with query parameters',
+      parameters: [
+        {
+          name: 'requiredParam',
+          in: 'query',
+          required: true,
+          schema: { type: 'integer' },
+        },
+        {
+          name: 'optionalParam',
+          in: 'query',
+          required: false,
+          schema: { type: 'integer' },
+        },
+      ],
+    }
+
+    it('only includes required query parameters in the code example', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          operation: operationWithQueryParams,
+          selectedClient: 'shell/curl' as AvailableClient,
+        },
+      })
+
+      const content = wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content') as string
+
+      expect(content).toContain('requiredParam')
+      expect(content).not.toContain('optionalParam')
+    })
+
+    it('includes an optional query parameter when explicitly enabled via x-disabled', () => {
+      const operation: OperationObject = {
+        summary: 'Operation with an explicitly enabled optional parameter',
+        parameters: [
+          {
+            name: 'optionalParam',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer' },
+            examples: {
+              default: {
+                'x-disabled': false,
+                value: 1,
+              },
+            },
+          },
+        ],
+      }
+
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          operation,
+          selectedClient: 'shell/curl' as AvailableClient,
+        },
+      })
+
+      const content = wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content') as string
+
+      expect(content).toContain('optionalParam')
+    })
+  })
+
   describe('Accessibility', () => {
     it('has proper ARIA labels', () => {
       const wrapper = mount(RequestExample, {
