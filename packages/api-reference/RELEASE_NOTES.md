@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.62.0 (2026-06-26)
+
+### API Reference UI localization, AsyncAPI protocol filters, and custom legal links
+
+This release adds built-in localization support for seven languages with automatic RTL layout for Arabic, introduces protocol and server filters to AsyncAPI navigation, and ships an OpenAPI extension for custom legal links.
+
+- Configure API Reference UI language with built-in English, Russian, Spanish, French, German, Simplified Chinese, and Arabic translations, plus automatic RTL direction for Arabic locales
+- Filter AsyncAPI sidebar navigation by protocol and server to narrow down operations reachable over a selected protocol or server
+- Render custom legal links (privacy policy, imprint) in the introduction using the new `x-scalar-links` OpenAPI extension
+- Request and response example pickers now sync across operations—selecting an example on one operation selects it on every operation that defines it
+- Show `propertyNames` type and format constraints (like `string · uuid`) for map keys in schema documentation
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1620)
+
 ## 1.61.0 (2026-06-22)
 
 ### AsyncAPI operations, messages, and protocols now render inline

@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.11 (2026-06-26)
+
+### Synced example pickers and improved array parameter display
+
+Example selections now sync across all operations, making it easier to see the same use case throughout your API. Array parameters in deepObject style also display with the correct trailing brackets to match the actual request.
+
+- Selecting a request or response example now applies that choice to every operation that defines the same example
+- Array parameters in deepObject style now show trailing brackets (like filter[ids][]) so the table matches the serialized request
+- Editing array parameter values preserves the array type when writing back to the request
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1111)
+
 ## 1.1.10 (2026-06-22)
 
 ### Request signing, auth token fixes, and parameter editing improvements
