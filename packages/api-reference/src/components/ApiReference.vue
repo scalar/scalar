@@ -19,7 +19,10 @@ import {
   ScalarColorModeToggleIcon,
 } from '@scalar/components/color-mode-toggle'
 import { addScalarClassesToHeadless } from '@scalar/components/helpers'
-import { ScalarSidebarFooter } from '@scalar/components/sidebar'
+import {
+  ScalarSidebarFooter,
+  ScalarSidebarSection,
+} from '@scalar/components/sidebar'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
@@ -69,6 +72,10 @@ import {
   watch,
 } from 'vue'
 
+import {
+  AsyncApiSidebarFilters,
+  filterAsyncApiNavigation,
+} from '@/blocks/scalar-asyncapi-sidebar-filters-block'
 import {
   AgentScalarButton,
   AgentScalarDrawer,
@@ -237,6 +244,28 @@ const documentOptionList = computed(() =>
     id: c.slug,
   })),
 )
+
+/**
+ * AsyncAPI sidebar filters (protocol + server).
+ *
+ * These mirror the document picker: stacked dropdowns at the top of the sidebar
+ * that narrow the visible operations. State resets whenever the active document
+ * changes so a filter never leaks across documents.
+ */
+const selectedProtocol = ref<string>('')
+const selectedServer = ref<string>('')
+
+/** The active document, narrowed to AsyncAPI (or `null` for OpenAPI documents). */
+const activeAsyncApiDocument = computed(() => {
+  const document = workspaceStore.workspace.activeDocument
+  return isAsyncApiDocument(document) ? document : null
+})
+
+// Reset the filters when switching documents.
+watch(activeSlug, () => {
+  selectedProtocol.value = ''
+  selectedServer.value = ''
+})
 
 /** Configuration overrides to apply to the selected document (from the localhost toolbar) */
 const configurationOverrides = ref<
@@ -584,10 +613,19 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
     return []
   }
 
-  const docItems =
+  const rawDocItems =
     sidebarState.items.value.find(
       (item): item is TraversedTag => item.id === activeSlug.value,
     )?.children ?? []
+
+  // Apply the AsyncAPI protocol/server filters to the sidebar tree. This is a no-op
+  // for OpenAPI documents and when no filter is selected.
+  const docItems = activeAsyncApiDocument.value
+    ? filterAsyncApiNavigation(rawDocItems, activeAsyncApiDocument.value, {
+        protocol: selectedProtocol.value,
+        server: selectedServer.value,
+      })
+    : rawDocItems
 
   // When the default open all tags configuration is enabled we open all the children of the document
   if (config.defaultOpenAllTags) {
@@ -1376,10 +1414,23 @@ const showMCPButton = computed(() => {
 
                 <AgentScalarButton v-if="agent.agentEnabled.value" />
               </div>
+
               <!-- Sidebar Start -->
               <slot
                 name="sidebar-start"
                 v-bind="slotProps" />
+            </template>
+            <template #before>
+              <!-- AsyncAPI protocol + server filters (only render with >1 choice) -->
+              <AsyncApiSidebarFilters
+                v-model:protocol="selectedProtocol"
+                v-model:server="selectedServer"
+                :document="activeAsyncApiDocument" />
+              <ScalarSidebarSection
+                v-if="activeAsyncApiDocument"
+                class="asyncapi-sidebar-document-section">
+                Document
+              </ScalarSidebarSection>
             </template>
             <template #footer>
               <slot
@@ -1479,6 +1530,11 @@ const showMCPButton = computed(() => {
                   :modelValue="activeSlug"
                   :options="documentOptionList"
                   @update:modelValue="changeSelectedDocument" />
+                <AsyncApiSidebarFilters
+                  is="div"
+                  v-model:protocol="selectedProtocol"
+                  v-model:server="selectedServer"
+                  :document="activeAsyncApiDocument" />
               </div>
               <SearchButton
                 v-if="!mergedConfig.hideSearch"
@@ -1546,6 +1602,10 @@ const showMCPButton = computed(() => {
 /** Used to check if css is loaded */
 :root {
   --scalar-loaded-api-reference: true;
+}
+
+.asyncapi-sidebar-document-section > .group\/spacer-after {
+  height: 0;
 }
 </style>
 <style scoped>

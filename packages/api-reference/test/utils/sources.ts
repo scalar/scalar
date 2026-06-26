@@ -39,6 +39,11 @@ export const sources = [
     layout: 'classic',
   },
   {
+    title: 'AsyncAPI Sidebar Filters',
+    slug: 'asyncapi-sidebar-filters',
+    url: 'examples/asyncapi-filters.yaml',
+  },
+  {
     title: 'Tag Groups',
     slug: 'tag-groups',
     content: {

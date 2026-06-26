@@ -24,5 +24,16 @@ Reusable schemas defined under `components.schemas` are rendered in the **Models
 
 Rendering works in both the `modern` and `classic` layouts.
 
+## Filtering by protocol and server
+
+When a document defines more than one protocol or server, **filter pickers** appear at the top of the sidebar, stacked beneath the document picker and working just like it:
+
+- **Protocol** — shown when the servers use more than one `protocol` (for example a `wss` WebSocket server alongside an `mqtt` or `kafka` server). Selecting a protocol hides operations that aren't reachable over a server using it.
+- **Server** — shown when the document defines more than one server. Selecting a server hides operations whose channel isn't reachable through it.
+
+Both filters operate on the navigation tree itself: operations that don't match are hidden, and any channel or tag left empty is dropped. Channels that declare no `servers` are treated as available on every server (and therefore every protocol). Choosing **All protocols** / **All servers** clears that filter, and the filters reset when you switch documents.
+
+Each picker is only shown when there is more than one option to choose from.
+
 > [!NOTE]
 > AsyncAPI support is still a work in progress, so not every part of the specification is rendered yet. The progress is tracked on GitHub in [issue #7080](https://github.com/scalar/scalar/issues/7080) — subscribe there to receive updates.

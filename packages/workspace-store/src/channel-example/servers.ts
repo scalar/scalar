@@ -54,7 +54,7 @@ const getServerNameFromRef = (ref: string): string | undefined => getNameFromRef
  * Returns `undefined` when the channel does not declare `servers`, signaling that every
  * top-level server is allowed.
  */
-const getChannelServerNames = (
+export const getChannelServerNames = (
   document: AsyncApiDocument,
   channel: AsyncApiChannelObject | null,
 ): Set<string> | undefined => {
