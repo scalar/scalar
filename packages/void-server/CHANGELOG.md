@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.5.2
+
+### Patch Changes
+
+- [#9608](https://github.com/scalar/scalar/pull/9608): Add logger options to `createVoidServer`.
+
 ## 2.5.1
 
 ## 2.5.0
