@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.4.0
+
+### Minor Changes
+
+- [#9590](https://github.com/scalar/scalar/pull/9590): Add syntax highlighting for the Mojo programming language
+
 ## 0.3.6
 
 ### Patch Changes
