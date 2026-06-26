@@ -8,6 +8,7 @@ import { nextTick } from 'vue'
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
+import type { CaptureOAuth2Callback } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 
 describe('OAuth2', () => {
   const baseEnv = {
@@ -28,7 +29,9 @@ describe('OAuth2', () => {
       server: any
       proxyUrl: string
       scheme: any
-      configuration: Partial<ApiClientConfiguration>
+      configuration: Partial<ApiClientConfiguration> & {
+        captureOAuth2Callback?: CaptureOAuth2Callback
+      }
     }> = {},
   ) => {
     const flows =
@@ -286,6 +289,36 @@ describe('OAuth2', () => {
       },
       name: 'OAuth2',
     })
+  })
+
+  it('does not persist a redirect URI when captureOAuth2Callback is provided', async () => {
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', emitted)
+
+    mountWithProps({
+      configuration: {
+        oauth2RedirectUri: 'http://127.0.0.1',
+        captureOAuth2Callback: vi.fn(),
+      },
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+
+    // The desktop loopback path owns the redirect URI at runtime, so nothing is
+    // written into the document.
+    expect(emitted).not.toHaveBeenCalled()
   })
 
   it('does not pre-fill redirect URI on file protocol without config override', async () => {

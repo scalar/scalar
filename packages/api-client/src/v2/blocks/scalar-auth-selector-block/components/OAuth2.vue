@@ -232,7 +232,14 @@ watch(
 
     hasHandledRedirectPrefill.value = true
 
-    if (newRedirectUri || !defaultRedirectUri) {
+    // The desktop loopback path computes the redirect URI at authorize time (an
+    // ephemeral 127.0.0.1 port), so persisting a default into the document would
+    // only bake in a stale, unused value. Leave it empty and show a hint instead.
+    if (
+      newRedirectUri ||
+      !defaultRedirectUri ||
+      options.captureOAuth2Callback
+    ) {
       return
     }
 
@@ -433,7 +440,11 @@ const handleSecretLocationUpdate = (value: string): void => {
       <RequestAuthDataTableInput
         :environment
         :modelValue="flow['x-scalar-secret-redirect-uri']"
-        placeholder="Optional redirect URL"
+        :placeholder="
+          options.captureOAuth2Callback
+            ? `${resolveDefaultOAuth2RedirectUri(options) || 'http://127.0.0.1'} (handled automatically)`
+            : 'Optional redirect URL'
+        "
         @update:modelValue="
           (v) => {
             hasHandledRedirectPrefill = true

@@ -76,6 +76,11 @@ const closeCallbackServer = (server: http.Server): Promise<void> =>
       return
     }
 
+    // Force-close lingering keep-alive sockets. The browser keeps idle
+    // connections open, and `server.close()` waits for every socket to end, so
+    // without this the callback (and therefore the token exchange) can stall for
+    // minutes until those idle connections time out.
+    server.closeAllConnections()
     server.close(() => resolve())
   })
 
