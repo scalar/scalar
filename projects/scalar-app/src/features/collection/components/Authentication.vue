@@ -156,13 +156,18 @@ const server = computed(() => {
  */
 const authOptions = computed<OAuth2Options | undefined>(() => {
   const routeOptions = toValue(options)
-  if (!routeOptions?.oauth2RedirectUri && !routeOptions?.customFetch) {
+  if (
+    !routeOptions?.oauth2RedirectUri &&
+    !routeOptions?.customFetch &&
+    !routeOptions?.captureOAuth2Callback
+  ) {
     return undefined
   }
 
   return {
     oauth2RedirectUri: routeOptions.oauth2RedirectUri,
     customFetch: routeOptions.customFetch,
+    captureOAuth2Callback: routeOptions.captureOAuth2Callback,
   }
 })
 

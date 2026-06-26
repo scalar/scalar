@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { authorizeOauth2 } from '@electron/main/actions/authorize-oauth2'
 import { getExchangeToken } from '@electron/main/actions/get-exchange-token'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import todesktop from '@todesktop/runtime'
@@ -98,6 +99,7 @@ app.whenReady().then(() => {
   onIpcEvent('openFilePicker', handlePickFile)
   onIpcEvent('readFile', handleReadFile)
   onIpcEvent('getExchangeToken', getExchangeToken)
+  onIpcEvent('authorizeOauth2', authorizeOauth2)
 
   // customFetch is registered with ipcMain.handle directly (not onIpcEvent) so
   // the handler receives event.sender — the WebContents needed to stream SSE

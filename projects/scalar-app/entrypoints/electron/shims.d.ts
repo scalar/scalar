@@ -35,6 +35,15 @@ declare global {
         accessToken: string
         refreshToken: string
       } | null>
+      /**
+       * Run an interactive OAuth2 authorization for the API being tested.
+       * Opens the system browser and captures the redirect on a loopback server.
+       * The main process owns the `redirect_uri` (an ephemeral loopback port) and
+       * reports it back so the renderer can match it in the token exchange.
+       */
+      authorizeOauth2: (params: {
+        authorizationUrl: string
+      }) => Promise<{ callbackUrl: string; redirectUri: string } | { error: string }>
       /** Get the file system path for a File object */
       getPathForFile: (file: File) => string
       /** Execute a fetch request via undici in the main process (bypasses CORS/Chromium) */
