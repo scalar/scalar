@@ -75,6 +75,14 @@ export const ar = {
   asyncapi: {
     servers: 'الخوادم',
     protocols: 'البروتوكولات',
+    bindings: 'الارتباطات',
+    tags: 'الوسوم',
+    reply: 'الرد',
+    replyChannel: 'قناة الرد',
+    replyAddress: 'عنوان الرد',
+    replyMessages: 'رسائل الرد',
+    correlationId: 'معرّف الربط',
+    examples: 'أمثلة',
   },
   clientLibraries: {
     heading: 'مكتبات العملاء',

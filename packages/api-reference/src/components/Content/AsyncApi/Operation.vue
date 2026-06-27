@@ -10,10 +10,15 @@ import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionHeaderTag } from '@/components/Section'
+import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiBindings from './AsyncApiBindings.vue'
+import AsyncApiOperationReply from './AsyncApiOperationReply.vue'
+import AsyncApiTags from './AsyncApiTags.vue'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
+import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiOperation } from './helpers/resolve-async-api-nodes'
 import Message from './Message.vue'
@@ -75,6 +80,11 @@ const messages = computed(() =>
     'asyncapi-message',
   ),
 )
+
+/** Operation-level security requirements, rendered as a badge in the header. */
+const requiredSecurity = computed(() =>
+  getAsyncApiRequiredSecurity(document, resolvedOperation.value),
+)
 </script>
 
 <template>
@@ -100,6 +110,10 @@ const messages = computed(() =>
           {{ headingText }}
         </SectionHeaderTag>
       </Anchor>
+      <SecurityRequirementBadge
+        v-if="requiredSecurity.state !== 'none'"
+        class="operation-security"
+        :requiredSecurity="requiredSecurity" />
     </div>
 
     <ScalarMarkdown
@@ -107,6 +121,16 @@ const messages = computed(() =>
       class="operation-description"
       :value="description"
       withImages />
+
+    <AsyncApiTags
+      :externalDocs="resolvedOperation?.externalDocs"
+      :tags="resolvedOperation?.tags" />
+
+    <AsyncApiBindings :bindings="resolvedOperation?.bindings" />
+
+    <AsyncApiOperationReply
+      v-if="resolvedOperation?.reply"
+      :reply="resolvedOperation.reply" />
 
     <Message
       v-for="message in messages"
