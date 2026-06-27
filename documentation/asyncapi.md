@@ -10,6 +10,12 @@ Scalar.createApiReference('#app', {
 })
 ```
 
+## Supported versions
+
+The reference renders against the AsyncAPI **3.x** shape. Older documents are upgraded automatically on load, so you can pass a **1.x** or **2.x** document and it renders the same way — there's nothing extra to configure.
+
+Behind the scenes the document is converted to the latest 3.x version (for example `subscribe`/`publish` operations nested under a channel are lifted into the top-level `operations` map, and a server `url` is split into `host` and `pathname`). The original version is preserved on the document as `x-original-aas-version` for reference.
+
 ## What renders
 
 The reference renders the AsyncAPI document grouped by channel. For each channel you'll see:
