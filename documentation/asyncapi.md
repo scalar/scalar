@@ -22,11 +22,35 @@ The reference renders the AsyncAPI document grouped by channel. For each channel
 
 - The channel title (or address) and description.
 - **Server** and **protocol** labels for the channel: the servers it's available on (from `document.servers`, restricted to `channel.servers` when declared) and their protocols (for example `wss`, `kafka`).
+- The channel's **tags** and **external documentation** link.
 - The channel address **parameters**.
+- The channel **bindings** (see [Protocol bindings](#protocol-bindings) below).
 - Each **operation** on the channel, nested beneath it, with its `send`/`receive` action, title, and summary/description.
-- Each **message** under its operation, shown as a collapsible accordion. The message header shows **protocol** labels for every protocol it's carried over — its channel's server protocols unioned with any protocols it declares its own `bindings` for. Expanding a message reveals its description and its **headers** and **payload** schemas. Messages start collapsed and stay in sync with the sidebar, so selecting a message in the navigation (or opening a deep link to it) expands it here too.
+
+Each operation also shows:
+
+- A **security** badge in its header when the operation declares `security` (resolved against `components.securitySchemes`, including any requirements inherited from its servers).
+- Its **tags** and **external documentation** link.
+- Its **bindings**.
+- Its **reply**, for request/reply operations — the reply channel address, the reply address `location`/`description`, and the reply message names.
+
+Each **message** is shown under its operation as a collapsible accordion. The message header shows **protocol** labels for every protocol it's carried over — its channel's server protocols unioned with any protocols it declares its own `bindings` for. Expanding a message reveals:
+
+- Its description, **tags**, and **external documentation** link.
+- Its **headers** and **payload** schemas.
+- Its **correlation ID** (location and description).
+- Its **examples** (each example's name/summary with the example payload and headers).
+- Its **bindings**.
+
+Messages start collapsed and stay in sync with the sidebar, so selecting a message in the navigation (or opening a deep link to it) expands it here too.
 
 Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
+
+## Protocol bindings
+
+[Bindings](https://www.asyncapi.com/docs/reference/specification/v3.1.0#operationBindingsObject) are rendered on servers' channels, operations, and messages. Each protocol declared in a `bindings` object is shown as a labeled group with its fields listed as key/value pairs — simple values inline, and structured values (such as a binding's `headers` or `query` schema) as formatted JSON.
+
+All protocols defined by AsyncAPI are displayed generically (for example `kafka`, `amqp`, `mqtt`, `ws`, `sns`, `sqs`, and the rest), so a binding's configuration is always visible even for protocols without a dedicated, schema-aware view.
 
 Rendering works in both the `modern` and `classic` layouts.
 
