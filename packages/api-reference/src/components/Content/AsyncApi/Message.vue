@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -10,13 +11,16 @@ import { Anchor } from '@/components/Anchor'
 import { Schema } from '@/components/Content/Schema'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
+import { useLocalization } from '@/features/localization'
 import {
   getAsyncApiMessageHeadersSchema,
   getAsyncApiMessagePayloadSchema,
 } from '@/helpers/get-async-api-message-payload-schema'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiBindings from './AsyncApiBindings.vue'
 import AsyncApiLabels from './AsyncApiLabels.vue'
+import AsyncApiTags from './AsyncApiTags.vue'
 import {
   resolveSchemaRenderOptions,
   type AsyncApiSchemaRenderOptions,
@@ -45,6 +49,8 @@ const {
   /** Map of navigation item id to expanded state, shared with the sidebar. */
   expandedItems?: Record<string, boolean>
 }>()
+
+const { translate } = useLocalization()
 
 const headerId = useId()
 const section = useTemplateRef<HTMLElement>('section')
@@ -115,6 +121,19 @@ const headersSchema = computed(() =>
     : undefined,
 )
 
+/** Correlation ID location/description, with any `$ref` resolved. */
+const correlationId = computed(() => {
+  const value = resolvedMessage.value?.correlationId
+  return value ? getResolvedRef(value) : undefined
+})
+
+/** Message examples, with any per-entry `$ref` resolved. */
+const examples = computed(() =>
+  (resolvedMessage.value?.examples ?? []).map((example) =>
+    getResolvedRef(example),
+  ),
+)
+
 /** Fill in defaults so the shared Schema renderer always receives a complete options object. */
 const schemaOptions = computed<SchemaOptions>(() => ({
   hideReadOnly: false,
@@ -176,6 +195,10 @@ const onToggle = (open: boolean) => {
         :value="description"
         withImages />
 
+      <AsyncApiTags
+        :externalDocs="resolvedMessage?.externalDocs"
+        :tags="resolvedMessage?.tags" />
+
       <div
         v-if="headersSchema"
         class="message-schema">
@@ -201,6 +224,59 @@ const onToggle = (open: boolean) => {
           :options="schemaOptions"
           :schema="payloadSchema" />
       </div>
+
+      <div
+        v-if="correlationId"
+        class="message-schema">
+        <div class="message-schema-title">
+          {{ translate('asyncapi.correlationId') }}
+        </div>
+        <code class="message-correlation-location">{{
+          correlationId.location
+        }}</code>
+        <ScalarMarkdown
+          v-if="correlationId.description"
+          class="message-description"
+          :value="correlationId.description"
+          withImages />
+      </div>
+
+      <div
+        v-if="examples.length"
+        class="message-schema">
+        <div class="message-schema-title">
+          {{ translate('asyncapi.examples') }}
+        </div>
+        <div
+          v-for="(example, index) in examples"
+          :key="example?.name ?? index"
+          class="message-example">
+          <div
+            v-if="example?.name || example?.summary"
+            class="message-example-heading">
+            <span
+              v-if="example?.name"
+              class="message-example-name">
+              {{ example.name }}
+            </span>
+            <span
+              v-if="example?.summary"
+              class="message-example-summary">
+              {{ example.summary }}
+            </span>
+          </div>
+          <ScalarCodeBlock
+            v-if="example?.headers"
+            :content="example.headers"
+            lang="json" />
+          <ScalarCodeBlock
+            v-if="example?.payload !== undefined"
+            :content="example.payload as object"
+            lang="json" />
+        </div>
+      </div>
+
+      <AsyncApiBindings :bindings="resolvedMessage?.bindings" />
     </SectionAccordion>
   </div>
 </template>
@@ -246,5 +322,30 @@ const onToggle = (open: boolean) => {
   padding-bottom: 8px;
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   margin-bottom: 8px;
+}
+.message-correlation-location {
+  font-size: var(--scalar-small);
+}
+.message-example {
+  margin-top: 8px;
+}
+.message-example:first-of-type {
+  margin-top: 0;
+}
+.message-example-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.message-example-name {
+  font-family: var(--scalar-font-code);
+  font-size: var(--scalar-small);
+  color: var(--scalar-color-1);
+}
+.message-example-summary {
+  font-size: var(--scalar-small);
+  color: var(--scalar-color-2);
 }
 </style>

@@ -13,6 +13,9 @@ import { SectionHeaderTag } from '@/components/Section'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiBindings from './AsyncApiBindings.vue'
+import AsyncApiOperationReply from './AsyncApiOperationReply.vue'
+import AsyncApiTags from './AsyncApiTags.vue'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
 import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
@@ -116,6 +119,16 @@ const requiredSecurity = computed(() =>
       withImages />
 
     <OperationScopes :requiredSecurity="requiredSecurity" />
+
+    <AsyncApiTags
+      :externalDocs="resolvedOperation?.externalDocs"
+      :tags="resolvedOperation?.tags" />
+
+    <AsyncApiBindings :bindings="resolvedOperation?.bindings" />
+
+    <AsyncApiOperationReply
+      v-if="resolvedOperation?.reply"
+      :reply="resolvedOperation.reply" />
 
     <Message
       v-for="message in messages"

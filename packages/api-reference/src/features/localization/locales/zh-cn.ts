@@ -75,6 +75,14 @@ export const zhCn = {
   asyncapi: {
     servers: '服务器',
     protocols: '协议',
+    bindings: '绑定',
+    tags: '标签',
+    reply: '回复',
+    replyChannel: '回复通道',
+    replyAddress: '回复地址',
+    replyMessages: '回复消息',
+    correlationId: '关联 ID',
+    examples: '示例',
   },
   clientLibraries: {
     heading: '客户端库',
