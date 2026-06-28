@@ -85,6 +85,19 @@ const collectSecurityRequirements = (
     .filter((requirement): requirement is SecurityRequirementObject => requirement != null)
 }
 
+const dedupeRequirements = (requirements: SecurityRequirementObject[]): SecurityRequirementObject[] => {
+  const seen = new Set<string>()
+
+  return requirements.filter((requirement) => {
+    const key = JSON.stringify(requirement)
+    if (seen.has(key)) {
+      return false
+    }
+    seen.add(key)
+    return true
+  })
+}
+
 /**
  * Converts AsyncAPI security arrays (operation, traits, server) into OpenAPI-style requirement objects.
  */
@@ -103,14 +116,25 @@ export const getAsyncApiSecurityRequirements = (
         ? operationRequirements
         : [...operationRequirements, ...serverRequirements]
 
-  const seen = new Set<string>()
+  return dedupeRequirements(combined)
+}
 
-  return combined.filter((requirement) => {
-    const key = JSON.stringify(requirement)
-    if (seen.has(key)) {
-      return false
-    }
-    seen.add(key)
-    return true
-  })
+/**
+ * Document-wide security requirements for an AsyncAPI document.
+ *
+ * AsyncAPI has no root-level `security`; the closest document-wide scope is the union of every
+ * server's security (a server applies to the whole connection). Operation-level security is
+ * intentionally excluded here — that is per-channel and handled separately.
+ */
+export const getAsyncApiDocumentSecurityRequirements = (document: AsyncApiDocument): SecurityRequirementObject[] => {
+  const servers = document.servers ? getResolvedRef(document.servers) : undefined
+  if (!servers) {
+    return []
+  }
+
+  const combined = Object.values(servers).flatMap((serverRef) =>
+    getAsyncApiSecurityRequirements(document, null, getResolvedRef(serverRef)),
+  )
+
+  return dedupeRequirements(combined)
 }
