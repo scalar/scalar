@@ -839,6 +839,15 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
+  integrations/dotnet/azure-functions:
+    dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../../packages/api-reference
+      '@scalar/dotnet-shared':
+        specifier: workspace:*
+        version: link:../shared
+
   integrations/dotnet/shared:
     devDependencies:
       '@scalar/snippetz':
