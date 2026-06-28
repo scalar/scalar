@@ -10,6 +10,7 @@ import {
 } from '@scalar/workspace-store/channel-example'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   getSelectedServer,
   getServers,
@@ -22,6 +23,7 @@ import {
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
+import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type {
   Workspace,
   WorkspaceDocument,
@@ -182,14 +184,44 @@ const asyncApiSelectedServer = computed(() =>
 )
 
 /** Merge authentication config with the document security schemes */
-const securitySchemes = computed(() =>
-  mergeSecurity(
+const securitySchemes = computed(() => {
+  // AsyncAPI stores its security schemes in the same `components.securitySchemes` slot. The
+  // scheme shapes overlap with OpenAPI for http/apiKey/oauth2/openIdConnect; broker-specific
+  // types (scramSha*, plain, X509, …) flow through unchanged and degrade gracefully downstream.
+  if (asyncApiClientDocument.value) {
+    const components = asyncApiClientDocument.value.components
+      ? getResolvedRef(asyncApiClientDocument.value.components)
+      : undefined
+
+    return mergeSecurity(
+      components?.securitySchemes as ComponentsObject['securitySchemes'],
+      options.authentication?.securitySchemes,
+      authStore,
+      asyncApiClientDocument.value['x-scalar-navigation']?.name ?? '',
+      options.oauth2RedirectUri,
+    )
+  }
+
+  return mergeSecurity(
     openApiClientDocument.value?.components?.securitySchemes,
     options.authentication?.securitySchemes,
     authStore,
     openApiClientDocument.value?.['x-scalar-navigation']?.name ?? '',
     options.oauth2RedirectUri,
-  ),
+  )
+})
+
+/**
+ * Whether to show the document-level auth selector.
+ *
+ * For OpenAPI it stays tied to `hideTestRequestButton`, since the auth feeds the interactive
+ * test client. AsyncAPI has no document-level test request, so its auth display is decoupled
+ * from that flag and shown whenever a document is present.
+ */
+const showAuthSelector = computed(
+  () =>
+    Boolean(document) &&
+    (Boolean(asyncApiDocument.value) || !options.hideTestRequestButton),
 )
 
 /** Ensures firstLazyLoadComplete is set for documents with no Lazy sections (e.g. no operations/tags/models). */
@@ -253,7 +285,7 @@ onMounted(() => {
         <!-- Auth selector -->
         <ScalarErrorBoundary>
           <IntroductionCardItem
-            v-if="document && !options.hideTestRequestButton"
+            v-if="showAuthSelector"
             class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
             <Auth
               :authStore

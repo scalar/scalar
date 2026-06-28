@@ -28,7 +28,10 @@ export {
   operationMatchesProtocol,
   operationMatchesServer,
 } from './get-async-api-protocols'
-export { getAsyncApiSecurityRequirements } from './get-asyncapi-security-requirements'
+export {
+  getAsyncApiDocumentSecurityRequirements,
+  getAsyncApiSecurityRequirements,
+} from './get-asyncapi-security-requirements'
 export { getChannelConnectionContext } from './get-channel-connection-context'
 export { getChannelConnectionSecurityRequirements } from './get-channel-connection-security'
 export type { ChannelOperationSummary } from './get-channel-operations'
