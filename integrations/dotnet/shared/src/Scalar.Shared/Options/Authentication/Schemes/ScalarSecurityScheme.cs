@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 
 #if SCALAR_ASPIRE
 namespace Scalar.Aspire;
+#elif SCALAR_AZURE_FUNCTIONS
+namespace Scalar.Azure.Functions;
 #else
 namespace Scalar.AspNetCore;
 #endif

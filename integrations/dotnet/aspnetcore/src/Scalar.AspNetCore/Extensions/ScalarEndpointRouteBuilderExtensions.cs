@@ -1,18 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
-using System.Security.Cryptography;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-#if RELEASE
-using System.IO.Compression;
-#endif
 
 namespace Scalar.AspNetCore;
 
@@ -26,8 +18,6 @@ public static class ScalarEndpointRouteBuilderExtensions
     internal const string ScalarJavaScriptFile = "scalar.js";
     private const string ScalarJavaScriptHelperFile = "scalar.aspnetcore.js";
     private const string ScalarFavicon = "favicon.svg";
-
-    private static readonly EmbeddedFileProvider FileProvider = new(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, "ScalarStaticAssets");
 
     /// <summary>
     /// Maps the Scalar API reference endpoint with the default endpoint prefix <c>"/scalar"</c>.
@@ -141,17 +131,9 @@ public static class ScalarEndpointRouteBuilderExtensions
                 options.AddDocument("v1");
             }
 
-            var configuration = options.ToScalarConfiguration();
-            var serializedConfiguration = JsonSerializer.Serialize(configuration, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
-
-            var title = options.Documents.Count == 1 ? options.Title?.Replace(DocumentName, options.Documents[0].Name) : options.Title;
-            var standaloneResourceUrl = string.IsNullOrEmpty(options.BundleUrl) ? ScalarJavaScriptFile : options.BundleUrl;
-
-            var escapedRequestPath = Uri.EscapeDataString(httpContext.Request.Path);
-
             // Auto-generated values win when both are set — a per-request nonce is the secure path.
             var effectiveNonce = options.DynamicNonce
-                ? GenerateNonce()
+                ? ScalarNonce.Generate()
                 : options.Nonce;
 
             if (!string.IsNullOrWhiteSpace(effectiveNonce))
@@ -161,36 +143,9 @@ public static class ScalarEndpointRouteBuilderExtensions
                 httpContext.Response.Headers.CacheControl = "no-store";
             }
 
-            var nonceAttribute = string.IsNullOrWhiteSpace(effectiveNonce)
-                ? string.Empty
-                : $" nonce=\"{HtmlEncoder.Default.Encode(effectiveNonce)}\"";
+            var html = ScalarHtmlBuilder.BuildIndexHtml(options, httpContext.Request.Path, effectiveNonce, ScalarJavaScriptHelperFile, ScalarJavaScriptFile);
 
-            return Results.Content(
-                $$"""
-                  <!doctype html>
-                  <html>
-                  <head>
-                      <title>{{title}}</title>
-                      <meta charset="utf-8" />
-                      <meta name="viewport" content="width=device-width, initial-scale=1" />
-                      {{options.HeadContent}}
-                  </head>
-                  <body>
-                      {{options.HeaderContent}}
-                      <div id="app"></div>
-                      <script src="{{standaloneResourceUrl}}"{{nonceAttribute}}></script>
-                      <script type="module" src="{{ScalarJavaScriptHelperFile}}"{{nonceAttribute}}></script>
-                      <script type="module"{{nonceAttribute}}>
-                          import { initialize } from './{{ScalarJavaScriptHelperFile}}'
-                          initialize(
-                          '{{escapedRequestPath}}',
-                          {{options.DynamicBaseServerUrl.ToString().ToLowerInvariant()}},
-                          {{serializedConfiguration}},
-                          '{{options.JavaScriptConfiguration}}')
-                      </script>
-                  </body>
-                  </html>
-                  """, "text/html");
+            return Results.Content(html, "text/html");
         });
 
         return scalarEndpointGroup;
@@ -209,8 +164,9 @@ public static class ScalarEndpointRouteBuilderExtensions
     private static IResult HandleStaticAsset(string file, HttpContext httpContext, string contentType)
     {
         httpContext.Response.Headers.CacheControl = "no-cache";
-        var resourceFile = FileProvider.GetFileInfo(file);
-        if (!resourceFile.Exists)
+
+        var gzipAccepted = httpContext.Request.IsGzipAccepted();
+        if (!ScalarStaticAssets.TryGetAsset(file, gzipAccepted, out var asset))
         {
             // Return 404 if the file does not exist. This should not happen because the file is embedded.
             return Results.NotFound();
@@ -218,52 +174,19 @@ public static class ScalarEndpointRouteBuilderExtensions
 
         httpContext.Response.Headers.Append(HeaderNames.Vary, HeaderNames.AcceptEncoding);
 
-        var etag = GenerateContentBasedETag(resourceFile);
         var ifNoneMatch = httpContext.Request.Headers.IfNoneMatch.ToString();
-        if (ifNoneMatch == etag)
+        if (ifNoneMatch == asset.ETag)
         {
+            asset.Stream.Dispose();
             return Results.StatusCode(StatusCodes.Status304NotModified);
         }
 
-        var stream = CreateResourceStream(resourceFile, httpContext);
-        return Results.Stream(stream, contentType, entityTag: new EntityTagHeaderValue(etag, true));
-    }
-
-    private static string GenerateContentBasedETag(IFileInfo resourceFile)
-    {
-        var fileLength = resourceFile.Length;
-        var lastModified = resourceFile.LastModified.Ticks;
-
-        var combined = $"{fileLength}-{lastModified}";
-        var hash = combined.GetHashCode();
-        return $"\"{Math.Abs(hash):x8}\"";
-    }
-
-    private static Stream CreateResourceStream(IFileInfo resourceFile, HttpContext httpContext)
-    {
-#if RELEASE
-        if (httpContext.Request.IsGzipAccepted())
+        if (asset.ContentEncoding is not null)
         {
-            httpContext.Response.Headers.ContentEncoding = "gzip";
-            return resourceFile.CreateReadStream();
+            httpContext.Response.Headers.ContentEncoding = asset.ContentEncoding;
         }
 
-        return new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress);
-#else
-        // We don't have pre-compress files in Debug builds
-        return resourceFile.CreateReadStream();
-#endif
-    }
-
-    private static string GenerateNonce()
-    {
-        Span<byte> bytes = stackalloc byte[32];
-        RandomNumberGenerator.Fill(bytes);
-        // Base64url avoids '+' and '/', which HtmlEncoder.Default would otherwise escape as numeric entities.
-        return Convert.ToBase64String(bytes)
-            .TrimEnd('=')
-            .Replace('+', '-')
-            .Replace('/', '_');
+        return Results.Stream(asset.Stream, contentType, entityTag: new EntityTagHeaderValue(asset.ETag, true));
     }
 
     private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)
