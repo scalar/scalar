@@ -127,26 +127,23 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/Planet'
-                  - $ref: '#/components/schemas/PaginatedResource'
+                $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets'
+                # Bind the generic Paginated template's item type to Planet via a $dynamicAnchor.
+                $defs:
+                  itemType:
+                    $dynamicAnchor: itemType
+                    $ref: '#/components/schemas/Planet'
+                $ref: '#/components/schemas/Paginated'
             application/xml:
               schema:
-                allOf:
-                  - type: object
-                    xml:
-                      name: planets
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/Planet'
-                  - $ref: '#/components/schemas/PaginatedResource'
+                $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanetsXml'
+                xml:
+                  name: planets
+                $defs:
+                  itemType:
+                    $dynamicAnchor: itemType
+                    $ref: '#/components/schemas/Planet'
+                $ref: '#/components/schemas/Paginated'
       x-post-response: |
         pm.test("Status code is 200", () => {
           pm.response.to.have.status(200);
@@ -1240,6 +1237,23 @@ components:
               description: Average distance from the planet in kilometers
               examples:
                 - 9376
+    Paginated:
+      description:
+        A generic paginated response. Specializing schemas bind the item type by declaring a
+        `$dynamicAnchor` named `itemType`, the JSON Schema 2020-12 way to express `Paginated<T>`.
+      $id: 'https://galaxy.scalar.com/schemas/Paginated'
+      $defs:
+        itemType:
+          $dynamicAnchor: itemType
+          not: {}
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $dynamicRef: '#itemType'
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResource'
     PaginatedResource:
       description: A paginated resource
       type: object
