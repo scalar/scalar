@@ -400,15 +400,134 @@ describe('ScalarDocusaurus', () => {
         actions: mockActions,
       })
 
-      expect(mockActions.addRoute).toHaveBeenCalledWith(
+      // The configuration is serialized to a JavaScript object literal string so it survives
+      // Docusaurus' JSON serialization of route props.
+      const route = mockActions.addRoute.mock.calls[0][0]
+      expect(route).toEqual(
         expect.objectContaining({
           path: '/scalar',
           exact: true,
-          configuration: {
-            theme: 'purple',
-          },
         }),
       )
+      expect(typeof route.configuration).toBe('string')
+      expect(route.configuration).toContain('"theme": "purple"')
+    })
+
+    it('preserves function-valued configuration options through serialization', () => {
+      const mockContext = {
+        siteConfig: {
+          baseUrl: '/',
+          themeConfig: {
+            navbar: {
+              items: [],
+            },
+          },
+        },
+      } as any
+
+      const mockActions = {
+        addRoute: vi.fn(),
+      } as any
+
+      const plugin = ScalarDocusaurus(mockContext, {
+        label: 'Scalar',
+        route: '/scalar',
+      })
+
+      plugin.contentLoaded?.({
+        content: {
+          configuration: {
+            url: 'https://example.com/openapi.json',
+            onBeforeRequest: ({ request }: { request: Request }) => {
+              request.headers.set('Authorization', 'Bearer token')
+            },
+          },
+        } as any,
+        actions: mockActions,
+      })
+
+      const route = mockActions.addRoute.mock.calls[0][0]
+
+      // The callback survives as live JavaScript source instead of being dropped by JSON.stringify.
+      expect(route.configuration).toContain('onBeforeRequest')
+      expect(route.configuration).toContain('request.headers.set')
+      expect(route.configuration).toContain('Authorization')
+      expect(route.configuration).toContain('"url": "https://example.com/openapi.json"')
+    })
+
+    it('evaluates a function-valued content at build time instead of shipping it to the browser', () => {
+      const mockContext = {
+        siteConfig: {
+          baseUrl: '/',
+          themeConfig: {
+            navbar: {
+              items: [],
+            },
+          },
+        },
+      } as any
+
+      const mockActions = {
+        addRoute: vi.fn(),
+      } as any
+
+      const plugin = ScalarDocusaurus(mockContext, {
+        label: 'Scalar',
+        route: '/scalar',
+      })
+
+      plugin.contentLoaded?.({
+        content: {
+          configuration: {
+            content: () => ({ openapi: '3.1.0', info: { title: 'Generated', version: '1.0.0' } }),
+          },
+        } as any,
+        actions: mockActions,
+      })
+
+      const route = mockActions.addRoute.mock.calls[0][0]
+
+      // The function ran in Node and only its result is serialized, so no callback leaks into the browser.
+      expect(route.configuration).toContain('"openapi": "3.1.0"')
+      expect(route.configuration).toContain('"title": "Generated"')
+      expect(route.configuration).not.toContain('=>')
+    })
+
+    it('drops content when a url is also provided, matching the CDN HTML path', () => {
+      const mockContext = {
+        siteConfig: {
+          baseUrl: '/',
+          themeConfig: {
+            navbar: {
+              items: [],
+            },
+          },
+        },
+      } as any
+
+      const mockActions = {
+        addRoute: vi.fn(),
+      } as any
+
+      const plugin = ScalarDocusaurus(mockContext, {
+        label: 'Scalar',
+        route: '/scalar',
+      })
+
+      plugin.contentLoaded?.({
+        content: {
+          configuration: {
+            url: 'https://example.com/openapi.json',
+            content: () => ({ openapi: '3.1.0' }),
+          },
+        } as any,
+        actions: mockActions,
+      })
+
+      const route = mockActions.addRoute.mock.calls[0][0]
+
+      expect(route.configuration).toContain('"url": "https://example.com/openapi.json"')
+      expect(route.configuration).not.toContain('content')
     })
 
     it('uses default route when none specified', () => {

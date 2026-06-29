@@ -54,6 +54,7 @@
     }
   },
   "dependencies": {
+    "@scalar/client-side-rendering": "workspace:*",
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {

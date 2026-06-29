@@ -21,6 +21,7 @@
     "types:check": "tsgo --noEmit"
   },
   "type": "module",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
