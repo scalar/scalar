@@ -1236,4 +1236,32 @@ describe('mergeAllOfSchemas', () => {
 
     expect(() => mergeAllOfSchemas({ allOf: [node, node] } as any)).not.toThrow()
   })
+
+  it('does not infinitely recurse when a self-reference is reached through allOf', () => {
+    // Reproduces https://github.com/scalar/scalar/issues/9570: a schema whose
+    // self-reference sits inside an `allOf` branch (common output from tools
+    // that model TypeScript inheritance as `allOf`).
+    //
+    //   Node:
+    //     allOf:
+    //       - { type: object, properties: { name: { type: string } } }
+    //       - { type: object, properties: { self: { $ref: '#/components/schemas/Node' } } }
+    //
+    // `self` only ever appears as a brand-new property, so it took the
+    // unguarded new-property branch and recursed forever.
+    const node: any = {
+      allOf: [
+        { type: 'object', properties: { name: { type: 'string' } } },
+        {
+          type: 'object',
+          properties: {
+            self: { $ref: '#/components/schemas/Node', '$ref-value': null },
+          },
+        },
+      ],
+    }
+    node.allOf[1].properties.self['$ref-value'] = node
+
+    expect(() => mergeAllOfSchemas(node)).not.toThrow()
+  })
 })

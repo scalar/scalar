@@ -230,9 +230,23 @@ const mergePropertiesIntoResult = (
     }
 
     if (!result[key]) {
+      // Break self-referential cycles reached through `allOf`. When a brand-new
+      // property's `$ref` is already being merged higher in the call stack,
+      // keep the raw reference instead of recursing into its `allOf` forever.
+      // This mirrors the guard in the "merge existing property" branch below and
+      // covers schemas that point back at themselves through an `allOf` member
+      // (e.g. a node whose `self` property $refs the node, which is an allOf).
+      const rawProperty = properties[key]
+      const newSchemaRef = (rawProperty as { $ref?: string })?.$ref
+      if (rawProperty && typeof newSchemaRef === 'string' && seenRefs.has(newSchemaRef)) {
+        result[key] = rawProperty
+        continue
+      }
+      const nextNewSeenRefs = typeof newSchemaRef === 'string' ? new Set(seenRefs).add(newSchemaRef) : seenRefs
+
       // Handle new property with allOf
       if (schema.allOf) {
-        result[key] = mergeAllOfSchemas(schema, undefined, seenRefs)
+        result[key] = mergeAllOfSchemas(schema, undefined, nextNewSeenRefs)
       } else if (isArraySchema(schema) && resolve.schema(schema.items)?.allOf) {
         result[key] = {
           ...schema,
