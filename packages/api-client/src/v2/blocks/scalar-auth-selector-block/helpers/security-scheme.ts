@@ -118,18 +118,26 @@ export const getSecuritySchemeOptions = (
     },
   )
 
-  // Build available schemes (excluding schemes that are in the required list)
+  // Build available schemes (excluding schemes that are in the required list).
+  //
+  // We only offer schemes that are not declared by the operation when the user is
+  // allowed to attach arbitrary authentication (the standalone client). In the
+  // reference docs and the request modal, the operation's `security` is authoritative:
+  // per the OpenAPI spec, only the schemes a request lists may be used to authorize it,
+  // so a scheme that merely exists under `components.securitySchemes` must not be offered.
   const availableFormatted: SecuritySchemeOption[] = []
-  for (const [name, schemeRef] of Object.entries(securitySchemes)) {
-    if (requiredSchemeNames.has(name)) {
-      continue
-    }
+  if (canAddNewAuth) {
+    for (const [name, schemeRef] of Object.entries(securitySchemes)) {
+      if (requiredSchemeNames.has(name)) {
+        continue
+      }
 
-    const scheme = getResolvedRef(schemeRef)
-    if (scheme) {
-      const formatted = formatScheme({ name, value: { [name]: [] } })
-      availableFormatted.push(formatted)
-      existingIds.add(formatted.id)
+      const scheme = getResolvedRef(schemeRef)
+      if (scheme) {
+        const formatted = formatScheme({ name, value: { [name]: [] } })
+        availableFormatted.push(formatted)
+        existingIds.add(formatted.id)
+      }
     }
   }
 
