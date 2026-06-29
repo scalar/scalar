@@ -151,6 +151,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@scalar/asyncapi-upgrader": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",

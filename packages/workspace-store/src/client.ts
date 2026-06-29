@@ -1,3 +1,4 @@
+import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
@@ -1000,12 +1001,23 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // AsyncAPI ingestion: skip the OpenAPI-specific upgrade and validation pipeline.
     // The OpenAPI `coerce` step would otherwise inject an empty `openapi: ''` field
-    // and break the type discriminator.
+    // and break the type discriminator. We still run the AsyncAPI-specific upgrader so
+    // 1.x/2.x documents are converted to the 3.x shape the renderer and traversal expect
+    // (e.g. lifting channel `publish`/`subscribe` into top-level `operations`).
     if (isAsyncApiDocument(clonedRawInputDocument)) {
+      // Capture the original version before the upgrader bumps `asyncapi` to the latest.
+      const originalAasVersion = clonedRawInputDocument.asyncapi
+      // The upgrader is typed against the loose `UnknownObject` shape; the result is a valid
+      // 3.x AsyncAPI document, so cast it back so the spread below still satisfies `AsyncApiDocument`.
+      const upgradedAsyncApiDocument = withMeasurementSync(
+        'upgrade',
+        () => upgradeAsyncApi(deepClone(clonedRawInputDocument)) as AsyncApiDocument,
+      )
+
       const asyncApiDocument = createMagicProxy({
-        ...clonedRawInputDocument,
+        ...upgradedAsyncApiDocument,
         ...meta,
-        'x-original-aas-version': clonedRawInputDocument.asyncapi,
+        'x-original-aas-version': originalAasVersion,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
       }) satisfies AsyncApiDocument

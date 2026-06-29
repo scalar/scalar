@@ -2649,6 +2649,9 @@ importers:
 
   packages/workspace-store:
     dependencies:
+      '@scalar/asyncapi-upgrader':
+        specifier: workspace:*
+        version: link:../asyncapi-upgrader
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers

@@ -4009,7 +4009,8 @@ describe('create-workspace-store', () => {
       // the type discriminator. Asserting both presence and absence guards
       // against that regression.
       expect(document).toMatchObject({
-        asyncapi: '3.0.0',
+        // The upgrader canonicalizes 3.0 documents to 3.1 (the original is kept below).
+        asyncapi: '3.1.0',
         info: { title: 'Streetlights API', version: '1.0.0' },
         'x-original-aas-version': '3.0.0',
         'x-scalar-original-document-hash': expect.any(String),
@@ -4028,7 +4029,7 @@ describe('create-workspace-store', () => {
       })
     })
 
-    it('does not upgrade the asyncapi version during ingestion', async () => {
+    it('upgrades the asyncapi version during ingestion and records the original', async () => {
       const store = createWorkspaceStore()
 
       await store.addDocument({
@@ -4042,8 +4043,48 @@ describe('create-workspace-store', () => {
       const legacy = store.workspace.documents['legacy']
       expect(isAsyncApiDocument(legacy)).toBe(true)
       assert(isAsyncApiDocument(legacy))
-      expect(legacy.asyncapi).toBe('2.6.0')
+      // The AsyncAPI upgrader lifts the document to the latest 3.x shape the renderer expects.
+      expect(legacy.asyncapi).toBe('3.1.0')
+      // The original version is preserved for reference.
       expect(legacy['x-original-aas-version']).toBe('2.6.0')
+    })
+
+    it('lifts 2.x channel operations into top-level operations so they render', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        document: {
+          asyncapi: '2.4.0',
+          info: { title: 'Cube Local API', version: 'dev' },
+          servers: { local: { url: 'localhost:1883', protocol: 'mqtt' } },
+          channels: {
+            'devices/{deviceID}/logs': {
+              parameters: { deviceID: { description: 'The ID of the device', schema: { type: 'string' } } },
+              subscribe: {
+                operationId: 'subscribeLogMessage',
+                message: { $ref: '#/components/messages/subscribeLogMessage' },
+              },
+            },
+          },
+          components: {
+            messages: {
+              subscribeLogMessage: { name: 'LogMessage', payload: { type: 'object' } },
+            },
+          },
+        },
+        name: 'cube',
+      })
+
+      const cube = store.workspace.documents['cube']
+      assert(isAsyncApiDocument(cube))
+
+      // 2.x `subscribe` is lifted to a top-level operation, and the server `url` becomes `host`.
+      expect(cube.operations?.['subscribeLogMessage']).toBeDefined()
+      expect(cube.servers?.['local']).toMatchObject({ host: 'localhost:1883', protocol: 'mqtt' })
+
+      // The channel now surfaces in the navigation tree instead of being dropped.
+      const channelTitles = JSON.stringify(cube['x-scalar-navigation'])
+      expect(channelTitles).toContain('devices/{deviceID}/logs')
     })
 
     it('bundles external channel references when the document is not preprocessed', async () => {
@@ -4119,7 +4160,7 @@ describe('create-workspace-store', () => {
       await store.addDocument({ url: 'https://example.com/asyncapi.json', name: 'remote' })
 
       expect(store.workspace.documents['remote']).toMatchObject({
-        asyncapi: '3.0.0',
+        asyncapi: '3.1.0',
         'x-scalar-original-source-url': 'https://example.com/asyncapi.json',
       })
     })
