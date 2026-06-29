@@ -3,6 +3,7 @@ package com.scalar.maven.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scalar.maven.core.config.ScalarAgentOptions;
+import com.scalar.maven.core.config.ScalarMcpOptions;
 import com.scalar.maven.core.enums.*;
 import com.scalar.maven.core.internal.ScalarConfiguration;
 import com.scalar.maven.core.internal.ScalarConfigurationMapper;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test class for ScalarConfiguration and related functionality.
@@ -125,6 +127,39 @@ public class ScalarConfigurationTest {
         assertNotNull(config.getAgent());
         assertEquals("production-agent-key", config.getAgent().getKey());
         assertEquals(false, config.getAgent().getDisabled());
+    }
+
+    @Test
+    public void testNewConfigurationOptionsSerialization() throws JsonProcessingException {
+        ScalarProperties properties = new ScalarProperties();
+        properties.setModelsSectionLabel("Schemas");
+        properties.setExpandAllSchemaProperties(true);
+        properties.setDefaultOpenFirstTag(false);
+
+        ScalarMcpOptions mcp = new ScalarMcpOptions();
+        mcp.setName("My API");
+        mcp.setUrl("https://mcp.example.com");
+        properties.setMcp(mcp);
+
+        ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
+        String json = new ObjectMapper().writeValueAsString(config);
+
+        assertTrue(json.contains("\"modelsSectionLabel\":\"Schemas\""));
+        assertTrue(json.contains("\"expandAllSchemaProperties\":true"));
+        assertTrue(json.contains("\"defaultOpenFirstTag\":false"));
+        assertTrue(json.contains("\"mcp\":{"));
+        assertTrue(json.contains("\"name\":\"My API\""));
+        assertTrue(json.contains("\"url\":\"https://mcp.example.com\""));
+    }
+
+    @Test
+    public void testNewConfigurationOptionDefaults() throws JsonProcessingException {
+        ScalarConfiguration config = ScalarConfigurationMapper.map(new ScalarProperties());
+        String json = new ObjectMapper().writeValueAsString(config);
+
+        // Defaults follow the universal configuration
+        assertTrue(json.contains("\"defaultOpenFirstTag\":true"));
+        assertTrue(json.contains("\"expandAllSchemaProperties\":false"));
     }
 
     @Test

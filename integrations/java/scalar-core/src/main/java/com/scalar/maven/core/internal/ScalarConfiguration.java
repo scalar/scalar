@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scalar.maven.core.authentication.ScalarAuthenticationOptions;
 import com.scalar.maven.core.config.DefaultHttpClient;
 import com.scalar.maven.core.config.ScalarAgentOptions;
+import com.scalar.maven.core.config.ScalarMcpOptions;
 import com.scalar.maven.core.config.ScalarServer;
 import com.scalar.maven.core.config.ScalarSource;
 import com.scalar.maven.core.enums.*;
@@ -133,6 +134,18 @@ public class ScalarConfiguration {
 
     @JsonProperty("agent")
     private ScalarAgentOptions agent;
+
+    @JsonProperty("modelsSectionLabel")
+    private String modelsSectionLabel;
+
+    @JsonProperty("expandAllSchemaProperties")
+    private Boolean expandAllSchemaProperties;
+
+    @JsonProperty("defaultOpenFirstTag")
+    private Boolean defaultOpenFirstTag;
+
+    @JsonProperty("mcp")
+    private ScalarMcpOptions mcp;
 
     // Getters and setters
     public String getUrl() {
@@ -421,5 +434,37 @@ public class ScalarConfiguration {
 
     public void setAgent(ScalarAgentOptions agent) {
         this.agent = agent;
+    }
+
+    public String getModelsSectionLabel() {
+        return modelsSectionLabel;
+    }
+
+    public void setModelsSectionLabel(String modelsSectionLabel) {
+        this.modelsSectionLabel = modelsSectionLabel;
+    }
+
+    public Boolean getExpandAllSchemaProperties() {
+        return expandAllSchemaProperties;
+    }
+
+    public void setExpandAllSchemaProperties(Boolean expandAllSchemaProperties) {
+        this.expandAllSchemaProperties = expandAllSchemaProperties;
+    }
+
+    public Boolean getDefaultOpenFirstTag() {
+        return defaultOpenFirstTag;
+    }
+
+    public void setDefaultOpenFirstTag(Boolean defaultOpenFirstTag) {
+        this.defaultOpenFirstTag = defaultOpenFirstTag;
+    }
+
+    public ScalarMcpOptions getMcp() {
+        return mcp;
+    }
+
+    public void setMcp(ScalarMcpOptions mcp) {
+        this.mcp = mcp;
     }
 }

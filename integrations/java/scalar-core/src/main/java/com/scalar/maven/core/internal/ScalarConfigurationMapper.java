@@ -63,6 +63,10 @@ public class ScalarConfigurationMapper {
         config.setOrderSchemaPropertiesBy(properties.getSchemaPropertyOrder());
         config.setShowDeveloperTools(properties.getShowDeveloperTools());
         config.setAgent(properties.getAgent());
+        config.setModelsSectionLabel(properties.getModelsSectionLabel());
+        config.setExpandAllSchemaProperties(properties.isExpandAllSchemaProperties());
+        config.setDefaultOpenFirstTag(properties.isDefaultOpenFirstTag());
+        config.setMcp(properties.getMcp());
 
         return config;
     }
