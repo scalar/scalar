@@ -24,6 +24,9 @@
     "packages/oas-utils/src/migrations/*/types.generated.ts"
   ],
   "ignoreDependencies": [
+    // Invoked as `changeset version` via the retry wrapper in the release:version
+    // script, so knip cannot see the binary in the package.json script string
+    "@changesets/cli",
     // Used by GitHub Actions Cloudflare Pages deployment (`cloudflare/wrangler-action`)
     "wrangler",
     // Used by `.changeset/config.json`
