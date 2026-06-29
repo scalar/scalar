@@ -47,6 +47,48 @@ describe('dynamic-ref', () => {
       expect(anchors.get('itemType')).toMatchObject({ type: 'string' })
     })
 
+    it('collects an anchor nested under properties', () => {
+      const anchors = collectDynamicAnchors(
+        schema({
+          $id: 'urn:wrapper',
+          type: 'object',
+          properties: {
+            items: { type: 'array', items: { $dynamicAnchor: 'itemType', type: 'string' } },
+          },
+        }),
+      )
+      expect(anchors.get('itemType')).toMatchObject({ type: 'string' })
+    })
+
+    it('collects an anchor nested inside an allOf branch', () => {
+      const anchors = collectDynamicAnchors(
+        schema({
+          $id: 'urn:node',
+          allOf: [{ type: 'object' }, { $dynamicAnchor: 'node', properties: { value: { type: 'string' } } }],
+        }),
+      )
+      expect(anchors.has('node')).toBe(true)
+    })
+
+    it('does not cross a nested $id resource boundary', () => {
+      const anchors = collectDynamicAnchors(
+        schema({
+          $id: 'urn:outer',
+          properties: {
+            // A nested resource (`$id`) owns its anchors; they are collected when it is entered, not here.
+            embedded: { $id: 'urn:inner', $dynamicAnchor: 'inner', type: 'object' },
+          },
+        }),
+      )
+      expect(anchors.has('inner')).toBe(false)
+    })
+
+    it('does not loop on a self-referential schema', () => {
+      const root = schema({ $id: 'urn:cycle', type: 'object' })
+      ;(root as Record<string, unknown>).properties = { self: root }
+      expect(() => collectDynamicAnchors(root)).not.toThrow()
+    })
+
     it('returns an empty map when there are no dynamic anchors', () => {
       expect(collectDynamicAnchors(schema({ type: 'object' })).size).toBe(0)
     })
