@@ -7,7 +7,7 @@ import { ROUTES } from '@/features/app/helpers/routes'
  * Runtime behaviour overrides shared between the api client app and createAppState.
  * Derived from the canonical ApiClientOptions to guarantee structural compatibility.
  */
-export type ApiClientAppOptions = Pick<ApiClientOptions, 'customFetch' | 'oauth2RedirectUri'>
+export type ApiClientAppOptions = Pick<ApiClientOptions, 'customFetch' | 'oauth2RedirectUri' | 'captureOAuth2Callback'>
 
 /**
  * Creates the appropriate router with the appropriate routes based on the layout

@@ -195,6 +195,17 @@ describe('document collection', () => {
     })
   })
 
+  it('forwards captureOAuth2Callback from route options into the AuthSelector options', () => {
+    const captureOAuth2Callback = vi.fn()
+    const { wrapper } = mountWithProps({
+      collectionType: 'document',
+      options: { captureOAuth2Callback, oauth2RedirectUri: 'http://127.0.0.1' },
+    })
+
+    const authSelector = wrapper.findComponent(AuthSelector)
+    expect(authSelector.props('options')?.captureOAuth2Callback).toBe(captureOAuth2Callback)
+  })
+
   it('forwards customFetch even without an oauth2RedirectUri', () => {
     const customFetch = vi.fn()
     const { wrapper } = mountWithProps({

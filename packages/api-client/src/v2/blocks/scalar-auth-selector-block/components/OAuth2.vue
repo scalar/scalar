@@ -6,6 +6,8 @@ export type OAuth2Options = Pick<
 > & {
   /** Optional fetch override (IPC-backed on desktop) used for token exchange, refresh, and OIDC discovery */
   customFetch?: typeof fetch
+  /** Optional redirect capture (loopback-backed on desktop) for interactive OAuth2 flows */
+  captureOAuth2Callback?: CaptureOAuth2Callback
 }
 </script>
 
@@ -41,6 +43,7 @@ import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/
 import {
   authorizeOauth2,
   refreshOauth2Token,
+  type CaptureOAuth2Callback,
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
@@ -229,7 +232,14 @@ watch(
 
     hasHandledRedirectPrefill.value = true
 
-    if (newRedirectUri || !defaultRedirectUri) {
+    // The desktop loopback path computes the redirect URI at authorize time (an
+    // ephemeral 127.0.0.1 port), so persisting a default into the document would
+    // only bake in a stale, unused value. Leave it empty and show a hint instead.
+    if (
+      newRedirectUri ||
+      !defaultRedirectUri ||
+      options.captureOAuth2Callback
+    ) {
       return
     }
 
@@ -259,6 +269,7 @@ const handleAuthorize = async (): Promise<void> => {
     proxyUrl,
     getEnvironmentVariables(environment),
     options.customFetch,
+    options.captureOAuth2Callback,
   )
 
   await loader.clear()
@@ -429,7 +440,11 @@ const handleSecretLocationUpdate = (value: string): void => {
       <RequestAuthDataTableInput
         :environment
         :modelValue="flow['x-scalar-secret-redirect-uri']"
-        placeholder="Optional redirect URL"
+        :placeholder="
+          options.captureOAuth2Callback
+            ? `${resolveDefaultOAuth2RedirectUri(options) || 'http://127.0.0.1'} (handled automatically)`
+            : 'Optional redirect URL'
+        "
         @update:modelValue="
           (v) => {
             hasHandledRedirectPrefill = true

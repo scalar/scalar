@@ -17,6 +17,7 @@ try {
     },
     readFile: (filePath: string) => ipcRenderer.invoke('readFile', filePath),
     getExchangeToken: (flow: 'login' | 'register') => ipcRenderer.invoke('getExchangeToken', flow),
+    authorizeOauth2: (params) => ipcRenderer.invoke('authorizeOauth2', params),
     getPathForFile: (file: File) => webUtils.getPathForFile(file),
     customFetch: (request) => ipcRenderer.invoke('customFetch', request),
     customFetchStream: ({ streamId, callbacks }) => {

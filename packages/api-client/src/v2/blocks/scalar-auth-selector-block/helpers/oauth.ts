@@ -43,6 +43,29 @@ export type OAuth2Tokens = {
   refreshToken?: string
 }
 
+/**
+ * Captures the OAuth2 redirect for environments where the browser-popup polling
+ * approach cannot work (notably the Electron desktop app, where the renderer
+ * runs on `file://` and providers reject `file://` redirect URIs).
+ *
+ * The implementation opens the authorization URL in the system browser and
+ * resolves once the provider redirects back. Because the redirect target (for
+ * example an ephemeral loopback port) is only known to the host environment, the
+ * implementation appends the `redirect_uri` itself and reports back the exact
+ * value it used so the token exchange can send the matching `redirect_uri`.
+ */
+export type CaptureOAuth2Callback = (params: {
+  /** The fully built authorization URL, without a `redirect_uri` parameter. */
+  authorizationUrl: string
+}) => Promise<
+  ErrorResponse<{
+    /** The full callback URL the provider redirected to, including query and/or hash params. */
+    callbackUrl: string
+    /** The `redirect_uri` the host environment used, so the token exchange can match it. */
+    redirectUri: string
+  }>
+>
+
 /** Flow types that support token refresh (all except implicit) */
 type RefreshableFlows = Exclude<keyof OAuthFlowsObjectSecret, 'implicit'>
 
@@ -135,6 +158,12 @@ export const authorizeOauth2 = async (
   environmentVariables: Record<string, string> = {},
   /** Fetch used for the token request; the desktop app passes an IPC-backed fetch (see {@link authorizeServers}). */
   customFetch?: CustomFetch,
+  /**
+   * Optional redirect capture for interactive flows (authorization code and implicit).
+   * When provided, the system browser plus a host-owned redirect target replaces the
+   * default popup-polling approach. Required for the Electron desktop app.
+   */
+  captureCallback?: CaptureOAuth2Callback,
 ): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
 
@@ -201,15 +230,19 @@ export const authorizeOauth2 = async (
 
     const typedFlow = flows[type]! // Safe to assert due to earlier check
 
-    // Handle relative redirect uris
-    if (typedFlow['x-scalar-secret-redirect-uri'].startsWith('/')) {
-      const baseUrl =
-        getServerUrl(activeServer, environmentVariables) || window.location.origin + window.location.pathname
-      const redirectUri = new URL(typedFlow['x-scalar-secret-redirect-uri'], baseUrl).toString()
+    // The capture path appends its own `redirect_uri` (it owns the target, for
+    // example an ephemeral loopback port), so we only set it here for the popup path.
+    if (!captureCallback) {
+      // Handle relative redirect uris
+      if (typedFlow['x-scalar-secret-redirect-uri'].startsWith('/')) {
+        const baseUrl =
+          getServerUrl(activeServer, environmentVariables) || window.location.origin + window.location.pathname
+        const redirectUri = new URL(typedFlow['x-scalar-secret-redirect-uri'], baseUrl).toString()
 
-      url.searchParams.set('redirect_uri', redirectUri)
-    } else {
-      url.searchParams.set('redirect_uri', typedFlow['x-scalar-secret-redirect-uri'])
+        url.searchParams.set('redirect_uri', redirectUri)
+      } else {
+        url.searchParams.set('redirect_uri', typedFlow['x-scalar-secret-redirect-uri'])
+      }
     }
 
     if (flow['x-scalar-security-query']) {
@@ -227,6 +260,55 @@ export const authorizeOauth2 = async (
     url.searchParams.set('state', state)
     if (scopes) {
       url.searchParams.set('scope', scopes)
+    }
+
+    // Capture path: open the system browser and let the host environment catch
+    // the redirect (used by the desktop app, where popup polling cannot work).
+    if (captureCallback) {
+      const [captureError, capture] = await captureCallback({ authorizationUrl: url.toString() })
+
+      if (captureError || !capture) {
+        return [captureError ?? new Error('Failed to capture the OAuth2 redirect'), null]
+      }
+
+      const { accessToken, accessTokenParams, code, codeParams, error, errorDescription, refreshToken } =
+        getOAuthCallbackData(() => capture.callbackUrl, flow['x-tokenName'] || 'access_token')
+
+      if (error) {
+        return [new Error(`OAuth error: ${error}${errorDescription ? ` (${errorDescription})` : ''}`), null]
+      }
+
+      // Implicit Flow
+      if (accessToken) {
+        if ((accessTokenParams?.get('state') ?? null) !== state) {
+          return [new Error('State mismatch'), null]
+        }
+        return [null, { accessToken, ...(refreshToken ? { refreshToken } : {}) }]
+      }
+
+      // Authorization Code Server Flow
+      if (code && type === 'authorizationCode') {
+        if ((codeParams?.get('state') ?? null) !== state) {
+          return [new Error('State mismatch'), null]
+        }
+        return authorizeServers(
+          flows,
+          type,
+          scopes,
+          {
+            code,
+            pkce,
+            proxyUrl,
+            customFetch,
+            // The token request must echo the exact redirect_uri used in the authorization request.
+            redirectUri: capture.redirectUri,
+          },
+          activeServer,
+          environmentVariables,
+        )
+      }
+
+      return [new Error('No authorization code or access token was returned'), null]
     }
 
     const windowFeatures = 'left=100,top=100,width=800,height=600'
@@ -318,11 +400,14 @@ const authorizeServers = async (
     pkce,
     proxyUrl,
     customFetch = fetch,
+    redirectUri,
   }: {
     code?: string
     pkce?: PKCEState | null
     proxyUrl?: string
     customFetch?: CustomFetch
+    /** Overrides the stored redirect_uri (the capture path owns the real target). */
+    redirectUri?: string
   } = {},
   activeServer: ServerObject | null,
   environmentVariables: Record<string, string> = {},
@@ -356,7 +441,9 @@ const authorizeServers = async (
   if (addCredentialsToBody && hasClientSecret) {
     formData.set('client_secret', flow['x-scalar-secret-client-secret'])
   }
-  if ('x-scalar-secret-redirect-uri' in flow && flow['x-scalar-secret-redirect-uri']) {
+  if (redirectUri) {
+    formData.set('redirect_uri', redirectUri)
+  } else if ('x-scalar-secret-redirect-uri' in flow && flow['x-scalar-secret-redirect-uri']) {
     formData.set('redirect_uri', flow['x-scalar-secret-redirect-uri'])
   }
 

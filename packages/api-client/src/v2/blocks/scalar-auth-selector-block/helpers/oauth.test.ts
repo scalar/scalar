@@ -107,6 +107,160 @@ describe('oauth', () => {
     })
   })
 
+  describe('Capture callback (desktop loopback)', () => {
+    const dynamicRedirectUri = 'http://127.0.0.1:54321/callback'
+
+    const authCodeScheme = {
+      authorizationCode: {
+        ...baseFlow,
+        'x-usePkce': 'no',
+        authorizationUrl,
+        tokenUrl,
+        'x-scalar-secret-redirect-uri': 'http://127.0.0.1',
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-client-secret': clientSecret,
+      },
+    } satisfies OAuthFlowsObjectSecret
+
+    const implicitScheme = {
+      implicit: {
+        ...baseFlow,
+        authorizationUrl,
+        'x-scalar-secret-redirect-uri': 'http://127.0.0.1',
+        'x-scalar-secret-token': '',
+      },
+    } satisfies OAuthFlowsObjectSecret
+
+    it('builds the authorization URL without a redirect_uri and exchanges the captured code', async () => {
+      const accessToken = 'capture_access_token'
+      const capture = vi
+        .fn()
+        .mockResolvedValue([
+          null,
+          { callbackUrl: `${dynamicRedirectUri}?code=cap_code&state=${state}`, redirectUri: dynamicRedirectUri },
+        ])
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: accessToken }),
+      })
+
+      const [error, result] = await authorizeOauth2(
+        authCodeScheme,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        {},
+        undefined,
+        capture,
+      )
+
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken })
+
+      // The capture path leaves redirect_uri to the host environment.
+      const passedUrl = new URL(capture.mock.calls[0]![0].authorizationUrl)
+      expect(passedUrl.searchParams.has('redirect_uri')).toBe(false)
+      expect(passedUrl.searchParams.get('state')).toBe(state)
+
+      // The token exchange must echo the exact redirect_uri the host used.
+      const body = vi.mocked(global.fetch).mock.calls[0]![1]?.body as URLSearchParams
+      expect(body.get('redirect_uri')).toBe(dynamicRedirectUri)
+      expect(body.get('code')).toBe('cap_code')
+    })
+
+    it('resolves the implicit access token from the captured fragment without a token exchange', async () => {
+      const accessToken = 'implicit_capture_token'
+      const capture = vi.fn().mockResolvedValue([
+        null,
+        {
+          callbackUrl: `${dynamicRedirectUri}#access_token=${accessToken}&state=${state}`,
+          redirectUri: dynamicRedirectUri,
+        },
+      ])
+      global.fetch = vi.fn()
+
+      const [error, result] = await authorizeOauth2(
+        implicitScheme,
+        'implicit',
+        selectedScopes,
+        mockServer,
+        '',
+        {},
+        undefined,
+        capture,
+      )
+
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken })
+      expect(global.fetch).not.toHaveBeenCalled()
+    })
+
+    it('rejects when the captured state does not match', async () => {
+      const capture = vi
+        .fn()
+        .mockResolvedValue([
+          null,
+          { callbackUrl: `${dynamicRedirectUri}?code=cap_code&state=wrong`, redirectUri: dynamicRedirectUri },
+        ])
+
+      const [error, result] = await authorizeOauth2(
+        authCodeScheme,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        {},
+        undefined,
+        capture,
+      )
+
+      expect(result).toBe(null)
+      expect(error?.message).toBe('State mismatch')
+    })
+
+    it('surfaces provider errors returned on the callback', async () => {
+      const capture = vi
+        .fn()
+        .mockResolvedValue([
+          null,
+          { callbackUrl: `${dynamicRedirectUri}?error=access_denied`, redirectUri: dynamicRedirectUri },
+        ])
+
+      const [error, result] = await authorizeOauth2(
+        implicitScheme,
+        'implicit',
+        selectedScopes,
+        mockServer,
+        '',
+        {},
+        undefined,
+        capture,
+      )
+
+      expect(result).toBe(null)
+      expect(error?.message).toContain('access_denied')
+    })
+
+    it('propagates a capture failure', async () => {
+      const capture = vi.fn().mockResolvedValue([new Error('Loopback bind failed'), null])
+
+      const [error, result] = await authorizeOauth2(
+        authCodeScheme,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        {},
+        undefined,
+        capture,
+      )
+
+      expect(result).toBe(null)
+      expect(error?.message).toBe('Loopback bind failed')
+    })
+  })
+
   describe('Authorization Code Grant', () => {
     const scheme = {
       authorizationCode: {
