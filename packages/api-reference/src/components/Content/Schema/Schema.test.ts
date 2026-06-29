@@ -206,6 +206,191 @@ describe('Schema', () => {
 
       expect(wrapper.text()).toContain('Parent schema description')
     })
+
+    // https://github.com/scalar/scalar/issues/7472
+    // NSwag emits the base type as a plain object with a `discriminator.mapping`
+    // but no `oneOf`/`anyOf`. The variant dropdown should still be inferred from
+    // the mapping.
+    it('renders a variant dropdown for an object schema with only discriminator mapping', () => {
+      const document = {
+        components: {
+          schemas: {
+            BaseClass: {
+              type: 'object',
+              discriminator: {
+                propertyName: '$type',
+                mapping: {
+                  Base: '#/components/schemas/BaseClass',
+                  Derived: '#/components/schemas/DerivedClass',
+                },
+              },
+              required: ['$type'],
+              properties: {
+                baseInt: { type: 'integer', format: 'int32' },
+                $type: { type: 'string' },
+              },
+            },
+            DerivedClass: {
+              allOf: [
+                { $ref: '#/components/schemas/BaseClass' },
+                { type: 'object', properties: { derivedInt: { type: 'integer' } } },
+              ],
+            },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: coerceValue(SchemaObjectSchema, document.components.schemas.BaseClass),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      // The composition selector (variant dropdown) should be rendered with the
+      // variants inferred from the mapping.
+      expect(wrapper.find('.composition-selector').exists()).toBe(true)
+      expect(wrapper.text()).toContain('One of')
+      expect(wrapper.text()).toContain('BaseClass')
+
+      // The discriminator property keeps its label inside the selected variant.
+      expect(wrapper.text()).toContain('Discriminator')
+    })
+
+    // https://github.com/scalar/scalar/issues/7472
+    // A schema may factor its common properties out alongside an explicit
+    // `oneOf` and a `discriminator.mapping`. The explicit composition already
+    // renders the selector, so the factored-out properties must not infer a
+    // second one from the same mapping.
+    it('does not infer a second selector for factored properties next to an explicit oneOf', () => {
+      const document = {
+        components: {
+          schemas: {
+            A: { type: 'object', title: 'A', properties: { aId: { type: 'string' } } },
+            B: { type: 'object', title: 'B', properties: { bId: { type: 'string' } } },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: coerceValue(SchemaObjectSchema, {
+            discriminator: {
+              propertyName: 'kind',
+              mapping: { a: '#/components/schemas/A', b: '#/components/schemas/B' },
+            },
+            oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+            properties: { kind: { type: 'string' } },
+          }),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      // Exactly one variant selector, from the explicit oneOf.
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+    })
+
+    // https://github.com/scalar/scalar/issues/7472
+    // A nested property whose schema only declares a `discriminator.mapping`
+    // already gets its selector from `SchemaProperty` (via
+    // `getCompositionsToRender`). The object-properties child must not infer a
+    // second, identical selector.
+    it('does not infer a duplicate selector for a nested discriminator-mapping property', () => {
+      const petSchema = {
+        type: 'object',
+        discriminator: {
+          propertyName: '$type',
+          mapping: {
+            Base: '#/components/schemas/BaseClass',
+            Derived: '#/components/schemas/DerivedClass',
+          },
+        },
+        properties: {
+          baseInt: { type: 'integer' },
+          $type: { type: 'string' },
+        },
+      }
+
+      const document = {
+        components: {
+          schemas: {
+            BaseClass: petSchema,
+            DerivedClass: {
+              allOf: [
+                { $ref: '#/components/schemas/BaseClass' },
+                { type: 'object', properties: { derivedInt: { type: 'integer' } } },
+              ],
+            },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: { pet: petSchema },
+          }),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      // The object's own properties still render alongside the selector.
+      expect(wrapper.text()).toContain('baseInt')
+    })
+
+    // https://github.com/scalar/scalar/issues/7472
+    // A schema that carries its own `allOf` (plus a `discriminator.mapping`) must
+    // keep rendering the `allOf` members. Inference is gated to plain object
+    // schemas (`isTypeObject`), so the mapping does not replace the `allOf`
+    // output with a variant dropdown — the `allOf` members render as before.
+    it('keeps rendering allOf members for a schema that also has a discriminator mapping', () => {
+      const document = {
+        components: {
+          schemas: {
+            Base: {
+              type: 'object',
+              properties: { baseInt: { type: 'integer' } },
+            },
+            Derived: {
+              type: 'object',
+              properties: { derivedInt: { type: 'integer' } },
+            },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: coerceValue(SchemaObjectSchema, {
+            // The `allOf` member carries a property that only appears when the
+            // merged `allOf` renders, not in the inferred oneOf variants.
+            allOf: [{ type: 'object', properties: { sharedAllOfProp: { type: 'string' } } }],
+            discriminator: {
+              propertyName: '$type',
+              mapping: {
+                Base: '#/components/schemas/Base',
+                Derived: '#/components/schemas/Derived',
+              },
+            },
+          }),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      // The allOf member still renders — it was previously replaced by the
+      // inferred variant dropdown alone.
+      expect(wrapper.text()).toContain('sharedAllOfProp')
+    })
   })
 
   describe('additionalProperties Vue prop', () => {

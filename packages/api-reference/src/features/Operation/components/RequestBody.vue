@@ -9,6 +9,7 @@ import type {
 import { computed } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
+import { inferDiscriminatorMappingComposition } from '@/components/Content/Schema/helpers/get-compositions-to-render'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import { getModelNameFromSchema } from '@/components/Content/Schema/helpers/schema-name'
 import {
@@ -73,6 +74,14 @@ const modelLink = computed(
 const partitionedSchema = computed(() => {
   // Early return if not an object schema
   if (!schema.value || !isTypeObject(schema.value)) {
+    return null
+  }
+
+  // A schema whose variants are inferred from a `discriminator.mapping` renders
+  // as a single variant selector, not a flat property list. Splitting it would
+  // duplicate that selector across the visible and collapsed blocks, so we keep
+  // it whole. See https://github.com/scalar/scalar/issues/7472
+  if (inferDiscriminatorMappingComposition(schema.value, document)) {
     return null
   }
 
