@@ -1,5 +1,11 @@
 # @scalar/docusaurus
 
+## 0.8.28
+
+### Patch Changes
+
+- [#9588](https://github.com/scalar/scalar/pull/9588): Fix function-valued configuration options (like `onBeforeRequest` and the request hooks) being dropped in the Docusaurus integration. Docusaurus JSON-serializes route props, which silently strips functions, so the config is now serialized to JavaScript in the plugin and injected as a script. Exposes a reusable `serializeConfigToJs` helper from `@scalar/client-side-rendering`.
+
 ## 0.8.27
 
 ## 0.8.26

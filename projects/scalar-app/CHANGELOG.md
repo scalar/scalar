@@ -1,5 +1,11 @@
 # scalar-app
 
+## 1.1.12
+
+### Patch Changes
+
+- [#9614](https://github.com/scalar/scalar/pull/9614): Fix importing OpenAPI documents from a URL in the desktop app. The temporary draft store used during import now reuses the IPC-backed fetch, so URL imports no longer get blocked by the Content Security Policy.
+
 ## 1.1.11
 
 ## 1.1.10

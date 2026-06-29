@@ -1,5 +1,7 @@
 # @scalar/hono-api-reference
 
+## 0.11.7
+
 ## 0.11.6
 
 ## 0.11.5

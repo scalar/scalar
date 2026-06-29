@@ -1,5 +1,11 @@
 # @scalar/blocks
 
+## 0.1.1
+
+### Patch Changes
+
+- [#9610](https://github.com/scalar/scalar/pull/9610): Only show required parameters in code examples. Optional query, header, and cookie parameters are now omitted from the generated request snippets unless they are explicitly enabled via the `x-disabled: false` extension.
+
 ## 0.1.0
 
 ### Minor Changes

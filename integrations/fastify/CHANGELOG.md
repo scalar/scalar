@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.62.1
+
+### Patch Changes
+
+- [#9539](https://github.com/scalar/scalar/pull/9539): Bundle the plugin with Vite and inline the standalone script at build time. The script used to be read from disk at runtime, which broke when the Fastify app was bundled (for example into a Docker image). The output is now self-contained and bundler-safe.
+
 ## 1.62.0
 
 ## 1.61.0

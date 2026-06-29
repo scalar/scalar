@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 3.13.0
+
+### Minor Changes
+
+- [#9613](https://github.com/scalar/scalar/pull/9613): feat(api-client): support an injectable OAuth2 redirect capture for interactive flows
+
+  Adds an optional `captureOAuth2Callback` option so environments that cannot use browser-popup polling (notably the Electron desktop app, where the renderer runs on `file://`) can run the authorization-code and implicit flows through the system browser and a host-owned redirect target. The desktop app uses this to capture the redirect on a `127.0.0.1` loopback server (RFC 8252).
+
+### Patch Changes
+
+- [#9592](https://github.com/scalar/scalar/pull/9592): fix: only offer the security schemes an operation actually declares
+
+  The auth dropdown no longer lists every scheme from `components.securitySchemes`. In the reference docs and the request modal it now respects the operation's `security`: an operation with `security: []` offers no auth, and an operation that lists a subset of schemes only offers those. The standalone client keeps letting you attach any defined scheme.
+
 ## 3.12.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.6.8
+
+### Patch Changes
+
+- [#9468](https://github.com/scalar/scalar/pull/9468): Express the `/planets` pagination with a generic `Paginated` template that binds its item type through a JSON Schema 2020-12 `$dynamicRef` / `$dynamicAnchor`, demonstrating the `Paginated<T>` pattern
+
 ## 0.6.7
 
 ### Patch Changes
