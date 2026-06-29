@@ -1,5 +1,5 @@
 import { isObject } from '@scalar/helpers/object/is-object'
-import { type Schema, evaluate, intersection, object, string, union } from '@scalar/validation'
+import { type Schema, evaluate, intersection, object, optional, string, union } from '@scalar/validation'
 
 import { referenceExtensions } from '@/general/bundler-extensions'
 
@@ -35,9 +35,15 @@ const e = (value: unknown) => {
  *
  * Use when the specification allows only a Reference Object (not an inline object), for example
  * `operation.channel` or `channel.servers`.
+ *
+ * `$ref-value` is a resolved-document extension populated by the bundler/proxy at access time, so it
+ * is optional here. If coercion required it, an unresolved `{ $ref }` would be filled with a default
+ * instance of `schema` (for a security scheme, the first `type` literal — `userPassword`). Because the
+ * magic proxy shares one target object between a `$ref-value` and the component it points at, that
+ * synthetic default then leaks back over the real definition, clobbering its `type`.
  */
 export const asyncApiResolvedReference = (schema: Schema): Schema =>
-  intersection([asyncApiReferenceObject, object({ '$ref-value': evaluate(e, schema) }), referenceExtensions])
+  intersection([asyncApiReferenceObject, object({ '$ref-value': optional(evaluate(e, schema)) }), referenceExtensions])
 
 /** Inline object or Reference Object with resolved `$ref-value`. */
 export const recursiveRef = (schema: Schema): Schema => union([schema, asyncApiResolvedReference(schema)])

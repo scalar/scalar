@@ -9,6 +9,7 @@ import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isAsyncApiDocument } from '@/schemas'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
@@ -4027,6 +4028,49 @@ describe('create-workspace-store', () => {
         type: 'document',
         children: [{ type: 'text', title: 'Introduction' }],
       })
+    })
+
+    it('preserves security scheme types referenced by a server during ingestion', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        document: {
+          asyncapi: '3.0.0',
+          info: { title: 'Secured API', version: '1.0.0' },
+          servers: {
+            production: {
+              host: 'example.com',
+              protocol: 'wss',
+              // Referencing the schemes from a server is what used to clobber them: the synthetic
+              // `$ref-value` default leaked back over the real definition through the magic proxy.
+              security: [
+                { $ref: '#/components/securitySchemes/bearerAuth' },
+                { $ref: '#/components/securitySchemes/apiKey' },
+                { $ref: '#/components/securitySchemes/oauth2' },
+              ],
+            },
+          },
+          components: {
+            securitySchemes: {
+              bearerAuth: { type: 'http', scheme: 'bearer' },
+              apiKey: { type: 'httpApiKey', name: 'X-Api-Key', in: 'header' },
+              oauth2: {
+                type: 'oauth2',
+                flows: { clientCredentials: { tokenUrl: 'https://example.com/token', availableScopes: {} } },
+              },
+            },
+          },
+        },
+        name: 'secured',
+      })
+
+      const document = store.workspace.documents['secured']
+      assert(isAsyncApiDocument(document))
+
+      const schemes = getResolvedRef(document.components)?.securitySchemes
+      expect(getResolvedRef(schemes?.bearerAuth)?.type).toBe('http')
+      expect(getResolvedRef(schemes?.apiKey)?.type).toBe('httpApiKey')
+      expect(getResolvedRef(schemes?.oauth2)?.type).toBe('oauth2')
     })
 
     it('upgrades the asyncapi version during ingestion and records the original', async () => {
