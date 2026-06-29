@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
@@ -33,10 +33,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting" Version="13.2.1" />
+    <PackageReference Include="Aspire.Hosting" />
     <!-- Aspire.Hosting pulls MessagePack 2.5.192 transitively via StreamJsonRpc, which has a known high-severity advisory (CVE-2026-48109 / GHSA-hv8m-jj95-wg3x). Pin the patched version until the upstream chain ships it. -->
-    <PackageReference Include="MessagePack" Version="2.5.301" />
-    <PackageReference Include="NetEscapades.EnumGenerators.Generators" Version="1.0.0-beta21" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
+    <PackageReference Include="MessagePack" />
+    <PackageReference Include="NetEscapades.EnumGenerators.Generators" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
   </ItemGroup>
 
   <ItemGroup>
