@@ -27,7 +27,10 @@ export type DynamicScope = SchemaObject[]
 
 /** Narrow a schema to one that carries a `$dynamicRef`. */
 export const isDynamicRef = (schema: unknown): schema is SchemaObject & { $dynamicRef: string } =>
-  typeof schema === 'object' && schema !== null && '$dynamicRef' in schema && typeof schema.$dynamicRef === 'string'
+  typeof schema === 'object' &&
+  schema !== null &&
+  '$dynamicRef' in schema &&
+  typeof (schema as { $dynamicRef?: unknown }).$dynamicRef === 'string'
 
 /**
  * Whether a schema introduces something a `$dynamicRef` could later bind to.
@@ -37,47 +40,90 @@ export const isDynamicRef = (schema: unknown): schema is SchemaObject & { $dynam
  * subschemas are skipped to keep the scope small.
  */
 const carriesDynamicAnchor = (schema: SchemaObject): boolean =>
-  '$dynamicAnchor' in schema || '$id' in schema || '$defs' in schema
+  '$dynamicAnchor' in schema || '$id' in schema || '$defs' in (schema as SchemaWithDefs)
+
+/**
+ * Subschema-bearing keywords we descend into when collecting anchors. Covers the object, array and
+ * applicator keywords a `$dynamicAnchor` can realistically sit under. Each entry says how to read the
+ * child schema(s): a lone schema, an array of schemas, or a map of named schemas.
+ */
+const SUBSCHEMA_KEYWORDS = {
+  schema: ['additionalProperties', 'propertyNames', 'items', 'contains', 'not', 'if', 'then', 'else'],
+  list: ['allOf', 'anyOf', 'oneOf', 'prefixItems'],
+  map: ['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas'],
+} as const
 
 /**
  * Collect the `$dynamicAnchor` declarations of a single schema resource, keyed by anchor name.
  *
- * Anchors are looked for at the resource root and inside `$defs` — the two placements used by the
- * common generic and recursive patterns. Anchors nested deeper are not collected (a documented v1
- * limitation). Each target is dereferenced so callers receive the concrete schema the anchor points to.
+ * Anchors are collected anywhere inside the resource's inline structure — root, `$defs`, or nested under
+ * `properties` / `allOf` / `items` / etc. — not just at the two shallow placements. Two boundaries keep
+ * collection scoped to this resource: a nested `$id` starts a new schema resource (its anchors belong to
+ * that resource, gathered when it is entered separately), and a `$ref` is not followed (the referenced
+ * schema is collected at its own location). Each target is dereferenced so callers receive the concrete
+ * schema the anchor points to. See https://github.com/scalar/scalar/issues/9414.
  */
 const anchorCache = new WeakMap<object, Map<string, SchemaObject>>()
 
 export const collectDynamicAnchors = (resource: SchemaObject): Map<string, SchemaObject> => {
   // Cache per raw schema object so repeated lookups during a walk stay cheap.
-  const cacheTarget: object = unpackProxyObject(resource, { depth: 1 })
+  const cacheTarget = unpackProxyObject(resource, { depth: 1 }) as object
   const cached = anchorCache.get(cacheTarget)
   if (cached) {
     return cached
   }
 
   const anchors = new Map<string, SchemaObject>()
+  const seen = new WeakSet<object>()
 
-  const add = (node: SchemaObject | undefined) => {
+  const visit = (node: SchemaObject | undefined, isRoot: boolean) => {
     if (!node || typeof node !== 'object') {
       return
     }
-    const anchor = node.$dynamicAnchor
+
+    // Guard against cycles in the inline schema graph using stable raw-object identity.
+    const raw = unpackProxyObject(node, { depth: 0 }) as object
+    if (seen.has(raw)) {
+      return
+    }
+    seen.add(raw)
+
+    // A nested `$id` starts a new schema resource; its anchors are collected when that resource is entered.
+    if (!isRoot && '$id' in node) {
+      return
+    }
+
+    const anchor = (node as { $dynamicAnchor?: unknown }).$dynamicAnchor
     if (typeof anchor === 'string' && !anchors.has(anchor)) {
       // Resolve any sibling `$ref` so the stored target is the concrete schema (e.g. `User`).
-      anchors.set(anchor, getResolvedRef(node, mergeSiblingReferences))
+      anchors.set(anchor, getResolvedRef(node, mergeSiblingReferences) as SchemaObject)
+    }
+
+    // We descend into the node's own inline subschemas below, but never into a `$ref` target
+    // (`$ref-value` is not a subschema keyword): the referenced schema is collected at its own location.
+    const keyed = node as unknown as Record<string, unknown>
+    for (const key of SUBSCHEMA_KEYWORDS.schema) {
+      visit(keyed[key] as SchemaObject | undefined, false)
+    }
+    for (const key of SUBSCHEMA_KEYWORDS.list) {
+      const list = keyed[key]
+      if (Array.isArray(list)) {
+        for (const child of list) {
+          visit(child as SchemaObject, false)
+        }
+      }
+    }
+    for (const key of SUBSCHEMA_KEYWORDS.map) {
+      const map = keyed[key]
+      if (map && typeof map === 'object') {
+        for (const child of Object.values(map as Record<string, SchemaObject>)) {
+          visit(child, false)
+        }
+      }
     }
   }
 
-  add(resource)
-
-  const schemaWithDefs: SchemaWithDefs = resource
-  const defs = schemaWithDefs.$defs
-  if (defs && typeof defs === 'object') {
-    for (const key of Object.keys(defs)) {
-      add(defs[key])
-    }
-  }
+  visit(resource, true)
 
   anchorCache.set(cacheTarget, anchors)
   return anchors
