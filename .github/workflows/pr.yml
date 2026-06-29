@@ -618,7 +618,13 @@ jobs:
           echo "Only Markdown files changed."
 
   required-jobs-pull-requests:
-    if: github.event_name == 'pull_request'
+    # `always()` is required so this aggregator runs even when a needed job
+    # fails. Without it the implicit success() gate skips this job the moment any
+    # need fails, the exit-1 guard below never executes, and branch protection
+    # treats the skipped required check as passing — letting a broken build (or
+    # any failed required job) merge. With `always()` the job always runs and the
+    # guard flips it to failure whenever a need failed, was skipped, or cancelled.
+    if: ${{ always() && github.event_name == 'pull_request' }}
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
