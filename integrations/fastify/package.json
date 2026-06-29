@@ -22,8 +22,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && pnpm copy:standalone",
-    "copy:standalone": "shx mkdir -p ./dist/js && shx cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
+    "build": "pnpm types:check && vite build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "tsx watch playground/index.ts",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5053:5053 fastify-api-reference",

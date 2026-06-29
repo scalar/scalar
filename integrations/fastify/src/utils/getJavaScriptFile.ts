@@ -1,24 +1,32 @@
 import fs from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+
+const require = createRequire(import.meta.url)
 
 /**
- * Read the JavaScript file.
+ * Return the standalone build of `@scalar/api-reference` as a string.
+ *
+ * This implementation reads the script from disk and is what runs during
+ * development (the playground executes the source directly via `tsx`) and in
+ * tests, where `@scalar/api-reference` is available as a workspace dependency.
+ *
+ * For the published package, the Vite build replaces this module with the
+ * script inlined as a string (see `vite.config.ts`). That is what makes the
+ * plugin bundler-safe: the output is self-contained and no longer reads the
+ * file at runtime, so it survives whatever bundler the consuming application
+ * uses (for example when bundling a Fastify app into a Docker image).
  */
-export function getJavaScriptFile() {
-  // Get the directory name
-  const dirname = path.dirname(fileURLToPath(import.meta.url))
-
-  // Find the JavaScript file
-  const filePath = [
-    path.resolve(`${dirname}/js/standalone.js`),
-    path.resolve(`${dirname}/../../dist/js/standalone.js`),
-  ].find((file: string) => fs.existsSync(file))
-
-  // Throw an error if the file is not found
-  if (filePath === undefined) {
-    throw new Error(`JavaScript file not found: ${path.resolve(`${dirname}/js/standalone.js`)}`)
+export function getJavaScriptFile(): string {
+  try {
+    // The main entry resolves to `<pkg>/dist/index.js`, so the standalone build
+    // sits next to it under `browser/`.
+    const entry = require.resolve('@scalar/api-reference')
+    return fs.readFileSync(path.join(path.dirname(entry), 'browser/standalone.js'), 'utf-8')
+  } catch (cause) {
+    throw new Error(
+      '[@scalar/fastify-api-reference] Could not read the standalone build of `@scalar/api-reference`. Build `@scalar/api-reference` first (e.g. `pnpm build:packages`).',
+      { cause },
+    )
   }
-
-  return fs.readFileSync(filePath, 'utf8')
 }
