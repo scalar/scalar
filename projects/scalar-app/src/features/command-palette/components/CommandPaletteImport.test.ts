@@ -1,7 +1,7 @@
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
@@ -835,6 +835,37 @@ describe('CommandPaletteImport', () => {
       'ui:open:command-palette',
       expect.objectContaining({ action: 'import-postman-collection' }),
     )
+  })
+
+  it('uses the provided fetch when importing from a URL', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+
+    // On desktop this stands in for the IPC-backed fetch. The temporary draft
+    // store has to use it, otherwise the renderer's global fetch is blocked by
+    // the Content Security Policy and the import fails.
+    const fetch = vi.fn(
+      async (_input: string | URL | globalThis.Request, _init?: RequestInit) =>
+        new Response(JSON.stringify({ openapi: '3.1.0', info: { title: 'Test API', version: '1.0.0' }, paths: {} }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    )
+
+    const wrapper = mount(CommandPaletteImport, {
+      props: { workspaceStore, eventBus, fetch },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'https://example.com/openapi.json')
+    await nextTick()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
+    await flushPromises()
+
+    expect(fetch).toHaveBeenCalled()
+    expect(fetch.mock.calls[0]?.[0]?.toString()).toContain('https://example.com/openapi.json')
   })
 
   it('handles empty input after having content', async () => {

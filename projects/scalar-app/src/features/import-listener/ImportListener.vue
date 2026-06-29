@@ -28,6 +28,7 @@ const {
   workspaceStore,
   darkMode,
   fileLoader,
+  fetch,
   isOnlyOneWorkspace,
   defaultProxyUrl,
 } = defineProps<{
@@ -51,6 +52,15 @@ const {
    * This is used to load files from the disk (for examole when you are on an Electron app).
    */
   fileLoader?: LoaderPlugin
+  /**
+   * Custom fetch used to retrieve documents from a URL. On desktop this is the
+   * IPC-backed fetch; the temporary draft store needs it too, otherwise the
+   * renderer's global fetch is blocked by the Content Security Policy.
+   */
+  fetch?: (
+    input: string | URL | globalThis.Request,
+    init?: RequestInit,
+  ) => Promise<Response>
   /** List of workspace groups */
   workspaceGroups: WorkspaceGroup[]
   /** The active workspace */
@@ -109,6 +119,7 @@ const directImport = async (
   // This is to get the title of the document so we can generate a unique slug for store
   const draftStore = createWorkspaceStore({
     fileLoader,
+    fetch,
     meta: {
       'x-scalar-active-proxy': defaultProxyUrl,
     },
@@ -221,6 +232,7 @@ onMounted(() => {
   <ImportModal
     :activeWorkspace="activeWorkspace"
     :defaultProxyUrl="defaultProxyUrl"
+    :fetch="fetch"
     :fileLoader="fileLoader"
     :importEventData="data"
     :isLoading="workspaceStore === null"
