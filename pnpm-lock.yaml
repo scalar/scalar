@@ -2324,6 +2324,22 @@ importers:
         specifier: catalog:*
         version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@29.0.1(@noble/hashes@1.8.0))(vite@8.0.2(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.19.4)(yaml@2.8.3))
 
+  packages/scalar:
+    dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../api-reference
+    devDependencies:
+      vite:
+        specifier: catalog:*
+        version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3)
+      vite-plugin-banner:
+        specifier: ^0.8.1
+        version: 0.8.1
+      vite-plugin-css-injected-by-js:
+        specifier: catalog:*
+        version: 5.0.0(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3))
+
   packages/schemas:
     dependencies:
       '@scalar/helpers':
