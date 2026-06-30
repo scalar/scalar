@@ -127,14 +127,27 @@ export type AuthEvents = {
   /**
    * Update the selected scopes for a given security scheme.
    * Triggers when the user selects/deselects scopes for an OAuth2 (or other scopes-supporting) scheme in the UI.
+   *
+   * Provide either:
+   * - `scopes`: the absolute scope list (used by bulk actions like "Select All" / "Deselect All"), or
+   * - `scope` together with `selected`: a single-scope toggle applied against the scopes currently
+   *   stored in the auth state. Toggling against the stored value (rather than a snapshot computed in
+   *   the component) keeps rapid successive clicks from racing and dropping each other's changes.
+   *
+   * A payload that provides neither (or `scope` without `selected`) is ignored, so a malformed event
+   * can never silently clear the selection.
    */
   'auth:update:selected-scopes': {
     /** The id of the security scheme to update the scopes for */
     id: string[]
     /** The name of the security scheme to update the scopes for */
     name: string
-    /** The scopes to update the selected scopes with */
-    scopes: string[]
+    /** The absolute scope list to store. Used by bulk actions. Mutually exclusive with `scope`. */
+    scopes?: string[]
+    /** The single scope to toggle. Applied against the currently stored scopes. Requires `selected`. */
+    scope?: string
+    /** Whether the toggled `scope` should be selected (added) or deselected (removed). */
+    selected?: boolean
     /** Meta information for the auth update */
     meta: AuthMeta
   }

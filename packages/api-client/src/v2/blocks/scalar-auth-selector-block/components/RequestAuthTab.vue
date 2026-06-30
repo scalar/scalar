@@ -178,7 +178,7 @@ const handleApiKeySecuritySchemeUpdate = (
 /** Handles scope selection updates for OAuth2 */
 const handleScopesUpdate = (
   name: string,
-  event: { scopes: string[] },
+  event: { scopes?: string[]; scope?: string; selected?: boolean },
 ): void => {
   emits('update:selectedScopes', {
     id: Object.keys(selectedSecuritySchemas),
