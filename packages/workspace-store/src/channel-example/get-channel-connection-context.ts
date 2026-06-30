@@ -18,7 +18,6 @@ import { getSelectedSecurity } from '@/request-example/context/security/get-sele
 import { mergeSecurity } from '@/request-example/context/security/merge-security'
 import type { Result } from '@/request-example/types'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
-import type { ComponentsObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
 /** Uses channel name as the auth path key for AsyncAPI channel connections. */
@@ -119,7 +118,7 @@ export const getChannelConnectionContext = (
   const components = document.components ? getResolvedRef(document.components) : undefined
 
   const securitySchemes = mergeSecurity(
-    (components?.securitySchemes ?? {}) as ComponentsObject['securitySchemes'],
+    components?.securitySchemes ?? {},
     options.authentication?.securitySchemes ?? {},
     workspaceStore.auth,
     documentName,
