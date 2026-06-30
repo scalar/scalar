@@ -56,11 +56,11 @@
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
-          SDKs in every supported language
+          500 Agent Scalar credits
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
-          Hosted MCP servers
+          SDKs and hosted MCP servers
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
@@ -86,7 +86,7 @@
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
-          Priority support and SLAs
+          Custom Agent Scalar credits
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
@@ -94,7 +94,7 @@
         </li>
         <li>
           <scalar-icon src="phosphor/bold/check"></scalar-icon>
-          Dedicated Slack/Teams channel
+          Priority support with dedicated channel
         </li>
       </ul>
     </div>
