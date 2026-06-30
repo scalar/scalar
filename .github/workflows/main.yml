@@ -267,13 +267,6 @@ jobs:
       docker_changed: ${{ needs.check-changes.outputs.docker_changed }}
 
   required-jobs-main:
-    # `always()` is required so this aggregator runs even when a needed job
-    # fails. Without it the implicit success() gate skips this job whenever a need
-    # fails, the exit-1 guard never executes, and a skipped required check is
-    # treated as passing by branch protection. With `always()` the job runs and
-    # the guard flips it to failure on any failed/skipped/cancelled need — which
-    # also keeps the release gate (needs.required-jobs-main.result == 'success')
-    # honest.
     if: ${{ always() }}
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
