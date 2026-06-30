@@ -2,7 +2,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 /** A single protocol entry within a bindings object, flattened for rendering. */
-export type AsyncApiBindingEntry = {
+type AsyncApiBindingEntry = {
   /** The binding field key (for example `topic`, `qos`, `bindingVersion`). */
   key: string
   /** The field value. Primitives render inline; objects/arrays render as JSON. */
@@ -10,7 +10,7 @@ export type AsyncApiBindingEntry = {
 }
 
 /** One protocol's bindings, ready to render as a labeled key/value group. */
-export type AsyncApiBindingGroup = {
+type AsyncApiBindingGroup = {
   /** Protocol identifier (for example `kafka`, `amqp`, `ws`). */
   protocol: string
   /** Flattened field entries for the protocol. */
