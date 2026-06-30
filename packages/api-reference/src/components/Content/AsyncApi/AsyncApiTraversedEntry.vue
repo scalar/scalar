@@ -100,6 +100,7 @@ const getModelSchema = (name: string) => getAsyncApiModelSchema(document, name)
       :expandedItems="expandedItems"
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"
+      :level="level"
       :options="options" />
 
     <Tag

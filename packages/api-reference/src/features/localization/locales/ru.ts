@@ -64,6 +64,7 @@ export const ru = {
     mainContent: 'Документация API для {name}',
     collapsed: 'Свернуто',
     webhooks: 'Вебхуки',
+    channels: 'Каналы',
   },
   server: {
     label: 'Сервер',

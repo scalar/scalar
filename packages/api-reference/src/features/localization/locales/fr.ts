@@ -64,6 +64,7 @@ export const fr = {
     mainContent: 'Documentation de l’API pour {name}',
     collapsed: 'Réduit',
     webhooks: 'Webhooks',
+    channels: 'Canaux',
   },
   server: {
     label: 'Serveur',

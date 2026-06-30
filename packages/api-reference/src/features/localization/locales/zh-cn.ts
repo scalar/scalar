@@ -63,6 +63,7 @@ export const zhCn = {
     mainContent: '{name} 的 API 文档',
     collapsed: '已折叠',
     webhooks: 'Webhooks',
+    channels: '频道',
   },
   server: {
     label: '服务器',
