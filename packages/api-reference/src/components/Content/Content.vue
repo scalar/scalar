@@ -23,7 +23,6 @@ import {
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
-import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type {
   Workspace,
   WorkspaceDocument,
@@ -194,7 +193,7 @@ const securitySchemes = computed(() => {
       : undefined
 
     return mergeSecurity(
-      components?.securitySchemes as ComponentsObject['securitySchemes'],
+      components?.securitySchemes,
       options.authentication?.securitySchemes,
       authStore,
       asyncApiClientDocument.value['x-scalar-navigation']?.name ?? '',
