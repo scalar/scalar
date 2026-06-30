@@ -49,9 +49,12 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
 
     // -------- Default tag id generation logic --------
     if (props.type === 'tag') {
-      // x-tagGroups wrapper nodes use `tag-group/{index}/…` IDs so they
-      // never share an ID with a real tag that has the same display name.
-      const tagPrefix = props.isGroup ? 'tag-group' : 'tag'
+      // x-tagGroups wrapper nodes use `tag-group/…` IDs so they never share an ID
+      // with a real tag that has the same display name. Native OpenAPI 3.2 nested
+      // tags are real, uniquely-named tags, so they keep the regular `tag` prefix
+      // regardless of whether they act as a section (`isGroup`). This keeps their
+      // anchors stable even when a tag gains or loses operations of its own.
+      const tagPrefix = props.isTagGroup ? 'tag-group' : 'tag'
       if (options?.generateTagSlug) {
         return `${documentId}/${tagPrefix}/${options.generateTagSlug(props.tag)}`
       }

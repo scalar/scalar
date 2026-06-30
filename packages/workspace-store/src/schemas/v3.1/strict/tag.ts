@@ -14,8 +14,14 @@ export const TagObjectSchemaDefinition = compose(
   Type.Object({
     /** REQUIRED. The name of the tag. */
     name: Type.String(),
+    /** A short summary of the tag, used for display purposes. (OpenAPI 3.2) */
+    summary: Type.Optional(Type.String()),
     /** A description for the tag. CommonMark syntax MAY be used for rich text representation. */
     description: Type.Optional(Type.String()),
+    /** The name of a tag that this tag is nested under. The named tag MUST exist in the API description, and circular references MUST NOT be used. (OpenAPI 3.2) */
+    parent: Type.Optional(Type.String()),
+    /** A machine-readable string to categorize what sort of tag it is, for example `nav`, `badge` or `audience`. (OpenAPI 3.2) */
+    kind: Type.Optional(Type.String()),
     /** Additional external documentation for this tag. */
     externalDocs: Type.Optional(ExternalDocumentationObjectRef),
   }),
@@ -29,8 +35,14 @@ export const TagObjectSchemaDefinition = compose(
 export type TagObject = {
   /** REQUIRED. The name of the tag. */
   name: string
+  /** A short summary of the tag, used for display purposes. (OpenAPI 3.2) */
+  summary?: string
   /** A description for the tag. CommonMark syntax MAY be used for rich text representation. */
   description?: string
+  /** The name of a tag that this tag is nested under. The named tag MUST exist in the API description, and circular references MUST NOT be used. (OpenAPI 3.2) */
+  parent?: string
+  /** A machine-readable string to categorize what sort of tag it is, for example `nav`, `badge` or `audience`. (OpenAPI 3.2) */
+  kind?: string
   /** Additional external documentation for this tag. */
   externalDocs?: ExternalDocumentationObject
 } & XDisplayName &
