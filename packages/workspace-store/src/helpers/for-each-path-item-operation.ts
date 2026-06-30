@@ -44,8 +44,11 @@ export const setPathItemOperation = (
   }
 
   if ('$ref' in pathItem && '$ref-value' in pathItem) {
-    pathItem['$ref-value'][method] = operation
-    return
+    const refValue = pathItem['$ref-value']
+    if (refValue) {
+      refValue[method] = operation
+      return
+    }
   }
 
   pathItem[method] = operation
@@ -63,7 +66,10 @@ export const deletePathItemOperation = (pathItem: NodeInput<PathItemObject> | un
   // alongside the `$ref`. Since mergeSiblingReferences gives the sibling precedence, both copies
   // must be removed, otherwise getResolvedPathItem keeps exposing the operation after deletion.
   if ('$ref' in pathItem && '$ref-value' in pathItem) {
-    delete pathItem['$ref-value'][method]
+    const refValue = pathItem['$ref-value']
+    if (refValue) {
+      delete refValue[method]
+    }
   }
 
   delete pathItem[method]
