@@ -30,12 +30,12 @@ export const sources = [
   {
     title: 'Scalar Galaxy Events (AsyncAPI)',
     slug: 'scalar-galaxy-events',
-    url: 'https://registry.scalar.com/@scalar/schemas/asyncapi?format=json',
+    url: 'https://registry.scalar.com/@scalar/apis/asyncapi/latest?format=json',
   },
   {
     title: 'Scalar Galaxy Events (AsyncAPI, Classic Layout)',
     slug: 'scalar-galaxy-events-classic',
-    url: 'https://registry.scalar.com/@scalar/schemas/asyncapi?format=json',
+    url: 'https://registry.scalar.com/@scalar/apis/asyncapi/latest?format=json',
     layout: 'classic',
   },
   {
