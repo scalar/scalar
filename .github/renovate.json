@@ -396,14 +396,14 @@
 
     {
       "description": "Keep these packages as low as possible for best compatibility",
-      "matchFileNames": ["**/Scalar.AspNetCore.*.csproj"],
+      "matchFileNames": ["integrations/dotnet/Directory.Packages.props"],
       "matchPackageNames": ["Microsoft.AspNetCore.OpenApi", "Swashbuckle.AspNetCore.SwaggerGen"],
       "enabled": false
     },
 
     {
       "description": "Disable patch updates for Aspire.Hosting for best compatibility",
-      "matchFileNames": ["**/Scalar.Aspire.csproj"],
+      "matchFileNames": ["integrations/dotnet/Directory.Packages.props"],
       "matchPackageNames": ["Aspire.Hosting"],
       "matchUpdateTypes": ["patch"],
       "enabled": false
