@@ -1,5 +1,13 @@
 # @scalar/workspace-store
 
+## 0.55.1
+
+### Patch Changes
+
+- [#9616](https://github.com/scalar/scalar/pull/9616): Run the AsyncAPI upgrader when ingesting AsyncAPI documents so 1.x/2.x specs are converted to the 3.x shape the renderer expects. Previously a 2.x document (operations nested under channels as `publish`/`subscribe`) was passed through unchanged, leaving `operations` empty and dropping every channel from the navigation — the document rendered blank. The original version is preserved on `x-original-aas-version`.
+- [#9468](https://github.com/scalar/scalar/pull/9468): Preserve keywords declared alongside a `$ref` when deeply resolving references, so a `$defs`/`$dynamicAnchor` binding (the `Paginated<T>` pattern) survives and `$dynamicRef` can resolve to the bound item type instead of falling back to an empty result
+- [#9483](https://github.com/scalar/scalar/pull/9483): Keep JSON Schema 2020-12 reference keywords (`$id`, `$anchor`, `$dynamicAnchor`, `$dynamicRef`) on Schema Objects when coercing documents during ingestion, so generic templates like `PaginatedResponse<T>` keep their dynamic item binding instead of having it dropped for schemas reachable from an operation
+
 ## 0.55.0
 
 ### Minor Changes

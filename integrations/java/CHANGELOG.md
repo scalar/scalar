@@ -1,5 +1,12 @@
 # @scalar/java-integration
 
+## 0.6.50
+
+### Patch Changes
+
+- [#9606](https://github.com/scalar/scalar/pull/9606): Add support for more configuration options: `modelsSectionLabel`, `expandAllSchemaProperties`, `defaultOpenFirstTag`, and `mcp`.
+- [#9605](https://github.com/scalar/scalar/pull/9605): Support both Jackson 2.x and Jackson 3.x. The Java integration now resolves the JSON serialization engine from whichever Jackson Databind the host application provides, so a single artifact works on both Jackson 2 and Jackson 3 (e.g. Spring Boot 3 and 4) without dependency conflicts.
+
 ## 0.6.49
 
 ## 0.6.48

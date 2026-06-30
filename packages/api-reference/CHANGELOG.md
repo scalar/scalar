@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.62.1
+
+### Patch Changes
+
+- [#9575](https://github.com/scalar/scalar/pull/9575): Render the discriminator variant dropdown for object schemas that only declare a `discriminator.mapping` (no explicit `oneOf`/`anyOf`), which is the shape NSwag emits for polymorphic types
+- [#9483](https://github.com/scalar/scalar/pull/9483): Render JSON Schema 2020-12 `$dynamicRef` in schemas, so generic patterns like `PaginatedResponse<T>` show their concrete bound item type (for example `User[]`) instead of an empty shape. The reference threads the active dynamic scope through the schema tree and binds each `$dynamicRef` to the matching `$dynamicAnchor`.
+- [#9587](https://github.com/scalar/scalar/pull/9587): Fix `Maximum call stack size exceeded` crash when rendering a schema whose self-reference is reached through an `allOf` branch
+
 ## 1.62.0
 
 ### Minor Changes
