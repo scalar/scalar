@@ -153,14 +153,22 @@ export const getSecuritySchemeOptions = (
     }
   }
 
+  // Per the OpenAPI spec, multiple security requirement objects are alternatives: "only one of the
+  // entries in the list needs to be satisfied to authorize the request". So when an operation lists
+  // more than one requirement, none of them is individually required — they are a choice. We present
+  // them as available options instead of marking them all as required.
+  const declaredAreAlternatives = requiredFormatted.length > 1
+  const requiredOptions = declaredAreAlternatives ? [] : requiredFormatted
+  const availableOptions = declaredAreAlternatives ? [...requiredFormatted, ...availableFormatted] : availableFormatted
+
   const options = [
-    { label: 'Required authentication', options: requiredFormatted },
-    { label: 'Available authentication', options: availableFormatted },
+    { label: 'Required authentication', options: requiredOptions },
+    { label: 'Available authentication', options: availableOptions },
   ]
 
   // We don't return the groups if we don't have any required schemes
   if (!canAddNewAuth) {
-    return requiredFormatted.length ? options : availableFormatted
+    return requiredOptions.length ? options : availableOptions
   }
 
   // Add new authentication options (unless explicitly hidden)

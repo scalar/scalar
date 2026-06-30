@@ -158,7 +158,9 @@ describe('security-scheme', () => {
       },
     } satisfies ComponentsObject['securitySchemes']
 
-    it('should return grouped options', () => {
+    it('lists multiple requirements as available alternatives, not as required', () => {
+      // Two requirement objects are OR-alternatives: only one needs to be satisfied, so neither is
+      // individually required.
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }, { httpBasic: [] }]
 
       const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
@@ -176,20 +178,39 @@ describe('security-scheme', () => {
       expect(groups[1].label).toBe('Available authentication')
       expect(groups[2].label).toBe('Add new authentication')
 
-      // Check required authentication options
-      expect(groups[0].options).toHaveLength(2)
+      // Nothing is required since the operation offers a choice
+      expect(groups[0].options).toHaveLength(0)
 
-      expect(groups[0].options[0]!.id).toBe('a4da7d48d8af6c6b')
-      expect(groups[0].options[1]!.id).toBe('0ebf7bc7501f14c3')
-
-      // Check available authentication options
-      expect(groups[1].options).toHaveLength(2)
+      // Both declared alternatives are available to pick from
+      expect(groups[1].options.some((opt) => opt.id === 'a4da7d48d8af6c6b')).toBe(true)
+      expect(groups[1].options.some((opt) => opt.id === '0ebf7bc7501f14c3')).toBe(true)
       expect(groups[1].options.some((opt) => opt.id === '48cc5a8ff1d2df93')).toBe(true)
       expect(groups[1].options.some((opt) => opt.id === '8da8c10db72dcac3')).toBe(true)
 
       // Check add new authentication options
       expect(groups[2].options.length).toBeGreaterThan(0)
       expect(groups[2].options.every((opt) => opt.isDeletable === false)).toBe(true)
+    })
+
+    it('keeps a single requirement marked as required', () => {
+      const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
+
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
+      const groups = result as SecuritySchemeGroup[]
+
+      expect(groups[0]!.label).toBe('Required authentication')
+      expect(groups[0]!.options.map((opt) => opt.label)).toStrictEqual(['apiKey'])
+    })
+
+    it('keeps a single combined (AND) requirement marked as required', () => {
+      // A single requirement with multiple schemes is an AND group, which is genuinely required.
+      const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [], httpBasic: [] }]
+
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
+      const groups = result as SecuritySchemeGroup[]
+
+      expect(groups[0]!.label).toBe('Required authentication')
+      expect(groups[0]!.options.map((opt) => opt.label)).toStrictEqual(['apiKey & httpBasic'])
     })
 
     it('should return all options when it has required schemes and no selected schemes', () => {
@@ -510,16 +531,15 @@ describe('security-scheme', () => {
       ])
     })
 
-    it('should create proper value objects for required schemes', () => {
+    it('builds correct value objects for declared alternatives', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }, { httpBasic: [] }]
 
       const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
-      const groups = result as SecuritySchemeGroup[]
-      const requiredOptions = groups[0]!.options
-
-      expect(requiredOptions[0]!.value).toEqual({ apiKey: [] })
-      expect(requiredOptions[1]!.value).toEqual({ httpBasic: [] })
+      // Alternatives are returned as a flat list of available choices
+      const options = result as SecuritySchemeOption[]
+      expect(options.find((opt) => opt.label === 'apiKey')!.value).toEqual({ apiKey: [] })
+      expect(options.find((opt) => opt.label === 'httpBasic')!.value).toEqual({ httpBasic: [] })
     })
 
     it('should handle same scheme with different scopes', () => {
@@ -564,22 +584,20 @@ describe('security-scheme', () => {
       }
 
       const result = getSecuritySchemeOptions(security, securitySchemes, [])
-      expect(result[0]).toStrictEqual({
-        label: 'Required authentication',
-        options: [
-          {
-            id: '8c854cac163762c9',
-            label: 'UserAccessToken',
-            isDeletable: true,
-            value: { UserAccessToken: ['read'] },
-          },
-          {
-            id: 'f7e1089e69466df6',
-            label: 'UserAccessToken',
-            isDeletable: true,
-            value: { UserAccessToken: ['write'] },
-          },
-        ],
+
+      // The two scopes are alternatives, so they appear as distinct available choices
+      const options = result as SecuritySchemeOption[]
+      expect(options).toContainEqual({
+        id: '8c854cac163762c9',
+        label: 'UserAccessToken',
+        isDeletable: true,
+        value: { UserAccessToken: ['read'] },
+      })
+      expect(options).toContainEqual({
+        id: 'f7e1089e69466df6',
+        label: 'UserAccessToken',
+        isDeletable: true,
+        value: { UserAccessToken: ['write'] },
       })
     })
 
