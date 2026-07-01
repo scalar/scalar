@@ -91,7 +91,9 @@ const anchorCache = new WeakMap<object, Map<string, UnknownObject>>()
  * `properties` / `allOf` / `items` / etc. Two boundaries keep collection scoped to this resource: a
  * nested `$id` starts a new schema resource (its anchors belong to that resource, gathered when it is
  * entered separately), and a `$ref` is not followed (the referenced schema is collected at its own
- * location). Each target is dereferenced so callers receive the concrete schema the anchor points to.
+ * location). When an anchor binds through a sibling `$ref` that is already resolved (its `$ref-value` is
+ * present), the target is dereferenced so callers receive the concrete schema; otherwise the anchor node
+ * is returned as-is and the caller resolves the `$ref` (as the magic proxy does on access).
  *
  * @param resource - The schema resource to scan.
  * @param unwrap - Strips reactive/override/magic proxies so cycle detection and caching use stable
