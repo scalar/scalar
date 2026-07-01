@@ -51,4 +51,17 @@ describe('getAsyncApiRequiredSecurity', () => {
     // Empty scope strings are filtered out.
     expect(result.requirements[0]?.schemes[0]?.scopes).toEqual(['read:users'])
   })
+
+  it('drops non-string scopes from a malformed document without throwing', () => {
+    const document = documentWith({ oauth: { type: 'oauth2', flows: {} } })
+    const operation = {
+      action: 'receive',
+      // A `scopes:\n  -` line in YAML yields `[null]`; a stray number is also possible.
+      security: [{ type: 'oauth2', flows: {}, scopes: ['read:users', null, 42] }],
+    } as unknown as AsyncApiOperationObject
+
+    const result = getAsyncApiRequiredSecurity(document, operation)
+
+    expect(result.requirements[0]?.schemes[0]?.scopes).toEqual(['read:users'])
+  })
 })

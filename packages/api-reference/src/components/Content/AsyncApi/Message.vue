@@ -266,7 +266,7 @@ const onToggle = (open: boolean) => {
             </span>
           </div>
           <ScalarCodeBlock
-            v-if="example?.headers"
+            v-if="example?.headers != null"
             :content="example.headers"
             lang="json" />
           <ScalarCodeBlock

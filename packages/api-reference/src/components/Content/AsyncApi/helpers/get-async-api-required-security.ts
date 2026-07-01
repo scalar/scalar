@@ -34,7 +34,9 @@ export const getAsyncApiRequiredSecurity = (
       // The badge only reads `scheme.type` (rendered as text), so the AsyncAPI scheme shape is
       // compatible even though its `type` enum differs from OpenAPI's.
       scheme: getResolvedRef(definedSchemes[name]) as SecuritySchemeObject | undefined,
-      scopes: (scopes ?? []).filter((scope) => scope.length > 0),
+      // Scopes come straight from a loosely-validated AsyncAPI document, so guard against
+      // non-string entries (for example `null` from malformed YAML) before reading `.length`.
+      scopes: (scopes ?? []).filter((scope) => typeof scope === 'string' && scope.length > 0),
     })),
   }))
 
