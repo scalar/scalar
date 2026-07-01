@@ -244,6 +244,8 @@ const DOCUMENT_TYPE_LABELS = {
   asyncapi: 'AsyncAPI',
 } as const
 
+type DocumentType = keyof typeof DOCUMENT_TYPE_LABELS
+
 /**
  * Best-effort guess of the document type from a source URL.
  *
@@ -253,7 +255,7 @@ const DOCUMENT_TYPE_LABELS = {
  */
 const guessDocumentTypeFromUrl = (
   url: string | undefined,
-): keyof typeof DOCUMENT_TYPE_LABELS | undefined => {
+): DocumentType | undefined => {
   const normalized = url?.toLowerCase()
 
   if (!normalized) {
@@ -270,10 +272,9 @@ const guessDocumentTypeFromUrl = (
 }
 
 /** Computed document options list for the selector logic */
-const documentOptionList = computed(() =>
-  Object.values(configList.value).map((c) => {
-    // Resolve the document type and append it as a postfix so the selector
-    // distinguishes OpenAPI vs AsyncAPI documents. Documents are loaded lazily, so:
+const documentOptionList = computed(() => {
+  const options = Object.values(configList.value).map((c) => {
+    // Documents are loaded lazily, so resolve the document type with:
     // 1. Prefer the parsed document from the store (covers URL sources once loaded).
     // 2. Fall back to the inline configuration content (available immediately).
     // 3. As a last resort, guess from the source URL for documents not yet loaded.
@@ -281,14 +282,32 @@ const documentOptionList = computed(() =>
       getDocumentType(
         workspaceStore.workspace.documents[c.slug] ?? c.source.content,
       ) ?? guessDocumentTypeFromUrl(c.source.url)
-    const typeLabel = type ? DOCUMENT_TYPE_LABELS[type] : undefined
 
     return {
-      label: typeLabel ? `${c.title} (${typeLabel})` : c.title,
+      title: c.title,
       id: c.slug,
+      type,
     }
-  }),
-)
+  })
+  const documentTypes = new Set(options.map((option) => option.type))
+  const hasMixedDocumentTypes =
+    documentTypes.has('openapi') && documentTypes.has('asyncapi')
+  const showDocumentTypePostfix = options.length >= 2 && hasMixedDocumentTypes
+
+  return options.map((option) => {
+    const typeLabel = option.type
+      ? DOCUMENT_TYPE_LABELS[option.type]
+      : undefined
+
+    return {
+      label:
+        showDocumentTypePostfix && typeLabel
+          ? `${option.title} (${typeLabel})`
+          : option.title,
+      id: option.id,
+    }
+  })
+})
 
 /**
  * AsyncAPI sidebar filters (protocol + server).

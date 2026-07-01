@@ -171,6 +171,98 @@ describe('multiple configurations', () => {
     expect(documentSelector.html()).toContain('my-api-2')
   })
 
+  it('does not append document type labels when all documents use OpenAPI', async () => {
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: [
+          {
+            slug: 'my-api-1',
+            content: {
+              openapi: '3.1.0',
+              info: {
+                title: 'My API #1',
+                version: '1.0.0',
+              },
+            },
+          },
+          {
+            slug: 'my-api-2',
+            content: {
+              openapi: '3.1.0',
+              info: {
+                title: 'My API #2',
+                version: '1.0.0',
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+
+    expect(documentSelector.props('options')).toStrictEqual([
+      {
+        label: 'my-api-1',
+        id: 'my-api-1',
+      },
+      {
+        label: 'my-api-2',
+        id: 'my-api-2',
+      },
+    ])
+  })
+
+  it('appends document type labels when OpenAPI and AsyncAPI documents are mixed', async () => {
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: [
+          {
+            slug: 'rest-api',
+            content: {
+              openapi: '3.1.0',
+              info: {
+                title: 'REST API',
+                version: '1.0.0',
+              },
+            },
+          },
+          {
+            slug: 'events-api',
+            content: {
+              asyncapi: '3.0.0',
+              info: {
+                title: 'Events API',
+                version: '1.0.0',
+              },
+              channels: {},
+              operations: {},
+            },
+          },
+        ],
+      },
+    })
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+
+    expect(documentSelector.props('options')).toStrictEqual([
+      {
+        label: 'rest-api (OpenAPI)',
+        id: 'rest-api',
+      },
+      {
+        label: 'events-api (AsyncAPI)',
+        id: 'events-api',
+      },
+    ])
+  })
+
   it('should fire `onDocumentSelect` when changing document', async () => {
     const onDocumentSelect = vi.fn()
 
