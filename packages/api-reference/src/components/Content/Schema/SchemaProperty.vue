@@ -127,10 +127,12 @@ const arrayValueWithBoundItems = computed(() => {
     return value
   }
 
-  const bound = (value.items as Record<string, unknown>)[
-    '$dynamicRef-value'
-  ] as SchemaObject | undefined
-  return bound ? ({ ...value, items: bound } as SchemaObject) : value
+  // `resolveDynamicSchema` reads the proxy's `$dynamicRef-value`; it returns the item unchanged when the
+  // reference cannot be bound, so ordinary arrays keep their existing behavior exactly.
+  const bound = resolveDynamicSchema(value.items)
+  return bound !== value.items
+    ? ({ ...value, items: bound } as SchemaObject)
+    : value
 })
 
 /** Checks if array items have complex structure */

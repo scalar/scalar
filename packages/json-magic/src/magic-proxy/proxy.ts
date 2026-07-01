@@ -18,7 +18,8 @@ const magicProxyTarget = Symbol('magicProxyTarget')
 
 const REF_VALUE = '$ref-value'
 const REF_KEY = '$ref'
-const DYNAMIC_REF_VALUE = '$dynamicRef-value'
+/** The virtual, get-only property that resolves a `$dynamicRef` against the threaded dynamic scope. */
+export const DYNAMIC_REF_VALUE = '$dynamicRef-value'
 const DYNAMIC_REF_KEY = '$dynamicRef'
 
 /**
