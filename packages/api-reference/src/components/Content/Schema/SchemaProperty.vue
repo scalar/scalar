@@ -2,10 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  isDynamicRef,
-  resolveDynamicRef,
-} from '@scalar/workspace-store/helpers/dynamic-ref'
+import { isDynamicRef } from '@scalar/workspace-store/helpers/dynamic-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
@@ -15,10 +12,7 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-
 import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
-import {
-  resolveDynamicSchema,
-  useDynamicScope,
-} from '@/components/Content/Schema/helpers/dynamic-scope'
+import { resolveDynamicSchema } from '@/components/Content/Schema/helpers/dynamic-scope'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
@@ -86,17 +80,14 @@ const props = withDefaults(
   },
 )
 
-/** The dynamic scope inherited from the enclosing schema resources, used to bind `$dynamicRef`s. */
-const dynamicScope = useDynamicScope()
-
 /**
  * Simplified composition with `null` type.
  *
- * A top-level `$dynamicRef` (e.g. a linked-list `next` node) is bound to its concrete type via the
- * dynamic scope first; for ordinary schemas this is a no-op.
+ * A top-level `$dynamicRef` (e.g. a linked-list `next` node) is bound to its concrete type first (the
+ * workspace-store magic proxy resolves it via `$dynamicRef-value`); for ordinary schemas this is a no-op.
  */
 const optimizedValue = computed(() =>
-  optimizeValueForDisplay(resolveDynamicSchema(props.schema, dynamicScope)),
+  optimizeValueForDisplay(resolveDynamicSchema(props.schema)),
 )
 
 const childBreadcrumb = computed<string[] | undefined>(() =>
@@ -127,8 +118,8 @@ const shouldHaveLink = computed(() => props.level <= 2)
 /**
  * The array schema used for item inspection, with a `$dynamicRef` item bound to its concrete type.
  *
- * Returns the schema unchanged unless `items` is a `$dynamicRef` that resolves against the dynamic
- * scope, so ordinary arrays (including `$ref` items) keep their existing behavior exactly.
+ * Returns the schema unchanged unless `items` is a `$dynamicRef` that the magic proxy resolves via
+ * `$dynamicRef-value`, so ordinary arrays (including `$ref` items) keep their existing behavior exactly.
  */
 const arrayValueWithBoundItems = computed(() => {
   const value = optimizedValue.value
@@ -136,7 +127,9 @@ const arrayValueWithBoundItems = computed(() => {
     return value
   }
 
-  const bound = resolveDynamicRef(value.items.$dynamicRef, dynamicScope)
+  const bound = (value.items as Record<string, unknown>)[
+    '$dynamicRef-value'
+  ] as SchemaObject | undefined
   return bound ? ({ ...value, items: bound } as SchemaObject) : value
 })
 
