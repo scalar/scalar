@@ -57,30 +57,42 @@ internal static class ScalarStaticAssets
     {
         var resourceName = ResourcePrefix + fileName;
         var stream = Assembly.GetManifestResourceStream(resourceName);
-        if (stream is null)
-        {
-            asset = default;
-            return false;
-        }
-
-        var etag = ETagCache.GetOrAdd(resourceName, static name => ComputeETag(name));
 
 #if RELEASE
         // The embedded resource is gzip-compressed in Release builds.
-        if (gzipAccepted)
+        if (stream is not null)
         {
-            asset = new ScalarStaticAsset { Stream = stream, ETag = etag, ContentEncoding = "gzip" };
+            var etag = ETagCache.GetOrAdd(resourceName, static name => ComputeETag(name));
+            if (gzipAccepted)
+            {
+                asset = new ScalarStaticAsset { Stream = stream, ETag = etag, ContentEncoding = "gzip" };
+                return true;
+            }
+
+            asset = new ScalarStaticAsset { Stream = new GZipStream(stream, CompressionMode.Decompress), ETag = etag };
             return true;
         }
 
-        asset = new ScalarStaticAsset { Stream = new GZipStream(stream, CompressionMode.Decompress), ETag = etag };
-        return true;
+        resourceName = $"{ResourcePrefix}Uncompressed.{fileName}";
+        stream = Assembly.GetManifestResourceStream(resourceName);
+        if (stream is not null)
+        {
+            var etag = ETagCache.GetOrAdd(resourceName, static name => ComputeETag(name));
+            asset = new ScalarStaticAsset { Stream = stream, ETag = etag };
+            return true;
+        }
 #else
         // Debug builds embed uncompressed assets.
-        _ = gzipAccepted;
-        asset = new ScalarStaticAsset { Stream = stream, ETag = etag };
-        return true;
+        if (stream is not null)
+        {
+            _ = gzipAccepted;
+            var etag = ETagCache.GetOrAdd(resourceName, static name => ComputeETag(name));
+            asset = new ScalarStaticAsset { Stream = stream, ETag = etag };
+            return true;
+        }
 #endif
+        asset = default;
+        return false;
     }
 
     private static string ComputeETag(string resourceName)

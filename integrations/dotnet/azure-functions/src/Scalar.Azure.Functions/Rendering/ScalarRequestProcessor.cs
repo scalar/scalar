@@ -80,7 +80,8 @@ internal static class ScalarRequestProcessor
 
         // Auto-generated values win when both are set — a per-request nonce is the secure path.
         var nonce = options.DynamicNonce ? ScalarNonce.Generate() : options.Nonce;
-        var html = ScalarHtmlBuilder.BuildIndexHtml(options, requestPath, nonce, ScalarAssets.HelperFile, ScalarAssets.StandaloneFile);
+        var clientRequestPath = GetClientRequestPath(options, requestPath);
+        var html = ScalarHtmlBuilder.BuildIndexHtml(options, clientRequestPath, nonce, ScalarAssets.HelperFile, ScalarAssets.StandaloneFile);
 
         return new ScalarRenderResult
         {
@@ -91,5 +92,24 @@ internal static class ScalarRequestProcessor
             // Prevent intermediaries and browsers from replaying a one-time nonce to another client.
             CacheControl = string.IsNullOrWhiteSpace(nonce) ? null : "no-store"
         };
+    }
+
+    private static string GetClientRequestPath(ScalarOptions options, string requestPath)
+    {
+        var routePrefix = options.RoutePrefix?.Trim('/');
+        if (string.IsNullOrEmpty(routePrefix))
+        {
+            return requestPath;
+        }
+
+        var routePrefixPath = $"/{routePrefix}";
+        if (requestPath.Equals(routePrefixPath, StringComparison.OrdinalIgnoreCase))
+        {
+            return "/";
+        }
+
+        return requestPath.StartsWith($"{routePrefixPath}/", StringComparison.OrdinalIgnoreCase)
+            ? requestPath[routePrefixPath.Length..]
+            : requestPath;
     }
 }

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Scalar.Azure.Functions.Playground\**</DefaultItemExcludes>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
@@ -12,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Scalar.Azure.Functions\Scalar.Azure.Functions.csproj" />
+    <ProjectReference Include="..\src\Scalar.Azure.Functions\Scalar.Azure.Functions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

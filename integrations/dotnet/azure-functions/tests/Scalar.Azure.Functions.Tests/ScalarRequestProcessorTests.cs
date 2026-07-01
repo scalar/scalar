@@ -21,6 +21,47 @@ public class ScalarRequestProcessorTests
     }
 
     [Fact]
+    public void Process_ShouldRenderClientPathWithoutDefaultAzureFunctionsRoutePrefix()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        var result = ScalarRequestProcessor.Process(options, "/api/scalar/", string.Empty, false, null);
+
+        // Assert
+        result.Html.Should().Contain("'%2Fscalar%2F'");
+        result.Html.Should().NotContain("'%2Fapi%2Fscalar%2F'");
+    }
+
+    [Fact]
+    public void Process_ShouldRenderClientPathWithCustomAzureFunctionsRoutePrefix()
+    {
+        // Arrange
+        var options = new ScalarOptions { RoutePrefix = "functions" };
+
+        // Act
+        var result = ScalarRequestProcessor.Process(options, "/functions/scalar/", string.Empty, false, null);
+
+        // Assert
+        result.Html.Should().Contain("'%2Fscalar%2F'");
+        result.Html.Should().NotContain("'%2Ffunctions%2Fscalar%2F'");
+    }
+
+    [Fact]
+    public void Process_ShouldKeepFullClientPath_WhenAzureFunctionsRoutePrefixIsDisabled()
+    {
+        // Arrange
+        var options = new ScalarOptions { RoutePrefix = null };
+
+        // Act
+        var result = ScalarRequestProcessor.Process(options, "/scalar/", string.Empty, false, null);
+
+        // Assert
+        result.Html.Should().Contain("'%2Fscalar%2F'");
+    }
+
+    [Fact]
     public void Process_ShouldAddDefaultDocument_WhenNoneProvided()
     {
         // Arrange
@@ -75,6 +116,22 @@ public class ScalarRequestProcessorTests
         result.AssetStream.Should().NotBeNull();
         result.ContentType.Should().Be("text/javascript");
         result.ETag.Should().NotBeNullOrEmpty();
+        result.AssetStream!.Dispose();
+    }
+
+    [Fact]
+    public void Process_ShouldServeStandaloneJavaScriptAsset()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        var result = ScalarRequestProcessor.Process(options, "/api/scalar/scalar.js", "scalar.js", false, null);
+
+        // Assert
+        result.StatusCode.Should().Be(200);
+        result.AssetStream.Should().NotBeNull();
+        result.ContentType.Should().Be("text/javascript");
         result.AssetStream!.Dispose();
     }
 

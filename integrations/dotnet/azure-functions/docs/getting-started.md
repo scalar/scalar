@@ -80,6 +80,18 @@ builder.Services.AddScalarApiReference(options =>
 The relative document URL is resolved in the browser against the reference's base path, so it works regardless of
 the host's route prefix or a sub-path deployment.
 
+Scalar assumes Azure Functions' default HTTP route prefix is `api`. If you change the prefix in `host.json`, mirror
+that value in Scalar:
+
+```csharp
+builder.Services.AddScalarApiReference(options =>
+{
+    options.RoutePrefix = "functions";
+});
+```
+
+If you disable the Azure Functions route prefix, set `options.RoutePrefix = null`.
+
 ## Per-request configuration
 
 `HandleAsync` accepts an optional callback to customize options per request (for example, to vary options by

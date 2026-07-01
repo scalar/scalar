@@ -6,6 +6,6 @@
     <Project Path="tests/Scalar.Azure.Functions.Tests/Scalar.Azure.Functions.Tests.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/playground/">
-    <Project Path="playground/Scalar.Azure.Functions.Playground/Scalar.Azure.Functions.Playground.csproj" Type="Classic C#" />
+    <Project Path="playground/Scalar.Azure.Functions.Playground.csproj" Type="Classic C#" />
   </Folder>
 </Solution>
