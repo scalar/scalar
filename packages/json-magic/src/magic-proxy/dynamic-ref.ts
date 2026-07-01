@@ -48,7 +48,20 @@ export const carriesDynamicAnchor = (schema: UnknownObject): boolean =>
  * child schema(s): a lone schema, an array of schemas, or a map of named schemas.
  */
 const SUBSCHEMA_KEYWORDS = {
-  schema: ['additionalProperties', 'propertyNames', 'items', 'contains', 'not', 'if', 'then', 'else'],
+  schema: [
+    'additionalProperties',
+    'unevaluatedProperties',
+    'propertyNames',
+    'items',
+    'unevaluatedItems',
+    'additionalItems',
+    'contains',
+    'contentSchema',
+    'not',
+    'if',
+    'then',
+    'else',
+  ],
   list: ['allOf', 'anyOf', 'oneOf', 'prefixItems'],
   map: ['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas'],
 } as const
