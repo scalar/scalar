@@ -1,3 +1,4 @@
+import { DYNAMIC_REF_VALUE } from '@scalar/json-magic/magic-proxy'
 import { isDynamicRef } from '@scalar/workspace-store/helpers/dynamic-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -14,9 +15,6 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
  * `$dynamicRef-value` property (mirroring `$ref-value`). Rendering simply reads that property, so the
  * scope never has to be assembled here. See https://github.com/scalar/scalar/issues/9414.
  */
-
-/** The virtual property the magic proxy exposes to resolve a `$dynamicRef` against the active scope. */
-const DYNAMIC_REF_VALUE = '$dynamicRef-value'
 
 /**
  * Resolve a schema that may be a `$dynamicRef` to its bound concrete type.
