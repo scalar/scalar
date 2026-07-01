@@ -164,8 +164,8 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       const id = getId(target)
 
       // If accessing "$dynamicRef-value" and this node carries a $dynamicRef, resolve it against the
-      // dynamic scope threaded to here. Mirrors "$ref-value", but the target depends on the path taken,
-      // so it is never cached. Unresolvable references return undefined and the schema renders unchanged.
+      // dynamic scope threaded to here. Like "$ref-value" but path-dependent, so it is never cached and
+      // is get-only (see the `has` trap). Unresolvable references return undefined; the schema is unchanged.
       if (prop === DYNAMIC_REF_VALUE) {
         const dynamicRef = Reflect.get(target, DYNAMIC_REF_KEY, receiver)
         if (typeof dynamicRef !== 'string') {
@@ -179,7 +179,13 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         if (isMagicProxyObject(resolved)) {
           return resolved
         }
-        return createMagicProxy(resolved as T, options, { ...args, currentContext: id ?? args.currentContext })
+        // Walk the bound schema with the scope grown by this resource (same as the `$ref-value` branch),
+        // so a nested `$dynamicRef` inside a recursive template binds against the right scope.
+        return createMagicProxy(resolved as T, options, {
+          ...args,
+          currentContext: id ?? args.currentContext,
+          dynamicScope: childScope,
+        })
       }
 
       // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
@@ -303,10 +309,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       if (prop === REF_VALUE && REF_KEY in target) {
         return true
       }
-      // Likewise, pretend that "$dynamicRef-value" exists if "$dynamicRef" exists
-      if (prop === DYNAMIC_REF_VALUE && DYNAMIC_REF_KEY in target) {
-        return true
-      }
+      // Note: "$dynamicRef-value" is intentionally NOT surfaced here, in `ownKeys`, or in
+      // `getOwnPropertyDescriptor`. It is a get-only virtual accessor: resolution is path-dependent, so
+      // it must not leak into enumeration, spreads, coercion or serialization (which would embed a
+      // resolved schema at the wrong scope). Consumers read it explicitly after an `isDynamicRef` check.
       return Reflect.has(target, prop)
     },
     /**
