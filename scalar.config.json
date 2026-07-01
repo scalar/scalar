@@ -244,7 +244,11 @@
         },
         {
           "from": "/scalar/scalar-sdks/publishing",
-          "to": "/products/sdks/publishing"
+          "to": "/products/sdks/publishing/overview"
+        },
+        {
+          "from": "/products/sdks/publishing",
+          "to": "/products/sdks/publishing/overview"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/typescript",
@@ -1449,10 +1453,103 @@
                       ]
                     }
                   },
-                  "publishing": {
-                    "filepath": "documentation/guides/sdks/publishing.md",
+                  "managing": {
+                    "filepath": "documentation/guides/sdks/managing.md",
                     "type": "page",
-                    "title": "Publishing"
+                    "title": "Managing Your SDK",
+                    "description": "Build, version, download, and manage your SDK from the Scalar dashboard."
+                  },
+                  "publishing": {
+                    "title": "Publishing",
+                    "type": "group",
+                    "mode": "nested",
+                    "icon": "phosphor/regular/rocket-launch",
+                    "children": {
+                      "overview": {
+                        "filepath": "documentation/guides/sdks/publishing/overview.md",
+                        "type": "page",
+                        "title": "Overview",
+                        "description": "Publish generated SDKs to their package registries automatically with config-driven GitHub Actions workflows."
+                      },
+                      "github": {
+                        "filepath": "documentation/guides/sdks/publishing/github.md",
+                        "type": "page",
+                        "title": "GitHub Repositories",
+                        "description": "Link a GitHub repository to each target so every build syncs as a pull request."
+                      },
+                      "registries": {
+                        "filepath": "documentation/guides/sdks/publishing/registries.md",
+                        "type": "page",
+                        "title": "Package Registries",
+                        "description": "Set up trusted publishing or secrets for npm, PyPI, Maven Central, and every supported registry."
+                      },
+                      "typescript": {
+                        "filepath": "documentation/guides/sdks/publishing/typescript.md",
+                        "type": "page",
+                        "title": "TypeScript",
+                        "description": "Publish the TypeScript SDK to npm with OIDC trusted publishing or an npm token."
+                      },
+                      "python": {
+                        "filepath": "documentation/guides/sdks/publishing/python.md",
+                        "type": "page",
+                        "title": "Python",
+                        "description": "Publish the Python SDK to PyPI with OIDC trusted publishing or a PyPI token."
+                      },
+                      "go": {
+                        "filepath": "documentation/guides/sdks/publishing/go.md",
+                        "type": "page",
+                        "title": "Go",
+                        "description": "Publish the Go module by tagging a version. No registry account or secrets needed."
+                      },
+                      "rust": {
+                        "filepath": "documentation/guides/sdks/publishing/rust.md",
+                        "type": "page",
+                        "title": "Rust",
+                        "description": "Publish the Rust crate to crates.io with OIDC trusted publishing or a crates.io token."
+                      },
+                      "java": {
+                        "filepath": "documentation/guides/sdks/publishing/java.md",
+                        "type": "page",
+                        "title": "Java and Kotlin",
+                        "description": "Publish the Java or Kotlin SDK to Maven Central with a Central Portal token and GPG signing."
+                      },
+                      "csharp": {
+                        "filepath": "documentation/guides/sdks/publishing/csharp.md",
+                        "type": "page",
+                        "title": "C#",
+                        "description": "Publish the C# SDK to NuGet with OIDC trusted publishing or a NuGet API key."
+                      },
+                      "ruby": {
+                        "filepath": "documentation/guides/sdks/publishing/ruby.md",
+                        "type": "page",
+                        "title": "Ruby",
+                        "description": "Publish the Ruby gem to RubyGems with an API key."
+                      },
+                      "php": {
+                        "filepath": "documentation/guides/sdks/publishing/php.md",
+                        "type": "page",
+                        "title": "PHP",
+                        "description": "Publish the PHP SDK to Packagist by tagging a version and connecting the repository."
+                      },
+                      "swift": {
+                        "filepath": "documentation/guides/sdks/publishing/swift.md",
+                        "type": "page",
+                        "title": "Swift",
+                        "description": "Publish the Swift package by tagging a version. No registry account or secrets needed."
+                      },
+                      "dart": {
+                        "filepath": "documentation/guides/sdks/publishing/dart.md",
+                        "type": "page",
+                        "title": "Dart",
+                        "description": "Publish the Dart package to pub.dev with OIDC automated publishing or a token."
+                      },
+                      "cli": {
+                        "filepath": "documentation/guides/sdks/publishing/cli.md",
+                        "type": "page",
+                        "title": "CLI",
+                        "description": "Distribute the CLI through a GitHub Release and a Homebrew tap."
+                      }
+                    }
                   },
                   "configuration": {
                     "title": "Configuration",
@@ -1510,8 +1607,34 @@
                         "title": "Swift (Experimental)",
                         "filepath": "documentation/guides/sdks/configuration/swift.md",
                         "type": "page"
+                      },
+                      "rust": {
+                        "title": "Rust (Experimental)",
+                        "filepath": "documentation/guides/sdks/configuration/rust.md",
+                        "type": "page"
+                      },
+                      "kotlin": {
+                        "title": "Kotlin (Experimental)",
+                        "filepath": "documentation/guides/sdks/configuration/kotlin.md",
+                        "type": "page"
+                      },
+                      "dart": {
+                        "title": "Dart (Experimental)",
+                        "filepath": "documentation/guides/sdks/configuration/dart.md",
+                        "type": "page"
+                      },
+                      "cpp": {
+                        "title": "C++ (Experimental)",
+                        "filepath": "documentation/guides/sdks/configuration/cpp.md",
+                        "type": "page"
                       }
                     }
+                  },
+                  "custom-code": {
+                    "filepath": "documentation/guides/sdks/custom-code.md",
+                    "type": "page",
+                    "title": "Custom Code",
+                    "description": "Customize generated SDKs and keep your changes across regenerations with a three-way merge."
                   }
                 }
               },

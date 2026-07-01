@@ -39,11 +39,12 @@ Select as many SDKs or CLIs as you need, or choose one target to start. Once you
 
   <scalar-step id="step-3" title="Manage your new SDKs">
 
-Once created, you will be redirected to the SDK overview page where you can:
+Once created, you will be redirected to the SDK overview page. From there you can:
 
-- Configure SDK settings
-- Add the GitHub integration
-- Download the SDK client
+- [Build, version, and download](managing.md) your SDK
+- [Configure](configuration.md) each target
+- [Link a GitHub repository](publishing/github.md) and [publish to a registry](publishing/overview.md)
+- [Customize the generated code](custom-code.md) without losing future updates
 
   </scalar-step>
 </scalar-steps>
