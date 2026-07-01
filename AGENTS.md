@@ -7,8 +7,8 @@ This file helps AI coding agents (Cursor, Claude Code, GitHub Copilot, etc.) wor
 Scalar is a Vue 3 + TypeScript monorepo for API documentation and testing.
 
 - It produces `@scalar/api-reference` (renders OpenAPI docs) and `@scalar/api-client` (API testing client)
-- It includes 40+ supporting packages and 18 framework integrations (Express, Fastify, Hono, NestJS, Next.js, Nuxt, etc.)
-- It uses pnpm workspaces, Turbo for build orchestration, Vite for Vue packages, and esbuild for pure TypeScript packages
+- It includes 40+ supporting packages and 15 framework integrations (Express, Fastify, Hono, NestJS, Next.js, Nuxt, etc.)
+- It uses pnpm workspaces, Turbo for build orchestration, Vite for Vue packages, and `tsc` for pure TypeScript packages
 
 - **Frontend**: Vue 3, Composition API, TypeScript
 - **Styling**: Tailwind CSS
@@ -81,9 +81,9 @@ pnpm script wait -p 5051 5052
 
 ### Workspace Layout
 
-- `packages/` - Core libraries (45 packages). Each is an npm package under `@scalar/`.
+- `packages/` - Core libraries (42 packages). Each is an npm package under `@scalar/`.
 - `integrations/` - Framework-specific wrappers (Express, Fastify, Next.js, Nuxt, etc.)
-- `projects/` - Deployable apps (`scalar-app`, `proxy-scalar-com`, `client-scalar-com`)
+- `projects/` - Deployable apps (`scalar-app`, `proxy-scalar-com`, `galaxy-scalar-com`)
 - `examples/` - Usage examples for various frameworks
 - `tooling/` - Internal build scripts and changelog generator
 
@@ -504,4 +504,4 @@ Use consistent terminology:
 ## Further Reading
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - PR requirements, changesets, auto-generated files
-- [.cursor/rules/cloud-agents-starter-skill.mdc](./.cursor/rules/cloud-agents-starter-skill.mdc) - Runbook for CI parity and test servers
+- [.agents/skills/cloud-agents-starter/SKILL.md](./.agents/skills/cloud-agents-starter/SKILL.md) - Runbook for CI parity and test servers
