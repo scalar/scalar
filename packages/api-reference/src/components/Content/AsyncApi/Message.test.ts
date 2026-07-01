@@ -1,3 +1,4 @@
+import { ScalarCodeBlock } from '@scalar/components/code-block'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
@@ -277,6 +278,24 @@ describe('Message', () => {
     expect(wrapper.text()).toContain('Examples')
     expect(wrapper.text()).toContain('signup')
     expect(wrapper.text()).toContain('A signup event')
+  })
+
+  it('does not render a payload code block for an example with a null payload', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({
+          payload: { type: 'object' },
+          examples: [{ name: 'empty', payload: null }],
+        }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+    })
+
+    expect(wrapper.text()).toContain('empty')
+    // A null payload must be skipped, not rendered as an empty (or "null") code block.
+    expect(wrapper.findAllComponents(ScalarCodeBlock)).toHaveLength(0)
   })
 
   it('renders message bindings when expanded', () => {
