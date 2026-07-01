@@ -1,6 +1,9 @@
 // The OpenAPI document is bundled at build time as a JSON import. Reading it
 // from the filesystem is not possible inside the Cloudflare Pages worker.
 import galaxyDocument from '@scalar/galaxy/3.1.json'
+// The AsyncAPI companion document is bundled the same way and rendered as an
+// extra source so the event-driven side of the Galaxy is documented too.
+import galaxyAsyncApiDocument from '@scalar/galaxy/asyncapi/3.0.json'
 import { PETSTORE_URL_2_0, PETSTORE_URL_3_1 } from '@scalar/helpers/url/oas-document-fixtures'
 import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
@@ -70,6 +73,10 @@ export const configureApiReference = (app: Hono): void => {
         {
           title: 'Scalar Galaxy',
           url: '/openapi.yaml',
+        },
+        {
+          title: 'Scalar Galaxy Events (AsyncAPI)',
+          content: galaxyAsyncApiDocument,
         },
         {
           title: 'Petstore (OpenAPI 3.1)',

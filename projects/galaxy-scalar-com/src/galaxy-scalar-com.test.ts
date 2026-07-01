@@ -101,5 +101,14 @@ describe('galaxy-scalar-com', () => {
       expect(mockApp.get).toHaveBeenCalledWith('/', expect.any(Function))
       expect(mockApp.get).toHaveBeenCalledWith('/scalar.js', expect.any(Function))
     })
+
+    it('includes the AsyncAPI document as a source', () => {
+      configureApiReference(mockApp as Hono)
+
+      const config = vi.mocked(Scalar).mock.calls[0]?.[0] as { sources?: Array<{ title?: string; content?: unknown }> }
+      const asyncApiSource = config.sources?.find((source) => source.title === 'Scalar Galaxy Events (AsyncAPI)')
+
+      expect(asyncApiSource?.content).toMatchObject({ asyncapi: expect.any(String) })
+    })
   })
 })
