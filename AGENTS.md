@@ -83,7 +83,7 @@ pnpm script wait -p 5051 5052
 
 - `packages/` - Core libraries (42 packages). Each is an npm package under `@scalar/`.
 - `integrations/` - Framework-specific wrappers (Express, Fastify, Next.js, Nuxt, etc.)
-- `projects/` - Deployable apps (`scalar-app`, `proxy-scalar-com`, `galaxy-scalar-com`)
+- `projects/` - Deployable apps (`scalar-app`, `proxy-scalar-com`, `galaxy-scalar-com`). `scalar-app` builds both the Electron desktop app and client.scalar.com.
 - `examples/` - Usage examples for various frameworks
 - `tooling/` - Internal build scripts and changelog generator
 
