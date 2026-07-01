@@ -1,6 +1,6 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
-import type { AsyncApiSecuritySchemeObject } from '@scalar/types/asyncapi/3.1'
+import type { AsyncApiComponentsObject, AsyncApiSecuritySchemeObject } from '@scalar/types/asyncapi/3.1'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -30,7 +30,7 @@ export type MergedSecuritySchemes = Record<string, SecuritySchemeObjectSecret>
 export const mergeSecurity = (
   documentSecuritySchemes:
     | ComponentsObject['securitySchemes']
-    | Record<string, AsyncApiSecuritySchemeObject | { $ref: string; '$ref-value': AsyncApiSecuritySchemeObject }> = {},
+    | NonNullable<AsyncApiComponentsObject['securitySchemes']> = {},
   configSecuritySchemes: AuthenticationConfiguration['securitySchemes'] = {},
   authStore: AuthStore,
   documentName: string,
