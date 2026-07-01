@@ -46,6 +46,7 @@ public class ScalarApiReferenceHttpContextTests
         context.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
         context.Response.ContentType.Should().StartWith("text/html");
         body.Should().Contain("<div id=\"app\"></div>").And.Contain("openapi/v1.json");
+        body.Should().Contain("'%2Fscalar%2F'").And.NotContain("'%2Fapi%2Fscalar%2F'");
     }
 
     [Fact]
@@ -66,6 +67,16 @@ public class ScalarApiReferenceHttpContextTests
         context.Response.Headers.ETag.ToString().Should().NotBeNullOrEmpty();
         context.Response.Headers.CacheControl.ToString().Should().Be("no-cache");
         body.Should().Contain("getBasePath");
+    }
+
+    [Fact]
+    public async Task HandleAsync_ShouldServeStandaloneJavaScriptAsset()
+    {
+        var (context, body) = await RunAsync("/api/scalar/scalar.js", "scalar.js");
+
+        context.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
+        context.Response.ContentType.Should().Be("text/javascript");
+        body.Should().Contain("createApiReference");
     }
 
     [Fact]

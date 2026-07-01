@@ -16,6 +16,7 @@
 
   <PropertyGroup>
     <StaticAssetsLogicalNamePrefix>ScalarStaticAssets</StaticAssetsLogicalNamePrefix>
+    <StandaloneJavaScriptFile>../../../../../packages/api-reference/dist/browser/standalone.js</StandaloneJavaScriptFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -45,6 +46,19 @@
     <!-- Include uncompressed files for Debug -->
     <EmbeddedResource Include="StaticAssets/*.js;StaticAssets/*.svg" Exclude="StaticAssets/*test.js" Condition="'$(Configuration)' == 'Debug'">
       <LogicalName>$(StaticAssetsLogicalNamePrefix).%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+
+    <EmbeddedResource Include="$(StandaloneJavaScriptFile)" Condition="'$(Configuration)' == 'Debug' And !Exists('StaticAssets/scalar.js') And Exists('$(StandaloneJavaScriptFile)')">
+      <LogicalName>$(StaticAssetsLogicalNamePrefix).scalar.js</LogicalName>
+    </EmbeddedResource>
+
+    <!-- Fall back to uncompressed files in Release when the compression step has not generated .gz assets. -->
+    <EmbeddedResource Include="StaticAssets/*.js;StaticAssets/*.svg" Exclude="StaticAssets/*test.js" Condition="'$(Configuration)' == 'Release'">
+      <LogicalName>$(StaticAssetsLogicalNamePrefix).Uncompressed.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+
+    <EmbeddedResource Include="$(StandaloneJavaScriptFile)" Condition="'$(Configuration)' == 'Release' And !Exists('StaticAssets/scalar.js') And !Exists('StaticAssets/scalar.js.gz') And Exists('$(StandaloneJavaScriptFile)')">
+      <LogicalName>$(StaticAssetsLogicalNamePrefix).Uncompressed.scalar.js</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 
