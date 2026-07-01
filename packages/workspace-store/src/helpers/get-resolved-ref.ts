@@ -1,8 +1,11 @@
-export type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value': Node }
+export type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value'?: Node }
 export type NodeInput<Node> = Node | RefNode<Node>
 
 const defaultTransform = <Node>(node: RefNode<Node>) => {
-  return node['$ref-value']
+  // `$ref-value` is populated by the bundler/proxy when the document is resolved. The schemas now
+  // type it as optional so unresolved `{ $ref }` objects pass through coercion untouched, but callers
+  // of `getResolvedRef` operate on resolved documents where the value is present.
+  return node['$ref-value'] as Node
 }
 
 /**
