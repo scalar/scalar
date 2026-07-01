@@ -51,6 +51,21 @@ describe('formatAsyncApiBindings', () => {
     const groups = formatAsyncApiBindings({ kafka: 'raw-string' })
     expect(groups).toEqual([{ protocol: 'kafka', entries: [{ key: 'value', value: 'raw-string' }] }])
   })
+
+  it('drops fields whose value is null or undefined', () => {
+    const groups = formatAsyncApiBindings({ ws: { method: 'GET', query: null, headers: undefined } })
+    expect(groups).toEqual([{ protocol: 'ws', entries: [{ key: 'method', value: 'GET' }] }])
+  })
+
+  it('skips a protocol whose value resolves to nullish (for example an unresolved $ref)', () => {
+    const groups = formatAsyncApiBindings({ kafka: { $ref: '#/missing' }, ws: { method: 'GET' } })
+    expect(groups.map((g) => g.protocol)).toEqual(['ws'])
+  })
+
+  it('skips a protocol whose object fields are all nullish', () => {
+    const groups = formatAsyncApiBindings({ kafka: { topic: null }, ws: { method: 'GET' } })
+    expect(groups.map((g) => g.protocol)).toEqual(['ws'])
+  })
 })
 
 describe('isComplexBindingValue', () => {

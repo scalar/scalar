@@ -26,10 +26,7 @@ type AsyncApiBindingGroup = {
  * existing message protocol-label logic ignores empty entries.
  */
 export const formatAsyncApiBindings = (bindings: unknown): AsyncApiBindingGroup[] => {
-  if (bindings == null) {
-    return []
-  }
-
+  // `isObject` already rejects `null`/`undefined`, so a nullish `bindings` short-circuits here too.
   const resolved = getResolvedRef(bindings)
   if (!isObject(resolved)) {
     return []
@@ -44,14 +41,23 @@ export const formatAsyncApiBindings = (bindings: unknown): AsyncApiBindingGroup[
 
     const value = getResolvedRef(rawValue)
 
-    // A binding payload is normally an object of fields; flatten those into key/value entries.
+    // A binding payload is normally an object of fields; flatten those into key/value entries,
+    // dropping fields with no value so we never render the literal text `null`/`undefined`.
     // Non-object payloads (rare, but allowed since most protocols are typed as `unknown`) are
-    // surfaced under a single synthetic `value` entry so nothing is silently dropped.
+    // surfaced under a single synthetic `value` entry so nothing is silently dropped — unless the
+    // value resolved to nullish (for example an unresolved `$ref`), in which case the protocol is
+    // skipped rather than shown as `value: undefined`.
     const entries: AsyncApiBindingEntry[] = isObject(value)
-      ? Object.entries(value).map(([key, fieldValue]) => ({ key, value: fieldValue }))
-      : [{ key: 'value', value }]
+      ? Object.entries(value)
+          .filter(([, fieldValue]) => fieldValue != null)
+          .map(([key, fieldValue]) => ({ key, value: fieldValue }))
+      : value == null
+        ? []
+        : [{ key: 'value', value }]
 
-    groups.push({ protocol, entries })
+    if (entries.length > 0) {
+      groups.push({ protocol, entries })
+    }
   }
 
   return groups
