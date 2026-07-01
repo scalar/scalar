@@ -94,6 +94,17 @@ describe('dynamic-ref', () => {
       expect(() => collectDynamicAnchors(root)).not.toThrow()
     })
 
+    it('collects an anchor nested under an unevaluatedProperties applicator', () => {
+      const anchors = collectDynamicAnchors(
+        schema({
+          $id: 'urn:wrapper',
+          type: 'object',
+          unevaluatedProperties: { $dynamicAnchor: 'extra', type: 'string' },
+        }),
+      )
+      expect(anchors.get('extra')).toMatchObject({ type: 'string' })
+    })
+
     it('returns an empty map when there are no dynamic anchors', () => {
       expect(collectDynamicAnchors(schema({ type: 'object' })).size).toBe(0)
     })
