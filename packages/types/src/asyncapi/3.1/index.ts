@@ -1,5 +1,6 @@
 export type {
   AsyncApiChannelObject,
+  AsyncApiComponentsObject,
   AsyncApiDocument,
   AsyncApiInfoObject,
   AsyncApiLicenseObject,
