@@ -118,12 +118,11 @@ describe('responses', () => {
 
       const result = coerceValue(ResponsesObjectSchema, validInput)
 
+      // The unresolved `{ $ref }` is preserved as-is. It must NOT gain a synthesized `$ref-value`
+      // (previously coercion invented `{ description: '' }`, a phantom empty response).
       expect(result).toEqual({
         '200': {
           $ref: '#/components/responses/SuccessResponse',
-          '$ref-value': {
-            description: '',
-          },
         },
         '404': {
           description: 'Not found',
