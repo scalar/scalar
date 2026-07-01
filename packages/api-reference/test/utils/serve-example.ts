@@ -96,7 +96,9 @@ export function serveExample(givenConfiguration?: Partial<HtmlRenderingConfigura
 
 export function serveHTMLExample(
   htmlPath: string,
-  port = 3745,
+  // Bind a random free port by default. A fixed port races when the previous
+  // server has not finished closing yet, surfacing as flaky `EADDRINUSE` errors.
+  port = 0,
 ): Promise<{
   url: string
   shutdown: () => void

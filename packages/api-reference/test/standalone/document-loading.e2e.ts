@@ -10,13 +10,12 @@ test.describe
 
       await page.goto(url)
 
-      // Need a small delay to ensure the content is loaded
-      await page.waitForTimeout(1000)
-
-      expect(page.getByRole('heading', { name: 'Scalar Galaxy' })).toBeVisible()
+      // Wait for the remote document to finish loading before navigating away,
+      // otherwise the deep link below races the in-flight fetch.
+      await expect(page.getByRole('heading', { name: 'Scalar Galaxy' })).toBeVisible()
 
       await page.goto(`${url}#tag/planets`)
-      expect(page.getByRole('heading', { name: 'Planets', level: 2 })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Planets', level: 2 })).toBeVisible()
 
       shutdown()
     })
@@ -26,10 +25,7 @@ test.describe
 
       await page.goto(url)
 
-      // Need a small delay to ensure the content is loaded
-      await page.waitForTimeout(1000)
-
-      expect(page.getByRole('heading', { name: 'Hello World' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Hello World' })).toBeVisible()
 
       shutdown()
     })
@@ -39,10 +35,7 @@ test.describe
 
       await page.goto(url)
 
-      // Need a small delay to ensure the content is loaded
-      await page.waitForTimeout(1000)
-
-      expect(page.getByRole('heading', { name: 'Hello World' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Hello World' })).toBeVisible()
 
       shutdown()
     })
