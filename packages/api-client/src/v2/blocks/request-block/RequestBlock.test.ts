@@ -187,6 +187,35 @@ describe('RequestBlock', () => {
     expect(auth.isVisible()).toBe(true)
   })
 
+  // The client (including the embedded modal) is a testing affordance, so it must let people
+  // attach any defined scheme even when an operation opts out with `security: []`.
+  // See https://github.com/scalar/scalar/issues/9632
+  it('lets the modal attach any defined scheme', () => {
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        layout: 'modal',
+        securityRequirements: [],
+        securitySchemes: {
+          a: {
+            type: 'apiKey',
+            'x-scalar-secret-token': '',
+            name: 'X-API-Key',
+            in: 'header',
+          },
+        },
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const auth = wrapper.findComponent(AuthSelector)
+    expect(auth.props('createAnySecurityScheme')).toBe(true)
+  })
+
   it('hides request body for methods without a body', () => {
     const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, method: 'get' },
