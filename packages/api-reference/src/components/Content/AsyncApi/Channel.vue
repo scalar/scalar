@@ -44,6 +44,7 @@ const {
   eventBus,
   options,
   expandedItems = {},
+  level = 0,
 } = defineProps<{
   channel: TraversedAsyncApiChannel
   document: AsyncApiDocument
@@ -53,6 +54,12 @@ const {
   options?: Partial<ParameterListOptions>
   /** Map of navigation item id to expanded state, shared with the sidebar. */
   expandedItems?: Record<string, boolean>
+  /**
+   * Nesting depth in the navigation tree. A channel nested inside a tag
+   * (`level !== 0`) inherits the tag's horizontal padding, so it skips its own
+   * `SectionContainer` padding to avoid doubling the indentation.
+   */
+  level?: number
 }>()
 
 const headerId = useId()
@@ -160,6 +167,7 @@ const operations = computed(() =>
   <SectionContainer
     v-else
     :aria-labelledby="headerId"
+    :omit="level !== 0"
     role="region">
     <Section
       :id="channel.id"

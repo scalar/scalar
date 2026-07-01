@@ -63,6 +63,7 @@ export const ar = {
     mainContent: 'وثائق واجهة برمجة التطبيقات لـ {name}',
     collapsed: 'مطوي',
     webhooks: 'خطافات الويب',
+    channels: 'القنوات',
   },
   server: {
     label: 'الخادم',

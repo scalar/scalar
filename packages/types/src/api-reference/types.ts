@@ -412,6 +412,7 @@ export type ApiReferenceTranslations = {
     openMenu: string
     operations: string
     webhooks: string
+    channels: string
     endpoints: string
     showAllEndpoints: string
     sidebarFor: string
