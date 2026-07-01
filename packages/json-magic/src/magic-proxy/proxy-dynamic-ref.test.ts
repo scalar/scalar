@@ -32,8 +32,10 @@ describe('magic proxy $dynamicRef-value', () => {
     const items = proxy.CategoryTree.properties.root.properties.children.items
 
     expect(items['$dynamicRef-value']).toMatchObject({ $dynamicAnchor: 'node' })
-    // `'$dynamicRef-value' in node` mirrors how `$ref-value` is exposed.
-    expect('$dynamicRef-value' in items).toBe(true)
+    // `$dynamicRef-value` is a get-only virtual accessor: it resolves on explicit access but stays out
+    // of enumeration/reflection (unlike `$ref-value`) so it never leaks into spreads or serialization.
+    expect('$dynamicRef-value' in items).toBe(false)
+    expect(Object.keys(items)).not.toContain('$dynamicRef-value')
   })
 
   it('binds a shared template to a different type per path (path-dependent)', () => {
