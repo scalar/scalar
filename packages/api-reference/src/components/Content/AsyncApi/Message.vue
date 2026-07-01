@@ -249,7 +249,7 @@ const onToggle = (open: boolean) => {
         </div>
         <div
           v-for="(example, index) in examples"
-          :key="example?.name ?? index"
+          :key="index"
           class="message-example">
           <div
             v-if="example?.name || example?.summary"
@@ -270,7 +270,7 @@ const onToggle = (open: boolean) => {
             :content="example.headers"
             lang="json" />
           <ScalarCodeBlock
-            v-if="example?.payload !== undefined"
+            v-if="example?.payload != null"
             :content="example.payload as object"
             lang="json" />
         </div>
