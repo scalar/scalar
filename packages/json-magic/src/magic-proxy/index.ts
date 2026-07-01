@@ -5,4 +5,4 @@ export {
   pushDynamicScope,
   resolveDynamicRef,
 } from './dynamic-ref'
-export { createMagicProxy, getRaw } from './proxy'
+export { DYNAMIC_REF_VALUE, createMagicProxy, getRaw } from './proxy'
