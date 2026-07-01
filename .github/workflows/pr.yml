@@ -618,7 +618,7 @@ jobs:
           echo "Only Markdown files changed."
 
   required-jobs-pull-requests:
-    if: github.event_name == 'pull_request'
+    if: ${{ always() && github.event_name == 'pull_request' }}
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}

@@ -267,6 +267,7 @@ jobs:
       docker_changed: ${{ needs.check-changes.outputs.docker_changed }}
 
   required-jobs-main:
+    if: ${{ always() }}
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
