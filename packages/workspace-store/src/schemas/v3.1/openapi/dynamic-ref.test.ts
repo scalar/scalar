@@ -73,6 +73,13 @@ describe('dynamic-ref coercion', () => {
     const binding = (schemas.PaginatedUserResponse as { $defs?: { itemType?: { $dynamicAnchor?: string } } }).$defs
       ?.itemType
     expect(binding?.$dynamicAnchor).toBe('itemType')
+
+    // End to end: walking the store proxy into the shared template resolves `#itemType` transparently
+    // through the virtual `$dynamicRef-value` property — no scope is assembled by the caller. The bound
+    // anchor still carries its sibling `$ref`, which dereferences to the concrete `User` shape.
+    const paginated = (schemas.PaginatedUserResponse as Record<string, any>)['$ref-value']
+    const boundItem = paginated.properties.items.items['$dynamicRef-value']
+    expect(boundItem['$ref-value']).toMatchObject({ properties: { email: { type: 'string' } } })
   })
 
   it('resolves a `$dynamicAnchor` nested under `properties` (not just root or `$defs`)', async () => {
@@ -129,5 +136,10 @@ describe('dynamic-ref coercion', () => {
     // The nested anchor is discovered and `#node` resolves to the node shape (it has `children`).
     expect(collectDynamicAnchors(tree).has('node')).toBe(true)
     expect(resolveDynamicRef('#node', [tree])).toMatchObject({ properties: { children: {} } })
+
+    // End to end: the same resolution happens transparently by walking the store proxy to the deeply
+    // nested `$dynamicRef` and reading `$dynamicRef-value`, with the scope threaded by the proxy itself.
+    const items = (tree as Record<string, any>).properties.root.properties.children.items
+    expect(items['$dynamicRef-value']).toMatchObject({ $dynamicAnchor: 'node', properties: { children: {} } })
   })
 })
