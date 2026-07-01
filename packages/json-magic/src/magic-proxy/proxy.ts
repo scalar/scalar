@@ -121,12 +121,13 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      */
     dynamicScope: DynamicScope
     /**
-     * Whether the root document uses `$dynamicRef` at all.
+     * Memoized answer to "does the document use `$dynamicRef` at all", computed lazily.
      *
-     * Computed once for the document. When false, dynamic-scope threading and the associated
-     * scope-keyed caching are skipped entirely, so ordinary documents behave exactly as before.
+     * The walk is only run the first time a resource that could carry a `$dynamicAnchor` is entered, so
+     * documents without any such resource (the vast majority) never pay for it. When the document has no
+     * `$dynamicRef`, dynamic-scope threading and the scope-keyed caching stay off entirely.
      */
-    hasDynamicRefs: boolean
+    dynamicRefsProbe: { value: boolean | undefined }
     /**
      * Interns dynamic-scope arrays so the same `(parentScope, resource)` always yields the same array
      * identity. That stable identity is what makes the scope-keyed caches below work.
@@ -148,7 +149,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     schemas: getSchemas(target),
     currentContext: '',
     dynamicScope: [],
-    hasDynamicRefs: containsDynamicRef(target),
+    dynamicRefsProbe: { value: undefined },
     scopeCache: new WeakMap(),
     dynamicProxyCache: new WeakMap(),
   },
@@ -171,11 +172,21 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     return existingProxy
   }
 
+  // Lazily probe (once per document) whether it uses `$dynamicRef` at all, memoized on the shared probe.
+  const hasDynamicRefs = (): boolean => {
+    if (args.dynamicRefsProbe.value === undefined) {
+      args.dynamicRefsProbe.value = containsDynamicRef(args.root)
+    }
+    return args.dynamicRefsProbe.value
+  }
+
   // The dynamic scope handed to child proxies: grow it by this resource when it can carry a
-  // `$dynamicAnchor` (only tracked for documents that actually use `$dynamicRef`). Grown scopes are
-  // interned so the same `(parentScope, resource)` yields one stable array identity for the caches.
+  // `$dynamicAnchor` and the document actually uses `$dynamicRef`. The cheap `carriesDynamicAnchor` check
+  // comes first so `hasDynamicRefs` (a one-off document walk) is only probed for anchor-bearing resources
+  // — documents without any never pay for it. Grown scopes are interned so the same `(parentScope,
+  // resource)` yields one stable array identity for the caches.
   const childScope: DynamicScope =
-    args.hasDynamicRefs && carriesDynamicAnchor(target as UnknownObject) && !args.dynamicScope.includes(target)
+    carriesDynamicAnchor(target as UnknownObject) && hasDynamicRefs() && !args.dynamicScope.includes(target)
       ? internScope(args.scopeCache, args.dynamicScope, target as UnknownObject)
       : args.dynamicScope
 
