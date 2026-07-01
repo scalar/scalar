@@ -3,7 +3,6 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { pushDynamicScope } from '@scalar/workspace-store/helpers/dynamic-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
@@ -16,11 +15,7 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
-import {
-  resolveDynamicSchema,
-  SCHEMA_DYNAMIC_SCOPE_SYMBOL,
-  useDynamicScope,
-} from './helpers/dynamic-scope'
+import { resolveDynamicSchema } from './helpers/dynamic-scope'
 import { inferDiscriminatorMappingComposition } from './helpers/get-compositions-to-render'
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
@@ -87,18 +82,12 @@ const {
 const { translate } = useLocalization()
 
 /**
- * The dynamic scope inherited from ancestor schema resources.
- *
- * Used to bind JSON Schema 2020-12 `$dynamicRef`s to the active `$dynamicAnchor` while walking the
- * tree. Empty at the root. See {@link useDynamicScope}.
- */
-const dynamicScope = useDynamicScope()
-
-/**
  * The schema this node actually renders.
  *
  * Two normalizations happen here, both no-ops for ordinary schemas:
- * - A top-level `$dynamicRef` is bound to its concrete type via the inherited dynamic scope.
+ * - A top-level `$dynamicRef` is bound to its concrete type. Resolution is done by the workspace-store
+ *   magic proxy (via the virtual `$dynamicRef-value` property), so this component never assembles the
+ *   dynamic scope itself — see {@link resolveDynamicSchema}.
  * - A resource that extends a template through a root `$ref` (JSON Schema 2020-12 `$ref` alongside
  *   `$defs`, e.g. a `PaginatedResponse` binding) is merged so its inherited properties render.
  */
@@ -107,27 +96,9 @@ const resolvedSchema = computed((): SchemaObject | undefined => {
     return schema
   }
 
-  const bound = resolveDynamicSchema(schema, dynamicScope)
+  const bound = resolveDynamicSchema(schema)
   return '$ref' in bound ? resolve.schema(bound) : bound
 })
-
-/**
- * Re-provide the dynamic scope grown with this resource so nested `$dynamicRef`s bind here.
- *
- * Built once at setup from the resource's stable identity (like the ancestor set below);
- * `pushDynamicScope` only grows the scope for schemas that can carry a `$dynamicAnchor`.
- *
- * The raw schema is pushed, not the merged {@link resolvedSchema}: merging through `resolve.schema`
- * coerces the node and drops the resolved `$ref-value` from entries inside `$defs`, which
- * `$dynamicAnchor` resolution relies on to dereference the bound type (e.g. `User`).
- */
-const scopeSchema = schema
-  ? resolveDynamicSchema(schema, dynamicScope)
-  : undefined
-provide(
-  SCHEMA_DYNAMIC_SCOPE_SYMBOL,
-  scopeSchema ? pushDynamicScope(dynamicScope, scopeSchema) : dynamicScope,
-)
 
 /**
  * Cycle-safe `expandAllSchemaProperties`.
