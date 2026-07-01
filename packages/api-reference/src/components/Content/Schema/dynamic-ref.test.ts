@@ -96,4 +96,32 @@ describe('Schema $dynamicRef rendering', () => {
     const text = mountSchema(template).text()
     expect(text).toContain('items')
   })
+
+  it('force-expands a recursive $dynamicRef without infinite recursion', () => {
+    // A recursive tree: `children.items` binds to `#node`, whose own `children` bind to `#node` again.
+    // Cycle detection relies on stable schema identity; the magic proxy must return the same proxy for
+    // the same node on the same path (scope-keyed cache), or force-expansion recurses until it overflows.
+    const root = {
+      components: {
+        schemas: {
+          CategoryTree: {
+            $id: 'https://example.com/CategoryTree',
+            type: 'object',
+            properties: {
+              root: {
+                $dynamicAnchor: 'node',
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  children: { type: 'array', items: { $dynamicRef: '#node' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const tree = (createMagicProxy(root) as any).components.schemas.CategoryTree
+    expect(() => mountSchema(tree)).not.toThrow()
+  })
 })

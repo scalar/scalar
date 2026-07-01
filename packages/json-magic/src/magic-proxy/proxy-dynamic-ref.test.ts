@@ -106,4 +106,35 @@ describe('magic proxy $dynamicRef-value', () => {
     expect(proxy.$defs.shared).toBe(proxy.$defs.shared)
     expect(proxy.a['$ref-value']).toBe(proxy.b['$ref-value'])
   })
+
+  it('keeps referential stability within a dynamic scope while separating scopes', () => {
+    const document = {
+      CategoryTree: {
+        $id: 'https://example.com/CategoryTree',
+        type: 'object',
+        properties: {
+          root: {
+            $dynamicAnchor: 'node',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              children: { type: 'array', items: { $dynamicRef: '#node' } },
+            },
+          },
+        },
+      },
+    }
+
+    const proxy = createMagicProxy(document) as any
+    const items = proxy.CategoryTree.properties.root.properties.children.items
+
+    // The recursive `#node` resolves to the same proxy on the same path: this is what lets cycle
+    // detection terminate instead of expanding forever. (Before the scope-keyed cache it was a fresh
+    // proxy every access.)
+    const boundOnce = items['$dynamicRef-value']
+    const boundAgain = items['$dynamicRef-value']
+    expect(boundOnce).toBe(boundAgain)
+    // And one level deeper, the same node resolves to that very same proxy.
+    expect(boundOnce.properties.children.items['$dynamicRef-value']).toBe(boundOnce)
+  })
 })
