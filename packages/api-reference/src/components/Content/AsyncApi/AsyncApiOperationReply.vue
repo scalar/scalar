@@ -9,6 +9,8 @@ import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 
+import AsyncApiSectionTitle from './AsyncApiSectionTitle.vue'
+
 const { reply } = defineProps<{
   /** Operation reply object, possibly a `$ref`. */
   reply: unknown
@@ -16,13 +18,13 @@ const { reply } = defineProps<{
 
 const { translate } = useLocalization()
 
-/** Resolved reply object, or undefined when not present. */
-const resolved = computed<AsyncApiOperationReplyObject | undefined>(() => {
-  const value = getResolvedRef(reply) as
-    | AsyncApiOperationReplyObject
-    | undefined
-  return value && typeof value === 'object' ? value : undefined
-})
+/**
+ * Resolved reply object, or undefined when not present. Consumers below optional-chain every access,
+ * so no extra runtime narrowing is needed here.
+ */
+const resolved = computed<AsyncApiOperationReplyObject | undefined>(
+  () => getResolvedRef(reply) as AsyncApiOperationReplyObject | undefined,
+)
 
 /** Reply address (runtime expression locating where the reply is sent). */
 const address = computed(() =>
@@ -59,7 +61,9 @@ const hasContent = computed(
   <div
     v-if="hasContent"
     class="async-api-reply">
-    <div class="async-api-reply-title">{{ translate('asyncapi.reply') }}</div>
+    <AsyncApiSectionTitle>{{
+      translate('asyncapi.reply')
+    }}</AsyncApiSectionTitle>
     <dl class="async-api-reply-grid">
       <template v-if="channelAddress">
         <dt>{{ translate('asyncapi.replyChannel') }}</dt>
@@ -89,14 +93,6 @@ const hasContent = computed(
 <style scoped>
 .async-api-reply {
   margin-top: 12px;
-}
-.async-api-reply-title {
-  font-size: var(--scalar-font-size-2);
-  font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-1);
-  padding-bottom: 8px;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-  margin-bottom: 8px;
 }
 .async-api-reply-grid {
   display: grid;

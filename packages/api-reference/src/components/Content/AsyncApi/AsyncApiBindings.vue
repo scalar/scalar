@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import { Badge } from '@/components/Badge'
 import { useLocalization } from '@/features/localization'
 
+import AsyncApiSectionTitle from './AsyncApiSectionTitle.vue'
 import {
   formatAsyncApiBindings,
   isComplexBindingValue,
@@ -25,9 +26,9 @@ const groups = computed(() => formatAsyncApiBindings(bindings))
   <div
     v-if="groups.length"
     class="async-api-bindings">
-    <div class="async-api-bindings-title">
-      {{ translate('asyncapi.bindings') }}
-    </div>
+    <AsyncApiSectionTitle>{{
+      translate('asyncapi.bindings')
+    }}</AsyncApiSectionTitle>
     <div
       v-for="group in groups"
       :key="group.protocol"
@@ -55,14 +56,6 @@ const groups = computed(() => formatAsyncApiBindings(bindings))
 <style scoped>
 .async-api-bindings {
   margin-top: 12px;
-}
-.async-api-bindings-title {
-  font-size: var(--scalar-font-size-2);
-  font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-1);
-  padding-bottom: 8px;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-  margin-bottom: 8px;
 }
 .async-api-binding-group {
   margin-top: 8px;
