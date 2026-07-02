@@ -1,13 +1,16 @@
 export type {
   AsyncApiChannelObject,
   AsyncApiDocument,
+  AsyncApiExternalDocumentationObject,
   AsyncApiInfoObject,
   AsyncApiLicenseObject,
   AsyncApiMessageObject,
   AsyncApiOperationObject,
+  AsyncApiOperationReplyObject,
   AsyncApiParameterObject,
   AsyncApiSecuritySchemeObject,
   AsyncApiServerObject,
   AsyncApiServerVariableObject,
+  AsyncApiTagsObject,
   AsyncApiWsBindingObject,
 } from './index.generated'

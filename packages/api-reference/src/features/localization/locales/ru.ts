@@ -76,6 +76,14 @@ export const ru = {
   asyncapi: {
     servers: 'Серверы',
     protocols: 'Протоколы',
+    bindings: 'Привязки',
+    tags: 'Теги',
+    reply: 'Ответ',
+    replyChannel: 'Канал ответа',
+    replyAddress: 'Адрес ответа',
+    replyMessages: 'Сообщения ответа',
+    correlationId: 'Идентификатор корреляции',
+    examples: 'Примеры',
   },
   clientLibraries: {
     heading: 'Клиентские библиотеки',

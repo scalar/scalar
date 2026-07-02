@@ -20,7 +20,9 @@ import {
 } from '@/components/Section'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
+import AsyncApiBindings from './AsyncApiBindings.vue'
 import AsyncApiLabels from './AsyncApiLabels.vue'
+import AsyncApiTags from './AsyncApiTags.vue'
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
 import {
   resolveSchemaRenderOptions,
@@ -147,6 +149,10 @@ const operations = computed(() =>
         :value="description"
         withImages />
     </template>
+    <AsyncApiTags
+      :externalDocs="resolvedChannel?.externalDocs"
+      :tags="resolvedChannel?.tags" />
+    <AsyncApiBindings :bindings="resolvedChannel?.bindings" />
     <ParameterList
       v-if="parameters.length"
       :eventBus="eventBus"
@@ -195,6 +201,10 @@ const operations = computed(() =>
         <ScalarMarkdown
           :value="description"
           withImages />
+        <AsyncApiTags
+          :externalDocs="resolvedChannel?.externalDocs"
+          :tags="resolvedChannel?.tags" />
+        <AsyncApiBindings :bindings="resolvedChannel?.bindings" />
         <ParameterList
           v-if="parameters.length"
           :eventBus="eventBus"
