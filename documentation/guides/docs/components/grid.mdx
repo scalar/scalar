@@ -1,0 +1,74 @@
+import Preview from './Preview.mdx'
+
+# Grid
+
+Grid arranges its children in columns. By default it creates one column per child. Set `cols` to force a fixed number of equal-width columns, with extra children wrapping onto new rows.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `cols` | `number` | _auto_ | Number of equal-width columns. When omitted, the grid uses one column per child. |
+
+## Examples
+
+### Auto Columns
+
+Without `cols`, each child becomes its own column.
+
+<Preview>
+  <Grid>
+    <Card icon="phosphor/regular/cube" title="One">First card.</Card>
+    <Card icon="phosphor/regular/cube" title="Two">Second card.</Card>
+    <Card icon="phosphor/regular/cube" title="Three">Third card.</Card>
+  </Grid>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-grid>
+  <scalar-card icon="phosphor/regular/cube" title="One">First card.</scalar-card>
+  <scalar-card icon="phosphor/regular/cube" title="Two">Second card.</scalar-card>
+  <scalar-card icon="phosphor/regular/cube" title="Three">Third card.</scalar-card>
+</scalar-grid>
+```
+```mdx MDX
+<Grid>
+  <Card icon="phosphor/regular/cube" title="One">First card.</Card>
+  <Card icon="phosphor/regular/cube" title="Two">Second card.</Card>
+  <Card icon="phosphor/regular/cube" title="Three">Third card.</Card>
+</Grid>
+```
+</CodeGroup>
+
+### Fixed Columns
+
+Set `cols` to control the number of columns. Extra children wrap onto new rows.
+
+<Preview>
+  <Grid cols={2}>
+    <Card title="One">First card.</Card>
+    <Card title="Two">Second card.</Card>
+    <Card title="Three">Third card.</Card>
+    <Card title="Four">Fourth card.</Card>
+  </Grid>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-grid cols="2">
+  <scalar-card title="One">First card.</scalar-card>
+  <scalar-card title="Two">Second card.</scalar-card>
+  <scalar-card title="Three">Third card.</scalar-card>
+  <scalar-card title="Four">Fourth card.</scalar-card>
+</scalar-grid>
+```
+```mdx MDX
+<Grid cols={2}>
+  <Card title="One">First card.</Card>
+  <Card title="Two">Second card.</Card>
+  <Card title="Three">Third card.</Card>
+  <Card title="Four">Fourth card.</Card>
+</Grid>
+```
+</CodeGroup>
