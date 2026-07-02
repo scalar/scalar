@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.12.16
+
+### Patch Changes
+
+- [#9653](https://github.com/scalar/scalar/pull/9653): Remove the start panel heading tag to avoid adding an extra document heading to API reference pages.
+
 ## 0.12.15
 
 ## 0.12.14
