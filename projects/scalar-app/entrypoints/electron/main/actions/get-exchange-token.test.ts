@@ -14,8 +14,8 @@ vi.mock('electron/common', () => ({
   },
 }))
 
-vi.mock('get-port', () => ({
-  default: getPortMock,
+vi.mock('get-port-please', () => ({
+  getPort: getPortMock,
 }))
 
 vi.mock('@/environment', () => ({
