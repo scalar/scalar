@@ -1,11 +1,20 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Pin transitive dependencies centrally so we can override vulnerable versions pulled in by other packages -->
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
 
   <!-- Source / runtime packages -->
   <ItemGroup>
     <PackageVersion Include="NetEscapades.EnumGenerators.Generators" Version="1.0.0-beta21" />
+    <!--
+      Pin the transitive Microsoft.OpenApi to a patched version. Older versions (pulled in via
+      Microsoft.AspNetCore.OpenApi and Swashbuckle.AspNetCore.SwaggerGen) fall under the advisory
+      GHSA-v5pm-xwqc-g5wc, which trips the NuGet security audit (NU1903). Because CI treats warnings
+      as errors, the audit warning breaks the build until the transitive version is bumped past 2.7.4.
+    -->
+    <PackageVersion Include="Microsoft.OpenApi" Version="2.7.5" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="10.4.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
