@@ -11,6 +11,9 @@ ENV LC_ALL=C.UTF-8
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN npm install -g npm@latest
 RUN npm install -g @playwright/test@$PLAYWRIGHT_VERSION
-RUN playwright install --with-deps
+# Only Chromium is needed: every Playwright config in the repo runs the
+# default (Chromium) project, so bundling Firefox and WebKit only bloats the
+# image and slows the per-job container pull in CI.
+RUN playwright install --with-deps chromium
 RUN chmod -R 777 /ms-playwright
 
