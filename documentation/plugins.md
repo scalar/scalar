@@ -89,8 +89,8 @@ Plugins can hook into the API Reference lifecycle to run code at specific points
 
 #### Available Hooks
 
-- `onInit({ config })` — Called when the API Reference is initialized. Receives the resolved configuration.
-- `onConfigChange({ config })` — Called when the API Reference configuration changes.
+- `onInit({ config, auth })` — Called when the API Reference is initialized. Receives the resolved configuration and the [authentication state](#reading-the-authentication-state).
+- `onConfigChange({ config, auth })` — Called when the API Reference configuration changes.
 - `onDestroy()` — Called when the API Reference is destroyed. Use for cleanup.
 
 #### Example
@@ -117,6 +117,58 @@ export const AnalyticsPlugin = (): ApiReferencePlugin => {
     }
   }
 }
+```
+
+### Reading the Authentication State
+
+Plugins can read the global authentication state — the secrets the user has entered (tokens, API keys, OAuth credentials) and the selected security schemes. This is **read-only**; plugins cannot mutate auth.
+
+The auth accessor exposes three methods:
+
+| Method | Description |
+|---|---|
+| `export()` | Returns a snapshot of the entire authentication state, keyed by document name. |
+| `getAuthSecrets(documentName, schemeName)` | Returns the stored secrets for a security scheme within a document, or `undefined`. |
+| `getAuthSelectedSchemas(payload)` | Returns the selected security for a document (`{ type: 'document', documentName }`) or operation (`{ type: 'operation', documentName, path, method }`), or `undefined`. |
+
+#### From lifecycle hooks
+
+The `auth` accessor is passed to `onInit` and `onConfigChange` alongside `config`:
+
+```typescript
+import type { ApiReferencePlugin } from '@scalar/types/api-reference'
+
+export const AuthAwarePlugin = (): ApiReferencePlugin => {
+  return () => {
+    return {
+      name: 'auth-aware-plugin',
+      extensions: [],
+      hooks: {
+        onConfigChange({ auth }) {
+          // Read the secrets the user entered for a specific scheme
+          const secrets = auth.getAuthSecrets('my-document', 'bearerAuth')
+          console.log('Current bearer token', secrets?.token)
+
+          // Or grab a full snapshot of every document's auth state
+          console.log('All auth state', auth.export())
+        },
+      },
+    }
+  }
+}
+```
+
+#### From a view component
+
+View components can reach the same accessor through the plugin manager:
+
+```typescript
+import { usePluginManager } from '@scalar/api-reference/plugins'
+
+const pluginManager = usePluginManager()
+const auth = pluginManager.getAuthState()
+
+const selected = auth.getAuthSelectedSchemas({ type: 'document', documentName: 'my-document' })
 ```
 
 ### Additional Components

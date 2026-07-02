@@ -1,3 +1,9 @@
+export type {
+  PluginAuthSecrets,
+  PluginAuthState,
+  PluginDocumentAuth,
+  PluginSelectedSecurity,
+} from './api-reference-plugin'
 export type { ApiReferenceInstance, CreateApiReference } from './html-api'
 export type { HtmlRenderingConfiguration } from './html-rendering-configuration'
 export type {

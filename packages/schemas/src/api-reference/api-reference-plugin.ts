@@ -47,8 +47,8 @@ const viewsSchema = object({
 })
 
 const lifecycleHooksSchema = object({
-  onInit: optional(fn<({ config }: { config: any }) => void>()),
-  onConfigChange: optional(fn<({ config }: { config: any }) => void>()),
+  onInit: optional(fn<({ config, auth }: { config: any; auth: any }) => void>()),
+  onConfigChange: optional(fn<({ config, auth }: { config: any; auth: any }) => void>()),
   onDestroy: optional(fn<() => void>()),
 })
 

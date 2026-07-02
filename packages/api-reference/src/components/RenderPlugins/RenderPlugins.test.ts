@@ -26,6 +26,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -59,6 +64,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -96,6 +106,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -138,6 +153,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       mount(RenderPlugins, {
@@ -182,6 +202,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       mount(RenderPlugins, {
@@ -231,6 +256,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       mount(RenderPlugins, {
@@ -281,6 +311,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -325,6 +360,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -357,6 +397,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -389,6 +434,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       mount(RenderPlugins, {
@@ -414,6 +464,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       mount(RenderPlugins, {
@@ -451,6 +506,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -481,6 +541,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -510,6 +575,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -540,6 +610,11 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getAuthState: vi.fn().mockReturnValue({
+          export: vi.fn().mockReturnValue({}),
+          getAuthSecrets: vi.fn(),
+          getAuthSelectedSchemas: vi.fn(),
+        }),
       })
 
       const wrapper = mount(RenderPlugins, {

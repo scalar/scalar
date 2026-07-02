@@ -1,15 +1,35 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type {
   ApiReferencePlugin as OriginalApiReferencePlugin,
+  PluginAuthState,
   SpecificationExtension,
   ViewComponent,
 } from '@scalar/types/api-reference'
 
 export type ApiReferencePlugin = OriginalApiReferencePlugin
 
+export type { PluginAuthState }
+
 type CreatePluginManagerParams = {
   plugins?: ApiReferencePlugin[]
+  /**
+   * Read-only accessor for the global authentication state.
+   *
+   * Passed through to plugin lifecycle hooks and exposed via `getAuthState`, letting plugins read
+   * stored secrets and the selected security schemes without being able to mutate them.
+   */
+  auth?: PluginAuthState
 }
+
+/**
+ * A no-op auth state used when no accessor is provided (e.g. in tests or a standalone manager).
+ * It reports an empty authentication state so plugins can call the read methods unconditionally.
+ */
+const createEmptyAuthState = (): PluginAuthState => ({
+  export: () => ({}),
+  getAuthSecrets: () => undefined,
+  getAuthSelectedSchemas: () => undefined,
+})
 
 /** Plugin view slots that can render custom components in the content area */
 const PLUGIN_VIEW_NAMES = ['content.start', 'content.end'] as const
@@ -45,8 +65,11 @@ const getPluginViewId = (documentSlug: string, pluginName: string, viewName: Plu
  *
  * This store manages all plugins registered with the API client
  */
-export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams) => {
+export const createPluginManager = ({ plugins = [], auth }: CreatePluginManagerParams) => {
   const registeredPlugins = new Map<string, ReturnType<ApiReferencePlugin>>()
+
+  // Fall back to an empty read-only auth state so hooks and `getAuthState` always have an accessor.
+  const authState = auth ?? createEmptyAuthState()
 
   // Register initial plugins
   plugins.forEach((plugin) => {
@@ -99,7 +122,7 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
      */
     notifyInit: (config: Record<string, unknown>): void => {
       for (const plugin of registeredPlugins.values()) {
-        plugin.hooks?.onInit?.({ config })
+        plugin.hooks?.onInit?.({ config, auth: authState })
       }
     },
 
@@ -108,9 +131,17 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
      */
     notifyConfigChange: (config: Record<string, unknown>): void => {
       for (const plugin of registeredPlugins.values()) {
-        plugin.hooks?.onConfigChange?.({ config })
+        plugin.hooks?.onConfigChange?.({ config, auth: authState })
       }
     },
+
+    /**
+     * Get the read-only accessor for the global authentication state.
+     *
+     * Plugin view components can call this (via `usePluginManager`) to read stored secrets and the
+     * selected security schemes. Returns an empty auth state when no accessor was provided.
+     */
+    getAuthState: (): PluginAuthState => authState,
 
     /**
      * Notify all plugins that the API Reference is being destroyed
