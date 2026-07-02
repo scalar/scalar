@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.62.2
+
+### Patch Changes
+
+- [#9630](https://github.com/scalar/scalar/pull/9630): Render AsyncAPI tags without the extra horizontal indentation on nested channels, and replace the empty "Operations" card in an AsyncAPI tag header with a "Channels" card that lists the channels in the tag.
+- [#9541](https://github.com/scalar/scalar/pull/9541): Fix an SSR hydration mismatch on the root element: the obtrusive-scrollbar class is now resolved after mount so the first client render matches the server.
+
 ## 1.62.1
 
 ### Patch Changes

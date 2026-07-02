@@ -1,5 +1,11 @@
 # @scalar/schemas
 
+## 0.7.1
+
+### Patch Changes
+
+- [#9626](https://github.com/scalar/scalar/pull/9626): Fix AsyncAPI security scheme types being lost on ingestion. When a server referenced a scheme via `$ref`, coercion synthesized a default `$ref-value` (the first `type` literal, `userPassword`) that leaked back over the real definition through the resolved-document proxy, so every scheme rendered as `userPassword`. Reference `$ref-value` is now optional, so unresolved references pass through untouched.
+
 ## 0.7.0
 
 ### Minor Changes
