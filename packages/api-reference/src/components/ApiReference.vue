@@ -54,6 +54,7 @@ import type {
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
 import {
+  getDocumentType,
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
@@ -247,13 +248,76 @@ if (typeof window !== 'undefined') {
   }
 }
 
+/** Human readable label for each supported document type */
+const DOCUMENT_TYPE_LABELS = {
+  openapi: 'OpenAPI',
+  asyncapi: 'AsyncAPI',
+} as const
+
+type DocumentType = keyof typeof DOCUMENT_TYPE_LABELS
+
+/**
+ * Best-effort guess of the document type from a source URL.
+ *
+ * Used as a fallback for URL documents that haven't been loaded yet, since we can't
+ * inspect their content. Many URLs hint at the type (e.g. `.../openapi.json`,
+ * `.../asyncapi.yaml`, `.../swagger.json`).
+ */
+const guessDocumentTypeFromUrl = (
+  url: string | undefined,
+): DocumentType | undefined => {
+  const normalized = url?.toLowerCase()
+
+  if (!normalized) {
+    return undefined
+  }
+  if (normalized.includes('asyncapi')) {
+    return 'asyncapi'
+  }
+  if (normalized.includes('openapi') || normalized.includes('swagger')) {
+    return 'openapi'
+  }
+
+  return undefined
+}
+
 /** Computed document options list for the selector logic */
-const documentOptionList = computed(() =>
-  Object.values(configList.value).map((c) => ({
-    label: c.title,
-    id: c.slug,
-  })),
-)
+const documentOptionList = computed(() => {
+  const options = Object.values(configList.value).map((c) => {
+    // Documents are loaded lazily, so resolve the document type with:
+    // 1. Prefer the parsed document from the store (covers URL sources once loaded).
+    // 2. Fall back to the inline configuration content (available immediately).
+    // 3. As a last resort, guess from the source URL for documents not yet loaded.
+    const type =
+      getDocumentType(
+        workspaceStore.workspace.documents[c.slug] ?? c.source.content,
+      ) ?? guessDocumentTypeFromUrl(c.source.url)
+
+    return {
+      title: c.title,
+      id: c.slug,
+      type,
+    }
+  })
+  const documentTypes = new Set(options.map((option) => option.type))
+  const hasMixedDocumentTypes =
+    documentTypes.has('openapi') && documentTypes.has('asyncapi')
+  const showDocumentTypePostfix = options.length >= 2 && hasMixedDocumentTypes
+
+  return options.map((option) => {
+    const typeLabel = option.type
+      ? DOCUMENT_TYPE_LABELS[option.type]
+      : undefined
+
+    return {
+      label:
+        showDocumentTypePostfix && typeLabel
+          ? `${option.title} (${typeLabel})`
+          : option.title,
+      id: option.id,
+    }
+  })
+})
 
 /**
  * AsyncAPI sidebar filters (protocol + server).
