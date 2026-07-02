@@ -1,5 +1,7 @@
 # @scalar/docusaurus
 
+## 0.8.29
+
 ## 0.8.28
 
 ### Patch Changes

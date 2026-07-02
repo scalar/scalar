@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.16.1
+
+### Patch Changes
+
+- [#9630](https://github.com/scalar/scalar/pull/9630): Render AsyncAPI tags without the extra horizontal indentation on nested channels, and replace the empty "Operations" card in an AsyncAPI tag header with a "Channels" card that lists the channels in the tag.
+
 ## 0.16.0
 
 ### Minor Changes

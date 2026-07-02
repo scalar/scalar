@@ -1,5 +1,11 @@
 # galaxy-scalar-com
 
+## 0.2.25
+
+### Patch Changes
+
+- [#9628](https://github.com/scalar/scalar/pull/9628): Add the Scalar Galaxy AsyncAPI document as a source on galaxy.scalar.com, so the event-driven side of the Galaxy is rendered alongside the OpenAPI reference.
+
 ## 0.2.24
 
 ### Patch Changes
