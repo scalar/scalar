@@ -100,6 +100,22 @@ describe('operation', () => {
       expect(result).toEqual(validInput)
     })
 
+    it('parses optional operation security alternatives correctly', () => {
+      const validInput = {
+        operationId: 'searchPublicOrAuthenticatedData',
+        security: [
+          {},
+          {
+            apiKey: [],
+          },
+        ],
+      }
+
+      const result = coerceValue(OperationObjectSchema, validInput)
+
+      expect(result).toEqual(validInput)
+    })
+
     it('fails when given non-object input', () => {
       const invalidInput = 'not an object'
 
