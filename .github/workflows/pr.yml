@@ -74,7 +74,7 @@ jobs:
           compression-level: 0
       - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
         name: Upload webpack stats to RelativeCI
-        uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
+        uses: relative-ci/agent-action@fcf45416581928e8dd62eded78ce98c78e5149f8 # v3.2.3
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -343,7 +343,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
         with:
           comment-title: 'Scalar References End to End Test Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
@@ -389,7 +389,7 @@ jobs:
             --alias=${{env.DEPLOY_ID}}
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
         with:
           comment-title: 'Scalar App End to End Test Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
@@ -436,7 +436,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
         with:
           comment-title: 'Scalar Components Snapshot Test Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
@@ -481,7 +481,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
         with:
           comment-title: 'Scalar CDN Snapshot Diff Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
