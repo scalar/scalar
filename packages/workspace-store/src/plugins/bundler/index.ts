@@ -244,8 +244,24 @@ export const normalizeRefs = (): LifecyclePlugin => {
 
       // If the node is a $ref and we are not on the schema object, we need to normalize the $ref
       if (typeof node['$ref'] === 'string' && !(path[0] === 'components' && path[1] === 'schemas')) {
-        // Remove any other properties from the node and only keep the '$ref', 'summary', 'description' and '$status'
-        const keepProperties = new Set(['$ref', 'summary', 'description', '$status'])
+        // Remove any other properties from the node and only keep the '$ref', 'summary', 'description' and '$status'.
+        // The JSON Schema 2020-12 reference keywords are also kept: a schema-position `$ref` may carry a
+        // `$defs`/`$dynamicAnchor` binding as a sibling to specialize a generic template (the `Paginated<T>`
+        // pattern). Such a schema can appear inline anywhere a schema is allowed — for example a response's
+        // `content.<media>.schema` — not only under `components/schemas`. Dropping these siblings here would
+        // discard the item-type binding, leaving `$dynamicRef` to resolve to the template's empty fallback and
+        // rendering an empty array. See https://github.com/scalar/scalar/issues/9414.
+        const keepProperties = new Set([
+          '$ref',
+          'summary',
+          'description',
+          '$status',
+          '$id',
+          '$anchor',
+          '$dynamicAnchor',
+          '$dynamicRef',
+          '$defs',
+        ])
 
         Object.keys(node).forEach((key) => {
           if (!keepProperties.has(key)) {
