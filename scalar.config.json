@@ -1181,11 +1181,19 @@
                         "title": "MDX",
                         "type": "page",
                         "filepath": "documentation/guides/docs/content/mdx.mdx"
-                      },
+                      }
+                    }
+                  },
+                  "integrations": {
+                    "title": "Integrations",
+                    "type": "group",
+                    "mode": "flat",
+                    "icon": "phosphor/regular/plug",
+                    "children": {
                       "github": {
                         "title": "GitHub",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/content/github.md"
+                        "filepath": "documentation/guides/docs/integrations/github.md"
                       }
                     }
                   },
