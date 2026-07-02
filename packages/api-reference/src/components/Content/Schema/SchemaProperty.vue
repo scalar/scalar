@@ -100,8 +100,14 @@ const optimizedValue = computed(() =>
 )
 
 const childBreadcrumb = computed<string[] | undefined>(() =>
-  props.breadcrumb && props.name
-    ? [...props.breadcrumb, props.name]
+  props.breadcrumb
+    ? // A named property extends the breadcrumb with its own name. A nameless
+      // container (e.g. a response object, rendered without a name to avoid a
+      // duplicate heading) passes its breadcrumb straight through so its
+      // properties stay linkable.
+      props.name
+      ? [...props.breadcrumb, props.name]
+      : props.breadcrumb
     : undefined,
 )
 
