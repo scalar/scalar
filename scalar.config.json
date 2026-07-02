@@ -1181,6 +1181,11 @@
                         "title": "MDX",
                         "type": "page",
                         "filepath": "documentation/guides/docs/content/mdx.mdx"
+                      },
+                      "github": {
+                        "title": "GitHub",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/content/github.md"
                       }
                     }
                   },
