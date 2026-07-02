@@ -842,6 +842,47 @@ describe('normalizeRefs', () => {
     })
   })
 
+  it('keeps JSON Schema 2020-12 keywords on an inline schema $ref (Paginated<T> binding)', async () => {
+    // The generic pagination template binds its item type through a `$defs`/`$dynamicAnchor` sibling next to
+    // the `$ref`. This wrapper lives inline on a response schema, not under `components/schemas`, so it must
+    // survive normalization for `$dynamicRef` to resolve to the bound type instead of the empty fallback.
+    const input = {
+      paths: {
+        '/planets': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
+                      $defs: { itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet' } },
+                      $ref: '#/components/schemas/Paginated',
+                      extraProperty: 'should be removed',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [normalizeRefs()],
+    })
+
+    const schema: Record<string, unknown> =
+      input.paths['/planets'].get.responses['200'].content['application/json'].schema
+    expect(schema.$ref).toBe('#/components/schemas/Paginated')
+    expect(schema.$id).toBe('https://galaxy.scalar.com/schemas/PaginatedPlanets')
+    expect(schema.$defs).toEqual({ itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet' } })
+    // Genuinely unrelated siblings are still stripped.
+    expect(schema).not.toHaveProperty('extraProperty')
+  })
+
   it('normalizes $ref in parameters', async () => {
     const input = {
       paths: {
