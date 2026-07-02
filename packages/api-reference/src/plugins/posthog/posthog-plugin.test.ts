@@ -21,6 +21,13 @@ const TEST_CONFIG = {
   apiHost: 'https://test.example.com',
 }
 
+/** Read-only auth accessor passed to lifecycle hooks (unused by the PostHog plugin). */
+const mockAuth = {
+  export: () => ({}),
+  getAuthSecrets: () => undefined,
+  getAuthSelectedSchemas: () => undefined,
+}
+
 describe('posthog-plugin', () => {
   it('returns a plugin with the correct name', () => {
     const plugin = PostHogPlugin(TEST_CONFIG)
@@ -45,7 +52,7 @@ describe('posthog-plugin', () => {
   it('initializes PostHog on onInit', () => {
     const plugin = PostHogPlugin(TEST_CONFIG)
     const instance = plugin()
-    instance.hooks?.onInit?.({ config: {} })
+    instance.hooks?.onInit?.({ config: {}, auth: mockAuth })
 
     expect(mockPostHogInstance.register).toHaveBeenCalledWith({ product: 'api-reference' })
     expect(mockPostHogInstance.opt_in_capturing).toHaveBeenCalled()
@@ -56,7 +63,7 @@ describe('posthog-plugin', () => {
     const instance = plugin()
 
     mockPostHogInstance.opt_in_capturing.mockClear()
-    instance.hooks?.onInit?.({ config: { telemetry: false } })
+    instance.hooks?.onInit?.({ config: { telemetry: false }, auth: mockAuth })
 
     expect(mockPostHogInstance.register).toHaveBeenCalledWith({ product: 'api-reference' })
     expect(mockPostHogInstance.opt_in_capturing).not.toHaveBeenCalled()
@@ -65,15 +72,15 @@ describe('posthog-plugin', () => {
   it('reacts to telemetry config changes', () => {
     const plugin = PostHogPlugin(TEST_CONFIG)
     const instance = plugin()
-    instance.hooks?.onInit?.({ config: { telemetry: true } })
+    instance.hooks?.onInit?.({ config: { telemetry: true }, auth: mockAuth })
 
     mockPostHogInstance.opt_in_capturing.mockClear()
     mockPostHogInstance.opt_out_capturing.mockClear()
 
-    instance.hooks?.onConfigChange?.({ config: { telemetry: false } })
+    instance.hooks?.onConfigChange?.({ config: { telemetry: false }, auth: mockAuth })
     expect(mockPostHogInstance.opt_out_capturing).toHaveBeenCalled()
 
-    instance.hooks?.onConfigChange?.({ config: { telemetry: true } })
+    instance.hooks?.onConfigChange?.({ config: { telemetry: true }, auth: mockAuth })
     expect(mockPostHogInstance.opt_in_capturing).toHaveBeenCalled()
   })
 
@@ -86,7 +93,7 @@ describe('posthog-plugin', () => {
   it('resets PostHog on onDestroy', () => {
     const plugin = PostHogPlugin(TEST_CONFIG)
     const instance = plugin()
-    instance.hooks?.onInit?.({ config: {} })
+    instance.hooks?.onInit?.({ config: {}, auth: mockAuth })
     instance.hooks?.onDestroy?.()
 
     expect(mockPostHogInstance.reset).toHaveBeenCalled()
@@ -101,10 +108,10 @@ describe('posthog-plugin', () => {
     const onConfigChange = vi.spyOn(clientPlugin.lifecycle!, 'onConfigChange')
     const onDestroy = vi.spyOn(clientPlugin.lifecycle!, 'onDestroy')
 
-    instance.hooks?.onInit?.({ config: { telemetry: true } })
+    instance.hooks?.onInit?.({ config: { telemetry: true }, auth: mockAuth })
     expect(onInit).toHaveBeenCalledWith({ config: { telemetry: true } })
 
-    instance.hooks?.onConfigChange?.({ config: { telemetry: false } })
+    instance.hooks?.onConfigChange?.({ config: { telemetry: false }, auth: mockAuth })
     expect(onConfigChange).toHaveBeenCalledWith({ config: { telemetry: false } })
 
     instance.hooks?.onDestroy?.()

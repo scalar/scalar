@@ -376,8 +376,8 @@ describe('plugin-manager', () => {
       const config = { theme: 'dark' }
       manager.notifyInit(config)
 
-      expect(onInit1).toHaveBeenCalledWith({ config })
-      expect(onInit2).toHaveBeenCalledWith({ config })
+      expect(onInit1).toHaveBeenCalledWith({ config, auth: manager.getAuthState() })
+      expect(onInit2).toHaveBeenCalledWith({ config, auth: manager.getAuthState() })
     })
 
     it('notifyConfigChange calls onConfigChange on all plugins', () => {
@@ -393,7 +393,7 @@ describe('plugin-manager', () => {
       const config = { theme: 'light' }
       manager.notifyConfigChange(config)
 
-      expect(onConfigChange).toHaveBeenCalledWith({ config })
+      expect(onConfigChange).toHaveBeenCalledWith({ config, auth: manager.getAuthState() })
     })
 
     it('notifyDestroy calls onDestroy on all plugins', () => {
@@ -441,6 +441,54 @@ describe('plugin-manager', () => {
       manager.notifyDestroy()
 
       expect(onInit).toHaveBeenCalledOnce()
+    })
+  })
+
+  describe('getAuthState', () => {
+    it('returns an empty auth state when no accessor is provided', () => {
+      const manager = createPluginManager({})
+      const auth = manager.getAuthState()
+
+      expect(auth.export()).toEqual({})
+      expect(auth.getAuthSecrets('my-doc', 'bearer')).toBeUndefined()
+      expect(auth.getAuthSelectedSchemas({ type: 'document', documentName: 'my-doc' })).toBeUndefined()
+    })
+
+    it('returns the provided auth accessor', () => {
+      const auth = {
+        export: vi.fn(() => ({ 'my-doc': { secrets: {}, selected: { document: undefined, path: undefined } } })),
+        getAuthSecrets: vi.fn(() => ({ type: 'http', token: 'secret' })),
+        getAuthSelectedSchemas: vi.fn(() => ({ selectedIndex: 0, selectedSchemes: [{ bearer: [] }] })),
+      }
+
+      const manager = createPluginManager({ auth })
+
+      expect(manager.getAuthState()).toBe(auth)
+      expect(manager.getAuthState().getAuthSecrets('my-doc', 'bearer')).toEqual({ type: 'http', token: 'secret' })
+      expect(auth.getAuthSecrets).toHaveBeenCalledWith('my-doc', 'bearer')
+    })
+
+    it('passes the auth accessor to lifecycle hooks', () => {
+      const auth = {
+        export: vi.fn(() => ({})),
+        getAuthSecrets: vi.fn(() => undefined),
+        getAuthSelectedSchemas: vi.fn(() => undefined),
+      }
+      const onInit = vi.fn()
+      const onConfigChange = vi.fn()
+
+      const plugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        hooks: { onInit, onConfigChange },
+      })
+
+      const manager = createPluginManager({ plugins: [plugin], auth })
+      manager.notifyInit({ theme: 'dark' })
+      manager.notifyConfigChange({ theme: 'light' })
+
+      expect(onInit).toHaveBeenCalledWith({ config: { theme: 'dark' }, auth })
+      expect(onConfigChange).toHaveBeenCalledWith({ config: { theme: 'light' }, auth })
     })
   })
 })
