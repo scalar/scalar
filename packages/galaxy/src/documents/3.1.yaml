@@ -128,12 +128,12 @@ paths:
             application/json:
               schema:
                 $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets'
-                # Bind the generic Paginated template's item type to Planet via a $dynamicAnchor.
+                # Bind the generic PaginatedResource template's item type to Planet via a $dynamicAnchor.
                 $defs:
                   itemType:
                     $dynamicAnchor: itemType
                     $ref: '#/components/schemas/Planet'
-                $ref: '#/components/schemas/Paginated'
+                $ref: '#/components/schemas/PaginatedResource'
             application/xml:
               schema:
                 $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanetsXml'
@@ -143,7 +143,7 @@ paths:
                   itemType:
                     $dynamicAnchor: itemType
                     $ref: '#/components/schemas/Planet'
-                $ref: '#/components/schemas/Paginated'
+                $ref: '#/components/schemas/PaginatedResource'
       x-post-response: |
         pm.test("Status code is 200", () => {
           pm.response.to.have.status(200);
@@ -1237,11 +1237,11 @@ components:
               description: Average distance from the planet in kilometers
               examples:
                 - 9376
-    Paginated:
+    PaginatedResource:
       description:
-        A generic paginated response. Specializing schemas bind the item type by declaring a
-        `$dynamicAnchor` named `itemType`, the JSON Schema 2020-12 way to express `Paginated<T>`.
-      $id: 'https://galaxy.scalar.com/schemas/Paginated'
+        A generic paginated resource. Specializing schemas bind the item type by declaring a
+        `$dynamicAnchor` named `itemType`, the JSON Schema 2020-12 way to express `PaginatedResource<T>`.
+      $id: 'https://galaxy.scalar.com/schemas/PaginatedResource'
       $defs:
         itemType:
           $dynamicAnchor: itemType
@@ -1252,12 +1252,6 @@ components:
           type: array
           items:
             $dynamicRef: '#itemType'
-      allOf:
-        - $ref: '#/components/schemas/PaginatedResource'
-    PaginatedResource:
-      description: A paginated resource
-      type: object
-      properties:
         meta:
           type: object
           properties:
