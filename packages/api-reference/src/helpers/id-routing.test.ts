@@ -75,6 +75,11 @@ describe('getSchemaParamsFromId', () => {
     expect(result).toEqual({ rawId: 'tag/auth', params: 'header.authorization' })
   })
 
+  it('extracts response property with status code', () => {
+    const result = getSchemaParamsFromId('tag/users/GET/list.responses.200.name')
+    expect(result).toEqual({ rawId: 'tag/users/GET/list', params: 'responses.200.name' })
+  })
+
   it('extracts complex nested parameters', () => {
     const result = getSchemaParamsFromId('tag/users.body.nested.field')
     expect(result).toEqual({ rawId: 'tag/users', params: 'body.nested.field' })
