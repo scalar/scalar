@@ -32,6 +32,9 @@ outputs:
   aspire_package_changed:
     description: 'integrations/dotnet/aspire/package.json'
     value: ${{ steps.set-outputs.outputs.aspire_package_changed }}
+  azure_functions_package_changed:
+    description: 'integrations/dotnet/azure-functions/package.json'
+    value: ${{ steps.set-outputs.outputs.azure_functions_package_changed }}
   fastapi_package_changed:
     description: 'integrations/fastapi/package.json'
     value: ${{ steps.set-outputs.outputs.fastapi_package_changed }}
@@ -123,6 +126,8 @@ runs:
             - integrations/dotnet/aspnetcore/package.json
           aspire_package:
             - integrations/dotnet/aspire/package.json
+          azure_functions_package:
+            - integrations/dotnet/azure-functions/package.json
           fastapi_package:
             - integrations/fastapi/package.json
           django_ninja_package:
@@ -148,6 +153,7 @@ runs:
         echo "docker_changed=${{ steps.changed-integration-files.outputs.docker_integration_any_changed }}" >> $GITHUB_OUTPUT
         echo "aspnetcore_package_changed=${{ steps.changed-package-files.outputs.aspnetcore_package_any_changed }}" >> $GITHUB_OUTPUT
         echo "aspire_package_changed=${{ steps.changed-package-files.outputs.aspire_package_any_changed }}" >> $GITHUB_OUTPUT
+        echo "azure_functions_package_changed=${{ steps.changed-package-files.outputs.azure_functions_package_any_changed }}" >> $GITHUB_OUTPUT
         echo "fastapi_package_changed=${{ steps.changed-package-files.outputs.fastapi_package_any_changed }}" >> $GITHUB_OUTPUT
         echo "django_ninja_package_changed=${{ steps.changed-package-files.outputs.django_ninja_package_any_changed }}" >> $GITHUB_OUTPUT
         echo "rust_package_changed=${{ steps.changed-package-files.outputs.rust_package_any_changed }}" >> $GITHUB_OUTPUT

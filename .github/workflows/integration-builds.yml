@@ -106,14 +106,19 @@ jobs:
           name: scalar-js
           path: temp-assets
 
-      - name: Copy scalar.js to aspnetcore and aspire
+      - name: Copy scalar.js to aspnetcore, aspire and azure-functions
         run: |
           cp temp-assets/scalar.js integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets/
           cp temp-assets/scalar.js integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot/
+          cp temp-assets/scalar.js integrations/dotnet/azure-functions/src/Scalar.Azure.Functions/StaticAssets/
 
       - name: Compress static assets (aspnetcore)
         working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
+
+      - name: Compress static assets (azure-functions)
+        working-directory: integrations/dotnet/azure-functions/src/Scalar.Azure.Functions/StaticAssets
+        run: gzip --keep --verbose --force scalar.js scalar.azure.functions.js favicon.svg
 
       - name: Cache NuGet packages
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5

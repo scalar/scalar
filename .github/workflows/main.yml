@@ -95,6 +95,7 @@ jobs:
       mock_server_docker_package_changed: ${{ steps.changes.outputs.mock_server_docker_package_changed }}
       aspnetcore_package_changed: ${{ steps.changes.outputs.aspnetcore_package_changed }}
       aspire_package_changed: ${{ steps.changes.outputs.aspire_package_changed }}
+      azure_functions_package_changed: ${{ steps.changes.outputs.azure_functions_package_changed }}
       fastapi_package_changed: ${{ steps.changes.outputs.fastapi_package_changed }}
       django_ninja_package_changed: ${{ steps.changes.outputs.django_ninja_package_changed }}
       rust_package_changed: ${{ steps.changes.outputs.rust_package_changed }}
@@ -318,6 +319,7 @@ jobs:
       mock_server_docker_package_changed: ${{ needs.check-changes.outputs.mock_server_docker_package_changed }}
       aspnetcore_package_changed: ${{ needs.check-changes.outputs.aspnetcore_package_changed }}
       aspire_package_changed: ${{ needs.check-changes.outputs.aspire_package_changed }}
+      azure_functions_package_changed: ${{ needs.check-changes.outputs.azure_functions_package_changed }}
       fastapi_package_changed: ${{ needs.check-changes.outputs.fastapi_package_changed }}
       django_ninja_package_changed: ${{ needs.check-changes.outputs.django_ninja_package_changed }}
       rust_package_changed: ${{ needs.check-changes.outputs.rust_package_changed }}

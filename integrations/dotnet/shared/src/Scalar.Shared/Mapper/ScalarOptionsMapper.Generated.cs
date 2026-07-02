@@ -12,6 +12,8 @@
 #pragma warning disable CS0618 // Type or member is obsolete
 #if SCALAR_ASPIRE
 namespace Scalar.Aspire;
+#elif SCALAR_AZURE_FUNCTIONS
+namespace Scalar.Azure.Functions;
 #else
 namespace Scalar.AspNetCore;
 #endif

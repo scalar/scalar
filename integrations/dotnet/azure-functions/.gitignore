@@ -1,0 +1,5 @@
+# JavaScript asset copied with `pnpm copy:standalone`
+/src/Scalar.Azure.Functions/StaticAssets/scalar.js
+
+# Azure Functions local settings
+local.settings.json
