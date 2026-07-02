@@ -374,12 +374,18 @@ const SCHEMA_PARAM_MARKERS = ['.body.', '.path.', '.query.', '.header.', '.respo
 
 /** Extracts the schema parameters from the id if they are present */
 export const getSchemaParamsFromId = (id: string): { rawId: string; params: string } => {
-  // Split at the last marker: everything before it is the operation id, the rest
-  // is the schema path. A plain string scan avoids the polynomial backtracking a
-  // `(.*)marker(.*)` regex would incur on long, marker-less ids.
+  // Split at the first marker: an operation id never contains one, so everything
+  // before the first marker is the operation id and the rest is the schema path.
+  // (Splitting at the last marker would mishandle a property named like a marker
+  // keyword, e.g. a request body field called `responses`.) A plain string scan
+  // avoids the polynomial backtracking a `(.*)marker(.*)` regex would incur on
+  // long, marker-less ids.
   let markerIndex = -1
   for (const marker of SCHEMA_PARAM_MARKERS) {
-    markerIndex = Math.max(markerIndex, id.lastIndexOf(marker))
+    const index = id.indexOf(marker)
+    if (index !== -1 && (markerIndex === -1 || index < markerIndex)) {
+      markerIndex = index
+    }
   }
 
   if (markerIndex === -1) {
