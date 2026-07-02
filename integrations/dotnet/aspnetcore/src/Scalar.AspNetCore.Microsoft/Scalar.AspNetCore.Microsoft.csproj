@@ -15,6 +15,8 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <!-- net10 pulls in a Microsoft.OpenApi version affected by GHSA-v5pm-xwqc-g5wc; pin the patched release. net9 stays on the unaffected 1.x line. -->
+    <PackageReference Include="Microsoft.OpenApi" />
   </ItemGroup>
 
   <ItemGroup>
