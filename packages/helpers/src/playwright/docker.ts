@@ -3,7 +3,7 @@ import type { FullConfig } from '@playwright/test'
 export type WebServer = NonNullable<FullConfig['webServer']>
 
 /** Default playwright version */
-export const DEFAULT_PLAYWRIGHT_VERSION = '1.59.1'
+export const DEFAULT_PLAYWRIGHT_VERSION = '1.61.1'
 
 /** Options for getting a docker server */
 type GetDockerServerOptions = {
