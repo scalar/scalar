@@ -359,17 +359,6 @@ const styleContent = computed(
   () => `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`,
 )
 
-/** Plugin injection is not reactive. All plugins must be provided at first render */
-const pluginManager = createPluginManager({
-  plugins: Object.values(configList.value).flatMap(
-    (c) => c.config.plugins ?? [],
-  ),
-})
-provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
-
-pluginManager.notifyInit(mergedConfig.value)
-
-watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
 
@@ -435,6 +424,35 @@ function syncSlugAndUrlWithDocument(
 const workspaceStore = createWorkspaceStore({
   verbose: isDevelopment,
 })
+
+/**
+ * Plugin injection is not reactive. All plugins must be provided at first render.
+ *
+ * Created after the workspace store so the auth accessor below can read from it — plugin `onInit`
+ * hooks may call `auth` synchronously during `notifyInit`.
+ */
+const pluginManager = createPluginManager({
+  plugins: Object.values(configList.value).flatMap(
+    (c) => c.config.plugins ?? [],
+  ),
+  /**
+   * Read-only view of the global authentication state, so plugins can read stored secrets and
+   * the selected security schemes without being able to mutate them. Wraps the workspace store's
+   * auth methods (rather than passing the store directly) to keep the setters out of the plugin API.
+   */
+  auth: {
+    export: () => workspaceStore.auth.export(),
+    getAuthSecrets: (documentName, schemeName) =>
+      workspaceStore.auth.getAuthSecrets(documentName, schemeName),
+    getAuthSelectedSchemas: (payload) =>
+      workspaceStore.auth.getAuthSelectedSchemas(payload),
+  },
+})
+provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+
+pluginManager.notifyInit(mergedConfig.value)
+
+watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 
 /**
  * We need to keep the client store separate from the workspace store
