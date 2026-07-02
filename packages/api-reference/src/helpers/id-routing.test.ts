@@ -75,6 +75,17 @@ describe('getSchemaParamsFromId', () => {
     expect(result).toEqual({ rawId: 'tag/auth', params: 'header.authorization' })
   })
 
+  it('extracts response property with status code', () => {
+    const result = getSchemaParamsFromId('tag/users/GET/list.responses.200.name')
+    expect(result).toEqual({ rawId: 'tag/users/GET/list', params: 'responses.200.name' })
+  })
+
+  it('splits at the first marker when a property is named like a marker keyword', () => {
+    // A request body field named `responses` must not be mistaken for the response marker.
+    const result = getSchemaParamsFromId('tag/users.body.responses.name')
+    expect(result).toEqual({ rawId: 'tag/users', params: 'body.responses.name' })
+  })
+
   it('extracts complex nested parameters', () => {
     const result = getSchemaParamsFromId('tag/users.body.nested.field')
     expect(result).toEqual({ rawId: 'tag/users', params: 'body.nested.field' })

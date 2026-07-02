@@ -364,18 +364,40 @@ export const redirectUrl = (
   return didRedirect ? target : null
 }
 
+/**
+ * Markers that separate an operation id from a schema path within an anchor id.
+ * `responses` mirrors the request-body/parameter markers so response property
+ * anchors (e.g. `operation.responses.200.name`) resolve back to the operation id.
+ * Without it, deep links into responses cannot find their operation.
+ */
+const SCHEMA_PARAM_MARKERS = ['.body.', '.path.', '.query.', '.header.', '.responses.']
+
 /** Extracts the schema parameters from the id if they are present */
 export const getSchemaParamsFromId = (id: string): { rawId: string; params: string } => {
-  const matcher = id.match(/(.*)(\.body\.|\.path\.|\.query\.|\.header\.)(.*)/)
-
-  if (matcher && typeof matcher[1] === 'string' && typeof matcher[2] === 'string') {
-    return {
-      rawId: matcher[1],
-      params: matcher[2].slice(1) + matcher[3],
+  // Split at the first marker: an operation id never contains one, so everything
+  // before the first marker is the operation id and the rest is the schema path.
+  // (Splitting at the last marker would mishandle a property named like a marker
+  // keyword, e.g. a request body field called `responses`.) A plain string scan
+  // avoids the polynomial backtracking a `(.*)marker(.*)` regex would incur on
+  // long, marker-less ids.
+  let markerIndex = -1
+  for (const marker of SCHEMA_PARAM_MARKERS) {
+    const index = id.indexOf(marker)
+    if (index !== -1 && (markerIndex === -1 || index < markerIndex)) {
+      markerIndex = index
     }
   }
+
+  if (markerIndex === -1) {
+    return {
+      rawId: id,
+      params: '',
+    }
+  }
+
   return {
-    rawId: id,
-    params: '',
+    rawId: id.slice(0, markerIndex),
+    // Drop the leading dot but keep the marker keyword (e.g. `body.name`).
+    params: id.slice(markerIndex + 1),
   }
 }
