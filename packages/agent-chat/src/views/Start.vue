@@ -15,7 +15,7 @@ const { mode } = useState()
 <template>
   <div class="startContainer">
     <Logo class="agentLogo" />
-    <h1 class="heading">How can I help you today?</h1>
+    <p class="promptText">How can I help you today?</p>
     <PromptForm
       ref="promptFormField"
       @submit="emit('submit')"
@@ -59,7 +59,7 @@ const { mode } = useState()
   position: relative;
 }
 
-.heading {
+.promptText {
   font-size: 1.5rem;
   font-weight: var(--scalar-font-bold);
   margin-bottom: 50px;
