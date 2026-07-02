@@ -13,7 +13,7 @@ import { ServerObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/
 import type { ComponentProps } from '@test/utils/types'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 vi.mock('@/plugins/hooks/usePluginManager', () => ({
   usePluginManager: () => ({
@@ -25,6 +25,7 @@ vi.mock('@/helpers/lazy-bus', () => ({
   getLazyPlaceholderHeight: () => undefined,
   requestLazyRender: () => undefined,
   setLazyPlaceholderHeight: () => undefined,
+  scrollTargetId: ref(''),
   useLazyBus: () => ({
     isReady: computed(() => true),
   }),
