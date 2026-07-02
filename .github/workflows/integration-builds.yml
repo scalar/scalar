@@ -141,6 +141,26 @@ jobs:
         working-directory: integrations/dotnet
         run: dotnet test -c Release --no-build
 
+      # Build the Aspire service Docker image the same way the release job does.
+      # The host restore/build above always sees Directory.Packages.props, so it
+      # can't catch a Dockerfile that fails to copy build inputs into its context
+      # (e.g. the NU1015 restore break when Central Package Management landed).
+      # Building it here on every dotnet change makes that class of error visible
+      # in PR CI instead of only at publish time. amd64-only keeps it fast; the
+      # restore errors we care about are platform-independent, and no push.
+      - name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@ab5c1da94f53f5cd75c1038092aa276dddfccbba # v1
+        with:
+          platforms: linux/amd64
+
+      - name: Build Aspire Docker image
+        uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
+        with:
+          context: integrations/dotnet
+          file: integrations/dotnet/aspire/src/Scalar.Aspire.Service/Dockerfile
+          load: true
+          tags: scalarapi/aspire-api-reference:latest
+
       - name: Mark build-test passed
         id: passed
         run: echo "passed=true" >> "$GITHUB_OUTPUT"
