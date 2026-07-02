@@ -1184,6 +1184,19 @@
                       }
                     }
                   },
+                  "integrations": {
+                    "title": "Integrations",
+                    "type": "group",
+                    "mode": "flat",
+                    "icon": "phosphor/regular/plug",
+                    "children": {
+                      "github": {
+                        "title": "GitHub",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/integrations/github.md"
+                      }
+                    }
+                  },
                   "components": {
                     "title": "Components",
                     "type": "group",
