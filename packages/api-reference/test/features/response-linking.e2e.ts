@@ -95,4 +95,61 @@ test.describe('response linking', () => {
 
     await expect(page.locator(`[id="${anchorId}"]`)).toBeInViewport({ timeout: 6000 })
   })
+
+  test('anchor links reveal response properties hidden in a collapsed response', async ({ page }) => {
+    await mockLazyTimers(page)
+
+    const example = await serveExample({
+      pathRouting: { basePath: '/custom-base-path' },
+      // No `expandAllResponses`: responses start collapsed.
+      content: {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get all users',
+              tags: ['user-tag'],
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          myCustomResponseProperty: { type: 'string' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    await page.setViewportSize({ width: 1024, height: 400 })
+    await page.goto(`${example}/custom-base-path/tag/user-tag/GET/users`)
+
+    const button = page.getByRole('button', { name: 'Copy link to myCustomResponseProperty', exact: true })
+
+    // The property is hidden inside the collapsed response on load.
+    await expect(button).toHaveCount(0)
+
+    // Expand the response so the anchor exists, then read its id and build a deep
+    // link (going through the clipboard copy flow is flaky in CI).
+    await page.getByRole('button', { name: /200/ }).first().click()
+    const anchorId = await page.locator('[id$=".responses.200.myCustomResponseProperty"]').first().getAttribute('id')
+    expect(anchorId).toBeTruthy()
+    const deepLink = `${example}/custom-base-path/${anchorId!.replace(/^[^/]+\//, '')}`
+
+    // Fresh navigation: the response starts collapsed again, but the deep link
+    // must reveal the hidden property and scroll it into view.
+    await page.goto(deepLink)
+
+    await expect(page.locator(`[id="${anchorId}"]`)).toBeInViewport({ timeout: 6000 })
+  })
 })
