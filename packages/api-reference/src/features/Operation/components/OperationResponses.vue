@@ -41,7 +41,7 @@ const { translate } = useLocalization()
       <ParameterListItem
         v-for="(response, status) in responses"
         :key="status"
-        :breadcrumb
+        :breadcrumb="breadcrumb ? [...breadcrumb, 'responses'] : undefined"
         :collapsableItems
         :document
         :eventBus

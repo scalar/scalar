@@ -366,7 +366,10 @@ export const redirectUrl = (
 
 /** Extracts the schema parameters from the id if they are present */
 export const getSchemaParamsFromId = (id: string): { rawId: string; params: string } => {
-  const matcher = id.match(/(.*)(\.body\.|\.path\.|\.query\.|\.header\.)(.*)/)
+  // `responses` mirrors the request-body/parameter markers so response property
+  // anchors (e.g. `operation.responses.200.name`) resolve back to the operation
+  // id. Without it, deep links into responses cannot find their operation.
+  const matcher = id.match(/(.*)(\.body\.|\.path\.|\.query\.|\.header\.|\.responses\.)(.*)/)
 
   if (matcher && typeof matcher[1] === 'string' && typeof matcher[2] === 'string') {
     return {
