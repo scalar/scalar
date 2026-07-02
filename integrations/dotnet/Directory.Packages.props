@@ -6,6 +6,7 @@
   <!-- Source / runtime packages -->
   <ItemGroup>
     <PackageVersion Include="NetEscapades.EnumGenerators.Generators" Version="1.0.0-beta21" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="2.7.5" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="10.4.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
