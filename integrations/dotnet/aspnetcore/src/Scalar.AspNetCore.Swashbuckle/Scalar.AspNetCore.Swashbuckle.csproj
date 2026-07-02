@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
-    <!-- Swashbuckle pulls in a Microsoft.OpenApi version affected by GHSA-v5pm-xwqc-g5wc; pin the patched release -->
     <PackageReference Include="Microsoft.OpenApi" />
   </ItemGroup>
 
