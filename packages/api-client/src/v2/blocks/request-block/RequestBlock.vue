@@ -550,11 +550,17 @@ const updateOperationExtension = (
       :id="filterIds.All"
       class="request-section-content custom-scroll relative flex flex-1 flex-col"
       :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
-      <!-- Auth Selector -->
+      <!--
+        Auth Selector
+
+        The API client is a testing affordance, so let people attach any defined scheme even when
+        an operation opts out with `security: []`. Only the reference docs auth block respects the
+        declared security. See https://github.com/scalar/scalar/issues/9632
+      -->
       <AuthSelector
         v-show="isSectionVisible('Auth') && !isAuthHidden"
         :id="filterIds.Auth"
-        :createAnySecurityScheme="layout !== 'modal'"
+        createAnySecurityScheme
         :defaultOpen="isAuthDefaultOpen"
         :environment
         :eventBus
