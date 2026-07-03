@@ -101,11 +101,23 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
             source: 'rehype-highlight',
           })
 
-          /* c8 ignore next 5 -- throw arbitrary hljs errors */
           return
         }
 
-        throw cause
+        // Highlighting is best-effort, so any other failure must not take down the
+        // whole Markdown render. Some grammars build regexes that throw at runtime
+        // in certain environments (for example a Unicode property escape that a
+        // production minifier mangles), which would otherwise blank out the entire
+        // section. Fall back to the un-highlighted code block instead.
+        file.message('Could not highlight code block', {
+          ancestors: [parent, node],
+          cause,
+          place: node.position,
+          ruleId: 'highlight-error',
+          source: 'rehype-highlight',
+        })
+
+        return
       }
 
       if (!lang && result.data?.language) {
