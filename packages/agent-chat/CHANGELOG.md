@@ -1,5 +1,7 @@
 # @scalar/agent-chat
 
+## 0.12.17
+
 ## 0.12.16
 
 ### Patch Changes
