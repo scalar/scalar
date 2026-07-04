@@ -23,7 +23,12 @@ const openHarness = async (page: Page): Promise<void> => {
   // Three inline diff editors: local, remote and result
   await expect(page.locator('.monaco-diff-editor')).toHaveCount(3)
   // The code lenses show up once the conflict ranges are resolved
-  await expect(page.getByText('Accept Current').first()).toBeVisible({ timeout: 60_000 })
+  await expect(page.getByText('Accept Current').first()).toBeVisible({
+    timeout: 60_000,
+  })
+  // The inline diff decorations paint asynchronously; the fixture always
+  // produces inserted lines, so wait for them before taking any screenshots
+  await expect(page.locator('.monaco-diff-editor .char-insert').first()).toBeVisible()
 }
 
 /**
@@ -66,6 +71,8 @@ test.describe('sync-conflict-editor.e2e', () => {
     await expect(harness).toHaveScreenshot('initial-conflict-state.png', {
       // The overview ruler decorations render with variable timing
       mask: [page.locator('.decorationsOverviewRuler')],
+      // Monaco text rendering carries some sub-pixel antialiasing noise
+      maxDiffPixelRatio: 0.001,
     })
   })
 
@@ -84,6 +91,8 @@ test.describe('sync-conflict-editor.e2e', () => {
     await expect(harness).toHaveScreenshot('resolved-conflict-state.png', {
       // The overview ruler decorations render with variable timing
       mask: [page.locator('.decorationsOverviewRuler')],
+      // Monaco text rendering carries some sub-pixel antialiasing noise
+      maxDiffPixelRatio: 0.001,
     })
 
     await page.getByRole('button', { name: 'Apply changes' }).click()
