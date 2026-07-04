@@ -1,4 +1,4 @@
-import { any, boolean, fn, nullable, object, optional, record, string, union } from '@scalar/validation'
+import { any, boolean, fn, literal, nullable, object, optional, record, string, union } from '@scalar/validation'
 
 /**
  * The content of an OpenAPI document. Accepts any of:
@@ -23,6 +23,10 @@ export const sourceConfigurationSchema = object({
   content: optional(contentSchema, {
     typeComment:
       'Directly embed the OpenAPI document. Can be a string, object, function returning an object, or null. It is recommended to pass a URL instead of content.',
+  }),
+  documentType: optional(union([literal('openapi'), literal('asyncapi')]), {
+    typeComment:
+      "The type of the document. If not set, the type is auto-detected from the document content (an 'asyncapi' version field vs an 'openapi'/'swagger' version field). Set it to be explicit.",
   }),
   title: optional(string(), {
     typeComment:
