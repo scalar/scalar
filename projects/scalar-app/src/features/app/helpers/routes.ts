@@ -219,6 +219,13 @@ export const ROUTES = [
         path: 'get-started',
         component: GetStarted,
       },
+      // Test-only harness page for the sync conflict (three-way merge)
+      // editor, used by the Playwright snapshot tests
+      {
+        name: 'test.sync-conflict-editor',
+        path: 'test/sync-conflict-editor',
+        component: () => import('@/features/app/components/SyncConflictEditorHarness.vue'),
+      },
       // Workspace page
       {
         name: 'workspace',
