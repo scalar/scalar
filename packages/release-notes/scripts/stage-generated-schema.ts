@@ -15,6 +15,7 @@ const repoRoot = getRepoRoot()
 const generateResult = spawnSync('pnpm', ['run', 'schema:generate'], {
   cwd: packageRoot,
   stdio: 'inherit',
+  shell: true,
 })
 
 if (generateResult.status !== 0) {
