@@ -3,14 +3,16 @@
 # Document scanning script for Scalar Docker integration
 # Scans mounted directories for OpenAPI documents and generates configuration
 
-MOUNT_DIR="/docs"
+# Directory to scan and output file. Both default to the container paths but can be
+# overridden via the environment, which keeps the script testable outside Docker.
+MOUNT_DIR="${MOUNT_DIR:-/docs}"
 # Optional URL prefix when serving under a subpath (for example, "/docs").
 # Strip any trailing slash so the prefix concatenates cleanly.
 BASE_PATH="${BASE_PATH%/}"
 BASE_URL="${BASE_PATH}/openapi"
-CONFIG_FILE="/tmp/configuration.json"
+CONFIG_FILE="${CONFIG_FILE:-/tmp/configuration.json}"
 
-echo "Scanning for OpenAPI documents in: $MOUNT_DIR"
+echo "Scanning for OpenAPI and AsyncAPI documents in: $MOUNT_DIR"
 
 # Check if mount directory exists
 if [ ! -d "$MOUNT_DIR" ]; then
@@ -18,19 +20,19 @@ if [ ! -d "$MOUNT_DIR" ]; then
     exit 0
 fi
 
-# Function to check if a file is a valid OpenAPI document
-is_openapi_doc() {
+# Function to check if a file is an OpenAPI, Swagger, or AsyncAPI document
+is_api_document() {
     file="$1"
     ext="${file##*.}"
 
     case "$ext" in
         json|yaml|yml)
             if [ "$ext" = "json" ]; then
-                if grep -q '"openapi"' "$file" 2>/dev/null || grep -q '"swagger"' "$file" 2>/dev/null; then
+                if grep -q '"openapi"' "$file" 2>/dev/null || grep -q '"swagger"' "$file" 2>/dev/null || grep -q '"asyncapi"' "$file" 2>/dev/null; then
                     return 0
                 fi
             else
-                if grep -q "openapi:" "$file" 2>/dev/null || grep -q "swagger:" "$file" 2>/dev/null; then
+                if grep -q "openapi:" "$file" 2>/dev/null || grep -q "swagger:" "$file" 2>/dev/null || grep -q "asyncapi:" "$file" 2>/dev/null; then
                     return 0
                 fi
             fi
@@ -83,10 +85,13 @@ TEMP_FILE=$(mktemp)
 find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -print0 > "$TEMP_FILE"
 
 while IFS= read -r -d '' file; do
-    if is_openapi_doc "$file"; then
+    if is_api_document "$file"; then
         relative_path="${file#$MOUNT_DIR/}"
         title=$(generate_title "$file")
         slug=$(generate_slug "$file")
+        # Historical path: kept as "/openapi" for both document types so existing deployments
+        # don't need to change their mount/proxy setup. The Caddyfile serves the whole /docs
+        # mount under this path regardless of document type.
         url="${BASE_URL}/${relative_path}"
 
         # Escape for JSON
@@ -94,7 +99,7 @@ while IFS= read -r -d '' file; do
         escaped_slug=$(escape_json "$slug")
         escaped_url=$(escape_json "$url")
 
-        # Found OpenAPI document: $relative_path -> $title ($slug)
+        # Found document: $relative_path -> $title ($slug)
 
         # Add comma if not first
         if [ "$FIRST" = "false" ]; then
