@@ -46,9 +46,10 @@ docker run \
 ```
 
 The container automatically:
-- Scans for OpenAPI documents (`.json`, `.yaml`, `.yml` files)
-- Serves documents at `/openapi/{filename}`
+- Scans for OpenAPI and AsyncAPI documents (`.json`, `.yaml`, `.yml` files)
+- Serves documents at `/openapi/{filename}` (the path is historical and used for both document types)
 - Generates titles from directory structure
+- Marks AsyncAPI documents with `documentType: "asyncapi"` in the generated configuration
 
 **Directory structure example:**
 ```
