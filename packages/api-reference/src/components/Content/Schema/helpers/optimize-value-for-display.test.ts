@@ -183,6 +183,58 @@ describe('optimizeValueForDisplay', () => {
     })
   })
 
+  it('unions root and variant properties/required instead of letting a variant overwrite the base (#9657)', () => {
+    // Mirrors the reported issue: an `allOf` factors out shared object properties
+    // next to a `oneOf` whose branches each define their own distinct properties.
+    // The shared base fields must still show up alongside each branch's own
+    // fields, not disappear because the branch happens to declare `properties`.
+    const input: SchemaObject = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        status: { type: 'string' },
+      },
+      required: ['name', 'status'],
+      oneOf: [
+        {
+          type: 'object',
+          properties: { all_sites: { type: 'boolean' } },
+          required: ['all_sites'],
+        },
+        {
+          type: 'object',
+          properties: { site_ids: { type: 'array', items: { type: 'integer' } } },
+          required: ['site_ids'],
+        },
+      ],
+    }
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      oneOf: [
+        {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            status: { type: 'string' },
+            all_sites: { type: 'boolean' },
+          },
+          required: ['name', 'status', 'all_sites'],
+        },
+        {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            status: { type: 'string' },
+            site_ids: { type: 'array', items: { type: 'integer' } },
+          },
+          required: ['name', 'status', 'site_ids'],
+        },
+      ],
+    })
+  })
+
   it('should merge root properties into oneOf schemas when they contain allOf', () => {
     const input = {
       type: 'object',
