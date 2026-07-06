@@ -108,7 +108,15 @@ export {
 export { ScalarTextArea } from './components/ScalarTextArea'
 export { ScalarTextInput, ScalarTextInputCopy } from './components/ScalarTextInput'
 export { ScalarThemeSwatches, useThemeSwatches } from './components/ScalarThemeSwatches'
-export { ScalarToggle, ScalarToggleGroup, ScalarToggleInput } from './components/ScalarToggle'
+export type { ScalarTristateOption } from './components/ScalarToggle'
+export {
+  ScalarToggle,
+  ScalarToggleGroup,
+  ScalarToggleInput,
+  ScalarTristateToggle,
+  ScalarTristateToggleGroup,
+  ScalarTristateToggleInput,
+} from './components/ScalarToggle'
 export type { ScalarTooltipPlacement, TooltipConfiguration } from './components/ScalarTooltip'
 export { ScalarHotkeyTooltip, ScalarTooltip, useTooltip } from './components/ScalarTooltip'
 export { ScalarVirtualCodeBlock } from './components/ScalarVirtualCodeBlock'
