@@ -11,7 +11,7 @@ import { compositions } from './schema-composition'
  * shared base fields factored out at the root (or via a sibling `allOf`)
  * instead of being combined with them (#9657).
  */
-function mergeSchemaProperties(...objects: Record<string, unknown>[]): Record<string, unknown> {
+function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)[]): Record<string, unknown> {
   const merged: Record<string, unknown> = {}
   const properties: Record<string, unknown> = {}
   const required = new Set<string>()
@@ -19,6 +19,10 @@ function mergeSchemaProperties(...objects: Record<string, unknown>[]): Record<st
   let hasRequired = false
 
   for (const object of objects) {
+    if (!object) {
+      continue
+    }
+
     for (const [key, val] of Object.entries(object)) {
       if (key === 'properties' && val && typeof val === 'object') {
         Object.assign(properties, val)
