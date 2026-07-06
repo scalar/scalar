@@ -78,7 +78,7 @@ jobs:
           compression-level: 0
       - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
         name: Upload webpack stats to RelativeCI
-        uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
+        uses: relative-ci/agent-action@fcf45416581928e8dd62eded78ce98c78e5149f8 # v3.2.3
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
