@@ -183,6 +183,50 @@ describe('mergeSecurity', () => {
     })
   })
 
+  it('normalizes an AsyncAPI httpApiKey scheme onto apiKey', () => {
+    // AsyncAPI's `httpApiKey` is the structural twin of OpenAPI `apiKey`; Scalar's auth UI only
+    // understands OpenAPI vocab, so the merge step must rename the type while keeping name + in.
+    const securitySchemes = {
+      apiKey: {
+        type: 'httpApiKey',
+        name: 'api_key',
+        in: 'query',
+        description: 'API key in query',
+      },
+    } as unknown as ComponentsObject['securitySchemes']
+
+    const result = mergeSecurity(securitySchemes, {}, authStore, documentSlug)
+
+    expect(result.apiKey).toMatchObject({
+      type: 'apiKey',
+      name: 'api_key',
+      in: 'query',
+      description: 'API key in query',
+      'x-scalar-secret-token': '',
+    })
+  })
+
+  it('keeps an AsyncAPI apiKey (in: user) as a value-only apiKey', () => {
+    // AsyncAPI's own `apiKey` places the key in the broker user/password slot and has no name, so it
+    // has no OpenAPI equivalent — it stays `apiKey` with its broker `in` and still captures a value.
+    const securitySchemes = {
+      brokerKey: {
+        type: 'apiKey',
+        in: 'user',
+        description: 'Broker API key',
+      },
+    } as unknown as ComponentsObject['securitySchemes']
+
+    const result = mergeSecurity(securitySchemes, {}, authStore, documentSlug)
+
+    expect(result.brokerKey).toMatchObject({
+      type: 'apiKey',
+      in: 'user',
+      description: 'Broker API key',
+      'x-scalar-secret-token': '',
+    })
+  })
+
   it('handles deeply nested OAuth2 configuration merging', () => {
     const securitySchemes = {
       oauth2: coerceValue(SecuritySchemeObjectSchema, {

@@ -139,6 +139,16 @@ const generateLabel = (
 }
 
 /**
+ * Whether an API key scheme exposes an editable parameter name.
+ *
+ * OpenAPI `apiKey` and AsyncAPI `httpApiKey` (normalized to `apiKey`) name a query/header/cookie
+ * parameter, so the Name input is shown. AsyncAPI `apiKey` places the key in the broker `user` or
+ * `password` slot and has no parameter name, so the Name input is hidden and only the value is asked for.
+ */
+const apiKeyHasName = (scheme: { in?: string }): boolean =>
+  scheme.in !== 'user' && scheme.in !== 'password'
+
+/**
  * Determines if an OAuth2 flow tab should be active.
  * The first flow is active by default if no flow is explicitly selected.
  */
@@ -302,7 +312,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
 
     <!-- API Key Authentication -->
     <template v-else-if="scheme?.type === 'apiKey'">
-      <DataTableRow>
+      <DataTableRow v-if="apiKeyHasName(scheme)">
         <RequestAuthDataTableInput
           :containerClass="getStaticBorderClass()"
           :environment
@@ -316,6 +326,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
+          :containerClass="
+            apiKeyHasName(scheme) ? undefined : getStaticBorderClass()
+          "
           :environment
           :modelValue="scheme['x-scalar-secret-token']"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"

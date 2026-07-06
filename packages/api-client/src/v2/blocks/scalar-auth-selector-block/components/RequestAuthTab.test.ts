@@ -277,6 +277,30 @@ describe('RequestAuthTab', () => {
       })
     })
 
+    it('renders only the value input for an AsyncAPI apiKey (in: user), hiding the name field', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'BrokerKey': {
+            type: 'apiKey',
+            in: 'user',
+            description: 'Broker API key',
+            'x-scalar-secret-token': '',
+          },
+        },
+        selectedSecuritySchemas: {
+          'BrokerKey': [],
+        },
+      })
+
+      const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
+      // No Name row (AsyncAPI apiKey has no parameter name) — only the Value input.
+      expect(inputs).toHaveLength(1)
+      assert(inputs[0])
+      expect(inputs[0].props('type')).toBe('password')
+      expect(inputs[0].text()).toContain('Value')
+      expect(wrapper.text()).not.toContain('Name')
+    })
+
     it('emits auth:update:security-scheme-secrets when API key value is updated', () => {
       const wrapper = mountWithProps({
         securitySchemes: {

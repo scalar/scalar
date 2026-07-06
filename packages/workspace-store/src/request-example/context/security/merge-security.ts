@@ -20,6 +20,23 @@ import { extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
 export type MergedSecuritySchemes = Record<string, SecuritySchemeObjectSecret>
 
 /**
+ * Map AsyncAPI-only security scheme types onto their OpenAPI equivalents where one exists.
+ *
+ * AsyncAPI's `httpApiKey` (a named key in `query`/`header`/`cookie`) is structurally identical to
+ * OpenAPI's `apiKey`, so we rename the type and let the shared apiKey path handle rendering and
+ * request injection. Everything else is returned unchanged — including AsyncAPI's own `apiKey`
+ * (`in: user | password`, no name), which has no OpenAPI counterpart and is rendered value-only.
+ */
+const normalizeAsyncApiSecurityScheme = (
+  scheme: SecuritySchemeObject | AsyncApiSecuritySchemeObject,
+): SecuritySchemeObject | AsyncApiSecuritySchemeObject => {
+  if (scheme && typeof scheme === 'object' && 'type' in scheme && scheme.type === 'httpApiKey') {
+    return { ...scheme, type: 'apiKey' } as SecuritySchemeObject
+  }
+  return scheme
+}
+
+/**
  * Merge the authentication config with the document security schemes + the auth store secrets.
  *
  * AsyncAPI keeps its security schemes in the same `components.securitySchemes` slot and shares the
@@ -57,12 +74,15 @@ export const mergeSecurity = (
 
   /** Convert the config secrets to the new secret extensions */
   return objectEntries(mergedSchemes).reduce((acc, [name, value]) => {
+    // Fold AsyncAPI-only types (e.g. `httpApiKey`) onto their OpenAPI equivalents before coercing,
+    // so the downstream apiKey/http/oauth2 machinery recognises them instead of rejecting the type.
+    const scheme = normalizeAsyncApiSecurityScheme(value)
     // We coerce in case the scheme is missing any key fields like type
-    const coerced = coerceValue(SecuritySchemeObjectSchema, value)
+    const coerced = coerceValue(SecuritySchemeObjectSchema, scheme)
     // We then overwrite it back with the original value to keep any other fields like description, etc.
     // `coerced` has already laundered the value into the OpenAPI shape (including any AsyncAPI scheme),
     // so we narrow here to restore the extra fields without re-widening the type.
-    const merged = { ...coerced, ...(value as SecuritySchemeObject) }
+    const merged = { ...coerced, ...(scheme as SecuritySchemeObject) }
 
     acc[name] = extractSecuritySchemeSecrets(merged, authStore, name, documentName, oauth2RedirectUri)
     return acc
