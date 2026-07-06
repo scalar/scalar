@@ -1565,7 +1565,7 @@
                         "filepath": "documentation/guides/sdks/publishing/cli.md",
                         "type": "page",
                         "title": "CLI",
-                        "description": "Distribute the CLI through a GitHub Release and a Homebrew tap."
+                        "description": "Publish the CLI to npm, and optionally through a GitHub Release and a Homebrew tap."
                       }
                     }
                   },
