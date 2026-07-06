@@ -3,20 +3,8 @@ import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiServerObject } fr
 import { getAsyncApiSecurityRequirements } from '@/channel-example/get-asyncapi-security-requirements'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 
+import { dedupeRequirements } from './dedupe-requirements'
 import type { ChannelOperationSummary } from './get-channel-operations'
-
-const dedupeRequirements = (requirements: SecurityRequirementObject[]): SecurityRequirementObject[] => {
-  const seen = new Set<string>()
-
-  return requirements.filter((requirement) => {
-    const key = JSON.stringify(requirement)
-    if (seen.has(key)) {
-      return false
-    }
-    seen.add(key)
-    return true
-  })
-}
 
 /**
  * Merges security requirements from the selected server and all operations on a channel.

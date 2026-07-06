@@ -184,28 +184,21 @@ const asyncApiSelectedServer = computed(() =>
 
 /** Merge authentication config with the document security schemes */
 const securitySchemes = computed(() => {
-  // AsyncAPI stores its security schemes in the same `components.securitySchemes` slot. The
-  // scheme shapes overlap with OpenAPI for http/apiKey/oauth2/openIdConnect; broker-specific
-  // types (scramSha*, plain, X509, …) flow through unchanged and degrade gracefully downstream.
-  if (asyncApiClientDocument.value) {
-    const components = asyncApiClientDocument.value.components
-      ? getResolvedRef(asyncApiClientDocument.value.components)
-      : undefined
-
-    return mergeSecurity(
-      components?.securitySchemes,
-      options.authentication?.securitySchemes,
-      authStore,
-      asyncApiClientDocument.value['x-scalar-navigation']?.name ?? '',
-      options.oauth2RedirectUri,
-    )
-  }
+  // AsyncAPI stores its security schemes in the same `components.securitySchemes` slot and shares
+  // the http/apiKey/oauth2/openIdConnect shapes with OpenAPI; broker-specific types (scramSha*,
+  // plain, X509, …) flow through unchanged and degrade gracefully downstream. Both document types
+  // persist the auth-store scope key on `x-scalar-navigation.name`, so a single call handles both.
+  const sourceDocument =
+    asyncApiClientDocument.value ?? openApiClientDocument.value
+  const components = sourceDocument?.components
+    ? getResolvedRef(sourceDocument.components)
+    : undefined
 
   return mergeSecurity(
-    openApiClientDocument.value?.components?.securitySchemes,
+    components?.securitySchemes,
     options.authentication?.securitySchemes,
     authStore,
-    openApiClientDocument.value?.['x-scalar-navigation']?.name ?? '',
+    sourceDocument?.['x-scalar-navigation']?.name ?? '',
     options.oauth2RedirectUri,
   )
 })

@@ -10,6 +10,8 @@ import { getNameFromRef } from '@/helpers/get-name-from-ref'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 
+import { dedupeRequirements } from './dedupe-requirements'
+
 type AsyncApiSecurityEntry = NonNullable<AsyncApiOperationObject['security']>[number]
 
 const getSecuritySchemeNameFromRef = (ref: string): string | undefined =>
@@ -85,19 +87,6 @@ const collectSecurityRequirements = (
     .filter((requirement): requirement is SecurityRequirementObject => requirement != null)
 }
 
-const dedupeRequirements = (requirements: SecurityRequirementObject[]): SecurityRequirementObject[] => {
-  const seen = new Set<string>()
-
-  return requirements.filter((requirement) => {
-    const key = JSON.stringify(requirement)
-    if (seen.has(key)) {
-      return false
-    }
-    seen.add(key)
-    return true
-  })
-}
-
 /**
  * Converts AsyncAPI security arrays (operation, traits, server) into OpenAPI-style requirement objects.
  */
@@ -132,9 +121,20 @@ export const getAsyncApiDocumentSecurityRequirements = (document: AsyncApiDocume
     return []
   }
 
-  const combined = Object.values(servers).flatMap((serverRef) =>
+  const perServerRequirements = Object.values(servers).map((serverRef) =>
     getAsyncApiSecurityRequirements(document, null, getResolvedRef(serverRef)),
   )
+
+  const combined = perServerRequirements.flat()
+
+  // When some servers require auth while others accept unauthenticated connections, surface the
+  // no-auth path as an optional `{}` requirement so those servers stay selectable. If no server
+  // requires auth at all, we return `[]` and let the selector treat every scheme as optional.
+  const someRequireAuth = perServerRequirements.some((requirements) => requirements.length > 0)
+  const someRequireNone = perServerRequirements.some((requirements) => requirements.length === 0)
+  if (someRequireAuth && someRequireNone) {
+    combined.push({})
+  }
 
   return dedupeRequirements(combined)
 }

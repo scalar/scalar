@@ -14,6 +14,7 @@ import type {
   SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { getDocumentTypeLabel } from '@scalar/workspace-store/schemas/type-guards'
 import type {
   ApiKeyObject,
   SecurityRequirementObject,
@@ -70,7 +71,7 @@ const {
  * (e.g. "AsyncAPI") instead of always naming OpenAPI.
  */
 const documentTypeLabel = computed<string>(() =>
-  documentType === 'asyncapi' ? 'AsyncAPI' : 'OpenAPI',
+  getDocumentTypeLabel(documentType),
 )
 
 const emits = defineEmits<{
@@ -159,6 +160,15 @@ const generateLabel = (
  */
 const apiKeyHasName = (scheme: { in?: string }): boolean =>
   scheme.in !== 'user' && scheme.in !== 'password'
+
+/**
+ * The scheme's type when it is one we do not render inputs for (e.g. AsyncAPI broker types like
+ * `userPassword` or `scramSha256`). Read through a helper so the fallback template branch, where
+ * the scheme type is narrowed to `never` after the supported cases, can still surface the type.
+ */
+const getUnsupportedSchemeType = (
+  scheme: SecurityItem['scheme'],
+): string | undefined => scheme?.type
 
 /**
  * Determines if an OAuth2 flow tab should be active.
@@ -408,6 +418,14 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           @upsert:scope="(event) => handleScopeUpsert(name, event)" />
       </template>
     </template>
+
+    <!-- Scheme has a type we do not render inputs for yet (e.g. AsyncAPI broker types) -->
+    <div
+      v-else-if="getUnsupportedSchemeType(scheme)"
+      class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
+      The <code>{{ getUnsupportedSchemeType(scheme) }}</code> security scheme
+      type is not supported yet.
+    </div>
 
     <!-- Scheme is missing type -->
     <div

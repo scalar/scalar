@@ -203,6 +203,32 @@ describe('getAsyncApiDocumentSecurityRequirements', () => {
     expect(getAsyncApiDocumentSecurityRequirements(document)).toStrictEqual([{ apiKey: [] }])
   })
 
+  it('adds an optional no-auth requirement when some servers require auth and others do not', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Mixed auth', version: '1.0.0' },
+      components: {
+        securitySchemes: {
+          apiKey: { type: 'apiKey', in: 'user', name: 'api-key' },
+        },
+      },
+      servers: {
+        secured: {
+          host: 'example.com',
+          protocol: 'wss',
+          security: [{ $ref: '#/components/securitySchemes/apiKey' }],
+        },
+        open: {
+          host: 'open.example.com',
+          protocol: 'wss',
+        },
+      },
+    } as unknown as AsyncApiDocument
+
+    // The unauthenticated server surfaces as an optional `{}` so it stays selectable.
+    expect(getAsyncApiDocumentSecurityRequirements(document)).toStrictEqual([{ apiKey: [] }, {}])
+  })
+
   it('returns an empty array when no servers declare security', () => {
     const document = {
       asyncapi: '3.0.0',

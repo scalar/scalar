@@ -19,20 +19,69 @@ import { extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
 /** Document security merged with the config security schemes */
 export type MergedSecuritySchemes = Record<string, SecuritySchemeObjectSecret>
 
+const hasAvailableScopes = (flow: unknown): flow is Record<string, unknown> => {
+  const resolved = getResolvedRef(flow)
+  return Boolean(resolved) && typeof resolved === 'object' && 'availableScopes' in (resolved as object)
+}
+
 /**
- * Map AsyncAPI-only security scheme types onto their OpenAPI equivalents where one exists.
+ * Rename each AsyncAPI OAuth2 flow's `availableScopes` map onto OpenAPI's `scopes`.
+ *
+ * AsyncAPI and OpenAPI use the same scope-name → description map, but under different keys. The
+ * auth UI reads `flow.scopes`, so without this rename an AsyncAPI OAuth2 scheme would render with
+ * no selectable scopes. Flows that already use `scopes` (OpenAPI) are returned untouched, so this
+ * is a no-op for OpenAPI schemes.
+ */
+const normalizeAsyncApiOAuthFlows = (flows: unknown): unknown => {
+  const resolvedFlows = getResolvedRef(flows)
+  if (!resolvedFlows || typeof resolvedFlows !== 'object') {
+    return flows
+  }
+
+  const entries = Object.entries(resolvedFlows)
+  if (!entries.some(([, flowValue]) => hasAvailableScopes(flowValue))) {
+    return flows
+  }
+
+  return Object.fromEntries(
+    entries.map(([flowKey, flowValue]) => {
+      if (!hasAvailableScopes(flowValue)) {
+        return [flowKey, flowValue]
+      }
+
+      const { availableScopes, ...rest } = getResolvedRef(flowValue) as Record<string, unknown>
+      return [flowKey, { ...rest, scopes: availableScopes ?? {} }]
+    }),
+  )
+}
+
+/**
+ * Map AsyncAPI-only security scheme shapes onto their OpenAPI equivalents where one exists.
  *
  * AsyncAPI's `httpApiKey` (a named key in `query`/`header`/`cookie`) is structurally identical to
  * OpenAPI's `apiKey`, so we rename the type and let the shared apiKey path handle rendering and
- * request injection. Everything else is returned unchanged — including AsyncAPI's own `apiKey`
- * (`in: user | password`, no name), which has no OpenAPI counterpart and is rendered value-only.
+ * request injection. AsyncAPI OAuth2 flows carry their scope map under `availableScopes`, which we
+ * rename to OpenAPI's `scopes`. Everything else is returned unchanged — including AsyncAPI's own
+ * `apiKey` (`in: user | password`, no name), which has no OpenAPI counterpart and is value-only.
  */
 const normalizeAsyncApiSecurityScheme = (
   scheme: SecuritySchemeObject | AsyncApiSecuritySchemeObject,
 ): SecuritySchemeObject | AsyncApiSecuritySchemeObject => {
-  if (scheme && typeof scheme === 'object' && 'type' in scheme && scheme.type === 'httpApiKey') {
+  if (!(scheme && typeof scheme === 'object' && 'type' in scheme)) {
+    return scheme
+  }
+
+  if (scheme.type === 'httpApiKey') {
     return { ...scheme, type: 'apiKey' } as SecuritySchemeObject
   }
+
+  if (scheme.type === 'oauth2' && 'flows' in scheme && scheme.flows) {
+    const normalizedFlows = normalizeAsyncApiOAuthFlows(scheme.flows)
+    if (normalizedFlows !== scheme.flows) {
+      return { ...scheme, flows: normalizedFlows } as SecuritySchemeObject
+    }
+  }
+
   return scheme
 }
 

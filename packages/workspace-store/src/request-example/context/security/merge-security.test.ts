@@ -227,6 +227,44 @@ describe('mergeSecurity', () => {
     })
   })
 
+  it('renames AsyncAPI OAuth2 `availableScopes` onto OpenAPI `scopes`', () => {
+    // AsyncAPI OAuth2 flows carry the scope map under `availableScopes`; the auth UI reads
+    // `flow.scopes`, so the merge step must rename it or the scheme renders with no scopes.
+    const securitySchemes = {
+      oauth2: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            availableScopes: {
+              'read:users': 'Read user information',
+              'write:users': 'Modify user information',
+            },
+          },
+        },
+      },
+    } as unknown as ComponentsObject['securitySchemes']
+
+    const result = mergeSecurity(securitySchemes, {}, authStore, documentSlug)
+
+    expect(result.oauth2).toMatchObject({
+      type: 'oauth2',
+      flows: {
+        authorizationCode: {
+          scopes: {
+            'read:users': 'Read user information',
+            'write:users': 'Modify user information',
+          },
+        },
+      },
+    })
+    // The AsyncAPI-only key is gone after normalization.
+    expect(
+      (result.oauth2 as { flows: { authorizationCode: Record<string, unknown> } }).flows.authorizationCode,
+    ).not.toHaveProperty('availableScopes')
+  })
+
   it('handles deeply nested OAuth2 configuration merging', () => {
     const securitySchemes = {
       oauth2: coerceValue(SecuritySchemeObjectSchema, {
