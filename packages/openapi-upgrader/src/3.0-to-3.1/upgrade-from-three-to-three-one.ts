@@ -1,44 +1,8 @@
+import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { traverse } from '@/helpers/traverse'
-
-// Create Sets for faster schema path lookups
-const SCHEMA_SEGMENTS = new Set([
-  'properties',
-  'items',
-  'allOf',
-  'anyOf',
-  'oneOf',
-  'not',
-  'additionalProperties',
-  'schema',
-])
-
-/** Determine if the current path is within a schema - optimized version */
-export function isSchemaPath(path: string[] | undefined): boolean {
-  // Early return if path is undefined
-  if (!path) {
-    return false
-  }
-
-  // Check for schema segments first (most common case)
-  if (path.some((segment) => SCHEMA_SEGMENTS.has(segment))) {
-    return true
-  }
-
-  // Check for schema suffix
-  if (path.some((segment) => segment.endsWith('Schema'))) {
-    return true
-  }
-
-  // Check for components/schemas path
-  if (path.length >= 2 && path[0] === 'components' && path[1] === 'schemas') {
-    return true
-  }
-
-  return false
-}
 
 /**
  * Upgrade from OpenAPI 3.0.x to 3.1.1
