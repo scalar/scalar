@@ -121,18 +121,20 @@ export const getAsyncApiDocumentSecurityRequirements = (document: AsyncApiDocume
     return []
   }
 
-  const perServerRequirements = Object.values(servers).map((serverRef) =>
-    getAsyncApiSecurityRequirements(document, null, getResolvedRef(serverRef)),
-  )
+  const resolvedServers = Object.values(servers).map((serverRef) => getResolvedRef(serverRef))
+
+  const perServerRequirements = resolvedServers.map((server) => getAsyncApiSecurityRequirements(document, null, server))
 
   const combined = perServerRequirements.flat()
 
   // When some servers require auth while others accept unauthenticated connections, surface the
-  // no-auth path as an optional `{}` requirement so those servers stay selectable. If no server
+  // no-auth path as an optional `{}` requirement so those servers stay selectable. "No auth" is
+  // keyed off the declared `security` array (absent or empty), not off a server whose declared
+  // security failed to resolve to a scheme — that server still requires auth. If no server
   // requires auth at all, we return `[]` and let the selector treat every scheme as optional.
   const someRequireAuth = perServerRequirements.some((requirements) => requirements.length > 0)
-  const someRequireNone = perServerRequirements.some((requirements) => requirements.length === 0)
-  if (someRequireAuth && someRequireNone) {
+  const someDeclareNoAuth = resolvedServers.some((server) => !server?.security?.length)
+  if (someRequireAuth && someDeclareNoAuth) {
     combined.push({})
   }
 

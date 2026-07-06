@@ -229,6 +229,34 @@ describe('getAsyncApiDocumentSecurityRequirements', () => {
     expect(getAsyncApiDocumentSecurityRequirements(document)).toStrictEqual([{ apiKey: [] }, {}])
   })
 
+  it('does not add a no-auth requirement for a server whose declared security fails to resolve', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Unresolvable security', version: '1.0.0' },
+      components: {
+        securitySchemes: {
+          apiKey: { type: 'apiKey', in: 'user', name: 'api-key' },
+        },
+      },
+      servers: {
+        secured: {
+          host: 'example.com',
+          protocol: 'wss',
+          security: [{ $ref: '#/components/securitySchemes/apiKey' }],
+        },
+        // Declares security, but the inline scheme matches no component definition, so it resolves
+        // to nothing. This server still requires auth — it must not be treated as unauthenticated.
+        broker: {
+          host: 'broker.example.com',
+          protocol: 'kafka',
+          security: [{ type: 'scramSha256' }],
+        },
+      },
+    } as unknown as AsyncApiDocument
+
+    expect(getAsyncApiDocumentSecurityRequirements(document)).toStrictEqual([{ apiKey: [] }])
+  })
+
   it('returns an empty array when no servers declare security', () => {
     const document = {
       asyncapi: '3.0.0',

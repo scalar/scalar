@@ -49,8 +49,9 @@ const normalizeAsyncApiOAuthFlows = (flows: unknown): unknown => {
         return [flowKey, flowValue]
       }
 
-      const { availableScopes, ...rest } = getResolvedRef(flowValue) as Record<string, unknown>
-      return [flowKey, { ...rest, scopes: availableScopes ?? {} }]
+      // Prefer an OpenAPI-native `scopes` map if one is somehow already present, so we never drop it.
+      const { availableScopes, scopes: existingScopes, ...rest } = getResolvedRef(flowValue) as Record<string, unknown>
+      return [flowKey, { ...rest, scopes: existingScopes ?? availableScopes ?? {} }]
     }),
   )
 }

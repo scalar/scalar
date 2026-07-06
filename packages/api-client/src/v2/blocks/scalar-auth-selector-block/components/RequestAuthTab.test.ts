@@ -301,6 +301,25 @@ describe('RequestAuthTab', () => {
       expect(wrapper.text()).not.toContain('Name')
     })
 
+    it('shows a "not supported yet" message naming the type for an unsupported broker scheme', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'BrokerAuth': {
+            type: 'scramSha256',
+            description: 'SCRAM SHA-256 broker auth',
+          },
+        },
+        selectedSecuritySchemas: {
+          'BrokerAuth': [],
+        },
+      })
+
+      // A valid-but-unsupported type names itself and is not called "missing".
+      expect(wrapper.text()).toContain('scramSha256')
+      expect(wrapper.text()).toContain('not supported yet')
+      expect(wrapper.text()).not.toContain('missing a type')
+    })
+
     it('emits auth:update:security-scheme-secrets when API key value is updated', () => {
       const wrapper = mountWithProps({
         securitySchemes: {
