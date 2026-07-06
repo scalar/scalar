@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS publish
 WORKDIR /src
 
 COPY Directory.Build.props .
+COPY Directory.Packages.props .
 COPY ./aspire .
 
 WORKDIR "/src/src/Scalar.Aspire.Service"
