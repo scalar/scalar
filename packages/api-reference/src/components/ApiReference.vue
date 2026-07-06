@@ -1540,11 +1540,6 @@ const showMCPButton = computed(() => {
                   :modelValue="activeSlug"
                   :options="documentOptionList"
                   @update:modelValue="changeSelectedDocument" />
-                <AsyncApiSidebarFilters
-                  is="div"
-                  v-model:protocol="selectedProtocol"
-                  v-model:server="selectedServer"
-                  :document="activeAsyncApiDocument" />
               </div>
               <SearchButton
                 v-if="!mergedConfig.hideSearch"
