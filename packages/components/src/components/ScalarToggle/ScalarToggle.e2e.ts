@@ -25,4 +25,22 @@ test.describe('ScalarToggle', () => {
     await page.getByRole('switch').nth(3).click()
     await snapshot('3-retoggled')
   })
+
+  test('Tristate', async ({ page, snapshot }) => {
+    await snapshot('1-unset')
+    await page.getByRole('checkbox', { name: 'My Toggle' }).click()
+    await snapshot('2-on')
+    await page.getByRole('checkbox', { name: 'My Toggle' }).click()
+    await snapshot('3-off')
+  })
+
+  test('Tristate Grouped', async ({ page, snapshot }) => {
+    await snapshot('1-unset')
+
+    await page.getByRole('checkbox').nth(2).click()
+    await snapshot('2-on')
+
+    await page.getByRole('checkbox').nth(2).click()
+    await snapshot('3-off')
+  })
 })

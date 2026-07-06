@@ -11,7 +11,7 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { cva, cx } from '@scalar/use-hooks/useBindCx'
+import ScalarToggleSlider from './ScalarToggleSlider.vue'
 
 const props = defineProps<{
   disabled?: boolean
@@ -26,30 +26,14 @@ function toggle() {
   }
   model.value = !model.value
 }
-
-const variants = cva({
-  base: 'relative h-3.5 min-w-6 w-6 cursor-pointer rounded-full bg-b-3 transition-colors duration-300',
-  variants: {
-    checked: { true: 'bg-c-accent' },
-    disabled: { true: 'cursor-not-allowed opacity-40' },
-  },
-})
 </script>
 <template>
-  <button
+  <ScalarToggleSlider
     :aria-checked="model"
-    :aria-disabled="disabled"
-    :class="cx(variants({ checked: model, disabled }))"
+    :class="model ? 'bg-c-accent' : ''"
+    :disabled
+    :label
     role="switch"
-    type="button"
-    @click="toggle">
-    <div
-      class="absolute left-px top-px flex h-3 w-3 items-center justify-center rounded-full bg-b-1 text-c-accent transition-transform duration-300"
-      :class="{ 'translate-x-2.5': model }" />
-    <span
-      v-if="label"
-      class="sr-only">
-      {{ label }}
-    </span>
-  </button>
+    :thumb="model ? 'end' : 'start'"
+    @click="toggle" />
 </template>

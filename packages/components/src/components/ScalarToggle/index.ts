@@ -1,3 +1,7 @@
 export { default as ScalarToggle } from './ScalarToggle.vue'
 export { default as ScalarToggleGroup } from './ScalarToggleGroup.vue'
 export { default as ScalarToggleInput } from './ScalarToggleInput.vue'
+export { default as ScalarTristateToggle } from './ScalarTristateToggle.vue'
+export { default as ScalarTristateToggleGroup } from './ScalarTristateToggleGroup.vue'
+export { default as ScalarTristateToggleInput } from './ScalarTristateToggleInput.vue'
+export type { ScalarTristateOption } from './types'

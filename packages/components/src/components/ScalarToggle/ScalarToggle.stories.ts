@@ -5,6 +5,9 @@ import type { ScalarCheckboxOption } from '../ScalarCheckboxInput'
 import ScalarToggle from './ScalarToggle.vue'
 import ScalarToggleGroup from './ScalarToggleGroup.vue'
 import ScalarToggleInput from './ScalarToggleInput.vue'
+import ScalarTristateToggle from './ScalarTristateToggle.vue'
+import ScalarTristateToggleGroup from './ScalarTristateToggleGroup.vue'
+import type { ScalarTristateOption } from './types'
 
 const meta = {
   component: ScalarToggle,
@@ -60,5 +63,28 @@ export const Grouped: Story = {
       return { args, options, model }
     },
     template: `<ScalarToggleGroup v-bind="args" :options v-model="model" />`,
+  }),
+}
+
+export const Tristate: Story = {
+  args: { label: 'My Toggle' },
+  render: (args) => ({
+    components: { ScalarTristateToggle },
+    setup() {
+      const model = ref<boolean | undefined>(undefined)
+      return { args, model }
+    },
+    template: `<ScalarTristateToggle v-bind="args" v-model="model" />`,
+  }),
+}
+
+export const TristateGrouped: Story = {
+  render: (args) => ({
+    components: { ScalarTristateToggleGroup },
+    setup() {
+      const model = ref<ScalarTristateOption[]>([])
+      return { args, options, model }
+    },
+    template: `<ScalarTristateToggleGroup v-bind="args" :options v-model="model" />`,
   }),
 }
