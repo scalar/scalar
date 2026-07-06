@@ -42,6 +42,7 @@ const {
   server,
   eventBus,
   options,
+  documentType = 'openapi',
 } = defineProps<{
   /** Current environment configuration */
   environment: XScalarEnvironment
@@ -59,7 +60,18 @@ const {
   eventBus: WorkspaceEventBus
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
+  /** Type of the document the schemes belong to, used to label the missing-type warning */
+  documentType?: 'openapi' | 'asyncapi'
 }>()
+
+/**
+ * Human-readable name of the document type.
+ * Used in the missing-type warning so it points at the correct document
+ * (e.g. "AsyncAPI") instead of always naming OpenAPI.
+ */
+const documentTypeLabel = computed<string>(() =>
+  documentType === 'asyncapi' ? 'AsyncAPI' : 'OpenAPI',
+)
 
 const emits = defineEmits<{
   (
@@ -401,8 +413,8 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
     <div
       v-else
       class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
-      The security scheme is missing a type, please double check your OpenAPI
-      document or Authentication Configuration
+      The security scheme is missing a type, please double check your
+      {{ documentTypeLabel }} document or Authentication Configuration
     </div>
   </template>
 </template>

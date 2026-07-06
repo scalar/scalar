@@ -11,6 +11,7 @@ import {
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import {
+  getDocumentType,
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
@@ -45,6 +46,9 @@ const documentName = computed(() => {
   }
   return ''
 })
+
+/** Document type used to label the missing-type warning (OpenAPI vs AsyncAPI). */
+const documentType = computed(() => getDocumentType(document))
 
 /**
  * Compute what the security requirements should be for the document.
@@ -87,6 +91,7 @@ const selectedSecurity = computed(() =>
     :createAnySecurityScheme="
       options.authentication?.createAnySecurityScheme ?? false
     "
+    :documentType
     :environment
     :eventBus
     isStatic
