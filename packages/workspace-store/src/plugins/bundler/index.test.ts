@@ -815,14 +815,8 @@ describe('normalizeRefs', () => {
         '/users': {
           post: {
             requestBody: {
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/User',
-                    extraProperty: 'should be removed',
-                  },
-                },
-              },
+              $ref: '#/components/requestBodies/User',
+              extraProperty: 'should be removed',
             },
           },
         },
@@ -834,53 +828,12 @@ describe('normalizeRefs', () => {
       plugins: [normalizeRefs()],
     })
 
-    expect(input.paths['/users'].post.requestBody.content['application/json'].schema).toEqual({
-      $ref: '#/components/schemas/User',
+    expect(input.paths['/users'].post.requestBody).toEqual({
+      $ref: '#/components/requestBodies/User',
       summary: undefined,
       description: undefined,
       '$status': undefined,
     })
-  })
-
-  it('keeps JSON Schema 2020-12 keywords on an inline schema $ref (Paginated<T> binding)', async () => {
-    // The generic pagination template binds its item type through a `$defs`/`$dynamicAnchor` sibling next to
-    // the `$ref`. This wrapper lives inline on a response schema, not under `components/schemas`, so it must
-    // survive normalization for `$dynamicRef` to resolve to the bound type instead of the empty fallback.
-    const input = {
-      paths: {
-        '/planets': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/json': {
-                    schema: {
-                      $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
-                      $defs: { itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet' } },
-                      $ref: '#/components/schemas/Paginated',
-                      extraProperty: 'should be removed',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    }
-
-    await bundle(input, {
-      treeShake: false,
-      plugins: [normalizeRefs()],
-    })
-
-    const schema: Record<string, unknown> =
-      input.paths['/planets'].get.responses['200'].content['application/json'].schema
-    expect(schema.$ref).toBe('#/components/schemas/Paginated')
-    expect(schema.$id).toBe('https://galaxy.scalar.com/schemas/PaginatedPlanets')
-    expect(schema.$defs).toEqual({ itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet' } })
-    // Genuinely unrelated siblings are still stripped.
-    expect(schema).not.toHaveProperty('extraProperty')
   })
 
   it('normalizes $ref in parameters', async () => {
@@ -1078,7 +1031,9 @@ describe('normalizeRefs', () => {
     })
   })
 
-  it('handles deeply nested $ref normalization', async () => {
+  it('does not normalize a $ref nested inside an inline schema', async () => {
+    // The $ref lives inside a request body schema (an `allOf` branch), so it is a Schema Object rather than a
+    // Reference Object. JSON Schema 2020-12 allows sibling keywords next to `$ref`, so nothing is stripped.
     const input = {
       paths: {
         '/users': {
@@ -1090,7 +1045,7 @@ describe('normalizeRefs', () => {
                     allOf: [
                       {
                         $ref: '#/components/schemas/BaseUser',
-                        extraProperty: 'should be removed',
+                        extraProperty: 'should NOT be removed',
                       },
                     ],
                   },
@@ -1109,9 +1064,45 @@ describe('normalizeRefs', () => {
 
     expect(input.paths['/users'].post.requestBody.content['application/json'].schema.allOf[0]).toEqual({
       $ref: '#/components/schemas/BaseUser',
-      summary: undefined,
-      description: undefined,
-      '$status': undefined,
+      extraProperty: 'should NOT be removed',
+    })
+  })
+
+  it('keeps a $dynamicAnchor binding on an inline response schema $ref', async () => {
+    // The `Paginated<T>` template binds its item type through a `$defs`/`$dynamicAnchor` sibling next to the
+    // `$ref`. The wrapper is inline on a response schema, not under `components/schemas`, yet the binding must
+    // survive so `$dynamicRef` resolves to the bound type instead of the template's empty fallback.
+    const input = {
+      paths: {
+        '/planets': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
+                      $defs: { itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet' } },
+                      $ref: '#/components/schemas/Paginated',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [normalizeRefs()],
+    })
+
+    expect(input.paths['/planets'].get.responses['200'].content['application/json'].schema).toEqual({
+      $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
+      $defs: { itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet' } },
+      $ref: '#/components/schemas/Paginated',
     })
   })
 

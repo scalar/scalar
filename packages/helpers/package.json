@@ -88,6 +88,11 @@
       "types": "./dist/object/*.d.ts",
       "default": "./dist/object/*.js"
     },
+    "./openapi/*": {
+      "import": "./dist/openapi/*.js",
+      "types": "./dist/openapi/*.d.ts",
+      "default": "./dist/openapi/*.js"
+    },
     "./playwright/*": {
       "import": "./dist/playwright/*.js",
       "types": "./dist/playwright/*.d.ts",
