@@ -4,6 +4,55 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import { compositions } from './schema-composition'
 
 /**
+ * Shallow-merges schema-like objects, but unions `properties` and `required`
+ * instead of letting a later object's `properties`/`required` completely
+ * overwrite an earlier one's. Without this, a variant schema (e.g. a `oneOf`
+ * branch) that declares its own `properties`/`required` would wipe out the
+ * shared base fields factored out at the root (or via a sibling `allOf`)
+ * instead of being combined with them (#9657).
+ */
+function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)[]): Record<string, unknown> {
+  const merged: Record<string, unknown> = {}
+  const properties: Record<string, unknown> = {}
+  const required = new Set<string>()
+  let hasProperties = false
+  let hasRequired = false
+
+  for (const object of objects) {
+    if (!object) {
+      continue
+    }
+
+    for (const [key, val] of Object.entries(object)) {
+      if (key === 'properties' && val && typeof val === 'object') {
+        Object.assign(properties, val)
+        hasProperties = true
+        continue
+      }
+
+      if (key === 'required' && Array.isArray(val)) {
+        for (const name of val) {
+          required.add(name)
+        }
+        hasRequired = true
+        continue
+      }
+
+      merged[key] = val
+    }
+  }
+
+  if (hasProperties) {
+    merged.properties = properties
+  }
+  if (hasRequired) {
+    merged.required = [...required]
+  }
+
+  return merged
+}
+
+/**
  * Optimize the value by removing nulls from compositions and merging root properties.
  *
  * TODO: figure out what this does
@@ -69,9 +118,9 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
       // Flatten single-item allOf and merge with root properties
       if (schema.allOf?.length === 1) {
         const { allOf, ...otherProps } = schema
-        return { ...rootProperties, ...otherProps, ...resolve.schema(allOf[0]) }
+        return mergeSchemaProperties(rootProperties, otherProps, resolve.schema(allOf[0]))
       }
-      return { ...rootProperties, ...schema }
+      return mergeSchemaProperties(rootProperties, schema)
     })
 
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
