@@ -17,6 +17,11 @@ describe('getCookieRequestUrl', () => {
   it('returns the input when it cannot be parsed as a URL', () => {
     expect(getCookieRequestUrl('not a url')).toBe('not a url')
   })
+
+  it('falls back to the proxied URL when scalar_url is empty', () => {
+    const proxied = 'https://proxy.scalar.com/?scalar_url='
+    expect(getCookieRequestUrl(proxied)).toBe(proxied)
+  })
 })
 
 describe('getResponseCookieActions', () => {

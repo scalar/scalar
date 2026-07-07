@@ -29,7 +29,9 @@ type ResponseCookieAction =
  */
 export const getCookieRequestUrl = (payloadUrl: string): string => {
   try {
-    return new URL(payloadUrl).searchParams.get('scalar_url') ?? payloadUrl
+    // Fall back to the proxied URL when `scalar_url` is missing or empty, so an
+    // empty query value never scopes cookies against a placeholder host.
+    return new URL(payloadUrl).searchParams.get('scalar_url') || payloadUrl
   } catch {
     return payloadUrl
   }
