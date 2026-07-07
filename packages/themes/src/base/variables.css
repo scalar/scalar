@@ -64,7 +64,7 @@
 
   --scalar-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
   --scalar-shadow-2:
-    0 0 0 0.5px var(--scalar-border-color), rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4) 0px 9px 24px;
+    0 0 0 var(--scalar-border-width) var(--scalar-border-color), rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4) 0px 9px 24px;
 
   --scalar-lifted-brightness: 1.45;
   --scalar-backdrop-brightness: 0.5;
@@ -81,7 +81,7 @@
   --scalar-button-1-color: #fff;
 
   --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
-  --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 0.5px;
+  --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 var(--scalar-border-width);
 
   --scalar-lifted-brightness: 1;
   --scalar-backdrop-brightness: 1;
@@ -105,5 +105,16 @@
   :root {
     --scalar-heading-1: 24px;
     --scalar-page-description: 20px;
+  }
+}
+
+/*
+ * Firefox rounds sub-pixel box-shadow spread values to 0px on 1x displays,
+ * which makes inset box-shadow borders (used by shadow-border) invisible.
+ * Override to 1px in Firefox so borders render consistently across browsers.
+ */
+@supports (-moz-appearance: none) {
+  :root {
+    --scalar-border-width: 1px;
   }
 }
