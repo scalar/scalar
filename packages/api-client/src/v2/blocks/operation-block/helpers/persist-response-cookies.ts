@@ -7,7 +7,7 @@ import { parseSetCookie } from 'set-cookie-parser'
  * cookies so that values like a Django CSRF token survive a page reload and get
  * replayed on the next request.
  */
-export type ResponseCookieAction =
+type ResponseCookieAction =
   | {
       type: 'upsert'
       /** The cookie fields to store. Merged over the existing cookie when `index` is set. */
