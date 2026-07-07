@@ -1760,3 +1760,56 @@ describe('deleteScope', () => {
     expect(flow?.scopes).toEqual({})
   })
 })
+
+describe('AsyncAPI document auth', () => {
+  const createAsyncApiDocument = () =>
+    ({
+      asyncapi: '3.0.0',
+      info: { title: 'Async', version: '1.0.0' },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer' },
+        },
+      },
+      servers: {
+        production: {
+          host: 'example.com',
+          protocol: 'wss',
+          security: [{ $ref: '#/components/securitySchemes/bearerAuth' }],
+        },
+      },
+    }) as unknown as OpenApiDocument
+
+  it('persists the selected security scheme for an AsyncAPI document', async () => {
+    const documentName = 'async'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createAsyncApiDocument() })
+
+    await updateSelectedSecuritySchemes(store, store.workspace.activeDocument!, {
+      selectedRequirements: [{ bearerAuth: [] }],
+      newSchemes: [],
+      meta: { type: 'document' },
+    })
+
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toEqual({
+      selectedIndex: 0,
+      selectedSchemes: [{ bearerAuth: [] }],
+    })
+  })
+
+  it('persists a credential secret for an AsyncAPI document scheme', async () => {
+    const documentName = 'async'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createAsyncApiDocument() })
+
+    const mutators = authMutatorsFactory({ store, document: store.workspace.activeDocument ?? null })
+    mutators.updateSecuritySchemeSecrets({
+      name: 'bearerAuth',
+      payload: { type: 'http', 'x-scalar-secret-token': 'secret-token' },
+    })
+
+    expect(store.auth.getAuthSecrets(documentName, 'bearerAuth')).toMatchObject({
+      'x-scalar-secret-token': 'secret-token',
+    })
+  })
+})
