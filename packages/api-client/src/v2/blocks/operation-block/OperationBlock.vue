@@ -132,6 +132,10 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
+  getCookieRequestUrl,
+  getResponseCookieActions,
+} from '@/v2/blocks/operation-block/helpers/persist-response-cookies'
+import {
   getOperationExampleKey,
   isStreamingResponse,
   responseCache,
@@ -194,6 +198,42 @@ const requestPayload = ref<RequestPayload | null>(null)
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
+
+/**
+ * Persist server-set cookies from a response into the document cookie jar.
+ *
+ * Scalar keeps its own cookie jar because browsers hide `Set-Cookie` from `fetch`.
+ * Mirroring browser behavior, cookies are stored scoped to the request host and
+ * path and removed when the server expires them, so a value like a Django CSRF
+ * token stays available for later PUT/PATCH requests after a page reload.
+ */
+const persistResponseCookies = (sendResult: {
+  response: ResponseInstance
+  requestPayload: RequestPayload
+}) => {
+  const actions = getResponseCookieActions({
+    cookieHeaderKeys: sendResult.response.cookieHeaderKeys ?? [],
+    documentCookies,
+    requestUrl: getCookieRequestUrl(String(sendResult.requestPayload[0])),
+  })
+
+  for (const action of actions) {
+    if (action.type === 'delete') {
+      eventBus.emit('cookie:delete:cookie', {
+        collectionType: 'document',
+        cookieName: action.cookieName,
+        index: action.index,
+      })
+      continue
+    }
+
+    eventBus.emit('cookie:upsert:cookie', {
+      collectionType: 'document',
+      payload: action.cookie,
+      ...(action.index === undefined ? {} : { index: action.index }),
+    })
+  }
+}
 
 /**
  * Copy the executable URL — same pipeline as Send (`requestFactory` +
@@ -369,6 +409,10 @@ const handleExecute = async () => {
   // Store the response
   response.value = sendResult.response
   requestPayload.value = sendResult.requestPayload
+
+  // Persist server-set cookies into the document jar so values like a CSRF token
+  // survive a page reload and get replayed on the next request, like a browser would.
+  persistResponseCookies(sendResult)
 
   // Cache non-streaming responses so they can be restored when navigating back
   if (!isStreamingResponse(sendResult.response)) {

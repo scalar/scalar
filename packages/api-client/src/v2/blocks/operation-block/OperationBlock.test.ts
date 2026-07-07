@@ -318,6 +318,42 @@ describe('OperationBlock', () => {
     })
   })
 
+  it('persists server-set cookies into the document jar after a response', async () => {
+    const mockEventBus = createMockEventBus()
+    const mockResponse = {
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      cookieHeaderKeys: ['csrftoken=abc123; Path=/; SameSite=Lax'],
+      duration: 100,
+      method: 'get',
+      path: '/api/users',
+      data: '{}',
+      size: 2,
+    } as unknown as ResponseInstance
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        response: mockResponse,
+        originalResponse: createMockOriginalResponse(),
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: { ...createDefaultProps(), eventBus: mockEventBus },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('cookie:upsert:cookie', {
+      collectionType: 'document',
+      payload: { name: 'csrftoken', value: 'abc123', domain: 'api.example.com', path: '/' },
+    })
+  })
+
   it('flushes debounced events before building a request', async () => {
     const mockEventBus = createMockEventBus()
     vi.mocked(sendRequest).mockResolvedValue([
