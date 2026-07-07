@@ -1769,6 +1769,16 @@ describe('AsyncAPI document auth', () => {
       components: {
         securitySchemes: {
           bearerAuth: { type: 'http', scheme: 'bearer' },
+          apiKeyHeader: { type: 'httpApiKey', name: 'X-API-Key', in: 'header' },
+          oauth: {
+            type: 'oauth2',
+            flows: {
+              clientCredentials: {
+                tokenUrl: 'https://auth.example.com/token',
+                availableScopes: { read: 'Read' },
+              },
+            },
+          },
         },
       },
       servers: {
@@ -1779,6 +1789,10 @@ describe('AsyncAPI document auth', () => {
         },
       },
     }) as unknown as OpenApiDocument
+
+  // Resolve a scheme (and any ref wrapper on `components`) from the active AsyncAPI document.
+  const getScheme = (document: OpenApiDocument, name: string) =>
+    getResolvedRef(getResolvedRef(document.components)?.securitySchemes?.[name]) as Record<string, unknown> | undefined
 
   it('persists the selected security scheme for an AsyncAPI document', async () => {
     const documentName = 'async'
@@ -1811,5 +1825,42 @@ describe('AsyncAPI document auth', () => {
     expect(store.auth.getAuthSecrets(documentName, 'bearerAuth')).toMatchObject({
       'x-scalar-secret-token': 'secret-token',
     })
+  })
+
+  it('updates an AsyncAPI httpApiKey name while preserving its stored type', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'async', document: createAsyncApiDocument() })
+    const document = store.workspace.activeDocument!
+
+    // The UI presents httpApiKey as apiKey, so the update payload arrives with type 'apiKey'.
+    const result = updateSecurityScheme(document, {
+      name: 'apiKeyHeader',
+      payload: { type: 'apiKey', name: 'X-New-Key' } as never,
+    })
+
+    // The name is applied, but the document keeps its original AsyncAPI `httpApiKey` type.
+    expect(result).toMatchObject({ type: 'httpApiKey', name: 'X-New-Key' })
+    expect(getScheme(document, 'apiKeyHeader')).toMatchObject({ type: 'httpApiKey', name: 'X-New-Key' })
+  })
+
+  it('adds and deletes a scope on an AsyncAPI oauth flow via availableScopes', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'async', document: createAsyncApiDocument() })
+    const document = store.workspace.activeDocument!
+
+    upsertScope(store, document, {
+      name: 'oauth',
+      flowType: 'clientCredentials',
+      scope: 'write',
+      description: 'Write',
+    })
+
+    const flow = getResolvedRef((getScheme(document, 'oauth')?.flows as Record<string, unknown>).clientCredentials) as {
+      availableScopes?: Record<string, string>
+    }
+    expect(flow.availableScopes).toMatchObject({ read: 'Read', write: 'Write' })
+
+    deleteScope(store, document, { name: 'oauth', flowType: 'clientCredentials', scope: 'read' })
+    expect(flow.availableScopes).toStrictEqual({ write: 'Write' })
   })
 })
