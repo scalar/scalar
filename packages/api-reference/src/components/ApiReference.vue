@@ -23,6 +23,7 @@ import {
   ScalarSidebarFooter,
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
+import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
@@ -439,13 +440,19 @@ const pluginManager = createPluginManager({
    * Read-only view of the global authentication state, so plugins can read stored secrets and
    * the selected security schemes without being able to mutate them. Wraps the workspace store's
    * auth methods (rather than passing the store directly) to keep the setters out of the plugin API.
+   *
+   * The getters return a deep copy (`export` already snapshots internally, the others go through
+   * `toJsonCompatible`) so plugins receive plain data rather than the store's live reactive proxies —
+   * mutating what they get back can never leak into the workspace store.
    */
   auth: {
     export: () => workspaceStore.auth.export(),
     getAuthSecrets: (documentName, schemeName) =>
-      workspaceStore.auth.getAuthSecrets(documentName, schemeName),
+      toJsonCompatible(
+        workspaceStore.auth.getAuthSecrets(documentName, schemeName),
+      ),
     getAuthSelectedSchemas: (payload) =>
-      workspaceStore.auth.getAuthSelectedSchemas(payload),
+      toJsonCompatible(workspaceStore.auth.getAuthSelectedSchemas(payload)),
   },
 })
 provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
