@@ -1622,8 +1622,9 @@ const showMCPButton = computed(() => {
 </template>
 
 <style>
-/* Add base styles to the body. Removed browser default margins for a better experience. */
+/* Add base styles to the document. Removed browser default margins for a better experience. */
 @layer scalar-base {
+  html,
   body {
     margin: 0;
     background-color: var(--scalar-background-1);
