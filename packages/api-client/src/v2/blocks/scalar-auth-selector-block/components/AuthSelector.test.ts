@@ -50,6 +50,7 @@ describe('AuthSelector', () => {
       environment: any
       envVariables: any[]
       isStatic: boolean
+      canDeleteSchemes: boolean
       securityRequirements: any
       selectedSecurity: any
       securitySchemes: any
@@ -274,6 +275,66 @@ describe('AuthSelector', () => {
         ],
         meta: { type: 'document' },
       })
+    })
+  })
+
+  describe('scheme deletion', () => {
+    // The combobox options render in a teleported popover that calls `scrollIntoView`, which jsdom
+    // does not implement. Polyfill it so opening the dropdown does not throw.
+    if (!HTMLElement.prototype.scrollIntoView) {
+      HTMLElement.prototype.scrollIntoView = () => {}
+    }
+
+    /** Mounts attached to the DOM (so the teleported popover mounts) and opens the auth combobox. */
+    const mountAndOpen = async (canDeleteSchemes: boolean) => {
+      const wrapper = mount(AuthSelector, {
+        attachTo: document.body,
+        props: {
+          environment: baseEnvironment as any,
+          isStatic: true,
+          canDeleteSchemes,
+          securityRequirements: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
+          selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
+          securitySchemes: baseSecuritySchemes as any,
+          proxyUrl: '',
+          server: baseServer as any,
+          title: 'Authentication',
+          eventBus: createWorkspaceEventBus(),
+          meta: { type: 'document' },
+        },
+      })
+
+      await wrapper.findComponent({ name: 'ScalarButton' }).trigger('click')
+      await nextTick()
+      await nextTick()
+
+      return wrapper
+    }
+
+    // The delete control is a ScalarIconButton whose label renders as an `sr-only` span
+    // ("Delete <scheme>"), so we match on the button text rather than an aria attribute.
+    const deleteControlCount = () =>
+      Array.from(document.body.querySelectorAll('button')).filter((button) => button.textContent?.includes('Delete '))
+        .length
+
+    it('renders a delete control per scheme by default', async () => {
+      const wrapper = await mountAndOpen(true)
+
+      // Sanity-check the dropdown actually opened before asserting on its contents.
+      expect(document.body.textContent).toContain('BearerAuth')
+      expect(deleteControlCount()).toBeGreaterThan(0)
+
+      wrapper.unmount()
+    })
+
+    it('hides the delete control when canDeleteSchemes is false', async () => {
+      const wrapper = await mountAndOpen(false)
+
+      // The dropdown is open (schemes are listed) but no delete affordance is offered.
+      expect(document.body.textContent).toContain('BearerAuth')
+      expect(deleteControlCount()).toBe(0)
+
+      wrapper.unmount()
     })
   })
 
