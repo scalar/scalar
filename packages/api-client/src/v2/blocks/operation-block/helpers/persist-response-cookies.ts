@@ -36,13 +36,11 @@ export const getCookieRequestUrl = (payloadUrl: string): string => {
 }
 
 /**
- * Compute the default cookie path from the request URL, following the browser
+ * Compute the default cookie path from a request pathname, following the browser
  * default-path algorithm (RFC 6265, section 5.1.4): the request path up to, but
  * not including, its rightmost slash — or "/" when there is nothing before it.
  */
-const getDefaultPath = (requestUrl: string): string => {
-  const { pathname } = new URL(requestUrl, 'https://example.com')
-
+const getDefaultPath = (pathname: string): string => {
   if (!pathname.startsWith('/')) {
     return '/'
   }
@@ -50,6 +48,22 @@ const getDefaultPath = (requestUrl: string): string => {
   const lastSlash = pathname.lastIndexOf('/')
 
   return lastSlash <= 0 ? '/' : pathname.slice(0, lastSlash)
+}
+
+/**
+ * Derive the host and default path a cookie should be scoped to from the request
+ * URL. The URL is parsed defensively: `getCookieRequestUrl` may hand back a value
+ * that is not a valid URL (for example a malformed `scalar_url`), and a throw here
+ * would otherwise abort persistence after an otherwise successful request.
+ */
+const getRequestScope = (requestUrl: string): { hostname: string; defaultPath: string } => {
+  try {
+    const { hostname, pathname } = new URL(requestUrl, 'https://example.com')
+
+    return { hostname, defaultPath: getDefaultPath(pathname) }
+  } catch {
+    return { hostname: '', defaultPath: '/' }
+  }
 }
 
 /** Two stored cookies share an identity when name, domain, and path all match. */
@@ -87,8 +101,19 @@ export const getResponseCookieActions = ({
   requestUrl: string
   now?: number
 }): ResponseCookieAction[] => {
-  const upserts: ResponseCookieAction[] = []
-  const deletes: ResponseCookieAction[] = []
+  const { hostname, defaultPath } = getRequestScope(requestUrl)
+
+  /**
+   * Collapse the response's `Set-Cookie` headers into one final state per cookie
+   * identity. A browser applies them in order, so a later header for the same
+   * name/domain/path wins — whether it sets a new value or expires the cookie.
+   * Resolving this first also keeps a single action per identity, so the same
+   * stored cookie never gets a conflicting upsert and delete on the same index.
+   */
+  const resolved = new Map<
+    string,
+    { cookie: Pick<XScalarCookie, 'name' | 'value' | 'domain' | 'path'>; expired: boolean }
+  >()
 
   for (const header of cookieHeaderKeys) {
     // Each header holds a single Set-Cookie value, so take the first parsed cookie.
@@ -99,27 +124,36 @@ export const getResponseCookieActions = ({
     }
 
     // Scope the cookie the way a browser would, so it is only replayed on matching requests.
-    const domain = parsed.domain || new URL(requestUrl, 'https://example.com').hostname
-    const path = parsed.path || getDefaultPath(requestUrl)
-
-    const identity = { name: parsed.name, domain, path }
-    const index = documentCookies.findIndex((cookie) => isSameCookie(identity, cookie))
+    const domain = parsed.domain || hostname
+    const path = parsed.path || defaultPath
 
     // A cookie is deleted when it is already expired via Expires or Max-Age.
-    const isExpired =
+    const expired =
       (parsed.maxAge !== undefined && parsed.maxAge <= 0) ||
       (parsed.expires instanceof Date && parsed.expires.getTime() <= now)
 
-    if (isExpired) {
+    resolved.set(`${parsed.name}\n${domain}\n${path}`, {
+      cookie: { name: parsed.name, value: parsed.value, domain, path },
+      expired,
+    })
+  }
+
+  const upserts: ResponseCookieAction[] = []
+  const deletes: ResponseCookieAction[] = []
+
+  for (const { cookie, expired } of resolved.values()) {
+    const index = documentCookies.findIndex((existing) => isSameCookie(cookie, existing))
+
+    if (expired) {
       if (index !== -1) {
-        deletes.push({ type: 'delete', cookieName: parsed.name, index })
+        deletes.push({ type: 'delete', cookieName: cookie.name, index })
       }
       continue
     }
 
     upserts.push({
       type: 'upsert',
-      cookie: { name: parsed.name, value: parsed.value, domain, path },
+      cookie,
       ...(index === -1 ? {} : { index }),
     })
   }

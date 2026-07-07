@@ -142,6 +142,69 @@ describe('getResponseCookieActions', () => {
     ])
   })
 
+  it('keeps only the last header when a response sets the same cookie twice', () => {
+    const actions = getResponseCookieActions({
+      cookieHeaderKeys: ['csrftoken=first; Path=/; Domain=example.com', 'csrftoken=second; Path=/; Domain=example.com'],
+      documentCookies: [{ name: 'csrftoken', value: 'old', domain: 'example.com', path: '/' }],
+      requestUrl: 'https://example.com/api',
+    })
+
+    expect(actions).toEqual([
+      {
+        type: 'upsert',
+        cookie: { name: 'csrftoken', value: 'second', domain: 'example.com', path: '/' },
+        index: 0,
+      },
+    ])
+  })
+
+  it('deletes a stored cookie when a later header in the same response expires it', () => {
+    const actions = getResponseCookieActions({
+      cookieHeaderKeys: [
+        'csrftoken=fresh; Path=/; Domain=example.com',
+        'csrftoken=; Max-Age=0; Path=/; Domain=example.com',
+      ],
+      documentCookies: [{ name: 'csrftoken', value: 'old', domain: 'example.com', path: '/' }],
+      requestUrl: 'https://example.com/api',
+    })
+
+    expect(actions).toEqual([{ type: 'delete', cookieName: 'csrftoken', index: 0 }])
+  })
+
+  it('re-sets a cookie when a later header in the same response follows an expiry', () => {
+    const actions = getResponseCookieActions({
+      cookieHeaderKeys: [
+        'csrftoken=; Max-Age=0; Path=/; Domain=example.com',
+        'csrftoken=fresh; Path=/; Domain=example.com',
+      ],
+      documentCookies: [{ name: 'csrftoken', value: 'old', domain: 'example.com', path: '/' }],
+      requestUrl: 'https://example.com/api',
+    })
+
+    expect(actions).toEqual([
+      {
+        type: 'upsert',
+        cookie: { name: 'csrftoken', value: 'fresh', domain: 'example.com', path: '/' },
+        index: 0,
+      },
+    ])
+  })
+
+  it('does not throw when the request URL is not parseable', () => {
+    const actions = getResponseCookieActions({
+      cookieHeaderKeys: ['session=xyz'],
+      documentCookies: [],
+      requestUrl: 'http://[',
+    })
+
+    expect(actions).toEqual([
+      {
+        type: 'upsert',
+        cookie: { name: 'session', value: 'xyz', domain: '', path: '/' },
+      },
+    ])
+  })
+
   it('skips headers without a cookie name', () => {
     const actions = getResponseCookieActions({
       cookieHeaderKeys: ['', '=value'],
