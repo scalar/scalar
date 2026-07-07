@@ -1,5 +1,7 @@
 import type { PartialDeep } from 'type-fest'
 
+import type { PluginAuthState } from './api-reference-plugin'
+
 /** Some common properties used in all security schemes */
 type SecuirtySchemeCommon = {
   /* A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
@@ -208,8 +210,8 @@ export type ViewComponent = {
 }
 
 export type LifecycleHooks = {
-  onInit?: ({ config }: { config: Partial<BaseConfiguration> }) => void
-  onConfigChange?: ({ config }: { config: Partial<BaseConfiguration> }) => void
+  onInit?: ({ config, auth }: { config: Partial<BaseConfiguration>; auth: PluginAuthState }) => void
+  onConfigChange?: ({ config, auth }: { config: Partial<BaseConfiguration>; auth: PluginAuthState }) => void
   onDestroy?: () => void
 }
 
