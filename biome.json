@@ -152,7 +152,8 @@
         "useShorthandFunctionType": "warn",
         "useConst": "warn",
         "useArrayLiterals": "warn",
-        "noDescendingSpecificity": "warn"
+        "noDescendingSpecificity": "warn",
+        "noNestedTernary": "warn"
       },
       "suspicious": {
         "noAsyncPromiseExecutor": "warn",
