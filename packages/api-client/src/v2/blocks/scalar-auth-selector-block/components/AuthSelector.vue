@@ -44,6 +44,7 @@ const {
   environment,
   eventBus,
   createAnySecurityScheme = false,
+  canDeleteSchemes = true,
   defaultOpen = true,
   isStatic = false,
   meta,
@@ -59,6 +60,11 @@ const {
   eventBus: WorkspaceEventBus
   /** Allows adding authentication which is not in the document */
   createAnySecurityScheme?: boolean
+  /**
+   * Whether schemes can be deleted from the selector. Enabled for the editable client, disabled in
+   * the read-only reference where the schemes come from the document and cannot be removed.
+   */
+  canDeleteSchemes?: boolean
   /** Whether the authentication disclosure should start expanded */
   defaultOpen?: boolean
   /** Creates a static disclosure that cannot be collapsed */
@@ -284,7 +290,7 @@ defineExpose({
             {{ option.label }}
           </div>
           <ScalarIconButton
-            v-if="option.isDeletable"
+            v-if="option.isDeletable && canDeleteSchemes"
             class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100"
             :icon="ScalarIconTrash"
             :label="`Delete ${option.label}`"

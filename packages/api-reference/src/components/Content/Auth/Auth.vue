@@ -62,6 +62,7 @@ const selectedSecurity = computed(() =>
 <template>
   <AuthSelector
     v-if="Object.keys(securitySchemes).length"
+    :canDeleteSchemes="false"
     :createAnySecurityScheme="
       options.authentication?.createAnySecurityScheme ?? false
     "
