@@ -4,7 +4,7 @@ export const DOCUMENT_TYPE_LABELS = {
   asyncapi: 'AsyncAPI',
 } as const
 
-export type DocumentType = keyof typeof DOCUMENT_TYPE_LABELS
+type DocumentType = keyof typeof DOCUMENT_TYPE_LABELS
 
 /**
  * Best-effort guess of the document type from a source URL.

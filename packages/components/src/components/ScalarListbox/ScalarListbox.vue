@@ -60,7 +60,7 @@ defineSlots<{
     open: boolean
   }): unknown
   /** Trailing content rendered at the end of each option (e.g. a badge) */
-  'option-suffix'(props: {
+  'option-suffix'?(props: {
     /** The option being rendered */
     option: Option
   }): unknown
