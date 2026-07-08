@@ -44,13 +44,13 @@ onKeyStroke('Escape', () => {
     <LinkButton
       class="decoration-dotted"
       @click="toggle">
-      {{ translate('common.pattern') }}
+      {{ translate('schema.pattern') }}
     </LinkButton>
     <div class="property-pattern-popup">
       <button
         class="property-pattern-value group"
         type="button"
-        :aria-label="`${translate('common.copyPattern')}: ${pattern}`"
+        :aria-label="`${translate('schema.copyPattern')}: ${pattern}`"
         @click="copyToClipboard(pattern)">
         <code>{{ pattern }}</code>
         <ScalarIcon
