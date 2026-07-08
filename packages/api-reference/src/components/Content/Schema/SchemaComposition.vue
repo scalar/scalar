@@ -283,7 +283,7 @@ if (
           <div
             v-if="selectedComposition?.deprecated"
             class="text-red">
-            {{ translate('common.deprecated') }}
+            {{ translate('schema.deprecated') }}
           </div>
           <ScalarIconCaretDown />
         </button>
