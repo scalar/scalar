@@ -234,11 +234,18 @@ jobs:
           # CHANGELOG.md section into a friendly release-notes entry.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
-      - name: Bust CDN cache
+      - name: Purge CDN Cache
         if: steps.release-check.outputs.published == 'true'
         uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
+          method: 'GET'
+
+      - name: Purge CDN Cache (standalone bundle)
+        if: steps.release-check.outputs.published == 'true'
+        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
+        with:
+          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js'
           method: 'GET'
 
       # Record this job's own result so the main-push deploys can gate on the
