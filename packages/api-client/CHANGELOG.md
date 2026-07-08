@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 3.13.3
+
+### Patch Changes
+
+- [#9671](https://github.com/scalar/scalar/pull/9671): Add a `canDeleteSchemes` prop to the auth selector so the delete (trash) affordance can be hidden. It defaults to `true` (unchanged for the API client, where schemes are editable) and the API reference now passes `false`, since its schemes come from the rendered document and cannot be removed there.
+- [#9670](https://github.com/scalar/scalar/pull/9670): Persist cookies set by a response into the document cookie jar so values like a Django CSRF token survive a page reload and are replayed on later requests
+
 ## 3.13.2
 
 ## 3.13.1

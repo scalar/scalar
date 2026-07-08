@@ -1,5 +1,11 @@
 # @scalar/aspnetcore
 
+## 2.16.11
+
+### Patch Changes
+
+- [#9620](https://github.com/scalar/scalar/pull/9620): chore: extract the hosting-agnostic HTML/static-asset rendering core into the shared project so it can be reused across .NET integrations. No public API or behavior change for `Scalar.AspNetCore`.
+
 ## 2.16.10
 
 ## 2.16.9

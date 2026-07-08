@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.6.9
+
+### Patch Changes
+
+- [#9651](https://github.com/scalar/scalar/pull/9651): Merge the Galaxy `Paginated` and `PaginatedResource` schemas into a single `PaginatedResource` schema
+
 ## 0.6.8
 
 ### Patch Changes

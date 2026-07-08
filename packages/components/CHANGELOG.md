@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.27.6
+
+### Patch Changes
+
+- [#9668](https://github.com/scalar/scalar/pull/9668): feat: add tristate toggle and tristate toggle group components
+
 ## 0.27.5
 
 ## 0.27.4
