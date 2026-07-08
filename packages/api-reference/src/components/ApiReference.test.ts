@@ -171,7 +171,7 @@ describe('multiple configurations', () => {
     expect(documentSelector.html()).toContain('my-api-2')
   })
 
-  it('does not append document type labels when all documents use OpenAPI', async () => {
+  it('does not add a document type badge when all documents use OpenAPI', async () => {
     const wrapper = mount(ApiReference, {
       props: {
         configuration: [
@@ -208,15 +208,17 @@ describe('multiple configurations', () => {
       {
         label: 'my-api-1',
         id: 'my-api-1',
+        badge: undefined,
       },
       {
         label: 'my-api-2',
         id: 'my-api-2',
+        badge: undefined,
       },
     ])
   })
 
-  it('appends document type labels when OpenAPI and AsyncAPI documents are mixed', async () => {
+  it('adds a document type badge when OpenAPI and AsyncAPI documents are mixed', async () => {
     const wrapper = mount(ApiReference, {
       props: {
         configuration: [
@@ -253,12 +255,14 @@ describe('multiple configurations', () => {
 
     expect(documentSelector.props('options')).toStrictEqual([
       {
-        label: 'rest-api (OpenAPI)',
+        label: 'rest-api',
         id: 'rest-api',
+        badge: 'OpenAPI',
       },
       {
-        label: 'events-api (AsyncAPI)',
+        label: 'events-api',
         id: 'events-api',
+        badge: 'AsyncAPI',
       },
     ])
   })
