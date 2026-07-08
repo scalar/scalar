@@ -1,5 +1,7 @@
 # @scalar/mock-server-docker
 
+## 0.2.46
+
 ## 0.2.45
 
 ## 0.2.44

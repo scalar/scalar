@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.62.5
+
+### Patch Changes
+
+- [#9671](https://github.com/scalar/scalar/pull/9671): Add a `canDeleteSchemes` prop to the auth selector so the delete (trash) affordance can be hidden. It defaults to `true` (unchanged for the API client, where schemes are editable) and the API reference now passes `false`, since its schemes come from the rendered document and cannot be removed there.
+- [#9646](https://github.com/scalar/scalar/pull/9646): Fix deep links to response properties. Response property anchors now carry a `responses` marker so the target operation is found and scrolled to on a fresh load, and response properties are linkable even when `expandAllResponses` is off (a deep link expands the collapsed response and scrolls the property into view).
+- [#9631](https://github.com/scalar/scalar/pull/9631): Hide the protocol and server filters in the classic layout for AsyncAPI documents
+- [#9639](https://github.com/scalar/scalar/pull/9639): Add a read-only accessor for the global authentication state to the plugin API. Plugin lifecycle hooks (`onInit`, `onConfigChange`) now receive an `auth` accessor alongside `config`, and the plugin manager exposes `getAuthState()` for view components. Plugins can read stored secrets and the selected security schemes via `auth.export()`, `auth.getAuthSecrets(documentName, schemeName)`, and `auth.getAuthSelectedSchemas(payload)` without being able to mutate auth.
+- [#9664](https://github.com/scalar/scalar/pull/9664): fix: keep base allOf properties when merging oneOf/anyOf branches
+
+  When a schema used `allOf` to factor out shared object properties next to a `oneOf`/`anyOf`, each branch's own `properties`/`required` overwrote the shared base fields instead of being combined with them. The base fields now stay visible alongside each branch's own fields.
+
 ## 1.62.4
 
 ## 1.62.3
