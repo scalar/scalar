@@ -1068,6 +1068,7 @@ const onBeforeMatch = (): void => {
     <!-- Compositions -->
     <!-- This row's own breadcrumb, so sibling compositions do not collide on
          anchors and expansion keys. -->
+    <!-- Fall back to the inherited discriminator to label the property inside an allOf variant (#9674) -->
     <SchemaComposition
       v-for="compositionData in compositionsToRender"
       :key="compositionData.composition"
