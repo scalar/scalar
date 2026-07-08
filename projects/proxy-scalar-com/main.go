@@ -438,6 +438,14 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	// Mirror all Set-Cookie values into x-scalar-set-cookie so browser clients can
+	// read them. Browsers hide Set-Cookie from fetch() for cross-origin responses
+	// (even with Access-Control-Expose-Headers), so the API client relies on this
+	// custom header to surface server-set cookies like a Django csrftoken.
+	if setCookies := resp.Header.Values("Set-Cookie"); len(setCookies) > 0 {
+		w.Header().Set("X-Scalar-Set-Cookie", strings.Join(setCookies, ", "))
+	}
+
 	// Add CORS headers here, after the response headers are copied
 	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.Header().Set("Access-Control-Allow-Origin", "*")

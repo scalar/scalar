@@ -571,6 +571,64 @@ func TestProxyBehavior(t *testing.T) {
 		}
 	})
 
+	t.Run("Mirrors a single Set-Cookie into X-Scalar-Set-Cookie", func(t *testing.T) {
+		// Create a test server that sets a cookie on the response
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Set-Cookie", "csrftoken=abc123; Path=/; SameSite=Lax")
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		// The original Set-Cookie is still forwarded, and mirrored into the custom
+		// header the browser client can actually read.
+		expected := "csrftoken=abc123; Path=/; SameSite=Lax"
+		if got := w.Header().Get("X-Scalar-Set-Cookie"); got != expected {
+			t.Errorf("Expected X-Scalar-Set-Cookie header to be '%s', got '%s'", expected, got)
+		}
+	})
+
+	t.Run("Mirrors multiple Set-Cookie values into X-Scalar-Set-Cookie", func(t *testing.T) {
+		// Create a test server that sets two cookies on the response
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Set-Cookie", "csrftoken=abc123; Path=/")
+			w.Header().Add("Set-Cookie", "sessionid=xyz789; Path=/; HttpOnly")
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		// Multiple cookies are joined with ", ", matching the desktop app.
+		expected := "csrftoken=abc123; Path=/, sessionid=xyz789; Path=/; HttpOnly"
+		if got := w.Header().Get("X-Scalar-Set-Cookie"); got != expected {
+			t.Errorf("Expected X-Scalar-Set-Cookie header to be '%s', got '%s'", expected, got)
+		}
+	})
+
+	t.Run("Omits X-Scalar-Set-Cookie when there is no Set-Cookie", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if got := w.Header().Get("X-Scalar-Set-Cookie"); got != "" {
+			t.Errorf("Expected no X-Scalar-Set-Cookie header, got '%s'", got)
+		}
+	})
+
 	t.Run("Forwards X-Scalar-Date as Date header", func(t *testing.T) {
 		// Create a test server that checks for the Date header
 		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
