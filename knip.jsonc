@@ -358,6 +358,14 @@
         "@scalar/dotnet-shared"
       ]
     },
+    "integrations/dotnet/azure-functions": {
+      "entry": ["src/Scalar.Azure.Functions/StaticAssets/scalar.azure.functions.js"],
+      "ignoreDependencies": [
+        // Included to increment the version in alignment with the packages listed below.
+        "@scalar/api-reference",
+        "@scalar/dotnet-shared"
+      ]
+    },
     "integrations/dotnet/shared": {
       "ignoreDependencies": [
         // Included for convenience.

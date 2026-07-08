@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Scalar.Azure.Functions/Scalar.Azure.Functions.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Scalar.Azure.Functions.Tests/Scalar.Azure.Functions.Tests.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/playground/">
+    <Project Path="playground/Scalar.Azure.Functions.Playground.csproj" Type="Classic C#" />
+  </Folder>
+</Solution>

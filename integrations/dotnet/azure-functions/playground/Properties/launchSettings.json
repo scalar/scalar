@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Azure Functions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 8081",
+      "launchBrowser": true,
+      "launchUrl": "api/scalar",
+      "applicationUrl": "http://localhost:8081/api/scalar",
+      "environmentVariables": {
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+      }
+    }
+  }
+}

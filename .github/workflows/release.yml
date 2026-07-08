@@ -28,6 +28,9 @@ on:
       aspire_package_changed:
         type: string
         required: true
+      azure_functions_package_changed:
+        type: string
+        required: true
       fastapi_package_changed:
         type: string
         required: true
@@ -351,6 +354,7 @@ jobs:
       mock_server_docker_package_changed: ${{ inputs.mock_server_docker_package_changed }}
       aspnetcore_package_changed: ${{ inputs.aspnetcore_package_changed }}
       aspire_package_changed: ${{ inputs.aspire_package_changed }}
+      azure_functions_package_changed: ${{ inputs.azure_functions_package_changed }}
       fastapi_package_changed: ${{ inputs.fastapi_package_changed }}
       django_ninja_package_changed: ${{ inputs.django_ninja_package_changed }}
       rust_package_changed: ${{ inputs.rust_package_changed }}

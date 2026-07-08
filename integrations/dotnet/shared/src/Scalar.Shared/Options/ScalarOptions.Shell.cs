@@ -1,11 +1,12 @@
+#if !SCALAR_ASPIRE
 using System.Diagnostics.CodeAnalysis;
 
+#if SCALAR_AZURE_FUNCTIONS
+namespace Scalar.Azure.Functions;
+#else
 namespace Scalar.AspNetCore;
+#endif
 
-/// <summary>
-/// Represents all available options for the Scalar API Reference.
-/// Based on <a href="https://github.com/scalar/scalar/blob/main/documentation/configuration.md">Configuration</a>.
-/// </summary>
 public partial class ScalarOptions
 {
     /// <summary>
@@ -102,3 +103,4 @@ public partial class ScalarOptions
     /// </summary>
     public const string NonceHttpContextItemKey = "Scalar.Nonce";
 }
+#endif

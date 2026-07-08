@@ -19,6 +19,13 @@
     <Project Path="aspnetcore/tests/Scalar.AspNetCore.Swashbuckle.Tests/Scalar.AspNetCore.Swashbuckle.Tests.csproj" Type="Classic C#" />
     <Project Path="aspnetcore/tests/Scalar.AspNetCore.Tests/Scalar.AspNetCore.Tests.csproj" Type="Classic C#" />
   </Folder>
+  <Folder Name="/azure-functions/" />
+  <Folder Name="/azure-functions/src/">
+    <Project Path="azure-functions/src/Scalar.Azure.Functions/Scalar.Azure.Functions.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/azure-functions/tests/">
+    <Project Path="azure-functions/tests/Scalar.Azure.Functions.Tests/Scalar.Azure.Functions.Tests.csproj" Type="Classic C#" />
+  </Folder>
   <Folder Name="/shared/" />
   <Folder Name="/shared/src/">
     <Project Path="shared/src/Scalar.Shared/Scalar.Shared.csproj" Type="Classic C#" />

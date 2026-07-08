@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 
 #if SCALAR_ASPIRE
 namespace Scalar.Aspire;
+#elif SCALAR_AZURE_FUNCTIONS
+namespace Scalar.Azure.Functions;
 #else
 namespace Scalar.AspNetCore;
 #endif
@@ -41,7 +43,7 @@ public sealed class ScalarAuthenticationOptions
     /// <value>The default value is <c>null</c>.</value>
     public IDictionary<string, ScalarSecurityScheme>? SecuritySchemes { get; set; }
 
-#if !SCALAR_ASPIRE
+#if !SCALAR_ASPIRE && !SCALAR_AZURE_FUNCTIONS
     /// <summary>
     /// Gets or sets the API key options.
     /// This can be used if the OpenApi document has a API key security scheme.

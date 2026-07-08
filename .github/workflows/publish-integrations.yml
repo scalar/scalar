@@ -25,6 +25,9 @@ on:
       aspire_package_changed:
         type: string
         required: true
+      azure_functions_package_changed:
+        type: string
+        required: true
       fastapi_package_changed:
         type: string
         required: true
@@ -344,6 +347,64 @@ jobs:
 
       - name: Publish Scalar.Aspire NuGet package
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
+        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+
+  azure-functions-publish:
+    if: inputs.published == 'true' && inputs.azure_functions_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-nuget
+    timeout-minutes: 10
+    # We don't want to run `nuget push` (publishing to NuGet) in parallel.
+    concurrency:
+      group: azure-functions-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Git Status
+        run: git status
+
+      - name: Stash changes
+        run: git stash
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: integrations/dotnet/azure-functions
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: scalar-js
+          path: integrations/dotnet/azure-functions/src/Scalar.Azure.Functions/StaticAssets
+
+      - name: Compress static assets
+        working-directory: integrations/dotnet/azure-functions/src/Scalar.Azure.Functions/StaticAssets
+        run: gzip --keep --verbose --force scalar.js scalar.azure.functions.js favicon.svg
+
+      - name: Cache NuGet packages
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          path: ${{ env.NUGET_PACKAGES }}
+
+      - name: Setup .NET
+        uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
+        with:
+          sdk-version: 10.x.x
+
+      - name: Restore dependencies
+        working-directory: integrations/dotnet/azure-functions
+        run: dotnet restore
+
+      - name: Pack package
+        working-directory: integrations/dotnet/azure-functions
+        run: dotnet pack src/Scalar.Azure.Functions -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
+
+      - name: Publish package
+        working-directory: integrations/dotnet/azure-functions
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   fastapi-publish:
