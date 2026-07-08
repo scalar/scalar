@@ -69,7 +69,7 @@ Add a key under `targets` for every artifact you want Scalar to generate.
 }
 ```
 
-Supported target keys are `typescript`, `python`, `cli`, `go`, `rust`, `java`, `kotlin`, `swift`, `ruby`, `php`, `csharp`, `cpp`, `dart`, and `terraform`.
+Supported target keys are `typescript`, `python`, `cli`, `go`, `rust`, `java`, `kotlin`, `swift`, `ruby`, `php`, `csharp`, `cpp`, and `dart`.
 
 Set `skip: true` on a target to keep its config in place without generating it.
 
