@@ -177,7 +177,7 @@ const shouldRenderRequestBody = computed(
         <div
           v-if="requestBody.required"
           class="request-body-required">
-          {{ translate('common.required') }}
+          {{ translate('schema.required') }}
         </div>
         <ContentTypeSelect
           v-model="selectedContentType"
