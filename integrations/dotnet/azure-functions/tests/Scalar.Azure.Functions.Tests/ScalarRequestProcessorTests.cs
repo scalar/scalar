@@ -166,4 +166,64 @@ public class ScalarRequestProcessorTests
         result.CacheControl.Should().Be("no-store");
         result.Html.Should().Contain(" nonce=\"test-nonce\"");
     }
+
+    [Fact]
+    public void Process_ShouldGenerateFreshNonce_WhenDynamicNonceEnabled()
+    {
+        // Arrange
+        var options = new ScalarOptions { DynamicNonce = true };
+
+        // Act
+        var first = ScalarRequestProcessor.Process(options, "/api/scalar/", string.Empty, false, null);
+        var second = ScalarRequestProcessor.Process(options, "/api/scalar/", string.Empty, false, null);
+
+        // Assert
+        first.Nonce.Should().NotBeNullOrEmpty();
+        first.CacheControl.Should().Be("no-store");
+        first.Html.Should().Contain($" nonce=\"{first.Nonce}\"");
+        // A dynamic nonce must be unique per request so it cannot be replayed.
+        second.Nonce.Should().NotBe(first.Nonce);
+    }
+
+    [Fact]
+    public void Process_ShouldAdvertiseVaryAndCache_ForStaticAsset()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        var result = ScalarRequestProcessor.Process(options, "/api/scalar/scalar.js", "scalar.js", true, null);
+
+        // Assert
+        result.VaryAcceptEncoding.Should().BeTrue();
+        result.CacheControl.Should().Be("no-cache");
+        result.AssetStream!.Dispose();
+    }
+
+    [Fact]
+    public void Process_ShouldReplaceDocumentNamePlaceholderInTitle_ForSingleDocument()
+    {
+        // Arrange
+        var options = new ScalarOptions { Title = "{documentName} reference" };
+
+        // Act
+        var result = ScalarRequestProcessor.Process(options, "/api/scalar/v3", "v3", false, null);
+
+        // Assert
+        result.Html.Should().Contain("<title>v3 reference</title>");
+    }
+
+    [Fact]
+    public void Process_ShouldStripRoutePrefix_WhenPathEqualsPrefixWithoutTrailingSlash()
+    {
+        // Arrange
+        var options = new ScalarOptions { RoutePrefix = "scalar" };
+
+        // Act: request path exactly equals the route prefix (no trailing slash, no remainder).
+        var result = ScalarRequestProcessor.Process(options, "/scalar", string.Empty, false, null);
+
+        // Assert: redirects to the trailing-slash form so relative asset URLs resolve.
+        result.StatusCode.Should().Be(302);
+        result.RedirectLocation.Should().Be("scalar/");
+    }
 }

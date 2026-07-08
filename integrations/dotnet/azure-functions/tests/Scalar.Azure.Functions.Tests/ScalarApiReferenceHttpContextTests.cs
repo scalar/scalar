@@ -15,7 +15,8 @@ public class ScalarApiReferenceHttpContextTests
         string path,
         string? routeRemainder,
         Action<ScalarOptions>? configure = null,
-        Action<DefaultHttpContext>? prepare = null)
+        Action<DefaultHttpContext>? prepare = null,
+        Action<ScalarOptions, HttpContext>? configureOptions = null)
     {
         var services = new ServiceCollection();
         services.AddScalarApiReference(configure ?? (_ => { }));
@@ -30,7 +31,7 @@ public class ScalarApiReferenceHttpContextTests
         var body = new MemoryStream();
         context.Response.Body = body;
 
-        await scalar.HandleAsync(context);
+        await scalar.HandleAsync(context, configureOptions);
 
         body.Position = 0;
         using var reader = new StreamReader(body);
@@ -118,5 +119,13 @@ public class ScalarApiReferenceHttpContextTests
         var (_, body) = await RunAsync("/api/scalar/", string.Empty, configure: options => options.BundleUrl = bundleUrl);
 
         body.Should().Contain($"<script src=\"{bundleUrl}\">");
+    }
+
+    [Fact]
+    public async Task HandleAsync_ShouldApplyPerRequestConfigureOptions()
+    {
+        var (_, body) = await RunAsync("/api/scalar/", string.Empty, configureOptions: (options, _) => options.Title = "Per-request title");
+
+        body.Should().Contain("<title>Per-request title</title>");
     }
 }
