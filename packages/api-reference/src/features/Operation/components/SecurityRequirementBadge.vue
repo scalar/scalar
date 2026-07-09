@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconLockSimple, ScalarIconLockSimpleOpen } from '@scalar/icons'
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import SecurityRequirementBadgeScheme from '@/features/Operation/components/SecurityRequirementBadgeScheme.vue'
@@ -12,6 +12,38 @@ const { requiredSecurity, hideLabel = false } = defineProps<{
   hideLabel?: boolean
 }>()
 const { translate } = useLocalization()
+
+/**
+ * The popover is built on a click-triggered Headless UI popover. To also open
+ * it on hover we drive the same trigger button programmatically: the button
+ * reflects the open state via `aria-expanded`, so we toggle it by dispatching a
+ * click. A short close delay bridges the gap between the badge and the panel so
+ * moving the pointer onto the popover keeps it open.
+ */
+const triggerRef = ref<HTMLButtonElement | null>(null)
+let closeTimeout: ReturnType<typeof setTimeout> | undefined
+
+const isOpen = () => triggerRef.value?.getAttribute('aria-expanded') === 'true'
+
+const openOnHover = () => {
+  clearTimeout(closeTimeout)
+  if (!isOpen()) {
+    triggerRef.value?.click()
+  }
+}
+
+const closeOnHover = () => {
+  clearTimeout(closeTimeout)
+  closeTimeout = setTimeout(() => {
+    if (isOpen()) {
+      triggerRef.value?.click()
+    }
+  }, 120)
+}
+
+const cancelClose = () => clearTimeout(closeTimeout)
+
+onBeforeUnmount(() => clearTimeout(closeTimeout))
 
 const label = computed(() =>
   requiredSecurity.state === 'required'
@@ -50,6 +82,7 @@ const isOrAlternatives = computed(
     v-if="requiredSecurity.state !== 'none'"
     placement="bottom-end">
     <button
+      ref="triggerRef"
       class="security-requirement-badge inline-flex w-fit shrink-0 items-center justify-center gap-1 text-sm"
       :class="
         requiredSecurity.state === 'optional'
@@ -57,7 +90,9 @@ const isOrAlternatives = computed(
           : 'text-c-1 font-medium'
       "
       type="button"
-      @click.stop>
+      @click.stop
+      @mouseenter="openOnHover"
+      @mouseleave="closeOnHover">
       <ScalarIconLockSimple
         v-if="requiredSecurity.state === 'required'"
         class="size-3"
@@ -69,7 +104,10 @@ const isOrAlternatives = computed(
       <span v-if="!hideLabel">{{ label }}</span>
     </button>
     <template #popover>
-      <div class="flex max-w-xs min-w-48 flex-col gap-1.5 p-2 text-sm">
+      <div
+        class="flex max-w-xs min-w-48 flex-col gap-1.5 p-2 text-sm"
+        @mouseenter="cancelClose"
+        @mouseleave="closeOnHover">
         <div class="font-medium">
           {{ verb }}
           <template v-if="isSingleScheme">
