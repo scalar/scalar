@@ -1,9 +1,11 @@
+import type { ApiReferencePlugin, PluginAuthState } from '@scalar/types/api-reference'
 import { renderToString } from '@vue/server-renderer'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
+import { authStorage } from '@/helpers/storage'
 
 enableAutoUnmount(afterEach)
 
@@ -716,5 +718,75 @@ Welcome to the API.
     await introductionToggle.trigger('click')
     expect(introductionButton.attributes('aria-expanded')).toBe('false')
     expect(introductionToggle.attributes('aria-expanded')).toBe('false')
+  })
+})
+
+describe('plugin auth accessor', () => {
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('reads the credentials the reference Authentication panel persists into the client store', async () => {
+    const slug = 'my-api'
+    const schemeName = 'apiKeyAuth'
+    const token = 'super-secret-token'
+
+    // Seed the persisted auth for this document, as if the user had entered it in the
+    // reference-side Authentication panel (which writes into the client store).
+    authStorage().setAuth(slug, {
+      secrets: {
+        [schemeName]: { type: 'apiKey', 'x-scalar-secret-token': token },
+      },
+      selected: { document: undefined, path: undefined },
+    })
+
+    // A plugin captures the read-only auth accessor it receives during `onInit`.
+    let capturedAuth: PluginAuthState | undefined
+
+    const authReaderPlugin: ApiReferencePlugin = () => ({
+      name: 'auth-reader',
+      extensions: [],
+      hooks: {
+        onInit: ({ auth }) => {
+          capturedAuth = auth
+        },
+      },
+    })
+
+    mount(ApiReference, {
+      props: {
+        configuration: {
+          slug,
+          persistAuth: true,
+          plugins: [authReaderPlugin],
+          content: {
+            openapi: '3.1.0',
+            info: { title: 'My API', version: '1.0.0' },
+            components: {
+              securitySchemes: {
+                [schemeName]: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+              },
+            },
+            paths: {},
+          },
+        },
+      },
+    })
+
+    // Let the document load so the persisted auth is applied to the client store.
+    await flushPromises()
+
+    expect(capturedAuth).toBeDefined()
+
+    // The plugin must see the credentials that were persisted into the client store.
+    // Before the fix the accessor read from the (empty) workspace store, so this was `undefined`.
+    expect(capturedAuth?.getAuthSecrets(slug, schemeName)).toMatchObject({
+      type: 'apiKey',
+      'x-scalar-secret-token': token,
+    })
+    expect(capturedAuth?.export()[slug]?.secrets?.[schemeName]).toMatchObject({
+      type: 'apiKey',
+      'x-scalar-secret-token': token,
+    })
   })
 })
