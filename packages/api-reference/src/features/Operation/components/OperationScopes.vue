@@ -2,7 +2,10 @@
 import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
-import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
+import {
+  getRequiredScopeGroups,
+  type RequiredSecurity,
+} from '@/features/Operation/helpers/get-required-security'
 
 const { requiredSecurity } = defineProps<{
   requiredSecurity: RequiredSecurity
@@ -11,35 +14,33 @@ const { requiredSecurity } = defineProps<{
 const { translate } = useLocalization()
 
 /**
- * All OAuth scopes required by the operation, de-duplicated and kept in
- * declaration order. Scopes are only populated for OAuth2 / OpenID Connect
- * schemes, so this stays empty for other auth types.
+ * Required OAuth scopes grouped by security alternative (OR). A single group is the
+ * common case and renders as a plain list. Multiple groups are kept separate so that
+ * mutually exclusive scope sets are not implied to be required all at once.
  */
-const scopes = computed(() => {
-  const collected = new Set<string>()
-
-  for (const group of requiredSecurity.requirements) {
-    for (const scheme of group.schemes) {
-      for (const scope of scheme.scopes) {
-        collected.add(scope)
-      }
-    }
-  }
-
-  return [...collected]
-})
+const scopeGroups = computed(() => getRequiredScopeGroups(requiredSecurity))
 </script>
 
 <template>
   <div
-    v-if="scopes.length"
+    v-if="scopeGroups.length"
     class="mt-6">
     <div class="text-c-1 mt-3 mb-3 text-lg leading-[1.45] font-medium">
       {{ translate('authentication.scopes') }}
     </div>
-    <ul class="mb-3 list-none p-0 text-sm">
+    <!-- Multiple alternatives: satisfying any one group's scopes is enough (OR). -->
+    <div
+      v-if="scopeGroups.length > 1"
+      class="text-c-2 mb-2 text-sm">
+      {{ translate('authentication.oneOf') }}
+    </div>
+    <ul
+      v-for="(group, index) in scopeGroups"
+      :key="index"
+      class="mb-3 list-none p-0 text-sm"
+      :class="{ 'mt-3 border-t pt-3': scopeGroups.length > 1 && index > 0 }">
       <li
-        v-for="scope in scopes"
+        v-for="scope in group"
         :key="scope"
         class="font-code text-c-2">
         {{ scope }}
