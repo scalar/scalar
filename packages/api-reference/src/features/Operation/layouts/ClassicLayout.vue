@@ -30,6 +30,7 @@ import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import {
@@ -222,6 +223,9 @@ const { copyToClipboard } = useClipboard()
           v-if="Object.keys(operationExtensions).length > 0"
           class="operation-details-card-item">
           <SpecificationExtension :value="operationExtensions" />
+        </div>
+        <div class="operation-details-card-item">
+          <OperationScopes :requiredSecurity />
         </div>
         <div class="operation-details-card-item">
           <OperationParameters

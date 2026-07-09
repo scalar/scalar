@@ -226,5 +226,6 @@ export const zhCn = {
     oneOf: '其中之一：',
     required: '需要身份认证',
     requires: '需要',
+    scopes: 'OAuth 作用域',
   },
 } satisfies ApiReferenceTranslations
