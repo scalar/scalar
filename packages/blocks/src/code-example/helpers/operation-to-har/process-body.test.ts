@@ -742,6 +742,85 @@ describe('processBody', () => {
       })
     })
 
+    it('serializes an array of objects as a single JSON array part (issue #9688)', () => {
+      const content = {
+        'multipart/form-data': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              asset_name: { type: 'string', example: 'asset name' },
+              items: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    item_id: { type: 'string', example: 'item-abc' },
+                    item_name: { type: 'string', example: 'english audio' },
+                    is_default: { type: 'boolean', example: true },
+                  },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'asset_name', value: 'asset name' },
+          {
+            name: 'items',
+            value: JSON.stringify([{ item_id: 'item-abc', item_name: 'english audio', is_default: true }]),
+            contentType: 'application/json',
+          },
+        ],
+      })
+    })
+
+    it('serializes an array of multiple objects as a single JSON array part (issue #9688)', () => {
+      const content = {
+        'multipart/form-data': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              items: {
+                type: 'array',
+                example: [{ id: 'a' }, { id: 'b' }],
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                  },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'items',
+            value: JSON.stringify([{ id: 'a' }, { id: 'b' }]),
+            contentType: 'application/json',
+          },
+        ],
+      })
+    })
+
     it('handles multipart form data with primitive values', () => {
       const content = {
         'multipart/form-data': {
