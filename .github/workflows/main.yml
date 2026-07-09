@@ -338,6 +338,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-netlify
     timeout-minutes: 10
     concurrency:
       group: deploy-components-${{ github.ref }}
