@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import galaxy from '@scalar/galaxy/latest.json' with { type: 'json' }
+import type { HtmlRenderingConfiguration } from '@scalar/types/api-reference'
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('hiddenClients', () => {
@@ -162,11 +163,13 @@ test.describe('hiddenClients', () => {
 
   test('handles non-existent names gracefully', async ({ page }) => {
     const example = await serveExample({
+      // Intentionally invalid target and client names to verify they are ignored at runtime.
+      // Cast past the typed config, which only allows real ids.
       hiddenClients: {
         nonexistent: true,
         alsoNonexistent: ['fetch'],
         js: ['does-not-exist'],
-      },
+      } as unknown as HtmlRenderingConfiguration['hiddenClients'],
     })
 
     await page.goto(example)
