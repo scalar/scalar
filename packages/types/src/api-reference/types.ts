@@ -686,8 +686,8 @@ type ExtendedConfiguration = {
     | true
   /** Determine the HTTP client that is selected by default */
   defaultHttpClient?: {
-    targetKey: string
-    clientKey: string
+    targetKey: TargetId
+    clientKey: ClientId<TargetId>
   }
   /** Custom CSS to be added to the page */
   customCss?: string
