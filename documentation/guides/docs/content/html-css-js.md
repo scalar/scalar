@@ -69,15 +69,34 @@ Defined in [theme presets](https://github.com/scalar/scalar/blob/main/packages/t
 
 Defined in [variables.css](https://github.com/scalar/scalar/blob/main/packages/themes/src/base/variables.css)
 
-| Variable             | Description                     |
-| -------------------- | ------------------------------- |
-| `--scalar-font`      | Default font family             |
-| `--scalar-font-code` | Monospace/code font family      |
-| `--scalar-radius`    | Default border radius (3px)     |
-| `--scalar-radius-lg` | Large border radius (6px)       |
-| `--scalar-radius-xl` | Extra large border radius (8px) |
-| `--scalar-paragraph` | Paragraph font size (16px)      |
-| `--scalar-small`     | Small text font size (14px)     |
+| Variable               | Description                      |
+| ---------------------- | -------------------------------- |
+| `--scalar-font`        | Default font family              |
+| `--scalar-font-code`   | Monospace/code font family       |
+| `--scalar-radius`      | Default border radius (3px)      |
+| `--scalar-radius-lg`   | Large border radius (6px)        |
+| `--scalar-radius-xl`   | Extra large border radius (8px)  |
+| `--scalar-radius-2xl`  | 2x large border radius (12px)    |
+| `--scalar-radius-3xl`  | 3x large border radius (16px)    |
+| `--scalar-radius-full` | Fully rounded pills and circles  |
+| `--scalar-paragraph`   | Paragraph font size (16px)       |
+| `--scalar-small`       | Small text font size (14px)      |
+
+**Border radius**
+
+Every border radius derives from `--scalar-radius`, so overriding that one variable rescales the whole
+interface. Set it to `0` for square corners throughout.
+
+```css
+:root {
+  --scalar-radius: 0; /* everything squares off, pills and circles included */
+}
+```
+
+Override `--scalar-radius` on `:root`. A custom property substitutes `var()` at the element where it is
+declared, so setting the base further down the tree (on `.scalar-app`, for instance) moves the base
+without moving any of the radii derived from it. Individual tokens can still be overridden on their own
+if you want to break the ratio.
 
 ### Using Scalar Components
 

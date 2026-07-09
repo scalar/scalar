@@ -63,7 +63,7 @@ Reference `--scalar-*` variables in CSS; in components, prefer the Tailwind clas
 
 **Semantic colors** (`--scalar-color-{green,red,yellow,blue,orange,purple}`, plus `--scalar-color-danger` / `--scalar-color-alert` and matching `--scalar-background-*`). Light: green `#069061`, red `#ef0006`, yellow `#edbe20`, blue `#0082d0`, orange `#ff5800`, purple `#5203d1`.
 
-**Radii:** `--scalar-radius` `3px`, `--scalar-radius-lg` `6px`, `--scalar-radius-xl` `8px`.
+**Radii:** `--scalar-radius` `3px`, `--scalar-radius-lg` `6px`, `--scalar-radius-xl` `8px`, `--scalar-radius-2xl` `12px`, `--scalar-radius-3xl` `16px`, `--scalar-radius-full` pill. All derive from `--scalar-radius`, so overriding it on `:root` rescales every corner, and `0` makes the interface square.
 
 **Typography**
 - Content sizes: heading-1 `24px`, heading-2 `20px`, heading-3–6 `16px`, paragraph `16px`, small `14px`, mini `13px`, micro `12px`.
@@ -80,7 +80,7 @@ Scalar maps `--scalar-*` variables onto a custom Tailwind theme. In components, 
 - **Themed:** `text-green` / `bg-green`, plus `red`, `yellow`, `blue`, `orange`, `purple`.
 - **Border:** `border` (uses `--scalar-border-color`, default width `0.5px`); `shadow-border` for an inset hairline.
 - **Shadow:** `shadow` / `shadow-md` (shadow-1), `shadow-lg` (shadow-2), `shadow-sm`.
-- **Radius:** `rounded` & `rounded-md` (3px), `rounded-lg` (6px), `rounded-xl` (8px), `rounded-full`.
+- **Radius:** `rounded` & `rounded-md` (3px), `rounded-lg` (6px), `rounded-xl` (8px), `rounded-2xl` (12px), `rounded-3xl` (16px), `rounded-full` (pill). No `rounded-sm`.
 - **Type:** `font-sans` (Inter), `font-code` (JetBrains Mono); sizes `text-3xs` 10, `text-xxs`/`text-xs` 12, `text-sm` 13, `text-base` 14, `text-lg` 16, `text-xl` 21; weights `font-normal` 400, `font-medium` 500, `font-bold` 600.
 - **Spacing:** base unit is `4px`, so `p-1` = 4px, `p-2` = 8px, `gap-3` = 12px, etc. `h-header` = 48px.
 - **Breakpoints:** `xs` 400, `sm` 600, `md` 800, `lg` 1000, `xl` 1200.

@@ -1,8 +1,22 @@
 :root {
   --scalar-border-width: 0.5px;
+
+  /**
+   * The radius scale derives from --scalar-radius, so overriding that single variable rescales
+   * every corner in the UI. Setting it to 0 makes the whole interface square.
+   *
+   * Override --scalar-radius on :root. A custom property substitutes var() at the element where it
+   * is declared, so setting the base further down the tree (on .scalar-app, say) moves the base
+   * without moving anything derived from it.
+   *
+   * Any individual token may still be overridden on its own to break the ratio.
+   */
   --scalar-radius: 3px;
-  --scalar-radius-lg: 6px;
-  --scalar-radius-xl: 8px;
+  --scalar-radius-lg: calc(var(--scalar-radius) * 2); /* 6px */
+  --scalar-radius-xl: calc(var(--scalar-radius) * 8 / 3); /* 8px */
+  --scalar-radius-2xl: calc(var(--scalar-radius) * 4); /* 12px */
+  --scalar-radius-3xl: calc(var(--scalar-radius) * 16 / 3); /* 16px */
+  --scalar-radius-full: calc(var(--scalar-radius) * 9999); /* pill */
 
   /* TYPOGRAPHY ------------------------------------ */
   --scalar-font:
