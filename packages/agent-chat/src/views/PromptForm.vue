@@ -306,7 +306,7 @@ const chatError = useChatError()
     var(--scalar-background-1)
   );
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: 16px;
+  border-radius: var(--scalar-radius-3xl);
   width: 100%;
   position: relative;
   /* visually hides overflowing text below */
@@ -321,7 +321,7 @@ const chatError = useChatError()
   box-shadow:
     var(--scalar-shadow-1),
     0 0 0 var(--scalar-border-width) var(--scalar-border-color);
-  border-radius: 16px;
+  border-radius: var(--scalar-radius-3xl);
 }
 
 .inputActionsContainer {
@@ -351,7 +351,7 @@ const chatError = useChatError()
   height: 28px;
   align-items: center;
   display: flex;
-  border-radius: 16px;
+  border-radius: var(--scalar-radius-3xl);
   padding: 0 8px;
   pointer-events: all;
   z-index: 1;
@@ -366,7 +366,7 @@ const chatError = useChatError()
   width: 24px;
   height: 24px;
   margin-right: -6px;
-  border-radius: 50%;
+  border-radius: var(--scalar-radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -416,7 +416,7 @@ const chatError = useChatError()
   height: 28px;
   width: 28px;
   font-weight: var(--scalar-bold);
-  border-radius: 100%;
+  border-radius: var(--scalar-radius-full);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -438,7 +438,7 @@ const chatError = useChatError()
 
 .settingsButton {
   color: var(--scalar-color-3) !important;
-  border-radius: 50% !important;
+  border-radius: var(--scalar-radius-full) !important;
   margin: 0 !important;
   z-index: 1;
 }
@@ -451,7 +451,7 @@ const chatError = useChatError()
 
 .sendButton {
   background: var(--scalar-color-blue) !important;
-  border-radius: 50% !important;
+  border-radius: var(--scalar-radius-full) !important;
   margin: 0 !important;
   z-index: 1;
   border: var(--scalar-border-width) solid var(--scalar-color-blue);
@@ -507,7 +507,7 @@ const chatError = useChatError()
 .sendCheckboxContinue:has(input) {
   display: flex;
   align-items: center;
-  border-radius: 14px;
+  border-radius: var(--scalar-radius-3xl);
   background: var(--scalar-background-2);
   box-shadow: 0 0 0 1.5px var(--scalar-background-2);
   color: var(--scalar-color-2);
@@ -553,7 +553,7 @@ const chatError = useChatError()
 .addAPIContext {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: var(--scalar-radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -565,7 +565,7 @@ const chatError = useChatError()
   cursor: pointer;
   height: inherit;
   align-items: center;
-  border-radius: 14px;
+  border-radius: var(--scalar-radius-3xl);
   gap: 5px;
   margin: 0px 5px;
 }
@@ -583,7 +583,7 @@ const chatError = useChatError()
   width: inherit;
   height: inherit;
   padding: 2px;
-  border-radius: 50%;
+  border-radius: var(--scalar-radius-full);
   background: var(--scalar-background-2);
 }
 </style>

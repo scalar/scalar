@@ -61,7 +61,7 @@ const { navigateToSignup } = useSignupLink()
     var(--scalar-background-1) 95%
   );
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--scalar-radius-3xl) var(--scalar-radius-3xl) 0 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -84,7 +84,7 @@ const { navigateToSignup } = useSignupLink()
   display: flex;
   align-items: center;
   font-weight: var(--scalar-semibold);
-  border-radius: 50px;
+  border-radius: var(--scalar-radius-full);
   padding: 6px 12px;
 }
 
@@ -123,7 +123,7 @@ const { navigateToSignup } = useSignupLink()
   bottom: 70px;
   box-shadow: var(--scalar-shadow-2);
   background: var(--scalar-background-1);
-  border-radius: 16px;
+  border-radius: var(--scalar-radius-3xl);
   pointer-events: none;
   padding: 12px;
   transform: translate3d(0, -5px, 0);

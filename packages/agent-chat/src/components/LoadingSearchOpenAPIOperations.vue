@@ -16,7 +16,7 @@
   justify-content: center;
   position: relative;
   background: var(--scalar-background-1);
-  border-radius: 50%;
+  border-radius: var(--scalar-radius-full);
 }
 
 .playIcon::before {
@@ -30,7 +30,7 @@
   border-style: solid;
   border-color: currentcolor currentcolor transparent;
   border-image: initial;
-  border-radius: 50%;
+  border-radius: var(--scalar-radius-full);
   background: var(--scalar-background-1);
   animation: 0.42s linear 0s infinite normal none running rotation;
 }
@@ -49,7 +49,7 @@
   width: 100%;
   height: 100%;
   z-index: 1;
-  border-radius: 50%;
+  border-radius: var(--scalar-radius-full);
 }
 
 @keyframes rotation {

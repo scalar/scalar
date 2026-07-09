@@ -27,7 +27,7 @@ const HIDDEN_ERROR_CODES: string[] = [AgentErrorCodes.LIMIT_REACHED]
   margin-bottom: -16px;
   padding: 8px 8px 24px 12px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--scalar-radius-3xl) var(--scalar-radius-3xl) 0 0;
   background: color-mix(
     in srgb,
     var(--scalar-color-red),

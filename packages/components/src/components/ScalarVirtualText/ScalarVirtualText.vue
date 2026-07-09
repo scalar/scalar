@@ -350,13 +350,13 @@ const toAbsoluteIndex = (relativeIndex: number): number =>
 .scalar-virtual-text-highlight {
   background: var(--scalar-background-accent);
   color: inherit;
-  border-radius: 2px;
+  border-radius: var(--scalar-radius);
   padding: 1px 0;
 }
 
 .scalar-virtual-text-highlight-active {
   background: var(--scalar-color-accent);
   color: var(--scalar-background-1);
-  border-radius: 2px;
+  border-radius: var(--scalar-radius);
 }
 </style>

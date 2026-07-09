@@ -24,7 +24,7 @@ const { translate } = useLocalization()
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   margin: auto;
   padding: 8px 12px 8px 16px;
-  border-radius: 30px;
+  border-radius: var(--scalar-radius-full);
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-small);

@@ -346,7 +346,7 @@ const html = computed(() => {
   }
 
   .markdown summary {
-    border-radius: 2.5px;
+    border-radius: var(--scalar-radius);
     display: flex;
     align-items: flex-start;
     gap: 8px;
@@ -463,7 +463,7 @@ const html = computed(() => {
     background-color: var(--scalar-background-2);
     box-shadow: 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
     font-size: var(--scalar-micro);
-    border-radius: 2px;
+    border-radius: var(--scalar-radius);
     padding: 0 3px;
   }
 

@@ -409,7 +409,7 @@ async function fetchExampleSpecification() {
   aspect-ratio: 1;
   position: relative;
   box-shadow: var(--scalar-shadow-2);
-  border-radius: 50%;
+  border-radius: var(--scalar-radius-full);
 }
 .start-logo:before {
   content: '';
@@ -419,7 +419,7 @@ async function fetchExampleSpecification() {
   top: -100%;
   position: absolute;
   z-index: -1;
-  border-radius: 50%;
+  border-radius: var(--scalar-radius-full);
   background-size: 24px 24px;
   box-shadow:
     inset 0 0 50px var(--scalar-background-1),
@@ -433,7 +433,7 @@ async function fetchExampleSpecification() {
   height: auto;
   background: var(--scalar-background-1);
   padding: 3px;
-  border-radius: 50%;
+  border-radius: var(--scalar-radius-full);
   position: relative;
 }
 @media screen and (max-width: 600px) {
