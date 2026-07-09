@@ -1,6 +1,6 @@
 import { type ZodType, z } from 'zod'
 
-import type { TargetId } from '../snippetz'
+import type { ClientId, TargetId } from '../snippetz'
 import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 import { NEW_PROXY_URL, OLD_PROXY_URL, baseConfigurationSchema } from './base-configuration'
@@ -143,7 +143,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   defaultHttpClient: z
     .object({
       targetKey: z.custom<TargetId>(),
-      clientKey: z.string(),
+      clientKey: z.custom<ClientId<TargetId>>(),
     })
     .optional(),
   /** Custom CSS to be added to the page */
