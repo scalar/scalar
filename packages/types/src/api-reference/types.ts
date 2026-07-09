@@ -1,5 +1,6 @@
 import type { PartialDeep } from 'type-fest'
 
+import type { AvailableClient, ClientId, TargetId } from '../snippetz'
 import type { PluginAuthState } from './api-reference-plugin'
 
 /** Some common properties used in all security schemes */
@@ -656,8 +657,16 @@ type ExtendedConfiguration = {
   metaData?: any
   /** Path to a favicon image */
   favicon?: string
-  /** List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients */
-  hiddenClients?: Record<string, boolean | string[]> | string[] | true
+  /**
+   * List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients
+   *
+   * An entry can be a target (`'node'`), a client name (`'fetch'`), or a full id (`'node/fetch'`). The record form is
+   * keyed by target, with `true` to hide the whole target or a list of client names to hide within it.
+   */
+  hiddenClients?:
+    | Partial<Record<TargetId, boolean | ClientId<TargetId>[]>>
+    | Array<TargetId | ClientId<TargetId> | AvailableClient>
+    | true
   /** Determine the HTTP client that is selected by default */
   defaultHttpClient?: {
     targetKey: string
