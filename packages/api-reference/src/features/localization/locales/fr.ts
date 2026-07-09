@@ -230,5 +230,6 @@ export const fr = {
     oneOf: 'l’un des éléments :',
     required: 'Authentification requise',
     requires: 'Requiert',
+    scopes: 'Portées OAuth',
   },
 } satisfies ApiReferenceTranslations
