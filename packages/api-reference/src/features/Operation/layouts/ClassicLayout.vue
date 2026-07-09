@@ -32,7 +32,10 @@ import OperationParameters from '@/features/Operation/components/OperationParame
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
-import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
+import {
+  getRequiredScopeGroups,
+  type RequiredSecurity,
+} from '@/features/Operation/helpers/get-required-security'
 import {
   getOperationStability,
   getOperationStabilityColor,
@@ -83,6 +86,11 @@ const { translate } = useLocalization()
 
 const operationTitle = computed(() => operation.summary || path || '')
 const operationExtensions = computed(() => getXKeysFromObject(operation))
+
+/** Whether the operation requires any OAuth scopes, used to skip the empty card item. */
+const hasRequiredScopes = computed(
+  () => getRequiredScopeGroups(requiredSecurity).length > 0,
+)
 
 /** Track the selected request body content type so the code sample stays in sync */
 const selectedRequestBodyContentType = ref<string | undefined>()
@@ -224,7 +232,9 @@ const { copyToClipboard } = useClipboard()
           class="operation-details-card-item">
           <SpecificationExtension :value="operationExtensions" />
         </div>
-        <div class="operation-details-card-item">
+        <div
+          v-if="hasRequiredScopes"
+          class="operation-details-card-item">
           <OperationScopes :requiredSecurity />
         </div>
         <div class="operation-details-card-item">

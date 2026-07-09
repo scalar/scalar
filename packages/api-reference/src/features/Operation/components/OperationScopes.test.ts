@@ -15,12 +15,22 @@ const withScopes: RequiredSecurity = {
   ],
 }
 
-/** Two OR alternatives that reference the same scope */
+/** A single OAuth2 scheme that lists the same scope twice */
 const duplicateScopes: RequiredSecurity = {
   state: 'required',
   requirements: [
+    {
+      schemes: [{ name: 'oauth2', scheme: { type: 'oauth2', flows: {} }, scopes: ['read:items', 'read:items'] }],
+    },
+  ],
+}
+
+/** Two OR alternatives, each requiring a different scope set */
+const alternativeScopes: RequiredSecurity = {
+  state: 'required',
+  requirements: [
     { schemes: [{ name: 'oauth2', scheme: { type: 'oauth2', flows: {} }, scopes: ['read:items'] }] },
-    { schemes: [{ name: 'oidc', scheme: { type: 'openIdConnect', openIdConnectUrl: '' }, scopes: ['read:items'] }] },
+    { schemes: [{ name: 'oidc', scheme: { type: 'openIdConnect', openIdConnectUrl: '' }, scopes: ['admin'] }] },
   ],
 }
 
@@ -40,10 +50,19 @@ describe('OperationScopes', () => {
     expect(wrapper.text()).toContain('write:items')
   })
 
-  it('de-duplicates scopes shared across alternatives', () => {
+  it('de-duplicates scopes within an alternative', () => {
     const wrapper = mount(OperationScopes, { props: { requiredSecurity: duplicateScopes } })
     expect(wrapper.findAll('li')).toHaveLength(1)
     expect(wrapper.text()).toContain('read:items')
+  })
+
+  it('keeps mutually exclusive alternatives separate instead of merging them', () => {
+    const wrapper = mount(OperationScopes, { props: { requiredSecurity: alternativeScopes } })
+    // One list per OR alternative, so exclusive scope sets are not implied to be required together.
+    expect(wrapper.findAll('ul')).toHaveLength(2)
+    expect(wrapper.findAll('li')).toHaveLength(2)
+    expect(wrapper.text()).toContain('read:items')
+    expect(wrapper.text()).toContain('admin')
   })
 
   it('renders nothing when no scopes are required', () => {
