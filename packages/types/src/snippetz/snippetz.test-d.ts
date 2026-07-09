@@ -1,6 +1,6 @@
 import { assertType, describe, it } from 'vitest'
 
-import type { ClientId, TargetId } from './index'
+import type { ClientId, Plugin, TargetId } from './index'
 
 describe('TargetId', () => {
   it('has node as a target', () => {
@@ -41,5 +41,36 @@ describe('TargetId', () => {
 
     // @ts-expect-error client does exist, but not for the given target
     assertType<ClientId<'shell'>>(client)
+  })
+})
+
+describe('Plugin', () => {
+  it('allows a client that belongs to the target', () => {
+    assertType<Plugin>({
+      target: 'node',
+      client: 'fetch',
+      title: 'Fetch',
+      generate: () => '',
+    })
+  })
+
+  it('rejects a client from a different target', () => {
+    // @ts-expect-error curl is a shell client, not a node client
+    assertType<Plugin>({
+      target: 'node',
+      client: 'curl',
+      title: 'cURL',
+      generate: () => '',
+    })
+  })
+
+  it('rejects a title used as a client id', () => {
+    assertType<Plugin>({
+      target: 'node',
+      // @ts-expect-error the client id is lowercase 'fetch', not the title 'Fetch'
+      client: 'Fetch',
+      title: 'Fetch',
+      generate: () => '',
+    })
   })
 })

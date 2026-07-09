@@ -138,7 +138,7 @@ const buildData = (
   }
 }
 
-export const createAxiosPlugin = (target: Extract<TargetId, 'js' | 'node'>): Plugin => ({
+export const createAxiosPlugin = <T extends Extract<TargetId, 'js' | 'node'>>(target: T): Plugin => ({
   target,
   client: 'axios',
   title: 'Axios',
