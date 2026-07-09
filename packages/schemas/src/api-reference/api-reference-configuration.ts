@@ -1,5 +1,7 @@
 import { DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
+import type { ClientId, TargetId } from '@scalar/types/snippetz'
 import {
+  type LiteralSchema,
   any,
   array,
   boolean,
@@ -110,9 +112,13 @@ export const apiReferenceConfigurationSchema = intersection([
       },
     ),
     defaultHttpClient: optional(
+      // The keys stay permissive strings at runtime, so `coerce` leaves an unknown value
+      // untouched (a real union would rewrite it to the first client). The cast only tightens
+      // the type, so config authors get autocomplete and an error on typos like the display
+      // title 'Fetch' (the client id is the lowercase 'fetch').
       object({
-        targetKey: string(),
-        clientKey: string(),
+        targetKey: string() as unknown as LiteralSchema<TargetId>,
+        clientKey: string() as unknown as LiteralSchema<ClientId<TargetId>>,
       }),
       {
         typeComment: 'Determine the HTTP client that is selected by default',
