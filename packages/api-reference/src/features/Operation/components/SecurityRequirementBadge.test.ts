@@ -1,4 +1,5 @@
 import { disableConsoleError, disableConsoleWarn } from '@scalar/helpers/testing/console-spies'
+import { sleep } from '@scalar/helpers/testing/sleep'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -140,5 +141,46 @@ describe('SecurityRequirementBadge', () => {
 
     wrapper.unmount()
     enclosing.remove()
+  })
+
+  it('opens the popover on hover', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    await wrapper.find('.security-requirement-badge').trigger('mouseenter')
+    await nextTick()
+
+    expect(document.body.textContent).toContain('Requires')
+
+    wrapper.unmount()
+  })
+
+  it('closes the popover after the pointer leaves', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    const badge = wrapper.find('.security-requirement-badge')
+    await badge.trigger('mouseenter')
+    await nextTick()
+    expect(document.body.textContent).toContain('Requires')
+
+    await badge.trigger('mouseleave')
+    // The close is deferred so the pointer can travel onto the panel.
+    await sleep(150)
+    await nextTick()
+
+    expect(document.body.textContent).not.toContain('Requires')
+
+    wrapper.unmount()
   })
 })
