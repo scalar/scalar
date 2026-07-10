@@ -160,6 +160,28 @@ describe('SecurityRequirementBadge', () => {
     wrapper.unmount()
   })
 
+  it('stays open when the click of a hover gesture immediately follows', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    const badge = wrapper.find('.security-requirement-badge')
+    // A single pointer gesture fires mouseenter (opens) then click.
+    await badge.trigger('mouseenter')
+    await nextTick()
+    await badge.trigger('click')
+    await nextTick()
+
+    // The click must not toggle the freshly hover-opened popover back closed.
+    expect(document.body.textContent).toContain('Requires')
+
+    wrapper.unmount()
+  })
+
   it('closes the popover after the pointer leaves', async () => {
     disableConsoleError()
     disableConsoleWarn()

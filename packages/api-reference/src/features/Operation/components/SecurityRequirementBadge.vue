@@ -25,16 +25,44 @@ let closeTimeout: ReturnType<typeof setTimeout> | undefined
 
 const isOpen = () => triggerRef.value?.getAttribute('aria-expanded') === 'true'
 
+/**
+ * Swallow the real click that immediately follows a hover-open. A single
+ * pointer gesture fires `mouseenter` (which opens the popover here) and then a
+ * `click` — without this guard that click would toggle the freshly opened
+ * popover straight back closed, so a tap or click from outside could never open
+ * it. Runs in the capture phase on the document so it beats Headless UI's own
+ * click handler on the trigger button, then disarms itself.
+ */
+const swallowNextClick = (event: MouseEvent) => {
+  document.removeEventListener('click', swallowNextClick, true)
+  const target = event.target as Node | null
+  if (target && triggerRef.value?.contains(target)) {
+    event.stopImmediatePropagation()
+    event.preventDefault()
+  }
+}
+
+const armClickGuard = () =>
+  document.addEventListener('click', swallowNextClick, true)
+const disarmClickGuard = () =>
+  document.removeEventListener('click', swallowNextClick, true)
+
 const openOnHover = () => {
   clearTimeout(closeTimeout)
-  if (!isOpen()) {
-    triggerRef.value?.click()
+  if (isOpen()) {
+    return
   }
+  // Clear any stale guard so it cannot swallow the synthetic open click below.
+  disarmClickGuard()
+  triggerRef.value?.click()
+  // Arm only after opening, so the guard targets the upcoming real click.
+  armClickGuard()
 }
 
 const closeOnHover = () => {
   clearTimeout(closeTimeout)
   closeTimeout = setTimeout(() => {
+    disarmClickGuard()
     if (isOpen()) {
       triggerRef.value?.click()
     }
@@ -43,7 +71,10 @@ const closeOnHover = () => {
 
 const cancelClose = () => clearTimeout(closeTimeout)
 
-onBeforeUnmount(() => clearTimeout(closeTimeout))
+onBeforeUnmount(() => {
+  clearTimeout(closeTimeout)
+  disarmClickGuard()
+})
 
 const label = computed(() =>
   requiredSecurity.state === 'required'
