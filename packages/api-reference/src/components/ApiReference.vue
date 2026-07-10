@@ -175,6 +175,25 @@ const isSidebarOpen = ref(false)
  */
 provideUseId(() => useId())
 
+/**
+ * Stable id for the SSR state payload (see `ssrState` below).
+ *
+ * `useId` returns the same value on the server and the client for a given
+ * component position, so the client can find the exact `<script>` the server
+ * emitted and hydrate from it. The prefix keeps the id from colliding with the
+ * bare ids Headless UI generates from the same sequence.
+ */
+const ssrStateId = `scalar-ssr-state-${useId()}`
+
+/**
+ * True only while the component is being server-rendered.
+ *
+ * `onServerPrefetch` runs exclusively during `renderToString`, so this flag lets
+ * us serialize the store state on the server without relying on a `typeof window`
+ * check (which is unreliable under jsdom, where `window` always exists).
+ */
+const isServerRendering = ref(false)
+
 // ---------------------------------------------------------------------------
 /**
  * Configuration Handling
@@ -437,6 +456,65 @@ const clientStore = createWorkspaceStore({
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
     }),
   ],
+})
+
+// ---------------------------------------------------------------------------
+/**
+ * SSR state transfer.
+ *
+ * On the server the document is preloaded (`onServerPrefetch`) before rendering,
+ * so the markup already contains the full reference. On the client the document
+ * is loaded asynchronously (`onBeforeMount`), which Vue does not wait for — so
+ * without help the first client render is an empty loading state and hydration
+ * mismatches the server.
+ *
+ * To keep both sides in sync we serialize the loaded stores into a `<script>`
+ * payload during server rendering, then read it back synchronously here so the
+ * client's first render already has the document. The redundant client load in
+ * `onBeforeMount` then becomes a no-op because the document is already present.
+ *
+ * This is self-contained: the payload travels inside the component's own markup,
+ * so no host wiring is required.
+ */
+
+/** Read and apply the server payload synchronously, before the first client render. */
+const ssrPayload =
+  typeof document !== 'undefined'
+    ? (document.getElementById(ssrStateId)?.textContent ?? '')
+    : ''
+
+if (ssrPayload) {
+  try {
+    const state = JSON.parse(ssrPayload)
+    workspaceStore.loadWorkspace(state.workspace)
+    clientStore.loadWorkspace(state.client)
+  } catch (error) {
+    console.error('Failed to hydrate Scalar SSR state', error)
+  }
+}
+
+/**
+ * The serialized store state emitted into the markup.
+ *
+ * Every `<` is escaped so a closing script tag inside the document can never end
+ * the payload early. Rendered with `v-html` to avoid Vue escaping the JSON as text.
+ */
+const ssrState = computed(() => {
+  // Client hydration: re-emit the exact bytes the server sent so the node matches.
+  if (ssrPayload) {
+    return ssrPayload
+  }
+
+  // Server render: serialize the freshly loaded stores for the client to pick up.
+  if (isServerRendering.value) {
+    return JSON.stringify({
+      workspace: workspaceStore.exportWorkspace(),
+      client: clientStore.exportWorkspace(),
+    }).replaceAll('<', '\\u003C')
+  }
+
+  // Plain client-only mount: there is nothing to transfer.
+  return ''
 })
 
 /**
@@ -1034,8 +1112,11 @@ watch(
   },
 )
 
-/** Preload the first document during SSR */
-onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
+/** Preload the first document during SSR and flag the render so state is serialized */
+onServerPrefetch(async () => {
+  isServerRendering.value = true
+  await changeSelectedDocument(activeSlug.value)
+})
 
 /** Load the first document on page load */
 onBeforeMount(async () => {
@@ -1365,6 +1446,13 @@ const showMCPButton = computed(() => {
     <component
       :is="'style'"
       v-html="styleContent" />
+    <!-- SSR state so the client can hydrate the document synchronously (see `ssrState`) -->
+    <component
+      :is="'script'"
+      v-if="ssrState"
+      :id="ssrStateId"
+      type="application/json"
+      v-html="ssrState" />
     <!-- eslint-enable vue/no-v-text-v-html-on-component -->
     <div
       ref="documentEl"
