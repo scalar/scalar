@@ -2,8 +2,8 @@
 @theme inline {
   /* Border Radius */
   --radius-\*: initial;
-  --radius: var(--scalar-radius);
-  --radius-md: var(--scalar-radius);
+  --radius: var(--scalar-radius-md);
+  --radius-md: var(--scalar-radius-md);
   --radius-lg: var(--scalar-radius-lg);
   --radius-xl: var(--scalar-radius-xl);
   --radius-2xl: var(--scalar-radius-2xl);

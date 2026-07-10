@@ -222,7 +222,7 @@ const collisionRowTitle = computed(() => {
 }
 
 .postman-tree-row--collision {
-  border-radius: var(--scalar-radius);
+  border-radius: var(--scalar-radius-md);
   /* Same surface as `.postman-import-path-conflict-callout` — no extra stroke (avoids layout shift and harsh edges in the tree) */
   background-color: var(--scalar-background-danger);
 }

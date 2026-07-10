@@ -12,11 +12,26 @@
    * Any individual token may still be overridden on its own to break the ratio.
    */
   --scalar-radius: 3px;
-  --scalar-radius-lg: calc(var(--scalar-radius) * 2); /* 6px */
-  --scalar-radius-xl: calc(var(--scalar-radius) * 8 / 3); /* 8px */
-  --scalar-radius-2xl: calc(var(--scalar-radius) * 4); /* 12px */
-  --scalar-radius-3xl: calc(var(--scalar-radius) * 16 / 3); /* 16px */
-  --scalar-radius-full: calc(var(--scalar-radius) * 9999); /* pill */
+
+  /**
+   * Ceiling for the corners of anything that holds content.
+   *
+   * A large --scalar-radius must not curve a tall container so hard that it swallows what is inside
+   * it, which is what turns a dropdown into a crescent and a code block into a stadium. Every token
+   * below clamps to this, so pushing the base radius up rounds a component until it stops making
+   * sense, then stops.
+   *
+   * The ceiling sits above --scalar-radius-3xl, the largest step in the scale, so it never touches a
+   * default value. Only --scalar-radius-full is exempt, since a pill is supposed to run away.
+   */
+  --scalar-radius-max: 20px;
+
+  --scalar-radius-md: min(var(--scalar-radius), var(--scalar-radius-max)); /* 3px */
+  --scalar-radius-lg: min(calc(var(--scalar-radius) * 2), var(--scalar-radius-max)); /* 6px */
+  --scalar-radius-xl: min(calc(var(--scalar-radius) * 8 / 3), var(--scalar-radius-max)); /* 8px */
+  --scalar-radius-2xl: min(calc(var(--scalar-radius) * 4), var(--scalar-radius-max)); /* 12px */
+  --scalar-radius-3xl: min(calc(var(--scalar-radius) * 16 / 3), var(--scalar-radius-max)); /* 16px */
+  --scalar-radius-full: calc(var(--scalar-radius) * 9999); /* pill, deliberately uncapped */
 
   /* TYPOGRAPHY ------------------------------------ */
   --scalar-font:
@@ -68,6 +83,7 @@
   --scalar-sidebar-indent: 20px;
   --scalar-sidebar-padding: 12px;
 }
+
 .dark-mode {
   color-scheme: dark;
   --scalar-scrollbar-color: rgba(255, 255, 255, 0.18);

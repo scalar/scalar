@@ -4,13 +4,12 @@
 :root {
   --scalar-border-width: 1px;
 
-  /* Change --scalar-radius alone to rescale every corner, or set 0 for a fully square theme. */
+  /**
+   * Every other radius derives from this one, so changing it rescales every corner, and 0 gives a
+   * fully square theme. Corners on anything that holds content stop growing at --scalar-radius-max,
+   * so a large value rounds the interface rather than breaking it.
+   */
   --scalar-radius: 3px;
-  --scalar-radius-lg: calc(var(--scalar-radius) * 2); /* 6px */
-  --scalar-radius-xl: calc(var(--scalar-radius) * 8 / 3); /* 8px */
-  --scalar-radius-2xl: calc(var(--scalar-radius) * 4); /* 12px */
-  --scalar-radius-3xl: calc(var(--scalar-radius) * 16 / 3); /* 16px */
-  --scalar-radius-full: calc(var(--scalar-radius) * 9999); /* pill */
 
   --scalar-header-height: 50px;
   --scalar-sidebar-width: 280px;

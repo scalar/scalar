@@ -20,12 +20,14 @@ Mode-agnostic (`:root`):
 | Variable | Value |
 |---|---|
 | `--scalar-border-width` | `0.5px` |
-| `--scalar-radius` | `3px` |
-| `--scalar-radius-lg` | `6px` (derived: `--scalar-radius` × 2) |
-| `--scalar-radius-xl` | `8px` (derived) |
-| `--scalar-radius-2xl` | `12px` (derived) |
-| `--scalar-radius-3xl` | `16px` (derived) |
-| `--scalar-radius-full` | pill (derived) |
+| `--scalar-radius` | `3px` (the knob every other radius derives from) |
+| `--scalar-radius-md` | `3px` (the base, capped at `--scalar-radius-max`) |
+| `--scalar-radius-lg` | `6px` (derived: `--scalar-radius` × 2, capped) |
+| `--scalar-radius-xl` | `8px` (derived, capped) |
+| `--scalar-radius-2xl` | `12px` (derived, capped) |
+| `--scalar-radius-3xl` | `16px` (derived, capped) |
+| `--scalar-radius-full` | pill (derived, uncapped) |
+| `--scalar-radius-max` | `20px` — ceiling so a big radius cannot swallow a container's content |
 | `--scalar-font` | Inter stack (`"Inter", -apple-system, …, sans-serif`) |
 | `--scalar-font-code` | JetBrains Mono stack (`"JetBrains Mono", ui-monospace, …, monospace`) |
 | `--scalar-heading-1…6` | `24, 20, 16, 16, 16, 16` px |
