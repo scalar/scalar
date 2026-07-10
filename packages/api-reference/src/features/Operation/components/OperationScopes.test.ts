@@ -42,6 +42,15 @@ const withoutScopes: RequiredSecurity = {
   ],
 }
 
+/** One OAuth2 alternative with scopes, plus a scope-free API key alternative (OR) */
+const scopedOrScopeFree: RequiredSecurity = {
+  state: 'required',
+  requirements: [
+    { schemes: [{ name: 'oauth2', scheme: { type: 'oauth2', flows: {} }, scopes: ['read:items'] }] },
+    { schemes: [{ name: 'apiKey', scheme: { type: 'apiKey', name: 'X-API-Key', in: 'header' }, scopes: [] }] },
+  ],
+}
+
 describe('OperationScopes', () => {
   it('lists every required scope under the heading', () => {
     const wrapper = mount(OperationScopes, { props: { requiredSecurity: withScopes } })
@@ -63,6 +72,15 @@ describe('OperationScopes', () => {
     expect(wrapper.findAll('li')).toHaveLength(2)
     expect(wrapper.text()).toContain('read:items')
     expect(wrapper.text()).toContain('admin')
+  })
+
+  it('hints that scopes are optional when another alternative needs none', () => {
+    const wrapper = mount(OperationScopes, { props: { requiredSecurity: scopedOrScopeFree } })
+    // Only the scoped alternative renders a list, but the "one of" hint signals the
+    // scopes are not mandatory because the API key alternative satisfies auth without them.
+    expect(wrapper.findAll('ul')).toHaveLength(1)
+    expect(wrapper.text()).toContain('read:items')
+    expect(wrapper.text()).toContain('one of:')
   })
 
   it('renders nothing when no scopes are required', () => {
