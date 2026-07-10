@@ -183,6 +183,88 @@ describe('mergeSecurity', () => {
     })
   })
 
+  it('normalizes an AsyncAPI httpApiKey scheme onto apiKey', () => {
+    // AsyncAPI's `httpApiKey` is the structural twin of OpenAPI `apiKey`; Scalar's auth UI only
+    // understands OpenAPI vocab, so the merge step must rename the type while keeping name + in.
+    const securitySchemes = {
+      apiKey: {
+        type: 'httpApiKey',
+        name: 'api_key',
+        in: 'query',
+        description: 'API key in query',
+      },
+    } as unknown as ComponentsObject['securitySchemes']
+
+    const result = mergeSecurity(securitySchemes, {}, authStore, documentSlug)
+
+    expect(result.apiKey).toMatchObject({
+      type: 'apiKey',
+      name: 'api_key',
+      in: 'query',
+      description: 'API key in query',
+      'x-scalar-secret-token': '',
+    })
+  })
+
+  it('keeps an AsyncAPI apiKey (in: user) as a value-only apiKey', () => {
+    // AsyncAPI's own `apiKey` places the key in the broker user/password slot and has no name, so it
+    // has no OpenAPI equivalent — it stays `apiKey` with its broker `in` and still captures a value.
+    const securitySchemes = {
+      brokerKey: {
+        type: 'apiKey',
+        in: 'user',
+        description: 'Broker API key',
+      },
+    } as unknown as ComponentsObject['securitySchemes']
+
+    const result = mergeSecurity(securitySchemes, {}, authStore, documentSlug)
+
+    expect(result.brokerKey).toMatchObject({
+      type: 'apiKey',
+      in: 'user',
+      description: 'Broker API key',
+      'x-scalar-secret-token': '',
+    })
+  })
+
+  it('renames AsyncAPI OAuth2 `availableScopes` onto OpenAPI `scopes`', () => {
+    // AsyncAPI OAuth2 flows carry the scope map under `availableScopes`; the auth UI reads
+    // `flow.scopes`, so the merge step must rename it or the scheme renders with no scopes.
+    const securitySchemes = {
+      oauth2: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            availableScopes: {
+              'read:users': 'Read user information',
+              'write:users': 'Modify user information',
+            },
+          },
+        },
+      },
+    } as unknown as ComponentsObject['securitySchemes']
+
+    const result = mergeSecurity(securitySchemes, {}, authStore, documentSlug)
+
+    expect(result.oauth2).toMatchObject({
+      type: 'oauth2',
+      flows: {
+        authorizationCode: {
+          scopes: {
+            'read:users': 'Read user information',
+            'write:users': 'Modify user information',
+          },
+        },
+      },
+    })
+    // The AsyncAPI-only key is gone after normalization.
+    expect(
+      (result.oauth2 as { flows: { authorizationCode: Record<string, unknown> } }).flows.authorizationCode,
+    ).not.toHaveProperty('availableScopes')
+  })
+
   it('handles deeply nested OAuth2 configuration merging', () => {
     const securitySchemes = {
       oauth2: coerceValue(SecuritySchemeObjectSchema, {

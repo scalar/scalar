@@ -38,3 +38,12 @@ export const getDocumentType = (value: unknown): 'openapi' | 'asyncapi' | undefi
 
   return undefined
 }
+
+/**
+ * Human-readable label for a document type, e.g. for badges and warnings.
+ *
+ * Defaults to `'OpenAPI'` when the type is unknown, matching the OpenAPI-native surfaces that
+ * only distinguish AsyncAPI as the exception.
+ */
+export const getDocumentTypeLabel = (documentType: 'openapi' | 'asyncapi' | undefined): string =>
+  documentType === 'asyncapi' ? 'AsyncAPI' : 'OpenAPI'

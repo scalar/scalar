@@ -41,5 +41,21 @@ Both filters operate on the navigation tree itself: operations that don't match 
 
 Each picker is only shown when there is more than one option to choose from.
 
+## Authentication
+
+Document-wide authentication is rendered the same way as OpenAPI. When the document defines `components.securitySchemes`, an **Authentication** selector appears in the introduction, listing every scheme so you can fill in credentials.
+
+Because AsyncAPI has no root-level `security`, the document-wide requirements are derived from the union of every server's `security` (a server applies to the whole connection). Operation- and channel-level auth is not surfaced yet — it needs more design and is tracked as a follow-up.
+
+The selector fully supports the security scheme types that AsyncAPI shares with OpenAPI:
+
+- `http` (for example `bearer` and `basic`)
+- `oauth2`
+- `openIdConnect`
+- `apiKey`
+- `httpApiKey` (a named key in `query`, `header`, or `cookie`; rendered as an `apiKey`)
+
+Broker-specific scheme types (`userPassword`, `X509`, `symmetricEncryption`, `asymmetricEncryption`, `plain`, `scramSha256`, `scramSha512`, `gssapi`) still appear in the selector, but a dedicated input UI for them is not available yet.
+
 > [!NOTE]
 > AsyncAPI support is still a work in progress, so not every part of the specification is rendered yet. The progress is tracked on GitHub in [issue #7080](https://github.com/scalar/scalar/issues/7080) — subscribe there to receive updates.

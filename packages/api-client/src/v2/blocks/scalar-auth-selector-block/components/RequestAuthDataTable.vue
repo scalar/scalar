@@ -25,6 +25,7 @@ const {
   eventBus,
   meta,
   options,
+  documentType,
 } = defineProps<{
   /** The current environment configuration */
   environment: XScalarEnvironment
@@ -46,6 +47,8 @@ const {
   meta: AuthMeta
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
+  /** Type of the document the schemes belong to, forwarded to the auth tab */
+  documentType?: 'openapi' | 'asyncapi'
 }>()
 
 /** Currently selected authentication scheme based on the active tab index */
@@ -131,6 +134,7 @@ defineExpose({
       :columns="['']"
       presentational>
       <RequestAuthTab
+        :documentType
         :environment
         :eventBus
         :isStatic

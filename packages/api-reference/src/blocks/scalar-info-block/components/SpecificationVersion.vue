@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getDocumentTypeLabel } from '@scalar/workspace-store/schemas/type-guards'
 import { computed } from 'vue'
 
 import { Badge } from '@/components/Badge'
@@ -10,9 +11,7 @@ const { documentType = 'openapi', version } = defineProps<{
   version?: string
 }>()
 
-const label = computed(() =>
-  documentType === 'asyncapi' ? 'AsyncAPI' : 'OpenAPI',
-)
+const label = computed(() => getDocumentTypeLabel(documentType))
 </script>
 
 <template>

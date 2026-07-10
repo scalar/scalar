@@ -14,6 +14,7 @@ import type {
   SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { getDocumentTypeLabel } from '@scalar/workspace-store/schemas/type-guards'
 import type {
   ApiKeyObject,
   SecurityRequirementObject,
@@ -42,6 +43,7 @@ const {
   server,
   eventBus,
   options,
+  documentType = 'openapi',
 } = defineProps<{
   /** Current environment configuration */
   environment: XScalarEnvironment
@@ -59,7 +61,18 @@ const {
   eventBus: WorkspaceEventBus
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
+  /** Type of the document the schemes belong to, used to label the missing-type warning */
+  documentType?: 'openapi' | 'asyncapi'
 }>()
+
+/**
+ * Human-readable name of the document type.
+ * Used in the missing-type warning so it points at the correct document
+ * (e.g. "AsyncAPI") instead of always naming OpenAPI.
+ */
+const documentTypeLabel = computed<string>(() =>
+  getDocumentTypeLabel(documentType),
+)
 
 const emits = defineEmits<{
   (
@@ -137,6 +150,25 @@ const generateLabel = (
       return capitalizedName
   }
 }
+
+/**
+ * Whether an API key scheme exposes an editable parameter name.
+ *
+ * OpenAPI `apiKey` and AsyncAPI `httpApiKey` (normalized to `apiKey`) name a query/header/cookie
+ * parameter, so the Name input is shown. AsyncAPI `apiKey` places the key in the broker `user` or
+ * `password` slot and has no parameter name, so the Name input is hidden and only the value is asked for.
+ */
+const apiKeyHasName = (scheme: { in?: string }): boolean =>
+  scheme.in !== 'user' && scheme.in !== 'password'
+
+/**
+ * The scheme's type when it is one we do not render inputs for (e.g. AsyncAPI broker types like
+ * `userPassword` or `scramSha256`). Read through a helper so the fallback template branch, where
+ * the scheme type is narrowed to `never` after the supported cases, can still surface the type.
+ */
+const getUnsupportedSchemeType = (
+  scheme: SecurityItem['scheme'],
+): string | undefined => scheme?.type
 
 /**
  * Determines if an OAuth2 flow tab should be active.
@@ -302,7 +334,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
 
     <!-- API Key Authentication -->
     <template v-else-if="scheme?.type === 'apiKey'">
-      <DataTableRow>
+      <DataTableRow v-if="apiKeyHasName(scheme)">
         <RequestAuthDataTableInput
           :containerClass="getStaticBorderClass()"
           :environment
@@ -316,6 +348,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
+          :containerClass="
+            apiKeyHasName(scheme) ? undefined : getStaticBorderClass()
+          "
           :environment
           :modelValue="scheme['x-scalar-secret-token']"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
@@ -384,12 +419,20 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
       </template>
     </template>
 
+    <!-- Scheme has a type we do not render inputs for yet (e.g. AsyncAPI broker types) -->
+    <div
+      v-else-if="getUnsupportedSchemeType(scheme)"
+      class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
+      The <code>{{ getUnsupportedSchemeType(scheme) }}</code> security scheme
+      type is not supported yet.
+    </div>
+
     <!-- Scheme is missing type -->
     <div
       v-else
       class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
-      The security scheme is missing a type, please double check your OpenAPI
-      document or Authentication Configuration
+      The security scheme is missing a type, please double check your
+      {{ documentTypeLabel }} document or Authentication Configuration
     </div>
   </template>
 </template>

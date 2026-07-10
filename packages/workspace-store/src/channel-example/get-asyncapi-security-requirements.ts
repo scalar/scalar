@@ -10,6 +10,8 @@ import { getNameFromRef } from '@/helpers/get-name-from-ref'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 
+import { dedupeRequirements } from './dedupe-requirements'
+
 type AsyncApiSecurityEntry = NonNullable<AsyncApiOperationObject['security']>[number]
 
 const getSecuritySchemeNameFromRef = (ref: string): string | undefined =>
@@ -103,14 +105,38 @@ export const getAsyncApiSecurityRequirements = (
         ? operationRequirements
         : [...operationRequirements, ...serverRequirements]
 
-  const seen = new Set<string>()
+  return dedupeRequirements(combined)
+}
 
-  return combined.filter((requirement) => {
-    const key = JSON.stringify(requirement)
-    if (seen.has(key)) {
-      return false
-    }
-    seen.add(key)
-    return true
-  })
+/**
+ * Document-wide security requirements for an AsyncAPI document.
+ *
+ * AsyncAPI has no root-level `security`; the closest document-wide scope is the union of every
+ * server's security (a server applies to the whole connection). Operation-level security is
+ * intentionally excluded here — that is per-channel and handled separately.
+ */
+export const getAsyncApiDocumentSecurityRequirements = (document: AsyncApiDocument): SecurityRequirementObject[] => {
+  const servers = document.servers ? getResolvedRef(document.servers) : undefined
+  if (!servers) {
+    return []
+  }
+
+  const resolvedServers = Object.values(servers).map((serverRef) => getResolvedRef(serverRef))
+
+  const perServerRequirements = resolvedServers.map((server) => getAsyncApiSecurityRequirements(document, null, server))
+
+  const combined = perServerRequirements.flat()
+
+  // When some servers require auth while others accept unauthenticated connections, surface the
+  // no-auth path as an optional `{}` requirement so those servers stay selectable. "No auth" is
+  // keyed off the declared `security` array (absent or empty), not off a server whose declared
+  // security failed to resolve to a scheme — that server still requires auth. If no server
+  // requires auth at all, we return `[]` and let the selector treat every scheme as optional.
+  const someRequireAuth = perServerRequirements.some((requirements) => requirements.length > 0)
+  const someDeclareNoAuth = resolvedServers.some((server) => !server?.security?.length)
+  if (someRequireAuth && someDeclareNoAuth) {
+    combined.push({})
+  }
+
+  return dedupeRequirements(combined)
 }

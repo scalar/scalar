@@ -55,6 +55,7 @@ const {
   server,
   title,
   options,
+  documentType,
 } = defineProps<{
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
@@ -78,6 +79,8 @@ const {
   title: string
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
+  /** Type of the document the schemes belong to, used to label the missing-type warning */
+  documentType?: 'openapi' | 'asyncapi'
 }>()
 
 const titleId = useId()
@@ -303,6 +306,7 @@ defineExpose({
     <!-- Auth Table -->
     <RequestAuthDataTable
       :activeAuthIndex="selectedSecurity?.selectedIndex ?? 0"
+      :documentType
       :environment
       :eventBus
       :isStatic

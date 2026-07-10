@@ -10,6 +10,7 @@ import {
 } from '@scalar/workspace-store/channel-example'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   getSelectedServer,
   getServers,
@@ -182,14 +183,37 @@ const asyncApiSelectedServer = computed(() =>
 )
 
 /** Merge authentication config with the document security schemes */
-const securitySchemes = computed(() =>
-  mergeSecurity(
-    openApiClientDocument.value?.components?.securitySchemes,
+const securitySchemes = computed(() => {
+  // AsyncAPI stores its security schemes in the same `components.securitySchemes` slot and shares
+  // the http/apiKey/oauth2/openIdConnect shapes with OpenAPI; broker-specific types (scramSha*,
+  // plain, X509, …) flow through unchanged and degrade gracefully downstream. Both document types
+  // persist the auth-store scope key on `x-scalar-navigation.name`, so a single call handles both.
+  const sourceDocument =
+    asyncApiClientDocument.value ?? openApiClientDocument.value
+  const components = sourceDocument?.components
+    ? getResolvedRef(sourceDocument.components)
+    : undefined
+
+  return mergeSecurity(
+    components?.securitySchemes,
     options.authentication?.securitySchemes,
     authStore,
-    openApiClientDocument.value?.['x-scalar-navigation']?.name ?? '',
+    sourceDocument?.['x-scalar-navigation']?.name ?? '',
     options.oauth2RedirectUri,
-  ),
+  )
+})
+
+/**
+ * Whether to show the document-level auth selector.
+ *
+ * For OpenAPI it stays tied to `hideTestRequestButton`, since the auth feeds the interactive
+ * test client. AsyncAPI has no document-level test request, so its auth display is decoupled
+ * from that flag and shown whenever a document is present.
+ */
+const showAuthSelector = computed(
+  () =>
+    Boolean(document) &&
+    (Boolean(asyncApiDocument.value) || !options.hideTestRequestButton),
 )
 
 /** Ensures firstLazyLoadComplete is set for documents with no Lazy sections (e.g. no operations/tags/models). */
@@ -253,7 +277,7 @@ onMounted(() => {
         <!-- Auth selector -->
         <ScalarErrorBoundary>
           <IntroductionCardItem
-            v-if="document && !options.hideTestRequestButton"
+            v-if="showAuthSelector"
             class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
             <Auth
               :authStore
