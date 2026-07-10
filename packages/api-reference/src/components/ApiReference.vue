@@ -427,41 +427,6 @@ const workspaceStore = createWorkspaceStore({
 })
 
 /**
- * Plugin injection is not reactive. All plugins must be provided at first render.
- *
- * Created after the workspace store so the auth accessor below can read from it — plugin `onInit`
- * hooks may call `auth` synchronously during `notifyInit`.
- */
-const pluginManager = createPluginManager({
-  plugins: Object.values(configList.value).flatMap(
-    (c) => c.config.plugins ?? [],
-  ),
-  /**
-   * Read-only view of the global authentication state, so plugins can read stored secrets and
-   * the selected security schemes without being able to mutate them. Wraps the workspace store's
-   * auth methods (rather than passing the store directly) to keep the setters out of the plugin API.
-   *
-   * The getters return a deep copy (`export` already snapshots internally, the others go through
-   * `toJsonCompatible`) so plugins receive plain data rather than the store's live reactive proxies —
-   * mutating what they get back can never leak into the workspace store.
-   */
-  auth: {
-    export: () => workspaceStore.auth.export(),
-    getAuthSecrets: (documentName, schemeName) =>
-      toJsonCompatible(
-        workspaceStore.auth.getAuthSecrets(documentName, schemeName),
-      ),
-    getAuthSelectedSchemas: (payload) =>
-      toJsonCompatible(workspaceStore.auth.getAuthSelectedSchemas(payload)),
-  },
-})
-provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
-
-pluginManager.notifyInit(mergedConfig.value)
-
-watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
-
-/**
  * We need to keep the client store separate from the workspace store
  * This is because we want the client store to be a playground where users can test out their requests without affecting the references store
  */
@@ -473,6 +438,43 @@ const clientStore = createWorkspaceStore({
     }),
   ],
 })
+
+/**
+ * Plugin injection is not reactive. All plugins must be provided at first render.
+ *
+ * Created after the client store so the auth accessor below can read from it — plugin `onInit`
+ * hooks may call `auth` synchronously during `notifyInit`. The reference-side Authentication panel
+ * (Content → Auth.vue) persists credentials into `clientStore.auth`, so plugins must read the same
+ * store to see what the user entered.
+ */
+const pluginManager = createPluginManager({
+  plugins: Object.values(configList.value).flatMap(
+    (c) => c.config.plugins ?? [],
+  ),
+  /**
+   * Read-only view of the global authentication state, so plugins can read stored secrets and
+   * the selected security schemes without being able to mutate them. Wraps the client store's
+   * auth methods (rather than passing the store directly) to keep the setters out of the plugin API.
+   *
+   * The getters return a deep copy (`export` already snapshots internally, the others go through
+   * `toJsonCompatible`) so plugins receive plain data rather than the store's live reactive proxies —
+   * mutating what they get back can never leak into the store.
+   */
+  auth: {
+    export: () => clientStore.auth.export(),
+    getAuthSecrets: (documentName, schemeName) =>
+      toJsonCompatible(
+        clientStore.auth.getAuthSecrets(documentName, schemeName),
+      ),
+    getAuthSelectedSchemas: (payload) =>
+      toJsonCompatible(clientStore.auth.getAuthSelectedSchemas(payload)),
+  },
+})
+provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+
+pluginManager.notifyInit(mergedConfig.value)
+
+watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 
 // TODO: persistence should be hoisted into standalone
 // Client side integrations will want to handle dark mode externally
