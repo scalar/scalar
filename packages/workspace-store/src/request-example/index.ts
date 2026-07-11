@@ -3,6 +3,8 @@ export type {
   BuildRequestData,
   BuildRequestFailureCode,
   BuildRequestResult,
+  EncryptionObjectSecret,
+  GssapiObjectSecret,
   HttpObjectSecret,
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
@@ -14,7 +16,9 @@ export type {
   RequestPayload,
   ResolveRequestFactoryUrlError,
   ResolveRequestFactoryUrlResult,
+  SaslObjectSecret,
   SecuritySchemeObjectSecret,
+  X509ObjectSecret,
 } from './builder'
 export {
   BUILD_REQUEST_FAILED,

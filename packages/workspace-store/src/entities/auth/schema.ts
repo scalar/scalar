@@ -3,11 +3,14 @@ import { type Static, Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { XScalarCredentialsLocationSchema } from '@/schemas/extensions/security/x-scalar-credentials-location'
 import {
+  XScalarSecretClientCertificateSchema,
   XScalarSecretClientIdSchema,
   XScalarSecretClientSecretSchema,
   XScalarSecretHTTPSchema,
-  XScalarSecretRefreshTokenSchema,
+  XScalarSecretPrivateKeySchema,
   XScalarSecretRedirectUriSchema,
+  XScalarSecretRefreshTokenSchema,
+  XScalarSecretServiceNameSchema,
   XScalarSecretTokenSchema,
 } from '@/schemas/extensions/security/x-scalar-security-secrets'
 import {
@@ -113,11 +116,64 @@ export const OpenIDConnectSchema = Type.Object({
 
 export type SecretsOpenIdConnect = Static<typeof OpenIDConnectSchema>
 
+/**
+ * AsyncAPI SASL-style broker schemes: all of them authenticate with a username + password pair,
+ * so they share one secrets shape and are matched to the scheme by the stored `type`.
+ */
+const SecretsSaslSchema = compose(
+  Type.Object({
+    type: Type.Union([
+      Type.Literal('userPassword'),
+      Type.Literal('plain'),
+      Type.Literal('scramSha256'),
+      Type.Literal('scramSha512'),
+    ]),
+  }),
+  XScalarSecretHTTPSchema,
+)
+
+export type SecretsSasl = Static<typeof SecretsSaslSchema>
+
+/** AsyncAPI X509 broker scheme: a client certificate + private key pair (PEM). */
+const SecretsX509Schema = compose(
+  Type.Object({
+    type: Type.Literal('X509'),
+  }),
+  XScalarSecretClientCertificateSchema,
+  XScalarSecretPrivateKeySchema,
+)
+
+export type SecretsX509 = Static<typeof SecretsX509Schema>
+
+/** AsyncAPI encryption broker schemes: a single key value, stored in the shared token slot. */
+const SecretsEncryptionSchema = compose(
+  Type.Object({
+    type: Type.Union([Type.Literal('symmetricEncryption'), Type.Literal('asymmetricEncryption')]),
+  }),
+  XScalarSecretTokenSchema,
+)
+
+export type SecretsEncryption = Static<typeof SecretsEncryptionSchema>
+
+/** AsyncAPI GSSAPI (Kerberos) broker scheme: the service name the client authenticates against. */
+const SecretsGssapiSchema = compose(
+  Type.Object({
+    type: Type.Literal('gssapi'),
+  }),
+  XScalarSecretServiceNameSchema,
+)
+
+export type SecretsGssapi = Static<typeof SecretsGssapiSchema>
+
 export const SecretsAuthUnionSchema = Type.Union([
   SecretsApiKeySchema,
   SecretsHttpSchema,
   OAuthSchema,
   OpenIDConnectSchema,
+  SecretsSaslSchema,
+  SecretsX509Schema,
+  SecretsEncryptionSchema,
+  SecretsGssapiSchema,
 ])
 export type SecretsAuthUnion = Static<typeof SecretsAuthUnionSchema>
 

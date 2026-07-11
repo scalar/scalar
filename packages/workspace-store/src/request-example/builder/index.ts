@@ -39,6 +39,8 @@ export {
 export { buildRequestSecurity } from './security/build-request-security'
 export type {
   ApiKeyObjectSecret,
+  EncryptionObjectSecret,
+  GssapiObjectSecret,
   HttpObjectSecret,
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
@@ -47,5 +49,7 @@ export type {
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
   OpenIdConnectObjectSecret,
+  SaslObjectSecret,
   SecuritySchemeObjectSecret,
+  X509ObjectSecret,
 } from './security/secret-types'
