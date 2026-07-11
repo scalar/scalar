@@ -1,0 +1,14 @@
+{
+  "title": "Scalar",
+  "description": "Interactive API reference documentation from OpenAPI and AsyncAPI documents. Open-source, embeddable in any web page or framework, with built-in API client capabilities.",
+  "links": {
+    "websiteUrl": "https://scalar.com",
+    "docsUrl": "https://guides.scalar.com"
+  },
+  "filters": {
+    "language": ["TypeScript", "JavaScript", "C#", "Java", "Python", "Rust", "HTML"],
+    "technology": ["Vue.js", "React JS", "Node js", ".NET", "ASP.NET", "Docker"],
+    "categories": ["documentation-generator", "ui-component"],
+    "hasCommercial": true
+  }
+}
