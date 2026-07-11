@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
 import HttpMethod from './HttpMethod.vue'
 
 describe('HttpMethod', () => {
@@ -67,6 +68,7 @@ describe('HttpMethod', () => {
         { method: 'DELETE', expected: 'DEL' },
         { method: 'OPTIONS', expected: 'OPTS' },
         { method: 'HEAD', expected: 'HEAD' },
+        { method: 'QUERY', expected: 'QUERY' },
         { method: 'TRACE', expected: 'TRACE' },
       ]
 
@@ -88,6 +90,8 @@ describe('HttpMethod', () => {
         { input: 'Put', expected: 'put' },
         { input: 'patch', expected: 'patch' },
         { input: 'Delete', expected: 'delete' },
+        { input: 'QUERY', expected: 'query' },
+        { input: 'Query', expected: 'query' },
       ]
 
       testCases.forEach(({ input, expected }) => {

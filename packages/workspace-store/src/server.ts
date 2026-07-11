@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
@@ -55,8 +56,6 @@ type CreateServerWorkspaceStoreProps =
       mode: 'ssr'
     } & CreateServerWorkspaceStoreBase)
 
-const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
-
 /**
  * Filters an OpenAPI PathsObject to only include standard HTTP methods.
  * Removes any vendor extensions or other non-HTTP properties.
@@ -87,7 +86,7 @@ export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record
     const filteredMethods: Record<string, OperationObject> = {}
 
     forEachPathItemOperation(pathItemRef, (method, operation) => {
-      if (httpMethods.has(method.toLowerCase())) {
+      if (isHttpMethod(method)) {
         filteredMethods[method] = getResolvedRef(operation) ?? operation
       }
     })
@@ -181,7 +180,7 @@ export function externalizePathReferences(
     const escapedPath = escapeJsonPointer(path)
 
     keyOf(pathItemRecord).forEach((type) => {
-      if (httpMethods.has(type)) {
+      if (isHttpMethod(type)) {
         const ref =
           meta.mode === 'ssr'
             ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${type}#`

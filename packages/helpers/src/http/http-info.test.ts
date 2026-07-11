@@ -36,7 +36,17 @@ describe('REQUEST_METHODS', () => {
     expect(REQUEST_METHODS.delete.short).toBe('DEL')
     expect(REQUEST_METHODS.options.short).toBe('OPTS')
     expect(REQUEST_METHODS.head.short).toBe('HEAD')
+    expect(REQUEST_METHODS.query.short).toBe('QUERY')
     expect(REQUEST_METHODS.trace.short).toBe('TRACE')
+  })
+
+  it('has an entry for the QUERY method with a distinct color', () => {
+    expect(REQUEST_METHODS.query).toEqual({
+      short: 'QUERY',
+      colorClass: 'text-pink',
+      colorVar: 'var(--scalar-color-pink)',
+      backgroundColor: 'bg-pink/10',
+    })
   })
 })
 
@@ -50,6 +60,9 @@ describe('getHttpMethodInfo', () => {
       { input: 'delete', expectedShort: 'DEL' },
       { input: 'OPTIONS', expectedShort: 'OPTS' },
       { input: 'head', expectedShort: 'HEAD' },
+      { input: 'QUERY', expectedShort: 'QUERY' },
+      { input: '  query  ', expectedShort: 'QUERY' },
+      { input: 'Query', expectedShort: 'QUERY' },
       { input: 'trace', expectedShort: 'TRACE' },
     ]
 

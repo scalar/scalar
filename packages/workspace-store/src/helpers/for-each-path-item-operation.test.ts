@@ -72,6 +72,24 @@ describe('forEachPathItemOperation', () => {
     expect(callback.mock.calls).toStrictEqual([['get', { summary: 'Get users' }]])
   })
 
+  it('invokes the callback for a QUERY operation', () => {
+    const callback = vi.fn()
+
+    forEachPathItemOperation(
+      {
+        get: { summary: 'Get users' },
+        query: { summary: 'Query users' },
+      },
+      callback,
+    )
+
+    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback.mock.calls).toStrictEqual([
+      ['get', { summary: 'Get users' }],
+      ['query', { summary: 'Query users' }],
+    ])
+  })
+
   it('does not invoke the callback when the path item is undefined', () => {
     const callback = vi.fn()
 

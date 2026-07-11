@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { isHttpMethod } from './is-http-method'
+import { describe, expect, it } from 'vitest'
+
 import { HTTP_METHODS } from './http-methods'
+import { isHttpMethod } from './is-http-method'
 
 describe('isHttpMethod', () => {
   describe('valid HTTP methods', () => {
@@ -12,6 +13,12 @@ describe('isHttpMethod', () => {
       expect(isHttpMethod(method.toUpperCase())).toBe(true)
       expect(isHttpMethod(method.toLowerCase())).toBe(true)
       expect(isHttpMethod(method.charAt(0).toUpperCase() + method.slice(1))).toBe(true)
+    })
+
+    it('recognizes the QUERY method in any casing', () => {
+      expect(isHttpMethod('query')).toBe(true)
+      expect(isHttpMethod('QUERY')).toBe(true)
+      expect(isHttpMethod('Query')).toBe(true)
     })
   })
 

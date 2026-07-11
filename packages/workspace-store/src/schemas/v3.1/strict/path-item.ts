@@ -33,6 +33,8 @@ export const PathItemObjectSchemaDefinition = Type.Object({
   options: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
   /** A definition of a HEAD operation on this path. */
   head: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
+  /** A definition of a QUERY operation on this path. */
+  query: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
   /** A definition of a TRACE operation on this path. */
   trace: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
   /** An alternative servers array to service all operations in this path. If a servers array is specified at the OpenAPI Object level, it will be overridden by this value. */
@@ -68,6 +70,8 @@ export type PathItemObject = {
   options?: ReferenceType<OperationObject>
   /** A definition of a HEAD operation on this path. */
   head?: ReferenceType<OperationObject>
+  /** A definition of a QUERY operation on this path. */
+  query?: ReferenceType<OperationObject>
   /** A definition of a TRACE operation on this path. */
   trace?: ReferenceType<OperationObject>
   /** An alternative servers array to service all operations in this path. If a servers array is specified at the OpenAPI Object level, it will be overridden by this value. */

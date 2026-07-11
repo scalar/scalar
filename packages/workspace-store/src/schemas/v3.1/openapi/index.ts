@@ -1052,6 +1052,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
       connect: optional(maybeRef(lazy((): Schema => operation))),
       options: optional(maybeRef(lazy((): Schema => operation))),
       head: optional(maybeRef(lazy((): Schema => operation))),
+      query: optional(maybeRef(lazy((): Schema => operation))),
       trace: optional(maybeRef(lazy((): Schema => operation))),
       servers: optional(array(servers, { typeName: 'PathItemServers' })),
       parameters: optional(array(maybeRef(lazy((): Schema => parameter)), { typeName: 'PathItemParameters' })),
