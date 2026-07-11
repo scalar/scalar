@@ -6,9 +6,9 @@
     "docsUrl": "https://guides.scalar.com"
   },
   "filters": {
-    "language": ["TypeScript", "JavaScript", "C#", "Java", "Python", "Rust", "HTML"],
+    "language": ["TypeScript", "JavaScript", "HTML", "C#"],
     "technology": ["Vue.js", "React JS", "Node js", ".NET", "ASP.NET", "Docker"],
-    "categories": ["documentation-generator", "ui-component"],
+    "categories": ["ui-component"],
     "hasCommercial": true
   }
 }
