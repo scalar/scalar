@@ -46,14 +46,6 @@
           "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
         },
         {
-          "property": "og:title",
-          "content": "Scalar - The API Company"
-        },
-        {
-          "property": "og:description",
-          "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
-        },
-        {
           "property": "og:site_name",
           "content": "Scalar"
         },
@@ -68,14 +60,6 @@
         {
           "name": "twitter:card",
           "content": "summary_large_image"
-        },
-        {
-          "name": "twitter:title",
-          "content": "Scalar - The API Company"
-        },
-        {
-          "name": "twitter:description",
-          "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
         },
         {
           "name": "twitter:image",
@@ -739,6 +723,22 @@
                 }
               ],
               "meta": [
+                {
+                  "property": "og:title",
+                  "content": "Scalar - The API Company"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
+                },
+                {
+                  "name": "twitter:title",
+                  "content": "Scalar - The API Company"
+                },
+                {
+                  "name": "twitter:description",
+                  "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
+                },
                 {
                   "name": "robots",
                   "content": "index, follow"
