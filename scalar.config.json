@@ -732,7 +732,6 @@
               "pageTitle": false
             },
             "head": {
-              "title": "Scalar — API Documentation, SDKs, MCP Servers & API Client",
               "links": [
                 {
                   "rel": "canonical",
@@ -762,7 +761,6 @@
               "pageTitle": false
             },
             "head": {
-              "title": "Scalar Pricing — Plans for API Docs, SDKs & MCP Servers",
               "links": [
                 {
                   "rel": "canonical",
@@ -801,7 +799,6 @@
               "pageActions": false
             },
             "head": {
-              "title": "Scalar Customers — Trusted by the World's Best API Teams",
               "links": [
                 {
                   "rel": "canonical",
@@ -923,7 +920,6 @@
                     "title": "Getting Started",
                     "description": "Learn how to create and publish stunning developer documentation with Docs in minutes.",
                     "head": {
-                      "title": "Scalar Docs — API Documentation & Developer Docs Platform",
                       "links": [
                         {
                           "rel": "canonical",
@@ -1328,7 +1324,6 @@
                     "filepath": "documentation/guides/agent/getting-started.md",
                     "description": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI.",
                     "head": {
-                      "title": "Scalar Agent — Turn OpenAPI into MCP Servers for LLMs",
                       "links": [
                         {
                           "rel": "canonical",
@@ -1440,7 +1435,6 @@
                     "title": "Getting Started",
                     "description": "Automatically generate type-safe SDKs from OpenAPI specifications in multiple programming languages.",
                     "head": {
-                      "title": "Scalar SDK Generator — Generate SDKs from OpenAPI",
                       "links": [
                         {
                           "rel": "canonical",
@@ -1665,7 +1659,6 @@
                     "title": "Getting Started",
                     "description": "Store, version, and manage your OpenAPI specifications in a centralized registry with automated CI/CD workflows.",
                     "head": {
-                      "title": "Scalar Registry — OpenAPI Document Management & Versioning",
                       "links": [
                         {
                           "rel": "canonical",
@@ -1737,7 +1730,6 @@
                     "type": "page",
                     "description": "Create stunning API documentation from OpenAPI specs with a modern, customizable interface and built-in request testing.",
                     "head": {
-                      "title": "Scalar API References — Interactive OpenAPI Documentation",
                       "links": [
                         {
                           "rel": "canonical",
@@ -2276,7 +2268,6 @@
                     "title": "Getting Started",
                     "description": "A modern, open-source API client built on the OpenAPI standard with offline-first design and cross-platform support.",
                     "head": {
-                      "title": "Scalar API Client — Free, Open-Source API Testing Client",
                       "links": [
                         {
                           "rel": "canonical",
@@ -2678,7 +2669,6 @@
                     "title": "Getting Started",
                     "description": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal.",
                     "head": {
-                      "title": "Scalar CLI — OpenAPI Tools for Your Terminal",
                       "links": [
                         {
                           "rel": "canonical",
@@ -2730,7 +2720,6 @@
                     "type": "page",
                     "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
                     "head": {
-                      "title": "Scalar Mock Server — Instant Mock APIs from OpenAPI",
                       "links": [
                         {
                           "rel": "canonical",
@@ -2797,7 +2786,6 @@
                     "type": "page",
                     "description": "Migrate legacy Swagger 2.0 specs to modern OpenAPI 3.x formats automatically with our free conversion tool.",
                     "head": {
-                      "title": "OpenAPI Upgrader — Convert Swagger 2.0 to OpenAPI 3.1",
                       "links": [
                         {
                           "rel": "canonical",
@@ -2963,7 +2951,6 @@
                     "type": "page",
                     "description": "Complete guide to migrating from Swagger UI to API References with modern features and better UX.",
                     "head": {
-                      "title": "Swagger UI Alternative — Migrate to Scalar API References",
                       "links": [
                         {
                           "rel": "canonical",
@@ -3029,7 +3016,6 @@
                     "type": "page",
                     "description": "Set up SSO and SAML authentication for Scalar with enterprise identity providers and secure team access.",
                     "head": {
-                      "title": "SSO & SAML Single Sign-On for Scalar",
                       "links": [
                         {
                           "rel": "canonical",
