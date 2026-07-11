@@ -1779,4 +1779,205 @@ describe('extractSecuritySchemeSecrets', () => {
       })
     })
   })
+
+  describe('AsyncAPI SASL broker schemes', () => {
+    it.each(['userPassword', 'plain', 'scramSha256', 'scramSha512'] as const)(
+      'returns %s scheme with empty credentials when no auth store data',
+      (type) => {
+        const authStore = createAuthStore()
+        const scheme = { type } as unknown as SecuritySchemeObject
+
+        const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+        expect(result).toEqual({
+          type,
+          'x-scalar-secret-username': '',
+          'x-scalar-secret-password': '',
+        })
+      },
+    )
+
+    it.each(['userPassword', 'plain', 'scramSha256', 'scramSha512'] as const)(
+      'returns %s scheme with credentials from the auth store',
+      (type) => {
+        const authStore = createAuthStore()
+        authStore.setAuthSecrets(documentSlug, schemeName, {
+          type,
+          'x-scalar-secret-username': 'store-user',
+          'x-scalar-secret-password': 'store-pass',
+        })
+
+        const scheme = { type } as unknown as SecuritySchemeObject
+
+        const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+        expect(result).toEqual({
+          type,
+          'x-scalar-secret-username': 'store-user',
+          'x-scalar-secret-password': 'store-pass',
+        })
+      },
+    )
+
+    it('falls back to config credentials when the auth store is empty', () => {
+      const authStore = createAuthStore()
+      const scheme = {
+        type: 'scramSha256',
+        username: 'config-user',
+        password: 'config-pass',
+      } as unknown as SecuritySchemeObject
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toEqual({
+        type: 'scramSha256',
+        username: 'config-user',
+        password: 'config-pass',
+        'x-scalar-secret-username': 'config-user',
+        'x-scalar-secret-password': 'config-pass',
+      })
+    })
+
+    it('prioritizes auth store credentials over config credentials', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'userPassword',
+        'x-scalar-secret-username': 'store-user',
+        'x-scalar-secret-password': 'store-pass',
+      })
+
+      const scheme = {
+        type: 'userPassword',
+        username: 'config-user',
+        password: 'config-pass',
+      } as unknown as SecuritySchemeObject
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toMatchObject({
+        'x-scalar-secret-username': 'store-user',
+        'x-scalar-secret-password': 'store-pass',
+      })
+    })
+
+    it('ignores stored secrets from a different SASL type', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'plain',
+        'x-scalar-secret-username': 'plain-user',
+        'x-scalar-secret-password': 'plain-pass',
+      })
+
+      const scheme = { type: 'scramSha256' } as unknown as SecuritySchemeObject
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toEqual({
+        type: 'scramSha256',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
+      })
+    })
+  })
+
+  describe('AsyncAPI X509 broker scheme', () => {
+    it('returns X509 scheme with empty certificate material when no auth store data', () => {
+      const authStore = createAuthStore()
+      const scheme = { type: 'X509' } as unknown as SecuritySchemeObject
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toEqual({
+        type: 'X509',
+        'x-scalar-secret-client-certificate': '',
+        'x-scalar-secret-private-key': '',
+      })
+    })
+
+    it('returns X509 scheme with certificate material from the auth store', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'X509',
+        'x-scalar-secret-client-certificate': '-----BEGIN CERTIFICATE-----',
+        'x-scalar-secret-private-key': '-----BEGIN PRIVATE KEY-----',
+      })
+
+      const scheme = { type: 'X509' } as unknown as SecuritySchemeObject
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toEqual({
+        type: 'X509',
+        'x-scalar-secret-client-certificate': '-----BEGIN CERTIFICATE-----',
+        'x-scalar-secret-private-key': '-----BEGIN PRIVATE KEY-----',
+      })
+    })
+  })
+
+  describe('AsyncAPI encryption broker schemes', () => {
+    it.each(['symmetricEncryption', 'asymmetricEncryption'] as const)(
+      'returns %s scheme with the key from the auth store',
+      (type) => {
+        const authStore = createAuthStore()
+        authStore.setAuthSecrets(documentSlug, schemeName, {
+          type,
+          'x-scalar-secret-token': 'encryption-key',
+        })
+
+        const scheme = { type } as unknown as SecuritySchemeObject
+
+        const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+        expect(result).toEqual({
+          type,
+          'x-scalar-secret-token': 'encryption-key',
+        })
+      },
+    )
+
+    it('falls back to the config token when the auth store is empty', () => {
+      const authStore = createAuthStore()
+      const scheme = {
+        type: 'symmetricEncryption',
+        token: 'config-key',
+      } as unknown as SecuritySchemeObject
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toMatchObject({
+        'x-scalar-secret-token': 'config-key',
+      })
+    })
+  })
+
+  describe('AsyncAPI GSSAPI broker scheme', () => {
+    it('returns gssapi scheme with the service name from the auth store', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'gssapi',
+        'x-scalar-secret-service-name': 'kafka',
+      })
+
+      const scheme = { type: 'gssapi' } as unknown as SecuritySchemeObject
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toEqual({
+        type: 'gssapi',
+        'x-scalar-secret-service-name': 'kafka',
+      })
+    })
+
+    it('returns gssapi scheme with an empty service name when no auth store data', () => {
+      const authStore = createAuthStore()
+      const scheme = { type: 'gssapi' } as unknown as SecuritySchemeObject
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toEqual({
+        type: 'gssapi',
+        'x-scalar-secret-service-name': '',
+      })
+    })
+  })
 })
