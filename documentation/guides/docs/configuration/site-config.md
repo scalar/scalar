@@ -1,4 +1,4 @@
-# Site
+# Site Config
 
 The site configuration defines global settings for your documentation site: branding, custom head elements, footer content, and routing rules. These settings apply across your entire documentation site.
 

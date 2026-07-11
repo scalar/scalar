@@ -10,7 +10,7 @@
       <span aria-hidden="true">→</span>
     </span>
   </a>
-  <scalar-heading level="2" slug="introduction" class="text-balance">
+  <scalar-heading level="1" slug="introduction" class="text-balance">
     API interfaces built for developers and agents
   </scalar-heading>
   <p>

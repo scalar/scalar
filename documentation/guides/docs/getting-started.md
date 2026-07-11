@@ -1,4 +1,4 @@
-# Getting Started
+# Scalar Docs
 
 Documentation that stays in sync with your API and code. Pull content from GitHub, get previews on every pull request, deploy on merge, or publish from anywhere with the CLI.
 
