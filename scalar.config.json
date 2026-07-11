@@ -37,11 +37,6 @@
       ],
       "meta": [
         {
-          "property": "og:image",
-          "name": "og:image",
-          "content": "https://api.scalar.com/cdn/images/IlMnm9Mxy-SabmLxE_i0L/8O99z8O2xzEypGxOzuZYo.png"
-        },
-        {
           "name": "description",
           "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
         },
@@ -60,18 +55,6 @@
         {
           "name": "twitter:card",
           "content": "summary_large_image"
-        },
-        {
-          "name": "twitter:image",
-          "content": "https://cdn.scalar.com/images/twitter-image.png"
-        },
-        {
-          "name": "twitter:image:width",
-          "content": "1200"
-        },
-        {
-          "name": "twitter:image:height",
-          "content": "630"
         }
       ],
       "links": [
@@ -723,6 +706,23 @@
                 }
               ],
               "meta": [
+                {
+                  "property": "og:image",
+                  "name": "og:image",
+                  "content": "https://api.scalar.com/cdn/images/IlMnm9Mxy-SabmLxE_i0L/8O99z8O2xzEypGxOzuZYo.png"
+                },
+                {
+                  "name": "twitter:image",
+                  "content": "https://cdn.scalar.com/images/twitter-image.png"
+                },
+                {
+                  "name": "twitter:image:width",
+                  "content": "1200"
+                },
+                {
+                  "name": "twitter:image:height",
+                  "content": "630"
+                },
                 {
                   "property": "og:title",
                   "content": "Scalar - The API Company"
