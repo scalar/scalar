@@ -949,6 +949,7 @@
                   "privacy": {
                     "title": "Privacy",
                     "type": "page",
+                    "description": "How Scalar Docs handles privacy: no analytics and no tracking scripts on your documentation by default.",
                     "filepath": "documentation/guides/docs/privacy.md"
                   },
                   "configuration": {
@@ -958,11 +959,13 @@
                     "icon": "phosphor/regular/gear",
                     "children": {
                       "starter-kit": {
+                        "description": "Scaffold a documentation site in minutes with the Scalar Docs starter kit: example pages, scalar.config.json, and GitHub deployment.",
                         "filepath": "documentation/guides/docs/starter-kit.md",
                         "type": "page",
                         "title": "Starter Kit"
                       },
                       "agent-skills": {
+                        "description": "Add Agent Skills to your repository so AI coding agents can write and update Scalar Docs content and configuration.",
                         "filepath": "documentation/guides/docs/configuration/agent-skills.md",
                         "type": "page",
                         "title": "Agent Skills"
@@ -994,24 +997,29 @@
                       "site-config": {
                         "title": "Site Config",
                         "type": "page",
+                        "description": "Configure site-wide settings for Scalar Docs: branding, logo, theme, custom head tags, footer, and routing rules.",
                         "filepath": "documentation/guides/docs/configuration/site-config.md"
                       },
                       "domains": {
                         "title": "Domains",
                         "type": "page",
+                        "description": "Publish Scalar Docs on a free apidocumentation.com subdomain or connect a custom domain with a simple CNAME record.",
                         "filepath": "documentation/guides/docs/configuration/domains.md"
                       },
                       "navigation": {
                         "title": "Navigation",
                         "type": "page",
+                        "description": "Structure your documentation with navigation routes: pages, groups, tabs, links, and OpenAPI references.",
                         "filepath": "documentation/guides/docs/configuration/navigation.md"
                       },
                       "versions": {
                         "title": "Versions",
                         "type": "page",
+                        "description": "Publish multiple documentation versions with a version selector using the versions key in scalar.config.json.",
                         "filepath": "documentation/guides/docs/configuration/versions.md"
                       },
                       "redirects": {
+                        "description": "Keep old URLs working with redirects in Scalar Docs, including wildcard and path pattern support.",
                         "filepath": "documentation/guides/docs/configuration/redirects.md",
                         "type": "page",
                         "title": "Redirects"
@@ -1091,6 +1099,7 @@
                       "migration": {
                         "title": "Migrate from 1.0",
                         "type": "page",
+                        "description": "Upgrade your documentation from Scalar Docs 1.0 to 2.0 by converting guides and references to navigation routes.",
                         "filepath": "documentation/guides/docs/configuration/migration.md"
                       }
                     }
@@ -1104,11 +1113,13 @@
                       "automatic-deployment": {
                         "title": "Automatic Deployment",
                         "type": "page",
+                        "description": "Publish Scalar Docs automatically on every merge with GitHub sync and automatic deployments.",
                         "filepath": "documentation/guides/docs/deployment/automatic-deployment.md"
                       },
                       "cli": {
                         "title": "CLI",
                         "type": "page",
+                        "description": "Deploy Scalar Docs from your terminal or any CI provider with the Scalar CLI.",
                         "filepath": "documentation/guides/docs/deployment/cli.md"
                       },
                       "github-actions": {
@@ -1138,11 +1149,13 @@
                       "preview-deployments": {
                         "title": "Preview Deployments",
                         "type": "page",
+                        "description": "Review documentation changes before they go live with a preview deployment for every pull request.",
                         "filepath": "documentation/guides/docs/deployment/preview-deployments.md"
                       },
                       "build-failures": {
                         "title": "Build Failures",
                         "type": "page",
+                        "description": "Diagnose and fix Scalar Docs build failures: common causes, error messages, and debugging steps.",
                         "filepath": "documentation/guides/docs/deployment/build-failures.md"
                       }
                     }
@@ -1156,16 +1169,19 @@
                       "assets": {
                         "title": "Assets",
                         "type": "page",
+                        "description": "Serve images, fonts, and other static assets in Scalar Docs with the assetsDir configuration.",
                         "filepath": "documentation/guides/docs/content/assets.md"
                       },
                       "html-css-js": {
                         "title": "HTML/CSS/JS",
                         "type": "page",
+                        "description": "Use custom HTML, CSS, and JavaScript in Scalar Docs pages for full control over your documentation.",
                         "filepath": "documentation/guides/docs/content/html-css-js.md"
                       },
                       "mdx": {
                         "title": "MDX",
                         "type": "page",
+                        "description": "Write documentation with MDX in Scalar Docs: use components, expressions, and imports inside Markdown.",
                         "filepath": "documentation/guides/docs/content/mdx.mdx"
                       }
                     }
@@ -1179,6 +1195,7 @@
                       "github": {
                         "title": "GitHub",
                         "type": "page",
+                        "description": "Sync your documentation with GitHub: connect a repository, publish on merge, and preview pull requests.",
                         "filepath": "documentation/guides/docs/integrations/github.md"
                       }
                     }
@@ -1214,21 +1231,25 @@
                         }
                       },
                       "buttons": {
+                        "description": "Add styled button links to your Scalar Docs pages with the button component.",
                         "filepath": "documentation/guides/docs/components/buttons.mdx",
                         "type": "page",
                         "title": "Buttons"
                       },
                       "callouts": {
+                        "description": "Highlight notes, warnings, and tips in your documentation with callout components.",
                         "filepath": "documentation/guides/docs/components/callouts.mdx",
                         "type": "page",
                         "title": "Callouts"
                       },
                       "math": {
+                        "description": "Render LaTeX math equations in your Scalar Docs pages.",
                         "filepath": "documentation/guides/docs/components/math.mdx",
                         "type": "page",
                         "title": "Math"
                       },
                       "embeds": {
+                        "description": "Embed videos and external content like YouTube in your documentation pages.",
                         "filepath": "documentation/guides/docs/components/embeds.mdx",
                         "type": "page",
                         "title": "Embeds"
@@ -1258,51 +1279,61 @@
                         }
                       },
                       "images": {
+                        "description": "Add images with captions and dark mode variants to your documentation.",
                         "filepath": "documentation/guides/docs/components/images.mdx",
                         "type": "page",
                         "title": "Images"
                       },
                       "icons": {
+                        "description": "Use thousands of built-in Phosphor icons in your Scalar Docs pages.",
                         "filepath": "documentation/guides/docs/components/icons.mdx",
                         "type": "page",
                         "title": "Icons"
                       },
                       "tabs": {
+                        "description": "Organize alternative content like multi-language code examples with tab components.",
                         "filepath": "documentation/guides/docs/components/tabs.mdx",
                         "type": "page",
                         "title": "Tabs"
                       },
                       "tables": {
+                        "description": "Present structured data in your documentation with Markdown and HTML tables.",
                         "filepath": "documentation/guides/docs/components/tables.mdx",
                         "type": "page",
                         "title": "Tables"
                       },
                       "steps": {
+                        "description": "Guide readers through sequential instructions with step components.",
                         "filepath": "documentation/guides/docs/components/steps.mdx",
                         "type": "page",
                         "title": "Steps"
                       },
                       "cards": {
+                        "description": "Link related pages and highlight content with card components in Scalar Docs.",
                         "filepath": "documentation/guides/docs/components/cards.mdx",
                         "type": "page",
                         "title": "Cards"
                       },
                       "details": {
+                        "description": "Add collapsible sections to your documentation with the details component.",
                         "filepath": "documentation/guides/docs/components/details.mdx",
                         "type": "page",
                         "title": "Details"
                       },
                       "page-link": {
+                        "description": "Link to other documentation pages with rich page-link previews.",
                         "filepath": "documentation/guides/docs/components/page-link.mdx",
                         "type": "page",
                         "title": "Page Link"
                       },
                       "grid": {
+                        "description": "Lay out cards and content in responsive grids in your Scalar Docs pages.",
                         "filepath": "documentation/guides/docs/components/grid.mdx",
                         "type": "page",
                         "title": "Grid"
                       },
                       "row": {
+                        "description": "The deprecated row component for horizontal layouts. Use the grid component instead.",
                         "filepath": "documentation/guides/docs/components/row.mdx",
                         "type": "page",
                         "title": "Row (Deprecated)"
@@ -1353,26 +1384,31 @@
                   "mcp": {
                     "title": "MCP Servers",
                     "type": "page",
+                    "description": "Generate secure MCP servers from your OpenAPI documents so LLMs can call your API with just-in-time tools and delegated auth.",
                     "filepath": "documentation/guides/agent/mcp.md"
                   },
                   "sdk": {
                     "title": "Agent SDK",
                     "type": "page",
+                    "description": "Build AI agents on your API with the Scalar Agent SDK: chat, tool calls, and OpenAPI-backed context.",
                     "filepath": "documentation/guides/agent/sdk.md"
                   },
                   "api-reference": {
                     "title": "Agent in API Reference",
                     "type": "page",
+                    "description": "Add the Scalar Agent chat to your API reference so developers can ask questions and try your API with AI.",
                     "filepath": "documentation/guides/agent/api-reference.md"
                   },
                   "pricing": {
                     "title": "Pricing",
                     "type": "page",
+                    "description": "Scalar Agent pricing: what is free, what is metered, and how usage is billed.",
                     "filepath": "documentation/guides/agent/pricing.md"
                   },
                   "key": {
                     "title": "API Keys",
                     "type": "page",
+                    "description": "Create and manage API keys for Scalar Agent and MCP servers.",
                     "filepath": "documentation/guides/agent/key.md"
                   },
                   "release-notes": {
@@ -1394,26 +1430,31 @@
                     "mode": "flat",
                     "children": {
                       "incident-monitor": {
+                        "description": "Example: build an incident monitoring agent with Scalar Agent connected to your APIs.",
                         "filepath": "documentation/guides/agent/examples/incident-monitor.md",
                         "type": "page",
                         "title": "Incident Monitor"
                       },
                       "billing-sweep": {
+                        "description": "Example: build a billing sweep agent with Scalar Agent connected to your APIs.",
                         "filepath": "documentation/guides/agent/examples/billing-sweep.md",
                         "type": "page",
                         "title": "Billing Sweep"
                       },
                       "meeting-scheduler": {
+                        "description": "Example: build a meeting scheduling agent with Scalar Agent connected to your APIs.",
                         "filepath": "documentation/guides/agent/examples/meeting-scheduler.md",
                         "type": "page",
                         "title": "Meeting Scheduler"
                       },
                       "revenue-dashboard": {
+                        "description": "Example: build a revenue dashboard agent with Scalar Agent connected to your APIs.",
                         "filepath": "documentation/guides/agent/examples/revenue-dashboard.md",
                         "type": "page",
                         "title": "Revenue Dashboard"
                       },
                       "stakeholder-digest": {
+                        "description": "Example: build a stakeholder digest agent with Scalar Agent connected to your APIs.",
                         "filepath": "documentation/guides/agent/examples/stakeholder-digest.md",
                         "type": "page",
                         "title": "Stakeholder Digest"
@@ -1573,66 +1614,79 @@
                       },
                       "typescript": {
                         "title": "TypeScript",
+                        "description": "Configuration reference for the TypeScript SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/typescript.md",
                         "type": "page"
                       },
                       "python": {
                         "title": "Python",
+                        "description": "Configuration reference for the Python SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/python.md",
                         "type": "page"
                       },
                       "cli": {
+                        "description": "Configuration reference for generating a CLI from your OpenAPI document with Scalar.",
                         "filepath": "documentation/guides/sdks/cli.md",
                         "type": "page",
                         "title": "CLI"
                       },
                       "go": {
                         "title": "Go (Experimental)",
+                        "description": "Configuration reference for the experimental Go SDK target: module metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/go.md",
                         "type": "page"
                       },
                       "java": {
                         "title": "Java (Experimental)",
+                        "description": "Configuration reference for the experimental Java SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/java.md",
                         "type": "page"
                       },
                       "csharp": {
                         "title": "C# (Experimental)",
+                        "description": "Configuration reference for the experimental C# SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/csharp.md",
                         "type": "page"
                       },
                       "php": {
                         "title": "PHP (Experimental)",
+                        "description": "Configuration reference for the experimental PHP SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/php.md",
                         "type": "page"
                       },
                       "ruby": {
                         "title": "Ruby (Experimental)",
+                        "description": "Configuration reference for the experimental Ruby SDK target: gem metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/ruby.md",
                         "type": "page"
                       },
                       "swift": {
                         "title": "Swift (Experimental)",
+                        "description": "Configuration reference for the experimental Swift SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/swift.md",
                         "type": "page"
                       },
                       "rust": {
                         "title": "Rust (Experimental)",
+                        "description": "Configuration reference for the experimental Rust SDK target: crate metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/rust.md",
                         "type": "page"
                       },
                       "kotlin": {
                         "title": "Kotlin (Experimental)",
+                        "description": "Configuration reference for the experimental Kotlin SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/kotlin.md",
                         "type": "page"
                       },
                       "dart": {
                         "title": "Dart (Experimental)",
+                        "description": "Configuration reference for the experimental Dart SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/dart.md",
                         "type": "page"
                       },
                       "cpp": {
                         "title": "C++ (Experimental)",
+                        "description": "Configuration reference for the experimental C++ SDK target: naming and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/cpp.md",
                         "type": "page"
                       }
@@ -1687,31 +1741,37 @@
                   },
                   "upload": {
                     "title": "Upload",
+                    "description": "Upload OpenAPI documents to the Scalar Registry from the dashboard, CLI, or CI.",
                     "filepath": "documentation/guides/registry/upload.md",
                     "type": "page"
                   },
                   "schemas": {
                     "title": "Schemas",
+                    "description": "Work with schemas in the Scalar Registry: store, version, and share your API data models.",
                     "filepath": "documentation/guides/registry/schemas.md",
                     "type": "page"
                   },
                   "rules": {
+                    "description": "Enforce API standards by linting OpenAPI documents in the Scalar Registry with rules.",
                     "filepath": "documentation/guides/registry/rules.md",
                     "type": "page",
                     "title": "Rules"
                   },
                   "cli": {
+                    "description": "Manage the Scalar Registry from your terminal: upload, version, and validate OpenAPI documents with the CLI.",
                     "filepath": "documentation/guides/registry/cli.md",
                     "type": "page",
                     "title": "CLI"
                   },
                   "github-actions": {
                     "title": "GitHub Actions",
+                    "description": "Push OpenAPI documents to the Scalar Registry automatically with GitHub Actions.",
                     "filepath": "documentation/guides/registry/github-actions.md",
                     "type": "page"
                   },
                   "gitlab-ci": {
                     "title": "GitLab CI/CD",
+                    "description": "Push OpenAPI documents to the Scalar Registry automatically with GitLab CI/CD.",
                     "filepath": "documentation/guides/registry/gitlab-ci.md",
                     "type": "page"
                   }
@@ -1830,6 +1890,7 @@
                   },
                   "plugins": {
                     "title": "Plugins",
+                    "description": "Extend Scalar API References with plugins to customize rendering and behavior.",
                     "filepath": "documentation/plugins.md",
                     "type": "page"
                   },
@@ -1841,11 +1902,13 @@
                     "children": {
                       "getting-started": {
                         "title": "Getting Started",
+                        "description": "Compose API documentation from individual blocks: render operations, schemas, and code examples anywhere.",
                         "filepath": "documentation/guides/blocks/getting-started.md",
                         "type": "page"
                       },
                       "code-example": {
                         "title": "Code Example",
+                        "description": "Render standalone code examples for any operation with the Scalar code example block.",
                         "filepath": "documentation/guides/blocks/code-example.md",
                         "type": "page"
                       }
@@ -1877,16 +1940,19 @@
                   },
                   "asyncapi": {
                     "title": "AsyncAPI",
+                    "description": "Render AsyncAPI documents with Scalar for beautiful event-driven API documentation.",
                     "filepath": "documentation/asyncapi.md",
                     "type": "page"
                   },
                   "markdown": {
                     "title": "Markdown",
+                    "description": "Use Markdown in your OpenAPI descriptions: supported syntax and rendering in Scalar API References.",
                     "filepath": "documentation/markdown.md",
                     "type": "page"
                   },
                   "server-side-rendering": {
                     "title": "Server-Side Rendering",
+                    "description": "Server-side render Scalar API References in Node.js for faster loads and better SEO.",
                     "filepath": "documentation/server-side-rendering.md",
                     "type": "page"
                   },
@@ -2696,11 +2762,13 @@
                     }
                   },
                   "authentication": {
+                    "description": "Authenticate the Scalar CLI with your Scalar account using login, tokens, and CI environment variables.",
                     "filepath": "documentation/guides/cli/authentication.md",
                     "type": "page",
                     "title": "Authentication"
                   },
                   "commands": {
+                    "description": "Full command reference for the Scalar CLI: projects, registry, OpenAPI validation, bundling, and mocking.",
                     "filepath": "documentation/guides/cli/commands.md",
                     "type": "page",
                     "title": "Commands"
@@ -2748,21 +2816,25 @@
                   },
                   "docker": {
                     "title": "Docker",
+                    "description": "Run the Scalar Mock Server in Docker to mock any OpenAPI document in containers and CI.",
                     "filepath": "documentation/guides/mock-server/docker.md",
                     "type": "page"
                   },
                   "custom-request-handler": {
                     "title": "Custom Request Handlers",
+                    "description": "Customize mock responses with x-handler: write JavaScript request handlers for any operation.",
                     "filepath": "documentation/guides/mock-server/custom-request-handler.md",
                     "type": "page"
                   },
                   "agent-skills": {
                     "title": "Agent Skills",
+                    "description": "Use Agent Skills to help AI coding agents build and configure Scalar Mock Server setups.",
                     "filepath": "documentation/guides/mock-server/agent-skills.md",
                     "type": "page"
                   },
                   "data-seeding": {
                     "title": "Data Seeding",
+                    "description": "Seed realistic mock data with x-seed to get consistent, related responses from your mock API.",
                     "filepath": "documentation/guides/mock-server/data-seeding.md",
                     "type": "page"
                   },
@@ -2814,6 +2886,7 @@
                   },
                   "changelog": {
                     "title": "Changelog",
+                    "description": "Changelog for @scalar/openapi-upgrader releases.",
                     "filepath": "packages/openapi-upgrader/CHANGELOG.md",
                     "type": "page"
                   }
@@ -2874,10 +2947,17 @@
           },
           "/customers/partech": {
             "type": "page",
-            "title": "How PAR Technology Corporation Enhanced Its Developer Experience With a Modern, Open Standards Platform",
+            "title": "How PAR Modernized Its Developer Experience With Scalar",
             "filepath": "documentation/guides/customers/partech.md",
             "showInSidebar": false,
+            "description": "How PAR Technology modernized its developer experience with Scalar, a modern, open-standards API platform.",
             "head": {
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/customers/partech"
+                }
+              ],
               "meta": [
                 {
                   "property": "og:image",
@@ -3049,31 +3129,37 @@
                     "children": {
                       "auth0": {
                         "title": "Auth0",
+                        "description": "Configure SAML single sign-on for Scalar with Auth0: step-by-step IdP setup, metadata, and claims.",
                         "filepath": "documentation/guides/sso/providers/auth0.md",
                         "type": "page"
                       },
                       "google": {
                         "title": "Google",
+                        "description": "Configure SAML single sign-on for Scalar with Google Workspace: step-by-step IdP setup, metadata, and claims.",
                         "filepath": "documentation/guides/sso/providers/google.md",
                         "type": "page"
                       },
                       "microsoft-entra-id": {
                         "title": "Microsoft Entra ID",
+                        "description": "Configure SAML single sign-on for Scalar with Microsoft Entra ID (formerly Azure AD).",
                         "filepath": "documentation/guides/sso/providers/microsoft-entra-id.md",
                         "type": "page"
                       },
                       "okta": {
                         "title": "Okta",
+                        "description": "Configure SAML single sign-on for Scalar with Okta: step-by-step IdP setup, metadata, and claims.",
                         "filepath": "documentation/guides/sso/providers/okta.md",
                         "type": "page"
                       },
                       "onelogin": {
                         "title": "OneLogin",
+                        "description": "Configure SAML single sign-on for Scalar with OneLogin: step-by-step IdP setup, metadata, and claims.",
                         "filepath": "documentation/guides/sso/providers/onelogin.md",
                         "type": "page"
                       },
                       "ping-identity": {
                         "title": "Ping Identity",
+                        "description": "Configure SAML single sign-on for Scalar with Ping Identity: step-by-step IdP setup, metadata, and claims.",
                         "filepath": "documentation/guides/sso/providers/ping-identity.md",
                         "type": "page"
                       }
@@ -3188,6 +3274,7 @@
                 "type": "page",
                 "title": "Blog",
                 "icon": "phosphor/regular/newspaper",
+                "description": "News and engineering stories from the Scalar team on OpenAPI, API documentation, and developer experience.",
                 "filepath": "documentation/blog/index.md",
                 "showInSidebar": true,
                 "layout": {
@@ -3224,12 +3311,14 @@
           "/blog/posts/2026-04-11-oss-pledge": {
             "type": "page",
             "title": "Scalar's 2025 Open Source Pledge",
+            "description": "Scalar renews its Open Source Pledge for 2025, continuing to fund the open source maintainers we depend on.",
             "filepath": "documentation/blog/2026-04-11-oss-pledge.md",
             "showInSidebar": false
           },
           "/blog/posts/2026-03-25-scalar-mcp-oauth": {
             "type": "page",
             "title": "Too Long; Didn't Read; Used MCP",
+            "description": "How OAuth works with Scalar MCP servers: authenticate agents against your API with delegated user permissions.",
             "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
             "showInSidebar": false,
             "head": {
@@ -3243,6 +3332,7 @@
           "/blog/posts/2026-03-17-agent-mcp": {
             "type": "page",
             "title": "Use your API in Cursor",
+            "description": "Expose your OpenAPI document as an MCP server and use your API directly in Cursor or any MCP-compatible tool.",
             "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
             "showInSidebar": false,
             "head": {
@@ -3256,78 +3346,91 @@
           "/blog/posts/2026-03-05-agent-scalar": {
             "type": "page",
             "title": "Introducing Agent",
+            "description": "Introducing Scalar Agent: connect LLMs to your API using a fraction of the context window instead of pasting your whole OpenAPI document.",
             "filepath": "documentation/blog/2026-03-05-agent-scalar.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-08-19-how-to-set-up-an-openapi-mock-server": {
             "type": "page",
             "title": "How to set up an OpenAPI mock server",
+            "description": "How to set up an OpenAPI mock server with the Scalar CLI in a few commands.",
             "filepath": "documentation/blog/2025-08-19-how-to-set-up-an-openapi-mock-server.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-07-07-how-to-do-openapi-validation-and": {
             "type": "page",
             "title": "How to do OpenAPI validation (and why it matters)",
+            "description": "How to validate OpenAPI documents with the Scalar CLI, and why validation matters for your API workflow.",
             "filepath": "documentation/blog/2025-07-07-how-to-do-openapi-validation-and.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-05-28-how-we-created-an-animated-responsive": {
             "type": "page",
             "title": "How we created an animated, responsive README",
+            "description": "How we built an animated, responsive README for the Scalar GitHub repository with GitHub-flavored Markdown.",
             "filepath": "documentation/blog/2025-05-28-how-we-created-an-animated-responsive.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-05-07-how-scalar-themes-work": {
             "type": "page",
             "title": "How Scalar themes work",
+            "description": "How Scalar themes work: the CSS variable system that lets you restyle an entire API reference.",
             "filepath": "documentation/blog/2025-05-07-how-scalar-themes-work.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-04-28-how-cloudinarys-api-docs-create-a": {
             "type": "page",
             "title": "How Cloudinary’s API docs create a great developer experience",
+            "description": "What Cloudinary API docs get right, and what API-first companies can learn from their developer experience.",
             "filepath": "documentation/blog/2025-04-28-how-cloudinarys-api-docs-create-a.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-04-23-an-introduction-to-openapi-variables": {
             "type": "page",
             "title": "An introduction to OpenAPI variables",
+            "description": "An introduction to OpenAPI variables: the different types and how to use them in your API documentation.",
             "filepath": "documentation/blog/2025-04-23-an-introduction-to-openapi-variables.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-04-06-how-we-extended-the-openapi-specification": {
             "type": "page",
             "title": "How we extended the OpenAPI specification",
+            "description": "The extensions we added to the OpenAPI specification and how we process them under the hood.",
             "filepath": "documentation/blog/2025-04-06-how-we-extended-the-openapi-specification.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-03-26-a-guide-to-openapi-security-and-how": {
             "type": "page",
             "title": "A guide to OpenAPI security (and how we handle it in Scalar)",
+            "description": "A practical guide to defining authentication and authorization in OpenAPI, and how Scalar renders security schemes.",
             "filepath": "documentation/blog/2025-03-26-a-guide-to-openapi-security-and-how.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-03-19-the-hidden-complexity-of-building": {
             "type": "page",
             "title": "The hidden complexity of building drag and drop",
+            "description": "Why drag and drop is deceptively hard to build, and how we implemented it in the Scalar API Client.",
             "filepath": "documentation/blog/2025-03-19-the-hidden-complexity-of-building.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-03-12-how-we-sped-up-our-api-docs-25x": {
             "type": "page",
             "title": "How we sped up our API docs 25x",
+            "description": "The structural and rendering changes that made our API documentation 25x faster.",
             "filepath": "documentation/blog/2025-03-12-how-we-sped-up-our-api-docs-25x.md",
             "showInSidebar": false
           },
           "/blog/posts/2025-03-05-how-net-9-and-scalar-solve-the-problem": {
             "type": "page",
             "title": "How .NET 9 and Scalar solve the problem of under-documented APIs",
+            "description": "How .NET 9 OpenAPI document generation and Scalar work together to keep your APIs documented.",
             "filepath": "documentation/blog/2025-03-05-how-net-9-and-scalar-solve-the-problem.md",
             "showInSidebar": false
           },
           "/blog/posts/2024-09-01-oss-pledge": {
             "type": "page",
             "title": "Scalar Joins the Open-Source Pledge",
+            "description": "Scalar joins the Open Source Pledge, committing at least $2,000 per developer per year to open source maintainers.",
             "filepath": "documentation/blog/2024-09-01-oss-pledge.md",
             "showInSidebar": false
           }
@@ -3339,6 +3442,7 @@
         "children": {
           "/terms-and-conditions": {
             "title": "Terms and Conditions",
+            "description": "The terms and conditions for using Scalar products and services.",
             "filepath": "documentation/legal/terms-and-conditions.md",
             "type": "page",
             "layout": {
@@ -3347,6 +3451,7 @@
           },
           "/privacy-policy": {
             "title": "Privacy Policy",
+            "description": "How Scalar collects, uses, and protects your data.",
             "filepath": "documentation/legal/privacy-policy.md",
             "type": "page",
             "layout": {
