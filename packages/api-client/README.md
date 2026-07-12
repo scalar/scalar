@@ -206,6 +206,53 @@ Each handler in `responseBody` supports:
 | `rawComponent` | A custom Vue component for the raw view (mutually exclusive with `language`). |
 | `previewComponent` | A custom Vue component for the preview view. |
 
+### Custom Transports
+
+By default, requests are executed with the global `fetch`. A plugin can register a custom transport to take over request execution, selected by document type and the protocol of the target server:
+
+```ts
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+
+const customClientPlugin: ClientPlugin = {
+  transports: [
+    {
+      // Optional: restrict to 'openapi' or 'asyncapi' documents (matches both when omitted)
+      documentType: 'openapi',
+      // Protocols this transport serves
+      protocols: ['http', 'https'],
+      transport: {
+        kind: 'http',
+        // Receives the exact fetch Request the client built and returns a standard Response
+        send: async (request, { documentType, protocol }) => {
+          return myCustomHttpClient.execute(request)
+        },
+      },
+    },
+  ],
+}
+
+createApiClientApp(el, {
+  layout: 'web',
+  plugins: [customClientPlugin],
+})
+```
+
+Each registration in `transports` supports:
+
+| Property | Description |
+|---|---|
+| `documentType` | Restrict the transport to `openapi` or `asyncapi` documents. Matches both when omitted. |
+| `protocols` | Protocols the transport serves (case-insensitive, a trailing `:` is ignored), for example `['http', 'https']`. |
+| `transport` | The implementation. For `kind: 'http'`, `send(request, context)` receives the built fetch `Request` and returns a `Response`. |
+
+Because the transport returns a standard `Response`, the entire response pipeline (streaming detection, cookie handling, response body decoding, plugin hooks) keeps working unchanged.
+
+A few rules to be aware of:
+
+- The first matching registration in plugin order wins.
+- An app-level `customFetch` option takes precedence over plugin transports.
+- Requests executed through a plugin transport bypass the CORS proxy: transports own their I/O, and the proxy exists to work around browser `fetch` limitations that a custom client does not have.
+
 ## Community
 
 We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>

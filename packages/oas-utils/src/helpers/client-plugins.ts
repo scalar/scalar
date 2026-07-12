@@ -4,6 +4,8 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/stric
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { Component, DefineComponent } from 'vue'
 
+import type { ClientTransport } from './client-transports'
+
 /** Shared fields present on every response body handler variant */
 type ResponseBodyHandlerBase = {
   /** MIME type patterns this handler matches (exact or glob like "application/vnd.*+json") */
@@ -221,6 +223,15 @@ export type ClientPlugin = {
   on?: AnyEventListener
   /** Custom response body handlers for specific content types */
   responseBody?: ResponseBodyHandler[]
+  /**
+   * Custom transports that replace the built-in request execution engine.
+   *
+   * Each registration is keyed by document type and protocol, so a plugin can take over
+   * a specific combination (for example `https` for AsyncAPI documents only) while the
+   * built-in engine keeps serving everything else. The first matching registration in
+   * plugin order wins. Requests executed through a custom transport bypass the CORS proxy.
+   */
+  transports?: ClientTransport[]
 }
 
 /**

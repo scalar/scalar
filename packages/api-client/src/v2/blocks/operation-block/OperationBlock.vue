@@ -135,6 +135,7 @@ import {
   getCookieRequestUrl,
   getResponseCookieActions,
 } from '@/v2/blocks/operation-block/helpers/persist-response-cookies'
+import { resolveRequestTransportFetch } from '@/v2/blocks/operation-block/helpers/request-transport'
 import {
   getOperationExampleKey,
   isStreamingResponse,
@@ -314,6 +315,25 @@ const handleExecute = async () => {
     ...variablesStore.getVariables(),
   }
 
+  /**
+   * Resolve a plugin-registered transport for the target protocol. An app-level
+   * `customFetch` option takes precedence over plugin transports. When a plugin
+   * transport is used, the CORS proxy is disabled: transports own their I/O, and
+   * the proxy would hand them the proxy URL instead of the real target.
+   */
+  const transportFetch = toValue(options)?.customFetch
+    ? undefined
+    : resolveRequestTransportFetch({
+        requestBuilder,
+        envVariables,
+        documentType: 'openapi',
+        plugins,
+      })
+
+  if (transportFetch) {
+    requestBuilder.proxyUrl = ''
+  }
+
   // Build the fetch Request after hooks may have mutated the factory
   const built = buildRequest(requestBuilder, {
     envVariables,
@@ -360,7 +380,7 @@ const handleExecute = async () => {
     requestPayload: built.data.requestPayload,
     request,
     plugins,
-    customFetch: toValue(options)?.customFetch,
+    customFetch: toValue(options)?.customFetch ?? transportFetch,
   })
 
   if (sendResult) {
