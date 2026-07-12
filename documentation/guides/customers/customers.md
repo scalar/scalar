@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-3 hero small-test customers-hero">
-  <scalar-heading level="2" slug="customers" class="text-balance">
+  <scalar-heading level="1" slug="customers" class="text-balance">
     Trusted by the world's best API teams.
   </scalar-heading>
   <p>

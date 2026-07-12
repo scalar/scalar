@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-3 hero small-test">
-  <scalar-heading level="2" slug="pricing" class="text-balance">
+  <scalar-heading level="1" slug="pricing" class="text-balance">
     Plans for every API interface
   </scalar-heading>
   <p>
