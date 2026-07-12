@@ -2942,7 +2942,8 @@
               ]
             },
             "layout": {
-              "toc": false
+              "toc": false,
+              "pageTitle": false
             }
           },
           "/customers/partech": {
