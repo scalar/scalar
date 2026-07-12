@@ -11,7 +11,7 @@
  */
 ;(() => {
   const TITLES = {
-    '/': 'Scalar — API Documentation, SDKs, MCP Servers & API Client',
+    '/': 'API interfaces built for developers and agents',
     '/pricing': 'Scalar Pricing — Plans for API Docs, SDKs & MCP Servers',
     '/customers': "Scalar Customers — Trusted by the World's Best API Teams",
     '/products/docs/getting-started': 'Scalar Docs — API Documentation & Developer Docs Platform',
