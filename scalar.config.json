@@ -12,6 +12,9 @@
     "head": {
       "scripts": [
         {
+          "path": "documentation/assets/seo-titles.js"
+        },
+        {
           "path": "documentation/assets/landing.js"
         },
         {
