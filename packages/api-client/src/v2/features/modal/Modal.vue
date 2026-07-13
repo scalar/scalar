@@ -55,8 +55,8 @@ import {
 } from 'vue'
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
-import type { RoutePayload } from '@/v2/features/modal/helpers/resolve-route-parameters'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
+import type { RoutePayload } from '@/v2/features/modal/helpers/resolve-route-parameters'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
