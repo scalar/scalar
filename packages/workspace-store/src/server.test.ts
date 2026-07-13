@@ -16,6 +16,7 @@ import {
   externalizeComponentReferences,
   externalizePathReferences,
   filterHttpMethodsOnly,
+  getOperationChunkName,
 } from './server'
 
 describe('create-server-store', () => {
@@ -626,6 +627,18 @@ describe('escape-paths', () => {
 
     expect(result['~1hello~0world~1users']).toEqual({ get: { description: 'some description' } })
   })
+
+  it('should encode custom operation names before using them as chunk names', () => {
+    const result = escapePaths({ '/test': { '../outside': { description: 'custom operation' } } })
+
+    expect(result).toEqual({
+      '~1test': { 'custom-%2E%2E%2Foutside': { description: 'custom operation' } },
+    })
+  })
+
+  it('should preserve standard operation chunk names', () => {
+    expect(getOperationChunkName('get')).toBe('get')
+  })
 })
 
 describe('externalize-component-references', () => {
@@ -731,6 +744,38 @@ describe('externalize-path-references', () => {
 
     expect(result).toEqual({
       '/test': { get: { '$ref': 'https://example.com/name/operations/~1test/get#', $global: true } },
+    })
+  })
+
+  it('should encode custom operation names in SSR references', () => {
+    const result = externalizePathReferences(
+      {
+        openapi: '3.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/test': {
+            additionalOperations: {
+              '../outside': { description: 'custom operation' },
+            },
+          },
+        },
+      },
+      {
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        name: 'name',
+      },
+    )
+
+    expect(result).toEqual({
+      '/test': {
+        additionalOperations: {
+          '../outside': {
+            '$ref': 'https://example.com/name/operations/~1test/custom-%2E%2E%2Foutside#',
+            $global: true,
+          },
+        },
+      },
     })
   })
 
