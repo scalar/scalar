@@ -2,10 +2,11 @@ import type { HttpMethod } from './http-methods'
 import { isHttpMethod } from './is-http-method'
 
 const DEFAULT_REQUEST_METHOD = 'get' as const
+const HTTP_METHOD_TOKEN = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/
 
 /**
- * Get a normalized request method (e.g. get, post, etc.)
- * Lowercases the method and returns the default if it is not a valid method so you will always have a valid method
+ * Get a normalized request method.
+ * Standard methods are lowercased; custom HTTP method tokens are preserved for OpenAPI 3.2 additionalOperations.
  */
 export const normalizeHttpMethod = (method?: string): HttpMethod => {
   // Make sure it's a string
@@ -16,15 +17,16 @@ export const normalizeHttpMethod = (method?: string): HttpMethod => {
   }
 
   // Normalize the string
-  const normalizedMethod = method.trim().toLowerCase()
+  const trimmedMethod = method.trim()
+  const normalizedMethod = trimmedMethod.toLowerCase()
 
-  if (!isHttpMethod(normalizedMethod)) {
+  if (!trimmedMethod || !HTTP_METHOD_TOKEN.test(trimmedMethod)) {
     console.warn(
-      `${method || 'Request method'} is not a valid request method. Using ${DEFAULT_REQUEST_METHOD} as the default.`,
+      `${trimmedMethod || 'Request method'} is not a valid request method. Using ${DEFAULT_REQUEST_METHOD} as the default.`,
     )
 
     return DEFAULT_REQUEST_METHOD
   }
 
-  return normalizedMethod
+  return isHttpMethod(normalizedMethod) ? normalizedMethod : (trimmedMethod as HttpMethod)
 }

@@ -197,6 +197,65 @@ describe('createApiClientModal', () => {
     })
   })
 
+  it('opens a custom method operation from the open-client-modal event', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'test-doc',
+      document: createTestDocument({
+        openapi: '3.2.0',
+        paths: {
+          '/users': {
+            additionalOperations: {
+              LIST: {
+                summary: 'List users with a request body',
+                requestBody: {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+    workspaceStore.update('x-scalar-active-document', 'test-doc')
+
+    const eventBus = createWorkspaceEventBus()
+    const modal = createApiClientModal({
+      el: mountElement,
+      eventBus,
+      workspaceStore,
+      mountOnInitialize: true,
+    })
+    createdApps.push(modal.app)
+
+    await nextTick()
+
+    eventBus.emit('ui:open:client-modal', {
+      method: 'LIST',
+      path: '/users',
+    } as never)
+
+    await nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    const wrapper = mount(Modal, {
+      attachTo: mountElement,
+      props: getModalProps(modal.app),
+    })
+
+    const operationBlock = wrapper.findComponent({ name: 'OperationBlock' })
+    expect(operationBlock.exists()).toBe(true)
+    expect(operationBlock.props('path')).toBe('/users')
+    expect(operationBlock.props('method')).toBe('LIST')
+    expect(operationBlock.props('exampleKey')).toBe('default')
+  })
+
   it('reacts to changes in options.authentication', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

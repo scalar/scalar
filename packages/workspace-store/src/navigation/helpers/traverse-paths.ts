@@ -122,7 +122,7 @@ export const traversePaths = ({
 
   // Traverse paths
   Object.entries(document.paths ?? {}).forEach(([path, pathItemRef]) => {
-    forEachPathItemOperation(pathItemRef, (method, operationRef) => {
+    forEachPathItemOperation(pathItemRef, (method, operationRef, pointer) => {
       const operation = getResolvedRef(operationRef, mergeSiblingReferences)
       if (!operation) {
         return
@@ -133,7 +133,7 @@ export const traversePaths = ({
         return
       }
 
-      const ref = `#/paths/${escapeJsonPointer(path)}/${method}`
+      const ref = `#/paths/${escapeJsonPointer(path)}/${pointer.map(escapeJsonPointer).join('/')}`
 
       // Traverse tags
       if (operation.tags?.length) {

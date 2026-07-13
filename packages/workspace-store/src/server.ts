@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
@@ -55,11 +56,9 @@ type CreateServerWorkspaceStoreProps =
       mode: 'ssr'
     } & CreateServerWorkspaceStoreBase)
 
-const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
-
 /**
- * Filters an OpenAPI PathsObject to only include standard HTTP methods.
- * Removes any vendor extensions or other non-HTTP properties.
+ * Filters an OpenAPI PathsObject to only include operations.
+ * Removes any vendor extensions or other non-operation properties.
  *
  * @param paths - The OpenAPI PathsObject to filter
  * @returns A new PathsObject containing only standard HTTP methods
@@ -87,9 +86,7 @@ export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record
     const filteredMethods: Record<string, OperationObject> = {}
 
     forEachPathItemOperation(pathItemRef, (method, operation) => {
-      if (httpMethods.has(method.toLowerCase())) {
-        filteredMethods[method] = getResolvedRef(operation) ?? operation
-      }
+      filteredMethods[method] = getResolvedRef(operation) ?? operation
     })
 
     if (Object.keys(filteredMethods).length > 0) {
@@ -180,15 +177,28 @@ export function externalizePathReferences(
 
     const escapedPath = escapeJsonPointer(path)
 
-    keyOf(pathItemRecord).forEach((type) => {
-      if (httpMethods.has(type)) {
-        const ref =
-          meta.mode === 'ssr'
-            ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${type}#`
-            : `./chunks/${meta.name}/operations/${escapedPath}/${type}.json#`
+    forEachPathItemOperation(pathItemRef, (method, _operation, pointer) => {
+      const ref =
+        meta.mode === 'ssr'
+          ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${method}#`
+          : `./chunks/${meta.name}/operations/${escapedPath}/${method}.json#`
 
-        result[path][type] = { '$ref': ref, $global: true }
-      } else if (type !== '$ref') {
+      if (pointer.length === 1) {
+        result[path][method] = { '$ref': ref, $global: true }
+      } else {
+        result[path].additionalOperations = {
+          ...result[path].additionalOperations,
+          [method]: { '$ref': ref, $global: true },
+        }
+      }
+    })
+
+    keyOf(pathItemRecord).forEach((type) => {
+      if (isHttpMethod(type) || type === 'additionalOperations') {
+        return
+      }
+
+      if (type !== '$ref') {
         // Skip the path-item `$ref` merged in by getResolvedPathItem: the referenced component is
         // externalized on its own and the operations are externalized above, so keeping it would
         // emit a hybrid entry with both a component `$ref` and inlined operation references.

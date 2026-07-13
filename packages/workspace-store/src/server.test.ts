@@ -595,6 +595,22 @@ describe('filter-http-methods-only', () => {
     // check the contents of the operation
     expect(result['/path']?.get).toEqual({ description: 'some description' })
   })
+
+  it('should include OpenAPI 3.2 additionalOperations with arbitrary custom methods', () => {
+    const result = filterHttpMethodsOnly({
+      '/path': {
+        get: { description: 'query list' },
+        additionalOperations: {
+          LIST: { description: 'body list' },
+          COPY: { description: 'copy with body' },
+        },
+      },
+    })
+
+    expect(Object.keys(result['/path'] ?? {})).toEqual(['get', 'LIST', 'COPY'])
+    expect(result['/path']?.LIST).toEqual({ description: 'body list' })
+    expect(result['/path']?.COPY).toEqual({ description: 'copy with body' })
+  })
 })
 
 describe('escape-paths', () => {

@@ -255,6 +255,54 @@ describe('ClassicLayout', () => {
     expect(codeSample.props('selectedContentType')).toBe('application/x-www-form-urlencoded')
   })
 
+  it('remounts the code sample when only the operation method changes', async () => {
+    const wrapper = mount(ClassicLayout, {
+      props: {
+        ...props,
+        method: 'get',
+        selectedClient: 'go/native',
+        clientOptions: [
+          {
+            label: 'Go',
+            key: 'go',
+            options: [
+              {
+                clientKey: 'native',
+                id: 'go/native',
+                label: 'NewRequest',
+                lang: 'go',
+                targetKey: 'go',
+                targetTitle: 'Go',
+                title: 'Go NewRequest',
+              },
+            ],
+          },
+        ],
+      },
+      global: {
+        stubs: {
+          RouterLink: {
+            name: 'RouterLink',
+            template: '<a><slot /></a>',
+          },
+        },
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain(
+      'http.NewRequest("GET"',
+    )
+
+    await wrapper.setProps({ method: 'LIST' })
+    await nextTick()
+
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain(
+      'http.NewRequest("LIST"',
+    )
+  })
+
   it('opens the test request with the example shown in the snippet, even when the document-wide selection is missing', async () => {
     const exampleProps: ExtractComponentProps<typeof ClassicLayout> = {
       ...props,

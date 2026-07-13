@@ -7,7 +7,6 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
 
 const {
-  id,
   method,
   path,
   eventBus,
@@ -23,11 +22,12 @@ const {
 }>()
 const { translate } = useLocalization()
 
-/** Route via ID and optionally with example name */
+/** Route via operation location and optionally with example name */
 const handleClick = () => {
   // Include exampleName in payload if provided
   const payload = {
-    id,
+    method,
+    path,
     ...(exampleName && { exampleName }),
     ...(requestBodyCompositionSelection &&
       Object.keys(requestBodyCompositionSelection).length > 0 && {

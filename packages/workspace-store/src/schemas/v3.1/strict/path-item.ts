@@ -25,16 +25,20 @@ export const PathItemObjectSchemaDefinition = Type.Object({
   post: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
   /** A definition of a DELETE operation on this path. */
   delete: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
-  /** A definition of a PATCH operation on this path. */
-  patch: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
-  /** A definition of a CONNECT operation on this path. */
-  connect: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
   /** A definition of a OPTIONS operation on this path. */
   options: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
   /** A definition of a HEAD operation on this path. */
   head: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
+  /** A definition of a PATCH operation on this path. */
+  patch: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
   /** A definition of a TRACE operation on this path. */
   trace: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
+  /** A definition of a QUERY operation on this path. */
+  query: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
+  /** A map of additional operations on this path. */
+  additionalOperations: Type.Optional(
+    Type.Record(Type.String(), Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
+  ),
   /** An alternative servers array to service all operations in this path. If a servers array is specified at the OpenAPI Object level, it will be overridden by this value. */
   servers: Type.Optional(Type.Array(ServerObjectRef)),
   /** A list of parameters that are applicable for all the operations described under this path. These parameters can be overridden at the operation level, but cannot be removed there. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined in the OpenAPI Object's components.parameters. */
@@ -60,16 +64,18 @@ export type PathItemObject = {
   post?: ReferenceType<OperationObject>
   /** A definition of a DELETE operation on this path. */
   delete?: ReferenceType<OperationObject>
-  /** A definition of a PATCH operation on this path. */
-  patch?: ReferenceType<OperationObject>
-  /** A definition of a CONNECT operation on this path. */
-  connect?: ReferenceType<OperationObject>
   /** A definition of a OPTIONS operation on this path. */
   options?: ReferenceType<OperationObject>
   /** A definition of a HEAD operation on this path. */
   head?: ReferenceType<OperationObject>
+  /** A definition of a PATCH operation on this path. */
+  patch?: ReferenceType<OperationObject>
   /** A definition of a TRACE operation on this path. */
   trace?: ReferenceType<OperationObject>
+  /** A definition of a QUERY operation on this path. */
+  query?: ReferenceType<OperationObject>
+  /** A map of additional operations on this path. */
+  additionalOperations?: Record<string, ReferenceType<OperationObject>>
   /** An alternative servers array to service all operations in this path. If a servers array is specified at the OpenAPI Object level, it will be overridden by this value. */
   servers?: ServerObject[]
   /** A list of parameters that are applicable for all the operations described under this path. These parameters can be overridden at the operation level, but cannot be removed there. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined in the OpenAPI Object's components.parameters. */

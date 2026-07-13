@@ -97,8 +97,12 @@ const requestBodyCompositionSelectionForCodeSample = computed(
   }),
 )
 
-const requestBodyCompositionSelectionKey = computed(() =>
-  JSON.stringify(requestBodyCompositionSelectionForCodeSample.value),
+const codeExampleKey = computed(() =>
+  JSON.stringify({
+    method,
+    path,
+    requestBodyCompositionSelection: requestBodyCompositionSelectionForCodeSample.value,
+  }),
 )
 
 provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
@@ -232,7 +236,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           <!-- New Example Request -->
           <ScalarErrorBoundary>
             <CodeExample
-              :key="requestBodyCompositionSelectionKey"
+              :key="codeExampleKey"
               :clientOptions
               :eventBus
               fallback

@@ -214,6 +214,7 @@ describe('OperationsListItem', () => {
         createMockOperation({ method: 'post' }),
         createMockOperation({ method: 'put' }),
         createMockOperation({ method: 'delete' }),
+        createMockOperation({ method: 'LIST' }),
       ]
 
       operations.forEach((operation) => {

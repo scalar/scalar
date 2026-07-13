@@ -216,6 +216,14 @@ const showAuthSelector = computed(
     (Boolean(asyncApiDocument.value) || !options.hideTestRequestButton),
 )
 
+const hasRenderableContent = computed(
+  () => Boolean(document) && (items.length > 0 || Boolean(openApiDocument.value) || Boolean(asyncApiDocument.value)),
+)
+
+const documentInfo = computed(
+  () => document?.info ?? { title: documentSlug || 'API Reference', version: '' },
+)
+
 /** Ensures firstLazyLoadComplete is set for documents with no Lazy sections (e.g. no operations/tags/models). */
 onMounted(() => {
   scheduleInitialLoadComplete()
@@ -245,7 +253,7 @@ onMounted(() => {
       :eventBus
       :externalDocs="openApiDocument?.externalDocs"
       :headingSlugGenerator
-      :info="document?.info"
+      :info="documentInfo"
       :infoExtensions
       :layout="options.layout"
       :specificationVersion>
@@ -350,7 +358,7 @@ onMounted(() => {
     <slot name="end" />
     <!-- Placeholder content to allow the active item to be scrolled to the top while the rest of the content is lazy loaded -->
     <div
-      v-if="!firstLazyLoadComplete"
+      v-if="!firstLazyLoadComplete && !hasRenderableContent"
       class="h-dvh"></div>
   </div>
 </template>
