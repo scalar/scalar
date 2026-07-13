@@ -30,6 +30,21 @@ import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
+/**
+ * Returns the path segment used for an operation chunk.
+ *
+ * Standard methods retain their existing names for backwards compatibility. Custom methods are
+ * encoded before being used in URLs or filesystem paths. Prefixing the encoded value also keeps
+ * values such as `.` and `..` from becoming special path segments.
+ */
+export const getOperationChunkName = (method: string): string => {
+  if (isHttpMethod(method)) {
+    return method
+  }
+
+  return `custom-${encodeURIComponent(method).replace(/\./g, '%2E')}`
+}
+
 type WorkspaceDocumentMetaInput = {
   name: string
   meta?: WorkspaceDocumentMeta
@@ -113,7 +128,9 @@ export function escapePaths(
 
   Object.keys(paths).forEach((path) => {
     if (paths[path]) {
-      result[escapeJsonPointer(path)] = paths[path]
+      result[escapeJsonPointer(path)] = Object.fromEntries(
+        Object.entries(paths[path]).map(([method, operation]) => [getOperationChunkName(method), operation]),
+      )
     }
   })
 
@@ -178,10 +195,11 @@ export function externalizePathReferences(
     const escapedPath = escapeJsonPointer(path)
 
     forEachPathItemOperation(pathItemRef, (method, _operation, pointer) => {
+      const operationChunkName = getOperationChunkName(method)
       const ref =
         meta.mode === 'ssr'
-          ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${method}#`
-          : `./chunks/${meta.name}/operations/${escapedPath}/${method}.json#`
+          ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${operationChunkName}#`
+          : `./chunks/${meta.name}/operations/${escapedPath}/${operationChunkName}.json#`
 
       if (pointer.length === 1) {
         result[path][method] = { '$ref': ref, $global: true }
@@ -484,7 +502,7 @@ export async function createServerWorkspaceStore(
             await fs.mkdir(operationPath, { recursive: true })
 
             for (const [method, operation] of Object.entries(methods)) {
-              await fs.writeFile(`${operationPath}/${method}.json`, JSON.stringify(operation))
+              await fs.writeFile(`${operationPath}/${getOperationChunkName(method)}.json`, JSON.stringify(operation))
             }
           }
         }
