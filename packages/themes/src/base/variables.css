@@ -112,12 +112,16 @@
 }
 
 /*
- * Firefox rounds sub-pixel box-shadow spread values to 0px on 1x displays,
- * which makes inset box-shadow borders (used by shadow-border) invisible.
- * Override to 1px in Firefox so borders render consistently across browsers.
+ * Firefox rounds sub-pixel box-shadow spread values down to 0px on
+ * standard-density (1x) displays, which makes the inset box-shadow borders used
+ * by shadow-border invisible. On Hi-DPI displays 0.5px already resolves to at
+ * least one device pixel and renders correctly, so the override is scoped to 1x
+ * displays to keep the crisp hairline border everywhere it works.
  */
 @supports (-moz-appearance: none) {
-  :root {
-    --scalar-border-width: 1px;
+  @media (max-resolution: 1dppx) {
+    :root {
+      --scalar-border-width: 1px;
+    }
   }
 }
