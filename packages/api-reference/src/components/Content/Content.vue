@@ -217,11 +217,16 @@ const showAuthSelector = computed(
 )
 
 const hasRenderableContent = computed(
-  () => Boolean(document) && (items.length > 0 || Boolean(openApiDocument.value) || Boolean(asyncApiDocument.value)),
+  () =>
+    Boolean(document) &&
+    (items.length > 0 ||
+      Boolean(openApiDocument.value) ||
+      Boolean(asyncApiDocument.value)),
 )
 
 const documentInfo = computed(
-  () => document?.info ?? { title: documentSlug || 'API Reference', version: '' },
+  () =>
+    document?.info ?? { title: documentSlug || 'API Reference', version: '' },
 )
 
 /** Ensures firstLazyLoadComplete is set for documents with no Lazy sections (e.g. no operations/tags/models). */

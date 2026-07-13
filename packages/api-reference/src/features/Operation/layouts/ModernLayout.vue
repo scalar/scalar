@@ -101,7 +101,8 @@ const codeExampleKey = computed(() =>
   JSON.stringify({
     method,
     path,
-    requestBodyCompositionSelection: requestBodyCompositionSelectionForCodeSample.value,
+    requestBodyCompositionSelection:
+      requestBodyCompositionSelectionForCodeSample.value,
   }),
 )
 

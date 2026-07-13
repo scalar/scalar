@@ -1031,7 +1031,9 @@ watch(
       newSlugs.length !== oldSlugs.length ||
       !newSlugs.every((slug, index) => slug === oldSlugs[index])
     ) {
-      const nextSlug = newSlugs.includes(activeSlug.value) ? activeSlug.value : (newSlugs[0] ?? '')
+      const nextSlug = newSlugs.includes(activeSlug.value)
+        ? activeSlug.value
+        : (newSlugs[0] ?? '')
 
       if (nextSlug) {
         activeSlug.value = nextSlug
