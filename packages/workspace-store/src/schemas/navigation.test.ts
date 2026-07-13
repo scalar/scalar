@@ -98,17 +98,17 @@ describe('navigation', () => {
         expect(Value.Check(TraversedOperationSchemaDefinition, result)).toBe(true)
       })
 
-      it('rejects operation entry with invalid HTTP method', () => {
-        const invalidInput = {
+      it('accepts operation entry with custom HTTP method', () => {
+        const validInput = {
           id: 'op-3',
-          title: 'Invalid Operation',
+          title: 'List Users',
           type: 'operation',
-          ref: '#/paths/~1users/get',
-          method: 'invalid-method', // not a valid HTTP method
+          ref: '#/paths/~1users/additionalOperations/LIST',
+          method: 'LIST',
           path: '/users',
         }
 
-        expect(Value.Check(TraversedOperationSchemaDefinition, invalidInput)).toBe(false)
+        expect(Value.Check(TraversedOperationSchemaDefinition, validInput)).toBe(true)
       })
     })
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { forEachPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   CallbackObject,
@@ -51,17 +51,12 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
         return
       }
 
-      // Loop over the method level
-      objectEntries(methods).forEach(([callbackMethod, callback]) => {
-        if (!isHttpMethod(callbackMethod)) {
-          return
-        }
-
+      forEachPathItemOperation(methods, (callbackMethod, callback) => {
         _callbacks.push({
           name,
           url,
           method: callbackMethod,
-          callback: callback,
+          callback: getResolvedRef(callback) ?? callback,
         })
       })
     })

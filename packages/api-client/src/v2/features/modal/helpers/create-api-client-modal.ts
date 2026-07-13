@@ -121,6 +121,7 @@ export const createApiClientModal = ({
     path,
     plugins,
     requestBodyCompositionSelection,
+    route,
     sidebarState,
     workspaceStore,
     options: optionsRef,

@@ -1,7 +1,7 @@
 import { isElectron } from '@/general/is-electron'
 
-/** HTTP Methods which can have a body */
-export const BODY_METHODS = new Set(['post', 'put', 'patch', 'delete'])
+/** Browser Request rejects bodies for these methods. Custom methods may define bodies through OpenAPI 3.2 additionalOperations. */
+export const METHODS_WITHOUT_BROWSER_BODY = new Set(['get', 'head'])
 
 /**
  * Makes a check to see if this method CAN have a body.
@@ -10,14 +10,14 @@ export const BODY_METHODS = new Set(['post', 'put', 'patch', 'delete'])
  * undici implementation does not reject it, which matches the behavior users expect from desktop API clients.
  */
 export const canMethodHaveBody = (method: string, skipElectron: boolean = false): boolean => {
-  const normalized = method.toLowerCase()
+  const normalized = method.trim().toLowerCase()
 
   // For electron we allow any method to have a body
   if (isElectron() && !skipElectron) {
     return true
   }
 
-  return BODY_METHODS.has(normalized)
+  return Boolean(normalized) && !METHODS_WITHOUT_BROWSER_BODY.has(normalized)
 }
 
 /*** We must purge body from requests that cannot accept it, skips the electron check */

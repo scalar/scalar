@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 
 import { forEachPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
@@ -99,7 +100,7 @@ export const traverseWebhooks = ({
 
   // Traverse webhooks
   Object.entries(document.webhooks ?? {}).forEach(([name, pathItemRef]) => {
-    forEachPathItemOperation(pathItemRef, (method, operationRef) => {
+    forEachPathItemOperation(pathItemRef, (method, operationRef, pointer) => {
       const operation = getResolvedRef(operationRef, mergeSiblingReferences)
       if (!operation) {
         return
@@ -110,7 +111,7 @@ export const traverseWebhooks = ({
         return
       }
 
-      const ref = `#/webhooks/${name}/${method}`
+      const ref = `#/webhooks/${escapeJsonPointer(name)}/${pointer.map(escapeJsonPointer).join('/')}`
 
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {

@@ -1,9 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { beforeEach, describe, it, expect } from 'vitest'
 import { normalizeHttpMethod } from './normalize-http-method'
 import { HTTP_METHODS } from './http-methods'
 import { consoleWarnSpy } from '@/testing/console-spies'
 
 describe('normalizeHttpMethod', () => {
+  beforeEach(() => {
+    consoleWarnSpy.mockClear()
+  })
+
   describe('valid HTTP methods', () => {
     it.each(HTTP_METHODS)('should normalize valid HTTP method: %s', (method) => {
       // Test lowercase
@@ -42,8 +46,8 @@ describe('normalizeHttpMethod', () => {
       })
     })
 
-    it('should return default method for invalid HTTP methods', () => {
-      const invalidMethods = [
+    it('should preserve custom HTTP method tokens', () => {
+      const customMethods = [
         'fetch',
         'request',
         'send',
@@ -57,14 +61,16 @@ describe('normalizeHttpMethod', () => {
         'HEADER',
         'TRACES',
         'CONNECTS',
+        'LIST',
+        'COPY',
+        'PURGE',
       ]
 
-      invalidMethods.forEach((method) => {
-        expect(normalizeHttpMethod(method)).toBe('get')
-        expect(consoleWarnSpy).toHaveBeenCalledWith(
-          `${method} is not a valid request method. Using get as the default.`,
-        )
+      customMethods.forEach((method) => {
+        expect(normalizeHttpMethod(method)).toBe(method)
       })
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
     })
 
     it('should handle empty string', () => {
@@ -83,24 +89,29 @@ describe('normalizeHttpMethod', () => {
   })
 
   describe('edge cases', () => {
-    it('should handle special characters in method names', () => {
-      expect(normalizeHttpMethod('get!')).toBe('get')
+    it('should preserve valid HTTP token special characters in custom method names', () => {
+      expect(normalizeHttpMethod('get!')).toBe('get!')
+      expect(normalizeHttpMethod('put#')).toBe('put#')
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
+    })
+
+    it('should reject malformed custom method names', () => {
       expect(normalizeHttpMethod('post?')).toBe('get')
-      expect(normalizeHttpMethod('put#')).toBe('get')
+      expect(normalizeHttpMethod('bad method')).toBe('get')
       expect(consoleWarnSpy).toHaveBeenCalled()
     })
 
     it('should handle mixed case with special characters', () => {
-      expect(normalizeHttpMethod('GeT!')).toBe('get')
+      expect(normalizeHttpMethod('GeT!')).toBe('GeT!')
       expect(normalizeHttpMethod('PoSt?')).toBe('get')
-      expect(normalizeHttpMethod('PuT#')).toBe('get')
+      expect(normalizeHttpMethod('PuT#')).toBe('PuT#')
       expect(consoleWarnSpy).toHaveBeenCalled()
     })
 
     it('should handle very long strings', () => {
       const longString = 'get'.repeat(100)
-      expect(normalizeHttpMethod(longString)).toBe('get')
-      expect(consoleWarnSpy).toHaveBeenCalled()
+      expect(normalizeHttpMethod(longString)).toBe(longString)
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
     })
   })
 })

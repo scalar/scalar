@@ -114,8 +114,12 @@ const requestBodyCompositionSelectionForCodeSample = computed(
   }),
 )
 
-const requestBodyCompositionSelectionKey = computed(() =>
-  JSON.stringify(requestBodyCompositionSelectionForCodeSample.value),
+const codeExampleKey = computed(() =>
+  JSON.stringify({
+    method,
+    path,
+    requestBodyCompositionSelection: requestBodyCompositionSelectionForCodeSample.value,
+  }),
 )
 
 provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
@@ -283,7 +287,7 @@ const { copyToClipboard } = useClipboard()
         <!-- Request Example -->
         <ScalarErrorBoundary>
           <CodeExample
-            :key="requestBodyCompositionSelectionKey"
+            :key="codeExampleKey"
             class="operation-example-card"
             :clientOptions
             :eventBus

@@ -3,7 +3,7 @@ import { HTTP_METHODS, type HttpMethod, httpMethods } from './http-methods'
 
 describe('HTTP Methods', () => {
   it('should contain all standard HTTP methods', () => {
-    const expectedMethods = ['delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace']
+    const expectedMethods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query']
 
     expect(HTTP_METHODS).toEqual(expectedMethods)
     expect(HTTP_METHODS).toHaveLength(expectedMethods.length)
@@ -21,9 +21,8 @@ describe('HTTP Methods', () => {
     expect(validMethods).toBeDefined()
   })
 
-  it('should reject invalid HTTP methods', () => {
-    // @ts-expect-error - Testing type safety
-    const invalidMethod: HttpMethod = 'invalid'
-    expect(httpMethods.has(invalidMethod)).toBe(false)
+  it('should keep custom methods out of the fixed-method set', () => {
+    const customMethod: HttpMethod = 'COPY'
+    expect(httpMethods.has(customMethod.toLowerCase() as never)).toBe(false)
   })
 })

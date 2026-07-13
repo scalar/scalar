@@ -107,12 +107,12 @@ describe('HttpMethod', () => {
       expect(wrapper.text()).toBe('get')
     })
 
-    it('handles unknown methods gracefully', () => {
+    it('renders syntactically valid custom methods', () => {
       const wrapper = mount(HttpMethod, {
         props: { method: 'UNKNOWN' },
       })
 
-      expect(wrapper.text()).toBe('get')
+      expect(wrapper.text()).toBe('UNKNOWN')
     })
 
     it('handles empty string method', () => {
