@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.62.6
+
+### Patch Changes
+
+- [#9618](https://github.com/scalar/scalar/pull/9618): Render document-wide authentication for AsyncAPI documents. The introduction now shows the same Authentication selector used for OpenAPI, populated from `components.securitySchemes`, with requirements derived from the union of every server's `security` (AsyncAPI has no root-level `security`). When some servers require auth and others accept unauthenticated connections, a no-auth option is offered too. Schemes shared with OpenAPI (`http`, `oauth2`, `openIdConnect`, `apiKey`) get full input UI, and AsyncAPI OAuth2 `availableScopes` are mapped onto OpenAPI `scopes` so the scope list renders. Broker-specific types still appear in the selector but have no dedicated input yet. The selector is now fully interactive for AsyncAPI (selecting schemes, entering credentials, editing scopes) because the auth mutators accept AsyncAPI documents. Operation/channel-level auth is intentionally left for a follow-up.
+- [#9618](https://github.com/scalar/scalar/pull/9618): Name the actual document type in the "security scheme is missing a type" warning. When a scheme has no recognizable type, the auth selector previously always told users to check their "OpenAPI document", even for AsyncAPI documents. The warning now reflects the document it belongs to (e.g. "AsyncAPI") via a new optional `documentType` prop on the auth selector block, defaulting to `openapi`. Schemes that carry a valid but unsupported type (such as AsyncAPI broker types like `userPassword` or `scramSha256`) now show a dedicated "not supported yet" message naming the type, instead of the misleading "missing a type" warning.
+- [#9679](https://github.com/scalar/scalar/pull/9679): Fix the plugin `auth` accessor reading from the wrong store. It now reads from the client store — the same store the reference-side Authentication panel writes credentials into — so plugins see the secrets and selected security schemes the user actually entered instead of an empty state.
+
 ## 1.62.5
 
 ### Patch Changes
