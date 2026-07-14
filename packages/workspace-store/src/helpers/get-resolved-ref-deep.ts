@@ -2,7 +2,10 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { type Dereference, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 
-type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value': Node | RefNode<Node> }
+// `$ref-value` is optional, matching `get-resolved-ref.ts` and the reference schemas: an unresolved
+// `{ $ref }` has none yet. The runtime branches on `'$ref' in current` and defers to `getResolvedRef`,
+// so it already copes with an absent value.
+type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value'?: Node | RefNode<Node> }
 type NodeInput<Node> = Node | RefNode<Node>
 
 /**
