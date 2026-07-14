@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconLockSimple, ScalarIconLockSimpleOpen } from '@scalar/icons'
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import SecurityRequirementBadgeScheme from '@/features/Operation/components/SecurityRequirementBadgeScheme.vue'
@@ -12,6 +12,69 @@ const { requiredSecurity, hideLabel = false } = defineProps<{
   hideLabel?: boolean
 }>()
 const { translate } = useLocalization()
+
+/**
+ * The popover is built on a click-triggered Headless UI popover. To also open
+ * it on hover we drive the same trigger button programmatically: the button
+ * reflects the open state via `aria-expanded`, so we toggle it by dispatching a
+ * click. A short close delay bridges the gap between the badge and the panel so
+ * moving the pointer onto the popover keeps it open.
+ */
+const triggerRef = ref<HTMLButtonElement | null>(null)
+let closeTimeout: ReturnType<typeof setTimeout> | undefined
+
+const isOpen = () => triggerRef.value?.getAttribute('aria-expanded') === 'true'
+
+/**
+ * Swallow the real click that immediately follows a hover-open. A single
+ * pointer gesture fires `mouseenter` (which opens the popover here) and then a
+ * `click` — without this guard that click would toggle the freshly opened
+ * popover straight back closed, so a tap or click from outside could never open
+ * it. Runs in the capture phase on the document so it beats Headless UI's own
+ * click handler on the trigger button, then disarms itself.
+ */
+const swallowNextClick = (event: MouseEvent) => {
+  document.removeEventListener('click', swallowNextClick, true)
+  const target = event.target as Node | null
+  if (target && triggerRef.value?.contains(target)) {
+    event.stopImmediatePropagation()
+    event.preventDefault()
+  }
+}
+
+const armClickGuard = () =>
+  document.addEventListener('click', swallowNextClick, true)
+const disarmClickGuard = () =>
+  document.removeEventListener('click', swallowNextClick, true)
+
+const openOnHover = () => {
+  clearTimeout(closeTimeout)
+  if (isOpen()) {
+    return
+  }
+  // Clear any stale guard so it cannot swallow the synthetic open click below.
+  disarmClickGuard()
+  triggerRef.value?.click()
+  // Arm only after opening, so the guard targets the upcoming real click.
+  armClickGuard()
+}
+
+const closeOnHover = () => {
+  clearTimeout(closeTimeout)
+  closeTimeout = setTimeout(() => {
+    disarmClickGuard()
+    if (isOpen()) {
+      triggerRef.value?.click()
+    }
+  }, 120)
+}
+
+const cancelClose = () => clearTimeout(closeTimeout)
+
+onBeforeUnmount(() => {
+  clearTimeout(closeTimeout)
+  disarmClickGuard()
+})
 
 const label = computed(() =>
   requiredSecurity.state === 'required'
@@ -50,6 +113,7 @@ const isOrAlternatives = computed(
     v-if="requiredSecurity.state !== 'none'"
     placement="bottom-end">
     <button
+      ref="triggerRef"
       class="security-requirement-badge inline-flex w-fit shrink-0 items-center justify-center gap-1 text-sm"
       :class="
         requiredSecurity.state === 'optional'
@@ -57,7 +121,9 @@ const isOrAlternatives = computed(
           : 'text-c-1 font-medium'
       "
       type="button"
-      @click.stop>
+      @click.stop
+      @mouseenter="openOnHover"
+      @mouseleave="closeOnHover">
       <ScalarIconLockSimple
         v-if="requiredSecurity.state === 'required'"
         class="size-3"
@@ -69,7 +135,10 @@ const isOrAlternatives = computed(
       <span v-if="!hideLabel">{{ label }}</span>
     </button>
     <template #popover>
-      <div class="flex max-w-xs min-w-48 flex-col gap-1.5 p-2 text-sm">
+      <div
+        class="flex max-w-xs min-w-48 flex-col gap-1.5 p-2 text-sm"
+        @mouseenter="cancelClose"
+        @mouseleave="closeOnHover">
         <div class="font-medium">
           {{ verb }}
           <template v-if="isSingleScheme">
