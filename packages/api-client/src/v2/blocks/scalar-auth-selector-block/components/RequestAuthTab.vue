@@ -1,5 +1,11 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarIconButton } from '@scalar/components/icon-button'
+import { useLoadingState } from '@scalar/components/loading'
 import { ScalarMarkdownSummary } from '@scalar/components/markdown'
+import { ScalarModal, useModal } from '@scalar/components/modal'
+import { ScalarIconGear } from '@scalar/icons'
+import { useToasts } from '@scalar/use-toasts'
 import type {
   SecretsApiKey,
   SecretsHttp,
@@ -9,9 +15,10 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  MergedSecuritySchemes,
-  SecuritySchemeObjectSecret,
+import {
+  getEnvironmentVariables,
+  type MergedSecuritySchemes,
+  type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { getDocumentTypeLabel } from '@scalar/workspace-store/schemas/type-guards'
@@ -22,7 +29,17 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { capitalize, computed, ref } from 'vue'
 
-import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
+import { refreshOauth2Token } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import {
+  runOAuth2Authorize,
+  storeOAuth2Tokens,
+} from '@/v2/blocks/scalar-auth-selector-block/helpers/run-oauth2-authorize'
+import { getOauth2AcquisitionTarget } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
+import {
+  DataTable,
+  DataTableCell,
+  DataTableRow,
+} from '@/v2/components/data-table'
 
 import OAuth2, { type OAuth2Options } from './OAuth2.vue'
 import OpenIDConnect from './OpenIDConnect.vue'
@@ -247,6 +264,101 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
     ? `${baseClasses} ${activeClasses} ${isStatic ? 'opacity-100' : ''}`
     : baseClasses
 }
+
+/**
+ * OAuth2 token-acquisition target (an oauth2 scheme with an interactive grant) sourced from
+ * the merged schemes. When the active scheme is HTTP bearer, this powers the inline
+ * "Authorize via OAuth2" shortcut: the flow's bearer token is written onto the bearer
+ * scheme, so the panel never switches to oauth2 and the two never collide in the dropdown.
+ */
+const oauth2Target = computed(() => getOauth2AcquisitionTarget(securitySchemes))
+
+/** Resolved oauth2 scheme object, for embedding its config form behind the gear. */
+const oauth2Scheme = computed(() =>
+  oauth2Target.value
+    ? getResolvedRef(securitySchemes[oauth2Target.value.name])
+    : undefined,
+)
+
+const acquisitionLoader = useLoadingState()
+const { toast } = useToasts()
+const configModal = useModal()
+/** Bearer scheme that opened the config modal, so its Authorize callback targets it. */
+const configBearerName = ref<string | undefined>()
+
+/** Runs the OAuth2 flow and writes the resulting bearer token onto the bearer scheme. */
+const handleAcquisitionAuthorize = async (
+  bearerName: string,
+): Promise<void> => {
+  const target = oauth2Target.value
+  if (!target || acquisitionLoader.isLoading) {
+    return
+  }
+  acquisitionLoader.start()
+  const [error] = await runOAuth2Authorize({
+    eventBus,
+    bearerSchemeName: bearerName,
+    oauth2Name: target.name,
+    flows: target.flows,
+    flowType: target.flowType,
+    scopes: target.scopes,
+    server,
+    proxyUrl,
+    environment,
+    options,
+  })
+  await acquisitionLoader.clear()
+  if (error) {
+    toast(error?.message ?? 'Failed to authorize', 'error')
+  }
+}
+
+/** Refreshes the OAuth2 token and rewrites it onto the bearer scheme. */
+const handleAcquisitionRefresh = async (bearerName: string): Promise<void> => {
+  const target = oauth2Target.value
+  // Only the authorization-code flow carries a refresh token; implicit can't be refreshed.
+  if (
+    !target ||
+    target.flowType !== 'authorizationCode' ||
+    acquisitionLoader.isLoading
+  ) {
+    return
+  }
+  acquisitionLoader.start()
+  const [error, tokens] = await refreshOauth2Token(
+    target.flows,
+    target.flowType,
+    proxyUrl,
+    server,
+    getEnvironmentVariables(environment),
+    options?.customFetch,
+  )
+  await acquisitionLoader.clear()
+  if (tokens?.accessToken) {
+    storeOAuth2Tokens(eventBus, {
+      bearerSchemeName: bearerName,
+      oauth2Name: target.name,
+      flowType: target.flowType,
+      tokens,
+    })
+  } else if (error) {
+    toast(error?.message ?? 'Failed to refresh', 'error')
+  }
+}
+
+const openAcquisitionConfig = (bearerName: string): void => {
+  configBearerName.value = bearerName
+  configModal.show()
+}
+
+/** Closes the config modal and runs Authorize against the bearer scheme that opened it. */
+const handleConfigAuthorize = (): void => {
+  const bearerName = configBearerName.value
+  configModal.hide()
+  if (bearerName) {
+    void handleAcquisitionAuthorize(bearerName)
+  }
+}
 </script>
 <template>
   <template
@@ -298,6 +410,40 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           ">
           Bearer Token
         </RequestAuthDataTableInput>
+      </DataTableRow>
+
+      <!-- OAuth2 token-acquisition shortcut (shown when an interactive oauth2 flow exists) -->
+      <DataTableRow v-if="scheme.scheme === 'bearer' && oauth2Target">
+        <div class="flex h-8 items-center gap-2 border-t px-3">
+          <span class="text-c-3 mr-auto text-xs">Get a token</span>
+          <ScalarButton
+            class="p-0 px-2 py-0.5"
+            :loader="acquisitionLoader"
+            size="sm"
+            type="button"
+            variant="outlined"
+            @click="handleAcquisitionAuthorize(name)">
+            Authorize via {{ oauth2Target.name }}
+          </ScalarButton>
+          <ScalarButton
+            v-if="
+              scheme['x-scalar-secret-token'] &&
+              oauth2Target.flowType === 'authorizationCode'
+            "
+            class="p-0 px-2 py-0.5"
+            :disabled="acquisitionLoader.isLoading"
+            size="sm"
+            type="button"
+            variant="outlined"
+            @click="handleAcquisitionRefresh(name)">
+            Refresh
+          </ScalarButton>
+          <ScalarIconButton
+            :icon="ScalarIconGear"
+            :label="`Configure ${oauth2Target.name}`"
+            size="xs"
+            @click="openAcquisitionConfig(name)" />
+        </div>
       </DataTableRow>
 
       <!-- HTTP Basic Authentication -->
@@ -435,4 +581,51 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
       {{ documentTypeLabel }} document or Authentication Configuration
     </div>
   </template>
+
+  <!-- OAuth2 configuration modal (opened from the bearer scheme's gear) -->
+  <ScalarModal
+    v-if="oauth2Target && oauth2Scheme"
+    :state="configModal"
+    size="sm"
+    :title="`Configure ${oauth2Target.name}`">
+    <DataTable
+      :columns="['']"
+      presentational>
+      <OAuth2
+        hideActions
+        :environment
+        :eventBus
+        :flows="oauth2Target.flows"
+        :name="oauth2Target.name"
+        :options
+        :proxyUrl
+        :scheme="oauth2Scheme"
+        :selectedScopes="oauth2Target.scopes"
+        :server
+        :type="oauth2Target.flowType"
+        @delete:scope="(event) => handleScopeDelete(oauth2Target!.name, event)"
+        @update:selectedScopes="
+          (event) => handleScopesUpdate(oauth2Target!.name, event)
+        "
+        @upsert:scope="
+          (event) => handleScopeUpsert(oauth2Target!.name, event)
+        " />
+    </DataTable>
+    <div class="flex h-8 items-center justify-end gap-2 border-t">
+      <ScalarButton
+        class="p-0 px-2 py-0.5"
+        size="sm"
+        variant="outlined"
+        @click="configModal.hide()">
+        Cancel
+      </ScalarButton>
+      <ScalarButton
+        class="p-0 px-2 py-0.5"
+        :loader="acquisitionLoader"
+        size="sm"
+        @click="handleConfigAuthorize">
+        Authorize
+      </ScalarButton>
+    </div>
+  </ScalarModal>
 </template>

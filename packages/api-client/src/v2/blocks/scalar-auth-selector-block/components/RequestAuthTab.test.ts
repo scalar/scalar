@@ -8,6 +8,14 @@ import OpenIDConnect from '@/v2/blocks/scalar-auth-selector-block/components/Ope
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
 import RequestAuthTab from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthTab.vue'
 
+// Avoid a real OAuth round-trip (window.open) when the Authorize shortcut is clicked.
+vi.mock('@/v2/blocks/scalar-auth-selector-block/helpers/run-oauth2-authorize', () => ({
+  runOAuth2Authorize: vi.fn(),
+  storeOAuth2Tokens: vi.fn(),
+}))
+
+import { runOAuth2Authorize } from '@/v2/blocks/scalar-auth-selector-block/helpers/run-oauth2-authorize'
+
 describe('RequestAuthTab', () => {
   const baseEnvironment = {
     uid: 'env-1' as any,
@@ -651,6 +659,58 @@ describe('RequestAuthTab', () => {
       // Descriptions are rendered separately as rich text below each header
       expect(wrapper.text()).toContain('Bearer token authentication')
       expect(wrapper.text()).toContain('API Key authentication')
+    })
+  })
+
+  describe('OAuth2 token acquisition', () => {
+    const schemesWithOauth2 = {
+      BearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        description: 'Bearer token authentication',
+        'x-scalar-secret-token': '',
+      },
+      OAuth2: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/auth',
+            tokenUrl: 'https://example.com/token',
+            refreshUrl: '',
+            'x-usePkce': 'no',
+            scopes: {},
+          },
+        },
+      },
+    }
+
+    it('renders an Authorize via OAuth2 shortcut when a bearer scheme has an oauth2 source', () => {
+      const wrapper = mountWithProps({ securitySchemes: schemesWithOauth2 })
+
+      expect(wrapper.text()).toContain('Authorize via OAuth2')
+    })
+
+    it('hides the shortcut when there is no oauth2 acquisition source', () => {
+      // Default mountWithProps: bearer scheme only, no oauth2
+      const wrapper = mountWithProps()
+
+      expect(wrapper.text()).not.toContain('Authorize via OAuth2')
+    })
+
+    it('runs authorize against the bearer scheme on click', async () => {
+      vi.mocked(runOAuth2Authorize).mockResolvedValue([null, { accessToken: 'tok' }])
+
+      const wrapper = mountWithProps({ securitySchemes: schemesWithOauth2 })
+      const button = wrapper.findAll('button').find((b) => b.text().includes('Authorize via'))
+      await button?.trigger('click')
+      await nextTick()
+
+      expect(runOAuth2Authorize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          bearerSchemeName: 'BearerAuth',
+          oauth2Name: 'OAuth2',
+        }),
+      )
     })
   })
 })

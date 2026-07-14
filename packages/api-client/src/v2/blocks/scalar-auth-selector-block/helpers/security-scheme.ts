@@ -1,5 +1,6 @@
 import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
 import type {
   ComponentsObject,
   OpenApiDocument,
@@ -75,6 +76,54 @@ const formatSecurityRequirement = (
 }
 
 /**
+ * An oauth2 scheme that isn't an operation's declared requirement is a token-acquisition
+ * source — how a credential is obtained, not a competing auth method. It's reached via the
+ * bearer scheme's "Authorize via OAuth2" action, so it's kept out of the auth dropdown to
+ * avoid presenting it as a selectable peer (which collides with bearer on `Authorization`).
+ */
+const isAcquisitionScheme = (scheme: SecuritySchemeObject | undefined): boolean =>
+  scheme !== undefined && scheme.type === 'oauth2'
+
+/**
+ * Finds the first oauth2 scheme with an interactive grant (authorization code / implicit)
+ * — the kind that sends a user to an IdP login — to power the bearer scheme's
+ * "Authorize via OAuth2" shortcut.
+ */
+export const getOauth2AcquisitionTarget = (
+  securitySchemes: NonNullable<ComponentsObject['securitySchemes']>,
+): {
+  name: string
+  flows: OAuthFlowsObjectSecret
+  flowType: 'authorizationCode' | 'implicit'
+  scopes: string[]
+} | null => {
+  for (const [name, schemeRef] of Object.entries(securitySchemes)) {
+    const scheme = getResolvedRef(schemeRef)
+    if (scheme?.type !== 'oauth2') {
+      continue
+    }
+    const flows = scheme.flows as OAuthFlowsObjectSecret | undefined
+    if (!flows) {
+      continue
+    }
+    const flowType: 'authorizationCode' | 'implicit' | undefined = flows.authorizationCode
+      ? 'authorizationCode'
+      : flows.implicit
+        ? 'implicit'
+        : undefined
+    if (flowType) {
+      return {
+        name,
+        flows,
+        flowType,
+        scopes: (scheme as { 'x-default-scopes'?: string[] })['x-default-scopes'] ?? [],
+      }
+    }
+  }
+  return null
+}
+
+/**
  * Generates the options for the security scheme combobox
  *
  * Contains either a flat list, or different groups of required, available, and add new
@@ -118,7 +167,8 @@ export const getSecuritySchemeOptions = (
     },
   )
 
-  // Build available schemes (excluding schemes that are in the required list)
+  // Build the available schemes, excluding schemes that are required or that are oauth2
+  // acquisition sources (those are reached via the bearer scheme's Authorize shortcut).
   const availableFormatted: SecuritySchemeOption[] = []
   for (const [name, schemeRef] of Object.entries(securitySchemes)) {
     if (requiredSchemeNames.has(name)) {
@@ -126,22 +176,26 @@ export const getSecuritySchemeOptions = (
     }
 
     const scheme = getResolvedRef(schemeRef)
-    if (scheme) {
+    if (scheme && !isAcquisitionScheme(scheme)) {
       const formatted = formatScheme({ name, value: { [name]: [] } })
-      availableFormatted.push(formatted)
       existingIds.add(formatted.id)
+      availableFormatted.push(formatted)
     }
   }
 
   /**
-   * Add selected schemes to available if they do not already exist
+   * Add selected schemes if they do not already exist
    * This ensures that selected schemes with specific scopes are always available as options
    */
   for (const selectedScheme of selectedSchemes) {
     const formatted = formatSecurityRequirement(selectedScheme, securitySchemes)
     if (formatted && !existingIds.has(formatted.id)) {
-      availableFormatted.push(formatted)
-      existingIds.add(formatted.id)
+      const key = Object.keys(selectedScheme)[0]
+      const scheme = key ? getResolvedRef(securitySchemes[key]) : undefined
+      if (!isAcquisitionScheme(scheme)) {
+        existingIds.add(formatted.id)
+        availableFormatted.push(formatted)
+      }
     }
   }
 

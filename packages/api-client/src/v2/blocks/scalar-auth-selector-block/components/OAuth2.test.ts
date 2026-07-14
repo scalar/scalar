@@ -63,6 +63,35 @@ describe('OAuth2', () => {
     })
   }
 
+  it('hides the Authorize / Refresh / Clear actions when hideActions is set', () => {
+    const wrapper = mount(OAuth2, {
+      attachTo: document.body,
+      props: {
+        environment: baseEnv as any,
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/auth',
+            tokenUrl: 'https://example.com/token',
+            refreshUrl: '',
+            'x-usePkce': 'no',
+            scopes: {},
+          },
+        } as any,
+        type: 'authorizationCode',
+        selectedScopes: [],
+        server: null,
+        proxyUrl: '',
+        scheme: { type: 'oauth2' } as any,
+        options: {},
+        eventBus,
+        name: 'OAuth2',
+        hideActions: true,
+      },
+    })
+
+    expect(wrapper.text()).not.toContain('Authorize')
+  })
+
   it('renders Access Token view when token is present and supports clearing', async () => {
     const wrapper = mountWithProps({
       flows: {

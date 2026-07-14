@@ -6,6 +6,7 @@ import {
   type SecuritySchemeOption,
   formatComplexScheme,
   formatScheme,
+  getOauth2AcquisitionTarget,
   getSecuritySchemeOptions,
 } from './security-scheme'
 
@@ -177,18 +178,17 @@ describe('security-scheme', () => {
       expect(groups[1].label).toBe('Available authentication')
       expect(groups[2].label).toBe('Add new authentication')
 
-      // Check required authentication options
+      // Required: the two declared schemes
       expect(groups[0].options).toHaveLength(2)
-
       expect(groups[0].options[0]!.id).toBe('a4da7d48d8af6c6b')
       expect(groups[0].options[1]!.id).toBe('0ebf7bc7501f14c3')
 
-      // Check available authentication options
-      expect(groups[1].options).toHaveLength(2)
-      expect(groups[1].options.some((opt) => opt.id === '48cc5a8ff1d2df93')).toBe(true)
+      // oauth2 is an acquisition source (excluded); openIdConnect stays available
+      expect(groups[1].options).toHaveLength(1)
       expect(groups[1].options.some((opt) => opt.id === '8da8c10db72dcac3')).toBe(true)
+      expect(groups[1].options.some((opt) => opt.id === '48cc5a8ff1d2df93')).toBe(false)
 
-      // Check add new authentication options
+      // Add new authentication options
       expect(groups[2].options.length).toBeGreaterThan(0)
       expect(groups[2].options.every((opt) => opt.isDeletable === false)).toBe(true)
     })
@@ -218,12 +218,6 @@ describe('security-scheme', () => {
               label: 'httpBasic',
               isDeletable: true,
               value: { httpBasic: [] },
-            },
-            {
-              id: '48cc5a8ff1d2df93',
-              label: 'oauth2',
-              isDeletable: true,
-              value: { oauth2: [] },
             },
             {
               id: '8da8c10db72dcac3',
@@ -376,7 +370,10 @@ describe('security-scheme', () => {
       const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       const groups = result as SecuritySchemeGroup[]
-      expect(groups[0]!.options).toHaveLength(0) // Should filter out undefined schemes
+      // The unresolvable required scheme yields an empty Required group; nothing references it
+      const required = groups.find((g) => g.label === 'Required authentication')
+      expect(required?.options).toHaveLength(0)
+      expect(groups.every((g) => g.options.every((opt) => opt.label !== 'nonExistent'))).toBe(true)
     })
 
     it('should handle empty security array', () => {
@@ -384,8 +381,10 @@ describe('security-scheme', () => {
       const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       const groups = result as SecuritySchemeGroup[]
-      expect(groups[0]!.options).toHaveLength(0) // No required schemes
-      expect(groups[1]!.options.length).toBeGreaterThan(0) // All schemes available
+      // No required schemes → empty Required group; Available still surfaces the schemes
+      expect(groups.find((g) => g.label === 'Required authentication')?.options).toHaveLength(0)
+      const available = groups.find((g) => g.label === 'Available authentication')
+      expect(available?.options.length).toBeGreaterThan(0)
     })
 
     it('should handle empty security schemes object', () => {
@@ -393,8 +392,11 @@ describe('security-scheme', () => {
       const result = getSecuritySchemeOptions(security, {}, [], true)
 
       const groups = result as SecuritySchemeGroup[]
-      expect(groups[0]!.options).toHaveLength(0) // No schemes found
-      expect(groups[1]!.options).toHaveLength(0) // No available schemes
+      // Required + Available are both empty; only "Add new" carries options
+      expect(groups).toHaveLength(3)
+      expect(groups[0]!.options).toHaveLength(0)
+      expect(groups[1]!.options).toHaveLength(0)
+      expect(groups[2]!.label).toBe('Add new authentication')
     })
 
     it('should include all auth options in add new section', () => {
@@ -419,32 +421,17 @@ describe('security-scheme', () => {
       expect(addNewOptions.every((opt) => opt.isDeletable === false)).toBe(true)
     })
 
-    it('should filter out required schemes from available options', () => {
+    it('should filter out required schemes and acquisition flows from available options', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
       const result = getSecuritySchemeOptions(security, securitySchemes, [])
 
       const groups = result as SecuritySchemeGroup[]
-      const availableOptions = groups[1]!.options
+      expect(groups).toHaveLength(2) // Required + Available only
+
       const requiredOptions = groups[0]!.options
+      const availableOptions = groups[1]!.options
 
-      // Available options should not include apiKey since it's required
-      expect(availableOptions).toStrictEqual([
-        {
-          id: '0ebf7bc7501f14c3',
-          label: 'httpBasic',
-          isDeletable: true,
-          value: { httpBasic: [] },
-        },
-        { id: '48cc5a8ff1d2df93', label: 'oauth2', isDeletable: true, value: { oauth2: [] } },
-        {
-          id: '8da8c10db72dcac3',
-          label: 'openIdConnect',
-          isDeletable: true,
-          value: { openIdConnect: [] },
-        },
-      ])
-
-      // Required options should include apiKey
+      // Required: apiKey
       expect(requiredOptions).toStrictEqual([
         {
           id: 'a4da7d48d8af6c6b',
@@ -453,6 +440,23 @@ describe('security-scheme', () => {
           value: { apiKey: [] },
         },
       ])
+
+      // Available: httpBasic + openIdConnect. oauth2 is an acquisition source, excluded.
+      expect(availableOptions).toStrictEqual([
+        {
+          id: '0ebf7bc7501f14c3',
+          label: 'httpBasic',
+          isDeletable: true,
+          value: { httpBasic: [] },
+        },
+        {
+          id: '8da8c10db72dcac3',
+          label: 'openIdConnect',
+          isDeletable: true,
+          value: { openIdConnect: [] },
+        },
+      ])
+      expect(availableOptions.some((opt) => opt.label === 'oauth2')).toBe(false)
     })
 
     it('should handle schemes with undefined resolved references', () => {
@@ -479,8 +483,9 @@ describe('security-scheme', () => {
       const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       const groups = result as SecuritySchemeGroup[]
-      const availableOptions = groups[1]!.options
+      const availableOptions = groups.find((g) => g.label === 'Available authentication')!.options
 
+      // oauth2 is an acquisition source and is excluded; the rest are available
       expect(availableOptions).toStrictEqual([
         {
           id: 'a4da7d48d8af6c6b',
@@ -495,18 +500,13 @@ describe('security-scheme', () => {
           value: { httpBasic: [] },
         },
         {
-          id: '48cc5a8ff1d2df93',
-          label: 'oauth2',
-          isDeletable: true,
-          value: { oauth2: [] },
-        },
-        {
           id: '8da8c10db72dcac3',
           label: 'openIdConnect',
           isDeletable: true,
           value: { openIdConnect: [] },
         },
       ])
+      expect(availableOptions.some((opt) => opt.label === 'oauth2')).toBe(false)
     })
 
     it('should create proper value objects for required schemes', () => {
@@ -613,20 +613,13 @@ describe('security-scheme', () => {
       ]
 
       const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes, true)
-      expect((result[1] as SecuritySchemeGroup).options).toStrictEqual([
-        {
-          id: '05f6eac51b164030',
-          label: 'UserAccessToken',
-          isDeletable: true,
-          value: { UserAccessToken: [] },
-        },
-        {
-          id: '8c854cac163762c9',
-          label: 'UserAccessToken',
-          isDeletable: true,
-          value: { UserAccessToken: ['read'] },
-        },
-      ])
+      const groups = result as SecuritySchemeGroup[]
+
+      // A selected oauth2 scheme that no operation declares is an acquisition source, so it
+      // is excluded; Required + Available are empty, only "Add new" carries options.
+      expect(groups).toHaveLength(3)
+      expect(groups[2]!.label).toBe('Add new authentication')
+      expect(groups.every((g) => g.options.every((opt) => opt.label !== 'UserAccessToken'))).toBe(true)
     })
 
     it('should hide add new authentication options when canAddNewAuth is false', () => {
@@ -634,7 +627,9 @@ describe('security-scheme', () => {
       const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
 
       const groups = result as SecuritySchemeGroup[]
-      expect(groups).toHaveLength(2) // Required and Available only
+      // Required + Available only (oauth2 is excluded as an acquisition source)
+      expect(groups).toHaveLength(2)
+      expect(groups.find((g) => g.label === 'Add new authentication')).toBeUndefined()
       expect(groups[0]!.label).toBe('Required authentication')
       expect(groups[1]!.label).toBe('Available authentication')
     })
@@ -644,6 +639,7 @@ describe('security-scheme', () => {
       const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       const groups = result as SecuritySchemeGroup[]
+      // Required + Available + Add new
       expect(groups).toHaveLength(3)
       expect(groups[2]!.label).toBe('Add new authentication')
       expect(groups[2]!.options.length).toBeGreaterThan(0)
@@ -653,9 +649,9 @@ describe('security-scheme', () => {
       const security: NonNullable<OpenApiDocument['security']> = []
       const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
 
-      // Should return flat SecuritySchemeOption[] (not grouped)
+      // Flat SecuritySchemeOption[] (not grouped); oauth2 is excluded as an acquisition source
       expect(Array.isArray(result)).toBe(true)
-      expect(result.length).toBe(4)
+      expect(result.length).toBe(3)
       expect((result[0] as SecuritySchemeOption).label).toBe('apiKey')
     })
 
@@ -690,14 +686,12 @@ describe('security-scheme', () => {
       ]
 
       const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes, true)
-      expect((result[1] as SecuritySchemeGroup).options).toStrictEqual([
-        {
-          id: '05f6eac51b164030',
-          label: 'UserAccessToken',
-          isDeletable: true,
-          value: { UserAccessToken: [] },
-        },
-      ])
+      const groups = result as SecuritySchemeGroup[]
+
+      // A selected oauth2 scheme that no operation declares is excluded; only "Add new" remains.
+      expect(groups).toHaveLength(3)
+      expect(groups[2]!.label).toBe('Add new authentication')
+      expect(groups.every((g) => g.options.every((opt) => opt.label !== 'UserAccessToken'))).toBe(true)
     })
 
     it('hydrates required oauth2 options with selected scopes without adding a duplicate option', () => {
@@ -732,6 +726,39 @@ describe('security-scheme', () => {
       expect(groups[0]?.options[0]?.label).toBe('OAuth2')
       expect(groups[0]?.options[0]?.value).toEqual({ OAuth2: ['read'] })
       expect(groups[1]?.options.some((option) => option.label === 'OAuth2')).toBe(false)
+    })
+
+    it('surfaces an oauth2 acquisition flow even when no operation declares it', () => {
+      // Mirrors a config-defined OAuth2 flow: the document only declares BearerAuth,
+      // but an oauth2 scheme is merged in via Scalar config so readers can obtain a token.
+      const security: NonNullable<OpenApiDocument['security']> = [{ BearerAuth: [] }]
+      const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        BearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        OAuth2: {
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://auth.example.com/authorize',
+              tokenUrl: 'https://auth.example.com/token',
+              refreshUrl: '',
+              'x-usePkce': 'no',
+              scopes: {},
+            },
+          },
+        },
+      }
+
+      const result = getSecuritySchemeOptions(security, schemes, [], false)
+      const groups = result as SecuritySchemeGroup[]
+
+      // BearerAuth is the declared requirement; OAuth2 is an acquisition source kept out of
+      // the dropdown entirely (reached via the bearer scheme's Authorize shortcut instead).
+      expect(groups[0]!.label).toBe('Required authentication')
+      expect(groups[0]!.options[0]!.label).toBe('BearerAuth')
+      expect(groups.every((g) => g.options.every((opt) => opt.label !== 'OAuth2'))).toBe(true)
+
+      // ...but it is discoverable as the acquisition target for the bearer scheme.
+      expect(getOauth2AcquisitionTarget(schemes)?.name).toBe('OAuth2')
     })
   })
 })
