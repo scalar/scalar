@@ -1,5 +1,7 @@
 import { DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
+import type { AvailableClient, ClientId, TargetId } from '@scalar/types/snippetz'
 import {
+  type LiteralSchema,
   any,
   array,
   boolean,
@@ -103,7 +105,14 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment: 'Path to a favicon image',
     }),
     hiddenClients: optional(
-      union([record(string(), union([boolean(), array(string())])), array(string()), literal(true)]),
+      // The client/target names stay permissive strings at runtime, so `coerce` leaves unknown
+      // values untouched (a real union would rewrite them to the first literal). The casts only
+      // tighten the type so config authors get autocomplete on the known ids.
+      union([
+        record(string(), union([boolean(), array(string() as unknown as LiteralSchema<ClientId<TargetId>>)])),
+        array(string() as unknown as LiteralSchema<TargetId | ClientId<TargetId> | AvailableClient>),
+        literal(true),
+      ]),
       {
         typeComment:
           'List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients',
