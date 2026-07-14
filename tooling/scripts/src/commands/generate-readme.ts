@@ -24,6 +24,21 @@ const GENERATE_COMMAND = 'pnpm --filter @scalar-internal/build-scripts start gen
 
 const COMMUNITY_SECTION_TEXT = 'We are API nerds. You too? Let’s chat on Discord:'
 
+/** Platform overview shown near the top of every README for public npm packages */
+const PLATFORM_SECTION = `---
+
+Scalar is an open-source API platform for teams who want beautiful developer interfaces without vendor lock-in.
+
+- **[API References](https://scalar.com/products/api-references/getting-started)** — Interactive API documentation from OpenAPI and AsyncAPI specs.
+- **[Docs](https://scalar.com/products/docs/getting-started)** — Write in Markdown/MDX, generate API references, sync with two-way Git.
+- **[SDKs](https://scalar.com/products/sdks/getting-started)** — Type-safe client libraries in TypeScript, Python, Go, PHP, Java, and Ruby.
+- **[MCP Servers](https://scalar.com/products/agent/getting-started)** — Generate secure MCP servers from your API spec.
+- **[API Client](https://scalar.com/products/api-client/getting-started)** — Open-source, offline-first Postman alternative built on OpenAPI.
+
+20M+ monthly npm installs · 15,500+ GitHub stars · MIT licensed · [scalar.com](https://scalar.com)
+
+---`
+
 // Types
 type BadgeType =
   | 'npm-version'
@@ -66,6 +81,7 @@ interface ReadmeMetadata {
 interface PackageJson {
   name: string
   description?: string
+  private?: boolean
   repository?: {
     directory?: string
   }
@@ -187,6 +203,9 @@ async function generateReadmeForPackage(root: string, directory: string, package
   // Generate description
   const description = packageJson.description || ''
 
+  // The platform overview is only shown for packages published publicly to npm
+  const platformSection = packageJson.private === true ? '' : `\n\n${PLATFORM_SECTION}`
+
   // Generate image if provided
   let imageSection = ''
   if (metadata.image) {
@@ -242,7 +261,7 @@ The source code in this repository is licensed under [${LICENSE_TYPE}](${GITHUB_
 
 ${badges.join('\n')}
 
-${description}${imageSection}${documentationSection}
+${description}${platformSection}${imageSection}${documentationSection}
 ${extraContent}${changelogSection}
 ${communitySection}
 
