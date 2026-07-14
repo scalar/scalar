@@ -832,6 +832,126 @@ const addDocument: typeof workspaceStore.addDocument = async (
 // ---------------------------------------------------------------------------
 // Document Management
 
+/** In-flight document loads, so a background preload and a user selection never load the same document twice */
+const documentLoadPromises = new Map<string, Promise<void>>()
+
+/**
+ * Load a document into the workspace store by slug, fetching URL sources or using inline content.
+ *
+ * This does not change the active document, so it is safe to call in the background to warm up
+ * documents the user has not selected yet. Repeated calls are deduplicated and it becomes a no-op
+ * once the document is loaded.
+ */
+const ensureDocumentLoaded = (slug: string): Promise<void> => {
+  // Already loaded, nothing to do
+  if (workspaceStore.workspace.documents[slug]) {
+    return Promise.resolve()
+  }
+
+  // A load is already in flight, reuse it
+  const pending = documentLoadPromises.get(slug)
+  if (pending) {
+    return pending
+  }
+
+  const normalized = configList.value[slug]
+
+  if (!normalized) {
+    return Promise.resolve()
+  }
+
+  const config = withLocalizedConfigurationDefaults(
+    {
+      ...normalized.config,
+      ...configurationOverrides.value,
+    },
+    normalized.config,
+  )
+
+  const promise = (async () => {
+    const result = await addDocument(
+      normalized.source.url
+        ? {
+            name: slug,
+            url: normalized.source.url,
+            fetch: config.customFetch,
+          }
+        : {
+            name: slug,
+            document: normalized.source.content ?? {},
+          },
+      config,
+    )
+
+    const document = clientStore.workspace.documents[slug]
+
+    // If the document does not have a selected server we set it to the first server
+    if (
+      result === true &&
+      isOpenApiDocument(document) &&
+      document['x-scalar-selected-server'] === undefined
+    ) {
+      // Set the active server if the document is loaded successfully
+      const servers = getServers(
+        normalized.config.servers ?? document.servers,
+        {
+          baseServerUrl: mergedConfig.value.baseServerURL,
+          documentUrl: normalized.source.url,
+        },
+      )
+      if (servers.length > 0) {
+        clientStore.updateDocument(
+          slug,
+          'x-scalar-selected-server',
+          servers[0]!.url,
+        )
+      }
+    }
+  })().finally(() => {
+    documentLoadPromises.delete(slug)
+  })
+
+  documentLoadPromises.set(slug, promise)
+
+  return promise
+}
+
+/**
+ * Warm up the documents the user has not selected yet while the browser is idle, so switching
+ * between documents is instant. Runs on the client only and loads one document at a time to avoid
+ * a burst of fetches and parsing work competing with the active document.
+ */
+const preloadDocumentsWhenIdle = () => {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const pendingSlugs = Object.keys(configList.value).filter(
+    (slug) => !workspaceStore.workspace.documents[slug],
+  )
+
+  const scheduleIdle = (callback: () => void) => {
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(callback, { timeout: 1500 })
+    } else {
+      window.setTimeout(callback, 200)
+    }
+  }
+
+  const loadNext = () => {
+    const slug = pendingSlugs.shift()
+
+    if (!slug) {
+      return
+    }
+
+    // Load one document, then queue the next once the browser is idle again
+    void ensureDocumentLoaded(slug).finally(() => scheduleIdle(loadNext))
+  }
+
+  scheduleIdle(loadNext)
+}
+
 /**
  * Handle changing the active document
  *
@@ -871,49 +991,8 @@ const changeSelectedDocument = async (
     path: '/',
   })
 
-  const isFirstLoad = !workspaceStore.workspace.documents[slug]
-
-  // If the document is not in the store, we asynchronously load it
-  if (isFirstLoad) {
-    const result = await addDocument(
-      normalized.source.url
-        ? {
-            name: slug,
-            url: normalized.source.url,
-            fetch: config.customFetch,
-          }
-        : {
-            name: slug,
-            document: normalized.source.content ?? {},
-          },
-      config,
-    )
-
-    const document = clientStore.workspace.documents[slug]
-
-    // If the document does not have a selected server we set it to the first server
-    if (
-      result === true &&
-      isOpenApiDocument(document) &&
-      document['x-scalar-selected-server'] === undefined
-    ) {
-      // Set the active server if the document is loaded successfully
-      const servers = getServers(
-        normalized.config.servers ?? document.servers,
-        {
-          baseServerUrl: mergedConfig.value.baseServerURL,
-          documentUrl: normalized.source.url,
-        },
-      )
-      if (servers.length > 0) {
-        clientStore.updateDocument(
-          slug,
-          'x-scalar-selected-server',
-          servers[0]!.url,
-        )
-      }
-    }
-  }
+  // Load the document if it is not in the store yet (a background preload may already be loading it)
+  await ensureDocumentLoaded(slug)
 
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
@@ -1050,6 +1129,9 @@ onBeforeMount(async () => {
       isMultiDocument.value ? undefined : activeSlug.value,
     ),
   )
+
+  // Warm up the remaining documents in the background so switching between them is instant
+  preloadDocumentsWhenIdle()
 })
 
 const documentUrl = computed(() => {
