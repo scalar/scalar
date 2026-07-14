@@ -5,6 +5,12 @@ import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { createPathFromSegments } from '@/helpers/json-path-utils'
+import {
+  type DynamicScope,
+  carriesDynamicAnchor,
+  containsDynamicRef,
+  resolveDynamicRef,
+} from '@/magic-proxy/dynamic-ref'
 import type { UnknownObject } from '@/types'
 
 const isMagicProxy = Symbol('isMagicProxy')
@@ -12,6 +18,34 @@ const magicProxyTarget = Symbol('magicProxyTarget')
 
 const REF_VALUE = '$ref-value'
 const REF_KEY = '$ref'
+/** The virtual, get-only property that resolves a `$dynamicRef` against the threaded dynamic scope. */
+export const DYNAMIC_REF_VALUE = '$dynamicRef-value'
+const DYNAMIC_REF_KEY = '$dynamicRef'
+
+/**
+ * Grow a dynamic scope by one resource, returning a stable (interned) array.
+ *
+ * The same `(parentScope, resource)` pair always yields the same array identity, so the scope can be
+ * used as a WeakMap key for per-scope proxy caching. Without interning, every descent would allocate a
+ * fresh scope array and the scope-keyed cache could never hit, defeating referential stability.
+ */
+const internScope = (
+  cache: WeakMap<object, WeakMap<object, DynamicScope>>,
+  parentScope: DynamicScope,
+  resource: UnknownObject,
+): DynamicScope => {
+  let byResource = cache.get(parentScope)
+  if (!byResource) {
+    byResource = new WeakMap()
+    cache.set(parentScope, byResource)
+  }
+  let child = byResource.get(resource)
+  if (!child) {
+    child = [...parentScope, resource]
+    byResource.set(resource, child)
+  }
+  return child
+}
 
 /**
  * Creates a "magic" proxy for a given object or array, enabling transparent access to
@@ -79,22 +113,82 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * Used to resolve $anchor references correctly.
      */
     currentContext: string
+    /**
+     * The JSON Schema 2020-12 dynamic scope on the current traversal path, outermost-first.
+     *
+     * Grown as we descend past schema resources that can hold a `$dynamicAnchor`, and used to resolve
+     * the virtual `$dynamicRef-value` property. Stays empty for documents without `$dynamicRef`.
+     */
+    dynamicScope: DynamicScope
+    /**
+     * Memoized answer to "does the document use `$dynamicRef` at all", computed lazily.
+     *
+     * The walk is only run the first time a resource that could carry a `$dynamicAnchor` is entered, so
+     * documents without any such resource (the vast majority) never pay for it. When the document has no
+     * `$dynamicRef`, dynamic-scope threading and the scope-keyed caching stay off entirely.
+     */
+    dynamicRefsProbe: { value: boolean | undefined }
+    /**
+     * Interns dynamic-scope arrays so the same `(parentScope, resource)` always yields the same array
+     * identity. That stable identity is what makes the scope-keyed caches below work.
+     */
+    scopeCache: WeakMap<object, WeakMap<object, DynamicScope>>
+    /**
+     * Scope-keyed proxy cache used while a dynamic scope is active: one proxy per `(scope, target)`.
+     *
+     * `$dynamicRef` is path-dependent, so a target can bind differently under different scopes and the
+     * plain `proxyCache` (one proxy per target) cannot be used. Keying by scope preserves referential
+     * stability *within* a scope — which cycle detection and Vue rely on — while still returning distinct
+     * proxies across scopes.
+     */
+    dynamicProxyCache: WeakMap<object, WeakMap<object, T>>
   } = {
     root: target,
     proxyCache: new WeakMap(),
     cache: new Map(),
     schemas: getSchemas(target),
     currentContext: '',
+    dynamicScope: [],
+    dynamicRefsProbe: { value: undefined },
+    scopeCache: new WeakMap(),
+    dynamicProxyCache: new WeakMap(),
   },
 ): T => {
   if (!isObject(target) && !Array.isArray(target)) {
     return target
   }
 
-  // Return existing proxy for the same target to ensure referential stability
-  if (args.proxyCache.has(target)) {
-    return args.proxyCache.get(target)
+  // While a dynamic scope is active, resolution is path-dependent: the same target can bind differently
+  // depending on the path, so the plain one-proxy-per-target `proxyCache` cannot be used. Instead we key
+  // proxies by `(scope, target)` — preserving referential stability within a scope (cycle detection and
+  // Vue depend on it) while still returning distinct proxies across scopes. Ordinary documents never
+  // grow a scope, so they keep using `proxyCache` unchanged.
+  const dynamicScopeActive = args.dynamicScope.length > 0
+
+  // Return the existing proxy for this (scope, target) to ensure referential stability
+  const scopedProxyCache = dynamicScopeActive ? args.dynamicProxyCache.get(args.dynamicScope) : undefined
+  const existingProxy = dynamicScopeActive ? scopedProxyCache?.get(target) : args.proxyCache.get(target)
+  if (existingProxy) {
+    return existingProxy
   }
+
+  // Lazily probe (once per document) whether it uses `$dynamicRef` at all, memoized on the shared probe.
+  const hasDynamicRefs = (): boolean => {
+    if (args.dynamicRefsProbe.value === undefined) {
+      args.dynamicRefsProbe.value = containsDynamicRef(args.root)
+    }
+    return args.dynamicRefsProbe.value
+  }
+
+  // The dynamic scope handed to child proxies: grow it by this resource when it can carry a
+  // `$dynamicAnchor` and the document actually uses `$dynamicRef`. The cheap `carriesDynamicAnchor` check
+  // comes first so `hasDynamicRefs` (a one-off document walk) is only probed for anchor-bearing resources
+  // — documents without any never pay for it. Grown scopes are interned so the same `(parentScope,
+  // resource)` yields one stable array identity for the caches.
+  const childScope: DynamicScope =
+    carriesDynamicAnchor(target as UnknownObject) && hasDynamicRefs() && !args.dynamicScope.includes(target)
+      ? internScope(args.scopeCache, args.dynamicScope, target as UnknownObject)
+      : args.dynamicScope
 
   const handler: ProxyHandler<T> = {
     /**
@@ -127,10 +221,38 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       // Get the identifier ($id) of the current target for context tracking
       const id = getId(target)
 
+      // If accessing "$dynamicRef-value" and this node carries a $dynamicRef, resolve it against the
+      // dynamic scope threaded to here. Like "$ref-value" but path-dependent, so it is never cached and
+      // is get-only (see the `has` trap). Unresolvable references return undefined; the schema is unchanged.
+      if (prop === DYNAMIC_REF_VALUE) {
+        const dynamicRef = Reflect.get(target, DYNAMIC_REF_KEY, receiver)
+        if (typeof dynamicRef !== 'string') {
+          return undefined
+        }
+
+        const resolved = resolveDynamicRef(dynamicRef, args.dynamicScope)
+        if (resolved === undefined) {
+          return undefined
+        }
+        if (isMagicProxyObject(resolved)) {
+          return resolved
+        }
+        // Walk the bound schema with the scope grown by this resource (same as the `$ref-value` branch),
+        // so a nested `$dynamicRef` inside a recursive template binds against the right scope.
+        return createMagicProxy(resolved as T, options, {
+          ...args,
+          currentContext: id ?? args.currentContext,
+          dynamicScope: childScope,
+        })
+      }
+
       // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
       if (prop === REF_VALUE && typeof ref === 'string') {
-        // Check cache first for performance optimization
-        if (args.cache.has(ref)) {
+        // The shared ref cache is only safe when nothing below this hop is scope-dependent. If resolving
+        // this ref enters a dynamic scope (`childScope` grew), the resolved value can bind differently per
+        // path, so we skip the shared cache and rely on the scope-keyed `dynamicProxyCache` for identity.
+        const refCacheable = childScope.length === 0
+        if (refCacheable && args.cache.has(ref)) {
           return args.cache.get(ref)
         }
 
@@ -149,10 +271,13 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         const proxiedValue = createMagicProxy(resolvedValue.value, options, {
           ...args,
           currentContext: resolvedValue.context,
+          dynamicScope: childScope,
         })
 
-        // Store in cache for future lookups
-        args.cache.set(ref, proxiedValue)
+        // Store in the shared cache only when the resolved value is scope-independent (see above)
+        if (refCacheable) {
+          args.cache.set(ref, proxiedValue)
+        }
         return proxiedValue
       }
 
@@ -164,7 +289,11 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         return value
       }
 
-      return createMagicProxy(value as T, options, { ...args, currentContext: id ?? args.currentContext })
+      return createMagicProxy(value as T, options, {
+        ...args,
+        currentContext: id ?? args.currentContext,
+        dynamicScope: childScope,
+      })
     },
     /**
      * Proxy "set" trap for magic proxy.
@@ -240,6 +369,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       if (prop === REF_VALUE && REF_KEY in target) {
         return true
       }
+      // Note: "$dynamicRef-value" is intentionally NOT surfaced here, in `ownKeys`, or in
+      // `getOwnPropertyDescriptor`. It is a get-only virtual accessor: resolution is path-dependent, so
+      // it must not leak into enumeration, spreads, coercion or serialization (which would embed a
+      // resolved schema at the wrong scope). Consumers read it explicitly after an `isDynamicRef` check.
       return Reflect.has(target, prop)
     },
     /**
@@ -294,7 +427,19 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   }
 
   const proxied = new Proxy<T>(target, handler)
-  args.proxyCache.set(target, proxied)
+  // Cache the proxy for reuse. Under an active dynamic scope, key it by `(scope, target)` so the same
+  // target reached again on the same path returns the same proxy (referential stability that cycle
+  // detection and Vue rely on) while a different path — a different scope — gets its own proxy.
+  if (dynamicScopeActive) {
+    let scoped = args.dynamicProxyCache.get(args.dynamicScope)
+    if (!scoped) {
+      scoped = new WeakMap()
+      args.dynamicProxyCache.set(args.dynamicScope, scoped)
+    }
+    scoped.set(target, proxied)
+  } else {
+    args.proxyCache.set(target, proxied)
+  }
   return proxied
 }
 
