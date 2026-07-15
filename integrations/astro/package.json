@@ -35,7 +35,7 @@
     "!src/**/*.spec.*",
     "index.ts"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for Astro",
     "badges": [
       {

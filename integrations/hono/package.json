@@ -36,7 +36,7 @@
   "files": [
     "dist"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for Hono",
     "badges": [
       {

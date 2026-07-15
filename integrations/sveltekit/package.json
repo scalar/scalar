@@ -44,7 +44,7 @@
     "!src/**/*.test.*",
     "!src/**/*.spec.*"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for SvelteKit",
     "badges": [
       {

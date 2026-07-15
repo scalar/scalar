@@ -19,7 +19,7 @@
     "compress": "cd ./src/Scalar.Azure.Functions/StaticAssets && gzip --keep --verbose --force scalar.js scalar.azure.functions.js favicon.svg",
     "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.Azure.Functions/StaticAssets/scalar.js"
   },
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for Azure Functions",
     "badges": [
       {

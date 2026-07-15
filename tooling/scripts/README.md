@@ -170,9 +170,11 @@ pnpm --filter @scalar-internal/build-scripts start generate-blog
 
 ### `generate-readme`
 
-Generate README.md files for packages with readme metadata.
+Generate README.md files for packages with scalarReadme metadata.
 
-This command scans all packages in `packages/` and `integrations/` directories, finds those with `readme` metadata in their `package.json`, and generates standardized README.md files.
+This command scans all packages in `packages/` and `integrations/` directories, finds those with `scalarReadme` metadata in their `package.json`, and generates standardized README.md files.
+
+> The metadata key is intentionally named `scalarReadme` and not `readme`: npm treats a `readme` field in `package.json` as the readme _text_ and publishes it to the registry, which clobbers the real README.md with `[object Object]` on npmjs.com.
 
 **Usage:**
 ```bash
@@ -193,7 +195,7 @@ The generated README includes:
 **Package.json metadata format:**
 ```json
 {
-  "readme": {
+  "scalarReadme": {
     "title": "Package Name",
     "badges": [
       { "type": "npm-version" },

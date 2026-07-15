@@ -40,7 +40,7 @@
     "./dist",
     "CHANGELOG.md"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar Mock Server",
     "badges": [
       {

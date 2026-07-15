@@ -20,7 +20,7 @@
     "compress": "cd ./assets && gzip --keep --verbose --force scalar.js",
     "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./assets/scalar.js"
   },
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for Docker",
     "badges": [
       {

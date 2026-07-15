@@ -34,7 +34,7 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference Plugin for Docusaurus",
     "badges": [
       {
