@@ -57,6 +57,9 @@ public class ScalarConfiguration {
     @JsonProperty("customCss")
     private String customCss;
 
+    @JsonProperty("pluginUrls")
+    private List<String> pluginUrls;
+
     @JsonProperty("searchHotKey")
     private String searchHotKey;
 
@@ -226,6 +229,14 @@ public class ScalarConfiguration {
 
     public void setCustomCss(String customCss) {
         this.customCss = customCss;
+    }
+
+    public List<String> getPluginUrls() {
+        return pluginUrls;
+    }
+
+    public void setPluginUrls(List<String> pluginUrls) {
+        this.pluginUrls = pluginUrls;
     }
 
     public String getSearchHotKey() {

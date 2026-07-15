@@ -326,6 +326,49 @@ describe('createApiReference', () => {
     // Assert the configuration was updated
     await flushPromises()
   })
+
+  it('loads plugins from pluginUrls before mounting', async () => {
+    const element = document.querySelector('#mount-point')
+
+    // An ESM module that records when the plugin factory is invoked by the plugin manager
+    const pluginUrl =
+      'data:text/javascript,export default () => { globalThis.__scalarUrlPluginInvoked = true; return { name: "url-plugin", extensions: [] } }'
+
+    const config = {
+      ...coerce(apiReferenceConfigurationSchema, { _integration: 'html' }),
+      content: JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Plugin Test API', version: '1.0.0' },
+        paths: {},
+      }),
+      pluginUrls: [pluginUrl],
+    }
+    createApiReference(element!, config)
+
+    // Mounting is deferred until the plugin module is imported
+    expect(element?.innerHTML).not.toContain('Powered by Scalar')
+
+    await vi.waitFor(() => expect(element?.innerHTML).toContain('Powered by Scalar'))
+
+    // The loaded plugin was registered with the plugin manager
+    expect((globalThis as Record<string, unknown>).__scalarUrlPluginInvoked).toBe(true)
+  })
+
+  it('does not mount when the instance is destroyed while plugins are loading', async () => {
+    const element = document.querySelector('#mount-point')
+
+    const config = {
+      ...coerce(apiReferenceConfigurationSchema, { _integration: 'html' }),
+      pluginUrls: ['data:text/javascript,export default () => ({ name: "url-plugin", extensions: [] })'],
+    }
+    const instance = createApiReference(element!, config)
+    instance.destroy()
+
+    await flushPromises()
+    await sleep(100)
+
+    expect(element?.innerHTML).not.toContain('Powered by Scalar')
+  })
 })
 
 describe('findDataAttributes (legacy)', () => {

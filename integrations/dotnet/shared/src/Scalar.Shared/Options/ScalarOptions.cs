@@ -178,6 +178,15 @@ public partial class ScalarOptions
     public IList<ScalarServer>? Servers { get; set; }
 
     /// <summary>
+    /// Controls the URLs of ESM modules that provide additional API Reference plugins.
+    /// </summary>
+    /// <remarks>
+    /// Each module is imported in the browser before the API Reference mounts, and its default export
+    /// is registered as a plugin. The URLs must be reachable from the browser.
+    /// </remarks>
+    public IList<string>? PluginUrls { get; set; }
+
+    /// <summary>
     /// Controls whether to expose 'dotnet' flag to the configuration.
     /// </summary>
     /// <remarks>

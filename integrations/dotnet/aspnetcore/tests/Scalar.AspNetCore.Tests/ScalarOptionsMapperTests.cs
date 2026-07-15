@@ -24,6 +24,7 @@ public class ScalarOptionsMapperTests
         configuration.CustomCss.Should().BeNull();
         configuration.SearchHotKey.Should().BeNull();
         configuration.Servers.Should().BeNull();
+        configuration.PluginUrls.Should().BeNull();
         configuration.MetaData.Should().BeNull();
         configuration.DefaultHttpClient.Should().BeNull();
         configuration.HiddenClients.Should().BeNull();
@@ -63,6 +64,7 @@ public class ScalarOptionsMapperTests
             Theme = ScalarTheme.Saturn,
             Layout = ScalarLayout.Classic,
             Servers = [new ScalarServer("https://example.com")],
+            PluginUrls = ["https://example.com/plugin.js"],
             Metadata = new Dictionary<string, string> { ["key"] = "value" },
             DefaultHttpClient = new KeyValuePair<ScalarTarget, ScalarClient>(ScalarTarget.CSharp, ScalarClient.HttpClient),
             HiddenClients = true,
@@ -112,6 +114,7 @@ public class ScalarOptionsMapperTests
         configuration.CustomCss.Should().Be("*{}");
         configuration.SearchHotKey.Should().Be("o");
         configuration.Servers.Should().ContainSingle().Which.Url.Should().Be("https://example.com");
+        configuration.PluginUrls.Should().ContainSingle().Which.Should().Be("https://example.com/plugin.js");
         configuration.MetaData.Should().ContainKey("key").WhoseValue.Should().Be("value");
         configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.CSharp);
         configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.HttpClient);

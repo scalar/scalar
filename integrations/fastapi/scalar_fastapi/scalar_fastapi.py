@@ -415,6 +415,17 @@ def get_scalar_api_reference(
             """
         ),
     ] = [],
+    plugin_urls: Annotated[
+        list[str],
+        Doc(
+            """
+            URLs of ESM modules that provide additional API Reference plugins.
+            Each module is imported in the browser before the API Reference mounts,
+            and its default export is registered as a plugin.
+            Default is [] which means no plugin URLs are provided.
+            """
+        ),
+    ] = [],
     default_open_all_tags: Annotated[
         bool,
         Doc(
@@ -635,6 +646,9 @@ def get_scalar_api_reference(
 
     if servers:  # Default is []
         config["servers"] = servers
+
+    if plugin_urls:  # Default is []
+        config["pluginUrls"] = plugin_urls
 
     if default_open_all_tags:  # Default is False
         config["defaultOpenAllTags"] = default_open_all_tags

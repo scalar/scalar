@@ -983,6 +983,20 @@ Pass an array of custom plugins that you want. [Read more about plugins here.](p
 }
 ```
 
+#### pluginUrls
+
+**Type:** `string[]`
+
+Pass URLs of ESM modules that export a plugin as their default export. The modules are imported before the API reference mounts and their default exports are registered alongside the plugins passed via `plugins`. Unlike `plugins`, this option is JSON-serializable, so it also works in integrations that pass their configuration as JSON. Only supported by the standalone browser build (`Scalar.createApiReference`). [Read more about plugins here.](plugins.md)
+
+```javascript
+{
+  pluginUrls: [
+    'https://cdn.jsdelivr.net/npm/@example/scalar-plugin/dist/plugin.js',
+  ],
+}
+```
+
 #### proxyUrl
 
 **Type:** `string`

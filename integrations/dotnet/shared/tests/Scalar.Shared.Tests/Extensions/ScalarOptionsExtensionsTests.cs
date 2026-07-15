@@ -14,6 +14,7 @@ public class ScalarOptionsExtensionsTests
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .AddServer("https://example.com")
             .AddServer(new ScalarServer("https://example.org", "My other server"))
+            .AddPluginUrl("https://example.com/plugin.js")
             .AddDocument("v1", "Version 1")
             .AddDocuments("v2", "v3")
             .AddDocuments(new ScalarDocument("v4"));
@@ -25,6 +26,7 @@ public class ScalarOptionsExtensionsTests
         options.Servers.Should().HaveCount(2);
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.com");
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.org" && x.Description == "My other server");
+        options.PluginUrls.Should().ContainSingle().Which.Should().Be("https://example.com/plugin.js");
         options.Documents.Should().HaveCount(4);
     }
 

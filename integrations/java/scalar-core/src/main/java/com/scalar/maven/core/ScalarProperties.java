@@ -104,6 +104,14 @@ public class ScalarProperties {
     private String customCss;
 
     /**
+     * URLs of ESM modules that provide additional API Reference plugins.
+     * Each module is imported in the browser before the API Reference mounts,
+     * and its default export is registered as a plugin.
+     * Defaults to null.
+     */
+    private List<String> pluginUrls;
+
+    /**
      * Whether to show the sidebar search bar.
      * Defaults to false.
      */
@@ -386,6 +394,14 @@ public class ScalarProperties {
 
     public void setCustomCss(String customCss) {
         this.customCss = customCss;
+    }
+
+    public List<String> getPluginUrls() {
+        return pluginUrls;
+    }
+
+    public void setPluginUrls(List<String> pluginUrls) {
+        this.pluginUrls = pluginUrls;
     }
 
     public boolean isHideSearch() {
