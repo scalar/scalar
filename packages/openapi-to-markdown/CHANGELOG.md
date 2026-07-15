@@ -1,5 +1,7 @@
 # @scalar/openapi-to-markdown
 
+## 0.5.33
+
 ## 0.5.32
 
 ## 0.5.31
