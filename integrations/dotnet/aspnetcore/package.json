@@ -20,7 +20,7 @@
     "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js",
     "test": "vitest --run"
   },
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for ASP.NET Core",
     "badges": [
       {

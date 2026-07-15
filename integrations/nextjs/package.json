@@ -40,7 +40,7 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference Handler for Next.js",
     "badges": [
       {

@@ -59,7 +59,7 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar AsyncAPI Upgrader",
     "badges": [
       {

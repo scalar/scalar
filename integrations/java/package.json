@@ -23,7 +23,7 @@
     "mvn:run:webmvc": "cd scalar-playground-webmvc && mvn spring-boot:run",
     "update:version": "mvn versions:set -DnewVersion=$npm_package_version -DgenerateBackupPoms=false"
   },
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for Java",
     "badges": [
       {

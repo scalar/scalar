@@ -24,7 +24,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/dotnet-shared": "workspace:*"
   },
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for Aspire",
     "badges": [
       {

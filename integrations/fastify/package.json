@@ -44,7 +44,7 @@
     "./dist",
     "CHANGELOG.md"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for Fastify",
     "badges": [
       {
