@@ -161,7 +161,7 @@ const html = computed(() => {
     */
     display: inline-block;
     overflow: hidden;
-    border-radius: var(--scalar-radius);
+    border-radius: var(--scalar-radius-md);
     max-width: 100%;
   }
 
@@ -232,7 +232,7 @@ const html = computed(() => {
     max-width: 100%;
     margin: 1em 0;
     border: var(--scalar-border-width) solid var(--scalar-border-color);
-    border-radius: var(--scalar-radius);
+    border-radius: var(--scalar-radius-md);
     border-spacing: 0;
   }
 
@@ -302,11 +302,11 @@ const html = computed(() => {
   }
 
   .markdown th:first-of-type {
-    border-top-left-radius: var(--scalar-radius);
+    border-top-left-radius: var(--scalar-radius-md);
   }
 
   .markdown th:last-of-type {
-    border-top-right-radius: var(--scalar-radius);
+    border-top-right-radius: var(--scalar-radius-md);
   }
 
   .markdown tr > [align='left'] {
@@ -346,7 +346,7 @@ const html = computed(() => {
   }
 
   .markdown summary {
-    border-radius: 2.5px;
+    border-radius: var(--scalar-radius);
     display: flex;
     align-items: flex-start;
     gap: 8px;
@@ -463,7 +463,7 @@ const html = computed(() => {
     background-color: var(--scalar-background-2);
     box-shadow: 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
     font-size: var(--scalar-micro);
-    border-radius: 2px;
+    border-radius: var(--scalar-radius-md);
     padding: 0 3px;
   }
 
@@ -542,7 +542,7 @@ const html = computed(() => {
   /* Markdown Alert */
   .markdown .markdown-alert {
     align-items: stretch;
-    border-radius: var(--scalar-radius);
+    border-radius: var(--scalar-radius-md);
     background-color: color-mix(
       in srgb,
       var(--scalar-background-2),

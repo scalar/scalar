@@ -41,6 +41,9 @@ Default theme, light mode. Map the nearest Scalar token; if a Paper value has no
 | radius `3px` | `rounded` |
 | radius `6px` | `rounded-lg` |
 | radius `8px` | `rounded-xl` |
+| radius `12px` | `rounded-2xl` |
+| radius `16px` | `rounded-3xl` |
+| fully rounded | `rounded-full` |
 | `0.5px` solid `#dfdfdf` border | `border` |
 | subtle drop shadow | `shadow` |
 | lifted drop shadow | `shadow-lg` |

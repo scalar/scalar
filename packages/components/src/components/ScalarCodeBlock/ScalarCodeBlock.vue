@@ -101,9 +101,10 @@ const { cx } = useBindCx()
         'relative bg-b-1 min-h-0 min-w-0 focus-visible:outline',
       )
     ">
+    <!-- Inherits the corners so the inset focus ring follows a rounded code block -->
     <div
       tabindex="0"
-      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 min-h-0 min-w-0 flex-1">
+      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1">
       <pre
         :id="id"
         class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"

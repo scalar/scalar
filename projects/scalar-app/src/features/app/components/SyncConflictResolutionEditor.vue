@@ -204,7 +204,7 @@ onUnmounted(() => {
   display: block;
   flex-shrink: 0;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--scalar-radius-full);
   background: transparent;
   transition:
     background-color 0.12s ease,
@@ -214,7 +214,7 @@ onUnmounted(() => {
 .resize-handle::before {
   content: '';
   position: absolute;
-  border-radius: 999px;
+  border-radius: var(--scalar-radius-full);
   opacity: 1;
   transition:
     background-color 0.12s ease,

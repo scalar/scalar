@@ -68,10 +68,4 @@ const requestState = computed(() => {
     0 var(--scalar-border-width) 0 var(--scalar-background-1),
     0 calc(-1 * var(--scalar-border-width)) 0 var(--scalar-background-1);
 }
-.tool {
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  padding: 15px;
-  border-radius: 15px;
-  margin-bottom: 20px;
-}
 </style>

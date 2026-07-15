@@ -11,7 +11,18 @@ import {
   devices as playwrightDevices,
 } from '@playwright/test'
 
+import { type ThemeVariantId, defaultThemeVariant } from '../.storybook/themes'
+
 export { expect }
+
+/**
+ * Themes to snapshot components under, beyond the default.
+ *
+ * `rounded-none` and `rounded-full` sit at either end of the radius scale. Laserwave is a real
+ * preset, so it also proves the decorator applies a theme's colours, not only a token override, and
+ * it is the one preset that ships its own radii.
+ */
+export const themes = ['rounded-none', 'rounded-full', 'laserwave'] as const satisfies ThemeVariantId[]
 
 export type Device = keyof typeof devices
 
@@ -50,6 +61,14 @@ export type ComponentTestOptions = {
   device: Device | undefined
   /** Color mode to use for screenshots. Defaults to ['light']. */
   colorModes: ['light'] | ['dark'] | ['light', 'dark']
+  /**
+   * Theme to render the story under. Defaults to 'default'.
+   *
+   * The theme is chosen when the story loads rather than between snapshots, so a test can interact
+   * with a component and hold that state across every snapshot it takes. To cover several themes,
+   * wrap the test in a describe block per theme.
+   */
+  theme: ThemeVariantId
 }
 
 type ComponentTestFixtures = {
@@ -152,6 +171,7 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   scale: [2, { option: true }],
   device: [undefined, { option: true }],
   colorModes: [['light'], { option: true }],
+  theme: [defaultThemeVariant, { option: true }],
 
   // Ensure the deviceScaleFactor option is applied by creating a context with scale
   context: async ({ browser, contextOptions, viewport, scale, device }, use, testInfo) => {
@@ -173,13 +193,15 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
 
   // Utility to open a storybook story
   openStory: [
-    async ({ page, component: c, story: s, args }, use, testInfo) => {
+    async ({ page, component: c, story: s, args, theme }, use, testInfo) => {
       const { component, story } = componentDetailsFromContext(c, s, testInfo)
 
       const params = [
         ['viewMode', 'story'],
         ['id', `components-${toSlug(component)}--${toSlug(story)}`],
         ['args', encodeStoryArgs(args)],
+        // Read by the theme decorator in .storybook/preview.ts
+        ['globals', `theme:${theme}`],
       ]
 
       await page.goto(`iframe.html?${params.map(([k, v]) => `${k}=${v}`).join('&')}`, {
@@ -195,13 +217,14 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   ],
 
   // Snapshot helper bound to current test settings
-  snapshot: async ({ page, background, crop, colorModes, component: c, story: s }, use, testInfo) => {
+  snapshot: async ({ page, background, crop, colorModes, theme, component: c, story: s }, use, testInfo) => {
     const takeSnapshot: SnapshotFn = async (suffix?: string): Promise<void> => {
       const { story } = componentDetailsFromContext(c, s, testInfo)
       const target = crop === 'viewport' ? page : page.locator(crop === 'component' ? '#storybook-root > *' : 'body')
+      const themeSuffix = theme === defaultThemeVariant ? '' : `-${toSlug(theme)}`
       for (const colorMode of colorModes) {
         const colorModeSuffix = colorMode === 'light' ? '' : `-${colorMode}`
-        const filename = `${toSlug(story)}${suffix ? `-${toSlug(suffix)}` : ''}${colorModeSuffix}.png`
+        const filename = `${toSlug(story)}${suffix ? `-${toSlug(suffix)}` : ''}${themeSuffix}${colorModeSuffix}.png`
         await setColorMode(page, colorMode)
         await expect(target).toHaveScreenshot(filename, {
           omitBackground: !background,

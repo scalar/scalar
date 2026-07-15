@@ -32,6 +32,6 @@
   padding: 4px;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
+  border-radius: var(--scalar-radius-full);
 }
 </style>

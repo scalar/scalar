@@ -1,4 +1,4 @@
-import { takeSnapshot, test } from '@test/helpers'
+import { takeSnapshot, test, themes } from '@test/helpers'
 
 test.describe('ScalarTextInput', () => {
   test.use({ background: true })
@@ -23,4 +23,21 @@ test.describe('ScalarTextInput', () => {
   const staticStories = ['Readonly', 'With Copy'] as const satisfies string[]
 
   staticStories.forEach((story) => test(story, takeSnapshot))
+
+  /**
+   * The reset rounds both the input and its focus outline from --scalar-radius, and DOC-5787 was a
+   * focus ring pinned to a literal while the input itself followed the theme. Snapshotting the
+   * focused state is what would catch that pairing coming apart again.
+   */
+  themes.forEach((theme) =>
+    test.describe(`Theme ${theme}`, () => {
+      test.use({ component: 'ScalarTextInput', theme })
+
+      test('Base', async ({ page, snapshot }) => {
+        await snapshot()
+        await page.getByRole('textbox').click()
+        await snapshot('focused')
+      })
+    }),
+  )
 })

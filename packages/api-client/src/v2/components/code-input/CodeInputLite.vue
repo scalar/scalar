@@ -1000,7 +1000,7 @@ defineExpose({
    an atomic widget; the caret lands before or after it, never inside. */
 .scalar-pill {
   color: var(--scalar-color-2);
-  border-radius: 30px;
+  border-radius: var(--scalar-radius-full);
   display: inline-block;
   font-family: var(--scalar-font-code);
   font-size: 0.9em;

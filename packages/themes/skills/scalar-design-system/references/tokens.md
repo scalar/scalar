@@ -20,9 +20,14 @@ Mode-agnostic (`:root`):
 | Variable | Value |
 |---|---|
 | `--scalar-border-width` | `0.5px` |
-| `--scalar-radius` | `3px` |
-| `--scalar-radius-lg` | `6px` |
-| `--scalar-radius-xl` | `8px` |
+| `--scalar-radius` | `3px` (the knob every other radius derives from) |
+| `--scalar-radius-md` | `3px` (the base, capped at `--scalar-radius-max`) |
+| `--scalar-radius-lg` | `6px` (derived: `--scalar-radius` × 2, capped) |
+| `--scalar-radius-xl` | `8px` (derived, capped) |
+| `--scalar-radius-2xl` | `12px` (derived, capped) |
+| `--scalar-radius-3xl` | `16px` (derived, capped) |
+| `--scalar-radius-full` | pill (derived, uncapped) |
+| `--scalar-radius-max` | `20px` — ceiling so a big radius cannot swallow a container's content |
 | `--scalar-font` | Inter stack (`"Inter", -apple-system, …, sans-serif`) |
 | `--scalar-font-code` | JetBrains Mono stack (`"JetBrains Mono", ui-monospace, …, monospace`) |
 | `--scalar-heading-1…6` | `24, 20, 16, 16, 16, 16` px |
@@ -88,7 +93,7 @@ In component code, prefer these classes over raw variables.
 **Sidebar:** `bg-sidebar-b-1`, `text-sidebar-c-1/2`, `bg-sidebar-b-hover`, `bg-sidebar-b-active`, `border-sidebar-*` (each falls back to the matching base token).
 **Themed colors:** `green`, `red`, `yellow`, `blue`, `orange`, `purple` (e.g. `text-red`, `bg-green`); plus `white`/`black`.
 **Utility colors:** `border` (= `--scalar-border-color`), `backdrop`, `backdrop-dark`, `border-tooltip`, `brand`.
-**Radius:** `rounded` & `rounded-md` = 3px, `rounded-lg` = 6px, `rounded-xl` = 8px, `rounded-px` = 1px, `rounded-full`.
+**Radius:** `rounded` & `rounded-md` = 3px, `rounded-lg` = 6px, `rounded-xl` = 8px, `rounded-2xl` = 12px, `rounded-3xl` = 16px, `rounded-px` = 1px, `rounded-full` (pill). Every step except `rounded-px` derives from `--scalar-radius`, so a theme that sets it to `0` squares off the whole interface. There is no `rounded-sm` or `rounded-4xl`; those emit no CSS.
 **Shadows:** `shadow`/`shadow-md` (shadow-1), `shadow-lg` (shadow-2), `shadow-sm`, `shadow-border` (inset hairline).
 **Fonts:** `font-sans` (Inter), `font-code` (JetBrains Mono).
 **Text sizes:** `text-3xs` 10, `text-xxs` 12, `text-xs` 12, `text-sm` 13, `text-base` 14, `text-lg` 16, `text-xl` 21.

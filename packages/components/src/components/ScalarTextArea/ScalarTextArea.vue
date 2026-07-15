@@ -44,6 +44,6 @@ onMounted(() => {
       ref="textarea"
       v-model="model"
       v-bind="otherAttrs"
-      class="w-full resize-none border-none bg-transparent placeholder:font-[inherit] focus-within:outline-none" />
+      class="w-full resize-none rounded-none border-none bg-transparent placeholder:font-[inherit] focus-within:outline-none" />
   </ScalarFormInput>
 </template>
