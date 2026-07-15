@@ -1,5 +1,7 @@
 # @scalar/api-reference
 
+## 1.62.7
+
 ## 1.62.6
 
 ### Patch Changes
