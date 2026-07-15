@@ -222,6 +222,11 @@ class ScalarConfig(BaseModel):
         description="List of OpenAPI Server Objects. Each item must have a required 'url' (string) and may have optional 'description' (string) and 'variables' (map). Example: [{\"url\": \"https://api.example.com\", \"description\": \"Production\"}]. Default is [] which means no servers are provided.",
     )
 
+    plugin_urls: List[str] = Field(
+        default_factory=list,
+        description="URLs of ESM modules that provide additional API Reference plugins. Each module is imported in the browser before the API Reference mounts, and its default export is registered as a plugin. Default is [] which means no plugin URLs are provided.",
+    )
+
     default_open_all_tags: bool = Field(
         default=False,
         description="A boolean to open all tags by default. Default is False which means all tags are closed by default.",
@@ -453,6 +458,9 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
 
     if config.servers:  # Default is []
         js_config["servers"] = config.servers
+
+    if config.plugin_urls:  # Default is []
+        js_config["pluginUrls"] = config.plugin_urls
 
     if config.default_open_all_tags:  # Default is False
         js_config["defaultOpenAllTags"] = config.default_open_all_tags

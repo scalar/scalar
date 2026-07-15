@@ -347,6 +347,18 @@ public static partial class ScalarOptionsExtensions
     public static TOptions AddServer<TOptions>(this TOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string url, string description) where TOptions : ScalarOptions => options.AddServer(new ScalarServer(url, description));
 
     /// <summary>
+    /// Adds the URL of an ESM module that provides an additional API Reference plugin.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="pluginUrl">The URL of the plugin module to add. The module is imported in the browser before the API Reference mounts, and its default export is registered as a plugin.</param>
+    public static TOptions AddPluginUrl<TOptions>(this TOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string pluginUrl) where TOptions : ScalarOptions
+    {
+        options.PluginUrls ??= new List<string>();
+        options.PluginUrls.Add(pluginUrl);
+        return options;
+    }
+
+    /// <summary>
     /// Adds metadata to the configuration.
     /// </summary>
     /// <param name="options">The options to configure.</param>

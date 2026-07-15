@@ -40,6 +40,7 @@ internal static partial class ScalarOptionsMapper
             CustomCss = options.CustomCss,
             SearchHotKey = options.SearchHotKey,
             Servers = options.Servers,
+            PluginUrls = options.PluginUrls,
             MetaData = options.Metadata,
             Authentication = options.Authentication,
             TagSorter = options.TagSorter,

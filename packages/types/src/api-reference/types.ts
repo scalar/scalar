@@ -628,6 +628,22 @@ type ExtendedConfiguration = {
   customFetch?: typeof fetch
   /** Plugins for the API reference */
   plugins?: ApiReferencePlugin[]
+  /**
+   * URLs of ESM modules that provide additional plugins for the API reference.
+   *
+   * Each module is loaded with a dynamic `import()` before the API reference mounts, and its
+   * default export is registered as a plugin (the same shape as the `plugins` entries).
+   *
+   * Unlike `plugins`, this option is JSON-serializable, so integrations that pass their
+   * configuration as JSON can load plugins without replacing the whole bundle.
+   *
+   * Note: This is only supported by the standalone browser build (`Scalar.createApiReference`).
+   * When you render the `ApiReference` component yourself, import the plugin and pass it via
+   * `plugins` instead.
+   *
+   * @example ['https://cdn.jsdelivr.net/npm/@example/scalar-plugin/dist/plugin.js']
+   */
+  pluginUrls?: string[]
   /** Allows the user to inject an editor for the spec */
   isEditable: boolean
   /** Whether to show models in the sidebar, search, and content. */
