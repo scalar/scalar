@@ -1,5 +1,44 @@
 # @scalar/components
 
+## 0.27.8
+
+### Patch Changes
+
+- [#9687](https://github.com/scalar/scalar/pull/9687): feat(themes): derive the border radius scale from `--scalar-radius`
+
+  The radius tokens used to be independent, so setting `--scalar-radius: 0` still left rounded corners
+  behind on anything using `--scalar-radius-lg`, `--scalar-radius-xl` or `rounded-full`. They now all
+  derive from `--scalar-radius`, which means overriding that single variable rescales every corner in the
+  interface, and `0` squares it off completely.
+
+  Two new tokens fill out the scale, `--scalar-radius-2xl` (12px) and `--scalar-radius-3xl` (16px), along
+  with `--scalar-radius-full` for pills and circles. The matching `rounded-2xl` and `rounded-3xl` Tailwind
+  utilities now emit CSS; previously they were silently dropped.
+
+  Every default value is unchanged, so nothing shifts unless you were relying on the old behaviour. If
+  your theme sets `--scalar-radius` on its own and expects the larger radii to stay put, set those tokens
+  explicitly. Override `--scalar-radius` on `:root`: a custom property substitutes `var()` at the element
+  where it is declared, so setting the base further down the tree moves it without moving anything derived
+  from it.
+
+- [#9687](https://github.com/scalar/scalar/pull/9687): feat(themes): cap container corners with `--scalar-radius-max`
+
+  A large `--scalar-radius` used to curve tall containers hard enough that they swallowed their own
+  content: dropdown panels clipped their last rows, and code blocks rendered as stadiums.
+
+  Every radius token except `--scalar-radius-full` now clamps to a new `--scalar-radius-max`, which
+  defaults to `20px`. A new `--scalar-radius-md` gives the base radius the same cap, and is what
+  `rounded`, `rounded-md` and form controls now use. Pills and circles are deliberately exempt, so
+  avatars, spinners and toggles stay round.
+
+  The reset no longer sets a `border-radius` on `:focus-visible`. It was reshaping the focused element
+  rather than its outline, which meant a large theme radius turned bare focus containers into pills the
+  moment they were focused. Outlines already follow an element's own corners, so focus rings now match
+  whatever shape the element actually has.
+
+  Defaults are unchanged: every default token sits at or below the cap, so nothing moves unless you were
+  already setting a very large radius.
+
 ## 0.27.7
 
 ### Patch Changes
