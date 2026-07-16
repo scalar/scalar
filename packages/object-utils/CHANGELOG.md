@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.3.18
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 1.3.17
 
 ### Patch Changes

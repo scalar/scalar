@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.55.6
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.55.5
 
 ## 0.55.4

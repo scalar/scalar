@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 3.13.7
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 3.13.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.4.9
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.4.8
 
 ### Patch Changes

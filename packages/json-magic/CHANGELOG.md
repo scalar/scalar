@@ -1,5 +1,11 @@
 # @scalar/json-magic
 
+## 0.12.19
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.12.18
 
 ### Patch Changes

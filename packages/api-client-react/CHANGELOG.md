@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 2.0.36
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 2.0.35
 
 ## 2.0.34

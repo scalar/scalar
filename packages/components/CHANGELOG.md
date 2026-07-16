@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.27.9
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.27.8
 
 ### Patch Changes
