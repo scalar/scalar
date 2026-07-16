@@ -1,0 +1,71 @@
+{
+  "name": "@scalar/scalar",
+  "description": "The Scalar API Reference bundled as a single, code-split ES module for loading straight from a CDN",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/scalar"
+  },
+  "keywords": [
+    "api",
+    "documentation",
+    "openapi",
+    "swagger",
+    "cdn",
+    "esm"
+  ],
+  "version": "1.59.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly",
+    "dev": "vite build --watch",
+    "types:check": "tsc --noEmit"
+  },
+  "type": "module",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "readme": {
+    "title": "Scalar API Reference (ESM)",
+    "badges": [
+      {
+        "type": "npm-version"
+      },
+      {
+        "type": "npm-downloads"
+      },
+      {
+        "type": "npm-license"
+      }
+    ],
+    "documentation": "https://github.com/scalar/scalar/blob/main/documentation/integrations/html-js.md",
+    "extraContent": {
+      "headline": "Quickstart",
+      "content": "Load the API Reference straight from a CDN with a plain module import — no build step required:\n\n```html\n<!doctype html>\n<html>\n  <head>\n    <title>Scalar API Reference</title>\n    <meta charset=\"utf-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n  </head>\n  <body>\n    <div id=\"app\"></div>\n\n    <script type=\"module\">\n      import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/scalar'\n\n      createApiReference('#app', {\n        // The URL of the OpenAPI/Swagger document\n        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',\n        // Avoid CORS issues\n        proxyUrl: 'https://proxy.scalar.com',\n      })\n    </script>\n  </body>\n</html>\n```"
+    }
+  },
+  "browser": "./dist/index.js",
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:*",
+    "vite-plugin-banner": "^0.8.1",
+    "vite-plugin-css-injected-by-js": "catalog:*"
+  }
+}
