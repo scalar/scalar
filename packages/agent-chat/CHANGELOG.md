@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.12.22
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.12.21
 
 ### Patch Changes

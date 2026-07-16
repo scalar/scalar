@@ -1,5 +1,11 @@
 # @scalar/server-side-rendering
 
+## 0.1.37
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.1.36
 
 ## 0.1.35

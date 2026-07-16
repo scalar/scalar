@@ -1,5 +1,11 @@
 # @scalar/validation
 
+## 0.6.2
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.6.1
 
 ### Patch Changes

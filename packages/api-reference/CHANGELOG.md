@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.62.9
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 1.62.8
 
 ### Patch Changes
