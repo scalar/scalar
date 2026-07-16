@@ -85,7 +85,7 @@ const restrictedKeys = [
   'types',
   'exports',
   'files',
-  'readme',
+  'scalarReadme',
   'UNSORTED',
   'dependencies',
   'devDependencies',

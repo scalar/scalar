@@ -1,4 +1,4 @@
-import { test } from '@test/helpers'
+import { test, themes } from '@test/helpers'
 
 const stories = ['Base', 'With Icon']
 const sizes = { 'Extra Small': 'xs', 'Small': 'sm', 'Medium': 'md' } as const
@@ -54,6 +54,19 @@ test.describe('ScalarButton', () => {
           })
         }),
       )
+    }),
+  )
+
+  /**
+   * The button carries the base radius, so it is the cheapest check that --scalar-radius itself is
+   * honoured. At a large radius a medium button is shorter than twice the radius, which forces the
+   * corners to cap into a pill rather than overflowing.
+   */
+  themes.forEach((theme) =>
+    test.describe(`Theme ${theme}`, () => {
+      test.use({ component: 'ScalarButton', theme, args: { variant: 'solid', size: 'md' } })
+
+      test('Base', async ({ snapshot }) => await snapshot())
     }),
   )
 })

@@ -1,4 +1,4 @@
-import { test } from '@test/helpers'
+import { test, themes } from '@test/helpers'
 
 test.describe('ScalarColorModeToggle', () => {
   test.use({ crop: 'component', scale: 4 })
@@ -17,4 +17,18 @@ test.describe('ScalarColorModeToggle', () => {
       await snapshot('pressed')
     })
   })
+
+  /**
+   * The toggle is the clearest case of a themed radius wrapping a fixed one: the track uses
+   * rounded-xl while the knob uses rounded-full. Both derive from --scalar-radius, so the rounded
+   * none theme flattens the two together, while the sun and moon icon keeps its own 50% and stays
+   * round under every theme.
+   */
+  themes.forEach((theme) =>
+    test.describe(`Theme ${theme}`, () => {
+      test.use({ component: 'ScalarColorModeToggle', theme })
+
+      test('Button', async ({ snapshot }) => await snapshot())
+    }),
+  )
 })

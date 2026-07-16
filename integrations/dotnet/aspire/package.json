@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/dotnet/aspire"
   },
-  "version": "0.11.6",
+  "version": "0.11.8",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -24,7 +24,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/dotnet-shared": "workspace:*"
   },
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for Aspire",
     "badges": [
       {

@@ -1,4 +1,4 @@
-import { test } from '@test/helpers'
+import { test, themes } from '@test/helpers'
 
 test.describe('ScalarSidebar', () => {
   test('Base', async ({ page, snapshot }) => {
@@ -36,4 +36,16 @@ test.describe('ScalarSidebar', () => {
     await page.getByRole('button', { name: 'Nested Items Loading' }).click()
     await snapshot('2-nested')
   })
+
+  /** The sidebar items use rounded-lg, which is the only coverage of that step in the scale. */
+  themes.forEach((theme) =>
+    test.describe(`Theme ${theme}`, () => {
+      test.use({ component: 'ScalarSidebar', theme })
+
+      test('Base', async ({ page, snapshot }) => {
+        await page.getByRole('button', { name: 'Level 1 Group' }).click()
+        await snapshot()
+      })
+    }),
+  )
 })

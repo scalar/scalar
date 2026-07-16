@@ -71,7 +71,7 @@
     "README.md",
     "CHANGELOG.md"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference Crate for Rust",
     "badges": [
       {

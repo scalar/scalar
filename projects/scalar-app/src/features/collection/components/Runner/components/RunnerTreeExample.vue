@@ -33,7 +33,7 @@ const emit = defineEmits<{
     @click="emit('toggle')">
     <!-- Checkbox indicator -->
     <span
-      class="flex size-3.5 shrink-0 items-center justify-center rounded-sm border transition-colors duration-100"
+      class="flex size-3.5 shrink-0 items-center justify-center rounded border transition-colors duration-100"
       :class="[
         isSelected
           ? 'border-accent-color bg-accent-color text-white'

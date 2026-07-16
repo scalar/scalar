@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/dotnet/azure-functions"
   },
-  "version": "0.2.0",
+  "version": "0.2.2",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -19,7 +19,7 @@
     "compress": "cd ./src/Scalar.Azure.Functions/StaticAssets && gzip --keep --verbose --force scalar.js scalar.azure.functions.js favicon.svg",
     "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.Azure.Functions/StaticAssets/scalar.js"
   },
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for Azure Functions",
     "badges": [
       {

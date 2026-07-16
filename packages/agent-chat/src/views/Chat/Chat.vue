@@ -94,7 +94,7 @@ const state = useState()
   padding-top: 6px;
   padding-bottom: 6px;
   padding-inline: 16px;
-  border-radius: 18px;
+  border-radius: var(--scalar-radius-3xl);
   background: var(--scalar-background-2);
   width: fit-content;
   max-width: 80%;

@@ -1,5 +1,13 @@
 # @scalar/mock-server
 
+## 0.12.6
+
+### Patch Changes
+
+- [#9710](https://github.com/scalar/scalar/pull/9710): Republish so the updated README (with the Scalar platform overview) reaches npm. Also renames the README generator metadata in package.json from `readme` to `scalarReadme`: npm treats a `readme` field as the readme text itself, so affected packages were published with a literal `[object Object]` readme on the registry instead of README.md.
+
+## 0.12.5
+
 ## 0.12.4
 
 ## 0.12.3

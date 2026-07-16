@@ -17,7 +17,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.62.5",
+  "version": "1.62.7",
   "engines": {
     "node": ">=22"
   },
@@ -44,7 +44,7 @@
     "./dist",
     "CHANGELOG.md"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference for Fastify",
     "badges": [
       {

@@ -44,7 +44,7 @@ const emit = defineEmits<{
     var(--scalar-background-1) 95%
   );
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--scalar-radius-3xl) var(--scalar-radius-3xl) 0 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -67,7 +67,7 @@ const emit = defineEmits<{
   display: flex;
   align-items: center;
   font-weight: var(--scalar-semibold);
-  border-radius: 50px;
+  border-radius: var(--scalar-radius-full);
   padding: 6px 12px;
   font-size: var(--scalar-font-size-3);
 }

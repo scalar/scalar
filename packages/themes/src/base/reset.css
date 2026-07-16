@@ -80,7 +80,7 @@
   input:where(:not([type="button"], [type="reset"], [type="submit"])),
   select,
   textarea {
-    border-radius: var(--scalar-radius);
+    border-radius: var(--scalar-radius-md);
     border-width: 1px;
   }
 
@@ -125,7 +125,6 @@
   /** Add outline for focus visible */
   :focus-visible {
     outline-style: solid;
-    border-radius: var(--scalar-radius);
   }
 
   /** Set outline offset for buttons */

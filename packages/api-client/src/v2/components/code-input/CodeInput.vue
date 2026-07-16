@@ -652,9 +652,8 @@ defineExpose({
 .cm-pill {
   color: var(--scalar-color-1) !important;
   padding: 0px 9px;
-  border-radius: 3px;
   display: inline-block;
-  border-radius: 30px;
+  border-radius: var(--scalar-radius-full);
   font-size: var(--scalar-small);
 }
 .light-mode .cm-pill {

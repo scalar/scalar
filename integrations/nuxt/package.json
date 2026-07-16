@@ -20,7 +20,7 @@
     "testing",
     "vue"
   ],
-  "version": "0.6.54",
+  "version": "0.6.56",
   "engines": {
     "node": ">=22"
   },
@@ -45,7 +45,7 @@
   "files": [
     "dist"
   ],
-  "readme": {
+  "scalarReadme": {
     "title": "Scalar API Reference Module for Nuxt",
     "badges": [
       {

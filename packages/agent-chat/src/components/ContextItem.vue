@@ -23,7 +23,7 @@ const { loading } = defineProps<{ loading: boolean }>()
   cursor: pointer;
   vertical-align: middle;
   padding: 1px 8px;
-  border-radius: 12px;
+  border-radius: var(--scalar-radius-2xl);
   padding: 5px 10px;
   display: flex;
   align-items: center;
