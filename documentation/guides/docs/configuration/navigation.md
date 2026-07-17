@@ -160,7 +160,7 @@ You can define multiple tabs to provide quick access to different sections:
   },
   {
     "title": "SDKs",
-    "path": "/products/sdks",
+    "path": "/products/sdk-generator",
     "icon": "phosphor/regular/package"
   }
 ]

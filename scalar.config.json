@@ -191,47 +191,183 @@
         },
         {
           "from": "/scalar/scalar-sdks/getting-started",
-          "to": "/products/sdks/getting-started"
+          "to": "/products/sdk-generator/getting-started"
         },
         {
           "from": "/scalar/scalar-sdks/publishing",
-          "to": "/products/sdks/publishing/overview"
-        },
-        {
-          "from": "/products/sdks/publishing",
-          "to": "/products/sdks/publishing/overview"
+          "to": "/products/sdk-generator/publishing/overview"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/typescript",
-          "to": "/products/sdks/configuration/typescript"
+          "to": "/products/sdk-generator/configuration/typescript"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/python",
-          "to": "/products/sdks/configuration/python"
+          "to": "/products/sdk-generator/configuration/python"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/go",
-          "to": "/products/sdks/configuration/go"
+          "to": "/products/sdk-generator/configuration/go"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/java",
-          "to": "/products/sdks/configuration/java"
+          "to": "/products/sdk-generator/configuration/java"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/csharp",
-          "to": "/products/sdks/configuration/csharp"
+          "to": "/products/sdk-generator/configuration/csharp"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/php",
-          "to": "/products/sdks/configuration/php"
+          "to": "/products/sdk-generator/configuration/php"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/ruby",
-          "to": "/products/sdks/configuration/ruby"
+          "to": "/products/sdk-generator/configuration/ruby"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/swift",
-          "to": "/products/sdks/configuration/swift"
+          "to": "/products/sdk-generator/configuration/swift"
+        },
+        {
+          "from": "/products/sdks",
+          "to": "/products/sdk-generator/getting-started"
+        },
+        {
+          "from": "/products/sdks/getting-started",
+          "to": "/products/sdk-generator/getting-started"
+        },
+        {
+          "from": "/products/sdks/managing",
+          "to": "/products/sdk-generator/managing"
+        },
+        {
+          "from": "/products/sdks/custom-code",
+          "to": "/products/sdk-generator/custom-code"
+        },
+        {
+          "from": "/products/sdks/publishing",
+          "to": "/products/sdk-generator/publishing/overview"
+        },
+        {
+          "from": "/products/sdks/publishing/overview",
+          "to": "/products/sdk-generator/publishing/overview"
+        },
+        {
+          "from": "/products/sdks/publishing/github",
+          "to": "/products/sdk-generator/publishing/github"
+        },
+        {
+          "from": "/products/sdks/publishing/registries",
+          "to": "/products/sdk-generator/publishing/registries"
+        },
+        {
+          "from": "/products/sdks/publishing/typescript",
+          "to": "/products/sdk-generator/publishing/typescript"
+        },
+        {
+          "from": "/products/sdks/publishing/python",
+          "to": "/products/sdk-generator/publishing/python"
+        },
+        {
+          "from": "/products/sdks/publishing/go",
+          "to": "/products/sdk-generator/publishing/go"
+        },
+        {
+          "from": "/products/sdks/publishing/rust",
+          "to": "/products/sdk-generator/publishing/rust"
+        },
+        {
+          "from": "/products/sdks/publishing/java",
+          "to": "/products/sdk-generator/publishing/java"
+        },
+        {
+          "from": "/products/sdks/publishing/csharp",
+          "to": "/products/sdk-generator/publishing/csharp"
+        },
+        {
+          "from": "/products/sdks/publishing/ruby",
+          "to": "/products/sdk-generator/publishing/ruby"
+        },
+        {
+          "from": "/products/sdks/publishing/php",
+          "to": "/products/sdk-generator/publishing/php"
+        },
+        {
+          "from": "/products/sdks/publishing/swift",
+          "to": "/products/sdk-generator/publishing/swift"
+        },
+        {
+          "from": "/products/sdks/publishing/dart",
+          "to": "/products/sdk-generator/publishing/dart"
+        },
+        {
+          "from": "/products/sdks/publishing/cli",
+          "to": "/products/sdk-generator/publishing/cli"
+        },
+        {
+          "from": "/products/sdks/configuration",
+          "to": "/products/sdk-generator/configuration/overview"
+        },
+        {
+          "from": "/products/sdks/configuration/overview",
+          "to": "/products/sdk-generator/configuration/overview"
+        },
+        {
+          "from": "/products/sdks/configuration/typescript",
+          "to": "/products/sdk-generator/configuration/typescript"
+        },
+        {
+          "from": "/products/sdks/configuration/python",
+          "to": "/products/sdk-generator/configuration/python"
+        },
+        {
+          "from": "/products/sdks/configuration/cli",
+          "to": "/products/sdk-generator/configuration/cli"
+        },
+        {
+          "from": "/products/sdks/configuration/go",
+          "to": "/products/sdk-generator/configuration/go"
+        },
+        {
+          "from": "/products/sdks/configuration/java",
+          "to": "/products/sdk-generator/configuration/java"
+        },
+        {
+          "from": "/products/sdks/configuration/csharp",
+          "to": "/products/sdk-generator/configuration/csharp"
+        },
+        {
+          "from": "/products/sdks/configuration/php",
+          "to": "/products/sdk-generator/configuration/php"
+        },
+        {
+          "from": "/products/sdks/configuration/ruby",
+          "to": "/products/sdk-generator/configuration/ruby"
+        },
+        {
+          "from": "/products/sdks/configuration/swift",
+          "to": "/products/sdk-generator/configuration/swift"
+        },
+        {
+          "from": "/products/sdks/configuration/rust",
+          "to": "/products/sdk-generator/configuration/rust"
+        },
+        {
+          "from": "/products/sdks/configuration/kotlin",
+          "to": "/products/sdk-generator/configuration/kotlin"
+        },
+        {
+          "from": "/products/sdks/configuration/dart",
+          "to": "/products/sdk-generator/configuration/dart"
+        },
+        {
+          "from": "/products/sdks/configuration/cpp",
+          "to": "/products/sdk-generator/configuration/cpp"
+        },
+        {
+          "from": "/products/sdks/:pathMatch(.*)*",
+          "to": "/products/sdk-generator/getting-started"
         },
         {
           "from": "/scalar/scalar-registry/getting-started",
@@ -1463,8 +1599,8 @@
                   }
                 }
               },
-              "/sdks": {
-                "title": "SDKs",
+              "/sdk-generator": {
+                "title": "SDK Generator",
                 "description": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
                 "type": "group",
                 "mode": "nested",
@@ -1479,7 +1615,7 @@
                       "links": [
                         {
                           "rel": "canonical",
-                          "href": "https://scalar.com/products/sdks/getting-started"
+                          "href": "https://scalar.com/products/sdk-generator/getting-started"
                         }
                       ],
                       "meta": [
