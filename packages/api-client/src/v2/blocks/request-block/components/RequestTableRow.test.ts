@@ -87,6 +87,45 @@ describe('RequestTableRow', () => {
     })
   })
 
+  it('gives the checkbox a row-specific accessible name', () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-api-key', value: 'value' },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const checkbox = wrapper.findComponent(DataTableCheckbox)
+    expect(checkbox.props('ariaLabel')).toBe('Include x-api-key in request')
+  })
+
+  it('gives the delete row button a row-specific accessible name', () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-api-key', value: 'value' },
+        environment,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const deleteButtons = wrapper.findAllComponents({ name: 'ScalarButton' })
+    const deleteRowButton = deleteButtons.find((btn) => {
+      const iconComponent = btn.findComponent({ name: 'ScalarIconTrash' })
+      return iconComponent.exists()
+    })
+
+    expect(deleteRowButton?.attributes('aria-label')).toBe('Delete x-api-key')
+  })
+
   it('disables checkbox when hasCheckboxDisabled is true', () => {
     const wrapper = mount(RequestTableRow, {
       props: {
