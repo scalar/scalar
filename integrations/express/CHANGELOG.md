@@ -1,5 +1,11 @@
 # @scalar/express-api-reference
 
+## 0.10.11
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.10.10
 
 ### Patch Changes

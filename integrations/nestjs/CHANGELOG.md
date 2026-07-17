@@ -1,5 +1,11 @@
 # @scalar/nestjs-api-reference
 
+## 1.2.11
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 1.2.10
 
 ### Patch Changes

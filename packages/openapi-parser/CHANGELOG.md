@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.28.10
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.28.9
 
 ### Patch Changes

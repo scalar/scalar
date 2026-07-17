@@ -1,5 +1,13 @@
 # @scalar/openapi-to-markdown
 
+## 0.5.36
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
+## 0.5.35
+
 ## 0.5.34
 
 ## 0.5.33

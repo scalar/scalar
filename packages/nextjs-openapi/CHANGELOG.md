@@ -1,5 +1,11 @@
 # @scalar/nextjs-openapi
 
+## 0.3.32
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.3.31
 
 ### Patch Changes

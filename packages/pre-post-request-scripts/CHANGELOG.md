@@ -1,5 +1,13 @@
 # @scalar/scripts
 
+## 0.4.34
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
+## 0.4.33
+
 ## 0.4.32
 
 ## 0.4.31

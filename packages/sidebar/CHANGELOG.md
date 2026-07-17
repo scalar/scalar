@@ -1,5 +1,13 @@
 # @scalar/sidebar
 
+## 0.9.33
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
+## 0.9.32
+
 ## 0.9.31
 
 ## 0.9.30

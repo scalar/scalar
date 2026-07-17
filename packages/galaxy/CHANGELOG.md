@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.6.11
+
+### Patch Changes
+
+- [#9719](https://github.com/scalar/scalar/pull/9719): docs: update the Scalar platform overview block in the README
+
 ## 0.6.10
 
 ### Patch Changes
