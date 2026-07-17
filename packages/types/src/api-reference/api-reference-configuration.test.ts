@@ -13,6 +13,23 @@ describe('api-reference-configuration', () => {
       expect(() => apiReferenceConfigurationSchema.parse(minimalConfig)).not.toThrow()
     })
 
+    it('preserves the documentType of a source', () => {
+      const parsed = apiReferenceConfigurationWithSourceSchema.parse({
+        url: 'https://example.com/asyncapi.json',
+        documentType: 'asyncapi',
+      })
+
+      expect(parsed.documentType).toBe('asyncapi')
+    })
+
+    it('leaves documentType undefined when not provided', () => {
+      const parsed = apiReferenceConfigurationWithSourceSchema.parse({
+        url: 'https://example.com/openapi.json',
+      })
+
+      expect(parsed.documentType).toBeUndefined()
+    })
+
     it('validates a complete configuration', () => {
       const completeConfig = {
         theme: 'default',
