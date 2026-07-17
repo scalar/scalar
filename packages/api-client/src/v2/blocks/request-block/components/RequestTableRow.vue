@@ -212,6 +212,7 @@ const handleKeyBlur = (newName: string): void => {
       error: validationResult.ok === false && invalidParams?.has(data.name),
     }">
     <DataTableCheckbox
+      :ariaLabel="`Include ${data.name} in request`"
       class="!border-r"
       :disabled="hasCheckboxDisabled ?? false"
       :modelValue="!isDisabled"
@@ -257,6 +258,7 @@ const handleKeyBlur = (newName: string): void => {
               !data.isRequired &&
               data.isReadonly !== true
             "
+            :aria-label="`Delete ${data.name || 'row'}`"
             class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.code-input-lite__editor:focus]:flex"
             size="sm"
             variant="ghost"
