@@ -49,6 +49,66 @@ describe('SchemaPropertyHeading', () => {
     expect(detailsElement.text()).toContain('date-time')
   })
 
+  it('renders the format of primitive array items', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: coerceValue(SchemaObjectSchema, {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'uuid',
+          },
+        }),
+      },
+    })
+
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('array string[]')
+    expect(detailsElement.text()).toContain('uuid')
+  })
+
+  it('renders string constraints of primitive array items', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: coerceValue(SchemaObjectSchema, {
+          type: 'array',
+          items: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 8,
+            pattern: '^[a-z]+$',
+          },
+        }),
+      },
+    })
+
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('2')
+    expect(detailsElement.text()).toContain('8')
+    expect(detailsElement.text()).toContain('^[a-z]+$')
+  })
+
+  it('renders numeric constraints of primitive array items', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: coerceValue(SchemaObjectSchema, {
+          type: 'array',
+          items: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 10,
+            multipleOf: 2,
+          },
+        }),
+      },
+    })
+
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('1')
+    expect(detailsElement.text()).toContain('10')
+    expect(detailsElement.text()).toContain('2')
+  })
+
   describe('const', () => {
     it('renders const value', () => {
       const wrapper = mount(SchemaPropertyHeading, {
