@@ -2,7 +2,11 @@
 import { ScalarMarkdownSummary } from '@scalar/components/markdown'
 import type {
   SecretsApiKey,
+  SecretsEncryption,
+  SecretsGssapi,
   SecretsHttp,
+  SecretsSasl,
+  SecretsX509,
 } from '@scalar/workspace-store/entities/auth'
 import type {
   ApiReferenceEvents,
@@ -10,8 +14,12 @@ import type {
 } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
+  EncryptionObjectSecret,
+  GssapiObjectSecret,
   MergedSecuritySchemes,
+  SaslObjectSecret,
   SecuritySchemeObjectSecret,
+  X509ObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { getDocumentTypeLabel } from '@scalar/workspace-store/schemas/type-guards'
@@ -161,10 +169,49 @@ const generateLabel = (
 const apiKeyHasName = (scheme: { in?: string }): boolean =>
   scheme.in !== 'user' && scheme.in !== 'password'
 
+const SASL_SCHEME_TYPES = [
+  'userPassword',
+  'plain',
+  'scramSha256',
+  'scramSha512',
+] as const
+
 /**
- * The scheme's type when it is one we do not render inputs for (e.g. AsyncAPI broker types like
- * `userPassword` or `scramSha256`). Read through a helper so the fallback template branch, where
- * the scheme type is narrowed to `never` after the supported cases, can still surface the type.
+ * SASL-style AsyncAPI broker schemes (`userPassword`, `plain`, `scramSha256`, `scramSha512`):
+ * they all authenticate with a username + password pair, so they share one form.
+ */
+const isSaslScheme = (
+  scheme: SecurityItem['scheme'],
+): scheme is SaslObjectSecret =>
+  Boolean(scheme) &&
+  (SASL_SCHEME_TYPES as readonly string[]).includes(scheme!.type)
+
+const ENCRYPTION_SCHEME_TYPES = [
+  'symmetricEncryption',
+  'asymmetricEncryption',
+] as const
+
+/** AsyncAPI encryption broker schemes: a single key value. */
+const isEncryptionScheme = (
+  scheme: SecurityItem['scheme'],
+): scheme is EncryptionObjectSecret =>
+  Boolean(scheme) &&
+  (ENCRYPTION_SCHEME_TYPES as readonly string[]).includes(scheme!.type)
+
+/** AsyncAPI X509 broker scheme: a client certificate + private key pair (PEM). */
+const isX509Scheme = (
+  scheme: SecurityItem['scheme'],
+): scheme is X509ObjectSecret => scheme?.type === 'X509'
+
+/** AsyncAPI GSSAPI (Kerberos) broker scheme: the service name the client authenticates against. */
+const isGssapiScheme = (
+  scheme: SecurityItem['scheme'],
+): scheme is GssapiObjectSecret => scheme?.type === 'gssapi'
+
+/**
+ * The scheme's type when it is one we do not render inputs for (a type outside both the OpenAPI
+ * and AsyncAPI security scheme unions). Read through a helper so the fallback template branch,
+ * where the scheme type is narrowed to `never` after the supported cases, can still surface the type.
  */
 const getUnsupportedSchemeType = (
   scheme: SecurityItem['scheme'],
@@ -195,6 +242,44 @@ const handleApiKeySecretsUpdate = (
 ): void =>
   eventBus.emit('auth:update:security-scheme-secrets', {
     payload: { type: 'apiKey', ...payload },
+    name,
+  })
+
+const handleSaslSecretsUpdate = (
+  payload: Omit<Partial<SecretsSasl>, 'type'>,
+  name: string,
+  type: SecretsSasl['type'],
+): void =>
+  eventBus.emit('auth:update:security-scheme-secrets', {
+    payload: { type, ...payload },
+    name,
+  })
+
+const handleX509SecretsUpdate = (
+  payload: Omit<Partial<SecretsX509>, 'type'>,
+  name: string,
+): void =>
+  eventBus.emit('auth:update:security-scheme-secrets', {
+    payload: { type: 'X509', ...payload },
+    name,
+  })
+
+const handleEncryptionSecretsUpdate = (
+  payload: Omit<Partial<SecretsEncryption>, 'type'>,
+  name: string,
+  type: SecretsEncryption['type'],
+): void =>
+  eventBus.emit('auth:update:security-scheme-secrets', {
+    payload: { type, ...payload },
+    name,
+  })
+
+const handleGssapiSecretsUpdate = (
+  payload: Omit<Partial<SecretsGssapi>, 'type'>,
+  name: string,
+): void =>
+  eventBus.emit('auth:update:security-scheme-secrets', {
+    payload: { type: 'gssapi', ...payload },
     name,
   })
 
@@ -419,7 +504,126 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
       </template>
     </template>
 
-    <!-- Scheme has a type we do not render inputs for yet (e.g. AsyncAPI broker types) -->
+    <!-- SASL broker authentication (userPassword, plain, scramSha256, scramSha512) -->
+    <template v-else-if="isSaslScheme(scheme)">
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          class="text-c-2"
+          :containerClass="getStaticBorderClass()"
+          :environment
+          :modelValue="scheme['x-scalar-secret-username']"
+          placeholder="janedoe"
+          required
+          @update:modelValue="
+            (v) =>
+              handleSaslSecretsUpdate(
+                { 'x-scalar-secret-username': v },
+                name,
+                scheme.type,
+              )
+          ">
+          Username
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          :environment
+          :modelValue="scheme['x-scalar-secret-password']"
+          placeholder="********"
+          type="password"
+          @update:modelValue="
+            (v) =>
+              handleSaslSecretsUpdate(
+                { 'x-scalar-secret-password': v },
+                name,
+                scheme.type,
+              )
+          ">
+          Password
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+    </template>
+
+    <!-- X509 client certificate authentication -->
+    <template v-else-if="isX509Scheme(scheme)">
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          :containerClass="getStaticBorderClass()"
+          :environment
+          :modelValue="scheme['x-scalar-secret-client-certificate']"
+          placeholder="-----BEGIN CERTIFICATE-----"
+          type="password"
+          @update:modelValue="
+            (v) =>
+              handleX509SecretsUpdate(
+                { 'x-scalar-secret-client-certificate': v },
+                name,
+              )
+          ">
+          Client Certificate
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          :environment
+          :modelValue="scheme['x-scalar-secret-private-key']"
+          placeholder="-----BEGIN PRIVATE KEY-----"
+          type="password"
+          @update:modelValue="
+            (v) =>
+              handleX509SecretsUpdate(
+                { 'x-scalar-secret-private-key': v },
+                name,
+              )
+          ">
+          Private Key
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+    </template>
+
+    <!-- Symmetric / asymmetric encryption key -->
+    <template v-else-if="isEncryptionScheme(scheme)">
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          :containerClass="getStaticBorderClass()"
+          :environment
+          :modelValue="scheme['x-scalar-secret-token']"
+          placeholder="********"
+          type="password"
+          @update:modelValue="
+            (v) =>
+              handleEncryptionSecretsUpdate(
+                { 'x-scalar-secret-token': v },
+                name,
+                scheme.type,
+              )
+          ">
+          Key
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+    </template>
+
+    <!-- GSSAPI (Kerberos) authentication -->
+    <template v-else-if="isGssapiScheme(scheme)">
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          :containerClass="getStaticBorderClass()"
+          :environment
+          :modelValue="scheme['x-scalar-secret-service-name']"
+          placeholder="kafka"
+          @update:modelValue="
+            (v) =>
+              handleGssapiSecretsUpdate(
+                { 'x-scalar-secret-service-name': v },
+                name,
+              )
+          ">
+          Service Name
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+    </template>
+
+    <!-- Scheme has a type we do not render inputs for -->
     <div
       v-else-if="getUnsupportedSchemeType(scheme)"
       class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">

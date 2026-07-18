@@ -60,6 +60,11 @@ servers:
       - $ref: '#/components/securitySchemes/bearerAuth'
       - $ref: '#/components/securitySchemes/httpApiKey'
       - $ref: '#/components/securitySchemes/oauth2'
+      - $ref: '#/components/securitySchemes/userPasswordAuth'
+      - $ref: '#/components/securitySchemes/scramSha256Auth'
+      - $ref: '#/components/securitySchemes/certAuth'
+      - $ref: '#/components/securitySchemes/kerberosAuth'
+      - $ref: '#/components/securitySchemes/payloadEncryption'
     tags:
       - name: production
         description: Production environment
@@ -428,6 +433,21 @@ components:
             read:events: Subscribe to events
             write:events: Publish events (admin only)
             read:user:events: Subscribe to user events
+    userPasswordAuth:
+      type: userPassword
+      description: Username and password authentication for broker connections
+    scramSha256Auth:
+      type: scramSha256
+      description: SASL/SCRAM-SHA-256 authentication for broker connections
+    certAuth:
+      type: X509
+      description: X509 client certificate authentication
+    kerberosAuth:
+      type: gssapi
+      description: GSSAPI (Kerberos) authentication
+    payloadEncryption:
+      type: symmetricEncryption
+      description: Message payloads are encrypted with a shared symmetric key
   parameters:
     planetId:
       description: The ID of the planet

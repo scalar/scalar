@@ -55,7 +55,14 @@ The selector fully supports the security scheme types that AsyncAPI shares with 
 - `apiKey`
 - `httpApiKey` (a named key in `query`, `header`, or `cookie`; rendered as an `apiKey`)
 
-Broker-specific scheme types (`userPassword`, `X509`, `symmetricEncryption`, `asymmetricEncryption`, `plain`, `scramSha256`, `scramSha512`, `gssapi`) still appear in the selector, but a dedicated input UI for them is not available yet.
+The broker-specific scheme types have dedicated credential inputs too:
+
+- `userPassword`, `plain`, `scramSha256`, `scramSha512` — a **username** and **password** pair, just like HTTP basic.
+- `X509` — a **client certificate** and **private key** (PEM).
+- `symmetricEncryption`, `asymmetricEncryption` — a single **key** value.
+- `gssapi` — the Kerberos **service name** to authenticate against.
+
+Credentials are kept in the auth store alongside the OpenAPI ones, so they persist while you browse and never leave the browser.
 
 > [!NOTE]
 > AsyncAPI support is still a work in progress, so not every part of the specification is rendered yet. The progress is tracked on GitHub in [issue #7080](https://github.com/scalar/scalar/issues/7080) — subscribe there to receive updates.

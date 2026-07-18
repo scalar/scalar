@@ -144,6 +144,12 @@ const handleOauth2Update = (
     return handleOauth2SecretsUpdate(payload)
   }
 
+  // Only OAuth2 schemes carry flows on the document; this component is never
+  // rendered for the other scheme types.
+  if (scheme.type !== 'oauth2') {
+    return
+  }
+
   eventBus.emit('auth:update:security-scheme', {
     payload: {
       type: scheme.type,
