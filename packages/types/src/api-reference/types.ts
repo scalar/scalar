@@ -431,6 +431,14 @@ export type ApiReferenceTranslations = {
   asyncapi: {
     servers: string
     protocols: string
+    bindings: string
+    tags: string
+    reply: string
+    replyChannel: string
+    replyAddress: string
+    replyMessages: string
+    correlationId: string
+    examples: string
   }
   clientLibraries: {
     heading: string

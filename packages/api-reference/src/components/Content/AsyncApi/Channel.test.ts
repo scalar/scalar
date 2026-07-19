@@ -155,6 +155,28 @@ describe('Channel', () => {
     expect(wrapper.text()).not.toContain('Parameters')
   })
 
+  it.each(['modern', 'classic'] as const)('renders channel bindings and tags in the %s layout', (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        document: createDocumentWithChannel({
+          address: 'user/signedup',
+          bindings: { kafka: { topic: 'user-signedup' } },
+          tags: [{ name: 'users' }],
+        }),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    const text = wrapper.text()
+    expect(text).toContain('Bindings')
+    expect(text).toContain('kafka')
+    expect(text).toContain('topic')
+    expect(text).toContain('users')
+  })
+
   const documentWithOperation = (): AsyncApiDocument =>
     ({
       asyncapi: '3.0.0',
