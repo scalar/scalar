@@ -230,5 +230,6 @@ export const ru = {
     oneOf: 'одно из:',
     required: 'Требуется аутентификация',
     requires: 'Требуется',
+    scopes: 'Области OAuth',
   },
 } satisfies ApiReferenceTranslations

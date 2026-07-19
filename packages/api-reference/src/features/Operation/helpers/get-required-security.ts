@@ -80,3 +80,35 @@ export const getRequiredSecurity = (
     requirements: groups,
   }
 }
+
+/**
+ * Required OAuth scopes grouped by security alternative (OR).
+ *
+ * Each returned array is the de-duplicated set of scopes for one alternative, kept in
+ * declaration order. Scopes are only collected for OAuth2 / OpenID Connect schemes, so
+ * alternatives without any scopes (for example API-key-only auth) are omitted and the
+ * result is empty when the operation requires no OAuth scopes.
+ *
+ * Grouping is preserved intentionally: unioning scopes across alternatives would imply
+ * that mutually exclusive scope sets are all required at once, which misstates OpenAPI
+ * OR semantics.
+ */
+export const getRequiredScopeGroups = (requiredSecurity: RequiredSecurity): string[][] => {
+  const groups: string[][] = []
+
+  for (const group of requiredSecurity.requirements) {
+    const collected = new Set<string>()
+
+    for (const scheme of group.schemes) {
+      for (const scope of scheme.scopes) {
+        collected.add(scope)
+      }
+    }
+
+    if (collected.size > 0) {
+      groups.push([...collected])
+    }
+  }
+
+  return groups
+}

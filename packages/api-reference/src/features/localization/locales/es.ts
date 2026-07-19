@@ -229,5 +229,6 @@ export const es = {
     oneOf: 'uno de:',
     required: 'Autenticación requerida',
     requires: 'Requiere',
+    scopes: 'Ámbitos de OAuth',
   },
 } satisfies ApiReferenceTranslations
