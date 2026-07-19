@@ -59,6 +59,11 @@ defineSlots<{
     /** Whether or not the listbox is open */
     open: boolean
   }): unknown
+  /** Trailing content rendered at the end of each option (e.g. a badge) */
+  'option-suffix'?(props: {
+    /** The option being rendered */
+    option: Option
+  }): unknown
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -102,7 +107,13 @@ const { cx } = useBindCx()
                 v-for="option in options"
                 :key="option.id"
                 :multiselect="multiple"
-                :option="option" />
+                :option="option">
+                <template #suffix="{ option: slotOption }">
+                  <slot
+                    name="option-suffix"
+                    :option="slotOption" />
+                </template>
+              </ScalarListboxOption>
             </ListboxOptions>
           </div>
           <ScalarFloatingBackdrop />

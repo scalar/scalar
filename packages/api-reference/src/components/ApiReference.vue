@@ -55,6 +55,7 @@ import type {
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
 import {
+  getDocumentType,
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
@@ -90,6 +91,10 @@ import {
   provideLocalization,
   resolveLocalization,
 } from '@/features/localization'
+import {
+  DOCUMENT_TYPE_LABELS,
+  guessDocumentTypeFromUrl,
+} from '@/features/multiple-documents/document-type'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
@@ -249,12 +254,39 @@ if (typeof window !== 'undefined') {
 }
 
 /** Computed document options list for the selector logic */
-const documentOptionList = computed(() =>
-  Object.values(configList.value).map((c) => ({
-    label: c.title,
-    id: c.slug,
-  })),
-)
+const documentOptionList = computed(() => {
+  const options = Object.values(configList.value).map((c) => {
+    // Documents are loaded lazily, so resolve the document type with:
+    // 1. Prefer the parsed document from the store (covers URL sources once loaded).
+    // 2. Fall back to the inline configuration content (available immediately).
+    // 3. As a last resort, guess from the source URL for documents not yet loaded.
+    const type =
+      getDocumentType(
+        workspaceStore.workspace.documents[c.slug] ?? c.source.content,
+      ) ?? guessDocumentTypeFromUrl(c.source.url)
+
+    return {
+      title: c.title,
+      id: c.slug,
+      type,
+    }
+  })
+  const documentTypes = new Set(options.map((option) => option.type))
+  const hasMixedDocumentTypes =
+    documentTypes.has('openapi') && documentTypes.has('asyncapi')
+  // Only surface the type badge when the list actually mixes OpenAPI and AsyncAPI,
+  // otherwise the badge is just noise when every document is the same type.
+  const showDocumentTypeBadge = options.length >= 2 && hasMixedDocumentTypes
+
+  return options.map((option) => ({
+    label: option.title,
+    id: option.id,
+    badge:
+      showDocumentTypeBadge && option.type
+        ? DOCUMENT_TYPE_LABELS[option.type]
+        : undefined,
+  }))
+})
 
 /**
  * AsyncAPI sidebar filters (protocol + server).
