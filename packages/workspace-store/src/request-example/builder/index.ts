@@ -1,5 +1,11 @@
 export { getExampleFromBody } from './body/get-request-body-example'
 export { getSelectedBodyContentType } from './body/get-selected-body-content-type'
+export {
+  buildDottedNestedRowPredicate,
+  coerceLeafValueToSchemaType,
+  coerceUntypedValue,
+  resolveLeafSchema,
+} from './body/schema-value-coercion'
 export { type SerializedFormProperty, serializeFormPropertyWithEncoding } from './body/serialize-form-property'
 export {
   BUILD_REQUEST_FAILED,
