@@ -35,6 +35,7 @@ We have removed the old version of the clients so you must update your imports a
 - Real-time request/response logging
 - Customizable request headers and parameters
 - Response visualization and formatting options
+- Switchable form/raw editor for JSON and YAML request bodies, driven by the OpenAPI schema (enum dropdowns, required fields, validation)
 
 ## Installation
 
