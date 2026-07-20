@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.63.0
+
+### Minor Changes
+
+- [#9728](https://github.com/scalar/scalar/pull/9728): feat: export `SdkInstallationInstructions` and `getRenderableSdks` from `@scalar/api-reference/blocks`, so consumers that compose their own reference layout can render `x-scalar-sdk-installation` again
+
 ## 1.62.9
 
 ### Patch Changes
