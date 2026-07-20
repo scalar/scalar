@@ -1405,6 +1405,9 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
+      '@scalar/localization':
+        specifier: workspace:*
+        version: link:../localization
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -1932,6 +1935,28 @@ importers:
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/localization:
+    dependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
+      type-fest:
+        specifier: catalog:*
+        version: 5.3.1
+      vue:
+        specifier: catalog:*
+        version: 3.5.30(typescript@5.9.3)
+    devDependencies:
+      '@vue/test-utils':
+        specifier: catalog:*
+        version: 2.4.6
+      jsdom:
+        specifier: catalog:*
+        version: 27.4.0(@noble/hashes@1.8.0)
+      vitest:
+        specifier: catalog:*
+        version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.0.2(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/mock-server:
     dependencies:
@@ -18678,8 +18703,8 @@ packages:
   vue-component-type-helpers@3.3.3:
     resolution: {integrity: sha512-x4nsFpy5Pe8fqPzp/5vkTPeTTDBpAx4WVtV47Ejt0+2FQrq4pRRsJs7JmYRqMFzTu/LW+pCWEjQ3YVCkPV7f9g==}
 
-  vue-component-type-helpers@3.3.5:
-    resolution: {integrity: sha512-Fe1jyPJoUGpJOYKOri44jduR7My4yYINOMJISuMAbmrs+L5LbIDUc8NTWZYY3EJLK0yPLuCmcd5zoCsE4k2/KA==}
+  vue-component-type-helpers@3.3.6:
+    resolution: {integrity: sha512-FkljacAwJ9BUoSUdpFe3VDy0sGigNlTH9+2zcXUWmZOjN8swiCkl3t48wOJun0OsUd2cEIda1l04tsxMiKIIrQ==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -25715,7 +25740,7 @@ snapshots:
       storybook: 10.3.5(@testing-library/dom@10.4.1)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       type-fest: 2.19.0
       vue: 3.5.30(typescript@5.9.3)
-      vue-component-type-helpers: 3.3.5
+      vue-component-type-helpers: 3.3.6
 
   '@sveltejs/acorn-typescript@1.0.5(acorn@8.16.0)':
     dependencies:
@@ -38569,7 +38594,7 @@ snapshots:
 
   vue-component-type-helpers@3.3.3: {}
 
-  vue-component-type-helpers@3.3.5: {}
+  vue-component-type-helpers@3.3.6: {}
 
   vue-demi@0.14.10(vue@3.5.30(typescript@5.9.3)):
     dependencies:
