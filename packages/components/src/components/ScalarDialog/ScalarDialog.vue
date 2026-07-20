@@ -28,8 +28,7 @@ import { ref, watchPostEffect } from 'vue'
 import type { ScalarDialogProps } from './types'
 import { useBackdropClick } from './useBackdropClick'
 
-const { unmount = true, closeOnBackdrop = true } =
-  defineProps<ScalarDialogProps>()
+const { persist = false } = defineProps<ScalarDialogProps>()
 
 const emit = defineEmits<{
   /** Emitted whenever the dialog closes, whether via Escape, a backdrop click, or `open` being set to false. */
@@ -95,9 +94,7 @@ const handleClose = () => {
  * run the native `close()` so the flow matches Escape and programmatic closes.
  */
 const { handlePointerDown, handleClick } = useBackdropClick(dialogRef, () => {
-  if (closeOnBackdrop) {
-    open.value = false
-  }
+  open.value = false
 })
 </script>
 
@@ -108,7 +105,7 @@ const { handlePointerDown, handleClick } = useBackdropClick(dialogRef, () => {
     @close="handleClose"
     @pointerdown="handlePointerDown"
     @click="handleClick">
-    <template v-if="!unmount || open">
+    <template v-if="persist || open">
       <slot />
     </template>
   </dialog>
