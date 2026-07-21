@@ -1,7 +1,7 @@
-import type { ContentObject } from './content'
-import type { ExampleObject } from './example'
-import type { ReferenceObject } from './reference'
-import type { SchemaObject } from './schema'
+import type { ContentObject } from './content.js'
+import type { ExampleObject } from './example.js'
+import type { ReferenceObject } from './reference.js'
+import type { SchemaObject } from './schema.js'
 
 /**
  * Header object

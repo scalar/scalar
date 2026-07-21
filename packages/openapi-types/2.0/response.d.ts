@@ -1,7 +1,7 @@
-import type { ExamplesObject } from './examples'
-import type { FileSchemaObject } from './file-schema'
-import type { HeadersObject } from './headers'
-import type { Extensions, SchemaObject } from './schema'
+import type { ExamplesObject } from './examples.js'
+import type { FileSchemaObject } from './file-schema.js'
+import type { HeadersObject } from './headers.js'
+import type { Extensions, SchemaObject } from './schema.js'
 /**
  * Response object
  *

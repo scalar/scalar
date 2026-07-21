@@ -1,4 +1,4 @@
-import type { HeaderObject } from './header'
+import type { HeaderObject } from './header.js'
 /**
  * Headers object
  *

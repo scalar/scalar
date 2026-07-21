@@ -1,7 +1,7 @@
-import type { ExampleObject } from './example'
-import type { MediaTypeObject } from './media-type'
-import type { ReferenceObject } from './reference'
-import type { SchemaObject } from './schema'
+import type { ExampleObject } from './example.js'
+import type { MediaTypeObject } from './media-type.js'
+import type { ReferenceObject } from './reference.js'
+import type { SchemaObject } from './schema.js'
 
 type ParameterObjectBase = {
   /** **REQUIRED**. The name of the parameter. Parameter names are _case-sensitive_. <ul><li>If [`in`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#parameter-in) is `"path"`, the `name` field MUST correspond to a single template expression occurring within the [path](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#paths-path) field in the [Paths Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#paths-object). See [Path Templating](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#path-templating) for further information.<li>If [`in`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#parameter-in) is `"header"` and the `name` field is `"Accept"`, `"Content-Type"` or `"Authorization"`, the parameter definition SHALL be ignored.<li>If `in` is `"querystring"`, or for [certain combinations](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#style-examples) of [`style`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#parameter-style) and [`explode`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#parameter-explode), the value of `name` is not used in the parameter serialization.<li>For all other cases, the `name` corresponds to the parameter name used by the [`in`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#parameter-in) field.</ul> */

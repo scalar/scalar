@@ -1,4 +1,4 @@
-import type { ReferenceObject } from './reference'
+import type { ReferenceObject } from './reference.js'
 export type PrimitiveSchemaType = 'null' | 'boolean' | 'string' | 'number' | 'integer' | 'object' | 'array'
 export type StringFormat =
   | 'date'

@@ -1,6 +1,6 @@
-import type { OperationObject } from './operation'
-import type { ParametersListObject } from './parameters-list'
-import type { Extensions } from './schema'
+import type { OperationObject } from './operation.js'
+import type { ParametersListObject } from './parameters-list.js'
+import type { Extensions } from './schema.js'
 /**
  * Path Item object
  *

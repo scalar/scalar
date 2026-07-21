@@ -1,7 +1,7 @@
-import type { ApiKeySecuritySchemeObject } from './api-key-security-scheme'
-import type { HttpSecuritySchemeObject } from './http-security-scheme'
-import type { Oauth2SecuritySchemeObject } from './oauth2-security-scheme'
-import type { OpenIdConnectSecuritySchemeObject } from './open-id-connect-security-scheme'
+import type { ApiKeySecuritySchemeObject } from './api-key-security-scheme.js'
+import type { HttpSecuritySchemeObject } from './http-security-scheme.js'
+import type { Oauth2SecuritySchemeObject } from './oauth2-security-scheme.js'
+import type { OpenIdConnectSecuritySchemeObject } from './open-id-connect-security-scheme.js'
 /**
  * Security Scheme object
  *

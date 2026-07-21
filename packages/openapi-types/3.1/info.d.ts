@@ -1,5 +1,5 @@
-import type { ContactObject } from './contact'
-import type { LicenseObject } from './license'
+import type { ContactObject } from './contact.js'
+import type { LicenseObject } from './license.js'
 /**
  * Info object
  *

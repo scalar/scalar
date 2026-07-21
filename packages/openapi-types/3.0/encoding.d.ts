@@ -1,5 +1,5 @@
-import type { HeaderObject } from './header'
-import type { ReferenceObject } from './reference'
+import type { HeaderObject } from './header.js'
+import type { ReferenceObject } from './reference.js'
 /**
  * Encoding object
  *

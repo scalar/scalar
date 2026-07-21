@@ -1,4 +1,4 @@
-import type { PathItemObject } from './path-item'
+import type { PathItemObject } from './path-item.js'
 /**
  * Callback object
  *

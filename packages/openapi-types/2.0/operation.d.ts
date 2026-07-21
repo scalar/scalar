@@ -1,10 +1,10 @@
-import type { ExternalDocsObject } from './external-docs'
-import type { Extensions } from './schema'
-import type { MediaTypeListObject } from './media-type-list'
-import type { ParametersListObject } from './parameters-list'
-import type { ResponsesObject } from './responses'
-import type { SchemesListObject } from './schemes-list'
-import type { SecurityObject } from './security'
+import type { ExternalDocsObject } from './external-docs.js'
+import type { Extensions } from './schema.js'
+import type { MediaTypeListObject } from './media-type-list.js'
+import type { ParametersListObject } from './parameters-list.js'
+import type { ResponsesObject } from './responses.js'
+import type { SchemesListObject } from './schemes-list.js'
+import type { SecurityObject } from './security.js'
 /**
  * Operation object
  *
