@@ -3,9 +3,12 @@ name: Main
 # Entry workflow for pushes to the default branch. Runs the same required tests
 # as pr.yml, then — only if every required test passes — invokes the reusable
 # release.yml (npm publish, GitHub release, Scalar registry) alongside the
-# integration publishes, the ToDesktop build, and the deploys. PRs never run
-# this file: the pull_request / push:main trigger split is the boundary that
-# keeps production publish secrets out of reach of pull requests.
+# integration publishes and the ToDesktop build. The deploys are not gated the
+# same way: they run on every main push — production for release commits,
+# staging otherwise — with their exact conditions documented on each deploy
+# job below. PRs never run this file: the pull_request / push:main trigger
+# split is the boundary that keeps production publish secrets out of reach of
+# pull requests.
 
 on:
   push:
@@ -292,9 +295,11 @@ jobs:
   release:
     # Runs only on main, only when required-jobs-main passed — mirroring
     # npm-publish's old `needs: [required-jobs-main]` + `if: refs/heads/main`.
-    # `!cancelled()` lets release proceed even when non-required jobs failed or
-    # were skipped: a broken change-detection or integration build must NOT
-    # block the npm release.
+    # With required-jobs-main as the only dependency, no other job can block
+    # the npm release. `!cancelled()` is kept purely as a defensive guard so
+    # the explicit `needs.required-jobs-main.result == 'success'` check below
+    # stays the single gate, instead of relying on the implicit success()
+    # GitHub applies when an `if:` contains no status-check function.
     if: |
       !cancelled() &&
       github.ref == 'refs/heads/main' &&
