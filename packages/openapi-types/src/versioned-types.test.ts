@@ -21,35 +21,40 @@ describe('versioned-types', () => {
    *
    * See https://github.com/scalar/scalar/issues/9731
    */
-  it.each(versions)('resolves the %s type declarations with moduleResolution set to nodenext', (version) => {
-    const directory = join(packageRoot, version)
+  // Creating a TypeScript program can take a while on slower CI runners, so we allow more time than the default 5 seconds
+  it.each(versions)(
+    'resolves the %s type declarations with moduleResolution set to nodenext',
+    { timeout: 30_000 },
+    (version) => {
+      const directory = join(packageRoot, version)
 
-    const declarationFiles = readdirSync(directory)
-      .filter((file: string) => file.endsWith('.d.ts'))
-      .map((file: string) => join(directory, file))
+      const declarationFiles = readdirSync(directory)
+        .filter((file: string) => file.endsWith('.d.ts'))
+        .map((file: string) => join(directory, file))
 
-    // Make sure we are actually testing something
-    expect(declarationFiles.length).toBeGreaterThan(0)
+      // Make sure we are actually testing something
+      expect(declarationFiles.length).toBeGreaterThan(0)
 
-    const program = ts.createProgram(declarationFiles, {
-      module: ts.ModuleKind.NodeNext,
-      moduleResolution: ts.ModuleResolutionKind.NodeNext,
-      noEmit: true,
-      strict: true,
-    })
+      const program = ts.createProgram(declarationFiles, {
+        module: ts.ModuleKind.NodeNext,
+        moduleResolution: ts.ModuleResolutionKind.NodeNext,
+        noEmit: true,
+        strict: true,
+      })
 
-    const diagnostics = ts.getPreEmitDiagnostics(program).map((diagnostic) => {
-      const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
+      const diagnostics = ts.getPreEmitDiagnostics(program).map((diagnostic) => {
+        const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
 
-      if (diagnostic.file && diagnostic.start !== undefined) {
-        const { line } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start)
+        if (diagnostic.file && diagnostic.start !== undefined) {
+          const { line } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start)
 
-        return `${diagnostic.file.fileName}:${line + 1} ${message}`
-      }
+          return `${diagnostic.file.fileName}:${line + 1} ${message}`
+        }
 
-      return message
-    })
+        return message
+      })
 
-    expect(diagnostics).toStrictEqual([])
-  })
+      expect(diagnostics).toStrictEqual([])
+    },
+  )
 })
