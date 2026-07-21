@@ -21,7 +21,7 @@ import {
 } from '@/features/Operation/request-body-composition-index'
 
 import { getSchemaType } from './helpers/get-schema-type'
-import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
+import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import { type CompositionKeyword } from './helpers/schema-composition'
 import { getCycleKey } from './helpers/schema-cycle'
 import { getModelNameFromSchema } from './helpers/schema-name'
@@ -62,6 +62,18 @@ const props = withDefaults(
   },
 )
 const { translate } = useLocalization()
+
+/**
+ * Split an `allOf` into an ordered list of segments (object chunks + choice
+ * pickers) so multiple mutually-exclusive selections each render their own
+ * picker, in the position they were declared, instead of all but the first
+ * being dropped and the rest bubbling to the end.
+ */
+const allOfSegments = computed(() =>
+  props.composition === 'allOf'
+    ? partitionAllOfCompositions(props.schema).segments
+    : [],
+)
 
 /** The current composition */
 const composition = computed(() =>
@@ -203,26 +215,54 @@ if (
 
 <template>
   <div class="property-rule">
-    <!-- We merge allOf schemas into a single schema -->
-    <Schema
-      v-if="props.composition === 'allOf'"
-      :breadcrumb="breadcrumb"
-      :compact="compact"
-      :compositionPath="compositionPath"
-      :discriminator="discriminator"
-      :eventBus="eventBus"
-      :hideDescription="isRequestBodyRootComposition"
-      :hideHeading="hideHeading"
-      :hideModelNames
-      :level="level + 1"
-      :name="name"
-      :noncollapsible="true"
-      :options="options"
-      :schema="mergeAllOfSchemas(schema)"
-      :schemaContext="schemaContext" />
+    <!--
+      allOf: render the members in source order — object chunks as fields, each
+      oneOf/anyOf group as its own picker in place. Keeps every mutually-exclusive
+      selection (mergeAllOfSchemas alone drops all but the first) and preserves the
+      position of each choice group among the surrounding fields, flowing inline
+      with them as one continuous list (no extra spacing or card).
+    -->
+    <template v-if="props.composition === 'allOf'">
+      <template
+        v-for="(segment, segmentIndex) in allOfSegments"
+        :key="segmentIndex">
+        <Schema
+          v-if="segment.kind === 'object'"
+          :breadcrumb="breadcrumb"
+          :compact="compact"
+          :compositionPath="compositionPath"
+          :discriminator="discriminator"
+          :eventBus="eventBus"
+          :hideDescription="isRequestBodyRootComposition"
+          :hideHeading="hideHeading"
+          :hideModelNames
+          :level="level + 1"
+          :name="name"
+          :noncollapsible="true"
+          :options="options"
+          :schema="segment.schema"
+          :schemaContext="schemaContext" />
+        <SchemaComposition
+          v-else
+          :breadcrumb="breadcrumb"
+          :compact="compact"
+          :composition="segment.composition"
+          :compositionPath="[
+            ...(compositionPath ?? []),
+            String(segment.choiceIndex),
+          ]"
+          :eventBus="eventBus"
+          :hideHeading="hideHeading"
+          :hideModelNames
+          :level="level"
+          :options="options"
+          :schema="segment.value"
+          :schemaContext="schemaContext" />
+      </template>
+    </template>
 
     <template v-else>
-      <!-- Composition selector and panel for nested compositions -->
+      <!-- Composition selector + selected branch -->
       <ScalarListbox
         v-model="selectedOption"
         :options="listboxOptions"
