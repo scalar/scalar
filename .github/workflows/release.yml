@@ -1,69 +1,26 @@
 name: Release
 
-# Reusable workflow that owns every production publish. Only ever invoked from
-# main.yml, after the required tests pass on a push to `main`. PRs trigger
-# pr.yml, which never references this file — that structural separation is what
-# keeps production publish secrets out of reach of pull requests.
+# Reusable workflow that owns the npm publish and its small follow-up jobs.
+# Only ever invoked from main.yml, after the required tests pass on a push to
+# `main`. PRs trigger pr.yml, which never references this file — that
+# structural separation is what keeps production publish secrets out of reach
+# of pull requests.
 #
 # Stages:
 #   1. npm-publish (changesets/action) — must run on a github-hosted runner;
 #      npm provenance via OIDC rejects self-hosted runners.
 #   2. create-github-release (only when something was published)
 #   3. push-to-scalar-registry (galaxy registry)
-#   4. publish-integrations (Docker, NuGet, PyPI, crates, Maven)
-#   5. todesktop (only when scalar-app's version bumped)
+#
+# Integration publishes (publish-integrations.yml) and the ToDesktop build
+# (todesktop.yml) are invoked from main.yml as siblings of the deploys instead
+# of from here: the deploys need this workflow's outputs, which only become
+# available once every job in this file has finished, so keeping the slow
+# fan-out workflows out of this file means the deploys do not wait behind
+# them.
 
 on:
   workflow_call:
-    inputs:
-      docker_package_changed:
-        type: string
-        required: true
-      mock_server_docker_package_changed:
-        type: string
-        required: true
-      aspnetcore_package_changed:
-        type: string
-        required: true
-      aspire_package_changed:
-        type: string
-        required: true
-      azure_functions_package_changed:
-        type: string
-        required: true
-      fastapi_package_changed:
-        type: string
-        required: true
-      django_ninja_package_changed:
-        type: string
-        required: true
-      rust_package_changed:
-        type: string
-        required: true
-      java_package_changed:
-        type: string
-        required: true
-      # Per-integration build-test results from integration-builds.yml. Each
-      # publish job gates on its own flag so it only runs when its build-test
-      # passed (empty when the build-test was skipped or failed).
-      docker_build_passed:
-        type: string
-        required: true
-      dotnet_build_passed:
-        type: string
-        required: true
-      fastapi_build_passed:
-        type: string
-        required: true
-      django_ninja_build_passed:
-        type: string
-        required: true
-      rust_build_passed:
-        type: string
-        required: true
-      java_build_passed:
-        type: string
-        required: true
     outputs:
       published:
         description: "'true' when this commit released at least one public package to npm"
@@ -74,8 +31,9 @@ on:
       npm_publish_status:
         # 'success' or 'failure' — the npm-publish JOB result on its own, so the
         # main-push deploys can gate on the publish itself rather than on the
-        # whole release workflow (a failing registry push / integration publish /
-        # ToDesktop must not block the web + galaxy deploys).
+        # whole release workflow (a failing GitHub release or registry push must
+        # not block the web + galaxy deploys). The publish-integrations and
+        # todesktop jobs in main.yml gate on this output too.
         value: ${{ jobs.npm-publish.outputs.status }}
 
 permissions:
@@ -342,34 +300,3 @@ jobs:
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Push AsyncAPI Example to Scalar Registry
         run: npx @scalar/cli@latest registry publish --namespace scalar --slug asyncapi --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
-
-  # Fan out to every non-JS integration registry. Each job inside this reusable
-  # workflow runs in its own GitHub Environment so credentials stay scoped.
-  publish-integrations:
-    needs: [npm-publish]
-    uses: ./.github/workflows/publish-integrations.yml
-    with:
-      published: ${{ needs.npm-publish.outputs.published }}
-      docker_package_changed: ${{ inputs.docker_package_changed }}
-      mock_server_docker_package_changed: ${{ inputs.mock_server_docker_package_changed }}
-      aspnetcore_package_changed: ${{ inputs.aspnetcore_package_changed }}
-      aspire_package_changed: ${{ inputs.aspire_package_changed }}
-      azure_functions_package_changed: ${{ inputs.azure_functions_package_changed }}
-      fastapi_package_changed: ${{ inputs.fastapi_package_changed }}
-      django_ninja_package_changed: ${{ inputs.django_ninja_package_changed }}
-      rust_package_changed: ${{ inputs.rust_package_changed }}
-      java_package_changed: ${{ inputs.java_package_changed }}
-      docker_build_passed: ${{ inputs.docker_build_passed }}
-      dotnet_build_passed: ${{ inputs.dotnet_build_passed }}
-      fastapi_build_passed: ${{ inputs.fastapi_build_passed }}
-      django_ninja_build_passed: ${{ inputs.django_ninja_build_passed }}
-      rust_build_passed: ${{ inputs.rust_build_passed }}
-      java_build_passed: ${{ inputs.java_build_passed }}
-    secrets: inherit
-
-  todesktop:
-    needs: [npm-publish]
-    uses: ./.github/workflows/todesktop.yml
-    with:
-      scalar_app_released: ${{ needs.npm-publish.outputs.scalar_app_released }}
-    secrets: inherit

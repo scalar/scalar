@@ -2,9 +2,10 @@ name: Main
 
 # Entry workflow for pushes to the default branch. Runs the same required tests
 # as pr.yml, then — only if every required test passes — invokes the reusable
-# release.yml which performs every production publish. PRs never run this file:
-# the pull_request / push:main trigger split is the boundary that keeps
-# production publish secrets out of reach of pull requests.
+# release.yml (npm publish, GitHub release, Scalar registry) alongside the
+# integration publishes, the ToDesktop build, and the deploys. PRs never run
+# this file: the pull_request / push:main trigger split is the boundary that
+# keeps production publish secrets out of reach of pull requests.
 
 on:
   push:
@@ -255,7 +256,7 @@ jobs:
         run: pnpm --filter scalar-app test:e2e:ci
 
   # Integration build-tests on main push that touches them — gates the matching
-  # publish job in release.yml from running against a broken tree.
+  # publish job in publish-integrations.yml from running against a broken tree.
   integration-builds:
     needs: [check-changes, build]
     uses: ./.github/workflows/integration-builds.yml
@@ -288,22 +289,17 @@ jobs:
         if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
 
   # Hand off to release.yml — only reached after required-jobs-main succeeded.
-  # release.yml is the only workflow that touches production publish secrets.
   release:
     # Runs only on main, only when required-jobs-main passed — mirroring
     # npm-publish's old `needs: [required-jobs-main]` + `if: refs/heads/main`.
-    # `!cancelled()` lets release proceed even when check-changes or
-    # integration-builds failed or were skipped: a broken change-detection or
-    # integration build must NOT block the npm release or the other publishes.
-    # check-changes stays in `needs` only to forward its outputs below; if it
-    # failed those come through empty, so each integration publish simply sees
-    # its package as unchanged. Per-integration publishes additionally gate on
-    # their own build-test result via the `*_build_passed` inputs.
+    # `!cancelled()` lets release proceed even when non-required jobs failed or
+    # were skipped: a broken change-detection or integration build must NOT
+    # block the npm release.
     if: |
       !cancelled() &&
       github.ref == 'refs/heads/main' &&
       needs.required-jobs-main.result == 'success'
-    needs: [check-changes, required-jobs-main, integration-builds]
+    needs: [required-jobs-main]
     # A reusable workflow's jobs cannot request more token permissions than the
     # calling job holds. release.yml's npm-publish and create-github-release
     # jobs need write access, so grant it on this caller job — the workflow-level
@@ -314,7 +310,27 @@ jobs:
       repository-projects: write
       id-token: write
     uses: ./.github/workflows/release.yml
+    secrets: inherit
+
+  # Fan out to every non-JS integration registry (DockerHub, NuGet, PyPI,
+  # crates.io, Maven Central). Invoked here rather than inside release.yml so
+  # the web and galaxy deploys below — which need release outputs, available
+  # only when every release.yml job has finished — do not wait behind slow
+  # integration publishes such as the multi-arch aspire Docker build.
+  # Gating matches what the job had inside release.yml: only on main, only
+  # after the npm-publish job itself succeeded. !cancelled() keeps this
+  # running when check-changes or integration-builds failed or were skipped:
+  # their outputs then come through empty, so each publish job simply sees its
+  # package as unchanged or its build-test as not passed and skips itself.
+  publish-integrations:
+    if: |
+      !cancelled() &&
+      github.ref == 'refs/heads/main' &&
+      needs.release.outputs.npm_publish_status == 'success'
+    needs: [check-changes, integration-builds, release]
+    uses: ./.github/workflows/publish-integrations.yml
     with:
+      published: ${{ needs.release.outputs.published }}
       docker_package_changed: ${{ needs.check-changes.outputs.docker_package_changed }}
       mock_server_docker_package_changed: ${{ needs.check-changes.outputs.mock_server_docker_package_changed }}
       aspnetcore_package_changed: ${{ needs.check-changes.outputs.aspnetcore_package_changed }}
@@ -324,13 +340,26 @@ jobs:
       django_ninja_package_changed: ${{ needs.check-changes.outputs.django_ninja_package_changed }}
       rust_package_changed: ${{ needs.check-changes.outputs.rust_package_changed }}
       java_package_changed: ${{ needs.check-changes.outputs.java_package_changed }}
-      # Build-test results — a publish only runs when its build-test passed.
       docker_build_passed: ${{ needs.integration-builds.outputs.docker_build_passed }}
       dotnet_build_passed: ${{ needs.integration-builds.outputs.dotnet_build_passed }}
       fastapi_build_passed: ${{ needs.integration-builds.outputs.fastapi_build_passed }}
       django_ninja_build_passed: ${{ needs.integration-builds.outputs.django_ninja_build_passed }}
       rust_build_passed: ${{ needs.integration-builds.outputs.rust_build_passed }}
       java_build_passed: ${{ needs.integration-builds.outputs.java_build_passed }}
+    secrets: inherit
+
+  # Desktop build via ToDesktop when scalar-app's version bumped on this
+  # commit. Hoisted out of release.yml for the same reason as
+  # publish-integrations above.
+  todesktop:
+    if: |
+      !cancelled() &&
+      github.ref == 'refs/heads/main' &&
+      needs.release.outputs.npm_publish_status == 'success'
+    needs: [release]
+    uses: ./.github/workflows/todesktop.yml
+    with:
+      scalar_app_released: ${{ needs.release.outputs.scalar_app_released }}
     secrets: inherit
 
   # Production Storybook deploy on every main push (independent of release).
@@ -368,10 +397,12 @@ jobs:
   # bumped scalar-app's version, staging otherwise. Runs on every main push;
   # waits for release so it can read the publish result. Gates on the
   # npm-publish job result specifically (npm_publish_status) — NOT the whole
-  # release workflow — so a failing registry push / integration publish /
-  # ToDesktop does not block the deploy. An empty value (release skipped because
-  # required tests failed) is treated like the old skipped-npm-publish case and
-  # still deploys to staging.
+  # release workflow — so a failing registry push or GitHub release does not
+  # block the deploy. Integration publishes and the ToDesktop build run as
+  # siblings of this job (see publish-integrations and todesktop above), so
+  # they can neither delay nor block it. An empty value (release skipped
+  # because required tests failed) is treated like the old skipped-npm-publish
+  # case and still deploys to staging.
   deploy-api-client:
     if: |
       !cancelled() &&

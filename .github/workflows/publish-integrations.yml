@@ -1,8 +1,10 @@
 name: Publish Integrations
 
 # Reusable workflow that publishes every non-JS integration to its registry
-# (DockerHub, NuGet, PyPI, crates.io, Maven Central). Only ever called from
-# release.yml after npm-publish succeeded. Each job is gated by the per-package
+# (DockerHub, NuGet, PyPI, crates.io, Maven Central). Only ever invoked from
+# main.yml on pushes to `main`, after the npm-publish job in release.yml
+# succeeded — the pr.yml / main.yml trigger split still keeps this workflow
+# unreachable from pull requests. Each job is gated by the per-package
 # `*_changed` input and the overall `published` flag, and (where applicable)
 # runs in a per-registry GitHub Environment so its credentials stay scoped.
 
@@ -40,10 +42,11 @@ on:
       java_package_changed:
         type: string
         required: true
-      # Build-test results from integration-builds.yml (forwarded via
-      # release.yml). A publish runs only when its build-test passed ('true');
-      # an empty value means the build-test was skipped or failed, which keeps
-      # the publish gated off — the cross-workflow equivalent of the old
+      # Build-test results from integration-builds.yml — main.yml passes its
+      # integration-builds job outputs in directly. A publish runs only when
+      # its build-test passed ('true'); an empty value means the build-test
+      # was skipped or failed, which keeps the publish gated off — the
+      # cross-workflow equivalent of the old
       # `needs: [<integration>-build-test]`.
       docker_build_passed:
         type: string
