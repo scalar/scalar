@@ -1,9 +1,11 @@
 name: ToDesktop Build
 
 # Reusable workflow that ships a desktop build to ToDesktop's cloud. Only ever
-# called from release.yml, after npm-publish ran and scalar-app's version was
-# bumped on this commit. scalar-app is private, so we gate on the version-bump
-# signal (`scalar_app_released`) rather than the npm `published` flag.
+# invoked from main.yml on pushes to `main`, after the npm-publish job in
+# release.yml succeeded — the pr.yml / main.yml trigger split still keeps this
+# workflow unreachable from pull requests. scalar-app is private, so we gate
+# on the version-bump signal (`scalar_app_released`) rather than the npm
+# `published` flag.
 
 on:
   workflow_call:
