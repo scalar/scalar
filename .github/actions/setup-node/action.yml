@@ -21,7 +21,7 @@ runs:
         cache: 'pnpm'
 
     # Branch-scoped persistent turbo cache.
-    # Bump the `v1` suffix in both keys below to invalidate every cache.
+    # Bump the `v1` suffix in the cache keys below to invalidate every cache.
     - if: startsWith(runner.name, 'blacksmith')
       name: Setup persistent turbo cache
       uses: useblacksmith/stickydisk@41873b1513bb679f9c115504cbd13d3660432504 # v1
@@ -37,3 +37,35 @@ runs:
       with:
         key: ${{ github.repository }}-${{ github.ref_name }}-pnpm-store-${{ steps.node-version.outputs.version }}-${{ hashFiles('pnpm-lock.yaml') }}-v1
         path: ~/.local/share/pnpm/store
+
+    # Fallback turbo cache for GitHub-hosted runners, where the Blacksmith
+    # stickydisk steps above never run. The npm-publish job in release.yml
+    # must stay on a GitHub-hosted runner (npm provenance rejects the OIDC
+    # issuer of self-hosted runners) and previously rebuilt the whole
+    # monorepo cold on every push to main. GitHub's cache isolation already
+    # prevents a pull request branch from writing to the main-branch cache,
+    # mirroring the branch scoping the stickydisk keys encode with
+    # github.ref_name.
+    - if: ${{ !startsWith(runner.name, 'blacksmith') }}
+      name: Setup turbo cache (GitHub-hosted fallback)
+      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+      with:
+        path: ./.turbo
+        key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}-v1-${{ github.sha }}
+        restore-keys: |
+          ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}-v1-
+
+    # Keep the fallback cache bounded. Turbo never prunes ./.turbo/cache and
+    # the post-job save snapshots the whole directory under a fresh key, so
+    # without pruning the saved tarball would grow with every push to main
+    # until someone bumps the `v1` suffix. Cache restores preserve
+    # modification times and turbo does not touch entries on cache hits, so
+    # even a hot entry is pruned after two weeks — that costs one rebuild of
+    # the affected packages on the next run, never correctness.
+    - if: ${{ !startsWith(runner.name, 'blacksmith') }}
+      name: Prune stale turbo cache entries
+      shell: bash
+      run: |
+        if [ -d ./.turbo/cache ]; then
+          find ./.turbo/cache -type f -mtime +14 -delete
+        fi
