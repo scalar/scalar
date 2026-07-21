@@ -54,3 +54,18 @@ runs:
         key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}-v1-${{ github.sha }}
         restore-keys: |
           ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}-v1-
+
+    # Keep the fallback cache bounded. Turbo never prunes ./.turbo/cache and
+    # the post-job save snapshots the whole directory under a fresh key, so
+    # without pruning the saved tarball would grow with every push to main
+    # until someone bumps the `v1` suffix. Cache restores preserve
+    # modification times and turbo does not touch entries on cache hits, so
+    # even a hot entry is pruned after two weeks — that costs one rebuild of
+    # the affected packages on the next run, never correctness.
+    - if: ${{ !startsWith(runner.name, 'blacksmith') }}
+      name: Prune stale turbo cache entries
+      shell: bash
+      run: |
+        if [ -d ./.turbo/cache ]; then
+          find ./.turbo/cache -type f -mtime +14 -delete
+        fi
