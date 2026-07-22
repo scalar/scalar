@@ -19,10 +19,7 @@ const getFixedMethod = (method: string): FixedPathItemMethod | undefined => {
   return isFixedPathItemMethod(normalized) ? normalized : undefined
 }
 
-const getAdditionalOperation = (
-  pathItem: PathItemObject,
-  method: string,
-): NodeInput<OperationObject> | undefined =>
+const getAdditionalOperation = (pathItem: PathItemObject, method: string): NodeInput<OperationObject> | undefined =>
   pathItem.additionalOperations?.[method] ??
   pathItem.additionalOperations?.[method.toUpperCase()] ??
   pathItem.additionalOperations?.[method.toLowerCase()]
@@ -134,11 +131,7 @@ export const deletePathItemOperation = (pathItem: NodeInput<PathItemObject> | un
  */
 export const forEachPathItemOperation = (
   pathItem: NodeInput<PathItemObject> | undefined,
-  callback: (
-    method: HttpMethod,
-    operation: NodeInput<OperationObject>,
-    pointer: PathItemOperationPointer,
-  ) => void,
+  callback: (method: HttpMethod, operation: NodeInput<OperationObject>, pointer: PathItemOperationPointer) => void,
 ): void => {
   const resolvedPathItem = getResolvedPathItem(pathItem)
   if (!resolvedPathItem) {
