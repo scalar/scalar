@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { PathItemObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-item'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -226,6 +227,7 @@ describe('MarkdownReference', () => {
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
+        // Deliberately include an unsupported operation key to verify it is ignored.
         '/tunnel': {
           connect: {
             summary: 'Should not render',
@@ -236,7 +238,7 @@ describe('MarkdownReference', () => {
               },
             },
           },
-        },
+        } as unknown as PathItemObject,
       },
     })
 

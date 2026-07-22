@@ -291,16 +291,12 @@ describe('ClassicLayout', () => {
 
     await nextTick()
 
-    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain(
-      'http.NewRequest("GET"',
-    )
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain('http.NewRequest("GET"')
 
     await wrapper.setProps({ method: 'LIST' })
     await nextTick()
 
-    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain(
-      'http.NewRequest("LIST"',
-    )
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain('http.NewRequest("LIST"')
   })
 
   it('opens the test request with the example shown in the snippet, even when the document-wide selection is missing', async () => {
