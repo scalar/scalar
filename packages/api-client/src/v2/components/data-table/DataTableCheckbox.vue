@@ -9,9 +9,11 @@ withDefaults(
     modelValue: boolean
     disabled?: boolean
     align?: 'left' | 'center'
+    ariaLabel?: string
   }>(),
   {
     align: 'center',
+    ariaLabel: 'Toggle',
   },
 )
 
@@ -32,6 +34,7 @@ const variants = cva({
 <template>
   <DataTableCell class="group/cell relative flex min-w-8">
     <input
+      :aria-label="ariaLabel"
       :checked="modelValue"
       class="peer absolute inset-0 size-full cursor-pointer opacity-0 disabled:cursor-default"
       :disabled="Boolean(disabled)"

@@ -310,6 +310,7 @@ const handleDeleteScope = (scopeKey: string) => {
                   </div>
                 </DataTableCell>
                 <DataTableCheckbox
+                  :ariaLabel="`Select ${label} scope`"
                   :modelValue="selectedScopes.includes(id)"
                   @update:modelValue="setScope(id, $event)" />
               </DataTableRow>

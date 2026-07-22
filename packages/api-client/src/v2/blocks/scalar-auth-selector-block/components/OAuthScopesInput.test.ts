@@ -133,6 +133,17 @@ describe('OAuthScopesInput', () => {
     expect(wrapper.text()).toContain('0 / 2')
   })
 
+  it('gives each scope checkbox a scope-specific accessible name', async () => {
+    const wrapper = mountComponent()
+    await openDisclosure(wrapper)
+
+    const checkboxes = wrapper.findAll('input[type="checkbox"]')
+    expect(checkboxes.map((checkbox) => checkbox.attributes('aria-label'))).toEqual([
+      'Select read:items scope',
+      'Select write:items scope',
+    ])
+  })
+
   it('updates via checkbox change event', async () => {
     const wrapper = mountComponent()
     await openDisclosure(wrapper)
