@@ -79,15 +79,15 @@
       "redirects": [
         {
           "from": "/swagger-editor",
-          "to": "/"
+          "to": "/resources/migration/swagger-ui"
         },
         {
           "from": "/scalar",
-          "to": "/"
+          "to": "/products/docs/getting-started"
         },
         {
           "from": "/scalar/introduction",
-          "to": "/"
+          "to": "/products/docs/getting-started"
         },
         {
           "from": "/scalar/pricing",
@@ -788,6 +788,90 @@
         {
           "from": "/guides/sso/providers/ping-identity",
           "to": "/resources/sso/providers/ping-identity"
+        },
+        {
+          "from": "/scalar/scalar-api-references",
+          "to": "/products/api-references/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-api-references/net-integration",
+          "to": "/products/api-references/integrations/aspnetcore/integration"
+        },
+        {
+          "from": "/scalar/scalar-api-references/integrations/net-aspnet-core",
+          "to": "/products/api-references/integrations/aspnetcore/integration"
+        },
+        {
+          "from": "/scalar/scalar-api-references/scalar-api-reference-for-react",
+          "to": "/products/api-references/integrations/react"
+        },
+        {
+          "from": "/scalar/scalar-api-references/scalar-api-reference-for-nextjs",
+          "to": "/products/api-references/integrations/nextjs"
+        },
+        {
+          "from": "/scalar/scalar-api-references/scalar-api-reference-for-fastify",
+          "to": "/products/api-references/integrations/fastify"
+        },
+        {
+          "from": "/scalar/scalar-api-references/scalar-api-reference-for-django",
+          "to": "/products/api-references/integrations/django"
+        },
+        {
+          "from": "/scalar/scalar-api-references/scalar-api-reference-for-adonisjs",
+          "to": "/products/api-references/integrations/adonisjs"
+        },
+        {
+          "from": "/scalar/scalar-api-references/scalar-api-reference-for-django-ninja",
+          "to": "/products/api-references/integrations/django-ninja"
+        },
+        {
+          "from": "/scalar/scalar-api-references/html",
+          "to": "/products/api-references/integrations/html-js"
+        },
+        {
+          "from": "/scalar/scalar-api-references/rust",
+          "to": "/products/api-references/integrations/rust"
+        },
+        {
+          "from": "/scalar/scalar-api-references/platformatic",
+          "to": "/products/api-references/integrations/platformatic"
+        },
+        {
+          "from": "/scalar/scalar-cli",
+          "to": "/tools/cli/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-docs/markdown-sync",
+          "to": "/products/docs/configuration/scalar.config.json"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/card",
+          "to": "/products/docs/components/cards"
+        },
+        {
+          "from": "/scalar/scalar-docs/integrations/django-ninja",
+          "to": "/products/api-references/integrations/django-ninja"
+        },
+        {
+          "from": "/scalar/scalar-mock-server/custom-request-handlers",
+          "to": "/tools/mock-server/custom-request-handler"
+        },
+        {
+          "from": "/scalar/scalar-mock-server/docker-image",
+          "to": "/tools/mock-server/docker"
+        },
+        {
+          "from": "/scalar/scalar-registry/dashboard",
+          "to": "/products/registry/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-registry/gitlab-cicd",
+          "to": "/products/registry/gitlab-ci"
+        },
+        {
+          "from": "/scalar/scalar-sdks/configuration/c",
+          "to": "/products/sdk-generator/configuration/overview"
         }
       ]
     }
