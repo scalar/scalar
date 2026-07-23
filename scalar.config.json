@@ -79,15 +79,15 @@
       "redirects": [
         {
           "from": "/swagger-editor",
-          "to": "/resources/migration/swagger-ui"
+          "to": "/"
         },
         {
           "from": "/scalar",
-          "to": "/products/docs/getting-started"
+          "to": "/"
         },
         {
           "from": "/scalar/introduction",
-          "to": "/products/docs/getting-started"
+          "to": "/"
         },
         {
           "from": "/scalar/pricing",
