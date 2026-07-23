@@ -1,5 +1,5 @@
-import type { ExternalDocsObject } from './external-docs'
-import type { Extensions } from './schema'
+import type { ExternalDocsObject } from './external-docs.js'
+import type { Extensions } from './schema.js'
 /**
  * Tag object
  *

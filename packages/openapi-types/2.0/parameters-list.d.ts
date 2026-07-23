@@ -1,3 +1,3 @@
-import type { JsonReferenceObject } from './json-reference'
-import type { ParameterObject } from './parameter'
+import type { JsonReferenceObject } from './json-reference.js'
+import type { ParameterObject } from './parameter.js'
 export type ParametersListObject = (ParameterObject | JsonReferenceObject)[]

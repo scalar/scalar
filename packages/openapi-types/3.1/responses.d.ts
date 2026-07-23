@@ -1,5 +1,5 @@
-import type { ReferenceObject } from './reference'
-import type { ResponseObject } from './response'
+import type { ReferenceObject } from './reference.js'
+import type { ResponseObject } from './response.js'
 
 /**
  * Responses object
@@ -11,6 +11,7 @@ import type { ResponseObject } from './response'
 export type ResponsesObject = {
   /** The documentation of responses other than the ones declared for specific HTTP response codes. Use this field to cover undeclared responses. */
   default?: ResponseObject | ReferenceObject
+} & {
   /** A map of status codes to response objects. */
   [statusCode: string]: ResponseObject | ReferenceObject
 } & Record<`x-${string}`, unknown>

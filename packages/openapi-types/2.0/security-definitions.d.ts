@@ -1,9 +1,9 @@
-import type { ApiKeySecurityObject } from './api-key-security'
-import type { BasicAuthenticationSecurityObject } from './basic-authentication-security'
-import type { Oauth2AccessCodeSecurityObject } from './oauth2-access-code-security'
-import type { Oauth2ApplicationSecurityObject } from './oauth2-application-security'
-import type { Oauth2ImplicitSecurityObject } from './oauth2-implicit-security'
-import type { Oauth2PasswordSecurityObject } from './oauth2-password-security'
+import type { ApiKeySecurityObject } from './api-key-security.js'
+import type { BasicAuthenticationSecurityObject } from './basic-authentication-security.js'
+import type { Oauth2AccessCodeSecurityObject } from './oauth2-access-code-security.js'
+import type { Oauth2ApplicationSecurityObject } from './oauth2-application-security.js'
+import type { Oauth2ImplicitSecurityObject } from './oauth2-implicit-security.js'
+import type { Oauth2PasswordSecurityObject } from './oauth2-password-security.js'
 /**
  * Security Definitions object
  *

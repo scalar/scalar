@@ -1,7 +1,7 @@
-import type { EncodingObject } from './encoding'
-import type { ExampleObject } from './example'
-import type { ReferenceObject } from './reference'
-import type { SchemaObject } from './schema'
+import type { EncodingObject } from './encoding.js'
+import type { ExampleObject } from './example.js'
+import type { ReferenceObject } from './reference.js'
+import type { SchemaObject } from './schema.js'
 /**
  * Media Type object
  *

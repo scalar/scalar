@@ -1,7 +1,7 @@
-import type { DiscriminatorObject } from './discriminator'
-import type { ExternalDocumentationObject } from './external-documentation'
-import type { ReferenceObject } from './reference'
-import type { XmlObject } from './xml'
+import type { DiscriminatorObject } from './discriminator.js'
+import type { ExternalDocumentationObject } from './external-documentation.js'
+import type { ReferenceObject } from './reference.js'
+import type { XmlObject } from './xml.js'
 export type PrimitiveSchemaType = 'boolean' | 'string' | 'number' | 'integer' | 'object' | 'array'
 export type StringFormat =
   | 'date'

@@ -1,4 +1,4 @@
-import type { OauthFlowsObject } from './oauth-flows'
+import type { OauthFlowsObject } from './oauth-flows.js'
 /**
  * Security Scheme object
  *

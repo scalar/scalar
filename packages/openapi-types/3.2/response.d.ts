@@ -1,7 +1,7 @@
-import type { ContentObject } from './content'
-import type { HeaderObject } from './header'
-import type { LinkObject } from './link'
-import type { ReferenceObject } from './reference'
+import type { ContentObject } from './content.js'
+import type { HeaderObject } from './header.js'
+import type { LinkObject } from './link.js'
+import type { ReferenceObject } from './reference.js'
 /**
  * Response object
  *

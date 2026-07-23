@@ -1,5 +1,5 @@
-import type { Oauth2ScopesObject } from './oauth2-scopes'
-import type { Extensions } from './schema'
+import type { Oauth2ScopesObject } from './oauth2-scopes.js'
+import type { Extensions } from './schema.js'
 /**
  * Security Scheme object
  *

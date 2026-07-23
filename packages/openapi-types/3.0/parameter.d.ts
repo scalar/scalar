@@ -1,9 +1,9 @@
-import type { ExampleObject } from './example'
-import type { ExampleXorExamplesObject } from './example-xor-examples'
-import type { MediaTypeObject } from './media-type'
-import type { ReferenceObject } from './reference'
-import type { SchemaObject } from './schema'
-import type { SchemaXorContentObject } from './schema-xor-content'
+import type { ExampleObject } from './example.js'
+import type { ExampleXorExamplesObject } from './example-xor-examples.js'
+import type { MediaTypeObject } from './media-type.js'
+import type { ReferenceObject } from './reference.js'
+import type { SchemaObject } from './schema.js'
+import type { SchemaXorContentObject } from './schema-xor-content.js'
 /**
  * Parameter object
  *

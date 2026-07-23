@@ -1,4 +1,4 @@
-import type { ServerObject } from './server'
+import type { ServerObject } from './server.js'
 /**
  * Link object
  *

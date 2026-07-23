@@ -1,7 +1,7 @@
-import type { OperationObject } from './operation'
-import type { ParameterObject } from './parameter'
-import type { ReferenceObject } from './reference'
-import type { ServerObject } from './server'
+import type { OperationObject } from './operation.js'
+import type { ParameterObject } from './parameter.js'
+import type { ReferenceObject } from './reference.js'
+import type { ServerObject } from './server.js'
 /**
  * Path Item object
  *

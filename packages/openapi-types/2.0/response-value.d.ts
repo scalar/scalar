@@ -1,5 +1,5 @@
-import type { JsonReferenceObject } from './json-reference'
-import type { ResponseObject } from './response'
+import type { JsonReferenceObject } from './json-reference.js'
+import type { ResponseObject } from './response.js'
 /**
  * Response object
  *

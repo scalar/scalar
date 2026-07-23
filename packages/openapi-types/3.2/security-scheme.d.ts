@@ -1,8 +1,8 @@
-import type { TypeApikeyObject } from './type-apikey'
-import type { TypeHttpObject } from './type-http'
-import type { TypeHttpBearerObject } from './type-http-bearer'
-import type { TypeOauth2Object } from './type-oauth2'
-import type { TypeOidcObject } from './type-oidc'
+import type { TypeApikeyObject } from './type-apikey.js'
+import type { TypeHttpObject } from './type-http.js'
+import type { TypeHttpBearerObject } from './type-http-bearer.js'
+import type { TypeOauth2Object } from './type-oauth2.js'
+import type { TypeOidcObject } from './type-oidc.js'
 /**
  * Security Scheme object
  *

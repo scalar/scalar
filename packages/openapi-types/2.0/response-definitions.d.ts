@@ -1,4 +1,4 @@
-import type { ResponseObject } from './response'
+import type { ResponseObject } from './response.js'
 /**
  * Responses Definitions object
  *

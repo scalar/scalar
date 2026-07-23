@@ -1,7 +1,7 @@
-import type { FormDataParameterSubSchemaObject } from './form-data-parameter-sub-schema'
-import type { HeaderParameterSubSchemaObject } from './header-parameter-sub-schema'
-import type { PathParameterSubSchemaObject } from './path-parameter-sub-schema'
-import type { QueryParameterSubSchemaObject } from './query-parameter-sub-schema'
+import type { FormDataParameterSubSchemaObject } from './form-data-parameter-sub-schema.js'
+import type { HeaderParameterSubSchemaObject } from './header-parameter-sub-schema.js'
+import type { PathParameterSubSchemaObject } from './path-parameter-sub-schema.js'
+import type { QueryParameterSubSchemaObject } from './query-parameter-sub-schema.js'
 /**
  * Non-body parameter object
  *

@@ -1,4 +1,4 @@
-import type { ContentObject } from './content'
+import type { ContentObject } from './content.js'
 /**
  * Request Body object
  *
