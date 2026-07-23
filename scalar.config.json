@@ -2548,6 +2548,38 @@
                 "mode": "nested",
                 "icon": "phosphor/regular/paper-plane-tilt",
                 "children": {
+                  "/": {
+                    "type": "page",
+                    "title": "API Client",
+                    "filepath": "documentation/guides/app/index.md",
+                    "description": "Modern, open-source API testing client with OpenAPI integration, collections, and a beautiful interface.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Modern, open-source API testing client with OpenAPI integration, collections, and a beautiful interface."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "API Client - Open-Source API Testing"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Modern, open-source API testing client with OpenAPI integration, collections, and a beautiful interface."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "getting-started": {
                     "filepath": "documentation/guides/app/getting-started.md",
                     "type": "page",
