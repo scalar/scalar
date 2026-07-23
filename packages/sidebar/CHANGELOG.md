@@ -1,5 +1,7 @@
 # @scalar/sidebar
 
+## 0.9.34
+
 ## 0.9.33
 
 ### Patch Changes
