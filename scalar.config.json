@@ -2004,6 +2004,38 @@
                 "mode": "nested",
                 "icon": "phosphor/regular/notebook",
                 "children": {
+                  "/": {
+                    "type": "page",
+                    "title": "API References",
+                    "filepath": "documentation/guides/api-references/index.md",
+                    "description": "Generate beautiful, interactive API documentation from OpenAPI and AsyncAPI specifications with customizable themes.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-references"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate beautiful, interactive API documentation from OpenAPI and AsyncAPI specifications with customizable themes."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "API References - OpenAPI Documentation"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Generate beautiful, interactive API documentation from OpenAPI and AsyncAPI specifications with customizable themes."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "getting-started": {
                     "title": "Getting Started",
                     "filepath": "documentation/guides/api-references/getting-started.md",
