@@ -1690,6 +1690,38 @@
                 "mode": "nested",
                 "icon": "phosphor/regular/package",
                 "children": {
+                  "/": {
+                    "type": "page",
+                    "title": "SDK Generator",
+                    "filepath": "documentation/guides/sdks/index.md",
+                    "description": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "SDK Generator - Generate Client Libraries from OpenAPI"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "getting-started": {
                     "filepath": "documentation/guides/sdks/getting-started.md",
                     "type": "page",

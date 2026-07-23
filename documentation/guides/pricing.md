@@ -744,7 +744,7 @@
           Bring your OpenAPI document and get type-safe client libraries across supported languages.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/sdk-generator/getting-started" aria-label="Learn more about SDKs">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdk-generator" aria-label="Learn more about SDKs">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">

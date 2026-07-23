@@ -206,7 +206,7 @@
           File Streaming Support
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/sdk-generator/getting-started" aria-label="Generate your first SDK with Scalar">Generate your first SDK →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/sdk-generator" aria-label="Generate your first SDK with Scalar">Generate your first SDK →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -355,7 +355,7 @@
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/sdk-generator/getting-started" aria-label="Learn more about SDKs">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdk-generator" aria-label="Learn more about SDKs">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
