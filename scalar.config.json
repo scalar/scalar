@@ -1927,6 +1927,38 @@
                 "mode": "nested",
                 "icon": "phosphor/regular/brackets-curly",
                 "children": {
+                  "/": {
+                    "type": "page",
+                    "title": "Registry",
+                    "filepath": "documentation/guides/registry/index.md",
+                    "description": "Centralized API registry for managing OpenAPI specifications with versioning, validation, and automated workflows.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/registry"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Centralized API registry for managing OpenAPI specifications with versioning, validation, and automated workflows."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Registry - OpenAPI Management"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Centralized API registry for managing OpenAPI specifications with versioning, validation, and automated workflows."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "getting-started": {
                     "filepath": "documentation/guides/registry/getting-started.md",
                     "type": "page",
