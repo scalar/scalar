@@ -40,7 +40,7 @@ Scalar treats OpenAPI as a source of truth for developer docs, API clients, gene
 - **Auth-aware API descriptions:** Model API keys, bearer tokens, OAuth flows, and other security schemes directly in your OpenAPI document.
 - **Rules and validation:** Add review gates and linting so API changes are caught before they reach consumers.
 - **SDK generation:** Generate production-ready SDKs and CLIs from reviewed API descriptions. See the [SDK Generator](/products/sdk-generator).
-- **MCP guardrails:** Choose which endpoints become tools, decide search versus execute modes, and apply API auth per installation. See [MCP & Agent](/products/agent/getting-started).
+- **MCP guardrails:** Choose which endpoints become tools, decide search versus execute modes, and apply API auth per installation. See [MCP & Agent](/products/agent).
 - **Self-hostable foundation:** Run Scalar's open-source tooling in your own environment when your architecture requires it.
 
 ## Responsible disclosure

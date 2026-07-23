@@ -1601,6 +1601,38 @@
                 "mode": "nested",
                 "icon": "phosphor/regular/sparkle",
                 "children": {
+                  "/": {
+                    "type": "page",
+                    "title": "MCP & Agent",
+                    "filepath": "documentation/guides/agent/index.md",
+                    "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/agent"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "MCP & Agent — OpenAPI to MCP for LLMs"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "getting-started": {
                     "title": "Getting Started",
                     "type": "page",
