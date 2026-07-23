@@ -137,3 +137,17 @@
     --scalar-page-description: 20px;
   }
 }
+
+/**
+ * Firefox snaps box-shadow geometry to whole device pixels, so on standard-DPI screens the 0.5px
+ * hairline rounds down to zero and shadow-border outlines disappear entirely. Use a full pixel in
+ * Firefox below retina density. The -moz-appearance supports query only matches in Gecko, so other
+ * engines (which antialias the half pixel into a faint line) keep the hairline everywhere.
+ */
+@media (max-resolution: 1.5dppx) {
+  @supports (-moz-appearance: none) {
+    :root {
+      --scalar-border-width: 1px;
+    }
+  }
+}
