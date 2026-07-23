@@ -374,7 +374,7 @@
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/registry/getting-started" aria-label="Learn more about API Registry">Learn More</a>
+      <a class="expander-hover-link" href="/products/registry" aria-label="Learn more about API Registry">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">

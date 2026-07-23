@@ -13,14 +13,14 @@ After you [create an SDK](getting-started.md), the dashboard is where you build 
 Each SDK opens to an overview with:
 
 - **Name and description**: human-readable metadata used in generated packages. Edit them inline.
-- **Active version**: the version currently served from the [registry](../registry/getting-started.md).
+- **Active version**: the version currently served from the [registry](../registry/index.md).
 - **Namespace**: the registry namespace the SDK is published under.
 - **Targets**: every configured language, with its build and GitHub sync status.
 - **Version history**: every version and its per-target build status.
 
 ## Linking an API
 
-An SDK is generated from an OpenAPI document in your [registry](../registry/getting-started.md). The SDK stays bound to that document, so regenerating picks up the latest API changes. You can re-link the SDK to a different document, or unlink it (which pauses builds until you link one again) from the SDK settings.
+An SDK is generated from an OpenAPI document in your [registry](../registry/index.md). The SDK stays bound to that document, so regenerating picks up the latest API changes. You can re-link the SDK to a different document, or unlink it (which pauses builds until you link one again) from the SDK settings.
 
 ## Building
 

@@ -274,7 +274,7 @@ You can configure the search behavior on a per-page basis:
 Scalar supports three ways to generate API references from OpenAPI documents:
 
 1. using a local file,
-2. the [Registry](../../registry/getting-started.md), or
+2. the [Registry](../../registry/index.md), or
 3. remote URLs.
 
 ### 1. Files
@@ -294,7 +294,7 @@ Reference an OpenAPI file stored in your repository by specifying a relative pat
 
 ### 2. Registry
 
-Upload your OpenAPI document to the [Registry](../../registry/getting-started.md), then reference it by namespace and slug:
+Upload your OpenAPI document to the [Registry](../../registry/index.md), then reference it by namespace and slug:
 
 ```bash
 scalar auth login
