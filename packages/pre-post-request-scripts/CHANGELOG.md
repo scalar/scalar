@@ -1,5 +1,7 @@
 # @scalar/scripts
 
+## 0.4.35
+
 ## 0.4.34
 
 ### Patch Changes
