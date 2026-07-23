@@ -1,12 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+
 import { HTTP_METHODS, type HttpMethod, httpMethods } from './http-methods'
 
 describe('HTTP Methods', () => {
   it('should contain all standard HTTP methods', () => {
-    const expectedMethods = ['delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace']
+    const expectedMethods = ['delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'query', 'trace']
 
     expect(HTTP_METHODS).toEqual(expectedMethods)
     expect(HTTP_METHODS).toHaveLength(expectedMethods.length)
+  })
+
+  it('includes the QUERY method', () => {
+    expect(HTTP_METHODS).toContain('query')
+    expect(httpMethods.has('query')).toBe(true)
   })
 
   it('should have a Set containing all HTTP methods', () => {

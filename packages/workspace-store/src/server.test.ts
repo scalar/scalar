@@ -595,6 +595,20 @@ describe('filter-http-methods-only', () => {
     // check the contents of the operation
     expect(result['/path']?.get).toEqual({ description: 'some description' })
   })
+
+  it('keeps the QUERY method', () => {
+    const result = filterHttpMethodsOnly({
+      '/path': {
+        get: { description: 'get description' },
+        query: { description: 'query description' },
+        // @ts-expect-error - this is a test
+        'x-scalar-test': 'test',
+      },
+    })
+
+    expect(Object.keys(result['/path'] ?? {})).toEqual(['get', 'query'])
+    expect(result['/path']?.query).toEqual({ description: 'query description' })
+  })
 })
 
 describe('escape-paths', () => {

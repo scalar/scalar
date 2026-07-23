@@ -68,6 +68,7 @@ describe('HttpMethod', () => {
         { method: 'delete', expected: 'DEL' },
         { method: 'options', expected: 'OPTS' },
         { method: 'head', expected: 'HEAD' },
+        { method: 'query', expected: 'QUERY' },
         { method: 'trace', expected: 'TRACE' },
       ]
 

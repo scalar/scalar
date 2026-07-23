@@ -1,7 +1,9 @@
-import { describe, it, expect } from 'vitest'
-import { normalizeHttpMethod } from './normalize-http-method'
-import { HTTP_METHODS } from './http-methods'
+import { describe, expect, it } from 'vitest'
+
 import { consoleWarnSpy } from '@/testing/console-spies'
+
+import { HTTP_METHODS } from './http-methods'
+import { normalizeHttpMethod } from './normalize-http-method'
 
 describe('normalizeHttpMethod', () => {
   describe('valid HTTP methods', () => {
@@ -23,6 +25,12 @@ describe('normalizeHttpMethod', () => {
       expect(normalizeHttpMethod(' get ')).toBe('get')
       expect(normalizeHttpMethod('\tpost\n')).toBe('post')
       expect(normalizeHttpMethod('  put  ')).toBe('put')
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
+    })
+
+    it('normalizes the QUERY method without warning', () => {
+      expect(normalizeHttpMethod('QUERY')).toBe('query')
+      expect(normalizeHttpMethod('  Query  ')).toBe('query')
       expect(consoleWarnSpy).not.toHaveBeenCalled()
     })
   })

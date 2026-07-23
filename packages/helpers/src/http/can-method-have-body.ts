@@ -1,7 +1,12 @@
 import { isElectron } from '@/general/is-electron'
 
-/** HTTP Methods which can have a body */
-export const BODY_METHODS = new Set(['post', 'put', 'patch', 'delete'])
+/**
+ * HTTP Methods which can have a body
+ *
+ * QUERY is included because it is a safe, idempotent method that carries its query in the request body,
+ * which is the whole point of the method (see the IETF HTTP QUERY method and OpenAPI 3.2).
+ */
+export const BODY_METHODS = new Set(['post', 'put', 'patch', 'delete', 'query'])
 
 /**
  * Makes a check to see if this method CAN have a body.
