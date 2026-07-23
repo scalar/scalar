@@ -746,7 +746,7 @@
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </p>
       </div>
-      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about API Docs">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs" aria-label="Learn more about API Docs">Learn More</a>
     </div>
   </article>
 </section>
