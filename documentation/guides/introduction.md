@@ -159,7 +159,7 @@
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/docs/getting-started" aria-label="Create your new API documentation with Scalar">Create Your New Documentation →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/docs" aria-label="Create your new API documentation with Scalar">Create Your New Documentation →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -336,7 +336,7 @@
           Write beautiful documentation with Markdown, MDX, OpenAPI, AsyncAPI, and two-way Git sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about API Docs">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs" aria-label="Learn more about API Docs">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">

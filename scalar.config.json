@@ -1134,11 +1134,43 @@
                 "mode": "nested",
                 "icon": "phosphor/regular/book",
                 "children": {
+                  "/": {
+                    "type": "page",
+                    "title": "Scalar Docs",
+                    "filepath": "documentation/guides/docs/index.md",
+                    "description": "Build beautiful, version-controlled developer documentation with Markdown, MDX, and powerful components.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/docs"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Build beautiful, version-controlled developer documentation with Markdown, MDX, and powerful components."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar Docs"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Build beautiful, version-controlled developer documentation with Markdown, MDX, and powerful components."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "getting-started": {
                     "filepath": "documentation/guides/docs/getting-started.md",
                     "type": "page",
                     "title": "Getting Started",
-                    "description": "Learn how to create and publish stunning developer documentation with Docs in minutes.",
+                    "description": "Create and publish your first documentation site with Scalar Docs in minutes.",
                     "head": {
                       "links": [
                         {
@@ -1149,7 +1181,7 @@
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Learn how to create and publish stunning developer documentation with Docs in minutes."
+                          "content": "Create and publish your first documentation site with Scalar Docs in minutes."
                         },
                         {
                           "property": "og:title",
@@ -1157,7 +1189,7 @@
                         },
                         {
                           "property": "og:description",
-                          "content": "Learn how to create and publish stunning developer documentation with Docs in minutes."
+                          "content": "Create and publish your first documentation site with Scalar Docs in minutes."
                         },
                         {
                           "name": "robots",
