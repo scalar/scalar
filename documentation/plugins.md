@@ -15,6 +15,39 @@ const configuration = {
 }
 ```
 
+## Loading a Plugin from a URL
+
+When you use the standalone browser build (`Scalar.createApiReference`), you can also reference plugins by URL.
+Each entry in `pluginUrls` must point to an ESM module that exports a plugin (the same shape as the `plugins`
+entries) as its default export. The modules are imported before the API reference mounts and their default
+exports are registered alongside the plugins passed directly.
+
+```typescript
+const configuration = {
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+  pluginUrls: [
+    'https://cdn.jsdelivr.net/npm/@example/scalar-plugin/dist/plugin.js',
+  ],
+}
+```
+
+Unlike `plugins`, this option is JSON-serializable. That makes it possible to load plugins from integrations
+that pass their configuration as JSON — for example the Docker container (`API_REFERENCE_CONFIG`) or server-side
+integrations that render the configuration into the HTML — without replacing the whole bundle.
+
+A minimal plugin module looks like this:
+
+```typescript
+// plugin.js — served as an ESM module
+export default () => ({
+  name: 'my-custom-plugin',
+  extensions: [],
+})
+```
+
+Note: When you render the `ApiReference` component yourself (for example in a Vue app), import the plugin
+and pass it via `plugins` instead.
+
 ## Creating a Plugin
 
 ### Specification Extensions

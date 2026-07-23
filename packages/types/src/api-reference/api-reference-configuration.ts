@@ -59,6 +59,23 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   plugins: z.array(apiReferencePluginSchema).optional(),
   /**
+   * URLs of ESM modules that provide additional plugins for the API reference.
+   *
+   * Each module is loaded with a dynamic `import()` before the API reference mounts, and its
+   * default export is registered as a plugin (the same shape as the `plugins` entries).
+   *
+   * Unlike `plugins`, this option is JSON-serializable, so integrations that pass their
+   * configuration as JSON — for example the Docker container or Scalar for Aspire — can load
+   * plugins without replacing the whole bundle.
+   *
+   * Note: This is only supported by the standalone browser build (`Scalar.createApiReference`).
+   * When you render the `ApiReference` component yourself, import the plugin and pass it via
+   * `plugins` instead.
+   *
+   * @example ['https://cdn.jsdelivr.net/npm/@example/scalar-plugin/dist/plugin.js']
+   */
+  pluginUrls: z.array(z.string()).optional(),
+  /**
    * Allows the user to inject an editor for the spec
    * @default false
    */

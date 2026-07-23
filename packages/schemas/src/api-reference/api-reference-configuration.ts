@@ -39,6 +39,10 @@ export const apiReferenceConfigurationSchema = intersection([
     plugins: optional(array(apiReferencePluginSchema), {
       typeComment: 'Plugins for the API reference',
     }),
+    pluginUrls: optional(array(string()), {
+      typeComment:
+        'URLs of ESM modules that provide additional plugins for the API reference. Each module is loaded with a dynamic `import()` before the API reference mounts, and its default export is registered as a plugin. Unlike `plugins`, this option is JSON-serializable, so integrations that pass their configuration as JSON can load plugins without replacing the whole bundle. Only supported by the standalone browser build (`Scalar.createApiReference`).',
+    }),
     isEditable: boolean({
       default: false,
       typeComment: 'Allows the user to inject an editor for the spec',
