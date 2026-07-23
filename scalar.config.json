@@ -919,6 +919,7 @@
               "pageTitle": false
             },
             "head": {
+              "title": "Scalar — API Documentation, SDKs, API Client & Registry",
               "links": [
                 {
                   "rel": "canonical",
@@ -945,7 +946,7 @@
                 },
                 {
                   "property": "og:title",
-                  "content": "Scalar - The API Company"
+                  "content": "Scalar — API Documentation, SDKs, API Client & Registry"
                 },
                 {
                   "property": "og:description",
@@ -953,7 +954,7 @@
                 },
                 {
                   "name": "twitter:title",
-                  "content": "Scalar - The API Company"
+                  "content": "Scalar — API Documentation, SDKs, API Client & Registry"
                 },
                 {
                   "name": "twitter:description",
@@ -981,6 +982,7 @@
               "pageTitle": false
             },
             "head": {
+              "title": "Scalar Pricing — Free & Paid Plans for API Docs & SDKs",
               "links": [
                 {
                   "rel": "canonical",
@@ -994,7 +996,7 @@
                 },
                 {
                   "property": "og:title",
-                  "content": "Pricing - Scalar"
+                  "content": "Scalar Pricing — Free & Paid Plans for API Docs & SDKs"
                 },
                 {
                   "property": "og:description",
@@ -1019,6 +1021,7 @@
               "pageActions": false
             },
             "head": {
+              "title": "Scalar Customers — Trusted by the World's Best API Teams",
               "links": [
                 {
                   "rel": "canonical",
@@ -1032,7 +1035,7 @@
                 },
                 {
                   "property": "og:title",
-                  "content": "Customers - Scalar"
+                  "content": "Scalar Customers — Trusted by the World's Best API Teams"
                 },
                 {
                   "property": "og:description",
@@ -1055,6 +1058,7 @@
               "pageActions": false
             },
             "head": {
+              "title": "About Scalar — The API Platform for Developers & Agents",
               "scripts": [
                 {
                   "path": "documentation/assets/company.js"
@@ -1073,7 +1077,7 @@
                 },
                 {
                   "property": "og:title",
-                  "content": "Company - Scalar"
+                  "content": "About Scalar — The API Platform for Developers & Agents"
                 },
                 {
                   "property": "og:description",
@@ -1140,6 +1144,7 @@
                     "filepath": "documentation/guides/docs/index.md",
                     "description": "Build beautiful, version-controlled developer documentation with Markdown, MDX, and powerful components.",
                     "head": {
+                      "title": "Scalar Docs — Developer Documentation with Markdown & MDX",
                       "links": [
                         {
                           "rel": "canonical",
@@ -1153,7 +1158,7 @@
                         },
                         {
                           "property": "og:title",
-                          "content": "Scalar Docs"
+                          "content": "Scalar Docs — Developer Documentation with Markdown & MDX"
                         },
                         {
                           "property": "og:description",
@@ -1607,6 +1612,7 @@
                     "filepath": "documentation/guides/agent/index.md",
                     "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
                     "head": {
+                      "title": "Scalar MCP & Agent — MCP Servers from OpenAPI for LLMs",
                       "links": [
                         {
                           "rel": "canonical",
@@ -1620,7 +1626,7 @@
                         },
                         {
                           "property": "og:title",
-                          "content": "MCP & Agent — OpenAPI to MCP for LLMs"
+                          "content": "Scalar MCP & Agent — MCP Servers from OpenAPI for LLMs"
                         },
                         {
                           "property": "og:description",
@@ -1760,6 +1766,7 @@
                     "filepath": "documentation/guides/sdks/index.md",
                     "description": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
                     "head": {
+                      "title": "Scalar SDK Generator — SDKs from OpenAPI in 8 Languages",
                       "links": [
                         {
                           "rel": "canonical",
@@ -1773,7 +1780,7 @@
                         },
                         {
                           "property": "og:title",
-                          "content": "SDK Generator - Generate Client Libraries from OpenAPI"
+                          "content": "Scalar SDK Generator — SDKs from OpenAPI in 8 Languages"
                         },
                         {
                           "property": "og:description",
@@ -2029,6 +2036,7 @@
                     "filepath": "documentation/guides/registry/index.md",
                     "description": "Centralized API registry for managing OpenAPI specifications with versioning, validation, and automated workflows.",
                     "head": {
+                      "title": "Scalar Registry — OpenAPI Version Control & Management",
                       "links": [
                         {
                           "rel": "canonical",
@@ -2042,7 +2050,7 @@
                         },
                         {
                           "property": "og:title",
-                          "content": "Registry - OpenAPI Management"
+                          "content": "Scalar Registry — OpenAPI Version Control & Management"
                         },
                         {
                           "property": "og:description",
@@ -2138,6 +2146,7 @@
                     "filepath": "documentation/guides/api-references/index.md",
                     "description": "Generate beautiful, interactive API documentation from OpenAPI and AsyncAPI specifications with customizable themes.",
                     "head": {
+                      "title": "Scalar API References — Interactive API Docs from OpenAPI",
                       "links": [
                         {
                           "rel": "canonical",
@@ -2151,7 +2160,7 @@
                         },
                         {
                           "property": "og:title",
-                          "content": "API References - OpenAPI Documentation"
+                          "content": "Scalar API References — Interactive API Docs from OpenAPI"
                         },
                         {
                           "property": "og:description",
@@ -2714,6 +2723,7 @@
                     "filepath": "documentation/guides/app/index.md",
                     "description": "Modern, open-source API testing client with OpenAPI integration, collections, and a beautiful interface.",
                     "head": {
+                      "title": "Scalar API Client — Free, Open-Source API Testing Tool",
                       "links": [
                         {
                           "rel": "canonical",
@@ -2727,7 +2737,7 @@
                         },
                         {
                           "property": "og:title",
-                          "content": "API Client - Open-Source API Testing"
+                          "content": "Scalar API Client — Free, Open-Source API Testing Tool"
                         },
                         {
                           "property": "og:description",
