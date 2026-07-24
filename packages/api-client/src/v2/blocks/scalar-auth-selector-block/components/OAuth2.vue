@@ -82,6 +82,12 @@ const {
   eventBus: WorkspaceEventBus
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
+  /**
+   * Hides the Authorize / Refresh / Clear actions. Used when the form is embedded as a
+   * configuration-only view (e.g. behind a gear icon), so the host component owns the
+   * authorize action and the tokens are routed to the scheme it chooses.
+   */
+  hideActions?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -380,7 +386,9 @@ const handleSecretLocationUpdate = (value: string): void => {
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <DataTableRow class="min-w-full">
+    <DataTableRow
+      v-if="!hideActions"
+      class="min-w-full">
       <div class="flex h-8 items-center justify-end gap-2 border-t">
         <ScalarButton
           v-if="supportsRefreshToken"
@@ -554,7 +562,9 @@ const handleSecretLocationUpdate = (value: string): void => {
         @delete:scope="(v) => emits('delete:scope', v)" />
     </DataTableRow>
 
-    <DataTableRow class="min-w-full">
+    <DataTableRow
+      v-if="!hideActions"
+      class="min-w-full">
       <div class="flex h-8 w-full items-center justify-end border-t">
         <!-- Allow clearing the oauth section and going back to discovery -->
         <ScalarButton
