@@ -1111,13 +1111,7 @@ describe('mergeAllOfSchemas', () => {
         type: 'string',
       },
       deprecated: false,
-      discriminator: {
-        propertyName: 'type',
-        mapping: {
-          dog: '#/components/schemas/Dog',
-          cat: '#/components/schemas/Cat',
-        },
-      },
+      // A member-contributed discriminator is dropped (see the tests below).
       readOnly: false,
       writeOnly: false,
       xml: {
@@ -1174,6 +1168,48 @@ describe('mergeAllOfSchemas', () => {
         value2: 'Description for value2',
       },
       'x-enum-varnames': ['VALUE_ONE', 'VALUE_TWO'],
+    })
+  })
+
+  // See issue #9674.
+  it('drops a discriminator inherited from an allOf member', () => {
+    const dog = coerceValue(SchemaObjectSchema, {
+      allOf: [
+        {
+          type: 'object',
+          discriminator: {
+            propertyName: 'petType',
+            mapping: { DOG: '#/components/schemas/Dog', CAT: '#/components/schemas/Cat' },
+          },
+          properties: { petType: { type: 'string' } },
+        },
+        { type: 'object', properties: { breed: { type: 'string' } } },
+      ],
+    })
+
+    const result = mergeAllOfSchemas(dog)
+
+    expect('discriminator' in result).toBe(false)
+    expect(result).toMatchObject({
+      properties: { petType: { type: 'string' }, breed: { type: 'string' } },
+    })
+  })
+
+  it('keeps a discriminator the schema declares itself next to allOf', () => {
+    const workingDog = coerceValue(SchemaObjectSchema, {
+      discriminator: {
+        propertyName: 'job',
+        mapping: { GUIDE: '#/components/schemas/GuideDog' },
+      },
+      properties: { job: { type: 'string' } },
+      allOf: [{ type: 'object', properties: { petType: { type: 'string' } } }],
+    })
+
+    const result = mergeAllOfSchemas(workingDog)
+
+    expect(result.discriminator).toEqual({
+      propertyName: 'job',
+      mapping: { GUIDE: '#/components/schemas/GuideDog' },
     })
   })
 
