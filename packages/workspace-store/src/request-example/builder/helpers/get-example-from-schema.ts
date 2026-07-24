@@ -211,6 +211,14 @@ const shouldOmitProperty = (
  * Arrays are concatenated, objects are merged, otherwise the new value wins.
  */
 const mergeExamples = (baseValue: unknown, newValue: unknown): unknown => {
+  // A null/undefined contribution (e.g. a constraint-only allOf member such as
+  // `not` or `if/then/else`, which produce no example) must not wipe what we have.
+  if (newValue === undefined || newValue === null) {
+    return baseValue
+  }
+  if (baseValue === undefined || baseValue === null) {
+    return newValue
+  }
   if (Array.isArray(baseValue) && Array.isArray(newValue)) {
     return [...baseValue, ...newValue]
   }
@@ -522,15 +530,23 @@ const handleObjectSchema = (
       )
     }
   }
-  // allOf
+  // allOf — thread a choice-ordinal into schemaPath for each direct oneOf/anyOf
+  // member so multiple mutually-exclusive groups get distinct composition-selection
+  // keys that match the per-group pickers. Object members keep the parent path so
+  // their property-nested compositions still resolve by property name.
   else if (Array.isArray(schema.allOf) && schema.allOf.length > 0) {
     let merged: unknown = response
+    let choiceIndex = 0
     for (const item of schema.allOf) {
-      const ex = getExampleFromSchema(resolve.schema(item), options, {
+      const resolvedItem = resolve.schema(item)
+      const isChoiceMember = !!resolvedItem && (Array.isArray(resolvedItem.oneOf) || Array.isArray(resolvedItem.anyOf))
+      const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
+      const ex = getExampleFromSchema(resolvedItem, options, {
         level: level + 1,
         parentSchema: schema,
         seen,
         dynamicScope: childScope,
+        schemaPath: memberSchemaPath,
       })
       merged = mergeExamples(merged, ex)
     }
@@ -935,11 +951,15 @@ export const getExampleFromSchema = (
   if (Array.isArray(_schema.allOf) && _schema.allOf.length > 0) {
     let merged: unknown = undefined
     const items = _schema.allOf
+    let choiceIndex = 0
     for (const item of items) {
+      const resolvedItem = resolve.schema(item)
+      const isChoiceMember = !!resolvedItem && (Array.isArray(resolvedItem.oneOf) || Array.isArray(resolvedItem.anyOf))
+      const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
       const ex = getExampleFromSchema(item as SchemaObject, options, {
         level: level + 1,
         parentSchema: _schema,
-        schemaPath,
+        schemaPath: memberSchemaPath,
         seen,
         dynamicScope: childScope,
       })
@@ -947,8 +967,9 @@ export const getExampleFromSchema = (
         merged = ex
       } else if (merged && typeof merged === 'object' && ex && typeof ex === 'object') {
         merged = mergeExamples(merged, ex)
-      } else if (ex !== undefined) {
-        // Prefer the latest defined primitive value
+      } else if (ex !== undefined && ex !== null) {
+        // Prefer the latest defined primitive value (but a null contribution —
+        // e.g. a constraint-only `not`/`if-then-else` member — must not clobber).
         merged = ex
       }
     }

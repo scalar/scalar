@@ -444,13 +444,21 @@ describe('SchemaComposition', () => {
       },
     })
 
-    // The merged schema handed to Schema keeps both the base property and the
-    // oneOf variants, so the variant selector still renders.
-    const schemaValue = wrapper.findComponent({ name: 'Schema' }).props('schema') as any
+    // The base object property is rendered by the merged Schema...
+    const baseSchema = wrapper.findComponent({ name: 'Schema' }).props('schema') as any
+    expect(baseSchema.properties).toMatchObject({ customerComment: { type: 'string' } })
 
-    expect(schemaValue.properties).toMatchObject({ customerComment: { type: 'string' } })
-    expect(schemaValue.oneOf).toHaveLength(2)
-    expect(schemaValue.oneOf[0].title).toBe('With Quote Id')
-    expect(schemaValue.oneOf[1].title).toBe('With Currency Pair')
+    // ...and the oneOf is preserved as its own composition (rendered as a sibling
+    // picker), not dropped. This is the structure that lets multiple independent
+    // oneOf groups inside one allOf each render their own selector.
+    const nestedOneOf = wrapper
+      .findAllComponents({ name: 'SchemaComposition' })
+      .find((component) => component.props('composition') === 'oneOf')
+    expect(nestedOneOf).toBeTruthy()
+
+    const oneOfSchema = nestedOneOf!.props('schema') as any
+    expect(oneOfSchema.oneOf).toHaveLength(2)
+    expect(oneOfSchema.oneOf[0].title).toBe('With Quote Id')
+    expect(oneOfSchema.oneOf[1].title).toBe('With Currency Pair')
   })
 })
