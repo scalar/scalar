@@ -17,3 +17,19 @@
 
 /* Search for Tailwind classes in the API Reference */
 @source "../";
+
+/**
+ * Narrow reference variant
+ *
+ * The API reference is an embeddable widget, so responsive styles must adapt
+ * to the rendered width of the reference, never to the viewport. This variant
+ * is the utility-class counterpart of the raw
+ * `@container narrow-references-container (max-width: 900px)` blocks used in
+ * scoped styles — the query is identical, so the two idioms can never
+ * disagree. The container itself is declared in Content.vue.
+ */
+@custom-variant narrow {
+  @container narrow-references-container (max-width: 900px) {
+    @slot;
+  }
+}

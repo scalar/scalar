@@ -6,7 +6,12 @@ const { tight, removeMargin = false } = defineProps<{
 </script>
 
 <template>
-  <div class="section-header-wrapper xl:gap-12">
+  <!-- The reference is an embeddable widget, so the header collapses based on
+       the rendered width of the reference (the narrow: variant), not the
+       viewport. The section-header-wrapper class stays as a styling hook for
+       SectionContainerAccordion. -->
+  <div
+    class="section-header-wrapper narrow:grid-cols-1 narrow:gap-0 grid grid-cols-2 gap-12">
     <div
       class="section-header"
       :class="{ tight, 'mb-3': !removeMargin }">
@@ -19,19 +24,6 @@ const { tight, removeMargin = false } = defineProps<{
 </template>
 
 <style scoped>
-@reference "@/style.css";
-
-.section-header-wrapper {
-  display: grid;
-  grid-template-columns: 1fr;
-}
-
-@variant xl {
-  .section-header-wrapper {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 .section-header {
   font-size: var(--font-size, var(--scalar-heading-1));
   font-weight: var(--font-weight, var(--scalar-bold));

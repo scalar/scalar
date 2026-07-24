@@ -18,17 +18,18 @@ const { hasAside = true } = defineProps<{
 
 <template>
   <div
-    class="introduction-loading flex flex-col gap-5"
-    aria-hidden="true">
+    aria-hidden="true"
+    class="introduction-loading flex flex-col gap-5">
     <!-- Version and specification badges -->
     <div class="flex gap-1.5">
       <div class="introduction-skeleton h-6 w-14 rounded-full" />
       <div class="introduction-skeleton h-6 w-24 rounded-full" />
     </div>
-    <!-- Title and links (mirrors SectionHeader's two-column grid at xl) -->
-    <div class="grid grid-cols-1 gap-3 xl:grid-cols-2 xl:gap-12">
+    <!-- Title and links (mirrors SectionHeader's two-column grid on wide references) -->
+    <div class="narrow:grid-cols-1 narrow:gap-3 grid grid-cols-2 gap-12">
       <div class="introduction-skeleton h-9 w-3/5 rounded-lg" />
-      <div class="flex flex-wrap items-center gap-2 xl:justify-end">
+      <div
+        class="narrow:justify-start flex flex-wrap items-center justify-end gap-2">
         <div class="introduction-skeleton h-5 w-28 rounded" />
         <div class="introduction-skeleton h-5 w-28 rounded" />
         <div class="introduction-skeleton h-5 w-12 rounded" />
@@ -62,7 +63,7 @@ const { hasAside = true } = defineProps<{
     <!-- Classic layout: selector cards in a row below the description -->
     <div
       v-if="!hasAside"
-      class="flex flex-col gap-3 sm:flex-row sm:gap-6">
+      class="narrow:flex-col narrow:gap-3 flex gap-6">
       <div class="introduction-skeleton h-28 w-full flex-1 rounded-lg" />
       <div class="introduction-skeleton h-28 w-full flex-1 rounded-lg" />
       <div class="introduction-skeleton h-28 w-full flex-1 rounded-lg" />

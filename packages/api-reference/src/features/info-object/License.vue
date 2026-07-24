@@ -10,10 +10,10 @@ defineProps<{
 
 <template>
   <div
-    class="group flex h-fit items-center last:border-r-0 xl:border-r xl:first:ml-auto">
+    class="group narrow:border-r-0 narrow:first:ml-0 flex h-fit items-center border-r first:ml-auto last:border-r-0">
     <a
       v-if="value?.url"
-      class="text-c-1 hover:bg-b-2 mr-2 flex min-h-7 min-w-7 items-center rounded-lg border px-2 py-1 no-underline group-last:mr-0 xl:border-none"
+      class="text-c-1 hover:bg-b-2 narrow:border mr-2 flex min-h-7 min-w-7 items-center rounded-lg px-2 py-1 no-underline group-last:mr-0"
       :href="value.url"
       rel="noopener noreferrer"
       target="_blank">
