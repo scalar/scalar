@@ -1268,6 +1268,7 @@ describe('syncPathParameters', () => {
           options: { summary: 'Options user', parameters: undefined },
           head: { summary: 'Head user', parameters: undefined },
           trace: { summary: 'Trace user', parameters: undefined },
+          query: { summary: 'Query user', parameters: undefined },
         },
       },
     }

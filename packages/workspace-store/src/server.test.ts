@@ -16,6 +16,7 @@ import {
   externalizeComponentReferences,
   externalizePathReferences,
   filterHttpMethodsOnly,
+  getOperationChunkName,
 } from './server'
 
 describe('create-server-store', () => {
@@ -595,6 +596,22 @@ describe('filter-http-methods-only', () => {
     // check the contents of the operation
     expect(result['/path']?.get).toEqual({ description: 'some description' })
   })
+
+  it('should include OpenAPI 3.2 additionalOperations with arbitrary custom methods', () => {
+    const result = filterHttpMethodsOnly({
+      '/path': {
+        get: { description: 'query list' },
+        additionalOperations: {
+          LIST: { description: 'body list' },
+          COPY: { description: 'copy with body' },
+        },
+      },
+    })
+
+    expect(Object.keys(result['/path'] ?? {})).toEqual(['get', 'LIST', 'COPY'])
+    expect(result['/path']?.LIST).toEqual({ description: 'body list' })
+    expect(result['/path']?.COPY).toEqual({ description: 'copy with body' })
+  })
 })
 
 describe('escape-paths', () => {
@@ -609,6 +626,18 @@ describe('escape-paths', () => {
     expect(Object.keys(result)).toEqual(['~1hello~0world~1users'])
 
     expect(result['~1hello~0world~1users']).toEqual({ get: { description: 'some description' } })
+  })
+
+  it('should encode custom operation names before using them as chunk names', () => {
+    const result = escapePaths({ '/test': { '../outside': { description: 'custom operation' } } })
+
+    expect(result).toEqual({
+      '~1test': { 'custom-%2E%2E%2Foutside': { description: 'custom operation' } },
+    })
+  })
+
+  it('should preserve standard operation chunk names', () => {
+    expect(getOperationChunkName('get')).toBe('get')
   })
 })
 
@@ -715,6 +744,38 @@ describe('externalize-path-references', () => {
 
     expect(result).toEqual({
       '/test': { get: { '$ref': 'https://example.com/name/operations/~1test/get#', $global: true } },
+    })
+  })
+
+  it('should encode custom operation names in SSR references', () => {
+    const result = externalizePathReferences(
+      {
+        openapi: '3.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/test': {
+            additionalOperations: {
+              '../outside': { description: 'custom operation' },
+            },
+          },
+        },
+      },
+      {
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        name: 'name',
+      },
+    )
+
+    expect(result).toEqual({
+      '/test': {
+        additionalOperations: {
+          '../outside': {
+            '$ref': 'https://example.com/name/operations/~1test/custom-%2E%2E%2Foutside#',
+            $global: true,
+          },
+        },
+      },
     })
   })
 

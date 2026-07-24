@@ -5,6 +5,7 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type Ref, ref } from 'vue'
 
+import { resolveDocumentSlug, type RoutePayload } from '@/v2/features/modal/helpers/resolve-route-parameters'
 import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
@@ -14,6 +15,7 @@ export function initializeModalEvents({
   eventBus,
   isSidebarOpen,
   requestBodyCompositionSelection,
+  route,
   sidebarState,
   modalState,
   store,
@@ -21,6 +23,7 @@ export function initializeModalEvents({
   eventBus: WorkspaceEventBus
   isSidebarOpen: Ref<boolean>
   requestBodyCompositionSelection: Ref<Record<string, number>>
+  route: (payload: RoutePayload) => void
   sidebarState: UseModalSidebarReturn
   modalState: ModalState
   store: WorkspaceStore
@@ -78,17 +81,27 @@ export function initializeModalEvents({
 
       sidebarState.handleSelectItem(targetId)
     }
-    // We must find the ID first from the entries
+    // Route by operation location. Sidebar selection is best-effort decoration.
     else if ('method' in payload && 'path' in payload) {
+      const documentSlug = resolveDocumentSlug(store, store.workspace['x-scalar-active-document'] || 'default')
+      route({
+        documentSlug,
+        path: payload.path,
+        method: payload.method,
+        example: payload.exampleName ?? 'default',
+      })
+
       const activeDoc = store.workspace.activeDocument
-      sidebarState.handleSelectItem(
-        sidebarState.getEntryByLocation({
-          document: isOpenApiDocument(activeDoc) ? (activeDoc['x-scalar-navigation']?.id ?? '') : '',
-          path: payload.path,
-          method: payload.method,
-          example: payload.exampleName,
-        })?.id ?? '',
-      )
+      const entry = sidebarState.getEntryByLocation({
+        document: documentSlug ?? (isOpenApiDocument(activeDoc) ? (activeDoc['x-scalar-navigation']?.id ?? '') : ''),
+        path: payload.path,
+        method: payload.method,
+        example: payload.exampleName,
+      })
+
+      if (entry) {
+        sidebarState.handleSelectItem(entry.id)
+      }
     }
 
     modalState.show()

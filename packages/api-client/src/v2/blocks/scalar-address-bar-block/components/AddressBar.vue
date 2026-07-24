@@ -37,7 +37,7 @@ import { ScalarButton } from '@scalar/components/button'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import { getSelector } from '@scalar/helpers/dom/get-selector'
-import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
+import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
@@ -121,7 +121,7 @@ const addressBarScrollMargins = EditorView.scrollMargins.of(() => ({
 
 /** Animated background transform for the loading indicator */
 const style = computed(() => ({
-  backgroundColor: `color-mix(in srgb, transparent 90%, ${REQUEST_METHODS[method].colorVar})`,
+  backgroundColor: `color-mix(in srgb, transparent 90%, ${getHttpMethodInfo(method).colorVar})`,
   transform: `translate3d(-${percentage.value}%,0,0)`,
 }))
 

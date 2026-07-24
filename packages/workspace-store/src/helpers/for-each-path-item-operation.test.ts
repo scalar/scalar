@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   deletePathItemOperation,
   forEachPathItemOperation,
+  getPathItemOperation,
   getResolvedPathItem,
   pathItemIsEmpty,
 } from '@/helpers/for-each-path-item-operation'
@@ -50,8 +51,8 @@ describe('forEachPathItemOperation', () => {
 
     expect(callback).toHaveBeenCalledTimes(2)
     expect(callback.mock.calls).toStrictEqual([
-      ['get', { summary: 'Get users' }],
-      ['post', { summary: 'Create user' }],
+      ['get', { summary: 'Get users' }, ['get']],
+      ['post', { summary: 'Create user' }, ['post']],
     ])
   })
 
@@ -69,7 +70,29 @@ describe('forEachPathItemOperation', () => {
     )
 
     expect(callback).toHaveBeenCalledTimes(1)
-    expect(callback.mock.calls).toStrictEqual([['get', { summary: 'Get users' }]])
+    expect(callback.mock.calls).toStrictEqual([['get', { summary: 'Get users' }, ['get']]])
+  })
+
+  it('invokes the callback for OpenAPI 3.2 additionalOperations with arbitrary custom methods', () => {
+    const callback = vi.fn()
+
+    forEachPathItemOperation(
+      {
+        get: { summary: 'Get users with query parameters' },
+        additionalOperations: {
+          LIST: { summary: 'Get users with request body' },
+          COPY: { summary: 'Copy users with request body' },
+        },
+      },
+      callback,
+    )
+
+    expect(callback).toHaveBeenCalledTimes(3)
+    expect(callback.mock.calls).toStrictEqual([
+      ['get', { summary: 'Get users with query parameters' }, ['get']],
+      ['LIST', { summary: 'Get users with request body' }, ['additionalOperations', 'LIST']],
+      ['COPY', { summary: 'Copy users with request body' }, ['additionalOperations', 'COPY']],
+    ])
   })
 
   it('does not invoke the callback when the path item is undefined', () => {
@@ -78,6 +101,30 @@ describe('forEachPathItemOperation', () => {
     forEachPathItemOperation(undefined, callback)
 
     expect(callback).not.toHaveBeenCalled()
+  })
+})
+
+describe('getPathItemOperation', () => {
+  it('resolves OpenAPI 3.2 additionalOperations regardless of custom method name', () => {
+    const pathItem = {
+      additionalOperations: {
+        PURGE: {
+          summary: 'Purge users with request body',
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    expect(getPathItemOperation(pathItem, 'PURGE')?.requestBody).toBeDefined()
+    expect(getPathItemOperation(pathItem, 'purge')?.requestBody).toBeDefined()
   })
 })
 

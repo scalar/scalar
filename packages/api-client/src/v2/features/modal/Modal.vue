@@ -18,6 +18,8 @@ export type ModalProps = {
   modalState: ModalState
   /** The sidebar state must be initialized and passed in */
   sidebarState: UseModalSidebarReturn
+  /** Routes the modal to a specific operation */
+  route: (payload: RoutePayload) => void
   /** Api client plugins to include in the modal */
   plugins: ClientPlugin[]
   /** Subset of the configuration options for the modal */
@@ -54,6 +56,7 @@ import {
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
+import type { RoutePayload } from '@/v2/features/modal/helpers/resolve-route-parameters'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
@@ -68,6 +71,7 @@ const {
   options,
   plugins,
   requestBodyCompositionSelection,
+  route,
   sidebarState,
   workspaceStore,
 } = defineProps<
@@ -87,6 +91,7 @@ initializeModalEvents({
   eventBus,
   isSidebarOpen,
   requestBodyCompositionSelection,
+  route,
   sidebarState,
   modalState,
   store: workspaceStore,

@@ -107,6 +107,31 @@ describe('path-item', () => {
       expect(result).toEqual(validInput)
     })
 
+    it('accepts OpenAPI 3.2 query and additionalOperations path item operations', () => {
+      const validInput = {
+        query: {
+          responses: {
+            '200': {
+              description: 'Success',
+            },
+          },
+        },
+        additionalOperations: {
+          COPY: {
+            responses: {
+              '200': {
+                description: 'Copied',
+              },
+            },
+          },
+        },
+      }
+
+      const result = coerceValue(PathItemObjectSchema, validInput)
+
+      expect(result).toEqual(validInput)
+    })
+
     it('fails when given non-object input', () => {
       const invalidInput = 'not an object'
 

@@ -20,29 +20,42 @@ describe('can-method-have-body', () => {
   })
 
   describe('HTTP methods with body support', () => {
-    it.each(['post', 'put', 'patch', 'delete'] as const)('returns true for %s method', (method) => {
-      expect(canMethodHaveBody(method)).toBe(true)
-    })
+    it.each(['post', 'put', 'patch', 'delete', 'options', 'trace', 'query'] as const)(
+      'returns true for %s method',
+      (method) => {
+        expect(canMethodHaveBody(method)).toBe(true)
+      },
+    )
 
-    it.each(['POST', 'PUT', 'PATCH', 'DELETE'] as const)('handles uppercase %s method', (method) => {
-      expect(canMethodHaveBody(method as HttpMethod)).toBe(true)
-    })
+    it.each(['POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'TRACE', 'QUERY'] as const)(
+      'handles uppercase %s method',
+      (method) => {
+        expect(canMethodHaveBody(method as HttpMethod)).toBe(true)
+      },
+    )
 
-    it.each(['Post', 'Put', 'Patch', 'Delete'] as const)('handles mixed case %s method', (method) => {
+    it.each(['Post', 'Put', 'Patch', 'Delete', 'Options', 'Trace', 'Query'] as const)(
+      'handles mixed case %s method',
+      (method) => {
+        expect(canMethodHaveBody(method as HttpMethod)).toBe(true)
+      },
+    )
+
+    it.each(['LIST', 'COPY', 'PURGE'] as const)('returns true for custom %s method', (method) => {
       expect(canMethodHaveBody(method as HttpMethod)).toBe(true)
     })
   })
 
   describe('HTTP methods without body support', () => {
-    it.each(['get', 'head', 'options', 'trace'] as const)('returns false for %s method', (method) => {
+    it.each(['get', 'head'] as const)('returns false for %s method', (method) => {
       expect(canMethodHaveBody(method)).toBe(false)
     })
 
-    it.each(['GET', 'HEAD', 'OPTIONS', 'TRACE'] as const)('handles uppercase %s method', (method) => {
+    it.each(['GET', 'HEAD'] as const)('handles uppercase %s method', (method) => {
       expect(canMethodHaveBody(method as HttpMethod)).toBe(false)
     })
 
-    it.each(['Get', 'Head', 'Options', 'Trace'] as const)('handles mixed case %s method', (method) => {
+    it.each(['Get', 'Head'] as const)('handles mixed case %s method', (method) => {
       expect(canMethodHaveBody(method as HttpMethod)).toBe(false)
     })
   })
@@ -78,8 +91,8 @@ describe('can-method-have-body', () => {
       expect(canMethodHaveBody('' as HttpMethod)).toBe(false)
     })
 
-    it('handles invalid HTTP methods', () => {
-      expect(canMethodHaveBody('invalid' as HttpMethod)).toBe(false)
+    it('treats syntactically unknown methods as custom methods', () => {
+      expect(canMethodHaveBody('invalid' as HttpMethod)).toBe(true)
     })
 
     it('handles whitespace-only strings', () => {

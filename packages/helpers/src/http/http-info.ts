@@ -1,4 +1,4 @@
-import type { HttpMethod } from './http-methods'
+import type { HttpMethod, StandardHttpMethod } from './http-methods'
 
 export type HttpInfo = {
   short: string
@@ -54,13 +54,19 @@ export const REQUEST_METHODS = {
     colorVar: 'var(--scalar-color-2)',
     backgroundColor: 'bg-c-2/10',
   },
+  query: {
+    short: 'QUERY',
+    colorClass: 'text-c-2',
+    colorVar: 'var(--scalar-color-2)',
+    backgroundColor: 'bg-c-2/10',
+  },
   trace: {
     short: 'TRACE',
     colorClass: 'text-c-2',
     colorVar: 'var(--scalar-color-2)',
     backgroundColor: 'bg-c-2/10',
   },
-} as const satisfies Record<HttpMethod, HttpInfo>
+} as const satisfies Record<StandardHttpMethod, HttpInfo>
 
 /**
  * Accepts an HTTP Method name and returns some properties for the tag
@@ -68,10 +74,11 @@ export const REQUEST_METHODS = {
 export const getHttpMethodInfo = (methodName: string) => {
   const normalizedMethod = methodName.trim().toLowerCase() as HttpMethod
   return (
-    REQUEST_METHODS[normalizedMethod] ?? {
-      short: normalizedMethod,
-      color: 'text-c-2',
-      backgroundColor: 'bg-c-2',
+    REQUEST_METHODS[normalizedMethod as StandardHttpMethod] ?? {
+      short: methodName.trim().toUpperCase(),
+      colorClass: 'text-c-2',
+      colorVar: 'var(--scalar-color-2)',
+      backgroundColor: 'bg-c-2/10',
     }
   )
 }

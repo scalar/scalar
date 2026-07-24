@@ -193,6 +193,11 @@ const activeSlug = ref<string>(
     '',
 )
 
+const getDefaultSlug = () =>
+  Object.values(configList.value).find((c) => c.default)?.slug ??
+  configList.value[Object.keys(configList.value)?.[0] ?? '']?.slug ??
+  ''
+
 /**
  * On initial page load we need to determine if there is a valid document slug in the URL
  *
@@ -1026,7 +1031,14 @@ watch(
       newSlugs.length !== oldSlugs.length ||
       !newSlugs.every((slug, index) => slug === oldSlugs[index])
     ) {
-      await changeSelectedDocument(newSlugs[0] ?? '')
+      const nextSlug = newSlugs.includes(activeSlug.value)
+        ? activeSlug.value
+        : (newSlugs[0] ?? '')
+
+      if (nextSlug) {
+        activeSlug.value = nextSlug
+        await changeSelectedDocument(nextSlug)
+      }
     }
   },
   {
@@ -1041,6 +1053,14 @@ onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
 onBeforeMount(async () => {
   // We read the client from the client store so we need to set it to the client store
   loadClientFromStorage(clientStore)
+
+  if (!activeSlug.value) {
+    activeSlug.value = getDefaultSlug()
+  }
+
+  if (!activeSlug.value) {
+    return
+  }
 
   await changeSelectedDocument(
     activeSlug.value,

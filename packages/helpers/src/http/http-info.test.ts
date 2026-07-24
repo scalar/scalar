@@ -36,6 +36,7 @@ describe('REQUEST_METHODS', () => {
     expect(REQUEST_METHODS.delete.short).toBe('DEL')
     expect(REQUEST_METHODS.options.short).toBe('OPTS')
     expect(REQUEST_METHODS.head.short).toBe('HEAD')
+    expect(REQUEST_METHODS.query.short).toBe('QUERY')
     expect(REQUEST_METHODS.trace.short).toBe('TRACE')
   })
 })
@@ -50,6 +51,7 @@ describe('getHttpMethodInfo', () => {
       { input: 'delete', expectedShort: 'DEL' },
       { input: 'OPTIONS', expectedShort: 'OPTS' },
       { input: 'head', expectedShort: 'HEAD' },
+      { input: 'query', expectedShort: 'QUERY' },
       { input: 'trace', expectedShort: 'TRACE' },
     ]
 
@@ -61,26 +63,34 @@ describe('getHttpMethodInfo', () => {
     })
   })
 
-  it('handles unknown HTTP methods', () => {
-    const unknownMethod = 'UNKNOWN'
-    const result = getHttpMethodInfo(unknownMethod)
+  it('handles custom HTTP methods', () => {
+    const result = getHttpMethodInfo('COPY')
 
-    expect(result.short).toBe('unknown')
-    expect(result).toHaveProperty('color')
+    expect(result.short).toBe('COPY')
+    expect(result.colorClass).toBe('text-c-2')
+    expect(result.colorVar).toBe('var(--scalar-color-2)')
+    expect(result.backgroundColor).toBe('bg-c-2/10')
+  })
+
+  it('normalizes custom HTTP method display casing', () => {
+    const result = getHttpMethodInfo(' purge ')
+
+    expect(result.short).toBe('PURGE')
+    expect(result).toHaveProperty('colorClass')
     expect(result).toHaveProperty('backgroundColor')
   })
 
   it('handles empty string', () => {
     const result = getHttpMethodInfo('')
     expect(result.short).toBe('')
-    expect(result).toHaveProperty('color')
+    expect(result).toHaveProperty('colorClass')
     expect(result).toHaveProperty('backgroundColor')
   })
 
   it('handles whitespace-only strings', () => {
     const result = getHttpMethodInfo('   ')
     expect(result.short).toBe('')
-    expect(result).toHaveProperty('color')
+    expect(result).toHaveProperty('colorClass')
     expect(result).toHaveProperty('backgroundColor')
   })
 })

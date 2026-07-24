@@ -53,6 +53,7 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -96,7 +97,7 @@ const {
  * Also adds in params from the pathItemObject
  */
 const operation = computed(() => {
-  const entity = getResolvedRef(pathValue?.[method])
+  const entity = getResolvedRef(getPathItemOperation(pathValue, method))
 
   if (!entity) {
     return null

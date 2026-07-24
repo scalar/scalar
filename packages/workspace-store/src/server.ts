@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
@@ -29,6 +30,21 @@ import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
+/**
+ * Returns the path segment used for an operation chunk.
+ *
+ * Standard methods retain their existing names for backwards compatibility. Custom methods are
+ * encoded before being used in URLs or filesystem paths. Prefixing the encoded value also keeps
+ * values such as `.` and `..` from becoming special path segments.
+ */
+export const getOperationChunkName = (method: string): string => {
+  if (isHttpMethod(method)) {
+    return method
+  }
+
+  return `custom-${encodeURIComponent(method).replace(/\./g, '%2E')}`
+}
+
 type WorkspaceDocumentMetaInput = {
   name: string
   meta?: WorkspaceDocumentMeta
@@ -55,11 +71,9 @@ type CreateServerWorkspaceStoreProps =
       mode: 'ssr'
     } & CreateServerWorkspaceStoreBase)
 
-const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
-
 /**
- * Filters an OpenAPI PathsObject to only include standard HTTP methods.
- * Removes any vendor extensions or other non-HTTP properties.
+ * Filters an OpenAPI PathsObject to only include operations.
+ * Removes any vendor extensions or other non-operation properties.
  *
  * @param paths - The OpenAPI PathsObject to filter
  * @returns A new PathsObject containing only standard HTTP methods
@@ -87,9 +101,7 @@ export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record
     const filteredMethods: Record<string, OperationObject> = {}
 
     forEachPathItemOperation(pathItemRef, (method, operation) => {
-      if (httpMethods.has(method.toLowerCase())) {
-        filteredMethods[method] = getResolvedRef(operation) ?? operation
-      }
+      filteredMethods[method] = getResolvedRef(operation) ?? operation
     })
 
     if (Object.keys(filteredMethods).length > 0) {
@@ -116,7 +128,9 @@ export function escapePaths(
 
   Object.keys(paths).forEach((path) => {
     if (paths[path]) {
-      result[escapeJsonPointer(path)] = paths[path]
+      result[escapeJsonPointer(path)] = Object.fromEntries(
+        Object.entries(paths[path]).map(([method, operation]) => [getOperationChunkName(method), operation]),
+      )
     }
   })
 
@@ -180,15 +194,29 @@ export function externalizePathReferences(
 
     const escapedPath = escapeJsonPointer(path)
 
-    keyOf(pathItemRecord).forEach((type) => {
-      if (httpMethods.has(type)) {
-        const ref =
-          meta.mode === 'ssr'
-            ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${type}#`
-            : `./chunks/${meta.name}/operations/${escapedPath}/${type}.json#`
+    forEachPathItemOperation(pathItemRef, (method, _operation, pointer) => {
+      const operationChunkName = getOperationChunkName(method)
+      const ref =
+        meta.mode === 'ssr'
+          ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${operationChunkName}#`
+          : `./chunks/${meta.name}/operations/${escapedPath}/${operationChunkName}.json#`
 
-        result[path][type] = { '$ref': ref, $global: true }
-      } else if (type !== '$ref') {
+      if (pointer.length === 1) {
+        result[path][method] = { '$ref': ref, $global: true }
+      } else {
+        result[path].additionalOperations = {
+          ...result[path].additionalOperations,
+          [method]: { '$ref': ref, $global: true },
+        }
+      }
+    })
+
+    keyOf(pathItemRecord).forEach((type) => {
+      if (isHttpMethod(type) || type === 'additionalOperations') {
+        return
+      }
+
+      if (type !== '$ref') {
         // Skip the path-item `$ref` merged in by getResolvedPathItem: the referenced component is
         // externalized on its own and the operations are externalized above, so keeping it would
         // emit a hybrid entry with both a component `$ref` and inlined operation references.
@@ -474,7 +502,7 @@ export async function createServerWorkspaceStore(
             await fs.mkdir(operationPath, { recursive: true })
 
             for (const [method, operation] of Object.entries(methods)) {
-              await fs.writeFile(`${operationPath}/${method}.json`, JSON.stringify(operation))
+              await fs.writeFile(`${operationPath}/${getOperationChunkName(method)}.json`, JSON.stringify(operation))
             }
           }
         }

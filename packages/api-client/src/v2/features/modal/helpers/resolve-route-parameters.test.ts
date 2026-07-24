@@ -243,6 +243,28 @@ describe('resolve-route-parameters', () => {
     expect(result).toBe('post')
   })
 
+  it('returns a custom method when it exists in additionalOperations', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'my-doc',
+      document: getDocument({
+        openapi: '3.2.0',
+        paths: {
+          '/users': {
+            additionalOperations: {
+              LIST: { summary: 'List users with a request body' },
+            },
+          },
+        },
+      }),
+    })
+    const ctx = { store, documentSlug: 'my-doc' }
+
+    const result = resolveMethod(ctx, '/users', 'LIST')
+
+    expect(result).toBe('LIST')
+  })
+
   it('returns undefined when provided method is not a valid HTTP method', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
@@ -276,6 +298,29 @@ describe('resolve-route-parameters', () => {
 
     // Should skip 'parameters' and return the first HTTP method
     expect(result).toBe('get')
+  })
+
+  it('returns the first custom method from additionalOperations when "default" is specified', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'my-doc',
+      document: getDocument({
+        openapi: '3.2.0',
+        paths: {
+          '/users': {
+            parameters: [{ name: 'limit', in: 'query' }],
+            additionalOperations: {
+              LIST: { summary: 'List users with a request body' },
+            },
+          },
+        },
+      }),
+    })
+    const ctx = { store, documentSlug: 'my-doc' }
+
+    const result = resolveMethod(ctx, '/users', 'default')
+
+    expect(result).toBe('LIST')
   })
 
   it('returns undefined when "default" is specified but path has no HTTP methods', async () => {
@@ -494,6 +539,37 @@ describe('resolve-route-parameters', () => {
       documentSlug: 'my-doc',
       path: '/users',
       method: 'get',
+      example: 'default',
+    })
+  })
+
+  it('resolves explicit custom methods from additionalOperations', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'my-doc',
+      document: getDocument({
+        openapi: '3.2.0',
+        paths: {
+          '/users': {
+            additionalOperations: {
+              LIST: { summary: 'List users with a request body' },
+            },
+          },
+        },
+      }),
+    })
+
+    const result = resolveRouteParameters(store, {
+      documentSlug: 'my-doc',
+      path: '/users',
+      method: 'LIST',
+      example: 'default',
+    })
+
+    expect(result).toEqual({
+      documentSlug: 'my-doc',
+      path: '/users',
+      method: 'LIST',
       example: 'default',
     })
   })
