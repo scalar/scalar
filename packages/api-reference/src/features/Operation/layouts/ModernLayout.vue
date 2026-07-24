@@ -390,10 +390,6 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
     margin-bottom: 4px;
   }
 
-  .operation-title {
-    margin-bottom: 24px;
-  }
-
   .operation-description {
     margin-bottom: 24px;
   }
