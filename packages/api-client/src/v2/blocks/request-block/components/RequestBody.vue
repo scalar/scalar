@@ -4,6 +4,7 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -17,11 +18,15 @@ import type {
   RequestBodyObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import { computed, ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyForm.vue'
+import RequestBodyStructured from '@/v2/blocks/request-block/components/RequestBodyStructured.vue'
+import RequestBodyViewToggle from '@/v2/blocks/request-block/components/RequestBodyViewToggle.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
+import { getStructuredBodyCodec } from '@/v2/blocks/request-block/helpers/structured-body-codec'
 import { CodeInput } from '@/v2/components/code-input'
 import {
   DataTable,
@@ -186,6 +191,63 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
     requestBody?.content?.[selectedContentType.value]?.schema,
   )
 })
+
+/** Codec for structured (JSON/YAML) bodies, undefined for everything else */
+const structuredCodec = computed(() =>
+  selectedContentType.value === 'none'
+    ? undefined
+    : getStructuredBodyCodec(selectedContentType.value),
+)
+
+/** Parsed body value for the form view — `ok: false` when the raw text is not parseable */
+const parsedBody = computed<{ ok: boolean; value?: unknown }>(() => {
+  const codec = structuredCodec.value
+  if (!codec) {
+    return { ok: false }
+  }
+
+  const raw = example.value?.value
+  // An empty body is still form-editable: rows come from the schema.
+  if (raw === undefined || raw === null || raw === '') {
+    return { ok: true, value: {} }
+  }
+  if (typeof raw === 'string') {
+    try {
+      return { ok: true, value: codec.parse(raw) }
+    } catch {
+      return { ok: false }
+    }
+  }
+  // Spec-provided examples can be stored as objects directly.
+  return { ok: true, value: raw }
+})
+
+/** The form view only works on an object-shaped body root */
+const isFormViewAvailable = computed(
+  () => parsedBody.value.ok && isObject(parsedBody.value.value),
+)
+
+/**
+ * Show the Form/Raw toggle for structured bodies that are (or per schema should be)
+ * an object at the root. Non-object roots (arrays, primitives) stay raw-only.
+ */
+const showBodyViewToggle = computed(
+  () =>
+    Boolean(structuredCodec.value) &&
+    (isFormViewAvailable.value ||
+      Boolean(bodySchema.value && isObjectSchema(bodySchema.value))),
+)
+
+/** Selected body view, raw by default so existing behavior is unchanged */
+const bodyView = ref<'form' | 'raw'>('raw')
+
+// Fall back to raw when the form view stops being available (e.g. the content type
+// changed to a non-structured one, or an external edit made the body unparseable).
+watch(isFormViewAvailable, (ok) => {
+  if (!ok) {
+    bodyView.value = 'raw'
+  }
+})
 </script>
 <template>
   <CollapsibleSection>
@@ -209,6 +271,11 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
               size="md" />
           </ScalarButton>
         </ScalarListbox>
+        <RequestBodyViewToggle
+          v-if="showBodyViewToggle"
+          :disabled="!isFormViewAvailable"
+          :modelValue="bodyView"
+          @update:modelValue="(v) => (bodyView = v)" />
       </DataTableHeader>
       <DataTableRow>
         <!-- No Body -->
@@ -292,7 +359,22 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
 
         <!-- Code/Other -->
         <template v-else>
+          <!-- Schema-driven form view for structured (JSON/YAML) bodies -->
+          <RequestBodyStructured
+            v-if="bodyView === 'form' && isFormViewAvailable"
+            :bodySchema
+            :contentType="selectedContentType"
+            :environment
+            :parsedValue="parsedBody.value"
+            @update:value="
+              (value) =>
+                emits('update:value', {
+                  payload: value,
+                  contentType: selectedContentType,
+                })
+            " />
           <CodeInput
+            v-else
             class="border-t px-3"
             content=""
             :environment="environment"
