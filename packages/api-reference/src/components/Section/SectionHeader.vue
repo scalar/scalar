@@ -5,11 +5,13 @@ const { tight, removeMargin = false } = defineProps<{
 }>()
 </script>
 
+<!--
+  The reference is an embeddable widget, so the header collapses based on the
+  rendered width of the reference (the narrow: variant), not the viewport.
+  The section-header-wrapper class stays as a styling hook for
+  SectionContainerAccordion.
+-->
 <template>
-  <!-- The reference is an embeddable widget, so the header collapses based on
-       the rendered width of the reference (the narrow: variant), not the
-       viewport. The section-header-wrapper class stays as a styling hook for
-       SectionContainerAccordion. -->
   <div
     class="section-header-wrapper narrow:grid-cols-1 narrow:gap-0 grid grid-cols-2 gap-12">
     <div
