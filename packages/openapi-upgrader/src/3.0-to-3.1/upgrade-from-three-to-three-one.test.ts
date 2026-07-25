@@ -484,6 +484,35 @@ describe('upgradeFromThreeToThreeOne', () => {
         examples: ['John'],
       })
     })
+
+    it('does not convert a schema property named "example"', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              properties: {
+                documentation: { type: 'string', nullable: true },
+                example: { type: 'string', nullable: true },
+                platform: { type: 'string', nullable: true },
+              },
+            },
+          },
+        },
+      })
+
+      // The 'example' key is a property name, so it must stay a property, not become an examples array
+      expect(result.components?.schemas?.MySchema?.properties).toEqual({
+        documentation: { type: ['string', 'null'] },
+        example: { type: ['string', 'null'] },
+        platform: { type: ['string', 'null'] },
+      })
+    })
   })
 
   describe('describing File Upload Payloads', () => {

@@ -97,7 +97,11 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
     return false
   })
 
-  if (schema.example !== undefined && !isInsideExamplesMap) {
+  // A node whose own path ends in 'properties' is a map of named subschemas, so a
+  // key called 'example' is a property name and must not be treated as the schema keyword.
+  const isPropertiesMap = path?.[path.length - 1] === 'properties'
+
+  if (schema.example !== undefined && !isInsideExamplesMap && !isPropertiesMap) {
     if (isSchemaPath(path)) {
       schema.examples = [schema.example]
     } else {
