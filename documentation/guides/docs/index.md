@@ -1,8 +1,6 @@
 # Scalar Docs
 
-Documentation that stays in sync with your API and code. Pull content from GitHub, get previews on every pull request, deploy on merge, or publish from anywhere with the CLI.
-
-The site you are reading was built with Docs. Teams use it to combine product guides, API references, OpenAPI-powered search, and release-ready developer portals in one place.
+Product guides and API references in one developer portal. Write in Markdown or MDX, pull content from GitHub, preview every pull request, and deploy on merge or from anywhere with the CLI, so your docs stay in sync with your code. All of scalar.com is fully built with Scalar Docs.
 
 <div class="flex gap-2">
   <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get Started</a>
