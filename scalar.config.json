@@ -3396,41 +3396,6 @@
               }
             }
           },
-          "/compare/fern": {
-            "title": "Scalar vs Fern",
-            "description": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, language support, framework integrations, and pricing.",
-            "icon": "phosphor/regular/scales",
-            "filepath": "documentation/guides/compare/fern.md",
-            "type": "page",
-            "showInSidebar": false,
-            "head": {
-              "title": "Scalar vs Fern — API Docs & SDK Generator Comparison",
-              "links": [
-                {
-                  "rel": "canonical",
-                  "href": "https://scalar.com/compare/fern"
-                }
-              ],
-              "meta": [
-                {
-                  "name": "description",
-                  "content": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, language support, framework integrations, and pricing."
-                },
-                {
-                  "property": "og:title",
-                  "content": "Scalar vs Fern — API Docs & SDK Generator Comparison"
-                },
-                {
-                  "property": "og:description",
-                  "content": "An honest comparison of Scalar and Fern across documentation, SDK generation, open source licensing, and pricing."
-                },
-                {
-                  "name": "robots",
-                  "content": "index, follow"
-                }
-              ]
-            }
-          },
           "/brand": {
             "title": "Brand",
             "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
@@ -3475,6 +3440,83 @@
             "title": "Resources",
             "mode": "flat",
             "children": {
+              "compare": {
+                "type": "group",
+                "title": "Compare",
+                "icon": "phosphor/regular/scales",
+                "mode": "folder",
+                "page": {
+                  "type": "page",
+                  "title": "Compare",
+                  "filepath": "documentation/compare/index.md",
+                  "description": "Honest comparisons of Scalar against other API documentation and SDK generation platforms.",
+                  "layout": {
+                    "toc": false
+                  },
+                  "head": {
+                    "title": "Compare Scalar — API Docs & SDK Generator Comparisons",
+                    "links": [
+                      {
+                        "rel": "canonical",
+                        "href": "https://scalar.com/resources/compare"
+                      }
+                    ],
+                    "meta": [
+                      {
+                        "name": "description",
+                        "content": "Honest comparisons of Scalar against other API documentation and SDK generation platforms."
+                      },
+                      {
+                        "property": "og:title",
+                        "content": "Compare Scalar - API Docs & SDK Generators"
+                      },
+                      {
+                        "property": "og:description",
+                        "content": "Honest comparisons of Scalar against other API documentation and SDK generation platforms."
+                      },
+                      {
+                        "name": "robots",
+                        "content": "index, follow"
+                      }
+                    ]
+                  }
+                },
+                "children": {
+                  "fern": {
+                    "type": "page",
+                    "title": "Fern",
+                    "filepath": "documentation/compare/fern.md",
+                    "description": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing.",
+                    "head": {
+                      "title": "Scalar vs Fern — API Docs & SDK Generator Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/fern"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs Fern — API Docs & SDK Generator Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and Fern across documentation, SDK generation, open source licensing, and pricing."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
               "migration": {
                 "title": "Migration",
                 "icon": "phosphor/regular/arrows-split",
