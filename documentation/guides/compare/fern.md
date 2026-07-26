@@ -151,7 +151,7 @@ Fern's comparison content [describes Scalar](https://buildwithfern.com/post/inte
 
 ## Which should you choose?
 
-**Choose Fern if** your API depends on gRPC or OpenRPC, you need nine mature SDK languages today, or you want to read and run the SDK generator source yourself.
+**Choose Fern if** your API depends on gRPC or OpenRPC, or you want to read and run the SDK generator source yourself.
 
 **Choose Scalar if** you want a documentation layer you own outright under MIT, you want to self-host without an enterprise contract, you want docs mounted inside your existing application rather than on a separate hosted site, you want a real API client alongside your docs, or you want to know what an SDK costs before you talk to sales.
 
