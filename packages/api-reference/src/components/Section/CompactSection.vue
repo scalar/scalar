@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconCaretRight } from '@scalar/icons'
+import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 
@@ -15,6 +16,9 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
   (e: 'copyAnchorUrl'): void
 }>()
+
+/** The trigger owns `id` as its deep link target, so the region it controls needs one of its own */
+const contentId = computed<string>(() => `${id}-content`)
 </script>
 <template>
   <section
@@ -22,8 +26,9 @@ const emit = defineEmits<{
     class="collapsible-section">
     <button
       :id="id"
-      :aria-controls="id"
+      :aria-controls="modelValue ? contentId : undefined"
       :aria-expanded="modelValue"
+      :aria-label="label"
       class="collapsible-section-trigger"
       :class="{ 'collapsible-section-trigger-open': modelValue }"
       type="button"
@@ -40,6 +45,7 @@ const emit = defineEmits<{
     </button>
     <Section
       v-if="modelValue"
+      :id="contentId"
       class="collapsible-section-content"
       :label="label">
       <slot />
