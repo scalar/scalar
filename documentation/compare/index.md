@@ -10,4 +10,4 @@ Each guide is written by us, so read it with that in mind. We link every claim w
 <scalar-page-link filepath="documentation/compare/fern.md" title="Fern" description="A comparison of Scalar and Fern across documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing">
 </scalar-page-link>
 
-Looking to move an existing setup across rather than compare? See the [migration guides](/resources/migration/swagger-ui).
+Looking to move an existing setup across rather than compare? See the [migration guides](/resources/migration).

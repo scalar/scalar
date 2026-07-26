@@ -3561,10 +3561,52 @@
               "migration": {
                 "title": "Migration",
                 "icon": "phosphor/regular/arrows-split",
-                "description": "Step-by-step guides for migrating from Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo to Scalar.",
+                "description": "Step-by-step guides for migrating from Stainless, Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo to Scalar.",
                 "type": "group",
-                "mode": "nested",
+                "mode": "folder",
+                "page": {
+                  "type": "page",
+                  "title": "Migration",
+                  "filepath": "documentation/migration/index.md",
+                  "description": "Step-by-step guides for migrating your API documentation and SDKs to Scalar.",
+                  "layout": {
+                    "toc": false
+                  },
+                  "head": {
+                    "title": "Migrate to Scalar — API Docs & SDK Migration Guides",
+                    "links": [
+                      {
+                        "rel": "canonical",
+                        "href": "https://scalar.com/resources/migration"
+                      }
+                    ],
+                    "meta": [
+                      {
+                        "name": "description",
+                        "content": "Step-by-step guides for migrating your API documentation and SDKs to Scalar."
+                      },
+                      {
+                        "property": "og:title",
+                        "content": "Migrate to Scalar - API Docs & SDK Migration Guides"
+                      },
+                      {
+                        "property": "og:description",
+                        "content": "Move your API documentation and SDKs to Scalar from Stainless, Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo."
+                      },
+                      {
+                        "name": "robots",
+                        "content": "index, follow"
+                      }
+                    ]
+                  }
+                },
                 "children": {
+                  "stainless": {
+                    "title": "Stainless",
+                    "filepath": "documentation/migration/stainless.md",
+                    "description": "Migrate from Stainless to Scalar: import your existing stainless.yml so SDK namespaces, method names, and pagination carry over.",
+                    "type": "page"
+                  },
                   "swagger-ui": {
                     "title": "Swagger UI",
                     "filepath": "documentation/migration/swagger-ui.md",
@@ -3596,12 +3638,6 @@
                         }
                       ]
                     }
-                  },
-                  "stainless": {
-                    "title": "Stainless",
-                    "filepath": "documentation/migration/stainless.md",
-                    "description": "Migrate from Stainless to Scalar: import your existing stainless.yml so SDK namespaces, method names, and pagination carry over.",
-                    "type": "page"
                   },
                   "stoplight": {
                     "title": "Stoplight",
