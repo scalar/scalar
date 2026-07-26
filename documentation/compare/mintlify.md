@@ -28,12 +28,6 @@ We would rather you hear this from us than find out after switching.
 
 **Localization.** Thirty-plus locales with per-language navigation, banners, and footers, productized rather than bolted on. If you ship documentation in multiple languages, this is a real gap on our side.
 
-**Analytics depth.** A native dashboard plus a REST analytics API covering page views, search queries with click-through rates, assistant conversations, and per-page feedback, with sixteen third-party integrations and warehouse streaming on Enterprise. Docs-specific analytics as a first-class product surface is something few competitors match.
-
-**The agent surface is broad and shipped.** An AI writing agent that opens pull requests, scheduled and event-triggered automations, agent skills, `llms.txt` and `llms-full.txt`, and an MCP server on every tier including free. Whatever you make of the positioning, the surface area is large.
-
-**Brand and customer base.** Anthropic, Coinbase, AT&T, HubSpot, Amazon. No feature table neutralizes that, and we are not going to pretend otherwise.
-
 **Free-tier generosity in specific places.** Custom domain, API playground, Git sync, MCP server, and custom CSS and JS all at $0. They also give Pro free to non-commercial open source projects.
 
 ## Two corrections
@@ -94,13 +88,13 @@ Mintlify is not your only alternative, and the category has moved considerably i
 
 **Stainless** is winding down following the Anthropic acquisition. Their docs platform never left public beta. Existing customers keep the SDKs they generated; what stops is regeneration.
 
-**Mintlify versus Fern** is the comparison most buyers in this category actually run, so it is worth being straight about. Fern is cheaper at the entry tier and generates SDKs natively; Mintlify has unlimited seats where Fern caps at two and five, ships versioning and localization on lower tiers, and has the deeper analytics and agent tooling. Both are hosted-only in practice, neither offers framework middleware, and neither ships a standalone API client. Mintlify [publishes their own comparison](https://www.mintlify.com/library/mintlify-vs-fern-which-platform-should-you-choose-for-api-documentation); [so does Fern](https://buildwithfern.com/post/fern-vs-mintlify). Reading both is genuinely more useful than reading either.
+**Mintlify versus Fern** is the comparison most buyers in this category actually run, so it is worth being straight about. Fern is cheaper at the entry tier and generates SDKs natively; Mintlify has unlimited seats where Fern caps at two and five, and ships versioning and localization on lower tiers. Both are hosted-only in practice, neither offers framework middleware, and neither ships a standalone API client. Mintlify [publishes their own comparison](https://www.mintlify.com/library/mintlify-vs-fern-which-platform-should-you-choose-for-api-documentation); [so does Fern](https://buildwithfern.com/post/fern-vs-mintlify). Reading both is genuinely more useful than reading either.
 
 The pattern worth noticing: on the two things Scalar treats as core — an open documentation layer you can embed anywhere, and an API client your users keep — none of the three competes.
 
 ## Which should you choose?
 
-**Choose Mintlify if** your documentation is owned by a writing or marketing team rather than engineers, you need localization across many languages, you want unlimited editors on a flat price, docs-specific analytics matter to your team, or brand recognition carries weight in your organisation.
+**Choose Mintlify if** your documentation is owned by a writing or marketing team rather than engineers, you need localization across many languages, or you want unlimited editors on a flat price.
 
 **Choose Scalar if** you want a documentation layer you own outright under MIT, you want to self-host without an enterprise contract, you want docs mounted inside your existing application rather than on a separate hosted site, you want SDKs and docs generated from the same document by the same vendor, or you want a real API client alongside your docs.
 
