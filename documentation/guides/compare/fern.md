@@ -21,11 +21,9 @@ This page is written by Scalar, so read it with that in mind. Every claim we mak
 
 **Protocol breadth.** Fern accepts OpenAPI, AsyncAPI, OpenRPC, and gRPC/Protobuf as SDK inputs. If your API is not purely REST — particularly if you are shipping gRPC or JSON-RPC — Fern covers input formats that Scalar does not.
 
-**Nine generally available SDK languages**, with second-generation generator lines for TypeScript, Python, Go, Java, and Ruby. That is a lot of per-language investment.
-
 ## SDK output: the shape of the code
 
-The clearest way to compare two generators is to read what they emit. Both examples below come from real, public generated output — Fern's from their [petstore SDK](https://github.com/fern-api/petstore-typescript-sdk), Scalar's from the [Warp TypeScript SDK](https://github.com/TeamWarp/warp-sdk-typescript/tree/candidate).
+The clearest way to compare two generators is to read what they emit. Fern's output below is from their [petstore SDK](https://github.com/fern-api/petstore-typescript-sdk); Scalar's is from the [Warp TypeScript SDK](https://github.com/TeamWarp/warp-sdk-typescript/tree/candidate). Both are real, public generated code.
 
 **Instantiating a client**
 
@@ -52,19 +50,17 @@ const client = new WarpAPI({
 
 Two differences worth noting. Scalar names the client after your API and exports it as the default export, so the import reads like the product. And Scalar reads credentials from a conventional environment variable by default, so the happy path does not require passing a secret at all.
 
-**Calling an endpoint**
+**Method naming**
 
-```ts
-// Fern
-await client.pets.listPets();
-```
+For this one it is worth putting both generators on the same input. Below is what each produces from a Petstore document — the same operations, the same resource.
 
-```ts
-// Scalar
-const list = await client.customWorkerFields.list();
-```
+| `operationId` | Fern | Scalar |
+| --- | --- | --- |
+| `listPets` | `client.pets.listPets()` | `client.pet.list()` |
+| `getPet` / `getPetById` | `client.pets.getPet()` | `client.pet.retrieve()` |
+| `createPet` / `addPet` | `client.pets.createPet()` | `client.pet.create()` |
 
-Fern repeats the resource noun in the method name — `pets.listPets`, not `pets.list`. The same pattern runs through the rest of the client: `pets.createPet`, `pets.getPet`. Over a large API that redundancy compounds on every call site. Scalar generates `customWorkerFields.list`, so the resource appears once.
+Fern carries the operationId through nearly verbatim, so the resource noun appears twice on every call — `pets.listPets`, `pets.getPet`, `pets.createPet`. Scalar strips the redundant noun and normalises the verb, giving you `list`, `retrieve`, and `create` on every resource. Over a large API that consistency is the difference between guessing a method name and knowing it.
 
 **Handling errors**
 
