@@ -2341,6 +2341,12 @@
                     "filepath": "documentation/asyncapi.md",
                     "type": "page"
                   },
+                  "arazzo": {
+                    "title": "Arazzo",
+                    "description": "Work in progress: render Arazzo workflow documents with Scalar.",
+                    "filepath": "documentation/arazzo.md",
+                    "type": "page"
+                  },
                   "markdown": {
                     "title": "Markdown",
                     "description": "Use Markdown in your OpenAPI descriptions: supported syntax and rendering in Scalar API References.",
