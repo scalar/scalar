@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Scalar.Aws.Lambda playground - renders the Scalar API reference from an AWS Lambda function fronted by an
+  Amazon API Gateway HTTP API (payload format 2.0).
+
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 256
+
+Resources:
+  ScalarFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      # Executable assembly handler: Lambda runs the assembly's top-level statements directly.
+      Handler: Scalar.Aws.Lambda.Playground
+      Runtime: dotnet10
+      CodeUri: .
+      Architectures:
+        - x86_64
+      Events:
+        # The bare index route (no trailing catch-all match).
+        ScalarIndex:
+          Type: HttpApi
+          Properties:
+            Path: /scalar
+            Method: GET
+        # The greedy catch-all for the index (trailing slash), document names and static assets.
+        ScalarProxy:
+          Type: HttpApi
+          Properties:
+            Path: /scalar/{proxy+}
+            Method: ANY
+
+Outputs:
+  ScalarApiUrl:
+    Description: Base URL for the Scalar API reference
+    Value: !Sub 'https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/scalar/'

@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Scalar.Aws.Lambda/Scalar.Aws.Lambda.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Scalar.Aws.Lambda.Tests/Scalar.Aws.Lambda.Tests.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/playground/">
+    <Project Path="playground/Scalar.Aws.Lambda.Playground.csproj" Type="Classic C#" />
+  </Folder>
+</Solution>

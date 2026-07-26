@@ -1,4 +1,4 @@
-#if !SCALAR_ASPIRE && !SCALAR_AZURE_FUNCTIONS
+#if !SCALAR_ASPIRE && !SCALAR_SERVERLESS
 namespace Scalar.AspNetCore;
 
 /// <summary>

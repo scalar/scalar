@@ -1,4 +1,9 @@
+#if SCALAR_SERVERLESS
+#if SCALAR_AZURE_FUNCTIONS
 namespace Scalar.Azure.Functions;
+#else
+namespace Scalar.Aws.Lambda;
+#endif
 
 /// <summary>
 /// Describes the embedded static assets served alongside the Scalar API reference.
@@ -9,7 +14,11 @@ internal static class ScalarAssets
     internal const string StandaloneFile = "scalar.js";
 
     /// <summary>The integration helper script that bootstraps the reference.</summary>
+#if SCALAR_AZURE_FUNCTIONS
     internal const string HelperFile = "scalar.azure.functions.js";
+#else
+    internal const string HelperFile = "scalar.aws.lambda.js";
+#endif
 
     /// <summary>The favicon used by the reference.</summary>
     internal const string FaviconFile = "favicon.svg";
@@ -37,3 +46,4 @@ internal static class ScalarAssets
         }
     }
 }
+#endif

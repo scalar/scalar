@@ -26,6 +26,13 @@
   <Folder Name="/azure-functions/tests/">
     <Project Path="azure-functions/tests/Scalar.Azure.Functions.Tests/Scalar.Azure.Functions.Tests.csproj" Type="Classic C#" />
   </Folder>
+  <Folder Name="/aws-lambda/" />
+  <Folder Name="/aws-lambda/src/">
+    <Project Path="aws-lambda/src/Scalar.Aws.Lambda/Scalar.Aws.Lambda.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/aws-lambda/tests/">
+    <Project Path="aws-lambda/tests/Scalar.Aws.Lambda.Tests/Scalar.Aws.Lambda.Tests.csproj" Type="Classic C#" />
+  </Folder>
   <Folder Name="/shared/" />
   <Folder Name="/shared/src/">
     <Project Path="shared/src/Scalar.Shared/Scalar.Shared.csproj" Type="Classic C#" />
