@@ -15,8 +15,7 @@ This page is written by Scalar, so read it with that in mind. Every claim we mak
 | Docs + SDKs from one spec | Yes | Yes |
 | Standalone API client | Yes, open source | No |
 | Framework integrations | 35 | None (iframe embed only) |
-| Free SDK tier | One SDK target included | Capped at 50 endpoints |
-| SDK pricing | $100/month per additional target, published | "Per SDK, billed annually", contact sales |
+| SDK pricing | $100/month per target, published | "Per SDK, billed annually", contact sales |
 
 ## Where Fern is stronger
 
@@ -123,7 +122,7 @@ Fern is a hosted documentation platform. There is no middleware. The only embedd
 
 Both products describe docs and SDKs coming from one specification. In Scalar's generator this is not a framing — `docs` is a build target alongside the language targets. One generation run emits the SDKs, a static API reference, and `openapi.augmented.json`, which is the exact artifact the SDKs were generated from, plus a shared manifest used for coverage checks. Your reference and your client libraries cannot describe different APIs, because they are produced from the same compiled document in the same run.
 
-## What the free tier actually includes
+## What you get before you talk to sales
 
 Fern's free SDK tier caps at **50 endpoints**, and the following are all [Enterprise-only](https://buildwithfern.com/pricing):
 
@@ -131,7 +130,7 @@ Fern's free SDK tier caps at **50 endpoints**, and the following are all [Enterp
 
 Enterprise is priced "per SDK, billed annually" with no published rate, so most of what Fern markets as SDK capability sits behind a per-language annual contract you have to call about.
 
-Scalar includes one SDK target at no cost, with no endpoint cap, and publishes the price of additional targets: **$100/month each**. You can work out what it costs without talking to us.
+Scalar publishes its price: **$100/month per SDK target**. You can work out what it costs without talking to us.
 
 ## Webhooks
 
