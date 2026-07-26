@@ -114,6 +114,14 @@
           "to": "/products/api-client/download"
         },
         {
+          "from": "/products/sdk",
+          "to": "/products/sdk-generator"
+        },
+        {
+          "from": "/api-client",
+          "to": "/products/api-client"
+        },
+        {
           "from": "/scalar/scalar-docs/getting-started",
           "to": "/products/docs/getting-started"
         },
