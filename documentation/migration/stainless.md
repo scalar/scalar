@@ -1,6 +1,6 @@
 # How to migrate from Stainless to Scalar
 
-On 15 May 2026, Stainless [announced they are joining Anthropic](https://www.stainless.com/blog/stainless-is-joining-anthropic) and winding down their hosted products:
+In May 2026, Stainless [announced they are joining Anthropic](https://www.stainless.com/blog/stainless-is-joining-anthropic) and winding down their hosted products:
 
 > "As we focus on Claude Platform capabilities and connecting agents to APIs, we'll be winding down all hosted Stainless products, including our SDK generator. Starting today, new signups, projects, and SDKs will not be available."
 
@@ -122,4 +122,4 @@ We will do the migration with you, including the config import and the API surfa
 
 ---
 
-*This guide describes Stainless as documented on their own site as of July 2026. Stainless announced their wind-down on 15 May 2026 and their documentation may change or be withdrawn. If you find something here that is out of date, please [open an issue](https://github.com/scalar/scalar/issues).*
+*This guide describes Stainless as documented on their own site as of July 2026. Stainless announced their wind-down in May 2026 and their documentation may change or be withdrawn. If you find something here that is out of date, please [open an issue](https://github.com/scalar/scalar/issues).*
