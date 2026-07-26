@@ -38,7 +38,7 @@
       "meta": [
         {
           "name": "description",
-          "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
+          "content": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves."
         },
         {
           "property": "og:site_name",
@@ -913,7 +913,7 @@
             "filepath": "documentation/guides/introduction.md",
             "title": "Introduction",
             "icon": "phosphor/regular/house",
-            "description": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve.",
+            "description": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves.",
             "layout": {
               "toc": false,
               "pageTitle": false
@@ -950,7 +950,7 @@
                 },
                 {
                   "property": "og:description",
-                  "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
+                  "content": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves."
                 },
                 {
                   "name": "twitter:title",
@@ -958,7 +958,7 @@
                 },
                 {
                   "name": "twitter:description",
-                  "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
+                  "content": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves."
                 },
                 {
                   "name": "robots",
