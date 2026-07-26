@@ -5,6 +5,7 @@ export const GENERATED_TYPE_OUTPUT_PATHS = [
   'packages/types/src/gen/api-reference.d.ts',
   'packages/types/src/asyncapi/3.1/index.generated.ts',
   'packages/types/src/openapi/3.1/index.generated.ts',
+  'packages/types/src/arazzo/1.1/index.generated.ts',
 ] as const
 
 /** Repo-root-relative directory for extension types merged from `schemas/src/extensions/`. */
@@ -19,6 +20,7 @@ export const GENERATED_TYPE_EXTENSIONS_PATH = 'packages/types/src/extensions' as
 export const GENERATED_TYPE_STAGED_PATHS = [
   'packages/types/src/asyncapi/3.1/index.generated.ts',
   'packages/types/src/openapi/3.1/index.generated.ts',
+  'packages/types/src/arazzo/1.1/index.generated.ts',
   GENERATED_TYPE_EXTENSIONS_PATH,
 ] as const
 
