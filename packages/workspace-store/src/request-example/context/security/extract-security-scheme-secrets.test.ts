@@ -1779,4 +1779,54 @@ describe('extractSecuritySchemeSecrets', () => {
       })
     })
   })
+  describe('document level x-scalar-secret extensions', () => {
+    it('uses the apiKey secret token declared on the document', () => {
+      const authStore = createAuthStore()
+      const scheme = {
+        type: 'apiKey',
+        name: 'X-API-Key',
+        in: 'header',
+        'x-scalar-secret-token': 'document-token',
+      } as unknown as ConfigAuthScheme
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug) as ApiKeyObjectSecret
+
+      expect(result['x-scalar-secret-token']).toBe('document-token')
+    })
+
+    it('prioritizes the auth store token over the apiKey document token', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'apiKey',
+        'x-scalar-secret-token': 'store-token',
+      })
+      const scheme = {
+        type: 'apiKey',
+        name: 'X-API-Key',
+        in: 'header',
+        'x-scalar-secret-token': 'document-token',
+      } as unknown as ConfigAuthScheme
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug) as ApiKeyObjectSecret
+
+      expect(result['x-scalar-secret-token']).toBe('store-token')
+    })
+
+    it('uses the http secrets declared on the document', () => {
+      const authStore = createAuthStore()
+      const scheme = {
+        type: 'http',
+        scheme: 'basic',
+        'x-scalar-secret-token': 'document-token',
+        'x-scalar-secret-username': 'document-username',
+        'x-scalar-secret-password': 'document-password',
+      } as unknown as ConfigAuthScheme
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug) as HttpObjectSecret
+
+      expect(result['x-scalar-secret-token']).toBe('document-token')
+      expect(result['x-scalar-secret-username']).toBe('document-username')
+      expect(result['x-scalar-secret-password']).toBe('document-password')
+    })
+  })
 })
