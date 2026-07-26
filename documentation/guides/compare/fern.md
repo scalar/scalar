@@ -25,7 +25,7 @@ This page is written by Scalar, so read it with that in mind. Every claim we mak
 
 ## SDK output: the shape of the code
 
-The clearest way to compare two generators is to read what they emit. Both examples below are taken from real generated output — Fern's from their [public petstore SDK](https://github.com/fern-api/petstore-typescript-sdk), Scalar's from a generated client for the Lithic API.
+The clearest way to compare two generators is to read what they emit. Both examples below come from real, public generated output — Fern's from their [petstore SDK](https://github.com/fern-api/petstore-typescript-sdk), Scalar's from the [Warp TypeScript SDK](https://github.com/TeamWarp/warp-sdk-typescript/tree/candidate).
 
 **Instantiating a client**
 
@@ -43,11 +43,10 @@ const client = new FernApiClient({
 
 ```ts
 // Scalar
-import Lithic from "lithic";
+import WarpAPI from "warp-hr";
 
-const client = new Lithic({
-  apiKey: process.env["LITHIC_API_KEY"], // defaults to the LITHIC_API_KEY env var
-  environment: "production",
+const client = new WarpAPI({
+  apiKey: process.env["API_KEY"], // defaults to the API_KEY env var
 });
 ```
 
@@ -57,15 +56,15 @@ Two differences worth noting. Scalar names the client after your API and exports
 
 ```ts
 // Fern
-await client.pets.createPet({ name: "name" });
+await client.pets.listPets();
 ```
 
 ```ts
 // Scalar
-const account = await client.accounts.retrieve("accountToken");
+const list = await client.customWorkerFields.list();
 ```
 
-Fern repeats the resource noun in the method name — `pets.createPet`, not `pets.create`. Over a large API that redundancy compounds on every call site. Scalar generates `accounts.retrieve`, `accounts.list`, `accounts.create`, so the resource appears once.
+Fern repeats the resource noun in the method name — `pets.listPets`, not `pets.list`. The same pattern runs through the rest of the client: `pets.createPet`, `pets.getPet`. Over a large API that redundancy compounds on every call site. Scalar generates `customWorkerFields.list`, so the resource appears once.
 
 **Handling errors**
 
@@ -86,10 +85,10 @@ try {
 
 ```ts
 // Scalar
-import { APIError } from "lithic";
+import { APIError } from "warp-hr";
 
 try {
-  const account = await client.accounts.retrieve("accountToken");
+  const list = await client.customWorkerFields.list();
 } catch (err) {
   if (err instanceof APIError) {
     console.log(err.status, err.name, err.headers);
@@ -98,11 +97,11 @@ try {
 }
 ```
 
-Both expose status, body, and the raw response. Scalar additionally documents the exact set of error statuses the API can return, generated from the specification — for this client, `400`, `401`, `403`, `404`, `409`, `410`, `412`, `422`, `429`, and `500`.
+Both expose status, body, and the raw response. Scalar additionally documents the exact set of error statuses the API can return, generated from the specification — for this client, `400`, `401`, `403`, `404`, `409`, `422`, `429`, and `500`.
 
 **Dependencies**
 
-Both generators produce dependency-light TypeScript. Fern's petstore SDK ships `"dependencies": {}`. Scalar's output is empty too unless you enable a feature that requires a runtime library — the Lithic client above carries exactly one, `standardwebhooks`, because webhook verification is turned on.
+Both generators produce zero-dependency TypeScript. Fern's petstore SDK and the Warp SDK both ship `"dependencies": {}`. Scalar only adds a runtime library when you turn on a feature that needs one — enabling webhook verification, for example, pulls in `standardwebhooks`.
 
 ## Documentation
 
