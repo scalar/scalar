@@ -1,4 +1,5 @@
 import { DEFAULT_MODELS_SECTION_LABEL, type ModelsSectionLabel } from '@scalar/types/api-reference'
+import type { ArazzoDocument } from '@scalar/types/arazzo/1.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { FuseResult } from 'fuse.js'
@@ -11,10 +12,12 @@ import type { FuseData } from '../types'
 const MAX_SEARCH_RESULTS = 25
 
 /**
- * Creates the search index from an OpenAPI or AsyncAPI document.
+ * Creates the search index from an OpenAPI, AsyncAPI, or Arazzo document. Arazzo documents
+ * currently contribute no entries (no `x-scalar-navigation` yet), but are accepted so the
+ * active document can be passed through unconditionally from the caller.
  */
 export function useSearchIndex(
-  document: MaybeRefOrGetter<OpenApiDocument | AsyncApiDocument | undefined>,
+  document: MaybeRefOrGetter<OpenApiDocument | AsyncApiDocument | ArazzoDocument | undefined>,
   modelsSectionLabel: MaybeRefOrGetter<ModelsSectionLabel | undefined> = DEFAULT_MODELS_SECTION_LABEL,
   labels: MaybeRefOrGetter<{
     heading: string

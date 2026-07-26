@@ -7,7 +7,7 @@ import {
   xScalarEnvVarSchema,
   xScalarEnvironmentSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
-import { isAsyncApiDocument } from '@/schemas/type-guards'
+import { isArazzoDocument, isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
 type Event<T extends keyof EnvironmentEvents> = Omit<EnvironmentEvents[T], 'collectionType'>
@@ -28,7 +28,7 @@ export const upsertEnvironment = (
   { environmentName, payload, oldEnvironmentName }: Event<'environment:upsert:environment'>,
 ): XScalarEnvironment | undefined => {
   /** Discriminating between document and workspace */
-  if (!collection || !workspace || isAsyncApiDocument(collection)) {
+  if (!collection || !workspace || isAsyncApiDocument(collection) || isArazzoDocument(collection)) {
     return
   }
 
@@ -76,7 +76,7 @@ export const deleteEnvironment = (
   collection: WorkspaceDocument | Workspace | null,
   { environmentName }: Event<'environment:delete:environment'>,
 ) => {
-  if (!collection || !workspace || isAsyncApiDocument(collection)) {
+  if (!collection || !workspace || isAsyncApiDocument(collection) || isArazzoDocument(collection)) {
     return
   }
 
@@ -97,7 +97,7 @@ export const upsertEnvironmentVariable = (
   collection: WorkspaceDocument | Workspace | null,
   { environmentName, variable, index }: Event<'environment:upsert:environment-variable'>,
 ): XScalarEnvVar | undefined => {
-  if (!collection || isAsyncApiDocument(collection)) {
+  if (!collection || isAsyncApiDocument(collection) || isArazzoDocument(collection)) {
     return
   }
   // The environment should exist by now if we are upserting a variable
@@ -131,7 +131,7 @@ export const deleteEnvironmentVariable = (
   collection: WorkspaceDocument | Workspace | null,
   { environmentName, index }: Event<'environment:delete:environment-variable'>,
 ) => {
-  if (!collection || isAsyncApiDocument(collection)) {
+  if (!collection || isAsyncApiDocument(collection) || isArazzoDocument(collection)) {
     return
   }
   if (!collection['x-scalar-environments']?.[environmentName]) {

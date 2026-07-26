@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import type { ArazzoDocument } from '@scalar/types/arazzo/1.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 
@@ -24,7 +25,7 @@ export type WorkspaceDocumentMeta = Omit<
   'x-original-oas-version' | 'x-scalar-original-source-url' | 'x-scalar-original-document-hash'
 >
 
-export type WorkspaceDocument = OpenApiDocument | AsyncApiDocument
+export type WorkspaceDocument = OpenApiDocument | AsyncApiDocument | ArazzoDocument
 
 export const ColorModeSchema = Type.Union([Type.Literal('system'), Type.Literal('light'), Type.Literal('dark')])
 

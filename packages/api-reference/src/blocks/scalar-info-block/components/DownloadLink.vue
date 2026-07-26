@@ -22,7 +22,7 @@ const {
    */
   documentUrl?: string
   /** The kind of document being rendered. Drives the button label. */
-  documentType?: 'openapi' | 'asyncapi'
+  documentType?: 'openapi' | 'asyncapi' | 'arazzo'
 }>()
 const { translate } = useLocalization()
 

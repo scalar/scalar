@@ -1,4 +1,5 @@
 import { DEFAULT_MODELS_SECTION_LABEL, type ModelsSectionLabel } from '@scalar/types/api-reference'
+import type { ArazzoDocument } from '@scalar/types/arazzo/1.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -25,8 +26,12 @@ import {
   extractSchemaFieldNames,
 } from '@/helpers/openapi'
 
-/** Documents the search index can ingest. AsyncAPI is supported for headings, tags, and models; channels/operations/messages are not indexed yet. */
-type SearchableDocument = OpenApiDocument | AsyncApiDocument
+/**
+ * Documents the search index can ingest. AsyncAPI is supported for headings, tags, and models;
+ * channels/operations/messages are not indexed yet. Arazzo documents are accepted but currently
+ * contribute nothing (no `x-scalar-navigation` until traversal lands).
+ */
+type SearchableDocument = OpenApiDocument | AsyncApiDocument | ArazzoDocument
 
 /**
  * Resolves a schema from `components.schemas` for either document type.

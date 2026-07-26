@@ -9,9 +9,11 @@ import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
+import { arazzoObjectSchema } from '@scalar/schemas/arazzo/1.1'
 import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
+import type { ArazzoDocument } from '@scalar/types/arazzo/1.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { type Schema, coerce } from '@scalar/validation'
 import type { PartialDeep } from 'type-fest'
@@ -41,7 +43,7 @@ import {
 } from '@/plugins/bundler'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
-import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
+import { isArazzoDocument, isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { generateSchema } from '@/schemas/v3.1/openapi'
 import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
 import {
@@ -999,6 +1001,45 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       loaders.push(workspaceProps.fileLoader)
     }
 
+    // Arazzo ingestion: skip the OpenAPI-specific upgrade and validation pipeline (same reason as
+    // AsyncAPI below) and skip an upgrader entirely — Arazzo 1.1 is purely additive over 1.0.x, so
+    // a 1.0 document validates unchanged against the 1.1 schema and there is no
+    // `@scalar/arazzo-upgrader` package.
+    if (isArazzoDocument(clonedRawInputDocument)) {
+      const arazzoDocument = createMagicProxy({
+        ...clonedRawInputDocument,
+        ...meta,
+        'x-scalar-original-document-hash': input.documentHash,
+        'x-scalar-original-source-url': input.documentSource,
+      }) satisfies ArazzoDocument
+
+      await withMeasurementAsync(
+        'bundle',
+        async () =>
+          await bundle(getRaw(arazzoDocument), {
+            treeShake: false,
+            plugins: loaders,
+            urlMap: true,
+            origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
+          }),
+      )
+
+      // We coerce the values only when the document is not preprocessed by the server-side-store
+      const coerced = withMeasurementSync('coerceValue', () =>
+        coerce(arazzoObjectSchema as Schema, deepClone(getRaw(arazzoDocument))),
+      )
+      withMeasurementSync('mergeObjects', () => mergeObjects(arazzoDocument, coerced))
+
+      // Navigation traversal (`traverseArazzoDocument`) lands in a follow-up PR. Until then the
+      // document ingests and is addressable via `isArazzoDocument`, but contributes no sidebar
+      // entries — `x-scalar-navigation` is left unset.
+
+      workspace.documents[name] = createOverridesProxy(arazzoDocument, {
+        overrides: unpackProxyObject(overrides[name]),
+      })
+      return
+    }
+
     // AsyncAPI ingestion: skip the OpenAPI-specific upgrade and validation pipeline.
     // The OpenAPI `coerce` step would otherwise inject an empty `openapi: ''` field
     // and break the type discriminator. We still run the AsyncAPI-specific upgrader so
@@ -1670,7 +1711,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               'x-scalar-registry-meta': activeDocumentRaw['x-scalar-registry-meta'],
               // Preserve document-level UI settings (see note above).
               'x-scalar-watch-mode': activeDocumentRaw['x-scalar-watch-mode'],
-              'x-scalar-selected-server': activeDocumentRaw['x-scalar-selected-server'],
+              'x-scalar-selected-server': (activeDocumentRaw as Record<string, unknown>)['x-scalar-selected-server'] as
+                | string
+                | undefined,
               ...(environments !== undefined ? { 'x-scalar-environments': environments } : {}),
               ...(order !== undefined ? { 'x-scalar-order': order } : {}),
               ...(preservedServers !== undefined ? { servers: preservedServers } : {}),

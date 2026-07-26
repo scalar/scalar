@@ -27,7 +27,7 @@ import SpecificationVersion from './SpecificationVersion.vue'
 
 defineProps<{
   id: string | undefined
-  documentType?: 'openapi' | 'asyncapi'
+  documentType?: 'openapi' | 'asyncapi' | 'arazzo'
   specificationVersion: string | undefined
   info: InfoObject | AsyncApiInfoObject | undefined
   externalDocs?: ExternalDocumentationObject

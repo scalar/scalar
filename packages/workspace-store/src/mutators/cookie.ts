@@ -1,7 +1,7 @@
 import type { CookieEvents } from '@/events/definitions/cookie'
 import type { Workspace, WorkspaceDocument } from '@/schemas'
 import { type XScalarCookie, xScalarCookieSchema } from '@/schemas/extensions/general/x-scalar-cookies'
-import { isAsyncApiDocument } from '@/schemas/type-guards'
+import { isArazzoDocument, isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
 type Event<T extends keyof CookieEvents> = Omit<CookieEvents[T], 'collectionType'>
@@ -20,7 +20,7 @@ export const upsertCookie = (
   collection: WorkspaceDocument | Workspace | null,
   { payload, index }: Event<'cookie:upsert:cookie'>,
 ): XScalarCookie | undefined => {
-  if (!collection || isAsyncApiDocument(collection)) {
+  if (!collection || isAsyncApiDocument(collection) || isArazzoDocument(collection)) {
     return
   }
 
@@ -64,7 +64,12 @@ export const deleteCookie = (
   collection: WorkspaceDocument | Workspace | null,
   { index }: Event<'cookie:delete:cookie'>,
 ): boolean => {
-  if (!collection || isAsyncApiDocument(collection) || !collection['x-scalar-cookies']) {
+  if (
+    !collection ||
+    isAsyncApiDocument(collection) ||
+    isArazzoDocument(collection) ||
+    !collection['x-scalar-cookies']
+  ) {
     return false
   }
 

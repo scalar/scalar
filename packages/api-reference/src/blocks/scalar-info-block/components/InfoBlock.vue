@@ -45,7 +45,7 @@ const {
   /** URL of the OpenAPI document. Used when documentDownloadType is 'direct'. */
   documentUrl?: string
   /** The kind of document being rendered. Drives download button labels. */
-  documentType?: 'openapi' | 'asyncapi'
+  documentType?: 'openapi' | 'asyncapi' | 'arazzo'
 }>()
 
 /**

@@ -3,6 +3,7 @@ import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import { ScalarSearchInput } from '@scalar/components/search-input'
 import { ScalarSearchResultList } from '@scalar/components/search-results'
 import type { ModelsSectionLabel } from '@scalar/types/api-reference'
+import type { ArazzoDocument } from '@scalar/types/arazzo/1.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -15,7 +16,7 @@ import SearchResult from './SearchResult.vue'
 
 const props = defineProps<{
   modalState: ModalState
-  document: OpenApiDocument | AsyncApiDocument | undefined
+  document: OpenApiDocument | AsyncApiDocument | ArazzoDocument | undefined
   eventBus: WorkspaceEventBus
   modelsSectionLabel?: ModelsSectionLabel
 }>()

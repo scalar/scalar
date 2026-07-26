@@ -10,7 +10,8 @@ import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { isAsyncApiDocument } from '@/schemas'
+import { isArazzoDocument, isAsyncApiDocument, isOpenApiDocument } from '@/schemas'
+import { getDocumentType } from '@/schemas/type-guards'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -4382,6 +4383,80 @@ describe('create-workspace-store', () => {
         'title': 'Simple Chat WebSocket API',
         'type': 'document',
       })
+    })
+  })
+
+  describe('arazzo documents', () => {
+    it('preserves the arazzo discriminator and sets workspace metadata on ingestion', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        document: {
+          arazzo: '1.1.0',
+          info: { title: 'A pet purchasing workflow', version: '1.0.1' },
+          sourceDescriptions: [
+            { name: 'petstoreDescription', url: 'https://petstore.example.com/openapi.yaml', type: 'openapi' },
+          ],
+          workflows: [
+            { workflowId: 'loginUserAndRetrievePet', steps: [{ stepId: 'loginStep', operationId: 'loginUser' }] },
+          ],
+        },
+        name: 'pet-purchase',
+      })
+
+      const document = store.workspace.documents['pet-purchase']
+
+      // The OpenAPI coerce step would otherwise inject `openapi: ''`, breaking
+      // the type discriminator. Asserting both presence and absence guards
+      // against that regression.
+      expect(document).toMatchObject({
+        arazzo: '1.1.0',
+        info: { title: 'A pet purchasing workflow', version: '1.0.1' },
+        'x-scalar-original-document-hash': expect.any(String),
+      })
+      expect(document?.['x-scalar-original-document-hash']).not.toBe('')
+      expect(document).not.toHaveProperty('openapi')
+      expect(document).not.toHaveProperty('asyncapi')
+      // Navigation traversal (`traverseArazzoDocument`) lands in a follow-up PR — until then
+      // ingestion leaves `x-scalar-navigation` unset rather than fabricating an empty tree.
+      expect(document?.['x-scalar-navigation']).toBeUndefined()
+    })
+
+    it('is addressable via isArazzoDocument and getDocumentType', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        document: {
+          arazzo: '1.1.0',
+          info: { title: 'Minimal workflow doc', version: '1.0.0' },
+          sourceDescriptions: [],
+          workflows: [],
+        },
+        name: 'minimal',
+      })
+
+      const document = store.workspace.documents['minimal']
+      assert(isArazzoDocument(document))
+      expect(isOpenApiDocument(document)).toBe(false)
+      expect(isAsyncApiDocument(document)).toBe(false)
+      expect(getDocumentType(document)).toBe('arazzo')
+    })
+
+    it('accepts a 1.0.x document unchanged (1.1 is additive, no upgrader)', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        document: {
+          arazzo: '1.0.1',
+          info: { title: 'Legacy workflow doc', version: '1.0.0' },
+          sourceDescriptions: [],
+          workflows: [],
+        },
+        name: 'legacy',
+      })
+
+      const document = store.workspace.documents['legacy']
+      expect(document).toMatchObject({ arazzo: '1.0.1' })
     })
   })
 })

@@ -15,6 +15,7 @@ import {
   upsertScope,
 } from '@/mutators/auth'
 import type { WorkspaceDocument } from '@/schemas'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
@@ -1792,8 +1793,10 @@ describe('AsyncAPI document auth', () => {
     }) as unknown as OpenApiDocument
 
   // Resolve a scheme (and any ref wrapper on `components`) from the active AsyncAPI document.
-  const getScheme = (document: WorkspaceDocument, name: string) =>
-    getResolvedRef(getResolvedRef(document.components)?.securitySchemes?.[name]) as Record<string, unknown> | undefined
+  const getScheme = (document: WorkspaceDocument, name: string) => {
+    const components = isOpenApiDocument(document) || isAsyncApiDocument(document) ? document.components : undefined
+    return getResolvedRef(getResolvedRef(components)?.securitySchemes?.[name]) as Record<string, unknown> | undefined
+  }
 
   it('persists the selected security scheme for an AsyncAPI document', async () => {
     const documentName = 'async'
