@@ -3564,6 +3564,12 @@
                       ]
                     }
                   },
+                  "stainless": {
+                    "title": "Stainless",
+                    "filepath": "documentation/migration/stainless.md",
+                    "description": "Migrate from Stainless to Scalar: import your existing stainless.yml so SDK namespaces, method names, and pagination carry over.",
+                    "type": "page"
+                  },
                   "stoplight": {
                     "title": "Stoplight",
                     "filepath": "documentation/migration/stoplight.md",
