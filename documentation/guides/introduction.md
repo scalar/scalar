@@ -2,8 +2,8 @@
   <a
     class="absolute z-10 inline-flex max-w-full items-center gap-2 rounded-full bg-b-2 hover:bg-b-3 px-3 py-2 text-xs leading-none text-c-1 no-underline"
     style="top: -36px; left: 0"
-    href="/company">
-    <span class="font-medium">Scalar is hiring engineers</span>
+    href="/resources/migration/stainless">
+    <span class="font-medium">Migrate off Stainless</span>
     <span class="text-c-3" aria-hidden="true">•</span>
     <span class="inline-flex items-center gap-2 text-c-2">
       Read more
