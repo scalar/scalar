@@ -3490,6 +3490,39 @@
                   }
                 },
                 "children": {
+                  "mintlify": {
+                    "type": "page",
+                    "title": "Mintlify",
+                    "filepath": "documentation/compare/mintlify.md",
+                    "description": "Compare Scalar and Mintlify for API documentation: licensing, self-hosting, customization, framework integrations, and pricing.",
+                    "head": {
+                      "title": "Scalar vs Mintlify — API Documentation Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/mintlify"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and Mintlify for API documentation: licensing, self-hosting, customization, framework integrations, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs Mintlify — API Documentation Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and Mintlify for API documentation, and how both compare to Fern and Stainless."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "fern": {
                     "type": "page",
                     "title": "Fern",
