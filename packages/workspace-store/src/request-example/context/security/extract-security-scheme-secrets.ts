@@ -74,6 +74,13 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
     }),
   ) as Record<T[number], string>
 
+/** Secret extensions are not part of the strict scheme types, so they are read the same way the OAuth flows read theirs */
+const documentSecret = (scheme: SecuritySchemeObject, property: keyof typeof SECRET_TO_INPUT_FIELD_MAP): string => {
+  const value = (scheme as Record<string, unknown>)[property]
+
+  return typeof value === 'string' ? value : ''
+}
+
 const extractRefreshTokenSecret = (
   authStoreSecrets: { 'x-scalar-secret-refresh-token'?: string } = {},
 ): { 'x-scalar-secret-refresh-token'?: string } => {
@@ -227,7 +234,11 @@ export const extractSecuritySchemeSecrets = (
     const storeSecrets = secrets?.type === 'apiKey' ? secrets : undefined
     return {
       ...scheme,
-      'x-scalar-secret-token': storeSecrets?.['x-scalar-secret-token'] || scheme.value || '',
+      'x-scalar-secret-token':
+        storeSecrets?.['x-scalar-secret-token'] ||
+        documentSecret(scheme, 'x-scalar-secret-token') ||
+        scheme.value ||
+        '',
     } satisfies ApiKeyObjectSecret
   }
 
@@ -236,9 +247,21 @@ export const extractSecuritySchemeSecrets = (
     const storeSecrets = secrets?.type === 'http' ? secrets : undefined
     return {
       ...scheme,
-      'x-scalar-secret-token': storeSecrets?.['x-scalar-secret-token'] || scheme.token || '',
-      'x-scalar-secret-username': storeSecrets?.['x-scalar-secret-username'] || scheme.username || '',
-      'x-scalar-secret-password': storeSecrets?.['x-scalar-secret-password'] || scheme.password || '',
+      'x-scalar-secret-token':
+        storeSecrets?.['x-scalar-secret-token'] ||
+        documentSecret(scheme, 'x-scalar-secret-token') ||
+        scheme.token ||
+        '',
+      'x-scalar-secret-username':
+        storeSecrets?.['x-scalar-secret-username'] ||
+        documentSecret(scheme, 'x-scalar-secret-username') ||
+        scheme.username ||
+        '',
+      'x-scalar-secret-password':
+        storeSecrets?.['x-scalar-secret-password'] ||
+        documentSecret(scheme, 'x-scalar-secret-password') ||
+        scheme.password ||
+        '',
     } satisfies HttpObjectSecret
   }
 
