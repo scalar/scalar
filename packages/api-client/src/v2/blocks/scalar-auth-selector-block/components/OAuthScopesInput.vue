@@ -309,8 +309,14 @@ const handleDeleteScope = (scopeKey: string) => {
                       @click.stop="handleDeleteScope(id)" />
                   </div>
                 </DataTableCell>
+                <!--
+                  Stop the click here so it does not also bubble to the row's `@click`
+                  toggle. The checkbox already drives the change via `@update:modelValue`;
+                  letting the row fire too would toggle the scope a second time.
+                -->
                 <DataTableCheckbox
                   :modelValue="selectedScopes.includes(id)"
+                  @click.stop
                   @update:modelValue="setScope(id, $event)" />
               </DataTableRow>
             </table>
