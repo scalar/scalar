@@ -1,5 +1,5 @@
-import type { ExternalDocsObject } from './external-docs'
-import type { XmlObject } from './xml'
+import type { ExternalDocsObject } from './external-docs.js'
+import type { XmlObject } from './xml.js'
 export type Extensions = Record<`x-${string}`, unknown>
 /**
  * Schema object

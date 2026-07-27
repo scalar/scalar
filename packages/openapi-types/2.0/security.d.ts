@@ -1,2 +1,2 @@
-import type { SecurityRequirementObject } from './security-requirement'
+import type { SecurityRequirementObject } from './security-requirement.js'
 export type SecurityObject = SecurityRequirementObject[]

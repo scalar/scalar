@@ -1,4 +1,4 @@
-import type { ResponseValueObject } from './response-value'
+import type { ResponseValueObject } from './response-value.js'
 /**
  * Responses object
  *

@@ -1,4 +1,4 @@
-import type { ServerVariableObject } from './server-variable'
+import type { ServerVariableObject } from './server-variable.js'
 /**
  * Server object
  *

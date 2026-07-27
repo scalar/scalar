@@ -1,4 +1,4 @@
-import type { SchemaObject } from './schema'
+import type { SchemaObject } from './schema.js'
 /**
  * Definitions object
  *

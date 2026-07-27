@@ -1,1 +1,1 @@
-export type { JsonReferenceObject as ReferenceObject } from './json-reference'
+export type { JsonReferenceObject as ReferenceObject } from './json-reference.js'

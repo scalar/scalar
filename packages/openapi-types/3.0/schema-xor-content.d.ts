@@ -1,6 +1,6 @@
-import type { MediaTypeObject } from './media-type'
-import type { ReferenceObject } from './reference'
-import type { SchemaObject } from './schema'
+import type { MediaTypeObject } from './media-type.js'
+import type { ReferenceObject } from './reference.js'
+import type { SchemaObject } from './schema.js'
 
 /**
  * Constrains `schema` and `content` to be mutually exclusive.

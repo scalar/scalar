@@ -1,5 +1,5 @@
-import type { MapOfStringsObject } from './map-of-strings'
-import type { ServerObject } from './server'
+import type { MapOfStringsObject } from './map-of-strings.js'
+import type { ServerObject } from './server.js'
 /**
  * Link object
  *

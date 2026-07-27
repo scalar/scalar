@@ -1,4 +1,4 @@
-import type { ExternalDocsObject } from './external-docs'
+import type { ExternalDocsObject } from './external-docs.js'
 export type FileSchemaObject = {
   format?: string
   title?: string

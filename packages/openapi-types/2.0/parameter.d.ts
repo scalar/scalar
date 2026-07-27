@@ -1,5 +1,5 @@
-import type { BodyParameterObject } from './body-parameter'
-import type { NonBodyParameterObject } from './non-body-parameter'
+import type { BodyParameterObject } from './body-parameter.js'
+import type { NonBodyParameterObject } from './non-body-parameter.js'
 /**
  * Parameter object
  *

@@ -1,10 +1,10 @@
-import type { ComponentsObject } from './components'
-import type { ExternalDocumentationObject } from './external-documentation'
-import type { InfoObject } from './info'
-import type { PathsObject } from './paths'
-import type { SecurityRequirementObject } from './security-requirement'
-import type { ServerObject } from './server'
-import type { TagObject } from './tag'
+import type { ComponentsObject } from './components.js'
+import type { ExternalDocumentationObject } from './external-documentation.js'
+import type { InfoObject } from './info.js'
+import type { PathsObject } from './paths.js'
+import type { SecurityRequirementObject } from './security-requirement.js'
+import type { ServerObject } from './server.js'
+import type { TagObject } from './tag.js'
 /**
  * Openapi object
  *

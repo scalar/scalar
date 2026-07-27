@@ -1,7 +1,7 @@
-import type { AuthorizationCodeOauthFlowObject } from './authorization-code-oauth-flow'
-import type { ClientCredentialsFlowObject } from './client-credentials-flow'
-import type { ImplicitOauthFlowObject } from './implicit-oauth-flow'
-import type { PasswordOauthFlowObject } from './password-oauth-flow'
+import type { AuthorizationCodeOauthFlowObject } from './authorization-code-oauth-flow.js'
+import type { ClientCredentialsFlowObject } from './client-credentials-flow.js'
+import type { ImplicitOauthFlowObject } from './implicit-oauth-flow.js'
+import type { PasswordOauthFlowObject } from './password-oauth-flow.js'
 /**
  * Oauth Flows object
  *

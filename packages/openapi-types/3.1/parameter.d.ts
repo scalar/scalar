@@ -1,7 +1,7 @@
-import type { ExampleObject } from './example'
-import type { MediaTypeObject } from './media-type'
-import type { ReferenceObject } from './reference'
-import type { SchemaObject } from './schema'
+import type { ExampleObject } from './example.js'
+import type { MediaTypeObject } from './media-type.js'
+import type { ReferenceObject } from './reference.js'
+import type { SchemaObject } from './schema.js'
 
 type ParameterObjectBase = {
   /** **REQUIRED**. The name of the parameter. Parameter names are case-sensitive. */

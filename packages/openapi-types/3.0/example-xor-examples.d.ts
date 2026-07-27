@@ -1,5 +1,5 @@
-import type { ExampleObject } from './example'
-import type { ReferenceObject } from './reference'
+import type { ExampleObject } from './example.js'
+import type { ReferenceObject } from './reference.js'
 
 /**
  * Constrains `example` and `examples` to be mutually exclusive.

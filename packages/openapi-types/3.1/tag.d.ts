@@ -1,4 +1,4 @@
-import type { ExternalDocumentationObject } from './external-documentation'
+import type { ExternalDocumentationObject } from './external-documentation.js'
 /**
  * Tag object
  *

@@ -1,4 +1,4 @@
-import type { Extensions, SchemaObject } from './schema'
+import type { Extensions, SchemaObject } from './schema.js'
 /**
  * Parameter object
  *

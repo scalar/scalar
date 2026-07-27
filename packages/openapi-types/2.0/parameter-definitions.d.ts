@@ -1,4 +1,4 @@
-import type { ParameterObject } from './parameter'
+import type { ParameterObject } from './parameter.js'
 /**
  * Parameters Definitions object
  *

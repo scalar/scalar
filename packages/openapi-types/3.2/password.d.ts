@@ -1,4 +1,4 @@
-import type { MapOfStringsObject } from './map-of-strings'
+import type { MapOfStringsObject } from './map-of-strings.js'
 /**
  * Oauth Flow object
  *

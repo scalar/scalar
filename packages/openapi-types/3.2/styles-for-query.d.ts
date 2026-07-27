@@ -1,4 +1,4 @@
-import type { ExplodeForFormObject } from './explode-for-form'
+import type { ExplodeForFormObject } from './explode-for-form.js'
 /**
  * Style Values
  *

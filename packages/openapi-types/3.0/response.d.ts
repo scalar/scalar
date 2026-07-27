@@ -1,7 +1,7 @@
-import type { HeaderObject } from './header'
-import type { LinkObject } from './link'
-import type { MediaTypeObject } from './media-type'
-import type { ReferenceObject } from './reference'
+import type { HeaderObject } from './header.js'
+import type { LinkObject } from './link.js'
+import type { MediaTypeObject } from './media-type.js'
+import type { ReferenceObject } from './reference.js'
 /**
  * Response object
  *

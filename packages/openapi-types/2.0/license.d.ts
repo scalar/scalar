@@ -1,4 +1,4 @@
-import type { Extensions } from './schema'
+import type { Extensions } from './schema.js'
 /**
  * License object
  *

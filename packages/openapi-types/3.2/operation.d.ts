@@ -1,11 +1,11 @@
-import type { CallbacksObject } from './callbacks'
-import type { ExternalDocumentationObject } from './external-documentation'
-import type { ParametersObject } from './parameters'
-import type { ReferenceObject } from './reference'
-import type { RequestBodyObject } from './request-body'
-import type { ResponsesObject } from './responses'
-import type { SecurityRequirementObject } from './security-requirement'
-import type { ServerObject } from './server'
+import type { CallbacksObject } from './callbacks.js'
+import type { ExternalDocumentationObject } from './external-documentation.js'
+import type { ParametersObject } from './parameters.js'
+import type { ReferenceObject } from './reference.js'
+import type { RequestBodyObject } from './request-body.js'
+import type { ResponsesObject } from './responses.js'
+import type { SecurityRequirementObject } from './security-requirement.js'
+import type { ServerObject } from './server.js'
 /**
  * Operation object
  *
