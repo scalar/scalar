@@ -205,4 +205,68 @@ describe('SecurityRequirementBadge', () => {
 
     wrapper.unmount()
   })
+
+  it('keeps a click-pinned popover open when the pointer leaves', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    const badge = wrapper.find('.security-requirement-badge')
+    await badge.trigger('click')
+    await nextTick()
+    expect(document.body.textContent).toContain('Requires')
+
+    // A pinned popover ignores the pointer leaving, unlike a hover-opened one.
+    await badge.trigger('mouseleave')
+    await sleep(150)
+    await nextTick()
+
+    expect(document.body.textContent).toContain('Requires')
+
+    wrapper.unmount()
+  })
+
+  it('toggles closed on a second click', async () => {
+    const wrapper = await mountAndOpen(requiredAndGroup)
+    expect(document.body.textContent).toContain('Requires')
+
+    await wrapper.find('.security-requirement-badge').trigger('click')
+    await nextTick()
+
+    expect(document.body.textContent).not.toContain('Requires')
+
+    wrapper.unmount()
+  })
+
+  it('reopens on click after being dismissed with Escape', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    const badge = wrapper.find('.security-requirement-badge')
+
+    // Open on hover, then dismiss with Escape.
+    await badge.trigger('mouseenter')
+    await nextTick()
+    expect(document.body.textContent).toContain('Requires')
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await nextTick()
+    expect(document.body.textContent).not.toContain('Requires')
+
+    // The very next click must open it again — no stale guard swallowing it.
+    await badge.trigger('click')
+    await nextTick()
+    expect(document.body.textContent).toContain('Requires')
+
+    wrapper.unmount()
+  })
 })
