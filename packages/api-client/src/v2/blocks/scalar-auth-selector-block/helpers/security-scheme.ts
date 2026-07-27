@@ -1,5 +1,6 @@
 import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   ComponentsObject,
   OpenApiDocument,
@@ -53,7 +54,7 @@ export const formatComplexScheme = (scheme: NonNullable<OpenApiDocument['securit
  */
 const formatSecurityRequirement = (
   requirement: SecurityRequirementObject,
-  securitySchemes: NonNullable<ComponentsObject['securitySchemes']>,
+  securitySchemes: NonNullable<ComponentsObject['securitySchemes']> | MergedSecuritySchemes,
 ): SecuritySchemeOption | undefined => {
   const keys = Object.keys(requirement)
 
@@ -81,7 +82,7 @@ const formatSecurityRequirement = (
  */
 export const getSecuritySchemeOptions = (
   security: NonNullable<OpenApiDocument['security']>,
-  securitySchemes: NonNullable<ComponentsObject['securitySchemes']>,
+  securitySchemes: NonNullable<ComponentsObject['securitySchemes']> | MergedSecuritySchemes,
   /** We need to add the selected schemes if they do not already exist in the calculated options */
   selectedSchemes: SecurityRequirementObject[],
   /** Allows adding authentication which is not in the document */

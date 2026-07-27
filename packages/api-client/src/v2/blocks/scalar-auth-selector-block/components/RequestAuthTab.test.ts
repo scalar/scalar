@@ -301,12 +301,12 @@ describe('RequestAuthTab', () => {
       expect(wrapper.text()).not.toContain('Name')
     })
 
-    it('shows a "not supported yet" message naming the type for an unsupported broker scheme', () => {
+    it('shows a "not supported yet" message naming the type for an unknown scheme type', () => {
       const wrapper = mountWithProps({
         securitySchemes: {
           'BrokerAuth': {
-            type: 'scramSha256',
-            description: 'SCRAM SHA-256 broker auth',
+            type: 'mutualTLS',
+            description: 'A scheme type without a dedicated input UI',
           },
         },
         selectedSecuritySchemas: {
@@ -315,7 +315,7 @@ describe('RequestAuthTab', () => {
       })
 
       // A valid-but-unsupported type names itself and is not called "missing".
-      expect(wrapper.text()).toContain('scramSha256')
+      expect(wrapper.text()).toContain('mutualTLS')
       expect(wrapper.text()).toContain('not supported yet')
       expect(wrapper.text()).not.toContain('missing a type')
     })
@@ -348,6 +348,274 @@ describe('RequestAuthTab', () => {
           'x-scalar-secret-token': 'secret-key-value',
         },
         name: 'ApiKeyAuth',
+      })
+    })
+  })
+
+  describe('SASL Broker Authentication', () => {
+    it.each(['userPassword', 'plain', 'scramSha256', 'scramSha512'] as const)(
+      'renders username and password inputs for the %s scheme',
+      (type) => {
+        const wrapper = mountWithProps({
+          securitySchemes: {
+            'BrokerAuth': {
+              type,
+              'x-scalar-secret-username': '',
+              'x-scalar-secret-password': '',
+            },
+          },
+          selectedSecuritySchemas: {
+            'BrokerAuth': [],
+          },
+        })
+
+        const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
+        expect(inputs).toHaveLength(2)
+
+        assert(inputs[0])
+        expect(inputs[0].props('required')).toBe(true)
+        expect(inputs[0].text()).toContain('Username')
+
+        assert(inputs[1])
+        expect(inputs[1].props('type')).toBe('password')
+        expect(inputs[1].text()).toContain('Password')
+
+        expect(wrapper.text()).not.toContain('not supported yet')
+      },
+    )
+
+    it.each(['userPassword', 'plain', 'scramSha256', 'scramSha512'] as const)(
+      'emits auth:update:security-scheme-secrets with type %s when credentials are updated',
+      (type) => {
+        const wrapper = mountWithProps({
+          securitySchemes: {
+            'BrokerAuth': {
+              type,
+              'x-scalar-secret-username': '',
+              'x-scalar-secret-password': '',
+            },
+          },
+          selectedSecuritySchemas: {
+            'BrokerAuth': [],
+          },
+        })
+
+        const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
+        assert(inputs[0])
+        assert(inputs[1])
+        const emitted = vi.fn()
+        eventBus.on('auth:update:security-scheme-secrets', emitted)
+
+        inputs[0].vm.$emit('update:modelValue', 'brokeruser')
+        expect(emitted).toHaveBeenCalledWith({
+          payload: {
+            type,
+            'x-scalar-secret-username': 'brokeruser',
+          },
+          name: 'BrokerAuth',
+        })
+
+        inputs[1].vm.$emit('update:modelValue', 'brokerpass')
+        expect(emitted).toHaveBeenCalledWith({
+          payload: {
+            type,
+            'x-scalar-secret-password': 'brokerpass',
+          },
+          name: 'BrokerAuth',
+        })
+      },
+    )
+
+    it('displays existing SASL credentials', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'BrokerAuth': {
+            type: 'scramSha256',
+            'x-scalar-secret-username': 'stored-user',
+            'x-scalar-secret-password': 'stored-pass',
+          },
+        },
+        selectedSecuritySchemas: {
+          'BrokerAuth': [],
+        },
+      })
+
+      const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
+      assert(inputs[0])
+      assert(inputs[1])
+      expect(inputs[0].props('modelValue')).toBe('stored-user')
+      expect(inputs[1].props('modelValue')).toBe('stored-pass')
+    })
+  })
+
+  describe('X509 Authentication', () => {
+    it('renders client certificate and private key inputs', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'CertAuth': {
+            type: 'X509',
+            'x-scalar-secret-client-certificate': '',
+            'x-scalar-secret-private-key': '',
+          },
+        },
+        selectedSecuritySchemas: {
+          'CertAuth': [],
+        },
+      })
+
+      const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
+      expect(inputs).toHaveLength(2)
+
+      assert(inputs[0])
+      expect(inputs[0].props('type')).toBe('password')
+      expect(inputs[0].text()).toContain('Client Certificate')
+
+      assert(inputs[1])
+      expect(inputs[1].props('type')).toBe('password')
+      expect(inputs[1].text()).toContain('Private Key')
+    })
+
+    it('emits auth:update:security-scheme-secrets when certificate material is updated', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'CertAuth': {
+            type: 'X509',
+            'x-scalar-secret-client-certificate': '',
+            'x-scalar-secret-private-key': '',
+          },
+        },
+        selectedSecuritySchemas: {
+          'CertAuth': [],
+        },
+      })
+
+      const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
+      assert(inputs[0])
+      assert(inputs[1])
+      const emitted = vi.fn()
+      eventBus.on('auth:update:security-scheme-secrets', emitted)
+
+      inputs[0].vm.$emit('update:modelValue', '-----BEGIN CERTIFICATE-----')
+      expect(emitted).toHaveBeenCalledWith({
+        payload: {
+          type: 'X509',
+          'x-scalar-secret-client-certificate': '-----BEGIN CERTIFICATE-----',
+        },
+        name: 'CertAuth',
+      })
+
+      inputs[1].vm.$emit('update:modelValue', '-----BEGIN PRIVATE KEY-----')
+      expect(emitted).toHaveBeenCalledWith({
+        payload: {
+          type: 'X509',
+          'x-scalar-secret-private-key': '-----BEGIN PRIVATE KEY-----',
+        },
+        name: 'CertAuth',
+      })
+    })
+  })
+
+  describe('Encryption Broker Authentication', () => {
+    it.each(['symmetricEncryption', 'asymmetricEncryption'] as const)(
+      'renders a single key input for the %s scheme',
+      (type) => {
+        const wrapper = mountWithProps({
+          securitySchemes: {
+            'EncryptionAuth': {
+              type,
+              'x-scalar-secret-token': '',
+            },
+          },
+          selectedSecuritySchemas: {
+            'EncryptionAuth': [],
+          },
+        })
+
+        const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
+        expect(inputs).toHaveLength(1)
+        assert(inputs[0])
+        expect(inputs[0].props('type')).toBe('password')
+        expect(inputs[0].text()).toContain('Key')
+      },
+    )
+
+    it.each(['symmetricEncryption', 'asymmetricEncryption'] as const)(
+      'emits auth:update:security-scheme-secrets with type %s when the key is updated',
+      (type) => {
+        const wrapper = mountWithProps({
+          securitySchemes: {
+            'EncryptionAuth': {
+              type,
+              'x-scalar-secret-token': '',
+            },
+          },
+          selectedSecuritySchemas: {
+            'EncryptionAuth': [],
+          },
+        })
+
+        const input = wrapper.findComponent(RequestAuthDataTableInput)
+        const emitted = vi.fn()
+        eventBus.on('auth:update:security-scheme-secrets', emitted)
+        input.vm.$emit('update:modelValue', 'encryption-key-123')
+
+        expect(emitted).toHaveBeenCalledTimes(1)
+        expect(emitted).toHaveBeenCalledWith({
+          payload: {
+            type,
+            'x-scalar-secret-token': 'encryption-key-123',
+          },
+          name: 'EncryptionAuth',
+        })
+      },
+    )
+  })
+
+  describe('GSSAPI Authentication', () => {
+    it('renders a service name input', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'KerberosAuth': {
+            type: 'gssapi',
+            'x-scalar-secret-service-name': '',
+          },
+        },
+        selectedSecuritySchemas: {
+          'KerberosAuth': [],
+        },
+      })
+
+      const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
+      expect(inputs).toHaveLength(1)
+      assert(inputs[0])
+      expect(inputs[0].text()).toContain('Service Name')
+    })
+
+    it('emits auth:update:security-scheme-secrets when the service name is updated', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'KerberosAuth': {
+            type: 'gssapi',
+            'x-scalar-secret-service-name': '',
+          },
+        },
+        selectedSecuritySchemas: {
+          'KerberosAuth': [],
+        },
+      })
+
+      const input = wrapper.findComponent(RequestAuthDataTableInput)
+      const emitted = vi.fn()
+      eventBus.on('auth:update:security-scheme-secrets', emitted)
+      input.vm.$emit('update:modelValue', 'kafka')
+
+      expect(emitted).toHaveBeenCalledTimes(1)
+      expect(emitted).toHaveBeenCalledWith({
+        payload: {
+          type: 'gssapi',
+          'x-scalar-secret-service-name': 'kafka',
+        },
+        name: 'KerberosAuth',
       })
     })
   })

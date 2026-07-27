@@ -18,10 +18,14 @@ export type {
   SecretsApiKey,
   SecretsAuth,
   SecretsAuthUnion,
+  SecretsEncryption,
+  SecretsGssapi,
   SecretsHttp,
   SecretsOAuth,
   SecretsOAuthFlows,
   SecretsOpenIdConnect,
+  SecretsSasl,
+  SecretsX509,
   SelectedSecurity,
 } from './schema'
 export {

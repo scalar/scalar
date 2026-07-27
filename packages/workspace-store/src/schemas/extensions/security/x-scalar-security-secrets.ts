@@ -227,3 +227,57 @@ export const XScalarSecretRedirectUri = object(
     typeComment: 'Persisted OAuth redirect URI',
   },
 )
+
+/**
+ * Client certificate (PEM) for X509 authentication
+ *
+ * We should not export this when exporting the document
+ */
+export const XScalarSecretClientCertificateSchema = Type.Object({
+  'x-scalar-secret-client-certificate': Type.String(),
+})
+
+/**
+ * Client certificate (PEM) for X509 authentication
+ *
+ * We should not export this when exporting the document
+ */
+export type XScalarSecretClientCertificate = {
+  'x-scalar-secret-client-certificate': string
+}
+
+/**
+ * Private key (PEM) for X509 authentication
+ *
+ * We should not export this when exporting the document
+ */
+export const XScalarSecretPrivateKeySchema = Type.Object({
+  'x-scalar-secret-private-key': Type.String(),
+})
+
+/**
+ * Private key (PEM) for X509 authentication
+ *
+ * We should not export this when exporting the document
+ */
+export type XScalarSecretPrivateKey = {
+  'x-scalar-secret-private-key': string
+}
+
+/**
+ * Service name for GSSAPI (Kerberos) authentication
+ *
+ * We should not export this when exporting the document
+ */
+export const XScalarSecretServiceNameSchema = Type.Object({
+  'x-scalar-secret-service-name': Type.String(),
+})
+
+/**
+ * Service name for GSSAPI (Kerberos) authentication
+ *
+ * We should not export this when exporting the document
+ */
+export type XScalarSecretServiceName = {
+  'x-scalar-secret-service-name': string
+}

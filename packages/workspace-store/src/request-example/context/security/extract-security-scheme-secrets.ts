@@ -1,7 +1,15 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/types/entities'
-import type { AuthStore, SecretsOAuthFlows, SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
+import type {
+  AuthStore,
+  SecretsEncryption,
+  SecretsGssapi,
+  SecretsOAuthFlows,
+  SecretsOpenIdConnect,
+  SecretsSasl,
+  SecretsX509,
+} from '@scalar/workspace-store/entities/auth'
 import type { DeepPartial } from '@scalar/workspace-store/helpers/overrides-proxy'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import type {
@@ -12,8 +20,11 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { isEncryptionSchemeType, isSaslSchemeType } from '@/request-example/builder/security/broker-scheme-types'
 import type {
   ApiKeyObjectSecret,
+  EncryptionObjectSecret,
+  GssapiObjectSecret,
   HttpObjectSecret,
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
@@ -22,7 +33,9 @@ import type {
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
   OpenIdConnectObjectSecret,
+  SaslObjectSecret,
   SecuritySchemeObjectSecret,
+  X509ObjectSecret,
 } from '@/request-example/builder/security/secret-types'
 
 /** A combined scheme that includes both the auth store secrets and a deep partial of the config auth */
@@ -229,6 +242,16 @@ export const extractSecuritySchemeSecrets = (
 ): SecuritySchemeObjectSecret => {
   const secrets = authStore.getAuthSecrets(documentSlug, name)
 
+  // AsyncAPI broker schemes live outside the OpenAPI `SecuritySchemeObject` union, so their type
+  // (and any config credential fields) are read through this alias. Captured before the OpenAPI
+  // branches below, where `scheme` gets narrowed to `never` once all four OpenAPI types are handled.
+  const brokerScheme = scheme as {
+    type?: string
+    username?: string
+    password?: string
+    token?: string
+  } & Record<string, unknown>
+
   // Handle API Key security schemes
   if (scheme.type === 'apiKey') {
     const storeSecrets = secrets?.type === 'apiKey' ? secrets : undefined
@@ -299,6 +322,45 @@ export const extractSecuritySchemeSecrets = (
       ...scheme,
       ...(objectEntries(extracted.flows).length ? { flows: extracted.flows } : {}),
     } as OpenIdConnectObjectSecret
+  }
+
+  // SASL-style schemes (userPassword, plain, scramSha256, scramSha512): username + password,
+  // with the same config fallbacks as HTTP basic.
+  if (isSaslSchemeType(brokerScheme.type)) {
+    const storeSecrets = secrets?.type === brokerScheme.type ? (secrets as SecretsSasl) : undefined
+    return {
+      ...brokerScheme,
+      'x-scalar-secret-username': storeSecrets?.['x-scalar-secret-username'] || brokerScheme.username || '',
+      'x-scalar-secret-password': storeSecrets?.['x-scalar-secret-password'] || brokerScheme.password || '',
+    } as SaslObjectSecret
+  }
+
+  // X509: a client certificate + private key pair (PEM), stored in the auth store only.
+  if (brokerScheme.type === 'X509') {
+    const storeSecrets = secrets?.type === 'X509' ? (secrets as SecretsX509) : undefined
+    return {
+      ...brokerScheme,
+      'x-scalar-secret-client-certificate': storeSecrets?.['x-scalar-secret-client-certificate'] || '',
+      'x-scalar-secret-private-key': storeSecrets?.['x-scalar-secret-private-key'] || '',
+    } as X509ObjectSecret
+  }
+
+  // Encryption schemes (symmetricEncryption, asymmetricEncryption): a single key value in the token slot.
+  if (isEncryptionSchemeType(brokerScheme.type)) {
+    const storeSecrets = secrets?.type === brokerScheme.type ? (secrets as SecretsEncryption) : undefined
+    return {
+      ...brokerScheme,
+      'x-scalar-secret-token': storeSecrets?.['x-scalar-secret-token'] || brokerScheme.token || '',
+    } as EncryptionObjectSecret
+  }
+
+  // GSSAPI (Kerberos): the service name the client authenticates against.
+  if (brokerScheme.type === 'gssapi') {
+    const storeSecrets = secrets?.type === 'gssapi' ? (secrets as SecretsGssapi) : undefined
+    return {
+      ...brokerScheme,
+      'x-scalar-secret-service-name': storeSecrets?.['x-scalar-secret-service-name'] || '',
+    } as GssapiObjectSecret
   }
 
   return scheme as SecuritySchemeObjectSecret
