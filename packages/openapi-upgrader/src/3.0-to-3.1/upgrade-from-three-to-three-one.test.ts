@@ -484,6 +484,227 @@ describe('upgradeFromThreeToThreeOne', () => {
         examples: ['John'],
       })
     })
+
+    it('does not convert a schema property named "example"', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              properties: {
+                documentation: { type: 'string', nullable: true },
+                example: { type: 'string', nullable: true },
+                platform: { type: 'string', nullable: true },
+              },
+            },
+          },
+        },
+      })
+
+      // The 'example' key is a property name, so it must stay a property, not become an examples array
+      expect(result.components?.schemas?.MySchema?.properties).toEqual({
+        documentation: { type: ['string', 'null'] },
+        example: { type: ['string', 'null'] },
+        platform: { type: ['string', 'null'] },
+      })
+    })
+
+    it('does not convert a schema named "example" in components/schemas', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            example: { type: 'string', nullable: true },
+            other: { type: 'number' },
+          },
+        },
+      })
+
+      // The 'example' key is a schema name, so it must stay a schema entry, not become an examples array
+      expect(result.components?.schemas).toEqual({
+        example: { type: ['string', 'null'] },
+        other: { type: 'number' },
+      })
+    })
+
+    it('does not convert a "$defs" entry named "example"', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              $defs: {
+                example: { type: 'string' },
+              },
+            },
+          },
+        },
+      })
+
+      expect((result.components?.schemas?.MySchema as OpenAPIV3_1.SchemaObject)?.$defs).toEqual({
+        example: { type: 'string' },
+      })
+    })
+
+    it('still converts a real "example" keyword nested under a property named "example"', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              properties: {
+                example: { type: 'string', example: 'foo' },
+              },
+            },
+          },
+        },
+      })
+
+      // The outer 'example' stays a property; its inner 'example' keyword still becomes 'examples'
+      expect(result.components?.schemas?.MySchema?.properties).toEqual({
+        example: { type: 'string', examples: ['foo'] },
+      })
+    })
+
+    it('does not treat data inside an example value as a schema', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'string',
+              example: { type: 'string', nullable: true, exclusiveMinimum: true, minimum: 5, 'x-webhooks': { a: 1 } },
+            },
+          },
+        },
+      })
+
+      // The example is arbitrary data, so it is preserved verbatim inside the examples array
+      expect((result.components?.schemas?.MySchema as OpenAPIV3_1.SchemaObject)?.examples).toEqual([
+        { type: 'string', nullable: true, exclusiveMinimum: true, minimum: 5, 'x-webhooks': { a: 1 } },
+      ])
+    })
+
+    it('does not treat data inside a default value as a schema', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              default: { nullable: true, type: 'anything' },
+            },
+          },
+        },
+      })
+
+      expect((result.components?.schemas?.MySchema as OpenAPIV3_1.SchemaObject)?.default).toEqual({
+        nullable: true,
+        type: 'anything',
+      })
+    })
+
+    it('does not treat the value of an Example Object as a schema', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/things': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'ok',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object' },
+                      examples: {
+                        sample: { value: { type: 'string', nullable: true } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const mediaType = (result.paths?.['/things']?.get?.responses?.['200'] as OpenAPIV3_1.ResponseObject)?.content?.[
+        'application/json'
+      ]
+
+      // The example value is data, so it is preserved verbatim
+      expect((mediaType?.examples?.sample as OpenAPIV3_1.ExampleObject)?.value).toEqual({
+        type: 'string',
+        nullable: true,
+      })
+    })
+
+    it('still upgrades a schema property named "value" inside a schema named "examples"', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            examples: {
+              type: 'object',
+              properties: {
+                value: { type: 'string', nullable: true },
+              },
+            },
+          },
+        },
+      })
+
+      // This 'value' is a real schema, not Example Object data, so nullable is still upgraded
+      expect(result.components?.schemas?.examples?.properties?.value).toEqual({ type: ['string', 'null'] })
+    })
+  })
+
+  describe('upgrading x-webhooks', () => {
+    it('renames x-webhooks to webhooks at the document root', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        'x-webhooks': { onEvent: { post: { responses: { '200': { description: 'ok' } } } } },
+      })
+
+      expect(result.webhooks).toEqual({ onEvent: { post: { responses: { '200': { description: 'ok' } } } } })
+      expect((result as Record<string, unknown>)['x-webhooks']).toBeUndefined()
+    })
+
+    it('does not rename a schema property named x-webhooks', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              properties: {
+                'x-webhooks': { type: 'string' },
+              },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.MySchema?.properties).toEqual({
+        'x-webhooks': { type: 'string' },
+      })
+    })
   })
 
   describe('describing File Upload Payloads', () => {
