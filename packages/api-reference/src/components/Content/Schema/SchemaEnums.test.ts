@@ -134,6 +134,24 @@ describe('SchemaEnumValues', () => {
       expect(wrapper.text()).not.toContain(' = ')
     })
 
+    it('formats enum values with x-enum-varnames from array items', () => {
+      const wrapper = mount(SchemaEnumValues, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, {
+            type: 'array',
+            items: {
+              enum: [1, 2, 3],
+              'x-enum-varnames': ['Pending', 'Approved', 'Rejected'],
+            },
+          }),
+        },
+      })
+
+      expect(wrapper.text()).toContain('1 = Pending')
+      expect(wrapper.text()).toContain('2 = Approved')
+      expect(wrapper.text()).toContain('3 = Rejected')
+    })
+
     it('handles partial varnames arrays gracefully', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
@@ -214,6 +232,23 @@ describe('SchemaEnumValues', () => {
       // Should use regular enum list format, not special description format
       expect(wrapper.find('.property-list').exists()).toBe(false)
       expect(wrapper.find('.property-enum-values').exists()).toBe(true)
+    })
+
+    it('renders descriptions from array items', () => {
+      const wrapper = mount(SchemaEnumValues, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, {
+            type: 'array',
+            items: {
+              enum: [100, 200],
+              'x-enum-descriptions': ['User is not authorized', 'Access denied'],
+            },
+          }),
+        },
+      })
+
+      expect(wrapper.text()).toContain('User is not authorized')
+      expect(wrapper.text()).toContain('Access denied')
     })
 
     it('handles missing description arrays gracefully', () => {
