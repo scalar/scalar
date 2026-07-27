@@ -1,4 +1,5 @@
 import { disableConsoleError, disableConsoleWarn } from '@scalar/helpers/testing/console-spies'
+import { sleep } from '@scalar/helpers/testing/sleep'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -140,5 +141,165 @@ describe('SecurityRequirementBadge', () => {
 
     wrapper.unmount()
     enclosing.remove()
+  })
+
+  it('does not bubble panel clicks to an enclosing click handler', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    // The floating panel is not teleported, so it renders inside the accordion's
+    // DisclosureButton. A click on it (selecting text, or during the close delay)
+    // must not bubble up and toggle the operation.
+    const enclosing = document.createElement('div')
+    const enclosingClick = vi.fn()
+    enclosing.addEventListener('click', enclosingClick)
+    document.body.appendChild(enclosing)
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: enclosing,
+    })
+
+    // Open on hover, then click an element inside the rendered panel.
+    await wrapper.find('.security-requirement-badge').trigger('mouseenter')
+    await nextTick()
+
+    const schemeType = enclosing.querySelector('code')
+    expect(schemeType).not.toBeNull()
+
+    schemeType!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+
+    expect(enclosingClick).not.toHaveBeenCalled()
+
+    wrapper.unmount()
+    enclosing.remove()
+  })
+
+  it('opens the popover on hover', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    await wrapper.find('.security-requirement-badge').trigger('mouseenter')
+    await nextTick()
+
+    expect(document.body.textContent).toContain('Requires')
+
+    wrapper.unmount()
+  })
+
+  it('stays open when the click of a hover gesture immediately follows', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    const badge = wrapper.find('.security-requirement-badge')
+    // A single pointer gesture fires mouseenter (opens) then click.
+    await badge.trigger('mouseenter')
+    await nextTick()
+    await badge.trigger('click')
+    await nextTick()
+
+    // The click must not toggle the freshly hover-opened popover back closed.
+    expect(document.body.textContent).toContain('Requires')
+
+    wrapper.unmount()
+  })
+
+  it('closes the popover after the pointer leaves', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    const badge = wrapper.find('.security-requirement-badge')
+    await badge.trigger('mouseenter')
+    await nextTick()
+    expect(document.body.textContent).toContain('Requires')
+
+    await badge.trigger('mouseleave')
+    // The close is deferred so the pointer can travel onto the panel.
+    await sleep(150)
+    await nextTick()
+
+    expect(document.body.textContent).not.toContain('Requires')
+
+    wrapper.unmount()
+  })
+
+  it('keeps a click-pinned popover open when the pointer leaves', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    const badge = wrapper.find('.security-requirement-badge')
+    await badge.trigger('click')
+    await nextTick()
+    expect(document.body.textContent).toContain('Requires')
+
+    // A pinned popover ignores the pointer leaving, unlike a hover-opened one.
+    await badge.trigger('mouseleave')
+    await sleep(150)
+    await nextTick()
+
+    expect(document.body.textContent).toContain('Requires')
+
+    wrapper.unmount()
+  })
+
+  it('toggles closed on a second click', async () => {
+    const wrapper = await mountAndOpen(requiredAndGroup)
+    expect(document.body.textContent).toContain('Requires')
+
+    await wrapper.find('.security-requirement-badge').trigger('click')
+    await nextTick()
+
+    expect(document.body.textContent).not.toContain('Requires')
+
+    wrapper.unmount()
+  })
+
+  it('reopens on click after being dismissed with Escape', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    const badge = wrapper.find('.security-requirement-badge')
+
+    // Open on hover, then dismiss with Escape.
+    await badge.trigger('mouseenter')
+    await nextTick()
+    expect(document.body.textContent).toContain('Requires')
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await nextTick()
+    expect(document.body.textContent).not.toContain('Requires')
+
+    // The very next click must open it again — no stale guard swallowing it.
+    await badge.trigger('click')
+    await nextTick()
+    expect(document.body.textContent).toContain('Requires')
+
+    wrapper.unmount()
   })
 })
