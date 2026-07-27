@@ -152,6 +152,7 @@ const isOrAlternatives = computed(
         v-if="isOpen"
         ref="panelRef"
         class="relative flex flex-col p-0.75"
+        @click.stop
         @mouseenter="cancelClose"
         @mouseleave="scheduleClose">
         <div class="flex max-w-xs min-w-48 flex-col gap-1.5 p-2 text-sm">

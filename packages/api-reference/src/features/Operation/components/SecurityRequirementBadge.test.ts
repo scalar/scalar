@@ -143,6 +143,39 @@ describe('SecurityRequirementBadge', () => {
     enclosing.remove()
   })
 
+  it('does not bubble panel clicks to an enclosing click handler', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    // The floating panel is not teleported, so it renders inside the accordion's
+    // DisclosureButton. A click on it (selecting text, or during the close delay)
+    // must not bubble up and toggle the operation.
+    const enclosing = document.createElement('div')
+    const enclosingClick = vi.fn()
+    enclosing.addEventListener('click', enclosingClick)
+    document.body.appendChild(enclosing)
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: enclosing,
+    })
+
+    // Open on hover, then click an element inside the rendered panel.
+    await wrapper.find('.security-requirement-badge').trigger('mouseenter')
+    await nextTick()
+
+    const schemeType = enclosing.querySelector('code')
+    expect(schemeType).not.toBeNull()
+
+    schemeType!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+
+    expect(enclosingClick).not.toHaveBeenCalled()
+
+    wrapper.unmount()
+    enclosing.remove()
+  })
+
   it('opens the popover on hover', async () => {
     disableConsoleError()
     disableConsoleWarn()
