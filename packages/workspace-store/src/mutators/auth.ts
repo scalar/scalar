@@ -394,7 +394,7 @@ const securityRequirementIdsMatch = (requirement: SecurityRequirementObject, id:
 export const updateSelectedScopes = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
-  { id, name, scopes, meta }: AuthEvents['auth:update:selected-scopes'],
+  { id, name, scopes, scope, selected, meta }: AuthEvents['auth:update:selected-scopes'],
 ) => {
   const documentName = getAuthDocumentName(document)
   if (!documentName) {
@@ -434,7 +434,26 @@ export const updateSelectedScopes = (
   if (!isNonOptionalSecurityRequirement(nextScheme)) {
     return
   }
-  nextScheme[name] = scopes
+
+  // Resolve the next scope list. A single-scope toggle (`scope` + `selected`) is applied against the
+  // value currently in the store, which is what keeps rapid successive clicks from overwriting each
+  // other with a list the component computed from a possibly-stale prop. Bulk actions pass an absolute
+  // `scopes` list instead. A payload carrying neither is ignored rather than silently clearing.
+  const resolveNextScopes = (): string[] | undefined => {
+    if (scope !== undefined && selected !== undefined) {
+      const currentScopes = Array.isArray(nextScheme[name]) ? nextScheme[name] : []
+      return selected
+        ? Array.from(new Set([...currentScopes, scope]))
+        : currentScopes.filter((current) => current !== scope)
+    }
+    return scopes
+  }
+
+  const nextScopes = resolveNextScopes()
+  if (nextScopes === undefined) {
+    return
+  }
+  nextScheme[name] = nextScopes
 
   store?.auth.setAuthSelectedSchemas(
     meta.type === 'document'

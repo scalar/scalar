@@ -28,7 +28,10 @@ const { selectedScopes, flow, flowType } = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:selectedScopes', payload: { scopes: string[] }): void
+  (
+    e: 'update:selectedScopes',
+    payload: { scopes?: string[]; scope?: string; selected?: boolean },
+  ): void
   (
     e: 'upsert:scope',
     payload: Omit<ApiReferenceEvents['auth:upsert:scopes'], 'name'>,
@@ -87,17 +90,10 @@ const allScopesSelected = computed(
 )
 
 const setScope = (scopeKey: string, checked: boolean) => {
-  if (checked) {
-    // Select the scope
-    return emits('update:selectedScopes', {
-      scopes: Array.from(new Set([...selectedScopes, scopeKey])),
-    })
-  }
-
-  // Deselect the scope
-  emits('update:selectedScopes', {
-    scopes: selectedScopes.filter((scope) => scope !== scopeKey),
-  })
+  // Emit a single-scope toggle rather than a freshly computed list. The store applies it
+  // against the currently selected scopes, so two quick clicks cannot overwrite each other
+  // with a list computed from a prop that has not updated yet.
+  emits('update:selectedScopes', { scope: scopeKey, selected: checked })
 }
 
 /** Select all scopes */

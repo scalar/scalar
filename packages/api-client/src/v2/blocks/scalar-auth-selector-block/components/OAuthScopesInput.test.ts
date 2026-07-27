@@ -87,20 +87,24 @@ describe('OAuthScopesInput', () => {
 
     // Select first scope
     await rows[0]!.trigger('click')
-    const firstEmit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
-    expect(firstEmit?.scopes).toEqual(['read:items'])
+    expect(wrapper.emitted('update:selectedScopes')?.at(-1)?.[0]).toEqual({
+      scope: 'read:items',
+      selected: true,
+    })
 
-    // Simulate v-model by updating props
-    await wrapper.setProps({ selectedScopes: firstEmit.scopes })
+    // Simulate the parent applying the selection
+    await wrapper.setProps({ selectedScopes: ['read:items'] })
     await nextTick()
     expect(wrapper.text()).toContain('1 / 2')
 
     // Deselect first scope
     await rows[0]!.trigger('click')
-    const secondEmit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
-    expect(secondEmit?.scopes).toEqual([])
+    expect(wrapper.emitted('update:selectedScopes')?.at(-1)?.[0]).toEqual({
+      scope: 'read:items',
+      selected: false,
+    })
 
-    await wrapper.setProps({ selectedScopes: secondEmit.scopes })
+    await wrapper.setProps({ selectedScopes: [] })
     await nextTick()
     expect(wrapper.text()).toContain('0 / 2')
   })
@@ -142,16 +146,20 @@ describe('OAuthScopesInput', () => {
 
     // Check first scope
     await checkboxes[0]!.setValue(true)
-    const emit1 = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
-    expect(emit1?.scopes).toEqual(['read:items'])
-    await wrapper.setProps({ selectedScopes: emit1.scopes })
+    expect(wrapper.emitted('update:selectedScopes')?.at(-1)?.[0]).toEqual({
+      scope: 'read:items',
+      selected: true,
+    })
+    await wrapper.setProps({ selectedScopes: ['read:items'] })
     await nextTick()
     expect(wrapper.text()).toContain('1 / 2')
 
     // Uncheck first scope
     await checkboxes[0]!.setValue(false)
-    const emit2 = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
-    expect(emit2?.scopes).toEqual([])
+    expect(wrapper.emitted('update:selectedScopes')?.at(-1)?.[0]).toEqual({
+      scope: 'read:items',
+      selected: false,
+    })
   })
 
   it('emits delete:scope when the delete button is clicked and leaves selection cleanup to the store', async () => {
