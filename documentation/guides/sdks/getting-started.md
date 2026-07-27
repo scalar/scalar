@@ -2,9 +2,6 @@
 
 Generate your first type-safe SDK or CLI from an OpenAPI document in minutes, straight from the Scalar dashboard.
 
-> [!NOTE]
-> SDK generation is part of our paid plans and costs $100 per month per target. Keep this in mind when selecting what you want to generate.
-
 Make sure you have created a Scalar account and are logged in. If you are new to Scalar, start with the [create account guide](../registry/getting-started.md#create-your-scalar-account).
 
 ## Generate your first target
