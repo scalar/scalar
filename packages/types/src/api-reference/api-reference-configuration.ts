@@ -1,6 +1,6 @@
 import { type ZodType, z } from 'zod'
 
-import type { TargetId } from '../snippetz'
+import type { AvailableClient, ClientId, TargetId } from '../snippetz'
 import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 import { NEW_PROXY_URL, OLD_PROXY_URL, baseConfigurationSchema } from './base-configuration'
@@ -137,7 +137,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * By default hides Unirest, pass `[]` to show all clients
    */
   hiddenClients: z
-    .union([z.record(z.string(), z.union([z.boolean(), z.array(z.string())])), z.array(z.string()), z.literal(true)])
+    .union([
+      z.record(z.string(), z.union([z.boolean(), z.array(z.custom<ClientId<TargetId>>())])),
+      z.array(z.custom<TargetId | ClientId<TargetId> | AvailableClient>()),
+      z.literal(true),
+    ])
     .optional(),
   /** Determine the HTTP client that's selected by default */
   defaultHttpClient: z

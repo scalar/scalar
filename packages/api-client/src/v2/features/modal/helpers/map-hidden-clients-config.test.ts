@@ -3,13 +3,15 @@ import { describe, expect, it } from 'vitest'
 
 import { mapHiddenClientsConfig } from './map-hidden-clients-config'
 
+type HiddenClients = Parameters<typeof mapHiddenClientsConfig>[0]
+
 describe('mapHiddenClientsConfig', () => {
   /**
    * Array format - hiding specific clients by their full identifiers
    * This is the most straightforward case where users list exact client IDs to hide.
    */
   it('filters out specific clients when hiddenClients is an array', () => {
-    const hiddenClients = ['js/fetch', 'js/axios', 'java/unirest']
+    const hiddenClients: HiddenClients = ['js/fetch', 'js/axios', 'java/unirest']
     const result = mapHiddenClientsConfig(hiddenClients)
 
     // Should not include the hidden clients
@@ -28,7 +30,7 @@ describe('mapHiddenClientsConfig', () => {
 
   /** Array format - hiding cross language clients */
   it('filters out groups of clients when hiddenClients is an array', () => {
-    const hiddenClients = ['fetch', 'axios', 'ruby']
+    const hiddenClients: HiddenClients = ['fetch', 'axios', 'ruby']
     const result = mapHiddenClientsConfig(hiddenClients)
 
     // Should not include the hidden clients
@@ -40,7 +42,7 @@ describe('mapHiddenClientsConfig', () => {
 
   /** Array format - hiding whole groups */
   it('filters out groups of clients when hiddenClients is an array', () => {
-    const hiddenClients = ['js', 'java', 'ruby']
+    const hiddenClients: HiddenClients = ['js', 'java', 'ruby']
     const result = mapHiddenClientsConfig(hiddenClients)
 
     // Should not include the hidden clients
@@ -69,7 +71,7 @@ describe('mapHiddenClientsConfig', () => {
    * When a target is set to true, all clients for that language should be hidden.
    */
   it('filters out entire target languages when hiddenClients object has boolean true values', () => {
-    const hiddenClients = { node: true, python: true }
+    const hiddenClients: HiddenClients = { node: true, python: true }
     const result = mapHiddenClientsConfig(hiddenClients)
 
     // Should not include any node clients
@@ -95,7 +97,7 @@ describe('mapHiddenClientsConfig', () => {
    * This allows fine-grained control to hide only certain clients of a language.
    */
   it('filters out specific clients within a target when hiddenClients object has array values', () => {
-    const hiddenClients = { python: ['requests', 'httpx_async'], java: ['unirest'] }
+    const hiddenClients: HiddenClients = { python: ['requests', 'httpx_async'], java: ['unirest'] }
     const result = mapHiddenClientsConfig(hiddenClients)
 
     // Should not include the specified python clients
@@ -121,7 +123,7 @@ describe('mapHiddenClientsConfig', () => {
    * and others have only specific clients hidden.
    */
   it('handles mixed object format with both boolean and array values', () => {
-    const hiddenClients = {
+    const hiddenClients: HiddenClients = {
       node: true, // Hide all node clients
       python: ['requests'], // Hide only python requests
       js: ['axios', 'jquery'], // Hide specific js clients
