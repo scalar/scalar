@@ -36,6 +36,7 @@ export {
   type ResolveRequestFactoryUrlResult,
   resolveRequestFactoryUrl,
 } from './resolve-request-factory-url'
+export { isEncryptionSchemeType, isSaslSchemeType } from './security/broker-scheme-types'
 export { buildRequestSecurity } from './security/build-request-security'
 export type {
   ApiKeyObjectSecret,

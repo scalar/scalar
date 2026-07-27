@@ -20,6 +20,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { isEncryptionSchemeType, isSaslSchemeType } from '@/request-example/builder/security/broker-scheme-types'
 import type {
   ApiKeyObjectSecret,
   EncryptionObjectSecret,
@@ -39,20 +40,6 @@ import type {
 
 /** A combined scheme that includes both the auth store secrets and a deep partial of the config auth */
 export type ConfigAuthScheme = SecuritySchemeObject & DeepPartial<SecurityScheme>
-
-/** AsyncAPI SASL-style broker scheme types, all of which authenticate with a username + password pair. */
-const SASL_SCHEME_TYPES = ['userPassword', 'plain', 'scramSha256', 'scramSha512'] as const
-type SaslSchemeType = (typeof SASL_SCHEME_TYPES)[number]
-
-const isSaslSchemeType = (type: string | undefined): type is SaslSchemeType =>
-  Boolean(type) && (SASL_SCHEME_TYPES as readonly string[]).includes(type!)
-
-/** AsyncAPI encryption broker scheme types, which carry a single key value. */
-const ENCRYPTION_SCHEME_TYPES = ['symmetricEncryption', 'asymmetricEncryption'] as const
-type EncryptionSchemeType = (typeof ENCRYPTION_SCHEME_TYPES)[number]
-
-const isEncryptionSchemeType = (type: string | undefined): type is EncryptionSchemeType =>
-  Boolean(type) && (ENCRYPTION_SCHEME_TYPES as readonly string[]).includes(type!)
 
 /**
  * Maps x-scalar-secret fields to their corresponding input field names.

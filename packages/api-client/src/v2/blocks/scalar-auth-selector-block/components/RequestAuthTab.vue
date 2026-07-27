@@ -9,13 +9,15 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  EncryptionObjectSecret,
-  GssapiObjectSecret,
-  MergedSecuritySchemes,
-  SaslObjectSecret,
-  SecuritySchemeObjectSecret,
-  X509ObjectSecret,
+import {
+  isEncryptionSchemeType,
+  isSaslSchemeType,
+  type EncryptionObjectSecret,
+  type GssapiObjectSecret,
+  type MergedSecuritySchemes,
+  type SaslObjectSecret,
+  type SecuritySchemeObjectSecret,
+  type X509ObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { getDocumentTypeLabel } from '@scalar/workspace-store/schemas/type-guards'
@@ -165,34 +167,18 @@ const generateLabel = (
 const apiKeyHasName = (scheme: { in?: string }): boolean =>
   scheme.in !== 'user' && scheme.in !== 'password'
 
-const SASL_SCHEME_TYPES = [
-  'userPassword',
-  'plain',
-  'scramSha256',
-  'scramSha512',
-] as const
-
 /**
  * SASL-style AsyncAPI broker schemes (`userPassword`, `plain`, `scramSha256`, `scramSha512`):
  * they all authenticate with a username + password pair, so they share one form.
  */
 const isSaslScheme = (
   scheme: SecurityItem['scheme'],
-): scheme is SaslObjectSecret =>
-  Boolean(scheme) &&
-  (SASL_SCHEME_TYPES as readonly string[]).includes(scheme!.type)
-
-const ENCRYPTION_SCHEME_TYPES = [
-  'symmetricEncryption',
-  'asymmetricEncryption',
-] as const
+): scheme is SaslObjectSecret => isSaslSchemeType(scheme?.type)
 
 /** AsyncAPI encryption broker schemes: a single key value. */
 const isEncryptionScheme = (
   scheme: SecurityItem['scheme'],
-): scheme is EncryptionObjectSecret =>
-  Boolean(scheme) &&
-  (ENCRYPTION_SCHEME_TYPES as readonly string[]).includes(scheme!.type)
+): scheme is EncryptionObjectSecret => isEncryptionSchemeType(scheme?.type)
 
 /** AsyncAPI X509 broker scheme: a client certificate + private key pair (PEM). */
 const isX509Scheme = (

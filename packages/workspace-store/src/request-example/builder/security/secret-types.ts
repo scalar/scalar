@@ -1,3 +1,4 @@
+import type { EncryptionSchemeType, SaslSchemeType } from '@/request-example/builder/security/broker-scheme-types'
 import type {
   XScalarAuthUrl,
   XScalarCredentialsLocation,
@@ -67,15 +68,13 @@ type AsyncApiBrokerScheme<T extends string> = {
 }
 
 /** SASL-style AsyncAPI broker schemes: authenticate with a username + password pair. */
-export type SaslObjectSecret = AsyncApiBrokerScheme<'userPassword' | 'plain' | 'scramSha256' | 'scramSha512'> &
-  XScalarSecretHTTP
+export type SaslObjectSecret = AsyncApiBrokerScheme<SaslSchemeType> & XScalarSecretHTTP
 
 /** AsyncAPI X509 scheme: a client certificate + private key pair (PEM). */
 export type X509ObjectSecret = AsyncApiBrokerScheme<'X509'> & XScalarSecretClientCertificate & XScalarSecretPrivateKey
 
 /** AsyncAPI encryption schemes: a single key value, stored in the shared token slot. */
-export type EncryptionObjectSecret = AsyncApiBrokerScheme<'symmetricEncryption' | 'asymmetricEncryption'> &
-  XScalarSecretToken
+export type EncryptionObjectSecret = AsyncApiBrokerScheme<EncryptionSchemeType> & XScalarSecretToken
 
 /** AsyncAPI GSSAPI (Kerberos) scheme: the service name the client authenticates against. */
 export type GssapiObjectSecret = AsyncApiBrokerScheme<'gssapi'> & XScalarSecretServiceName
