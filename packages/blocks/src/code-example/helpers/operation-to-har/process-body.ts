@@ -1,4 +1,5 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -126,21 +127,29 @@ const objectToFormParams = (
         value: JSON.stringify(unpackProxyObject(value)),
         contentType: 'application/json',
       })
+    } else if (
+      Array.isArray(value) &&
+      isMultipart &&
+      !parentKey &&
+      !hasFormStyle &&
+      value.some((item) => isObjectLike(item) && !(item instanceof File))
+    ) {
+      /**
+       * Per OpenAPI 3.x: a top-level multipart array whose items are objects defaults to a single
+       * `application/json` part containing the whole array. Serializing each item into its own part
+       * would drop the enclosing array wrapper and emit a bare object (see issue #9688), so keep the
+       * array intact and stringify it as one value.
+       */
+      params.push({
+        name: key,
+        value: JSON.stringify(unpackProxyObject(value)),
+        contentType: 'application/json',
+      })
     } else if (Array.isArray(value)) {
       for (const item of value) {
         if (item instanceof File) {
           const file = unpackProxyObject(item)
           params.push({ name: key, value: `@${file.name}` })
-        } else if (isMultipart && !parentKey && !hasFormStyle && typeof item === 'object' && item !== null) {
-          /**
-           * Per OpenAPI 3.x: a top-level multipart array of complex items defaults each part
-           * to application/json, instead of flattening object items into dotted keys.
-           */
-          params.push({
-            name: key,
-            value: JSON.stringify(unpackProxyObject(item)),
-            contentType: 'application/json',
-          })
         } else {
           params.push({ name: key, value: String(item) })
         }
