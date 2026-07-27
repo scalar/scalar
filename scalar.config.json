@@ -1763,7 +1763,7 @@
               },
               "/sdk-generator": {
                 "title": "SDK Generator",
-                "description": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
+                "description": "Generate idiomatic, type-safe SDKs and CLIs from your OpenAPI document. TypeScript, Python, Go, and CLI targets are generally available, with Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ also supported.",
                 "type": "group",
                 "mode": "nested",
                 "icon": "phosphor/regular/package",
@@ -1772,9 +1772,12 @@
                     "type": "page",
                     "title": "SDK Generator",
                     "filepath": "documentation/guides/sdks/index.md",
-                    "description": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
+                    "description": "Generate idiomatic, type-safe SDKs and CLIs from your OpenAPI document. TypeScript, Python, Go, and CLI targets are generally available, with Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ also supported.",
+                    "layout": {
+                      "pageTitle": false
+                    },
                     "head": {
-                      "title": "Scalar SDK Generator — SDKs from OpenAPI in 8 Languages",
+                      "title": "Scalar SDK Generator — Idiomatic SDKs and CLIs from OpenAPI",
                       "links": [
                         {
                           "rel": "canonical",
@@ -1784,15 +1787,40 @@
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs."
+                          "content": "Generate idiomatic, type-safe SDKs and CLIs from your OpenAPI document. Custom code survives regeneration, and every release publishes from your own repository through pull requests."
                         },
                         {
                           "property": "og:title",
-                          "content": "Scalar SDK Generator — SDKs from OpenAPI in 8 Languages"
+                          "content": "Scalar SDK Generator — Idiomatic SDKs and CLIs from OpenAPI"
                         },
                         {
                           "property": "og:description",
-                          "content": "Generate production-ready SDKs and CLIs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs."
+                          "content": "Generate idiomatic, type-safe SDKs and CLIs from your OpenAPI document. Custom code survives regeneration, and every release publishes from your own repository through pull requests."
+                        },
+                        {
+                          "property": "og:image",
+                          "name": "og:image",
+                          "content": "https://cdn.scalar.com/images/twitter-image.png"
+                        },
+                        {
+                          "name": "twitter:title",
+                          "content": "Scalar SDK Generator — Idiomatic SDKs and CLIs from OpenAPI"
+                        },
+                        {
+                          "name": "twitter:description",
+                          "content": "Generate idiomatic, type-safe SDKs and CLIs from your OpenAPI document. Custom code survives regeneration, and every release publishes from your own repository through pull requests."
+                        },
+                        {
+                          "name": "twitter:image",
+                          "content": "https://cdn.scalar.com/images/twitter-image.png"
+                        },
+                        {
+                          "name": "twitter:image:width",
+                          "content": "1200"
+                        },
+                        {
+                          "name": "twitter:image:height",
+                          "content": "630"
                         },
                         {
                           "name": "robots",
@@ -1962,8 +1990,8 @@
                         "title": "CLI"
                       },
                       "go": {
-                        "title": "Go (Experimental)",
-                        "description": "Configuration reference for the experimental Go SDK target: module metadata, naming, and generation options.",
+                        "title": "Go",
+                        "description": "Configuration reference for the Go SDK target: module metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/go.md",
                         "type": "page"
                       },

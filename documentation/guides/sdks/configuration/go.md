@@ -1,8 +1,5 @@
 # Go
 
-> [!NOTE]
-> The Go target is experimental.
-
 Add `go` under `targets` to generate a Go SDK package.
 
 ```json
