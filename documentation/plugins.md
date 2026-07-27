@@ -35,6 +35,11 @@ Unlike `plugins`, this option is JSON-serializable. That makes it possible to lo
 that pass their configuration as JSON — for example the Docker container (`API_REFERENCE_CONFIG`) or server-side
 integrations that render the configuration into the HTML — without replacing the whole bundle.
 
+> [!WARNING]
+> Each URL is imported and executed as a JavaScript module in the browser, so it runs with the same privileges
+> as the page hosting the API reference. Only reference `pluginUrls` you control or fully trust — treat them like
+> any other `<script>` you add to your site, and prefer pinning a specific version rather than a floating tag.
+
 A minimal plugin module looks like this:
 
 ```typescript
