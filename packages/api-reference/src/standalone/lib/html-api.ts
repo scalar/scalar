@@ -8,6 +8,7 @@ import { createHead } from '@unhead/vue/client'
 import { createApp, createSSRApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
+import { hasPluginUrls, loadPluginsFromUrls } from '@/standalone/lib/load-plugins-from-urls'
 
 const getSpecScriptTag = (doc: Document) => doc.getElementById('api-reference')
 
@@ -274,9 +275,25 @@ export const createApiReference: CreateApiReference = (
 
   if (optionalConfiguration) {
     if (mountElement) {
-      app.mount(mountElement)
-      hasMounted = true
-      retainStandaloneStyles(document)
+      const mount = () => {
+        app.mount(mountElement)
+        hasMounted = true
+        retainStandaloneStyles(document)
+      }
+
+      if (hasPluginUrls(props.configuration)) {
+        // Plugins referenced by URL must be resolved before the app mounts — plugin registration
+        // happens once at first render and is not reactive, so a plugin that arrives later would
+        // never be picked up.
+        loadPluginsFromUrls(props.configuration).then(() => {
+          // Skip mounting when the instance was destroyed while the plugins were loading.
+          if (!abortController.signal.aborted) {
+            mount()
+          }
+        })
+      } else {
+        mount()
+      }
     } else {
       console.error('Could not find a mount point for API References:', elementOrSelectorOrConfig)
     }
@@ -333,10 +350,12 @@ export const createApiReference: CreateApiReference = (
   const destroy = () => {
     abortController.abort()
     props.configuration = {}
-    app.unmount()
 
+    // Only unmount an app that actually mounted. With `pluginUrls`, mounting is deferred until the
+    // plugin modules resolve, so `destroy` can run first — unmounting then would just warn.
     if (hasMounted) {
       hasMounted = false
+      app.unmount()
       releaseStandaloneStyles(document)
     }
   }
