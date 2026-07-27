@@ -323,10 +323,17 @@ jobs:
   # only when every release.yml job has finished — do not wait behind slow
   # integration publishes such as the multi-arch aspire Docker build.
   # Gating matches what the job had inside release.yml: only on main, only
-  # after the npm-publish job itself succeeded. !cancelled() keeps this
-  # running when check-changes or integration-builds failed or were skipped:
-  # their outputs then come through empty, so each publish job simply sees its
-  # package as unchanged or its build-test as not passed and skips itself.
+  # after the npm-publish job itself succeeded. check-changes and
+  # integration-builds are in `needs` purely to forward their outputs below —
+  # NOT to gate on their success. The leading !cancelled() is what makes that
+  # safe: a status-check function in an `if:` disables GitHub's default
+  # skip-a-job-when-any-need-failed-or-was-skipped behavior, so this job is
+  # still evaluated (and runs, given a successful npm publish) even when
+  # check-changes or integration-builds failed or was skipped. Their outputs
+  # then come through empty, so each publish job simply sees its package as
+  # unchanged or its build-test as not passed and skips itself — the same
+  # degraded-input behavior release.yml had. (deploy-api-client below relies on
+  # the identical !cancelled() mechanism to run when release itself is skipped.)
   publish-integrations:
     if: |
       !cancelled() &&
