@@ -83,33 +83,23 @@ const constValue = computed(() => {
   return undefined
 })
 
-const validationProperties = computed(() => {
-  if (!valueRef.value) {
-    return []
-  }
+type ValidationProperty = {
+  key: string
+  value: string | number
+  prefix?: string
+  code?: boolean
+  truncate?: boolean
+}
 
-  const schema = valueRef.value
-  const properties = []
+/**
+ * Constraints that live on a leaf (string or number) schema: length, pattern,
+ * format and numeric ranges. Extracted so they can be surfaced for a primitive
+ * schema as well as for a primitive array's items, which are not rendered on
+ * their own. See https://github.com/scalar/scalar/issues/9690
+ */
+const getLeafConstraints = (schema: SchemaObject) => {
+  const properties: ValidationProperty[] = []
 
-  // Array validation properties
-  if (isArraySchema(schema)) {
-    if (schema.minItems || schema.maxItems) {
-      properties.push({
-        key: 'array-range',
-        value: `${schema.minItems || ''}…${schema.maxItems || ''}`,
-      })
-    }
-
-    // Unique items
-    if (schema.uniqueItems) {
-      properties.push({
-        key: 'unique-items',
-        value: `${translate('common.unique')}!`,
-      })
-    }
-  }
-
-  // String length properties
   if (isStringSchema(schema)) {
     if (schema.minLength) {
       properties.push({
@@ -127,7 +117,6 @@ const validationProperties = computed(() => {
       })
     }
 
-    // Pattern
     if (schema.pattern) {
       properties.push({
         key: 'pattern',
@@ -138,18 +127,14 @@ const validationProperties = computed(() => {
     }
   }
 
-  // Format
-  if (isStringSchema(schema) || isNumberSchema(schema)) {
-    if (schema.format) {
-      properties.push({
-        key: 'format',
-        value: schema.format,
-        truncate: true,
-      })
-    }
+  if ((isStringSchema(schema) || isNumberSchema(schema)) && schema.format) {
+    properties.push({
+      key: 'format',
+      value: schema.format,
+      truncate: true,
+    })
   }
 
-  // Numeric validation properties
   if (isNumberSchema(schema)) {
     if (isDefined(schema.exclusiveMinimum)) {
       properties.push({
@@ -190,6 +175,43 @@ const validationProperties = computed(() => {
         value: schema.multipleOf,
       })
     }
+  }
+
+  return properties
+}
+
+const validationProperties = computed(() => {
+  if (!valueRef.value) {
+    return []
+  }
+
+  const schema = valueRef.value
+  const properties: ValidationProperty[] = []
+
+  // Array validation properties
+  if (isArraySchema(schema)) {
+    if (schema.minItems || schema.maxItems) {
+      properties.push({
+        key: 'array-range',
+        value: `${schema.minItems || ''}…${schema.maxItems || ''}`,
+      })
+    }
+
+    // Unique items
+    if (schema.uniqueItems) {
+      properties.push({
+        key: 'unique-items',
+        value: `${translate('common.unique')}!`,
+      })
+    }
+  }
+
+  properties.push(...getLeafConstraints(schema))
+
+  // Primitive array items carry their own constraints (e.g. an array of `uuid`
+  // strings) but are not rendered separately, so surface them here.
+  if (isArraySchema(schema) && schema.items) {
+    properties.push(...getLeafConstraints(resolve.schema(schema.items)))
   }
 
   return properties
