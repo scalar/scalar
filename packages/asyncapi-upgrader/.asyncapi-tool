@@ -1,0 +1,15 @@
+{
+  "title": "Scalar AsyncAPI Upgrader",
+  "description": "Upgrade AsyncAPI documents to the latest version. Converts AsyncAPI 1.2 to 2.6, 2.6 to 3.0, and 3.0 to 3.1.",
+  "links": {
+    "websiteUrl": "https://scalar.com",
+    "docsUrl": "https://scalar.com/tools/asyncapi-upgrader/getting-started",
+    "repoUrl": "https://github.com/scalar/scalar/tree/main/packages/asyncapi-upgrader"
+  },
+  "filters": {
+    "language": ["TypeScript", "JavaScript"],
+    "technology": ["Node js"],
+    "categories": ["converter"],
+    "hasCommercial": false
+  }
+}
