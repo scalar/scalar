@@ -311,6 +311,7 @@ const handleDeleteScope = (scopeKey: string) => {
                   letting the row fire too would toggle the scope a second time.
                 -->
                 <DataTableCheckbox
+                  :ariaLabel="`Select ${label} scope`"
                   :modelValue="selectedScopes.includes(id)"
                   @click.stop
                   @update:modelValue="setScope(id, $event)" />
