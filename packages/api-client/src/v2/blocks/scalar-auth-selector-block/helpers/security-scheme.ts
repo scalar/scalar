@@ -1,6 +1,6 @@
 import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
+import type { MergedSecuritySchemes, OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
 import type {
   ComponentsObject,
   OpenApiDocument,
@@ -73,6 +73,54 @@ const formatSecurityRequirement = (
   }
 
   return undefined
+}
+
+/**
+ * Finds the oauth2 scheme best suited to power a bearer scheme's "Authorize via OAuth2" shortcut:
+ * the first scheme with an interactive grant (authorization code / implicit), the kind that sends
+ * a user to an IdP login. Prefers the authorization-code grant (which can refresh) over one
+ * offering only implicit, so the more capable flow wins even when it is declared later.
+ *
+ * This only surfaces a convenience shortcut on the bearer form — it never hides the oauth2 scheme,
+ * which stays independently selectable in the auth dropdown.
+ */
+export const getOauth2AcquisitionTarget = (
+  securitySchemes: NonNullable<ComponentsObject['securitySchemes']> | MergedSecuritySchemes,
+): {
+  name: string
+  flows: OAuthFlowsObjectSecret
+  flowType: 'authorizationCode' | 'implicit'
+  scopes: string[]
+} | null => {
+  let implicitFallback: {
+    name: string
+    flows: OAuthFlowsObjectSecret
+    flowType: 'implicit'
+    scopes: string[]
+  } | null = null
+
+  for (const [name, schemeRef] of Object.entries(securitySchemes)) {
+    const scheme = getResolvedRef(schemeRef)
+    if (scheme?.type !== 'oauth2') {
+      continue
+    }
+    const flows = scheme.flows as OAuthFlowsObjectSecret | undefined
+    if (!flows) {
+      continue
+    }
+    const scopes = (scheme as { 'x-default-scopes'?: string[] })['x-default-scopes'] ?? []
+
+    // Authorization code can refresh, so it wins outright the moment we find one.
+    if (flows.authorizationCode) {
+      return { name, flows, flowType: 'authorizationCode', scopes }
+    }
+    // Otherwise remember the first implicit-only scheme in case no auth-code flow turns up.
+    if (flows.implicit && !implicitFallback) {
+      implicitFallback = { name, flows, flowType: 'implicit', scopes }
+    }
+  }
+
+  return implicitFallback
 }
 
 /**

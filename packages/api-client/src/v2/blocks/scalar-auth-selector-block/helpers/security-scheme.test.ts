@@ -6,6 +6,7 @@ import {
   type SecuritySchemeOption,
   formatComplexScheme,
   formatScheme,
+  getOauth2AcquisitionTarget,
   getSecuritySchemeOptions,
 } from './security-scheme'
 
@@ -732,6 +733,58 @@ describe('security-scheme', () => {
       expect(groups[0]?.options[0]?.label).toBe('OAuth2')
       expect(groups[0]?.options[0]?.value).toEqual({ OAuth2: ['read'] })
       expect(groups[1]?.options.some((option) => option.label === 'OAuth2')).toBe(false)
+    })
+  })
+
+  describe('getOauth2AcquisitionTarget', () => {
+    it('returns null when no oauth2 scheme has an interactive grant', () => {
+      const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        BearerAuth: { type: 'http', scheme: 'bearer' },
+        ClientCredentials: {
+          type: 'oauth2',
+          flows: { clientCredentials: { tokenUrl: 'https://auth.example.com/token', refreshUrl: '', scopes: {} } },
+        },
+      }
+
+      expect(getOauth2AcquisitionTarget(schemes)).toBeNull()
+    })
+
+    it('prefers an authorization-code grant over an implicit one even when implicit is declared first', () => {
+      const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        ImplicitOnly: {
+          type: 'oauth2',
+          flows: { implicit: { authorizationUrl: 'https://auth.example.com/authorize', refreshUrl: '', scopes: {} } },
+        },
+        AuthCode: {
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://auth.example.com/authorize',
+              tokenUrl: 'https://auth.example.com/token',
+              refreshUrl: '',
+              'x-usePkce': 'no',
+              scopes: {},
+            },
+          },
+        },
+      }
+
+      const target = getOauth2AcquisitionTarget(schemes)
+      expect(target?.name).toBe('AuthCode')
+      expect(target?.flowType).toBe('authorizationCode')
+    })
+
+    it('falls back to an implicit grant when no authorization-code flow exists', () => {
+      const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        ImplicitOnly: {
+          type: 'oauth2',
+          flows: { implicit: { authorizationUrl: 'https://auth.example.com/authorize', refreshUrl: '', scopes: {} } },
+        },
+      }
+
+      const target = getOauth2AcquisitionTarget(schemes)
+      expect(target?.name).toBe('ImplicitOnly')
+      expect(target?.flowType).toBe('implicit')
     })
   })
 })
