@@ -140,5 +140,22 @@ describe('Model', () => {
       expect(wrapper.findComponent({ name: 'CompactSection' }).text()).toContain('id')
       expect(wrapper.findComponent({ name: 'CompactSection' }).text()).toContain('name')
     })
+
+    it('names the collapse trigger after the title it renders, not the schema key', () => {
+      const wrapper = mount(Model, {
+        props: {
+          id: 'user',
+          name: 'User',
+          eventBus,
+          schema: { title: 'UserDetailsHeader', type: 'object' } as SchemaObject,
+          isCollapsed: false,
+          options: mockConfigModern,
+        },
+      })
+
+      // The heading renders `title`, so naming the button after `name` would announce
+      // a label that never appears on screen — a WCAG 2.5.3 (Label in Name) failure.
+      expect(wrapper.get('button').attributes('aria-label')).toBe('UserDetailsHeader')
+    })
   })
 })

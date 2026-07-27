@@ -32,6 +32,7 @@ const { schema, options, document } = defineProps<{
     :key="name"
     :label="name"
     :modelValue="!isCollapsed"
+    :triggerLabel="schema.title ?? name"
     @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })"
     @update:modelValue="
       (value) => eventBus?.emit('toggle:nav-item', { id, open: value })

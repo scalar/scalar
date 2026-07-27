@@ -9,6 +9,14 @@ import Section from './Section.vue'
 const { id } = defineProps<{
   id: string
   label?: string
+  /**
+   * Accessible name for the collapse trigger.
+   *
+   * Pass the same text the heading slot renders. An accessible name that does not
+   * contain the visible label breaks WCAG 2.5.3 (Label in Name), so leave this
+   * undefined rather than guessing: the heading content then names the trigger.
+   */
+  triggerLabel?: string
   modelValue: boolean
 }>()
 
@@ -28,7 +36,7 @@ const contentId = computed<string>(() => `${id}-content`)
       :id="id"
       :aria-controls="modelValue ? contentId : undefined"
       :aria-expanded="modelValue"
-      :aria-label="label"
+      :aria-label="triggerLabel"
       class="collapsible-section-trigger"
       :class="{ 'collapsible-section-trigger-open': modelValue }"
       type="button"
