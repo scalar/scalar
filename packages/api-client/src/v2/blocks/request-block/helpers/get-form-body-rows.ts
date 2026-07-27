@@ -6,7 +6,7 @@ import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 
-const stringifyValue = (value: unknown) => {
+export const stringifyValue = (value: unknown) => {
   if (value instanceof File) {
     return value.name
   }
@@ -16,7 +16,7 @@ const stringifyValue = (value: unknown) => {
   return String(value)
 }
 
-type LeafRow = {
+export type LeafRow = {
   path: string[]
   schema: SchemaObject | undefined
   isRequired: boolean
@@ -30,7 +30,11 @@ type LeafRow = {
  * placeholders all stop the recursion. Object properties recurse, so the widget example
  * (`file` + `props.{name,description,created_at}`) yields four leaves.
  */
-const collectLeafProperties = (schema: SchemaObject, parentPath: string[] = [], parentRequired = true): LeafRow[] => {
+export const collectLeafProperties = (
+  schema: SchemaObject,
+  parentPath: string[] = [],
+  parentRequired = true,
+): LeafRow[] => {
   // Nothing to walk if this is not an object schema or has no declared properties.
   if (!isObjectSchema(schema) || !schema.properties) {
     return []
@@ -70,7 +74,7 @@ const collectLeafProperties = (schema: SchemaObject, parentPath: string[] = [], 
  * this walker drives what the user actually sees in the form: a row for every leaf the
  * example contains, even when the schema is partial or out of date.
  */
-const collectExampleRows = (
+export const collectExampleRows = (
   example: unknown,
   schema: SchemaObject | undefined,
   parentPath: string[] = [],

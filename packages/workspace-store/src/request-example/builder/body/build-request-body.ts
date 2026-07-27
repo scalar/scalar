@@ -5,10 +5,10 @@ import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { getExampleFromBody } from './get-request-body-example'
 import { getSelectedBodyContentType } from './get-selected-body-content-type'
+import { buildDottedNestedRowPredicate, coerceLeafValueToSchemaType, resolveLeafSchema } from './schema-value-coercion'
 import { serializeFormPropertyWithEncoding } from './serialize-form-property'
 
 type FormData = {
@@ -52,108 +52,6 @@ export type RequestBody = FormData | UrlEncoded | Raw
 
 const getMultipartEncodingContentType = (requestBody: RequestBodyObject, bodyContentType: string, fieldName: string) =>
   requestBody.content[bodyContentType]?.encoding?.[fieldName]?.contentType
-
-/**
- * Build a predicate that recognizes multipart rows whose dotted name encodes a path
- * into a nested object property of the multipart schema. Without a schema (or when
- * the dotted prefix is not declared as a nested object), a row like `user.email`
- * is treated as a literal name and stays flat — only schema-derived leaves emitted
- * by `get-form-body-rows.ts` are folded back via `foldDottedRowsToObject`.
- */
-const buildDottedNestedRowPredicate = (schema: unknown) => {
-  const resolved = schema ? (getResolvedRef(schema, mergeSiblingReferences) as SchemaObject | undefined) : undefined
-  if (!resolved || !isObjectSchema(resolved) || !resolved.properties) {
-    return (_name: string, _value: unknown) => false
-  }
-  const nestedTopKeys = new Set<string>()
-  for (const [key, child] of Object.entries(resolved.properties)) {
-    const childResolved = child
-      ? (getResolvedRef(child, mergeSiblingReferences) as SchemaObject | undefined)
-      : undefined
-    if (childResolved && isObjectSchema(childResolved) && childResolved.properties) {
-      nestedTopKeys.add(key)
-    }
-  }
-  return (name: string, value: unknown) => {
-    if (value instanceof File || !name.includes('.')) {
-      return false
-    }
-    const head = name.split('.', 1)[0]
-    return !!head && nestedTopKeys.has(head)
-  }
-}
-
-/** Normalize a schema's `type` (string | string[] | absent) into a plain string array. */
-const normalizeSchemaTypes = (schema: SchemaObject): string[] => {
-  const type = 'type' in schema ? schema.type : undefined
-  return Array.isArray(type) ? [...type] : type == null ? [] : [type]
-}
-
-/**
- * Walk an object schema along a dotted-row path and return the resolved leaf schema,
- * or undefined when any segment is not a declared object property.
- */
-const resolveLeafSchema = (schema: SchemaObject | undefined, segments: string[]): SchemaObject | undefined => {
-  let current = schema
-  for (const segment of segments) {
-    if (!current || !isObjectSchema(current) || !current.properties) {
-      return undefined
-    }
-    current = getResolvedRef(current.properties[segment], mergeSiblingReferences) as SchemaObject | undefined
-  }
-  return current
-}
-
-/** True when a JSON-parsed value's runtime type is allowed by the schema's declared types. */
-const parsedValueMatchesSchemaType = (value: unknown, types: string[]): boolean => {
-  if (value === null) {
-    return types.includes('null')
-  }
-  if (Array.isArray(value)) {
-    return types.includes('array')
-  }
-  if (typeof value === 'object') {
-    return types.includes('object')
-  }
-  if (typeof value === 'boolean') {
-    return types.includes('boolean')
-  }
-  if (typeof value === 'number') {
-    // A fractional value only satisfies `number`; `integer` requires a whole number so a
-    // string like "3.14" against an integer-only leaf stays untouched instead of being coerced.
-    return types.includes('number') || (types.includes('integer') && Number.isInteger(value))
-  }
-  if (typeof value === 'string') {
-    return types.includes('string')
-  }
-  return false
-}
-
-/**
- * The form table stringifies every value for display, so an edited nested field comes back
- * as a string (`false` -> "false", `[]` -> "[]"). When the leaf schema declares a non-string
- * type, parse the string back to that type so the regrouped JSON part keeps its original
- * shape instead of becoming string-typed (issue #9416).
- *
- * Coercion is deliberately conservative: schemas that allow `string` keep the raw text, and a
- * value that does not parse as its declared type is left untouched so user input is never lost.
- */
-const coerceLeafValueToSchemaType = (value: unknown, schema: SchemaObject | undefined): unknown => {
-  if (typeof value !== 'string' || !schema) {
-    return value
-  }
-  const types = normalizeSchemaTypes(schema)
-  // No declared type, or a string is allowed: keep the user's text as-is.
-  if (types.length === 0 || types.includes('string')) {
-    return value
-  }
-  try {
-    const parsed = JSON.parse(value)
-    return parsedValueMatchesSchemaType(parsed, types) ? parsed : value
-  } catch {
-    return value
-  }
-}
 
 /**
  * Create the fetch request body
