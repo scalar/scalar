@@ -153,9 +153,15 @@ describe('Model', () => {
         },
       })
 
-      // The heading renders `title`, so naming the button after `name` would announce
-      // a label that never appears on screen — a WCAG 2.5.3 (Label in Name) failure.
-      expect(wrapper.get('button').attributes('aria-label')).toBe('UserDetailsHeader')
+      // The trigger is named from the heading it renders (the title), so the accessible
+      // name always matches the visible text and cannot regress to the schema key —
+      // otherwise it would announce a label that never appears on screen, a WCAG 2.5.3
+      // (Label in Name) failure.
+      const trigger = wrapper.get('button')
+      const labelledby = trigger.attributes('aria-labelledby')
+
+      expect(labelledby).toBeTruthy()
+      expect(wrapper.get(`[id="${labelledby}"]`).text()).toContain('UserDetailsHeader')
     })
   })
 })
