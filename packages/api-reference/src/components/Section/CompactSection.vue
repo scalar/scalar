@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconCaretRight } from '@scalar/icons'
+import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 
@@ -15,6 +16,17 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
   (e: 'copyAnchorUrl'): void
 }>()
+
+/** The trigger owns `id` as its deep link target, so the region it controls needs one of its own */
+const contentId = computed<string>(() => `${id}-content`)
+
+/**
+ * Name the trigger after the heading it renders by pointing `aria-labelledby` at it,
+ * rather than copying the text into an `aria-label`. Referencing the visible node keeps
+ * the accessible name in sync with what is on screen, so it can never drift into a
+ * WCAG 2.5.3 (Label in Name) failure the way a duplicated string can.
+ */
+const labelId = useId()
 </script>
 <template>
   <section
@@ -22,8 +34,9 @@ const emit = defineEmits<{
     class="collapsible-section">
     <button
       :id="id"
-      :aria-controls="id"
+      :aria-controls="modelValue ? contentId : undefined"
       :aria-expanded="modelValue"
+      :aria-labelledby="labelId"
       class="collapsible-section-trigger"
       :class="{ 'collapsible-section-trigger-open': modelValue }"
       type="button"
@@ -35,11 +48,18 @@ const emit = defineEmits<{
       <Anchor
         class="collapsible-section-header"
         @copyAnchorUrl="() => emit('copyAnchorUrl')">
-        <slot name="heading" />
+        <!-- Wrap only the heading so `aria-labelledby` names the trigger after the
+             visible text alone, excluding the caret and the nested copy-link button -->
+        <span
+          :id="labelId"
+          class="contents">
+          <slot name="heading" />
+        </span>
       </Anchor>
     </button>
     <Section
       v-if="modelValue"
+      :id="contentId"
       class="collapsible-section-content"
       :label="label">
       <slot />
