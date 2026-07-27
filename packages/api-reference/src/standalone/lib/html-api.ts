@@ -350,10 +350,12 @@ export const createApiReference: CreateApiReference = (
   const destroy = () => {
     abortController.abort()
     props.configuration = {}
-    app.unmount()
 
+    // Only unmount an app that actually mounted. With `pluginUrls`, mounting is deferred until the
+    // plugin modules resolve, so `destroy` can run first — unmounting then would just warn.
     if (hasMounted) {
       hasMounted = false
+      app.unmount()
       releaseStandaloneStyles(document)
     }
   }
