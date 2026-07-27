@@ -1,14 +1,14 @@
-<div class="flex flex-col gap-3 hero">
+<div class="relative flex flex-col gap-3 hero">
   <scalar-heading level="1" slug="sdk-generator" class="text-balance">
     SDK Generator
   </scalar-heading>
   <a
-    class="inline-flex w-fit max-w-full items-center gap-2 rounded-full bg-b-2 hover:bg-b-3 px-3 py-2 text-xs leading-none text-c-1 no-underline"
+    class="sdk-migration-cta inline-flex w-fit max-w-full items-center gap-2 rounded-full bg-b-2 hover:bg-b-3 px-3 py-2 text-xs leading-none text-c-1 no-underline"
     href="/resources/migration/stainless">
     <span class="font-medium">Migrate off Stainless</span>
-    <span class="text-c-3" aria-hidden="true">•</span>
+    <span class="sdk-migration-cta-separator text-c-3" aria-hidden="true">•</span>
     <span class="inline-flex items-center gap-2 text-c-2">
-      Read more
+      <span class="sdk-migration-cta-read-more">Read more</span>
       <span aria-hidden="true">→</span>
     </span>
   </a>
@@ -477,6 +477,28 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
   .t-editor__button {
     min-width: 160px;
     justify-content: center;
+  }
+
+  .sdk-migration-cta {
+    position: absolute;
+    top: -36px;
+    left: 0;
+    z-index: 10;
+  }
+
+  @media screen and (max-width: 400px) {
+    .t-editor .sdk-migration-cta {
+      gap: 4px;
+      padding-right: 8px;
+      padding-left: 8px;
+    }
+  }
+
+  @media screen and (max-width: 360px) {
+    .t-editor .sdk-migration-cta-separator,
+    .t-editor .sdk-migration-cta-read-more {
+      display: none;
+    }
   }
 
   .code-switcher {
