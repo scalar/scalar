@@ -9,7 +9,10 @@ import com.scalar.maven.core.internal.ScalarConfiguration;
 import com.scalar.maven.core.internal.ScalarConfigurationMapper;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -127,6 +130,28 @@ public class ScalarConfigurationTest {
         assertNotNull(config.getAgent());
         assertEquals("production-agent-key", config.getAgent().getKey());
         assertEquals(false, config.getAgent().getDisabled());
+    }
+
+    @Test
+    public void testScalarConfigurationMappingIncludesPluginUrls() throws JsonProcessingException {
+        ScalarProperties properties = new ScalarProperties();
+        properties.setPluginUrls(List.of("https://example.com/plugin.js"));
+
+        ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
+
+        assertEquals(List.of("https://example.com/plugin.js"), config.getPluginUrls());
+
+        String json = new ObjectMapper().writeValueAsString(config);
+        assertTrue(json.contains("\"pluginUrls\":[\"https://example.com/plugin.js\"]"));
+    }
+
+    @Test
+    public void testPluginUrlsOmittedWhenNotConfigured() throws JsonProcessingException {
+        ScalarConfiguration config = ScalarConfigurationMapper.map(new ScalarProperties());
+        String json = new ObjectMapper().writeValueAsString(config);
+
+        // No plugin URLs configured, so the key must not leak into the serialized configuration
+        assertFalse(json.contains("pluginUrls"));
     }
 
     @Test
