@@ -1812,6 +1812,21 @@ describe('extractSecuritySchemeSecrets', () => {
       expect(result['x-scalar-secret-token']).toBe('store-token')
     })
 
+    it('prioritizes the apiKey document token over the config value field', () => {
+      const authStore = createAuthStore()
+      const scheme = {
+        type: 'apiKey',
+        name: 'X-API-Key',
+        in: 'header',
+        'x-scalar-secret-token': 'document-token',
+        value: 'config-value',
+      } as unknown as ConfigAuthScheme
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug) as ApiKeyObjectSecret
+
+      expect(result['x-scalar-secret-token']).toBe('document-token')
+    })
+
     it('uses the http secrets declared on the document', () => {
       const authStore = createAuthStore()
       const scheme = {
@@ -1827,6 +1842,29 @@ describe('extractSecuritySchemeSecrets', () => {
       expect(result['x-scalar-secret-token']).toBe('document-token')
       expect(result['x-scalar-secret-username']).toBe('document-username')
       expect(result['x-scalar-secret-password']).toBe('document-password')
+    })
+
+    it('prioritizes the auth store secrets over the http document secrets', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'http',
+        'x-scalar-secret-token': 'store-token',
+        'x-scalar-secret-username': 'store-username',
+        'x-scalar-secret-password': 'store-password',
+      })
+      const scheme = {
+        type: 'http',
+        scheme: 'basic',
+        'x-scalar-secret-token': 'document-token',
+        'x-scalar-secret-username': 'document-username',
+        'x-scalar-secret-password': 'document-password',
+      } as unknown as ConfigAuthScheme
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug) as HttpObjectSecret
+
+      expect(result['x-scalar-secret-token']).toBe('store-token')
+      expect(result['x-scalar-secret-username']).toBe('store-username')
+      expect(result['x-scalar-secret-password']).toBe('store-password')
     })
   })
 })
