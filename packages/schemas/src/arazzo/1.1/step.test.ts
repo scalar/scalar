@@ -24,6 +24,7 @@ describe('step', () => {
         channelPath: '{$sourceDescriptions.asyncApiSource.url}#/channels/lightingMeasured',
         action: 'receive',
         correlationId: '$inputs.orderCorrelationId',
+        parameters: [{ name: 'streetlightId', in: 'channel', value: '$inputs.streetlightId' }],
       }),
     ).toBe(true)
   })

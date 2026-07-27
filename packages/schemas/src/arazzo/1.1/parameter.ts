@@ -12,10 +12,20 @@ export const arazzoParameterObject = object(
   {
     name: string({ typeComment: 'REQUIRED. The name of the parameter.' }),
     in: optional(
-      union([literal('path'), literal('query'), literal('querystring'), literal('header'), literal('cookie')], {
-        typeComment:
-          'The location of the parameter. REQUIRED unless the parameter is defined with a Reusable Object referencing a Components parameter.',
-      }),
+      union(
+        [
+          literal('path'),
+          literal('query'),
+          literal('querystring'),
+          literal('header'),
+          literal('cookie'),
+          literal('channel'),
+        ],
+        {
+          typeComment:
+            'The location of the parameter. REQUIRED unless the parameter is defined with a Reusable Object referencing a Components parameter.',
+        },
+      ),
     ),
     value: union([unknown(), string(), arazzoSelectorObject], {
       typeComment:

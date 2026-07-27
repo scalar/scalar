@@ -15,6 +15,16 @@ describe('selector', () => {
     ).toBe(true)
   })
 
+  it('validates a Selector Object whose type is an Expression Type Object', () => {
+    expect(
+      validate(arazzoSelectorObject, {
+        context: '$response.body',
+        selector: '$.pets[0].id',
+        type: { type: 'jsonpath', version: 'rfc9535' },
+      }),
+    ).toBe(true)
+  })
+
   it('rejects a Selector Object missing a required field', () => {
     expect(validate(arazzoSelectorObject, { context: '$response.body', selector: '$.pets[0].id' })).toBe(false)
   })

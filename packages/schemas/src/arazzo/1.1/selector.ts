@@ -1,4 +1,6 @@
-import { object, string } from '@scalar/validation'
+import { object, string, union } from '@scalar/validation'
+
+import { arazzoExpressionTypeObject } from './expression-type'
 
 /**
  * Selector Object.
@@ -12,7 +14,10 @@ export const arazzoSelectorObject = object(
       typeComment: 'REQUIRED. A Runtime Expression that defines the context to apply the selector to.',
     }),
     selector: string({ typeComment: 'REQUIRED. The selector expression to apply to the context.' }),
-    type: string({ typeComment: 'REQUIRED. The type of selector expression, for example "jsonpath" or "xpath".' }),
+    type: union([string(), arazzoExpressionTypeObject], {
+      typeComment:
+        'REQUIRED. The type of selector expression, for example "jsonpath", "xpath", or "jsonpointer". MAY be an Expression Type Object to pin a specific expression language version.',
+    }),
   },
   { typeName: 'ArazzoSelectorObject' },
 )
