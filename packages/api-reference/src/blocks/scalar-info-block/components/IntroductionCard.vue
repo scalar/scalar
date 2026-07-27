@@ -22,38 +22,32 @@ const { row } = defineProps<{
 .introduction-card-row {
   gap: 24px;
 }
-/* Classic layout */
-@media (min-width: 600px) {
-  .introduction-card-row {
-    flex-flow: row wrap;
-  }
+/*
+ * Classic layout: a row of cards that stacks when the reference is narrow.
+ * The reference is an embeddable widget, so the cards adapt to its rendered
+ * width (see Content.vue), not to the viewport.
+ */
+.introduction-card-row {
+  flex-flow: row wrap;
 }
 .introduction-card-row > * {
   flex: 1;
+  min-width: min-content;
 }
-@media (min-width: 600px) {
-  .introduction-card-row > * {
-    min-width: min-content;
-  }
-}
-@media (max-width: 600px) {
-  .introduction-card-row > * {
-    max-width: 100%;
-  }
-}
-@container (max-width: 900px) {
+@container narrow-references-container (max-width: 900px) {
   .introduction-card-row {
     flex-direction: column;
     align-items: stretch;
-    gap: 0px;
+    gap: 0;
+  }
+  .introduction-card-row > * {
+    min-width: auto;
+    max-width: 100%;
   }
 }
 .introduction-card :deep(.security-scheme-label) {
   text-transform: uppercase;
   font-weight: var(--scalar-semibold);
-}
-.introduction-card-row :deep(.scalar-card:nth-of-type(2) .scalar-card-header) {
-  display: none;
 }
 .introduction-card-row :deep(.scalar-card:nth-of-type(2) .scalar-card-header) {
   display: none;
