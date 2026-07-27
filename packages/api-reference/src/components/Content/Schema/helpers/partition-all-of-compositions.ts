@@ -7,7 +7,7 @@ import type { CompositionKeyword } from './schema-composition'
 type ChoiceKeyword = Extract<CompositionKeyword, 'oneOf' | 'anyOf'>
 
 /** An ordered piece of an `allOf`: either a merged object or a choice picker. */
-export type AllOfSegment =
+type AllOfSegment =
   | { kind: 'object'; schema: SchemaObject }
   | {
       kind: 'choice'
