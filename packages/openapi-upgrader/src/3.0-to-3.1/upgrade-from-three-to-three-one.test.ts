@@ -615,6 +615,62 @@ describe('upgradeFromThreeToThreeOne', () => {
         type: 'anything',
       })
     })
+
+    it('does not treat the value of an Example Object as a schema', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/things': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'ok',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object' },
+                      examples: {
+                        sample: { value: { type: 'string', nullable: true } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const mediaType = (result.paths?.['/things']?.get?.responses?.['200'] as OpenAPIV3_1.ResponseObject)?.content?.[
+        'application/json'
+      ]
+
+      // The example value is data, so it is preserved verbatim
+      expect((mediaType?.examples?.sample as OpenAPIV3_1.ExampleObject)?.value).toEqual({
+        type: 'string',
+        nullable: true,
+      })
+    })
+
+    it('still upgrades a schema property named "value" inside a schema named "examples"', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            examples: {
+              type: 'object',
+              properties: {
+                value: { type: 'string', nullable: true },
+              },
+            },
+          },
+        },
+      })
+
+      // This 'value' is a real schema, not Example Object data, so nullable is still upgraded
+      expect(result.components?.schemas?.examples?.properties?.value).toEqual({ type: ['string', 'null'] })
+    })
   })
 
   describe('upgrading x-webhooks', () => {

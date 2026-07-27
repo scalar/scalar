@@ -88,6 +88,13 @@ export function isInsideDataValue(path: string[] | undefined): boolean {
     if (DATA_KEYWORDS.has(segment) && !isNamedSchemaMap(path.slice(0, index))) {
       return true
     }
+
+    // The `value` of an Example Object (`examples/<name>/value`) holds arbitrary data too.
+    // Require a real examples map two segments up so a property named `value` inside a schema
+    // named `examples` is not mistaken for it.
+    if (segment === 'value' && path[index - 2] === 'examples' && !isNamedSchemaMap(path.slice(0, index - 2))) {
+      return true
+    }
   }
 
   return false
