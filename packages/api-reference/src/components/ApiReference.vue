@@ -891,11 +891,13 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
       isOpenApiDocument(document) &&
       document['x-scalar-selected-server'] === undefined
     ) {
-      // Set the active server if the document is loaded successfully
+      // Set the active server if the document is loaded successfully. Resolve relative servers
+      // against this document's own base URL, not the active document's, so a background preload
+      // does not derive its server from whichever document happens to be active.
       const servers = getServers(
         normalized.config.servers ?? document.servers,
         {
-          baseServerUrl: mergedConfig.value.baseServerURL,
+          baseServerUrl: config.baseServerURL,
           documentUrl: normalized.source.url,
         },
       )
