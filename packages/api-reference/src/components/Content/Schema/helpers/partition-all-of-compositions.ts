@@ -2,7 +2,7 @@ import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
-import { type CompositionKeyword } from './schema-composition'
+import type { CompositionKeyword } from './schema-composition'
 
 type ChoiceKeyword = Extract<CompositionKeyword, 'oneOf' | 'anyOf'>
 
@@ -33,7 +33,7 @@ type Member =
  * visual variant and Scalar would otherwise render `not` as a bogus picker. The
  * rule still lives in the schema (validation) and in field descriptions.
  */
-const collectMembers = (schema: SchemaObject, out: Member[]): void => {
+const collectMembers = (schema: SchemaObject, out: Member[], seenRefs: Set<string>): void => {
   const {
     allOf,
     oneOf,
@@ -60,14 +60,26 @@ const collectMembers = (schema: SchemaObject, out: Member[]): void => {
   for (const keyword of CHOICE_KEYWORDS) {
     const value = keyword === 'oneOf' ? oneOf : anyOf
     if (Array.isArray(value) && value.length > 0) {
-      out.push({ kind: 'choice', composition: keyword, value: { [keyword]: value } as SchemaObject })
+      out.push({ kind: 'choice', composition: keyword, value: { [keyword]: value } as unknown as SchemaObject })
     }
   }
 
   if (Array.isArray(allOf)) {
     for (const rawMember of allOf) {
       if (rawMember && typeof rawMember === 'object') {
-        collectMembers(resolve.schema(rawMember) as SchemaObject, out)
+        const resolved = resolve.schema(rawMember) as SchemaObject & { $ref?: string }
+        // Break `$ref` cycles reached through `allOf` (e.g. a member that
+        // references an ancestor). Without this guard a recursive `allOf`
+        // schema would recurse forever. `mergeAllOfSchemas` guards the same way.
+        const ref = resolved.$ref
+        if (typeof ref === 'string') {
+          if (seenRefs.has(ref)) {
+            continue
+          }
+          collectMembers(resolved, out, new Set(seenRefs).add(ref))
+        } else {
+          collectMembers(resolved, out, seenRefs)
+        }
       }
     }
   }
@@ -119,9 +131,12 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
   if (Object.keys(rest).length > 0) {
     members.push({ kind: 'object', schema: rest as SchemaObject })
   }
+  const seenRefs = new Set<string>()
   for (const rawMember of allOf) {
     if (rawMember && typeof rawMember === 'object') {
-      collectMembers(resolve.schema(rawMember) as SchemaObject, members)
+      const resolved = resolve.schema(rawMember) as SchemaObject & { $ref?: string }
+      const ref = resolved.$ref
+      collectMembers(resolved, members, typeof ref === 'string' ? new Set(seenRefs).add(ref) : seenRefs)
     }
   }
 
@@ -145,6 +160,11 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
       objectRun.push(member.schema)
     } else {
       flushObjectRun()
+      // `choiceIndex` is the ordinal used to build the composition-selection key
+      // that syncs each picker with the request example. It MUST stay aligned
+      // with the ordinal computed while walking `allOf` in
+      // `get-example-from-schema.ts` (`@scalar/workspace-store`), or a picker and
+      // its generated example fall out of sync.
       segments.push({
         kind: 'choice',
         composition: member.composition,

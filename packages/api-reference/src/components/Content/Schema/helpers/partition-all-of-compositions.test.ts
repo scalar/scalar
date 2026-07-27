@@ -38,11 +38,11 @@ describe('partitionAllOfCompositions', () => {
         { type: 'object', properties: { a: { type: 'string' } } },
         { type: 'object', properties: { b: { type: 'string' } } },
       ],
-    } as SchemaObject
+    } as unknown as SchemaObject
 
     const { segments } = partitionAllOfCompositions(schema)
     expect(segments).toHaveLength(1)
-    expect(segments[0].kind).toBe('object')
+    expect(segments[0]!.kind).toBe('object')
     expect((segments[0] as any).schema.properties).toEqual({ a: { type: 'string' }, b: { type: 'string' } })
   })
 
@@ -62,6 +62,20 @@ describe('partitionAllOfCompositions', () => {
     const { segments } = partitionAllOfCompositions(schema)
     expect(segments.map((s) => s.kind)).toEqual(['object', 'choice', 'object'])
     expect(segments[1]).toMatchObject({ choiceIndex: 0 })
+  })
+
+  it('does not recurse forever on a self-referential allOf ($ref cycle)', () => {
+    // A schema whose `allOf` references itself through a resolved `$ref`. Without
+    // a cycle guard the member walk would recurse until the stack overflows.
+    const cyclic: Record<string, unknown> = {
+      allOf: [{ type: 'object', properties: { id: { type: 'string' } } }],
+    }
+    ;(cyclic.allOf as unknown[]).push({ $ref: '#/cyclic', '$ref-value': cyclic })
+
+    const { segments } = partitionAllOfCompositions(cyclic as unknown as SchemaObject)
+
+    // Terminates and still surfaces the concrete object member.
+    expect(segments.some((segment) => segment.kind === 'object')).toBe(true)
   })
 
   it('drops pure-constraint members (not / if-then-else) from object segments', () => {
