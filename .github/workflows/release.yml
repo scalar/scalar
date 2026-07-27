@@ -198,8 +198,12 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          # Build everything
-          packages: './**'
+          # Build only the workspaces that can reach npm. Every public package
+          # lives under packages/ or integrations/ — projects/, examples/ and
+          # tooling/ are all private, so `pnpm -r publish` never publishes
+          # them and building them here only slowed the release down. This is
+          # the same filter the main-branch build job uses.
+          packages: './{packages,integrations}/**'
       - name: Git Status
         run: git status
       - name: Stash changes
