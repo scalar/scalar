@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components/icon'
 import { cva } from '@scalar/use-hooks/useBindCx'
-import { nextTick, ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import DataTableCell from './DataTableCell.vue'
 
@@ -23,19 +23,24 @@ const emit = defineEmits<{
 const input = ref<HTMLInputElement | null>(null)
 
 /**
- * Clicking a native checkbox flips its `checked` state immediately, before the parent has a
- * chance to accept (or reject) the change. When the parent leaves `modelValue` unchanged the
- * `:checked` binding has nothing to patch, so the box would stay visually out of sync with the
- * value it represents. Re-asserting `modelValue` after the update keeps the rendered state and
- * the source of truth aligned in both the accepted and rejected cases.
+ * Clicking a native checkbox flips its `checked` state immediately, before the parent has had a
+ * chance to accept (or reject) the change. Once the model settles, mirror it back onto the input
+ * so the rendered state and the source of truth stay aligned. Parents often update `modelValue`
+ * asynchronously (scope toggles travel through the async workspace event bus), so we react to the
+ * value landing rather than resetting on a fixed tick, which would revert a successful toggle
+ * before the update arrives and cause a visible flicker.
  */
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (input.value) {
+      input.value.checked = value
+    }
+  },
+)
+
 const onChange = (event: Event) => {
   emit('update:modelValue', (event.target as HTMLInputElement).checked)
-  nextTick(() => {
-    if (input.value) {
-      input.value.checked = props.modelValue
-    }
-  })
 }
 
 const variants = cva({

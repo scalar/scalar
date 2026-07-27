@@ -2,4 +2,4 @@
 '@scalar/api-client': patch
 ---
 
-Keep `DataTableCheckbox` visually in sync with its value. When a click does not end up changing `modelValue`, the checkbox now reverts to the model state instead of showing the browser's optimistic toggle.
+Keep `DataTableCheckbox` visually in sync with its value. The checkbox now mirrors `modelValue` onto the native input whenever the value settles, including when the parent updates it asynchronously, so a successful toggle no longer flickers back before the update lands.
