@@ -575,6 +575,80 @@ describe('upgradeFromThreeToThreeOne', () => {
         example: { type: 'string', examples: ['foo'] },
       })
     })
+
+    it('does not treat data inside an example value as a schema', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'string',
+              example: { type: 'string', nullable: true, exclusiveMinimum: true, minimum: 5, 'x-webhooks': { a: 1 } },
+            },
+          },
+        },
+      })
+
+      // The example is arbitrary data, so it is preserved verbatim inside the examples array
+      expect((result.components?.schemas?.MySchema as OpenAPIV3_1.SchemaObject)?.examples).toEqual([
+        { type: 'string', nullable: true, exclusiveMinimum: true, minimum: 5, 'x-webhooks': { a: 1 } },
+      ])
+    })
+
+    it('does not treat data inside a default value as a schema', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              default: { nullable: true, type: 'anything' },
+            },
+          },
+        },
+      })
+
+      expect((result.components?.schemas?.MySchema as OpenAPIV3_1.SchemaObject)?.default).toEqual({
+        nullable: true,
+        type: 'anything',
+      })
+    })
+  })
+
+  describe('upgrading x-webhooks', () => {
+    it('renames x-webhooks to webhooks at the document root', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        'x-webhooks': { onEvent: { post: { responses: { '200': { description: 'ok' } } } } },
+      })
+
+      expect(result.webhooks).toEqual({ onEvent: { post: { responses: { '200': { description: 'ok' } } } } })
+      expect((result as Record<string, unknown>)['x-webhooks']).toBeUndefined()
+    })
+
+    it('does not rename a schema property named x-webhooks', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              properties: {
+                'x-webhooks': { type: 'string' },
+              },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.MySchema?.properties).toEqual({
+        'x-webhooks': { type: 'string' },
+      })
+    })
   })
 
   describe('describing File Upload Payloads', () => {

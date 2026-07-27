@@ -66,6 +66,33 @@ export function isNamedSchemaMap(path: string[] | undefined): boolean {
   return NAMED_SCHEMA_MAP_SEGMENTS.has(last)
 }
 
+// Keywords whose value is arbitrary data rather than a schema. The upgrade rules only make
+// sense for schema keywords, so nothing nested under these may be rewritten.
+const DATA_KEYWORDS = new Set(['example', 'default', 'const', 'enum'])
+
+/**
+ * Determine if the node at `path` lives inside a data value rather than a schema.
+ *
+ * The traversal visits every object node, but a value held by keywords like `example` or
+ * `default` is user data, not a schema. Applying the schema transforms to it would mangle it
+ * (turning `nullable: true` into a type array, renaming a nested `x-webhooks`, and so on).
+ */
+export function isInsideDataValue(path: string[] | undefined): boolean {
+  if (!path) {
+    return false
+  }
+
+  for (const [index, segment] of path.entries()) {
+    // Only treat it as data when the keyword is a real keyword. Inside a named-schema map the
+    // same word (e.g. a property literally called `default`) is just a member name.
+    if (DATA_KEYWORDS.has(segment) && !isNamedSchemaMap(path.slice(0, index))) {
+      return true
+    }
+  }
+
+  return false
+}
+
 /**
  * Upgrade from OpenAPI 3.0.x to 3.1.1
  *
@@ -88,6 +115,12 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
 }
 
 const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
+  // 0. Bail out inside data values (example, default, const, enum). These hold user data, not a
+  // schema, so none of the schema transforms below apply and running them would corrupt the data.
+  if (isInsideDataValue(path)) {
+    return schema
+  }
+
   // 1. Handle nullable types
   if (schema.type !== undefined && schema.nullable === true) {
     schema.type = [schema.type, 'null']
@@ -200,7 +233,9 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
   }
 
   // 7. Handle x-webhooks
-  if (schema['x-webhooks'] !== undefined) {
+  // `x-webhooks` is a document-root extension, so only rename it there. Anywhere else (a schema
+  // property, an example) a key named `x-webhooks` is unrelated and must be left alone.
+  if (schema['x-webhooks'] !== undefined && (path === undefined || path.length === 0)) {
     schema.webhooks = schema['x-webhooks']
     delete schema['x-webhooks']
   }
