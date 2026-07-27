@@ -3,7 +3,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 /** Normalize a schema's `type` (string | string[] | absent) into a plain string array. */
-export const normalizeSchemaTypes = (schema: SchemaObject): string[] => {
+const normalizeSchemaTypes = (schema: SchemaObject): string[] => {
   const type = 'type' in schema ? schema.type : undefined
   return Array.isArray(type) ? [...type] : type == null ? [] : [type]
 }
@@ -24,7 +24,7 @@ export const resolveLeafSchema = (schema: SchemaObject | undefined, segments: st
 }
 
 /** True when a JSON-parsed value's runtime type is allowed by the schema's declared types. */
-export const parsedValueMatchesSchemaType = (value: unknown, types: string[]): boolean => {
+const parsedValueMatchesSchemaType = (value: unknown, types: string[]): boolean => {
   if (value === null) {
     return types.includes('null')
   }

@@ -2,7 +2,7 @@ import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
 
 /** Parse/serialize pair for a structured (form-editable) body content type. */
-export type StructuredBodyCodec = {
+type StructuredBodyCodec = {
   /** Language for the raw code editor, doubles as the codec family id */
   language: 'json' | 'yaml'
   parse: (text: string) => unknown
