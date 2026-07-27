@@ -246,16 +246,6 @@ export type XScalarSecretClientCertificate = {
   'x-scalar-secret-client-certificate': string
 }
 
-export const XScalarSecretClientCertificate = object(
-  {
-    'x-scalar-secret-client-certificate': string(),
-  },
-  {
-    typeName: 'XScalarSecretClientCertificate',
-    typeComment: 'Persisted X509 client certificate (sensitive)',
-  },
-)
-
 /**
  * Private key (PEM) for X509 authentication
  *
@@ -274,16 +264,6 @@ export type XScalarSecretPrivateKey = {
   'x-scalar-secret-private-key': string
 }
 
-export const XScalarSecretPrivateKey = object(
-  {
-    'x-scalar-secret-private-key': string(),
-  },
-  {
-    typeName: 'XScalarSecretPrivateKey',
-    typeComment: 'Persisted X509 private key (sensitive)',
-  },
-)
-
 /**
  * Service name for GSSAPI (Kerberos) authentication
  *
@@ -301,13 +281,3 @@ export const XScalarSecretServiceNameSchema = Type.Object({
 export type XScalarSecretServiceName = {
   'x-scalar-secret-service-name': string
 }
-
-export const XScalarSecretServiceName = object(
-  {
-    'x-scalar-secret-service-name': string(),
-  },
-  {
-    typeName: 'XScalarSecretServiceName',
-    typeComment: 'Persisted GSSAPI service name',
-  },
-)
