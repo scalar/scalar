@@ -513,6 +513,68 @@ describe('upgradeFromThreeToThreeOne', () => {
         platform: { type: ['string', 'null'] },
       })
     })
+
+    it('does not convert a schema named "example" in components/schemas', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            example: { type: 'string', nullable: true },
+            other: { type: 'number' },
+          },
+        },
+      })
+
+      // The 'example' key is a schema name, so it must stay a schema entry, not become an examples array
+      expect(result.components?.schemas).toEqual({
+        example: { type: ['string', 'null'] },
+        other: { type: 'number' },
+      })
+    })
+
+    it('does not convert a "$defs" entry named "example"', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              $defs: {
+                example: { type: 'string' },
+              },
+            },
+          },
+        },
+      })
+
+      expect((result.components?.schemas?.MySchema as OpenAPIV3_1.SchemaObject)?.$defs).toEqual({
+        example: { type: 'string' },
+      })
+    })
+
+    it('still converts a real "example" keyword nested under a property named "example"', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          schemas: {
+            MySchema: {
+              type: 'object',
+              properties: {
+                example: { type: 'string', example: 'foo' },
+              },
+            },
+          },
+        },
+      })
+
+      // The outer 'example' stays a property; its inner 'example' keyword still becomes 'examples'
+      expect(result.components?.schemas?.MySchema?.properties).toEqual({
+        example: { type: 'string', examples: ['foo'] },
+      })
+    })
   })
 
   describe('describing File Upload Payloads', () => {
