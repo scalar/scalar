@@ -229,5 +229,6 @@ export const en = {
     oneOf: 'one of:',
     required: 'Auth Required',
     requires: 'Requires',
+    scopes: 'OAuth scopes',
   },
 } satisfies ApiReferenceTranslations

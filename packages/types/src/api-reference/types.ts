@@ -582,6 +582,7 @@ export type ApiReferenceTranslations = {
     oneOf: string
     required: string
     requires: string
+    scopes: string
   }
 }
 

@@ -226,5 +226,6 @@ export const ar = {
     oneOf: 'واحد من:',
     required: 'المصادقة مطلوبة',
     requires: 'يتطلب',
+    scopes: 'نطاقات OAuth',
   },
 } satisfies ApiReferenceTranslations

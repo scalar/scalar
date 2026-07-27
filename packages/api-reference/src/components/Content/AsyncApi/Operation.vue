@@ -10,10 +10,12 @@ import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionHeaderTag } from '@/components/Section'
+import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
+import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiOperation } from './helpers/resolve-async-api-nodes'
 import Message from './Message.vue'
@@ -75,6 +77,11 @@ const messages = computed(() =>
     'asyncapi-message',
   ),
 )
+
+/** OAuth scopes required by this operation, rendered below the description. */
+const requiredSecurity = computed(() =>
+  getAsyncApiRequiredSecurity(document, resolvedOperation.value),
+)
 </script>
 
 <template>
@@ -107,6 +114,8 @@ const messages = computed(() =>
       class="operation-description"
       :value="description"
       withImages />
+
+    <OperationScopes :requiredSecurity="requiredSecurity" />
 
     <Message
       v-for="message in messages"

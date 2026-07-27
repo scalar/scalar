@@ -77,6 +77,32 @@ describe('Operation', () => {
     expect(wrapper.text()).toContain('Fired whenever a user signs up.')
   })
 
+  it('renders the required OAuth scopes below the description', () => {
+    const wrapper = mount(Operation, {
+      props: {
+        operation: createOperation(),
+        document: {
+          asyncapi: '3.0.0',
+          info: { title: 'Streaming API', version: '1.0.0' },
+          'x-scalar-original-document-hash': '',
+          components: { securitySchemes: { oauth2: { type: 'oauth2', flows: {} } } },
+          channels: { userSignedUp: { address: 'user/signedup' } },
+          operations: {
+            onUserSignedUp: {
+              action: 'receive',
+              channel: { $ref: '#/channels/userSignedUp' },
+              security: [{ type: 'oauth2', flows: {}, scopes: ['read:events'] }],
+            },
+          },
+        } as unknown as AsyncApiDocument,
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain('OAuth scopes')
+    expect(wrapper.text()).toContain('read:events')
+  })
+
   it('renders a message accordion for each message child', () => {
     const wrapper = mount(Operation, {
       props: {
