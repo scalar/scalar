@@ -100,8 +100,8 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const checkbox = wrapper.findComponent(DataTableCheckbox)
-    expect(checkbox.props('ariaLabel')).toBe('Include x-api-key in request')
+    const checkbox = wrapper.find('input[type="checkbox"]')
+    expect(checkbox.attributes('aria-label')).toBe('Include x-api-key in request')
   })
 
   it('gives the delete row button a row-specific accessible name', () => {

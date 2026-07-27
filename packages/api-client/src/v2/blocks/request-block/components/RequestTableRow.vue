@@ -212,7 +212,7 @@ const handleKeyBlur = (newName: string): void => {
       error: validationResult.ok === false && invalidParams?.has(data.name),
     }">
     <DataTableCheckbox
-      :ariaLabel="`Include ${data.name} in request`"
+      :ariaLabel="`Include ${data.name || 'row'} in request`"
       class="!border-r"
       :disabled="hasCheckboxDisabled ?? false"
       :modelValue="!isDisabled"
