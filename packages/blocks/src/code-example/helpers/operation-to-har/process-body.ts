@@ -1,4 +1,5 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -131,7 +132,7 @@ const objectToFormParams = (
       isMultipart &&
       !parentKey &&
       !hasFormStyle &&
-      value.some((item) => typeof item === 'object' && item !== null && !(item instanceof File))
+      value.some((item) => isObjectLike(item) && !(item instanceof File))
     ) {
       /**
        * Per OpenAPI 3.x: a top-level multipart array whose items are objects defaults to a single
