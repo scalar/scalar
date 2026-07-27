@@ -21,7 +21,7 @@ runs:
         cache: 'pnpm'
 
     # Branch-scoped persistent turbo cache.
-    # Bump the `v1` suffix in both keys below to invalidate every cache.
+    # Bump the `v1` suffix in the cache keys below to invalidate every cache.
     - if: startsWith(runner.name, 'blacksmith')
       name: Setup persistent turbo cache
       uses: useblacksmith/stickydisk@41873b1513bb679f9c115504cbd13d3660432504 # v1
@@ -37,3 +37,26 @@ runs:
       with:
         key: ${{ github.repository }}-${{ github.ref_name }}-pnpm-store-${{ steps.node-version.outputs.version }}-${{ hashFiles('pnpm-lock.yaml') }}-v1
         path: ~/.local/share/pnpm/store
+
+    # Fallback turbo cache for GitHub-hosted runners, where the stickydisk
+    # steps never run — notably npm-publish, which must stay GitHub-hosted
+    # (npm provenance rejects self-hosted OIDC) and otherwise rebuilds cold.
+    - if: ${{ !startsWith(runner.name, 'blacksmith') }}
+      name: Setup turbo cache (GitHub-hosted fallback)
+      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+      with:
+        path: ./.turbo
+        key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}-v1-${{ github.sha }}
+        restore-keys: |
+          ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}-v1-
+
+    # Turbo never prunes ./.turbo/cache, so drop entries untouched for two
+    # weeks to keep the saved tarball bounded. A pruned-but-hot entry just
+    # rebuilds once on the next run.
+    - if: ${{ !startsWith(runner.name, 'blacksmith') }}
+      name: Prune stale turbo cache entries
+      shell: bash
+      run: |
+        if [ -d ./.turbo/cache ]; then
+          find ./.turbo/cache -type f -mtime +14 -delete
+        fi
