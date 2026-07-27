@@ -2,11 +2,7 @@
 import { ScalarMarkdownSummary } from '@scalar/components/markdown'
 import type {
   SecretsApiKey,
-  SecretsEncryption,
-  SecretsGssapi,
   SecretsHttp,
-  SecretsSasl,
-  SecretsX509,
 } from '@scalar/workspace-store/entities/auth'
 import type {
   ApiReferenceEvents,
@@ -245,41 +241,17 @@ const handleApiKeySecretsUpdate = (
     name,
   })
 
-const handleSaslSecretsUpdate = (
-  payload: Omit<Partial<SecretsSasl>, 'type'>,
-  name: string,
-  type: SecretsSasl['type'],
-): void =>
-  eventBus.emit('auth:update:security-scheme-secrets', {
-    payload: { type, ...payload },
-    name,
-  })
-
-const handleX509SecretsUpdate = (
-  payload: Omit<Partial<SecretsX509>, 'type'>,
+/**
+ * AsyncAPI broker credentials (SASL, X509, encryption, GSSAPI) all persist through the same
+ * event; only the secret key and scheme type differ, so they share one handler. The caller passes
+ * a payload that already carries the narrowed scheme `type`.
+ */
+const handleBrokerSecretsUpdate = (
+  payload: ApiReferenceEvents['auth:update:security-scheme-secrets']['payload'],
   name: string,
 ): void =>
   eventBus.emit('auth:update:security-scheme-secrets', {
-    payload: { type: 'X509', ...payload },
-    name,
-  })
-
-const handleEncryptionSecretsUpdate = (
-  payload: Omit<Partial<SecretsEncryption>, 'type'>,
-  name: string,
-  type: SecretsEncryption['type'],
-): void =>
-  eventBus.emit('auth:update:security-scheme-secrets', {
-    payload: { type, ...payload },
-    name,
-  })
-
-const handleGssapiSecretsUpdate = (
-  payload: Omit<Partial<SecretsGssapi>, 'type'>,
-  name: string,
-): void =>
-  eventBus.emit('auth:update:security-scheme-secrets', {
-    payload: { type: 'gssapi', ...payload },
+    payload,
     name,
   })
 
@@ -516,10 +488,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           required
           @update:modelValue="
             (v) =>
-              handleSaslSecretsUpdate(
-                { 'x-scalar-secret-username': v },
+              handleBrokerSecretsUpdate(
+                { 'type': scheme.type, 'x-scalar-secret-username': v },
                 name,
-                scheme.type,
               )
           ">
           Username
@@ -533,10 +504,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           type="password"
           @update:modelValue="
             (v) =>
-              handleSaslSecretsUpdate(
-                { 'x-scalar-secret-password': v },
+              handleBrokerSecretsUpdate(
+                { 'type': scheme.type, 'x-scalar-secret-password': v },
                 name,
-                scheme.type,
               )
           ">
           Password
@@ -555,8 +525,11 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           type="password"
           @update:modelValue="
             (v) =>
-              handleX509SecretsUpdate(
-                { 'x-scalar-secret-client-certificate': v },
+              handleBrokerSecretsUpdate(
+                {
+                  'type': scheme.type,
+                  'x-scalar-secret-client-certificate': v,
+                },
                 name,
               )
           ">
@@ -571,8 +544,8 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           type="password"
           @update:modelValue="
             (v) =>
-              handleX509SecretsUpdate(
-                { 'x-scalar-secret-private-key': v },
+              handleBrokerSecretsUpdate(
+                { 'type': scheme.type, 'x-scalar-secret-private-key': v },
                 name,
               )
           ">
@@ -592,10 +565,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           type="password"
           @update:modelValue="
             (v) =>
-              handleEncryptionSecretsUpdate(
-                { 'x-scalar-secret-token': v },
+              handleBrokerSecretsUpdate(
+                { 'type': scheme.type, 'x-scalar-secret-token': v },
                 name,
-                scheme.type,
               )
           ">
           Key
@@ -613,8 +585,8 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           placeholder="kafka"
           @update:modelValue="
             (v) =>
-              handleGssapiSecretsUpdate(
-                { 'x-scalar-secret-service-name': v },
+              handleBrokerSecretsUpdate(
+                { 'type': scheme.type, 'x-scalar-secret-service-name': v },
                 name,
               )
           ">
