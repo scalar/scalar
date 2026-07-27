@@ -181,7 +181,8 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   top: 42px;
 }
 
-.extension {
+/* Scoped to `.badge.extension` so the accent colors override the badge base styles. */
+.badge.extension {
   z-index: 1;
   background: var(--scalar-link-color, var(--scalar-color-accent));
   color: var(--scalar-background-1);
