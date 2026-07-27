@@ -51,7 +51,7 @@ const NAMED_SCHEMA_MAP_SEGMENTS = new Set(['properties', 'patternProperties', '$
  * A key called `example` (or `examples`) inside one of these maps is a member *name*, not the
  * schema keyword, so it must be left untouched.
  */
-export function isNamedSchemaMap(path: string[] | undefined): boolean {
+function isNamedSchemaMap(path: string[] | undefined): boolean {
   const last = path?.[path.length - 1]
 
   if (last === undefined) {
@@ -77,7 +77,7 @@ const DATA_KEYWORDS = new Set(['example', 'default', 'const', 'enum'])
  * `default` is user data, not a schema. Applying the schema transforms to it would mangle it
  * (turning `nullable: true` into a type array, renaming a nested `x-webhooks`, and so on).
  */
-export function isInsideDataValue(path: string[] | undefined): boolean {
+function isInsideDataValue(path: string[] | undefined): boolean {
   if (!path) {
     return false
   }
