@@ -105,15 +105,17 @@ export type Target = {
  * for its target language and client library.
  */
 export type Plugin = {
-  /** The language or environment this plugin targets. */
-  target: TargetId
-  /** The identifier of the HTTP client within the target. */
-  client: ClientId<TargetId>
-  /** Human-readable name for the client. */
-  title: string
-  /** Generates source code for the given HTTP request. */
-  generate: (request?: Partial<HarRequest>, configuration?: PluginConfiguration) => string
-}
+  [T in TargetId]: {
+    /** The language or environment this plugin targets. */
+    target: T
+    /** The identifier of the HTTP client within the target. */
+    client: ClientId<T>
+    /** Human-readable name for the client. */
+    title: string
+    /** Generates source code for the given HTTP request. */
+    generate: (request?: Partial<HarRequest>, configuration?: PluginConfiguration) => string
+  }
+}[TargetId]
 
 /**
  * Optional configuration that can be passed to any code generation plugin.
