@@ -121,17 +121,13 @@ const selectedScopes = computed(() => {
 })
 
 /**
- * PKCE public clients do not use a client_secret. Hide the field when the
- * document enables PKCE so readers are not prompted for an unused secret.
+ * Show the client secret whenever the flow supports one. PKCE and a client
+ * secret are independent, so confidential clients can use both together
+ * (see RFC 9700 Section 2.1.1).
  */
-const showClientSecret = computed(() => {
-  if (!('x-scalar-secret-client-secret' in flow.value)) {
-    return false
-  }
-  const pkceMode =
-    'x-usePkce' in flow.value ? flow.value['x-usePkce'] : undefined
-  return pkceMode !== 'SHA-256' && pkceMode !== 'plain'
-})
+const showClientSecret = computed(
+  () => 'x-scalar-secret-client-secret' in flow.value,
+)
 
 const clientSecretValue = computed((): string => {
   const f = flow.value as { 'x-scalar-secret-client-secret'?: string }
