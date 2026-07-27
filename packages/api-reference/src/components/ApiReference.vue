@@ -916,6 +916,22 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
   return promise
 }
 
+/** Whether idle preloading has been stopped, for example when the component unmounts */
+let isPreloadStopped = false
+/** Cancels the currently scheduled idle preload callback, if one is pending */
+let cancelScheduledPreload: (() => void) | undefined
+
+/**
+ * Stop any in-progress idle preloading. Without this, an orphaned instance (an Astro view
+ * transition or a `createApiReference` remount) would keep fetching and parsing documents into
+ * an abandoned store after unmount.
+ */
+const stopPreloadingDocuments = () => {
+  isPreloadStopped = true
+  cancelScheduledPreload?.()
+  cancelScheduledPreload = undefined
+}
+
 /**
  * Warm up the documents the user has not selected yet while the browser is idle, so switching
  * between documents is instant. Runs on the client only and loads one document at a time to avoid
@@ -932,13 +948,19 @@ const preloadDocumentsWhenIdle = () => {
 
   const scheduleIdle = (callback: () => void) => {
     if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(callback, { timeout: 1500 })
+      const handle = window.requestIdleCallback(callback, { timeout: 1500 })
+      cancelScheduledPreload = () => window.cancelIdleCallback(handle)
     } else {
-      window.setTimeout(callback, 200)
+      const handle = window.setTimeout(callback, 200)
+      cancelScheduledPreload = () => window.clearTimeout(handle)
     }
   }
 
   const loadNext = () => {
+    if (isPreloadStopped) {
+      return
+    }
+
     const slug = pendingSlugs.shift()
 
     if (!slug) {
@@ -946,7 +968,11 @@ const preloadDocumentsWhenIdle = () => {
     }
 
     // Load one document, then queue the next once the browser is idle again
-    void ensureDocumentLoaded(slug).finally(() => scheduleIdle(loadNext))
+    void ensureDocumentLoaded(slug).finally(() => {
+      if (!isPreloadStopped) {
+        scheduleIdle(loadNext)
+      }
+    })
   }
 
   scheduleIdle(loadNext)
@@ -1047,6 +1073,16 @@ watch(
         },
         updated.config,
       )
+
+      /**
+       * A background preload may still be loading this document against the previous
+       * configuration. Wait for it to finish so the update below rebases onto the loaded
+       * document instead of being skipped, which would otherwise leave stale content in the store.
+       */
+      const pendingLoad = documentLoadPromises.get(updated.slug)
+      if (pendingLoad) {
+        await pendingLoad
+      }
 
       /** If we have not loaded the document previously we don't need to handle any updates to store */
       if (!workspaceStore.workspace.documents[updated.slug]) {
@@ -1198,6 +1234,7 @@ onMounted(async () => {
   })
 })
 onBeforeUnmount(() => {
+  stopPreloadingDocuments()
   pluginManager.notifyDestroy()
   apiClient.value?.app.unmount()
 })
