@@ -25,10 +25,11 @@ const mockLazyTimers = (page: Page) =>
       return originalRAF(callback)
     }
 
-    // Mock setTimeout to run faster in tests
+    // Mock lazy-loading timeouts to run faster in tests
     const originalSetTimeout = window.setTimeout
     window.setTimeout = ((callback: TimerHandler, delay?: number, ...args: any[]) => {
-      const testDelay = delay ? Math.min(delay / 10, 10) : 0
+      // Keep longer UI timers intact, including the copy success message.
+      const testDelay = delay && delay <= 100 ? Math.min(delay / 10, 10) : delay
       return originalSetTimeout(callback, testDelay, ...args)
     }) as typeof setTimeout
   })
