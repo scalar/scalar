@@ -51,12 +51,16 @@ Use `destinations.production` to push generated output to a GitHub repository.
 
 ## Publishing
 
-Set `publish.maven` to `true` for default Maven publishing, `false` to disable it, or an object to configure the generated publishing workflow. Maven Central requires a Central Portal token and GPG signing; see [Java and Kotlin publishing](../publishing/java.md) for the setup.
+The Kotlin target publishes to [Maven Central](https://central.sonatype.com/) exactly like Java. Set `publish.maven` to `true` to enable it:
 
-| Property             | Description                                                          |
-| -------------------- | ------------------------------------------------------------------- |
-| `authMethod`         | Registry authentication mechanism, such as `access-token`.          |
-| `releaseEnvironment` | Release environment name used by generated publishing workflows.    |
-| `sonatypePlatform`   | Maven Central or Sonatype platform, such as `portal` or `ossrh`.    |
-| `homepage`           | Package homepage metadata.                                          |
-| `description`        | Package description metadata.                                       |
+```json
+{
+  "targets": {
+    "kotlin": {
+      "publish": { "maven": true }
+    }
+  }
+}
+```
+
+Maven Central requires a Central Portal user token and GPG signing. The full walkthrough (namespace registration, the user token, the GPG key, and the secrets to add) lives in the [Java configuration](java.md#publishing) and applies to Kotlin unchanged.

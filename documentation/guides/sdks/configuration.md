@@ -73,6 +73,8 @@ Supported target keys are `typescript`, `python`, `cli`, `go`, `rust`, `java`, `
 
 Set `skip: true` on a target to keep its config in place without generating it.
 
+Each target can also carry a `publish` block that enables automatic registry publishing on merge. The per-target configuration pages document the available options, and the [Publishing](publishing/overview.md) guides cover the registry setup.
+
 ## Resources
 
 The `resources` object defines the public client tree. Each resource can contain generated methods, public models, nested resources, default request options, and per-target visibility rules.
