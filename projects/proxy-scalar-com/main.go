@@ -8,8 +8,10 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/http/httptrace"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -178,6 +180,72 @@ func (s streamingResponseWriter) Write(p []byte) (int, error) {
 	return n, err
 }
 
+// timingsContextKeyType is a private type for the context key so it cannot
+// collide with keys set elsewhere.
+type timingsContextKeyType struct{}
+
+// timingsContextKey carries the per-request proxyTimings through the request
+// context so the custom DialContext can record the DNS lookup it performs.
+var timingsContextKey = timingsContextKeyType{}
+
+// proxyTimings collects the network phase durations for a single upstream
+// request, measured from the proxy to the target server. These map to the
+// phases a browser cannot observe for cross-origin requests, which is why we
+// measure them here and report them back via the Server-Timing header.
+type proxyTimings struct {
+	// start marks the moment just before the outbound request is sent.
+	start time.Time
+	// dnsDuration is the time spent resolving the target hostname.
+	dnsDuration time.Duration
+	// connectDuration is the time spent establishing the TCP connection.
+	connectDuration time.Duration
+	// tlsDuration is the time spent on the TLS handshake.
+	tlsDuration time.Duration
+	// ttfb is the "waiting for server response" phase: the time from finishing
+	// sending the request to receiving the first response byte. It excludes the
+	// DNS, connect, and TLS phases so the phases can be shown side by side.
+	ttfb time.Duration
+	// reused reports whether an existing pooled connection was reused, in
+	// which case the DNS, connect, and TLS phases legitimately did not happen.
+	reused bool
+}
+
+// serverTimingHeader renders the collected timings as a Server-Timing header
+// value. Browsers surface this natively and the Scalar API client parses it to
+// draw a request timing waterfall. Only phases that actually happened are
+// included, plus a reused marker so pooled connections are not misread.
+func (t *proxyTimings) serverTimingHeader() string {
+	// Format a duration as fractional milliseconds, matching the Server-Timing spec.
+	ms := func(d time.Duration) string {
+		return strconv.FormatFloat(float64(d.Microseconds())/1000.0, 'f', 2, 64)
+	}
+
+	parts := []string{}
+
+	if t.dnsDuration > 0 {
+		parts = append(parts, "dns;dur="+ms(t.dnsDuration))
+	}
+
+	if t.connectDuration > 0 {
+		parts = append(parts, "connect;dur="+ms(t.connectDuration))
+	}
+
+	if t.tlsDuration > 0 {
+		parts = append(parts, "tls;dur="+ms(t.tlsDuration))
+	}
+
+	if t.ttfb > 0 {
+		parts = append(parts, "ttfb;dur="+ms(t.ttfb))
+	}
+
+	// A zero-duration description flag lets clients label reused connections.
+	if t.reused {
+		parts = append(parts, "reused")
+	}
+
+	return strings.Join(parts, ", ")
+}
+
 // NewProxyServer creates a new proxy server instance
 func NewProxyServer(bypassCidr bool) *ProxyServer {
 	dialer := &net.Dialer{Timeout: 10 * time.Second}
@@ -221,8 +289,15 @@ func NewProxyServer(bypassCidr bool) *ProxyServer {
 					return dialer.DialContext(ctx, network, chosen)
 				}
 
-				// Re-resolve hostname on every dial
+				// Re-resolve hostname on every dial. Time the lookup so we can
+				// report it via Server-Timing. The custom DialContext resolves
+				// manually, so httptrace's DNS hooks never fire for us.
+				dnsStart := time.Now()
 				ips, err := net.LookupIP(host)
+
+				if timings, ok := ctx.Value(timingsContextKey).(*proxyTimings); ok {
+					timings.dnsDuration = time.Since(dnsStart)
+				}
 
 				if err != nil {
 					return nil, err
@@ -412,7 +487,55 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	// Collect network phase timings (DNS, connect, TLS, TTFB) so we can report
+	// them back to the client via Server-Timing. Browsers cannot observe these
+	// for cross-origin requests, so measuring here is the only reliable source.
+	timings := &proxyTimings{}
+
+	var connectStart, tlsStart, wroteRequest time.Time
+
+	trace := &httptrace.ClientTrace{
+		GotConn: func(info httptrace.GotConnInfo) {
+			// A reused connection skips DNS, connect, and TLS entirely.
+			timings.reused = info.Reused
+		},
+		ConnectStart: func(_, _ string) {
+			connectStart = time.Now()
+		},
+		ConnectDone: func(_, _ string, _ error) {
+			if !connectStart.IsZero() {
+				// Accumulate across redirects, which may dial more than once.
+				timings.connectDuration += time.Since(connectStart)
+			}
+		},
+		TLSHandshakeStart: func() {
+			tlsStart = time.Now()
+		},
+		TLSHandshakeDone: func(_ tls.ConnectionState, _ error) {
+			if !tlsStart.IsZero() {
+				timings.tlsDuration += time.Since(tlsStart)
+			}
+		},
+		WroteRequest: func(_ httptrace.WroteRequestInfo) {
+			// Marks the end of sending the request; TTFB is measured from here.
+			// The last write in a redirect chain wins, giving the final leg.
+			wroteRequest = time.Now()
+		},
+		GotFirstResponseByte: func() {
+			// Isolated "waiting for server response" phase for the final response.
+			if !wroteRequest.IsZero() {
+				timings.ttfb = time.Since(wroteRequest)
+			} else {
+				timings.ttfb = time.Since(timings.start)
+			}
+		},
+	}
+
+	ctx := httptrace.WithClientTrace(context.WithValue(outreq.Context(), timingsContextKey, timings), trace)
+	outreq = outreq.WithContext(ctx)
+
 	// Make the request
+	timings.start = time.Now()
 	resp, err := client.Do(outreq)
 
 	if err != nil {
@@ -455,6 +578,13 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Add the final URL as a header
 	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
+
+	// Expose the proxy-to-target network timings so the client can draw a
+	// request timing waterfall. Content download is intentionally omitted: it
+	// happens after the headers are flushed, and the client measures it itself.
+	if serverTiming := timings.serverTimingHeader(); serverTiming != "" {
+		w.Header().Set("Server-Timing", serverTiming)
+	}
 
 	// Copy the status code from the proxied response
 	w.WriteHeader(resp.StatusCode)
