@@ -10,7 +10,7 @@ test(galaxy.title, async ({ page }) => {
   await page.goto(example)
 
   await page
-    .getByRole('navigation', { name: 'Sidebar' })
+    .getByRole('complementary', { name: /Sidebar/i })
     .getByRole('button', { name: /open search/i })
     .click()
   await expect(page).toHaveScreenshot('search.png')

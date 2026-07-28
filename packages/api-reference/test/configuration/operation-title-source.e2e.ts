@@ -20,7 +20,7 @@ test.describe('operationTitleSource', () => {
 
     await page.goto(example)
 
-    await expect(page.getByRole('navigation').getByRole('button', { name: 'Get all users' })).toBeVisible()
+    await expect(page.getByRole('complementary').getByRole('button', { name: 'Get all users' })).toBeVisible()
   })
 
   test('uses the operation path in the sidebar when set to path', async ({ page }) => {
@@ -28,6 +28,6 @@ test.describe('operationTitleSource', () => {
 
     await page.goto(example)
 
-    await expect(page.getByRole('navigation').getByRole('button', { name: '/users/list' })).toBeVisible()
+    await expect(page.getByRole('complementary').getByRole('button', { name: '/users/list' })).toBeVisible()
   })
 })
