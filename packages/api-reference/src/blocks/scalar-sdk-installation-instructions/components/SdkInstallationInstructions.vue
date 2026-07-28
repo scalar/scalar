@@ -112,6 +112,9 @@ watch(
   () => void nextTick(measure),
 )
 
+/** The full row, measured for available width (the tab strip's own width depends on the outcome) */
+const rowRef = ref<HTMLElement>()
+/** The tab strip, used to move focus between tabs */
 const tabsRef = ref<HTMLElement>()
 const measureRef = ref<HTMLElement>()
 
@@ -125,9 +128,9 @@ const moreWidth = ref(0)
 /** Measure the available width and the natural width of each tab */
 const measure = () => {
   const measureEl = measureRef.value
-  const tabsEl = tabsRef.value
+  const rowEl = rowRef.value
 
-  if (!measureEl || !tabsEl) {
+  if (!measureEl || !rowEl) {
     return
   }
 
@@ -138,7 +141,7 @@ const measure = () => {
 
   tabWidths.value = widths.slice(0, sdks.value.length)
   moreWidth.value = widths[sdks.value.length] ?? 0
-  availableWidth.value = tabsEl.clientWidth
+  availableWidth.value = rowEl.clientWidth
 }
 
 /** How many tabs fit inline before we need the "More" dropdown */
@@ -252,8 +255,8 @@ onMounted(() => {
     // row for the natural tab widths. The latter catches changes the container
     // never sees — web fonts loading, or labels changing without the count
     // changing — which would otherwise leave the overflow logic stale.
-    if (tabsRef.value) {
-      observer.observe(tabsRef.value)
+    if (rowRef.value) {
+      observer.observe(rowRef.value)
     }
     if (measureRef.value) {
       observer.observe(measureRef.value)
@@ -280,7 +283,9 @@ onBeforeUnmount(() => {
     <!-- Tabs: keep the More combobox outside the tablist so every tablist
          child is a tab (aria-required-children). -->
     <div class="client-libraries-content">
-      <div class="client-libraries-row">
+      <div
+        ref="rowRef"
+        class="client-libraries-row">
         <div
           ref="tabsRef"
           :aria-labelledby="headingId"
@@ -427,10 +432,10 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: flex-start;
 }
+/* Sized to its tabs, so the "More" trigger still pins to the right edge */
 .client-libraries-tabs {
   display: flex;
-  flex: 1;
-  min-width: 0;
+  flex: 0 0 auto;
 }
 /* Zero-size clip so the measure row never adds to the scrollable width */
 .client-libraries-measure-clip {

@@ -123,7 +123,8 @@ defineExpose({
       <div class="client-libraries-list">
         <TabList
           :aria-labelledby="headingId"
-          class="client-libraries-tabs">
+          class="client-libraries-tabs"
+          :style="{ flexGrow: featuredClients.length }">
           <Tab
             v-for="featuredClient in featuredClients"
             :key="featuredClient.clientKey"
@@ -209,9 +210,10 @@ defineExpose({
   border-left: var(--scalar-border-width) solid var(--scalar-border-color);
   border-right: var(--scalar-border-width) solid var(--scalar-border-color);
 }
+/* Grows once per tab it holds, so tabs and the "More" trigger stay even */
 .client-libraries-tabs {
   display: flex;
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
 }
 .client-libraries {

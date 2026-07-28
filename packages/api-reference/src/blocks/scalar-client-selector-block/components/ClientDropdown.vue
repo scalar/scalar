@@ -121,9 +121,10 @@ const selectedTargetKey = computed(
   </div>
 </template>
 <style scoped>
+/* One even column, the same width as each tab beside it */
 .client-libraries-more {
   display: flex;
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
 }
 .client-libraries {
@@ -195,6 +196,9 @@ const selectedTargetKey = computed(
   }
 }
 @container client-libraries-list (width < 400px) {
+  .client-libraries-more {
+    flex: 0 0 auto;
+  }
   .client-libraries__select {
     width: fit-content;
 
