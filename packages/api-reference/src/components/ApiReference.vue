@@ -1545,7 +1545,6 @@ const showMCPButton = computed(() => {
             :items="sidebarItems"
             layout="reference"
             :options="sidebarOptions"
-            role="navigation"
             @selectItem="(id) => handleSelectSidebarEntry(id, 'sidebar')"
             @toggleGroup="
               (id: string) =>

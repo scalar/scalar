@@ -277,34 +277,37 @@ onBeforeUnmount(() => {
       {{ translate('clientLibraries.heading') }}
     </div>
 
-    <!-- Tabs -->
+    <!-- Tabs: keep the More combobox outside the tablist so every tablist
+         child is a tab (aria-required-children). -->
     <div class="client-libraries-content">
-      <div
-        ref="tabsRef"
-        :aria-labelledby="headingId"
-        class="client-libraries-row"
-        role="tablist">
-        <button
-          v-for="(sdk, index) in visibleSdks"
-          :id="`${baseId}-tab-${index}`"
-          :key="index"
-          :aria-controls="panelId"
-          :aria-selected="index === selectedIndex"
-          class="client-libraries"
-          :class="{ 'client-libraries__active': index === selectedIndex }"
-          role="tab"
-          :tabindex="index === tabStopIndex ? 0 : -1"
-          type="button"
-          @click="select(index)"
-          @keydown="onTabKeydown($event, index)">
-          <ScalarIcon
-            v-if="sdk.icon"
-            class="client-libraries-icon"
-            :icon="sdk.icon" />
-          <span class="client-libraries-text">{{ sdk.lang }}</span>
-        </button>
+      <div class="client-libraries-row">
+        <div
+          ref="tabsRef"
+          :aria-labelledby="headingId"
+          class="client-libraries-tabs"
+          role="tablist">
+          <button
+            v-for="(sdk, index) in visibleSdks"
+            :id="`${baseId}-tab-${index}`"
+            :key="index"
+            :aria-controls="panelId"
+            :aria-selected="index === selectedIndex"
+            class="client-libraries"
+            :class="{ 'client-libraries__active': index === selectedIndex }"
+            role="tab"
+            :tabindex="index === tabStopIndex ? 0 : -1"
+            type="button"
+            @click="select(index)"
+            @keydown="onTabKeydown($event, index)">
+            <ScalarIcon
+              v-if="sdk.icon"
+              class="client-libraries-icon"
+              :icon="sdk.icon" />
+            <span class="client-libraries-text">{{ sdk.lang }}</span>
+          </button>
+        </div>
 
-        <!-- More dropdown -->
+        <!-- More dropdown (not a tab — lives beside the tablist) -->
         <ScalarCombobox
           v-if="visibleCount < sdks.length"
           :modelValue="selectedMoreOption"
@@ -423,6 +426,11 @@ onBeforeUnmount(() => {
 .client-libraries-row {
   display: flex;
   justify-content: flex-start;
+}
+.client-libraries-tabs {
+  display: flex;
+  flex: 1;
+  min-width: 0;
 }
 /* Zero-size clip so the measure row never adds to the scrollable width */
 .client-libraries-measure-clip {

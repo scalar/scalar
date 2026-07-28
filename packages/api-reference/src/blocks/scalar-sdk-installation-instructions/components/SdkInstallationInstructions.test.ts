@@ -45,6 +45,26 @@ describe('SdkInstallationInstructions', () => {
     expect(tabs[1]?.text()).toBe('Python')
   })
 
+  it('keeps only tab buttons inside the tablist', () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', description: 'Install for TypeScript' },
+          { lang: 'Python', description: 'Install for Python' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    const tablist = wrapper.find('[role="tablist"]')
+    expect(tablist.exists()).toBe(true)
+    // aria-required-children: interactive children of a tablist must be tabs
+    // (presentation/none on icons is fine)
+    const buttons = [...tablist.element.querySelectorAll('button')]
+    expect(buttons.length).toBeGreaterThan(0)
+    expect(buttons.every((el) => el.getAttribute('role') === 'tab')).toBe(true)
+  })
+
   it('skips entries without a description', () => {
     const wrapper = mount(SdkInstallationInstructions, {
       props: {

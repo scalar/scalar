@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Tab } from '@headlessui/vue'
 import {
   filterClientsByQuery,
   findClient,
@@ -17,17 +16,14 @@ import { computed, ref } from 'vue'
 import { isFeaturedClient } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
 import { useLocalization } from '@/features/localization'
 
-const { clientOptions, featuredClients, eventBus, selectedClient } =
-  defineProps<{
-    /** Client options */
-    clientOptions: ClientOptionGroup[]
-    /** The currently selected Http Client (a built-in client id or a custom sample id) */
-    selectedClient?: string
-    /** List of featured clients */
-    featuredClients: ClientOption[]
-    /** Event bus */
-    eventBus: WorkspaceEventBus
-  }>()
+const { clientOptions, eventBus, selectedClient } = defineProps<{
+  /** Client options */
+  clientOptions: ClientOptionGroup[]
+  /** The currently selected Http Client (a built-in client id or a custom sample id) */
+  selectedClient?: string
+  /** Event bus */
+  eventBus: WorkspaceEventBus
+}>()
 
 const containerRef = ref<HTMLElement>()
 const { translate } = useLocalization()
@@ -63,27 +59,13 @@ const selectedTargetKey = computed(
 )
 </script>
 <template>
+  <!--
+    Lives beside the TabList (not inside it). A combobox button is not a tab,
+    so placing it in role="tablist" fails aria-required-children.
+  -->
   <div
     ref="containerRef"
-    class="client-libraries-content">
-    <Tab
-      v-for="featuredClient in featuredClients"
-      :key="featuredClient.clientKey"
-      class="client-libraries rendered-code-sdks"
-      :class="{
-        'client-libraries__active': featuredClient.id === selectedClient,
-      }">
-      <div :class="`client-libraries-icon__${featuredClient.targetKey}`">
-        <ScalarIcon
-          class="client-libraries-icon"
-          :icon="getIconByLanguageKey(featuredClient.targetKey)" />
-      </div>
-      <span class="client-libraries-text">{{
-        featuredClient.targetTitle
-      }}</span>
-    </Tab>
-
-    <!-- Client Dropdown -->
+    class="client-libraries-more">
     <ScalarCombobox
       :filterFn="filterClientsByQuery"
       :modelValue="findClient(clientOptions, selectedClient)"
@@ -139,15 +121,10 @@ const selectedTargetKey = computed(
   </div>
 </template>
 <style scoped>
-.client-libraries-content {
-  container: client-libraries-content / inline-size;
+.client-libraries-more {
   display: flex;
-  justify-content: center;
-  overflow: hidden;
-  padding: 0 12px;
-  background-color: var(--scalar-background-1);
-  border-left: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-right: var(--scalar-border-width) solid var(--scalar-border-color);
+  flex: 1;
+  min-width: 0;
 }
 .client-libraries {
   display: flex;
@@ -182,13 +159,6 @@ const selectedTargetKey = computed(
   outline: none;
   box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
-/* remove php and c on mobile */
-@media screen and (max-width: 450px) {
-  .client-libraries:nth-of-type(4),
-  .client-libraries:nth-of-type(5) {
-    display: none;
-  }
-}
 .client-libraries-icon {
   max-width: 14px;
   max-height: 14px;
@@ -205,34 +175,9 @@ const selectedTargetKey = computed(
 .client-libraries-icon__more svg {
   height: initial;
 }
-@container client-libraries-content (width < 400px) {
-  .client-libraries__select {
-    width: fit-content;
-
-    .client-libraries-icon__more + span {
-      display: none;
-    }
-  }
-}
-@container client-libraries-content (width < 380px) {
-  .client-libraries {
-    width: 100%;
-  }
-  .client-libraries span {
-    display: none;
-  }
-}
 .client-libraries__active {
   color: var(--scalar-color-1);
   border-bottom: 1px solid var(--scalar-color-1);
-}
-@keyframes codeloader {
-  0% {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(1turn);
-  }
 }
 .client-libraries .client-libraries-text {
   font-size: var(--scalar-small);
@@ -247,6 +192,15 @@ const selectedTargetKey = computed(
 @media screen and (max-width: 600px) {
   .references-classic .client-libraries {
     flex-direction: column;
+  }
+}
+@container client-libraries-list (width < 400px) {
+  .client-libraries__select {
+    width: fit-content;
+
+    .client-libraries-icon__more + span {
+      display: none;
+    }
   }
 }
 </style>
