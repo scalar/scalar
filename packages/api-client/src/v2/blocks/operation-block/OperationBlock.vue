@@ -135,6 +135,7 @@ import {
   getCookieRequestUrl,
   getResponseCookieActions,
 } from '@/v2/blocks/operation-block/helpers/persist-response-cookies'
+import { getEnvironmentPersistenceActions } from '@/v2/blocks/operation-block/helpers/persist-script-environment'
 import {
   getOperationExampleKey,
   isStreamingResponse,
@@ -387,6 +388,28 @@ const handleExecute = async () => {
       'responseReceived',
       plugins,
     )
+
+    // Persist environment variables set by scripts (pm.environment.set) back to the active
+    // environment so they survive to the next request, mirroring the Environment tab. Scope
+    // and index are resolved from the merged environment so updates mutate in place.
+    if (activeEnvironment) {
+      const environmentActions = getEnvironmentPersistenceActions({
+        environmentName: activeEnvironment,
+        seededVariables: seededEnvironment,
+        scriptVariables: variablesStore.getEnvironment(),
+        mergedVariables: environment.variables,
+        documentVariables:
+          document['x-scalar-environments']?.[activeEnvironment]?.variables ??
+          [],
+        environmentExistsOnDocument: Boolean(
+          document['x-scalar-environments']?.[activeEnvironment],
+        ),
+      })
+
+      for (const action of environmentActions) {
+        eventBus.emit('environment:upsert:environment-variable', action)
+      }
+    }
   }
 
   // Execute the hooks
