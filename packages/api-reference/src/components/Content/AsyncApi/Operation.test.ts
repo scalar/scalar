@@ -160,33 +160,6 @@ describe('Operation', () => {
     expect(wrapper.text()).toContain('groupId')
   })
 
-  it('renders an operation security badge', () => {
-    const wrapper = mount(Operation, {
-      props: {
-        operation: createOperation(),
-        document: {
-          asyncapi: '3.0.0',
-          info: { title: 'Streaming API', version: '1.0.0' },
-          'x-scalar-original-document-hash': '',
-          channels: { userSignedUp: { address: 'user/signedup' } },
-          operations: {
-            onUserSignedUp: {
-              action: 'receive',
-              channel: { $ref: '#/channels/userSignedUp' },
-              security: [{ $ref: '#/components/securitySchemes/apiKey' }],
-            },
-          },
-          components: {
-            securitySchemes: { apiKey: { type: 'httpApiKey', name: 'X-Api-Key', in: 'header' } },
-          },
-        } as unknown as AsyncApiDocument,
-        eventBus: null,
-      },
-    })
-
-    expect(wrapper.findComponent({ name: 'SecurityRequirementBadge' }).exists()).toBe(true)
-  })
-
   it('renders the operation reply', () => {
     const wrapper = mount(Operation, {
       props: {

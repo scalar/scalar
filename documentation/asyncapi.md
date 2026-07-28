@@ -29,7 +29,7 @@ The reference renders the AsyncAPI document grouped by channel. For each channel
 
 Each operation also shows:
 
-- A **security** badge in its header when the operation declares `security` (resolved against `components.securitySchemes`, including any requirements inherited from its servers).
+- The **scopes** it requires, when the operation declares `security` with OAuth or OpenID Connect scopes.
 - Its **tags** and **external documentation** link.
 - Its **bindings**.
 - Its **reply**, for request/reply operations — the reply channel address, the reply address `location`/`description`, and the reply message names.
