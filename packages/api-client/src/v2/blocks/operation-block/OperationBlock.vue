@@ -297,6 +297,14 @@ const handleExecute = async () => {
 
   const variablesStore = createVariablesStoreForRequest()
 
+  // Seed the script variable store with the active environment so pm.environment.get()
+  // and pm.variables.get() resolve to the same values as {{…}} placeholders. Without
+  // seeding, the store starts empty and every scripted read returns undefined.
+  const seededEnvironment = getEnvironmentVariables(environment)
+  variablesStore.setEnvironment?.(
+    Object.entries(seededEnvironment).map(([key, value]) => ({ key, value })),
+  )
+
   // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
   await executeHook(
     {
@@ -312,7 +320,7 @@ const handleExecute = async () => {
   )
 
   const envVariables = {
-    ...getEnvironmentVariables(environment),
+    ...seededEnvironment,
     ...variablesStore.getVariables(),
   }
 
