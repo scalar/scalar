@@ -8,7 +8,7 @@ You choose which endpoints to expose (and which not), configure how each one beh
 
 Scalar exposes two separate MCP surfaces, and they're easy to conflate because most clients just show both as "MCP". The **Docs MCP** lives at `https://your-docs-domain/mcp` and lets AI clients search and read your published documentation. It is proxied through your docs hosting, so it inherits the visibility of the docs project. If the docs are public, the Docs MCP is public too, otherwise the in-docs chat would not work.
 
-The **Installation MCP** lives at `https://api.scalar.com/vector/mcp/YOUR_INSTALL_ID` and lets AI clients call the API endpoints you've selected, using the authentication you've stored for the installation. It is a completely separate endpoint and always requires a Personal Access Token. If you want to verify which one a client is actually pointed at, `curl` the URL directly: the Installation MCP responds with `401` when the token is missing.
+The **Installation MCP** lives at `https://api.scalar.com/vector/mcp/YOUR_INSTALL_ID` and lets AI clients call the API endpoints you've selected, using the authentication you've stored for the installation. It is a completely separate endpoint and is private by default: team members connect with a Personal Access Token, while people outside your team sign in through OAuth once you grant them access (see [External Access](./external-access.md)). If you want to verify which one a client is actually pointed at, `curl` the URL directly: the Installation MCP responds with `401` when no valid credentials are present.
 
 ## Create a MCP Server
 
@@ -69,6 +69,15 @@ Authentication is configured per installation in the [Scalar Dashboard](https://
 <br>
 
 ![UI to configure authentication for your API](./configure-authentication.png)
+
+<br>
+
+There are two modes:
+
+- **Global** — store one credential (OAuth, API key, or bearer token) on the installation; the server uses it for every call.
+- **Passthrough** — the caller supplies the credential in a header or query parameter you nominate, and Scalar forwards it upstream per request without storing it. Use this when each user must call your API with their own key.
+
+To share a private server with people outside your team—via access groups, OAuth login, and login portals—see [External Access](./external-access.md).
 
 ## Billing
 
