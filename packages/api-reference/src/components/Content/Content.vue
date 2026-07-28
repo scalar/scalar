@@ -40,6 +40,7 @@ import {
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import { AsyncApiTraversedEntry } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
+import { ContextBar } from '@/components/Content/ContextBar'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
@@ -58,8 +59,14 @@ const {
   options,
   authStore,
   documentSlug,
+  contextChain = [],
 } = defineProps<{
   infoSectionId: string
+  /**
+   * Ancestor tags (root → section in view) for the sticky context bar. Empty
+   * unless the section currently in view is nested under a parent tag.
+   */
+  contextChain?: { id: string; title: string }[]
   /** Slug of the active document, used to scope plugin view ids for navigation and deep-linking */
   documentSlug: string
   /** The subset of the configuration object required for the content component */
@@ -225,6 +232,11 @@ onMounted(() => {
   <SectionFlare />
 
   <div class="narrow-references-container">
+    <!-- Sticky breadcrumb showing where a nested tag sits in the hierarchy -->
+    <ContextBar
+      :chain="contextChain"
+      @navigate="(id) => eventBus.emit('scroll-to:nav-item', { id })" />
+
     <slot name="start" />
 
     <!-- Render plugins at content.start view -->

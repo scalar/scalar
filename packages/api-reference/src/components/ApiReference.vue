@@ -726,6 +726,32 @@ const setBreadcrumb = (id: string) => {
   }
 }
 
+/**
+ * Ancestor tags (root → section in view) for the sticky context bar. Walks up
+ * the reverse-indexed navigation tree from the selected entry, keeping only tag
+ * and tag-group nodes. Empty for top-level sections, so the bar only appears
+ * once a section is actually nested — deep OpenAPI 3.2 `parent` hierarchies that
+ * cannot be conveyed by indentation alone.
+ */
+const contextChain = computed(() => {
+  const selectedId = sidebarState.selectedItem.value
+  if (!selectedId) {
+    return []
+  }
+
+  const crumbs: { id: string; title: string }[] = []
+  let node = sidebarState.getEntryById(selectedId)
+
+  while (node) {
+    if (node.type === 'tag') {
+      crumbs.unshift({ id: node.id, title: node.title })
+    }
+    node = node.parent
+  }
+
+  return crumbs
+})
+
 const scrollToLazyElement = (id: string) => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
@@ -1693,6 +1719,7 @@ const showMCPButton = computed(() => {
         <Content
           :authStore="clientStore.auth"
           :clientDocument="clientStore.workspace.activeDocument"
+          :contextChain
           :document="workspaceStore.workspace.activeDocument"
           :documentSlug="activeSlug"
           :environment
