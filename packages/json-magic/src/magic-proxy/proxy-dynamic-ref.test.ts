@@ -41,9 +41,11 @@ describe('magic proxy $dynamicRef-value', () => {
   it('binds a shared template to a different type per path (path-dependent)', () => {
     const document = {
       $defs: {
-        // A single shared generic template, referenced by both pages below.
+        // A single shared generic template, referenced by both pages below. It declares a default
+        // `#itemType` bookend so `$dynamicRef` binds dynamically; each page overrides it in its own scope.
         Paginated: {
           $id: 'urn:paginated',
+          $defs: { itemType: { $dynamicAnchor: 'itemType' } },
           type: 'object',
           properties: {
             items: { type: 'array', items: { $dynamicRef: '#itemType' } },

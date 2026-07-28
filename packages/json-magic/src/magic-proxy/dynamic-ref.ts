@@ -201,9 +201,15 @@ export const pushDynamicScope = (scope: DynamicScope, schema: UnknownObject): Dy
 /**
  * Resolve a `$dynamicRef` fragment against the dynamic scope.
  *
- * Scans the scope outermost-first and returns the first resource that declares a `$dynamicAnchor` with
- * the referenced name. Returns `undefined` when nothing matches, in which case callers should leave the
- * reference unresolved (the schema renders as it did before, with no regression).
+ * Follows the JSON Schema 2020-12 "bookending" rule: a `$dynamicRef` only resolves dynamically when the
+ * schema resource it sits in *also* declares a matching `$dynamicAnchor` — the "bookend" default. The
+ * innermost scope entry is that resource, so we require the anchor to be declared there before consulting
+ * the wider scope; without the bookend, `$dynamicRef` degrades to a plain `$ref` and must not borrow an
+ * unrelated anchor from an outer resource. With the bookend present, the scope is scanned outermost-first
+ * and the first resource declaring a matching `$dynamicAnchor` wins (worst case, the bookend itself).
+ *
+ * Returns `undefined` when the reference cannot be bound, in which case callers should leave it unresolved
+ * (the schema renders as it did before, with no regression).
  */
 export const resolveDynamicRef = (
   dynamicRef: string,
@@ -213,6 +219,13 @@ export const resolveDynamicRef = (
   // Only plain-name fragments (`#itemType`) are supported; a non-fragment URI is not a dynamic anchor.
   const name = dynamicRef.startsWith('#') ? dynamicRef.slice(1) : undefined
   if (!name || name.startsWith('/')) {
+    return undefined
+  }
+
+  // Bookending: the resource holding the reference (the innermost scope entry) must declare the anchor,
+  // otherwise there is no dynamic binding and we leave the reference unresolved.
+  const innermost = scope[scope.length - 1]
+  if (!innermost || !collectDynamicAnchors(innermost, unwrap).has(name)) {
     return undefined
   }
 
