@@ -306,6 +306,24 @@ const handleExecute = async () => {
     Object.entries(seededEnvironment).map(([key, value]) => ({ key, value })),
   )
 
+  // Snapshot the persistence target at request start, alongside the seed. Persistence runs after
+  // the request completes (awaits below), and the environment props are reactive — if the user
+  // switches the active environment mid-flight, reading them at persist time would apply the
+  // script's writes to the wrong environment using indexes from a different variable list. The
+  // seeded values and these targets must come from the same point in time.
+  const persistenceTarget = activeEnvironment
+    ? {
+        environmentName: activeEnvironment,
+        mergedVariables: environment.variables,
+        documentVariables:
+          document['x-scalar-environments']?.[activeEnvironment]?.variables ??
+          [],
+        environmentExistsOnDocument: Boolean(
+          document['x-scalar-environments']?.[activeEnvironment],
+        ),
+      }
+    : null
+
   // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
   await executeHook(
     {
@@ -322,24 +340,18 @@ const handleExecute = async () => {
 
   // Persist environment variables set by scripts (pm.environment.set / unset) back to the active
   // environment so they survive to the next request, mirroring the Environment tab. Scope and
-  // index are resolved from the merged environment so updates mutate in place. Defined here so it
-  // can run on every exit path after the pre-request scripts — including a build failure or a
+  // index are resolved from the seed-time environment so updates mutate in place. Defined here so
+  // it can run on every exit path after the pre-request scripts — including a build failure or a
   // failed send — so a pre-request set, like a token stored before a flaky call, is not lost.
   const persistScriptEnvironment = () => {
-    if (!activeEnvironment) {
+    if (!persistenceTarget) {
       return
     }
 
     const environmentActions = getEnvironmentPersistenceActions({
-      environmentName: activeEnvironment,
+      ...persistenceTarget,
       seededVariables: seededEnvironment,
       scriptVariables: variablesStore.getEnvironment(),
-      mergedVariables: environment.variables,
-      documentVariables:
-        document['x-scalar-environments']?.[activeEnvironment]?.variables ?? [],
-      environmentExistsOnDocument: Boolean(
-        document['x-scalar-environments']?.[activeEnvironment],
-      ),
     })
 
     for (const action of environmentActions) {

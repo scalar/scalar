@@ -659,6 +659,75 @@ describe('OperationBlock', () => {
     )
   })
 
+  it('persists script writes to the environment active when the request started, not one switched to mid-flight', async () => {
+    const mockEventBus = createMockEventBus()
+
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: new AbortController(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
+
+    // Hold the request open so the active environment can change before persistence runs.
+    let resolveSend!: (value: Awaited<ReturnType<typeof sendRequest>>) => void
+    vi.mocked(sendRequest).mockReturnValue(
+      new Promise<Awaited<ReturnType<typeof sendRequest>>>((resolve) => {
+        resolveSend = resolve
+      }),
+    )
+
+    const setTokenPlugin: ClientPlugin = {
+      hooks: {
+        beforeRequest: ({ variablesStore }) => {
+          variablesStore?.setEnvironment?.([{ key: 'token', value: 'from-script' }])
+        },
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus: mockEventBus,
+        plugins: [setTokenPlugin],
+        activeEnvironment: 'default',
+      },
+    })
+
+    // Start the request; it suspends at the pending sendRequest.
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('execute')
+    await flushPromises()
+
+    // The user switches environments while the request is in flight.
+    await wrapper.setProps({ activeEnvironment: 'switched' })
+
+    // Complete the request so persistence runs.
+    resolveSend([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
+      },
+    ])
+    await flushPromises()
+
+    // The write lands on the environment that was active when the request began.
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'environment:upsert:environment-variable',
+      expect.objectContaining({
+        environmentName: 'default',
+        variable: { name: 'token', value: 'from-script' },
+      }),
+    )
+    expect(mockEventBus.emit).not.toHaveBeenCalledWith(
+      'environment:upsert:environment-variable',
+      expect.objectContaining({ environmentName: 'switched' }),
+    )
+  })
+
   it('cancels request when cancelRequest is invoked via event bus', async () => {
     const mockEventBus = createMockEventBus()
     const mockController = new AbortController()
