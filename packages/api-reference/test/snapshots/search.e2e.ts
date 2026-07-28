@@ -9,7 +9,10 @@ test(galaxy.title, async ({ page }) => {
   const example = await serveExample(galaxy)
   await page.goto(example)
 
-  await page.getByRole('navigation', { name: 'Sidebar' }).getByRole('search').click()
+  await page
+    .getByRole('navigation', { name: 'Sidebar' })
+    .getByRole('button', { name: /open search/i })
+    .click()
   await expect(page).toHaveScreenshot('search.png')
 
   await page.getByRole('combobox', { name: 'Enter search query' }).fill('Get a token')
