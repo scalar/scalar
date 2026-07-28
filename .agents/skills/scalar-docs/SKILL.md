@@ -96,6 +96,8 @@ Links in the top bar. Use `type: "spacer"` to push items before it left and afte
 
 Properties: `title`, `type` (`"link"` | `"spacer"`), `to`, `style` (`"button"` | `"link"`), `icon`, `newTab`
 
+The header only renders when this array has at least one item, and it is where the logo goes. A lone `{ "type": "spacer" }` is enough to get a header with just the logo.
+
 ### navigation.sidebar
 
 Links at the bottom of the sidebar:
@@ -115,6 +117,8 @@ Tabs for quick access to sections:
   { "title": "API", "path": "/api", "icon": "phosphor/regular/plug" }
 ]
 ```
+
+Tabs and a header work together, and neither requires the other. With tabs but no header, the logo renders in the tab bar.
 
 ### Route Types
 
@@ -250,6 +254,8 @@ External URL:
   "lightMode": "https://example.com/logo-light.svg"
 }
 ```
+
+The logo renders on the first surface the site has: **header** (if `navigation.header` has items) → **tabs** (if `navigation.tabs` but no header) → **sidebar** (if neither). A page that hides all three via `layout` does not render it at all. With no `logo` set, `info.title` renders in the same place.
 
 **Theme** — one of: `default`, `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `deepSpace`, `saturn`, `kepler`, `mars`, `laserwave`, `none`
 

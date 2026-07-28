@@ -27,6 +27,8 @@ All navigation is configured within the `navigation.routes` object in your `scal
 
 The `navigation.header` array defines links that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons. Each item can be `type: "link"` or `type: "spacer"`. A spacer pushes items before it to the left and items after it to the right.
 
+The header only renders when this array has at least one item, and it is where your [logo](site-config.md#logo) appears. If you want the logo in the header but have no links to put there, a single spacer is enough.
+
 ### Example
 
 ```json
@@ -116,6 +118,8 @@ The `navigation.sidebar` array defines links that appear in the footer of the si
 ## Tabs
 
 The `navigation.tabs` array defines tabs that appear in the navigation area. Tabs provide a way to organize and highlight specific sections of your documentation, such as API references, that you want users to access quickly.
+
+Tabs and a header work together, and you do not need both. If you use tabs without a header, your [logo](site-config.md#logo) renders in the tab bar.
 
 ### Example
 
