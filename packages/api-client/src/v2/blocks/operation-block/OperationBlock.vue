@@ -320,6 +320,46 @@ const handleExecute = async () => {
     plugins,
   )
 
+  // Persist environment variables set by scripts (pm.environment.set / unset) back to the active
+  // environment so they survive to the next request, mirroring the Environment tab. Scope and
+  // index are resolved from the merged environment so updates mutate in place. Defined here so it
+  // can run on every exit path after the pre-request scripts — including a build failure or a
+  // failed send — so a pre-request set, like a token stored before a flaky call, is not lost.
+  const persistScriptEnvironment = () => {
+    if (!activeEnvironment) {
+      return
+    }
+
+    const environmentActions = getEnvironmentPersistenceActions({
+      environmentName: activeEnvironment,
+      seededVariables: seededEnvironment,
+      scriptVariables: variablesStore.getEnvironment(),
+      mergedVariables: environment.variables,
+      documentVariables:
+        document['x-scalar-environments']?.[activeEnvironment]?.variables ?? [],
+      environmentExistsOnDocument: Boolean(
+        document['x-scalar-environments']?.[activeEnvironment],
+      ),
+    })
+
+    for (const action of environmentActions) {
+      if (action.type === 'delete') {
+        eventBus.emit('environment:delete:environment-variable', {
+          environmentName: action.environmentName,
+          index: action.index,
+          collectionType: action.collectionType,
+        })
+      } else {
+        eventBus.emit('environment:upsert:environment-variable', {
+          environmentName: action.environmentName,
+          variable: action.variable,
+          index: action.index,
+          collectionType: action.collectionType,
+        })
+      }
+    }
+  }
+
   // Resolve {{…}} placeholders from the script store so pre-request pm.environment.set() and
   // unset() take effect on this request. The store was seeded from the active environment, so
   // it already holds every value spreading seededEnvironment would add — minus the keys a script
@@ -332,6 +372,8 @@ const handleExecute = async () => {
     allowMissingRequestServerBase: layout === 'modal',
   })
   if (!built.ok) {
+    // Save any pre-request script writes before bailing out on a build failure.
+    persistScriptEnvironment()
     toast(built.message ?? built.error, 'error')
     return
   }
@@ -391,41 +433,9 @@ const handleExecute = async () => {
     )
   }
 
-  // Persist environment variables set by scripts (pm.environment.set) back to the active
-  // environment so they survive to the next request, mirroring the Environment tab. Scope
-  // and index are resolved from the merged environment so updates mutate in place. This runs
-  // even when the request fails so a pre-request set — like a token stored before a flaky
-  // call — is not lost.
-  if (activeEnvironment) {
-    const environmentActions = getEnvironmentPersistenceActions({
-      environmentName: activeEnvironment,
-      seededVariables: seededEnvironment,
-      scriptVariables: variablesStore.getEnvironment(),
-      mergedVariables: environment.variables,
-      documentVariables:
-        document['x-scalar-environments']?.[activeEnvironment]?.variables ?? [],
-      environmentExistsOnDocument: Boolean(
-        document['x-scalar-environments']?.[activeEnvironment],
-      ),
-    })
-
-    for (const action of environmentActions) {
-      if (action.type === 'delete') {
-        eventBus.emit('environment:delete:environment-variable', {
-          environmentName: action.environmentName,
-          index: action.index,
-          collectionType: action.collectionType,
-        })
-      } else {
-        eventBus.emit('environment:upsert:environment-variable', {
-          environmentName: action.environmentName,
-          variable: action.variable,
-          index: action.index,
-          collectionType: action.collectionType,
-        })
-      }
-    }
-  }
+  // Save script environment writes (pre-request and, on success, post-response) back to the
+  // active environment. Runs even when the send fails so a pre-request set is not lost.
+  persistScriptEnvironment()
 
   // Execute the hooks
   eventBus.emit('hooks:on:request:complete', {

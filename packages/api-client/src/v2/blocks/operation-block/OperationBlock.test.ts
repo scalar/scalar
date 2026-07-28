@@ -555,6 +555,43 @@ describe('OperationBlock', () => {
     expect(sendRequest).not.toHaveBeenCalled()
   })
 
+  it('persists a pre-request script variable when the request never builds', async () => {
+    const mockEventBus = createMockEventBus()
+
+    // The request fails to build, so the flow bails out before sending.
+    vi.mocked(buildRequest).mockReturnValue(err('BUILD_REQUEST_FAILED' as const, 'Invalid URL'))
+
+    // A pre-request script stores a token in the active environment.
+    const setTokenPlugin: ClientPlugin = {
+      hooks: {
+        beforeRequest: ({ variablesStore }) => {
+          variablesStore?.setEnvironment?.([{ key: 'token', value: 'from-script' }])
+        },
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus: mockEventBus,
+        plugins: [setTokenPlugin],
+        activeEnvironment: 'default',
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(sendRequest).not.toHaveBeenCalled()
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'environment:upsert:environment-variable',
+      expect.objectContaining({
+        environmentName: 'default',
+        variable: { name: 'token', value: 'from-script' },
+        collectionType: 'workspace',
+      }),
+    )
+  })
+
   it('displays toast error when sendRequest fails', async () => {
     const mockController = new AbortController()
 
