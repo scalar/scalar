@@ -18,6 +18,9 @@
 /* API Reference Tailwind Configuration */
 @import "./styles/tailwind.config.css";
 
+/* Print overrides, flattening the fixed viewport shell into a document */
+@import "./styles/print.css";
+
 /* Generate the Tailwind Utilities (scoped) */
 .scalar-app {
   @import "tailwindcss/utilities.css";

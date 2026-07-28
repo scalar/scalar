@@ -1,0 +1,118 @@
+/**
+ * Print Styles
+ *
+ * The API reference renders as a fixed-viewport application: a 100dvh grid whose
+ * offsets derive from a JS-measured screen height, with sticky columns pinned to
+ * that measurement. None of that is meaningful on paper, so printing flattens the
+ * shell back into ordinary document flow.
+ *
+ * Everything here is marked !important on purpose. The declarations being
+ * overridden live in scoped <style> blocks, which compile to selectors like
+ * `.examples[data-v-hash]` and therefore tie on specificity with a two-class
+ * global selector, leaving source order to decide the winner. A print-only media
+ * block cannot affect screen rendering, so the escape hatch is cheap here.
+ *
+ * @see https://github.com/scalar/scalar/issues/9598
+ */
+@media print {
+  /* ------------------------------------------------------------------ */
+  /* Layout shell                                                        */
+
+  /*
+   * These are measured from the screen by a resize observer and are never
+   * recalculated for print, so every offset derived from them is stale by the
+   * height of the header. Zero them out so the derived values collapse.
+   *
+   * `--full-height` is written as an inline style by the resize observer, which
+   * an important declaration still outranks. It resolves to `100%` rather than
+   * `auto` so that the heights derived from it (`--refs-viewport-height`,
+   * `--refs-sidebar-height`) stay valid `calc()` expressions instead of becoming
+   * invalid at computed-value time.
+   */
+  .scalar-app {
+    --full-height: 100% !important;
+    --refs-header-height: 0px !important;
+    --refs-viewport-offset: 0px !important;
+    --refs-sidebar-width: 0px !important;
+  }
+
+  /*
+   * Collapse the application grid into normal flow. The grid-area declarations
+   * on the children become inert once the container is no longer a grid.
+   */
+  .references-layout {
+    display: block !important;
+    min-height: 0 !important;
+  }
+
+  /* Navigation and floating chrome do not belong on paper. */
+  .t-doc__sidebar,
+  .t-doc__header,
+  .references-footer,
+  .section-flare,
+  .agent-scalar,
+  .agent-scalar-overlay {
+    display: none !important;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Sticky and fixed positioning                                        */
+
+  /*
+   * Sticky boxes resolve against the page box when printing, so each of these
+   * is pinned at a stale --refs-viewport-offset instead of flowing with its
+   * siblings. The callback title additionally carries a z-index, which is what
+   * makes it paint over the content that follows rather than beside it.
+   */
+  .scalar-app .sticky,
+  .scalar-app .examples,
+  .scalar-app .operation-example-card,
+  .scalar-app .endpoints-card,
+  .scalar-app .channels-card,
+  .scalar-app .sticky-cards,
+  .scalar-app .callback-list-item-title {
+    position: static !important;
+    top: auto !important;
+    z-index: auto !important;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Height caps and scroll containers                                   */
+
+  /*
+   * Request and response examples are capped to a single screen height and
+   * scrolled. On paper that silently drops everything past the fold.
+   */
+  .scalar-app .examples > *,
+  .scalar-app .operation-example-card {
+    max-height: none !important;
+  }
+
+  /* Scroll containers clip their content instead of paginating it. */
+  .scalar-app .endpoints,
+  .scalar-app .channels,
+  .scalar-app .scalar-card-content {
+    overflow: visible !important;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Pagination                                                          */
+
+  /*
+   * Keep small units intact across page boundaries. This is deliberately
+   * limited to leaf-ish elements: applying it to a whole operation would leave
+   * a page-sized gap whenever the operation is taller than a single page.
+   */
+  .scalar-app .property,
+  .scalar-app .parameter-item,
+  .scalar-app .scalar-card {
+    break-inside: avoid;
+  }
+
+  /* Do not strand a heading at the foot of a page. */
+  .scalar-app h1,
+  .scalar-app h2,
+  .scalar-app h3 {
+    break-after: avoid;
+  }
+}
