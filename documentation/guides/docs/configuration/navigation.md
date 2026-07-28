@@ -488,6 +488,8 @@ Groups support three display modes:
 
 Set `hidden` to `true` on a group to fully hide it along with everything nested under it — child pages, nested groups, and any API references. All affected pages are removed from the sidebar, excluded from `sitemap.xml`, and rendered with a `noindex` meta tag, while remaining reachable at their URLs. See [Hidden pages](#hidden-pages) for details on how `hidden` compares to `showInSidebar`.
 
+This works at both levels: on a top-level route section directly under `navigation.routes` and on a group nested inside another group, with the same cascade to every page underneath. Since a top-level route section has no sidebar row of its own, `hidden` there only affects indexing — and any [tabs](#tabs) or [header links](#header) pointing at that section are configured separately and are not removed automatically.
+
 ```json
 "/internal": {
   "type": "group",
