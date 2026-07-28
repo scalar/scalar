@@ -130,6 +130,13 @@ describe('dynamic-ref', () => {
       expect(resolveDynamicRef('#itemType', [schema({ $id: 'urn:empty' }), inner])).toMatchObject({ not: {} })
     })
 
+    it('does not borrow an outer anchor when the innermost resource lacks the bookend', () => {
+      // Bookending: `bare` (the resource holding the reference) does not declare `itemType`, so `#itemType`
+      // stays unresolved instead of binding to `outer`'s anchor.
+      const bare = schema({ $id: 'urn:bare', type: 'object' })
+      expect(resolveDynamicRef('#itemType', [outer, bare])).toBeUndefined()
+    })
+
     it('returns undefined when no anchor matches', () => {
       expect(resolveDynamicRef('#missing', [outer])).toBeUndefined()
     })
