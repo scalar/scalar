@@ -175,6 +175,23 @@ describe('getEnvironmentPersistenceActions', () => {
     expect(actions).toEqual([{ type: 'delete', environmentName: 'default', index: 0, collectionType: 'document' }])
   })
 
+  it('deletes a removed variable from both scopes when the name is shadowed', () => {
+    const actions = getEnvironmentPersistenceActions({
+      environmentName: 'default',
+      seededVariables: { token: 'doc' },
+      // The script unset token, which exists on both the workspace and the document.
+      scriptVariables: [],
+      mergedVariables: [variable('token', 'ws'), variable('token', 'doc')],
+      documentVariables: [variable('token', 'doc')],
+      environmentExistsOnDocument: true,
+    })
+
+    expect(actions).toEqual([
+      { type: 'delete', environmentName: 'default', index: 0, collectionType: 'document' },
+      { type: 'delete', environmentName: 'default', index: 0, collectionType: 'workspace' },
+    ])
+  })
+
   it('orders multiple deletes by descending index so splices stay valid', () => {
     const actions = getEnvironmentPersistenceActions({
       environmentName: 'default',

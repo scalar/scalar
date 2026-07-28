@@ -105,13 +105,19 @@ export const getEnvironmentPersistenceActions = ({
   }
 
   // Removals: keys present before the scripts ran but absent afterwards (pm.environment.unset).
+  // Delete from every scope that defines the name — not just the one that wins on reads. A copy
+  // left behind in another scope would resurface on the next seed, so the unset would not stick.
   for (const key of Object.keys(seededVariables)) {
     if (scriptKeys.has(key)) {
       continue
     }
-    const existing = findExisting(key)
-    if (existing) {
-      deletes.push({ type: 'delete', environmentName, index: existing.index, collectionType: existing.collectionType })
+    const documentIndex = documentIndexByName.get(key)
+    if (documentIndex !== undefined) {
+      deletes.push({ type: 'delete', environmentName, index: documentIndex, collectionType: 'document' })
+    }
+    const workspaceIndex = workspaceIndexByName.get(key)
+    if (workspaceIndex !== undefined) {
+      deletes.push({ type: 'delete', environmentName, index: workspaceIndex, collectionType: 'workspace' })
     }
   }
 

@@ -578,6 +578,50 @@ describe('OperationBlock', () => {
     expect(mockToast).toHaveBeenCalledWith(ERRORS.REQUEST_FAILED, 'error')
   })
 
+  it('persists a pre-request script variable even when the request fails', async () => {
+    const mockEventBus = createMockEventBus()
+
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: new AbortController(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
+
+    // The request fails, so persistence must run outside the success branch.
+    vi.mocked(sendRequest).mockResolvedValue([new Error(ERRORS.REQUEST_FAILED), null])
+
+    // A pre-request script stores a token in the active environment.
+    const setTokenPlugin: ClientPlugin = {
+      hooks: {
+        beforeRequest: ({ variablesStore }) => {
+          variablesStore?.setEnvironment?.([{ key: 'token', value: 'from-script' }])
+        },
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus: mockEventBus,
+        plugins: [setTokenPlugin],
+        activeEnvironment: 'default',
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'environment:upsert:environment-variable',
+      expect.objectContaining({
+        environmentName: 'default',
+        variable: { name: 'token', value: 'from-script' },
+        collectionType: 'workspace',
+      }),
+    )
+  })
+
   it('cancels request when cancelRequest is invoked via event bus', async () => {
     const mockEventBus = createMockEventBus()
     const mockController = new AbortController()
