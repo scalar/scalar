@@ -590,7 +590,7 @@ describe('OAuth2', () => {
     expect(emitted).toHaveBeenCalledTimes(1)
   })
 
-  it('hides Client Secret for authorization code when PKCE uses SHA-256', async () => {
+  it('shows Client Secret for authorization code when PKCE uses SHA-256', async () => {
     const wrapper = mountWithProps({
       flows: {
         authorizationCode: {
@@ -610,10 +610,10 @@ describe('OAuth2', () => {
     await nextTick()
 
     expect(wrapper.text()).toContain('Client ID')
-    expect(wrapper.text()).not.toContain('Client Secret')
+    expect(wrapper.text()).toContain('Client Secret')
   })
 
-  it('hides Client Secret for authorization code when PKCE uses plain', async () => {
+  it('shows Client Secret for authorization code when PKCE uses plain', async () => {
     const wrapper = mountWithProps({
       flows: {
         authorizationCode: {
@@ -632,7 +632,7 @@ describe('OAuth2', () => {
 
     await nextTick()
 
-    expect(wrapper.text()).not.toContain('Client Secret')
+    expect(wrapper.text()).toContain('Client Secret')
   })
 
   it('shows Client Secret for authorization code when PKCE is disabled', async () => {

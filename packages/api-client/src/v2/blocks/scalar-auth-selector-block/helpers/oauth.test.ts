@@ -373,6 +373,8 @@ describe('oauth', () => {
         authorizationCode: {
           ...scheme.authorizationCode,
           'x-usePkce': 'SHA-256',
+          // Public client: no secret, so the token request relies on PKCE alone.
+          'x-scalar-secret-client-secret': '',
           'x-scalar-security-query': {
             prompt: 'login',
             audience: 'scalar',
@@ -451,6 +453,67 @@ describe('oauth', () => {
       pkceExpectedParams.set('grant_type', 'authorization_code')
       pkceExpectedParams.set('code_verifier', 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8')
       expect(pkceTokenBody.toString()).toBe(pkceExpectedParams.toString())
+    })
+
+    // PKCE with a confidential client (RFC 9700 Section 2.1.1 recommends PKCE even here).
+    it('sends both the client secret and the PKCE code verifier for confidential clients', async () => {
+      const flows = {
+        authorizationCode: {
+          ...scheme.authorizationCode,
+          'x-usePkce': 'SHA-256',
+          // Confidential client: a secret is set and should be used together with PKCE.
+          'x-scalar-secret-client-secret': clientSecret,
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      const accessToken = 'confidential_pkce_access_token'
+      const code = 'confidential_pkce_auth_code'
+
+      // Mock crypto so PKCE generation is deterministic.
+      vi.spyOn(crypto, 'getRandomValues').mockImplementation((arr) => {
+        if (arr instanceof Uint8Array) {
+          for (let i = 0; i < arr.length; i++) {
+            arr[i] = i
+          }
+        }
+        return arr
+      })
+      vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer)
+
+      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
+      await flushPromises()
+
+      mockWindow.location.href = `${flows.authorizationCode['x-scalar-secret-redirect-uri']}?code=${code}&state=${state}`
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: accessToken }),
+      })
+
+      vi.advanceTimersByTime(200)
+
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken })
+
+      // The confidential client authenticates with Basic auth and still proves possession via PKCE.
+      expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${secretAuth}`,
+        },
+        body: expect.any(URLSearchParams),
+      })
+
+      const tokenArgs = vi.mocked(global.fetch).mock.calls[0]
+      expect(tokenArgs).toBeDefined()
+      const tokenBody = tokenArgs![1]?.body as URLSearchParams
+      const expectedParams = new URLSearchParams()
+      expectedParams.set('redirect_uri', flows.authorizationCode['x-scalar-secret-redirect-uri'])
+      expectedParams.set('code', code)
+      expectedParams.set('grant_type', 'authorization_code')
+      expectedParams.set('code_verifier', 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8')
+      expect(tokenBody.toString()).toBe(expectedParams.toString())
     })
 
     it('should include x-scalar-security-body parameters in authorization code token request', async () => {
@@ -882,9 +945,10 @@ describe('oauth', () => {
       const callArgs = vi.mocked(global.fetch).mock.calls[0]
       expect(callArgs).toBeDefined()
       const body = callArgs![1]?.body as URLSearchParams
-      // PKCE + public client: client_id in body, no client_secret
+      // PKCE + confidential client with body credentials: client_id, client_secret, and code_verifier in body
       const expectedParams = new URLSearchParams()
       expectedParams.set('client_id', flows.authorizationCode['x-scalar-secret-client-id'])
+      expectedParams.set('client_secret', flows.authorizationCode['x-scalar-secret-client-secret'])
       expectedParams.set('redirect_uri', flows.authorizationCode['x-scalar-secret-redirect-uri'])
       expectedParams.set('code', code)
       expectedParams.set('grant_type', 'authorization_code')
@@ -2043,8 +2107,8 @@ describe('oauth', () => {
       expect(body.get('refresh_token')).toBe('refresh_token_123')
     })
 
-    it('omits client_secret on refresh when PKCE mode is SHA-256 even if a secret is stored', async () => {
-      const pkcePublicScheme = {
+    it('keeps using the client secret on refresh when PKCE mode is SHA-256', async () => {
+      const pkceConfidentialScheme = {
         authorizationCode: {
           ...refreshScheme.authorizationCode,
           'x-usePkce': 'SHA-256',
@@ -2059,14 +2123,16 @@ describe('oauth', () => {
           }),
       })
 
-      await refreshOauth2Token(pkcePublicScheme, 'authorizationCode', '', mockServer)
+      await refreshOauth2Token(pkceConfidentialScheme, 'authorizationCode', '', mockServer)
 
       const callArgs = vi.mocked(global.fetch).mock.calls[0]
       const body = callArgs![1]?.body as URLSearchParams
-      expect(body.get('client_id')).toBe(refreshScheme.authorizationCode['x-scalar-secret-client-id'])
+      // A confidential client authenticates with Basic auth, PKCE does not change that.
+      expect(body.has('client_id')).toBe(false)
       expect(body.has('client_secret')).toBe(false)
       expect(callArgs![1]?.headers).toEqual({
         'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${secretAuth}`,
       })
     })
 
