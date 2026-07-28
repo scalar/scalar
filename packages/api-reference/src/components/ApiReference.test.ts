@@ -670,6 +670,27 @@ describe('proxy configuration', () => {
 })
 
 describe('sidebar introduction toggle behavior', () => {
+  beforeEach(() => {
+    // jsdom localStorage can be missing after vi.unstubAllGlobals() in the file hook
+    const store = new Map<string, string>()
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        store.set(key, value)
+      },
+      removeItem: (key: string) => {
+        store.delete(key)
+      },
+      clear: () => {
+        store.clear()
+      },
+      key: (index: number) => [...store.keys()][index] ?? null,
+      get length() {
+        return store.size
+      },
+    })
+  })
+
   it('collapses introduction when clicked a second time', async () => {
     const wrapper = mount(ApiReference, {
       props: {
@@ -702,22 +723,25 @@ Welcome to the API.
       throw new Error('Expected Introduction entry in sidebar items')
     }
 
-    const introductionButton = wrapper.find(`[data-sidebar-id="${introduction.id}"] [aria-current="page"]`)
-    const introductionToggle = wrapper.find(
-      // Make sure we select the toggle not the group button
-      `[data-sidebar-id="${introduction.id}"] [aria-expanded]:not([aria-current])`,
-    )
+    const introductionRoot = wrapper.find(`[data-sidebar-id="${introduction.id}"]`)
+    // Discrete groups: main item button + separate absolute caret toggle.
+    // Do not key off aria-current — it is only present when the item is selected.
+    const expandedButtons = introductionRoot.findAll('button[aria-expanded]')
+    const introductionButton = expandedButtons.find((btn) => !btn.classes().includes('absolute'))
+    const introductionToggle = expandedButtons.find((btn) => btn.classes().includes('absolute'))
 
-    expect(introductionButton.attributes('aria-expanded')).toBe('false')
-    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
+    expect(introductionButton).toBeDefined()
+    expect(introductionToggle).toBeDefined()
+    expect(introductionButton!.attributes('aria-expanded')).toBe('false')
+    expect(introductionToggle!.attributes('aria-expanded')).toBe('false')
 
-    await introductionButton.trigger('click')
-    expect(introductionButton.attributes('aria-expanded')).toBe('true')
-    expect(introductionToggle.attributes('aria-expanded')).toBe('true')
+    await introductionButton!.trigger('click')
+    expect(introductionButton!.attributes('aria-expanded')).toBe('true')
+    expect(introductionToggle!.attributes('aria-expanded')).toBe('true')
 
-    await introductionToggle.trigger('click')
-    expect(introductionButton.attributes('aria-expanded')).toBe('false')
-    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
+    await introductionToggle!.trigger('click')
+    expect(introductionButton!.attributes('aria-expanded')).toBe('false')
+    expect(introductionToggle!.attributes('aria-expanded')).toBe('false')
   })
 })
 
