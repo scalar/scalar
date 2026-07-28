@@ -49,11 +49,12 @@ useTooltip({
 
 /** Global styles for the tooltip */
 :where(body) > .scalar-tooltip {
-  --scalar-tooltip-padding: 8px;
+  --scalar-tooltip-padding-x: 8px;
+  --scalar-tooltip-padding-y: 6px;
 
-  padding: var(--scalar-tooltip-padding);
+  padding: var(--scalar-tooltip-padding-y) var(--scalar-tooltip-padding-x);
 
-  @apply z-tooltip text-c-tooltip text-xs/4 font-medium break-words max-w-xs;
+  @apply z-tooltip text-c-tooltip text-xs/4 font-normal break-words max-w-xs;
 }
 
 /**
@@ -64,29 +65,29 @@ useTooltip({
  */
 :where(body) > .scalar-tooltip[data-side='top'] {
   padding-bottom: calc(
-    var(--scalar-tooltip-padding) + var(--scalar-tooltip-offset)
+    var(--scalar-tooltip-padding-y) + var(--scalar-tooltip-offset)
   );
 }
 :where(body) > .scalar-tooltip[data-side='bottom'] {
   padding-top: calc(
-    var(--scalar-tooltip-padding) + var(--scalar-tooltip-offset)
+    var(--scalar-tooltip-padding-y) + var(--scalar-tooltip-offset)
   );
 }
 :where(body) > .scalar-tooltip[data-side='left'] {
   padding-right: calc(
-    var(--scalar-tooltip-padding) + var(--scalar-tooltip-offset)
+    var(--scalar-tooltip-padding-x) + var(--scalar-tooltip-offset)
   );
 }
 :where(body) > .scalar-tooltip[data-side='right'] {
   padding-left: calc(
-    var(--scalar-tooltip-padding) + var(--scalar-tooltip-offset)
+    var(--scalar-tooltip-padding-x) + var(--scalar-tooltip-offset)
   );
 }
 
 :where(body) > .scalar-tooltip:before {
   content: '';
   inset: 0;
-  @apply absolute rounded bg-b-tooltip -z-1 backdrop-blur;
+  @apply absolute rounded-lg bg-b-tooltip -z-1 backdrop-blur border shadow;
 }
 
 /* Leave the gap on the target-facing side so the other edges stay flush */
@@ -101,9 +102,5 @@ useTooltip({
 }
 :where(body) > .scalar-tooltip[data-side='right']:before {
   left: var(--scalar-tooltip-offset);
-}
-
-:where(body.dark-mode) > .scalar-tooltip:before {
-  @apply shadow-border;
 }
 </style>
