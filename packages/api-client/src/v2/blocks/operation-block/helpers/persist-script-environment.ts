@@ -3,16 +3,13 @@ import type { VariableEntry } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvVar } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 
 /**
- * A single `environment:upsert:environment-variable` event needed to persist a value
- * that a script set via `pm.environment.set()`. The shape mirrors what the workspace
- * event bus expects, so the caller can emit it directly.
+ * A single change to persist to the active environment in response to a script's
+ * `pm.environment.set()` / `pm.environment.unset()`. Shapes mirror the workspace event
+ * bus payloads (`environment:upsert:environment-variable` / `:delete:environment-variable`)
+ * so the caller can emit each action directly.
  */
-type EnvironmentUpsertAction = {
-  environmentName: string
-  variable: { name: string; value: string }
-  /** Index of the existing variable to update, or undefined to add a new one. */
-  index?: number
-} & CollectionType
+type EnvironmentPersistenceAction = { environmentName: string } & CollectionType &
+  ({ type: 'upsert'; variable: { name: string; value: string }; index?: number } | { type: 'delete'; index: number })
 
 /** Normalize the store's environment scope, which may be an array or a plain record. */
 const toEntries = (variables: VariableEntry[] | Record<string, string>): VariableEntry[] =>
@@ -27,6 +24,11 @@ const toEntries = (variables: VariableEntry[] | Record<string, string>): Variabl
  * from, so updates mutate the correct collection in place instead of creating duplicates.
  * New variables are added to whichever scope actually defines the active environment, so the
  * upsert target exists (the mutator no-ops when the environment is missing from a collection).
+ *
+ * Variables present before the scripts ran but gone afterwards were removed via
+ * `pm.environment.unset()` and are emitted as deletes. Deletes splice the underlying array,
+ * so they are ordered last and by descending index — an earlier splice must not invalidate the
+ * index of a later one. Upserts run first because they replace in place without shifting.
  */
 export const getEnvironmentPersistenceActions = ({
   environmentName,
@@ -48,7 +50,7 @@ export const getEnvironmentPersistenceActions = ({
   documentVariables: XScalarEnvVar[]
   /** Whether the active environment is defined on the document (vs. the workspace). */
   environmentExistsOnDocument: boolean
-}): EnvironmentUpsertAction[] => {
+}): EnvironmentPersistenceAction[] => {
   // Workspace variables occupy the front of the merged array; document variables the tail.
   const workspaceCount = Math.max(0, mergedVariables.length - documentVariables.length)
 
@@ -57,45 +59,65 @@ export const getEnvironmentPersistenceActions = ({
     mergedVariables.slice(0, workspaceCount).map((variable, index) => [variable.name, index]),
   )
 
-  const actions: EnvironmentUpsertAction[] = []
+  /**
+   * Locate an existing variable by name, preferring the document scope on collisions since
+   * document values win when the environment is merged for reads.
+   */
+  const findExisting = (
+    key: string,
+  ): { collectionType: CollectionType['collectionType']; index: number } | undefined => {
+    const documentIndex = documentIndexByName.get(key)
+    if (documentIndex !== undefined) {
+      return { collectionType: 'document', index: documentIndex }
+    }
+    const workspaceIndex = workspaceIndexByName.get(key)
+    if (workspaceIndex !== undefined) {
+      return { collectionType: 'workspace', index: workspaceIndex }
+    }
+    return undefined
+  }
+
+  const upserts: EnvironmentPersistenceAction[] = []
+  const deletes: Array<Extract<EnvironmentPersistenceAction, { type: 'delete' }>> = []
+  const scriptKeys = new Set<string>()
 
   for (const { key, value } of toEntries(scriptVariables)) {
+    scriptKeys.add(key)
+
     // Skip values the script did not touch.
     if (seededVariables[key] === value) {
       continue
     }
 
-    // Update an existing variable in place, preferring the document scope on name
-    // collisions since document values win when the environment is merged for reads.
-    const documentIndex = documentIndexByName.get(key)
-    if (documentIndex !== undefined) {
-      actions.push({
+    const existing = findExisting(key)
+    if (existing) {
+      // Update an existing variable in place.
+      upserts.push({ type: 'upsert', environmentName, variable: { name: key, value }, ...existing })
+    } else {
+      // New variable — add it to whichever scope holds the active environment.
+      upserts.push({
+        type: 'upsert',
         environmentName,
         variable: { name: key, value },
-        index: documentIndex,
-        collectionType: 'document',
+        collectionType: environmentExistsOnDocument ? 'document' : 'workspace',
       })
-      continue
     }
-
-    const workspaceIndex = workspaceIndexByName.get(key)
-    if (workspaceIndex !== undefined) {
-      actions.push({
-        environmentName,
-        variable: { name: key, value },
-        index: workspaceIndex,
-        collectionType: 'workspace',
-      })
-      continue
-    }
-
-    // New variable — add it to whichever scope holds the active environment.
-    actions.push({
-      environmentName,
-      variable: { name: key, value },
-      collectionType: environmentExistsOnDocument ? 'document' : 'workspace',
-    })
   }
 
-  return actions
+  // Removals: keys present before the scripts ran but absent afterwards (pm.environment.unset).
+  for (const key of Object.keys(seededVariables)) {
+    if (scriptKeys.has(key)) {
+      continue
+    }
+    const existing = findExisting(key)
+    if (existing) {
+      deletes.push({ type: 'delete', environmentName, index: existing.index, collectionType: existing.collectionType })
+    }
+  }
+
+  // Highest index first so each splice leaves lower indices — including cross-scope ones,
+  // which live in independent arrays — valid for the deletes that follow.
+  deletes.sort((a, b) => b.index - a.index)
+
+  return [...upserts, ...deletes]
 }

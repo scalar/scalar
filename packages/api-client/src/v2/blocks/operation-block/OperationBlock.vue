@@ -407,7 +407,20 @@ const handleExecute = async () => {
       })
 
       for (const action of environmentActions) {
-        eventBus.emit('environment:upsert:environment-variable', action)
+        if (action.type === 'delete') {
+          eventBus.emit('environment:delete:environment-variable', {
+            environmentName: action.environmentName,
+            index: action.index,
+            collectionType: action.collectionType,
+          })
+        } else {
+          eventBus.emit('environment:upsert:environment-variable', {
+            environmentName: action.environmentName,
+            variable: action.variable,
+            index: action.index,
+            collectionType: action.collectionType,
+          })
+        }
       }
     }
   }

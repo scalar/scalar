@@ -30,7 +30,13 @@ describe('getEnvironmentPersistenceActions', () => {
     })
 
     expect(actions).toEqual([
-      { environmentName: 'default', variable: { name: 'token', value: 'new' }, index: 0, collectionType: 'workspace' },
+      {
+        type: 'upsert',
+        environmentName: 'default',
+        variable: { name: 'token', value: 'new' },
+        index: 0,
+        collectionType: 'workspace',
+      },
     ])
   })
 
@@ -49,7 +55,13 @@ describe('getEnvironmentPersistenceActions', () => {
     })
 
     expect(actions).toEqual([
-      { environmentName: 'default', variable: { name: 'token', value: 'new' }, index: 0, collectionType: 'document' },
+      {
+        type: 'upsert',
+        environmentName: 'default',
+        variable: { name: 'token', value: 'new' },
+        index: 0,
+        collectionType: 'document',
+      },
     ])
   })
 
@@ -64,7 +76,12 @@ describe('getEnvironmentPersistenceActions', () => {
     })
 
     expect(actions).toEqual([
-      { environmentName: 'default', variable: { name: 'token', value: 'fresh' }, collectionType: 'workspace' },
+      {
+        type: 'upsert',
+        environmentName: 'default',
+        variable: { name: 'token', value: 'fresh' },
+        collectionType: 'workspace',
+      },
     ])
   })
 
@@ -79,7 +96,12 @@ describe('getEnvironmentPersistenceActions', () => {
     })
 
     expect(actions).toEqual([
-      { environmentName: 'default', variable: { name: 'token', value: 'fresh' }, collectionType: 'document' },
+      {
+        type: 'upsert',
+        environmentName: 'default',
+        variable: { name: 'token', value: 'fresh' },
+        collectionType: 'document',
+      },
     ])
   })
 
@@ -96,6 +118,7 @@ describe('getEnvironmentPersistenceActions', () => {
 
     expect(actions).toEqual([
       {
+        type: 'upsert',
         environmentName: 'default',
         variable: { name: 'token', value: 'updated' },
         index: 0,
@@ -115,7 +138,80 @@ describe('getEnvironmentPersistenceActions', () => {
     })
 
     expect(actions).toEqual([
-      { environmentName: 'default', variable: { name: 'token', value: 'new' }, index: 0, collectionType: 'workspace' },
+      {
+        type: 'upsert',
+        environmentName: 'default',
+        variable: { name: 'token', value: 'new' },
+        index: 0,
+        collectionType: 'workspace',
+      },
+    ])
+  })
+
+  it('deletes a variable removed by the script (pm.environment.unset)', () => {
+    const actions = getEnvironmentPersistenceActions({
+      environmentName: 'default',
+      seededVariables: { token: 'abc' },
+      // The script unset token, so it is absent from the store output.
+      scriptVariables: [],
+      mergedVariables: [variable('token', 'abc')],
+      documentVariables: [],
+      environmentExistsOnDocument: false,
+    })
+
+    expect(actions).toEqual([{ type: 'delete', environmentName: 'default', index: 0, collectionType: 'workspace' }])
+  })
+
+  it('deletes a removed document variable using its document index', () => {
+    const actions = getEnvironmentPersistenceActions({
+      environmentName: 'default',
+      seededVariables: { host: 'ws', token: 'abc' },
+      scriptVariables: [{ key: 'host', value: 'ws' }],
+      mergedVariables: [variable('host', 'ws'), variable('token', 'abc')],
+      documentVariables: [variable('token', 'abc')],
+      environmentExistsOnDocument: true,
+    })
+
+    expect(actions).toEqual([{ type: 'delete', environmentName: 'default', index: 0, collectionType: 'document' }])
+  })
+
+  it('orders multiple deletes by descending index so splices stay valid', () => {
+    const actions = getEnvironmentPersistenceActions({
+      environmentName: 'default',
+      seededVariables: { a: '1', b: '2', c: '3' },
+      // Script removed a (index 0) and c (index 2), kept b.
+      scriptVariables: [{ key: 'b', value: '2' }],
+      mergedVariables: [variable('a', '1'), variable('b', '2'), variable('c', '3')],
+      documentVariables: [],
+      environmentExistsOnDocument: false,
+    })
+
+    expect(actions).toEqual([
+      { type: 'delete', environmentName: 'default', index: 2, collectionType: 'workspace' },
+      { type: 'delete', environmentName: 'default', index: 0, collectionType: 'workspace' },
+    ])
+  })
+
+  it('emits upserts before deletes so in-place updates are not shifted', () => {
+    const actions = getEnvironmentPersistenceActions({
+      environmentName: 'default',
+      seededVariables: { a: '1', b: '2' },
+      // Script removed a and changed b.
+      scriptVariables: [{ key: 'b', value: 'changed' }],
+      mergedVariables: [variable('a', '1'), variable('b', '2')],
+      documentVariables: [],
+      environmentExistsOnDocument: false,
+    })
+
+    expect(actions).toEqual([
+      {
+        type: 'upsert',
+        environmentName: 'default',
+        variable: { name: 'b', value: 'changed' },
+        index: 1,
+        collectionType: 'workspace',
+      },
+      { type: 'delete', environmentName: 'default', index: 0, collectionType: 'workspace' },
     ])
   })
 })
