@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ScalarIconCaretRight } from '@scalar/icons'
-import { computed } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
-/** A single ancestor in the tag hierarchy leading to the section in view. */
-type Crumb = { id: string; title: string }
+import { collapseTrail, isEllipsis, type Crumb } from './helpers'
 
 const { chain } = defineProps<{
   /** Ancestor tags from root to the section currently in view (inclusive). */
@@ -14,58 +13,90 @@ const emit = defineEmits<{
   navigate: [id: string]
 }>()
 
-/**
- * How many crumbs to keep before collapsing the middle. Deeply nested tags can
- * go arbitrarily deep, so we keep the root plus the tail (immediate parent and
- * current section) and fold everything in between into a single ellipsis.
- */
-const MAX_CRUMBS = 4
-
-/** A placeholder crumb standing in for the hidden middle of a long chain. */
-type EllipsisCrumb = { ellipsis: true; hiddenTitles: string[] }
-
-const isEllipsis = (crumb: Crumb | EllipsisCrumb): crumb is EllipsisCrumb =>
-  'ellipsis' in crumb
+const navRef = ref<HTMLElement | null>(null)
 
 /**
- * The crumbs actually rendered. Short chains show in full; long ones collapse to
- * `first … secondLast last` so the bar never outgrows a single line.
+ * Whether the full trail is wider than the bar and needs its middle collapsed.
+ * Measured from the DOM so we only truncate when there genuinely is not enough
+ * room — a wide bar shows the whole hierarchy.
  */
-const displayCrumbs = computed<(Crumb | EllipsisCrumb)[]>(() => {
-  if (chain.length <= MAX_CRUMBS) {
-    return chain
-  }
+const overflowing = ref(false)
 
-  const head = chain[0]
-  const tail = chain.slice(chain.length - (MAX_CRUMBS - 2))
-  const hidden = chain.slice(1, chain.length - (MAX_CRUMBS - 2))
-
-  return [
-    ...(head ? [head] : []),
-    { ellipsis: true, hiddenTitles: hidden.map((crumb) => crumb.title) },
-    ...tail,
-  ]
-})
+/** The crumbs actually rendered: the full trail while it fits, collapsed once it does not. */
+const displayCrumbs = computed(() =>
+  overflowing.value ? collapseTrail(chain) : chain,
+)
 
 /** The last crumb is the section in view, so it is shown as plain text. */
 const isCurrent = (index: number) => index === displayCrumbs.value.length - 1
 
-/**
- * Jump to an ancestor section when its crumb is clicked.
- *
- * The event is named `navigate` rather than `select` on purpose: `select` is a
- * native DOM event, so a component emit of the same name gets tangled up with
- * event fallthrough and never reaches listeners.
- */
+/** Jump to an ancestor section when its crumb is clicked. */
 const onCrumbClick = (id: string) => emit('navigate', id)
+
+/**
+ * Re-decide whether the trail fits. We optimistically render it in full, measure,
+ * and only collapse the middle if it overflows. Resetting first lets a widening
+ * bar re-expand a trail that was previously collapsed.
+ */
+const updateOverflow = async () => {
+  overflowing.value = false
+  await nextTick()
+
+  const nav = navRef.value
+  if (!nav) {
+    return
+  }
+
+  // A `flex`/`overflow: visible` row does not report overflow via scrollWidth, so
+  // measure the crumbs directly: their natural widths plus the gaps between them.
+  const style = getComputedStyle(nav)
+  const gap = Number.parseFloat(style.columnGap) || 0
+  const available =
+    nav.clientWidth -
+    Number.parseFloat(style.paddingLeft) -
+    Number.parseFloat(style.paddingRight)
+
+  // `getBoundingClientRect` (not `offsetWidth`) so the SVG separators are counted too.
+  const children = Array.from(nav.children)
+  const needed =
+    children.reduce(
+      (total, child) => total + child.getBoundingClientRect().width,
+      0,
+    ) +
+    gap * Math.max(0, children.length - 1)
+
+  overflowing.value = needed > available + 1
+}
+
+let resizeObserver: ResizeObserver | null = null
+
+// Re-measure when the bar (dis)appears or the layout width changes.
+watch(
+  navRef,
+  (nav) => {
+    resizeObserver?.disconnect()
+    if (nav && typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => updateOverflow())
+      resizeObserver.observe(nav)
+      updateOverflow()
+    }
+  },
+  { immediate: true },
+)
+
+// Re-measure whenever the hierarchy behind the bar changes.
+watch(() => chain, updateOverflow, { flush: 'post' })
+
+onBeforeUnmount(() => resizeObserver?.disconnect())
 </script>
 
 <template>
   <!-- Only meaningful when a section is actually nested under a parent tag -->
   <nav
     v-if="chain.length >= 2"
+    ref="navRef"
     aria-label="Breadcrumb"
-    class="context-bar bg-b-1 text-c-2 sticky top-(--refs-header-height) z-1 flex items-center gap-1.5 border-b text-sm">
+    class="context-bar bg-b-1 text-c-2 sticky top-(--refs-header-height) z-10 flex items-center gap-1.5 border-b text-sm">
     <template
       v-for="(crumb, index) in displayCrumbs"
       :key="isEllipsis(crumb) ? `ellipsis-${index}` : crumb.id">
@@ -74,7 +105,7 @@ const onCrumbClick = (id: string) => emit('navigate', id)
         class="text-c-3 size-2.5 shrink-0"
         weight="bold" />
 
-      <!-- Collapsed middle of a long chain -->
+      <!-- Collapsed middle of a long trail -->
       <span
         v-if="isEllipsis(crumb)"
         class="text-c-3 shrink-0"
@@ -86,14 +117,14 @@ const onCrumbClick = (id: string) => emit('navigate', id)
       <span
         v-else-if="isCurrent(index)"
         aria-current="page"
-        class="text-c-1 truncate font-medium">
+        class="text-c-1 shrink-0 font-medium whitespace-nowrap">
         {{ crumb.title }}
       </span>
 
       <!-- Ancestor: click to jump to that section -->
       <button
         v-else
-        class="hover:text-c-1 shrink-0 cursor-pointer truncate whitespace-nowrap transition-colors"
+        class="hover:text-c-1 shrink-0 cursor-pointer whitespace-nowrap transition-colors"
         type="button"
         @click="onCrumbClick(crumb.id)">
         {{ crumb.title }}

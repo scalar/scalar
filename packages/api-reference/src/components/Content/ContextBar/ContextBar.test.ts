@@ -30,19 +30,16 @@ describe('ContextBar', () => {
     expect(wrapper.find('[aria-current="page"]').text()).toBe('Moons')
   })
 
-  it('collapses the middle of a deep trail into an ellipsis', () => {
+  it('keeps the full trail when it fits (no forced truncation by count)', () => {
+    // Truncation is width-driven; without an overflowing layout the whole trail shows.
     const wrapper = mount(ContextBar, {
       props: { chain: chainOf('Galaxy', 'Planets', 'Moons', 'Craters', 'Regolith') },
     })
 
     const text = wrapper.text()
-    expect(text).toContain('Galaxy')
-    expect(text).toContain('…')
-    expect(text).toContain('Craters')
-    expect(text).toContain('Regolith')
-    // The hidden middle links are gone, so only the two visible ancestors remain clickable.
-    expect(text).not.toContain('Planets')
-    expect(wrapper.findAll('button')).toHaveLength(2)
+    expect(text).toContain('Planets')
+    expect(text).toContain('Moons')
+    expect(text).not.toContain('…')
   })
 
   it('emits the ancestor id when a crumb is clicked', async () => {

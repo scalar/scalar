@@ -232,11 +232,6 @@ onMounted(() => {
   <SectionFlare />
 
   <div class="narrow-references-container">
-    <!-- Sticky breadcrumb showing where a nested tag sits in the hierarchy -->
-    <ContextBar
-      :chain="contextChain"
-      @navigate="(id) => eventBus.emit('scroll-to:nav-item', { id })" />
-
     <slot name="start" />
 
     <!-- Render plugins at content.start view -->
@@ -325,6 +320,15 @@ onMounted(() => {
         </ScalarErrorBoundary>
       </template>
     </InfoBlock>
+
+    <!--
+      Sticky breadcrumb showing where a nested tag sits in the hierarchy. It lives
+      above the tag list (not above the introduction) so it rests over the first
+      tag and only sticks to the top once the reader scrolls into the tags.
+    -->
+    <ContextBar
+      :chain="contextChain"
+      @navigate="(id) => eventBus.emit('scroll-to:nav-item', { id })" />
 
     <!-- Render traversed operations and webhooks -->
     <!-- Use recursive component for cleaner rendering -->
