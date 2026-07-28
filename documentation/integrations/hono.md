@@ -130,3 +130,110 @@ app.get('/llms.txt', async (c) => {
   return c.text(markdown)
 })
 ```
+
+### Publish to the Scalar Registry
+
+If you generate your OpenAPI document from Zod OpenAPI Hono, you can publish it to the [Scalar Registry](../guides/registry/getting-started.md) to power hosted docs, share it with your team, and keep versions in sync. The nice part is that you do not need a running server to do this — the document is generated from the same Zod-driven routes, so a small script can render it to a static file.
+
+First, expose the generated document on a route as usual:
+
+```typescript
+import { OpenAPIHono } from '@hono/zod-openapi'
+
+const app = new OpenAPIHono()
+
+// Register your routes here, then expose the generated OpenAPI 3.1 document
+app.doc31('/openapi.json', (c) => ({
+  openapi: '3.1.0',
+  info: {
+    title: 'Example API',
+    version: '0.1.0',
+  },
+  servers: [{ url: c.env.BASE_URL }],
+}))
+
+export { app }
+```
+
+Then add a small script that renders that same route to a file. Because Hono apps can handle requests in memory, there is no need to boot a server:
+
+```typescript
+// scripts/dump-openapi.ts
+import { writeFileSync } from 'node:fs'
+import { app } from '../src/app'
+
+const outFile = process.argv[2] ?? 'openapi.json'
+const BASE_URL = process.env.BASE_URL ?? 'https://example.com'
+
+// Render the in-memory /openapi.json route to a static file
+const res = await app.request('/openapi.json', {}, { BASE_URL })
+
+if (!res.ok) {
+  console.error(`Failed to generate OpenAPI document: ${res.status} ${res.statusText}`)
+  process.exit(1)
+}
+
+const spec = await res.json()
+writeFileSync(outFile, `${JSON.stringify(spec, null, 2)}\n`)
+console.log(`Wrote ${outFile}`)
+```
+
+Wire it up with a couple of scripts. The [Scalar CLI](https://github.com/scalar/scalar/tree/main/packages/cli) handles validation and publishing:
+
+```json
+{
+  "scripts": {
+    "openapi:dump": "tsx scripts/dump-openapi.ts openapi.json",
+    "scalar:publish": "pnpm openapi:dump && scalar registry publish openapi.json --namespace your-namespace --slug your-api"
+  }
+}
+```
+
+To keep the registry up to date automatically, run the same steps in CI whenever a route or schema changes:
+
+```yaml
+# .github/workflows/scalar.yml
+name: Publish API docs
+
+on:
+  push:
+    branches: [main]
+    # Only republish when something that can change the document changes
+    paths:
+      - 'src/**'
+      - 'scripts/dump-openapi.ts'
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          # @scalar/cli requires Node >= 24
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate OpenAPI document
+        run: pnpm openapi:dump
+
+      - name: Validate document
+        run: pnpm dlx @scalar/cli document validate openapi.json
+
+      - name: Publish to Scalar Registry
+        env:
+          SCALAR_API_KEY: ${{ secrets.SCALAR_API_KEY }}
+        run: |
+          pnpm dlx @scalar/cli auth login --token "$SCALAR_API_KEY"
+          # Publish under the document's own info.version so a docs route can
+          # pin a stable version. --force overwrites that version on every push.
+          VERSION="$(node -p "require('./openapi.json').info.version")"
+          pnpm dlx @scalar/cli registry publish openapi.json \
+            --namespace your-namespace --slug your-api \
+            --version "$VERSION" --force
+```
