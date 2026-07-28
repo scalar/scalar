@@ -18,10 +18,10 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <aside
+  <nav
     v-bind="
       cx('flex flex-col border-r bg-sidebar-b-1 border-sidebar-border w-72')
     ">
     <slot />
-  </aside>
+  </nav>
 </template>

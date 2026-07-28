@@ -90,12 +90,19 @@ function openRegisterLink(documentUrl: string) {
 
 <template>
   <div class="scalar-mcp-layer">
-    <a
+    <!--
+      When there is no MCP config yet these act as buttons that generate one.
+      Using <a href=""> (or undefined href) fails axe link-name; keep a real
+      link only when we already have a target URL.
+    -->
+    <component
+      :is="hasConfig ? 'a' : 'button'"
       class="scalar-mcp-layer-link"
       :href="hasConfig ? vscodeLink : undefined"
       :target="hasConfig ? '_blank' : undefined"
+      :type="hasConfig ? undefined : 'button'"
       @click="
-        (e) => {
+        (e: MouseEvent) => {
           if (!hasConfig) {
             e.preventDefault()
             generateRegisterLink()
@@ -114,13 +121,15 @@ function openRegisterLink(documentUrl: string) {
       </svg>
       VS Code
       <ScalarIconArrowUpRight class="mcp-nav ml-auto size-4" />
-    </a>
-    <a
+    </component>
+    <component
+      :is="hasConfig ? 'a' : 'button'"
       class="scalar-mcp-layer-link"
       :href="hasConfig ? cursorLink : undefined"
       :target="hasConfig ? '_blank' : undefined"
+      :type="hasConfig ? undefined : 'button'"
       @click="
-        (e) => {
+        (e: MouseEvent) => {
           if (!hasConfig) {
             e.preventDefault()
             generateRegisterLink()
@@ -137,7 +146,7 @@ function openRegisterLink(documentUrl: string) {
       </svg>
       Cursor
       <ScalarIconArrowUpRight class="mcp-nav ml-auto size-4" />
-    </a>
+    </component>
     <!-- localhost + you don't have a MCP added -->
     <div
       v-if="!hasConfig"
@@ -233,6 +242,10 @@ function openRegisterLink(documentUrl: string) {
   line-height: 1.385;
   text-decoration: none;
   border-radius: var(--scalar-radius);
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   gap: 6px;
   color: var(--scalar-sidebar-color-1);

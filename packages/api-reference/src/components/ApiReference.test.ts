@@ -702,10 +702,10 @@ Welcome to the API.
       throw new Error('Expected Introduction entry in sidebar items')
     }
 
-    const introductionButton = wrapper.find(`[data-sidebar-id="${introduction.id}"] [aria-selected]`)
+    const introductionButton = wrapper.find(`[data-sidebar-id="${introduction.id}"] [aria-current="page"]`)
     const introductionToggle = wrapper.find(
       // Make sure we select the toggle not the group button
-      `[data-sidebar-id="${introduction.id}"] [aria-expanded]:not([aria-selected])`,
+      `[data-sidebar-id="${introduction.id}"] [aria-expanded]:not([aria-current])`,
     )
 
     expect(introductionButton.attributes('aria-expanded')).toBe('false')
