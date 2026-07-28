@@ -307,17 +307,19 @@ const handleExecute = async () => {
   )
 
   // Snapshot the persistence target at request start, alongside the seed. Persistence runs after
-  // the request completes (awaits below), and the environment props are reactive — if the user
-  // switches the active environment mid-flight, reading them at persist time would apply the
-  // script's writes to the wrong environment using indexes from a different variable list. The
-  // seeded values and these targets must come from the same point in time.
+  // the request completes (awaits below), and the environment props are reactive — if the active
+  // environment is switched mid-flight, or a concurrent request splices these arrays, reading
+  // them at persist time would apply the script's writes to the wrong environment or resolve
+  // workspace/document indexes against a shifted list. Copy the arrays (not just the reference)
+  // so the seeded values and these targets stay fixed to the same point in time.
   const persistenceTarget = activeEnvironment
     ? {
         environmentName: activeEnvironment,
-        mergedVariables: environment.variables,
-        documentVariables:
-          document['x-scalar-environments']?.[activeEnvironment]?.variables ??
-          [],
+        mergedVariables: [...environment.variables],
+        documentVariables: [
+          ...(document['x-scalar-environments']?.[activeEnvironment]
+            ?.variables ?? []),
+        ],
         environmentExistsOnDocument: Boolean(
           document['x-scalar-environments']?.[activeEnvironment],
         ),

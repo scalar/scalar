@@ -728,6 +728,74 @@ describe('OperationBlock', () => {
     )
   })
 
+  it('resolves persistence indexes against a seed-time copy when the environment array is spliced mid-flight', async () => {
+    const mockEventBus = createMockEventBus()
+    // token sits at index 0 in the workspace scope when the request starts.
+    const environment: XScalarEnvironment = { color: 'blue', variables: [{ name: 'token', value: 'old' }] }
+
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: new AbortController(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
+
+    // Hold the request open so the environment array can be spliced before persistence runs.
+    let resolveSend!: (value: Awaited<ReturnType<typeof sendRequest>>) => void
+    vi.mocked(sendRequest).mockReturnValue(
+      new Promise<Awaited<ReturnType<typeof sendRequest>>>((resolve) => {
+        resolveSend = resolve
+      }),
+    )
+
+    const setTokenPlugin: ClientPlugin = {
+      hooks: {
+        beforeRequest: ({ variablesStore }) => {
+          variablesStore?.setEnvironment?.([{ key: 'token', value: 'new' }])
+        },
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus: mockEventBus,
+        plugins: [setTokenPlugin],
+        activeEnvironment: 'default',
+        environment,
+      },
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('execute')
+    await flushPromises()
+
+    // A concurrent change prepends a variable, shifting token to index 1 in the live array.
+    environment.variables.unshift({ name: 'other', value: 'x' })
+
+    resolveSend([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
+      },
+    ])
+    await flushPromises()
+
+    // token must still resolve to its seed-time index (0), not the shifted one.
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'environment:upsert:environment-variable',
+      expect.objectContaining({
+        environmentName: 'default',
+        variable: { name: 'token', value: 'new' },
+        index: 0,
+        collectionType: 'workspace',
+      }),
+    )
+  })
+
   it('cancels request when cancelRequest is invoked via event bus', async () => {
     const mockEventBus = createMockEventBus()
     const mockController = new AbortController()
