@@ -37,8 +37,8 @@ test.describe('modelsSectionLabel', () => {
     await expect(page.getByRole('heading', { name: 'Data Types', level: 2 })).toBeVisible()
 
     // Sidebar shows the custom label, not the default
-    await expect(page.getByRole('navigation').getByText('Data Types', { exact: true }).first()).toBeVisible()
-    await expect(page.getByRole('navigation').getByText('Models', { exact: true })).toHaveCount(0)
+    await expect(page.getByRole('complementary').getByText('Data Types', { exact: true }).first()).toBeVisible()
+    await expect(page.getByRole('complementary').getByText('Models', { exact: true })).toHaveCount(0)
 
     // Per-model URL slug derivation is covered by get-navigation-options.test.ts.
   })

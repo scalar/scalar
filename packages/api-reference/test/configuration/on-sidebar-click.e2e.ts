@@ -18,7 +18,7 @@ test.describe('onSidebarClick', () => {
 
     await page.goto(example)
 
-    await page.getByRole('navigation').getByRole('button', { name: 'Get all planets' }).click()
+    await page.getByRole('complementary').getByRole('button', { name: 'Get all planets' }).click()
 
     await expect
       .poll(() => page.evaluate(() => (window as unknown as Record<string, unknown>).__sidebarHref))

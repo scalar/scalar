@@ -15,7 +15,7 @@ const content = {
 
 /** Vertical position of a sidebar link, used to compare ordering. */
 const sidebarTop = async (page: Page, name: string) => {
-  const box = await page.getByRole('navigation').getByRole('button', { name }).first().boundingBox()
+  const box = await page.getByRole('complementary').getByRole('button', { name }).first().boundingBox()
   return box?.y ?? Number.POSITIVE_INFINITY
 }
 

@@ -35,7 +35,7 @@ toTest.forEach((source) => {
     const opts = getScreenshotOptions(page)
 
     // Expand the tag
-    const nav = page.getByRole('navigation', { name: 'Sidebar for' })
+    const nav = page.getByRole('complementary', { name: 'Sidebar for' })
 
     await page.goto(`${example}#${slug}/models`)
 
