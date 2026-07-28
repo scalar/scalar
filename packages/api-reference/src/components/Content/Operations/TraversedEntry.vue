@@ -33,11 +33,20 @@ const {
   document,
   authStore,
   entries,
+  insideTagContainer = false,
 } = defineProps<{
   /** The auth store */
   authStore: AuthStore
   /** The level of depth */
   level?: number
+  /**
+   * Whether these entries render inside a parent tag's section container.
+   *
+   * Nested tags can be arbitrarily deep, and each tag renders its own padded
+   * section container. Nesting them would accumulate horizontal padding, so a
+   * child tag drops its own padding to keep every section flush left.
+   */
+  insideTagContainer?: boolean
   /** Traversed entries to render */
   entries: TraversedEntry[]
   /** The document object */
@@ -143,6 +152,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"
       :moreThanOneTag="entries.filter(isTag).length > 1"
+      :nested="insideTagContainer"
       :tag="entry">
       <template v-if="'children' in entry && entry.children?.length">
         <TraversedEntry
@@ -152,6 +162,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :entries="entry.children"
           :eventBus
           :expandedItems
+          :insideTagContainer="true"
           :level="level + 1"
           :options
           :securitySchemes
@@ -179,6 +190,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :entries="entry.children || []"
         :eventBus
         :expandedItems
+        :insideTagContainer="insideTagContainer"
         :level="level + 1"
         :options
         :securitySchemes

@@ -65,7 +65,7 @@ const onCrumbClick = (id: string) => emit('navigate', id)
   <nav
     v-if="chain.length >= 2"
     aria-label="Breadcrumb"
-    class="bg-b-1 text-c-2 sticky top-(--refs-header-height) z-1 -mx-1 flex items-center gap-1 border-b px-1 py-2 text-sm">
+    class="context-bar bg-b-1 text-c-2 sticky top-(--refs-header-height) z-1 flex items-center gap-1.5 border-b text-sm">
     <template
       v-for="(crumb, index) in displayCrumbs"
       :key="isEllipsis(crumb) ? `ellipsis-${index}` : crumb.id">
@@ -101,3 +101,20 @@ const onCrumbClick = (id: string) => emit('navigate', id)
     </template>
   </nav>
 </template>
+
+<style scoped>
+/*
+ * Match the section content inset (0 60px) so crumbs line up under the section
+ * headings, with generous vertical padding so the bar does not feel cramped.
+ * The bar lives inside `.narrow-references-container`, so it shares the same
+ * container query the sections use to drop their inset on narrow layouts.
+ */
+.context-bar {
+  padding: 14px 60px;
+}
+@container narrow-references-container (max-width: 900px) {
+  .context-bar {
+    padding: 12px 24px;
+  }
+}
+</style>

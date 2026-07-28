@@ -14,6 +14,8 @@ const { tag, moreThanOneTag } = defineProps<{
   moreThanOneTag: boolean
   isCollapsed: boolean
   eventBus: WorkspaceEventBus | null
+  /** Whether this tag sits inside a parent tag's container (drops its own padding). */
+  nested?: boolean
 }>()
 const { translate } = useLocalization()
 
@@ -30,6 +32,7 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
   <SectionContainer
     :aria-labelledby="headerId"
     class="tag-section-container"
+    :class="{ 'tag-section-nested': nested }"
     role="region">
     <TagSection
       v-if="moreThanOneDefaultTag"
@@ -59,6 +62,14 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
 <style scoped>
 .section-container {
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+/*
+ * A tag nested inside another tag's container would otherwise inherit a second
+ * layer of horizontal padding. Dropping it keeps every section flush left
+ * regardless of how deep the tag hierarchy goes.
+ */
+.tag-section-container.tag-section-nested {
+  padding-inline: 0;
 }
 .section-container:has(.show-more) {
   background-color: color-mix(in srgb, var(--scalar-background-2), transparent);
