@@ -1,0 +1,5 @@
+# JavaScript asset copied with `pnpm copy:standalone`
+/src/Scalar.Aws.Lambda/StaticAssets/scalar.js
+
+# AWS SAM local settings
+.aws-sam/

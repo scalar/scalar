@@ -1,4 +1,9 @@
+#if SCALAR_SERVERLESS
+#if SCALAR_AZURE_FUNCTIONS
 namespace Scalar.Azure.Functions;
+#else
+namespace Scalar.Aws.Lambda;
+#endif
 
 /// <summary>
 /// A hosting-agnostic description of the response that should be written for a Scalar request.
@@ -39,3 +44,4 @@ internal sealed class ScalarRenderResult
     /// <summary>The effective nonce, exposed so adapters can surface it (e.g. via <c>HttpContext.Items</c>).</summary>
     public string? Nonce { get; init; }
 }
+#endif

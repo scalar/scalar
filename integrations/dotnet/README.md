@@ -7,6 +7,8 @@ This folder contains the .NET packages for Scalar API documentation.
 - **`shared/`** - Contains `Scalar.Shared` project with shared resources
 - **`aspnetcore/`** - Contains `Scalar.AspNetCore` package for ASP.NET Core applications
 - **`aspire/`** - Contains `Scalar.Aspire` package for Aspire applications
+- **`azure-functions/`** - Contains `Scalar.Azure.Functions` package for Azure Functions applications
+- **`aws-lambda/`** - Contains `Scalar.Aws.Lambda` package for AWS Lambda functions fronted by Amazon API Gateway
 
 Each project has its own solution file (`.slnx`):
 - `Scalar.Shared.slnx` - For working with shared code

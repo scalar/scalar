@@ -1,4 +1,9 @@
+#if SCALAR_SERVERLESS
+#if SCALAR_AZURE_FUNCTIONS
 namespace Scalar.Azure.Functions;
+#else
+namespace Scalar.Aws.Lambda;
+#endif
 
 /// <summary>
 /// Hosting-agnostic request dispatcher. Given the resolved options and the relevant request information it decides
@@ -113,3 +118,4 @@ internal static class ScalarRequestProcessor
             : requestPath;
     }
 }
+#endif
