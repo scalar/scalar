@@ -229,6 +229,8 @@ function openRegisterLink(documentUrl: string) {
   cursor: pointer !important;
 }
 .scalar-mcp-layer .scalar-mcp-layer-link {
+  /* Must stay above font-size and line-height, which the shorthand resets */
+  font: inherit;
   cursor: pointer;
   width: 100%;
   padding: 9px 6px;
@@ -242,10 +244,6 @@ function openRegisterLink(documentUrl: string) {
   line-height: 1.385;
   text-decoration: none;
   border-radius: var(--scalar-radius);
-  border: none;
-  background: transparent;
-  color: inherit;
-  font: inherit;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   gap: 6px;
   color: var(--scalar-sidebar-color-1);
