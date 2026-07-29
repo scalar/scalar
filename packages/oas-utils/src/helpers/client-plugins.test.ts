@@ -51,6 +51,25 @@ describe('executeHook', () => {
     expect(result.requestBuilder.headers.get('X-Custom-Header')).toBe('test-value')
   })
 
+  it('forwards server and customFetch to the beforeRequest hook', async () => {
+    const requestBuilder = createFactory()
+    const server = { url: 'https://api.example.com' } as never
+    const customFetch = fetch
+    let received: { server?: unknown; customFetch?: unknown } = {}
+    const plugin: ClientPlugin = {
+      hooks: {
+        beforeRequest: (payload) => {
+          received = { server: payload.server, customFetch: payload.customFetch }
+        },
+      },
+    }
+
+    await executeHook({ ...beforePayload(requestBuilder), server, customFetch }, 'beforeRequest', [plugin])
+
+    expect(received.server).toBe(server)
+    expect(received.customFetch).toBe(customFetch)
+  })
+
   it('chains multiple plugins in order and applies all modifications', async () => {
     const requestBuilder = createFactory()
 

@@ -1,6 +1,6 @@
 import type { AnyEventListener, ApiReferenceEvents, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { Component, DefineComponent } from 'vue'
 
@@ -50,6 +50,10 @@ type ClientPluginHooks = {
     document: OpenApiDocument
     operation: OperationObject
     variablesStore?: VariablesStore
+    /** Active server, so plugins can resolve relative URLs (e.g. a token endpoint). */
+    server?: ServerObject | null
+    /** Host fetch, so plugins can run network calls (e.g. a token refresh) through the same channel as the request. */
+    customFetch?: typeof fetch
   }) => void | Promise<void>
   /**
    * Runs after the fetch `Request` has been built, right before it is sent. The request passed
