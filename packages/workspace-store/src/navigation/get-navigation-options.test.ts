@@ -209,6 +209,27 @@ describe('get-navigation-options', () => {
     expect(id).toBe('api/webhook/POST-orderCreated')
   })
 
+  // Event-style webhook names commonly mix underscores and dots. Both must
+  // become separators, otherwise dots get dropped and join adjacent words
+  // (e.g. "account_holder.created" -> "account-holdercreated").
+  it.each([
+    ['account_holder.created', 'pet-store/webhook/POST/account-holder-created'],
+    ['card_transaction.updated', 'pet-store/webhook/POST/card-transaction-updated'],
+    [
+      'tokenization.two_factor_authentication_code',
+      'pet-store/webhook/POST/tokenization-two-factor-authentication-code',
+    ],
+  ])('turns dots and underscores in webhook name %s into separators', (name, expected) => {
+    const options = getNavigationOptions('Pet Store')
+    const id = options.generateId({
+      type: 'webhook',
+      parentId: 'pet-store',
+      name,
+      method: 'post',
+    })
+    expect(id).toBe(expected)
+  })
+
   it('generates model ID for models root when name is empty', () => {
     const options = getNavigationOptions('Pet Store')
     const id = options.generateId({
