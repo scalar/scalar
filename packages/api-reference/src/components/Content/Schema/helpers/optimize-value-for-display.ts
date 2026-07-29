@@ -97,10 +97,16 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   // Determine if nullable should be set
   const shouldBeNullable = hasNullSchema || originalNullable === true
 
-  // If only one schema remains after filtering, merge with root properties
+  // If only one schema remains after filtering, merge with root properties.
+  // `properties`/`required` are unioned so sibling properties declared next to
+  // the composition (e.g. `properties` alongside a single-`$ref` `allOf`) are
+  // kept instead of being overwritten by the member schema's own `properties`.
+  // Root-level annotations (title, description, …) win over the member's: they
+  // describe the combined schema, not the base it extends.
   if (filteredSchemas.length === 1) {
-    const mergedSchema = { ...rootProperties, ...filteredSchemas[0] }
+    const mergedSchema = mergeSchemaProperties(filteredSchemas[0], rootProperties) as SchemaObject
     if (shouldBeNullable) {
+      // @ts-expect-error We use nullable
       mergedSchema.nullable = true
     }
     return mergedSchema
