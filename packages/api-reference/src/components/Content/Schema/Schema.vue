@@ -401,6 +401,7 @@ const handleClick = (e: MouseEvent) => {
               :breadcrumb
               :compact
               :compositionPath="compositionPath"
+              :discriminator
               :eventBus="eventBus"
               :hideHeading
               :hideModelNames

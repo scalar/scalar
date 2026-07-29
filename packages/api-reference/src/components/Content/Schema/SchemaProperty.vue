@@ -404,6 +404,13 @@ const isDiscriminatorProperty = computed(() =>
     </div>
 
     <!-- Compositions -->
+    <!--
+      Prefer the schema's own discriminator, then the threaded parent prop.
+      Mapping variants that `allOf` back to the base (#9771) have no discriminator
+      of their own — the parent composition's must flow through so the merged base
+      does not re-infer the mapping. Preferring `schema.discriminator` first keeps
+      nested independent polymorphic properties on their own mapping context.
+    -->
     <SchemaComposition
       v-for="compositionData in compositionsToRender"
       :key="compositionData.composition"
@@ -411,7 +418,7 @@ const isDiscriminatorProperty = computed(() =>
       :compact="compact"
       :composition="compositionData.composition"
       :compositionPath="currentCompositionPath"
-      :discriminator="schema?.discriminator"
+      :discriminator="schema?.discriminator ?? discriminator"
       :eventBus="eventBus"
       :hideHeading="hideHeading"
       :hideModelNames
