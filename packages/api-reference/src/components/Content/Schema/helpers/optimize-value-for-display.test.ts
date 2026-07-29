@@ -550,4 +550,88 @@ describe('optimizeValueForDisplay', () => {
       ],
     })
   })
+
+  it('unions sibling properties with a single-member allOf instead of dropping them', () => {
+    // Mirrors the reported schema: an object declares its own `properties`
+    // next to an `allOf` holding a single `$ref` base. The sibling properties
+    // (`assetIds`) must survive the flattening, and the root's own annotations
+    // (title, description) must win over the base schema's.
+    const input = {
+      title: 'Geofence Update Payload',
+      description: 'Geofence data to update in Equipment Monitoring table.',
+      type: 'object',
+      properties: {
+        assetIds: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Geofence assigned asset ids',
+        },
+      },
+      allOf: [
+        {
+          '$ref': '#/components/schemas/GeofencePayloadWithoutAssetIds',
+          '$ref-value': {
+            title: 'Geofence Payload without asset ids',
+            description: 'Geofence data to save in Equipment Monitoring table',
+            type: 'object',
+            properties: {
+              updatedBy: { type: 'string' },
+              name: { type: 'string' },
+            },
+            required: ['updatedBy'],
+          },
+        },
+      ],
+    } as unknown as SchemaObject
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      // The resolved node keeps its `$ref` so model names still render
+      '$ref': '#/components/schemas/GeofencePayloadWithoutAssetIds',
+      title: 'Geofence Update Payload',
+      description: 'Geofence data to update in Equipment Monitoring table.',
+      type: 'object',
+      properties: {
+        assetIds: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Geofence assigned asset ids',
+        },
+        updatedBy: { type: 'string' },
+        name: { type: 'string' },
+      },
+      required: ['updatedBy'],
+    })
+  })
+
+  it('lets a sibling property redefinition win over the single-member allOf base', () => {
+    // When the root redeclares a property the base also defines, the root's
+    // definition is the more specific one and should be the one rendered.
+    const input = {
+      type: 'object',
+      properties: {
+        updatedBy: { type: 'string', description: 'Name of the updating user' },
+      },
+      allOf: [
+        {
+          type: 'object',
+          properties: {
+            updatedBy: { type: 'string' },
+            name: { type: 'string' },
+          },
+        },
+      ],
+    } as unknown as SchemaObject
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      type: 'object',
+      properties: {
+        updatedBy: { type: 'string', description: 'Name of the updating user' },
+        name: { type: 'string' },
+      },
+    })
+  })
 })
