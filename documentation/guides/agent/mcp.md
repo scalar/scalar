@@ -8,7 +8,7 @@ You choose which endpoints to expose (and which not), configure how each one beh
 
 Scalar exposes two separate MCP surfaces, and they're easy to conflate because most clients just show both as "MCP". The **Docs MCP** lives at `https://your-docs-domain/mcp` and lets AI clients search and read your published documentation. It is proxied through your docs hosting, so it inherits the visibility of the docs project. If the docs are public, the Docs MCP is public too, otherwise the in-docs chat would not work.
 
-The **Installation MCP** lives at `https://api.scalar.com/vector/mcp/YOUR_INSTALL_ID` and lets AI clients call the API endpoints you've selected, using the authentication you've stored for the installation. It is a completely separate endpoint and is private by default: team members connect with a Personal Access Token, while people outside your team sign in through OAuth once you grant them access (see [External Access](./external-access.md)). If you want to verify which one a client is actually pointed at, `curl` the URL directly: the Installation MCP responds with `401` when no valid credentials are present.
+The **Installation MCP** lives at `https://mcp.scalar.com/mcp/YOUR_INSTALL_ID` and lets AI clients call the API endpoints you've selected, using the authentication you've stored for the installation. It is a completely separate endpoint and is private by default: team members connect with a Personal Access Token, while people outside your team sign in through OAuth once you grant them access (see [Authentication](./authentication/index.md)). If you want to verify which one a client is actually pointed at, `curl` the URL directly: the Installation MCP responds with `401` when no valid credentials are present.
 
 ## Create a MCP Server
 
@@ -38,7 +38,7 @@ For Claude Code, you can run the following command in your terminal to add and t
 ```bash
 claude mcp add \
   YOUR_MCP_SERVER_NAME \
-  https://api.scalar.com/vector/mcp/YOUR_MCP_SERVER_ID \
+  https://mcp.scalar.com/mcp/YOUR_MCP_SERVER_ID \
   --header "Authorization: YOUR_PERSONAL_ACCESS_TOKEN" \
   --transport http
 ```
@@ -74,10 +74,10 @@ Authentication is configured per installation in the [Scalar Dashboard](https://
 
 There are two modes:
 
-- **Global** — store one credential (OAuth, API key, or bearer token) on the installation; the server uses it for every call.
-- **Passthrough** — the caller supplies the credential in a header or query parameter you nominate, and Scalar forwards it upstream per request without storing it. Use this when each user must call your API with their own key.
+- **Global** — store one credential (OAuth, API key, or bearer token) on the installation; the server uses it for every call. See [One shared key for everyone](./authentication/shared-key.md).
+- **Passthrough** — the caller supplies the credential in a header or query parameter you nominate, and Scalar forwards it upstream per request without storing it. Use this when each user must call your API with their own key. See [Public MCP with passthrough auth](./authentication/public-passthrough.md).
 
-To share a private server with people outside your team—via access groups, OAuth login, and login portals—see [External Access](./external-access.md).
+For who is allowed to connect—public, team, or specific customers via access groups and OAuth login—see [Authentication](./authentication/index.md).
 
 ## Billing
 

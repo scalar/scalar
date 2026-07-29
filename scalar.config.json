@@ -1685,11 +1685,37 @@
                     "description": "Generate secure MCP servers from your OpenAPI documents so LLMs can call your API with just-in-time tools and delegated auth.",
                     "filepath": "documentation/guides/agent/mcp.md"
                   },
-                  "external-access": {
-                    "title": "External Access",
-                    "type": "page",
-                    "description": "Share an MCP server with users outside your Scalar team using access groups, OAuth login, login portals, and passthrough auth.",
-                    "filepath": "documentation/guides/agent/external-access.md"
+                  "authentication": {
+                    "title": "Authentication",
+                    "type": "group",
+                    "mode": "nested",
+                    "description": "How an MCP server authenticates: who is allowed to connect (public, team, access groups) and how the server calls your API (global or passthrough).",
+                    "children": {
+                      "/": {
+                        "type": "page",
+                        "title": "Authentication",
+                        "description": "The two layers of MCP auth—who can connect and how the server calls your API—plus recipes for the common setups.",
+                        "filepath": "documentation/guides/agent/authentication/index.md"
+                      },
+                      "public-passthrough": {
+                        "type": "page",
+                        "title": "Public MCP with Passthrough",
+                        "description": "Make the MCP server public and let each user authenticate with their own API credentials via a passthrough header such as Authorization.",
+                        "filepath": "documentation/guides/agent/authentication/public-passthrough.md"
+                      },
+                      "customer-access": {
+                        "type": "page",
+                        "title": "Private Access for Customers",
+                        "description": "Share an MCP server with users outside your Scalar team using access groups, OAuth login, and login portals.",
+                        "filepath": "documentation/guides/agent/authentication/customer-access.md"
+                      },
+                      "shared-key": {
+                        "type": "page",
+                        "title": "One Shared Key",
+                        "description": "Store a single credential on the installation with global auth so callers never handle a key.",
+                        "filepath": "documentation/guides/agent/authentication/shared-key.md"
+                      }
+                    }
                   },
                   "sdk": {
                     "title": "Agent SDK",
