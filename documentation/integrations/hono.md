@@ -138,7 +138,7 @@ If you generate your OpenAPI document from Zod OpenAPI Hono, you can publish it 
 Add a small script that calls `getOpenAPI31Document()` and writes the result to a file:
 
 ```typescript
-// scripts/dump-openapi.ts
+// scripts/generate-openapi.ts
 import { writeFileSync } from 'node:fs'
 import { app } from '../src/app'
 
@@ -161,8 +161,8 @@ Wire it up with a couple of scripts. The [Scalar CLI](https://github.com/scalar/
 ```json
 {
   "scripts": {
-    "openapi:dump": "tsx scripts/dump-openapi.ts openapi.json",
-    "scalar:publish": "pnpm openapi:dump && scalar registry publish openapi.json --namespace your-namespace --slug your-api"
+    "openapi:generate": "tsx scripts/generate-openapi.ts openapi.json",
+    "scalar:publish": "pnpm openapi:generate && scalar registry publish openapi.json --namespace your-namespace --slug your-api"
   }
 }
 ```
@@ -179,7 +179,7 @@ on:
     # Only republish when something that can change the document changes
     paths:
       - 'src/**'
-      - 'scripts/dump-openapi.ts'
+      - 'scripts/generate-openapi.ts'
   workflow_dispatch: {}
 
 jobs:
@@ -198,7 +198,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate OpenAPI document
-        run: pnpm openapi:dump
+        run: pnpm openapi:generate
 
       - name: Validate document
         run: pnpm dlx @scalar/cli document validate openapi.json
