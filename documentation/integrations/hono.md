@@ -133,50 +133,28 @@ app.get('/llms.txt', async (c) => {
 
 ### Publish to the Scalar Registry
 
-If you generate your OpenAPI document from Zod OpenAPI Hono, you can publish it to the [Scalar Registry](../guides/registry/getting-started.md) to power hosted docs, share it with your team, and keep versions in sync. The nice part is that you do not need a running server to do this — the document is generated from the same Zod-driven routes, so a small script can render it to a static file.
+If you generate your OpenAPI document from Zod OpenAPI Hono, you can publish it to the [Scalar Registry](../guides/registry/getting-started.md) to power hosted docs, share it with your team, and keep versions in sync. You do not need a running server for this — `OpenAPIHono` can build the document straight from your Zod-driven routes.
 
-First, expose the generated document on a route as usual:
-
-```typescript
-import { OpenAPIHono } from '@hono/zod-openapi'
-
-const app = new OpenAPIHono()
-
-// Register your routes here, then expose the generated OpenAPI 3.1 document
-app.doc31('/openapi.json', (c) => ({
-  openapi: '3.1.0',
-  info: {
-    title: 'Example API',
-    version: '0.1.0',
-  },
-  servers: [{ url: c.env.BASE_URL }],
-}))
-
-export { app }
-```
-
-Then add a small script that renders that same route to a file. Because Hono apps can handle requests in memory, there is no need to boot a server:
+Add a small script that calls `getOpenAPI31Document()` and writes the result to a file:
 
 ```typescript
 // scripts/dump-openapi.ts
 import { writeFileSync } from 'node:fs'
 import { app } from '../src/app'
 
-const outFile = process.argv[2] ?? 'openapi.json'
-const BASE_URL = process.env.BASE_URL ?? 'https://example.com'
+const document = app.getOpenAPI31Document({
+  openapi: '3.1.0',
+  info: {
+    title: 'Example API',
+    version: '0.1.0',
+  },
+  servers: [{ url: process.env.BASE_URL ?? 'https://example.com' }],
+})
 
-// Render the in-memory /openapi.json route to a static file
-const res = await app.request('/openapi.json', {}, { BASE_URL })
-
-if (!res.ok) {
-  console.error(`Failed to generate OpenAPI document: ${res.status} ${res.statusText}`)
-  process.exit(1)
-}
-
-const spec = await res.json()
-writeFileSync(outFile, `${JSON.stringify(spec, null, 2)}\n`)
-console.log(`Wrote ${outFile}`)
+writeFileSync('openapi.json', `${JSON.stringify(document, null, 2)}\n`)
 ```
+
+Here `app` is your `OpenAPIHono` instance with all routes registered. This is the same document you would serve at runtime with `app.doc31('/openapi.json', ...)`, just written to a file instead.
 
 Wire it up with a couple of scripts. The [Scalar CLI](https://github.com/scalar/scalar/tree/main/packages/cli) handles validation and publishing:
 
