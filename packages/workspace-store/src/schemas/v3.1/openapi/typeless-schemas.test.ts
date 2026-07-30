@@ -1,12 +1,14 @@
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
-import { type Schema, coerce } from '@scalar/validation'
+import { type Schema, coerce, object, optional, string } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
-import { generateSchema } from '@/schemas/v3.1/openapi'
+import { generateSchema, generateSchemaObject } from '@/schemas/v3.1/openapi'
 import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
 
 const defaultSchema = generateSchema(recursiveRef)
-const typelessSchema = generateSchema(recursiveRef, { typelessSchemas: true })
+const typelessSchema = generateSchema(recursiveRef, {
+  schemaObject: generateSchemaObject(recursiveRef, { typelessSchemas: true }),
+})
 
 const document = (schemas: Record<string, unknown>): Record<string, unknown> => ({
   openapi: '3.1.0',
@@ -20,6 +22,27 @@ const coerceSchema = (schema: Schema, name: string, schemas: Record<string, unkn
   (coerce(schema, document(schemas)) as any).components.schemas[name]
 
 describe('typeless-schemas', () => {
+  describe('schemaObject injection', () => {
+    it('uses the supplied Schema Object in every position that holds one', () => {
+      // A deliberately minimal stand-in: if the document schema reaches for it, only `title`
+      // survives coercion, which no default branch would do.
+      const marker = object({ title: optional(string()) })
+      const injected = generateSchema(recursiveRef, { schemaObject: marker })
+
+      const schemas = (coerce(injected, document({ Target: { type: 'string', title: 'kept', minLength: 3 } })) as any)
+        .components.schemas
+
+      expect(schemas.Target).toEqual({ title: 'kept' })
+    })
+
+    it('defaults to `generateSchemaObject` when none is supplied', () => {
+      const explicit = generateSchema(recursiveRef, { schemaObject: generateSchemaObject(recursiveRef) })
+      const target = { Target: { type: 'object', properties: { a: { type: 'string' } } } }
+
+      expect(coerce(explicit, document(target))).toEqual(coerce(defaultSchema, document(target)))
+    })
+  })
+
   describe('by default', () => {
     it('substitutes the internal marker for a type-less schema', () => {
       // Documents the behavior the option opts out of, so a change to either path is visible here.

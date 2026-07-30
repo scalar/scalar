@@ -60,6 +60,19 @@ import { XTagGroups } from '@/schemas/extensions/tag/x-tag-groups'
 /** Options for {@link generateSchema}. */
 type GenerateSchemaOptions = {
   /**
+   * The Schema Object schema to use for every position that holds one.
+   *
+   * Defaults to {@link generateSchemaObject} called with the same `maybeRef`. Supply your own to
+   * change how schemas are represented — build it with {@link generateSchemaObject} and its options,
+   * or from scratch. It must be constructed with the same `maybeRef` passed here, since that is what
+   * decides how references are represented.
+   */
+  readonly schemaObject?: Schema
+}
+
+/** Options for {@link generateSchemaObject}. */
+type GenerateSchemaObjectOptions = {
+  /**
    * Represent a Schema Object that carries no `type` as itself, rather than as the internal
    * `__scalar_` marker.
    *
@@ -79,194 +92,75 @@ type GenerateSchemaOptions = {
   readonly typelessSchemas?: boolean
 }
 
-export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: GenerateSchemaOptions = {}) => {
-  const contact = object(
-    {
-      name: optional(string({ typeComment: 'The name of the contact.' })),
-      url: optional(string({ typeComment: 'The URI for the contact information. This MUST be in the form of a URI.' })),
-      email: optional(
-        string({
-          typeComment:
-            'The email address of the contact person/organization. This MUST be in the form of an email address.',
-        }),
-      ),
-    },
-    { typeName: 'ContactObject' },
-  )
-  const license = object(
-    {
-      name: optional(string({ typeComment: 'REQUIRED. The license name used for the API.' })),
-      identifier: optional(
-        string({
-          typeComment:
-            'An SPDX license expression for the API. The identifier field is mutually exclusive of the url field.',
-        }),
-      ),
-      url: optional(
-        string({
-          typeComment:
-            'A URI for the license used for the API. This MUST be in the form of a URI. The url field is mutually exclusive of the identifier field.',
-        }),
-      ),
-    },
-    { typeName: 'LicenseObject' },
-  )
-
-  const info = intersection([
-    object(
-      {
-        title: string({ typeComment: 'REQUIRED. The title of the API.' }),
-        version: string({
-          typeComment:
-            'REQUIRED. The version of the OpenAPI Document (which is distinct from the OpenAPI Specification version or the version of the API being described or the version of the OpenAPI Description).',
-        }),
-        summary: optional(string({ typeComment: 'A short summary of the API.' })),
-        description: optional(
-          string({
-            typeComment: 'A description of the API. CommonMark syntax MAY be used for rich text representation.',
-          }),
-        ),
-        termsOfService: optional(
-          string({ typeComment: 'A URI for the Terms of Service for the API. This MUST be in the form of a URI.' }),
-        ),
-        contact: optional(contact),
-        license: optional(license),
-      },
-      { typeName: 'InfoObject' },
-    ),
-    XScalarSdkInstallation,
-    XScalarLinks,
-  ])
-
-  const serverVariable = object(
-    {
-      enum: optional(
-        array(string(), {
-          typeComment:
-            'An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty.',
-        }),
-      ),
-      default: optional(
-        string({
-          typeComment: `The default value to use for substitution, which SHALL be sent if an alternate value is not supplied. If the enum is defined, the value MUST exist in the enum\'s values. Note that this behavior is different from the Schema Object's default keyword, which documents the receiver's behavior rather than inserting the value into the data.`,
-        }),
-      ),
-      description: optional(
-        string({
-          typeComment:
-            'An optional description for the server variable. CommonMark syntax MAY be used for rich text representation.',
-        }),
-      ),
-    },
-    { typeName: 'ServerVariableObject' },
-  )
-
-  const servers = object(
-    {
-      url: string({
+const externalDocs = object(
+  {
+    url: string({
+      typeComment: 'REQUIRED. The URI for the target documentation. This MUST be in the form of a URI.',
+    }),
+    description: optional(
+      string({
         typeComment:
-          'REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that the host location is relative to the location where the document containing the Server Object is being served. Variable substitutions will be made when a variable is named in {braces}.',
+          'A description of the target documentation. CommonMark syntax MAY be used for rich text representation.',
       }),
-      description: optional(
-        string({
-          typeComment:
-            'An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text representation.',
-        }),
-      ),
-      variables: optional(
-        record(string(), serverVariable, {
-          typeComment: `A map between a variable name and its value. The value is used for substitution in the server's URL template.`,
-        }),
-      ),
-    },
-    { typeName: 'ServerObject' },
-  )
-
-  const externalDocs = object(
-    {
-      url: string({
-        typeComment: 'REQUIRED. The URI for the target documentation. This MUST be in the form of a URI.',
-      }),
-      description: optional(
-        string({
-          typeComment:
-            'A description of the target documentation. CommonMark syntax MAY be used for rich text representation.',
-        }),
-      ),
-    },
-    { typeName: 'ExternalDocumentationObject' },
-  )
-
-  const tag = intersection([
-    object(
-      {
-        name: string({ typeComment: 'REQUIRED. The name of the tag.' }),
-        description: optional(
-          string({
-            typeComment: 'A description for the tag. CommonMark syntax MAY be used for rich text representation.',
-          }),
-        ),
-        externalDocs: optional(externalDocs),
-      },
-      { typeName: 'TagObject' },
     ),
-    XDisplayName,
-    XInternal,
-    XScalarIgnore,
-    XScalarOrder,
-  ])
+  },
+  { typeName: 'ExternalDocumentationObject' },
+)
 
-  const securityRequirement = record(string(), array(string()), {
-    typeName: 'SecurityRequirementObject',
-    typeComment:
-      'Lists the required security schemes to execute this operation. An empty object ({}) indicates anonymous access is supported.',
-  })
-
-  const xml = object(
-    {
-      name: optional(
-        string({
-          typeComment:
-            'Replaces the name of the element/attribute used for the described schema property. When defined within items, it will affect the name of the individual XML elements within the list. When defined alongside type being "array" (outside the items), it will affect the wrapping element if and only if wrapped is true. If wrapped is false, it will be ignored.',
-        }),
-      ),
-      namespace: optional(
-        string({
-          typeComment: 'The URI of the namespace definition. Value MUST be in the form of a non-relative URI.',
-        }),
-      ),
-      prefix: optional(string({ typeComment: 'The prefix to be used for the name.' })),
-      attribute: optional(
-        boolean({
-          typeComment:
-            'Declares whether the property definition translates to an attribute instead of an element. Default value is false.',
-        }),
-      ),
-      wrapped: optional(
-        boolean({
-          typeComment:
-            'MAY be used only for an array definition. Signifies whether the array is wrapped (for example, <books><book/><book/></books>) or unwrapped (<book/><book/>). Default value is false. The definition takes effect only when defined alongside type being "array" (outside the items).',
-        }),
-      ),
-    },
-    { typeName: 'XMLObject' },
-  )
-
-  const discriminatorObject = object(
-    {
-      propertyName: string({
+const xml = object(
+  {
+    name: optional(
+      string({
         typeComment:
-          'REQUIRED. The name of the property in the payload that will hold the discriminating value. This property SHOULD be required in the payload schema, as the behavior when the property is absent is undefined.',
+          'Replaces the name of the element/attribute used for the described schema property. When defined within items, it will affect the name of the individual XML elements within the list. When defined alongside type being "array" (outside the items), it will affect the wrapping element if and only if wrapped is true. If wrapped is false, it will be ignored.',
       }),
-      mapping: optional(
-        record(string(), string(), {
-          typeComment: 'An object to hold mappings between payload values and schema names or URI references.',
-        }),
-      ),
-    },
-    { typeName: 'DiscriminatorObject' },
-  )
+    ),
+    namespace: optional(
+      string({
+        typeComment: 'The URI of the namespace definition. Value MUST be in the form of a non-relative URI.',
+      }),
+    ),
+    prefix: optional(string({ typeComment: 'The prefix to be used for the name.' })),
+    attribute: optional(
+      boolean({
+        typeComment:
+          'Declares whether the property definition translates to an attribute instead of an element. Default value is false.',
+      }),
+    ),
+    wrapped: optional(
+      boolean({
+        typeComment:
+          'MAY be used only for an array definition. Signifies whether the array is wrapped (for example, <books><book/><book/></books>) or unwrapped (<book/><book/>). Default value is false. The definition takes effect only when defined alongside type being "array" (outside the items).',
+      }),
+    ),
+  },
+  { typeName: 'XMLObject' },
+)
 
+const discriminatorObject = object(
+  {
+    propertyName: string({
+      typeComment:
+        'REQUIRED. The name of the property in the payload that will hold the discriminating value. This property SHOULD be required in the payload schema, as the behavior when the property is absent is undefined.',
+    }),
+    mapping: optional(
+      record(string(), string(), {
+        typeComment: 'An object to hold mappings between payload values and schema names or URI references.',
+      }),
+    ),
+  },
+  { typeName: 'DiscriminatorObject' },
+)
+
+/**
+ * Builds the OpenAPI Schema Object schema, the self-referential type every schema position uses.
+ *
+ * Exported so callers can supply their own to {@link generateSchema} rather than the default.
+ */
+export const generateSchemaObject = (
+  maybeRef: (inner: Schema) => Schema,
+  options: GenerateSchemaObjectOptions = {},
+): Schema => {
   const schemaExtensionObjects = [
     XScalarIgnore,
     XInternal,
@@ -489,6 +383,141 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     ],
     { typeName: 'SchemaObject' },
   )
+
+  return schema
+}
+
+export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: GenerateSchemaOptions = {}) => {
+  const contact = object(
+    {
+      name: optional(string({ typeComment: 'The name of the contact.' })),
+      url: optional(string({ typeComment: 'The URI for the contact information. This MUST be in the form of a URI.' })),
+      email: optional(
+        string({
+          typeComment:
+            'The email address of the contact person/organization. This MUST be in the form of an email address.',
+        }),
+      ),
+    },
+    { typeName: 'ContactObject' },
+  )
+  const license = object(
+    {
+      name: optional(string({ typeComment: 'REQUIRED. The license name used for the API.' })),
+      identifier: optional(
+        string({
+          typeComment:
+            'An SPDX license expression for the API. The identifier field is mutually exclusive of the url field.',
+        }),
+      ),
+      url: optional(
+        string({
+          typeComment:
+            'A URI for the license used for the API. This MUST be in the form of a URI. The url field is mutually exclusive of the identifier field.',
+        }),
+      ),
+    },
+    { typeName: 'LicenseObject' },
+  )
+
+  const info = intersection([
+    object(
+      {
+        title: string({ typeComment: 'REQUIRED. The title of the API.' }),
+        version: string({
+          typeComment:
+            'REQUIRED. The version of the OpenAPI Document (which is distinct from the OpenAPI Specification version or the version of the API being described or the version of the OpenAPI Description).',
+        }),
+        summary: optional(string({ typeComment: 'A short summary of the API.' })),
+        description: optional(
+          string({
+            typeComment: 'A description of the API. CommonMark syntax MAY be used for rich text representation.',
+          }),
+        ),
+        termsOfService: optional(
+          string({ typeComment: 'A URI for the Terms of Service for the API. This MUST be in the form of a URI.' }),
+        ),
+        contact: optional(contact),
+        license: optional(license),
+      },
+      { typeName: 'InfoObject' },
+    ),
+    XScalarSdkInstallation,
+    XScalarLinks,
+  ])
+
+  const serverVariable = object(
+    {
+      enum: optional(
+        array(string(), {
+          typeComment:
+            'An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty.',
+        }),
+      ),
+      default: optional(
+        string({
+          typeComment: `The default value to use for substitution, which SHALL be sent if an alternate value is not supplied. If the enum is defined, the value MUST exist in the enum\'s values. Note that this behavior is different from the Schema Object's default keyword, which documents the receiver's behavior rather than inserting the value into the data.`,
+        }),
+      ),
+      description: optional(
+        string({
+          typeComment:
+            'An optional description for the server variable. CommonMark syntax MAY be used for rich text representation.',
+        }),
+      ),
+    },
+    { typeName: 'ServerVariableObject' },
+  )
+
+  const servers = object(
+    {
+      url: string({
+        typeComment:
+          'REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that the host location is relative to the location where the document containing the Server Object is being served. Variable substitutions will be made when a variable is named in {braces}.',
+      }),
+      description: optional(
+        string({
+          typeComment:
+            'An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text representation.',
+        }),
+      ),
+      variables: optional(
+        record(string(), serverVariable, {
+          typeComment: `A map between a variable name and its value. The value is used for substitution in the server's URL template.`,
+        }),
+      ),
+    },
+    { typeName: 'ServerObject' },
+  )
+
+  // The Schema Object subtree is built separately so callers can supply their own; see
+  // {@link generateSchemaObject}.
+  const schema: Schema = options.schemaObject ?? generateSchemaObject(maybeRef)
+
+  const tag = intersection([
+    object(
+      {
+        name: string({ typeComment: 'REQUIRED. The name of the tag.' }),
+        description: optional(
+          string({
+            typeComment: 'A description for the tag. CommonMark syntax MAY be used for rich text representation.',
+          }),
+        ),
+        externalDocs: optional(externalDocs),
+      },
+      { typeName: 'TagObject' },
+    ),
+    XDisplayName,
+    XInternal,
+    XScalarIgnore,
+    XScalarOrder,
+  ])
+
+  const securityRequirement = record(string(), array(string()), {
+    typeName: 'SecurityRequirementObject',
+    typeComment:
+      'Lists the required security schemes to execute this operation. An empty object ({}) indicates anonymous access is supported.',
+  })
 
   const securitySchemeBase = object({
     description: optional(
