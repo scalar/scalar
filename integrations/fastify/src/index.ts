@@ -1,6 +1,6 @@
-export { default } from './fastifyApiReference'
+export { default } from './fastifyApiReference.js'
 export type {
   ApiReferenceConfiguration,
   FastifyApiReferenceHooksOptions,
   FastifyApiReferenceOptions,
-} from './types'
+} from './types.js'
