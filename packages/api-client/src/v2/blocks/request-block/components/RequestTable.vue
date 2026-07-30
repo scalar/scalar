@@ -83,7 +83,7 @@ const displayData = computed(() => {
 
     <RequestTableRow
       v-for="(row, index) in displayData"
-      :key="index"
+      :key="row.name ? `${row.name}-${index}` : index"
       :data="row"
       :environment="environment"
       :hasCheckboxDisabled="hasCheckboxDisabled"
