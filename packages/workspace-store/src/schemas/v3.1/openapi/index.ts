@@ -57,7 +57,32 @@ import { XScalarSelectedServer } from '@/schemas/extensions/server/x-scalar-sele
 import { XDisplayName } from '@/schemas/extensions/tag/x-display-name'
 import { XTagGroups } from '@/schemas/extensions/tag/x-tag-groups'
 
-export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
+/** Options for {@link generateSchema}. */
+type GenerateSchemaOptions = {
+  /**
+   * Represent a Schema Object that carries no `type` as itself, rather than as the internal
+   * `__scalar_` marker.
+   *
+   * Every branch of the Schema Object union requires a `type` (see the note on the disambiguation
+   * branch below), so a type-less schema — `{}`, or one carrying only annotations — is not a member
+   * of the type even though OpenAPI 3.1 allows it and reads it as "any JSON value". Coercion cannot
+   * report that, so it substitutes: the `__scalar_` marker in most positions, and `false` under
+   * `additionalProperties`, whose union lists `boolean` first. That last substitution inverts the
+   * meaning, since `{}` permits any additional property while `false` forbids all of them, which
+   * turns a free-form map into a closed object.
+   *
+   * With this enabled the disambiguation branch accepts a type-less schema instead, so `{}` survives
+   * coercion as `{}`.
+   *
+   * Only enable this when coercing a document whose `$ref-value` mirrors are already materialized —
+   * a `deepClone` taken through a magic proxy, as the SDK generator's loader does. A type-less
+   * branch matches any object, so on a document without those mirrors it outscores the reference
+   * branch and coercion erases `$ref` nodes to `{}`.
+   */
+  readonly typelessSchemas?: boolean
+}
+
+export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: GenerateSchemaOptions = {}) => {
   const contact = object(
     {
       name: optional(string({ typeComment: 'The name of the contact.' })),
@@ -304,9 +329,19 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     not: optional(maybeRef(lazy((): Schema => schema))),
   })
 
-  const schemaScalarMarker = object({
-    __scalar_: string({ typeComment: 'Internal marker for schema object disambiguation.' }),
-  })
+  /**
+   * The disambiguation branch of the Schema Object union.
+   *
+   * Every other branch keys off `type`, so this one exists to carry schemas that have none. It
+   * normally requires the internal `__scalar_` marker rather than being empty: an all-optional
+   * branch matches any object, which stops references from being validated correctly. See
+   * {@link GenerateSchemaOptions.typelessSchemas} for when the permissive form is safe.
+   */
+  const schemaScalarMarker = options.typelessSchemas
+    ? object({})
+    : object({
+        __scalar_: string({ typeComment: 'Internal marker for schema object disambiguation.' }),
+      })
 
   const numericValidationKeywords = object({
     multipleOf: optional(number({ typeComment: 'Number must be a multiple of this value.' })),
