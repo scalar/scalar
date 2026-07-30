@@ -1186,8 +1186,8 @@ describe('RequestBody', () => {
         props: ['modelValue', 'language', 'environment'],
         emits: ['update:modelValue'],
       },
-      ScalarVirtualCodeBlock: {
-        template: '<div data-testid="virtual-code-block" :lang="lang"></div>',
+      ScalarCodeBlock: {
+        template: '<div data-testid="scalar-code-block" :lang="lang"></div>',
         props: ['content', 'lang'],
       },
     }
@@ -1209,10 +1209,10 @@ describe('RequestBody', () => {
       await nextTick()
 
       expect(wrapper.find('[data-testid="code-input"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="virtual-code-block"]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid="scalar-code-block"]').exists()).toBe(false)
     })
 
-    it('renders ScalarVirtualCodeBlock when body exceeds the 20 000 character threshold', async () => {
+    it('renders ScalarCodeBlock when body exceeds the 20 000 character threshold', async () => {
       const requestBody: RequestBodyObject = {
         content: {
           'application/json': {
@@ -1228,11 +1228,11 @@ describe('RequestBody', () => {
       })
       await nextTick()
 
-      expect(wrapper.find('[data-testid="virtual-code-block"]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid="scalar-code-block"]').exists()).toBe(true)
       expect(wrapper.find('[data-testid="code-input"]').exists()).toBe(false)
     })
 
-    it('passes the correct lang prop to ScalarVirtualCodeBlock for JSON content', async () => {
+    it('passes the correct lang prop to ScalarCodeBlock for JSON content', async () => {
       const requestBody: RequestBodyObject = {
         content: {
           'application/json': {
@@ -1248,7 +1248,7 @@ describe('RequestBody', () => {
       })
       await nextTick()
 
-      const block = wrapper.find('[data-testid="virtual-code-block"]')
+      const block = wrapper.find('[data-testid="scalar-code-block"]')
       expect(block.exists()).toBe(true)
       expect(block.attributes('lang')).toBe('json')
     })
@@ -1270,7 +1270,7 @@ describe('RequestBody', () => {
       })
       await nextTick()
 
-      const block = wrapper.find('[data-testid="virtual-code-block"]')
+      const block = wrapper.find('[data-testid="scalar-code-block"]')
       expect(block.exists()).toBe(true)
       expect(block.attributes('lang')).toBe('plaintext')
     })
