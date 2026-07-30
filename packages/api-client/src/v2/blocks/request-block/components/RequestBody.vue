@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
+import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarListbox } from '@scalar/components/listbox'
-import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
@@ -382,8 +382,8 @@ watch(isFormViewAvailable, (ok) => {
                   contentType: selectedContentType,
                 })
             " />
-          <!-- Large body: virtualized read-only view with copy button -->
-          <ScalarVirtualCodeBlock
+          <!-- Large body: syntax-highlighted read-only view with copy button -->
+          <ScalarCodeBlock
             v-else-if="shouldVirtualizeBody"
             class="border-t"
             :content="bodyValue"
