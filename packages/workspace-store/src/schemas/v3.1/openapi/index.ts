@@ -63,33 +63,10 @@ type GenerateSchemaOptions = {
    * The Schema Object schema to use for every position that holds one.
    *
    * Defaults to {@link generateSchemaObject} called with the same `maybeRef`. Supply your own to
-   * change how schemas are represented — build it with {@link generateSchemaObject} and its options,
-   * or from scratch. It must be constructed with the same `maybeRef` passed here, since that is what
-   * decides how references are represented.
+   * change how schemas are represented. It must be constructed with the same `maybeRef` passed
+   * here, since that is what decides how references are represented.
    */
   readonly schemaObject?: Schema
-}
-
-/** Options for {@link generateSchemaObject}. */
-type GenerateSchemaObjectOptions = {
-  /**
-   * Represent a Schema Object that carries no `type` as itself, rather than as the internal
-   * `__scalar_` marker.
-   *
-   * Every branch of the Schema Object union requires a `type` (see the note on the disambiguation
-   * branch below), so a type-less schema — `{}`, or one carrying only annotations — is not a member
-   * of the type even though OpenAPI 3.1 allows it and reads it as "any JSON value". Coercion cannot
-   * report that, so it substitutes: the `__scalar_` marker in most positions, and `false` under
-   * `additionalProperties`, whose union lists `boolean` first. That last substitution inverts the
-   * meaning, since `{}` permits any additional property while `false` forbids all of them, which
-   * turns a free-form map into a closed object.
-   *
-   * With this enabled the disambiguation branch accepts a type-less schema instead, so `{}` survives
-   * coercion as `{}`. The branch carries every type's validation keywords, so a type-less schema
-   * that declares `properties`, `items`, or `additionalProperties` keeps them, and — unlike the
-   * default — coercion does not narrow it by inventing a `type` its author never wrote.
-   */
-  readonly typelessSchemas?: boolean
 }
 
 const externalDocs = object(
@@ -157,10 +134,7 @@ const discriminatorObject = object(
  *
  * Exported so callers can supply their own to {@link generateSchema} rather than the default.
  */
-export const generateSchemaObject = (
-  maybeRef: (inner: Schema) => Schema,
-  options: GenerateSchemaObjectOptions = {},
-): Schema => {
+export const generateSchemaObject = (maybeRef: (inner: Schema) => Schema): Schema => {
   const schemaExtensionObjects = [
     XScalarIgnore,
     XInternal,
@@ -268,17 +242,9 @@ export const generateSchemaObject = (
     ),
     required: optional(array(string(), { typeName: 'SchemaObjectRequired' })),
     additionalProperties: optional(
-      union(
-        // The first branch is the fallback when nothing scores, and a free-form `{}` scores nothing
-        // against either. Leading with `boolean` therefore resolves it to `false`, inverting "any
-        // additional property is allowed" into "none are"; leading with the schema keeps it open.
-        options.typelessSchemas
-          ? [maybeRef(lazy((): Schema => schema)), boolean()]
-          : [boolean(), maybeRef(lazy((): Schema => schema))],
-        {
-          typeName: 'SchemaObjectAdditionalProperties',
-        },
-      ),
+      union([boolean(), maybeRef(lazy((): Schema => schema))], {
+        typeName: 'SchemaObjectAdditionalProperties',
+      }),
     ),
     patternProperties: optional(
       record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectPatternProperties' }),
@@ -351,28 +317,12 @@ export const generateSchemaObject = (
     },
   )
 
-  /**
-   * A Schema Object that declares no `type`, carrying the validation keywords of every type.
-   *
-   * This is `multiTypeSchema` without its `type`, and it deliberately declares keywords rather than
-   * being an empty object. Branch scoring counts the declared keys a value actually carries, and an
-   * empty object short-circuits to a score of 1 — enough to tie the typed branches and win on
-   * position, which would drop the very keywords the schema exists to hold. Declaring them means a
-   * type-less `{ properties: … }` keeps its properties, and scores 0 on a `$ref` so the reference
-   * branch still wins.
-   */
-  const typelessSchema = intersection(
-    [numericValidationKeywords, stringValidationKeywords, arrayValidationKeywords, objectValidationKeywords],
-    { typeName: 'TypelessSchemaObject' },
-  )
-
   const schema: Schema = intersection(
     [
       coreSchemaProperties,
       ...schemaExtensionObjects,
       union([
-        // First is the fallback: coercion keeps this branch when no other scores higher.
-        options.typelessSchemas ? typelessSchema : schemaScalarMarker,
+        schemaScalarMarker,
         otherTypeSchema,
         numericSchema,
         stringSchema,
