@@ -81,9 +81,39 @@ describe('typeless-schemas', () => {
       ).toBe(true)
     })
 
-    it('preserves references when the `$ref-value` mirrors are materialized', () => {
-      // The option's precondition. Cloning through a magic proxy materializes the mirrors, which is
-      // what lets the reference branch outscore the type-less one.
+    it('keeps the validation keywords of a type-less schema', () => {
+      // A type-less schema that still declares keywords is ordinary OpenAPI — `properties` without
+      // `type: 'object'` is common. An empty disambiguation branch would score just high enough to
+      // tie the typed branches and win on position, dropping exactly these keywords.
+      const schemas = coerce(
+        typelessSchema,
+        document({
+          ImplicitObject: { properties: { a: { type: 'string' } } },
+          ImplicitArray: { items: { type: 'string' } },
+          ImplicitMap: { additionalProperties: { type: 'string' } },
+          Constrained: { minProperties: 1, minLength: 3, uniqueItems: true },
+        }),
+      ) as any
+
+      expect(schemas.components.schemas.ImplicitObject).toEqual({ properties: { a: { type: 'string' } } })
+      expect(schemas.components.schemas.ImplicitArray).toEqual({ items: { type: 'string' } })
+      expect(schemas.components.schemas.ImplicitMap).toEqual({ additionalProperties: { type: 'string' } })
+      expect(schemas.components.schemas.Constrained).toEqual({ minProperties: 1, minLength: 3, uniqueItems: true })
+    })
+
+    it('does not invent a `type` the author never wrote', () => {
+      // The default narrows these to `type: 'object'`, which changes what the schema accepts.
+      const target = coerceSchema(typelessSchema, 'Target', { Target: { properties: { a: { type: 'string' } } } })
+
+      expect(target).not.toHaveProperty('type')
+    })
+
+    it('preserves references, with or without materialized `$ref-value` mirrors', () => {
+      // The type-less branch declares keywords rather than matching anything, so it scores nothing
+      // on a reference and the reference branch still wins.
+      const plain = coerceSchema(typelessSchema, 'Target', { Target: { $ref: '#/components/schemas/Other' } })
+      expect(plain.$ref).toBe('#/components/schemas/Other')
+
       const proxy = createMagicProxy(
         document({
           Target: { type: 'object', properties: { child: { $ref: '#/components/schemas/Other' } } },
@@ -91,21 +121,10 @@ describe('typeless-schemas', () => {
         }),
         { showInternal: true },
       )
-      const materialized = JSON.parse(JSON.stringify(proxy))
-
-      const target = (coerce(typelessSchema, materialized) as any).components.schemas.Target
+      const target = (coerce(typelessSchema, JSON.parse(JSON.stringify(proxy))) as any).components.schemas.Target
 
       expect(target.properties.child.$ref).toBe('#/components/schemas/Other')
       expect(target.properties.child['$ref-value']).toMatchObject({ type: 'string' })
-    })
-
-    it('erases references when the mirrors are absent', () => {
-      // Guards the precondition above rather than endorsing this: a type-less branch matches any
-      // object, so without mirrors it outscores the reference branch. Callers that coerce a plain
-      // document must leave the option off.
-      const target = coerceSchema(typelessSchema, 'Target', { Target: { $ref: '#/components/schemas/Other' } })
-
-      expect(target).toEqual({})
     })
   })
 })

@@ -72,12 +72,9 @@ type GenerateSchemaOptions = {
    * turns a free-form map into a closed object.
    *
    * With this enabled the disambiguation branch accepts a type-less schema instead, so `{}` survives
-   * coercion as `{}`.
-   *
-   * Only enable this when coercing a document whose `$ref-value` mirrors are already materialized —
-   * a `deepClone` taken through a magic proxy, as the SDK generator's loader does. A type-less
-   * branch matches any object, so on a document without those mirrors it outscores the reference
-   * branch and coercion erases `$ref` nodes to `{}`.
+   * coercion as `{}`. The branch carries every type's validation keywords, so a type-less schema
+   * that declares `properties`, `items`, or `additionalProperties` keeps them, and — unlike the
+   * default — coercion does not narrow it by inventing a `type` its author never wrote.
    */
   readonly typelessSchemas?: boolean
 }
@@ -329,19 +326,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     not: optional(maybeRef(lazy((): Schema => schema))),
   })
 
-  /**
-   * The disambiguation branch of the Schema Object union.
-   *
-   * Every other branch keys off `type`, so this one exists to carry schemas that have none. It
-   * normally requires the internal `__scalar_` marker rather than being empty: an all-optional
-   * branch matches any object, which stops references from being validated correctly. See
-   * {@link GenerateSchemaOptions.typelessSchemas} for when the permissive form is safe.
-   */
-  const schemaScalarMarker = options.typelessSchemas
-    ? object({})
-    : object({
-        __scalar_: string({ typeComment: 'Internal marker for schema object disambiguation.' }),
-      })
+  const schemaScalarMarker = object({
+    __scalar_: string({ typeComment: 'Internal marker for schema object disambiguation.' }),
+  })
 
   const numericValidationKeywords = object({
     multipleOf: optional(number({ typeComment: 'Number must be a multiple of this value.' })),
@@ -387,9 +374,17 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     ),
     required: optional(array(string(), { typeName: 'SchemaObjectRequired' })),
     additionalProperties: optional(
-      union([boolean(), maybeRef(lazy((): Schema => schema))], {
-        typeName: 'SchemaObjectAdditionalProperties',
-      }),
+      union(
+        // The first branch is the fallback when nothing scores, and a free-form `{}` scores nothing
+        // against either. Leading with `boolean` therefore resolves it to `false`, inverting "any
+        // additional property is allowed" into "none are"; leading with the schema keeps it open.
+        options.typelessSchemas
+          ? [maybeRef(lazy((): Schema => schema)), boolean()]
+          : [boolean(), maybeRef(lazy((): Schema => schema))],
+        {
+          typeName: 'SchemaObjectAdditionalProperties',
+        },
+      ),
     ),
     patternProperties: optional(
       record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectPatternProperties' }),
@@ -462,12 +457,28 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     },
   )
 
+  /**
+   * A Schema Object that declares no `type`, carrying the validation keywords of every type.
+   *
+   * This is `multiTypeSchema` without its `type`, and it deliberately declares keywords rather than
+   * being an empty object. Branch scoring counts the declared keys a value actually carries, and an
+   * empty object short-circuits to a score of 1 — enough to tie the typed branches and win on
+   * position, which would drop the very keywords the schema exists to hold. Declaring them means a
+   * type-less `{ properties: … }` keeps its properties, and scores 0 on a `$ref` so the reference
+   * branch still wins.
+   */
+  const typelessSchema = intersection(
+    [numericValidationKeywords, stringValidationKeywords, arrayValidationKeywords, objectValidationKeywords],
+    { typeName: 'TypelessSchemaObject' },
+  )
+
   const schema: Schema = intersection(
     [
       coreSchemaProperties,
       ...schemaExtensionObjects,
       union([
-        schemaScalarMarker,
+        // First is the fallback: coercion keeps this branch when no other scores higher.
+        options.typelessSchemas ? typelessSchema : schemaScalarMarker,
         otherTypeSchema,
         numericSchema,
         stringSchema,
