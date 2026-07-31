@@ -8,7 +8,6 @@ Add `typescript` under `targets` to generate a TypeScript SDK package.
     "typescript": {
       "packageName": "@acme/api",
       "packageManager": "pnpm",
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-typescript",
@@ -34,11 +33,51 @@ Add `typescript` under `targets` to generate a TypeScript SDK package.
 | ---------------- | ----------------- | ---------------------------------------------------------------- |
 | `packageName`    | `string`          | Import and package name for the generated TypeScript package.    |
 | `packageManager` | `string`          | Package manager preference for generated package metadata.       |
-| `version`        | `string`          | Target-specific SDK version override.                            |
 | `skip`           | `boolean`         | Set to `true` to keep the config without generating this target. |
 | `destinations`   | `object`          | GitHub destinations for generated output.                        |
 | `publish`        | `object`          | npm publishing configuration.                                    |
 | `publish.npm`    | `boolean\|object` | npm registry publishing settings.                                |
+| `options`        | `object`          | TypeScript emitter options.                                      |
+| `compatibility`  | `string`          | Emit a compatibility module reproducing another generator's public surface. |
+
+## Emitter Options
+
+`options.propertyCasing` controls how generated properties and parameters are named.
+
+```json
+{
+  "targets": {
+    "typescript": {
+      "options": {
+        "propertyCasing": "sdk"
+      }
+    }
+  }
+}
+```
+
+| Value  | Description                                                                 |
+| ------ | --------------------------------------------------------------------------- |
+| `wire` | Default. Preserves the OpenAPI wire names, so `order_by` stays `order_by`.  |
+| `sdk`  | Emits the idiomatic name for the language — camelCase in TypeScript, so `orderBy` — and generates a wire↔SDK remap so request and response bodies stay correct on the network. |
+
+## Migrating From Another Generator
+
+Set `compatibility` to also emit a module of deprecated wrapper functions that reproduce another generator's public surface and forward to the generated SDK, so existing call sites keep compiling while you migrate. Omit it to emit nothing extra.
+
+```json
+{
+  "targets": {
+    "typescript": {
+      "compatibility": "speakeasy"
+    }
+  }
+}
+```
+
+| Value       | Description                                                            |
+| ----------- | ---------------------------------------------------------------------- |
+| `speakeasy` | Emits `src/compat/speakeasy.ts` with Speakeasy-style standalone functions returning a functional `Result`, matching Speakeasy's tree-shakable `funcs/` surface. |
 
 ## Destinations
 

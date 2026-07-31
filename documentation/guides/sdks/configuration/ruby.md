@@ -10,7 +10,6 @@ Add `ruby` under `targets` to generate a Ruby SDK gem.
   "targets": {
     "ruby": {
       "gemName": "acme_api",
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-ruby"
@@ -34,7 +33,6 @@ Add `ruby` under `targets` to generate a Ruby SDK gem.
 | Property           | Type              | Description                                                      |
 | ------------------ | ----------------- | ---------------------------------------------------------------- |
 | `gemName`          | `string`          | Ruby gem name.                                                   |
-| `version`          | `string`          | Target-specific SDK version override.                            |
 | `skip`             | `boolean`         | Set to `true` to keep the config without generating this target. |
 | `destinations`     | `object`          | GitHub destinations for generated output.                        |
 | `publish`          | `object`          | RubyGems publishing configuration.                               |

@@ -10,7 +10,6 @@ Add `dart` under `targets` to generate a Dart SDK package.
   "targets": {
     "dart": {
       "packageName": "acme",
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-dart"
@@ -34,7 +33,6 @@ Add `dart` under `targets` to generate a Dart SDK package.
 | Property       | Type              | Description                                                      |
 | -------------- | ----------------- | ---------------------------------------------------------------- |
 | `packageName`  | `string`          | Dart package name published to pub.dev.                          |
-| `version`      | `string`          | Target-specific SDK version override.                            |
 | `skip`         | `boolean`         | Set to `true` to keep the config without generating this target. |
 | `destinations` | `object`          | GitHub destinations for generated output.                        |
 | `publish`      | `object`          | pub.dev publishing configuration.                               |

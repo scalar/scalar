@@ -9,7 +9,6 @@ Add `cli` under `targets` to generate a command-line interface for your API.
       "binaryName": "acme",
       "defaultFormat": "json",
       "defaultErrorFormat": "json",
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-cli"
@@ -34,7 +33,7 @@ Add `cli` under `targets` to generate a command-line interface for your API.
 | `binaryName`         | `string` | Name of the generated command-line binary.                       |
 | `defaultFormat`      | `string` | Default output format for generated commands.                    |
 | `defaultErrorFormat` | `string` | Default error output format for generated commands.              |
-| `version`            | `string` | Target-specific CLI version override.                            |
+| `shellCompletions`   | `boolean` | Ship shell completion scripts and the `completion` subcommand that prints them. Defaults to `true`. |
 | `skip`               | `boolean` | Set to `true` to keep the config without generating this target. |
 | `destinations`       | `object` | GitHub destinations for generated output.                        |
 | `publish`            | `object` | npm, standalone binary, and Homebrew publishing configuration.   |

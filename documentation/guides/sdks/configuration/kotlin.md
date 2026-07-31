@@ -10,7 +10,6 @@ Add `kotlin` under `targets` to generate a Kotlin SDK package. Kotlin builds wit
   "targets": {
     "kotlin": {
       "reverseDomain": "com.acme",
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-kotlin"
@@ -34,7 +33,6 @@ Add `kotlin` under `targets` to generate a Kotlin SDK package. Kotlin builds wit
 | Property        | Type              | Description                                                      |
 | --------------- | ----------------- | ---------------------------------------------------------------- |
 | `reverseDomain` | `string`          | Kotlin base package, such as `com.acme`.                         |
-| `version`       | `string`          | Target-specific SDK version override.                            |
 | `skip`          | `boolean`         | Set to `true` to keep the config without generating this target. |
 | `destinations`  | `object`          | GitHub destinations for generated output.                        |
 | `publish`       | `object`          | Maven publishing configuration.                                  |

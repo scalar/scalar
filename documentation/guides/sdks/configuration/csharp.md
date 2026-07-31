@@ -10,7 +10,6 @@ Add `csharp` under `targets` to generate a .NET SDK package.
   "targets": {
     "csharp": {
       "packageName": "Acme.Api",
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-csharp"
@@ -34,7 +33,6 @@ Add `csharp` under `targets` to generate a .NET SDK package.
 | Property        | Type              | Description                                                      |
 | --------------- | ----------------- | ---------------------------------------------------------------- |
 | `packageName`   | `string`          | .NET package name.                                               |
-| `version`       | `string`          | Target-specific SDK version override.                            |
 | `skip`          | `boolean`         | Set to `true` to keep the config without generating this target. |
 | `destinations`  | `object`          | GitHub destinations for generated output.                        |
 | `publish`       | `object`          | NuGet publishing configuration.                                  |

@@ -9,7 +9,6 @@ Add `cpp` under `targets` to generate a C++ SDK. C++ has no universal package re
 {
   "targets": {
     "cpp": {
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-cpp"
@@ -24,7 +23,6 @@ Add `cpp` under `targets` to generate a C++ SDK. C++ has no universal package re
 
 | Property       | Type      | Description                                                      |
 | -------------- | --------- | ---------------------------------------------------------------- |
-| `version`      | `string`  | Target-specific SDK version override.                            |
 | `skip`         | `boolean` | Set to `true` to keep the config without generating this target. |
 | `destinations` | `object`  | GitHub destinations for generated output.                        |
 

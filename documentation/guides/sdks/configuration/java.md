@@ -10,7 +10,6 @@ Add `java` under `targets` to generate a Java SDK package.
   "targets": {
     "java": {
       "reverseDomain": "com.acme",
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-java"
@@ -35,7 +34,6 @@ Add `java` under `targets` to generate a Java SDK package.
 | Property        | Type              | Description                                                      |
 | --------------- | ----------------- | ---------------------------------------------------------------- |
 | `reverseDomain` | `string`          | Java base package, such as `com.acme`.                           |
-| `version`       | `string`          | Target-specific SDK version override.                            |
 | `skip`          | `boolean`         | Set to `true` to keep the config without generating this target. |
 | `destinations`  | `object`          | GitHub destinations for generated output.                        |
 | `publish`       | `object`          | Maven publishing configuration.                                  |
