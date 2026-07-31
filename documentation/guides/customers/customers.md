@@ -58,6 +58,33 @@
   </article>
 </div>
 
+<div class="customers-prose">
+  <h2>Who uses Scalar</h2>
+  <p>
+    The teams below run public, production API documentation on Scalar. The links on this page point to live developer docs that anyone can open and inspect.
+  </p>
+  <h3>PAR Technology</h3>
+  <p>
+    PAR Technology Corporation is a global provider of software and solutions for restaurant and retail brands. PAR runs its public developer portal, <a href="https://developers.partech.com/" target="_blank" rel="noreferrer">developers.partech.com</a>, on Scalar after migrating from its legacy documentation platform in 2025. The portal is the main hub for partners integrating with the PAR Punchh Loyalty platform, including Online Ordering, POS, Mobile APIs, and Webhooks, and its content is published from GitHub through a docs-as-code workflow. Read the full <a href="/customers/partech">PAR customer story</a>.
+  </p>
+  <h3>Bobcat</h3>
+  <p>
+    Bobcat is an American manufacturer of farm and construction equipment. Bobcat uses Scalar to publish its developer portal at <a href="https://developer.bobcat.com/" target="_blank" rel="noreferrer">developer.bobcat.com</a>, which documents the Bobcat Telematics API for fleet machine data. The documentation covers the AEMP (ISO 15143-3) standard, OAuth 2.0 authentication, and data points such as machine location, fuel usage, engine status, and diagnostic codes.
+  </p>
+  <h3>Thomson Reuters</h3>
+  <p>
+    Thomson Reuters provides software and decision tools for legal, tax, and accounting professionals. Thomson Reuters uses Scalar to serve <a href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noreferrer">API reference documentation</a> on its developer portal, developers.thomsonreuters.com, where customers and partners discover and access Thomson Reuters APIs for the legal, tax, risk, and fraud sectors.
+  </p>
+  <h3>Clerk</h3>
+  <p>
+    Clerk is an authentication and user management platform built for the modern web. Clerk uses Scalar to render the API reference for its <a href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noreferrer">Frontend API</a>, the browser-facing REST API that Clerk's own SDKs are built on.
+  </p>
+  <h3>Later</h3>
+  <p>
+    Later is a social media management platform for creators, agencies, and brands, and is a Scalar customer.
+  </p>
+</div>
+
 <div class="sticker-filter-effect">
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
 </div>
@@ -323,6 +350,38 @@
   .customer-docs-link:hover {
     color: var(--scalar-color-1);
     text-decoration: none;
+  }
+  .customers-prose {
+    max-width: 720px;
+    margin: 0 0 100px;
+  }
+  .customers-prose h2 {
+    margin: 0 0 12px;
+    font-size: var(--scalar-heading-2);
+    font-weight: var(--scalar-bold);
+    letter-spacing: 0;
+    line-height: var(--scalar-line-height-2);
+  }
+  .customers-prose h2 + p {
+    color: var(--scalar-color-2);
+  }
+  .customers-prose h3 {
+    margin: 48px 0 10px;
+    font-size: var(--scalar-font-size-2);
+    font-weight: var(--scalar-semibold);
+    line-height: var(--scalar-line-height-2);
+  }
+  .customers-prose p {
+    margin: 0;
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-font-size-2);
+    line-height: var(--scalar-line-height-2);
+  }
+  .customers-prose a {
+    color: var(--scalar-color-1);
+  }
+  .customers-prose a:hover {
+    color: var(--scalar-color-2);
   }
   @media (max-width: 1000px) {
     .t-editor.page {

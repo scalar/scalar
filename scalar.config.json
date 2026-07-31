@@ -1020,7 +1020,7 @@
           "/customers": {
             "title": "Customers",
             "icon": "phosphor/regular/user-focus",
-            "description": "Trusted by the world's best API teams.",
+            "description": "Scalar powers API references, docs, and developer portals for PAR Technology, Bobcat, Thomson Reuters, Clerk, and Later.",
             "filepath": "documentation/guides/customers/customers.md",
             "type": "page",
             "layout": {
@@ -1039,7 +1039,7 @@
               "meta": [
                 {
                   "name": "description",
-                  "content": "Trusted by the world's best API teams."
+                  "content": "Scalar powers API references, docs, and developer portals for PAR Technology, Bobcat, Thomson Reuters, Clerk, and Later — the world's best API teams."
                 },
                 {
                   "property": "og:title",
@@ -1047,7 +1047,7 @@
                 },
                 {
                   "property": "og:description",
-                  "content": "Trusted by the world's best API teams."
+                  "content": "Scalar powers API references, docs, and developer portals for PAR Technology, Bobcat, Thomson Reuters, Clerk, and Later — the world's best API teams."
                 },
                 {
                   "name": "robots",
