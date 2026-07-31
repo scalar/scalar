@@ -1,5 +1,19 @@
 # @scalar/types
 
+## 0.17.0
+
+### Minor Changes
+
+- [#9711](https://github.com/scalar/scalar/pull/9711): feat: add `pluginUrls` configuration option to load API Reference plugins from URLs
+
+  Each entry must point to an ESM module that exports a plugin (the same shape as the `plugins` entries) as its default export. The standalone build (`Scalar.createApiReference`) imports the modules before the API reference mounts and registers their default exports alongside the plugins passed directly. Unlike `plugins`, the new option is JSON-serializable, so integrations that pass their configuration as JSON (for example the Docker container or Scalar for Aspire) can load plugins without replacing the whole bundle.
+
+### Patch Changes
+
+- [#9683](https://github.com/scalar/scalar/pull/9683): Surface the required OAuth scopes for an operation as a dedicated "OAuth scopes" section below the description (above parameters), instead of only inside the "Auth Required" badge popover. Scopes are de-duplicated across security alternatives and shown in both the modern and classic layouts, as well as on AsyncAPI operations.
+- [#9680](https://github.com/scalar/scalar/pull/9680): Tie a snippetz plugin's `client` to its `target` at the type level. Before, a plugin could pair any target with any client (for example `node` + `curl`) without a type error. Now `target: 'node'` only allows node clients, and TypeScript catches mistakes like using the display title `'Fetch'` where the lowercase client id `'fetch'` is expected.
+- [#9685](https://github.com/scalar/scalar/pull/9685): Type the `hiddenClients` config against the real target and client ids. It was `Record<string, boolean | string[]> | string[] | true`, so there was no autocomplete and no error on a typo. An array entry is now typed as a target (`'node'`), a client name (`'fetch'`), or a full id (`'node/fetch'`), and the record form is keyed by target. Runtime stays permissive, so unknown names are still ignored gracefully as before.
+
 ## 0.16.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.9.4
+
+### Patch Changes
+
+- [#9733](https://github.com/scalar/scalar/pull/9733): fix: add explicit `.js` file extensions to relative imports in the published `2.0`, `3.0`, `3.1` and `3.2` type declarations, so they resolve with `moduleResolution: nodenext` and `node16`
+
 ## 0.9.3
 
 ### Patch Changes

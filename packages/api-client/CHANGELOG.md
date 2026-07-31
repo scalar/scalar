@@ -1,5 +1,37 @@
 # @scalar/api-client
 
+## 3.14.0
+
+### Minor Changes
+
+- [#9709](https://github.com/scalar/scalar/pull/9709): Add an OAuth2 token-acquisition shortcut to HTTP bearer schemes, so a bearer
+  token can be obtained through an OAuth2 flow without switching auth methods.
+  - The bearer scheme's form gains an inline **Authorize via OAuth2** shortcut
+    (and, for authorization-code, **Refresh**) that runs the flow and writes the
+    resulting access token onto the bearer scheme — so the panel never switches
+    to oauth2 and the request sends `Authorization: Bearer`. A gear opens the
+    oauth2 configuration in a modal (`OAuth2.hideActions`).
+  - A new `getOauth2AcquisitionTarget` helper finds the oauth2 flow the shortcut
+    uses, preferring the authorization-code grant (which can refresh) over
+    implicit. Every defined security scheme, oauth2 included, stays selectable in
+    the auth dropdown — the shortcut is purely additive.
+  - `runOAuth2Authorize` + `storeOAuth2Tokens` route the access token to the
+    bearer scheme and the refresh token to the oauth2 scheme.
+
+- [#9726](https://github.com/scalar/scalar/pull/9726): feat: add a switchable form view for JSON and YAML request bodies
+
+  When a request body's content type is JSON or YAML and its schema (or the current example) describes an object, a "Form / Raw" toggle now appears next to the content type selector. The form view renders one row per schema property — with enum dropdowns, required badges, defaults, and per-field validation, matching the existing `multipart/form-data` editor — and folds edits back into a nested object using the schema's declared types (numbers, booleans, arrays, and nested objects survive the round-trip instead of becoming strings). The raw code editor remains the default and is unaffected for non-object bodies or unparseable text.
+
+  `@scalar/workspace-store` gains reusable exports for this: `buildDottedNestedRowPredicate`, `coerceLeafValueToSchemaType`, `coerceUntypedValue`, and `resolveLeafSchema` from `@scalar/workspace-store/request-example`, factored out of the existing multipart request-body builder.
+
+### Patch Changes
+
+- [#9697](https://github.com/scalar/scalar/pull/9697): Add credential input UIs for the AsyncAPI broker-specific security scheme types, which previously showed a "not supported yet" message in the Authentication selector. The SASL-style schemes (`userPassword`, `plain`, `scramSha256`, `scramSha512`) get a username + password form like HTTP basic, `X509` gets client certificate + private key (PEM) inputs, `symmetricEncryption`/`asymmetricEncryption` get a single key input, and `gssapi` gets a service name input. The entered credentials are persisted in the auth store with new type-specific secret shapes (`x-scalar-secret-client-certificate`, `x-scalar-secret-private-key`, `x-scalar-secret-service-name`, plus the existing username/password/token extensions) and round-trip through the merged scheme objects the same way as the OpenAPI types. The Galaxy AsyncAPI sample document now defines one scheme of each broker group so the inputs can be exercised.
+- [#9723](https://github.com/scalar/scalar/pull/9723): Fix missing accessible names on request/scopes table checkboxes and their row delete buttons. `DataTableCheckbox` now accepts an `ariaLabel` prop, and `RequestTableRow`/`OAuthScopesInput` pass row-specific labels (e.g. "Include x-api-key in request", "Select read:users scope") so screen reader users can tell which row a control acts on.
+- [#9595](https://github.com/scalar/scalar/pull/9595): Clicking an OAuth2 scope checkbox no longer toggles the scope twice. The click no longer bubbles to the surrounding row, which had its own toggle handler.
+- [#9594](https://github.com/scalar/scalar/pull/9594): Fix OAuth2 scope checkboxes losing selections on quick clicks. Each scope is now toggled against the stored selection instead of a list computed in the component, so the "Scopes Selected" counter and the scopes sent to the token endpoint stay in sync with the checkboxes.
+- [#9773](https://github.com/scalar/scalar/pull/9773): Allow using a client secret together with PKCE in the OAuth authorization code flow, so confidential clients can use both (as recommended by RFC 9700).
+
 ## 3.13.7
 
 ### Patch Changes
