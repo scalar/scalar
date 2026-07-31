@@ -403,9 +403,18 @@ Each handler in `responseBody` supports:
 Plugins can hook into the request lifecycle:
 
 ```typescript
-const loggingPlugin: ClientPlugin = {
+const authPlugin: ClientPlugin = {
   hooks: {
-    beforeRequest: ({ requestBuilder }) => {
+    beforeRequest: async ({ requestBuilder, server, customFetch }) => {
+      console.log('Active server configuration:', server?.url)
+
+      if (customFetch) {
+        // Resolve an absolute URL appropriate for the plugin's runtime.
+        await customFetch('https://auth.example.com/session/refresh', {
+          method: 'POST',
+        })
+      }
+
       requestBuilder.headers.set('X-Custom-Header', 'value')
     },
     responseReceived: ({ response }) => {

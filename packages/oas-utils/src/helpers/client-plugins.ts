@@ -158,14 +158,18 @@ type ClientPluginComponents = {
  *
  * const myPlugin: ClientPlugin = {
  *   hooks: {
- *     beforeRequest: ({ request }) => {
- *       request.headers.set('X-Custom-Header', 'foo');
- *       return { request };
+ *     beforeRequest: async ({ requestBuilder, server, customFetch }) => {
+ *       console.log('Active server configuration:', server?.url);
+ *
+ *       if (customFetch) {
+ *         await customFetch('https://auth.example.com/session/refresh', { method: 'POST' });
+ *       }
+ *
+ *       requestBuilder.headers.set('X-Custom-Header', 'foo');
  *     },
- *     responseReceived: async (response, operation) => {
+ *     responseReceived: ({ response, operation }) => {
  *       // Handle post-response logic
- *       const data = await response.json();
- *       console.log('Received:', data, 'for operation:', operation.operationId);
+ *       console.log('Received status:', response.status, 'for operation:', operation.operationId);
  *     }
  *   },
  *   components: {
