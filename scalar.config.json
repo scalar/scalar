@@ -3435,6 +3435,43 @@
               "toc": false
             }
           },
+          "/solutions/openapi-documentation": {
+            "title": "OpenAPI Documentation",
+            "type": "page",
+            "filepath": "documentation/solutions/openapi-documentation.md",
+            "showInSidebar": false,
+            "description": "Turn an OpenAPI document into an interactive API reference, API client, SDKs, and MCP server. OpenAPI 3.0/3.1 support, Swagger 2.0 upgraded on load, MIT-licensed renderer.",
+            "head": {
+              "title": "OpenAPI Documentation with Scalar — Interactive References from Your OpenAPI Document",
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/solutions/openapi-documentation"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Turn an OpenAPI document into an interactive API reference, API client, SDKs, and MCP server. OpenAPI 3.0/3.1 support, Swagger 2.0 upgraded on load, MIT-licensed renderer."
+                },
+                {
+                  "property": "og:title",
+                  "content": "OpenAPI Documentation with Scalar — Interactive References from Your OpenAPI Document"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Turn an OpenAPI document into an interactive API reference, API client, SDKs, and MCP server. OpenAPI 3.0/3.1 support, Swagger 2.0 upgraded on load, MIT-licensed renderer."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
+            }
+          },
           "/customers/partech": {
             "type": "page",
             "title": "How PAR Modernized Its Developer Experience With Scalar",
