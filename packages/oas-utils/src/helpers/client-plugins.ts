@@ -40,9 +40,9 @@ type ClientPluginHooks = {
    * Runs before a request is sent. Receives the current document and operation so plugins can
    * modify the request before it is sent (for example, adding headers or modifying the body).
    *
-   * Mutations here happen on the request builder, before the fetch `Request` exists. Use the
-   * `requestBuilt` hook instead when you need the exact outgoing request (for example, to hash a
-   * multipart body for request signing).
+   * Mutations here happen on the request builder, before the fetch `Request` exists. Outside
+   * Electron, use the `requestBuilt` hook when you need the exact outgoing request (for example,
+   * to hash a multipart body for request signing). Electron sends the request payload instead.
    */
   beforeRequest: (payload: {
     /** Workspace-store request spec; mutable by pre-request scripts (headers, method). */
@@ -56,14 +56,13 @@ type ClientPluginHooks = {
     customFetch?: typeof fetch
   }) => void | Promise<void>
   /**
-   * Runs after the fetch `Request` has been built, right before it is sent. The request passed
-   * here is the exact object handed to fetch, so header mutations apply to the outgoing request
-   * and the body bytes match what goes over the wire (important for request signing, where a
-   * rebuilt multipart body would get a different boundary). Mutations to the request builder
-   * have no effect at this stage; use the `beforeRequest` hook for those.
+   * Runs after the fetch `Request` has been built, right before it is sent. Outside Electron, the
+   * request passed here is handed to fetch, so header mutations apply to the outgoing request and
+   * the body bytes match what goes over the wire. Electron sends the request payload instead.
+   * Mutations to the request builder have no effect at this stage; use `beforeRequest` for those.
    */
   requestBuilt: (payload: {
-    /** The exact fetch Request that will be sent. Mutate its headers to modify the outgoing request. */
+    /** The fetch Request built before sending. Electron sends the request payload instead. */
     request: Request
     /** Request builder the request was built from. Mutating it has no effect at this stage. */
     requestBuilder: RequestFactory
@@ -79,7 +78,7 @@ type ClientPluginHooks = {
     response: Response
     /** Request builder object that was used to build the request. Mutating this object will not affect the request object. */
     requestBuilder: RequestFactory
-    /** Request object that was sent to the server. */
+    /** Request rebuilt from the sent request payload, not the same instance sent to the server. */
     request: Request
     document: OpenApiDocument
     operation: OperationObject

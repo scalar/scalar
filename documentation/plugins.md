@@ -402,6 +402,55 @@ Each handler in `responseBody` supports:
 
 Plugins can hook into the request lifecycle:
 
+### `onRequestMount`
+
+Runs when an operation view mounts, before any request is sent. Use it to warm up resources.
+
+| Field | Type | Description |
+|---|---|---|
+| `document` | `OpenApiDocument` | The current OpenAPI document. |
+| `operation` | `OperationObject` | The current operation. |
+
+### `beforeRequest`
+
+Runs before the fetch `Request` is built. Mutate `requestBuilder` to change the outgoing request.
+
+| Field | Type | Description |
+|---|---|---|
+| `requestBuilder` | `RequestFactory` | The mutable request builder. Change its method, path, query, headers, body, or security before the request is built. |
+| `document` | `OpenApiDocument` | The current OpenAPI document. |
+| `operation` | `OperationObject` | The current operation. |
+| `variablesStore?` | `VariablesStore` | The request variable store. |
+| `server?` | `ServerObject \| null` | The optional active [OpenAPI Server Object](https://spec.openapis.org/oas/v3.1.1.html#server-object) selected for the request. Its `url` can be relative or include server variables, so resolve it for the plugin's runtime before making network calls. |
+| `customFetch?` | `typeof fetch` | The optional host-provided fetch implementation configured for the API client. Use it for plugin-owned network calls so they use the same network channel as the request, including the desktop app's IPC-backed fetch. |
+
+### `requestBuilt`
+
+Runs after the fetch `Request` is built, immediately before it is sent. Outside Electron, mutate `request.headers` to change the outgoing request; its body matches the bytes sent over the wire. In Electron, Scalar sends the request payload through `customFetch` instead, so mutations to `request` do not apply and multipart body bytes can differ.
+
+| Field | Type | Description |
+|---|---|---|
+| `request` | `Request` | The request built before sending. Outside Electron it is sent as-is; Electron sends the request payload through `customFetch` instead. |
+| `requestBuilder` | `RequestFactory` | The builder used to create `request`. Mutating it at this stage does not change the outgoing request. |
+| `document` | `OpenApiDocument` | The current OpenAPI document. |
+| `operation` | `OperationObject` | The current operation. |
+| `variablesStore?` | `VariablesStore` | The request variable store. |
+
+### `responseReceived`
+
+Runs after a response is received.
+
+| Field | Type | Description |
+|---|---|---|
+| `response` | `Response` | The received response. |
+| `request` | `Request` | A request rebuilt from the sent request payload. It is not the same instance as the sent request; header mutations from `requestBuilt` are absent and multipart body bytes can differ. |
+| `requestBuilder` | `RequestFactory` | The builder used to create `request`. Mutating it does not change the already-sent request. |
+| `document` | `OpenApiDocument` | The current OpenAPI document. |
+| `operation` | `OperationObject` | The current operation. |
+| `variablesStore?` | `VariablesStore` | The request variable store. |
+
+### Example
+
 ```typescript
 const authPlugin: ClientPlugin = {
   hooks: {
