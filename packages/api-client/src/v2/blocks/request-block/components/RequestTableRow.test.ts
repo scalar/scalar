@@ -504,6 +504,27 @@ describe('RequestTableRow', () => {
     expect(wrapper.text()).toContain(longFileName)
   })
 
+  it('exposes the full file name as a tooltip so truncated names stay readable', () => {
+    const longFileName = 'this-is-a-very-long-file-name-that-should-still-be-displayed-correctly.txt'
+    const file = new File(['content'], longFileName, { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'file', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const fileName = wrapper.find(`[title="${longFileName}"]`)
+    expect(fileName.exists()).toBe(true)
+    expect(fileName.text()).toBe(longFileName)
+  })
+
   it('emits removeFile when delete button is clicked on a file', async () => {
     const file = new File(['content'], 'test.txt', { type: 'text/plain' })
     const wrapper = mount(RequestTableRow, {
