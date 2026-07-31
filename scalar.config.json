@@ -3755,6 +3755,39 @@
                         }
                       ]
                     }
+                  },
+                  "postman": {
+                    "type": "page",
+                    "title": "Postman",
+                    "filepath": "documentation/compare/postman.md",
+                    "description": "Compare Scalar and Postman for API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing.",
+                    "head": {
+                      "title": "Scalar vs Postman — API Client and Documentation Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/postman"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and Postman for API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs Postman — API Client and Documentation Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and Postman across API clients, OpenAPI support, offline use, documentation, and pricing."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
                   }
                 }
               },
