@@ -38,6 +38,30 @@ Add `cli` under `targets` to generate a command-line interface for your API.
 | `destinations`       | `object` | GitHub destinations for generated output.                        |
 | `publish`            | `object` | npm, standalone binary, and Homebrew publishing configuration.   |
 
+## Destinations
+
+Use `destinations.production` to push generated output to a GitHub repository.
+
+```json
+{
+  "targets": {
+    "cli": {
+      "destinations": {
+        "production": {
+          "repo": "acme/acme-cli",
+          "branch": "main"
+        }
+      }
+    }
+  }
+}
+```
+
+| Property | Description                                                                 |
+| -------- | --------------------------------------------------------------------------- |
+| `repo`   | GitHub repository in `owner/name` form.                                     |
+| `branch` | Default branch of the destination repository that releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |
+
 ## Method Commands
 
 Use method-level `cli` settings in `resources` to enable, disable, or tune command generation for a specific method.
