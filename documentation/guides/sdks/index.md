@@ -309,7 +309,7 @@ Every target gets a preview repository, provisioned automatically. Browse the ge
 
   <scalar-step id="step-repo" title="Link your own repository">
 
-Connect the repository where the SDK should live. Scalar authors commits through a GitHub App installation, never a personal token, and every build opens a pull request against the branch you nominate.
+Connect the repository where the SDK should live. Scalar authors commits through a GitHub App installation, never a personal token. Every build pushes generated output to `scalar-generated`, merges it with your custom code on `scalar-next`, and keeps a release pull request open against the branch you nominate.
 
 <scalar-image
   src="/sdks/github-linked.png"
@@ -321,7 +321,7 @@ Connect the repository where the SDK should live. Scalar authors commits through
 
   <scalar-step id="step-publish" title="Publish from your repository">
 
-release-please cuts version and changelog pull requests. When they merge, the release workflows in your repository publish the package. Your package names, registries, and release history stay yours. See [publishing](publishing/overview.md).
+release-please versions the release pull request from your commit history and maintains the changelog. When you merge it, the workflows in your repository cut the tag and GitHub Release and publish the package. Your package names, registries, and release history stay yours. See [publishing](publishing/overview.md).
 
   </scalar-step>
 

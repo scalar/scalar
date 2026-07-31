@@ -2,7 +2,7 @@
 
 Swift packages are distributed through the Swift Package Manager, which resolves them straight from a Git tag. There is no central registry to upload to. See the [Swift configuration](../configuration/swift.md) for options.
 
-Like Go, the Swift target needs **no registry account, no token, and no secrets**, and gets no release workflow. The `vX.Y.Z` Git tag and GitHub Release that Scalar creates on merge are the published version.
+The Swift target needs **no registry account, no token, and no secrets**, and gets no `publish` job or `sdk-release.yml`. The `vX.Y.Z` Git tag and GitHub Release cut when you merge the release pull request are the published version.
 
 ## Enable publishing
 
@@ -17,7 +17,7 @@ Like Go, the Swift target needs **no registry account, no token, and no secrets*
 }
 ```
 
-This adds the `VERSIONING.md` note and ensures every merged build is tagged. The generated `sdk-ci.yml` builds and tests the package on each pull request.
+This adds the `VERSIONING.md` note and ensures every release is tagged. The generated `sdk-ci.yml` builds and tests the package on each pull request.
 
 ## How consumers install it
 

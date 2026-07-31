@@ -1,6 +1,6 @@
 # GitHub Repositories
 
-Each target can be linked to its own GitHub repository. Once linked, every build syncs to that repository as a pull request, and merging it is what triggers [publishing](overview.md). Linking a repository is the prerequisite for publishing, but it is useful on its own: it gives every generated SDK a home, a review step, and a history.
+Each target can be linked to its own GitHub repository. Once linked, every build syncs to that repository, and merging the release pull request is what triggers [publishing](overview.md). Linking a repository is the prerequisite for publishing, but it is useful on its own: it gives every generated SDK a home, a review step, and a history.
 
 ## Connect a repository
 
@@ -34,7 +34,7 @@ Click **Connect repository**. From now on, every successful build pushes the gen
 
 ## How syncing works
 
-Builds never commit straight to your default branch. Each build opens (or updates) a **pull request** against the **default branch** you configure, so you always review generated changes before they land.
+Builds never commit straight to your default branch. The repository follows a three-branch flow that Scalar manages together with the generated workflows, all of which run on the default `GITHUB_TOKEN` — no extra token to provision.
 
 <scalar-image
   src="/sdks/github-linked.png"
@@ -42,15 +42,24 @@ Builds never commit straight to your default branch. Each build opens (or update
   size="full">
 </scalar-image>
 
-- **Default branch**: new builds open a pull request against this branch (`main` by default). Merging that pull request is what releases and publishes the version.
-- **Synced versions**: the target lists each SDK version next to the pull request and commit that delivered it, so you can trace a published version back to its build.
+- **`scalar-generated`** holds pristine generator output. Scalar pushes here; you never commit to it.
+- **`scalar-next`** holds that output merged with your custom code. This is where you commit your own changes, directly or through pull requests, and where Scalar merges each regeneration.
+- **The default branch** (`main` unless you configure otherwise) only ever receives released states. Scalar keeps a **release pull request** open from `scalar-next` against it, so the diff you review is the entire pending release. Merging that pull request is what releases and publishes the version.
+- **`scalar-merge-conflict`** carries a regeneration that could not be merged cleanly; it arrives as a pull request for you to resolve.
+
+**Synced versions**: the target lists each SDK version next to the pull request and commit that delivered it, so you can trace a published version back to its build.
 
 > [!NOTE]
 > Linking only controls where generated code goes. Turn on **Publish to \<registry\> on merge** (or add a `publish` block to the target) to also push the package to its registry. See [Publishing](overview.md).
 
 ## Your custom code is preserved
 
-You can edit generated files in your repository. Scalar performs a three-way merge on every regeneration, so your changes are carried forward into the next build's pull request instead of being overwritten. Review the pull request as usual; only genuine conflicts need your attention.
+You can edit generated files in your repository on `scalar-next`. Scalar performs a three-way merge on every regeneration, so your changes are carried forward into the next release pull request instead of being overwritten. Review it as usual; only genuine conflicts need your attention. See [Custom Code](../custom-code.md).
+
+## Repository prerequisites
+
+- Branch protection on `scalar-next` and the default branch must allow the Scalar app and the `github-actions` bot to push, or be left unprotected. The default branch only ever advances by merging a release pull request, and `scalar-next` receives each released state back from the release workflow.
+- No Actions settings changes are required: the generated workflows declare their own permissions and never create pull requests.
 
 ## Configuration equivalent
 
@@ -74,11 +83,11 @@ Linking from the dashboard sets the target's `destinations` in your SDK configur
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | `repo` | `string` | The `owner/repo` the generated SDK is pushed to. |
-| `branch` | `string` | The branch builds open pull requests against. Defaults to `main`. |
+| `branch` | `string` | The repository's default branch, which releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |
 
 ## Adding repository secrets
 
-[OIDC trusted publishing](registries.md) needs no secrets. Token-based publishing, and Maven Central's GPG signing, store credentials as secrets on the SDK repository. The generated `sdk-release.yml` workflow reads them by exact name, so the name has to match.
+[OIDC trusted publishing](registries.md) needs no secrets. Token-based publishing, and Maven Central's GPG signing, store credentials as secrets on the SDK repository. The generated workflows read them by exact name, so the name has to match.
 
 <scalar-steps>
   <scalar-step id="secret-open" title="Open the repository's Actions secrets">

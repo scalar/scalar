@@ -56,4 +56,4 @@ Use `destinations.production` to push generated output to a GitHub repository.
 | Property | Description                                                                 |
 | -------- | --------------------------------------------------------------------------- |
 | `repo`   | GitHub repository in `owner/name` form.                                     |
-| `branch` | Branch to push generated output to. Defaults to the repository default.     |
+| `branch` | Default branch of the destination repository that releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |

@@ -37,7 +37,7 @@ Add `cli` under `targets` to generate a command-line interface for your API.
 | `version`            | `string` | Target-specific CLI version override.                            |
 | `skip`               | `boolean` | Set to `true` to keep the config without generating this target. |
 | `destinations`       | `object` | GitHub destinations for generated output.                        |
-| `publish`            | `object` | npm, macOS, and Homebrew publishing configuration.               |
+| `publish`            | `object` | npm, standalone binary, and Homebrew publishing configuration.   |
 
 ## Method Commands
 
@@ -75,7 +75,9 @@ Use method-level `cli` settings in `resources` to enable, disable, or tune comma
 
 ## Publishing
 
-The CLI target supports `publish.npm`, `publish.macos`, and `publish.homebrew`. The CLI is a Node package, so npm (installed globally with `npm install -g`) is the primary channel; macOS attaches the tarball to the GitHub Release and Homebrew ships a tap formula. The three are independent and can be combined. See [CLI publishing](publishing/cli.md) for registry setup.
+The CLI target supports `publish.npm`, `publish.binaries`, and `publish.homebrew`. The CLI is a Node package, so npm (installed globally with `npm install -g`) is the primary channel; `binaries` attaches cross-compiled standalone executables to the GitHub Release, and Homebrew ships a tap formula that installs them. The three are independent and can be combined. See [CLI publishing](publishing/cli.md) for registry setup.
+
+`binaries` replaces the older `macos` key; configs that still set `macos` are migrated automatically.
 
 ```json
 {
@@ -85,8 +87,7 @@ The CLI target supports `publish.npm`, `publish.macos`, and `publish.homebrew`. 
         "npm": {
           "authMethod": "oidc"
         },
-        "macos": {
-          "authMethod": "oidc",
+        "binaries": {
           "releaseEnvironment": "production"
         },
         "homebrew": {

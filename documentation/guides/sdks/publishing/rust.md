@@ -27,8 +27,10 @@ Recommended. The release workflow uses `rust-lang/crates-io-auth-action` to exch
 On [crates.io](https://crates.io/), open the crate's **Settings → Trusted Publishing** and add a **GitHub** publisher:
 
 - **Repository owner and name**: your [linked repository](github.md)
-- **Workflow filename**: `sdk-release.yml`
+- **Workflow filename**: `release-please.yml`
 - **Environment**: leave blank (unless you set `releaseEnvironment`)
+
+The automated publish runs as the `publish` job inside `release-please.yml`, so that is the workflow crates.io sees. If you also dispatch `sdk-release.yml` to re-publish a tag by hand, add it as a second publisher.
 
   </scalar-step>
 
