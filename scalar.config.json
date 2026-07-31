@@ -3652,6 +3652,39 @@
                         }
                       ]
                     }
+                  },
+                  "readme": {
+                    "type": "page",
+                    "title": "ReadMe",
+                    "filepath": "documentation/compare/readme.md",
+                    "description": "Compare Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing.",
+                    "head": {
+                      "title": "Scalar vs ReadMe — Developer Portal and API Documentation Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/readme"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs ReadMe — Developer Portal and API Documentation Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and ReadMe across developer portals, API documentation, analytics, SDK generation, and pricing."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
                   }
                 }
               },

@@ -10,4 +10,7 @@ Each guide is written by us, so read it with that in mind. We link every claim w
 <scalar-page-link filepath="documentation/compare/fern.md" title="Fern" description="A comparison of Scalar and Fern across documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing">
 </scalar-page-link>
 
+<scalar-page-link filepath="documentation/compare/readme.md" title="ReadMe" description="A comparison of Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing">
+</scalar-page-link>
+
 Looking to move an existing setup across rather than compare? See the [migration guides](/resources/migration).
