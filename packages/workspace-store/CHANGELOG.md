@@ -1,5 +1,30 @@
 # @scalar/workspace-store
 
+## 0.56.0
+
+### Minor Changes
+
+- [#9726](https://github.com/scalar/scalar/pull/9726): feat: add a switchable form view for JSON and YAML request bodies
+
+  When a request body's content type is JSON or YAML and its schema (or the current example) describes an object, a "Form / Raw" toggle now appears next to the content type selector. The form view renders one row per schema property — with enum dropdowns, required badges, defaults, and per-field validation, matching the existing `multipart/form-data` editor — and folds edits back into a nested object using the schema's declared types (numbers, booleans, arrays, and nested objects survive the round-trip instead of becoming strings). The raw code editor remains the default and is unaffected for non-object bodies or unparseable text.
+
+  `@scalar/workspace-store` gains reusable exports for this: `buildDottedNestedRowPredicate`, `coerceLeafValueToSchemaType`, `coerceUntypedValue`, and `resolveLeafSchema` from `@scalar/workspace-store/request-example`, factored out of the existing multipart request-body builder.
+
+### Patch Changes
+
+- [#9732](https://github.com/scalar/scalar/pull/9732): Render every `oneOf`/`anyOf` group of an `allOf` in place. Previously, when one object composed several mutually-exclusive choices as sibling `oneOf`/`anyOf` under `allOf`, only the first group was shown and the rest were silently dropped. Each choice group now renders its own selector in the position it was declared, and the generated request example stays in sync per group.
+- [#9767](https://github.com/scalar/scalar/pull/9767): fix: honor document level `x-scalar-secret-*` extensions on apiKey and http security schemes
+
+  OAuth flows already read their secrets from the OpenAPI document, but the apiKey and http branches only looked at the auth store and at the config input fields (`value`, `token`, `username`, `password`). A token declared as `x-scalar-secret-token` directly on the security scheme was therefore ignored, and the request kept rendering the `YOUR_SECRET_TOKEN` placeholder. Both branches now follow the same precedence as the OAuth flows: auth store, then the document extension, then the config field.
+
+- [#9697](https://github.com/scalar/scalar/pull/9697): Add credential input UIs for the AsyncAPI broker-specific security scheme types, which previously showed a "not supported yet" message in the Authentication selector. The SASL-style schemes (`userPassword`, `plain`, `scramSha256`, `scramSha512`) get a username + password form like HTTP basic, `X509` gets client certificate + private key (PEM) inputs, `symmetricEncryption`/`asymmetricEncryption` get a single key input, and `gssapi` gets a service name input. The entered credentials are persisted in the auth store with new type-specific secret shapes (`x-scalar-secret-client-certificate`, `x-scalar-secret-private-key`, `x-scalar-secret-service-name`, plus the existing username/password/token extensions) and round-trip through the merged scheme objects the same way as the OpenAPI types. The Galaxy AsyncAPI sample document now defines one scheme of each broker group so the inputs can be exercised.
+- [#9594](https://github.com/scalar/scalar/pull/9594): Fix OAuth2 scope checkboxes losing selections on quick clicks. Each scope is now toggled against the stored selection instead of a list computed in the component, so the "Scopes Selected" counter and the scopes sent to the token endpoint stay in sync with the checkboxes.
+- [#9802](https://github.com/scalar/scalar/pull/9802): Let callers supply their own Schema Object schema to `generateSchema`
+
+  The Schema Object subtree is now built by an exported `generateSchemaObject`, and `generateSchema` accepts a Schema Object through a `schemaObject` option. Passing nothing keeps the previous behavior exactly — the generated OpenAPI types are unchanged.
+
+  This gives consumers a way to change how schemas are represented without the workspace store carrying a flag for each variation. One case it enables: every branch of the default Schema Object union keys off `type`, so a schema without one — `{}`, or one carrying only annotations — is not a member of the type even though OpenAPI 3.1 allows it and reads it as "any JSON value". Coercion cannot report that, so it substitutes the internal `__scalar_` marker, and `false` under `additionalProperties`, which inverts "any additional property is allowed" into "none are". A caller that needs those schemas preserved can now supply a Schema Object that represents them.
+
 ## 0.55.6
 
 ### Patch Changes
