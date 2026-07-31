@@ -3722,6 +3722,39 @@
                         }
                       ]
                     }
+                  },
+                  "redocly": {
+                    "type": "page",
+                    "title": "Redocly",
+                    "filepath": "documentation/compare/redocly.md",
+                    "description": "Compare Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing.",
+                    "head": {
+                      "title": "Scalar vs Redocly — OpenAPI Documentation Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/redocly"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs Redocly — OpenAPI Documentation Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and Redocly across OpenAPI documentation, open source licensing, API governance, and pricing."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
                   }
                 }
               },
