@@ -3472,6 +3472,43 @@
               "toc": false
             }
           },
+          "/solutions/api-documentation-for-developer-tools-companies": {
+            "title": "API Documentation for Developer Tools Companies",
+            "type": "page",
+            "filepath": "documentation/solutions/api-documentation-for-developer-tools-companies.md",
+            "showInSidebar": false,
+            "description": "How developer tools companies keep API docs, SDK code samples, and an interactive API client in sync with one OpenAPI document using Scalar.",
+            "head": {
+              "title": "API Documentation for Developer Tools Companies — Scalar",
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/solutions/api-documentation-for-developer-tools-companies"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "How developer tools companies keep API docs, SDK code samples, and an interactive API client in sync with one OpenAPI document using Scalar."
+                },
+                {
+                  "property": "og:title",
+                  "content": "API Documentation for Developer Tools Companies — Scalar"
+                },
+                {
+                  "property": "og:description",
+                  "content": "How developer tools companies keep API docs, SDK code samples, and an interactive API client in sync with one OpenAPI document using Scalar."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
+            }
+          },
           "/customers/partech": {
             "type": "page",
             "title": "How PAR Modernized Its Developer Experience With Scalar",
