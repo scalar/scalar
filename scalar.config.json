@@ -3509,6 +3509,43 @@
               "toc": false
             }
           },
+          "/solutions/developer-portal": {
+            "title": "Developer Portals",
+            "type": "page",
+            "filepath": "documentation/solutions/developer-portal.md",
+            "showInSidebar": false,
+            "description": "Build a developer portal on Scalar: API reference from OpenAPI, guides in Markdown and MDX, a built-in API client, generated SDKs, and hosted MCP servers that stay in sync from one document.",
+            "head": {
+              "title": "Scalar for Developer Portals — API Docs, SDKs, and API Client in One Place",
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/solutions/developer-portal"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Build a developer portal on Scalar: API reference from OpenAPI, guides in Markdown and MDX, a built-in API client, generated SDKs, and hosted MCP servers that stay in sync from one document."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar for Developer Portals — API Docs, SDKs, and API Client in One Place"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Build a developer portal on Scalar: API reference from OpenAPI, guides in Markdown and MDX, a built-in API client, generated SDKs, and hosted MCP servers that stay in sync from one document."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
+            }
+          },
           "/customers/partech": {
             "type": "page",
             "title": "How PAR Modernized Its Developer Experience With Scalar",
