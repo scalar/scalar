@@ -10,7 +10,6 @@ Add `rust` under `targets` to generate a Rust SDK crate.
   "targets": {
     "rust": {
       "packageName": "acme",
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-rust"
@@ -34,7 +33,6 @@ Add `rust` under `targets` to generate a Rust SDK crate.
 | Property        | Type              | Description                                                      |
 | --------------- | ----------------- | ---------------------------------------------------------------- |
 | `packageName`   | `string`          | Crate name published to crates.io.                              |
-| `version`       | `string`          | Target-specific SDK version override.                            |
 | `skip`          | `boolean`         | Set to `true` to keep the config without generating this target. |
 | `destinations`  | `object`          | GitHub destinations for generated output.                        |
 | `publish`       | `object`          | crates.io publishing configuration.                             |
@@ -47,7 +45,7 @@ Use `destinations.production` to push generated output to a GitHub repository.
 | Property | Description                                                                 |
 | -------- | --------------------------------------------------------------------------- |
 | `repo`   | GitHub repository in `owner/name` form.                                     |
-| `branch` | Branch to push generated output to. Defaults to the repository default.     |
+| `branch` | Default branch of the destination repository that releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |
 
 ## Publishing
 

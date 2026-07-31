@@ -12,7 +12,6 @@ Add `php` under `targets` to generate a PHP SDK package.
       "packageName": "Acme\\Api",
       "composerPackageName": "acme/api",
       "composerRepositoryUrl": "https://repo.packagist.org",
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-php"
@@ -30,9 +29,9 @@ Add `php` under `targets` to generate a PHP SDK package.
 | `packageName`           | `string`  | PHP package namespace or name.                                   |
 | `composerPackageName`   | `string`  | Composer and Packagist package name, such as `acme/api`.         |
 | `composerRepositoryUrl` | `string`  | Composer repository URL for PHP package publishing.              |
-| `version`               | `string`  | Target-specific SDK version override.                            |
 | `skip`                  | `boolean` | Set to `true` to keep the config without generating this target. |
 | `destinations`          | `object`  | GitHub destinations for generated output.                        |
+| `publish`               | `object`  | Packagist publishing configuration.                              |
 
 ## Composer Package Names
 
@@ -56,4 +55,25 @@ Use `destinations.production` to push generated output to a GitHub repository.
 | Property | Description                                                                 |
 | -------- | --------------------------------------------------------------------------- |
 | `repo`   | GitHub repository in `owner/name` form.                                     |
-| `branch` | Branch to push generated output to. Defaults to the repository default.     |
+| `branch` | Default branch of the destination repository that releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |
+
+## Publishing
+
+Set `publish.packagist` to `true` to tag each release for Packagist. Packagist serves the package from the Git tag, so there is no upload step and no secret to add — see [PHP publishing](../publishing/php.md).
+
+```json
+{
+  "targets": {
+    "php": {
+      "publish": {
+        "packagist": true
+      }
+    }
+  }
+}
+```
+
+| Property             | Description                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| `authMethod`         | Registry authentication mechanism, such as `oidc` or `access-token`. |
+| `releaseEnvironment` | Release environment name used by generated publishing workflows. |

@@ -19,7 +19,7 @@ Turn on **Publish to npm on merge** in the target's Git settings, or add a `publ
 }
 ```
 
-With `"npm": true`, OIDC is used by default. Once enabled, merging a build publishes the package.
+With `"npm": true`, OIDC is used by default. Once enabled, merging the release pull request publishes the package.
 
 ## Trusted publishing (OIDC)
 
@@ -38,8 +38,10 @@ On [npmjs.com](https://www.npmjs.com/), open the package, then **Settings → Tr
 
 - **Organization or user**: the owner of your [linked repository](github.md)
 - **Repository**: the repository name
-- **Workflow filename**: `sdk-release.yml`
+- **Workflow filename**: `release-please.yml`
 - **Environment**: leave blank (unless you set `releaseEnvironment`)
+
+The automated publish runs as the `publish` job inside `release-please.yml`, so that is the workflow npm sees. If you also dispatch `sdk-release.yml` to re-publish a tag by hand, add it as a second trusted publisher.
 
   </scalar-step>
 

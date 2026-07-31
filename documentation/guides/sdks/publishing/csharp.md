@@ -27,8 +27,10 @@ Recommended. The release workflow uses the `NuGet/login` action to mint a short-
 On [nuget.org](https://www.nuget.org/), open **Account → Trusted Publishing** and add a policy for:
 
 - **Repository owner and name**: your [linked repository](github.md)
-- **Workflow file**: `sdk-release.yml`
+- **Workflow file**: `release-please.yml`
 - **Environment**: leave blank (unless you set `releaseEnvironment`)
+
+The automated publish runs as the `publish` job inside `release-please.yml`, so that is the workflow NuGet sees. If you also dispatch `sdk-release.yml` to re-publish a tag by hand, add it as a second policy.
 
   </scalar-step>
 
