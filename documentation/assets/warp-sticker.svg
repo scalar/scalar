@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1259" height="1216" fill="none" viewBox="0 0 1259 1216" class="t-editor__icon">
+  <defs>
+    <g id="WarpSticker">
+      <ellipse cx="615.6" cy="597.9" rx="615.6" ry="597.9" fill="#0B0B0B" />
+      <image href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNjggMjE0IiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMTM2LjY4IDAuNTQ5NDgxQzEzNi43NTggMC4yMjcwODIgMTM3LjA0NiAwIDEzNy4zNzggMEgyMzcuNzE0QzI1NC4wNDcgMCAyNjcuMjg4IDEzLjY4MjMgMjY3LjI4OCAzMC41NjAzVjE0OS4yMDZDMjY3LjI4OCAxNjYuMDg0IDI1NC4wNDcgMTc5Ljc2NiAyMzcuNzE0IDE3OS43NjZIOTQuMjM0QzkzLjc2ODggMTc5Ljc2NiA5My40MjYzIDE3OS4zMzEgOTMuNTM1NyAxNzguODc5TDEzNi42OCAwLjU0OTQ4MVoiLz48cGF0aCBkPSJNMTEwLjM5MiAzNC45NDI1QzExMC41IDM0LjQ5MDggMTEwLjE1OCAzNC4wNTY1IDEwOS42OTMgMzQuMDU2NUgyOS4zMjI0QzEzLjEyODEgMzQuMDU2NSAwIDQ3LjczODggMCA2NC42MTY3VjE4My4yNjJDMCAyMDAuMTQgMTMuMTI4MSAyMTMuODIzIDI5LjMyMjQgMjEzLjgyM0gxMjguNzk3QzEyOS4xMjkgMjEzLjgyMyAxMjkuNDE4IDIxMy41OTUgMTI5LjQ5NSAyMTMuMjcyTDEzMy4xNjIgMTk3Ljk4NEMxMzMuMjcxIDE5Ny41MzMgMTMyLjkyOCAxOTcuMDk4IDEzMi40NjQgMTk3LjA5OEg3Mi40MDY0QzcxLjk0MTggMTk3LjA5OCA3MS41OTk0IDE5Ni42NjQgNzEuNzA3OCAxOTYuMjEyTDExMC4zOTIgMzQuOTQyNVoiLz48L3N2Zz4=" x="385" y="367" width="461" height="461" preserveAspectRatio="xMidYMid meet" />
+    </g>
+  </defs>
+  <foreignObject width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="sticker-container" style="left:4px;top:8px">
+      <div class="sticker-main">
+        <div class="sticker-lighting">
+          <svg xmlns="http://www.w3.org/2000/svg" width="1232" height="1196" viewBox="0 0 1232 1196">
+            <use href="#WarpSticker" x="0" y="0"></use>
+          </svg>
+        </div>
+      </div>
+      <div class="shadow">
+        <div class="flap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="1232" height="1196" viewBox="0 0 1232 1196">
+            <use href="#WarpSticker" x="0" y="0"></use>
+          </svg>
+        </div>
+      </div>
+      <div class="flap">
+        <div class="flap-lighting">
+          <svg xmlns="http://www.w3.org/2000/svg" width="1232" height="1196" viewBox="0 0 1232 1196">
+            <use href="#WarpSticker" x="0" y="0"></use>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </foreignObject>
+</svg>
