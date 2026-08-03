@@ -718,6 +718,69 @@ describe('traverseTags', () => {
       expect(result[0].isTagGroup).toBeUndefined()
     })
 
+    it('falls back to x-tagGroups when no parent resolves', () => {
+      const tags: TagObject[] = [{ name: 'fruits' }, { name: 'apples', parent: 'nonexistent' }]
+      const document = buildDocument(tags, { 'x-tagGroups': [{ name: 'Group', tags: ['fruits', 'apples'] }] })
+      const tagsMap = buildTagsMap(
+        { fruits: [createMockEntry('List fruits')], apples: [createMockEntry('List apples')] },
+        tags,
+      )
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      // A stray or misspelled parent must not disable the legacy tag group handling.
+      expect(result).toHaveLength(1)
+      assert(result[0]?.type === 'tag')
+      expect(result[0].isTagGroup).toBe(true)
+    })
+
+    it('falls back to x-tagGroups when parents only form cycles', () => {
+      const tags: TagObject[] = [
+        { name: 'a', parent: 'b' },
+        { name: 'b', parent: 'a' },
+      ]
+      const document = buildDocument(tags, { 'x-tagGroups': [{ name: 'Group', tags: ['a', 'b'] }] })
+      const tagsMap = buildTagsMap({ a: [createMockEntry('Op a')], b: [createMockEntry('Op b')] }, tags)
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      expect(result).toHaveLength(1)
+      assert(result[0]?.type === 'tag')
+      expect(result[0].isTagGroup).toBe(true)
+    })
+
+    it('syncs the parent x-scalar-order with the nested tag ids', () => {
+      const tags: TagObject[] = [{ name: 'fruits' }, { name: 'apples', parent: 'fruits' }]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap(
+        { fruits: [createMockEntry('List fruits')], apples: [createMockEntry('List apples')] },
+        tags,
+      )
+
+      traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      // The persisted order must reflect the final children, including the nested tag.
+      expect(tags[0]?.['x-scalar-order']).toEqual(['entry-List fruits', 'doc-1/tag/apples'])
+    })
+
+    it('respects a custom x-scalar-order that references nested tag ids', () => {
+      const tags: TagObject[] = [
+        { name: 'fruits', 'x-scalar-order': ['doc-1/tag/apples', 'entry-List fruits'] },
+        { name: 'apples', parent: 'fruits' },
+      ]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap(
+        { fruits: [createMockEntry('List fruits')], apples: [createMockEntry('List apples')] },
+        tags,
+      )
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      assert(result[0]?.type === 'tag')
+      // The nested tag keeps its custom position before the parent's own operation.
+      expect(result[0].children?.map((child) => child.id)).toEqual(['doc-1/tag/apples', 'entry-List fruits'])
+    })
+
     it('sorts tags alphabetically by their summary title', () => {
       const tags: TagObject[] = [
         { name: 'z-tag', summary: 'Apples' },
