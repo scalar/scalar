@@ -2612,6 +2612,7 @@ describe('bundle', () => {
             },
           },
           loaders: [],
+          origin: '/',
         },
       )
       expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
@@ -2633,6 +2634,7 @@ describe('bundle', () => {
             },
           },
           loaders: [],
+          origin: '/',
         },
       )
 
@@ -2656,6 +2658,7 @@ describe('bundle', () => {
             },
           },
           loaders: [],
+          origin: '/',
         },
       )
       expect(onAfterNodeProcess).toHaveBeenNthCalledWith(
@@ -2675,6 +2678,7 @@ describe('bundle', () => {
             },
           },
           loaders: [],
+          origin: '/',
         },
       )
     })
