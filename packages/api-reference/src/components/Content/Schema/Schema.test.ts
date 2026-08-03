@@ -346,10 +346,6 @@ describe('Schema', () => {
       expect(wrapper.text()).toContain('baseInt')
     })
 
-    // https://github.com/scalar/scalar/issues/9771
-    // OpenAPI-generator inheritance: base has `discriminator.mapping`, each
-    // variant `allOf`s back to the base. Selecting a variant must flatten the
-    // inherited properties once — not re-infer the mapping and recurse.
     it('does not re-infer the discriminator mapping when a variant allOfs back to the base', async () => {
       const configSchema = {
         type: 'object',
@@ -372,9 +368,6 @@ describe('Schema', () => {
             Config: configSchema,
             Config_v2_2: {
               allOf: [
-                // `$ref-value` mirrors what the workspace store attaches after
-                // resolving the document — without it the merge cannot see the
-                // base properties in this unit test.
                 { $ref: '#/components/schemas/Config', '$ref-value': configSchema },
                 { type: 'object', properties: { fieldA: { type: 'string' } } },
               ],
@@ -398,20 +391,15 @@ describe('Schema', () => {
         },
       })
 
-      // Select the Config_v2_2 variant (index 0 is already the default mapping order,
-      // but emit explicitly so the assertion does not depend on that).
       const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
       await listbox.vm.$emit('update:modelValue', { id: '0', label: 'Config_v2_2' })
       await wrapper.vm.$nextTick()
 
-      // Exactly one variant selector — the base's. The selected variant must not
-      // re-open another "One of" dropdown from the inherited mapping.
       expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
       expect(wrapper.text()).toContain('fieldA')
       expect(wrapper.text()).toContain('formatVersion')
       expect(wrapper.text()).not.toContain('fieldB')
 
-      // Selecting the other variant stays finite and swaps the child field.
       await listbox.vm.$emit('update:modelValue', { id: '1', label: 'Config_v2_3' })
       await wrapper.vm.$nextTick()
 
@@ -421,8 +409,6 @@ describe('Schema', () => {
       expect(wrapper.text()).not.toContain('fieldA')
     })
 
-    // Nested polymorphic property must keep its own discriminator context even
-    // when a parent discriminator prop is threaded through SchemaProperty (#9771).
     it('keeps a nested property discriminator independent from a threaded parent discriminator', () => {
       const petSchema = {
         type: 'object',
@@ -452,7 +438,6 @@ describe('Schema', () => {
         props: {
           eventBus: null,
           name: 'Request Body',
-          // Parent polymorphic context (different propertyName) threaded via SchemaObjectProperties.
           discriminator: {
             propertyName: 'formatVersion',
             mapping: { '2.2': '#/components/schemas/Config_v2_2' },
@@ -465,19 +450,71 @@ describe('Schema', () => {
         },
       })
 
-      // Nested pet still gets exactly one selector from its own mapping — the
-      // threaded parent discriminator must not suppress or duplicate it.
       expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
       expect(wrapper.text()).toContain('One of')
       expect(wrapper.text()).toContain('petType')
       expect(wrapper.text()).toContain('Cat')
     })
 
+    it('keeps nested branch discriminator mappings independent from the parent discriminator', () => {
+      const baseSchema = {
+        type: 'object',
+        discriminator: {
+          propertyName: 'rootKind',
+          mapping: { child: '#/components/schemas/Child' },
+        },
+        properties: { rootKind: { type: 'string' } },
+      }
+
+      const nestedPolymorphicSchema = {
+        type: 'object',
+        title: 'NestedPolymorphic',
+        discriminator: {
+          propertyName: 'petType',
+          mapping: { cat: '#/components/schemas/Cat' },
+        },
+        properties: { petType: { type: 'string' } },
+      }
+
+      const document = {
+        components: {
+          schemas: {
+            Base: baseSchema,
+            Child: {
+              allOf: [
+                { $ref: '#/components/schemas/Base', '$ref-value': baseSchema },
+                {
+                  type: 'object',
+                  properties: {
+                    nested: {
+                      oneOf: [
+                        nestedPolymorphicSchema,
+                        { type: 'object', title: 'OtherNested', properties: { other: { type: 'string' } } },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+            Cat: { type: 'object', title: 'Cat', properties: { meow: { type: 'boolean' } } },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Response',
+          schema: coerceValue(SchemaObjectSchema, baseSchema),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      expect(wrapper.findAll('.composition-selector').length).toBe(3)
+      expect(wrapper.text()).toContain('Cat')
+    })
+
     // https://github.com/scalar/scalar/issues/7472
-    // A schema that carries its own `allOf` (plus a `discriminator.mapping`) must
-    // keep rendering the `allOf` members. Inference is gated to plain object
-    // schemas (`isTypeObject`), so the mapping does not replace the `allOf`
-    // output with a variant dropdown — the `allOf` members render as before.
     it('keeps rendering allOf members for a schema that also has a discriminator mapping', () => {
       const document = {
         components: {

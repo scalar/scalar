@@ -241,18 +241,8 @@ const schemaDescription = computed(() => {
 })
 
 /**
- * Some generators (for example NSwag) describe a polymorphic base type as a
- * plain object with a `discriminator.mapping` but no explicit `oneOf`. We infer
- * the variant composition from the mapping so the selector still renders.
- *
- * The `discriminator` prop is only set when this schema is already a variant
- * being rendered inside a `SchemaComposition`; skipping the inference in that
- * case avoids re-inferring (and recursing) on a self-referential mapping.
- *
- * The inference is restricted to plain object schemas (`isTypeObject`). A schema
- * carrying its own composition keyword (`allOf`/`not`) is rendered by the
- * `SchemaProperty` branch below; inferring a selector there would replace that
- * keyword's output with the variant dropdown instead of rendering both.
+ * Infer a selector for mapped discriminators that do not declare `oneOf`.
+ * Threaded discriminators skip inference to avoid recursive allOf variants.
  */
 const inferredDiscriminatorComposition = computed(() =>
   schema && !discriminator && isTypeObject(schema)
