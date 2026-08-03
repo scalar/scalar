@@ -53,7 +53,9 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
     return
   }
 
-  if (entry.type === 'tag' && entry.isGroup === false) {
+  // Regular tags, including OpenAPI 3.2 operation-less parent sections (which are `isGroup: true`
+  // but real tags), keep their own description.
+  if (entry.type === 'tag' && entry.isTagGroup !== true) {
     index.push({
       id: entry.id,
       title: entry.title,
@@ -66,8 +68,8 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
     return
   }
 
-  // Tag group
-  if (entry.type === 'tag' && entry.isGroup === true) {
+  // Legacy `x-tagGroups` wrappers are not real tags, so they carry the generic group label.
+  if (entry.type === 'tag' && entry.isTagGroup === true) {
     index.push({
       id: entry.id,
       title: entry.title,
