@@ -9,7 +9,11 @@ import { useLocalization } from '@/features/localization'
 
 import TagSection from './TagSection.vue'
 
-const { tag, moreThanOneTag } = defineProps<{
+const {
+  tag,
+  moreThanOneTag,
+  nested = false,
+} = defineProps<{
   tag: TraversedTag
   moreThanOneTag: boolean
   isCollapsed: boolean
@@ -26,6 +30,13 @@ const moreThanOneDefaultTag = computed(
 )
 
 const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
+
+/**
+ * A lone top-level tag never collapses, because the whole reference would disappear with it.
+ * A nested tag always has its parent as context, so it respects the collapsed state even
+ * when it has no sibling tags.
+ */
+const respectsCollapse = computed(() => moreThanOneTag || nested)
 </script>
 
 <template>
@@ -41,7 +52,7 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
       :isCollapsed="isCollapsed"
       :tag="tag" />
     <ShowMoreButton
-      v-if="isCollapsed && moreThanOneTag && hasChildren"
+      v-if="isCollapsed && respectsCollapse && hasChildren"
       :id="tag.id"
       :aria-label="
         translate('navigation.showAllEndpoints', { name: tag.title })
@@ -50,9 +61,9 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
         () => eventBus?.emit('toggle:nav-item', { id: tag.id, open: true })
       " />
 
-    <!-- Show slot when section is expanded or single-tag (inverse of ShowMoreButton visibility). -->
+    <!-- Show slot when the section is expanded or is a lone top-level tag (inverse of ShowMoreButton visibility). -->
     <div
-      v-if="!(isCollapsed && moreThanOneTag)"
+      v-if="!(isCollapsed && respectsCollapse)"
       class="contents divide-y">
       <slot />
     </div>
