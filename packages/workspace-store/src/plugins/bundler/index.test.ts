@@ -809,6 +809,43 @@ describe('normalizeRefs', () => {
     })
   })
 
+  it('normalizes $ref on components whose names collide with schema keywords', async () => {
+    const input = {
+      components: {
+        parameters: {
+          not: {
+            $ref: '#/components/parameters/IdParameter',
+            extraProperty: 'should be removed',
+          },
+        },
+        responses: {
+          ErrorSchema: {
+            $ref: '#/components/responses/Error',
+            extraProperty: 'should be removed',
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [normalizeRefs()],
+    })
+
+    expect(input.components.parameters.not).toEqual({
+      $ref: '#/components/parameters/IdParameter',
+      summary: undefined,
+      description: undefined,
+      '$status': undefined,
+    })
+    expect(input.components.responses.ErrorSchema).toEqual({
+      $ref: '#/components/responses/Error',
+      summary: undefined,
+      description: undefined,
+      '$status': undefined,
+    })
+  })
+
   it('normalizes $ref in request body', async () => {
     const input = {
       paths: {
