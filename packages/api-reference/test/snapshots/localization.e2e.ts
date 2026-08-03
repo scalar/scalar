@@ -25,7 +25,10 @@ test('Arabic locale', async ({ page }) => {
 
   await expect(page).toHaveScreenshot('arabic-reference.png')
 
-  await page.getByRole('search').first().click()
+  await page
+    .getByRole('button', { name: /فتح البحث/i })
+    .first()
+    .click()
   const searchInput = page.getByRole('combobox', { name: 'بحث' })
   await expect(searchInput).toBeVisible()
   await expect(page).toHaveScreenshot('arabic-search.png')

@@ -68,7 +68,7 @@ const { cx } = useBindCx()
 <template>
   <component
     :is="is"
-    :aria-selected="selected"
+    :aria-current="selected ? 'page' : undefined"
     :type="is === 'button' ? 'button' : undefined"
     v-bind="cx(variants({ selected, disabled, active }))">
     <slot name="indent">
