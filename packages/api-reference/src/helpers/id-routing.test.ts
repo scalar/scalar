@@ -1064,6 +1064,46 @@ describe('redirectUrl', () => {
       expect(result?.hash).toBe('#default/webhook/POST/account-holder.created/body.id')
     })
 
+    it('rewrites a legacy webhook slug followed by a dot-joined property anchor', () => {
+      // Property deep links append their breadcrumb with dots, not a `/` segment.
+      const result = redirectUrl(
+        'https://example.com/#default/webhook/POST/account-holdercreated.body.id',
+        'models',
+        'default',
+        true,
+        undefined,
+        webhooks,
+      )
+      expect(result?.hash).toBe('#default/webhook/POST/account-holder.created.body.id')
+    })
+
+    it('rewrites a legacy webhook slug followed by a response property anchor', () => {
+      const result = redirectUrl(
+        'https://example.com/#default/webhook/POST/account-holdercreated.responses.200.name',
+        'models',
+        'default',
+        true,
+        undefined,
+        webhooks,
+      )
+      expect(result?.hash).toBe('#default/webhook/POST/account-holder.created.responses.200.name')
+    })
+
+    it('leaves a dot suffix that is not a schema anchor untouched', () => {
+      // The legacy slug never contains a dot, but a current webhook slug can, so
+      // `account-holdercreated.extra` may be a different webhook's real URL.
+      expect(
+        redirectUrl(
+          'https://example.com/#default/webhook/POST/account-holdercreated.extra',
+          'models',
+          'default',
+          true,
+          undefined,
+          webhooks,
+        ),
+      ).toBeNull()
+    })
+
     it('leaves a webhook whose slug did not change untouched', () => {
       expect(
         redirectUrl(

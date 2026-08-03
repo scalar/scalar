@@ -324,6 +324,14 @@ const buildRedirects = ({ modelsSectionSlug, documentSlug, isMultiDocument }: Re
 }
 
 /**
+ * Markers that separate an operation id from a schema path within an anchor id.
+ * `responses` mirrors the request-body/parameter markers so response property
+ * anchors (e.g. `operation.responses.200.name`) resolve back to the operation id.
+ * Without it, deep links into responses cannot find their operation.
+ */
+const SCHEMA_PARAM_MARKERS = ['.body.', '.path.', '.query.', '.header.', '.responses.']
+
+/**
  * Source data for a single webhook redirect: the raw event name, its method, and the current id.
  *
  * The current slug is read back off the id, so this layer does not need to know the (dot-keeping)
@@ -346,7 +354,10 @@ export type WebhookRedirectSource = {
  * (`account-holder.created`). That rewrite cannot be reversed generically, so we emit one exact rule
  * per webhook whose legacy slug differs from the current one. Each rule matches the invariant
  * `webhook/<METHOD>/<legacy-slug>` tail, so it applies regardless of the document/tag prefix in front
- * of it and preserves any sub-anchor after it.
+ * of it and preserves any sub-anchor after it. A sub-anchor is either a `/` segment or a dot-joined
+ * schema property anchor (e.g. `.body.id`, see {@link SCHEMA_PARAM_MARKERS}); a dot followed by
+ * anything else is not treated as a boundary, because the legacy slug never contains a dot while a
+ * current webhook slug can, so such a URL belongs to a different webhook.
  *
  * Because the legacy slug is lossy, two things can make a redirect unsafe, and both are dropped so an
  * ambiguous link falls through to normal not-found handling instead of landing on the wrong webhook:
@@ -370,6 +381,11 @@ const buildWebhookRedirects = (webhooks: WebhookRedirectSource[]): IdRedirect[] 
     }
   }
 
+  // Property deep links append their breadcrumb to the operation id with dots
+  // (`<slug>.body.id`), so the slug boundary must accept a schema-param marker
+  // alongside the end of the id and a `/` segment.
+  const boundary = `(?=$|/|${SCHEMA_PARAM_MARKERS.map(escapeRegex).join('|')})`
+
   const redirects: IdRedirect[] = []
   for (const { name, method, id } of webhooks) {
     const upperMethod = method.toUpperCase()
@@ -389,7 +405,7 @@ const buildWebhookRedirects = (webhooks: WebhookRedirectSource[]): IdRedirect[] 
     }
 
     redirects.push({
-      match: new RegExp(`(^|/)webhook/${escapeRegex(upperMethod)}/${escapeRegex(legacySlug)}(?=$|/)`),
+      match: new RegExp(`(^|/)webhook/${escapeRegex(upperMethod)}/${escapeRegex(legacySlug)}${boundary}`),
       replace: (_match, prefix) => `${prefix}webhook/${upperMethod}/${currentSlug}`,
     })
   }
@@ -443,14 +459,6 @@ export const redirectUrl = (
 
   return didRedirect ? target : null
 }
-
-/**
- * Markers that separate an operation id from a schema path within an anchor id.
- * `responses` mirrors the request-body/parameter markers so response property
- * anchors (e.g. `operation.responses.200.name`) resolve back to the operation id.
- * Without it, deep links into responses cannot find their operation.
- */
-const SCHEMA_PARAM_MARKERS = ['.body.', '.path.', '.query.', '.header.', '.responses.']
 
 /** Extracts the schema parameters from the id if they are present */
 export const getSchemaParamsFromId = (id: string): { rawId: string; params: string } => {
