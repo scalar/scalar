@@ -300,6 +300,8 @@ describe('traverseTags', () => {
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('Group A')
     expect((result[0] as TraversedTag).children).toHaveLength(2)
+    // Legacy x-tagGroups wrappers are flagged so the renderer can flatten them without a header.
+    expect((result[0] as TraversedTag).isTagGroup).toBe(true)
   })
 
   it('should sort operations by HTTP method', () => {
@@ -701,6 +703,40 @@ describe('traverseTags', () => {
 
       assert(result[0]?.type === 'tag')
       expect(result[0].title).toBe('Fresh Fruits')
+    })
+
+    it('does not flag an operation-less parent as a legacy tag group', () => {
+      const tags: TagObject[] = [{ name: 'fruits' }, { name: 'apples', parent: 'fruits' }]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap({ apples: [createMockEntry('List apples')] }, tags)
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      assert(result[0]?.type === 'tag')
+      // The parent is a section, so it must keep its header rather than flatten like an x-tagGroup.
+      expect(result[0].isGroup).toBe(true)
+      expect(result[0].isTagGroup).toBeUndefined()
+    })
+
+    it('sorts tags alphabetically by their summary title', () => {
+      const tags: TagObject[] = [
+        { name: 'z-tag', summary: 'Apples' },
+        { name: 'a-tag', summary: 'Bananas' },
+        { name: 'child', parent: 'a-tag' },
+      ]
+      const document = buildDocument(tags)
+      const tagsMap = buildTagsMap(
+        { 'z-tag': [createMockEntry('List apples')], 'a-tag': [createMockEntry('List bananas')] },
+        tags,
+      )
+
+      const result = traverseTags({ document, tagsMap, documentId: 'doc-1', options })
+
+      // Order follows the display title (summary), not the tag name.
+      expect(result.map((entry) => (entry.type === 'tag' ? entry.title : ''))).toEqual(['Apples', 'Bananas'])
+      // The lookup must not have created stray entries keyed by the summary title.
+      expect(tagsMap.has('Apples')).toBe(false)
+      expect(tagsMap.has('Bananas')).toBe(false)
     })
   })
 })

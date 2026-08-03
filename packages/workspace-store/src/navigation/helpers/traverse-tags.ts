@@ -57,6 +57,9 @@ const createTagEntry = ({
     description: tag.description,
     children,
     isGroup,
+    // Only tag on legacy `x-tagGroups` wrappers so the renderer can flatten them without a header.
+    // Real OpenAPI 3.2 nested-tag sections keep this unset and render their summary heading.
+    ...(isTagGroup ? { isTagGroup: true } : {}),
     isWebhooks: false,
     type: 'tag',
     xKeys: getXKeysFromObject(unpackProxyObject(tag)),
@@ -156,22 +159,11 @@ const getSortedTagEntries = ({
     return sortByOrder(entries, sortOrder, (item) => item.id)
   }
 
-  // Alpha sort
+  // Alpha sort. `title` already resolves the display label (`x-displayName` first, then the
+  // OpenAPI 3.2 `summary`, then `name`), so we compare it directly instead of looking the tag up
+  // again by title, which would miss real tags and insert stray `tagsMap` entries.
   if (tagsSorter === 'alpha') {
-    entries.sort((a, b) => {
-      const nameA =
-        getTag({
-          tagsMap,
-          name: a.title,
-          documentId,
-          generateId,
-        }).tag['x-displayName'] ||
-        a.title ||
-        'Untitled Tag'
-      const nameB =
-        getTag({ tagsMap, name: b.title, documentId, generateId }).tag['x-displayName'] || b.title || 'Untitled Tag'
-      return nameA.localeCompare(nameB)
-    })
+    entries.sort((a, b) => (a.title || 'Untitled Tag').localeCompare(b.title || 'Untitled Tag'))
   }
   // Custom sort
   else if (typeof tagsSorter === 'function') {
