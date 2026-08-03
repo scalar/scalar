@@ -34,21 +34,16 @@ const isCurrent = (index: number) => index === displayCrumbs.value.length - 1
 const onCrumbClick = (id: string) => emit('navigate', id)
 
 /**
- * Re-decide whether the trail fits. We optimistically render it in full, measure,
- * and only collapse the middle if it overflows. Resetting first lets a widening
- * bar re-expand a trail that was previously collapsed.
+ * Measure the crumbs directly and flag overflow. A `flex`/`overflow: visible` row
+ * does not report overflow via `scrollWidth`, so we sum the natural crumb widths
+ * (`getBoundingClientRect`, so the SVG separators count too) plus the gaps between them.
  */
-const updateOverflow = async () => {
-  overflowing.value = false
-  await nextTick()
-
+const measureOverflow = () => {
   const nav = navRef.value
   if (!nav) {
     return
   }
 
-  // A `flex`/`overflow: visible` row does not report overflow via scrollWidth, so
-  // measure the crumbs directly: their natural widths plus the gaps between them.
   const style = getComputedStyle(nav)
   const gap = Number.parseFloat(style.columnGap) || 0
   const available =
@@ -56,7 +51,6 @@ const updateOverflow = async () => {
     Number.parseFloat(style.paddingLeft) -
     Number.parseFloat(style.paddingRight)
 
-  // `getBoundingClientRect` (not `offsetWidth`) so the SVG separators are counted too.
   const children = Array.from(nav.children)
   const needed =
     children.reduce(
@@ -69,6 +63,32 @@ const updateOverflow = async () => {
 }
 
 let resizeObserver: ResizeObserver | null = null
+let frame: number | null = null
+
+/**
+ * Re-decide whether the trail fits, coalescing resize bursts and chain changes into a
+ * single measurement per frame so we do not thrash layout while the viewport is dragged.
+ * We optimistically reset to the full trail, wait for that render, then measure — which
+ * lets a widening bar re-expand a trail that was previously collapsed.
+ */
+const scheduleOverflowCheck = () => {
+  overflowing.value = false
+
+  if (frame !== null) {
+    return
+  }
+
+  if (typeof requestAnimationFrame === 'undefined') {
+    // No rAF (SSR/tests): measure directly once the reset render has flushed.
+    void nextTick(measureOverflow)
+    return
+  }
+
+  frame = requestAnimationFrame(() => {
+    frame = null
+    void nextTick(measureOverflow)
+  })
+}
 
 // Re-measure when the bar (dis)appears or the layout width changes.
 watch(
@@ -76,18 +96,23 @@ watch(
   (nav) => {
     resizeObserver?.disconnect()
     if (nav && typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(() => updateOverflow())
+      resizeObserver = new ResizeObserver(() => scheduleOverflowCheck())
       resizeObserver.observe(nav)
-      updateOverflow()
+      scheduleOverflowCheck()
     }
   },
   { immediate: true },
 )
 
 // Re-measure whenever the hierarchy behind the bar changes.
-watch(() => chain, updateOverflow, { flush: 'post' })
+watch(() => chain, scheduleOverflowCheck, { flush: 'post' })
 
-onBeforeUnmount(() => resizeObserver?.disconnect())
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  if (frame !== null && typeof cancelAnimationFrame !== 'undefined') {
+    cancelAnimationFrame(frame)
+  }
+})
 </script>
 
 <template>
