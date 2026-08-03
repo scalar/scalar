@@ -179,6 +179,37 @@ const getSortedTagEntries = ({
 }
 
 /**
+ * Maps each tag name to its OpenAPI 3.2 `parent` when that parent resolves to another
+ * declared tag. Self-references and parents without a matching tag are ignored.
+ */
+const getParentMap = (tags: TagObject[]): Map<string, string> => {
+  const names = new Set(tags.flatMap((tag) => (typeof tag.name === 'string' ? tag.name : [])))
+  const parentOf = new Map<string, string>()
+
+  for (const tag of tags) {
+    if (tag.name && tag.parent && tag.parent !== tag.name && names.has(tag.parent)) {
+      parentOf.set(tag.name, tag.parent)
+    }
+  }
+
+  return parentOf
+}
+
+/** A tag is part of a cycle when walking up its parent chain returns to a tag already seen. */
+const isCyclic = (parentOf: Map<string, string>, name: string): boolean => {
+  const seen = new Set<string>([name])
+  let current = parentOf.get(name)
+  while (current) {
+    if (seen.has(current)) {
+      return true
+    }
+    seen.add(current)
+    current = parentOf.get(current)
+  }
+  return false
+}
+
+/**
  * Nests tag entries according to the OpenAPI 3.2 `parent` field.
  *
  * Each tag may declare the `name` of another tag it is nested under. We build the flat
@@ -193,9 +224,12 @@ const getSortedTagEntries = ({
 const nestTagsByParent = ({
   flatEntries,
   document,
+  originalOrders,
 }: {
   flatEntries: TraversedEntry[]
   document: OpenApiDocument
+  /** Tag-level `x-scalar-order` values captured before the flat traversal rewrote them. */
+  originalOrders: Map<string, string[]>
 }): TraversedEntry[] => {
   // Index real tag entries by name and remember which ones owned operations before nesting.
   const entriesByName = new Map<string, TraversedTag>()
@@ -207,36 +241,49 @@ const nestTagsByParent = ({
     }
   }
 
-  // Map each tag to its parent, but only when the parent exists and is not the tag itself.
-  const parentOf = new Map<string, string>()
-  for (const tag of document.tags ?? []) {
-    if (tag.name && tag.parent && tag.parent !== tag.name && entriesByName.has(tag.parent)) {
-      parentOf.set(tag.name, tag.parent)
-    }
-  }
-
-  // A tag is part of a cycle when walking up its parent chain returns to a tag already seen.
-  const isCyclic = (name: string): boolean => {
-    const seen = new Set<string>([name])
-    let current = parentOf.get(name)
-    while (current) {
-      if (seen.has(current)) {
-        return true
-      }
-      seen.add(current)
-      current = parentOf.get(current)
-    }
-    return false
-  }
+  const parentOf = getParentMap(document.tags ?? [])
 
   // Re-parent entries by reference, tracking which ones leave the top level.
   const nested = new Set<string>()
+  const gainedNestedTags = new Set<string>()
   for (const [name, entry] of entriesByName) {
     const parentName = parentOf.get(name)
-    if (parentName && !isCyclic(name)) {
-      const parent = entriesByName.get(parentName)!
-      parent.children = [...(parent.children ?? []), entry]
-      nested.add(name)
+    if (parentName === undefined || isCyclic(parentOf, name)) {
+      continue
+    }
+    const parent = entriesByName.get(parentName)
+    if (!parent) {
+      continue
+    }
+    // Append in place: rebuilding the array on every child is quadratic for wide parents.
+    parent.children = parent.children ?? []
+    parent.children.push(entry)
+    nested.add(name)
+    gainedNestedTags.add(parentName)
+  }
+
+  // Nested tags were appended after the parent's own operations, but the parent's persisted
+  // `x-scalar-order` was written before nesting and knows nothing about them. Restore any
+  // custom order that already references the nested tag ids, then sync the persisted order
+  // with the final children so the nested ids are never dropped.
+  const tagsByName = new Map<string, TagObject>()
+  for (const tag of document.tags ?? []) {
+    if (tag.name) {
+      tagsByName.set(tag.name, tag)
+    }
+  }
+  for (const parentName of gainedNestedTags) {
+    const parent = entriesByName.get(parentName)
+    if (!parent) {
+      continue
+    }
+    const originalOrder = originalOrders.get(parentName)
+    if (originalOrder) {
+      parent.children = sortByOrder(parent.children ?? [], originalOrder, (item) => item.id)
+    }
+    const tag = tagsByName.get(parentName)
+    if (tag) {
+      tag['x-scalar-order'] = (parent.children ?? []).map((child) => child.id)
     }
   }
 
@@ -272,9 +319,21 @@ export const traverseTags = ({
   documentId: string
   options: Options
 }): TraversedEntry[] => {
-  // Native OpenAPI 3.2 tag nesting via `parent` takes precedence over x-tagGroups.
-  const hasNestedTags = document.tags?.some((tag) => typeof tag.parent === 'string' && tag.parent.length > 0)
+  // Native OpenAPI 3.2 tag nesting via `parent` takes precedence over x-tagGroups, but only
+  // when at least one `parent` resolves to another declared tag outside a circular reference.
+  // A stray or misspelled `parent` value must not disable the legacy `x-tagGroups` handling.
+  const parentOf = getParentMap(document.tags ?? [])
+  const hasNestedTags = Array.from(parentOf.keys()).some((name) => !isCyclic(parentOf, name))
   if (hasNestedTags) {
+    // The flat traversal rewrites tag-level `x-scalar-order`, so capture the original values
+    // first to keep any custom order that already references nested tag ids.
+    const originalOrders = new Map<string, string[]>()
+    for (const tag of document.tags ?? []) {
+      if (tag.name && tag['x-scalar-order']) {
+        originalOrders.set(tag.name, tag['x-scalar-order'])
+      }
+    }
+
     const flatEntries = getSortedTagEntries({
       _keys: Array.from(tagsMap.keys()),
       tagsMap,
@@ -283,7 +342,7 @@ export const traverseTags = ({
       sortOrder: document['x-scalar-order'],
     })
 
-    return nestTagsByParent({ flatEntries, document })
+    return nestTagsByParent({ flatEntries, document, originalOrders })
   }
 
   // x-tagGroups (legacy)
