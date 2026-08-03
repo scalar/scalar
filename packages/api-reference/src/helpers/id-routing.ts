@@ -347,20 +347,47 @@ export type WebhookRedirectSource = {
  * per webhook whose legacy slug differs from the current one. Each rule matches the invariant
  * `webhook/<METHOD>/<legacy-slug>` tail, so it applies regardless of the document/tag prefix in front
  * of it and preserves any sub-anchor after it.
+ *
+ * Because the legacy slug is lossy, two things can make a redirect unsafe, and both are dropped so an
+ * ambiguous link falls through to normal not-found handling instead of landing on the wrong webhook:
+ * - the legacy slug is already another webhook's *current* slug (redirecting it would hijack a valid
+ *   URL), or
+ * - two webhooks collapse to the same legacy slug (the old bookmark is genuinely ambiguous).
  */
 const buildWebhookRedirects = (webhooks: WebhookRedirectSource[]): IdRedirect[] => {
-  const redirects: IdRedirect[] = []
+  const key = (method: string, slug: string) => `${method.toUpperCase()}/${slug}`
 
+  // Index current slugs so a legacy redirect never clobbers a real, current URL, and count legacy
+  // slugs so we can drop the ones two webhooks share.
+  const currentKeys = new Set<string>()
+  const legacyCounts = new Map<string, number>()
   for (const { name, method, id } of webhooks) {
+    currentKeys.add(key(method, id.slice(id.lastIndexOf('/') + 1)))
+    const legacySlug = slugify(name)
+    if (legacySlug) {
+      const legacyKey = key(method, legacySlug)
+      legacyCounts.set(legacyKey, (legacyCounts.get(legacyKey) ?? 0) + 1)
+    }
+  }
+
+  const redirects: IdRedirect[] = []
+  for (const { name, method, id } of webhooks) {
+    const upperMethod = method.toUpperCase()
     const currentSlug = id.slice(id.lastIndexOf('/') + 1)
     const legacySlug = slugify(name)
+    const legacyKey = key(method, legacySlug)
 
-    // Nothing to redirect when the slug did not change (e.g. names without dots).
-    if (!legacySlug || legacySlug === currentSlug) {
+    // Skip when the slug did not change, when the legacy slug is a real current URL, or when it is
+    // shared by more than one webhook.
+    if (
+      !legacySlug ||
+      legacySlug === currentSlug ||
+      currentKeys.has(legacyKey) ||
+      (legacyCounts.get(legacyKey) ?? 0) > 1
+    ) {
       continue
     }
 
-    const upperMethod = method.toUpperCase()
     redirects.push({
       match: new RegExp(`(^|/)webhook/${escapeRegex(upperMethod)}/${escapeRegex(legacySlug)}(?=$|/)`),
       replace: (_match, prefix) => `${prefix}webhook/${upperMethod}/${currentSlug}`,

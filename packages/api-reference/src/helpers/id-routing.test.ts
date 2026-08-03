@@ -1082,6 +1082,44 @@ describe('redirectUrl', () => {
         redirectUrl('https://example.com/#default/webhook/POST/account-holdercreated', 'models', 'default', true),
       ).toBeNull()
     })
+
+    it('does not redirect a legacy slug that is another webhook current slug', () => {
+      // Webhook B is literally named `account-holdercreated`, so that URL is its valid current URL.
+      // Webhook A must not hijack it with its dropped-dot redirect.
+      const colliding = [
+        { name: 'account_holder.created', method: 'POST', id: 'default/webhook/POST/account-holder.created' },
+        { name: 'account-holdercreated', method: 'POST', id: 'default/webhook/POST/account-holdercreated' },
+      ]
+      expect(
+        redirectUrl(
+          'https://example.com/#default/webhook/POST/account-holdercreated',
+          'models',
+          'default',
+          true,
+          undefined,
+          colliding,
+        ),
+      ).toBeNull()
+    })
+
+    it('does not redirect an ambiguous legacy slug shared by two webhooks', () => {
+      // `user.v1.created` and `userv1.created` both collapse to the legacy slug `userv1created`,
+      // so the old bookmark is ambiguous and must fall through instead of guessing.
+      const ambiguous = [
+        { name: 'user.v1.created', method: 'POST', id: 'default/webhook/POST/user.v1.created' },
+        { name: 'userv1.created', method: 'POST', id: 'default/webhook/POST/userv1.created' },
+      ]
+      expect(
+        redirectUrl(
+          'https://example.com/#default/webhook/POST/userv1created',
+          'models',
+          'default',
+          true,
+          undefined,
+          ambiguous,
+        ),
+      ).toBeNull()
+    })
   })
 
   it('returns null when the document slug is empty', () => {
