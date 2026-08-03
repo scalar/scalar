@@ -257,6 +257,9 @@ describe('createSearchIndex', () => {
         type: 'tag',
         name: 'animals',
         isGroup: true,
+        // Legacy `x-tagGroups` wrappers are flagged so they are not confused with
+        // OpenAPI 3.2 operation-less parent tags, which are real tags.
+        isTagGroup: true,
       }
 
       const document: OpenApiDocument = {
@@ -536,6 +539,9 @@ describe('createSearchIndex', () => {
         type: 'tag',
         name: 'animals',
         isGroup: true,
+        // Legacy `x-tagGroups` wrappers are flagged so they are not confused with
+        // OpenAPI 3.2 operation-less parent tags, which are real tags.
+        isTagGroup: true,
       }
 
       const headingEntry: TraversedEntry = {
