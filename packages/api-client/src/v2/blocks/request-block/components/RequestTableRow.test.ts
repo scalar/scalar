@@ -502,6 +502,7 @@ describe('RequestTableRow', () => {
     })
 
     expect(wrapper.text()).toContain(longFileName)
+    expect(wrapper.find(`[title="${longFileName}"]`).exists()).toBe(true)
   })
 
   it('emits removeFile when delete button is clicked on a file', async () => {

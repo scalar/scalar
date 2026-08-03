@@ -189,6 +189,19 @@ describe('RequestTable', () => {
     expect(row.props('showUploadButton')).toBe(true)
   })
 
+  it('reserves more space for multipart values than file controls', () => {
+    const wrapper = mount(RequestTable, {
+      props: {
+        data: [{ name: 'file', value: '', isEnabled: true }],
+        environment,
+        showUploadButton: true,
+      },
+    })
+
+    const table = wrapper.findComponent({ name: 'DataTable' })
+    expect(table.props('columns')).toEqual(['36px', 'minmax(0, 1fr)', 'minmax(0, 2fr)', 'minmax(104px, 0.5fr)'])
+  })
+
   it('renders DataTableHeader with correct label', () => {
     const wrapper = mount(RequestTable, {
       props: {
