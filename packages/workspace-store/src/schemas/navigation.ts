@@ -223,6 +223,7 @@ export const TraversedTagSchemaDefinition = compose(
     description: Type.Optional(Type.String()),
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
     isGroup: Type.Boolean(),
+    isTagGroup: Type.Optional(Type.Boolean()),
     isWebhooks: Type.Optional(Type.Boolean()),
     xKeys: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
   }),
@@ -239,6 +240,12 @@ export type TraversedTag = BaseSchema & {
   description?: string
   children?: TraversedEntry[]
   isGroup: boolean
+  /**
+   * True only for legacy `x-tagGroups` wrapper entries, which are not real tags and render
+   * without a header of their own. Real OpenAPI 3.2 nested-tag sections keep this unset so the
+   * renderer still shows their summary and description.
+   */
+  isTagGroup?: boolean
   isWebhooks?: boolean
   xKeys?: Record<string, unknown>
 }
