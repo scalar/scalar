@@ -19,6 +19,7 @@ key you do not override.
 * `de` — German
 * `zh-CN` — Simplified Chinese
 * `ar` — Arabic (renders right-to-left by default)
+* `pt` — Portuguese
 
 ## Configuration
 
