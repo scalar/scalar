@@ -38,3 +38,29 @@ test('Content page at /docs-keys is not hijacked by Scalar', async ({ page }) =>
   await expect(page.getByRole('heading', { name: 'API Keys Management' })).toBeVisible()
   await expect(page.getByText('This is a content page for managing API keys.')).toBeVisible()
 })
+
+/**
+ * With multiple configurations, client-side navigation between two Scalar routes
+ * used to keep showing the first document because the fetched document was
+ * stored under a single shared state key (see issue #9718). Once the first
+ * document was fetched, later routes reused it and never fetched their own.
+ *
+ * Each configuration points at its own spec URL, so watching for that request is
+ * a precise signal that the document was actually fetched for the route.
+ */
+test('Fetches each configuration document during client-side navigation', async ({ page }) => {
+  // The first navigation compiles the reference in dev mode, which can be slow
+  // on CI, so give this test extra headroom.
+  test.setTimeout(120_000)
+
+  // Loading the first configuration fetches its own spec.
+  const specA = page.waitForRequest((request) => request.url().includes('/spec-a.json'), { timeout: 90_000 })
+  await page.goto('/scalar-a')
+  await specA
+
+  // Navigating to the second configuration must fetch its own spec, rather than
+  // reusing the first document.
+  const specB = page.waitForRequest((request) => request.url().includes('/spec-b.json'), { timeout: 30_000 })
+  await page.getByRole('link', { name: 'Config B' }).click()
+  await specB
+})
