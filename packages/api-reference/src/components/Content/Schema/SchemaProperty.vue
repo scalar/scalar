@@ -29,6 +29,7 @@ import { getEnumValues } from './helpers/get-enum-values'
 import { getPropertyDescription } from './helpers/get-property-description'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
+import type { CompositionKeyword } from './helpers/schema-composition'
 import { shouldDisplayDescription } from './helpers/should-display-description'
 import { shouldDisplayHeading } from './helpers/should-display-heading'
 import Schema from './Schema.vue'
@@ -250,6 +251,12 @@ const shouldDisplayHeadingComputed = computed(() =>
 const compositionsToRender = computed(() =>
   getCompositionsToRender(optimizedValue.value, props.options.document),
 )
+const getCompositionDiscriminator = (
+  composition: CompositionKeyword,
+): DiscriminatorObject | undefined =>
+  composition === 'allOf'
+    ? (props.schema?.discriminator ?? props.discriminator)
+    : props.schema?.discriminator
 
 /**
  * Get resolved array items for rendering (with any `$dynamicRef` bound to the concrete type).
@@ -411,7 +418,7 @@ const isDiscriminatorProperty = computed(() =>
       :compact="compact"
       :composition="compositionData.composition"
       :compositionPath="currentCompositionPath"
-      :discriminator="schema?.discriminator"
+      :discriminator="getCompositionDiscriminator(compositionData.composition)"
       :eventBus="eventBus"
       :hideHeading="hideHeading"
       :hideModelNames

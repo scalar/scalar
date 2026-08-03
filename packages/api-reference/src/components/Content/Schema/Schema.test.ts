@@ -346,11 +346,175 @@ describe('Schema', () => {
       expect(wrapper.text()).toContain('baseInt')
     })
 
+    it('does not re-infer the discriminator mapping when a variant allOfs back to the base', async () => {
+      const configSchema = {
+        type: 'object',
+        required: ['formatVersion'],
+        properties: {
+          formatVersion: { type: 'string' },
+        },
+        discriminator: {
+          propertyName: 'formatVersion',
+          mapping: {
+            '2.2': '#/components/schemas/Config_v2_2',
+            '2.3': '#/components/schemas/Config_v2_3',
+          },
+        },
+      }
+
+      const document = {
+        components: {
+          schemas: {
+            Config: configSchema,
+            Config_v2_2: {
+              allOf: [
+                { $ref: '#/components/schemas/Config', '$ref-value': configSchema },
+                { type: 'object', properties: { fieldA: { type: 'string' } } },
+              ],
+            },
+            Config_v2_3: {
+              allOf: [
+                { $ref: '#/components/schemas/Config', '$ref-value': configSchema },
+                { type: 'object', properties: { fieldB: { type: 'string' } } },
+              ],
+            },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Response',
+          schema: coerceValue(SchemaObjectSchema, document.components.schemas.Config),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      await listbox.vm.$emit('update:modelValue', { id: '0', label: 'Config_v2_2' })
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      expect(wrapper.text()).toContain('fieldA')
+      expect(wrapper.text()).toContain('formatVersion')
+      expect(wrapper.text()).not.toContain('fieldB')
+
+      await listbox.vm.$emit('update:modelValue', { id: '1', label: 'Config_v2_3' })
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      expect(wrapper.text()).toContain('fieldB')
+      expect(wrapper.text()).toContain('formatVersion')
+      expect(wrapper.text()).not.toContain('fieldA')
+    })
+
+    it('keeps a nested property discriminator independent from a threaded parent discriminator', () => {
+      const petSchema = {
+        type: 'object',
+        discriminator: {
+          propertyName: 'petType',
+          mapping: {
+            Cat: '#/components/schemas/Cat',
+            Dog: '#/components/schemas/Dog',
+          },
+        },
+        properties: {
+          petType: { type: 'string' },
+          name: { type: 'string' },
+        },
+      }
+
+      const document = {
+        components: {
+          schemas: {
+            Cat: { type: 'object', properties: { meow: { type: 'boolean' } } },
+            Dog: { type: 'object', properties: { bark: { type: 'boolean' } } },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          discriminator: {
+            propertyName: 'formatVersion',
+            mapping: { '2.2': '#/components/schemas/Config_v2_2' },
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: { pet: petSchema },
+          }),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      expect(wrapper.text()).toContain('One of')
+      expect(wrapper.text()).toContain('petType')
+      expect(wrapper.text()).toContain('Cat')
+    })
+
+    it('keeps nested branch discriminator mappings independent from the parent discriminator', () => {
+      const baseSchema = {
+        type: 'object',
+        discriminator: {
+          propertyName: 'rootKind',
+          mapping: { child: '#/components/schemas/Child' },
+        },
+        properties: { rootKind: { type: 'string' } },
+      }
+
+      const nestedPolymorphicSchema = {
+        type: 'object',
+        title: 'NestedPolymorphic',
+        discriminator: {
+          propertyName: 'petType',
+          mapping: { cat: '#/components/schemas/Cat' },
+        },
+        properties: { petType: { type: 'string' } },
+      }
+
+      const document = {
+        components: {
+          schemas: {
+            Base: baseSchema,
+            Child: {
+              allOf: [
+                { $ref: '#/components/schemas/Base', '$ref-value': baseSchema },
+                {
+                  type: 'object',
+                  properties: {
+                    nested: {
+                      oneOf: [
+                        nestedPolymorphicSchema,
+                        { type: 'object', title: 'OtherNested', properties: { other: { type: 'string' } } },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+            Cat: { type: 'object', title: 'Cat', properties: { meow: { type: 'boolean' } } },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Response',
+          schema: coerceValue(SchemaObjectSchema, baseSchema),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      expect(wrapper.findAll('.composition-selector').length).toBe(3)
+      expect(wrapper.text()).toContain('Cat')
+    })
+
     // https://github.com/scalar/scalar/issues/7472
-    // A schema that carries its own `allOf` (plus a `discriminator.mapping`) must
-    // keep rendering the `allOf` members. Inference is gated to plain object
-    // schemas (`isTypeObject`), so the mapping does not replace the `allOf`
-    // output with a variant dropdown — the `allOf` members render as before.
     it('keeps rendering allOf members for a schema that also has a discriminator mapping', () => {
       const document = {
         components: {
