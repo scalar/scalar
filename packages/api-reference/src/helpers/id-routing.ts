@@ -1,3 +1,5 @@
+import { slugify } from '@scalar/helpers/string/slugify'
+
 export const sanitizeBasePath = (basePath: string) => {
   return basePath.replace(/^\/+|\/+$/g, '')
 }
@@ -322,12 +324,59 @@ const buildRedirects = ({ modelsSectionSlug, documentSlug, isMultiDocument }: Re
 }
 
 /**
+ * Source data for a single webhook redirect: the raw event name, its method, and the current id.
+ *
+ * The current slug is read back off the id, so this layer does not need to know the (dot-keeping)
+ * slug rule — it only reproduces the legacy (dot-dropping) slug to match old bookmarks.
+ */
+export type WebhookRedirectSource = {
+  /** Raw webhook event name from the OpenAPI `webhooks` key, e.g. `account_holder.created`. */
+  name: string
+  /** HTTP method of the webhook operation. */
+  method: string
+  /** Current navigation id of the webhook, e.g. `default/webhook/POST/account-holder.created`. */
+  id: string
+}
+
+/**
+ * Builds redirect rules mapping each webhook's legacy dot-dropped slug to its current slug.
+ *
+ * Webhook ids used to slugify the event name with no options, which dropped dots
+ * (`account_holder.created` -> `account-holdercreated`); the current id keeps them
+ * (`account-holder.created`). That rewrite cannot be reversed generically, so we emit one exact rule
+ * per webhook whose legacy slug differs from the current one. Each rule matches the invariant
+ * `webhook/<METHOD>/<legacy-slug>` tail, so it applies regardless of the document/tag prefix in front
+ * of it and preserves any sub-anchor after it.
+ */
+const buildWebhookRedirects = (webhooks: WebhookRedirectSource[]): IdRedirect[] => {
+  const redirects: IdRedirect[] = []
+
+  for (const { name, method, id } of webhooks) {
+    const currentSlug = id.slice(id.lastIndexOf('/') + 1)
+    const legacySlug = slugify(name)
+
+    // Nothing to redirect when the slug did not change (e.g. names without dots).
+    if (!legacySlug || legacySlug === currentSlug) {
+      continue
+    }
+
+    const upperMethod = method.toUpperCase()
+    redirects.push({
+      match: new RegExp(`(^|/)webhook/${escapeRegex(upperMethod)}/${escapeRegex(legacySlug)}(?=$|/)`),
+      replace: (_match, prefix) => `${prefix}webhook/${upperMethod}/${currentSlug}`,
+    })
+  }
+
+  return redirects
+}
+
+/**
  * Rewrites navigation ids in a URL to their current form.
  *
  * The URL is reduced to its routing-agnostic id (see {@link locateIdCarriers}), each redirect rule
- * is applied in id-space (see {@link buildRedirects}), and the result is spliced back into the
- * original location. This handles hash, hash-base-path, and path routing uniformly, so a new
- * redirect only has to be added to the list once.
+ * is applied in id-space (see {@link buildRedirects} for models and {@link buildWebhookRedirects} for
+ * webhooks), and the result is spliced back into the original location. This handles hash,
+ * hash-base-path, and path routing uniformly, so a new redirect only has to be added to the list once.
  *
  * Returns the canonicalized URL when a rewrite happens, or null otherwise.
  */
@@ -337,13 +386,17 @@ export const redirectUrl = (
   documentSlug: string,
   isMultiDocument: boolean,
   basePath?: string,
+  webhooks: WebhookRedirectSource[] = [],
 ): URL | null => {
   if (!documentSlug) {
     return null
   }
 
   const target = new URL(typeof url === 'string' ? url : url.toString())
-  const redirects = buildRedirects({ modelsSectionSlug, documentSlug, isMultiDocument })
+  const redirects = [
+    ...buildRedirects({ modelsSectionSlug, documentSlug, isMultiDocument }),
+    ...buildWebhookRedirects(webhooks),
+  ]
 
   // Canonicalize every place the id might live. The carriers are distinct physical locations (the
   // pathname and the bare hash), so a single page load can carry a legacy id in more than one — for

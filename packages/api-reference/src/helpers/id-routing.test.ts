@@ -1008,6 +1008,82 @@ describe('redirectUrl', () => {
     })
   })
 
+  describe('webhook slug redirects', () => {
+    // Legacy webhook ids ran the event name through slugify with no options, which dropped dots.
+    // These entries carry the current (dot-keeping) id plus the raw name we rebuild the old slug from.
+    const webhooks = [
+      { name: 'account_holder.created', method: 'POST', id: 'default/webhook/POST/account-holder.created' },
+      { name: 'newPlanet', method: 'POST', id: 'default/webhook/POST/newplanet' },
+    ]
+
+    it('rewrites a legacy dot-dropped webhook slug to the current slug', () => {
+      const result = redirectUrl(
+        'https://example.com/#default/webhook/POST/account-holdercreated',
+        'models',
+        'default',
+        true,
+        undefined,
+        webhooks,
+      )
+      expect(result?.hash).toBe('#default/webhook/POST/account-holder.created')
+    })
+
+    it('rewrites a tagged legacy webhook slug', () => {
+      const result = redirectUrl(
+        'https://example.com/#default/tag/webhooks/webhook/POST/account-holdercreated',
+        'models',
+        'default',
+        true,
+        undefined,
+        webhooks,
+      )
+      expect(result?.hash).toBe('#default/tag/webhooks/webhook/POST/account-holder.created')
+    })
+
+    it('rewrites a legacy webhook pathname in path routing', () => {
+      const result = redirectUrl(
+        'https://example.com/docs/default/webhook/POST/account-holdercreated',
+        'models',
+        'default',
+        true,
+        '/docs',
+        webhooks,
+      )
+      expect(result?.pathname).toBe('/docs/default/webhook/POST/account-holder.created')
+    })
+
+    it('preserves a sub-anchor after the webhook slug', () => {
+      const result = redirectUrl(
+        'https://example.com/#default/webhook/POST/account-holdercreated/body.id',
+        'models',
+        'default',
+        true,
+        undefined,
+        webhooks,
+      )
+      expect(result?.hash).toBe('#default/webhook/POST/account-holder.created/body.id')
+    })
+
+    it('leaves a webhook whose slug did not change untouched', () => {
+      expect(
+        redirectUrl(
+          'https://example.com/#default/webhook/POST/newplanet',
+          'models',
+          'default',
+          true,
+          undefined,
+          webhooks,
+        ),
+      ).toBeNull()
+    })
+
+    it('leaves webhook urls untouched when no webhooks are passed', () => {
+      expect(
+        redirectUrl('https://example.com/#default/webhook/POST/account-holdercreated', 'models', 'default', true),
+      ).toBeNull()
+    })
+  })
+
   it('returns null when the document slug is empty', () => {
     expect(redirectUrl('https://example.com/#default/model/User', 'models', '', true)).toBeNull()
   })
