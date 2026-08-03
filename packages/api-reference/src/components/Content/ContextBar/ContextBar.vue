@@ -2,7 +2,12 @@
 import { ScalarIconCaretRight } from '@scalar/icons'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
-import { collapseTrail, isEllipsis, type Crumb } from './helpers'
+import {
+  collapseTrail,
+  isEllipsis,
+  type Crumb,
+  type EllipsisCrumb,
+} from './helpers'
 
 const { chain } = defineProps<{
   /** Ancestor tags from root to the section currently in view (inclusive). */
@@ -23,7 +28,7 @@ const navRef = ref<HTMLElement | null>(null)
 const overflowing = ref(false)
 
 /** The crumbs actually rendered: the full trail while it fits, collapsed once it does not. */
-const displayCrumbs = computed(() =>
+const displayCrumbs = computed<(Crumb | EllipsisCrumb)[]>(() =>
   overflowing.value ? collapseTrail(chain) : chain,
 )
 

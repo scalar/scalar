@@ -728,11 +728,10 @@ const setBreadcrumb = (id: string) => {
 
 /**
  * Ancestor tags (root → section in view) for the sticky context bar. Walks up
- * the reverse-indexed navigation tree from the selected entry, keeping only real
- * tag nodes (legacy `x-tagGroups` wrappers are skipped, since they render no
- * header). Empty for top-level sections, so the bar only appears once a section
- * is actually nested — deep OpenAPI 3.2 `parent` hierarchies that cannot be
- * conveyed by indentation alone.
+ * the reverse-indexed navigation tree from the selected entry, keeping only tag
+ * nodes that render a header of their own. Empty for top-level sections, so the
+ * bar only appears once a section is actually nested — deep OpenAPI 3.2 `parent`
+ * hierarchies that cannot be conveyed by indentation alone.
  */
 const contextChain = computed(() => {
   const selectedId = sidebarState.selectedItem.value
@@ -744,10 +743,16 @@ const contextChain = computed(() => {
   let node = sidebarState.getEntryById(selectedId)
 
   while (node) {
-    // Skip legacy `x-tagGroups` wrappers: they render no header of their own (they are flattened
-    // in the modern layout), so a breadcrumb pointing at them would reference an invisible section.
-    if (node.type === 'tag' && node.isTagGroup !== true) {
-      crumbs.unshift({ id: node.id, title: node.title })
+    if (node.type === 'tag') {
+      // Legacy `x-tagGroups` wrappers only render a header of their own in the classic layout.
+      // The modern layout flattens them, so a breadcrumb pointing at them there would reference
+      // an invisible section.
+      const rendersHeader =
+        node.isTagGroup !== true || mergedConfig.value.layout === 'classic'
+
+      if (rendersHeader) {
+        crumbs.unshift({ id: node.id, title: node.title })
+      }
     }
     node = node.parent
   }
