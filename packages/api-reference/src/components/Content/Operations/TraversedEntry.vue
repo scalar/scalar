@@ -83,10 +83,16 @@ const {
 /**
  * Type guards for different entry types
  */
+/**
+ * A legacy `x-tagGroups` wrapper. These are not real tags and render without a header of their
+ * own (flattened in the modern layout). OpenAPI 3.2 nested-tag sections are real tags that carry
+ * `isGroup` but not `isTagGroup`, so they are intentionally excluded here and render through
+ * {@link isTag} with their summary heading.
+ */
 const isTagGroup = (
   entry: TraversedEntry,
 ): entry is TraversedTag & { isGroup: true } =>
-  entry['type'] === 'tag' && entry.isGroup === true
+  entry['type'] === 'tag' && entry.isGroup === true && entry.isTagGroup === true
 
 const isTag = (
   entry: TraversedEntry,
