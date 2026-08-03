@@ -114,6 +114,9 @@ release: 1.0.0
 
 The `Release PR version` check goes red while the title and the committed version disagree, Scalar re-renders the pull request at your version, and the check goes green. Wait for green before merging. The git-native equivalent is an empty commit on `scalar-next` with a `Release-As: 1.0.0` footer.
 
+> [!IMPORTANT]
+> If retitling appears to do nothing and the `Release PR version` check never reports — the workflow run shows as **skipped**, with neither of its jobs executed — your repository has an early copy of `release-title-edit.yml` whose branch guard never matched the release pull request. Both of its jobs skip on every release pull request, and because a skipped job is not a failed one, nothing turns red to tell you: merging ships the version release-please computed from your commits, not the one in the title. Rebuild the SDK to pick up the corrected workflow. Until you do, set the version with the `Release-As` commit above, which never depended on that workflow.
+
 Every release gets a `vX.Y.Z` tag, a GitHub Release, and an entry in the repository's `CHANGELOG.md`, so your release history lives in your repo next to the code. The generated `VERSIONING.md` documents all of this for your maintainers.
 
 ## Permissions
