@@ -418,6 +418,77 @@ The `footer` property allows you to add a custom footer to your documentation si
 | ---------- | -------- | ------------------------------------------ |
 | `filepath` | `string` | Relative path to a custom HTML footer file |
 
+## RSS
+
+The `rss` property publishes an RSS feed for your changelog, so readers can subscribe to your releases in a feed reader.
+
+Point `path` at the route your changelog lives on. The feed is written to `rss.xml` under that route — a changelog at `/changelog` publishes its feed at `/changelog/rss.xml`.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "rss": {
+      "path": "/changelog",
+      "title": "Scalar Changelog",
+      "description": "Every Scalar release, as a feed"
+    }
+  }
+}
+```
+
+### Properties
+
+| Property      | Type     | Required | Description                                                                         |
+| ------------- | -------- | -------- | ----------------------------------------------------------------------------------- |
+| `path`        | `string` | Yes      | Route of your changelog, for example `/changelog`                                   |
+| `title`       | `string` | No       | Title of the feed, shown in feed readers. Defaults to your site title plus `Changelog` |
+| `description` | `string` | No       | Description of the feed, shown in feed readers                                      |
+
+### Writing Entries
+
+Each entry in the feed comes from a heading that carries a date in `YYYY-MM-DD` form:
+
+```markdown
+## 1.2.0 (2026-07-24)
+
+Added a dark mode toggle to the header.
+
+## 1.1.0 (2026-07-10)
+
+Introduced page actions: copy as Markdown, open in editor, and report an issue.
+```
+
+The heading becomes the item title, and the content below it becomes the item description. Headings without a date are not entries of their own — they belong to the entry above them, so you can use subheadings inside a release without splitting it apart.
+
+If a heading looks dated but the date is not real (`## 2.0.0 (2026-13-01)`), that release is left out of the feed and the build warns you, since a typo is the only way to get there.
+
+### Multiple Products
+
+A changelog split across several pages works too. Every page at `path` or beneath it contributes its entries, and the feed merges them newest-first:
+
+```
+/changelog                 <- index page, lists the products
+/changelog/api-client      <- entries
+/changelog/api-reference   <- entries
+```
+
+An index page with no dated headings contributes nothing of its own, which is what you want when it only links to the products.
+
+Hidden pages are skipped. A page kept out of the sidebar and the sitemap stays out of the feed as well.
+
+### Discovery
+
+Every page on your site advertises the feed in its `<head>`, so feed readers and browser extensions can find it from any URL:
+
+```html
+<link rel="alternate" type="application/rss+xml" href="https://example.com/changelog/rss.xml">
+```
+
+Pages at `path` and beneath it also show a subscribe button in the page header, next to Copy Page.
+
 ## Routing
 
 The `routing` property configures URL redirects and path patterns for your documentation.
