@@ -264,6 +264,7 @@ export type LoaderPlugin = {
  */
 type NodeProcessContext = {
   path: readonly string[]
+  referencedFromPath?: readonly string[]
   resolutionCache: Map<string, Promise<Readonly<ResolveResult>>>
   parentNode: UnknownObject | null
   rootNode: UnknownObject
@@ -624,6 +625,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     depth = 0,
     currentPath: readonly string[] = [],
     parent: UnknownObject = null,
+    referencedFromPath?: readonly string[],
   ) => {
     // If a maximum depth is set in the config, stop bundling when the current depth reaches or exceeds it
     if (config.depth !== undefined && depth > config.depth) {
@@ -648,6 +650,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
     const context = {
       path: currentPath,
+      referencedFromPath,
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
@@ -681,7 +684,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // referenced by this local reference to ensure the partial bundle is complete.
           // This includes not just the direct reference but also all its dependencies,
           // creating a complete and self-contained partial bundle.
-          await bundler(targetValue.value, targetValue.context, isChunkParent, depth + 1, segments, parent)
+          await bundler(
+            targetValue.value,
+            targetValue.context,
+            isChunkParent,
+            depth + 1,
+            segments,
+            parent,
+            referencedFromPath,
+          )
         }
         await executeHooks('onAfterNodeProcess', root, context)
         return
@@ -733,11 +744,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(result.data, isChunk ? origin : resolvedPath, isChunk, depth + 1, [
-            config.externalDocumentsKey,
-            compressedPath,
-            documentRoot[config.externalDocumentsMappingsKey],
-          ])
+          await bundler(
+            result.data,
+            isChunk ? origin : resolvedPath,
+            isChunk,
+            depth + 1,
+            [config.externalDocumentsKey, compressedPath],
+            null,
+            currentPath,
+          )
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
@@ -795,7 +810,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         continue
       }
 
-      await bundler(root[key], id ?? origin, isChunkParent, depth + 1, [...currentPath, key], root as UnknownObject)
+      await bundler(
+        root[key],
+        id ?? origin,
+        isChunkParent,
+        depth + 1,
+        [...currentPath, key],
+        root as UnknownObject,
+        referencedFromPath,
+      )
     }
 
     await executeHooks('onAfterNodeProcess', root as UnknownObject, context)

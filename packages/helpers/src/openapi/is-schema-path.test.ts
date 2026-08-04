@@ -14,6 +14,26 @@ describe('isSchemaPath', () => {
     expect(isSchemaPath(['paths', '/users', 'get', 'parameters', '0', 'schema'])).toBe(true)
   })
 
+  it('identifies schema paths in bundled external documents', () => {
+    expect(
+      isSchemaPath([
+        'x-ext',
+        'abc123',
+        'paths',
+        '/users',
+        'get',
+        'responses',
+        '200',
+        'content',
+        'application/json',
+        'schema',
+      ]),
+    ).toBe(true)
+    expect(isSchemaPath(['x-ext', 'abc123', 'components', 'schemas', 'User'])).toBe(true)
+    expect(isSchemaPath(['x-ext', 'abc123', 'components', 'parameters', 'not'])).toBe(false)
+    expect(isSchemaPath(['x-ext', 'abc123', 'paths', '/users', 'get', 'responses', '200'])).toBe(false)
+  })
+
   it('identifies nested schema keywords', () => {
     expect(isSchemaPath(['components', 'schemas', 'Node', 'items'])).toBe(true)
     expect(isSchemaPath(['components', 'schemas', 'Node', 'additionalProperties'])).toBe(true)
