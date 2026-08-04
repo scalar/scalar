@@ -1,6 +1,6 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { type VueWrapper, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import { AddressBar } from '@/v2/blocks/scalar-address-bar-block'
@@ -40,7 +40,7 @@ describe('Header', () => {
 
   const render = (overrides: Partial<HeaderProps> = {}) => {
     const props = { ...defaultProps, ...overrides }
-    return mount(Header, { props }) as VueWrapper<any>
+    return mount(Header, { props })
   }
 
   it('emits execute when AddressBar emits execute', () => {

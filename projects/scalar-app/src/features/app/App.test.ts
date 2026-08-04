@@ -160,7 +160,7 @@ describe('App', () => {
         workspaceGroups: [],
       },
       global: {
-        plugins: [router as any],
+        plugins: [router],
       },
     })
 

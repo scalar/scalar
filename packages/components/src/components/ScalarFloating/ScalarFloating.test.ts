@@ -7,7 +7,7 @@ import ScalarFloating from './ScalarFloating.vue'
 enableAutoUnmount(afterEach)
 
 describe('ScalarFloating', () => {
-  let wrapper: VueWrapper<any>
+  let wrapper: VueWrapper<InstanceType<typeof ScalarFloating>>
   let targetDiv: HTMLElement
 
   beforeEach(() => {

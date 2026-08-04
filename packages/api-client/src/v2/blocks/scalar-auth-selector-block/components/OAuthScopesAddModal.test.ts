@@ -1,5 +1,5 @@
 import { useModal } from '@scalar/components/modal'
-import { type VueWrapper, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
@@ -7,7 +7,7 @@ import OAuthScopesAddModal from './OAuthScopesAddModal.vue'
 
 describe('OAuthScopesAddModal', () => {
   /** Wrappers are unmounted in afterEach to avoid teleported DOM leaking between tests. */
-  const wrappers: Array<VueWrapper<any>> = []
+  const wrappers: Array<{ unmount: () => void }> = []
 
   const mountWithProps = (
     custom: Partial<{

@@ -157,7 +157,7 @@ describe('ScalarSidebar', () => {
       expect(state.selectedItems.value).toEqual({})
 
       // Find the SidebarItem and trigger selectItem event
-      const sidebarItem = wrapper.findComponent(SidebarItem as any)
+      const sidebarItem = wrapper.findComponent(SidebarItem)
       sidebarItem.vm.$emit('selectItem', '1')
 
       // Allow Vue to process the event
@@ -206,7 +206,7 @@ describe('ScalarSidebar', () => {
       expect(state.expandedItems.value).toEqual({})
 
       // Click to expand
-      const sidebarItem = wrapper.findComponent(SidebarItem as any)
+      const sidebarItem = wrapper.findComponent(SidebarItem)
       sidebarItem.vm.$emit('selectItem', '1')
 
       // Allow Vue to process the event
@@ -258,7 +258,7 @@ describe('ScalarSidebar', () => {
         },
       })
 
-      const sidebarItem = wrapper.findComponent(SidebarItem as any)
+      const sidebarItem = wrapper.findComponent(SidebarItem)
       sidebarItem.vm.$emit('selectItem', '1')
 
       // Allow Vue to process the event
@@ -356,7 +356,7 @@ describe('ScalarSidebar', () => {
         },
       })
 
-      expect(wrapper.findComponent(ScalarSidebar as any).exists()).toBe(true)
+      expect(wrapper.findComponent(ScalarSidebar).exists()).toBe(true)
     })
 
     it('renders ScalarSidebarItems container', () => {
@@ -435,7 +435,7 @@ describe('ScalarSidebar', () => {
         },
       })
 
-      const sidebarItem = wrapper.findComponent(SidebarItem as any)
+      const sidebarItem = wrapper.findComponent(SidebarItem)
       expect(sidebarItem.props('item')).toEqual(items[0])
       expect(sidebarItem.props('layout')).toBe('client')
     })
@@ -482,7 +482,7 @@ describe('ScalarSidebar', () => {
         },
       })
 
-      const sidebarItem = wrapper.findComponent(SidebarItem as any)
+      const sidebarItem = wrapper.findComponent(SidebarItem)
       // Check that isDraggable prop is passed as true for client layout
       expect(sidebarItem.props('isDraggable')).toBe(true)
     })
@@ -510,7 +510,7 @@ describe('ScalarSidebar', () => {
         },
       })
 
-      const sidebarItem = wrapper.findComponent(SidebarItem as any)
+      const sidebarItem = wrapper.findComponent(SidebarItem)
       // Check that isDraggable prop is passed as false for reference layout
       expect(sidebarItem.props('isDraggable')).toBe(false)
     })
@@ -543,7 +543,7 @@ describe('ScalarSidebar', () => {
       const draggingItem: DraggingItem = { id: '1', parentId: null }
       const hoveredItem: HoveredItem = { id: '2', offset: 'before', parentId: null }
 
-      const sidebarItem = wrapper.findComponent(SidebarItem as any)
+      const sidebarItem = wrapper.findComponent(SidebarItem)
       expect(sidebarItem.exists()).toBe(true)
       sidebarItem.vm.$emit('onDragEnd', draggingItem, hoveredItem)
 
@@ -712,7 +712,7 @@ describe('ScalarSidebar', () => {
 
       // Should render ScalarSidebarItems and SidebarItem by default
       expect(wrapper.findComponent(ScalarSidebarItems).exists()).toBe(true)
-      expect(wrapper.findComponent(SidebarItem as any).exists()).toBe(true)
+      expect(wrapper.findComponent(SidebarItem).exists()).toBe(true)
     })
   })
 
@@ -756,7 +756,7 @@ describe('ScalarSidebar', () => {
         },
       })
 
-      const sidebarItem = wrapper.findComponent(SidebarItem as any)
+      const sidebarItem = wrapper.findComponent(SidebarItem)
       sidebarItem.vm.$emit('selectItem', '1')
 
       // Allow time for async hooks
@@ -829,7 +829,7 @@ describe('ScalarSidebar', () => {
         },
       })
 
-      const sidebarItem = wrapper.findComponent(SidebarItem as any)
+      const sidebarItem = wrapper.findComponent(SidebarItem)
 
       // Click multiple times rapidly
       sidebarItem.vm.$emit('selectItem', '1')

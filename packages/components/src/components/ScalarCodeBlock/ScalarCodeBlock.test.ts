@@ -34,7 +34,7 @@ const createWrapper = () => {
   })
 }
 
-let wrapper: VueWrapper<any>
+let wrapper: VueWrapper<InstanceType<typeof ScalarCodeBlock>>
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -126,7 +126,7 @@ describe('ScalarCodeBlock', () => {
       await flushPromises()
 
       // Find the ScalarCopyButton component
-      const copyButton = wrapper.findComponent(ScalarCopyButton as any)
+      const copyButton = wrapper.findComponent(ScalarCopyButton)
       expect(copyButton.exists()).toBe(true)
 
       await copyButton.trigger('click')

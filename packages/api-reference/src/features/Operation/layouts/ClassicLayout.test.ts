@@ -146,7 +146,7 @@ const nestedProps: ExtractComponentProps<typeof ClassicLayout> = {
   operation: nestedOperation,
 }
 
-const getRequestBodyCompositionSelection = (wrapper: VueWrapper<any>) =>
+const getRequestBodyCompositionSelection = <T>(wrapper: VueWrapper<T>) =>
   (
     wrapper.vm.$ as unknown as {
       provides: Record<PropertyKey, unknown>
@@ -160,7 +160,7 @@ const getRequestBodyCompositionSelection = (wrapper: VueWrapper<any>) =>
 describe('ClassicLayout', () => {
   it('updates shared request body composition state when the root selection changes', async () => {
     const wrapper = mount(ClassicLayout, {
-      props: props as any,
+      props: props,
       global: {
         stubs: {
           RouterLink: {
@@ -186,7 +186,7 @@ describe('ClassicLayout', () => {
 
   it('updates shared request body composition state when a nested selection changes', async () => {
     const wrapper = mount(ClassicLayout, {
-      props: nestedProps as any,
+      props: nestedProps,
       global: {
         stubs: {
           RouterLink: {
@@ -236,7 +236,7 @@ describe('ClassicLayout', () => {
     }
 
     const wrapper = mount(ClassicLayout, {
-      props: multiContentProps as any,
+      props: multiContentProps,
       global: {
         stubs: {
           RouterLink: {
@@ -279,7 +279,7 @@ describe('ClassicLayout', () => {
     }
 
     const wrapper = mount(ClassicLayout, {
-      props: exampleProps as any,
+      props: exampleProps,
       global: {
         stubs: {
           RouterLink: {

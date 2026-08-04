@@ -17,7 +17,7 @@ import DocumentBreadcrumb from './DocumentBreadcrumb.vue'
  * the lookup here keeps the intent obvious at every call site if that
  * affordance ever changes again.
  */
-const findVersionCombobox = (wrapper: VueWrapper<any>) => {
+const findVersionCombobox = <T>(wrapper: VueWrapper<T>) => {
   const comboboxes = wrapper.findAllComponents({ name: 'ScalarCombobox' })
   return comboboxes[0]
 }

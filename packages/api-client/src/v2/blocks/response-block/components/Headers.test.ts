@@ -8,7 +8,7 @@ type Header = { name: string; value: string }
 /**
  * Helper to expand the ViewLayoutCollapse component by clicking the disclosure button
  */
-const expandHeaders = async (wrapper: VueWrapper<any>) => {
+const expandHeaders = async <T>(wrapper: VueWrapper<T>) => {
   const button = wrapper.find('button')
   await button.trigger('click')
   await wrapper.vm.$nextTick()
