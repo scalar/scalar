@@ -43,7 +43,7 @@ describe('WorkspaceCollection', () => {
         plugins: [],
       },
       global: {
-        plugins: [router],
+        plugins: [router as any],
       },
     })
 

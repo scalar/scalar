@@ -7,7 +7,7 @@ import DocumentSettings from './DocumentSettings.vue'
  * Finds a `<button>` whose trimmed text matches exactly. The settings
  * danger zone renders several buttons, so we cannot rely on order.
  */
-const findButtonByText = (wrapper: VueWrapper, text: string) =>
+const findButtonByText = (wrapper: VueWrapper<any>, text: string) =>
   wrapper.findAll('button').find((button) => button.text().trim() === text)
 
 const SOURCE_INPUT = 'input[placeholder="https://example.com/openapi.json"]'

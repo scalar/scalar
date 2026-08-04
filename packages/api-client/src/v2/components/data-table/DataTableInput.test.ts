@@ -12,7 +12,7 @@ const mockEnvironment: XScalarEnvironment = {
 }
 
 describe('DataTableInput', () => {
-  let wrapper: VueWrapper<InstanceType<typeof DataTableInput>>
+  let wrapper: VueWrapper<any>
 
   describe('input functionality', () => {
     it('renders a text input when type is not password', () => {

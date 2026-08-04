@@ -49,7 +49,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
           ],
@@ -72,7 +72,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
           ],
@@ -95,7 +95,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button>Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, null, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, null, { default: () => 'Item 2' }),
           ],
@@ -116,7 +116,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button>Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { disabled: true }, { default: () => 'Disabled' }),
             h(ScalarDropdownItem, null, { default: () => 'Enabled' }),
           ],
@@ -140,7 +140,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
           ],
@@ -162,7 +162,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
             h(ScalarDropdownItem, { id: 'item-3' }, { default: () => 'Item 3' }),
@@ -185,7 +185,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
           ],
@@ -208,7 +208,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
           ],
@@ -230,7 +230,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [h(ScalarDropdownItem, null, { default: () => 'Item 1' })],
+          items: () => [h(ScalarDropdownItem, null, { default: () => 'Item 1' })],
         },
       })
 
@@ -254,7 +254,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="enter-trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'enter-item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'enter-item-2' }, { default: () => 'Item 2' }),
           ],
@@ -289,7 +289,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="space-trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'space-item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'space-item-2' }, { default: () => 'Item 2' }),
           ],
@@ -324,7 +324,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [h(ScalarDropdownItem, null, { default: () => 'Item 1' })],
+          items: () => [h(ScalarDropdownItem, null, { default: () => 'Item 1' })],
         },
       })
 
@@ -348,7 +348,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [h(ScalarDropdownItem, null, { default: () => 'Item 1' })],
+          items: () => [h(ScalarDropdownItem, null, { default: () => 'Item 1' })],
         },
       })
 
@@ -368,7 +368,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
             h(ScalarDropdownItem, { id: 'item-3' }, { default: () => 'Item 3' }),
@@ -401,7 +401,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
             h(ScalarDropdownItem, { id: 'item-3' }, { default: () => 'Item 3' }),
@@ -434,7 +434,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
           ],
@@ -468,7 +468,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2', disabled: true }, { default: () => 'Disabled' }),
             h(ScalarDropdownItem, { id: 'item-3' }, { default: () => 'Item 3' }),
@@ -498,7 +498,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
             h(ScalarDropdownItem, { id: 'item-2', disabled: true, onClick: onDisabled }, { default: () => 'Disabled' }),
           ],
@@ -529,7 +529,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' })],
+          items: () => [h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' })],
         },
       })
 
@@ -556,7 +556,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [h(ScalarDropdownItem, null, { default: () => 'Item 1' })],
+          items: () => [h(ScalarDropdownItem, null, { default: () => 'Item 1' })],
         },
       })
 
@@ -624,7 +624,7 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [
+          items: () => [
             h(ScalarDropdownItem, { onClick: onFirst }, { default: () => 'First' }),
             h(ScalarDropdownItem, { disabled: true }, { default: () => 'Disabled' }),
             h(ScalarDropdownDivider),

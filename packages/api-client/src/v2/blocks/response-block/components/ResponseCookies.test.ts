@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import { DataTable, DataTableRow, DataTableText } from '@/v2/components/data-table'
@@ -10,7 +10,7 @@ type Cookie = { name: string; value: string }
 /**
  * Helper to expand the ViewLayoutCollapse component by clicking the disclosure button
  */
-const expandCookies = async (wrapper: ReturnType<typeof mount>) => {
+const expandCookies = async (wrapper: VueWrapper<any>) => {
   const button = wrapper.find('button')
   await button.trigger('click')
   await wrapper.vm.$nextTick()

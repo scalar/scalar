@@ -72,7 +72,7 @@ describe('DocumentCollection', () => {
         ...extraProps,
       },
       global: {
-        plugins: [router],
+        plugins: [router as any],
       },
     })
 

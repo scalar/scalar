@@ -83,7 +83,7 @@ const mountOperationWithConfig = (
   }
 
   return mount(Operation, {
-    props,
+    props: props as any,
     global: {
       stubs: {
         RouterLink: {

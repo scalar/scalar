@@ -31,7 +31,7 @@ describe('Tabs', () => {
     const wrapper = mount(Tabs, {
       props: { type },
       global: {
-        plugins: [router],
+        plugins: [router as any],
       },
     })
 

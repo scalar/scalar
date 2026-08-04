@@ -1,7 +1,7 @@
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
-import { flushPromises, mount } from '@vue/test-utils'
+import { type VueWrapper, flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
@@ -17,7 +17,7 @@ import DocumentBreadcrumb from './DocumentBreadcrumb.vue'
  * the lookup here keeps the intent obvious at every call site if that
  * affordance ever changes again.
  */
-const findVersionCombobox = (wrapper: ReturnType<typeof mount>) => {
+const findVersionCombobox = (wrapper: VueWrapper<any>) => {
   const comboboxes = wrapper.findAllComponents({ name: 'ScalarCombobox' })
   return comboboxes[0]
 }

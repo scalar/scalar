@@ -28,7 +28,7 @@ const { configuration } = defineProps<{
 }>()
 
 const model = defineModel<LayoutOptions>({
-  default: {},
+  default: () => ({}),
 })
 const { translate } = useLocalization()
 

@@ -16,7 +16,7 @@ const { options = [] } = defineProps<{
   options?: ScalarCheckboxOption[]
 }>()
 
-const model = defineModel<ScalarTristateOption[]>({ default: [] })
+const model = defineModel<ScalarTristateOption[]>({ default: () => [] })
 
 /** Looks up an option's current tristate value; undefined if it has no entry in the model. */
 function getValue(option: ScalarCheckboxOption): boolean | undefined {

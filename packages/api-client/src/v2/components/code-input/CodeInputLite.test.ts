@@ -47,7 +47,7 @@ const mountInput = (props: Partial<InstanceType<typeof CodeInputLite>['$props']>
       modelValue: '',
       environment: env,
       ...props,
-    } as InstanceType<typeof CodeInputLite>['$props'],
+    } as any,
   })
 
 // Helper to access the component's exposed API in a typed way.
@@ -932,7 +932,7 @@ describe('CodeInputLite', () => {
         props: {
           modelValue: 'test',
           environment: env,
-        } as InstanceType<typeof CodeInputLite>['$props'],
+        } as any,
         attrs: { id: 'custom-id' },
       })
       expect(wrapper.find('#custom-id').exists()).toBe(true)
@@ -990,7 +990,7 @@ describe('CodeInputLite', () => {
         props: {
           modelValue: 'hello',
           environment: env,
-        } as InstanceType<typeof CodeInputLite>['$props'],
+        } as any,
         slots: {
           icon: '<button data-testid="trash" type="button">×</button>',
         },
@@ -1004,7 +1004,7 @@ describe('CodeInputLite', () => {
         props: {
           modelValue: 'hello',
           environment: env,
-        } as InstanceType<typeof CodeInputLite>['$props'],
+        } as any,
         slots: {
           warning: '<span data-testid="warn">!</span>',
         },
@@ -1063,7 +1063,7 @@ describe('CodeInputLite', () => {
         props: {
           modelValue: '',
           environment: env,
-        } as InstanceType<typeof CodeInputLite>['$props'],
+        } as any,
         attrs: { autofocus: '' },
       })
       const editor = wrapper.get('.code-input-lite__editor').element
