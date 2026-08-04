@@ -397,6 +397,33 @@ describe('SchemaProperty', () => {
         expect(html).toContain('A planet made mostly of iron')
       })
 
+      it('lists enum values once for an array whose items are a $ref to an enum', () => {
+        // `noncollapsible` is how ParameterListItem mounts this. Without it the
+        // items card starts collapsed and this passes even with the bug present.
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            compact: true,
+            noncollapsible: true,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: {
+                '$ref': '#/components/schemas/OrderBy',
+                '$ref-value': {
+                  type: 'string',
+                  title: 'OrderBy',
+                  enum: ['created_at', 'name'],
+                },
+              },
+            }),
+            options: {},
+          },
+        })
+
+        expect(wrapper.findAll('.property-enum-values')).toHaveLength(1)
+        expect(wrapper.findAll('.property-enum-value')).toHaveLength(2)
+      })
+
       it('displays enum values within composition schemas', () => {
         const wrapper = mount(SchemaProperty, {
           props: {

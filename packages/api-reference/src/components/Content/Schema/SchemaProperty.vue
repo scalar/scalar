@@ -369,8 +369,9 @@ const isDiscriminatorProperty = computed(() =>
       :value="{ enum: propertyNamesEnum } as SchemaObject" />
 
     <!-- Enum values -->
+    <!-- The array items card rendered below already lists these same values. -->
     <SchemaEnums
-      v-if="enumValues.length > 0"
+      v-if="enumValues.length > 0 && !shouldRenderArrayOfObjects"
       :value="optimizedValue" />
 
     <!-- Object -->
