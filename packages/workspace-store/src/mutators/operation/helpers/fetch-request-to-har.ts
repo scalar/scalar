@@ -58,8 +58,13 @@ export const fetchRequestToHar = async ({
 }: FetchRequestToHarProps): Promise<HarRequest> => {
   const [originalUrl, requestInit] = requestPayload
 
-  // Extract query string from URL
-  const url = new URL(originalUrl, globalThis.location?.origin)
+  // Resolve relative URLs (e.g. a relative proxy URL) so query params can be read.
+  // Absolute URLs ignore the base. The base only feeds param extraction — the
+  // original URL is preserved on the output — so fall back to a placeholder when
+  // there is no usable origin: non-browser envs (undefined) or opaque origins
+  // like sandboxed iframes / about:blank (the string "null").
+  const origin = globalThis.location?.origin
+  const url = new URL(originalUrl, origin && origin !== 'null' ? origin : 'http://localhost')
 
   // Extract the query strings from the URL
   const queryString = Array.from(url.searchParams.entries()).map(([name, value]) => ({ name, value }))

@@ -535,7 +535,9 @@ describe('fetchRequestToHar', () => {
 
   it('handles relative URLs, e.g. a relative proxy URL', async () => {
     vi.stubGlobal('location', { origin: 'https://portal.example.com' })
-    onTestFinished(() => vi.unstubAllGlobals())
+    onTestFinished(() => {
+      vi.unstubAllGlobals()
+    })
 
     const requestPayload: RequestPayload = [
       '/api/scalar-proxy?scalar_url=https%3A%2F%2Fapi.example.com%2Fusers',
@@ -546,5 +548,26 @@ describe('fetchRequestToHar', () => {
 
     expect(result.url).toBe('/api/scalar-proxy?scalar_url=https%3A%2F%2Fapi.example.com%2Fusers')
     expect(result.queryString).toEqual([{ name: 'scalar_url', value: 'https://api.example.com/users' }])
+  })
+
+  it('handles relative URLs when there is no usable origin (non-browser or opaque origin)', async () => {
+    // Sandboxed iframes and about:blank report an opaque origin as the string "null",
+    // which is not a valid URL base. A missing location behaves the same way.
+    for (const origin of [undefined, 'null']) {
+      vi.stubGlobal('location', origin === undefined ? undefined : { origin })
+      onTestFinished(() => {
+        vi.unstubAllGlobals()
+      })
+
+      const requestPayload: RequestPayload = [
+        '/api/scalar-proxy?scalar_url=https%3A%2F%2Fapi.example.com%2Fusers',
+        { method: 'GET' },
+      ]
+
+      const result = await fetchRequestToHar({ requestPayload })
+
+      expect(result.url).toBe('/api/scalar-proxy?scalar_url=https%3A%2F%2Fapi.example.com%2Fusers')
+      expect(result.queryString).toEqual([{ name: 'scalar_url', value: 'https://api.example.com/users' }])
+    }
   })
 })
