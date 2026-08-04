@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, onTestFinished, vi } from 'vitest'
 
 import type { RequestPayload } from '@/request-example/builder/build-request'
 
@@ -531,5 +531,20 @@ describe('fetchRequestToHar', () => {
     // Should include body since it's under 1MB default limit
     expect(result.postData?.text).toBe(smallBody)
     expect(result.bodySize).toBe(smallBody.length)
+  })
+
+  it('handles relative URLs, e.g. a relative proxy URL', async () => {
+    vi.stubGlobal('location', { origin: 'https://portal.example.com' })
+    onTestFinished(() => vi.unstubAllGlobals())
+
+    const requestPayload: RequestPayload = [
+      '/api/scalar-proxy?scalar_url=https%3A%2F%2Fapi.example.com%2Fusers',
+      { method: 'GET' },
+    ]
+
+    const result = await fetchRequestToHar({ requestPayload })
+
+    expect(result.url).toBe('/api/scalar-proxy?scalar_url=https%3A%2F%2Fapi.example.com%2Fusers')
+    expect(result.queryString).toEqual([{ name: 'scalar_url', value: 'https://api.example.com/users' }])
   })
 })

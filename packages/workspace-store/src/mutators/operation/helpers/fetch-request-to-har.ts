@@ -59,7 +59,7 @@ export const fetchRequestToHar = async ({
   const [originalUrl, requestInit] = requestPayload
 
   // Extract query string from URL
-  const url = new URL(originalUrl)
+  const url = new URL(originalUrl, globalThis.location?.origin)
 
   // Extract the query strings from the URL
   const queryString = Array.from(url.searchParams.entries()).map(([name, value]) => ({ name, value }))
