@@ -1143,6 +1143,74 @@ describe('normalizeRefs', () => {
     })
   })
 
+  it('keeps a $dynamicAnchor binding on a bundled external response schema $ref', async () => {
+    const server = fastify({ logger: false })
+
+    server.get('/paginated-planets', () => ({
+      $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
+      $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object' } },
+      $ref: '#/$defs/Paginated',
+    }))
+
+    await server.listen({ port: 0 })
+    const url = `http://localhost:${(server.server.address() as AddressInfo).port}/paginated-planets`
+    const input = {
+      paths: {
+        '/planets': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: url,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [normalizeRefs(), fetchUrls()],
+    })
+
+    const urlHash = getHash(url)
+
+    expect(input).toEqual({
+      paths: {
+        '/planets': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: `#/x-ext/${urlHash}`,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      'x-ext': {
+        [urlHash]: {
+          $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
+          $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object' } },
+          $ref: `#/x-ext/${urlHash}/$defs/Paginated`,
+        },
+      },
+    })
+
+    await server.close()
+  })
+
   it('does not normalize $ref when path starts with components/schemas', async () => {
     const input = {
       components: {

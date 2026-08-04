@@ -244,16 +244,16 @@ export const normalizeRefs = (): LifecyclePlugin => {
   return {
     type: 'lifecycle',
     onBeforeNodeProcess: (node, context) => {
-      const { path } = context
+      const { path, referencedFromPath } = context
+      const isSchema = isSchemaPath(path) || isSchemaPath(referencedFromPath)
 
       // Normalization only applies to OpenAPI Reference Objects, where a `$ref` may sit next to nothing but
       // `summary` and `description`. Schema Objects are left untouched: in JSON Schema 2020-12 a `$ref` may
       // legally carry sibling keywords — for example a `$defs`/`$dynamicAnchor` binding that specializes a
-      // generic template (the `Paginated<T>` pattern) — and such schemas appear inline anywhere a schema is
-      // allowed, not only under `components/schemas`. Stripping those siblings would discard the binding and
-      // leave `$dynamicRef` resolving to the template's empty fallback. See
-      // https://github.com/scalar/scalar/issues/9414.
-      if (typeof node['$ref'] === 'string' && !isSchemaPath(path)) {
+      // generic template (the `Paginated<T>` pattern) — and such schemas appear inline, in reusable schemas,
+      // and in raw external schema documents. Stripping those siblings would discard the binding and leave
+      // `$dynamicRef` resolving to the template's empty fallback. See https://github.com/scalar/scalar/issues/9414.
+      if (typeof node['$ref'] === 'string' && !isSchema) {
         // Remove any other properties from the node and only keep the '$ref', 'summary', 'description' and '$status'
         const keepProperties = new Set(['$ref', 'summary', 'description', '$status'])
 

@@ -54,17 +54,20 @@ const USER_KEYED_MAPS = new Set([
  *
  * The path is walked left to right so that segments in user-defined key
  * positions (component names, path templates, header names, …) are never
- * mistaken for schema keywords.
+ * mistaken for schema keywords. Bundled external documents are stored below
+ * `x-ext/<hash>`; that wrapper is skipped before evaluating the embedded path.
  */
 export const isSchemaPath = (path: readonly string[] | undefined): boolean => {
   if (!path) {
     return false
   }
 
+  const segments = path[0] === 'x-ext' && path[1] !== undefined ? path.slice(2) : path
+
   // Number of upcoming segments that are user-defined map keys rather than keywords.
   let userKeySegments = 0
 
-  for (const segment of path) {
+  for (const segment of segments) {
     if (userKeySegments > 0) {
       userKeySegments--
       continue
