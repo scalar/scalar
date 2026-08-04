@@ -276,6 +276,60 @@ describe('RequestTableRow', () => {
     })
   })
 
+  it('preserves isDisabled=true when name input is updated', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-scenario-id', value: 'scenario_a', isDisabled: true },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    await keyInput?.vm.$emit('update:modelValue', 'x-scenario-id')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      name: 'x-scenario-id',
+      isDisabled: true,
+    })
+  })
+
+  it('preserves isDisabled=true when value input is updated', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-scenario-id', value: 'scenario_a', isDisabled: true },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
+    await valueInput?.vm.$emit('update:modelValue', 'scenario_b')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      value: 'scenario_b',
+      isDisabled: true,
+    })
+  })
+
+  it('preserves isDisabled=false when value input is updated', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-scenario-id', value: 'scenario_a', isDisabled: false },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
+    await valueInput?.vm.$emit('update:modelValue', 'scenario_b')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      value: 'scenario_b',
+      isDisabled: false,
+    })
+  })
+
   it('disables inputs when isReadOnly is true', () => {
     const wrapper = mount(RequestTableRow, {
       props: {
