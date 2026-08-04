@@ -63,6 +63,14 @@ describe('slugify', () => {
     expect(slugify('CamelCase42', { preserveCase: true })).toBe('CamelCase42')
   })
 
+  // Pin the default dot behavior explicitly. By default a dot is not in the
+  // allow list, so it is dropped (not turned into a separator). Callers that
+  // want dots to act as separators must replace them before slugifying.
+  it('drops dots by default, joining adjacent words', () => {
+    expect(slugify('v1.2.3')).toBe('v123')
+    expect(slugify('user.created')).toBe('usercreated')
+  })
+
   it('keeps dots when "." is allowed', () => {
     expect(slugify('v1.2.3', { allowedSpecialChars: '.' })).toBe('v1.2.3')
   })
