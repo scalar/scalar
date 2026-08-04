@@ -164,8 +164,10 @@ const handleUpdateRow = (
     value.value = payload.value
   }
 
-  // Is disabled should always be false unless you explicitly set it to true
-  isDisabled.value = payload.isDisabled ?? false
+  // Is disabled should only be updated when explicitly provided in the payload
+  if (payload.isDisabled !== undefined) {
+    isDisabled.value = payload.isDisabled
+  }
 
   if (
     payload.name !== undefined &&
