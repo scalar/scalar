@@ -148,6 +148,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             :badges="operation['x-badges']"
             position="after" />
           <CopyAsMarkdownButton
+            v-if="!options.hideCopyAsMarkdownButton"
             :method
             :operation
             :path />

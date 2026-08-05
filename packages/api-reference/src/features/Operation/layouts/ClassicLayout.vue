@@ -214,6 +214,7 @@ const { copyToClipboard } = useClipboard()
         variant="ghost"
         @click.stop="copyToClipboard(path)" />
       <CopyAsMarkdownButton
+        v-if="!options.hideCopyAsMarkdownButton"
         :method
         :operation
         :path />

@@ -186,4 +186,105 @@ describe('operationToMarkdown', () => {
     expect(result).not.toContain('### Request Body')
     expect(result).not.toContain('### Responses')
   })
+
+  it('escapes pipe characters in descriptions to avoid breaking table rows', () => {
+    const result = operationToMarkdown({
+      method: 'get',
+      path: '/pets',
+      operation: {
+        parameters: [
+          {
+            name: 'filter',
+            in: 'query',
+            required: false,
+            description: 'One value | another value',
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  mode: { type: 'string', description: 'read | write' },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result).toContain('One value \\| another value')
+    expect(result).toContain('read \\| write')
+  })
+
+  it('resolves $ref parameters', () => {
+    const result = operationToMarkdown({
+      method: 'get',
+      path: '/pets',
+      operation: {
+        parameters: [
+          {
+            $ref: '#/components/parameters/LimitParam',
+            '$ref-value': {
+              name: 'limit',
+              in: 'query',
+              required: false,
+              description: 'Max results',
+              schema: { type: 'integer' },
+            },
+          } as any,
+        ],
+      },
+    })
+
+    expect(result).toContain('`limit`')
+    expect(result).toContain('integer')
+    expect(result).toContain('Max results')
+  })
+
+  it('resolves a $ref requestBody', () => {
+    const result = operationToMarkdown({
+      method: 'post',
+      path: '/pets',
+      operation: {
+        requestBody: {
+          $ref: '#/components/requestBodies/PetBody',
+          '$ref-value': {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { name: { type: 'string' } },
+                },
+              },
+            },
+          },
+        } as any,
+      },
+    })
+
+    expect(result).toContain('### Request Body')
+    expect(result).toContain('`name`')
+  })
+
+  it('resolves $ref responses', () => {
+    const result = operationToMarkdown({
+      method: 'get',
+      path: '/pets',
+      operation: {
+        responses: {
+          '200': {
+            $ref: '#/components/responses/PetList',
+            '$ref-value': { description: 'A list of pets' },
+          } as any,
+        },
+      },
+    })
+
+    expect(result).toContain('`200`')
+    expect(result).toContain('A list of pets')
+  })
 })
