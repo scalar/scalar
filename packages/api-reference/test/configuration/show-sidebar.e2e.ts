@@ -7,7 +7,7 @@ test.describe('showSidebar', () => {
 
     await page.goto(example)
 
-    await expect(page.getByRole('navigation')).toBeVisible()
+    await expect(page.getByRole('complementary')).toBeVisible()
   })
 
   test('hides sidebar when set to false', async ({ page }) => {
@@ -15,6 +15,6 @@ test.describe('showSidebar', () => {
 
     await page.goto(example)
 
-    await expect(page.getByRole('navigation')).not.toBeVisible()
+    await expect(page.getByRole('complementary')).not.toBeVisible()
   })
 })

@@ -1,6 +1,6 @@
 import type { AnyEventListener, ApiReferenceEvents, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { Component, DefineComponent } from 'vue'
 
@@ -40,9 +40,9 @@ type ClientPluginHooks = {
    * Runs before a request is sent. Receives the current document and operation so plugins can
    * modify the request before it is sent (for example, adding headers or modifying the body).
    *
-   * Mutations here happen on the request builder, before the fetch `Request` exists. Use the
-   * `requestBuilt` hook instead when you need the exact outgoing request (for example, to hash a
-   * multipart body for request signing).
+   * Mutations here happen on the request builder, before the fetch `Request` exists. Outside
+   * Electron, use the `requestBuilt` hook when you need the exact outgoing request (for example,
+   * to hash a multipart body for request signing). Electron sends the request payload instead.
    */
   beforeRequest: (payload: {
     /** Workspace-store request spec; mutable by pre-request scripts (headers, method). */
@@ -50,16 +50,19 @@ type ClientPluginHooks = {
     document: OpenApiDocument
     operation: OperationObject
     variablesStore?: VariablesStore
+    /** Active server, so plugins can resolve relative URLs (e.g. a token endpoint). */
+    server?: ServerObject | null
+    /** Host fetch, so plugins can run network calls (e.g. a token refresh) through the same channel as the request. */
+    customFetch?: typeof fetch
   }) => void | Promise<void>
   /**
-   * Runs after the fetch `Request` has been built, right before it is sent. The request passed
-   * here is the exact object handed to fetch, so header mutations apply to the outgoing request
-   * and the body bytes match what goes over the wire (important for request signing, where a
-   * rebuilt multipart body would get a different boundary). Mutations to the request builder
-   * have no effect at this stage; use the `beforeRequest` hook for those.
+   * Runs after the fetch `Request` has been built, right before it is sent. Outside Electron, the
+   * request passed here is handed to fetch, so header mutations apply to the outgoing request and
+   * the body bytes match what goes over the wire. Electron sends the request payload instead.
+   * Mutations to the request builder have no effect at this stage; use `beforeRequest` for those.
    */
   requestBuilt: (payload: {
-    /** The exact fetch Request that will be sent. Mutate its headers to modify the outgoing request. */
+    /** The fetch Request built before sending. Electron sends the request payload instead. */
     request: Request
     /** Request builder the request was built from. Mutating it has no effect at this stage. */
     requestBuilder: RequestFactory
@@ -75,7 +78,7 @@ type ClientPluginHooks = {
     response: Response
     /** Request builder object that was used to build the request. Mutating this object will not affect the request object. */
     requestBuilder: RequestFactory
-    /** Request object that was sent to the server. */
+    /** Request rebuilt from the sent request payload, not the same instance sent to the server. */
     request: Request
     document: OpenApiDocument
     operation: OperationObject
@@ -154,14 +157,18 @@ type ClientPluginComponents = {
  *
  * const myPlugin: ClientPlugin = {
  *   hooks: {
- *     beforeRequest: ({ request }) => {
- *       request.headers.set('X-Custom-Header', 'foo');
- *       return { request };
+ *     beforeRequest: async ({ requestBuilder, server, customFetch }) => {
+ *       console.log('Active server configuration:', server?.url);
+ *
+ *       if (customFetch) {
+ *         await customFetch('https://auth.example.com/session/refresh', { method: 'POST' });
+ *       }
+ *
+ *       requestBuilder.headers.set('X-Custom-Header', 'foo');
  *     },
- *     responseReceived: async (response, operation) => {
+ *     responseReceived: ({ response, operation }) => {
  *       // Handle post-response logic
- *       const data = await response.json();
- *       console.log('Received:', data, 'for operation:', operation.operationId);
+ *       console.log('Received status:', response.status, 'for operation:', operation.operationId);
  *     }
  *   },
  *   components: {

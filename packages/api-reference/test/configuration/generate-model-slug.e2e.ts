@@ -25,8 +25,8 @@ test.describe('generateModelSlug', () => {
     await page.goto(example)
 
     // The Models group is collapsed by default, so expand it before clicking the model
-    await page.getByRole('navigation').getByRole('button', { name: 'Models' }).click()
-    await page.getByRole('navigation').getByRole('button', { name: 'Planet' }).click()
+    await page.getByRole('complementary').getByRole('button', { name: 'Models' }).click()
+    await page.getByRole('complementary').getByRole('button', { name: 'Planet' }).click()
 
     // `model/` is prepended automatically
     await expect(page).toHaveURL(/custom-planet/)

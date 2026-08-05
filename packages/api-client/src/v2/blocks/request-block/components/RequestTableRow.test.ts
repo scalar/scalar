@@ -276,6 +276,60 @@ describe('RequestTableRow', () => {
     })
   })
 
+  it('preserves isDisabled=true when name input is updated', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-scenario-id', value: 'scenario_a', isDisabled: true },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    await keyInput?.vm.$emit('update:modelValue', 'x-scenario-id')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      name: 'x-scenario-id',
+      isDisabled: true,
+    })
+  })
+
+  it('preserves isDisabled=true when value input is updated', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-scenario-id', value: 'scenario_a', isDisabled: true },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
+    await valueInput?.vm.$emit('update:modelValue', 'scenario_b')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      value: 'scenario_b',
+      isDisabled: true,
+    })
+  })
+
+  it('preserves isDisabled=false when value input is updated', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-scenario-id', value: 'scenario_a', isDisabled: false },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
+    await valueInput?.vm.$emit('update:modelValue', 'scenario_b')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      value: 'scenario_b',
+      isDisabled: false,
+    })
+  })
+
   it('disables inputs when isReadOnly is true', () => {
     const wrapper = mount(RequestTableRow, {
       props: {
@@ -502,6 +556,27 @@ describe('RequestTableRow', () => {
     })
 
     expect(wrapper.text()).toContain(longFileName)
+  })
+
+  it('exposes the full file name as a tooltip so truncated names stay readable', () => {
+    const longFileName = 'this-is-a-very-long-file-name-that-should-still-be-displayed-correctly.txt'
+    const file = new File(['content'], longFileName, { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'file', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const fileName = wrapper.find(`[title="${longFileName}"]`)
+    expect(fileName.exists()).toBe(true)
+    expect(fileName.text()).toBe(longFileName)
   })
 
   it('emits removeFile when delete button is clicked on a file', async () => {

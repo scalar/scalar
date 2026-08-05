@@ -345,7 +345,7 @@ export type ModelsSectionLabel = 'Models' | 'Schemas' | (string & {})
 export const DEFAULT_MODELS_SECTION_LABEL: ModelsSectionLabel = 'Models'
 
 /** Built-in locale identifiers shipped with the API Reference UI. */
-export type ApiReferenceBuiltInLocale = 'en' | 'ru' | 'es' | 'fr' | 'de' | 'zh-CN' | 'ar'
+export type ApiReferenceBuiltInLocale = 'en' | 'ru' | 'es' | 'fr' | 'de' | 'zh-CN' | 'ar' | 'pt'
 
 /** Locale identifier used to select built-in translations. */
 export type ApiReferenceLocale = ApiReferenceBuiltInLocale | (string & {})

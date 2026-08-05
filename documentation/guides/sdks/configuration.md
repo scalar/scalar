@@ -9,7 +9,6 @@ Use the config to keep SDK behavior predictable across generated targets. The to
 ```json
 {
   "name": "Acme API",
-  "version": "1.0.0",
   "environments": {
     "production": "https://api.acme.com"
   },
@@ -35,7 +34,6 @@ Use the config to keep SDK behavior predictable across generated targets. The to
 | Property           | Description                                                                 |
 | ------------------ | --------------------------------------------------------------------------- |
 | `name`             | Human-readable SDK or product name used for generated metadata and clients. |
-| `version`          | Base SDK version. Target-level versions can override this value.            |
 | `resources`        | Resource tree that defines the generated client and resource shape.         |
 | `targets`          | Per-language packaging, publishing, and emitter options.                    |
 | `environments`     | Named base URLs the generated client can switch between.                    |
@@ -250,4 +248,29 @@ Use `openapi` for SDK-specific overrides that sit next to the source API descrip
 | `streaming`         | Configure global streaming event handling hints for generated SDKs.         |
 | `settings`          | Cross-target generator behavior, such as file headers and response unwraps. |
 | `multipartSettings` | Multipart/form-data serialization preferences.                              |
+| `diagnostics`       | Gate the build on diagnostic severity, override per-rule severity, and suppress rules. |
+
+## Diagnostics
+
+Generation reports diagnostics about your OpenAPI document. Use `diagnostics` to decide which of them fail the build.
+
+```json
+{
+  "diagnostics": {
+    "failOn": "error",
+    "maxWarnings": 20,
+    "rules": {
+      "Endpoint/NotConfigured": "warn"
+    }
+  }
+}
+```
+
+| Property      | Description                                                                 |
+| ------------- | --------------------------------------------------------------------------- |
+| `failOn`      | Lowest severity that fails the build: `off`, `info`, `warn`, or `error`. Defaults to `error`; `off` disables severity gating. |
+| `maxWarnings` | Maximum allowed warnings before the build fails.                            |
+| `maxErrors`   | Maximum allowed errors before the build fails.                              |
+| `rules`       | Per-rule severity override keyed by rule id, such as `Endpoint/NotConfigured`. Set a rule to `off` to disable it. |
+| `ignored`     | Per-rule suppressions keyed by rule id.                                     |
 

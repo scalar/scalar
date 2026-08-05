@@ -147,6 +147,7 @@ test.describe('response-body-raw-json-bigint.e2e', () => {
     await expect(page).toHaveURL(/\/get-started/)
 
     const sidebar = page.locator('aside')
+
     await sidebar.getByText(BIGINT_DOCUMENT_SIDEBAR_TITLE, { exact: true }).click()
     await expect(page).toHaveURL(new RegExp(`/document/${BIGINT_TEST_DOCUMENT}/`))
 

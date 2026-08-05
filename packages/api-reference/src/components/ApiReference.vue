@@ -99,6 +99,7 @@ import {
   makeUrlFromId,
   matchesBasePath,
   redirectUrl,
+  type WebhookRedirectSource,
 } from '@/helpers/id-routing'
 import {
   INTRODUCTION_ENTRY_ID_SUFFIX,
@@ -363,8 +364,24 @@ const styleContent = computed(
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
 
+// Collects every webhook entry in a navigation subtree, so old deep links can be
+// redirected from the legacy dot-dropped slug to the current one. Webhook ids are
+// only known once the document is loaded, so the redirect itself runs later, in
+// `changeSelectedDocument`.
+const collectWebhooks = (entries: TraversedEntry[]): WebhookRedirectSource[] =>
+  entries.flatMap((entry) => {
+    const nested =
+      'children' in entry && entry.children
+        ? collectWebhooks(entry.children)
+        : []
+    return entry.type === 'webhook'
+      ? [{ name: entry.name, method: entry.method, id: entry.id }, ...nested]
+      : nested
+  })
+
 // Rewrite outdated `model/` and `models/` schema URLs to the current models
-// section slug so bookmarks from before the slug changed keep resolving.
+// section slug so bookmarks from before the slug changed keep resolving. Webhook
+// deep links are handled separately once the document (and its navigation) loads.
 if (typeof window !== 'undefined') {
   const canonical = redirectUrl(
     window.location.href,
@@ -1026,6 +1043,32 @@ const changeSelectedDocument = async (
   workspaceStore.update('x-scalar-active-document', slug)
   clientStore.update('x-scalar-active-document', slug)
 
+  // Now that the navigation is available, canonicalize a legacy webhook deep link:
+  // old ids dropped the dot in the event name (`account-holdercreated`), so rewrite
+  // the URL and the scroll target to the current slug before we scroll to it.
+  if (elementId && typeof window !== 'undefined') {
+    const canonical = redirectUrl(
+      window.location.href,
+      slugify(config.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL),
+      slug,
+      isMultiDocument.value,
+      config.pathRouting?.basePath,
+      collectWebhooks(
+        workspaceStore.workspace.activeDocument?.['x-scalar-navigation']
+          ?.children ?? [],
+      ),
+    )
+    if (canonical) {
+      window.history.replaceState({}, '', canonical.toString())
+      elementId =
+        getIdFromUrl(
+          canonical.href,
+          config.pathRouting?.basePath,
+          isMultiDocument.value ? undefined : slug,
+        ) || elementId
+    }
+  }
+
   // If the document has persistence enabled we load the auth schemes from storage
   if (config.persistAuth) {
     loadAuthFromStorage(clientStore, slug)
@@ -1545,7 +1588,6 @@ const showMCPButton = computed(() => {
             :items="sidebarItems"
             layout="reference"
             :options="sidebarOptions"
-            role="navigation"
             @selectItem="(id) => handleSelectSidebarEntry(id, 'sidebar')"
             @toggleGroup="
               (id: string) =>

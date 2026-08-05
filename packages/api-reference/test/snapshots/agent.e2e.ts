@@ -9,6 +9,6 @@ test(galaxy.title, async ({ page }) => {
   const example = await serveExample(galaxy)
   await page.goto(example)
 
-  await page.getByRole('navigation', { name: 'Sidebar' }).getByRole('button', { name: 'Ask AI' }).click()
+  await page.getByRole('complementary', { name: 'Sidebar' }).getByRole('button', { name: 'Ask AI' }).click()
   await expect(page).toHaveScreenshot('drawer.png')
 })

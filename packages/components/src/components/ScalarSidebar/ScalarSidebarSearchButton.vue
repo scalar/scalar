@@ -24,8 +24,8 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
+  <!-- role="search" is a landmark for a search region, not a button control -->
   <button
-    role="search"
     type="button"
     v-bind="
       cx(
@@ -33,7 +33,9 @@ const { cx } = useBindCx()
         'bg-sidebar-b-search border-sidebar-border-search text-sidebar-c-search',
       )
     ">
-    <ScalarIconMagnifyingGlass class="size-4" />
+    <ScalarIconMagnifyingGlass
+      aria-hidden="true"
+      class="size-4" />
     <span class="flex-1 text-start leading-none">
       <slot>Search...</slot>
     </span>
