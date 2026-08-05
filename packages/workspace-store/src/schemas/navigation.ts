@@ -102,6 +102,12 @@ export type TraversedOperation = BaseSchema & {
   path: string
   isDeprecated?: boolean
   children?: TraversedEntry[]
+  /**
+   * xSubTagPath: ordered list of sub-tag names that form the nesting path for this operation.
+   * e.g. ['Payer Operations', 'Single Payer'] places the operation 2 levels deep.
+   * Derived from the operation's x-subTagPath extension.
+   */
+  xSubTagPath?: string[]
 }
 
 export const TraversedAsyncApiOperationSchemaDefinition = compose(

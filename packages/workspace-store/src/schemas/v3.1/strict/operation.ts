@@ -109,4 +109,15 @@ export type OperationObject = {
   XPostResponse &
   XPreRequest &
   XDraftExamples &
-  XScalarSelectedServer
+  XScalarSelectedServer & {
+    /**
+     * x-subTagPath
+     *
+     * An ordered array of sub-tag names that defines the nesting path for this operation
+     * in the sidebar. Each element adds one collapsible level.
+     *
+     * @example ['Payer Operations', 'Single Payer'] — places the operation under
+     *   Tag > Payer Operations > Single Payer > operation
+     */
+    'x-subTagPath'?: string[]
+  }

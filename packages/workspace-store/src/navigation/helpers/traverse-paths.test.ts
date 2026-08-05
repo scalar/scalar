@@ -624,4 +624,90 @@ describe('traversePaths', () => {
 
     expect(tagsMap.get('Widget')?.entries[0]?.title).toBe('List widgets')
   })
+
+  it('should carry x-subTagPath from operation into the traversed entry as xSubTagPath', () => {
+    const document = createDocument()
+    document.paths = {
+      '/fhir/r4/PayerCatalog': {
+        get: {
+          tags: ['Payer Catalog'],
+          summary: 'List all payers in the catalog',
+          'x-subTagPath': ['Payer Operations'],
+        },
+        post: {
+          tags: ['Payer Catalog'],
+          summary: 'Register a payer',
+          'x-subTagPath': ['Payer Operations', 'Single Payer'],
+        },
+      },
+      '/fhir/r4/PayerCatalog/$bulk': {
+        get: {
+          tags: ['Payer Catalog'],
+          summary: 'Bulk export payers',
+          'x-subTagPath': ['Bulk Operations'],
+        },
+      },
+      '/health': {
+        get: {
+          tags: ['Payer Catalog'],
+          summary: 'Health check',
+          // no x-subTagPath
+        },
+      },
+    }
+
+    const tagsMap: TagsMap = new Map([
+      ['Payer Catalog', { id: 'tag/payer-catalog', parentId: 'doc-1', tag: { name: 'Payer Catalog' }, entries: [] }],
+    ])
+
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') return `${props.method?.toUpperCase()}-${props.path}`
+        return 'unknown-id'
+      },
+    })
+
+    const entries = tagsMap.get('Payer Catalog')?.entries ?? []
+    expect(entries).toHaveLength(4)
+
+    expect(entries[0]).toMatchObject({ title: 'List all payers in the catalog', xSubTagPath: ['Payer Operations'] })
+    expect(entries[1]).toMatchObject({ title: 'Register a payer', xSubTagPath: ['Payer Operations', 'Single Payer'] })
+    expect(entries[2]).toMatchObject({ title: 'Bulk export payers', xSubTagPath: ['Bulk Operations'] })
+    expect(entries[3]).toMatchObject({ title: 'Health check' })
+    expect(entries[3]).not.toHaveProperty('xSubTagPath')
+  })
+
+  it('should not set xSubTagPath when x-subTagPath is an empty array', () => {
+    const document = createDocument()
+    document.paths = {
+      '/payers': {
+        get: {
+          tags: ['Payer Catalog'],
+          summary: 'List payers',
+          'x-subTagPath': [],
+        },
+      },
+    }
+
+    const tagsMap: TagsMap = new Map([
+      ['Payer Catalog', { id: 'tag/payer-catalog', parentId: 'doc-1', tag: { name: 'Payer Catalog' }, entries: [] }],
+    ])
+
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') return `${props.method?.toUpperCase()}-${props.path}`
+        return 'unknown-id'
+      },
+    })
+
+    const entries = tagsMap.get('Payer Catalog')?.entries ?? []
+    expect(entries).toHaveLength(1)
+    expect(entries[0]).not.toHaveProperty('xSubTagPath')
+  })
 })

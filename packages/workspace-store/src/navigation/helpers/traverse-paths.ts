@@ -79,6 +79,7 @@ const createOperationEntry = ({
     type: 'operation',
     isDeprecated,
     children: examples.length ? examples : undefined,
+    ...(operation['x-subTagPath']?.length ? { xSubTagPath: operation['x-subTagPath'] as string[] } : {}),
   } satisfies TraversedOperation
 
   return entry

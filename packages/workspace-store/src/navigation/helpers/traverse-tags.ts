@@ -75,6 +75,57 @@ const createTagEntry = ({
  * @param options - Sorting and ID generation options
  * @returns Array of processed and sorted tag entries
  */
+/**
+ * Recursively groups a flat list of entries into a nested tag tree based on each
+ * operation's xSubTagPath (e.g. ['Payer Operations', 'Single Payer']).
+ *
+ * At each depth level it:
+ * 1. Collects all operations whose path segment at `depth` matches a group name
+ * 2. Recurses into that group for the next depth level
+ * 3. Leaves operations with no path segment at `depth` ungrouped (rendered flat)
+ *
+ * This means any number of nesting levels is supported without code changes —
+ * just add more segments to x-subTagPath in the OpenAPI spec.
+ */
+const groupBySubTagPath = (
+  entries: TraversedEntry[],
+  parentPathSegments: string[],
+  generateId: TraverseSpecOptions['generateId'],
+): TraversedEntry[] => {
+  const grouped = new Map<string, TraversedEntry[]>()
+  const ungrouped: TraversedEntry[] = []
+  const depth = parentPathSegments.length
+
+  for (const entry of entries) {
+    const segment =
+      entry.type === 'operation' && entry.xSubTagPath && entry.xSubTagPath.length > depth
+        ? entry.xSubTagPath[depth]
+        : undefined
+    if (segment) {
+      if (!grouped.has(segment)) grouped.set(segment, [])
+      grouped.get(segment)!.push(entry)
+    } else {
+      ungrouped.push(entry)
+    }
+  }
+
+  if (grouped.size === 0) return ungrouped
+
+  const subTagEntries: TraversedEntry[] = Array.from(grouped.entries()).map(([name, children]) => {
+    const nestedChildren = groupBySubTagPath(children, [...parentPathSegments, name], generateId)
+    const subTag: TagObject = { name }
+    return createTagEntry({
+      tag: subTag,
+      generateId,
+      children: nestedChildren,
+      parentId: parentPathSegments.join('/') || name,
+      isGroup: false,
+    })
+  })
+
+  return [...subTagEntries, ...ungrouped]
+}
+
 /** Sorts tags and returns entries */
 const getSortedTagEntries = ({
   _keys,
@@ -137,10 +188,12 @@ const getSortedTagEntries = ({
       }
     }
 
+    const sortedEntries = sortOrder ? sortByOrder(entries, sortOrder, (item) => item.id) : entries
+
     return createTagEntry({
       tag,
       generateId,
-      children: sortOrder ? sortByOrder(entries, sortOrder, (item) => item.id) : entries,
+      children: groupBySubTagPath(sortedEntries, [], generateId),
       parentId: documentId,
       isGroup: false,
     })
