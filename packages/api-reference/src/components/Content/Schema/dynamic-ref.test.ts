@@ -97,6 +97,32 @@ describe('Schema $dynamicRef rendering', () => {
     expect(text).toContain('items')
   })
 
+  it('binds a $dynamicRef object property (not just array items) through a $ref resource', () => {
+    // Regression: an object property that is itself a `$dynamicRef` must bind to its concrete type. The
+    // property flows through `resolve.schema`, which coerces the value into a plain object and would drop
+    // the proxy's `$dynamicRef-value` accessor unless the binding happens first. See PR #9625 review.
+    const root = {
+      components: {
+        schemas: {
+          Item: { type: 'object', properties: { boundPropertyMarker: { type: 'string' } } },
+          Template: {
+            $id: 'https://example.com/schemas/Template',
+            $defs: { itemType: { $dynamicAnchor: 'itemType', not: {} } },
+            type: 'object',
+            properties: { single: { $dynamicRef: '#itemType' } },
+          },
+          Response: {
+            $id: 'https://example.com/schemas/Response',
+            $defs: { itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Item' } },
+            $ref: '#/components/schemas/Template',
+          },
+        },
+      },
+    }
+    const schema = (createMagicProxy(root) as any).components.schemas.Response
+    expect(mountSchema(schema).text()).toContain('boundPropertyMarker')
+  })
+
   it('force-expands a recursive $dynamicRef without infinite recursion', () => {
     // A recursive tree: `children.items` binds to `#node`, whose own `children` bind to `#node` again.
     // Cycle detection relies on stable schema identity; the magic proxy must return the same proxy for
