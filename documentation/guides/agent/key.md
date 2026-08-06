@@ -1,4 +1,4 @@
-# Agent Keys
+# Getting an Agent Key
 
 Agent requires a key for production deployments. Keys are tied to specific OpenAPI documents in the Registry.
 
