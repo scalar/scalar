@@ -190,12 +190,27 @@ export function extractSchemaDescriptions(schema: SchemaObject | undefined): str
 }
 
 /**
+ * Keys that must never be merged.
+ *
+ * `JSON.parse` creates a real own `__proto__` property, so a document such as
+ * `{"__proto__":{"isAdmin":true}}` would otherwise walk into `Object.prototype` and add a property
+ * to every object in the page. The same goes for `constructor` and `prototype`.
+ */
+const FORBIDDEN_MERGE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+
+/**
  * Deep merge for objects
  */
 export function deepMerge(source: Record<any, any>, target: Record<any, any>) {
   for (const [key, val] of Object.entries(source)) {
+    if (FORBIDDEN_MERGE_KEYS.has(key)) {
+      continue
+    }
+
     if (val !== null && typeof val === 'object') {
-      target[key] ??= new val.__proto__.constructor()
+      // Match the shape of the source value rather than reaching through its prototype, which
+      // also keeps objects created with a `null` prototype from throwing.
+      target[key] ??= Array.isArray(val) ? [] : {}
       deepMerge(val, target[key])
     } else if (typeof val !== 'undefined') {
       target[key] = val

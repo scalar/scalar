@@ -803,4 +803,29 @@ describe('ApiReference AsyncAPI onServerChange', () => {
 
     wrapper.unmount()
   })
+
+  it('neutralizes a closing style tag in customCss', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          customCss: '.a { color: red; }</style><script>globalThis.pwned = true</script>',
+        },
+      },
+    })
+    await flushPromises()
+
+    const styleContent = wrapper.find('style').element.textContent ?? ''
+
+    // The CSS itself still makes it into the style tag
+    expect(styleContent).toContain('.a { color: red; }')
+
+    // But the tag cannot be closed early to smuggle markup into the page
+    expect(styleContent).not.toContain('</style>')
+    expect(styleContent).toContain('<\\/style>')
+    expect(wrapper.find('script').exists()).toBe(false)
+    expect((globalThis as unknown as Record<string, unknown>).pwned).toBeUndefined()
+
+    wrapper.unmount()
+  })
 })

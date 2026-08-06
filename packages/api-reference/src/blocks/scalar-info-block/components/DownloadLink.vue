@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { sanitizeUrl } from '@scalar/helpers/url/is-safe-url'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
@@ -32,6 +33,12 @@ const label = computed(() =>
     : translate('download.openapi'),
 )
 
+/**
+ * The document URL can be supplied by whoever controls the rendered document, so a protocol like
+ * `javascript:` would execute script on click. Drop the direct link in that case.
+ */
+const safeDocumentUrl = computed(() => sanitizeUrl(documentUrl))
+
 // The id is retrieved at the layout level.
 const handleDownloadClick = (format: 'json' | 'yaml') => {
   eventBus.emit('ui:download:document', { format })
@@ -41,7 +48,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   <div
     v-if="
       ['yaml', 'json', 'both'].includes(documentDownloadType) ||
-      (documentDownloadType === 'direct' && documentUrl)
+      (documentDownloadType === 'direct' && safeDocumentUrl)
     "
     class="download-container group"
     :class="{
@@ -49,9 +56,9 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
     }">
     <!-- Direct link to the document -->
     <a
-      v-if="documentDownloadType === 'direct' && documentUrl"
+      v-if="documentDownloadType === 'direct' && safeDocumentUrl"
       class="download-link download-button"
-      :href="documentUrl">
+      :href="safeDocumentUrl">
       <span>{{ label }}</span>
     </a>
 

@@ -56,6 +56,31 @@ describe('openapi', () => {
       })
     })
 
+    it('does not pollute Object.prototype through a __proto__ key', () => {
+      // `JSON.parse` creates a real own `__proto__` property, unlike an object literal
+      const source = JSON.parse('{"info":{"title":"Test"},"__proto__":{"polluted":"yes"}}')
+
+      const result = deepMerge(source, { openapi: '3.1.0', info: { title: '' } })
+
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+      expect(Object.prototype).not.toHaveProperty('polluted')
+      expect(result).toMatchObject({ openapi: '3.1.0', info: { title: 'Test' } })
+    })
+
+    it('does not merge a constructor key', () => {
+      const source = JSON.parse('{"constructor":{"prototype":{"polluted":"yes"}}}')
+
+      deepMerge(source, {})
+
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    })
+
+    it('merges objects with a null prototype', () => {
+      const source = { nested: Object.assign(Object.create(null), { foo: 'bar' }) }
+
+      expect(deepMerge(source, {})).toMatchObject({ nested: { foo: 'bar' } })
+    })
+
     it('does not merge undefined properties', () => {
       expect(
         deepMerge(

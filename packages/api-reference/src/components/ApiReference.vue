@@ -1,15 +1,3 @@
-<script lang="ts">
-/* global PACKAGE_VERSION */
-// Injected by Vite at build time (see vite.config.ts and vite.standalone.config.ts).
-// Read via process.env so the constant is replaced inline without pulling package.json
-// into the TypeScript program — that would expand rootDir and emit declarations under dist/src/.
-const version = PACKAGE_VERSION
-
-if (version && typeof window !== 'undefined') {
-  console.info(`@scalar/api-reference@${version}`)
-}
-</script>
-
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
@@ -356,9 +344,17 @@ const themeStyle = computed(() =>
  * it as text content makes Vue HTML-escape characters like `"` into `&quot;` on
  * the server while the client keeps `"`, which both breaks the CSS and causes a
  * hydration mismatch.
+ *
+ * A closing `</style>` tag is neutralized first. It never appears in valid CSS,
+ * but during server rendering the string lands in the HTML stream unescaped, so
+ * `customCss` coming from a docs platform where readers can supply their own
+ * theme would otherwise be able to close the tag and open a `<script>`.
  */
-const styleContent = computed(
-  () => `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`,
+const styleContent = computed(() =>
+  `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`.replace(
+    /<\/style/gi,
+    '<\\/style',
+  ),
 )
 
 // ---------------------------------------------------------------------------
@@ -1655,6 +1651,7 @@ const showMCPButton = computed(() => {
                     <a
                       class="no-underline hover:underline"
                       href="https://www.scalar.com"
+                      rel="noopener noreferrer"
                       target="_blank">
                       {{
                         apiReferenceLocalization.translate(
