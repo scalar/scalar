@@ -8,6 +8,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { resolveDynamicSchema } from '@/components/Content/Schema/helpers/dynamic-scope'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
 import { sortPropertyNames } from '@/components/Content/Schema/helpers/sort-property-names'
@@ -129,6 +130,10 @@ const additionalPropertiesKeySchema = computed(() => {
  * This allows us to render both:
  * - the property-specific description written next to the $ref, and
  * - the referenced schema's own description (for example discriminator parent docs)
+ *
+ * A property that is itself a `$dynamicRef` is bound to its concrete type first, while the value is
+ * still a magic proxy. `resolve.schema` coerces the value into a plain object and would drop the proxy's
+ * virtual `$dynamicRef-value` accessor, so binding afterwards is impossible — see {@link resolveDynamicSchema}.
  */
 const getPropertySchema = (
   property: SchemaReferenceType<SchemaObject> | undefined,
@@ -136,7 +141,7 @@ const getPropertySchema = (
   if (!property) {
     return undefined
   }
-  return resolve.schema(property)
+  return resolve.schema(resolveDynamicSchema(property))
 }
 
 const getPropertyDescription = (
