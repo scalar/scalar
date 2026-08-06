@@ -1,5 +1,47 @@
 # @scalar/api-reference
 
+## 1.64.0
+
+### Minor Changes
+
+- [#9683](https://github.com/scalar/scalar/pull/9683): Surface the required OAuth scopes for an operation as a dedicated "OAuth scopes" section below the description (above parameters), instead of only inside the "Auth Required" badge popover. Scopes are de-duplicated across security alternatives and shown in both the modern and classic layouts, as well as on AsyncAPI operations.
+- [#9711](https://github.com/scalar/scalar/pull/9711): feat: add `pluginUrls` configuration option to load API Reference plugins from URLs
+
+  Each entry must point to an ESM module that exports a plugin (the same shape as the `plugins` entries) as its default export. The standalone build (`Scalar.createApiReference`) imports the modules before the API reference mounts and registers their default exports alongside the plugins passed directly. Unlike `plugins`, the new option is JSON-serializable, so integrations that pass their configuration as JSON (for example the Docker container or Scalar for Aspire) can load plugins without replacing the whole bundle.
+
+### Patch Changes
+
+- [#9732](https://github.com/scalar/scalar/pull/9732): Render every `oneOf`/`anyOf` group of an `allOf` in place. Previously, when one object composed several mutually-exclusive choices as sibling `oneOf`/`anyOf` under `allOf`, only the first group was shown and the rest were silently dropped. Each choice group now renders its own selector in the position it was declared, and the generated request example stays in sync per group.
+- [#9794](https://github.com/scalar/scalar/pull/9794): Keep sibling `properties` when flattening a single-member `allOf`. Previously, a schema declaring its own `properties` next to an `allOf` holding a single `$ref` lost those sibling properties: the referenced schema's `properties` overwrote them instead of being combined, and the referenced schema's `title`/`description` replaced the parent's. Sibling and inherited properties now render together, `required` lists are unioned, and the parent schema's own annotations win over the base it extends.
+- [#9757](https://github.com/scalar/scalar/pull/9757): fix: read enum metadata from array items
+
+  When an enum is defined inside an array schema's `items`, the enum values were resolved from `items` but their `x-enum-varnames`, `x-enumNames`, and `x-enumDescriptions` were still read from the outer schema, so the metadata was dropped. Both the values and their metadata are now read from the same schema.
+
+- [#9681](https://github.com/scalar/scalar/pull/9681): The "Auth Required" / "Auth Optional" badge on operations now opens on hover, not just on click
+- [#9753](https://github.com/scalar/scalar/pull/9753): fix: badge base styles no longer rely on zero specificity
+
+  The badge base rule was written with `:where(.badge)`, which the scoped-style compiler collapsed to zero specificity, letting any late-loading reset clobber the badge font size, padding, and colors. The base styles now carry real specificity, and consumers that intentionally override them (the download-link json/yaml badges and the webhook badge) keep winning through tailwind-merge and higher-specificity variant rules.
+
+- [#9766](https://github.com/scalar/scalar/pull/9766): fix: give the collapsible section trigger an accessible name and a valid `aria-controls` target
+
+  The trigger button rendered by `CompactSection` carried `aria-controls` set to its own `id`, so it declared that it controls itself, and it exposed no accessible name of its own. Screen reader users heard an unnamed button, and axe-core reported `button-name` and `aria-allowed-attr` on every model section.
+
+  The trigger now points `aria-controls` at the collapsible region, which carries its own id. While the section is collapsed the attribute is dropped entirely rather than left pointing at an element that is not rendered.
+
+  The accessible name now comes from `aria-labelledby` pointing at the heading the trigger already renders, so the name is always the visible text. Referencing the heading rather than copying it into an `aria-label` means the name cannot drift out of sync with what is on screen, which is the WCAG 2.5.3 (Label in Name) failure a duplicated string would risk.
+
+- [#9754](https://github.com/scalar/scalar/pull/9754): fix: adapt the info links to the rendered width of the reference instead of the viewport
+
+  The introduction's info links (contact, license, terms of service, external docs, and `x-scalar-links`), the section header grid, and the classic-layout selector cards switched their layout based on viewport media queries, while the rest of the reference adapts to the rendered width of the reference through the `narrow-references-container` container query. They now restyle based on the container as well, through a new `narrow:` Tailwind variant.
+
+- [#9751](https://github.com/scalar/scalar/pull/9751): fix: keep even heading-to-description spacing on the operation title in narrow layouts
+
+  The narrow (single-column) operation layout bumped the operation title's bottom margin to 24px, so the gap between the heading and its description no longer matched the 12px used on wider screens. The override is removed so the title keeps the shared 12px spacing at every width.
+
+- [#9676](https://github.com/scalar/scalar/pull/9676): Preload additional documents in a multi-document setup while the browser is idle, so switching between them is instant.
+- [#9788](https://github.com/scalar/scalar/pull/9788): Add print styles so printing (or saving to PDF) no longer renders expanded content over the text that follows it. The reference lays itself out as a fixed-viewport application, and its sticky columns were pinned to a screen measurement that is meaningless on paper. Printing now flattens that shell into ordinary document flow: navigation and floating chrome are hidden, sticky positioning and viewport-derived height caps are dropped so long examples are no longer truncated, and small units such as properties and cards avoid breaking across pages.
+- [#9691](https://github.com/scalar/scalar/pull/9691): Show the `format` of primitive array items (e.g. an array of `uuid` strings) in the schema property heading
+
 ## 1.63.0
 
 ### Minor Changes

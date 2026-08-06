@@ -90,4 +90,50 @@ describe('isParamDisabled', () => {
     expect(isParamDisabled(optionalPathParam, example)).toBe(false)
     expect(isParamDisabled(requiredPathParam, example)).toBe(false)
   })
+
+  it('returns false for optional non-path params when defaultDisabled is false', () => {
+    const param: ParameterObject = {
+      name: 'x-scenario-id',
+      in: 'header',
+      required: false,
+      schema: { type: 'string' },
+    }
+
+    expect(isParamDisabled(param, {}, false)).toBe(false)
+  })
+
+  it('x-disabled: false overrides defaultDisabled: true for optional header params', () => {
+    const param: ParameterObject = {
+      name: 'x-scenario-id',
+      in: 'header',
+      required: false,
+      schema: { type: 'string' },
+    }
+    const example: ExampleObject = { 'x-disabled': false }
+
+    expect(isParamDisabled(param, example, true)).toBe(false)
+  })
+
+  it('x-disabled: true overrides defaultDisabled: false', () => {
+    const param: ParameterObject = {
+      name: 'x-scenario-id',
+      in: 'header',
+      required: false,
+      schema: { type: 'string' },
+    }
+    const example: ExampleObject = { 'x-disabled': true }
+
+    expect(isParamDisabled(param, example, false)).toBe(true)
+  })
+
+  it('returns false when example is undefined and defaultDisabled is false', () => {
+    const param: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      required: false,
+      schema: { type: 'string' },
+    }
+
+    expect(isParamDisabled(param, undefined, false)).toBe(false)
+  })
 })

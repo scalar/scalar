@@ -41,7 +41,7 @@ Each target shows a live status: **pending** while it generates, **generated** o
 
   <scalar-step id="build-sync" title="Builds sync to GitHub">
 
-If a target is [linked to a repository](publishing/github.md), the build opens or updates a pull request there. If [publishing is enabled](publishing/overview.md), merging that pull request releases the version.
+If a target is [linked to a repository](publishing/github.md), the build pushes to `scalar-generated`, merges into `scalar-next`, and updates the release pull request against your default branch. If [publishing is enabled](publishing/overview.md), merging that release pull request tags and publishes the version.
 
   </scalar-step>
 </scalar-steps>
@@ -58,7 +58,7 @@ SDK versions are explicit, so you control exactly what is built and released.
 - **Active version**: set which version is live in the registry. Consumers and code samples resolve against the active version.
 - **Discard a draft**: delete an unbuilt draft without generating it.
 
-The version that ships to a package registry is the target's `version` (falling back to the SDK version). See [Publishing](publishing/overview.md#versioning-and-releases) for how versions become releases.
+The SDK version here controls what the dashboard builds and serves from the registry. The version that ships to a *package* registry is computed separately, by release-please from the commit history of your SDK repository — or set exactly by editing the release pull request title. See [Publishing](publishing/overview.md#versioning-and-releases).
 
 ## Downloading an SDK
 

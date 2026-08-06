@@ -8,7 +8,6 @@ Add `python` under `targets` to generate a Python SDK package.
     "python": {
       "packageName": "acme_api",
       "projectName": "acme-api",
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-python"
@@ -33,7 +32,6 @@ Add `python` under `targets` to generate a Python SDK package.
 | ------------- | ----------------- | ---------------------------------------------------------------- |
 | `packageName` | `string`          | Python import package name, such as `acme_api`.                  |
 | `projectName` | `string`          | PyPI distribution name, such as `acme-api`. Defaults to `packageName`. |
-| `version`     | `string`          | Target-specific SDK version override.                            |
 | `skip`        | `boolean`         | Set to `true` to keep the config without generating this target. |
 | `destinations` | `object`          | GitHub destinations for generated output.                        |
 | `publish`     | `object`          | PyPI publishing configuration.                                   |
@@ -63,7 +61,7 @@ Use `destinations.production` to push generated output to a GitHub repository.
 | Property | Description                                                                 |
 | -------- | --------------------------------------------------------------------------- |
 | `repo`   | GitHub repository in `owner/name` form.                                     |
-| `branch` | Branch to push generated output to. Defaults to the repository default.     |
+| `branch` | Default branch of the destination repository that releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |
 
 ## Publishing
 

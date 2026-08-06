@@ -31,7 +31,7 @@ test.describe('generateWebhookSlug', () => {
 
     await page.goto(example)
 
-    await page.getByRole('navigation').getByRole('button', { name: 'New planet' }).click()
+    await page.getByRole('complementary').getByRole('button', { name: 'New planet' }).click()
 
     // `webhook/` is prepended automatically
     await expect(page).toHaveURL(/webhook\/v1-newPlanet/)

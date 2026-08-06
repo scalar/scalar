@@ -7,7 +7,7 @@ test.describe('hideSearch', () => {
 
     await page.goto(example)
 
-    await expect(page.getByRole('search')).toBeVisible()
+    await expect(page.getByRole('button', { name: /open search/i })).toBeVisible()
   })
 
   test('hides search when set to true', async ({ page }) => {
@@ -15,6 +15,6 @@ test.describe('hideSearch', () => {
 
     await page.goto(example)
 
-    await expect(page.getByRole('search')).not.toBeVisible()
+    await expect(page.getByRole('button', { name: /open search/i })).not.toBeVisible()
   })
 })

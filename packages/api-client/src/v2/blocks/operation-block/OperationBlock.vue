@@ -304,6 +304,8 @@ const handleExecute = async () => {
       document,
       operation,
       variablesStore,
+      server,
+      customFetch: toValue(options)?.customFetch,
     },
     'beforeRequest',
     plugins,

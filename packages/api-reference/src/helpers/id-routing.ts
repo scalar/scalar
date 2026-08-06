@@ -1,3 +1,5 @@
+import { slugify } from '@scalar/helpers/string/slugify'
+
 export const sanitizeBasePath = (basePath: string) => {
   return basePath.replace(/^\/+|\/+$/g, '')
 }
@@ -322,12 +324,102 @@ const buildRedirects = ({ modelsSectionSlug, documentSlug, isMultiDocument }: Re
 }
 
 /**
+ * Markers that separate an operation id from a schema path within an anchor id.
+ * `responses` mirrors the request-body/parameter markers so response property
+ * anchors (e.g. `operation.responses.200.name`) resolve back to the operation id.
+ * Without it, deep links into responses cannot find their operation.
+ */
+const SCHEMA_PARAM_MARKERS = ['.body.', '.path.', '.query.', '.header.', '.responses.']
+
+/**
+ * Source data for a single webhook redirect: the raw event name, its method, and the current id.
+ *
+ * The current slug is read back off the id, so this layer does not need to know the (dot-keeping)
+ * slug rule — it only reproduces the legacy (dot-dropping) slug to match old bookmarks.
+ */
+export type WebhookRedirectSource = {
+  /** Raw webhook event name from the OpenAPI `webhooks` key, e.g. `account_holder.created`. */
+  name: string
+  /** HTTP method of the webhook operation. */
+  method: string
+  /** Current navigation id of the webhook, e.g. `default/webhook/POST/account-holder.created`. */
+  id: string
+}
+
+/**
+ * Builds redirect rules mapping each webhook's legacy dot-dropped slug to its current slug.
+ *
+ * Webhook ids used to slugify the event name with no options, which dropped dots
+ * (`account_holder.created` -> `account-holdercreated`); the current id keeps them
+ * (`account-holder.created`). That rewrite cannot be reversed generically, so we emit one exact rule
+ * per webhook whose legacy slug differs from the current one. Each rule matches the invariant
+ * `webhook/<METHOD>/<legacy-slug>` tail, so it applies regardless of the document/tag prefix in front
+ * of it and preserves any sub-anchor after it. A sub-anchor is either a `/` segment or a dot-joined
+ * schema property anchor (e.g. `.body.id`, see {@link SCHEMA_PARAM_MARKERS}); a dot followed by
+ * anything else is not treated as a boundary, because the legacy slug never contains a dot while a
+ * current webhook slug can, so such a URL belongs to a different webhook.
+ *
+ * Because the legacy slug is lossy, two things can make a redirect unsafe, and both are dropped so an
+ * ambiguous link falls through to normal not-found handling instead of landing on the wrong webhook:
+ * - the legacy slug is already another webhook's *current* slug (redirecting it would hijack a valid
+ *   URL), or
+ * - two webhooks collapse to the same legacy slug (the old bookmark is genuinely ambiguous).
+ */
+const buildWebhookRedirects = (webhooks: WebhookRedirectSource[]): IdRedirect[] => {
+  const key = (method: string, slug: string) => `${method.toUpperCase()}/${slug}`
+
+  // Index current slugs so a legacy redirect never clobbers a real, current URL, and count legacy
+  // slugs so we can drop the ones two webhooks share.
+  const currentKeys = new Set<string>()
+  const legacyCounts = new Map<string, number>()
+  for (const { name, method, id } of webhooks) {
+    currentKeys.add(key(method, id.slice(id.lastIndexOf('/') + 1)))
+    const legacySlug = slugify(name)
+    if (legacySlug) {
+      const legacyKey = key(method, legacySlug)
+      legacyCounts.set(legacyKey, (legacyCounts.get(legacyKey) ?? 0) + 1)
+    }
+  }
+
+  // Property deep links append their breadcrumb to the operation id with dots
+  // (`<slug>.body.id`), so the slug boundary must accept a schema-param marker
+  // alongside the end of the id and a `/` segment.
+  const boundary = `(?=$|/|${SCHEMA_PARAM_MARKERS.map(escapeRegex).join('|')})`
+
+  const redirects: IdRedirect[] = []
+  for (const { name, method, id } of webhooks) {
+    const upperMethod = method.toUpperCase()
+    const currentSlug = id.slice(id.lastIndexOf('/') + 1)
+    const legacySlug = slugify(name)
+    const legacyKey = key(method, legacySlug)
+
+    // Skip when the slug did not change, when the legacy slug is a real current URL, or when it is
+    // shared by more than one webhook.
+    if (
+      !legacySlug ||
+      legacySlug === currentSlug ||
+      currentKeys.has(legacyKey) ||
+      (legacyCounts.get(legacyKey) ?? 0) > 1
+    ) {
+      continue
+    }
+
+    redirects.push({
+      match: new RegExp(`(^|/)webhook/${escapeRegex(upperMethod)}/${escapeRegex(legacySlug)}${boundary}`),
+      replace: (_match, prefix) => `${prefix}webhook/${upperMethod}/${currentSlug}`,
+    })
+  }
+
+  return redirects
+}
+
+/**
  * Rewrites navigation ids in a URL to their current form.
  *
  * The URL is reduced to its routing-agnostic id (see {@link locateIdCarriers}), each redirect rule
- * is applied in id-space (see {@link buildRedirects}), and the result is spliced back into the
- * original location. This handles hash, hash-base-path, and path routing uniformly, so a new
- * redirect only has to be added to the list once.
+ * is applied in id-space (see {@link buildRedirects} for models and {@link buildWebhookRedirects} for
+ * webhooks), and the result is spliced back into the original location. This handles hash,
+ * hash-base-path, and path routing uniformly, so a new redirect only has to be added to the list once.
  *
  * Returns the canonicalized URL when a rewrite happens, or null otherwise.
  */
@@ -337,13 +429,17 @@ export const redirectUrl = (
   documentSlug: string,
   isMultiDocument: boolean,
   basePath?: string,
+  webhooks: WebhookRedirectSource[] = [],
 ): URL | null => {
   if (!documentSlug) {
     return null
   }
 
   const target = new URL(typeof url === 'string' ? url : url.toString())
-  const redirects = buildRedirects({ modelsSectionSlug, documentSlug, isMultiDocument })
+  const redirects = [
+    ...buildRedirects({ modelsSectionSlug, documentSlug, isMultiDocument }),
+    ...buildWebhookRedirects(webhooks),
+  ]
 
   // Canonicalize every place the id might live. The carriers are distinct physical locations (the
   // pathname and the bare hash), so a single page load can carry a legacy id in more than one — for
@@ -363,14 +459,6 @@ export const redirectUrl = (
 
   return didRedirect ? target : null
 }
-
-/**
- * Markers that separate an operation id from a schema path within an anchor id.
- * `responses` mirrors the request-body/parameter markers so response property
- * anchors (e.g. `operation.responses.200.name`) resolve back to the operation id.
- * Without it, deep links into responses cannot find their operation.
- */
-const SCHEMA_PARAM_MARKERS = ['.body.', '.path.', '.query.', '.header.', '.responses.']
 
 /** Extracts the schema parameters from the id if they are present */
 export const getSchemaParamsFromId = (id: string): { rawId: string; params: string } => {

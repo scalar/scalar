@@ -1,6 +1,6 @@
 # Publishing
 
-Scalar publishes your generated SDKs to their package registries for you. Instead of running `npm publish` by hand, Scalar writes GitHub Actions workflows into your SDK repository and drives them from your SDK configuration. When you merge a build, the package goes out.
+Scalar publishes your generated SDKs to their package registries for you. Instead of running `npm publish` by hand, Scalar writes GitHub Actions workflows into your SDK repository and drives them from your SDK configuration. When you merge a release, the package goes out.
 
 Publishing is **opt-in** and **off by default**. Nothing is published until you turn it on for a target.
 
@@ -23,35 +23,44 @@ Turn on publishing for a target, either from the dashboard or in your [SDK confi
 
   <scalar-step id="step-build" title="Build the SDK">
 
-Each build generates the SDK and opens a pull request against your [linked repository's](github.md) default branch. The pull request includes the generated `.github/workflows` so the publishing logic lives in your repo, not in a black box.
+Each build generates the SDK, pushes it to the `scalar-generated` branch of your [linked repository](github.md), and merges it with your custom code on `scalar-next`. The generated `.github/workflows` land in the repository too, so the publishing logic lives in your repo, not in a black box.
 
   </scalar-step>
 
-  <scalar-step id="step-merge" title="Merge the pull request">
+  <scalar-step id="step-release-pr" title="Review the release pull request">
 
-When you merge, Scalar creates a GitHub Release tagged `vX.Y.Z` for that version.
+Scalar keeps a **release pull request** open from `scalar-next` against your default branch, titled `release: X.Y.Z`. Its diff is the full pending release: generated changes, your custom code, the changelog, and the version bump.
 
   </scalar-step>
 
-  <scalar-step id="step-publish" title="The release workflow publishes">
+  <scalar-step id="step-merge" title="Merge the release pull request">
 
-The release triggers `sdk-release.yml` in your repository, which builds the package and publishes it to the registry. The publish step is idempotent: if that version is already on the registry, it is skipped, so re-merges and re-runs never fail or double-publish.
+Merging runs `release-please.yml` on the default branch, which cuts the `vX.Y.Z` tag, updates `CHANGELOG.md`, and creates the GitHub Release.
+
+  </scalar-step>
+
+  <scalar-step id="step-publish" title="The publish job publishes">
+
+In the same workflow run, the inline `publish` job checks out the tag that was just cut and publishes the package to its registry, then the release is synced back to `scalar-next`. The publish step is idempotent: if that version is already on the registry, it is skipped, so re-runs never fail or double-publish.
 
   </scalar-step>
 </scalar-steps>
 
 ## What gets generated
 
-Every target with a linked repository gets two workflows committed alongside the SDK. They are normal, readable workflow files you can inspect (and edit) in your repo.
+Every target with a linked repository gets its release machinery committed alongside the SDK. They are normal, readable files you can inspect (and edit) in your repo.
 
 | File | Trigger | What it does |
 | ---- | ------- | ------------ |
-| `.github/workflows/sdk-ci.yml` | `push`, `pull_request` | Installs dependencies and builds the SDK so every build pull request is checked. |
-| `.github/workflows/sdk-release.yml` | `release: published` | Publishes the package to its registry. Only generated when publishing is enabled. |
-| `VERSIONING.md` | — | Notes the versioning policy for the repository. |
+| `.github/workflows/sdk-ci.yml` | `push`, `pull_request` | Installs dependencies and builds the SDK so every change is checked. |
+| `.github/workflows/release-please.yml` | `push` to the default branch | Cuts the tag, changelog, and GitHub Release when a release pull request merges, publishes from its inline `publish` job, and syncs the release back to `scalar-next`. |
+| `.github/workflows/release-title-edit.yml` | `pull_request` | Runs the `Release PR version` check and turns an edited release-pull-request title into the `Release-As` commit Scalar re-renders the pull request from. |
+| `.github/workflows/sdk-release.yml` | `workflow_dispatch` | Manually re-publishes an existing tag. Only generated when the target publishes at release time. |
+| `release-please-config.json`, `.release-please-manifest.json` | — | release-please's configuration and version state. The manifest is seeded once and then owned by your repository. |
+| `VERSIONING.md` | — | Documents the branch model, how to pick an exact version, and the repository prerequisites. |
 
 > [!NOTE]
-> Tag-served ecosystems (Go, Swift, Packagist) do not get a release workflow. For those, the `vX.Y.Z` Git tag and GitHub Release *are* the publish. See [Package Registries](registries.md).
+> Tag-served ecosystems (Swift Package Manager, Packagist) have nothing to upload, so they get no `publish` job and no `sdk-release.yml`. For those, the `vX.Y.Z` tag and GitHub Release *are* the publish. Go is tag-served too, but still gets a release workflow, which warms the public module proxy after the tag. See [Package Registries](registries.md).
 
 ## Enable publishing
 
@@ -66,7 +75,6 @@ You can enable publishing two ways. Both set the same thing.
   "targets": {
     "typescript": {
       "packageName": "demo-api",
-      "version": "0.3.1",
       "publish": {
         "npm": true
       }
@@ -83,21 +91,42 @@ You can enable publishing two ways. Both set the same thing.
 
 The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so on). For the full list and per-registry options, see [Package Registries](registries.md). Each target documents its `publish` options on its [configuration page](../configuration.md).
 
+Publishing requires a [linked repository](github.md): a target with no `destinations.production` gets no workflows at all.
+
 ## Authentication
 
-By default Scalar uses **OIDC trusted publishing**. The release workflow exchanges a short-lived GitHub identity token for a registry credential at publish time, so there is **no token to create, store, or rotate**. You register your repository and the `sdk-release.yml` workflow as a trusted publisher on the registry once.
+By default Scalar uses **OIDC trusted publishing** wherever the registry supports it. The publish job exchanges a short-lived GitHub identity token for a registry credential at publish time, so there is **no token to create, store, or rotate**. You register your repository and workflow as a trusted publisher on the registry once.
 
-Registries that do not support OIDC (and Maven Central, which needs GPG signing) use repository secrets instead. Setup for each registry is covered in [Package Registries](registries.md).
+> [!IMPORTANT]
+> Register **`release-please.yml`** as the trusted publisher's workflow, not `sdk-release.yml`. The automated publish runs as a job inside `release-please.yml`, so that is the file the OIDC claims name. `sdk-release.yml` exists for manual re-publishes; register it as an *additional* trusted publisher only if you use it.
+
+Registries that do not support OIDC (RubyGems, and Maven Central, which also requires GPG signing) use repository secrets instead. Setup for each registry is covered in [Package Registries](registries.md).
 
 ## Versioning and releases
 
-Versioning is **driven by your configuration**, not inferred from commit messages. The version that ships is the target's `version` (falling back to the SDK version). Bump it when you want a new release; every merged build is tagged and released as `vX.Y.Z`.
+Versions are computed by release-please **from your commit history**, following [Conventional Commits](https://www.conventionalcommits.org). Scalar writes conventional commit messages describing what actually changed in the SDK surface, and your own commits on `scalar-next` count too. Pre-1.0, breaking changes bump the minor version instead of jumping to `1.0.0`.
 
-Scalar creates a GitHub Release for each version and maintains a `CHANGELOG.md` in the repository, so your release history lives in your repo next to the code.
+To ship an exact version instead, **edit the release pull request title**:
+
+```text
+release: 1.0.0
+```
+
+The `Release PR version` check goes red while the title and the committed version disagree, Scalar re-renders the pull request at your version, and the check goes green. Wait for green before merging. The git-native equivalent is an empty commit on `scalar-next` with a `Release-As: 1.0.0` footer.
+
+Every release gets a `vX.Y.Z` tag, a GitHub Release, and an entry in the repository's `CHANGELOG.md`, so your release history lives in your repo next to the code. The generated `VERSIONING.md` documents all of this for your maintainers.
 
 ## Permissions
 
-The generated release workflow requests only the permissions it needs:
+The generated workflows request only the permissions they need. `release-please.yml` needs to write the tag, changelog, and Release:
+
+```yaml
+permissions:
+  contents: write
+  pull-requests: write
+```
+
+Its `publish` job then narrows that down to the publishing floor:
 
 ```yaml
 permissions:
@@ -106,14 +135,14 @@ permissions:
   packages: write
 ```
 
-`id-token: write` is what enables OIDC trusted publishing. The CLI target uses `contents: write` instead, because it uploads built binaries to the GitHub Release. Scalar never asks for organization-wide access to publish.
+`id-token: write` is what enables OIDC trusted publishing. The CLI target keeps `contents: write` on the publish job when it attaches binaries or updates a Homebrew tap, because it uploads assets to the GitHub Release. Scalar never asks for organization-wide access to publish.
 
 ## Next steps
 
 <scalar-steps>
   <scalar-step id="next-github" title="Link a GitHub repository" interactivity="none">
 
-Connect each target to a repository so builds sync as pull requests. See [GitHub Repositories](github.md).
+Connect each target to a repository so builds sync to it. See [GitHub Repositories](github.md).
 
   </scalar-step>
   <scalar-step id="next-registries" title="Set up the registry" interactivity="none">

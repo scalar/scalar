@@ -10,4 +10,13 @@ Each guide is written by us, so read it with that in mind. We link every claim w
 <scalar-page-link filepath="documentation/compare/fern.md" title="Fern" description="A comparison of Scalar and Fern across documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing">
 </scalar-page-link>
 
+<scalar-page-link filepath="documentation/compare/readme.md" title="ReadMe" description="A comparison of Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing">
+</scalar-page-link>
+
+<scalar-page-link filepath="documentation/compare/redocly.md" title="Redocly" description="A comparison of Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing">
+</scalar-page-link>
+
+<scalar-page-link filepath="documentation/compare/postman.md" title="Postman" description="A comparison of Scalar and Postman across API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing">
+</scalar-page-link>
+
 Looking to move an existing setup across rather than compare? See the [migration guides](/resources/migration).

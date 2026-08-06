@@ -318,6 +318,33 @@ describe('OperationBlock', () => {
     })
   })
 
+  it('forwards server and customFetch to beforeRequest plugins', async () => {
+    const server = { url: 'https://api.example.com' }
+    const customFetch = vi.fn<typeof fetch>()
+    const received = vi.fn()
+    const plugin: ClientPlugin = {
+      hooks: {
+        beforeRequest: ({ server, customFetch }) => {
+          received({ server, customFetch })
+        },
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        server,
+        options: { customFetch },
+        plugins: [plugin],
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(received).toHaveBeenCalledOnce()
+    expect(received).toHaveBeenCalledWith({ server, customFetch })
+  })
+
   it('persists server-set cookies into the document jar after a response', async () => {
     const mockEventBus = createMockEventBus()
     const mockResponse = {

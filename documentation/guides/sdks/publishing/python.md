@@ -31,8 +31,10 @@ On [pypi.org](https://pypi.org/), open your project's **Publishing** tab (for a 
 
 - **Owner**: the owner of your [linked repository](github.md)
 - **Repository name**: the repository name
-- **Workflow name**: `sdk-release.yml`
+- **Workflow name**: `release-please.yml`
 - **Environment**: leave blank (unless you set `releaseEnvironment`)
+
+The automated publish runs as the `publish` job inside `release-please.yml`, so that is the workflow PyPI sees. If you also dispatch `sdk-release.yml` to re-publish a tag by hand, add it as a second publisher.
 
   </scalar-step>
 

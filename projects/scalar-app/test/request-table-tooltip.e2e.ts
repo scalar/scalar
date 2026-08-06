@@ -96,6 +96,7 @@ test.describe('request-table-tooltip.e2e', () => {
     await expect(page).toHaveURL(/\/get-started/)
 
     const sidebar = page.locator('aside')
+
     await sidebar.getByText(TOOLTIP_DOCUMENT_SIDEBAR_TITLE, { exact: true }).click()
     await expect(page).toHaveURL(new RegExp(`/document/${TOOLTIP_TEST_DOCUMENT}/`))
 

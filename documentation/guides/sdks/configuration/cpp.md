@@ -9,7 +9,6 @@ Add `cpp` under `targets` to generate a C++ SDK. C++ has no universal package re
 {
   "targets": {
     "cpp": {
-      "version": "1.0.0",
       "destinations": {
         "production": {
           "repo": "acme/acme-cpp"
@@ -24,7 +23,6 @@ Add `cpp` under `targets` to generate a C++ SDK. C++ has no universal package re
 
 | Property       | Type      | Description                                                      |
 | -------------- | --------- | ---------------------------------------------------------------- |
-| `version`      | `string`  | Target-specific SDK version override.                            |
 | `skip`         | `boolean` | Set to `true` to keep the config without generating this target. |
 | `destinations` | `object`  | GitHub destinations for generated output.                        |
 
@@ -35,4 +33,4 @@ Use `destinations.production` to push generated output to a GitHub repository.
 | Property | Description                                                                 |
 | -------- | --------------------------------------------------------------------------- |
 | `repo`   | GitHub repository in `owner/name` form.                                     |
-| `branch` | Branch to push generated output to. Defaults to the repository default.     |
+| `branch` | Default branch of the destination repository that releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |

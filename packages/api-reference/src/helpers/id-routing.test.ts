@@ -1008,6 +1008,160 @@ describe('redirectUrl', () => {
     })
   })
 
+  describe('webhook slug redirects', () => {
+    // Legacy webhook ids ran the event name through slugify with no options, which dropped dots.
+    // These entries carry the current (dot-keeping) id plus the raw name we rebuild the old slug from.
+    const webhooks = [
+      { name: 'account_holder.created', method: 'POST', id: 'default/webhook/POST/account-holder.created' },
+      { name: 'newPlanet', method: 'POST', id: 'default/webhook/POST/newplanet' },
+    ]
+
+    it('rewrites a legacy dot-dropped webhook slug to the current slug', () => {
+      const result = redirectUrl(
+        'https://example.com/#default/webhook/POST/account-holdercreated',
+        'models',
+        'default',
+        true,
+        undefined,
+        webhooks,
+      )
+      expect(result?.hash).toBe('#default/webhook/POST/account-holder.created')
+    })
+
+    it('rewrites a tagged legacy webhook slug', () => {
+      const result = redirectUrl(
+        'https://example.com/#default/tag/webhooks/webhook/POST/account-holdercreated',
+        'models',
+        'default',
+        true,
+        undefined,
+        webhooks,
+      )
+      expect(result?.hash).toBe('#default/tag/webhooks/webhook/POST/account-holder.created')
+    })
+
+    it('rewrites a legacy webhook pathname in path routing', () => {
+      const result = redirectUrl(
+        'https://example.com/docs/default/webhook/POST/account-holdercreated',
+        'models',
+        'default',
+        true,
+        '/docs',
+        webhooks,
+      )
+      expect(result?.pathname).toBe('/docs/default/webhook/POST/account-holder.created')
+    })
+
+    it('preserves a sub-anchor after the webhook slug', () => {
+      const result = redirectUrl(
+        'https://example.com/#default/webhook/POST/account-holdercreated/body.id',
+        'models',
+        'default',
+        true,
+        undefined,
+        webhooks,
+      )
+      expect(result?.hash).toBe('#default/webhook/POST/account-holder.created/body.id')
+    })
+
+    it('rewrites a legacy webhook slug followed by a dot-joined property anchor', () => {
+      // Property deep links append their breadcrumb with dots, not a `/` segment.
+      const result = redirectUrl(
+        'https://example.com/#default/webhook/POST/account-holdercreated.body.id',
+        'models',
+        'default',
+        true,
+        undefined,
+        webhooks,
+      )
+      expect(result?.hash).toBe('#default/webhook/POST/account-holder.created.body.id')
+    })
+
+    it('rewrites a legacy webhook slug followed by a response property anchor', () => {
+      const result = redirectUrl(
+        'https://example.com/#default/webhook/POST/account-holdercreated.responses.200.name',
+        'models',
+        'default',
+        true,
+        undefined,
+        webhooks,
+      )
+      expect(result?.hash).toBe('#default/webhook/POST/account-holder.created.responses.200.name')
+    })
+
+    it('leaves a dot suffix that is not a schema anchor untouched', () => {
+      // The legacy slug never contains a dot, but a current webhook slug can, so
+      // `account-holdercreated.extra` may be a different webhook's real URL.
+      expect(
+        redirectUrl(
+          'https://example.com/#default/webhook/POST/account-holdercreated.extra',
+          'models',
+          'default',
+          true,
+          undefined,
+          webhooks,
+        ),
+      ).toBeNull()
+    })
+
+    it('leaves a webhook whose slug did not change untouched', () => {
+      expect(
+        redirectUrl(
+          'https://example.com/#default/webhook/POST/newplanet',
+          'models',
+          'default',
+          true,
+          undefined,
+          webhooks,
+        ),
+      ).toBeNull()
+    })
+
+    it('leaves webhook urls untouched when no webhooks are passed', () => {
+      expect(
+        redirectUrl('https://example.com/#default/webhook/POST/account-holdercreated', 'models', 'default', true),
+      ).toBeNull()
+    })
+
+    it('does not redirect a legacy slug that is another webhook current slug', () => {
+      // Webhook B is literally named `account-holdercreated`, so that URL is its valid current URL.
+      // Webhook A must not hijack it with its dropped-dot redirect.
+      const colliding = [
+        { name: 'account_holder.created', method: 'POST', id: 'default/webhook/POST/account-holder.created' },
+        { name: 'account-holdercreated', method: 'POST', id: 'default/webhook/POST/account-holdercreated' },
+      ]
+      expect(
+        redirectUrl(
+          'https://example.com/#default/webhook/POST/account-holdercreated',
+          'models',
+          'default',
+          true,
+          undefined,
+          colliding,
+        ),
+      ).toBeNull()
+    })
+
+    it('does not redirect an ambiguous legacy slug shared by two webhooks', () => {
+      // `user.v1.created` and `userv1.created` both collapse to the legacy slug `userv1created`,
+      // so the old bookmark is ambiguous and must fall through instead of guessing.
+      const ambiguous = [
+        { name: 'user.v1.created', method: 'POST', id: 'default/webhook/POST/user.v1.created' },
+        { name: 'userv1.created', method: 'POST', id: 'default/webhook/POST/userv1.created' },
+      ]
+      expect(
+        redirectUrl(
+          'https://example.com/#default/webhook/POST/userv1created',
+          'models',
+          'default',
+          true,
+          undefined,
+          ambiguous,
+        ),
+      ).toBeNull()
+    })
+  })
+
   it('returns null when the document slug is empty', () => {
     expect(redirectUrl('https://example.com/#default/model/User', 'models', '', true)).toBeNull()
   })
