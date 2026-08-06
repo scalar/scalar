@@ -3935,6 +3935,39 @@
                   }
                 }
               },
+              "user-management": {
+                "type": "page",
+                "title": "User Management",
+                "icon": "phosphor/regular/users",
+                "description": "Manage your Scalar team: invite members, assign Owner, Admin and Editor roles, and control who can join.",
+                "filepath": "documentation/guides/team/user-management.md",
+                "head": {
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/user-management"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Manage your Scalar team: invite members, assign Owner, Admin and Editor roles, and control who can join."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "User Management - Scalar Teams, Roles and Permissions"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "Manage your Scalar team: invite members, assign Owner, Admin and Editor roles, and control who can join."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              },
               "sso": {
                 "title": "SSO/SAML",
                 "icon": "phosphor/regular/keyhole",
