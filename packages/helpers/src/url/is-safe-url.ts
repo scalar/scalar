@@ -36,7 +36,7 @@ const IGNORED_CHARACTERS_REGEX = /[\u0000-\u0020\u007f-\u009f]/g
  * isSafeUrl('/openapi.json') // true (relative)
  * isSafeUrl('javascript:alert(1)') // false
  */
-export function isSafeUrl(url: string | null | undefined): url is string {
+export const isSafeUrl = (url: string | null | undefined): url is string => {
   if (!url) {
     return false
   }
@@ -67,6 +67,4 @@ export function isSafeUrl(url: string | null | undefined): url is string {
  * sanitizeUrl('https://example.com') // 'https://example.com'
  * sanitizeUrl('javascript:alert(1)') // undefined
  */
-export function sanitizeUrl(url: string | null | undefined): string | undefined {
-  return isSafeUrl(url) ? url : undefined
-}
+export const sanitizeUrl = (url: string | null | undefined): string | undefined => (isSafeUrl(url) ? url : undefined)

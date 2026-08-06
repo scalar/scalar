@@ -1,3 +1,15 @@
+<script lang="ts">
+/* global PACKAGE_VERSION */
+// Injected by Vite at build time (see vite.config.ts and vite.standalone.config.ts).
+// Read via process.env so the constant is replaced inline without pulling package.json
+// into the TypeScript program — that would expand rootDir and emit declarations under dist/src/.
+const version = PACKAGE_VERSION
+
+if (version && typeof window !== 'undefined') {
+  console.info(`@scalar/api-reference@${version}`)
+}
+</script>
+
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'

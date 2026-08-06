@@ -14,7 +14,6 @@ Harden the API reference against untrusted OpenAPI documents:
   `Object.prototype`.
 - `customCss` can no longer close the injected `<style>` tag, which mattered during server
   rendering where the value lands in the HTML stream verbatim.
-- The package version is no longer written to the browser console on every render.
 - Added `rel="noopener noreferrer"` to the remaining `target="_blank"` links.
 
 Adds `isSafeUrl` and `sanitizeUrl` to `@scalar/helpers/url/is-safe-url`.
