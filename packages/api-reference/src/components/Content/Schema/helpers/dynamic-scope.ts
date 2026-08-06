@@ -1,6 +1,6 @@
 import { DYNAMIC_REF_VALUE } from '@scalar/json-magic/magic-proxy'
 import { isDynamicRef } from '@scalar/workspace-store/helpers/dynamic-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject, SchemaReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /**
  * Resolving JSON Schema 2020-12 `$dynamicRef` while rendering a schema.
@@ -23,7 +23,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
  * — the schema is not a `$dynamicRef`, or has been detached from the proxy — the input is returned
  * unchanged, so rendering falls back to its prior behavior with no regression.
  */
-export const resolveDynamicSchema = <T extends SchemaObject | undefined>(schema: T): T => {
+export const resolveDynamicSchema = <T extends SchemaReferenceType<SchemaObject> | undefined>(schema: T): T => {
   if (isDynamicRef(schema)) {
     return ((schema as Record<string, unknown>)[DYNAMIC_REF_VALUE] as T) ?? schema
   }
