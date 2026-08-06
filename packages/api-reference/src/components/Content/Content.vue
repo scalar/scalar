@@ -41,6 +41,10 @@ import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import { AsyncApiTraversedEntry } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
 import { ContextBar } from '@/components/Content/ContextBar'
+import {
+  getInitialContextChain,
+  hasRenderableTagHierarchy,
+} from '@/components/Content/ContextBar/helpers'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
@@ -106,6 +110,18 @@ const {
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
   generateClientOptions(mapHiddenClientsConfig(options.hiddenClients)),
+)
+
+/** Reserve the context-bar slot before scrolling reaches a nested tag. */
+const showContextBar = computed(() =>
+  hasRenderableTagHierarchy(items, options.layout),
+)
+
+/** Show useful context during the Introduction before scrolling selects a tag. */
+const contextBarChain = computed(() =>
+  contextChain.length >= 2
+    ? contextChain
+    : getInitialContextChain(items, options.layout),
 )
 
 /**
@@ -322,12 +338,13 @@ onMounted(() => {
     </InfoBlock>
 
     <!--
-      Sticky breadcrumb showing where a nested tag sits in the hierarchy. It lives
-      above the tag list (not above the introduction) so it rests over the first
-      tag and only sticks to the top once the reader scrolls into the tags.
+      Sticky breadcrumb showing where a nested tag sits in the hierarchy. Its
+      fixed slot is mounted before scrolling reaches the tags so changing the
+      active hierarchy does not shift the content below it.
     -->
     <ContextBar
-      :chain="contextChain"
+      v-if="showContextBar"
+      :chain="contextBarChain"
       @navigate="(id) => eventBus.emit('scroll-to:nav-item', { id })" />
 
     <!-- Render traversed operations and webhooks -->

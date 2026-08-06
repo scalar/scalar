@@ -1,3 +1,5 @@
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+
 /** A single ancestor in the tag hierarchy leading to the section in view. */
 export type Crumb = { id: string; title: string }
 
@@ -24,4 +26,42 @@ export const collapseTrail = (chain: Crumb[]): (Crumb | EllipsisCrumb)[] => {
   const hidden = chain.slice(1, -2)
 
   return [...(head ? [head] : []), { ellipsis: true, hiddenTitles: hidden.map((crumb) => crumb.title) }, ...tail]
+}
+
+/**
+ * Whether the navigation contains nested tags that render their own headings.
+ * Legacy tag-group wrappers only render headings in the classic layout, so they
+ * do not reserve an empty context bar in the modern layout.
+ */
+export const hasRenderableTagHierarchy = (entries: TraversedEntry[], layout: 'classic' | 'modern'): boolean => {
+  return getInitialContextChain(entries, layout).length >= 2
+}
+
+/**
+ * Find the first nested tag trail to show before scrolling selects a section.
+ * This keeps the context bar useful during the Introduction instead of leaving
+ * its reserved space empty.
+ */
+export const getInitialContextChain = (entries: TraversedEntry[], layout: 'classic' | 'modern'): Crumb[] => {
+  const visit = (items: TraversedEntry[], ancestors: Crumb[]): Crumb[] => {
+    for (const entry of items) {
+      const rendersHeading = entry.type === 'tag' && (entry.isTagGroup !== true || layout === 'classic')
+      const chain = rendersHeading ? [...ancestors, { id: entry.id, title: entry.title }] : ancestors
+
+      if (chain.length >= 2) {
+        return chain
+      }
+
+      if ('children' in entry && entry.children !== undefined) {
+        const nestedChain = visit(entry.children, chain)
+        if (nestedChain.length >= 2) {
+          return nestedChain
+        }
+      }
+    }
+
+    return []
+  }
+
+  return visit(entries, [])
 }

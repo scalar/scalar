@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconCaretRight } from '@scalar/icons'
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import {
   collapseTrail,
@@ -27,10 +27,20 @@ const navRef = ref<HTMLElement | null>(null)
  */
 const overflowing = ref(false)
 
+/** Whether the bar has reached its sticky offset. */
+const isStuck = ref(false)
+
+/** The reserved bar only becomes an accessible landmark once it has context to show. */
+const hasBreadcrumb = computed(() => chain.length >= 2)
+
 /** The crumbs actually rendered: the full trail while it fits, collapsed once it does not. */
-const displayCrumbs = computed<(Crumb | EllipsisCrumb)[]>(() =>
-  overflowing.value ? collapseTrail(chain) : chain,
-)
+const displayCrumbs = computed<(Crumb | EllipsisCrumb)[]>(() => {
+  if (!hasBreadcrumb.value) {
+    return []
+  }
+
+  return overflowing.value ? collapseTrail(chain) : chain
+})
 
 /** The last crumb is the section in view, so it is shown as plain text. */
 const isCurrent = (index: number) => index === displayCrumbs.value.length - 1
@@ -69,6 +79,7 @@ const measureOverflow = () => {
 
 let resizeObserver: ResizeObserver | null = null
 let frame: number | null = null
+let stickyFrame: number | null = null
 
 /**
  * Re-decide whether the trail fits, coalescing resize bursts and chain changes into a
@@ -95,15 +106,46 @@ const scheduleOverflowCheck = () => {
   })
 }
 
+/** Swap the separator edge when the bar pins to its sticky offset. */
+const updateStickyState = () => {
+  const nav = navRef.value
+  if (!nav) {
+    return
+  }
+
+  const stickyTop = Number.parseFloat(getComputedStyle(nav).top) || 0
+  isStuck.value = nav.getBoundingClientRect().top <= stickyTop
+}
+
+const scheduleStickyCheck = () => {
+  if (stickyFrame !== null) {
+    return
+  }
+
+  if (typeof requestAnimationFrame === 'undefined') {
+    updateStickyState()
+    return
+  }
+
+  stickyFrame = requestAnimationFrame(() => {
+    stickyFrame = null
+    updateStickyState()
+  })
+}
+
 // Re-measure when the bar (dis)appears or the layout width changes.
 watch(
   navRef,
   (nav) => {
     resizeObserver?.disconnect()
     if (nav && typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(() => scheduleOverflowCheck())
+      resizeObserver = new ResizeObserver(() => {
+        scheduleOverflowCheck()
+        scheduleStickyCheck()
+      })
       resizeObserver.observe(nav)
       scheduleOverflowCheck()
+      scheduleStickyCheck()
     }
   },
   { immediate: true },
@@ -112,21 +154,35 @@ watch(
 // Re-measure whenever the hierarchy behind the bar changes.
 watch(() => chain, scheduleOverflowCheck, { flush: 'post' })
 
+onMounted(() => {
+  window.addEventListener('scroll', scheduleStickyCheck, {
+    capture: true,
+    passive: true,
+  })
+  window.addEventListener('resize', scheduleStickyCheck, { passive: true })
+  scheduleStickyCheck()
+})
+
 onBeforeUnmount(() => {
   resizeObserver?.disconnect()
+  window.removeEventListener('scroll', scheduleStickyCheck, true)
+  window.removeEventListener('resize', scheduleStickyCheck)
   if (frame !== null && typeof cancelAnimationFrame !== 'undefined') {
     cancelAnimationFrame(frame)
+  }
+  if (stickyFrame !== null && typeof cancelAnimationFrame !== 'undefined') {
+    cancelAnimationFrame(stickyFrame)
   }
 })
 </script>
 
 <template>
-  <!-- Only meaningful when a section is actually nested under a parent tag -->
   <nav
-    v-if="chain.length >= 2"
     ref="navRef"
-    aria-label="Breadcrumb"
-    class="context-bar bg-b-1 text-c-2 sticky top-(--refs-header-height) z-10 flex items-center gap-1.5 border-b text-sm">
+    :aria-hidden="!hasBreadcrumb"
+    :aria-label="hasBreadcrumb ? 'Breadcrumb' : undefined"
+    class="context-bar bg-b-1.5 text-c-2 sticky top-(--refs-header-height) z-10 flex items-center gap-1.5 text-sm"
+    :data-stuck="isStuck || undefined">
     <template
       v-for="(crumb, index) in displayCrumbs"
       :key="isEllipsis(crumb) ? `ellipsis-${index}` : crumb.id">
@@ -166,16 +222,23 @@ onBeforeUnmount(() => {
 <style scoped>
 /*
  * Match the section content inset (0 60px) so crumbs line up under the section
- * headings, with generous vertical padding so the bar does not feel cramped.
+ * headings. A fixed height keeps the content below from moving when the active
+ * hierarchy changes and the breadcrumbs appear.
  * The bar lives inside `.narrow-references-container`, so it shares the same
  * container query the sections use to drop their inset on narrow layouts.
  */
 .context-bar {
-  padding: 14px 60px;
+  height: 48px;
+  padding-inline: 60px;
+  box-shadow: inset 0 var(--scalar-border-width) 0 var(--scalar-border-color);
+}
+.context-bar[data-stuck] {
+  box-shadow: inset 0 calc(var(--scalar-border-width) * -1) 0
+    var(--scalar-border-color);
 }
 @container narrow-references-container (max-width: 900px) {
   .context-bar {
-    padding: 12px 24px;
+    padding-inline: 24px;
   }
 }
 </style>

@@ -730,8 +730,8 @@ const setBreadcrumb = (id: string) => {
  * Ancestor tags (root → section in view) for the sticky context bar. Walks up
  * the reverse-indexed navigation tree from the selected entry, keeping only tag
  * nodes that render a header of their own. Empty for top-level sections, so the
- * bar only appears once a section is actually nested — deep OpenAPI 3.2 `parent`
- * hierarchies that cannot be conveyed by indentation alone.
+ * reserved bar stays blank until a section is actually nested — deep OpenAPI 3.2
+ * `parent` hierarchies that cannot be conveyed by indentation alone.
  */
 const contextChain = computed(() => {
   const selectedId = sidebarState.selectedItem.value
