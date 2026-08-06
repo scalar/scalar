@@ -19,6 +19,7 @@ import { CodeInputLite } from '@/v2/components/code-input'
 import {
   DataTableCell,
   DataTableCheckbox,
+  DataTableInputSelect,
   DataTableRow,
 } from '@/v2/components/data-table'
 
@@ -50,6 +51,12 @@ export type TableRow = {
   originalParameter?: ParameterObject
   /** Path to a value inside the original parameter example for expanded object parameters */
   sourceParameterValuePath?: string[]
+  /**
+   * Selectable values for a grouped global cookie preset. When set, the value cell renders a
+   * dropdown to switch between predefined values (for example a `Culture` cookie with `PL`/`EN`)
+   * instead of an editable input.
+   */
+  presetOptions?: string[]
 }
 
 export type TableRowUpsertPayload = {
@@ -80,6 +87,8 @@ const emit = defineEmits<{
   (e: 'uploadFile'): void
   (e: 'removeFile'): void
   (e: 'navigate', route: NonNullable<TableRow['globalRoute']>): void
+  /** Select a value for a grouped global cookie preset. */
+  (e: 'selectPreset', value: string): void
 }>()
 
 /**
@@ -236,7 +245,15 @@ const handleKeyBlur = (newName: string): void => {
 
     <!-- Value -->
     <DataTableCell>
+      <!-- Preset switcher for grouped global cookies that share a name -->
+      <DataTableInputSelect
+        v-if="data.presetOptions?.length"
+        :canAddCustomValue="false"
+        :modelValue="displayValue"
+        :value="data.presetOptions"
+        @update:modelValue="(v) => emit('selectPreset', v)" />
       <CodeInputLite
+        v-else
         :aria-label="`${label} Value`"
         class="pr-6 group-hover:pr-10 group-has-[.code-input-lite__editor:focus]:pr-10"
         :default="defaultValue"

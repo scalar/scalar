@@ -43,6 +43,8 @@ const emit = defineEmits<{
   ): void
   (e: 'delete', payload: { index: number }): void
   (e: 'deleteAll'): void
+  /** Select a value for a grouped global cookie preset at the given row index. */
+  (e: 'selectPreset', index: number, value: string): void
 }>()
 
 const showTooltip = computed(() => rows.length > 1)
@@ -94,6 +96,7 @@ const handleUpserRow = (index: number, payload: TableRowUpsertPayload) => {
       :showAddRowPlaceholder="showAddRowPlaceholder"
       @deleteRow="(index) => emit('delete', { index })"
       @navigate="(route) => eventBus.emit('ui:navigate', route)"
+      @selectPreset="(index, value) => emit('selectPreset', index, value)"
       @upsertRow="handleUpserRow" />
   </CollapsibleSection>
 </template>
