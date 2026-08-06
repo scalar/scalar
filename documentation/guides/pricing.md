@@ -212,14 +212,14 @@
           <tbody class="st_wrap_table pricing-table-group text-sm" data-table_id="0" role="rowgroup">
 <tr class="pricing-table-group-heading-row"><th class="pricing-table-group-heading flex gap-1.5 items-center" colspan="4" scope="rowgroup"><scalar-icon src="phosphor/bold/book" aria-hidden="true"></scalar-icon>Docs</th></tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Subdomains</th>
-<td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
+<th class="pricing-table-column" scope="row">Free Scalar Subdomain</th>
+<td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
 <th class="pricing-table-column" scope="row">API References (OpenAPI)</th>
-<td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
+<td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
