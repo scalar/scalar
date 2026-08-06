@@ -121,7 +121,10 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         })}`
       }
 
-      return `${prefixTag}webhook/${props.method?.toUpperCase()}/${slugify(props.name)}`
+      // Webhook events are commonly named with dots (e.g. "account_holder.created").
+      // Keep the dot so the deep link stays close to the event name, instead of
+      // dropping it and joining adjacent words ("account-holdercreated").
+      return `${prefixTag}webhook/${props.method?.toUpperCase()}/${slugify(props.name, { allowedSpecialChars: '.' })}`
     }
 
     // -------- Default model id generation logic --------

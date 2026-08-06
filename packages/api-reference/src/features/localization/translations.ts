@@ -5,6 +5,7 @@ import { de } from './locales/de'
 import { en } from './locales/en'
 import { es } from './locales/es'
 import { fr } from './locales/fr'
+import { pt } from './locales/pt'
 import { ru } from './locales/ru'
 import { zhCn } from './locales/zh-cn'
 
@@ -16,6 +17,7 @@ export const localeTranslations = {
   de,
   'zh-CN': zhCn,
   ar,
+  pt,
 } satisfies Record<ApiReferenceBuiltInLocale, ApiReferenceTranslations>
 
 export const DEFAULT_LOCALE: ApiReferenceBuiltInLocale = 'en'

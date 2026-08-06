@@ -171,5 +171,29 @@ describe('ClientLibraries', () => {
       const vm = wrapper.vm
       expect(vm.selectedClientOption?.id).toBe(DEFAULT_CLIENT)
     })
+
+    it('keeps the More combobox outside the tablist', () => {
+      const wrapper = mount(ClientSelector, {
+        props: {
+          clientOptions: mockClientOptions,
+          eventBus,
+        },
+        global: {
+          stubs: {
+            'ScalarCodeBlock': true,
+            'ScalarMarkdown': true,
+            'ScalarIcon': true,
+            'ScalarCombobox': true,
+          },
+        },
+      })
+
+      const tablist = wrapper.find('[role="tablist"]')
+      expect(tablist.exists()).toBe(true)
+      const buttons = [...tablist.element.querySelectorAll('button')]
+      expect(buttons.every((el) => el.getAttribute('role') === 'tab')).toBe(true)
+      expect(wrapper.find('.client-libraries-more').exists()).toBe(true)
+      expect(tablist.element.contains(wrapper.find('.client-libraries-more').element)).toBe(false)
+    })
   })
 })

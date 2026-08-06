@@ -49,7 +49,7 @@ const emit = defineEmits<{
 
 const columns = computed(() => {
   if (showUploadButton) {
-    return ['36px', '', '', 'auto']
+    return ['36px', '', '', 'minmax(0, 1fr)']
   }
   return ['36px', '', '']
 })
@@ -107,12 +107,5 @@ const displayData = computed(() => {
 }
 :deep(.scalar-pill:not(:first-of-type)) {
   margin-left: 0.5px;
-}
-.filemask {
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    var(--scalar-background-2) 20px
-  );
 }
 </style>
