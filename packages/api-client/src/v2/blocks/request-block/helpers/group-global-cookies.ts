@@ -4,7 +4,7 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
  * A global cookie collection paired with where it lives, so a selection can be written back to the
  * correct source: the workspace or the active document `x-scalar-cookies` list.
  */
-export type GlobalCookieSource = {
+type GlobalCookieSource = {
   location: 'document' | 'workspace'
   cookies: XScalarCookie[]
 }
@@ -13,7 +13,7 @@ export type GlobalCookieSource = {
  * A single cookie within a preset group, carrying just enough to mutate its source: which
  * collection it belongs to and its index within that collection's `x-scalar-cookies` array.
  */
-export type GlobalCookieSibling = {
+type GlobalCookieSibling = {
   location: 'document' | 'workspace'
   index: number
   value: string
@@ -24,7 +24,7 @@ export type GlobalCookieSibling = {
  * exists for the same name the group becomes a preset the user can switch between (for example a
  * `Culture` cookie with `PL` and `EN` values).
  */
-export type GlobalCookieGroup = {
+type GlobalCookieGroup = {
   /** The shared cookie name. */
   name: string
   /** The value of the currently active (enabled) sibling — the one that is sent. */
