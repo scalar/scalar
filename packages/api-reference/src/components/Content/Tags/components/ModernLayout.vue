@@ -12,6 +12,7 @@ import TagSection from './TagSection.vue'
 const {
   tag,
   moreThanOneTag,
+  isCollapsed,
   nested = false,
 } = defineProps<{
   tag: TraversedTag
@@ -37,13 +38,23 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
  * when it has no sibling tags.
  */
 const respectsCollapse = computed(() => moreThanOneTag || nested)
+
+const sectionCollapsed = computed(() => isCollapsed && respectsCollapse.value)
+
+const showMore = computed(() => sectionCollapsed.value && hasChildren.value)
+
+/** Nested sections remain transparent so only first-level tags establish a surface. */
+const hasCollapsedSurface = computed(() => showMore.value && !nested)
 </script>
 
 <template>
   <SectionContainer
     :aria-labelledby="headerId"
     class="tag-section-container"
-    :class="{ 'tag-section-nested': nested }"
+    :class="{
+      'tag-section-collapsed': hasCollapsedSurface,
+      'tag-section-nested': nested,
+    }"
     role="region">
     <TagSection
       v-if="moreThanOneDefaultTag"
@@ -52,7 +63,7 @@ const respectsCollapse = computed(() => moreThanOneTag || nested)
       :isCollapsed="isCollapsed"
       :tag="tag" />
     <ShowMoreButton
-      v-if="isCollapsed && respectsCollapse && hasChildren"
+      v-if="showMore"
       :id="tag.id"
       :aria-label="
         translate('navigation.showAllEndpoints', { name: tag.title })
@@ -63,7 +74,7 @@ const respectsCollapse = computed(() => moreThanOneTag || nested)
 
     <!-- Show slot when the section is expanded or is a lone top-level tag (inverse of ShowMoreButton visibility). -->
     <div
-      v-if="!(isCollapsed && respectsCollapse)"
+      v-if="!sectionCollapsed"
       class="contents divide-y">
       <slot />
     </div>
@@ -82,7 +93,7 @@ const respectsCollapse = computed(() => moreThanOneTag || nested)
 .tag-section-container.tag-section-nested {
   padding-inline: 0;
 }
-.section-container:has(.show-more) {
+.section-container.tag-section-collapsed {
   background-color: color-mix(in srgb, var(--scalar-background-2), transparent);
 }
 </style>
