@@ -3,6 +3,7 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import { type Plugin, defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
 
 import pkg from './package.json'
 
@@ -84,7 +85,19 @@ export default defineConfig({
       },
     },
   },
-  plugins: [inlineStandalone()],
+  plugins: [
+    inlineStandalone(),
+    // Emit a single, self-contained `index.d.ts` with the types rolled up (matching the `nextjs`
+    // integration). A bundled declaration file has no relative imports, so it resolves under every
+    // `moduleResolution` setting — including `node16`/`nodenext`, which rejects extensionless
+    // specifiers. See https://github.com/scalar/scalar/issues/9795.
+    dts({
+      insertTypesEntry: true,
+      rollupTypes: true,
+      // Only the entry's public types are published; keep tests and the playground out of the emit.
+      exclude: ['**/*.test.ts', 'test/**', 'playground/**'],
+    }),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
