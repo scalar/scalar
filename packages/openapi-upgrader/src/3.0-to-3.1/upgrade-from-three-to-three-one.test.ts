@@ -1,26 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
-import { isSchemaPath, upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
-
-describe('isSchemaPath', () => {
-  it('correctly identifies schema paths', () => {
-    expect(isSchemaPath(['components', 'schemas', 'User'])).toBe(true)
-    expect(isSchemaPath(['paths', '/users', 'get', 'responses', '200', 'content', 'application/json', 'schema'])).toBe(
-      true,
-    )
-    expect(isSchemaPath(['paths', '/users', 'post', 'requestBody', 'content', 'application/json', 'schema'])).toBe(true)
-    expect(isSchemaPath(['components', 'schemas', 'User', 'properties', 'address'])).toBe(true)
-    expect(isSchemaPath(['components', 'schemas', 'User', 'allOf', '0'])).toBe(true)
-    expect(isSchemaPath(['paths', '/users', 'get', 'parameters', '0', 'schema'])).toBe(true)
-  })
-
-  it('correctly identifies non-schema paths', () => {
-    expect(isSchemaPath(['info'])).toBe(false)
-    expect(isSchemaPath(['paths', '/users', 'get', 'summary'])).toBe(false)
-    expect(isSchemaPath(['components', 'parameters', 'userId'])).toBe(false)
-  })
-})
+import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
 
 describe('upgradeFromThreeToThreeOne', () => {
   describe('version', () => {

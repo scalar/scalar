@@ -809,21 +809,19 @@ describe('normalizeRefs', () => {
     })
   })
 
-  it('normalizes $ref in request body', async () => {
+  it('normalizes $ref on components whose names collide with schema keywords', async () => {
     const input = {
-      paths: {
-        '/users': {
-          post: {
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/User',
-                    extraProperty: 'should be removed',
-                  },
-                },
-              },
-            },
+      components: {
+        parameters: {
+          not: {
+            $ref: '#/components/parameters/IdParameter',
+            extraProperty: 'should be removed',
+          },
+        },
+        responses: {
+          ErrorSchema: {
+            $ref: '#/components/responses/Error',
+            extraProperty: 'should be removed',
           },
         },
       },
@@ -834,35 +832,28 @@ describe('normalizeRefs', () => {
       plugins: [normalizeRefs()],
     })
 
-    expect(input.paths['/users'].post.requestBody.content['application/json'].schema).toEqual({
-      $ref: '#/components/schemas/User',
+    expect(input.components.parameters.not).toEqual({
+      $ref: '#/components/parameters/IdParameter',
+      summary: undefined,
+      description: undefined,
+      '$status': undefined,
+    })
+    expect(input.components.responses.ErrorSchema).toEqual({
+      $ref: '#/components/responses/Error',
       summary: undefined,
       description: undefined,
       '$status': undefined,
     })
   })
 
-  it('keeps JSON Schema 2020-12 keywords on an inline schema $ref (Paginated<T> binding)', async () => {
-    // The generic pagination template binds its item type through a `$defs`/`$dynamicAnchor` sibling next to
-    // the `$ref`. This wrapper lives inline on a response schema, not under `components/schemas`, so it must
-    // survive normalization for `$dynamicRef` to resolve to the bound type instead of the empty fallback.
+  it('normalizes $ref in request body', async () => {
     const input = {
       paths: {
-        '/planets': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/json': {
-                    schema: {
-                      $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
-                      $defs: { itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet' } },
-                      $ref: '#/components/schemas/Paginated',
-                      extraProperty: 'should be removed',
-                    },
-                  },
-                },
-              },
+        '/users': {
+          post: {
+            requestBody: {
+              $ref: '#/components/requestBodies/User',
+              extraProperty: 'should be removed',
             },
           },
         },
@@ -874,13 +865,12 @@ describe('normalizeRefs', () => {
       plugins: [normalizeRefs()],
     })
 
-    const schema: Record<string, unknown> =
-      input.paths['/planets'].get.responses['200'].content['application/json'].schema
-    expect(schema.$ref).toBe('#/components/schemas/Paginated')
-    expect(schema.$id).toBe('https://galaxy.scalar.com/schemas/PaginatedPlanets')
-    expect(schema.$defs).toEqual({ itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet' } })
-    // Genuinely unrelated siblings are still stripped.
-    expect(schema).not.toHaveProperty('extraProperty')
+    expect(input.paths['/users'].post.requestBody).toEqual({
+      $ref: '#/components/requestBodies/User',
+      summary: undefined,
+      description: undefined,
+      '$status': undefined,
+    })
   })
 
   it('normalizes $ref in parameters', async () => {
@@ -1078,7 +1068,9 @@ describe('normalizeRefs', () => {
     })
   })
 
-  it('handles deeply nested $ref normalization', async () => {
+  it('does not normalize a $ref nested inside an inline schema', async () => {
+    // The $ref lives inside a request body schema (an `allOf` branch), so it is a Schema Object rather than a
+    // Reference Object. JSON Schema 2020-12 allows sibling keywords next to `$ref`, so nothing is stripped.
     const input = {
       paths: {
         '/users': {
@@ -1090,7 +1082,7 @@ describe('normalizeRefs', () => {
                     allOf: [
                       {
                         $ref: '#/components/schemas/BaseUser',
-                        extraProperty: 'should be removed',
+                        extraProperty: 'should NOT be removed',
                       },
                     ],
                   },
@@ -1109,10 +1101,114 @@ describe('normalizeRefs', () => {
 
     expect(input.paths['/users'].post.requestBody.content['application/json'].schema.allOf[0]).toEqual({
       $ref: '#/components/schemas/BaseUser',
-      summary: undefined,
-      description: undefined,
-      '$status': undefined,
+      extraProperty: 'should NOT be removed',
     })
+  })
+
+  it('keeps a $dynamicAnchor binding on an inline response schema $ref', async () => {
+    // The `Paginated<T>` template binds its item type through a `$defs`/`$dynamicAnchor` sibling next to the
+    // `$ref`. The wrapper is inline on a response schema, not under `components/schemas`, yet the binding must
+    // survive so `$dynamicRef` resolves to the bound type instead of the template's empty fallback.
+    const input = {
+      paths: {
+        '/planets': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
+                      $defs: { itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet' } },
+                      $ref: '#/components/schemas/Paginated',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [normalizeRefs()],
+    })
+
+    expect(input.paths['/planets'].get.responses['200'].content['application/json'].schema).toEqual({
+      $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
+      $defs: { itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/Planet' } },
+      $ref: '#/components/schemas/Paginated',
+    })
+  })
+
+  it('keeps a $dynamicAnchor binding on a bundled external response schema $ref', async () => {
+    const server = fastify({ logger: false })
+
+    server.get('/paginated-planets', () => ({
+      $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
+      $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object' } },
+      $ref: '#/$defs/Paginated',
+    }))
+
+    await server.listen({ port: 0 })
+    const url = `http://localhost:${(server.server.address() as AddressInfo).port}/paginated-planets`
+    const input = {
+      paths: {
+        '/planets': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: url,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [normalizeRefs(), fetchUrls()],
+    })
+
+    const urlHash = getHash(url)
+
+    expect(input).toEqual({
+      paths: {
+        '/planets': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: `#/x-ext/${urlHash}`,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      'x-ext': {
+        [urlHash]: {
+          $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
+          $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object' } },
+          $ref: `#/x-ext/${urlHash}/$defs/Paginated`,
+        },
+      },
+    })
+
+    await server.close()
   })
 
   it('does not normalize $ref when path starts with components/schemas', async () => {
