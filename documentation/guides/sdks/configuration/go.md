@@ -101,5 +101,7 @@ Set `publish.go` to `true` to tag each release so the Go module proxy can serve 
 
 | Property             | Description                                                   |
 | -------------------- | ------------------------------------------------------------- |
-| `authMethod`         | Registry authentication mechanism, such as `oidc` or `access-token`. |
-| `releaseEnvironment` | Release environment name used by generated publishing workflows. |
+| `go`                 | Set to `true` to tag each release and warm the Go module proxy. |
+| `releaseEnvironment` | Release environment the generated publish job runs in.        |
+
+Go publishes through the Git tag, so there is nothing to authenticate against: the release workflow just warms the public module proxy so it caches the new version. The shared `authMethod` option has nothing to act on here and is ignored.
