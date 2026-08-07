@@ -56,6 +56,45 @@ describe('openapi', () => {
       })
     })
 
+    it('does not pollute Object.prototype through a __proto__ key', () => {
+      // `JSON.parse` creates a real own `__proto__` property, unlike an object literal
+      const source = JSON.parse('{"info":{"title":"Test"},"__proto__":{"polluted":"yes"}}')
+
+      const result = deepMerge(source, { openapi: '3.1.0', info: { title: '' } })
+
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+      expect(Object.prototype).not.toHaveProperty('polluted')
+      expect(Object.getPrototypeOf(result)).toBe(Object.prototype)
+      expect(result).toMatchObject({ openapi: '3.1.0', info: { title: 'Test' } })
+    })
+
+    it('keeps a constructor key as plain data without polluting the prototype', () => {
+      const source = JSON.parse('{"constructor":{"prototype":{"polluted":"yes"}}}')
+
+      const result = deepMerge(source, {})
+
+      // The malicious payload cannot reach the real prototype chain
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+      expect(Object.prototype).not.toHaveProperty('polluted')
+      // But a document is still free to describe a property literally named `constructor`
+      expect(Object.hasOwn(result, 'constructor')).toBe(true)
+      expect(result.constructor.prototype.polluted).toBe('yes')
+    })
+
+    it('keeps a schema property named prototype', () => {
+      const source = JSON.parse('{"components":{"schemas":{"Foo":{"properties":{"prototype":{"type":"string"}}}}}}')
+
+      const result = deepMerge(source, {})
+
+      expect(result.components.schemas.Foo.properties.prototype).toEqual({ type: 'string' })
+    })
+
+    it('merges objects with a null prototype', () => {
+      const source = { nested: Object.assign(Object.create(null), { foo: 'bar' }) }
+
+      expect(deepMerge(source, {})).toMatchObject({ nested: { foo: 'bar' } })
+    })
+
     it('does not merge undefined properties', () => {
       expect(
         deepMerge(

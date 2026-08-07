@@ -190,15 +190,49 @@ export function extractSchemaDescriptions(schema: SchemaObject | undefined): str
 }
 
 /**
- * Deep merge for objects
+ * Assigns a value as an ordinary own, enumerable data property.
+ *
+ * `target.__proto__ = value` runs the prototype setter instead of creating a property, so a
+ * document with a `__proto__` key could otherwise change the prototype of the merged object.
+ * Defining the property explicitly keeps a key with that name as plain data.
  */
-export function deepMerge(source: Record<any, any>, target: Record<any, any>) {
+const defineOwnProperty = (target: Record<any, any>, key: string, value: unknown): void => {
+  if (key === '__proto__') {
+    Object.defineProperty(target, key, { value, writable: true, enumerable: true, configurable: true })
+  } else {
+    target[key] = value
+  }
+}
+
+/**
+ * Whether `target` already has its own mergeable object under `key`.
+ *
+ * Only an own object is a safe merge target. Reaching an inherited property — every object inherits
+ * `constructor`, and `__proto__` resolves to an accessor on `Object.prototype` — would let a
+ * document walk up to `Object.prototype` and add a property to every object on the page.
+ */
+const hasOwnObject = (target: Record<any, any>, key: string): boolean =>
+  Object.hasOwn(target, key) && target[key] !== null && typeof target[key] === 'object'
+
+/**
+ * Deep merge for objects.
+ *
+ * OpenAPI documents are untrusted input and can carry keys like `__proto__`, `constructor`, or
+ * `prototype` (a schema is free to describe a property named `constructor`). Those keys are merged
+ * as ordinary own data, so nothing is silently dropped, but the merge never writes through the
+ * prototype chain, which would otherwise pollute `Object.prototype` for every object on the page.
+ */
+export function deepMerge(source: Record<any, any>, target: Record<any, any>): Record<any, any> {
   for (const [key, val] of Object.entries(source)) {
     if (val !== null && typeof val === 'object') {
-      target[key] ??= new val.__proto__.constructor()
+      if (!hasOwnObject(target, key)) {
+        // Match the shape of the source value rather than reaching through its prototype, which
+        // also keeps objects created with a `null` prototype from throwing.
+        defineOwnProperty(target, key, Array.isArray(val) ? [] : {})
+      }
       deepMerge(val, target[key])
     } else if (typeof val !== 'undefined') {
-      target[key] = val
+      defineOwnProperty(target, key, val)
     }
   }
 

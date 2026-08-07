@@ -80,6 +80,7 @@ async function fetchExampleSpecification() {
         <a
           class="start-item"
           href="https://github.com/scalar/scalar/tree/main/integrations/fastify#readme"
+          rel="noopener noreferrer"
           target="_blank">
           <svg
             fill="currentColor"
@@ -97,6 +98,7 @@ async function fetchExampleSpecification() {
         <a
           class="start-item"
           href="https://github.com/scalar/scalar/blob/main/documentation/integrations/html-js.md#html"
+          rel="noopener noreferrer"
           target="_blank">
           <svg
             fill="currentColor"
@@ -119,6 +121,7 @@ async function fetchExampleSpecification() {
         <a
           class="start-item"
           href="https://github.com/scalar/scalar/blob/main/packages/api-reference/README.md#vuejs"
+          rel="noopener noreferrer"
           target="_blank">
           <svg
             height="170"
@@ -139,6 +142,7 @@ async function fetchExampleSpecification() {
         <a
           class="start-item"
           href="https://github.com/scalar/scalar/blob/main/packages/api-reference-react/README.md#usage"
+          rel="noopener noreferrer"
           target="_blank">
           <svg
             height="23.3"

@@ -356,9 +356,17 @@ const themeStyle = computed(() =>
  * it as text content makes Vue HTML-escape characters like `"` into `&quot;` on
  * the server while the client keeps `"`, which both breaks the CSS and causes a
  * hydration mismatch.
+ *
+ * A closing `</style>` tag is neutralized first. It never appears in valid CSS,
+ * but during server rendering the string lands in the HTML stream unescaped, so
+ * `customCss` coming from a docs platform where readers can supply their own
+ * theme would otherwise be able to close the tag and open a `<script>`.
  */
-const styleContent = computed(
-  () => `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`,
+const styleContent = computed(() =>
+  `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`.replace(
+    /<\/style/gi,
+    '<\\/style',
+  ),
 )
 
 // ---------------------------------------------------------------------------
@@ -1655,6 +1663,7 @@ const showMCPButton = computed(() => {
                     <a
                       class="no-underline hover:underline"
                       href="https://www.scalar.com"
+                      rel="noopener noreferrer"
                       target="_blank">
                       {{
                         apiReferenceLocalization.translate(

@@ -72,6 +72,7 @@ const FEATURES = [
     <span>
       <a
         href="https://scalar.com/products/docs/getting-started"
+        rel="noopener noreferrer"
         target="_blank">
         Scalar Pro.
       </a>
