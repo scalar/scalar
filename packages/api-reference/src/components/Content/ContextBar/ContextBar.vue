@@ -30,8 +30,8 @@ const overflowing = ref(false)
 /** Whether the bar has reached its sticky offset. */
 const isStuck = ref(false)
 
-/** The reserved bar only becomes an accessible landmark once it has context to show. */
-const hasBreadcrumb = computed(() => chain.length >= 2)
+/** The reserved bar only becomes an accessible landmark once a section is pinned beneath it. */
+const hasBreadcrumb = computed(() => chain.length >= 1)
 
 /** The crumbs actually rendered: the full trail while it fits, collapsed once it does not. */
 const displayCrumbs = computed<(Crumb | EllipsisCrumb)[]>(() => {

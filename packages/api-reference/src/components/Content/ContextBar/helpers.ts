@@ -6,6 +6,17 @@ export type Crumb = { id: string; title: string }
 /** A placeholder crumb standing in for the hidden middle of a long trail. */
 export type EllipsisCrumb = { ellipsis: true; hiddenTitles: string[] }
 
+/** A header-rendering tag paired with the full trail (ancestors plus itself) leading to it. */
+export type HeaderTagChain = { id: string; chain: Crumb[] }
+
+/**
+ * Whether a tag renders a section header of its own in the given layout. Legacy
+ * `x-tagGroups` wrappers only render one in the classic layout; the modern layout
+ * flattens them, so a breadcrumb pointing at them there would target no heading.
+ */
+const rendersTagHeader = (entry: TraversedEntry, layout: 'classic' | 'modern'): boolean =>
+  entry.type === 'tag' && (entry.isTagGroup !== true || layout === 'classic')
+
 /** Narrow a rendered crumb to the collapsed-middle placeholder. */
 export const isEllipsis = (crumb: Crumb | EllipsisCrumb): crumb is EllipsisCrumb => 'ellipsis' in crumb
 
@@ -45,8 +56,7 @@ export const hasRenderableTagHierarchy = (entries: TraversedEntry[], layout: 'cl
 export const getInitialContextChain = (entries: TraversedEntry[], layout: 'classic' | 'modern'): Crumb[] => {
   const visit = (items: TraversedEntry[], ancestors: Crumb[]): Crumb[] => {
     for (const entry of items) {
-      const rendersHeading = entry.type === 'tag' && (entry.isTagGroup !== true || layout === 'classic')
-      const chain = rendersHeading ? [...ancestors, { id: entry.id, title: entry.title }] : ancestors
+      const chain = rendersTagHeader(entry, layout) ? [...ancestors, { id: entry.id, title: entry.title }] : ancestors
 
       if (chain.length >= 2) {
         return chain
@@ -64,4 +74,33 @@ export const getInitialContextChain = (entries: TraversedEntry[], layout: 'class
   }
 
   return visit(entries, [])
+}
+
+/**
+ * Every header-rendering tag in document order, each carrying the breadcrumb
+ * trail (ancestor tags plus itself) that describes where it sits in the
+ * hierarchy. The context bar walks this list against the scroll position to
+ * resolve which trail belongs to the section currently pinned beneath it.
+ */
+export const buildHeaderTagChains = (entries: TraversedEntry[], layout: 'classic' | 'modern'): HeaderTagChain[] => {
+  const result: HeaderTagChain[] = []
+
+  const visit = (items: TraversedEntry[], ancestors: Crumb[]): void => {
+    for (const entry of items) {
+      const isHeader = rendersTagHeader(entry, layout)
+      const chain = isHeader ? [...ancestors, { id: entry.id, title: entry.title }] : ancestors
+
+      if (isHeader) {
+        result.push({ id: entry.id, chain })
+      }
+
+      if ('children' in entry && entry.children !== undefined) {
+        visit(entry.children, chain)
+      }
+    }
+  }
+
+  visit(entries, [])
+
+  return result
 }

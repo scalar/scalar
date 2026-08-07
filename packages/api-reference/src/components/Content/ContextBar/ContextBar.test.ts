@@ -14,12 +14,21 @@ afterEach(() => {
 describe('ContextBar', () => {
   const chainOf = (...titles: string[]) => titles.map((title) => ({ id: title.toLowerCase(), title }))
 
-  it('keeps its layout slot mounted without a nested chain', () => {
-    const wrapper = mount(ContextBar, { props: { chain: chainOf('Planets') } })
+  it('keeps its layout slot mounted with an empty chain', () => {
+    const wrapper = mount(ContextBar, { props: { chain: [] } })
 
     expect(wrapper.find('nav').exists()).toBe(true)
     expect(wrapper.find('nav').attributes('aria-hidden')).toBe('true')
     expect(wrapper.text()).toBe('')
+  })
+
+  it('shows a lone top-level crumb as the current section', () => {
+    const wrapper = mount(ContextBar, { props: { chain: chainOf('Galaxy') } })
+
+    expect(wrapper.find('nav').attributes('aria-hidden')).toBe('false')
+    // A single crumb is the section in view, so it renders as text, not a link.
+    expect(wrapper.findAll('button')).toHaveLength(0)
+    expect(wrapper.find('[aria-current="page"]').text()).toBe('Galaxy')
   })
 
   it('reuses the reserved slot when the nested chain becomes active', async () => {

@@ -1,7 +1,14 @@
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { describe, expect, it } from 'vitest'
 
-import { type Crumb, collapseTrail, getInitialContextChain, hasRenderableTagHierarchy, isEllipsis } from './helpers'
+import {
+  type Crumb,
+  buildHeaderTagChains,
+  collapseTrail,
+  getInitialContextChain,
+  hasRenderableTagHierarchy,
+  isEllipsis,
+} from './helpers'
 
 describe('helpers', () => {
   const chainOf = (...titles: string[]): Crumb[] => titles.map((title) => ({ id: title.toLowerCase(), title }))
@@ -66,5 +73,39 @@ describe('helpers', () => {
       { id: 'space', title: 'Space' },
       { id: 'planets', title: 'Planets' },
     ])
+  })
+
+  describe('buildHeaderTagChains', () => {
+    it('lists every header tag in document order with its full trail', () => {
+      const entries = [tag('Galaxy', [tag('Planets', [tag('Moons')])]), tag('Deep space', [tag('Stars')])]
+
+      expect(buildHeaderTagChains(entries, 'modern')).toStrictEqual([
+        { id: 'galaxy', chain: chainOf('Galaxy') },
+        { id: 'planets', chain: chainOf('Galaxy', 'Planets') },
+        { id: 'moons', chain: chainOf('Galaxy', 'Planets', 'Moons') },
+        { id: 'deep space', chain: chainOf('Deep space') },
+        { id: 'stars', chain: chainOf('Deep space', 'Stars') },
+      ])
+    })
+
+    it('drops legacy tag groups from the trail in the modern layout', () => {
+      const entries = [tag('Space', [tag('Planets')], true)]
+
+      // The wrapper renders no heading of its own, so its child starts a fresh trail.
+      expect(buildHeaderTagChains(entries, 'modern')).toStrictEqual([{ id: 'planets', chain: chainOf('Planets') }])
+    })
+
+    it('keeps legacy tag groups in the trail in the classic layout', () => {
+      const entries = [tag('Space', [tag('Planets')], true)]
+
+      expect(buildHeaderTagChains(entries, 'classic')).toStrictEqual([
+        { id: 'space', chain: chainOf('Space') },
+        { id: 'planets', chain: chainOf('Space', 'Planets') },
+      ])
+    })
+
+    it('returns nothing when there are no tags', () => {
+      expect(buildHeaderTagChains([], 'modern')).toStrictEqual([])
+    })
   })
 })

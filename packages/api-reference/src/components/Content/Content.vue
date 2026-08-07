@@ -27,7 +27,7 @@ import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { AsyncApiServerSelector } from '@/blocks/scalar-asyncapi-server-selector-block'
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
@@ -42,9 +42,10 @@ import { AsyncApiTraversedEntry } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
 import { ContextBar } from '@/components/Content/ContextBar'
 import {
-  getInitialContextChain,
+  buildHeaderTagChains,
   hasRenderableTagHierarchy,
 } from '@/components/Content/ContextBar/helpers'
+import { useActiveTagChain } from '@/components/Content/ContextBar/use-active-tag-chain'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
@@ -63,14 +64,8 @@ const {
   options,
   authStore,
   documentSlug,
-  contextChain = [],
 } = defineProps<{
   infoSectionId: string
-  /**
-   * Ancestor tags (root → section in view) for the sticky context bar. Empty
-   * unless the section currently in view is nested under a parent tag.
-   */
-  contextChain?: { id: string; title: string }[]
   /** Slug of the active document, used to scope plugin view ids for navigation and deep-linking */
   documentSlug: string
   /** The subset of the configuration object required for the content component */
@@ -117,11 +112,22 @@ const showContextBar = computed(() =>
   hasRenderableTagHierarchy(items, options.layout),
 )
 
-/** Show useful context during the Introduction before scrolling selects a tag. */
-const contextBarChain = computed(() =>
-  contextChain.length >= 2
-    ? contextChain
-    : getInitialContextChain(items, options.layout),
+/** The root <nav> of the sticky bar, used to anchor the active-section calculation. */
+const contextBarRef = ref<{ $el: HTMLElement } | null>(null)
+
+/** Every header-rendering tag with the trail that leads to it, in document order. */
+const headerTagChains = computed(() =>
+  buildHeaderTagChains(items, options.layout),
+)
+
+/**
+ * The breadcrumb trail for the section currently pinned beneath the bar. It is
+ * top-anchored, so a top-level tag shows just its own crumb, nested sections add
+ * their ancestors, and nothing is shown above the first tag.
+ */
+const contextBarChain = useActiveTagChain(
+  headerTagChains,
+  () => contextBarRef.value?.$el ?? null,
 )
 
 /**
@@ -344,6 +350,7 @@ onMounted(() => {
     -->
     <ContextBar
       v-if="showContextBar"
+      ref="contextBarRef"
       :chain="contextBarChain"
       @navigate="(id) => eventBus.emit('scroll-to:nav-item', { id })" />
 
