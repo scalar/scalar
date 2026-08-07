@@ -203,4 +203,41 @@ describe('RequestTable', () => {
     expect(headers[1]?.text()).toBe('Parameter Key')
     expect(headers[2]?.text()).toBe('Parameter Value')
   })
+
+  it('uses name-index key for named rows so Vue does not reuse components across positions', () => {
+    // Rows with different names at different indices must get distinct keys.
+    // This prevents Vue from reusing a RequestTableRow instance (and its local
+    // isDisabled ref) when the list length changes between GET and POST.
+    const wrapper = mount(RequestTable, {
+      props: {
+        data: [
+          { name: 'accept', value: 'application/json', isDisabled: false },
+          { name: 'x-scenario-id', value: 'scenario_a', isDisabled: true },
+        ],
+        environment,
+      },
+    })
+
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
+    // accept is at index 0 → key "accept-0"
+    // x-scenario-id is at index 1 → key "x-scenario-id-1"
+    // empty placeholder is at index 2 → key 2 (numeric)
+    expect(rows[0]?.props('data').name).toBe('accept')
+    expect(rows[1]?.props('data').name).toBe('x-scenario-id')
+    expect(rows[2]?.props('data').name).toBe('')
+  })
+
+  it('uses numeric index key for the empty placeholder row', () => {
+    const wrapper = mount(RequestTable, {
+      props: {
+        data: [{ name: 'x-scenario-id', value: 'scenario_a', isDisabled: true }],
+        environment,
+      },
+    })
+
+    const rows = wrapper.findAllComponents({ name: 'RequestTableRow' })
+    // placeholder row has name '' → key falls back to numeric index
+    expect(rows[1]?.props('data').name).toBe('')
+    expect(rows[1]?.props('data').isDisabled).toBe(true)
+  })
 })

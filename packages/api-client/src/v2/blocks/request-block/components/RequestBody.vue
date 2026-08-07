@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
+import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
@@ -184,6 +185,14 @@ const bodyValue = computed(() => {
 
   return JSON.stringify(value, null, 2)
 })
+
+/** Threshold above which the raw body is rendered with the virtual (copy-button) block instead of CodeMirror */
+const VIRTUALIZE_THRESHOLD = 20000
+
+/** Whether the raw body is large enough to warrant virtualized rendering */
+const shouldVirtualizeBody = computed(
+  () => bodyValue.value.length > VIRTUALIZE_THRESHOLD,
+)
 
 /** Resolved schema for the request body */
 const bodySchema = computed<SchemaObject | undefined>(() => {
@@ -372,6 +381,16 @@ watch(isFormViewAvailable, (ok) => {
                   payload: value,
                   contentType: selectedContentType,
                 })
+            " />
+          <!-- Large body: syntax-highlighted read-only view with copy button -->
+          <ScalarCodeBlock
+            v-else-if="shouldVirtualizeBody"
+            class="border-t"
+            :content="bodyValue"
+            :lang="
+              contentTypeToLanguageMap[
+                selectedContentType as keyof typeof contentTypeToLanguageMap
+              ] ?? 'plaintext'
             " />
           <CodeInput
             v-else

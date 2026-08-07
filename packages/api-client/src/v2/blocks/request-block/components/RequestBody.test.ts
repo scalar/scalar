@@ -1162,4 +1162,117 @@ describe('RequestBody', () => {
     // The trigger label should show the actual content type, not "None".
     expect(wrapper.find('[data-testid="trigger"]').text()).toContain('text/csv')
   })
+
+  describe('virtualized body rendering', () => {
+    const stubs = {
+      ScalarButton: {
+        template: '<button><slot /></button>',
+        props: ['variant', 'size', 'fullWidth'],
+      },
+      ScalarIcon: true,
+      ScalarListbox: {
+        template: '<div><slot /></div>',
+        props: ['modelValue', 'options', 'teleport'],
+        emits: ['update:modelValue'],
+      },
+      CollapsibleSection: {
+        template: '<div><slot name="title" /><slot /></div>',
+      },
+      DataTable: { template: '<div><slot /></div>' },
+      DataTableHeader: { template: '<div><slot /></div>' },
+      DataTableRow: { template: '<div><slot /></div>' },
+      CodeInput: {
+        template: '<div data-testid="code-input"></div>',
+        props: ['modelValue', 'language', 'environment'],
+        emits: ['update:modelValue'],
+      },
+      ScalarCodeBlock: {
+        template: '<div data-testid="scalar-code-block" :lang="lang"></div>',
+        props: ['content', 'lang'],
+      },
+    }
+
+    it('renders CodeInput when body is below the 20 000 character threshold', async () => {
+      const requestBody: RequestBodyObject = {
+        content: {
+          'application/json': {
+            schema: { type: 'string' },
+            example: 'x'.repeat(19999),
+          },
+        },
+      }
+
+      const wrapper = mount(RequestBody, {
+        props: { ...defaultProps, requestBody },
+        global: { stubs },
+      })
+      await nextTick()
+
+      expect(wrapper.find('[data-testid="code-input"]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid="scalar-code-block"]').exists()).toBe(false)
+    })
+
+    it('renders ScalarCodeBlock when body exceeds the 20 000 character threshold', async () => {
+      const requestBody: RequestBodyObject = {
+        content: {
+          'application/json': {
+            schema: { type: 'string' },
+            example: 'x'.repeat(20001),
+          },
+        },
+      }
+
+      const wrapper = mount(RequestBody, {
+        props: { ...defaultProps, requestBody },
+        global: { stubs },
+      })
+      await nextTick()
+
+      expect(wrapper.find('[data-testid="scalar-code-block"]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid="code-input"]').exists()).toBe(false)
+    })
+
+    it('passes the correct lang prop to ScalarCodeBlock for JSON content', async () => {
+      const requestBody: RequestBodyObject = {
+        content: {
+          'application/json': {
+            schema: { type: 'string' },
+            example: 'x'.repeat(20001),
+          },
+        },
+      }
+
+      const wrapper = mount(RequestBody, {
+        props: { ...defaultProps, requestBody },
+        global: { stubs },
+      })
+      await nextTick()
+
+      const block = wrapper.find('[data-testid="scalar-code-block"]')
+      expect(block.exists()).toBe(true)
+      expect(block.attributes('lang')).toBe('json')
+    })
+
+    it('passes plaintext lang for unknown content types', async () => {
+      const requestBody: RequestBodyObject = {
+        content: {
+          'text/csv': {
+            schema: { type: 'string' },
+            example: 'a,b,c\n'.repeat(4000),
+          },
+        },
+        'x-scalar-selected-content-type': { 'example-1': 'text/csv' },
+      }
+
+      const wrapper = mount(RequestBody, {
+        props: { ...defaultProps, requestBody },
+        global: { stubs },
+      })
+      await nextTick()
+
+      const block = wrapper.find('[data-testid="scalar-code-block"]')
+      expect(block.exists()).toBe(true)
+      expect(block.attributes('lang')).toBe('plaintext')
+    })
+  })
 })
