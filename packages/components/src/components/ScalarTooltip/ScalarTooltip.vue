@@ -47,8 +47,15 @@ useTooltip({
 <style>
 @reference "../../style.css";
 
-/** Global styles for the tooltip */
-:where(body) > .scalar-tooltip {
+/**
+ * Global styles for the tooltip
+ *
+ * The tooltip element normally sits directly on the body, but it moves into a <dialog>
+ * opened with showModal() so it can paint above the top layer. Both parents have to be
+ * matched here or the tooltip loses every one of these styles the moment it is
+ * reparented, and renders as unstyled text on a transparent background.
+ */
+:where(body, dialog) > .scalar-tooltip {
   --scalar-tooltip-padding-x: 8px;
   --scalar-tooltip-padding-y: 6px;
 
@@ -63,44 +70,44 @@ useTooltip({
  * every side shifts the visible box inward on `-start` / `-end` placements,
  * where Floating UI aligns the floating element's edge with the target's edge.
  */
-:where(body) > .scalar-tooltip[data-side='top'] {
+:where(body, dialog) > .scalar-tooltip[data-side='top'] {
   padding-bottom: calc(
     var(--scalar-tooltip-padding-y) + var(--scalar-tooltip-offset)
   );
 }
-:where(body) > .scalar-tooltip[data-side='bottom'] {
+:where(body, dialog) > .scalar-tooltip[data-side='bottom'] {
   padding-top: calc(
     var(--scalar-tooltip-padding-y) + var(--scalar-tooltip-offset)
   );
 }
-:where(body) > .scalar-tooltip[data-side='left'] {
+:where(body, dialog) > .scalar-tooltip[data-side='left'] {
   padding-right: calc(
     var(--scalar-tooltip-padding-x) + var(--scalar-tooltip-offset)
   );
 }
-:where(body) > .scalar-tooltip[data-side='right'] {
+:where(body, dialog) > .scalar-tooltip[data-side='right'] {
   padding-left: calc(
     var(--scalar-tooltip-padding-x) + var(--scalar-tooltip-offset)
   );
 }
 
-:where(body) > .scalar-tooltip:before {
+:where(body, dialog) > .scalar-tooltip:before {
   content: '';
   inset: 0;
   @apply absolute rounded-lg bg-b-tooltip -z-1 backdrop-blur border shadow;
 }
 
 /* Leave the gap on the target-facing side so the other edges stay flush */
-:where(body) > .scalar-tooltip[data-side='top']:before {
+:where(body, dialog) > .scalar-tooltip[data-side='top']:before {
   bottom: var(--scalar-tooltip-offset);
 }
-:where(body) > .scalar-tooltip[data-side='bottom']:before {
+:where(body, dialog) > .scalar-tooltip[data-side='bottom']:before {
   top: var(--scalar-tooltip-offset);
 }
-:where(body) > .scalar-tooltip[data-side='left']:before {
+:where(body, dialog) > .scalar-tooltip[data-side='left']:before {
   right: var(--scalar-tooltip-offset);
 }
-:where(body) > .scalar-tooltip[data-side='right']:before {
+:where(body, dialog) > .scalar-tooltip[data-side='right']:before {
   left: var(--scalar-tooltip-offset);
 }
 </style>
