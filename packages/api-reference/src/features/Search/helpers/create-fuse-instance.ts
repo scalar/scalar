@@ -8,7 +8,7 @@ import type { FuseData } from '@/features/Search/types'
  * Doesn't have any data yet, so it's empty.
  */
 export function createFuseInstance(): Fuse<FuseData> {
-  return new Fuse([], {
+  return new Fuse<FuseData>([], {
     // Define searchable fields with weights to prioritize more important matches.
     //
     // Field design: short, high-signal fields (`title`, `parameters`, `body`) are weighted higher than
