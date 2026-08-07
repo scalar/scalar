@@ -831,19 +831,42 @@ const addDocument: typeof workspaceStore.addDocument = async (
   navigationOptions,
 ) => {
   const result = await workspaceStore.addDocument(input, navigationOptions)
+
+  // The selected server lives only on the client store document. The user picks it in the
+  // reference, it is never part of the imported source. Reloading the freshly imported document
+  // below would drop it, so any config update that rebases the document — a new auth token,
+  // reordered servers, an edited spec — would otherwise reset the server back to the first one.
+  // Capture it here and re-apply it after the reload so the user's choice survives. See #5071.
+  const previousDocument = clientStore.workspace.documents[input.name]
+  const selectedServer =
+    previousDocument && typeof previousDocument === 'object'
+      ? (previousDocument as Record<string, unknown>)[
+          'x-scalar-selected-server'
+        ]
+      : undefined
+
   // Now add it to the client store
   const state = workspaceStore.exportWorkspace()
+  const nextDocument = safeDeepClone(state.documents[input.name]) ?? {
+    'openapi': '3.1.0',
+    'info': {
+      title: '',
+      version: '',
+    },
+    'x-scalar-original-document-hash': '',
+  }
+
+  // Carry the user's server selection over to the reloaded document. An empty string is a
+  // deliberate "no server selected" state, so it is preserved too; only `undefined` (a first
+  // load with no prior selection) falls through to the default-server logic elsewhere.
+  if (typeof selectedServer === 'string') {
+    Object.assign(nextDocument, { 'x-scalar-selected-server': selectedServer })
+  }
+
   clientStore.loadWorkspace({
     auth: {},
     documents: {
-      [input.name]: safeDeepClone(state.documents[input.name]) ?? {
-        'openapi': '3.1.0',
-        'info': {
-          title: '',
-          version: '',
-        },
-        'x-scalar-original-document-hash': '',
-      },
+      [input.name]: nextDocument,
     },
     intermediateDocuments: {},
     originalDocuments: {},
