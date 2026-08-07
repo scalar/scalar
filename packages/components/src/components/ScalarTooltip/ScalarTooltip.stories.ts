@@ -2,6 +2,7 @@ import { placements } from '@floating-ui/utils'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import { ScalarButton, ScalarIconButton } from '../../'
+import MockDialog from './MockDialog.vue'
 import ScalarHotkeyTooltip from './ScalarHotkeyTooltip.vue'
 import ScalarTooltip from './ScalarTooltip.vue'
 
@@ -88,6 +89,67 @@ export const Multiple: Story = {
   <ScalarTooltip v-bind="args" content="JSON">
       <ScalarIconButton icon="programming-language-json" label="JSON" />
   </ScalarTooltip>
+</div>
+`,
+  }),
+}
+
+/**
+ * A tooltip whose trigger lives inside a `<dialog>` opened with `showModal()`.
+ *
+ * `showModal()` promotes the dialog to the browser's top layer, which paints above the
+ * rest of the document no matter what `z-index` the tooltip carries. The trigger sits at
+ * the bottom of the dialog so a `top` placement puts the tooltip squarely over the
+ * dialog's own background, which is what makes the overlap observable.
+ */
+export const InDialog: Story = {
+  args: {
+    delay: 0,
+    placement: 'top',
+  },
+  render: (args) => ({
+    components: { ScalarTooltip, ScalarButton, MockDialog },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="flex items-center justify-center w-full h-screen">
+  <MockDialog modal>
+    <span>Dialog content</span>
+    <ScalarTooltip v-bind="args">
+      <ScalarButton>Hover Me</ScalarButton>
+    </ScalarTooltip>
+  </MockDialog>
+</div>
+`,
+  }),
+}
+
+/**
+ * The same layout opened with `show()` instead of `showModal()`.
+ *
+ * A non-modal dialog is *not* promoted to the top layer, so the tooltip already paints
+ * correctly here. This story exists to pin that difference down: it is why the tooltip
+ * keys off `:modal` rather than the `open` property, which is true for both.
+ */
+export const InNonModalDialog: Story = {
+  args: {
+    delay: 0,
+    placement: 'top',
+  },
+  render: (args) => ({
+    components: { ScalarTooltip, ScalarButton, MockDialog },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="flex items-center justify-center w-full h-screen">
+  <MockDialog>
+    <span>Dialog content</span>
+    <ScalarTooltip v-bind="args">
+      <ScalarButton>Hover Me</ScalarButton>
+    </ScalarTooltip>
+  </MockDialog>
 </div>
 `,
   }),
