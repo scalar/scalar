@@ -251,7 +251,7 @@ In some cases, We may anonymize Your personal information (so that it can no lon
 Transfer of Your Personal Data
 -------------------------------
 
-Your information, including Personal Data, is processed by Scalar and primarily stored in the United States of America. It means that this information may be transferred to — and maintained on — computers located outside of Your state, province, country or other governmental jurisdiction where the data protection laws may differ from those from Your jurisdiction.
+Your information, including Personal Data, is processed by Scalar and primarily stored in the United States of America. It means that this information may be transferred to — and maintained on — computers located outside of Your state, province, country or other governmental jurisdiction where the data protection laws may differ than those from Your jurisdiction.
 
 Your consent to this Privacy Policy followed by Your submission of such information represents Your agreement to that transfer.
 
