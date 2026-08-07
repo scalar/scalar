@@ -698,6 +698,18 @@
           "to": "/products/docs/configuration/redirects"
         },
         {
+          "from": "/products/agent/sdk",
+          "to": "/products/agent/integration/sdk"
+        },
+        {
+          "from": "/products/agent/api-reference",
+          "to": "/products/agent/integration/api-reference"
+        },
+        {
+          "from": "/products/agent/key",
+          "to": "/products/agent/integration/agent-keys"
+        },
+        {
           "from": "/blog/agent-scalar-mcp",
           "to": "/blog/posts/2026-03-17-agent-mcp"
         },
@@ -1688,12 +1700,12 @@
                   "authentication": {
                     "title": "Authentication",
                     "type": "group",
-                    "mode": "nested",
+                    "mode": "flat",
                     "description": "How an MCP server authenticates: who is allowed to connect (public, team, access groups) and how the server calls your API (global or passthrough).",
                     "children": {
                       "/": {
                         "type": "page",
-                        "title": "Authentication",
+                        "title": "Overview",
                         "description": "The two layers of MCP auth—who can connect and how the server calls your API—plus recipes for the common setups.",
                         "filepath": "documentation/guides/agent/authentication/index.md"
                       },
@@ -1717,41 +1729,30 @@
                       }
                     }
                   },
-                  "sdk": {
-                    "title": "Agent SDK",
-                    "type": "page",
-                    "description": "Build AI agents on your API with the Scalar Agent SDK: chat, tool calls, and OpenAPI-backed context.",
-                    "filepath": "documentation/guides/agent/sdk.md"
-                  },
-                  "api-reference": {
-                    "title": "Agent in API Reference",
-                    "type": "page",
-                    "description": "Add the Scalar Agent chat to your API reference so developers can ask questions and try your API with AI.",
-                    "filepath": "documentation/guides/agent/api-reference.md"
-                  },
-                  "pricing": {
-                    "title": "Pricing",
-                    "type": "page",
-                    "description": "Scalar Agent pricing: what is free, what is metered, and how usage is billed.",
-                    "filepath": "documentation/guides/agent/pricing.md"
-                  },
-                  "key": {
-                    "title": "API Keys",
-                    "type": "page",
-                    "description": "Create and manage API keys for Scalar Agent and MCP servers.",
-                    "filepath": "documentation/guides/agent/key.md"
-                  },
-                  "release-notes": {
-                    "title": "Release notes",
-                    "filepath": "packages/agent-chat/RELEASE_NOTES.md",
-                    "type": "page",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/changelog/agent"
-                        }
-                      ]
+                  "integration": {
+                    "title": "Integration",
+                    "type": "group",
+                    "mode": "flat",
+                    "description": "Ways to integrate Scalar Agent: build on the Agent SDK or add the chat to your API reference.",
+                    "children": {
+                      "sdk": {
+                        "title": "Agent SDK",
+                        "type": "page",
+                        "description": "Build AI agents on your API with the Scalar Agent SDK: chat, tool calls, and OpenAPI-backed context.",
+                        "filepath": "documentation/guides/agent/sdk.md"
+                      },
+                      "api-reference": {
+                        "title": "Agent in API Reference",
+                        "type": "page",
+                        "description": "Add the Scalar Agent chat to your API reference so developers can ask questions and try your API with AI.",
+                        "filepath": "documentation/guides/agent/api-reference.md"
+                      },
+                      "agent-keys": {
+                        "title": "Agent Keys",
+                        "type": "page",
+                        "description": "Create an Agent key in the Registry to enable the Agent chat in your API reference in production.",
+                        "filepath": "documentation/guides/agent/key.md"
+                      }
                     }
                   },
                   "examples": {
@@ -1789,6 +1790,25 @@
                         "type": "page",
                         "title": "Stakeholder Digest"
                       }
+                    }
+                  },
+                  "pricing": {
+                    "title": "Pricing",
+                    "type": "page",
+                    "description": "Scalar Agent pricing: what is free, what is metered, and how usage is billed.",
+                    "filepath": "documentation/guides/agent/pricing.md"
+                  },
+                  "release-notes": {
+                    "title": "Release Notes",
+                    "filepath": "packages/agent-chat/RELEASE_NOTES.md",
+                    "type": "page",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/changelog/agent"
+                        }
+                      ]
                     }
                   }
                 }
@@ -3933,6 +3953,39 @@
                     "description": "Compare Zuplo docs with Scalar and migrate your API reference step by step.",
                     "type": "page"
                   }
+                }
+              },
+              "user-management": {
+                "type": "page",
+                "title": "User Management",
+                "icon": "phosphor/regular/users",
+                "description": "Manage your Scalar team: invite members, assign Owner, Admin and Editor roles, and control who can join.",
+                "filepath": "documentation/guides/team/user-management.md",
+                "head": {
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/user-management"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Manage your Scalar team: invite members, assign Owner, Admin and Editor roles, and control who can join."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "User Management - Scalar Teams, Roles and Permissions"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "Manage your Scalar team: invite members, assign Owner, Admin and Editor roles, and control who can join."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
                 }
               },
               "sso": {
