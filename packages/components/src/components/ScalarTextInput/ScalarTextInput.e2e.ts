@@ -20,9 +20,15 @@ test.describe('ScalarTextInput', () => {
     }),
   )
 
-  const staticStories = ['Readonly', 'With Copy'] as const satisfies string[]
+  const staticStories = ['Readonly'] as const satisfies string[]
 
   staticStories.forEach((story) => test(story, takeSnapshot))
+
+  test('With Copy', async ({ page, snapshot }) => {
+    await snapshot()
+    await page.getByRole('button', { name: 'Copy' }).hover()
+    await snapshot('hovered')
+  })
 
   /**
    * The reset rounds both the input and its focus outline from --scalar-radius, and DOC-5787 was a
