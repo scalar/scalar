@@ -1,0 +1,505 @@
+asyncapi: 3.0.0
+id: urn:com:scalar:examples:asyncapi-kitchen-sink
+info:
+  title: AsyncAPI Kitchen Sink
+  version: 1.4.0
+  description: |
+    A deliberately dense AsyncAPI document used to review the reference rendering.
+
+    It exercises every field the renderer knows about — multi-protocol bindings with
+    nested object values, operation reply, operation security, tags and external docs
+    at channel/operation/message level, message correlation IDs, and multiple message
+    examples — so layout and hierarchy problems show up instead of hiding behind a
+    sparse document.
+  externalDocs:
+    url: https://example.com/docs/events
+    description: Event platform handbook
+defaultContentType: application/json
+
+servers:
+  kafka:
+    host: kafka.example.com:9092
+    protocol: kafka
+    protocolVersion: '3.6'
+    description: Durable event log for backend consumers.
+    security:
+      - $ref: '#/components/securitySchemes/saslScram'
+    bindings:
+      kafka:
+        schemaRegistryUrl: https://registry.example.com
+        schemaRegistryVendor: confluent
+        bindingVersion: 0.5.0
+  mqtt:
+    host: mqtt.example.com:8883
+    protocol: mqtt
+    protocolVersion: '5.0'
+    description: Devices publish telemetry over MQTT.
+  websocket:
+    host: stream.example.com
+    pathname: /realtime
+    protocol: wss
+    protocolVersion: '13'
+    description: Browser clients subscribe over WebSockets.
+
+channels:
+  orderEvents:
+    address: orders.v1.events
+    title: Order events
+    summary: Every state change in the order lifecycle.
+    description: |
+      Compacted Kafka topic carrying the full order lifecycle. Consumers are expected to
+      be idempotent — redelivery after a rebalance is normal.
+    servers:
+      - $ref: '#/servers/kafka'
+    tags:
+      - name: Orders
+        description: Order lifecycle events
+      - name: Critical
+      - name: Backend
+    externalDocs:
+      url: https://example.com/docs/orders
+      description: Order event contract
+    messages:
+      orderPlaced:
+        $ref: '#/components/messages/OrderPlaced'
+      orderCancelled:
+        $ref: '#/components/messages/OrderCancelled'
+    bindings:
+      kafka:
+        topic: orders.v1.events
+        partitions: 12
+        replicas: 3
+        topicConfiguration:
+          cleanup.policy:
+            - compact
+            - delete
+          retention.ms: 604800000
+          retention.bytes: 1073741824
+          delete.retention.ms: 86400000
+          max.message.bytes: 1048588
+        bindingVersion: 0.5.0
+
+  deviceTelemetry:
+    address: devices/{deviceId}/telemetry
+    title: Device telemetry
+    summary: Sensor readings published by connected devices.
+    servers:
+      - $ref: '#/servers/mqtt'
+    parameters:
+      deviceId:
+        $ref: '#/components/parameters/deviceId'
+    tags:
+      - name: Devices
+      - name: Telemetry
+    messages:
+      telemetry:
+        $ref: '#/components/messages/DeviceTelemetry'
+    bindings:
+      mqtt:
+        qos: 1
+        retain: false
+        bindingVersion: 0.2.0
+
+  liveFeed:
+    address: /realtime
+    title: Live feed
+    summary: Browser-facing multiplexed event stream.
+    servers:
+      - $ref: '#/servers/websocket'
+      - $ref: '#/servers/kafka'
+    messages:
+      feedUpdate:
+        $ref: '#/components/messages/FeedUpdate'
+    bindings:
+      ws:
+        method: GET
+        query:
+          type: object
+          properties:
+            token:
+              type: string
+              description: Short-lived subscription token.
+            topics:
+              type: array
+              items:
+                type: string
+              description: Topics to multiplex onto this socket.
+          required:
+            - token
+        headers:
+          type: object
+          properties:
+            Sec-WebSocket-Protocol:
+              type: string
+              enum:
+                - scalar.v1
+        bindingVersion: 0.1.0
+      kafka:
+        topic: feed.fanout
+        bindingVersion: 0.5.0
+
+  orderCommands:
+    address: orders.v1.commands
+    title: Order commands
+    summary: Request/reply channel for order mutations.
+    servers:
+      - $ref: '#/servers/kafka'
+    messages:
+      placeOrder:
+        $ref: '#/components/messages/PlaceOrderCommand'
+    bindings:
+      kafka:
+        topic: orders.v1.commands
+        partitions: 6
+        bindingVersion: 0.5.0
+
+  orderCommandReplies:
+    address: orders.v1.command-replies
+    title: Order command replies
+    servers:
+      - $ref: '#/servers/kafka'
+    messages:
+      orderAccepted:
+        $ref: '#/components/messages/OrderAccepted'
+
+operations:
+  consumeOrderEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/orderEvents'
+    title: Consume order events
+    summary: Read the order lifecycle stream.
+    description: |
+      Consumers should join the shared consumer group so partitions are balanced across
+      instances. Offsets are committed after the handler acknowledges.
+    security:
+      - $ref: '#/components/securitySchemes/saslScram'
+      - $ref: '#/components/securitySchemes/mtls'
+    tags:
+      - name: Backend
+      - name: Streaming
+    externalDocs:
+      url: https://example.com/docs/consuming
+      description: Consumer guide
+    messages:
+      - $ref: '#/channels/orderEvents/messages/orderPlaced'
+      - $ref: '#/channels/orderEvents/messages/orderCancelled'
+    bindings:
+      kafka:
+        groupId:
+          type: string
+          description: Consumer group the reader joins.
+          enum:
+            - order-projector
+            - order-notifier
+            - order-analytics
+        clientId:
+          type: string
+          pattern: '^svc-[a-z0-9-]+$'
+          description: Stable client identifier for broker-side quota accounting.
+        bindingVersion: 0.5.0
+
+  publishTelemetry:
+    action: send
+    channel:
+      $ref: '#/channels/deviceTelemetry'
+    title: Publish telemetry
+    summary: Devices push sensor readings.
+    tags:
+      - name: Devices
+    messages:
+      - $ref: '#/channels/deviceTelemetry/messages/telemetry'
+    bindings:
+      mqtt:
+        qos: 1
+        retain: false
+        messageExpiryInterval: 300
+        bindingVersion: 0.2.0
+
+  placeOrder:
+    action: send
+    channel:
+      $ref: '#/channels/orderCommands'
+    title: Place an order
+    summary: Submit a new order and await acceptance.
+    description: Command is idempotent on `idempotencyKey`.
+    security:
+      - $ref: '#/components/securitySchemes/saslScram'
+    tags:
+      - name: Orders
+      - name: Commands
+    messages:
+      - $ref: '#/channels/orderCommands/messages/placeOrder'
+    reply:
+      channel:
+        $ref: '#/channels/orderCommandReplies'
+      address:
+        location: '$message.header#/replyTo'
+        description: |
+          The producer sets `replyTo` on the command header. Responders must echo it so the
+          acceptance lands on the caller's private reply topic.
+      messages:
+        - $ref: '#/channels/orderCommandReplies/messages/orderAccepted'
+    bindings:
+      kafka:
+        clientId:
+          type: string
+          description: Identifies the submitting service.
+        bindingVersion: 0.5.0
+
+  subscribeLiveFeed:
+    action: receive
+    channel:
+      $ref: '#/channels/liveFeed'
+    title: Subscribe to the live feed
+    tags:
+      - name: Browser
+    messages:
+      - $ref: '#/channels/liveFeed/messages/feedUpdate'
+
+components:
+  securitySchemes:
+    saslScram:
+      type: scramSha512
+      description: SASL/SCRAM-SHA-512 over TLS.
+    mtls:
+      type: X509
+      description: Mutual TLS with a broker-issued client certificate.
+
+  parameters:
+    deviceId:
+      description: Identifier of the reporting device.
+      examples:
+        - dev-8871
+
+  messages:
+    OrderPlaced:
+      name: OrderPlaced
+      title: Order placed
+      summary: A customer completed checkout.
+      description: Emitted once the payment authorization succeeds.
+      contentType: application/json
+      tags:
+        - name: Orders
+        - name: Critical
+      externalDocs:
+        url: https://example.com/docs/orders/placed
+        description: OrderPlaced contract
+      correlationId:
+        location: '$message.header#/correlationId'
+        description: Traces the order across the checkout, payment, and fulfilment services.
+      headers:
+        type: object
+        properties:
+          correlationId:
+            type: string
+            format: uuid
+          traceparent:
+            type: string
+            description: W3C trace context header.
+        required:
+          - correlationId
+      payload:
+        type: object
+        properties:
+          orderId:
+            type: string
+            format: uuid
+          customerId:
+            type: string
+          totalCents:
+            type: integer
+            minimum: 0
+          currency:
+            type: string
+            enum:
+              - EUR
+              - USD
+              - GBP
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                sku:
+                  type: string
+                quantity:
+                  type: integer
+                unitPriceCents:
+                  type: integer
+        required:
+          - orderId
+          - customerId
+          - totalCents
+      bindings:
+        kafka:
+          key:
+            type: string
+            description: Partition key — always the order id, so a given order stays ordered.
+          schemaIdLocation: header
+          schemaIdPayloadEncoding: '4'
+          bindingVersion: 0.5.0
+      examples:
+        - name: singleItem
+          summary: A one-line order
+          headers:
+            correlationId: 8f14e45f-ceea-467a-9f4b-4c1d2a3b5c6d
+            traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+          payload:
+            orderId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+            customerId: cus_9812
+            totalCents: 4999
+            currency: EUR
+            items:
+              - sku: SKU-COFFEE-1KG
+                quantity: 1
+                unitPriceCents: 4999
+        - name: multiItem
+          summary: A larger basket
+          headers:
+            correlationId: 1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f
+          payload:
+            orderId: 9c858901-8a57-4791-81fe-4c455b099bc9
+            customerId: cus_4410
+            totalCents: 15497
+            currency: USD
+            items:
+              - sku: SKU-MUG-350
+                quantity: 2
+                unitPriceCents: 1249
+              - sku: SKU-BEANS-5KG
+                quantity: 1
+                unitPriceCents: 12999
+
+    OrderCancelled:
+      name: OrderCancelled
+      title: Order cancelled
+      summary: An order was cancelled before fulfilment.
+      contentType: application/json
+      tags:
+        - name: Orders
+      correlationId:
+        location: '$message.header#/correlationId'
+      payload:
+        type: object
+        properties:
+          orderId:
+            type: string
+            format: uuid
+          reason:
+            type: string
+            enum:
+              - customer_request
+              - payment_failed
+              - out_of_stock
+          cancelledAt:
+            type: string
+            format: date-time
+        required:
+          - orderId
+          - reason
+
+    DeviceTelemetry:
+      name: DeviceTelemetry
+      title: Device telemetry
+      summary: A single sensor reading.
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          deviceId:
+            type: string
+          temperatureC:
+            type: number
+          batteryPct:
+            type: integer
+            minimum: 0
+            maximum: 100
+          recordedAt:
+            type: string
+            format: date-time
+      bindings:
+        mqtt:
+          contentType: application/json
+          bindingVersion: 0.2.0
+      examples:
+        - name: nominal
+          payload:
+            deviceId: dev-8871
+            temperatureC: 21.4
+            batteryPct: 87
+            recordedAt: '2024-03-11T09:15:00Z'
+
+    FeedUpdate:
+      name: FeedUpdate
+      title: Feed update
+      summary: A multiplexed update pushed to the browser.
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          topic:
+            type: string
+          seq:
+            type: integer
+          data:
+            type: object
+            additionalProperties: true
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+        kafka:
+          key:
+            type: string
+          bindingVersion: 0.5.0
+
+    PlaceOrderCommand:
+      name: PlaceOrder
+      title: Place order command
+      summary: Request to create an order.
+      contentType: application/json
+      correlationId:
+        location: '$message.header#/replyTo'
+        description: Echoed by the responder so the acceptance reaches the caller.
+      headers:
+        type: object
+        properties:
+          replyTo:
+            type: string
+          idempotencyKey:
+            type: string
+        required:
+          - replyTo
+          - idempotencyKey
+      payload:
+        type: object
+        properties:
+          customerId:
+            type: string
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                sku:
+                  type: string
+                quantity:
+                  type: integer
+        required:
+          - customerId
+          - items
+
+    OrderAccepted:
+      name: OrderAccepted
+      title: Order accepted
+      summary: The command was accepted and an order id was assigned.
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          orderId:
+            type: string
+            format: uuid
+          acceptedAt:
+            type: string
+            format: date-time

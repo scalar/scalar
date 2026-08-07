@@ -75,6 +75,14 @@ export const en = {
   asyncapi: {
     servers: 'Servers',
     protocols: 'Protocols',
+    bindings: 'Bindings',
+    tags: 'Tags',
+    reply: 'Reply',
+    replyChannel: 'Reply Channel',
+    replyAddress: 'Reply Address',
+    replyMessages: 'Reply Messages',
+    correlationId: 'Correlation ID',
+    examples: 'Examples',
   },
   clientLibraries: {
     heading: 'Client Libraries',
