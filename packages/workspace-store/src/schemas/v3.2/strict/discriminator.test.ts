@@ -43,6 +43,27 @@ describe('discriminator', () => {
       })
     })
 
+    it('parses defaultMapping (OpenAPI 3.2)', () => {
+      const validInput = {
+        propertyName: 'petType',
+        mapping: {
+          dog: '#/components/schemas/Dog',
+        },
+        defaultMapping: '#/components/schemas/UnknownPet',
+      }
+
+      const result = coerceValue(DiscriminatorObjectSchema, validInput)
+
+      // The 3.2 defaultMapping field should pass through unchanged
+      expect(result).toEqual({
+        propertyName: 'petType',
+        mapping: {
+          dog: '#/components/schemas/Dog',
+        },
+        defaultMapping: '#/components/schemas/UnknownPet',
+      })
+    })
+
     it('handles discriminator object with only required propertyName', () => {
       const validInput = {
         propertyName: 'type',
