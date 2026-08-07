@@ -1,5 +1,24 @@
 # @scalar/workspace-store
 
+## 0.56.1
+
+### Patch Changes
+
+- [#9820](https://github.com/scalar/scalar/pull/9820): Cap concurrent external fetches while bundling a document, so documents that reference many external examples (`externalValue`) or references do not open an unbounded number of connections on load
+- [#9826](https://github.com/scalar/scalar/pull/9826): fix: resolve relative request URLs against the current origin in `fetchRequestToHar`
+
+  A relative `proxyUrl` (e.g. `/api/scalar-proxy`) makes `redirectToProxy` return a relative URL, which `new URL()` could not parse, so every request threw `TypeError: Invalid URL` and never made it into history.
+
+- [#9819](https://github.com/scalar/scalar/pull/9819): Fall back to a schema-generated request body when a selected example only has an unresolved `externalValue`, so the Test Request editor no longer shows an empty body
+- [#9790](https://github.com/scalar/scalar/pull/9790): fix: keep dots in webhook navigation deep links
+
+  Webhook event names that use dots (for example `account_holder.created`) had the
+  dot dropped when building the navigation id, joining adjacent words into
+  `account-holdercreated`. Dots are now kept, producing `account-holder.created`.
+
+  Old deep links using the dropped-dot slug are redirected to the new slug, so
+  existing bookmarks keep resolving.
+
 ## 0.56.0
 
 ### Minor Changes

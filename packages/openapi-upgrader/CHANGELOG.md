@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.2.13
+
+### Patch Changes
+
+- [#9827](https://github.com/scalar/scalar/pull/9827): Convert nullable `$ref` patterns to the 3.1 null-union form when upgrading from OpenAPI 3.0 to 3.1
+
 ## 0.2.12
 
 ### Patch Changes

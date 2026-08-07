@@ -1,5 +1,29 @@
 # @scalar/components
 
+## 0.27.11
+
+### Patch Changes
+
+- [#9783](https://github.com/scalar/scalar/pull/9783): fix: resolve axe-core ARIA violations in the API reference sidebar and client tabs
+
+  Sidebar items used `aria-selected` on links/buttons (invalid for those roles) and the search trigger used `role="search"` on a button. Selected items now use `aria-current="page"`, the search control is a plain named button, and the sidebar no longer sets an invalid `role="navigation"` on `<aside>` (it keeps the default complementary landmark).
+
+  Client library and SDK installation "More" comboboxes sat inside `role="tablist"`, which fails `aria-required-children`. They now sit beside the tablist. MCP install controls without a target URL render as buttons instead of empty `a[href=""]` links.
+
+- [#9842](https://github.com/scalar/scalar/pull/9842): fix: show tooltips whose trigger sits inside a modal `<dialog>`
+
+  A `<dialog>` opened with `showModal()` is promoted to the browser's top layer, which
+  paints above the rest of the document no matter what `z-index` anything else carries.
+  The tooltip element is a shared singleton parented to `<body>`, so it rendered behind
+  the dialog and was invisible. It now moves into the dialog while it points at a target
+  in there, and moves back to the body once it is hidden.
+
+- [#9844](https://github.com/scalar/scalar/pull/9844): Use the base surface for text inputs, text areas, and text input copy controls in light mode.
+- [#9829](https://github.com/scalar/scalar/pull/9829): Update Vue to 3.5.40. Vue 3.5.36 tightened `defineModel` default validation, so
+  models with array or object defaults now use the factory form
+  (`defineModel<T[]>({ default: () => [] })`) as Vue already requires for regular
+  props. Behaviour is unchanged.
+
 ## 0.27.10
 
 ### Patch Changes

@@ -1,5 +1,28 @@
 # @scalar/api-client
 
+## 3.15.0
+
+### Minor Changes
+
+- [#9836](https://github.com/scalar/scalar/pull/9836): Add a preset switcher for global cookies that share a name. Instead of rendering one row per value (where toggling one toggled them all), same-named `x-scalar-cookies` now collapse into a single row with a dropdown to switch between the predefined values — for example a `Culture` cookie with `PL` and `EN`. Only the selected value is sent, and the choice persists.
+
+### Patch Changes
+
+- [#9793](https://github.com/scalar/scalar/pull/9793): Expose `server` and `customFetch` in the ClientPlugin `beforeRequest` hook
+  payload (both optional, additive) so plugins can resolve relative URLs and run
+  network calls — e.g. a token refresh — through the host fetch without closing
+  over external state.
+- [#9828](https://github.com/scalar/scalar/pull/9828): Bump shared build and runtime dependencies to their latest compatible versions
+  (fuse.js, vite, vitest, tailwindcss, @vitejs/plugin-vue, @vue/test-utils,
+  posthog-js, yaml, and the CSS injection plugin). The fuse.js 7.5.0 upgrade
+  tightened generic inference, so the empty `new Fuse([])` search instances now
+  pass an explicit `FuseData` type argument.
+- [#9798](https://github.com/scalar/scalar/pull/9798): fix: header parameters with `x-disabled: false` (e.g. `x-scenario-id`) now stay enabled while editing
+
+  `RequestTableRow`'s `handleUpdateRow` unconditionally ran `isDisabled.value = payload.isDisabled ?? false`. When `CodeInputLite` fired `@update:modelValue` for the name or value field it called `handleUpdateRow({ name: v })` with no `isDisabled`, which reset the row to enabled on every keystroke and overrode the correct initial state read from `x-disabled`. It now only updates `isDisabled` when it is explicitly present in the payload.
+
+- [#9804](https://github.com/scalar/scalar/pull/9804): Long file names in the multipart form no longer stretch the request table past its container. The name now truncates with an ellipsis, and hovering shows the full name.
+
 ## 3.14.0
 
 ### Minor Changes

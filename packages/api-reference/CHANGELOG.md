@@ -1,5 +1,53 @@
 # @scalar/api-reference
 
+## 1.64.1
+
+### Patch Changes
+
+- [#9828](https://github.com/scalar/scalar/pull/9828): Bump shared build and runtime dependencies to their latest compatible versions
+  (fuse.js, vite, vitest, tailwindcss, @vitejs/plugin-vue, @vue/test-utils,
+  posthog-js, yaml, and the CSS injection plugin). The fuse.js 7.5.0 upgrade
+  tightened generic inference, so the empty `new Fuse([])` search instances now
+  pass an explicit `FuseData` type argument.
+- [#9837](https://github.com/scalar/scalar/pull/9837): Keep the selected server when the configuration is updated. Pushing a config update to a mounted reference (for example a refreshed auth token via `updateConfiguration`) rebases the document in the store, which previously reset the server selector back to the first server. The user's selected server is now preserved across configuration updates.
+- [#9783](https://github.com/scalar/scalar/pull/9783): fix: resolve axe-core ARIA violations in the API reference sidebar and client tabs
+
+  Sidebar items used `aria-selected` on links/buttons (invalid for those roles) and the search trigger used `role="search"` on a button. Selected items now use `aria-current="page"`, the search control is a plain named button, and the sidebar no longer sets an invalid `role="navigation"` on `<aside>` (it keeps the default complementary landmark).
+
+  Client library and SDK installation "More" comboboxes sat inside `role="tablist"`, which fails `aria-required-children`. They now sit beside the tablist. MCP install controls without a target URL render as buttons instead of empty `a[href=""]` links.
+
+- [#9791](https://github.com/scalar/scalar/pull/9791): Stop recursive schema rendering when a discriminator variant `allOf`s back to its base type. The selected child now inherits the parent's discriminator context so the mapping is not re-inferred on every nest.
+- [#9830](https://github.com/scalar/scalar/pull/9830): Stop listing enum values twice for an array parameter whose `items` is a `$ref`
+  to an enum schema. The values are now listed only in the array items card, which
+  also shows the item schema's title and description.
+- [#9839](https://github.com/scalar/scalar/pull/9839): Harden the API reference against untrusted OpenAPI documents:
+  - Link targets taken from the document (`info.license.url`, `info.termsOfService`,
+    `info.contact.url`, `externalDocs.url`, `x-scalar-links`) and the direct download link are now
+    checked against an allow list of protocols, so a document can no longer render a `javascript:`
+    link that runs script when a reader clicks it. Unsafe values fall back to plain text.
+  - `deepMerge` (used by the exported `createEmptySpecification`) no longer writes through the
+    prototype chain, so a document can no longer add properties to `Object.prototype` via `__proto__`,
+    `constructor`, or `prototype`. Keys with those names are kept as plain data instead of being
+    dropped, so a schema is still free to describe a property named `constructor`.
+  - `customCss` can no longer close the injected `<style>` tag, which mattered during server
+    rendering where the value lands in the HTML stream verbatim.
+  - Added `rel="noopener noreferrer"` to the remaining `target="_blank"` links.
+
+  Adds `isSafeUrl` and `sanitizeUrl` to `@scalar/helpers/url/is-safe-url`.
+
+- [#9829](https://github.com/scalar/scalar/pull/9829): Update Vue to 3.5.40. Vue 3.5.36 tightened `defineModel` default validation, so
+  models with array or object defaults now use the factory form
+  (`defineModel<T[]>({ default: () => [] })`) as Vue already requires for regular
+  props. Behaviour is unchanged.
+- [#9790](https://github.com/scalar/scalar/pull/9790): fix: keep dots in webhook navigation deep links
+
+  Webhook event names that use dots (for example `account_holder.created`) had the
+  dot dropped when building the navigation id, joining adjacent words into
+  `account-holdercreated`. Dots are now kept, producing `account-holder.created`.
+
+  Old deep links using the dropped-dot slug are redirected to the new slug, so
+  existing bookmarks keep resolving.
+
 ## 1.64.0
 
 ### Minor Changes
