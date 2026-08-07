@@ -104,4 +104,4 @@ Set `publish.go` to `true` to tag each release so the Go module proxy can serve 
 | `go`                 | Set to `true` to tag each release and warm the Go module proxy. |
 | `releaseEnvironment` | Release environment the generated publish job runs in.        |
 
-Go publishes through the Git tag, so there is nothing to authenticate against: the release workflow only warms the public module proxy, using the built-in `GITHUB_TOKEN`. The shared `authMethod` option has nothing to act on here and is ignored.
+Go publishes through the Git tag, so there is nothing to authenticate against: the release workflow just warms the public module proxy so it caches the new version. The shared `authMethod` option has nothing to act on here and is ignored.

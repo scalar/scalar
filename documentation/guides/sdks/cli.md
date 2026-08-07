@@ -40,7 +40,7 @@ Add `cli` under `targets` to generate a command-line interface for your API.
 
 ## Destinations
 
-Use `destinations.production` to push generated output to a GitHub repository.
+Use `destinations.production` to push generated output to a GitHub repository. This option is available on every target, not just `cli`.
 
 ```json
 {
