@@ -15,7 +15,7 @@ const { options = [] } = defineProps<{
   options?: ScalarCheckboxOption[]
 }>()
 
-const model = defineModel<ScalarCheckboxOption[]>({ default: [] })
+const model = defineModel<ScalarCheckboxOption[]>({ default: () => [] })
 </script>
 <template>
   <ScalarFormInputGroup>
