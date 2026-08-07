@@ -64,15 +64,29 @@ describe('openapi', () => {
 
       expect(({} as Record<string, unknown>).polluted).toBeUndefined()
       expect(Object.prototype).not.toHaveProperty('polluted')
+      expect(Object.getPrototypeOf(result)).toBe(Object.prototype)
       expect(result).toMatchObject({ openapi: '3.1.0', info: { title: 'Test' } })
     })
 
-    it('does not merge a constructor key', () => {
+    it('keeps a constructor key as plain data without polluting the prototype', () => {
       const source = JSON.parse('{"constructor":{"prototype":{"polluted":"yes"}}}')
 
-      deepMerge(source, {})
+      const result = deepMerge(source, {})
 
+      // The malicious payload cannot reach the real prototype chain
       expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+      expect(Object.prototype).not.toHaveProperty('polluted')
+      // But a document is still free to describe a property literally named `constructor`
+      expect(Object.hasOwn(result, 'constructor')).toBe(true)
+      expect(result.constructor.prototype.polluted).toBe('yes')
+    })
+
+    it('keeps a schema property named prototype', () => {
+      const source = JSON.parse('{"components":{"schemas":{"Foo":{"properties":{"prototype":{"type":"string"}}}}}}')
+
+      const result = deepMerge(source, {})
+
+      expect(result.components.schemas.Foo.properties.prototype).toEqual({ type: 'string' })
     })
 
     it('merges objects with a null prototype', () => {
