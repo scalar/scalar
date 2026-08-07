@@ -41,7 +41,7 @@ Merging runs `release-please.yml` on the default branch, which cuts the `vX.Y.Z`
 
   <scalar-step id="step-publish" title="The publish job publishes">
 
-In the same workflow run, the inline `publish` job checks out the tag that was just cut and publishes the package to its registry, then the release is synced back to `scalar-next`. The publish step is idempotent: if that version is already on the registry, it is skipped, so re-runs never fail or double-publish.
+In the same workflow run, the release is synced back to `scalar-next`, and the inline `publish` job then checks out the tag that was just cut and publishes the package to its registry. The publish step is idempotent: if that version is already on the registry, it is skipped, so re-runs never fail or double-publish.
 
   </scalar-step>
 </scalar-steps>
