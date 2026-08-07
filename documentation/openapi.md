@@ -179,6 +179,40 @@ paths:
                   name: Mars
 ```
 
+## externalValue
+
+`externalValue` is a standard OpenAPI field on an [Example Object](https://spec.openapis.org/oas/v3.1.0#example-object). It lets you keep large request or response examples outside of your OpenAPI document and point to them by URL instead. This is useful when a single document would otherwise contain hundreds or thousands of big example payloads.
+
+Scalar fetches the referenced payload while loading the document and uses it for the example selector, the request preview, the generated code snippets, and the Test Request dialog.
+
+```yaml
+paths:
+  '/shipments':
+    post:
+      requestBody:
+        content:
+          application/json:
+            examples:
+              shipper-standard:
+                summary: Shipper Standard
+                externalValue: /examples/post-shipment/shipper-standard.json
+```
+
+The referenced endpoint returns the raw example payload:
+
+```json
+{
+  "shippingType": "Shipper_001",
+  "packages": []
+}
+```
+
+A few things to keep in mind:
+
+- `value` and `externalValue` are mutually exclusive. If both are present, `value` is used.
+- Relative URLs (like the one above) are resolved against the URL your document was loaded from.
+- The referenced URL must be reachable by the browser (CORS applies), and should return JSON or YAML.
+
 ## x-displayName
 
 You can overwrite tag names with `x-displayName`.
