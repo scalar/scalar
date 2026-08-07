@@ -37,7 +37,7 @@ This enables users to discover the full range of Cloudinary’s capability and f
 
 ## The added benefits of OpenAPI and Scalar
 
-Beyond covering many more use cases, the combination of OpenAPI and Scalar provide many benefits for Cloudinary and their users:
+Beyond covering many more use cases, the combination of OpenAPI and Scalar provides many benefits for Cloudinary and their users:
 
 ### Functionality
 

@@ -43,11 +43,11 @@ Running this then generates an OpenAPI document at `https://localhost:<port>/ope
 
 [![Dotnet 9 OpenAPI](https://substackcdn.com/image/fetch/$s_!CkN3!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7f04e6c4-42a9-48a7-82e8-9fb654dbe118_1480x1190.png "Dotnet 9 OpenAPI")](https://substackcdn.com/image/fetch/$s_!CkN3!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7f04e6c4-42a9-48a7-82e8-9fb654dbe118_1480x1190.png)
 
-Generating this is document is a great first step, but is only part of the solution. It then needs to be turned into documentation people can use. This is where Scalar’s suite of API tools come in.
+Generating this document is a great first step, but is only part of the solution. It then needs to be turned into documentation people can use. This is where Scalar’s suite of API tools come in.
 
 ## Setting up Scalar’s ASP.NET package
 
-Thanks to [@captainsafia](https://github.com/captainsafia) and [@xC0dex](https://github.com/xC0dex) of our community, Scalar has a ASP.NET API package.
+Thanks to [@captainsafia](https://github.com/captainsafia) and [@xC0dex](https://github.com/xC0dex) of our community, Scalar has an ASP.NET API package.
 
 To set it up, simply install the package:
 
@@ -92,7 +92,7 @@ This creates a complete set of API docs in a simple to use UI without all of the
 
 The combination of new ASP.NET OpenAPI generation and Scalar solves the undocumented API problem. No more needing to document, generate, update, and serve your API docs.
 
-We don’t stop there either. Our API seamlessly turn into a fully featured API client. This means you not only get to document your API but test it. This is a core part of our aim of creating a world-class developer experience for your APIs.
+We don’t stop there either. Our API seamlessly turns into a fully featured API client. This means you not only get to document your API but test it. This is a core part of our aim of creating a world-class developer experience for your APIs.
 
 [![Dotnet 9 API client](https://substackcdn.com/image/fetch/$s_!nm9-!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7cf53bcc-3c00-48ad-a283-4e5202aa06db_2868x1624.png "Dotnet 9 API client")](https://substackcdn.com/image/fetch/$s_!nm9-!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7cf53bcc-3c00-48ad-a283-4e5202aa06db_2868x1624.png)
 
