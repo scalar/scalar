@@ -60,6 +60,13 @@ import type {
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
 
+/**
+ * Maximum number of external references and example `externalValue`s fetched at once while bundling
+ * a document. Keeps large documents (which can reference thousands of external examples) from opening
+ * an unbounded number of connections on load.
+ */
+const EXTERNAL_FETCH_CONCURRENCY_LIMIT = 10
+
 type ExtraDocumentConfigurations = Record<
   string,
   {
@@ -990,6 +997,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const loaders = [
       fetchUrls({
         fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+        // Cap concurrent fetches so a document with many external references or example
+        // `externalValue`s (potentially thousands) does not flood the network on load.
+        limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
       }),
     ]
 
