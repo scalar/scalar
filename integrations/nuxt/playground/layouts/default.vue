@@ -2,6 +2,10 @@
   <div>
     <header>
       <p>This is an example header</p>
+      <nav>
+        <NuxtLink to="/scalar-a">Config A</NuxtLink>
+        <NuxtLink to="/scalar-b">Config B</NuxtLink>
+      </nav>
     </header>
     <NuxtPage />
   </div>

@@ -34,8 +34,14 @@ const url = props.configuration.spec?.url ?? props.configuration.url
 const currentRoute = useRoute()
 const meta = currentRoute.meta as { isOpenApiEnabled?: boolean }
 
-// Grab spec if we can
-const document = useState<string | null>('document', () => null)
+// Grab spec if we can.
+// The state key is namespaced by the route name so that each configuration keeps
+// its own document. With a shared key, navigating between multiple Scalar routes
+// would reuse the first document instead of fetching each one.
+const document = useState<string | null>(
+  `scalar-document:${String(currentRoute.name)}`,
+  () => null,
+)
 
 // If the document is not set, we need to fetch it
 if (!document.value) {
@@ -61,12 +67,15 @@ if (!document.value) {
   else if (meta.isOpenApiEnabled) {
     try {
       // Use useAsyncData for proper server-to-client data flow
-      const { data } = await useAsyncData('openapi-spec', async () => {
-        const response = await $fetch<string>('/_openapi.json', {
-          responseType: 'text',
-        })
-        return response
-      })
+      const { data } = await useAsyncData(
+        `scalar-openapi-spec:${String(currentRoute.name)}`,
+        async () => {
+          const response = await $fetch<string>('/_openapi.json', {
+            responseType: 'text',
+          })
+          return response
+        },
+      )
       document.value = data.value || null
     } catch (error) {
       console.error('Failed to fetch OpenAPI spec from /_openapi.json:', error)
@@ -75,7 +84,7 @@ if (!document.value) {
 }
 
 // Check for empty spec
-if (!document) {
+if (!document.value) {
   throw new Error(
     'You must provide a document for Scalar API References. Either provide a spec URL/content, or enable experimental openAPI in the Nitro config.',
   )
