@@ -905,8 +905,8 @@
       },
       {
         "type": "link",
-        "title": "Enterprise",
-        "to": "/enterprise"
+        "title": "Docs",
+        "to": "/docs"
       },
       {
         "type": "spacer"
@@ -921,6 +921,19 @@
         "title": "Register",
         "style": "button",
         "to": "https://dashboard.scalar.com/register"
+      }
+    ],
+    "sidebar": [
+      {
+        "title": "Email",
+        "url": "mailto:support@scalar.com",
+        "icon": "phosphor/regular/envelope-simple-open"
+      },
+      {
+        "title": "Demo",
+        "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
+        "icon": "phosphor/regular/user-rectangle",
+        "newTab": true
       }
     ],
     "routes": {
@@ -1144,14 +1157,712 @@
               ]
             }
           },
-          "/products": {
+          "/enterprise": {
+            "title": "Enterprise",
+            "icon": "phosphor/regular/briefcase",
+            "type": "page",
+            "filepath": "documentation/guides/enterprise/enterprise.md",
+            "showInSidebar": true,
+            "description": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support.",
+            "head": {
+              "title": "Scalar Enterprise — API Platform for Enterprise Teams",
+              "scripts": [
+                {
+                  "path": "documentation/assets/enterprise-contact-form.js"
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/enterprise"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar Enterprise — API Platform for Enterprise Teams"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
+            }
+          },
+          "/solutions/openapi-documentation": {
+            "title": "OpenAPI Documentation",
+            "type": "page",
+            "filepath": "documentation/solutions/openapi-documentation.md",
+            "showInSidebar": false,
+            "description": "Turn an OpenAPI document into an interactive API reference, API client, SDKs, and MCP server. OpenAPI 3.0/3.1 support, Swagger 2.0 upgraded on load, MIT-licensed renderer.",
+            "head": {
+              "title": "OpenAPI Documentation with Scalar — Interactive References from Your OpenAPI Document",
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/solutions/openapi-documentation"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Turn an OpenAPI document into an interactive API reference, API client, SDKs, and MCP server. OpenAPI 3.0/3.1 support, Swagger 2.0 upgraded on load, MIT-licensed renderer."
+                },
+                {
+                  "property": "og:title",
+                  "content": "OpenAPI Documentation with Scalar — Interactive References from Your OpenAPI Document"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Turn an OpenAPI document into an interactive API reference, API client, SDKs, and MCP server. OpenAPI 3.0/3.1 support, Swagger 2.0 upgraded on load, MIT-licensed renderer."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
+            }
+          },
+          "/solutions/api-documentation-for-developer-tools-companies": {
+            "title": "API Documentation for Developer Tools Companies",
+            "type": "page",
+            "filepath": "documentation/solutions/api-documentation-for-developer-tools-companies.md",
+            "showInSidebar": false,
+            "description": "How developer tools companies keep API docs, SDK code samples, and an interactive API client in sync with one OpenAPI document using Scalar.",
+            "head": {
+              "title": "API Documentation for Developer Tools Companies — Scalar",
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/solutions/api-documentation-for-developer-tools-companies"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "How developer tools companies keep API docs, SDK code samples, and an interactive API client in sync with one OpenAPI document using Scalar."
+                },
+                {
+                  "property": "og:title",
+                  "content": "API Documentation for Developer Tools Companies — Scalar"
+                },
+                {
+                  "property": "og:description",
+                  "content": "How developer tools companies keep API docs, SDK code samples, and an interactive API client in sync with one OpenAPI document using Scalar."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
+            }
+          },
+          "/solutions/developer-portal": {
+            "title": "Developer Portals",
+            "type": "page",
+            "filepath": "documentation/solutions/developer-portal.md",
+            "showInSidebar": false,
+            "description": "Build a developer portal on Scalar: API reference from OpenAPI, guides in Markdown and MDX, a built-in API client, generated SDKs, and hosted MCP servers that stay in sync from one document.",
+            "head": {
+              "title": "Scalar for Developer Portals — API Docs, SDKs, and API Client in One Place",
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/solutions/developer-portal"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Build a developer portal on Scalar: API reference from OpenAPI, guides in Markdown and MDX, a built-in API client, generated SDKs, and hosted MCP servers that stay in sync from one document."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar for Developer Portals — API Docs, SDKs, and API Client in One Place"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Build a developer portal on Scalar: API reference from OpenAPI, guides in Markdown and MDX, a built-in API client, generated SDKs, and hosted MCP servers that stay in sync from one document."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
+            }
+          },
+          "/customers/partech": {
+            "type": "page",
+            "title": "How PAR Modernized Its Developer Experience With Scalar",
+            "filepath": "documentation/guides/customers/partech.md",
+            "showInSidebar": false,
+            "description": "How PAR Technology modernized its developer experience with Scalar, a modern, open-standards API platform.",
+            "head": {
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/customers/partech"
+                }
+              ],
+              "meta": [
+                {
+                  "property": "og:image",
+                  "name": "og:image",
+                  "content": "https://scalar.com/partech-branding.png"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false,
+              "sidebar": false,
+              "search": {
+                "enabled": false
+              }
+            }
+          },
+          "/brand": {
+            "title": "Brand",
+            "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
+            "icon": "phosphor/regular/palette",
+            "filepath": "documentation/guides/brand.md",
+            "type": "page",
+            "showInSidebar": false,
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/brand.js"
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/brand"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar Brand Guidelines"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Download the Scalar logo, wordmark, icon, and brand color palette."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "home-resources": {
+            "type": "group",
+            "title": "Resources",
+            "mode": "flat",
+            "children": {
+              "../resources/compare": {
+                "type": "group",
+                "title": "Compare",
+                "icon": "phosphor/regular/scales",
+                "mode": "folder",
+                "page": {
+                  "type": "page",
+                  "title": "Compare",
+                  "filepath": "documentation/compare/index.md",
+                  "description": "Honest comparisons of Scalar against other API documentation and SDK generation platforms.",
+                  "layout": {
+                    "toc": false
+                  },
+                  "head": {
+                    "title": "Compare Scalar — API Docs & SDK Generator Comparisons",
+                    "links": [
+                      {
+                        "rel": "canonical",
+                        "href": "https://scalar.com/resources/compare"
+                      }
+                    ],
+                    "meta": [
+                      {
+                        "name": "description",
+                        "content": "Honest comparisons of Scalar against other API documentation and SDK generation platforms."
+                      },
+                      {
+                        "property": "og:title",
+                        "content": "Compare Scalar - API Docs & SDK Generators"
+                      },
+                      {
+                        "property": "og:description",
+                        "content": "Honest comparisons of Scalar against other API documentation and SDK generation platforms."
+                      },
+                      {
+                        "name": "robots",
+                        "content": "index, follow"
+                      }
+                    ]
+                  }
+                },
+                "children": {
+                  "mintlify": {
+                    "type": "page",
+                    "title": "Mintlify",
+                    "filepath": "documentation/compare/mintlify.md",
+                    "description": "Compare Scalar and Mintlify for API documentation: licensing, self-hosting, customization, framework integrations, and pricing.",
+                    "head": {
+                      "title": "Scalar vs Mintlify — API Documentation Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/mintlify"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and Mintlify for API documentation: licensing, self-hosting, customization, framework integrations, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs Mintlify — API Documentation Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and Mintlify for API documentation, and how both compare to Fern and Stainless."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "fern": {
+                    "type": "page",
+                    "title": "Fern",
+                    "filepath": "documentation/compare/fern.md",
+                    "description": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing.",
+                    "head": {
+                      "title": "Scalar vs Fern — API Docs & SDK Generator Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/fern"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs Fern — API Docs & SDK Generator Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and Fern across documentation, SDK generation, open source licensing, and pricing."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "readme": {
+                    "type": "page",
+                    "title": "ReadMe",
+                    "filepath": "documentation/compare/readme.md",
+                    "description": "Compare Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing.",
+                    "head": {
+                      "title": "Scalar vs ReadMe — Developer Portal and API Documentation Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/readme"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs ReadMe — Developer Portal and API Documentation Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and ReadMe across developer portals, API documentation, analytics, SDK generation, and pricing."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "redocly": {
+                    "type": "page",
+                    "title": "Redocly",
+                    "filepath": "documentation/compare/redocly.md",
+                    "description": "Compare Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing.",
+                    "head": {
+                      "title": "Scalar vs Redocly — OpenAPI Documentation Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/redocly"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs Redocly — OpenAPI Documentation Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and Redocly across OpenAPI documentation, open source licensing, API governance, and pricing."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "postman": {
+                    "type": "page",
+                    "title": "Postman",
+                    "filepath": "documentation/compare/postman.md",
+                    "description": "Compare Scalar and Postman for API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing.",
+                    "head": {
+                      "title": "Scalar vs Postman — API Client and Documentation Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/postman"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and Postman for API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs Postman — API Client and Documentation Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and Postman across API clients, OpenAPI support, offline use, documentation, and pricing."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "../resources/migration": {
+                "title": "Migration",
+                "icon": "phosphor/regular/arrows-split",
+                "description": "Step-by-step guides for migrating from Stainless, Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo to Scalar.",
+                "type": "group",
+                "mode": "folder",
+                "page": {
+                  "type": "page",
+                  "title": "Migration",
+                  "filepath": "documentation/migration/index.md",
+                  "description": "Step-by-step guides for migrating your API documentation and SDKs to Scalar.",
+                  "layout": {
+                    "toc": false
+                  },
+                  "head": {
+                    "title": "Migrate to Scalar — API Docs & SDK Migration Guides",
+                    "links": [
+                      {
+                        "rel": "canonical",
+                        "href": "https://scalar.com/resources/migration"
+                      }
+                    ],
+                    "meta": [
+                      {
+                        "name": "description",
+                        "content": "Step-by-step guides for migrating your API documentation and SDKs to Scalar."
+                      },
+                      {
+                        "property": "og:title",
+                        "content": "Migrate to Scalar - API Docs & SDK Migration Guides"
+                      },
+                      {
+                        "property": "og:description",
+                        "content": "Move your API documentation and SDKs to Scalar from Stainless, Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo."
+                      },
+                      {
+                        "name": "robots",
+                        "content": "index, follow"
+                      }
+                    ]
+                  }
+                },
+                "children": {
+                  "stainless": {
+                    "title": "Stainless",
+                    "filepath": "documentation/migration/stainless.md",
+                    "description": "Migrate from Stainless to Scalar: import your existing stainless.yml so SDK namespaces, method names, and pagination carry over.",
+                    "type": "page"
+                  },
+                  "swagger-ui": {
+                    "title": "Swagger UI",
+                    "filepath": "documentation/migration/swagger-ui.md",
+                    "type": "page",
+                    "description": "Complete guide to migrating from Swagger UI to API References with modern features and better UX.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/migration/swagger-ui"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Complete guide to migrating from Swagger UI to API References with modern features and better UX."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Migrate from Swagger UI to Scalar - Migration Guide"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Complete guide to migrating from Swagger UI to API References with modern features and better UX."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "stoplight": {
+                    "title": "Stoplight",
+                    "filepath": "documentation/migration/stoplight.md",
+                    "description": "Step-by-step guide to migrating your API documentation from Stoplight to Scalar.",
+                    "type": "page"
+                  },
+                  "api-hub": {
+                    "title": "API Hub",
+                    "filepath": "documentation/migration/api-hub.md",
+                    "description": "How to migrate from Smartbear API Hub (formerly SwaggerHub) to Scalar for docs, registry, and API references.",
+                    "type": "page"
+                  },
+                  "bump": {
+                    "title": "Bump.sh",
+                    "filepath": "documentation/migration/bump.md",
+                    "description": "Compare Bump.sh with Scalar and migrate your OpenAPI documentation step by step.",
+                    "type": "page"
+                  },
+                  "zuplo": {
+                    "title": "Zuplo",
+                    "filepath": "documentation/migration/zuplo.md",
+                    "description": "Compare Zuplo docs with Scalar and migrate your API reference step by step.",
+                    "type": "page"
+                  }
+                }
+              },
+              "../resources/blog": {
+                "type": "page",
+                "title": "Blog",
+                "icon": "phosphor/regular/newspaper",
+                "description": "News and engineering stories from the Scalar team on OpenAPI, API documentation, and developer experience.",
+                "filepath": "documentation/blog/index.md",
+                "showInSidebar": true,
+                "layout": {
+                  "toc": false
+                }
+              }
+            }
+          },
+          "/blog/posts/2026-04-11-oss-pledge": {
+            "type": "page",
+            "title": "Scalar's 2025 Open Source Pledge",
+            "description": "Scalar renews its Open Source Pledge for 2025, continuing to fund the open source maintainers we depend on.",
+            "filepath": "documentation/blog/2026-04-11-oss-pledge.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2026-03-25-scalar-mcp-oauth": {
+            "type": "page",
+            "title": "Too Long; Didn't Read; Used MCP",
+            "description": "How OAuth works with Scalar MCP servers: authenticate agents against your API with delegated user permissions.",
+            "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
+            "showInSidebar": false,
+            "head": {
+              "scripts": [
+                {
+                  "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
+                }
+              ]
+            }
+          },
+          "/blog/posts/2026-03-17-agent-mcp": {
+            "type": "page",
+            "title": "Use your API in Cursor",
+            "description": "Expose your OpenAPI document as an MCP server and use your API directly in Cursor or any MCP-compatible tool.",
+            "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
+            "showInSidebar": false,
+            "head": {
+              "scripts": [
+                {
+                  "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
+                }
+              ]
+            }
+          },
+          "/blog/posts/2026-03-05-agent-scalar": {
+            "type": "page",
+            "title": "Introducing Agent",
+            "description": "Introducing Scalar Agent: connect LLMs to your API using a fraction of the context window instead of pasting your whole OpenAPI document.",
+            "filepath": "documentation/blog/2026-03-05-agent-scalar.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-08-19-how-to-set-up-an-openapi-mock-server": {
+            "type": "page",
+            "title": "How to set up an OpenAPI mock server",
+            "description": "How to set up an OpenAPI mock server with the Scalar CLI in a few commands.",
+            "filepath": "documentation/blog/2025-08-19-how-to-set-up-an-openapi-mock-server.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-07-07-how-to-do-openapi-validation-and": {
+            "type": "page",
+            "title": "How to do OpenAPI validation (and why it matters)",
+            "description": "How to validate OpenAPI documents with the Scalar CLI, and why validation matters for your API workflow.",
+            "filepath": "documentation/blog/2025-07-07-how-to-do-openapi-validation-and.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-05-28-how-we-created-an-animated-responsive": {
+            "type": "page",
+            "title": "How we created an animated, responsive README",
+            "description": "How we built an animated, responsive README for the Scalar GitHub repository with GitHub-flavored Markdown.",
+            "filepath": "documentation/blog/2025-05-28-how-we-created-an-animated-responsive.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-05-07-how-scalar-themes-work": {
+            "type": "page",
+            "title": "How Scalar themes work",
+            "description": "How Scalar themes work: the CSS variable system that lets you restyle an entire API reference.",
+            "filepath": "documentation/blog/2025-05-07-how-scalar-themes-work.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-04-28-how-cloudinarys-api-docs-create-a": {
+            "type": "page",
+            "title": "How Cloudinary’s API docs create a great developer experience",
+            "description": "What Cloudinary API docs get right, and what API-first companies can learn from their developer experience.",
+            "filepath": "documentation/blog/2025-04-28-how-cloudinarys-api-docs-create-a.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-04-23-an-introduction-to-openapi-variables": {
+            "type": "page",
+            "title": "An introduction to OpenAPI variables",
+            "description": "An introduction to OpenAPI variables: the different types and how to use them in your API documentation.",
+            "filepath": "documentation/blog/2025-04-23-an-introduction-to-openapi-variables.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-04-06-how-we-extended-the-openapi-specification": {
+            "type": "page",
+            "title": "How we extended the OpenAPI specification",
+            "description": "The extensions we added to the OpenAPI specification and how we process them under the hood.",
+            "filepath": "documentation/blog/2025-04-06-how-we-extended-the-openapi-specification.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-03-26-a-guide-to-openapi-security-and-how": {
+            "type": "page",
+            "title": "A guide to OpenAPI security (and how we handle it in Scalar)",
+            "description": "A practical guide to defining authentication and authorization in OpenAPI, and how Scalar renders security schemes.",
+            "filepath": "documentation/blog/2025-03-26-a-guide-to-openapi-security-and-how.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-03-19-the-hidden-complexity-of-building": {
+            "type": "page",
+            "title": "The hidden complexity of building drag and drop",
+            "description": "Why drag and drop is deceptively hard to build, and how we implemented it in the Scalar API Client.",
+            "filepath": "documentation/blog/2025-03-19-the-hidden-complexity-of-building.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-03-12-how-we-sped-up-our-api-docs-25x": {
+            "type": "page",
+            "title": "How we sped up our API docs 25x",
+            "description": "The structural and rendering changes that made our API documentation 25x faster.",
+            "filepath": "documentation/blog/2025-03-12-how-we-sped-up-our-api-docs-25x.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2025-03-05-how-net-9-and-scalar-solve-the-problem": {
+            "type": "page",
+            "title": "How .NET 9 and Scalar solve the problem of under-documented APIs",
+            "description": "How .NET 9 OpenAPI document generation and Scalar work together to keep your APIs documented.",
+            "filepath": "documentation/blog/2025-03-05-how-net-9-and-scalar-solve-the-problem.md",
+            "showInSidebar": false
+          },
+          "/blog/posts/2024-09-01-oss-pledge": {
+            "type": "page",
+            "title": "Scalar Joins the Open-Source Pledge",
+            "description": "Scalar joins the Open Source Pledge, committing at least $2,000 per developer per year to open source maintainers.",
+            "filepath": "documentation/blog/2024-09-01-oss-pledge.md",
+            "showInSidebar": false
+          }
+        }
+      },
+      "/docs": {
+        "type": "group",
+        "title": "Docs",
+        "mode": "flat",
+        "children": {
+          "/": {
+            "type": "page",
+            "title": "Overview",
+            "filepath": "documentation/guides/scalar-overview.md",
+            "description": "Explore documentation for Scalar products, developer tools, and APIs.",
+            "icon": "phosphor/regular/house",
+            "showInSidebar": true,
+            "layout": {
+              "toc": true
+            }
+          },
+          "products": {
             "type": "group",
             "title": "Products",
-            "icon": "phosphor/regular/compass",
-            "mode": "folder",
-            "open": true,
+            "mode": "flat",
             "children": {
-              "/docs": {
+              "../../products/docs": {
                 "title": "Docs",
                 "description": "Build beautiful, version-controlled developer documentation with Markdown, MDX, and powerful components.",
                 "type": "group",
@@ -1619,7 +2330,7 @@
                   }
                 }
               },
-              "/agent": {
+              "../../products/agent": {
                 "title": "MCP & Agent",
                 "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
                 "type": "group",
@@ -1813,7 +2524,7 @@
                   }
                 }
               },
-              "/sdk-generator": {
+              "../../products/sdk-generator": {
                 "title": "SDK Generator",
                 "description": "Generate idiomatic, type-safe SDKs and CLIs from your OpenAPI document. TypeScript, Python, Go, and CLI targets are generally available, with Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ also supported.",
                 "type": "group",
@@ -2111,7 +2822,7 @@
                   }
                 }
               },
-              "/registry": {
+              "../../products/registry": {
                 "title": "Registry",
                 "description": "Centralized API registry for managing OpenAPI specifications with versioning, validation, and automated workflows.",
                 "type": "group",
@@ -2221,7 +2932,7 @@
                   }
                 }
               },
-              "/api-references": {
+              "../../products/api-references": {
                 "title": "API References",
                 "description": "Generate beautiful, interactive API documentation from OpenAPI and AsyncAPI specifications with customizable themes.",
                 "type": "group",
@@ -2798,7 +3509,7 @@
                   }
                 }
               },
-              "/api-client": {
+              "../../products/api-client": {
                 "title": "API Client",
                 "description": "Modern, open-source API testing client with OpenAPI integration, collections, and a beautiful interface.",
                 "type": "group",
@@ -3226,13 +3937,12 @@
               }
             }
           },
-          "/tools": {
+          "tools": {
             "type": "group",
             "title": "Tools",
-            "icon": "phosphor/regular/compass-tool",
-            "mode": "folder",
+            "mode": "flat",
             "children": {
-              "/cli": {
+              "../../tools/cli": {
                 "title": "Scalar CLI",
                 "description": "Command-line interface for managing OpenAPI specs, validating schemas, and deploying documentation.",
                 "type": "group",
@@ -3285,7 +3995,7 @@
                   }
                 }
               },
-              "/mock-server": {
+              "../../tools/mock-server": {
                 "title": "Mock Server",
                 "description": "Generate realistic mock API servers from OpenAPI specifications for testing, development, and prototyping.",
                 "type": "group",
@@ -3355,7 +4065,7 @@
                   }
                 }
               },
-              "/openapi-upgrader": {
+              "../../tools/openapi-upgrader": {
                 "title": "OpenAPI Upgrader",
                 "description": "Automatically upgrade your OpenAPI specifications from Swagger 2.0 to OpenAPI 3.0 and 3.1 with zero manual work.",
                 "type": "group",
@@ -3402,7 +4112,7 @@
                   }
                 }
               },
-              "/api": {
+              "../../tools/api": {
                 "type": "openapi",
                 "namespace": "scalar",
                 "slug": "access-service",
@@ -3413,549 +4123,12 @@
               }
             }
           },
-          "/enterprise": {
-            "title": "Enterprise",
-            "type": "page",
-            "filepath": "documentation/guides/enterprise/enterprise.md",
-            "showInSidebar": false,
-            "description": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support.",
-            "head": {
-              "title": "Scalar Enterprise — API Platform for Enterprise Teams",
-              "scripts": [
-                {
-                  "path": "documentation/assets/enterprise-contact-form.js"
-                }
-              ],
-              "links": [
-                {
-                  "rel": "canonical",
-                  "href": "https://scalar.com/enterprise"
-                }
-              ],
-              "meta": [
-                {
-                  "name": "description",
-                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
-                },
-                {
-                  "property": "og:title",
-                  "content": "Scalar Enterprise — API Platform for Enterprise Teams"
-                },
-                {
-                  "property": "og:description",
-                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
-                },
-                {
-                  "name": "robots",
-                  "content": "index, follow"
-                }
-              ]
-            },
-            "layout": {
-              "toc": false
-            }
-          },
-          "/solutions/openapi-documentation": {
-            "title": "OpenAPI Documentation",
-            "type": "page",
-            "filepath": "documentation/solutions/openapi-documentation.md",
-            "showInSidebar": false,
-            "description": "Turn an OpenAPI document into an interactive API reference, API client, SDKs, and MCP server. OpenAPI 3.0/3.1 support, Swagger 2.0 upgraded on load, MIT-licensed renderer.",
-            "head": {
-              "title": "OpenAPI Documentation with Scalar — Interactive References from Your OpenAPI Document",
-              "links": [
-                {
-                  "rel": "canonical",
-                  "href": "https://scalar.com/solutions/openapi-documentation"
-                }
-              ],
-              "meta": [
-                {
-                  "name": "description",
-                  "content": "Turn an OpenAPI document into an interactive API reference, API client, SDKs, and MCP server. OpenAPI 3.0/3.1 support, Swagger 2.0 upgraded on load, MIT-licensed renderer."
-                },
-                {
-                  "property": "og:title",
-                  "content": "OpenAPI Documentation with Scalar — Interactive References from Your OpenAPI Document"
-                },
-                {
-                  "property": "og:description",
-                  "content": "Turn an OpenAPI document into an interactive API reference, API client, SDKs, and MCP server. OpenAPI 3.0/3.1 support, Swagger 2.0 upgraded on load, MIT-licensed renderer."
-                },
-                {
-                  "name": "robots",
-                  "content": "index, follow"
-                }
-              ]
-            },
-            "layout": {
-              "toc": false
-            }
-          },
-          "/solutions/api-documentation-for-developer-tools-companies": {
-            "title": "API Documentation for Developer Tools Companies",
-            "type": "page",
-            "filepath": "documentation/solutions/api-documentation-for-developer-tools-companies.md",
-            "showInSidebar": false,
-            "description": "How developer tools companies keep API docs, SDK code samples, and an interactive API client in sync with one OpenAPI document using Scalar.",
-            "head": {
-              "title": "API Documentation for Developer Tools Companies — Scalar",
-              "links": [
-                {
-                  "rel": "canonical",
-                  "href": "https://scalar.com/solutions/api-documentation-for-developer-tools-companies"
-                }
-              ],
-              "meta": [
-                {
-                  "name": "description",
-                  "content": "How developer tools companies keep API docs, SDK code samples, and an interactive API client in sync with one OpenAPI document using Scalar."
-                },
-                {
-                  "property": "og:title",
-                  "content": "API Documentation for Developer Tools Companies — Scalar"
-                },
-                {
-                  "property": "og:description",
-                  "content": "How developer tools companies keep API docs, SDK code samples, and an interactive API client in sync with one OpenAPI document using Scalar."
-                },
-                {
-                  "name": "robots",
-                  "content": "index, follow"
-                }
-              ]
-            },
-            "layout": {
-              "toc": false
-            }
-          },
-          "/solutions/developer-portal": {
-            "title": "Developer Portals",
-            "type": "page",
-            "filepath": "documentation/solutions/developer-portal.md",
-            "showInSidebar": false,
-            "description": "Build a developer portal on Scalar: API reference from OpenAPI, guides in Markdown and MDX, a built-in API client, generated SDKs, and hosted MCP servers that stay in sync from one document.",
-            "head": {
-              "title": "Scalar for Developer Portals — API Docs, SDKs, and API Client in One Place",
-              "links": [
-                {
-                  "rel": "canonical",
-                  "href": "https://scalar.com/solutions/developer-portal"
-                }
-              ],
-              "meta": [
-                {
-                  "name": "description",
-                  "content": "Build a developer portal on Scalar: API reference from OpenAPI, guides in Markdown and MDX, a built-in API client, generated SDKs, and hosted MCP servers that stay in sync from one document."
-                },
-                {
-                  "property": "og:title",
-                  "content": "Scalar for Developer Portals — API Docs, SDKs, and API Client in One Place"
-                },
-                {
-                  "property": "og:description",
-                  "content": "Build a developer portal on Scalar: API reference from OpenAPI, guides in Markdown and MDX, a built-in API client, generated SDKs, and hosted MCP servers that stay in sync from one document."
-                },
-                {
-                  "name": "robots",
-                  "content": "index, follow"
-                }
-              ]
-            },
-            "layout": {
-              "toc": false
-            }
-          },
-          "/customers/partech": {
-            "type": "page",
-            "title": "How PAR Modernized Its Developer Experience With Scalar",
-            "filepath": "documentation/guides/customers/partech.md",
-            "showInSidebar": false,
-            "description": "How PAR Technology modernized its developer experience with Scalar, a modern, open-standards API platform.",
-            "head": {
-              "links": [
-                {
-                  "rel": "canonical",
-                  "href": "https://scalar.com/customers/partech"
-                }
-              ],
-              "meta": [
-                {
-                  "property": "og:image",
-                  "name": "og:image",
-                  "content": "https://scalar.com/partech-branding.png"
-                }
-              ]
-            },
-            "layout": {
-              "toc": false,
-              "sidebar": false,
-              "search": {
-                "enabled": false
-              }
-            }
-          },
-          "/brand": {
-            "title": "Brand",
-            "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
-            "icon": "phosphor/regular/palette",
-            "filepath": "documentation/guides/brand.md",
-            "type": "page",
-            "showInSidebar": false,
-            "head": {
-              "scripts": [
-                {
-                  "path": "documentation/assets/brand.js"
-                }
-              ],
-              "links": [
-                {
-                  "rel": "canonical",
-                  "href": "https://scalar.com/brand"
-                }
-              ],
-              "meta": [
-                {
-                  "name": "description",
-                  "content": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets."
-                },
-                {
-                  "property": "og:title",
-                  "content": "Scalar Brand Guidelines"
-                },
-                {
-                  "property": "og:description",
-                  "content": "Download the Scalar logo, wordmark, icon, and brand color palette."
-                },
-                {
-                  "name": "robots",
-                  "content": "index, follow"
-                }
-              ]
-            }
-          },
-          "/resources": {
+          "more": {
             "type": "group",
-            "title": "Resources",
+            "title": "More",
             "mode": "flat",
             "children": {
-              "compare": {
-                "type": "group",
-                "title": "Compare",
-                "icon": "phosphor/regular/scales",
-                "mode": "folder",
-                "page": {
-                  "type": "page",
-                  "title": "Compare",
-                  "filepath": "documentation/compare/index.md",
-                  "description": "Honest comparisons of Scalar against other API documentation and SDK generation platforms.",
-                  "layout": {
-                    "toc": false
-                  },
-                  "head": {
-                    "title": "Compare Scalar — API Docs & SDK Generator Comparisons",
-                    "links": [
-                      {
-                        "rel": "canonical",
-                        "href": "https://scalar.com/resources/compare"
-                      }
-                    ],
-                    "meta": [
-                      {
-                        "name": "description",
-                        "content": "Honest comparisons of Scalar against other API documentation and SDK generation platforms."
-                      },
-                      {
-                        "property": "og:title",
-                        "content": "Compare Scalar - API Docs & SDK Generators"
-                      },
-                      {
-                        "property": "og:description",
-                        "content": "Honest comparisons of Scalar against other API documentation and SDK generation platforms."
-                      },
-                      {
-                        "name": "robots",
-                        "content": "index, follow"
-                      }
-                    ]
-                  }
-                },
-                "children": {
-                  "mintlify": {
-                    "type": "page",
-                    "title": "Mintlify",
-                    "filepath": "documentation/compare/mintlify.md",
-                    "description": "Compare Scalar and Mintlify for API documentation: licensing, self-hosting, customization, framework integrations, and pricing.",
-                    "head": {
-                      "title": "Scalar vs Mintlify — API Documentation Comparison",
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/compare/mintlify"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Compare Scalar and Mintlify for API documentation: licensing, self-hosting, customization, framework integrations, and pricing."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Scalar vs Mintlify — API Documentation Comparison"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "An honest comparison of Scalar and Mintlify for API documentation, and how both compare to Fern and Stainless."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "fern": {
-                    "type": "page",
-                    "title": "Fern",
-                    "filepath": "documentation/compare/fern.md",
-                    "description": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing.",
-                    "head": {
-                      "title": "Scalar vs Fern — API Docs & SDK Generator Comparison",
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/compare/fern"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Scalar vs Fern — API Docs & SDK Generator Comparison"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "An honest comparison of Scalar and Fern across documentation, SDK generation, open source licensing, and pricing."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "readme": {
-                    "type": "page",
-                    "title": "ReadMe",
-                    "filepath": "documentation/compare/readme.md",
-                    "description": "Compare Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing.",
-                    "head": {
-                      "title": "Scalar vs ReadMe — Developer Portal and API Documentation Comparison",
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/compare/readme"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Compare Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Scalar vs ReadMe — Developer Portal and API Documentation Comparison"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "An honest comparison of Scalar and ReadMe across developer portals, API documentation, analytics, SDK generation, and pricing."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "redocly": {
-                    "type": "page",
-                    "title": "Redocly",
-                    "filepath": "documentation/compare/redocly.md",
-                    "description": "Compare Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing.",
-                    "head": {
-                      "title": "Scalar vs Redocly — OpenAPI Documentation Comparison",
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/compare/redocly"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Compare Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Scalar vs Redocly — OpenAPI Documentation Comparison"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "An honest comparison of Scalar and Redocly across OpenAPI documentation, open source licensing, API governance, and pricing."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "postman": {
-                    "type": "page",
-                    "title": "Postman",
-                    "filepath": "documentation/compare/postman.md",
-                    "description": "Compare Scalar and Postman for API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing.",
-                    "head": {
-                      "title": "Scalar vs Postman — API Client and Documentation Comparison",
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/compare/postman"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Compare Scalar and Postman for API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Scalar vs Postman — API Client and Documentation Comparison"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "An honest comparison of Scalar and Postman across API clients, OpenAPI support, offline use, documentation, and pricing."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  }
-                }
-              },
-              "migration": {
-                "title": "Migration",
-                "icon": "phosphor/regular/arrows-split",
-                "description": "Step-by-step guides for migrating from Stainless, Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo to Scalar.",
-                "type": "group",
-                "mode": "folder",
-                "page": {
-                  "type": "page",
-                  "title": "Migration",
-                  "filepath": "documentation/migration/index.md",
-                  "description": "Step-by-step guides for migrating your API documentation and SDKs to Scalar.",
-                  "layout": {
-                    "toc": false
-                  },
-                  "head": {
-                    "title": "Migrate to Scalar — API Docs & SDK Migration Guides",
-                    "links": [
-                      {
-                        "rel": "canonical",
-                        "href": "https://scalar.com/resources/migration"
-                      }
-                    ],
-                    "meta": [
-                      {
-                        "name": "description",
-                        "content": "Step-by-step guides for migrating your API documentation and SDKs to Scalar."
-                      },
-                      {
-                        "property": "og:title",
-                        "content": "Migrate to Scalar - API Docs & SDK Migration Guides"
-                      },
-                      {
-                        "property": "og:description",
-                        "content": "Move your API documentation and SDKs to Scalar from Stainless, Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo."
-                      },
-                      {
-                        "name": "robots",
-                        "content": "index, follow"
-                      }
-                    ]
-                  }
-                },
-                "children": {
-                  "stainless": {
-                    "title": "Stainless",
-                    "filepath": "documentation/migration/stainless.md",
-                    "description": "Migrate from Stainless to Scalar: import your existing stainless.yml so SDK namespaces, method names, and pagination carry over.",
-                    "type": "page"
-                  },
-                  "swagger-ui": {
-                    "title": "Swagger UI",
-                    "filepath": "documentation/migration/swagger-ui.md",
-                    "type": "page",
-                    "description": "Complete guide to migrating from Swagger UI to API References with modern features and better UX.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/migration/swagger-ui"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Complete guide to migrating from Swagger UI to API References with modern features and better UX."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Migrate from Swagger UI to Scalar - Migration Guide"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Complete guide to migrating from Swagger UI to API References with modern features and better UX."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "stoplight": {
-                    "title": "Stoplight",
-                    "filepath": "documentation/migration/stoplight.md",
-                    "description": "Step-by-step guide to migrating your API documentation from Stoplight to Scalar.",
-                    "type": "page"
-                  },
-                  "api-hub": {
-                    "title": "API Hub",
-                    "filepath": "documentation/migration/api-hub.md",
-                    "description": "How to migrate from Smartbear API Hub (formerly SwaggerHub) to Scalar for docs, registry, and API references.",
-                    "type": "page"
-                  },
-                  "bump": {
-                    "title": "Bump.sh",
-                    "filepath": "documentation/migration/bump.md",
-                    "description": "Compare Bump.sh with Scalar and migrate your OpenAPI documentation step by step.",
-                    "type": "page"
-                  },
-                  "zuplo": {
-                    "title": "Zuplo",
-                    "filepath": "documentation/migration/zuplo.md",
-                    "description": "Compare Zuplo docs with Scalar and migrate your API reference step by step.",
-                    "type": "page"
-                  }
-                }
-              },
-              "user-management": {
+              "../../resources/user-management": {
                 "type": "page",
                 "title": "User Management",
                 "icon": "phosphor/regular/users",
@@ -3988,7 +4161,7 @@
                   ]
                 }
               },
-              "sso": {
+              "../../resources/sso": {
                 "title": "SSO/SAML",
                 "icon": "phosphor/regular/keyhole",
                 "description": "Configure single sign-on with Okta, Google, Microsoft Entra ID, Auth0, and other SAML providers for secure authentication.",
@@ -4072,7 +4245,7 @@
                   }
                 }
               },
-              "changelog": {
+              "../../resources/changelog": {
                 "type": "group",
                 "title": "Changelog",
                 "icon": "phosphor/regular/git-diff",
@@ -4174,170 +4347,8 @@
                     }
                   }
                 }
-              },
-              "blog": {
-                "type": "page",
-                "title": "Blog",
-                "icon": "phosphor/regular/newspaper",
-                "description": "News and engineering stories from the Scalar team on OpenAPI, API documentation, and developer experience.",
-                "filepath": "documentation/blog/index.md",
-                "showInSidebar": true,
-                "layout": {
-                  "toc": false
-                }
               }
             }
-          },
-          "/contact": {
-            "type": "group",
-            "title": "Support",
-            "mode": "flat",
-            "children": {
-              "/github": {
-                "title": "GitHub",
-                "icon": "phosphor/regular/github-logo",
-                "url": "https://github.com/scalar/scalar",
-                "type": "link"
-              },
-              "/email": {
-                "title": "Email",
-                "icon": "phosphor/regular/envelope-simple-open",
-                "url": "mailto:support@scalar.com",
-                "type": "link"
-              },
-              "/demo": {
-                "title": "Demo",
-                "icon": "phosphor/regular/user-rectangle",
-                "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
-                "type": "link"
-              }
-            }
-          },
-          "/blog/posts/2026-04-11-oss-pledge": {
-            "type": "page",
-            "title": "Scalar's 2025 Open Source Pledge",
-            "description": "Scalar renews its Open Source Pledge for 2025, continuing to fund the open source maintainers we depend on.",
-            "filepath": "documentation/blog/2026-04-11-oss-pledge.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2026-03-25-scalar-mcp-oauth": {
-            "type": "page",
-            "title": "Too Long; Didn't Read; Used MCP",
-            "description": "How OAuth works with Scalar MCP servers: authenticate agents against your API with delegated user permissions.",
-            "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
-            "showInSidebar": false,
-            "head": {
-              "scripts": [
-                {
-                  "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
-                }
-              ]
-            }
-          },
-          "/blog/posts/2026-03-17-agent-mcp": {
-            "type": "page",
-            "title": "Use your API in Cursor",
-            "description": "Expose your OpenAPI document as an MCP server and use your API directly in Cursor or any MCP-compatible tool.",
-            "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
-            "showInSidebar": false,
-            "head": {
-              "scripts": [
-                {
-                  "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
-                }
-              ]
-            }
-          },
-          "/blog/posts/2026-03-05-agent-scalar": {
-            "type": "page",
-            "title": "Introducing Agent",
-            "description": "Introducing Scalar Agent: connect LLMs to your API using a fraction of the context window instead of pasting your whole OpenAPI document.",
-            "filepath": "documentation/blog/2026-03-05-agent-scalar.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-08-19-how-to-set-up-an-openapi-mock-server": {
-            "type": "page",
-            "title": "How to set up an OpenAPI mock server",
-            "description": "How to set up an OpenAPI mock server with the Scalar CLI in a few commands.",
-            "filepath": "documentation/blog/2025-08-19-how-to-set-up-an-openapi-mock-server.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-07-07-how-to-do-openapi-validation-and": {
-            "type": "page",
-            "title": "How to do OpenAPI validation (and why it matters)",
-            "description": "How to validate OpenAPI documents with the Scalar CLI, and why validation matters for your API workflow.",
-            "filepath": "documentation/blog/2025-07-07-how-to-do-openapi-validation-and.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-05-28-how-we-created-an-animated-responsive": {
-            "type": "page",
-            "title": "How we created an animated, responsive README",
-            "description": "How we built an animated, responsive README for the Scalar GitHub repository with GitHub-flavored Markdown.",
-            "filepath": "documentation/blog/2025-05-28-how-we-created-an-animated-responsive.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-05-07-how-scalar-themes-work": {
-            "type": "page",
-            "title": "How Scalar themes work",
-            "description": "How Scalar themes work: the CSS variable system that lets you restyle an entire API reference.",
-            "filepath": "documentation/blog/2025-05-07-how-scalar-themes-work.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-04-28-how-cloudinarys-api-docs-create-a": {
-            "type": "page",
-            "title": "How Cloudinary’s API docs create a great developer experience",
-            "description": "What Cloudinary API docs get right, and what API-first companies can learn from their developer experience.",
-            "filepath": "documentation/blog/2025-04-28-how-cloudinarys-api-docs-create-a.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-04-23-an-introduction-to-openapi-variables": {
-            "type": "page",
-            "title": "An introduction to OpenAPI variables",
-            "description": "An introduction to OpenAPI variables: the different types and how to use them in your API documentation.",
-            "filepath": "documentation/blog/2025-04-23-an-introduction-to-openapi-variables.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-04-06-how-we-extended-the-openapi-specification": {
-            "type": "page",
-            "title": "How we extended the OpenAPI specification",
-            "description": "The extensions we added to the OpenAPI specification and how we process them under the hood.",
-            "filepath": "documentation/blog/2025-04-06-how-we-extended-the-openapi-specification.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-03-26-a-guide-to-openapi-security-and-how": {
-            "type": "page",
-            "title": "A guide to OpenAPI security (and how we handle it in Scalar)",
-            "description": "A practical guide to defining authentication and authorization in OpenAPI, and how Scalar renders security schemes.",
-            "filepath": "documentation/blog/2025-03-26-a-guide-to-openapi-security-and-how.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-03-19-the-hidden-complexity-of-building": {
-            "type": "page",
-            "title": "The hidden complexity of building drag and drop",
-            "description": "Why drag and drop is deceptively hard to build, and how we implemented it in the Scalar API Client.",
-            "filepath": "documentation/blog/2025-03-19-the-hidden-complexity-of-building.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-03-12-how-we-sped-up-our-api-docs-25x": {
-            "type": "page",
-            "title": "How we sped up our API docs 25x",
-            "description": "The structural and rendering changes that made our API documentation 25x faster.",
-            "filepath": "documentation/blog/2025-03-12-how-we-sped-up-our-api-docs-25x.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-03-05-how-net-9-and-scalar-solve-the-problem": {
-            "type": "page",
-            "title": "How .NET 9 and Scalar solve the problem of under-documented APIs",
-            "description": "How .NET 9 OpenAPI document generation and Scalar work together to keep your APIs documented.",
-            "filepath": "documentation/blog/2025-03-05-how-net-9-and-scalar-solve-the-problem.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2024-09-01-oss-pledge": {
-            "type": "page",
-            "title": "Scalar Joins the Open-Source Pledge",
-            "description": "Scalar joins the Open Source Pledge, committing at least $2,000 per developer per year to open source maintainers.",
-            "filepath": "documentation/blog/2024-09-01-oss-pledge.md",
-            "showInSidebar": false
           }
         }
       },
