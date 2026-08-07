@@ -138,6 +138,19 @@ describe('OperationsList', () => {
     expect(wrapper.text()).not.toContain('Other Item')
   })
 
+  it('renders nothing when children are only nested tags', () => {
+    // A parent tag that only groups other tags has no operations to list,
+    // so it should not render an empty Operations card.
+    const nestedTag = createMockTag({ id: 'child-tag', title: 'Child Tag' })
+    const tag = createMockTag({ children: [nestedTag] })
+
+    const wrapper = mount(OperationsList, {
+      props: { tag, eventBus: null },
+    })
+
+    expect(wrapper.html()).toBe('<!--v-if-->')
+  })
+
   it('sets correct aria-label for the endpoints list', () => {
     const operations = [createMockOperation()]
     const tag = createMockTag({

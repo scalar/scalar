@@ -27,7 +27,7 @@ import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { AsyncApiServerSelector } from '@/blocks/scalar-asyncapi-server-selector-block'
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
@@ -40,6 +40,12 @@ import {
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import { AsyncApiTraversedEntry } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
+import { ContextBar } from '@/components/Content/ContextBar'
+import {
+  buildHeaderTagChains,
+  hasRenderableTagHierarchy,
+} from '@/components/Content/ContextBar/helpers'
+import { useActiveTagChain } from '@/components/Content/ContextBar/use-active-tag-chain'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
@@ -99,6 +105,29 @@ const {
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
   generateClientOptions(mapHiddenClientsConfig(options.hiddenClients)),
+)
+
+/** Reserve the context-bar slot before scrolling reaches a nested tag. */
+const showContextBar = computed(() =>
+  hasRenderableTagHierarchy(items, options.layout),
+)
+
+/** The root <nav> of the sticky bar, used to anchor the active-section calculation. */
+const contextBarRef = ref<{ $el: HTMLElement } | null>(null)
+
+/** Every header-rendering tag with the trail that leads to it, in document order. */
+const headerTagChains = computed(() =>
+  buildHeaderTagChains(items, options.layout),
+)
+
+/**
+ * The breadcrumb trail for the section currently pinned beneath the bar. It is
+ * top-anchored, so a top-level tag shows just its own crumb, nested sections add
+ * their ancestors, and nothing is shown above the first tag.
+ */
+const contextBarChain = useActiveTagChain(
+  headerTagChains,
+  () => contextBarRef.value?.$el ?? null,
 )
 
 /**
@@ -313,6 +342,17 @@ onMounted(() => {
         </ScalarErrorBoundary>
       </template>
     </InfoBlock>
+
+    <!--
+      Sticky breadcrumb showing where a nested tag sits in the hierarchy. Its
+      fixed slot is mounted before scrolling reaches the tags so changing the
+      active hierarchy does not shift the content below it.
+    -->
+    <ContextBar
+      v-if="showContextBar"
+      ref="contextBarRef"
+      :chain="contextBarChain"
+      @navigate="(id) => eventBus.emit('scroll-to:nav-item', { id })" />
 
     <!-- Render traversed operations and webhooks -->
     <!-- Use recursive component for cleaner rendering -->

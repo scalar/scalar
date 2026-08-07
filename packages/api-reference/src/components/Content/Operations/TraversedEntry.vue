@@ -33,11 +33,20 @@ const {
   document,
   authStore,
   entries,
+  insideTagContainer = false,
 } = defineProps<{
   /** The auth store */
   authStore: AuthStore
   /** The level of depth */
   level?: number
+  /**
+   * Whether these entries render inside a parent tag's section container.
+   *
+   * Nested tags can be arbitrarily deep, and each tag renders its own padded
+   * section container. Nesting them would accumulate horizontal padding, so a
+   * child tag drops its own padding to keep every section flush left.
+   */
+  insideTagContainer?: boolean
   /** Traversed entries to render */
   entries: TraversedEntry[]
   /** The document object */
@@ -74,10 +83,16 @@ const {
 /**
  * Type guards for different entry types
  */
+/**
+ * A legacy `x-tagGroups` wrapper. These are not real tags and render without a header of their
+ * own (flattened in the modern layout). OpenAPI 3.2 nested-tag sections are real tags that carry
+ * `isGroup` but not `isTagGroup`, so they are intentionally excluded here and render through
+ * {@link isTag} with their summary heading.
+ */
 const isTagGroup = (
   entry: TraversedEntry,
 ): entry is TraversedTag & { isGroup: true } =>
-  entry['type'] === 'tag' && entry.isGroup === true
+  entry['type'] === 'tag' && entry.isGroup === true && entry.isTagGroup === true
 
 const isTag = (
   entry: TraversedEntry,
@@ -143,6 +158,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"
       :moreThanOneTag="entries.filter(isTag).length > 1"
+      :nested="insideTagContainer"
       :tag="entry">
       <template v-if="'children' in entry && entry.children?.length">
         <TraversedEntry
@@ -152,6 +168,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :entries="entry.children"
           :eventBus
           :expandedItems
+          :insideTagContainer="true"
           :level="level + 1"
           :options
           :securitySchemes
@@ -179,6 +196,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :entries="entry.children || []"
         :eventBus
         :expandedItems
+        :insideTagContainer="insideTagContainer"
         :level="level + 1"
         :options
         :securitySchemes
