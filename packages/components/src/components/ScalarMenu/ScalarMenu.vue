@@ -51,54 +51,62 @@ function close() {
 }
 </script>
 <template>
-  <DropdownMenu.Root v-model:open="open">
-    <DropdownMenu.Trigger asChild>
-      <!-- Logo Button to open the popover -->
-      <slot
-        name="button"
-        :open="open">
-        <ScalarMenuButton
-          class="min-w-0"
+  <!--
+    Keep the trigger icon-sized inside a flex header. As a plain flex child next
+    to a flexible item (for example a breadcrumb) the button would otherwise
+    shrink below its content when space is tight. inline-flex + shrink-0 keeps it
+    compact while still allowing the rest of the header to shrink.
+  -->
+  <div class="inline-flex min-w-0 shrink-0">
+    <DropdownMenu.Root v-model:open="open">
+      <DropdownMenu.Trigger asChild>
+        <!-- Logo Button to open the popover -->
+        <slot
+          name="button"
           :open="open">
-          <template
-            v-if="$slots.logo"
-            #logo>
-            <slot name="logo" />
-          </template>
-          <template
-            v-if="$slots.title"
-            #title>
-            <slot name="title" />
-          </template>
-          <template
-            v-if="$slots.label"
-            #label>
-            <slot name="label" />
-          </template>
-        </ScalarMenuButton>
-      </slot>
-    </DropdownMenu.Trigger>
-    <DropdownMenu.Content
-      align="start"
-      :as="ScalarDropdownMenu"
-      class="max-h-radix-popper z-context"
-      :sideOffset="5"
-      v-bind="$attrs">
-      <!-- Menu content -->
-      <!-- Base Product List (can be overridden by slot) -->
-      <slot
-        :close="close"
-        name="products">
-        <ScalarMenuProducts />
-      </slot>
-      <slot
-        :close="close"
-        name="profile" />
-      <slot
-        :close="close"
-        name="sections">
-        <ScalarMenuResources />
-      </slot>
-    </DropdownMenu.Content>
-  </DropdownMenu.Root>
+          <ScalarMenuButton
+            class="min-w-0"
+            :open="open">
+            <template
+              v-if="$slots.logo"
+              #logo>
+              <slot name="logo" />
+            </template>
+            <template
+              v-if="$slots.title"
+              #title>
+              <slot name="title" />
+            </template>
+            <template
+              v-if="$slots.label"
+              #label>
+              <slot name="label" />
+            </template>
+          </ScalarMenuButton>
+        </slot>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content
+        align="start"
+        :as="ScalarDropdownMenu"
+        class="max-h-radix-popper z-context"
+        :sideOffset="5"
+        v-bind="$attrs">
+        <!-- Menu content -->
+        <!-- Base Product List (can be overridden by slot) -->
+        <slot
+          :close="close"
+          name="products">
+          <ScalarMenuProducts />
+        </slot>
+        <slot
+          :close="close"
+          name="profile" />
+        <slot
+          :close="close"
+          name="sections">
+          <ScalarMenuResources />
+        </slot>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  </div>
 </template>
