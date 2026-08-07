@@ -26,7 +26,8 @@ const { translate } = useLocalization()
 const serverOptions = computed(() =>
   servers.map((server) => ({
     id: server.url,
-    label: server.url,
+    // Prefer the server name (OpenAPI 3.2) as a friendly label, falling back to the URL
+    label: server.name ? `${server.name} (${server.url})` : server.url,
   })),
 )
 
