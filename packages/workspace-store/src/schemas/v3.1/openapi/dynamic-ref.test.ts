@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
+import { collectDynamicAnchors, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { isOpenApiDocument } from '@/schemas/type-guards'
+import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 
 /**
  * Regression test for https://github.com/scalar/scalar/issues/9414.
@@ -71,5 +73,73 @@ describe('dynamic-ref coercion', () => {
     const binding = (schemas.PaginatedUserResponse as { $defs?: { itemType?: { $dynamicAnchor?: string } } }).$defs
       ?.itemType
     expect(binding?.$dynamicAnchor).toBe('itemType')
+
+    // End to end: walking the store proxy into the shared template resolves `#itemType` transparently
+    // through the virtual `$dynamicRef-value` property — no scope is assembled by the caller. The bound
+    // anchor still carries its sibling `$ref`, which dereferences to the concrete `User` shape.
+    const paginated = (schemas.PaginatedUserResponse as Record<string, any>)['$ref-value']
+    const boundItem = paginated.properties.items.items['$dynamicRef-value']
+    expect(boundItem['$ref-value']).toMatchObject({ properties: { email: { type: 'string' } } })
+  })
+
+  it('resolves a `$dynamicAnchor` nested under `properties` (not just root or `$defs`)', async () => {
+    const store = createWorkspaceStore()
+
+    // A recursive category tree whose node type declares its `$dynamicAnchor` inline, nested under
+    // `properties.root` — not at the resource root and not inside `$defs`.
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'DynamicAnchor', version: '0.0.0' },
+        paths: {
+          '/tree': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'A category tree',
+                  content: {
+                    'application/json': { schema: { $ref: '#/components/schemas/CategoryTree' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            CategoryTree: {
+              $id: 'https://example.com/CategoryTree',
+              type: 'object',
+              properties: {
+                root: {
+                  $dynamicAnchor: 'node',
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    children: { type: 'array', items: { $dynamicRef: '#node' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const document = store.workspace.activeDocument
+    if (!document || !isOpenApiDocument(document)) {
+      throw new Error('expected an OpenAPI document')
+    }
+
+    const tree = document.components?.schemas?.CategoryTree as SchemaObject
+    // The nested anchor is discovered and `#node` resolves to the node shape (it has `children`).
+    expect(collectDynamicAnchors(tree).has('node')).toBe(true)
+    expect(resolveDynamicRef('#node', [tree])).toMatchObject({ properties: { children: {} } })
+
+    // End to end: the same resolution happens transparently by walking the store proxy to the deeply
+    // nested `$dynamicRef` and reading `$dynamicRef-value`, with the scope threaded by the proxy itself.
+    const items = (tree as Record<string, any>).properties.root.properties.children.items
+    expect(items['$dynamicRef-value']).toMatchObject({ $dynamicAnchor: 'node', properties: { children: {} } })
   })
 })
