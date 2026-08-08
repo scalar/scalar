@@ -84,6 +84,7 @@ const formatWithBiome = async (content: string, filePath: string, repoRoot: stri
     const result = spawnSync('pnpm', ['biome', 'format', '--write', '--config-path', biomeConfigPath, tmpFile], {
       cwd: repoRoot,
       stdio: 'pipe',
+      shell: true,
     })
     if (result.status !== 0) {
       return content
@@ -293,7 +294,7 @@ const runBiomeFormat = (paths: readonly string[], cwd: string): void => {
       '--files-ignore-unknown=true',
       ...paths,
     ],
-    { cwd, stdio: 'inherit' },
+    { cwd, stdio: 'inherit', shell: true },
   )
 
   if (result.status !== 0) {

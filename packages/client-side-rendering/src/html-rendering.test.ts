@@ -104,6 +104,22 @@ describe('html-rendering', () => {
       expect(html).not.toContain('"content"')
     })
 
+    it('serializes the documentType of a source into the configuration', () => {
+      const html = renderApiReference({
+        config: {
+          sources: [
+            {
+              title: 'Streaming API',
+              url: 'https://example.com/asyncapi.json',
+              documentType: 'asyncapi',
+            },
+          ],
+        },
+      })
+      expect(html).toContain('"documentType": "asyncapi"')
+      expect(html).toContain('"url": "https://example.com/asyncapi.json"')
+    })
+
     it('uses custom cdn when provided', () => {
       const html = renderApiReference({ config: {}, cdn: 'https://example.com/scalar.js' })
       expect(html).toContain('https://example.com/scalar.js')

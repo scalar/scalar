@@ -53,6 +53,15 @@ export const sourceConfigurationSchema = z.object({
     ])
     .optional(),
   /**
+   * The type of the document.
+   *
+   * If not set, the type is auto-detected from the document content (an 'asyncapi' version field vs an
+   * 'openapi'/'swagger' version field). Set it to be explicit.
+   *
+   * @example 'asyncapi'
+   */
+  documentType: z.enum(['openapi', 'asyncapi']).optional(),
+  /**
    * The title of the OpenAPI document.
    *
    * Used for the page title and the document name in the dropdown. With multiple `sources`, set this per source.
