@@ -83,21 +83,46 @@ const handleDeleteRow = (index: number) => {
   handleUpdateFormValue(localFormBodyRows.value)
 }
 
+/** True when the row's schema declares an array-typed property (e.g. `files: string[]`). */
+const isArrayField = (row: TableRow | undefined): boolean => {
+  const type = row?.schema && 'type' in row.schema ? row.schema.type : undefined
+  return Array.isArray(type) ? type.includes('array') : type === 'array'
+}
+
 /** Handle file upload for a specific row index */
 const handleFileUpload = (index: number) => {
+  const currentRow = localFormBodyRows.value[index]
+  // Array-typed fields (e.g. `files: string[]`) accept several files in a single pick, like
+  // Postman. Other fields stay single-file so an existing value is not silently replaced.
+  const allowMultiple = isArrayField(currentRow)
+
   const { open } = useFileDialog({
     onChange: (files) => {
-      const file = files?.[0]
+      const selected = files ? Array.from(files) : []
+      if (selected.length === 0) {
+        return
+      }
 
-      if (file) {
-        const currentRow = localFormBodyRows.value[index]
-        handleUpsertRow(index, {
-          name: currentRow?.name || file.name,
+      // Every selected file shares the field key, falling back to the first file name when
+      // the row has no name yet (e.g. schema-less requests).
+      const fieldName = currentRow?.name || selected[0]?.name || ''
+
+      // The first file fills the clicked row (handleUpsertRow appends if it is the new-row
+      // slot); any extras become additional rows reusing the same name, so the request sends
+      // one part per file (`files=@a`, `files=@b`) — the array/multipart wire shape.
+      handleUpsertRow(index, { name: fieldName, value: selected[0]! })
+
+      if (selected.length > 1) {
+        const extraRows: TableRow[] = selected.slice(1).map((file) => ({
+          name: fieldName,
           value: file,
-        })
+          isDisabled: false,
+        }))
+        localFormBodyRows.value = [...localFormBodyRows.value, ...extraRows]
+        handleUpdateFormValue(localFormBodyRows.value)
       }
     },
-    multiple: false,
+    multiple: allowMultiple,
     accept: '*/*',
   })
   open()
