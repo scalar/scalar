@@ -24,6 +24,8 @@ export type {
 } from './components/ScalarCombobox'
 export { ScalarCombobox, ScalarComboboxMultiselect, isScalarComboboxGroups } from './components/ScalarCombobox'
 export { ScalarCopy, ScalarCopyBackdrop, ScalarCopyButton } from './components/ScalarCopy'
+export type { ScalarDialogProps } from './components/ScalarDialog'
+export { ScalarDialog } from './components/ScalarDialog'
 export {
   ScalarDropdown,
   ScalarDropdownButton,
