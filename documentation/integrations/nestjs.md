@@ -40,7 +40,7 @@ const OpenApiSpecification =
   )
 ```
 
-Recommended: If you're serving an OpenAPI/Swagger file already, you can pass an URL, too:
+Recommended: If you're serving an OpenAPI/Swagger file already, you can pass a URL, too:
 
 ```typescript
 import { apiReference } from '@scalar/nestjs-api-reference'
@@ -89,7 +89,7 @@ app.use(
 
 ### Custom CDN
 
-You can use a custom CDN ，default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
+You can use a custom CDN, default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
 
 You can also pin the CDN to a specific version by specifying it in the CDN string like `https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.28`
 

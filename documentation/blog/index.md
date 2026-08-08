@@ -17,7 +17,7 @@
   <a class="blog-post-list__link" href="./2026-03-25-scalar-mcp-oauth.md">
     <div class="blog-post-list__meta">Mar 25, 2026</div>
     <h2 class="blog-post-list__title">Too Long; Didn't Read; Used MCP</h2>
-    <p class="blog-post-list__description">Hey, it's 2026, who does even read the documentation for your API anymore. Just boot up a MCP based on your OpenAPI document (using Scalar), and share it with your users or your team.</p>
+    <p class="blog-post-list__description">Hey, it's 2026, who does even read the documentation for your API anymore. Just boot up an MCP based on your OpenAPI document (using Scalar), and share it with your users or your team.</p>
   </a>
 </article>
 <article class="blog-post-list__item" data-file="2026-03-17-agent-mcp.md">
