@@ -133,6 +133,7 @@ export const de = {
     copyLinkTo: 'Link zu {name} kopieren',
     copyToClipboard: 'Link in die Zwischenablage kopieren',
     copyEndpointUrl: 'Endpoint-URL kopieren',
+    copyAsMarkdownForLlm: 'Als Markdown für LLM kopieren',
     showMore: 'Mehr anzeigen',
   },
   agent: {

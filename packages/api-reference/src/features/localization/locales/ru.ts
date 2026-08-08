@@ -133,6 +133,7 @@ export const ru = {
     copyLinkTo: 'Скопировать ссылку на {name}',
     copyToClipboard: 'Скопировать ссылку в буфер обмена',
     copyEndpointUrl: 'Скопировать URL endpoint-а',
+    copyAsMarkdownForLlm: 'Скопировать как Markdown для LLM',
     showMore: 'Показать ещё',
   },
   agent: {
