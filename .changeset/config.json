@@ -7,7 +7,7 @@
     }
   ],
   "commit": ["@changesets/cli/commit", { "skipCI": false }],
-  "fixed": [["@scalar/api-reference", "@scalar/fastify-api-reference"]],
+  "fixed": [["@scalar/api-reference", "@scalar/fastify-api-reference", "@scalar/scalar"]],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
