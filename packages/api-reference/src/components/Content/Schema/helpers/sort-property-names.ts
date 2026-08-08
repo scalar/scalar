@@ -31,7 +31,7 @@ export const sortPropertyNames = (
   {
     hideReadOnly = false,
     hideWriteOnly = false,
-    orderSchemaPropertiesBy = 'alpha',
+    orderSchemaPropertiesBy = 'preserve',
     orderRequiredPropertiesFirst = true,
   }: Options = {},
 ): string[] => {
