@@ -1,4 +1,5 @@
 import { ScalarListbox } from '@scalar/components/listbox'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
@@ -817,6 +818,22 @@ describe('SchemaProperty', () => {
       })
 
       expect(wrapper.find('#body\\.BaseObject\\.nestedField').exists()).toBe(false)
+    })
+  })
+
+  describe('model links', () => {
+    it('renders the model name as plain text when hideModels is enabled', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: createWorkspaceEventBus(),
+          modelName: 'Planet',
+          schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          options: { hideModels: true },
+        },
+      })
+
+      expect(wrapper.text()).toContain('Planet')
+      expect(wrapper.find('.property-heading button').exists()).toBe(false)
     })
   })
 })

@@ -31,6 +31,8 @@ const props = withDefaults(
     additional?: boolean
     withExamples?: boolean
     hideModelNames?: boolean
+    /** Render model names as plain text, for when there is no models section to link to. */
+    hideModelLinks?: boolean
     /** When the schema was resolved from a $ref, pass the ref name so it displays as e.g. "Data" instead of "object". */
     modelName?: string | null
     /** Resolved propertyNames schema, used to surface key constraints like `format` for additional properties. */
@@ -42,6 +44,7 @@ const props = withDefaults(
     required: false,
     withExamples: true,
     hideModelNames: false,
+    hideModelLinks: false,
     eventBus: null,
   },
 )
@@ -337,7 +340,9 @@ const exampleValue = computed(() => {
         <template v-if="modelLink">
           ·
           <LinkButton
-            v-if="props.eventBus && modelLink.schemaKey"
+            v-if="
+              props.eventBus && modelLink.schemaKey && !props.hideModelLinks
+            "
             @click="
               props.eventBus.emit('scroll-to:model-by-name', {
                 name: modelLink.schemaKey,
