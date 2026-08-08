@@ -148,7 +148,7 @@ stroke: #069061ff;}@media(color-gamut:p3){.skgStk6 .green{fill: color(display-p3
 <use href="#skgRingShape" class="skgRing" transform="translate(324.5 258.1) scale(.3)" fill="#FF2E00"/>
 </g>
 <g>
-<g transform="translate(229.6470 266.2185) rotate(-4) scale(0.257425) translate(-76.5 -74.25)" class="skgStk9" id="skgStickerMarc">
+<g transform="translate(229.6470 266.2185) rotate(-4) scale(0.283168) translate(-76.5 -74.25)" class="skgStk9" id="skgStickerMarc">
           <mask id="skgStk9_marca" width="153" height="153" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type: alpha;">
             <ellipse cx="76.5" cy="74.3" fill="#D1DBA4" rx="76.5" ry="74.3"/>
           </mask>
@@ -201,7 +201,7 @@ stroke: #069061ff;}@media(color-gamut:p3){.skgStk6 .green{fill: color(display-p3
 <path d="M258 37.0167L213 48.9629V323.063L258 337V37.0167Z" fill="black" fill-opacity="0.05"/>
 </g>
 <g transform="rotate(0.8935 309 180)">
-<text class="skgTxt" font-size="14.2182"><tspan x="262.4661" y="81.797" font-weight="600" textLength="39.6416" lengthAdjust="spacingAndGlyphs">Scalar</tspan><tspan x="301.7237" y="81.016" font-weight="400" font-size="13.7418" textLength="6.267" lengthAdjust="spacingAndGlyphs">_</tspan><tspan x="307.1868" y="81.797" font-weight="400" textLength="23.5211" lengthAdjust="spacingAndGlyphs">Dev</tspan><tspan x="330.3402" y="81.016" font-weight="400" font-size="13.7418" textLength="6.267" lengthAdjust="spacingAndGlyphs">_</tspan><tspan x="335.8033" y="81.797" font-weight="400" textLength="30.9357" lengthAdjust="spacingAndGlyphs">Docs</tspan></text>
+<text class="skgTxt" x="262.5069" y="81.797" font-size="12.9654" font-weight="600" textLength="127.3282" lengthAdjust="spacingAndGlyphs">Scalar Documentation</text>
 </g>
 <g transform="rotate(1.1488 309 180)">
 <text class="skgTxt" x="262.0499" y="97.682" font-size="10.6516" font-weight="400" textLength="97.2999" lengthAdjust="spacingAndGlyphs">For Agents &amp; Humans</text>
