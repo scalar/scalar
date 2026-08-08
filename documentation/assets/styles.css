@@ -19,6 +19,34 @@
   z-index: 123123123123 !important;
 }
 
+.docs-overview-card {
+  display: flex;
+  position: relative;
+}
+
+.docs-overview-card > .t-editor__card {
+  flex: 1;
+}
+
+.card-content__text.t-prose:empty {
+  display: none;
+}
+
+/* Preserve the stretched link without letting its prose wrapper create a flex gap. */
+.card-content__text.t-prose:has(> .card-stretched-link:only-child) {
+  display: contents;
+}
+
+.docs-overview-card:has(.card-stretched-link:hover) > .t-editor__card {
+  background-color: var(--scalar-background-2);
+}
+
+.starter-kit-animation {
+  display: block;
+  height: fit-content !important;
+  width: 100% !important;
+}
+
 /* Component Preview Styles */
 
 .scalar-component-preview {
