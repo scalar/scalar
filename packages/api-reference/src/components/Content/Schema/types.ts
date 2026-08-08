@@ -18,6 +18,13 @@ export type SchemaOptions = {
   /** Expand all nested schema properties by default while keeping the toggle available */
   expandAllSchemaProperties?: ApiReferenceConfiguration['expandAllSchemaProperties']
   /**
+   * Whether the models section is hidden.
+   *
+   * Model names stay visible, but there is no models section to scroll to, so they
+   * render as plain text instead of links.
+   */
+  hideModels?: ApiReferenceConfiguration['hideModels']
+  /**
    * The document the schema belongs to.
    *
    * Used purely for display, e.g. to resolve discriminator `mapping` references into

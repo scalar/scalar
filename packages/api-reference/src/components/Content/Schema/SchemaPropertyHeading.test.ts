@@ -1,3 +1,4 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
@@ -363,6 +364,22 @@ describe('SchemaPropertyHeading', () => {
     const detailsElement = wrapper.find('.property-heading')
     expect(detailsElement.text()).toContain('Type: array string[]')
     expect(detailsElement.text()).toContain('Planet')
+  })
+
+  it('renders the model name as plain text when hideModelLinks is true', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+        }),
+        modelName: 'Planet',
+        hideModelLinks: true,
+        eventBus: createWorkspaceEventBus(),
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('Planet')
+    expect(detailsElement.find('button').exists()).toBe(false)
   })
 
   it('renders multipleOf property', () => {

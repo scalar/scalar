@@ -153,7 +153,7 @@ const shouldRenderRequestBody = computed(
           data-testid="request-body-schema-name">
           <span class="text-c-3 mx-1.5">·</span>
           <LinkButton
-            v-if="eventBus && modelLink.schemaKey"
+            v-if="eventBus && modelLink.schemaKey && !options.hideModels"
             @click="
               eventBus.emit('scroll-to:model-by-name', {
                 name: modelLink.schemaKey,
@@ -197,6 +197,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          hideModels: options.hideModels,
           document,
         }"
         :schema="partitionedSchema.visibleProperties"
@@ -215,6 +216,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          hideModels: options.hideModels,
           document,
         }"
         :schema="partitionedSchema.collapsedProperties"
@@ -238,6 +240,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          hideModels: options.hideModels,
           document,
         }"
         :schema="schema"
