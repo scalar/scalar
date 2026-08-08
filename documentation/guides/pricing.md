@@ -199,10 +199,10 @@
           <tr class="pricing-table-row pricing-table-group_header _sticky _sticky-2">
               <td class="pricing-table-column _align-start"></td>
               <td class="pricing-table-column _align-start">
-                <a href="https://dashboard.scalar.com/register" class="pricing-cta">Try For Free</a>
+                <a href="https://dashboard.scalar.com/register" class="pricing-cta">Try for free</a>
               </td>
               <td class="pricing-table-column _align-start">
-                <a href="https://dashboard.scalar.com/register" class="pricing-cta pricing-cta-main">Try For Free</a>
+                <a href="https://dashboard.scalar.com/register" class="pricing-cta pricing-cta-main">Try for free</a>
               </td>
               <td class="pricing-table-column _align-start">
                 <a href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" class="pricing-cta">Book a demo</a>
@@ -212,13 +212,13 @@
           <tbody class="st_wrap_table pricing-table-group text-sm" data-table_id="0" role="rowgroup">
 <tr class="pricing-table-group-heading-row"><th class="pricing-table-group-heading flex gap-1.5 items-center" colspan="4" scope="rowgroup"><scalar-icon src="phosphor/bold/book" aria-hidden="true"></scalar-icon>Docs</th></tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Free Scalar Subdomain</th>
+<th class="pricing-table-column" scope="row">Free Scalar subdomain</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">API References (OpenAPI)</th>
+<th class="pricing-table-column" scope="row">API references (OpenAPI)</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
@@ -236,25 +236,25 @@
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Email Domain Access Control</th>
+<th class="pricing-table-column" scope="row">Email domain access control</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Viewer Seats</th>
+<th class="pricing-table-column" scope="row">Viewer seats</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Editor Seats</th>
+<th class="pricing-table-column" scope="row">Editor seats</th>
 <td class="pricing-table-column free-price">1</td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Custom Domains</th>
+<th class="pricing-table-column" scope="row">Custom domains</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
@@ -284,13 +284,13 @@
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Landing Pages</th>
+<th class="pricing-table-column" scope="row">Landing pages</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Full Developer Portal</th>
+<th class="pricing-table-column" scope="row">Full developer portal</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
@@ -308,13 +308,13 @@
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Priority Support</th>
+<th class="pricing-table-column" scope="row">Priority support</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Dedicated Slack/Teams Channel</th>
+<th class="pricing-table-column" scope="row">Dedicated Slack/Teams channel</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
@@ -392,37 +392,37 @@
 <td class="pricing-table-column enterprise-price">+ $100</td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">GO SDK</th>
+<th class="pricing-table-column" scope="row">Go SDK</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price">+ $100</td>
 <td class="pricing-table-column enterprise-price">+ $100</td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">automated github workflow</th>
+<th class="pricing-table-column" scope="row">Automated GitHub workflow</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Custom-code</th>
+<th class="pricing-table-column" scope="row">Custom code</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Code Samples</th>
+<th class="pricing-table-column" scope="row">Code samples</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Full OpenAPI Auth support</th>
+<th class="pricing-table-column" scope="row">Full OpenAPI auth support</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">File Streaming</th>
+<th class="pricing-table-column" scope="row">File streaming</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
@@ -473,7 +473,7 @@
         <tbody class="st_wrap_table pricing-table-group" data-table_id="3" role="rowgroup">
           <tr class="pricing-table-group-heading-row"><th class="pricing-table-group-heading flex gap-1.5 items-center flex gap-1.5" colspan="4" scope="rowgroup"><scalar-icon src="phosphor/bold/paper-plane-tilt" aria-hidden="true"></scalar-icon>API Client</th></tr>
 <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">REST Client</th>
+<th class="pricing-table-column" scope="row">REST client</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
@@ -527,67 +527,67 @@
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
              <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Open-Source (MIT)</th>
+<th class="pricing-table-column" scope="row">Open-source (MIT)</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
              <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Offline First</th>
+<th class="pricing-table-column" scope="row">Offline first</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
              <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Web, MacOS, Linux, Windows</th>
+<th class="pricing-table-column" scope="row">Web, macOS, Linux, Windows</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
              <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">OpenAPI Support</th>
+<th class="pricing-table-column" scope="row">OpenAPI support</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
              <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">No Vendor Lock In</th>
+<th class="pricing-table-column" scope="row">No vendor lock-in</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">GRPC Client</th>
+<th class="pricing-table-column" scope="row">gRPC client</th>
 <td class="pricing-table-column free-price">Coming Soon</td>
 <td class="pricing-table-column pro-price">Coming Soon</td>
 <td class="pricing-table-column enterprise-price">Coming Soon</td>
 </tr>
              <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">GraphQL Client</th>
+<th class="pricing-table-column" scope="row">GraphQL client</th>
 <td class="pricing-table-column free-price">Coming Soon</td>
 <td class="pricing-table-column pro-price">Coming Soon</td>
 <td class="pricing-table-column enterprise-price">Coming Soon</td>
 </tr>
              <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">SOAP Client</th>
+<th class="pricing-table-column" scope="row">SOAP client</th>
 <td class="pricing-table-column free-price">Coming Soon</td>
 <td class="pricing-table-column pro-price">Coming Soon</td>
 <td class="pricing-table-column enterprise-price">Coming Soon</td>
 </tr>
              <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">WebSocket Client</th>
+<th class="pricing-table-column" scope="row">WebSocket client</th>
 <td class="pricing-table-column free-price">Coming Soon</td>
 <td class="pricing-table-column pro-price">Coming Soon</td>
 <td class="pricing-table-column enterprise-price">Coming Soon</td>
 </tr>
              <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">SSE Client</th>
+<th class="pricing-table-column" scope="row">SSE client</th>
 <td class="pricing-table-column free-price">Coming Soon</td>
 <td class="pricing-table-column pro-price">Coming Soon</td>
 <td class="pricing-table-column enterprise-price">Coming Soon</td>
 </tr>
              <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Cloud Sync</th>
+<th class="pricing-table-column" scope="row">Cloud sync</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price">Coming Soon</td>
 <td class="pricing-table-column enterprise-price">Coming Soon</td>
@@ -614,25 +614,25 @@
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Spectral Rules</th>
+<th class="pricing-table-column" scope="row">Spectral rules</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Preview API References</th>
+<th class="pricing-table-column" scope="row">Preview API references</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Viewer Seats</th>
+<th class="pricing-table-column" scope="row">Viewer seats</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Editor Seats</th>
+<th class="pricing-table-column" scope="row">Editor seats</th>
 <td class="pricing-table-column free-price">1</td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
@@ -644,13 +644,13 @@
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Private + Public Access</th>
+<th class="pricing-table-column" scope="row">Private + public access</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Git Integration</th>
+<th class="pricing-table-column" scope="row">Git integration</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
@@ -662,7 +662,7 @@
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">custom domains</th>
+<th class="pricing-table-column" scope="row">Custom domains</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
