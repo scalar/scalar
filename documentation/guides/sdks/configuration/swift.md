@@ -75,5 +75,6 @@ Set `publish.swiftpm` to `true` to tag each release for Swift Package Manager. T
 
 | Property             | Description                                                   |
 | -------------------- | ------------------------------------------------------------- |
-| `authMethod`         | Registry authentication mechanism, such as `oidc` or `access-token`. |
-| `releaseEnvironment` | Release environment name used by generated publishing workflows. |
+| `swiftpm`            | Set to `true` to tag each release for Swift Package Manager.  |
+
+Swift Package Manager resolves packages straight from the Git tag, so no publish job is generated for this target. The shared `authMethod` and `releaseEnvironment` publish options have nothing to act on here and are ignored.
