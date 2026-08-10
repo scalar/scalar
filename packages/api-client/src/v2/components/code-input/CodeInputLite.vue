@@ -765,7 +765,7 @@ watch(editorRef, (editor) => {
     return
   }
   const serialized = serializeValue(modelValue)
-  if (isBlankValue(serialized)) {
+  if (serialized === '') {
     return
   }
   lastPillSignature = pillSignature(serialized, withVariables)
