@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isHidden } from '@scalar/workspace-store/helpers/is-hidden'
 import type {
   OpenApiDocument,
   ParameterObject,
@@ -11,7 +12,6 @@ import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import { flattenDeepObjectQueryParameter } from '@/features/Operation/helpers/flatten-deep-object-query-parameter'
-import { shouldIgnoreEntity } from '@/features/Operation/helpers/should-ignore-entity'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ParameterList from './ParameterList.vue'
@@ -45,7 +45,7 @@ const splitParameters = computed(() =>
     (acc, p) => {
       const parameter = getResolvedRef(p)
       // Filter out ignored parameters
-      if (!shouldIgnoreEntity(parameter)) {
+      if (!isHidden(parameter)) {
         const flattenedParameters = flattenDeepObjectQueryParameter(parameter)
         flattenedParameters.forEach((flattenedParameter) => {
           acc[flattenedParameter.in as ParameterLocation].push(
