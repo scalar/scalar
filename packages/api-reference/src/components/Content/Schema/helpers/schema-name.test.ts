@@ -36,5 +36,30 @@ describe('schema-name', () => {
       const schema: SchemaObject = { __scalar_: '' }
       expect(getModelNameFromSchema(schema)).toBe(null)
     })
+
+    it('links a $ref that targets components.schemas', () => {
+      const schema = { $ref: '#/components/schemas/Planet' } as any
+      expect(getModelNameFromSchema(schema)).toEqual({ schemaKey: 'Planet', label: 'Planet' })
+    })
+
+    it('does not link a $ref into a non-schema component bucket', () => {
+      const schema = { $ref: '#/components/parameters/Planet' } as any
+      expect(getModelNameFromSchema(schema)).toEqual({ schemaKey: null, label: 'Planet' })
+    })
+
+    it('does not link a $ref into components.responses', () => {
+      const schema = { $ref: '#/components/responses/Planet' } as any
+      expect(getModelNameFromSchema(schema)).toEqual({ schemaKey: null, label: 'Planet' })
+    })
+
+    it('does not link a $ref into an external file', () => {
+      const schema = { $ref: './planets.yaml#/Planet' } as any
+      expect(getModelNameFromSchema(schema)).toEqual({ schemaKey: null, label: 'Planet' })
+    })
+
+    it('keeps the title but drops the link for a non-schema $ref', () => {
+      const schema = { $ref: '#/components/parameters/Planet', title: 'Consumer', type: 'object' } as any
+      expect(getModelNameFromSchema(schema)).toEqual({ schemaKey: null, label: 'Consumer' })
+    })
   })
 })
