@@ -348,9 +348,17 @@ if (
  * Such an `allOf` variant renders its merged object in a nested card inside the
  * panel, which keeps its own border/radius and reads as a detached box floating
  * below the selector. Drop that nested card's border so the variant renders as
- * flush content, like a plain object variant. `:first-child` restricts this to a
- * bare composition (the variant is the composition itself, with no property
- * heading before it), so a genuine nested composition property keeps its frame.
+ * flush content, like a plain object variant.
+ *
+ * The `:not(:has(> .property-heading))` restricts this to a *bare* composition —
+ * a variant that is the composition itself, with no property heading — so a
+ * genuine nested composition *property* (which has a heading) keeps its own
+ * frame. Matching on the absent heading rather than position keeps it correct
+ * even when the variant renders a description before the composition.
+ *
+ * This is a targeted style patch: the underlying cause is that an `allOf`-back
+ * variant renders one card deeper than a plain variant. Flattening that nesting
+ * upstream would remove the need for this rule, but is a larger change.
  */
 .property-rule
   :deep(
@@ -358,8 +366,8 @@ if (
       > .schema-card
       > .schema-properties.schema-properties-open
       > ul
-      > li.property
-      > .property-rule:first-child
+      > li.property:not(:has(> .property-heading))
+      > .property-rule
       > .schema-card
       > .schema-properties.schema-properties-open
   ) {
