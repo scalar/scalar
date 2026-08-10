@@ -1,9 +1,16 @@
-import { describe, expect, it, vi } from 'vitest'
-
-import { scalarRouteIntegration } from './integration'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const VIRTUAL_ID = 'virtual:scalar-starlight'
 const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_ID}`
+
+// The reference registry lives at module scope, so reset the module before each
+// test to start from an empty registry and keep tests independent.
+let scalarRouteIntegration: typeof import('./integration').scalarRouteIntegration
+
+beforeEach(async () => {
+  vi.resetModules()
+  ;({ scalarRouteIntegration } = await import('./integration'))
+})
 
 /** Run the integration's `astro:config:setup` hook and capture what it did. */
 const runSetup = (integration: ReturnType<typeof scalarRouteIntegration>) => {
@@ -57,5 +64,20 @@ describe('scalarRouteIntegration', () => {
 
     // Distinct names keep Astro from treating the two as the same integration.
     expect(a.name).not.toBe(b.name)
+  })
+
+  it('rejects two different references on the same pathname', () => {
+    scalarRouteIntegration({ pathname: '/api', title: 'A', configuration: { url: '/a.json' } })
+
+    expect(() => scalarRouteIntegration({ pathname: '/api', title: 'B', configuration: { url: '/b.json' } })).toThrow(
+      /Two different API references/,
+    )
+  })
+
+  it('allows re-registering an identical reference, as a config reload does', () => {
+    const options = { pathname: '/api', title: 'A', configuration: { url: '/a.json' } }
+    scalarRouteIntegration(options)
+
+    expect(() => scalarRouteIntegration({ ...options })).not.toThrow()
   })
 })

@@ -73,7 +73,22 @@ const virtualConfigurationPlugin = (): VirtualModulePlugin => ({
  * virtual module that feeds every reference its configuration.
  */
 export const scalarRouteIntegration = (options: ScalarRouteOptions): AstroIntegration => {
-  references.set(options.pathname, { title: options.title, configuration: options.configuration })
+  const reference = { title: options.title, configuration: options.configuration }
+
+  // Two references sharing a `pathname` would inject the same route twice and
+  // surface only as an opaque Astro duplicate-route error, so fail early with a
+  // message that points at the cause. Registering the *same* reference again is
+  // fine (a dev-server config reload re-runs this), so only reject a genuine
+  // collision — a different reference on a pathname already taken.
+  const existing = references.get(options.pathname)
+  if (existing && JSON.stringify(existing) !== JSON.stringify(reference)) {
+    throw new Error(
+      `[@scalar/starlight] Two different API references are configured for "${options.pathname}". ` +
+        'Give each reference a distinct `pathname`.',
+    )
+  }
+
+  references.set(options.pathname, reference)
 
   return {
     // Unique per `pathname` so Astro treats multiple references as distinct
