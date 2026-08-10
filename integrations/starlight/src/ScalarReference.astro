@@ -1,0 +1,19 @@
+---
+import { ScalarComponent } from '@scalar/astro'
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+
+import { configuration, title } from 'virtual:scalar-starlight'
+---
+
+{/*
+  Render the API reference inside the Starlight layout, so it keeps the site
+  header and sidebar. `template: 'splash'` gives the reference the full content
+  width (Scalar brings its own operations sidebar).
+
+  `renderMode="client"` is required here: Starlight ships `<ClientRouter />`, so
+  navigation happens client-side and the static render script would otherwise
+  only run after a manual refresh.
+*/}
+<StarlightPage frontmatter={{ title, template: 'splash' }}>
+  <ScalarComponent renderMode="client" configuration={configuration} />
+</StarlightPage>
