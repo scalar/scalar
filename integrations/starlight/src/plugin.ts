@@ -101,5 +101,3 @@ export const scalarStarlight = (options: ScalarStarlightOptions): StarlightPlugi
     },
   }
 }
-
-export default scalarStarlight
