@@ -5,7 +5,8 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getTag } from './get-tag'
 
@@ -39,7 +40,7 @@ const createTagEntry = ({
     parentId,
     isGroup,
   })
-  const title = tag['x-displayName'] ?? tag.name ?? 'Untitled Tag'
+  const title = tag['x-displayName'] ?? tag.summary ?? tag.name ?? 'Untitled Tag'
 
   // Update the order of the children based on the items
   // This will ensure that the sort order is always in sync with the items
