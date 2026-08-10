@@ -223,7 +223,8 @@ function openRegisterLink(documentUrl: string) {
   height: 32px;
 }
 .scalar-mcp-layer:hover {
-  height: 172px;
+  /* Height of the three stacked rows. */
+  height: 97px;
 }
 .scalar-mcp-layer-link:hover {
   cursor: pointer !important;
@@ -271,19 +272,19 @@ function openRegisterLink(documentUrl: string) {
 .scalar-mcp-layer .scalar-mcp-layer-link:nth-last-child(2) {
   transform: translate3d(0, -2px, 0) scale(0.99);
 }
-.scalar-mcp-layer:hover a:nth-last-child(2) {
+.scalar-mcp-layer:hover .scalar-mcp-layer-link:nth-last-child(2) {
   transform: translate3d(0, calc(-100% - 2px), 0) scale(0.99);
 }
 .scalar-mcp-layer .scalar-mcp-layer-link:nth-last-child(3) {
   transform: translate3d(0, -4px, 0) scale(0.98);
 }
-.scalar-mcp-layer:hover a:nth-last-child(3) {
+.scalar-mcp-layer:hover .scalar-mcp-layer-link:nth-last-child(3) {
   transform: translate3d(0, calc(-200% - 4px), 0) scale(1);
 }
 .scalar-mcp-layer .scalar-mcp-layer-link:nth-last-child(4) {
   transform: translate3d(0, -6px, 0) scale(0.97);
 }
-.scalar-mcp-layer:hover a:nth-last-child(4) {
+.scalar-mcp-layer:hover .scalar-mcp-layer-link:nth-last-child(4) {
   transform: translate3d(0, calc(-300% - 6px), 0) scale(1);
 }
 .scalar-mcp-layer .scalar-mcp-layer-link:nth-last-child(5) {
