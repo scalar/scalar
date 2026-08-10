@@ -176,11 +176,20 @@ const shouldRenderObjectProperties = computed(() => {
   // its properties (including the discriminator property). Rendering the base
   // object block here as well would show those properties a second time, outside
   // the selector. `Schema.vue` renders the two mutually exclusively; mirror that
-  // here. See https://github.com/scalar/scalar/issues/9861
+  // here so the property and the model render the base identically.
+  // See https://github.com/scalar/scalar/issues/9861
+  //
+  // This intentionally shows the base only through its variants, matching the
+  // discriminator contract that each mapped variant extends the base. A malformed
+  // mapping whose variants do not include the base (or a base carrying only
+  // `additionalProperties`/`patternProperties`) would surface those fields solely
+  // via the variants — the same behavior `Schema.vue` already has for the model.
   //
   // A base that composes itself via `allOf` is excluded: `optimizeValueForDisplay`
   // flattens its members up into `properties`, and those contribute fields the
-  // inferred variants do not carry, so the block must still render them.
+  // inferred variants do not carry, so the block must still render them. The check
+  // reads the raw `props.schema` because the flattening has already erased `allOf`
+  // from the optimized `value`.
   const composesWithAllOf =
     !!props.schema &&
     typeof props.schema === 'object' &&
@@ -568,15 +577,12 @@ const isDiscriminatorProperty = computed(() =>
   left: -2rem;
 }
 
-.property-rule
-  :deep(
-    .composition-panel
-      .schema-card--level-1
-      > .schema-properties.schema-properties-open
-  ) {
-  border-radius: 0 0 var(--scalar-radius-lg) var(--scalar-radius-lg);
-}
-
+/*
+ * Squaring the top of a composition panel's content used to live here, but it
+ * only reached compositions rendered through `SchemaProperty`. It now lives in
+ * `SchemaComposition` so it also applies to a discriminator-inferred `oneOf`
+ * rendered straight from `Schema.vue`. See https://github.com/scalar/scalar/issues/9861
+ */
 .property-rule
   :deep(.composition-panel > .schema-card > .schema-card-description) {
   padding: 10px;
