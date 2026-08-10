@@ -213,6 +213,11 @@ function openRegisterLink(documentUrl: string) {
 
 <style scoped>
 .scalar-mcp-layer {
+  /* Rows are absolutely positioned, so the container cannot auto-size to them.
+     Derive the hover height from these instead of hardcoding a magic number.
+     Bump --mcp-row-count when a row is added or removed. */
+  --mcp-row-height: 31px;
+  --mcp-row-count: 3;
   gap: 2px;
   display: flex;
   flex-direction: column;
@@ -223,8 +228,11 @@ function openRegisterLink(documentUrl: string) {
   height: 32px;
 }
 .scalar-mcp-layer:hover {
-  /* Height of the three stacked rows. */
-  height: 97px;
+  /* N rows plus the 2px fan-out offset between each */
+  height: calc(
+    var(--mcp-row-count) * var(--mcp-row-height) + (var(--mcp-row-count) - 1) *
+      2px
+  );
 }
 .scalar-mcp-layer-link:hover {
   cursor: pointer !important;
@@ -235,7 +243,7 @@ function openRegisterLink(documentUrl: string) {
   cursor: pointer;
   width: 100%;
   padding: 9px 6px;
-  height: 31px;
+  height: var(--mcp-row-height);
   display: block;
   text-align: center;
   display: flex;
