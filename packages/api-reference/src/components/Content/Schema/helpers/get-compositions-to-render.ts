@@ -71,12 +71,19 @@ export const inferDiscriminatorMappingComposition = (
 export const getCompositionsToRender = (
   value: SchemaObject | undefined,
   document?: DocumentSchemaLookup,
+  /**
+   * The `oneOf` inferred from a bare `discriminator.mapping`, when the caller has
+   * already computed it. `SchemaProperty` needs the same value to decide whether
+   * to suppress the duplicate base object block, so it passes it here to avoid
+   * inferring twice. Omit it and it is inferred from `value`.
+   */
+  inferredDiscriminatorComposition: SchemaObject | null = value
+    ? inferDiscriminatorMappingComposition(value, document)
+    : null,
 ): CompositionToRender[] => {
   if (!value) {
     return []
   }
-
-  const inferredDiscriminatorComposition = inferDiscriminatorMappingComposition(value, document)
 
   return compositions
     .map((composition) => {
