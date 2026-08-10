@@ -77,15 +77,26 @@ export const scalarStarlight = (options: ScalarStarlightOptions): StarlightPlugi
   return {
     name: '@scalar/starlight',
     hooks: {
-      'config:setup': ({ config, updateConfig, addIntegration }) => {
+      'config:setup': ({ config, updateConfig, addIntegration, logger }) => {
         // Inject the route that renders the reference. Starlight plugins cannot
         // inject routes directly, so this goes through an Astro integration.
         addIntegration(scalarRouteIntegration({ pathname, title, configuration: options.configuration }))
 
-        // Add a sidebar entry that links to the injected route.
-        updateConfig({
-          sidebar: [...(config.sidebar ?? []), { label, link: pathname }],
-        })
+        // Only touch the sidebar when the user already defines one. If it is
+        // left undefined, Starlight auto-generates the sidebar from the docs
+        // directory — replacing it with a single entry would hide every other
+        // page, so we leave it alone and tell the user how to add the link.
+        if (config.sidebar) {
+          updateConfig({
+            sidebar: [...config.sidebar, { label, link: pathname }],
+          })
+        } else {
+          logger.warn(
+            `No \`sidebar\` is configured, so Starlight auto-generates it from your docs and the "${label}" ` +
+              'entry was not added (adding it would hide your other pages). Add it yourself, e.g. ' +
+              `\`sidebar: [{ label: '${label}', link: '${pathname}' }]\`, or link to ${pathname} from your content.`,
+          )
+        }
       },
     },
   }

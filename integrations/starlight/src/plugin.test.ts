@@ -9,15 +9,16 @@ const runConfigSetup = (
 ) => {
   const updateConfig = vi.fn()
   const addIntegration = vi.fn()
+  const logger = { warn: vi.fn() }
 
   const hook = plugin.hooks['config:setup']
   if (typeof hook !== 'function') {
     throw new Error('Expected a config:setup hook')
   }
 
-  hook({ config, updateConfig, addIntegration } as unknown as Parameters<typeof hook>[0])
+  hook({ config, updateConfig, addIntegration, logger } as unknown as Parameters<typeof hook>[0])
 
-  return { updateConfig, addIntegration }
+  return { updateConfig, addIntegration, logger }
 }
 
 describe('scalarStarlight', () => {
@@ -63,6 +64,18 @@ describe('scalarStarlight', () => {
 
     const integration = addIntegration.mock.calls[0]?.[0]
     expect(integration?.name).toBe('@scalar/starlight')
+  })
+
+  it('leaves an auto-generated sidebar untouched', () => {
+    // No `sidebar` in the config means Starlight auto-generates it. Appending an
+    // entry would turn that into an explicit one-item sidebar and hide every
+    // other page, so the plugin warns instead of touching it.
+    const plugin = scalarStarlight({ configuration: { url: '/openapi.json' } })
+    const { updateConfig, addIntegration, logger } = runConfigSetup(plugin, {})
+
+    expect(addIntegration).toHaveBeenCalledOnce()
+    expect(updateConfig).not.toHaveBeenCalled()
+    expect(logger.warn).toHaveBeenCalledOnce()
   })
 
   it('normalizes messy pathnames', () => {

@@ -43,6 +43,9 @@ export default defineConfig({
 
 The reference is served from `/api-reference` by default.
 
+> [!NOTE]
+> If you do not define a `sidebar` in your Starlight config, Starlight auto-generates it from your docs. In that case the plugin does not add the entry (doing so would replace the auto-generated sidebar and hide your other pages) and logs a note instead — add the link yourself, e.g. `sidebar: [{ label: 'API Reference', link: '/api-reference' }]`.
+
 ## Options
 
 | Option          | Default            | Description                                                                                     |
