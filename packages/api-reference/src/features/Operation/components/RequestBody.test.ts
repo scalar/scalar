@@ -287,6 +287,40 @@ describe('RequestBody', () => {
     expect(modelName.text()).toContain('CreateUserRequest')
     expect(modelName.find('button').exists()).toBe(false)
   })
+
+  it('renders the model name as plain text when the referenced model is hidden', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: createWorkspaceEventBus(),
+        options: defaultRequestOptions,
+        document: {
+          components: {
+            schemas: { CreateUserRequest: { type: 'object', 'x-internal': true } },
+          },
+        } as any,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/CreateUserRequest',
+                type: 'object',
+                properties: {
+                  email: { type: 'string' },
+                },
+              } as any,
+            },
+          },
+        },
+      },
+      slots: {
+        title: 'Body',
+      },
+    })
+
+    const modelName = wrapper.find('[data-testid="request-body-schema-name"]')
+    expect(modelName.text()).toContain('CreateUserRequest')
+    expect(modelName.find('button').exists()).toBe(false)
+  })
   it('updates selectedContentType via v-model when changing the content type', async () => {
     const wrapper = mount(RequestBody, {
       props: {
