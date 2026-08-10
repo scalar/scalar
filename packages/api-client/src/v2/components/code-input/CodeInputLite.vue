@@ -752,6 +752,26 @@ watch(
   },
 )
 
+// The editable surface only exists in "editor mode" (see template). When a row switches into editor
+// mode after mount — most notably when this component instance is reused for a different table row —
+// `onMounted` has already run and the `modelValue` watch fired while `editorRef` was still null, so
+// the model was never painted into the freshly created element and the cell renders empty.
+//
+// Paint the model when the element appears, but only into a still-empty editor: an editor that
+// already holds text is either up to date or ahead of `modelValue` with an uncommitted edit/paste,
+// and must not be clobbered.
+watch(editorRef, (editor) => {
+  if (!editor || !isBlankValue(serializeEditor())) {
+    return
+  }
+  const serialized = serializeValue(modelValue)
+  if (isBlankValue(serialized)) {
+    return
+  }
+  lastPillSignature = pillSignature(serialized, withVariables)
+  renderModel(serialized)
+})
+
 watch(
   [() => environment, () => withVariables],
   () => {
