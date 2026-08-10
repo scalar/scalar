@@ -2,6 +2,7 @@ import type { StarlightPlugin } from '@astrojs/starlight/types'
 import type { HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
 
 import { scalarRouteIntegration } from './integration'
+import { normalizePathname } from './normalize-pathname'
 
 export type ScalarStarlightOptions = {
   /**
@@ -34,17 +35,6 @@ export type ScalarStarlightOptions = {
    */
   title?: string
 }
-
-/**
- * Ensure the path starts with a single leading slash and has no trailing slash,
- * so it works both as an Astro route pattern and as a Starlight sidebar link.
- *
- * Splitting on `/` rather than trimming with a regex keeps this linear and
- * sidesteps the backtracking a `/+` pattern can cause on adversarial input. It
- * also collapses empty segments (e.g. from `//`), which Astro route patterns
- * would reject anyway.
- */
-const normalizePathname = (pathname: string): string => `/${pathname.split('/').filter(Boolean).join('/')}`
 
 /**
  * A Starlight plugin that renders a Scalar API reference.

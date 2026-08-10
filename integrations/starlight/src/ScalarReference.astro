@@ -4,17 +4,29 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 
 import { references } from 'virtual:scalar-starlight'
 
+import { normalizePathname } from './normalize-pathname'
+
 // One route module renders every configured reference, so pick the entry that
 // matches this page. Strip Astro's `base` from the request path and normalize it
-// the same way the plugin normalized each `pathname`, so the key lines up
-// regardless of `base` or trailing-slash settings. Fall back to the only entry
-// when there is a single reference (the common case), which keeps things working
-// even if the path ever fails to match.
+// with the same helper the plugin used for each `pathname`, so the key lines up
+// regardless of `base` or trailing-slash settings.
 const base = import.meta.env.BASE_URL
 const relative = Astro.url.pathname.startsWith(base) ? Astro.url.pathname.slice(base.length) : Astro.url.pathname
-const key = `/${relative.split('/').filter(Boolean).join('/')}`
+const key = normalizePathname(relative)
 
-const { configuration, title } = references[key] ?? Object.values(references)[0]
+// Fall back to the only entry when there is a single reference (the common
+// case), which keeps things working even if the path ever fails to match. With
+// several references a miss cannot be resolved safely — silently rendering the
+// first one would show the wrong API — so fail loudly instead.
+const entries = Object.values(references)
+const reference = references[key] ?? (entries.length === 1 ? entries[0] : undefined)
+if (!reference) {
+  throw new Error(
+    `[@scalar/starlight] No API reference is registered for "${key}". ` +
+      `Registered references: ${Object.keys(references).join(', ')}.`,
+  )
+}
+const { configuration, title } = reference
 ---
 
 {/*
