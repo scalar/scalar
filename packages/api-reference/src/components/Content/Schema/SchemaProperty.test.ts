@@ -835,5 +835,23 @@ describe('SchemaProperty', () => {
       expect(wrapper.text()).toContain('Planet')
       expect(wrapper.find('.property-heading button').exists()).toBe(false)
     })
+
+    it('renders the model name as plain text when the referenced model is hidden', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: createWorkspaceEventBus(),
+          modelName: 'Planet',
+          schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          options: {
+            document: {
+              components: { schemas: { Planet: { type: 'object', 'x-internal': true } } },
+            },
+          } as any,
+        },
+      })
+
+      expect(wrapper.text()).toContain('Planet')
+      expect(wrapper.find('.property-heading button').exists()).toBe(false)
+    })
   })
 })

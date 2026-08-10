@@ -314,9 +314,12 @@ const isDiscriminatorProperty = computed(() =>
       class="group"
       :enum="hasEnum"
       :eventBus="eventBus"
-      :hideModelLinks="options.hideModels"
       :hideModelNames
       :isDiscriminator="isDiscriminatorProperty"
+      :modelLinkOptions="{
+        hideModels: options.hideModels,
+        document: options.document,
+      }"
       :modelName="modelName"
       :propertyNames="propertyNamesSchema"
       :required

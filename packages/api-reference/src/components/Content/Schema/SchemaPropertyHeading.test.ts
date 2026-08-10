@@ -366,14 +366,34 @@ describe('SchemaPropertyHeading', () => {
     expect(detailsElement.text()).toContain('Planet')
   })
 
-  it('renders the model name as plain text when hideModelLinks is true', () => {
+  it('renders the model name as plain text when the models section is hidden', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: coerceValue(SchemaObjectSchema, {
           type: 'object',
         }),
         modelName: 'Planet',
-        hideModelLinks: true,
+        modelLinkOptions: { hideModels: true },
+        eventBus: createWorkspaceEventBus(),
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('Planet')
+    expect(detailsElement.find('button').exists()).toBe(false)
+  })
+
+  it('renders the model name as plain text when the referenced model is hidden', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+        }),
+        modelName: 'Planet',
+        modelLinkOptions: {
+          document: {
+            components: { schemas: { Planet: { type: 'object', 'x-internal': true } } },
+          },
+        } as any,
         eventBus: createWorkspaceEventBus(),
       },
     })
