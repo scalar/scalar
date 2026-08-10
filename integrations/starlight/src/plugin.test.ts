@@ -1,6 +1,21 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { scalarRouteIntegration } from './integration'
 import { scalarStarlight } from './plugin'
+
+// Stub the route integration so we can assert exactly what the plugin forwards
+// to it (pathname, title, configuration) without running the real one, which
+// mutates a module-scoped registry and would leak between tests.
+vi.mock('./integration', () => ({
+  scalarRouteIntegration: vi.fn((options: { pathname: string }) => ({
+    name: `@scalar/starlight:${options.pathname}`,
+    hooks: {},
+  })),
+}))
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
 
 /** Run the `config:setup` hook with spies and return what it did. */
 const runConfigSetup = (
@@ -54,6 +69,7 @@ describe('scalarStarlight', () => {
       configuration: { url: '/openapi.json' },
       pathname: 'reference/',
       label: 'My API',
+      title: 'My API Reference',
     })
     const { updateConfig, addIntegration } = runConfigSetup(plugin)
 
@@ -62,10 +78,24 @@ describe('scalarStarlight', () => {
       sidebar: [{ label: 'My API', link: '/reference' }],
     })
 
+    // The custom title and normalized pathname are forwarded to the integration.
+    expect(scalarRouteIntegration).toHaveBeenCalledWith({
+      pathname: '/reference',
+      title: 'My API Reference',
+      configuration: { url: '/openapi.json' },
+    })
+
     // The injected integration is named per pathname so multiple references do
     // not look like the same integration to Astro.
     const integration = addIntegration.mock.calls[0]?.[0]
     expect(integration?.name).toBe('@scalar/starlight:/reference')
+  })
+
+  it('defaults the page title to the label', () => {
+    const plugin = scalarStarlight({ configuration: { url: '/openapi.json' }, label: 'My API' })
+    runConfigSetup(plugin)
+
+    expect(scalarRouteIntegration).toHaveBeenCalledWith(expect.objectContaining({ title: 'My API' }))
   })
 
   it('rejects a pathname that resolves to the site root', () => {
