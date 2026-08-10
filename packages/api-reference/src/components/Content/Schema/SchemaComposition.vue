@@ -322,3 +322,47 @@ if (
     </template>
   </div>
 </template>
+
+<style scoped>
+/*
+ * Connect the selected variant to the selector above it. These rules live here,
+ * not in `SchemaProperty`, because a discriminator-inferred `oneOf` is rendered
+ * straight from `Schema.vue` (bypassing `SchemaProperty`), so styles scoped to
+ * `SchemaProperty` never reach it. See https://github.com/scalar/scalar/issues/9861
+ *
+ * Square the top of the panel's topmost card so it sits flush under the selector.
+ * A plain variant renders that card at level 1, but a variant that `allOf`s back
+ * to a discriminator base renders it deeper, so we target the panel's direct card
+ * rather than a specific level.
+ */
+.property-rule
+  :deep(
+    .composition-panel
+      > .schema-card
+      > .schema-properties.schema-properties-open
+  ) {
+  border-radius: 0 0 var(--scalar-radius-lg) var(--scalar-radius-lg);
+}
+
+/*
+ * Such an `allOf` variant renders its merged object in a nested card inside the
+ * panel, which keeps its own border/radius and reads as a detached box floating
+ * below the selector. Drop that nested card's border so the variant renders as
+ * flush content, like a plain object variant. `:first-child` restricts this to a
+ * bare composition (the variant is the composition itself, with no property
+ * heading before it), so a genuine nested composition property keeps its frame.
+ */
+.property-rule
+  :deep(
+    .composition-panel
+      > .schema-card
+      > .schema-properties.schema-properties-open
+      > ul
+      > li.property
+      > .property-rule:first-child
+      > .schema-card
+      > .schema-properties.schema-properties-open
+  ) {
+  border: none;
+}
+</style>
