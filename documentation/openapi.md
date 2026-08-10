@@ -296,6 +296,24 @@ paths:
         - planets
 ```
 
+You can also hide authentication. Add `x-scalar-ignore` to a whole security scheme to drop it from the auth selector, or to a single OAuth2 flow to hide just that flow's tab. This is handy for flows that cannot run in the browser, like Client Credentials, which usually fails on CORS:
+
+```yaml
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/authorize
+          tokenUrl: https://auth.example.com/token
+          scopes: {}
+        clientCredentials:
+          tokenUrl: https://auth.example.com/token
+          scopes: {}
+          x-scalar-ignore: true
+```
+
 Aliases: `x-internal`
 
 ## x-additionalPropertiesName
@@ -353,6 +371,27 @@ components:
 ```
 
 In this example, properties will be displayed in the order: `name`, `diameter`, `description`.
+
+`x-order` also controls the order of OAuth2 flow tabs in the auth section. Flows with a lower `x-order` appear first, and the first tab is selected by default — so giving a flow the lowest `x-order` both moves it to the front and makes it the default:
+
+```yaml
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://auth.example.com/authorize
+          scopes: {}
+          x-order: 2
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/authorize
+          tokenUrl: https://auth.example.com/token
+          scopes: {}
+          x-order: 1
+```
+
+Here the `authorizationCode` tab appears first and is selected by default.
 
 ## x-scalar-stability
 
