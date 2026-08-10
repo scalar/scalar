@@ -24,7 +24,10 @@ import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SpecificationExtension } from '@/features/specification-extension'
 
-import { getCompositionsToRender } from './helpers/get-compositions-to-render'
+import {
+  getCompositionsToRender,
+  inferDiscriminatorMappingComposition,
+} from './helpers/get-compositions-to-render'
 import { getEnumValues } from './helpers/get-enum-values'
 import { getPropertyDescription } from './helpers/get-property-description'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
@@ -164,6 +167,28 @@ const shouldRenderObjectProperties = computed(() => {
   // rendered result (see `mergeAllOfSchemas`), so rendering a separate object
   // block here would show those properties twice. Let the composition handle it.
   if ('allOf' in value) {
+    return false
+  }
+
+  // A *plain* bare `discriminator.mapping` base (no explicit `oneOf`/`anyOf` and
+  // no `allOf` of its own) is rendered as an inferred `oneOf` composition below,
+  // whose variants `allOf` back to this base type and therefore already include
+  // its properties (including the discriminator property). Rendering the base
+  // object block here as well would show those properties a second time, outside
+  // the selector. `Schema.vue` renders the two mutually exclusively; mirror that
+  // here. See https://github.com/scalar/scalar/issues/9861
+  //
+  // A base that composes itself via `allOf` is excluded: `optimizeValueForDisplay`
+  // flattens its members up into `properties`, and those contribute fields the
+  // inferred variants do not carry, so the block must still render them.
+  const composesWithAllOf =
+    !!props.schema &&
+    typeof props.schema === 'object' &&
+    'allOf' in props.schema
+  if (
+    !composesWithAllOf &&
+    inferDiscriminatorMappingComposition(value, props.options.document)
+  ) {
     return false
   }
 
