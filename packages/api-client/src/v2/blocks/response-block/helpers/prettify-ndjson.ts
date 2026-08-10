@@ -5,8 +5,10 @@ import { prettifyJsoncString } from '@/v2/blocks/response-block/helpers/prettify
  *
  * NDJSON is one JSON value per line, so we format each line on its own and
  * separate the records with a blank line to keep them visually distinct.
- * Empty lines are dropped and any line that is not valid JSON is passed through
- * unchanged, so a malformed or partial record never breaks the whole preview.
+ * Empty lines are dropped. Formatting is lenient: each line is reformatted as
+ * far as the JSONC formatter can restructure it, and anything it cannot parse
+ * is left as-is rather than rejected, so a malformed or partial record never
+ * breaks the whole preview.
  */
 export function prettifyNdjson(content: string): string {
   return content

@@ -21,6 +21,14 @@ describe('prettifyNdjson', () => {
     expect(prettifyNdjson(content)).toBe('{\n  "a": 1\n}\n\nnot json\n\n{\n  "b": 2\n}')
   })
 
+  it('pretty-prints a single record without a trailing newline', () => {
+    expect(prettifyNdjson('{"a":1}')).toBe('{\n  "a": 1\n}')
+  })
+
+  it('reformats leniently without validating (a trailing comma is kept)', () => {
+    expect(prettifyNdjson('{"a":1,}')).toBe('{\n  "a": 1,\n}')
+  })
+
   it('returns an empty string for empty input', () => {
     expect(prettifyNdjson('')).toBe('')
   })
