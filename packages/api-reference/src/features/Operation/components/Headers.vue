@@ -21,6 +21,8 @@ const { headers, breadcrumb } = defineProps<{
   orderRequiredPropertiesFirst: boolean | undefined
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   expandAllSchemaProperties: boolean | undefined
+  /** Whether the models section is hidden, so model names render as plain text instead of links */
+  hideModels: boolean | undefined
 }>()
 const { translate } = useLocalization()
 </script>
@@ -59,6 +61,7 @@ const { translate } = useLocalization()
               :eventBus="eventBus"
               :expandAllSchemaProperties="expandAllSchemaProperties"
               :header="getResolvedRef(header)"
+              :hideModels="hideModels"
               :name="key"
               :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
               :orderSchemaPropertiesBy="orderSchemaPropertiesBy" />
