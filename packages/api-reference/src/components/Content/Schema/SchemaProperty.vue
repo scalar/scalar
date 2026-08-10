@@ -152,6 +152,21 @@ const hasComplexArrayItemsComputed = computed(() =>
 /** Check if enum should be displayed (from value schema or from propertyNames) */
 const hasEnum = computed(() => enumValues.value.length > 0)
 
+/**
+ * The `oneOf` inferred from a bare `discriminator.mapping`, or `null` when there
+ * is nothing to infer. Computed once and shared: `shouldRenderObjectProperties`
+ * uses it to suppress the duplicate base object block, and `compositionsToRender`
+ * passes it on so the inference does not run twice per render.
+ */
+const inferredDiscriminatorComposition = computed(() =>
+  optimizedValue.value
+    ? inferDiscriminatorMappingComposition(
+        optimizedValue.value,
+        props.options.document,
+      )
+    : null,
+)
+
 /** Determine if object properties should be displayed */
 const shouldRenderObjectProperties = computed(() => {
   const value = optimizedValue.value
@@ -194,10 +209,7 @@ const shouldRenderObjectProperties = computed(() => {
     !!props.schema &&
     typeof props.schema === 'object' &&
     'allOf' in props.schema
-  if (
-    !composesWithAllOf &&
-    inferDiscriminatorMappingComposition(value, props.options.document)
-  ) {
+  if (!composesWithAllOf && inferredDiscriminatorComposition.value) {
     return false
   }
 
@@ -283,7 +295,11 @@ const shouldDisplayHeadingComputed = computed(() =>
 
 /** Computes which compositions should be rendered and with which values */
 const compositionsToRender = computed(() =>
-  getCompositionsToRender(optimizedValue.value, props.options.document),
+  getCompositionsToRender(
+    optimizedValue.value,
+    props.options.document,
+    inferredDiscriminatorComposition.value,
+  ),
 )
 const getCompositionDiscriminator = (
   composition: CompositionKeyword,

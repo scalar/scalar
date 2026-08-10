@@ -350,11 +350,13 @@ if (
  * below the selector. Drop that nested card's border so the variant renders as
  * flush content, like a plain object variant.
  *
- * The `:not(:has(> .property-heading))` restricts this to a *bare* composition —
- * a variant that is the composition itself, with no property heading — so a
- * genuine nested composition *property* (which has a heading) keeps its own
- * frame. Matching on the absent heading rather than position keeps it correct
- * even when the variant renders a description before the composition.
+ * The `:not(:has(> .property-heading > .property-name))` restricts this to a
+ * *bare* composition — a variant that is the composition itself, rendered with no
+ * property name — so a genuine nested composition *property* (which has a name)
+ * keeps its own frame. Keying off the absent name rather than the absent heading
+ * stays correct when the variant still renders a heading for its own annotations
+ * (a top-level `type`, `deprecated`, …), and rather than position it stays
+ * correct when the variant renders a description before the composition.
  *
  * This is a targeted style patch: the underlying cause is that an `allOf`-back
  * variant renders one card deeper than a plain variant. Flattening that nesting
@@ -366,7 +368,7 @@ if (
       > .schema-card
       > .schema-properties.schema-properties-open
       > ul
-      > li.property:not(:has(> .property-heading))
+      > li.property:not(:has(> .property-heading > .property-name))
       > .property-rule
       > .schema-card
       > .schema-properties.schema-properties-open
