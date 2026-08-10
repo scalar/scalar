@@ -68,6 +68,15 @@ const formatSecurityRequirement = (
 
   // Complex auth (multiple keys)
   if (keys.length > 1) {
+    // Drop the whole AND combination if any of its schemes is hidden via x-scalar-ignore — a
+    // partly hidden requirement cannot be configured, so it should not appear as an option.
+    const anyHidden = keys.some((key) => {
+      const scheme = getResolvedRef(securitySchemes[key])
+      return scheme ? isHidden(scheme as Hideable) : false
+    })
+    if (anyHidden) {
+      return undefined
+    }
     return formatComplexScheme(requirement)
   }
 

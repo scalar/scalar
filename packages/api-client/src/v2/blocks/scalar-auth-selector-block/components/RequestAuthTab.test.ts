@@ -838,6 +838,63 @@ describe('RequestAuthTab', () => {
       expect(oauth2Component.props('type')).toBe('authorizationCode')
     })
 
+    it('resets to the first visible flow when the active flow becomes hidden via x-scalar-ignore', async () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'OAuth2': {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                authorizationUrl: 'https://example.com/auth',
+                scopes: { openid: 'OpenID' },
+              },
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/auth',
+                tokenUrl: 'https://example.com/token',
+                scopes: { profile: 'Profile' },
+              },
+            },
+          },
+        },
+        selectedSecuritySchemas: {
+          'OAuth2': [],
+        },
+      })
+
+      // Select the authorizationCode tab.
+      const acTab = wrapper.findAll('button').find((tab) => tab.text() === 'authorizationCode')
+      expect(acTab, 'authorizationCode tab should exist').toBeTruthy()
+      await acTab!.trigger('click')
+      await nextTick()
+      expect(wrapper.findComponent(OAuth2).props('type')).toBe('authorizationCode')
+
+      // Hide the currently active flow via x-scalar-ignore. Cast because this test only cares about
+      // flow visibility, not the full secret shape the strict prop type otherwise requires.
+      await wrapper.setProps({
+        securitySchemes: {
+          'OAuth2': {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                authorizationUrl: 'https://example.com/auth',
+                scopes: { openid: 'OpenID' },
+              },
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/auth',
+                tokenUrl: 'https://example.com/token',
+                'x-scalar-ignore': true,
+                scopes: { profile: 'Profile' },
+              },
+            },
+          },
+        } as any,
+      })
+      await nextTick()
+
+      // The active flow is now hidden, so the selection resets to the first visible flow.
+      expect(wrapper.findComponent(OAuth2).props('type')).toBe('implicit')
+    })
+
     it('hides ignored flows and orders tabs by x-order, defaulting to the first', () => {
       const wrapper = mountWithProps({
         securitySchemes: {

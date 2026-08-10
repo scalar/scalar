@@ -22,6 +22,7 @@ import {
   type EncryptionObjectSecret,
   type GssapiObjectSecret,
   type MergedSecuritySchemes,
+  type OAuthFlowsObjectSecret,
   type SaslObjectSecret,
   type SecuritySchemeObjectSecret,
   type X509ObjectSecret,
@@ -56,6 +57,8 @@ type SecurityItem = {
   scheme: SecuritySchemeObjectSecret | undefined
   name: string
   scopes: string[]
+  /** Ordered, non-hidden oauth2/openIdConnect flow keys for this scheme (empty for other types). */
+  visibleFlowKeys: (keyof OAuthFlowsObjectSecret)[]
 }
 
 const {
@@ -112,27 +115,37 @@ const emits = defineEmits<{
  * Each item includes the scheme definition, name, and associated scopes.
  */
 const security = computed<SecurityItem[]>(() =>
-  Object.entries(selectedSecuritySchemas).map(([name, scopes = []]) => ({
-    scheme: getResolvedRef(securitySchemes[name]),
-    name,
-    scopes,
-  })),
+  Object.entries(selectedSecuritySchemas).map(([name, scopes = []]) => {
+    const scheme = getResolvedRef(securitySchemes[name])
+    return {
+      scheme,
+      name,
+      scopes,
+      // Compute the visible, ordered flow keys once per scheme so the tabs, the label, and the
+      // active-flow tracking all agree on the same set (and we do not filter + sort on every access).
+      visibleFlowKeys:
+        scheme?.type === 'oauth2' || scheme?.type === 'openIdConnect'
+          ? getVisibleOrderedFlowKeys(scheme.flows)
+          : [],
+    }
+  }),
 )
 
 /** Tracks which OAuth2 flow is currently active when multiple flows are available. */
 const activeFlow = ref<string>('')
 
-/** Keeps the selected flow in sync with currently available flow keys. */
+/**
+ * Keeps the selected flow in sync with the currently visible flow keys. Validating against the
+ * visible set (not every declared flow) means a selection that becomes hidden — e.g. the document
+ * is updated to mark the active flow with `x-scalar-ignore` — resets, so the default (first visible)
+ * flow activates instead of leaving no tab selected.
+ */
 const selectedFlow = computed<string>(() => {
-  const authFlowKeys = security.value.flatMap(({ scheme }) => {
-    if (scheme?.type !== 'oauth2' && scheme?.type !== 'openIdConnect') {
-      return []
-    }
+  const visibleFlowKeys = security.value.flatMap((item) => item.visibleFlowKeys)
 
-    return Object.keys(scheme.flows ?? {})
-  })
-
-  return authFlowKeys.includes(activeFlow.value) ? activeFlow.value : ''
+  return visibleFlowKeys.some((key) => key === activeFlow.value)
+    ? activeFlow.value
+    : ''
 })
 
 const setActiveFlow = (flow: string): void => {
@@ -411,7 +424,7 @@ const handleConfigAuthorize = (): void => {
 </script>
 <template>
   <template
-    v-for="{ scheme, name, scopes } in security"
+    v-for="{ scheme, name, scopes, visibleFlowKeys } in security"
     :key="name">
     <!--
       Header row for AND'ed schemes: label (bold) and description (rich text) are
@@ -564,10 +577,7 @@ const handleConfigAuthorize = (): void => {
       v-else-if="scheme?.type === 'oauth2' || scheme?.type === 'openIdConnect'">
       <!-- OpenID Connect -->
       <OpenIDConnect
-        v-if="
-          scheme?.type === 'openIdConnect' &&
-          !getVisibleOrderedFlowKeys(scheme.flows).length
-        "
+        v-if="scheme?.type === 'openIdConnect' && !visibleFlowKeys.length"
         :customFetch="options?.customFetch"
         :environment
         :eventBus
@@ -577,11 +587,11 @@ const handleConfigAuthorize = (): void => {
         :scheme />
 
       <!-- Flow selector tabs: shown when multiple visible flows are available -->
-      <DataTableRow v-if="getVisibleOrderedFlowKeys(scheme.flows).length > 1">
+      <DataTableRow v-if="visibleFlowKeys.length > 1">
         <div class="flex min-h-8 border-t text-base">
           <div class="flex h-8 max-w-full gap-2.5 overflow-x-auto px-3">
             <button
-              v-for="(key, ind) in getVisibleOrderedFlowKeys(scheme.flows)"
+              v-for="(key, ind) in visibleFlowKeys"
               :key="key"
               :class="getFlowTabClasses(key, ind)"
               type="button"
@@ -594,7 +604,7 @@ const handleConfigAuthorize = (): void => {
 
       <!-- OAuth2 flow configuration -->
       <template
-        v-for="(key, ind) in getVisibleOrderedFlowKeys(scheme.flows)"
+        v-for="(key, ind) in visibleFlowKeys"
         :key="key">
         <OAuth2
           v-if="scheme.flows && isFlowActive(key, ind)"

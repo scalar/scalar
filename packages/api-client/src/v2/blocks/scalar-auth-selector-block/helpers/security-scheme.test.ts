@@ -761,6 +761,20 @@ describe('security-scheme', () => {
 
       expect(required?.options.map((option) => option.label)).toEqual(['visible'])
     })
+
+    it('drops a complex AND requirement that includes a hidden scheme', () => {
+      const security: NonNullable<OpenApiDocument['security']> = [{ visible: [] }, { visible: [], hidden: [] }]
+      const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        visible: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+        hidden: { type: 'apiKey', in: 'header', name: 'X-Hidden', 'x-scalar-ignore': true },
+      }
+
+      const groups = getSecuritySchemeOptions(security, schemes, []) as SecuritySchemeGroup[]
+      const required = groups.find((group) => group.label === 'Required authentication')
+
+      // The "visible & hidden" combination is dropped; only the standalone visible scheme remains.
+      expect(required?.options.map((option) => option.label)).toEqual(['visible'])
+    })
   })
 
   describe('getOauth2AcquisitionTarget', () => {
