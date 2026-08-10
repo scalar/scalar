@@ -147,8 +147,9 @@ jobs:
       - name: Setup .NET
         uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
         with:
-          sdk-version: 10.x.x
+          sdk-version: 11.0.100-preview.6.26359.118
           aspnetcore-version: |
+            10.x.x
             9.x.x
             8.x.x
 

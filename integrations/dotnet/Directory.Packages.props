@@ -56,4 +56,10 @@
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.5" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
   </ItemGroup>
+
+  <!-- .NET 11 is still in preview, so these track the latest preview build. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="11.0.0-preview.6.26359.118" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0-preview.6.26359.118" />
+  </ItemGroup>
 </Project>
