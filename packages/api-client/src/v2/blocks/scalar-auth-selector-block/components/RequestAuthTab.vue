@@ -36,6 +36,7 @@ import type {
 import { capitalize, computed, ref } from 'vue'
 
 import { refreshOauth2Token } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import { getVisibleOrderedFlowKeys } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth-flows'
 import {
   runOAuth2Authorize,
   storeOAuth2Tokens,
@@ -158,7 +159,7 @@ const generateLabel = (
 
     case 'openIdConnect':
     case 'oauth2': {
-      const firstFlow = Object.keys(scheme.flows ?? {})[0]
+      const firstFlow = getVisibleOrderedFlowKeys(scheme.flows)[0]
       const currentFlow = selectedFlow.value || firstFlow
       if (!currentFlow) {
         return capitalizedName
@@ -565,7 +566,7 @@ const handleConfigAuthorize = (): void => {
       <OpenIDConnect
         v-if="
           scheme?.type === 'openIdConnect' &&
-          !Object.keys(scheme.flows ?? {}).length
+          !getVisibleOrderedFlowKeys(scheme.flows).length
         "
         :customFetch="options?.customFetch"
         :environment
@@ -575,12 +576,12 @@ const handleConfigAuthorize = (): void => {
         :proxyUrl
         :scheme />
 
-      <!-- Flow selector tabs: shown when multiple flows are available -->
-      <DataTableRow v-if="Object.keys(scheme.flows ?? {}).length > 1">
+      <!-- Flow selector tabs: shown when multiple visible flows are available -->
+      <DataTableRow v-if="getVisibleOrderedFlowKeys(scheme.flows).length > 1">
         <div class="flex min-h-8 border-t text-base">
           <div class="flex h-8 max-w-full gap-2.5 overflow-x-auto px-3">
             <button
-              v-for="(_, key, ind) in scheme.flows"
+              v-for="(key, ind) in getVisibleOrderedFlowKeys(scheme.flows)"
               :key="key"
               :class="getFlowTabClasses(key, ind)"
               type="button"
@@ -593,7 +594,7 @@ const handleConfigAuthorize = (): void => {
 
       <!-- OAuth2 flow configuration -->
       <template
-        v-for="(_flow, key, ind) in scheme.flows"
+        v-for="(key, ind) in getVisibleOrderedFlowKeys(scheme.flows)"
         :key="key">
         <OAuth2
           v-if="scheme.flows && isFlowActive(key, ind)"

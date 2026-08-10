@@ -734,6 +734,33 @@ describe('security-scheme', () => {
       expect(groups[0]?.options[0]?.value).toEqual({ OAuth2: ['read'] })
       expect(groups[1]?.options.some((option) => option.label === 'OAuth2')).toBe(false)
     })
+
+    it('excludes schemes hidden with x-scalar-ignore from the available options', () => {
+      const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        visible: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+        hidden: { type: 'apiKey', in: 'header', name: 'X-Hidden', 'x-scalar-ignore': true },
+      }
+
+      // No required schemes, so a flat list of available options is returned.
+      const result = getSecuritySchemeOptions([], schemes, [])
+      const options = result as SecuritySchemeOption[]
+
+      expect(options.map((option) => option.label)).toEqual(['visible'])
+    })
+
+    it('drops a required scheme hidden with x-scalar-ignore', () => {
+      const security: NonNullable<OpenApiDocument['security']> = [{ hidden: [] }, { visible: [] }]
+      const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        visible: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+        hidden: { type: 'apiKey', in: 'header', name: 'X-Hidden', 'x-scalar-ignore': true },
+      }
+
+      // With a required scheme present, grouped options are returned.
+      const groups = getSecuritySchemeOptions(security, schemes, []) as SecuritySchemeGroup[]
+      const required = groups.find((group) => group.label === 'Required authentication')
+
+      expect(required?.options.map((option) => option.label)).toEqual(['visible'])
+    })
   })
 
   describe('getOauth2AcquisitionTarget', () => {
@@ -784,6 +811,49 @@ describe('security-scheme', () => {
 
       const target = getOauth2AcquisitionTarget(schemes)
       expect(target?.name).toBe('ImplicitOnly')
+      expect(target?.flowType).toBe('implicit')
+    })
+
+    it('skips oauth2 schemes hidden with x-scalar-ignore', () => {
+      const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        Hidden: {
+          type: 'oauth2',
+          'x-scalar-ignore': true,
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://auth.example.com/authorize',
+              tokenUrl: 'https://auth.example.com/token',
+              refreshUrl: '',
+              'x-usePkce': 'no',
+              scopes: {},
+            },
+          },
+        },
+      }
+
+      expect(getOauth2AcquisitionTarget(schemes)).toBeNull()
+    })
+
+    it('skips a hidden authorization-code flow and falls back to a visible implicit flow', () => {
+      const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        Mixed: {
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://auth.example.com/authorize',
+              tokenUrl: 'https://auth.example.com/token',
+              refreshUrl: '',
+              'x-usePkce': 'no',
+              scopes: {},
+              'x-scalar-ignore': true,
+            },
+            implicit: { authorizationUrl: 'https://auth.example.com/authorize', refreshUrl: '', scopes: {} },
+          },
+        },
+      }
+
+      const target = getOauth2AcquisitionTarget(schemes)
+      expect(target?.name).toBe('Mixed')
       expect(target?.flowType).toBe('implicit')
     })
   })

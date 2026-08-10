@@ -1,5 +1,6 @@
 import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isHidden } from '@scalar/workspace-store/helpers/is-hidden'
 import type { MergedSecuritySchemes, OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
 import type {
   ComponentsObject,
@@ -9,6 +10,13 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { authOptions } from '@/v2/blocks/scalar-auth-selector-block/helpers/auth-options'
+
+/**
+ * Minimal shape read by `isHidden`. Some scheme union members (AsyncAPI broker schemes) do not
+ * structurally carry the ignore extensions, so we cast to this before the check to satisfy the
+ * weak-type check without widening `isHidden` itself.
+ */
+type Hideable = { 'x-internal'?: boolean; 'x-scalar-ignore'?: boolean }
 
 /** A single security scheme option used in the auth dropdown */
 export type SecuritySchemeOption = {
@@ -66,7 +74,8 @@ const formatSecurityRequirement = (
   // Simple auth (single key)
   if (keys[0]) {
     const scheme = getResolvedRef(securitySchemes[keys[0]])
-    if (!scheme) {
+    // Drop schemes that do not exist or are hidden from the auth UI via x-scalar-ignore.
+    if (!scheme || isHidden(scheme as Hideable)) {
       return undefined
     }
     return formatScheme({ name: keys[0], value: requirement })
@@ -101,7 +110,9 @@ export const getOauth2AcquisitionTarget = (
 
   for (const [name, schemeRef] of Object.entries(securitySchemes)) {
     const scheme = getResolvedRef(schemeRef)
-    if (scheme?.type !== 'oauth2') {
+    // Skip schemes hidden from the auth UI via x-scalar-ignore, so the shortcut never
+    // targets a flow the user cannot see or configure.
+    if (scheme?.type !== 'oauth2' || isHidden(scheme)) {
       continue
     }
     const flows = scheme.flows as OAuthFlowsObjectSecret | undefined
@@ -111,11 +122,11 @@ export const getOauth2AcquisitionTarget = (
     const scopes = (scheme as { 'x-default-scopes'?: string[] })['x-default-scopes'] ?? []
 
     // Authorization code can refresh, so it wins outright the moment we find one.
-    if (flows.authorizationCode) {
+    if (flows.authorizationCode && !isHidden(flows.authorizationCode)) {
       return { name, flows, flowType: 'authorizationCode', scopes }
     }
     // Otherwise remember the first implicit-only scheme in case no auth-code flow turns up.
-    if (flows.implicit && !implicitFallback) {
+    if (flows.implicit && !isHidden(flows.implicit) && !implicitFallback) {
       implicitFallback = { name, flows, flowType: 'implicit', scopes }
     }
   }
@@ -175,7 +186,8 @@ export const getSecuritySchemeOptions = (
     }
 
     const scheme = getResolvedRef(schemeRef)
-    if (scheme) {
+    // Skip schemes hidden from the auth UI via x-scalar-ignore.
+    if (scheme && !isHidden(scheme as Hideable)) {
       const formatted = formatScheme({ name, value: { [name]: [] } })
       availableFormatted.push(formatted)
       existingIds.add(formatted.id)

@@ -837,6 +837,50 @@ describe('RequestAuthTab', () => {
       expect(oauth2Component.exists()).toBe(true)
       expect(oauth2Component.props('type')).toBe('authorizationCode')
     })
+
+    it('hides ignored flows and orders tabs by x-order, defaulting to the first', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'OAuth2': {
+            type: 'oauth2',
+            flows: {
+              clientCredentials: {
+                tokenUrl: 'https://example.com/token',
+                scopes: {},
+                'x-scalar-ignore': true,
+              },
+              implicit: {
+                authorizationUrl: 'https://example.com/auth',
+                scopes: {},
+                'x-order': 2,
+              },
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/auth',
+                tokenUrl: 'https://example.com/token',
+                scopes: {},
+                'x-order': 1,
+              },
+            },
+          },
+        },
+        selectedSecuritySchemas: {
+          'OAuth2': [],
+        },
+      })
+
+      const flowKeys = ['implicit', 'authorizationCode', 'clientCredentials', 'password']
+      const flowTabs = wrapper
+        .findAll('button')
+        .map((tab) => tab.text())
+        .filter((text) => flowKeys.includes(text))
+
+      // clientCredentials is hidden; the remaining tabs follow x-order.
+      expect(flowTabs).toEqual(['authorizationCode', 'implicit'])
+
+      // The first (lowest x-order) flow is the default.
+      const oauth2Component = wrapper.findComponent(OAuth2)
+      expect(oauth2Component.props('type')).toBe('authorizationCode')
+    })
   })
 
   describe('shows correct description', () => {
