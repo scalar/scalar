@@ -1,6 +1,6 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -293,11 +293,13 @@ describe('RequestBody', () => {
       props: {
         eventBus: createWorkspaceEventBus(),
         options: defaultRequestOptions,
-        document: {
+        document: coerceValue(OpenAPIDocumentSchema, {
+          openapi: '3.1.0',
+          info: { title: 'Test', version: '1.0.0' },
           components: {
             schemas: { CreateUserRequest: { type: 'object', 'x-internal': true } },
           },
-        } as any,
+        }),
         requestBody: {
           content: {
             'application/json': {
