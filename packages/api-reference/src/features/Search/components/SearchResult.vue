@@ -5,6 +5,7 @@ import {
   ScalarIconTag,
   ScalarIconTerminalWindow,
   ScalarIconTextAlignLeft,
+  ScalarIconWebhooksLogo,
 } from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import { HttpMethod } from '@scalar/sidebar'
@@ -31,7 +32,7 @@ const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
   model: ScalarIconBracketsCurly,
   operation: ScalarIconTerminalWindow,
   tag: ScalarIconTag,
-  webhook: ScalarIconTerminalWindow,
+  webhook: ScalarIconWebhooksLogo,
 }
 
 const entryLabels = computed((): { [x in EntryType]: string } => ({
