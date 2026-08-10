@@ -2,7 +2,19 @@
 import { ScalarComponent } from '@scalar/astro'
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 
-import { configuration, title } from 'virtual:scalar-starlight'
+import { references } from 'virtual:scalar-starlight'
+
+// One route module renders every configured reference, so pick the entry that
+// matches this page. Strip Astro's `base` from the request path and normalize it
+// the same way the plugin normalized each `pathname`, so the key lines up
+// regardless of `base` or trailing-slash settings. Fall back to the only entry
+// when there is a single reference (the common case), which keeps things working
+// even if the path ever fails to match.
+const base = import.meta.env.BASE_URL
+const relative = Astro.url.pathname.startsWith(base) ? Astro.url.pathname.slice(base.length) : Astro.url.pathname
+const key = `/${relative.split('/').filter(Boolean).join('/')}`
+
+const { configuration, title } = references[key] ?? Object.values(references)[0]
 ---
 
 {/*

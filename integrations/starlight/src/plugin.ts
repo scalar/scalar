@@ -71,6 +71,17 @@ const normalizePathname = (pathname: string): string => `/${pathname.split('/').
  */
 export const scalarStarlight = (options: ScalarStarlightOptions): StarlightPlugin => {
   const pathname = normalizePathname(options.pathname ?? '/api-reference')
+
+  // A `pathname` that normalizes to the site root would collide with the
+  // homepage and only surface as an opaque Astro duplicate-route error, so fail
+  // early with a message that points at the actual cause.
+  if (pathname === '/') {
+    throw new Error(
+      '[@scalar/starlight] `pathname` must not resolve to "/", which would collide with your homepage. ' +
+        'Use a subpath like "/api-reference".',
+    )
+  }
+
   const label = options.label ?? 'API Reference'
   const title = options.title ?? label
 

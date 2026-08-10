@@ -62,8 +62,19 @@ describe('scalarStarlight', () => {
       sidebar: [{ label: 'My API', link: '/reference' }],
     })
 
+    // The injected integration is named per pathname so multiple references do
+    // not look like the same integration to Astro.
     const integration = addIntegration.mock.calls[0]?.[0]
-    expect(integration?.name).toBe('@scalar/starlight')
+    expect(integration?.name).toBe('@scalar/starlight:/reference')
+  })
+
+  it('rejects a pathname that resolves to the site root', () => {
+    expect(() => scalarStarlight({ configuration: { url: '/openapi.json' }, pathname: '/' })).toThrow(
+      /must not resolve/,
+    )
+    expect(() => scalarStarlight({ configuration: { url: '/openapi.json' }, pathname: '///' })).toThrow(
+      /must not resolve/,
+    )
   })
 
   it('leaves an auto-generated sidebar untouched', () => {

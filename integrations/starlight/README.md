@@ -55,6 +55,17 @@ The reference is served from `/api-reference` by default.
 | `label`         | `'API Reference'`  | The label of the sidebar entry.                                                                 |
 | `title`         | the `label`        | The title of the API reference page.                                                            |
 
+## Multiple references
+
+Add the plugin more than once, each with its own `pathname`, to serve several API references from one site:
+
+```js
+plugins: [
+  scalarStarlight({ pathname: '/reference/payments', label: 'Payments', configuration: { url: '/payments.json' } }),
+  scalarStarlight({ pathname: '/reference/billing', label: 'Billing', configuration: { url: '/billing.json' } }),
+]
+```
+
 > [!NOTE]
 > The configuration is serialized into the page as JSON, so function-valued options (a custom `fetch`, `onLoaded`, plugins, …) are not carried over. This mirrors the `renderMode="client"` behavior of [`@scalar/astro`](https://www.npmjs.com/package/@scalar/astro), which this plugin builds on so the reference keeps working across Starlight's client-side navigation.
 

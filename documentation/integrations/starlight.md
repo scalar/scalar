@@ -64,5 +64,16 @@ scalarStarlight({
 })
 ```
 
+### Multiple references
+
+Add the plugin more than once, each with its own `pathname`, to serve several API references from one site:
+
+```js
+plugins: [
+  scalarStarlight({ pathname: '/reference/payments', label: 'Payments', configuration: { url: '/payments.json' } }),
+  scalarStarlight({ pathname: '/reference/billing', label: 'Billing', configuration: { url: '/billing.json' } }),
+]
+```
+
 > [!NOTE]
 > The configuration is serialized into the page as JSON, so function-valued options (a custom `fetch`, `onLoaded`, plugins, …) are not carried over. The plugin builds on [`@scalar/astro`](./astro.md)'s client render mode so the reference keeps working across Starlight's client-side navigation ([view transitions](https://docs.astro.build/en/guides/view-transitions/)).
