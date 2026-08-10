@@ -64,4 +64,16 @@ describe('scalarStarlight', () => {
     const integration = addIntegration.mock.calls[0]?.[0]
     expect(integration?.name).toBe('@scalar/starlight')
   })
+
+  it('normalizes messy pathnames', () => {
+    const plugin = scalarStarlight({
+      configuration: { url: '/openapi.json' },
+      pathname: '//docs//api/',
+    })
+    const { updateConfig } = runConfigSetup(plugin)
+
+    expect(updateConfig).toHaveBeenCalledWith({
+      sidebar: [{ label: 'API Reference', link: '/docs/api' }],
+    })
+  })
 })
