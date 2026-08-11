@@ -1,6 +1,7 @@
 ---
 '@scalar/api-client': minor
 '@scalar/workspace-store': patch
+'@scalar/sidebar': patch
 ---
 
 feat: add WebSocket channel operations for AsyncAPI documents
@@ -18,3 +19,7 @@ Introduce a WebSocket testing experience for AsyncAPI channels in the API client
 **@scalar/workspace-store**
 
 - Resolve the messages a client can send from the operations the server receives. AsyncAPI describes operations from the application's point of view, so a client-sent message belongs to a `receive` operation.
+
+**@scalar/sidebar**
+
+- Show AsyncAPI channels, operations, and messages in the client layout so channel entries are reachable in the API client sidebar.

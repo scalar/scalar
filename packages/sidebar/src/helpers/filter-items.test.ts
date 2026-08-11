@@ -44,6 +44,27 @@ describe('filter-items', () => {
     ])
   })
 
+  it('keeps AsyncAPI channels, operations, and messages for client layout', () => {
+    const items: Item[] = [
+      { id: '0', title: 'Description', type: 'text' },
+      { id: '1', title: 'Room', type: 'asyncapi-channel', channelName: 'room', channelAddress: '/room' },
+      {
+        id: '2',
+        title: 'Post a message',
+        type: 'asyncapi-operation',
+        operationName: 'sendMessage',
+        action: 'receive',
+        channelName: 'room',
+        channelAddress: '/room',
+      },
+      { id: '3', title: 'Send message', type: 'asyncapi-message', messageName: 'SendMessage', channelName: 'room' },
+    ]
+
+    const result = filterItems('client', items)
+
+    expect(result.map((item) => item.id)).toEqual(['1', '2', '3'])
+  })
+
   it('returns empty array for client layout when no matching types exist', () => {
     const items: Item[] = [
       { id: '1', title: 'Description', type: 'text' },
