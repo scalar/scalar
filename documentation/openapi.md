@@ -490,7 +490,7 @@ info:
 
 ## x-pre-request
 
-Add pre-request scripts to operations or at the document level. Scripts run before the request is sent and can modify headers, set variables, or prepare authentication. See [Scripts in the API Client](/products/api-client/scripts) for the full guide.
+Add pre-request scripts to operations or at the document level. Scripts run before the request is sent and can modify headers, set variables, or prepare authentication. See [Scripts in the API Client](./guides/app/scripts.md) for the full guide.
 
 On an operation:
 
@@ -525,7 +525,7 @@ When both document-level and operation-level scripts are present, the document-l
 
 ## x-post-response
 
-Add post-response scripts to operations to automatically validate API responses. Scripts use a Postman-compatible syntax and run after each request in the [API Client](/products/api-client/testing).
+Add post-response scripts to operations to automatically validate API responses. Scripts use a Postman-compatible syntax and run after each request in the [API Client](./guides/app/testing.md).
 
 ```diff
 openapi: 3.1.0
@@ -563,4 +563,4 @@ paths:
 +        })
 ```
 
-See [Testing in the API Client](/products/api-client/testing) for all available assertions and the full `pm` API reference.
+See [Testing in the API Client](./guides/app/testing.md) for all available assertions and the full `pm` API reference.
