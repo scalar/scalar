@@ -391,7 +391,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="bg-b-1 flex h-full flex-col">
+  <!-- min-w-0 lets this pane shrink so its content scrolls internally instead of squeezing the sidebar -->
+  <div class="bg-b-1 flex h-full min-w-0 flex-col">
     <div
       class="lg:min-h-header t-app__top-container @container flex w-full flex-wrap items-center justify-center p-2">
       <div class="hidden flex-1 @3xl:flex"></div>
