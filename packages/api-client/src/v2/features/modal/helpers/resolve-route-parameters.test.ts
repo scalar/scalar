@@ -1,3 +1,4 @@
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { describe, expect, it } from 'vitest'
@@ -7,6 +8,7 @@ import 'fake-indexeddb/auto'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import {
+  resolveChannel,
   resolveDocumentSlug,
   resolveExampleName,
   resolveMethod,
@@ -600,5 +602,25 @@ describe('resolve-route-parameters', () => {
     expect(result.documentSlug).toBe('active-doc')
     expect(result.path).toBe('/new')
     expect(result.method).toBe('post')
+  })
+
+  describe('resolveChannel', () => {
+    const asyncDocument = {
+      asyncapi: '3.0.0',
+      info: { title: 'Rooms', version: '1.0.0' },
+      channels: { room: { address: '/room' }, lobby: { address: '/lobby' } },
+    } as unknown as AsyncApiDocument
+
+    it('returns the first channel for the default placeholder', () => {
+      expect(resolveChannel(asyncDocument, 'default')).toBe('room')
+    })
+
+    it('returns the requested channel when it exists', () => {
+      expect(resolveChannel(asyncDocument, 'lobby')).toBe('lobby')
+    })
+
+    it('falls back to the first channel when the requested one is missing', () => {
+      expect(resolveChannel(asyncDocument, 'missing')).toBe('room')
+    })
   })
 })
