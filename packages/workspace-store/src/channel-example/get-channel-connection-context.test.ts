@@ -58,7 +58,8 @@ describe('getChannelConnectionContext', () => {
 
     expect(result.data.channelName).toBe('echo')
     expect(result.data.connectionUrl).toBe('wss://echo.websocket.org')
-    expect(result.data.messages.map(({ name }) => name)).toEqual(['echoPayload'])
+    // The client sends the message the server receives: `listenOnEcho` (action `receive`).
+    expect(result.data.messages.map(({ name }) => name)).toEqual(['receivedPayload'])
     expect(result.data.operations.map(({ operationName }) => operationName).sort()).toEqual([
       'listenOnEcho',
       'sendEchoMessage',
