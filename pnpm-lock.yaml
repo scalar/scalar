@@ -154,8 +154,8 @@ catalogs:
       specifier: ^3.3.3
       version: 3.3.3
     fastify:
-      specifier: ^5.8.1
-      version: 5.8.4
+      specifier: ^5.11.2
+      version: 5.11.2
     fastify-plugin:
       specifier: ^4.5.1
       version: 4.5.1
@@ -175,8 +175,8 @@ catalogs:
       specifier: ^4.12.7
       version: 4.12.9
     js-base64:
-      specifier: ^3.7.8
-      version: 3.7.8
+      specifier: ^3.9.2
+      version: 3.9.2
     jsdom:
       specifier: 27.4.0
       version: 27.4.0
@@ -1177,7 +1177,7 @@ importers:
         version: 6.0.33(zod@4.3.5)
       js-base64:
         specifier: catalog:*
-        version: 3.7.8
+        version: 3.9.2
       neverpanic:
         specifier: catalog:*
         version: 0.0.8
@@ -1286,7 +1286,7 @@ importers:
         version: 7.5.0
       js-base64:
         specifier: catalog:*
-        version: 3.7.8
+        version: 3.9.2
       jsonc-parser:
         specifier: catalog:*
         version: 3.3.1
@@ -1606,7 +1606,7 @@ importers:
         version: 1.2.16
       js-base64:
         specifier: catalog:*
-        version: 3.7.8
+        version: 3.9.2
       vue:
         specifier: catalog:*
         version: 3.5.40(typescript@5.9.3)
@@ -1944,7 +1944,7 @@ importers:
     devDependencies:
       fastify:
         specifier: catalog:*
-        version: 5.8.4
+        version: 5.11.2
       vite:
         specifier: catalog:*
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
@@ -2468,7 +2468,7 @@ importers:
         version: link:../types
       js-base64:
         specifier: catalog:*
-        version: 3.7.8
+        version: 3.9.2
       stringify-object:
         specifier: ^6.0.0
         version: 6.0.0
@@ -2673,7 +2673,7 @@ importers:
         version: 4.12.9
       js-base64:
         specifier: catalog:*
-        version: 3.7.8
+        version: 3.9.2
       ws:
         specifier: ^8.19.0
         version: 8.19.0
@@ -2716,7 +2716,7 @@ importers:
         version: link:../validation
       js-base64:
         specifier: catalog:*
-        version: 3.7.8
+        version: 3.9.2
       type-fest:
         specifier: catalog:*
         version: 5.8.0
@@ -2735,7 +2735,7 @@ importers:
         version: 6.2.5
       fastify:
         specifier: catalog:*
-        version: 5.8.4
+        version: 5.11.2
       vite:
         specifier: catalog:*
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
@@ -2860,7 +2860,7 @@ importers:
         version: 3.2.0
       js-base64:
         specifier: catalog:*
-        version: 3.7.8
+        version: 3.9.2
       jwt-decode:
         specifier: catalog:*
         version: 4.0.0
@@ -2921,7 +2921,7 @@ importers:
         version: 6.2.5
       fastify:
         specifier: catalog:*
-        version: 5.8.4
+        version: 5.11.2
       vite:
         specifier: catalog:*
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
@@ -11786,6 +11786,9 @@ packages:
   fast-json-stringify@6.0.1:
     resolution: {integrity: sha512-s7SJE83QKBZwg54dIbD5rCtzOBVD43V1ReWXXYqBgwCwHLYAAT0RQc/FmrQglXqWPpz6omtryJQOau5jI4Nrvg==}
 
+  fast-json-stringify@7.0.1:
+    resolution: {integrity: sha512-eRSayARSbbwlBjpP4vnTTIRD5QPcIrmihPxDeN1DtKnHPg66UuJLx+8hlK1kaFdjvzyQ/dzALoi4vwAQ+T+iZA==}
+
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
@@ -11812,6 +11815,9 @@ packages:
   fast-uri@3.0.1:
     resolution: {integrity: sha512-MWipKbbYiYI0UC7cl8m/i/IWTqfC8YXsqjzybjddLsFjStroQzsHXkc73JutMvBiXmOvapk+axIl79ig5t55Bw==}
 
+  fast-uri@4.1.2:
+    resolution: {integrity: sha512-TyGmBcbDTZXcb2cj5MV89DrF42DKvb3y5DDUNh95iO+IMeAzMkVSxK1PZRrRIpc9yg8U2GhGdbofNa0LS/a4Bw==}
+
   fast-xml-builder@1.1.4:
     resolution: {integrity: sha512-f2jhpN4Eccy0/Uz9csxh3Nu6q4ErKxf0XIsasomfOihuSUa3/xw6w8dnOtCDgEItQFJG8KyXPzQXzcODDrrbOg==}
 
@@ -11831,6 +11837,9 @@ packages:
 
   fastify@4.28.0:
     resolution: {integrity: sha512-HhW7UHW07YlqH5qpS0af8d2Gl/o98DhJ8ZDQWHRNDnzeOhZvtreWsX8xanjGgXmkYerGbo8ax/n40Dpwqkot8Q==}
+
+  fastify@5.11.2:
+    resolution: {integrity: sha512-i/eJG7nXR9OkbFgoX4jFiPOHoRq0rXqDACVAXELh5Fdg6BFBErIVZ8MyibGCwup9Go1pYrxZJ0ogIub8vVdEcQ==}
 
   fastify@5.7.4:
     resolution: {integrity: sha512-e6l5NsRdaEP8rdD8VR0ErJASeyaRbzXYpmkrpr2SuvuMq6Si3lvsaVy5C+7gLanEkvjpMDzBXWE5HPeb/hgTxA==}
@@ -11940,6 +11949,10 @@ packages:
 
   find-my-way@9.4.0:
     resolution: {integrity: sha512-5Ye4vHsypZRYtS01ob/iwHzGRUDELlsoCftI/OZFhcLs1M0tkGPcXldE80TAZC5yYuJMBPJQQ43UHlqbJWiX2w==}
+    engines: {node: '>=20'}
+
+  find-my-way@9.7.0:
+    resolution: {integrity: sha512-f2JHn75x2JlwUwLenZypgczR7YWMb/uO9BvUXtus+JMgkbIkLADd38cI4EiV+OQqrGo1Zlq6V8wnqMJ8e62wUQ==}
     engines: {node: '>=20'}
 
   find-up@3.0.0:
@@ -13260,8 +13273,8 @@ packages:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
 
-  js-base64@3.7.8:
-    resolution: {integrity: sha512-hNngCeKxIUQiEUN3GPJOkz4wF/YvdUdbNL9hsBcMQTkKzboD7T/q3OYOuuPZLUE6dBxSGpwhk5mwuDud7JVAow==}
+  js-base64@3.9.2:
+    resolution: {integrity: sha512-6zayE8QlUdiweYI6cETD/XBSqFcoCUlufn/29PJR99r82x1yDnIprRca0YvAYpAW+ez0GuQkVBC6xG5QkD7OjA==}
 
   js-beautify@1.15.1:
     resolution: {integrity: sha512-ESjNzSlt/sWE8sciZH8kBF8BPlwXPwhR6pWKAw8bw4Bwj+iZcnKW6ONWUutJ7eObuBZQpiIb8S7OYspWrKt7rA==}
@@ -13351,6 +13364,9 @@ packages:
 
   json-schema-ref-resolver@2.0.1:
     resolution: {integrity: sha512-HG0SIB9X4J8bwbxCbnd5FfPEbcXAJYTi1pBJeP/QPON+w8ovSME8iRG+ElHNxZNX2Qh6eYn1GdzJFS4cDFfx0Q==}
+
+  json-schema-ref-resolver@3.0.0:
+    resolution: {integrity: sha512-hOrZIVL5jyYFjzk7+y7n5JDzGlU8rfWDuYyHwGa2WA8/pcmMHezp2xsVwxrebD/Q9t8Nc5DboieySDpCp4WG4A==}
 
   json-schema-resolver@2.0.0:
     resolution: {integrity: sha512-pJ4XLQP4Q9HTxl6RVDLJ8Cyh1uitSs0CzDBAz1uoJ4sRD/Bk7cFSXL1FUXDW3zJ7YnfliJx6eu8Jn283bpZ4Yg==}
@@ -29853,6 +29869,15 @@ snapshots:
       json-schema-ref-resolver: 2.0.1
       rfdc: 1.4.1
 
+  fast-json-stringify@7.0.1:
+    dependencies:
+      '@fastify/merge-json-schemas': 0.2.1
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      fast-uri: 4.1.2
+      json-schema-ref-resolver: 3.0.0
+      rfdc: 1.4.1
+
   fast-levenshtein@2.0.6: {}
 
   fast-npm-meta@0.4.7: {}
@@ -29870,6 +29895,8 @@ snapshots:
   fast-uri@2.4.0: {}
 
   fast-uri@3.0.1: {}
+
+  fast-uri@4.1.2: {}
 
   fast-xml-builder@1.1.4:
     dependencies:
@@ -29903,6 +29930,24 @@ snapshots:
       proxy-addr: 2.0.7
       rfdc: 1.4.1
       secure-json-parse: 2.7.0
+      semver: 7.7.4
+      toad-cache: 3.7.0
+
+  fastify@5.11.2:
+    dependencies:
+      '@fastify/ajv-compiler': 4.0.5
+      '@fastify/error': 4.2.0
+      '@fastify/fast-json-stringify-compiler': 5.0.3
+      '@fastify/proxy-addr': 5.0.0
+      abstract-logging: 2.0.1
+      avvio: 9.1.0
+      fast-json-stringify: 7.0.1
+      find-my-way: 9.7.0
+      light-my-request: 6.6.0
+      pino: 10.1.0
+      process-warning: 5.0.0
+      rfdc: 1.4.1
+      secure-json-parse: 4.0.0
       semver: 7.7.4
       toad-cache: 3.7.0
 
@@ -30064,6 +30109,12 @@ snapshots:
       safe-regex2: 3.1.0
 
   find-my-way@9.4.0:
+    dependencies:
+      fast-deep-equal: 3.1.3
+      fast-querystring: 1.1.2
+      safe-regex2: 5.0.0
+
+  find-my-way@9.7.0:
     dependencies:
       fast-deep-equal: 3.1.3
       fast-querystring: 1.1.2
@@ -31842,7 +31893,7 @@ snapshots:
 
   joycon@3.1.1: {}
 
-  js-base64@3.7.8: {}
+  js-base64@3.9.2: {}
 
   js-beautify@1.15.1:
     dependencies:
@@ -31975,6 +32026,10 @@ snapshots:
       fast-deep-equal: 3.1.3
 
   json-schema-ref-resolver@2.0.1:
+    dependencies:
+      dequal: 2.0.3
+
+  json-schema-ref-resolver@3.0.0:
     dependencies:
       dequal: 2.0.3
 
