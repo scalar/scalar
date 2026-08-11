@@ -10,7 +10,7 @@ export {
   mergeWsBindings,
 } from './build-connection-url'
 export type { ChannelMessageEntry } from './get-all-channel-messages'
-export { getAllChannelMessages } from './get-all-channel-messages'
+export { getAllChannelMessages, getSendChannelMessages } from './get-all-channel-messages'
 export type {
   AsyncApiProtocolOption,
   AsyncApiReachabilityContext,
