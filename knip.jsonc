@@ -125,6 +125,8 @@
         "src/features/index.ts",
         "src/helpers/index.ts",
         "src/esm.ts",
+        // Short CDN entry point that re-exports the ESM standalone build
+        "esm.js",
         // Used by CI deploy-api-reference preview build
         "vite.previews.config.ts",
         // Not sure why test files are marked as unused here
