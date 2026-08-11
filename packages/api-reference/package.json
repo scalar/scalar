@@ -96,6 +96,7 @@
   },
   "files": [
     "dist",
+    "esm.js",
     "!dist/browser/webpack-stats.json",
     "!dist/browser/webpack-stats.esm.json",
     "!dist/examples",
