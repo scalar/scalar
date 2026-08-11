@@ -443,7 +443,7 @@ Point `path` at the route your changelog lives on. The feed is written to `rss.x
 
 | Property      | Type     | Required | Description                                                                         |
 | ------------- | -------- | -------- | ----------------------------------------------------------------------------------- |
-| `path`        | `string` | Yes      | Route of your changelog, for example `/changelog`                                   |
+| `path`        | `string` | Yes      | Route of your changelog, for example `/changelog`. Must be a plain site route with no `..` segments |
 | `title`       | `string` | No       | Title of the feed, shown in feed readers. Defaults to your site title plus `Changelog` |
 | `description` | `string` | No       | Description of the feed, shown in feed readers                                      |
 
@@ -461,7 +461,7 @@ Added a dark mode toggle to the header.
 Introduced page actions: copy as Markdown, open in editor, and report an issue.
 ```
 
-The heading becomes the item title, and the content below it becomes the item description. Headings without a date are not entries of their own — they belong to the entry above them, so you can use subheadings inside a release without splitting it apart.
+The heading becomes the item title, and the content below it becomes the item description. Only the top-most heading level that carries dates starts entries; any deeper heading folds into the release above it — even one that happens to contain a date — so you can nest subheadings like `### Fixes` inside a release without splitting it apart.
 
 If a heading looks dated but the date is not real (`## 2.0.0 (2026-13-01)`), that release is left out of the feed and the build warns you, since a typo is the only way to get there.
 
