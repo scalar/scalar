@@ -3,7 +3,7 @@ import { createSidebarState, generateReverseIndex, getChildEntry } from '@scalar
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import { isAsyncApiDocument, isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type ComputedRef, computed, toValue, watch } from 'vue'
 
 import type { RoutePayload } from '@/v2/features/modal/helpers/resolve-route-parameters'
@@ -17,8 +17,16 @@ export type UseModalSidebarReturn = {
     path?: string
     method?: HttpMethod
     example?: string
+    /** AsyncAPI channel key. Provided instead of path/method for channel entries. */
+    channel?: string
   }) => TraversedEntry | undefined
 }
+
+/** AsyncAPI navigation entries all carry the channel key they belong to. */
+const getChannelName = (entry: TraversedEntry): string | undefined =>
+  entry.type === 'asyncapi-channel' || entry.type === 'asyncapi-operation' || entry.type === 'asyncapi-message'
+    ? entry.channelName
+    : undefined
 
 /**
  * useSidebarState - Custom hook to manage the sidebar state and navigation logic in the Scalar API client
@@ -43,6 +51,7 @@ export const useModalSidebar = ({
   path,
   method,
   exampleName,
+  channel,
   route,
 }: {
   workspaceStore: WorkspaceStore | null
@@ -50,27 +59,37 @@ export const useModalSidebar = ({
   path: ComputedRef<string | undefined>
   method: ComputedRef<HttpMethod | undefined>
   exampleName: ComputedRef<string | undefined>
+  /** The active AsyncAPI channel key. Omitted by OpenAPI-only callers. */
+  channel?: ComputedRef<string | undefined>
   route: (payload: RoutePayload) => void
 }): UseModalSidebarReturn => {
+  /** Coerce the optional channel into a stable ref so the sync watcher always has a source. */
+  const channelRef = channel ?? computed<string | undefined>(() => undefined)
+
   const entries = computed<TraversedEntry[]>(() => {
     const doc = workspaceStore?.workspace.documents[toValue(documentSlug) ?? '']
-    return isOpenApiDocument(doc) ? (doc['x-scalar-navigation']?.children ?? []) : []
+    // The modal renders both OpenAPI operations and AsyncAPI channels, so surface either tree.
+    return isOpenApiDocument(doc) || isAsyncApiDocument(doc) ? (doc['x-scalar-navigation']?.children ?? []) : []
   })
   const state = createSidebarState(entries)
 
   /**
    * Computed index for fast lookup of sidebar nodes by their unique API location.
    *
-   * - Only indexes nodes of type 'operation', or 'example'.
-   * - The lookup key is a serialized array of: [operationPath, operationMethod, exampleName?].
+   * - Indexes nodes of type 'operation', 'example', and 'asyncapi-channel'.
+   * - The lookup key is a serialized array of either [document, path, method, example?] for
+   *   OpenAPI entries, or [document, channel] for AsyncAPI channels.
    * - Supports precise resolution of sidebar entries given an API "location".
    */
   const locationIndex = computed(() =>
     generateReverseIndex({
       items: entries.value,
       nestedKey: 'children',
-      filter: (node) => node.type === 'operation' || node.type === 'example',
+      filter: (node) => node.type === 'operation' || node.type === 'example' || node.type === 'asyncapi-channel',
       getId: (node) => {
+        if (node.type === 'asyncapi-channel') {
+          return generateLocationId({ document: toValue(documentSlug) ?? '', channel: node.channelName })
+        }
         const operation = getParentEntry('operation', node)
         return generateLocationId({
           document: toValue(documentSlug) ?? '',
@@ -100,6 +119,11 @@ export const useModalSidebar = ({
    *   })
    */
   const getEntryByLocation: UseModalSidebarReturn['getEntryByLocation'] = (location) => {
+    // AsyncAPI channels are located by channel key, not path/method.
+    if (location.channel) {
+      return locationIndex.value.get(generateLocationId({ document: location.document, channel: location.channel }))
+    }
+
     // Try to find an entry with the most-specific location (including example)
     const entryWithExample = locationIndex.value.get(
       generateLocationId({
@@ -138,6 +162,14 @@ export const useModalSidebar = ({
       return
     }
 
+    // Navigate to the channel page. Every AsyncAPI entry (channel, operation, message)
+    // opens its channel — one connection is scoped to one channel.
+    const channelName = getChannelName(entry)
+    if (channelName) {
+      state.setExpanded(id, !state.isExpanded(id))
+      return route({ documentSlug: toValue(documentSlug), channel: channelName })
+    }
+
     // Navigate to the example page
     if (entry.type === 'operation' || entry.type === 'example') {
       // If we are already in the operation, just toggle expansion
@@ -174,8 +206,8 @@ export const useModalSidebar = ({
 
   /** Keep the sidebar state in sync with the modal parameters */
   watch(
-    [documentSlug, path, method, exampleName],
-    ([newDocument, newPath, newMethod, newExample]) => {
+    [documentSlug, path, method, exampleName, channelRef],
+    ([newDocument, newPath, newMethod, newExample, newChannel]) => {
       if (!newDocument) {
         // Reset selection if no document is selected
         state.setSelected(null)
@@ -187,6 +219,7 @@ export const useModalSidebar = ({
         path: newPath,
         method: newMethod,
         example: newExample,
+        channel: newChannel,
       })
 
       if (entry) {

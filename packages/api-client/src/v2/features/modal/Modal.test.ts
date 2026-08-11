@@ -65,6 +65,7 @@ const documentSlug = computed<string | undefined>(() => 'test-doc')
 const path = computed<string | undefined>(() => '/users')
 const method = computed<'get' | 'post' | undefined>(() => 'get')
 const exampleName = computed<string | undefined>(() => 'default')
+const channel = computed<string | undefined>(() => undefined)
 
 /**
  * Creates fresh per-test reactive wrappers around the shared store.
@@ -74,6 +75,7 @@ const createProps = () => {
   const document = computed<OpenApiDocument | null>(
     () => (store.workspace.documents[documentSlug.value ?? ''] as OpenApiDocument | undefined) ?? null,
   )
+  const asyncApiDocument = computed(() => null)
   const modalState = useModal()
   const requestBodyCompositionSelection = ref<Record<string, number>>({})
 
@@ -83,6 +85,7 @@ const createProps = () => {
     path,
     method,
     exampleName,
+    channel,
     route: vi.fn(),
   })
 
@@ -97,6 +100,8 @@ const createProps = () => {
     props: {
       workspaceStore: store,
       document,
+      asyncApiDocument,
+      channel: computed(() => channel.value),
       path: computed(() => path.value),
       method: computed(() => method.value),
       options: createModalOptions(),
@@ -199,6 +204,7 @@ describe('Modal', () => {
       path: computed<string | undefined>(() => undefined),
       method: computed<'get' | 'post' | undefined>(() => undefined),
       exampleName: computed<string | undefined>(() => undefined),
+      channel: computed<string | undefined>(() => undefined),
       route: vi.fn(),
     })
 
@@ -206,6 +212,8 @@ describe('Modal', () => {
       props: {
         workspaceStore: emptyStore,
         document: emptyDocument,
+        asyncApiDocument: computed(() => null),
+        channel: computed(() => undefined),
         path: computed(() => undefined),
         method: computed(() => undefined),
         options: createModalOptions(),
@@ -400,6 +408,8 @@ describe('Modal', () => {
       props: {
         workspaceStore: rawStore,
         document,
+        asyncApiDocument: computed(() => null),
+        channel: computed(() => undefined),
         path: rawPath,
         method: rawMethod,
         options: createModalOptions(),
@@ -413,6 +423,7 @@ describe('Modal', () => {
           path: rawPath,
           method: rawMethod,
           exampleName: rawExampleName,
+          channel: computed<string | undefined>(() => undefined),
           route: vi.fn(),
         }),
         eventBus: mockEventBus,

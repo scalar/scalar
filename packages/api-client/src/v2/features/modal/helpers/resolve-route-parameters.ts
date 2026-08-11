@@ -1,21 +1,31 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getOperationEntries } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry, TraversedExample } from '@scalar/workspace-store/schemas/navigation'
-import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import { isAsyncApiDocument, isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 
 /** Payload for routing and opening the API client modal. */
 export type RoutePayload = {
-  path: string
-  method: HttpMethod
+  /** OpenAPI path. Optional because AsyncAPI documents route by channel instead. */
+  path?: string
+  /** OpenAPI method. Optional because AsyncAPI documents route by channel instead. */
+  method?: HttpMethod
   example?: string
   documentSlug?: string
+  /** AsyncAPI channel key. AsyncAPI documents route by channel instead of path/method. */
+  channel?: string
 }
 
-/** Raw input values that may contain "default" placeholders. */
-export type DefaultEntities = Record<keyof RoutePayload, string>
+/**
+ * Raw input values that may contain "default" placeholders.
+ *
+ * `channel` is optional: OpenAPI callers never set it, and AsyncAPI callers that omit it fall back
+ * to the document's first channel.
+ */
+export type DefaultEntities = Record<keyof Omit<RoutePayload, 'channel'>, string> & { channel?: string }
 
 /** Context for resolving route parameters from the workspace store. */
 type ResolverContext = {
@@ -27,9 +37,9 @@ type ResolverContext = {
 const isExample = (entry: TraversedEntry): entry is TraversedExample => entry.type === 'example'
 
 /**
- * Gets the document from the workspace store.
- * Returns undefined if the document slug is not provided or the document does not exist.
- * Modal routing is OpenAPI-only — AsyncAPI docs surface as undefined here.
+ * Gets the OpenAPI document from the workspace store.
+ * Returns undefined if the document slug is not provided or the document is not OpenAPI.
+ * Path/method/example resolution is OpenAPI-only — AsyncAPI docs surface as undefined here.
  */
 const getDocument = (ctx: ResolverContext) => {
   const doc = ctx.store.workspace.documents[ctx.documentSlug ?? '']
@@ -37,15 +47,38 @@ const getDocument = (ctx: ResolverContext) => {
 }
 
 /**
+ * Gets the AsyncAPI document from the workspace store.
+ * Returns undefined if the document slug is not provided or the document is not AsyncAPI.
+ */
+const getAsyncApiDocument = (ctx: ResolverContext): AsyncApiDocument | undefined => {
+  const doc = ctx.store.workspace.documents[ctx.documentSlug ?? '']
+  return isAsyncApiDocument(doc) ? doc : undefined
+}
+
+/**
+ * Resolves the AsyncAPI channel key from a raw input value.
+ *
+ * When "default" is specified (or the requested channel does not exist), returns the first
+ * channel in the document. AsyncAPI documents connect one channel at a time.
+ */
+export const resolveChannel = (document: AsyncApiDocument, channel: string | undefined): string | undefined => {
+  const channelKeys = Object.keys(document.channels ?? {})
+
+  if (!channel || channel === 'default') {
+    return channelKeys[0]
+  }
+
+  return channelKeys.includes(channel) ? channel : channelKeys[0]
+}
+
+/**
  * Resolves the document slug from a raw input value.
  *
  * When "default" is specified and no document exists with that slug,
  * we fall back to the active document or the first available document.
- * Modal routing is OpenAPI-only, so the fallback skips AsyncAPI documents —
- * otherwise opening the modal with default params on a workspace that has
- * an AsyncAPI active or first document would hand a slug back that
- * `getDocument` then resolves to undefined, rendering the modal with
- * `document: null` even when OpenAPI documents exist.
+ * The modal renders both OpenAPI operations and AsyncAPI channels, so the
+ * fallback accepts either — preferring the active document, then the first
+ * OpenAPI document, and finally the first AsyncAPI document.
  */
 export const resolveDocumentSlug = (store: WorkspaceStore, slug: string | undefined): string | undefined => {
   const hasMatchingDocument = slug !== 'default' || store.workspace.documents[slug] !== undefined
@@ -54,14 +87,19 @@ export const resolveDocumentSlug = (store: WorkspaceStore, slug: string | undefi
     return slug
   }
 
-  // Prefer the active document when it is OpenAPI; otherwise pick the first
-  // OpenAPI document in the workspace.
+  // Prefer the active document when it is one the modal can render.
   const activeSlug = store.workspace['x-scalar-active-document']
-  if (activeSlug && isOpenApiDocument(store.workspace.documents[activeSlug])) {
+  const activeDocument = activeSlug ? store.workspace.documents[activeSlug] : undefined
+  if (activeSlug && (isOpenApiDocument(activeDocument) || isAsyncApiDocument(activeDocument))) {
     return activeSlug
   }
 
-  return Object.entries(store.workspace.documents).find(([, document]) => isOpenApiDocument(document))?.[0]
+  // Otherwise pick the first OpenAPI document, then fall back to the first AsyncAPI document.
+  const entries = Object.entries(store.workspace.documents)
+  return (
+    entries.find(([, document]) => isOpenApiDocument(document))?.[0] ??
+    entries.find(([, document]) => isAsyncApiDocument(document))?.[0]
+  )
 }
 
 /**
@@ -153,6 +191,12 @@ export const resolveExampleName = (
 export const resolveRouteParameters = (store: WorkspaceStore, params: DefaultEntities): Partial<RoutePayload> => {
   const documentSlug = resolveDocumentSlug(store, params.documentSlug)
   const ctx: ResolverContext = { store, documentSlug }
+
+  // AsyncAPI documents route by channel and have no path/method/example.
+  const asyncApiDocument = getAsyncApiDocument(ctx)
+  if (asyncApiDocument) {
+    return { documentSlug, channel: resolveChannel(asyncApiDocument, params.channel) }
+  }
 
   const path = resolvePath(ctx, params.path)
   const method = resolveMethod(ctx, path, params.method)

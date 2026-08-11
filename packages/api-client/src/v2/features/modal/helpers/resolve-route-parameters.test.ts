@@ -92,9 +92,9 @@ describe('resolve-route-parameters', () => {
     expect(result).toBeUndefined()
   })
 
-  it('skips an AsyncAPI active document and falls back to the first OpenAPI document', async () => {
-    // Modal routing is OpenAPI-only — picking the AsyncAPI active doc here
-    // would hand the modal a slug that resolves to `document: null`.
+  it('honors an AsyncAPI active document', async () => {
+    // The modal renders AsyncAPI channels too, so the active document wins even
+    // when an OpenAPI document is also present.
     const store = createWorkspaceStore()
     await store.addDocument({
       name: 'async-doc',
@@ -108,7 +108,7 @@ describe('resolve-route-parameters', () => {
 
     const result = resolveDocumentSlug(store, 'default')
 
-    expect(result).toBe('openapi-doc')
+    expect(result).toBe('async-doc')
   })
 
   it('skips an AsyncAPI first document and returns the first OpenAPI document', async () => {
@@ -127,7 +127,7 @@ describe('resolve-route-parameters', () => {
     expect(result).toBe('openapi-doc')
   })
 
-  it('returns undefined when only AsyncAPI documents exist', async () => {
+  it('returns the AsyncAPI document when only AsyncAPI documents exist', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
       name: 'async-doc',
@@ -136,7 +136,7 @@ describe('resolve-route-parameters', () => {
 
     const result = resolveDocumentSlug(store, 'default')
 
-    expect(result).toBeUndefined()
+    expect(result).toBe('async-doc')
   })
 
   // ─────────────────────────────────────────────────────────────────────────────

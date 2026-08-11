@@ -2,14 +2,18 @@
 export type ModalProps = {
   /** The workspace store must be initialized and passed in */
   workspaceStore: WorkspaceStore
-  /** The document must be initialized and passed in. OpenAPI-only — the modal has no AsyncAPI path. */
+  /** The active OpenAPI document, or null when the active document is AsyncAPI. */
   document: ComputedRef<OpenApiDocument | null>
+  /** The active AsyncAPI document, or null when the active document is OpenAPI. */
+  asyncApiDocument: ComputedRef<AsyncApiDocument | null>
   /** The path must be initialized and passed in */
   path: ComputedRef<string | undefined>
   /** The event bus for handling all events */
   eventBus: WorkspaceEventBus
   /** The method must be initialized and passed in */
   method: ComputedRef<HttpMethod | undefined>
+  /** The active AsyncAPI channel key, when the active document is AsyncAPI. */
+  channel: ComputedRef<string | undefined>
   /** The example name must be initialized and passed in */
   exampleName: ComputedRef<string | undefined>
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
@@ -37,6 +41,7 @@ import type { ScalarListboxOption } from '@scalar/components/listbox'
 import type { ModalState } from '@scalar/components/modal'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -54,6 +59,7 @@ import {
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
+import ChannelOperation from '@/v2/features/channel-operation/ChannelOperation.vue'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
@@ -63,9 +69,13 @@ import type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'
 
 const {
   document,
+  asyncApiDocument,
+  channel,
   eventBus,
   modalState,
   options,
+  path,
+  method,
   plugins,
   requestBodyCompositionSelection,
   sidebarState,
@@ -136,13 +146,36 @@ const sidebarWidth = computed(
 const handleSidebarWidthUpdate = (width: number) =>
   workspaceStore?.update('x-scalar-sidebar-width', width)
 
+/** The active document, whichever spec it follows. Used for the sidebar and environment. */
+const activeDocument = computed(() => document.value ?? asyncApiDocument.value)
+
+/** The auth-store key for the active document. */
+const activeDocumentSlug = computed(
+  () => activeDocument.value?.['x-scalar-navigation']?.name ?? '',
+)
+
+/** True when the active document is an AsyncAPI channel connection rather than an OpenAPI operation. */
+const isChannel = computed(() =>
+  Boolean(asyncApiDocument.value && channel.value),
+)
+
+/** True when an OpenAPI operation is fully addressed and ready to render. */
+const isOperation = computed(() =>
+  Boolean(document.value && path.value && method.value),
+)
+
+/** The documents shown in the sidebar (the single active document). */
+const sidebarDocuments = computed(() =>
+  activeDocument.value ? [activeDocument.value] : [],
+)
+
 /**
  * Merged environment variables from workspace and document levels.
  * Variables from both sources are combined, with document variables
  * taking precedence in case of naming conflicts.
  */
 const environment = computed(
-  () => getActiveEnvironment(workspaceStore, document.value).environment,
+  () => getActiveEnvironment(workspaceStore, activeDocument.value).environment,
 )
 
 defineExpose({
@@ -156,9 +189,9 @@ defineExpose({
     <!-- Toasts -->
     <ScalarToasts />
 
-    <!-- If we have a document, path and method, render the operation -->
+    <!-- Render an OpenAPI operation or an AsyncAPI channel connection -->
     <main
-      v-if="document.value && path?.value && method?.value"
+      v-if="isOperation || isChannel"
       class="relative flex h-full min-h-0 w-full flex-1">
       <SidebarToggle
         v-model="isSidebarOpen"
@@ -168,7 +201,7 @@ defineExpose({
         v-model:sidebarWidth="sidebarWidth"
         :activeWorkspace="activeWorkspace"
         class="h-full max-md:absolute! max-md:z-5 max-md:w-full!"
-        :documents="[document.value]"
+        :documents="sidebarDocuments"
         :eventBus
         :isDroppable="() => false"
         layout="modal"
@@ -176,7 +209,20 @@ defineExpose({
         :workspaces="[]"
         @selectItem="sidebarState.handleSelectItem"
         @update:sidebarWidth="handleSidebarWidthUpdate" />
+      <ChannelOperation
+        v-if="isChannel"
+        :channelName="channel?.value"
+        class="flex-1"
+        :document="asyncApiDocument.value"
+        :documentSlug="activeDocumentSlug"
+        :environment
+        :eventBus
+        layout="modal"
+        :options
+        :plugins
+        :workspaceStore />
       <Operation
+        v-else-if="document.value && isOperation"
         :activeWorkspace="activeWorkspace"
         class="flex-1"
         :document="document.value"

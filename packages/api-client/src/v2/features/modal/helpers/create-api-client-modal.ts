@@ -2,7 +2,7 @@ import { type ModalState, useModal } from '@scalar/components/modal'
 import { type ClientPlugin, subscribePluginEvents } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import { isAsyncApiDocument, isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type App, type MaybeRefOrGetter, computed, createApp, isRef, reactive, ref, toValue, watch } from 'vue'
 
 import {
@@ -78,6 +78,7 @@ export const createApiClientModal = ({
     path: 'default',
     method: 'default',
     example: 'default',
+    channel: 'default',
     documentSlug: workspaceStore.workspace['x-scalar-active-document'] || 'default',
   }
 
@@ -94,10 +95,16 @@ export const createApiClientModal = ({
   const path = computed(() => resolvedParameters.value.path)
   const method = computed(() => resolvedParameters.value.method)
   const exampleName = computed(() => resolvedParameters.value.example)
-  /** The document from the workspace store. Modal is OpenAPI-only; AsyncAPI docs surface as null. */
+  const channel = computed(() => resolvedParameters.value.channel)
+  /** The OpenAPI document from the workspace store. AsyncAPI docs surface as null here. */
   const document = computed(() => {
     const doc = workspaceStore.workspace.documents[documentSlug.value ?? '']
     return isOpenApiDocument(doc) ? doc : null
+  })
+  /** The AsyncAPI document from the workspace store. OpenAPI docs surface as null here. */
+  const asyncApiDocument = computed(() => {
+    const doc = workspaceStore.workspace.documents[documentSlug.value ?? '']
+    return isAsyncApiDocument(doc) ? doc : null
   })
 
   /** Sidebar state and selection handling. */
@@ -107,6 +114,7 @@ export const createApiClientModal = ({
     path: path,
     method: method,
     exampleName: exampleName,
+    channel: channel,
     route,
   })
 
@@ -114,6 +122,8 @@ export const createApiClientModal = ({
 
   const app = createApp(Modal, {
     document,
+    asyncApiDocument,
+    channel,
     eventBus,
     exampleName,
     method,
