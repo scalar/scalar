@@ -31,6 +31,10 @@ export const getAllChannelMessages = (
 
 /**
  * Resolves the messages that are valid outbound payloads for a channel.
+ *
+ * AsyncAPI describes operations from the application's (server's) point of view, so an operation
+ * the client can send is one the application `receive`s. The API client is the counterpart, so we
+ * collect the messages on `receive` operations.
  */
 export const getSendChannelMessages = (
   document: AsyncApiDocument,
@@ -39,7 +43,7 @@ export const getSendChannelMessages = (
   operations: ChannelOperationSummary[],
 ): ChannelMessageEntry[] => {
   const allMessages = getAllChannelMessages(document, channel)
-  const sendOperations = operations.filter(({ action }) => action === 'send')
+  const sendOperations = operations.filter(({ action }) => action === 'receive')
 
   if (!sendOperations.length) {
     return []

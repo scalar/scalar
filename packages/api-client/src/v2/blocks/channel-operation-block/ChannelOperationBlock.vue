@@ -135,17 +135,17 @@ const resolvedConnectionUrl = computed(() => {
     return props.connectionUrl
   }
 
-  return (
-    props.selectedServer?.connectionUrl ??
-    buildConnectionUrl({
-      server,
-      channel: props.channel,
-      operation: null,
-      pathParameters: pathParameters.value,
-      queryParameters: queryParameters.value,
-      environmentVariables: environmentVariables.value,
-    })
-  )
+  // Always rebuild from the live path/query parameters. The server entry carries a
+  // pre-built `connectionUrl`, but it is computed once with the default parameter values,
+  // so using it would ignore edits the user makes in the parameter table.
+  return buildConnectionUrl({
+    server,
+    channel: props.channel,
+    operation: null,
+    pathParameters: pathParameters.value,
+    queryParameters: queryParameters.value,
+    environmentVariables: environmentVariables.value,
+  })
 })
 
 const authServer = computed((): ServerObject | null =>
