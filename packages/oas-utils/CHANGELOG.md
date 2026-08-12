@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.19.10
+
+### Patch Changes
+
+- [#9793](https://github.com/scalar/scalar/pull/9793): Expose `server` and `customFetch` in the ClientPlugin `beforeRequest` hook
+  payload (both optional, additive) so plugins can resolve relative URLs and run
+  network calls — e.g. a token refresh — through the host fetch without closing
+  over external state.
+
 ## 0.19.9
 
 ## 0.19.8

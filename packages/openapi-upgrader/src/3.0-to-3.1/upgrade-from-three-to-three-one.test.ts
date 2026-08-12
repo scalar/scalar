@@ -139,6 +139,116 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
     })
+
+    it('migrates a nullable `allOf` wrapping a `$ref`', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.3',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: { type: 'object', properties: { id: { type: 'integer' } } },
+            Wrapper: {
+              type: 'object',
+              properties: {
+                pet: {
+                  nullable: true,
+                  allOf: [{ $ref: '#/components/schemas/Pet' }],
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.Wrapper?.properties?.pet).toEqual({
+        anyOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'null' }],
+      })
+    })
+
+    it('migrates a nullable `$ref` sibling', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.3',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: { type: 'object', properties: { id: { type: 'integer' } } },
+            Wrapper: {
+              type: 'object',
+              properties: {
+                pet: {
+                  $ref: '#/components/schemas/Pet',
+                  nullable: true,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.Wrapper?.properties?.pet).toEqual({
+        anyOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'null' }],
+      })
+    })
+
+    it('keeps other keywords when unwrapping a nullable `$ref`', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.3',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: { type: 'object', properties: { id: { type: 'integer' } } },
+            Wrapper: {
+              type: 'object',
+              properties: {
+                pet: {
+                  description: 'The pet, or null',
+                  nullable: true,
+                  allOf: [{ $ref: '#/components/schemas/Pet' }],
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.Wrapper?.properties?.pet).toEqual({
+        description: 'The pet, or null',
+        anyOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'null' }],
+      })
+    })
+
+    it('wraps a nullable multi-member `allOf` without dropping members', () => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.3',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: { type: 'object', properties: { id: { type: 'integer' } } },
+            Extra: { type: 'object', properties: { tag: { type: 'string' } } },
+            Wrapper: {
+              type: 'object',
+              properties: {
+                pet: {
+                  nullable: true,
+                  allOf: [{ $ref: '#/components/schemas/Pet' }, { $ref: '#/components/schemas/Extra' }],
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.Wrapper?.properties?.pet).toEqual({
+        anyOf: [
+          { allOf: [{ $ref: '#/components/schemas/Pet' }, { $ref: '#/components/schemas/Extra' }] },
+          { type: 'null' },
+        ],
+      })
+    })
   })
 
   describe('exclusiveMinimum and exclusiveMaximum', () => {

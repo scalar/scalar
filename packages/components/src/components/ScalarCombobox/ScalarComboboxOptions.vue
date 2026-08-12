@@ -56,7 +56,7 @@ const {
 
 const emit = defineEmits<ComboboxEmits>()
 
-const model = defineModel<O[]>({ default: [] })
+const model = defineModel<O[]>({ default: () => [] })
 
 const slots = defineSlots<Omit<ComboboxSlots<O, G>, 'default'>>()
 

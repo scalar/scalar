@@ -20,9 +20,11 @@ export const getExampleFromBody = (
 ): ExampleObject | null => {
   const content = requestBody.content?.[contentType]
 
-  // Return existing example value if we have one
+  // Return the existing example when it carries a usable value. An example that only has an
+  // `externalValue` (not yet resolved to a `value`) is treated as missing, so we fall back to a
+  // schema-generated example instead of building an empty request body.
   const example = getExample(requestBody, exampleName, contentType)
-  if (example) {
+  if (example && example.value !== undefined) {
     return example
   }
 

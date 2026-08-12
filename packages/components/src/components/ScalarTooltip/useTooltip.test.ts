@@ -36,6 +36,28 @@ describe('useTooltip', () => {
     expect(tooltipElement?.classList.contains('scalar-tooltip')).toBe(true)
   })
 
+  it('re-attaches the tooltip element when its host has been removed', async () => {
+    useTooltip({
+      content: 'Test tooltip',
+      targetRef: targetElement,
+      delay: 0,
+    })
+
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.isConnected).toBe(true)
+
+    // The tooltip moves into a modal dialog to clear the top layer, so it can be torn
+    // down along with that dialog. Showing it again has to put it back.
+    tooltipElement?.remove()
+    expect(tooltipElement?.isConnected).toBe(false)
+
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    await nextTick()
+
+    expect(tooltipElement?.isConnected).toBe(true)
+    expect(tooltipElement?.parentElement).toBe(document.body)
+  })
+
   it('should show tooltip on mouseenter after delay', async () => {
     const delay = 100
     useTooltip({

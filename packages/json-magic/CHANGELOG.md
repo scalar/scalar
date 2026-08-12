@@ -1,5 +1,7 @@
 # @scalar/json-magic
 
+## 0.12.20
+
 ## 0.12.19
 
 ### Patch Changes

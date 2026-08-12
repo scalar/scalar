@@ -1,5 +1,7 @@
 # @scalarapi/docker-api-reference
 
+## 0.5.61
+
 ## 0.5.60
 
 ## 0.5.59

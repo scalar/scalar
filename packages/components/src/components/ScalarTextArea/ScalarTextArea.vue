@@ -36,7 +36,7 @@ onMounted(() => {
     is="div"
     v-bind="
       stylingAttrsCx(
-        'custom-scroll flex items-start text-c-1 min-h-0 shrink cursor-text leading-snug focus-within:bg-b-1',
+        'custom-scroll flex min-h-0 shrink cursor-text items-start bg-b-1 text-c-1 leading-snug dark:bg-b-1.5',
       )
     "
     @click="textarea?.focus()">

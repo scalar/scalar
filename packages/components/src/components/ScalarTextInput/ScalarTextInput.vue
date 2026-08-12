@@ -59,12 +59,7 @@ function handleClick(event: MouseEvent) {
 <template>
   <ScalarFormInput
     is="div"
-    v-bind="
-      stylingAttrsCx(
-        'cursor-text text-c-1',
-        readonly ? '' : 'focus-within:bg-b-1',
-      )
-    "
+    v-bind="stylingAttrsCx('cursor-text bg-b-1 text-c-1 dark:bg-b-1.5')"
     @click="handleClick">
     <div class="flex items-center flex-1 relative">
       <div

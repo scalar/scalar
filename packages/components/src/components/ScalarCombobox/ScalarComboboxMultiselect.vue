@@ -48,7 +48,7 @@ defineProps<
 
 const emit = defineEmits<ComboboxEmits>()
 
-const model = defineModel<O[]>({ default: [] })
+const model = defineModel<O[]>({ default: () => [] })
 
 defineSlots<ComboboxSlots<O, G>>()
 

@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Scalar API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="/scalar.js"></script>
+    <script>
+      // A document with two servers and a bearer scheme, mirroring the setup from #5071
+      // where the embedder keeps pushing a fresh token through updateConfiguration.
+      const baseDocument = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        servers: [
+          { url: 'https://api.example.com' },
+          { url: 'https://staging.example.com' },
+        ],
+        components: {
+          securitySchemes: {
+            bearerAuth: { type: 'http', scheme: 'bearer' },
+          },
+        },
+        security: [{ bearerAuth: [] }],
+        paths: {
+          '/planets': {
+            get: { summary: 'Get all planets', tags: ['Planets'] },
+          },
+        },
+      }
+
+      const buildConfig = (overrides = {}) => ({
+        content: overrides.content ?? baseDocument,
+        authentication: overrides.authentication,
+      })
+
+      const instance = window.Scalar.createApiReference('#app', buildConfig())
+
+      // Expose the instance so the test can read back the applied configuration.
+      window.__scalar = instance
+
+      // Case A: update only the auth token. The document content is unchanged, so this must
+      // not rebase the document or touch the selected server.
+      window.__updateAuth = (token) =>
+        instance.updateConfiguration(
+          buildConfig({
+            authentication: {
+              preferredSecurityScheme: 'bearerAuth',
+              securitySchemes: { bearerAuth: { token } },
+            },
+          }),
+        )
+
+      // Case B: update the document content (adds a `/moons` operation). This rebases the
+      // document, which previously wiped the selected server back to the first one.
+      window.__updateContent = () =>
+        instance.updateConfiguration(
+          buildConfig({
+            content: {
+              ...baseDocument,
+              paths: {
+                ...baseDocument.paths,
+                '/moons': {
+                  get: { summary: 'Get all moons', tags: ['Moons'] },
+                },
+              },
+            },
+          }),
+        )
+    </script>
+  </body>
+</html>

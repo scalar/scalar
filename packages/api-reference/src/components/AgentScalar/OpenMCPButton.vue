@@ -213,6 +213,11 @@ function openRegisterLink(documentUrl: string) {
 
 <style scoped>
 .scalar-mcp-layer {
+  /* Rows are absolutely positioned, so the container cannot auto-size to them.
+     Derive the hover height from these instead of hardcoding a magic number.
+     Bump --mcp-row-count when a row is added or removed. */
+  --mcp-row-height: 31px;
+  --mcp-row-count: 3;
   gap: 2px;
   display: flex;
   flex-direction: column;
@@ -223,7 +228,11 @@ function openRegisterLink(documentUrl: string) {
   height: 32px;
 }
 .scalar-mcp-layer:hover {
-  height: 172px;
+  /* N rows plus the 2px fan-out offset between each */
+  height: calc(
+    var(--mcp-row-count) * var(--mcp-row-height) + (var(--mcp-row-count) - 1) *
+      2px
+  );
 }
 .scalar-mcp-layer-link:hover {
   cursor: pointer !important;
@@ -234,7 +243,7 @@ function openRegisterLink(documentUrl: string) {
   cursor: pointer;
   width: 100%;
   padding: 9px 6px;
-  height: 31px;
+  height: var(--mcp-row-height);
   display: block;
   text-align: center;
   display: flex;
@@ -271,19 +280,19 @@ function openRegisterLink(documentUrl: string) {
 .scalar-mcp-layer .scalar-mcp-layer-link:nth-last-child(2) {
   transform: translate3d(0, -2px, 0) scale(0.99);
 }
-.scalar-mcp-layer:hover a:nth-last-child(2) {
+.scalar-mcp-layer:hover .scalar-mcp-layer-link:nth-last-child(2) {
   transform: translate3d(0, calc(-100% - 2px), 0) scale(0.99);
 }
 .scalar-mcp-layer .scalar-mcp-layer-link:nth-last-child(3) {
   transform: translate3d(0, -4px, 0) scale(0.98);
 }
-.scalar-mcp-layer:hover a:nth-last-child(3) {
+.scalar-mcp-layer:hover .scalar-mcp-layer-link:nth-last-child(3) {
   transform: translate3d(0, calc(-200% - 4px), 0) scale(1);
 }
 .scalar-mcp-layer .scalar-mcp-layer-link:nth-last-child(4) {
   transform: translate3d(0, -6px, 0) scale(0.97);
 }
-.scalar-mcp-layer:hover a:nth-last-child(4) {
+.scalar-mcp-layer:hover .scalar-mcp-layer-link:nth-last-child(4) {
   transform: translate3d(0, calc(-300% - 6px), 0) scale(1);
 }
 .scalar-mcp-layer .scalar-mcp-layer-link:nth-last-child(5) {

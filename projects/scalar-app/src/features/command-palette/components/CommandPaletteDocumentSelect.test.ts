@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
@@ -16,7 +16,7 @@ const documents: CommandPaletteDocument[] = [
   },
 ]
 
-const findOptionsList = (wrapper: ReturnType<typeof mount>) => wrapper.findComponent({ name: 'ScalarComboboxOptions' })
+const findOptionsList = <T>(wrapper: VueWrapper<T>) => wrapper.findComponent({ name: 'ScalarComboboxOptions' })
 
 describe('CommandPaletteDocumentSelect', () => {
   it('renders the placeholder when no document is selected', () => {

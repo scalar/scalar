@@ -3,7 +3,7 @@ import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
@@ -146,7 +146,7 @@ const nestedProps: ExtractComponentProps<typeof ClassicLayout> = {
   operation: nestedOperation,
 }
 
-const getRequestBodyCompositionSelection = (wrapper: ReturnType<typeof mount>) =>
+const getRequestBodyCompositionSelection = <T>(wrapper: VueWrapper<T>) =>
   (
     wrapper.vm.$ as unknown as {
       provides: Record<PropertyKey, unknown>
@@ -160,7 +160,7 @@ const getRequestBodyCompositionSelection = (wrapper: ReturnType<typeof mount>) =
 describe('ClassicLayout', () => {
   it('updates shared request body composition state when the root selection changes', async () => {
     const wrapper = mount(ClassicLayout, {
-      props,
+      props: props,
       global: {
         stubs: {
           RouterLink: {

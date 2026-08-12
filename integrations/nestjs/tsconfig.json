@@ -6,5 +6,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  // Include the test files so Vite/esbuild applies experimentalDecorators to them too.
+  // Vite 8.1 matches files against `include` before applying these compiler options, so
+  // without the test glob the @Module() decorator in test/app.factory.ts is left untransformed.
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"]
 }

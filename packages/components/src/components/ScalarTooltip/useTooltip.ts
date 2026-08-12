@@ -34,7 +34,7 @@ const config = ref<TooltipConfiguration>()
 // ---------------------------------------------------------------------------
 
 // Set up floating UI
-const { floatingStyles, placement } = useFloating(
+const { floatingStyles, placement, update } = useFloating(
   computed(() => unref(config.value?.targetRef)),
   el,
   {
@@ -78,6 +78,15 @@ watch(
     }
 
     if (opts) {
+      // Keep the element in the right host if the target moved into or out of a modal
+      // dialog while the tooltip was already showing. Opening a tooltip is handled in
+      // `showTooltip` before the config is assigned, so this only fires when `targetRef`
+      // changes underneath an open tooltip, and it has to ask Floating UI for a fresh
+      // position because a reparent is neither a scroll nor a resize.
+      if (moveTooltipToHost(unref(opts.targetRef))) {
+        update()
+      }
+
       const contentTarget = unref(opts?.contentTarget) ?? 'textContent'
 
       // Update the tooltip content
@@ -101,6 +110,10 @@ watch(
       // Hide the tooltip
       el.value.style.removeProperty('--scalar-tooltip-offset')
       el.value.style.setProperty('display', 'none')
+
+      // Park the element back on the body. Left inside a dialog it would be removed from
+      // the document when that dialog unmounts, taking the shared tooltip with it.
+      moveTooltipToHost(undefined)
     }
   },
   { deep: true },
@@ -189,6 +202,59 @@ function handleEscape(e: KeyboardEvent) {
   }
 }
 
+/**
+ * Find the modal dialog containing an element, if there is one
+ *
+ * Only a dialog opened with `showModal()` is promoted to the browser's top layer, and
+ * `:modal` matches exactly those. The `open` property is not a substitute: it is also
+ * true for `dialog.show()`, which leaves the dialog in the normal flow where the
+ * tooltip already paints correctly.
+ */
+function getModalDialog(target: Element | undefined | null): HTMLDialogElement | undefined {
+  const dialog = target?.closest('dialog')
+
+  if (!dialog) {
+    return undefined
+  }
+
+  try {
+    return dialog.matches(':modal') ? dialog : undefined
+  } catch {
+    // `:modal` reached Safari a couple of releases after `showModal()` did, and an
+    // unknown pseudo-class throws. Treating it as "not modal" degrades to the old
+    // behaviour for that one case instead of breaking every tooltip on the page.
+    return undefined
+  }
+}
+
+/**
+ * Move the tooltip element into the host it needs to paint above
+ *
+ * Top layer content paints above the rest of the document whatever `z-index` anything
+ * else carries, so the only way to sit above a modal dialog is to live inside it.
+ * Everywhere else the tooltip belongs on the body.
+ *
+ * This doubles as a repair step: appending an element that is no longer in the document
+ * puts it back, which covers a dialog being unmounted while the tooltip sat inside it.
+ *
+ * Returns whether the element actually moved.
+ */
+function moveTooltipToHost(target: Element | undefined | null): boolean {
+  if (!el.value) {
+    return false
+  }
+
+  const host = getModalDialog(target) ?? document.body
+
+  if (el.value.parentElement === host) {
+    return false
+  }
+
+  host.appendChild(el.value)
+
+  return true
+}
+
 /** Clears the current timer */
 function clearTimer() {
   if (timer.value) {
@@ -257,6 +323,12 @@ export function useTooltip(opts: TooltipConfiguration) {
 
     // Handle the escape key
     document.addEventListener('keydown', handleEscape, { once: true, capture: true })
+
+    // Move the element before the config is assigned, not after. Floating UI watches the
+    // target with `flush: 'sync'`, so it measures the position the instant the config
+    // lands, and that measurement has to happen with the tooltip already in its final
+    // parent or the first frame is positioned against the wrong offset parent.
+    moveTooltipToHost(unref(opts.targetRef))
 
     // Show the tooltip
     config.value = opts

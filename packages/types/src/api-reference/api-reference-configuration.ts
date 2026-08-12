@@ -164,7 +164,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   defaultHttpClient: z
     .object({
       targetKey: z.custom<TargetId>(),
-      clientKey: z.string(),
+      clientKey: z.custom<ClientId<TargetId>>(),
     })
     .optional(),
   /** Custom CSS to be added to the page */

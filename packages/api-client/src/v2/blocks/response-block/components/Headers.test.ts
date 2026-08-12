@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import Headers from './Headers.vue'
@@ -8,7 +8,7 @@ type Header = { name: string; value: string }
 /**
  * Helper to expand the ViewLayoutCollapse component by clicking the disclosure button
  */
-const expandHeaders = async (wrapper: ReturnType<typeof mount>) => {
+const expandHeaders = async <T>(wrapper: VueWrapper<T>) => {
   const button = wrapper.find('button')
   await button.trigger('click')
   await wrapper.vm.$nextTick()

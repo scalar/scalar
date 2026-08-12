@@ -3,7 +3,7 @@ import type { AddressInfo } from 'node:net'
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { fetchUrl } from '.'
+import { fetchUrl, fetchUrls } from '.'
 
 describe('fetchUrl', () => {
   const noLimit = <T>(fn: () => Promise<T>) => fn()
@@ -142,5 +142,29 @@ describe('fetchUrl', () => {
 
     expect(customFetch).toHaveBeenCalledOnce()
     expect(customFetch).toHaveBeenCalledWith('https://example.com', { headers: undefined })
+  })
+})
+
+describe('fetchUrls', () => {
+  it('caps the number of concurrent requests when a limit is given', async () => {
+    let active = 0
+    let maxActive = 0
+
+    // A fetch that stays briefly "in flight" so we can observe how many run at the same time.
+    const fetch = vi.fn(async () => {
+      active += 1
+      maxActive = Math.max(maxActive, active)
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      active -= 1
+      return new Response('{}', { status: 200 })
+    })
+
+    const loader = fetchUrls({ fetch, limit: 2 })
+
+    // Kick off more requests than the limit allows.
+    await Promise.all(Array.from({ length: 6 }, (_, index) => loader.exec(`https://example.com/${index}`)))
+
+    expect(maxActive).toBeLessThanOrEqual(2)
+    expect(fetch).toHaveBeenCalledTimes(6)
   })
 })

@@ -10,6 +10,7 @@ import { computed } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
 import { inferDiscriminatorMappingComposition } from '@/components/Content/Schema/helpers/get-compositions-to-render'
+import { isModelLinkable } from '@/components/Content/Schema/helpers/is-model-linkable'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import { getModelNameFromSchema } from '@/components/Content/Schema/helpers/schema-name'
 import {
@@ -65,6 +66,14 @@ const schema = computed(() => getResolvedRef(rawSchema.value))
 /** When the schema is a $ref, preserve its name so the UI can show the ref name instead of just the type. */
 const modelLink = computed(
   () => (rawSchema.value && getModelNameFromSchema(rawSchema.value)) ?? null,
+)
+
+/** Whether the model name links to the models section, or renders as plain text. */
+const modelLinkable = computed(() =>
+  isModelLinkable(modelLink.value?.schemaKey, {
+    hideModels: options.hideModels,
+    document,
+  }),
 )
 
 /**
@@ -153,7 +162,7 @@ const shouldRenderRequestBody = computed(
           data-testid="request-body-schema-name">
           <span class="text-c-3 mx-1.5">·</span>
           <LinkButton
-            v-if="eventBus && modelLink.schemaKey"
+            v-if="eventBus && modelLink.schemaKey && modelLinkable"
             @click="
               eventBus.emit('scroll-to:model-by-name', {
                 name: modelLink.schemaKey,
@@ -197,6 +206,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          hideModels: options.hideModels,
           document,
         }"
         :schema="partitionedSchema.visibleProperties"
@@ -215,6 +225,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          hideModels: options.hideModels,
           document,
         }"
         :schema="partitionedSchema.collapsedProperties"
@@ -238,6 +249,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          hideModels: options.hideModels,
           document,
         }"
         :schema="schema"

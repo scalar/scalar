@@ -17,7 +17,7 @@ const { options = [] } = defineProps<{
   options?: ScalarCheckboxOption[]
 }>()
 
-const model = defineModel<ScalarCheckboxOption[]>({ default: [] })
+const model = defineModel<ScalarCheckboxOption[]>({ default: () => [] })
 
 const name = useId()
 </script>

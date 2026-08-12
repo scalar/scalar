@@ -40,6 +40,7 @@ import type { TableRow } from '@/v2/blocks/request-block/components/RequestTable
 import { createParameterHandlers } from '@/v2/blocks/request-block/helpers/create-parameter-handlers'
 import { createParameterRows } from '@/v2/blocks/request-block/helpers/create-parameter-rows'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
+import { groupGlobalCookies } from '@/v2/blocks/request-block/helpers/group-global-cookies'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -255,55 +256,70 @@ const headers = computed(() => [
   ...(sections.value.header ?? []),
 ])
 
-const defaultCookies = computed(() => {
+/** Resolved request URL, used to filter global cookies by their domain and path. */
+const requestCookieUrl = computed(() => {
   const environmentVariables = getEnvironmentVariables(environment)
-  const resolvedUrl = getResolvedUrl({
-    server,
-    path,
-  })
-  const url = replaceEnvVariables(resolvedUrl, environmentVariables)
+  const resolvedUrl = getResolvedUrl({ server, path })
+  return replaceEnvVariables(resolvedUrl, environmentVariables)
+})
 
+/**
+ * Global cookies grouped by name. Same-named cookies collapse into a single logical cookie so
+ * duplicate names no longer share one disabled state (which made toggling one toggle them all).
+ * A name with multiple values becomes a preset the user can switch between.
+ */
+const globalCookieGroups = computed(() =>
+  groupGlobalCookies({
+    sources: [
+      { location: 'workspace', cookies: workspaceCookies },
+      { location: 'document', cookies: documentCookies },
+    ],
+    // Keep domain/path filtering but ignore the disabled flag, so a disabled preset value stays
+    // selectable in the switcher (it is only hidden from the request, not from the dropdown).
+    shouldInclude: (cookie) =>
+      filterGlobalCookie({
+        cookie: { ...cookie, isDisabled: false },
+        url: requestCookieUrl.value,
+        disabledGlobalCookies: {},
+      }),
+  }),
+)
+
+const defaultCookies = computed<TableRow[]>(() => {
   const disabledGlobalCookies =
     operation['x-scalar-disable-parameters']?.['global-cookies']?.[
       exampleKey
     ] ?? {}
 
-  const transform = (
-    cookie: XScalarCookie,
-    location: 'document' | 'workspace',
-  ) => {
-    return {
-      name: cookie.name,
-      value: cookie.value,
-      globalRoute: { page: location, path: 'cookies' } as const,
-      isReadonly: true,
-      isDisabled: disabledGlobalCookies[cookie.name.toLowerCase()] ?? false,
-    } satisfies TableRow
+  return globalCookieGroups.value.map((group) => ({
+    name: group.name,
+    value: group.selectedValue,
+    globalRoute: { page: group.location, path: 'cookies' } as const,
+    isReadonly: true,
+    isDisabled: disabledGlobalCookies[group.name.toLowerCase()] ?? false,
+    presetOptions: group.isPreset ? group.options : undefined,
+  }))
+})
+
+/**
+ * Switch a grouped global cookie preset to the chosen value by enabling the matching sibling and
+ * disabling the rest. Selection is written back to the source `x-scalar-cookies` list so it
+ * persists, and the send path drops disabled cookies, so only the selected value is sent.
+ */
+const handleSelectCookiePreset = (index: number, value: string): void => {
+  const group = globalCookieGroups.value[index]
+  if (!group) {
+    return
   }
 
-  const globalCookies = [
-    {
-      location: 'workspace',
-      cookies: workspaceCookies,
-    },
-    {
-      location: 'document',
-      cookies: documentCookies,
-    },
-  ] as const
-
-  return globalCookies.flatMap(({ location, cookies }) => {
-    return cookies
-      .filter((cookie) =>
-        filterGlobalCookie({
-          cookie,
-          url,
-          disabledGlobalCookies: {},
-        }),
-      )
-      .map((cookie) => transform(cookie, location))
-  })
-})
+  for (const sibling of group.siblings) {
+    eventBus.emit('cookie:upsert:cookie', {
+      collectionType: sibling.location,
+      index: sibling.index,
+      payload: { isDisabled: sibling.value !== value },
+    })
+  }
+}
 
 const cookies = computed(() => [
   ...(defaultCookies.value ?? []),
@@ -437,10 +453,13 @@ const parameterHandlers = computed(() => ({
   path: createParameterHandlers('path', eventBus, meta.value, {
     context: sections.value.path ?? [],
   }),
-  cookie: createParameterHandlers('cookie', eventBus, meta.value, {
-    context: cookies.value ?? [],
-    globalParameters: defaultCookies.value.length,
-  }),
+  cookie: {
+    ...createParameterHandlers('cookie', eventBus, meta.value, {
+      context: cookies.value ?? [],
+      globalParameters: defaultCookies.value.length,
+    }),
+    selectPreset: handleSelectCookiePreset,
+  },
   header: createParameterHandlers('header', eventBus, meta.value, {
     context: headers.value,
     defaultParameters: defaultHeaders.value.length,

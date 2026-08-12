@@ -26,6 +26,54 @@ describe('get-request-body-example', () => {
     expect(result).toEqual({ value: { id: 123, name: 'Test User' } })
   })
 
+  it('uses a resolved externalValue example', () => {
+    // The bundler resolves `externalValue` into `value`, so a resolved external example
+    // is used just like an inline one.
+    const requestBody = {
+      content: {
+        'application/json': {
+          examples: {
+            external: {
+              externalValue: 'https://example.com/pet.json',
+              value: { name: 'Kitty' },
+            },
+          },
+        },
+      },
+    }
+
+    const result = getExampleFromBody(requestBody, 'application/json', 'external')
+
+    expect(result).toEqual({ externalValue: 'https://example.com/pet.json', value: { name: 'Kitty' } })
+  })
+
+  it('falls back to a schema example when an externalValue is not resolved', () => {
+    // Only `externalValue` is present (no resolved `value`), so we generate from the schema
+    // instead of returning an empty body.
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              name: { type: 'string' },
+            },
+          },
+          examples: {
+            external: {
+              externalValue: 'https://example.com/pet.json',
+            },
+          },
+        },
+      },
+    })
+
+    const result = getExampleFromBody(requestBody, 'application/json', 'external')
+
+    expect(result).toEqual({ value: { id: 1, name: '' } })
+  })
+
   it('generates example from schema when no example exists', () => {
     const requestBody = coerceValue(RequestBodyObjectSchema, {
       content: {

@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.6.61
+
+### Patch Changes
+
+- [#9818](https://github.com/scalar/scalar/pull/9818): Fix multiple configurations reusing the first document during client-side navigation
+
 ## 0.6.60
 
 ## 0.6.59

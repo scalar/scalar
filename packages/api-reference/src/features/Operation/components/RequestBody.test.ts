@@ -1,5 +1,6 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -253,6 +254,74 @@ describe('RequestBody', () => {
 
     const schema = wrapper.findComponent(Schema)
     expect(schema.props('hideModelNames')).toBe(false)
+  })
+
+  it('renders the model name as plain text when hideModels is enabled', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: createWorkspaceEventBus(),
+        options: {
+          ...defaultRequestOptions,
+          hideModels: true,
+        },
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/CreateUserRequest',
+                type: 'object',
+                properties: {
+                  email: { type: 'string' },
+                },
+              } as any,
+            },
+          },
+        },
+      },
+      slots: {
+        title: 'Body',
+      },
+    })
+
+    const modelName = wrapper.find('[data-testid="request-body-schema-name"]')
+    expect(modelName.text()).toContain('CreateUserRequest')
+    expect(modelName.find('button').exists()).toBe(false)
+  })
+
+  it('renders the model name as plain text when the referenced model is hidden', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: createWorkspaceEventBus(),
+        options: defaultRequestOptions,
+        document: coerceValue(OpenAPIDocumentSchema, {
+          openapi: '3.1.0',
+          info: { title: 'Test', version: '1.0.0' },
+          components: {
+            schemas: { CreateUserRequest: { type: 'object', 'x-internal': true } },
+          },
+        }),
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/CreateUserRequest',
+                type: 'object',
+                properties: {
+                  email: { type: 'string' },
+                },
+              } as any,
+            },
+          },
+        },
+      },
+      slots: {
+        title: 'Body',
+      },
+    })
+
+    const modelName = wrapper.find('[data-testid="request-body-schema-name"]')
+    expect(modelName.text()).toContain('CreateUserRequest')
+    expect(modelName.find('button').exists()).toBe(false)
   })
   it('updates selectedContentType via v-model when changing the content type', async () => {
     const wrapper = mount(RequestBody, {

@@ -133,6 +133,26 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
     schema.type = [schema.type, 'null']
     delete schema.nullable
   }
+  // 1b. Handle nullable `$ref` patterns.
+  // OpenAPI 3.0 had no way to mark a `$ref` as nullable, so people wrote `nullable: true` next to
+  // a `$ref`, or next to an `allOf` wrapping one. `nullable` does not exist in 3.1, so leaving these
+  // untouched would silently drop the null option. Rewrite them to the 3.1 null-union form. This only
+  // runs when there is no sibling `type` (that case is handled above).
+  else if (schema.nullable === true && schema.type === undefined) {
+    if (typeof schema.$ref === 'string') {
+      const { nullable: _nullable, $ref, ...rest } = schema
+      return { ...rest, anyOf: [{ $ref }, { type: 'null' }] }
+    }
+
+    if (Array.isArray(schema.allOf)) {
+      const { nullable: _nullable, allOf, ...rest } = schema
+      // A single-member `allOf` unwraps so the union reads `anyOf: [<member>, { type: 'null' }]`.
+      const base = allOf.length === 1 ? allOf[0] : { allOf }
+      return { ...rest, anyOf: [base, { type: 'null' }] }
+    }
+
+    // Otherwise there is nothing for `nullable` to attach to, so leave the schema untouched.
+  }
 
   // 2. Handle exclusiveMinimum and exclusiveMaximum
   if (schema.exclusiveMinimum === true) {

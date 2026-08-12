@@ -7,7 +7,7 @@ import OAuthScopesAddModal from './OAuthScopesAddModal.vue'
 
 describe('OAuthScopesAddModal', () => {
   /** Wrappers are unmounted in afterEach to avoid teleported DOM leaking between tests. */
-  const wrappers: Array<ReturnType<typeof mount>> = []
+  const wrappers: Array<{ unmount: () => void }> = []
 
   const mountWithProps = (
     custom: Partial<{

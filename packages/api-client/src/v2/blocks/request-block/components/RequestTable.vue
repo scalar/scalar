@@ -45,6 +45,8 @@ const emit = defineEmits<{
   (e: 'uploadFile', index: number): void
   (e: 'removeFile', index: number): void
   (e: 'navigate', route: NonNullable<TableRow['globalRoute']>): void
+  /** Select a value for a grouped global cookie preset at the given row index. */
+  (e: 'selectPreset', index: number, value: string): void
 }>()
 
 const columns = computed(() => {
@@ -91,6 +93,7 @@ const displayData = computed(() => {
       @deleteRow="emit('deleteRow', index)"
       @navigate="(route) => emit('navigate', route)"
       @removeFile="emit('removeFile', index)"
+      @selectPreset="(value) => emit('selectPreset', index, value)"
       @uploadFile="emit('uploadFile', index)"
       @upsertRow="(payload) => emit('upsertRow', index, payload)" />
   </DataTable>

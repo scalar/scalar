@@ -1,0 +1,12 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Scalar Config B", "version": "1.0.0" },
+  "paths": {
+    "/beta": {
+      "get": {
+        "summary": "Operation Beta",
+        "responses": { "200": { "description": "OK" } }
+      }
+    }
+  }
+}

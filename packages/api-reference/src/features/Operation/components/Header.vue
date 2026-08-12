@@ -16,6 +16,7 @@ const {
   orderSchemaPropertiesBy,
   orderRequiredPropertiesFirst,
   expandAllSchemaProperties,
+  hideModels,
 } = defineProps<{
   header: HeaderObject
   name: string
@@ -26,6 +27,8 @@ const {
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   orderRequiredPropertiesFirst: boolean | undefined
   expandAllSchemaProperties: boolean | undefined
+  /** Whether the models section is hidden, so model names render as plain text instead of links */
+  hideModels: boolean | undefined
 }>()
 </script>
 <template>
@@ -39,6 +42,7 @@ const {
       orderRequiredPropertiesFirst: orderRequiredPropertiesFirst,
       orderSchemaPropertiesBy: orderSchemaPropertiesBy,
       expandAllSchemaProperties: expandAllSchemaProperties,
+      hideModels: hideModels,
       document,
     }"
     :schema="getResolvedRef(header.schema)" />

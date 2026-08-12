@@ -1,5 +1,6 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -363,6 +364,44 @@ describe('SchemaPropertyHeading', () => {
     const detailsElement = wrapper.find('.property-heading')
     expect(detailsElement.text()).toContain('Type: array string[]')
     expect(detailsElement.text()).toContain('Planet')
+  })
+
+  it('renders the model name as plain text when the models section is hidden', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+        }),
+        modelName: 'Planet',
+        modelLinkOptions: { hideModels: true },
+        eventBus: createWorkspaceEventBus(),
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('Planet')
+    expect(detailsElement.find('button').exists()).toBe(false)
+  })
+
+  it('renders the model name as plain text when the referenced model is hidden', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+        }),
+        modelName: 'Planet',
+        modelLinkOptions: {
+          document: coerceValue(OpenAPIDocumentSchema, {
+            openapi: '3.1.0',
+            info: { title: 'Test', version: '1.0.0' },
+            components: { schemas: { Planet: { type: 'object', 'x-internal': true } } },
+          }),
+        },
+        eventBus: createWorkspaceEventBus(),
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('Planet')
+    expect(detailsElement.find('button').exists()).toBe(false)
   })
 
   it('renders multipleOf property', () => {

@@ -31,6 +31,53 @@ describe('processBody', () => {
     })
   })
 
+  it('uses a resolved externalValue example for the snippet', () => {
+    // The bundler resolves `externalValue` into `value`, which the snippet then uses.
+    const content = {
+      'application/json': {
+        examples: {
+          external: {
+            externalValue: 'https://example.com/pet.json',
+            value: { name: 'Kitty' },
+          },
+        },
+      },
+    }
+
+    const result = processBody({ requestBody: { content }, contentType: 'application/json', example: 'external' })
+
+    expect(result).toEqual({
+      mimeType: 'application/json',
+      text: JSON.stringify({ name: 'Kitty' }),
+    })
+  })
+
+  it('falls back to a schema example when an externalValue is not resolved', () => {
+    // Only `externalValue` is present, so the snippet generates from the schema instead of being empty.
+    const content = {
+      'application/json': {
+        schema: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          properties: {
+            name: { type: 'string', example: 'John Doe' },
+          },
+        }),
+        examples: {
+          external: {
+            externalValue: 'https://example.com/pet.json',
+          },
+        },
+      },
+    }
+
+    const result = processBody({ requestBody: { content }, contentType: 'application/json', example: 'external' })
+
+    expect(result).toEqual({
+      mimeType: 'application/json',
+      text: JSON.stringify({ name: 'John Doe' }),
+    })
+  })
+
   it('extracts example from schema with examples array', () => {
     const content = {
       'application/json': {
