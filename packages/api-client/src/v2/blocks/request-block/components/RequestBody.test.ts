@@ -1162,4 +1162,76 @@ describe('RequestBody', () => {
     // The trigger label should show the actual content type, not "None".
     expect(wrapper.find('[data-testid="trigger"]').text()).toContain('text/csv')
   })
+
+  describe('copy button', () => {
+    const stubs = {
+      ScalarButton: {
+        template: '<button><slot /></button>',
+        props: ['variant', 'size', 'fullWidth'],
+      },
+      ScalarIcon: true,
+      ScalarListbox: {
+        template: '<div><slot /></div>',
+        props: ['modelValue', 'options', 'teleport'],
+        emits: ['update:modelValue'],
+      },
+      CollapsibleSection: {
+        template: '<div><slot name="title" /><slot /></div>',
+      },
+      DataTable: { template: '<div><slot /></div>' },
+      DataTableHeader: { template: '<div><slot /></div>' },
+      DataTableRow: { template: '<div><slot /></div>' },
+      CodeInput: {
+        template: '<div data-testid="code-input"></div>',
+        props: ['modelValue', 'language', 'environment'],
+        emits: ['update:modelValue'],
+      },
+      ScalarCodeBlockCopy: {
+        template: '<button data-testid="copy-button" :data-content="content" />',
+        props: ['content', 'lang', 'showLang'],
+      },
+    }
+
+    it('copies the serialized body shown in the editor', async () => {
+      const requestBody: RequestBodyObject = {
+        content: {
+          'application/json': {
+            schema: { type: 'object' },
+            example: { hello: 'world' },
+          },
+        },
+      }
+
+      const wrapper = mount(RequestBody, {
+        props: { ...defaultProps, requestBody },
+        global: { stubs },
+      })
+      await nextTick()
+
+      const copy = wrapper.find('[data-testid="copy-button"]')
+      expect(copy.exists()).toBe(true)
+      // The button copies exactly what the editor renders.
+      expect(copy.attributes('data-content')).toBe(JSON.stringify({ hello: 'world' }, null, 2))
+    })
+
+    it('hides the copy button when the body is empty', async () => {
+      const requestBody: RequestBodyObject = {
+        content: {
+          'application/json': {
+            schema: { type: 'string' },
+            example: '',
+          },
+        },
+      }
+
+      const wrapper = mount(RequestBody, {
+        props: { ...defaultProps, requestBody },
+        global: { stubs },
+      })
+      await nextTick()
+
+      expect(wrapper.find('[data-testid="code-input"]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid="copy-button"]').exists()).toBe(false)
+    })
+  })
 })
