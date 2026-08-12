@@ -1,3 +1,5 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
@@ -85,9 +87,22 @@ export const collectDynamicAnchors = (resource: SchemaObject): Map<string, Schem
   return anchors
 }
 
-/** Append a schema to the dynamic scope when it could hold a `$dynamicAnchor`, otherwise return it unchanged. */
-export const pushDynamicScope = (scope: DynamicScope, schema: SchemaObject): DynamicScope =>
-  carriesDynamicAnchor(schema) ? [...scope, schema] : scope
+/**
+ * Append a schema resource to the dynamic scope when it could hold a `$dynamicAnchor`.
+ *
+ * A schema that carries the binding inline — its own `$dynamicAnchor`, or the `$id`/`$defs` binding
+ * written next to a `$ref` (how `Paginated<Planet>` is expressed) — enters the scope directly. A bare
+ * `$ref` to a *named* binding resource (e.g. `$ref: '#/components/schemas/PaginatedUserResponse'`)
+ * hides that resource's `$id`/`$defs` behind the ref, so the anchor is invisible here; follow the ref
+ * to reach the resource. Ordinary `$ref`s resolve to a schema without an anchor and are still skipped;
+ * an unresolved `$ref` resolves to `undefined` and is skipped too.
+ *
+ * See https://github.com/scalar/scalar/issues/9883.
+ */
+export const pushDynamicScope = (scope: DynamicScope, schema: SchemaObject): DynamicScope => {
+  const resource = carriesDynamicAnchor(schema) ? schema : getResolvedRef(schema)
+  return isObject(resource) && carriesDynamicAnchor(resource) ? [...scope, resource] : scope
+}
 
 /**
  * Resolve a `$dynamicRef` fragment against the dynamic scope.
