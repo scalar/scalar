@@ -5,11 +5,12 @@ import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
   TraversedOperation,
+  TraversedSchema,
   TraversedTag,
   TraversedWebhook,
 } from '@scalar/workspace-store/schemas/navigation'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { ServerObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { type OpenApiDocument, ServerObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { ComponentProps } from '@test/utils/types'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -495,5 +496,72 @@ describe('props passing', () => {
     const tagComponent = wrapper.findComponent({ name: 'Tag' })
     expect(tagComponent.props('tag')).toEqual(tag)
     expect(tagComponent.props('moreThanOneTag')).toBe(false)
+  })
+})
+
+describe('model rendering', () => {
+  // A model whose item type is bound with a `$dynamicRef`/`$dynamicAnchor` (a named `Paginated<User>`).
+  // The model must render the bound `User` shape, not the template's empty placeholder. See #9883.
+  it('renders the bound item type for a named $dynamicRef binding schema', async () => {
+    const store = createWorkspaceStore({ meta: { 'x-scalar-active-document': 'default' } })
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'DynamicRef', version: '1.0.0' },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              required: ['id', 'email'],
+              properties: { id: { type: 'string' }, email: { type: 'string', format: 'email' } },
+            },
+            PaginatedTemplate: {
+              $id: 'https://example.com/schemas/PaginatedTemplate',
+              $defs: { itemType: { $dynamicAnchor: 'itemType', not: true } },
+              type: 'object',
+              required: ['items'],
+              properties: { items: { type: 'array', items: { $dynamicRef: '#itemType' } } },
+            },
+            PaginatedUserResponse: {
+              $id: 'https://example.com/schemas/PaginatedUserResponse',
+              $defs: { itemTypeAAA: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/User' } },
+              $ref: '#/components/schemas/PaginatedTemplate',
+            },
+          },
+        },
+      },
+    })
+
+    const model: TraversedSchema = {
+      type: 'model',
+      id: 'model-paginated-user-response',
+      title: 'PaginatedUserResponse',
+      name: 'PaginatedUserResponse',
+      ref: '#/components/schemas/PaginatedUserResponse',
+    }
+
+    const wrapper = mount(TraversedEntryComponent, {
+      props: {
+        entries: [model],
+        selectedServer: mockServer,
+        selectedClient: store.workspace['x-scalar-default-client'],
+        selectedExample: store.workspace['x-scalar-default-example'],
+        // Expand the model and its properties so the nested item type renders without driving disclosures.
+        expandedItems: { 'model-paginated-user-response': true },
+        securitySchemes: {},
+        eventBus,
+        authStore: store.auth,
+        options: coerce(apiReferenceConfigurationSchema, {
+          layout: 'modern',
+          hideModels: false,
+          expandAllSchemaProperties: true,
+        }),
+        document: store.workspace.documents['default'] as OpenApiDocument,
+        clientOptions: [],
+      },
+    })
+
+    expect(wrapper.text()).toContain('email')
   })
 })
