@@ -13,7 +13,7 @@
   "version": "1.1.21",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "pnpm build:app && pnpm build:web",
@@ -80,7 +80,7 @@
     "monaco-yaml": "catalog:*",
     "posthog-js": "catalog:*",
     "shell-quote": "^1.8.3",
-    "undici": "catalog:*",
+    "undici": "8.10.0",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
     "yaml": "catalog:*"
