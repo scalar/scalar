@@ -1,5 +1,14 @@
 # @scalar/openapi-parser
 
+## 0.28.13
+
+### Patch Changes
+
+- [#9838](https://github.com/scalar/scalar/pull/9838): Show a clearer error when a response is missing its `description`. Before, the
+  validator reported the confusing `must have required property '$ref'` (or
+  `oneOf must match exactly one schema in oneOf`) instead of pointing at the
+  actual problem.
+
 ## 0.28.12
 
 ## 0.28.11

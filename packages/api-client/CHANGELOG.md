@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 3.16.0
+
+### Minor Changes
+
+- [#9868](https://github.com/scalar/scalar/pull/9868): Control OAuth2 flow tabs from your OpenAPI document. Add `x-order` to a flow to set the order of the tabs in the auth section (the first tab is selected by default, so the lowest `x-order` also becomes the default flow), and add `x-scalar-ignore` to a flow to hide its tab — useful for flows that cannot run in the browser, like Client Credentials, which usually fails on CORS. `x-scalar-ignore` on a whole security scheme now hides it from the auth selector too.
+
+### Patch Changes
+
+- [#9869](https://github.com/scalar/scalar/pull/9869): Show NDJSON responses instead of "Binary file". Responses with `application/x-ndjson` or `application/ndjson` are now rendered as text, with each JSON record pretty-printed in the preview.
+- [#9780](https://github.com/scalar/scalar/pull/9780): Make environment variables work in pre-request and post-response scripts. `pm.environment.get()` (and `pm.variables.get()`) now read the active environment, and `pm.environment.set()` / `pm.environment.unset()` persist back to it so values like a bearer token survive to the next request. Previously the script variable store was created empty per request and discarded afterwards, so scripted reads returned `undefined` and writes were lost even though `{{variable}}` placeholders resolved correctly.
+
 ## 3.15.0
 
 ### Minor Changes
