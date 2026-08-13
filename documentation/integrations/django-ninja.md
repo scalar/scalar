@@ -78,7 +78,7 @@ api = NinjaAPI(
 )
 ```
 
-It's recommend to use `ScalarConfig` to have a fully typed configuration.
+It's recommended to use `ScalarConfig` to have a fully typed configuration.
 
 ## Configuration
 

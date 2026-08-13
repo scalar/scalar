@@ -1,6 +1,6 @@
 # Migrate from Docs 1.0
 
-With Docs 2.0 we've completely started from scratch. We tried to stick to the patterns we already had, so they way you set it up is not too different.
+With Docs 2.0 we've completely started from scratch. We tried to stick to the patterns we already had, so the way you set it up is not too different.
 
 **TL;DR**
 

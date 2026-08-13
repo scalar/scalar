@@ -395,7 +395,7 @@ Here the `authorizationCode` tab appears first and is selected by default.
 
 ## x-scalar-stability
 
-You can show the stability of an endpoint by settings the `x-scalar-stability` to either `stable`, `experimental` or `deprecated`. The native `deprecated` property will take precedence.
+You can show the stability of an endpoint by setting the `x-scalar-stability` to either `stable`, `experimental` or `deprecated`. The native `deprecated` property will take precedence.
 
 ```diff
 openapi: 3.1.0
@@ -441,7 +441,7 @@ paths:
 
 ## x-enum-descriptions
 
-You can add a descriptions to `enum` values with `x-enum-descriptions`:
+You can add descriptions to `enum` values with `x-enum-descriptions`:
 
 ```diff
 openapi: 3.1.0

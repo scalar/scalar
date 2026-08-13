@@ -54,7 +54,7 @@ To get started, overwrite our CSS variables. We won't judge.
 > [!NOTE]
 > By default, we're using Inter and JetBrains Mono, served by our in-house CDN.
 
-If you want use a different font or want to use Google Fonts, pass `withDefaultFonts: false` to the configuration and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables. You will also need to provide the source of your new font which can be local or served over the network.
+If you want to use a different font or want to use Google Fonts, pass `withDefaultFonts: false` to the configuration and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables. You will also need to provide the source of your new font which can be local or served over the network.
 
 Here is an example of how to use the `Roboto` font from Google Fonts with the CDN API reference.
 
