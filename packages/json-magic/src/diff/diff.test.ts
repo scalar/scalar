@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { diff } from '@/diff'
+import { apply, diff } from '@/diff'
 
 describe('diff', () => {
   describe('Should correctly detect `add` type diff', () => {
@@ -279,6 +279,71 @@ describe('diff', () => {
       }
 
       expect(diff(doc1, doc2)).toEqual([{ path: ['hobbies', '1'], changes: doc1.hobbies[1], type: 'delete' }])
+    })
+  })
+
+  describe('Should treat container type changes as a single update', () => {
+    test('detects an object changing into an array as a single update', () => {
+      const doc1 = { tags: {} }
+      const doc2 = { tags: ['x', 'y'] }
+
+      expect(diff(doc1, doc2)).toEqual([{ path: ['tags'], changes: doc2.tags, type: 'update' }])
+    })
+
+    test('detects an array changing into an object as a single update', () => {
+      const doc1 = { tags: ['x', 'y'] }
+      const doc2 = { tags: { note: 'hi' } }
+
+      expect(diff(doc1, doc2)).toEqual([{ path: ['tags'], changes: doc2.tags, type: 'update' }])
+    })
+
+    test('detects container type changes on nested properties', () => {
+      const doc1 = {
+        info: {
+          contact: { emails: { primary: 'a@example.com' } },
+        },
+      }
+
+      const doc2 = {
+        info: {
+          contact: { emails: ['a@example.com', 'b@example.com'] },
+        },
+      }
+
+      expect(diff(doc1, doc2)).toEqual([
+        {
+          path: ['info', 'contact', 'emails'],
+          changes: doc2.info.contact.emails,
+          type: 'update',
+        },
+      ])
+    })
+
+    test('applying the diff replaces the container instead of corrupting it', () => {
+      const doc1 = { tags: {} }
+      const doc2 = { tags: ['x', 'y'] }
+
+      const result = apply(structuredClone(doc1), diff(doc1, doc2))
+
+      expect(Array.isArray(result.tags)).toBe(true)
+      expect(result).toEqual(doc2)
+
+      const reverse = apply(structuredClone(doc2), diff(doc2, doc1))
+
+      expect(Array.isArray(reverse.tags)).toBe(false)
+      expect(reverse).toEqual(doc1)
+    })
+
+    test('consumers applying only add differences leave the existing container untouched', () => {
+      const doc1 = { tags: {} }
+      const doc2 = { tags: ['x', 'y'] }
+
+      // A type change is an update, so add-only consumers no longer write
+      // numeric string keys onto the existing object
+      const additions = diff(doc1, doc2).filter((d) => d.type === 'add')
+
+      expect(additions).toEqual([])
+      expect(apply(structuredClone(doc1), additions)).toEqual(doc1)
     })
   })
 

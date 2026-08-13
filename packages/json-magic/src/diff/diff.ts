@@ -73,6 +73,14 @@ export const diff = <T extends Record<string, unknown>>(doc1: Record<string, unk
 
     // For nested objects, we need to recursively check the properties
     if (typeof el1 === 'object' && typeof el2 === 'object' && el1 !== null && el2 !== null) {
+      // A container type change (array to plain object or vice versa) is a single update.
+      // Recursing would treat array indices as object keys and produce per-key
+      // differences that corrupt the container when applied.
+      if (Array.isArray(el1) !== Array.isArray(el2)) {
+        diff.push({ path: prefix, changes: el2, type: 'update' })
+        return
+      }
+
       const keys = new Set([...Object.keys(el1), ...Object.keys(el2)])
 
       for (const key of keys) {
