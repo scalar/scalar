@@ -1,6 +1,6 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-export type MediaPreview = 'object' | 'image' | 'video' | 'audio' | 'json'
+export type MediaPreview = 'object' | 'image' | 'video' | 'audio' | 'json' | 'ndjson'
 
 type MediaConfig = {
   preview?: MediaPreview
@@ -45,6 +45,21 @@ const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     raw: true,
     language: 'json',
     preview: 'json',
+  },
+  // Newline-delimited JSON is many JSON objects separated by newlines, not one
+  // JSON document. The `ndjson` preview pretty-prints each line on its own, while
+  // Raw keeps the exact wire format of one object per line.
+  'application/x-ndjson': {
+    extension: '.ndjson',
+    raw: true,
+    language: 'json',
+    preview: 'ndjson',
+  },
+  'application/ndjson': {
+    extension: '.ndjson',
+    raw: true,
+    language: 'json',
+    preview: 'ndjson',
   },
   'application/msword': { extension: '.doc' },
   'application/octet-stream': { extension: '.bin' },
