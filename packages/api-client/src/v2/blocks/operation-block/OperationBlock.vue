@@ -135,6 +135,7 @@ import {
   getCookieRequestUrl,
   getResponseCookieActions,
 } from '@/v2/blocks/operation-block/helpers/persist-response-cookies'
+import { getEnvironmentPersistenceActions } from '@/v2/blocks/operation-block/helpers/persist-script-environment'
 import {
   getOperationExampleKey,
   isStreamingResponse,
@@ -297,6 +298,34 @@ const handleExecute = async () => {
 
   const variablesStore = createVariablesStoreForRequest()
 
+  // Seed the script variable store with the active environment so pm.environment.get()
+  // and pm.variables.get() resolve to the same values as {{…}} placeholders. Without
+  // seeding, the store starts empty and every scripted read returns undefined.
+  const seededEnvironment = getEnvironmentVariables(environment)
+  variablesStore.setEnvironment?.(
+    Object.entries(seededEnvironment).map(([key, value]) => ({ key, value })),
+  )
+
+  // Snapshot the persistence target at request start, alongside the seed. Persistence runs after
+  // the request completes (awaits below), and the environment props are reactive — if the active
+  // environment is switched mid-flight, or a concurrent request splices these arrays, reading
+  // them at persist time would apply the script's writes to the wrong environment or resolve
+  // workspace/document indexes against a shifted list. Copy the arrays (not just the reference)
+  // so the seeded values and these targets stay fixed to the same point in time.
+  const persistenceTarget = activeEnvironment
+    ? {
+        environmentName: activeEnvironment,
+        mergedVariables: [...environment.variables],
+        documentVariables: [
+          ...(document['x-scalar-environments']?.[activeEnvironment]
+            ?.variables ?? []),
+        ],
+        environmentExistsOnDocument: Boolean(
+          document['x-scalar-environments']?.[activeEnvironment],
+        ),
+      }
+    : null
+
   // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
   await executeHook(
     {
@@ -311,10 +340,45 @@ const handleExecute = async () => {
     plugins,
   )
 
-  const envVariables = {
-    ...getEnvironmentVariables(environment),
-    ...variablesStore.getVariables(),
+  // Persist environment variables set by scripts (pm.environment.set / unset) back to the active
+  // environment so they survive to the next request, mirroring the Environment tab. Scope and
+  // index are resolved from the seed-time environment so updates mutate in place. Defined here so
+  // it can run on every exit path after the pre-request scripts — including a build failure or a
+  // failed send — so a pre-request set, like a token stored before a flaky call, is not lost.
+  const persistScriptEnvironment = () => {
+    if (!persistenceTarget) {
+      return
+    }
+
+    const environmentActions = getEnvironmentPersistenceActions({
+      ...persistenceTarget,
+      seededVariables: seededEnvironment,
+      scriptVariables: variablesStore.getEnvironment(),
+    })
+
+    for (const action of environmentActions) {
+      if (action.type === 'delete') {
+        eventBus.emit('environment:delete:environment-variable', {
+          environmentName: action.environmentName,
+          index: action.index,
+          collectionType: action.collectionType,
+        })
+      } else {
+        eventBus.emit('environment:upsert:environment-variable', {
+          environmentName: action.environmentName,
+          variable: action.variable,
+          index: action.index,
+          collectionType: action.collectionType,
+        })
+      }
+    }
   }
+
+  // Resolve {{…}} placeholders from the script store so pre-request pm.environment.set() and
+  // unset() take effect on this request. The store was seeded from the active environment, so
+  // it already holds every value spreading seededEnvironment would add — minus the keys a script
+  // unset, which must stay dropped (an object spread cannot remove them again).
+  const envVariables = variablesStore.getVariables()
 
   // Build the fetch Request after hooks may have mutated the factory
   const built = buildRequest(requestBuilder, {
@@ -322,6 +386,8 @@ const handleExecute = async () => {
     allowMissingRequestServerBase: layout === 'modal',
   })
   if (!built.ok) {
+    // Save any pre-request script writes before bailing out on a build failure.
+    persistScriptEnvironment()
     toast(built.message ?? built.error, 'error')
     return
   }
@@ -380,6 +446,10 @@ const handleExecute = async () => {
       plugins,
     )
   }
+
+  // Save script environment writes (pre-request and, on success, post-response) back to the
+  // active environment. Runs even when the send fails so a pre-request set is not lost.
+  persistScriptEnvironment()
 
   // Execute the hooks
   eventBus.emit('hooks:on:request:complete', {
