@@ -65,6 +65,13 @@ watch(state.prompt, () => {
 })
 
 function handlePromptKeydown(e: KeyboardEvent) {
+  // Ignore the Enter that only commits an IME composition (e.g. Japanese, Chinese,
+  // Korean). On macOS Chrome that keydown still reports key === 'Enter' with
+  // isComposing === true, so without this guard the message sends mid-composition.
+  if (e.isComposing) {
+    return
+  }
+
   if (state.loading.value) {
     return
   }
