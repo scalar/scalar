@@ -25,6 +25,7 @@ import RenderString from './RenderString.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
+import SchemaPropertyPattern from './SchemaPropertyPattern.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -126,14 +127,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
       })
     }
 
-    if (schema.pattern) {
-      properties.push({
-        key: 'pattern',
-        value: schema.pattern,
-        code: true,
-        truncate: true,
-      })
-    }
+    // pattern is rendered via SchemaPropertyPattern (hover dropdown), skip here
   }
 
   if ((isStringSchema(schema) || isNumberSchema(schema)) && schema.format) {
@@ -380,9 +374,6 @@ const exampleValue = computed(() => {
         <ScreenReader v-if="property.key === 'format'">
           {{ translate('common.format') }}:
         </ScreenReader>
-        <ScreenReader v-else-if="property.key === 'pattern'">
-          {{ translate('common.pattern') }}:
-        </ScreenReader>
         <template
           v-if="property.prefix"
           #prefix>
@@ -390,6 +381,11 @@ const exampleValue = computed(() => {
         </template>
         {{ property.value }}
       </SchemaPropertyDetail>
+
+      <!-- Pattern: shown as hover dropdown to handle long regex -->
+      <SchemaPropertyPattern
+        v-if="props.value && 'pattern' in props.value && props.value.pattern"
+        :pattern="(props.value as any).pattern" />
 
       <!-- Enum indicator -->
       <SchemaPropertyDetail v-if="props.enum">
