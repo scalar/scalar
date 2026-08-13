@@ -230,12 +230,14 @@ We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
 
-**Top 10 Contributors (April 2025)**
+**Top Contributors (Last Month)**
 
+<!-- monthly-contributors:start -->
 <p>
-	<img width="830" height="280" src="https://github.com/user-attachments/assets/8c10d2aa-9eb4-4818-9ca2-625cfed5ca08#gh-light-mode-only">
-	<img width="830" height="280" src="https://github.com/user-attachments/assets/50b9b042-107e-4167-9c7f-94497f85d2e0#gh-dark-mode-only">
+	<img width="830" height="280" src="./.github/assets/contributors/top-contributors-light.svg?v=2026-07#gh-light-mode-only" alt="Top contributors in July 2026">
+	<img width="830" height="280" src="./.github/assets/contributors/top-contributors-dark.svg?v=2026-07#gh-dark-mode-only" alt="Top contributors in July 2026">
 </p>
+<!-- monthly-contributors:end -->
 
 <br>
 <br>
