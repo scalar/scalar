@@ -22,8 +22,8 @@ Your OpenAPI document is the input for every interface Scalar produces:
 
 - **An interactive API reference.** Every operation, schema, and example in the document is rendered as browsable documentation with code samples for popular HTTP clients and languages, and a "Test Request" button on every operation.
 - **An API client.** A standalone, open-source client — desktop and web, offline-first, with environments, Postman-compatible scripting, and code generation for 40+ HTTP clients. It imports the same document your docs are built from.
-- **SDKs.** The [SDK generator](/products/sdk-generator/getting-started) compiles the document into client libraries. `docs` is a build target alongside the language targets: one generation run emits the SDKs, a static API reference, and the exact augmented document both were produced from. The reference and the client libraries cannot describe different APIs, because they come from the same compiled document in the same run.
-- **An MCP server.** Scalar spins up [MCP servers](/products/agent/mcp) from your OpenAPI document, so AI agents can call the endpoints you choose to expose, with the authentication you configure.
+- **SDKs.** The [SDK generator](../guides/sdks/getting-started.md) compiles the document into client libraries. `docs` is a build target alongside the language targets: one generation run emits the SDKs, a static API reference, and the exact augmented document both were produced from. The reference and the client libraries cannot describe different APIs, because they come from the same compiled document in the same run.
+- **An MCP server.** Scalar spins up [MCP servers](../guides/agent/mcp.md) from your OpenAPI document, so AI agents can call the endpoints you choose to expose, with the authentication you configure.
 
 The phrase "single source of truth" gets used loosely in this category. Here it is literal: the OpenAPI document is the artifact everything else is generated from, and there is no second copy to drift.
 
@@ -31,20 +31,20 @@ The phrase "single source of truth" gets used loosely in this category. Here it 
 
 Scalar renders documents that follow the Swagger 2.0, OpenAPI 3.0, or OpenAPI 3.1 specification. Swagger 2.0 documents are upgraded on load, so a legacy document works without a manual conversion step first.
 
-The upgrade logic is itself an open tool: [`@scalar/openapi-upgrader`](/tools/openapi-upgrader/getting-started) converts Swagger 2.0 to OpenAPI 3.0 or 3.1 (with experimental support for OpenAPI 3.2), as an npm package or a one-line CLI command:
+The upgrade logic is itself an open tool: [`@scalar/openapi-upgrader`](../guides/openapi-upgrader/getting-started.md) converts Swagger 2.0 to OpenAPI 3.0 or 3.1 (with experimental support for OpenAPI 3.2), as an npm package or a one-line CLI command:
 
 ```bash
 npx @scalar/cli document upgrade swagger.json --output openapi.json
 ```
 
-Scalar also reads a set of [OpenAPI extensions](/products/api-references/openapi) — `x-codeSamples` for custom SDK snippets, `x-tagGroups` for sidebar grouping, `x-scalar-ignore` for hiding operations, and others — including extensions written by other tools such as Stainless and ReadMe, so a document generated elsewhere renders correctly without edits.
+Scalar also reads a set of [OpenAPI extensions](../openapi.md) — `x-codeSamples` for custom SDK snippets, `x-tagGroups` for sidebar grouping, `x-scalar-ignore` for hiding operations, and others — including extensions written by other tools such as Stainless and ReadMe, so a document generated elsewhere renders correctly without edits.
 
 ## How the documentation stays in sync
 
-The reference updates whenever the OpenAPI document changes. There are a few ways to wire that up, documented in the [deployment guides](/products/docs/deployment/automatic-deployment):
+The reference updates whenever the OpenAPI document changes. There are a few ways to wire that up, documented in the [deployment guides](../guides/docs/deployment/automatic-deployment.md):
 
-- **Git.** Keep the document in your repository and enable automatic deployment: every merge into your default branch republishes the docs. Preview deployments and a [GitHub Actions workflow](/products/docs/deployment/github-actions) are available when you want more control.
-- **The Registry.** If your docs reference an OpenAPI document from the [Scalar Registry](/products/registry/getting-started), updating that Registry document also triggers the docs to publish again.
+- **Git.** Keep the document in your repository and enable automatic deployment: every merge into your default branch republishes the docs. Preview deployments and a [GitHub Actions workflow](../guides/docs/deployment/github-actions.md) are available when you want more control.
+- **The Registry.** If your docs reference an OpenAPI document from the [Scalar Registry](../guides/registry/getting-started.md), updating that Registry document also triggers the docs to publish again.
 - **The CLI.** `npx @scalar/cli project publish` deploys from your terminal or any CI/CD environment, without granting repository access.
 
 There is no step where documentation is written separately from the API description and then reconciled. The document changes; the reference follows.
@@ -61,7 +61,7 @@ Scalar ships more than 35 framework integrations, so the reference can be mounte
 - **Java**: Spring Boot, Micronaut
 - **Go**, **Rust** (Actix Web, Axum, warp), and **Elixir**
 
-If your framework is not on the list, the plain [HTML integration](/products/api-references/integrations/html-js) is a single script tag:
+If your framework is not on the list, the plain [HTML integration](../integrations/html-js.md) is a single script tag:
 
 ```html
 <div id="app"></div>
@@ -92,8 +92,8 @@ The MIT-licensed renderer is free regardless of plan, on your own infrastructure
 
 ## Where to go next
 
-- [Scalar Docs](/products/docs/getting-started) — hosted documentation sites with guides, versions, and Git Sync
-- [API Reference quickstart](/products/api-references/getting-started) — render an OpenAPI document in a few lines of code
+- [Scalar Docs](../guides/docs/getting-started.md) — hosted documentation sites with guides, versions, and Git Sync
+- [API Reference quickstart](../guides/api-references/getting-started.md) — render an OpenAPI document in a few lines of code
 - [Create a free account](https://dashboard.scalar.com/register) — hosted docs from your OpenAPI document, at $0
 
 ---
