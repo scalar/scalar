@@ -10,6 +10,7 @@ export {
   Tag,
   TraversedEntry,
 } from './Content'
+export { AsyncApiChannel, AsyncApiMessage, AsyncApiOperation, AsyncApiTraversedEntry } from './Content/AsyncApi'
 export { Auth } from './Content/Auth'
 export { default as ApiReferenceContent } from './Content/Content.vue'
 export { HttpMethod } from './HttpMethod'
