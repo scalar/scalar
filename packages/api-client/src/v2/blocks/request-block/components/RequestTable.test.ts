@@ -203,4 +203,54 @@ describe('RequestTable', () => {
     expect(headers[1]?.text()).toBe('Parameter Key')
     expect(headers[2]?.text()).toBe('Parameter Value')
   })
+
+  it('uses a stable key per row so parameter rows are not reused for the placeholder', async () => {
+    // Regression: key:index caused the x-scenario-id component instance to be
+    // reused for the placeholder row { name: '' } when displayData recomputed,
+    // blanking the parameter name in the UI.
+    const wrapper = mount(RequestTable, {
+      props: {
+        data: [
+          {
+            name: 'x-scenario-id',
+            value: '200_success',
+            isDisabled: false,
+            originalParameter: { name: 'x-scenario-id', in: 'header' },
+          },
+        ],
+        environment,
+      },
+    })
+
+    const rowsBefore = wrapper.findAllComponents({ name: 'RequestTableRow' })
+    // One real row + one placeholder
+    expect(rowsBefore.length).toBe(2)
+    expect(rowsBefore[0]?.props('data').name).toBe('x-scenario-id')
+
+    // Add a second real row — this shifts the placeholder index and previously
+    // caused the first row to receive the placeholder data.
+    await wrapper.setProps({
+      data: [
+        {
+          name: 'x-scenario-id',
+          value: '200_success',
+          isDisabled: false,
+          originalParameter: { name: 'x-scenario-id', in: 'header' },
+        },
+        {
+          name: 'x-request-id',
+          value: 'abc',
+          isDisabled: false,
+          originalParameter: { name: 'x-request-id', in: 'header' },
+        },
+      ],
+    })
+
+    const rowsAfter = wrapper.findAllComponents({ name: 'RequestTableRow' })
+    // Two real rows + one placeholder
+    expect(rowsAfter.length).toBe(3)
+    // The first row must still carry the original parameter, not the placeholder.
+    expect(rowsAfter[0]?.props('data').name).toBe('x-scenario-id')
+    expect(rowsAfter[1]?.props('data').name).toBe('x-request-id')
+  })
 })

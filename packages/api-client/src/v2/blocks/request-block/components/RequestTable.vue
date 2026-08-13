@@ -83,7 +83,14 @@ const displayData = computed(() => {
 
     <RequestTableRow
       v-for="(row, index) in displayData"
-      :key="index"
+      :key="
+        row.originalParameter
+          ? row.originalParameter.name +
+            (row.sourceParameterValuePath
+              ? row.sourceParameterValuePath.join('.')
+              : '')
+          : row.name || index
+      "
       :data="row"
       :environment="environment"
       :hasCheckboxDisabled="hasCheckboxDisabled"

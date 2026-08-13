@@ -307,6 +307,38 @@ describe('upsertOperationParameter', () => {
     ).not.toThrow()
   })
 
+  it('does not overwrite an existing parameter name with an empty string', () => {
+    // Regression: a stale blur event from CodeInputLite could call
+    // upsertOperationParameter with payload.name = '' before the key input
+    // had rendered its initial value, permanently blanking the name.
+    const document = createDocument({
+      paths: {
+        '/search': {
+          get: {
+            parameters: [{ name: 'x-scenario-id', in: 'header', examples: { default: { value: '200_success' } } }],
+          },
+        },
+      },
+    })
+
+    const op = getResolvedRef(getPathItemOperation(document.paths?.['/search'], 'get'))
+    assert(op)
+    const param = getResolvedRef(op.parameters?.[0])
+    assert(param)
+
+    upsertOperationParameter(document, {
+      type: 'header',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: '', value: '200_success', isDisabled: false },
+    })
+
+    // Name must be preserved; only value/disabled should update.
+    expect(param.name).toBe('x-scenario-id')
+    assert('examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.default)?.value).toBe('200_success')
+  })
+
   it('no-ops when operation does not exist and no originalParameter is provided', () => {
     const document = createDocument({
       paths: {
