@@ -141,6 +141,7 @@ And there's an ever-growing list of plugins and integrations:
 - [Go](https://scalar.com/products/api-references/integrations/go)
 - [Hapi](https://scalar.com/products/api-references/integrations/hapi)
 - [Hono](https://scalar.com/products/api-references/integrations/hono)
+- [Java](https://scalar.com/products/api-references/integrations/java)
 - [Laravel Scribe](https://scalar.com/products/api-references/integrations/laravel-scribe)
 - [Laravel](https://scalar.com/products/api-references/integrations/laravel)
 - [Micronaut](https://scalar.com/products/api-references/integrations/micronaut)
