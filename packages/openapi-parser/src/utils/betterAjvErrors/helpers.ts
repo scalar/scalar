@@ -77,8 +77,16 @@ function filterRedundantErrors(root, parent, key) {
       // Clear parent errors, keep children as they're more meaningful
       delete root.errors
     } else {
-      // No other errors, keep oneOf as it's all we have
-      root.errors = errors.filter((error) => isOneOfError(error))
+      // Both `oneOf` branches produced a `required` error: one from the schema
+      // the user most likely intended (e.g. a Response needs `description`) and
+      // one from the `Reference` branch (needs `$ref`). Surface the intended
+      // schema's error and drop the `$ref` noise so the message is actionable.
+      // Only fall back to the generic `oneOf` error when the sole requirement
+      // left is `$ref` (i.e. the value looks like a broken reference).
+      const meaningfulRequiredErrors = errors.filter(
+        (error) => isRequiredError(error) && error.params?.missingProperty !== '$ref',
+      )
+      root.errors = meaningfulRequiredErrors.length > 0 ? meaningfulRequiredErrors : errors.filter(isOneOfError)
     }
   } else if (hasOneOfError && !hasRequiredError && hasChildren) {
     /**
