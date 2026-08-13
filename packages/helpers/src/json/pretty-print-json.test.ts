@@ -27,6 +27,18 @@ describe('prettyPrintJson', () => {
     expect(prettyPrintJson(foo)).toMatch(`{\n  "foo": "[Circular]"\n}`)
   })
 
+  it('expands a reference that is used more than once', () => {
+    const id = { type: 'string', example: '12345678-1234-1234-1234-123456789012' }
+
+    const result = prettyPrintJson({
+      type: 'object',
+      properties: { Id: id, ClientId: id, Name: { type: 'string' } },
+    })
+
+    expect(result).not.toContain('[Circular]')
+    expect(JSON.parse(result).properties.ClientId).toEqual(id)
+  })
+
   it('does not explode on heavily shared references', () => {
     /*
      * A deeply resolved, recursive OpenAPI schema (e.g. the "Show Schema" toggle on a
