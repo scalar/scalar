@@ -1226,4 +1226,27 @@ describe('mergeDiff', () => {
       conflicts: [],
     })
   })
+  // TODO: a delete that is subsumed by a delete on the other side is discarded before we know
+  // whether the covering delete ends up in `conflicts`. When it does, the subsumed delete
+  // survives in neither `diffs` nor `conflicts`, so resolving the conflict toward the side that
+  // owns it brings the deleted value back. Pinned here so a future fix is a deliberate change.
+  // Note this is not caused by the index fix above: before it, the same inputs produced this
+  // result or the correct one depending on the order of the second diff list.
+  test('a delete subsumed by a delete that also conflicts is currently dropped', () => {
+    const diff1: Difference<unknown>[] = [{ path: ['a'], changes: { b: 1, a: 2 }, type: 'delete' }]
+    const diff2: Difference<unknown>[] = [
+      { path: ['a', 'b'], changes: 14, type: 'update' },
+      { path: ['a', 'a'], changes: 2, type: 'delete' },
+    ]
+
+    expect(merge(diff1, diff2)).toEqual({
+      diffs: [],
+      conflicts: [
+        [
+          [{ path: ['a'], changes: { b: 1, a: 2 }, type: 'delete' }],
+          [{ path: ['a', 'b'], changes: 14, type: 'update' }],
+        ],
+      ],
+    })
+  })
 })
