@@ -260,4 +260,53 @@ describe('apply', () => {
       ]),
     ).toEqual(docCopy)
   })
+
+  describe('prototype pollution', () => {
+    test.each([['__proto__'], ['constructor'], ['prototype']])(
+      'rejects a changeset whose path starts with `%s`',
+      (segment) => {
+        expect(() => apply({}, [{ path: [segment, 'pollutedByApply'], changes: 'yes', type: 'add' }])).toThrowError(
+          InvalidChangesDetectedError,
+        )
+        expect(({} as Record<string, unknown>).pollutedByApply).toBeUndefined()
+      },
+    )
+
+    test('rejects an unsafe segment that sits deeper in the path', () => {
+      const doc = { info: {} }
+
+      expect(() =>
+        apply(doc, [{ path: ['info', '__proto__', 'pollutedDeeper'], changes: 'yes', type: 'add' }]),
+      ).toThrowError(InvalidChangesDetectedError)
+      expect(({} as Record<string, unknown>).pollutedDeeper).toBeUndefined()
+    })
+
+    test('rejects an unsafe segment as the last path entry', () => {
+      const doc = {}
+
+      expect(() =>
+        apply(doc, [{ path: ['__proto__'], changes: { pollutedLeaf: 'yes' }, type: 'update' }]),
+      ).toThrowError(InvalidChangesDetectedError)
+      expect(Object.getPrototypeOf(doc)).toBe(Object.prototype)
+      expect(({} as Record<string, unknown>).pollutedLeaf).toBeUndefined()
+    })
+
+    test('leaves the document untouched when a later entry carries an unsafe segment', () => {
+      const doc = { name: 'John' }
+
+      expect(() =>
+        apply(doc, [
+          { path: ['age'], changes: 25, type: 'add' },
+          { path: ['__proto__', 'pollutedAfterSafeEntry'], changes: 'yes', type: 'add' },
+        ]),
+      ).toThrowError(InvalidChangesDetectedError)
+      expect(doc).toEqual({ name: 'John' })
+    })
+
+    test('names the offending segment in the error message', () => {
+      expect(() => apply({}, [{ path: ['info', 'constructor'], changes: 'yes', type: 'add' }])).toThrowError(
+        /unsafe segment "constructor"/,
+      )
+    })
+  })
 })

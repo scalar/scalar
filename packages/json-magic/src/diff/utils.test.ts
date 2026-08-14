@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
+import { isArrayEqual, isKeyCollisions, isUnsafePathSegment, mergeObjects } from '@/diff/utils'
 
 describe('isKeyCollisions', () => {
   test.each([
@@ -167,4 +167,33 @@ describe('isArrayEqual', () => {
     ],
     // @ts-expect-error
   ])('should return false', (a, b) => expect(isArrayEqual(a, b)).toEqual(false))
+})
+
+describe('isUnsafePathSegment', () => {
+  test.each([['__proto__'], ['constructor'], ['prototype']])('flags `%s` as unsafe', (segment) => {
+    expect(isUnsafePathSegment(segment)).toBe(true)
+  })
+
+  test.each([['paths'], ['proto'], ['__proto'], ['0'], ['']])('leaves `%s` alone', (segment) => {
+    expect(isUnsafePathSegment(segment)).toBe(false)
+  })
+})
+
+describe('mergeObjects prototype pollution', () => {
+  test('does not merge a `__proto__` key into the prototype chain', () => {
+    const a: Record<string, unknown> = { keep: 1 }
+    const b = JSON.parse('{"__proto__": {"pollutedByMerge": "yes"}}')
+
+    expect(mergeObjects(a, b)).toEqual({ keep: 1 })
+    expect(Object.getPrototypeOf(a)).toBe(Object.prototype)
+    expect(({} as Record<string, unknown>).pollutedByMerge).toBeUndefined()
+  })
+
+  test('merges the safe keys of an object that also carries a `__proto__` key', () => {
+    const a: Record<string, unknown> = { keep: 1 }
+    const b = JSON.parse('{"__proto__": {"pollutedBesideSafeMerge": "yes"}, "added": 2}')
+
+    expect(mergeObjects(a, b)).toEqual({ keep: 1, added: 2 })
+    expect(({} as Record<string, unknown>).pollutedBesideSafeMerge).toBeUndefined()
+  })
 })

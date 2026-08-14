@@ -1,3 +1,5 @@
+import { isUnsafePathSegment } from '@/diff/utils'
+
 /**
  * Represents the possible types of changes that can be made to a document.
  * - 'add': A new property is added
@@ -19,6 +21,9 @@ export type Difference<_T> = { path: string[]; changes: any; type: ChangeType }
  *
  * This function performs a breadth-first comparison between two objects and returns
  * a list of operations needed to transform the first object into the second.
+ *
+ * Keys that reach the prototype chain (`__proto__`, `constructor` and `prototype`) are skipped, so
+ * an untrusted document cannot produce a diff that poisons `Object.prototype` once applied.
  *
  * @param doc1 - The source object to compare from
  * @param doc2 - The target object to compare to
@@ -81,7 +86,12 @@ export const diff = <T extends Record<string, unknown>>(doc1: Record<string, unk
         return
       }
 
-      const keys = [...new Set([...Object.keys(el1), ...Object.keys(el2)])]
+      // Keys that reach `Object.prototype` are dropped before we recurse. `JSON.parse` turns
+      // `__proto__` into a real own property that `Object.keys` reports, so an untrusted document
+      // would otherwise make us walk the prototype chain and emit a diff that poisons every object
+      // in the runtime once applied. `apply` rejects the same segments, so a document that really
+      // does carry one of these keys loses it here rather than failing later.
+      const keys = [...new Set([...Object.keys(el1), ...Object.keys(el2)])].filter((key) => !isUnsafePathSegment(key))
 
       // Removed array elements are applied with `splice` (see `apply`), which re-indexes every
       // element after the removed one. Emitting the highest index first keeps the remaining indices
