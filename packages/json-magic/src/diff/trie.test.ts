@@ -33,9 +33,10 @@ describe('trie', () => {
     // A regression writes onto `Object.prototype`, where it would leak into every later test in the
     // worker and turn one failure into many. Clean it up so failures stay readable.
     afterEach(() => {
-      for (const key of ['value', 'children']) {
-        delete (Object.prototype as Record<string, unknown>)[key]
-      }
+      // A `__proto__` regression writes onto `Object.prototype`, a `constructor` regression writes
+      // onto the global `Object` itself, so both need clearing
+      delete (Object.prototype as Record<string, unknown>).value
+      delete (Object as unknown as Record<string, unknown>).value
     })
 
     test('stores a `__proto__` segment as a real child instead of writing to the prototype', () => {

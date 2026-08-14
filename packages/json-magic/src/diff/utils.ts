@@ -30,6 +30,14 @@ export const isKeyCollisions = (a: unknown, b: unknown) => {
     const keys = new Set([...Object.keys(a), ...Object.keys(b)])
 
     for (const key of keys) {
+      // Skip the keys that reach `Object.prototype`, so this stays in step with `mergeObjects`,
+      // which drops them. Without the skip, an own `__proto__` on one side is compared against the
+      // inherited prototype of the other and reports a collision that is not really there, turning
+      // an otherwise auto-mergeable change into a manual conflict.
+      if (isPollutionKey(key)) {
+        continue
+      }
+
       if (a[key] !== undefined && b[key] !== undefined) {
         if (isKeyCollisions(a[key], b[key])) {
           return true

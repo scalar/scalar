@@ -37,6 +37,15 @@ describe('isKeyCollisions', () => {
   ])('should return false', (a, b) => {
     expect(isKeyCollisions(a, b)).toBe(false)
   })
+
+  test('does not report a collision for an own `__proto__` key', () => {
+    // Only one side has `__proto__` as an own key, so the other side would resolve it to its own
+    // prototype and look like a mismatch
+    const a = JSON.parse('{"__proto__": 5, "openapi": "3.1.1"}')
+    const b = { openapi: '3.1.1' }
+
+    expect(isKeyCollisions(a, b)).toBe(false)
+  })
 })
 
 describe('mergeObjects', () => {

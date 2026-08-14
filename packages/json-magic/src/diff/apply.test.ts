@@ -312,6 +312,7 @@ describe('apply', () => {
         ]),
       ).toThrowError(InvalidChangesDetectedError)
       expect(doc).toEqual({ name: 'John' })
+      expect(({} as Record<string, unknown>).pollutedAfterSafeEntry).toBeUndefined()
     })
 
     test('reports the full path alongside the offending segment', () => {

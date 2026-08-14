@@ -1,6 +1,10 @@
 ---
 '@scalar/json-magic': patch
-'@scalar/helpers': patch
+'@scalar/helpers': minor
 ---
 
-Reject prototype-polluting path segments in diff, merge and apply. Documents reach these utilities from remote fetches and user files, and `JSON.parse` turns `__proto__` into a real own property, so `diff({}, JSON.parse('{"__proto__": {"polluted": "yes"}}'))` produced a changeset that wrote onto `Object.prototype` when applied. `diff` now skips the `__proto__`, `constructor` and `prototype` keys, `mergeObjects` no longer merges into them, the trie backing `merge` keys its children on a null prototype, and `apply` rejects any changeset containing them with an `InvalidChangesDetectedError` before touching the document. `@scalar/helpers` gains an `isPollutionKey` predicate next to the existing `preventPollution`, so the list of dangerous keys lives in one place.
+Stop the diff utilities from writing through the prototype chain. Documents reach them from remote fetches and user files, and `JSON.parse` turns `__proto__` into a real own property, so `apply({}, diff({}, JSON.parse('{"__proto__": {"polluted": "yes"}}')))` used to write onto `Object.prototype` and poison every object in the runtime. `diff` and `mergeObjects` now skip the `__proto__`, `constructor` and `prototype` keys, the trie backing `merge` keys its children on a null prototype, and `apply` rejects any changeset containing one of those segments with an `InvalidChangesDetectedError` before it touches the document.
+
+This does change behaviour for documents that legitimately carry a property with one of those names, which JSON allows and a schema is free to describe: `diff` no longer reports a change for it, so such a property is not synced. That trade-off matches `preventPollution`, which the rest of the codebase already applies to untrusted keys.
+
+`@scalar/helpers` gains an `isPollutionKey` predicate next to the existing `preventPollution`, so the list of dangerous keys lives in one place.
