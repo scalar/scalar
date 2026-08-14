@@ -89,8 +89,9 @@ export const diff = <T extends Record<string, unknown>>(doc1: Record<string, unk
       // Keys that reach `Object.prototype` are dropped before we recurse. `JSON.parse` turns
       // `__proto__` into a real own property that `Object.keys` reports, so an untrusted document
       // would otherwise make us walk the prototype chain and emit a diff that poisons every object
-      // in the runtime once applied. `apply` rejects the same segments, so a document that really
-      // does carry one of these keys loses it here rather than failing later.
+      // in the runtime once applied. `apply` rejects the same segments, so nothing emitted here can
+      // be turned away later. Note that this only covers the keys compared position by position: a
+      // brand new subtree is emitted as a single value and carries its own keys along untouched.
       const keys = [...new Set([...Object.keys(el1), ...Object.keys(el2)])].filter((key) => !isPollutionKey(key))
 
       // Removed array elements are applied with `splice` (see `apply`), which re-indexes every
