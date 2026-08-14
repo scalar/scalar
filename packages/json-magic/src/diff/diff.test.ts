@@ -1,6 +1,16 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
 
 import { apply, diff } from '@/diff'
+
+/** Property names the prototype pollution tests probe for on `Object.prototype` */
+const PROBE_KEYS = [
+  'pollutedByDiff',
+  'pollutedByNestedDiff',
+  'pollutedByConstructor',
+  'pollutedByPrototype',
+  'pollutedBesideSafeKeys',
+  'pollutedByRoundTrip',
+]
 
 describe('diff', () => {
   describe('Should correctly detect `add` type diff', () => {
@@ -484,5 +494,59 @@ describe('diff', () => {
       { path: ['hobbies', '2'], changes: doc2.hobbies[2], type: 'add' },
       { path: ['isStudent'], changes: doc1.isStudent, type: 'delete' },
     ])
+  })
+
+  describe('prototype pollution', () => {
+    // A regression writes the probe key onto `Object.prototype`, where it would leak into every
+    // later test in the worker and turn one failure into many. Clean it up so failures stay readable.
+    afterEach(() => {
+      for (const key of PROBE_KEYS) {
+        delete (Object.prototype as Record<string, unknown>)[key]
+      }
+    })
+
+    test('skips a `__proto__` key coming from a parsed document', () => {
+      // `JSON.parse` creates a real own `__proto__` property, unlike an object literal
+      const doc2 = JSON.parse('{"__proto__": {"pollutedByDiff": "yes"}}')
+
+      expect(diff({}, doc2)).toEqual([])
+      expect(({} as Record<string, unknown>).pollutedByDiff).toBeUndefined()
+    })
+
+    test('skips a `__proto__` key nested inside the document', () => {
+      const doc1 = { info: {} }
+      const doc2 = JSON.parse('{"info": {"__proto__": {"pollutedByNestedDiff": "yes"}}}')
+
+      expect(diff(doc1, doc2)).toEqual([])
+      expect(({} as Record<string, unknown>).pollutedByNestedDiff).toBeUndefined()
+    })
+
+    test('skips a `constructor` key', () => {
+      const doc2 = JSON.parse('{"constructor": {"prototype": {"pollutedByConstructor": "yes"}}}')
+
+      expect(diff({}, doc2)).toEqual([])
+      expect(({} as Record<string, unknown>).pollutedByConstructor).toBeUndefined()
+    })
+
+    test('skips a `prototype` key', () => {
+      const doc2 = JSON.parse('{"prototype": {"pollutedByPrototype": "yes"}}')
+
+      expect(diff({}, doc2)).toEqual([])
+      expect(({} as Record<string, unknown>).pollutedByPrototype).toBeUndefined()
+    })
+
+    test('keeps the safe keys of a document that also carries a `__proto__` key', () => {
+      const doc2 = JSON.parse('{"__proto__": {"pollutedBesideSafeKeys": "yes"}, "openapi": "3.1.1"}')
+
+      expect(diff({}, doc2)).toEqual([{ path: ['openapi'], changes: '3.1.1', type: 'add' }])
+      expect(({} as Record<string, unknown>).pollutedBesideSafeKeys).toBeUndefined()
+    })
+
+    test('never poisons the prototype through a full diff and apply round trip', () => {
+      const doc2 = JSON.parse('{"__proto__": {"pollutedByRoundTrip": "yes"}, "openapi": "3.1.1"}')
+
+      expect(apply({}, diff({}, doc2))).toEqual({ openapi: '3.1.1' })
+      expect(({} as Record<string, unknown>).pollutedByRoundTrip).toBeUndefined()
+    })
   })
 })

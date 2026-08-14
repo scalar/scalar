@@ -1,3 +1,5 @@
+import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
+
 /**
  * Deep check for objects for collisions
  * Check primitives if their values are different
@@ -28,6 +30,14 @@ export const isKeyCollisions = (a: unknown, b: unknown) => {
     const keys = new Set([...Object.keys(a), ...Object.keys(b)])
 
     for (const key of keys) {
+      // Skip the keys that reach `Object.prototype`, so this stays in step with `mergeObjects`,
+      // which drops them. Without the skip, an own `__proto__` on one side is compared against the
+      // inherited prototype of the other and reports a collision that is not really there, turning
+      // an otherwise auto-mergeable change into a manual conflict.
+      if (isPollutionKey(key)) {
+        continue
+      }
+
       if (a[key] !== undefined && b[key] !== undefined) {
         if (isKeyCollisions(a[key], b[key])) {
           return true
@@ -64,6 +74,13 @@ export const isKeyCollisions = (a: unknown, b: unknown) => {
  */
 export const mergeObjects = (a: Record<string, unknown>, b: Record<string, unknown>): Record<string, unknown> => {
   for (const key in b) {
+    // Merging into a prototype-reaching key writes straight onto the prototype of every object in
+    // the runtime, so these keys are dropped rather than merged. `diff` skips them as well, which
+    // keeps both sides of a merge consistent.
+    if (isPollutionKey(key)) {
+      continue
+    }
+
     if (!(key in a)) {
       a[key] = b[key]
     } else {

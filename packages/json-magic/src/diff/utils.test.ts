@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
 
 import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
 
@@ -35,6 +35,15 @@ describe('isKeyCollisions', () => {
     ],
     [{ a: { b: { c: 1 } } }, { a: { b: { d: 1 } }, c: 1 }],
   ])('should return false', (a, b) => {
+    expect(isKeyCollisions(a, b)).toBe(false)
+  })
+
+  test('does not report a collision for an own `__proto__` key', () => {
+    // Only one side has `__proto__` as an own key, so the other side would resolve it to its own
+    // prototype and look like a mismatch
+    const a = JSON.parse('{"__proto__": 5, "openapi": "3.1.1"}')
+    const b = { openapi: '3.1.1' }
+
     expect(isKeyCollisions(a, b)).toBe(false)
   })
 })
@@ -135,6 +144,34 @@ describe('mergeObjects', () => {
         },
       },
       b: 1,
+    })
+  })
+
+  describe('prototype pollution', () => {
+    // A regression writes the probe key onto `Object.prototype`, where it would leak into every
+    // later test in the worker and turn one failure into many. Clean it up so failures stay readable.
+    afterEach(() => {
+      for (const key of ['pollutedByMerge', 'pollutedBesideSafeMerge']) {
+        delete (Object.prototype as Record<string, unknown>)[key]
+      }
+    })
+
+    test('does not merge a `__proto__` key into the prototype chain', () => {
+      const a: Record<string, unknown> = { keep: 1 }
+      // `JSON.parse` creates a real own `__proto__` property, unlike an object literal
+      const b = JSON.parse('{"__proto__": {"pollutedByMerge": "yes"}}')
+
+      expect(mergeObjects(a, b)).toEqual({ keep: 1 })
+      expect(Object.getPrototypeOf(a)).toBe(Object.prototype)
+      expect(({} as Record<string, unknown>).pollutedByMerge).toBeUndefined()
+    })
+
+    test('merges the safe keys of an object that also carries a `__proto__` key', () => {
+      const a: Record<string, unknown> = { keep: 1 }
+      const b = JSON.parse('{"__proto__": {"pollutedBesideSafeMerge": "yes"}, "added": 2}')
+
+      expect(mergeObjects(a, b)).toEqual({ keep: 1, added: 2 })
+      expect(({} as Record<string, unknown>).pollutedBesideSafeMerge).toBeUndefined()
     })
   })
 })
