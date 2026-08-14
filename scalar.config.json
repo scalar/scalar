@@ -78,6 +78,14 @@
     "routing": {
       "redirects": [
         {
+          "from": "/docs",
+          "to": "/products"
+        },
+        {
+          "from": "/resources",
+          "to": "/resources/compare"
+        },
+        {
           "from": "/swagger-editor",
           "to": "/"
         },
@@ -906,7 +914,31 @@
       {
         "type": "link",
         "title": "Docs",
-        "to": "/docs"
+        "to": "/products"
+      },
+      {
+        "type": "group",
+        "title": "Resources",
+        "children": [
+          {
+            "type": "link",
+            "title": "Compare",
+            "icon": "phosphor/regular/scales",
+            "to": "/resources/compare"
+          },
+          {
+            "type": "link",
+            "title": "Migration",
+            "icon": "phosphor/regular/arrows-split",
+            "to": "/resources/migration"
+          },
+          {
+            "type": "link",
+            "title": "Blog",
+            "icon": "phosphor/regular/newspaper",
+            "to": "/resources/blog"
+          }
+        ]
       },
       {
         "type": "spacer"
@@ -1379,340 +1411,6 @@
               ]
             }
           },
-          "home-resources": {
-            "type": "group",
-            "title": "Resources",
-            "mode": "flat",
-            "children": {
-              "../resources/compare": {
-                "type": "group",
-                "title": "Compare",
-                "icon": "phosphor/regular/scales",
-                "mode": "folder",
-                "page": {
-                  "type": "page",
-                  "title": "Compare",
-                  "filepath": "documentation/compare/index.md",
-                  "description": "Honest comparisons of Scalar against other API documentation and SDK generation platforms.",
-                  "layout": {
-                    "toc": false
-                  },
-                  "head": {
-                    "title": "Compare Scalar — API Docs & SDK Generator Comparisons",
-                    "links": [
-                      {
-                        "rel": "canonical",
-                        "href": "https://scalar.com/resources/compare"
-                      }
-                    ],
-                    "meta": [
-                      {
-                        "name": "description",
-                        "content": "Honest comparisons of Scalar against other API documentation and SDK generation platforms."
-                      },
-                      {
-                        "property": "og:title",
-                        "content": "Compare Scalar - API Docs & SDK Generators"
-                      },
-                      {
-                        "property": "og:description",
-                        "content": "Honest comparisons of Scalar against other API documentation and SDK generation platforms."
-                      },
-                      {
-                        "name": "robots",
-                        "content": "index, follow"
-                      }
-                    ]
-                  }
-                },
-                "children": {
-                  "mintlify": {
-                    "type": "page",
-                    "title": "Mintlify",
-                    "filepath": "documentation/compare/mintlify.md",
-                    "description": "Compare Scalar and Mintlify for API documentation: licensing, self-hosting, customization, framework integrations, and pricing.",
-                    "head": {
-                      "title": "Scalar vs Mintlify — API Documentation Comparison",
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/compare/mintlify"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Compare Scalar and Mintlify for API documentation: licensing, self-hosting, customization, framework integrations, and pricing."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Scalar vs Mintlify — API Documentation Comparison"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "An honest comparison of Scalar and Mintlify for API documentation, and how both compare to Fern and Stainless."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "fern": {
-                    "type": "page",
-                    "title": "Fern",
-                    "filepath": "documentation/compare/fern.md",
-                    "description": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing.",
-                    "head": {
-                      "title": "Scalar vs Fern — API Docs & SDK Generator Comparison",
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/compare/fern"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Scalar vs Fern — API Docs & SDK Generator Comparison"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "An honest comparison of Scalar and Fern across documentation, SDK generation, open source licensing, and pricing."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "readme": {
-                    "type": "page",
-                    "title": "ReadMe",
-                    "filepath": "documentation/compare/readme.md",
-                    "description": "Compare Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing.",
-                    "head": {
-                      "title": "Scalar vs ReadMe — Developer Portal and API Documentation Comparison",
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/compare/readme"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Compare Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Scalar vs ReadMe — Developer Portal and API Documentation Comparison"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "An honest comparison of Scalar and ReadMe across developer portals, API documentation, analytics, SDK generation, and pricing."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "redocly": {
-                    "type": "page",
-                    "title": "Redocly",
-                    "filepath": "documentation/compare/redocly.md",
-                    "description": "Compare Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing.",
-                    "head": {
-                      "title": "Scalar vs Redocly — OpenAPI Documentation Comparison",
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/compare/redocly"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Compare Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Scalar vs Redocly — OpenAPI Documentation Comparison"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "An honest comparison of Scalar and Redocly across OpenAPI documentation, open source licensing, API governance, and pricing."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "postman": {
-                    "type": "page",
-                    "title": "Postman",
-                    "filepath": "documentation/compare/postman.md",
-                    "description": "Compare Scalar and Postman for API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing.",
-                    "head": {
-                      "title": "Scalar vs Postman — API Client and Documentation Comparison",
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/compare/postman"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Compare Scalar and Postman for API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Scalar vs Postman — API Client and Documentation Comparison"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "An honest comparison of Scalar and Postman across API clients, OpenAPI support, offline use, documentation, and pricing."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  }
-                }
-              },
-              "../resources/migration": {
-                "title": "Migration",
-                "icon": "phosphor/regular/arrows-split",
-                "description": "Step-by-step guides for migrating from Stainless, Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo to Scalar.",
-                "type": "group",
-                "mode": "folder",
-                "page": {
-                  "type": "page",
-                  "title": "Migration",
-                  "filepath": "documentation/migration/index.md",
-                  "description": "Step-by-step guides for migrating your API documentation and SDKs to Scalar.",
-                  "layout": {
-                    "toc": false
-                  },
-                  "head": {
-                    "title": "Migrate to Scalar — API Docs & SDK Migration Guides",
-                    "links": [
-                      {
-                        "rel": "canonical",
-                        "href": "https://scalar.com/resources/migration"
-                      }
-                    ],
-                    "meta": [
-                      {
-                        "name": "description",
-                        "content": "Step-by-step guides for migrating your API documentation and SDKs to Scalar."
-                      },
-                      {
-                        "property": "og:title",
-                        "content": "Migrate to Scalar - API Docs & SDK Migration Guides"
-                      },
-                      {
-                        "property": "og:description",
-                        "content": "Move your API documentation and SDKs to Scalar from Stainless, Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo."
-                      },
-                      {
-                        "name": "robots",
-                        "content": "index, follow"
-                      }
-                    ]
-                  }
-                },
-                "children": {
-                  "stainless": {
-                    "title": "Stainless",
-                    "filepath": "documentation/migration/stainless.md",
-                    "description": "Migrate from Stainless to Scalar: import your existing stainless.yml so SDK namespaces, method names, and pagination carry over.",
-                    "type": "page"
-                  },
-                  "swagger-ui": {
-                    "title": "Swagger UI",
-                    "filepath": "documentation/migration/swagger-ui.md",
-                    "type": "page",
-                    "description": "Complete guide to migrating from Swagger UI to API References with modern features and better UX.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/migration/swagger-ui"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Complete guide to migrating from Swagger UI to API References with modern features and better UX."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Migrate from Swagger UI to Scalar - Migration Guide"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Complete guide to migrating from Swagger UI to API References with modern features and better UX."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "stoplight": {
-                    "title": "Stoplight",
-                    "filepath": "documentation/migration/stoplight.md",
-                    "description": "Step-by-step guide to migrating your API documentation from Stoplight to Scalar.",
-                    "type": "page"
-                  },
-                  "api-hub": {
-                    "title": "API Hub",
-                    "filepath": "documentation/migration/api-hub.md",
-                    "description": "How to migrate from Smartbear API Hub (formerly SwaggerHub) to Scalar for docs, registry, and API references.",
-                    "type": "page"
-                  },
-                  "bump": {
-                    "title": "Bump.sh",
-                    "filepath": "documentation/migration/bump.md",
-                    "description": "Compare Bump.sh with Scalar and migrate your OpenAPI documentation step by step.",
-                    "type": "page"
-                  },
-                  "zuplo": {
-                    "title": "Zuplo",
-                    "filepath": "documentation/migration/zuplo.md",
-                    "description": "Compare Zuplo docs with Scalar and migrate your API reference step by step.",
-                    "type": "page"
-                  }
-                }
-              },
-              "../resources/blog": {
-                "type": "page",
-                "title": "Blog",
-                "icon": "phosphor/regular/newspaper",
-                "description": "News and engineering stories from the Scalar team on OpenAPI, API documentation, and developer experience.",
-                "filepath": "documentation/blog/index.md",
-                "showInSidebar": true,
-                "layout": {
-                  "toc": false
-                }
-              }
-            }
-          },
           "/blog/posts/2026-04-11-oss-pledge": {
             "type": "page",
             "title": "Scalar's 2025 Open Source Pledge",
@@ -1841,7 +1539,7 @@
           }
         }
       },
-      "/docs": {
+      "/products": {
         "type": "group",
         "title": "Docs",
         "mode": "flat",
@@ -1854,7 +1552,9 @@
             "icon": "phosphor/regular/house",
             "showInSidebar": true,
             "layout": {
-              "toc": true
+              "toc": false,
+              "pageActions": false,
+              "pageTitle": false
             }
           },
           "products": {
@@ -4348,6 +4048,340 @@
                   }
                 }
               }
+            }
+          }
+        }
+      },
+      "/resources": {
+        "type": "group",
+        "title": "Resources",
+        "mode": "flat",
+        "children": {
+          "compare": {
+            "type": "group",
+            "title": "Compare",
+            "icon": "phosphor/regular/scales",
+            "mode": "folder",
+            "page": {
+              "type": "page",
+              "title": "Compare",
+              "filepath": "documentation/compare/index.md",
+              "description": "Honest comparisons of Scalar against other API documentation and SDK generation platforms.",
+              "layout": {
+                "toc": false
+              },
+              "head": {
+                "title": "Compare Scalar — API Docs & SDK Generator Comparisons",
+                "links": [
+                  {
+                    "rel": "canonical",
+                    "href": "https://scalar.com/resources/compare"
+                  }
+                ],
+                "meta": [
+                  {
+                    "name": "description",
+                    "content": "Honest comparisons of Scalar against other API documentation and SDK generation platforms."
+                  },
+                  {
+                    "property": "og:title",
+                    "content": "Compare Scalar - API Docs & SDK Generators"
+                  },
+                  {
+                    "property": "og:description",
+                    "content": "Honest comparisons of Scalar against other API documentation and SDK generation platforms."
+                  },
+                  {
+                    "name": "robots",
+                    "content": "index, follow"
+                  }
+                ]
+              }
+            },
+            "children": {
+              "mintlify": {
+                "type": "page",
+                "title": "Mintlify",
+                "filepath": "documentation/compare/mintlify.md",
+                "description": "Compare Scalar and Mintlify for API documentation: licensing, self-hosting, customization, framework integrations, and pricing.",
+                "head": {
+                  "title": "Scalar vs Mintlify — API Documentation Comparison",
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/compare/mintlify"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Compare Scalar and Mintlify for API documentation: licensing, self-hosting, customization, framework integrations, and pricing."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "Scalar vs Mintlify — API Documentation Comparison"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "An honest comparison of Scalar and Mintlify for API documentation, and how both compare to Fern and Stainless."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              },
+              "fern": {
+                "type": "page",
+                "title": "Fern",
+                "filepath": "documentation/compare/fern.md",
+                "description": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing.",
+                "head": {
+                  "title": "Scalar vs Fern — API Docs & SDK Generator Comparison",
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/compare/fern"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Compare Scalar and Fern for API documentation and SDK generation: licensing, self-hosting, generated code, framework integrations, and pricing."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "Scalar vs Fern — API Docs & SDK Generator Comparison"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "An honest comparison of Scalar and Fern across documentation, SDK generation, open source licensing, and pricing."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              },
+              "readme": {
+                "type": "page",
+                "title": "ReadMe",
+                "filepath": "documentation/compare/readme.md",
+                "description": "Compare Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing.",
+                "head": {
+                  "title": "Scalar vs ReadMe — Developer Portal and API Documentation Comparison",
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/compare/readme"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Compare Scalar and ReadMe for developer portals and API documentation: licensing, self-hosting, API analytics, SDK generation, and pricing."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "Scalar vs ReadMe — Developer Portal and API Documentation Comparison"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "An honest comparison of Scalar and ReadMe across developer portals, API documentation, analytics, SDK generation, and pricing."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              },
+              "redocly": {
+                "type": "page",
+                "title": "Redocly",
+                "filepath": "documentation/compare/redocly.md",
+                "description": "Compare Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing.",
+                "head": {
+                  "title": "Scalar vs Redocly — OpenAPI Documentation Comparison",
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/compare/redocly"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Compare Scalar and Redocly for OpenAPI documentation: licensing, the try-it console, API governance, framework integrations, SDK generation, and pricing."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "Scalar vs Redocly — OpenAPI Documentation Comparison"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "An honest comparison of Scalar and Redocly across OpenAPI documentation, open source licensing, API governance, and pricing."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              },
+              "postman": {
+                "type": "page",
+                "title": "Postman",
+                "filepath": "documentation/compare/postman.md",
+                "description": "Compare Scalar and Postman for API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing.",
+                "head": {
+                  "title": "Scalar vs Postman — API Client and Documentation Comparison",
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/compare/postman"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Compare Scalar and Postman for API clients and documentation: licensing, offline use, OpenAPI support, vendor lock-in, and pricing."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "Scalar vs Postman — API Client and Documentation Comparison"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "An honest comparison of Scalar and Postman across API clients, OpenAPI support, offline use, documentation, and pricing."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "migration": {
+            "title": "Migration",
+            "icon": "phosphor/regular/arrows-split",
+            "description": "Step-by-step guides for migrating from Stainless, Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo to Scalar.",
+            "type": "group",
+            "mode": "folder",
+            "page": {
+              "type": "page",
+              "title": "Migration",
+              "filepath": "documentation/migration/index.md",
+              "description": "Step-by-step guides for migrating your API documentation and SDKs to Scalar.",
+              "layout": {
+                "toc": false
+              },
+              "head": {
+                "title": "Migrate to Scalar — API Docs & SDK Migration Guides",
+                "links": [
+                  {
+                    "rel": "canonical",
+                    "href": "https://scalar.com/resources/migration"
+                  }
+                ],
+                "meta": [
+                  {
+                    "name": "description",
+                    "content": "Step-by-step guides for migrating your API documentation and SDKs to Scalar."
+                  },
+                  {
+                    "property": "og:title",
+                    "content": "Migrate to Scalar - API Docs & SDK Migration Guides"
+                  },
+                  {
+                    "property": "og:description",
+                    "content": "Move your API documentation and SDKs to Scalar from Stainless, Swagger UI, Stoplight, API Hub, Bump.sh, and Zuplo."
+                  },
+                  {
+                    "name": "robots",
+                    "content": "index, follow"
+                  }
+                ]
+              }
+            },
+            "children": {
+              "stainless": {
+                "title": "Stainless",
+                "filepath": "documentation/migration/stainless.md",
+                "description": "Migrate from Stainless to Scalar: import your existing stainless.yml so SDK namespaces, method names, and pagination carry over.",
+                "type": "page"
+              },
+              "swagger-ui": {
+                "title": "Swagger UI",
+                "filepath": "documentation/migration/swagger-ui.md",
+                "type": "page",
+                "description": "Complete guide to migrating from Swagger UI to API References with modern features and better UX.",
+                "head": {
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/migration/swagger-ui"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Complete guide to migrating from Swagger UI to API References with modern features and better UX."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "Migrate from Swagger UI to Scalar - Migration Guide"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "Complete guide to migrating from Swagger UI to API References with modern features and better UX."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              },
+              "stoplight": {
+                "title": "Stoplight",
+                "filepath": "documentation/migration/stoplight.md",
+                "description": "Step-by-step guide to migrating your API documentation from Stoplight to Scalar.",
+                "type": "page"
+              },
+              "api-hub": {
+                "title": "API Hub",
+                "filepath": "documentation/migration/api-hub.md",
+                "description": "How to migrate from Smartbear API Hub (formerly SwaggerHub) to Scalar for docs, registry, and API references.",
+                "type": "page"
+              },
+              "bump": {
+                "title": "Bump.sh",
+                "filepath": "documentation/migration/bump.md",
+                "description": "Compare Bump.sh with Scalar and migrate your OpenAPI documentation step by step.",
+                "type": "page"
+              },
+              "zuplo": {
+                "title": "Zuplo",
+                "filepath": "documentation/migration/zuplo.md",
+                "description": "Compare Zuplo docs with Scalar and migrate your API reference step by step.",
+                "type": "page"
+              }
+            }
+          },
+          "blog": {
+            "type": "page",
+            "title": "Blog",
+            "icon": "phosphor/regular/newspaper",
+            "description": "News and engineering stories from the Scalar team on OpenAPI, API documentation, and developer experience.",
+            "filepath": "documentation/blog/index.md",
+            "showInSidebar": true,
+            "layout": {
+              "toc": false
             }
           }
         }

@@ -1,20 +1,20 @@
 # Scalar Documentation
 
-Build, document, test, and connect your APIs with Scalar. Choose a product or tool to find setup guides, configuration references, examples, and release notes.
+Start here to get up and running with Scalar, whether you are building docs, SDKs or a secure MCP server from your API. Pick a product or tool below for setup guides, configuration references and examples.
 
 <img
   src="/starter-kit-animated.svg"
   class="starter-kit-animation"
   alt="Scalar Starter Kit animation" />
 
-## Products
+## Getting Started
 
 <scalar-grid cols="2">
   <div class="docs-overview-card">
     <scalar-card
       title="Docs"
-      description="Build and publish developer documentation with Markdown, MDX, and OpenAPI."
       icon="phosphor/regular/book">
+      Build and publish developer documentation with Markdown, MDX, and OpenAPI.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -26,8 +26,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="MCP & Agent"
-      description="Connect agents and LLMs to your APIs with secure MCP servers."
       icon="phosphor/regular/sparkle">
+      Connect agents and LLMs to your APIs with secure MCP servers.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -39,8 +39,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="SDK Generator"
-      description="Generate type-safe client libraries and CLIs from OpenAPI."
       icon="phosphor/regular/package">
+      Generate type-safe client libraries and CLIs from OpenAPI.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -52,8 +52,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="Registry"
-      description="Manage, validate, and version your OpenAPI documents."
       icon="phosphor/regular/brackets-curly">
+      Manage, validate, and version your OpenAPI documents.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -65,8 +65,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="API References"
-      description="Create interactive API references from OpenAPI and AsyncAPI."
       icon="phosphor/regular/notebook">
+      Create interactive API references from OpenAPI and AsyncAPI.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -78,8 +78,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="API Client"
-      description="Explore and test APIs with Scalar's open-source API client."
       icon="phosphor/regular/paper-plane-tilt">
+      Explore and test APIs with Scalar's open-source API client.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -96,8 +96,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="Scalar CLI"
-      description="Work with OpenAPI documents and Scalar projects from your terminal."
       icon="phosphor/regular/terminal-window">
+      Work with OpenAPI documents and Scalar projects from your terminal.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -109,8 +109,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="Mock Server"
-      description="Run realistic mock APIs directly from your OpenAPI document."
       icon="phosphor/regular/cloud">
+      Run realistic mock APIs directly from your OpenAPI document.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -122,8 +122,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="OpenAPI Upgrader"
-      description="Upgrade legacy OpenAPI and Swagger documents to OpenAPI 3.1."
       icon="phosphor/regular/arrow-up-right">
+      Upgrade legacy OpenAPI and Swagger documents to OpenAPI 3.1.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -135,8 +135,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="Scalar API"
-      description="Integrate with Scalar projects, documents, and services programmatically."
       icon="phosphor/regular/database">
+      Integrate with Scalar projects, documents, and services programmatically.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -153,8 +153,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="User Management"
-      description="Invite team members, assign roles, and manage access to Scalar."
       icon="phosphor/regular/users">
+      Invite team members, assign roles, and manage access to Scalar.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -166,8 +166,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="SSO/SAML"
-      description="Configure secure single sign-on with your enterprise identity provider."
       icon="phosphor/regular/keyhole">
+      Configure secure single sign-on with your enterprise identity provider.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
@@ -179,8 +179,8 @@ Build, document, test, and connect your APIs with Scalar. Choose a product or to
   <div class="docs-overview-card">
     <scalar-card
       title="Changelog"
-      description="Review release notes for Scalar products and developer tools."
       icon="phosphor/regular/git-diff">
+      Review release notes for Scalar products and developer tools.
       <a
         class="card-stretched-link"
         data-scalar-type="page-link"
