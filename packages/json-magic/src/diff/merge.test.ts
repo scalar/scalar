@@ -1107,6 +1107,7 @@ describe('mergeDiff', () => {
       conflicts: [],
     })
   })
+
   test('deleting different paths on both documents keeps every delete when the shared delete sits at different indices', () => {
     const base = {
       openapi: '3.0.0',
@@ -1165,7 +1166,7 @@ describe('mergeDiff', () => {
     })
   })
 
-  test('a shallower delete in the second diff only skips its own matching entry', () => {
+  test('a shallower delete in the second diff drops only the matching deeper entry of the first', () => {
     const diff1: Difference<unknown>[] = [
       { path: ['x'], changes: 'x', type: 'delete' },
       { path: ['paths', '/users', 'get'], changes: 'get', type: 'delete' },
@@ -1187,7 +1188,7 @@ describe('mergeDiff', () => {
     })
   })
 
-  test('a deeper delete in the second diff only skips its own matching entry', () => {
+  test('a deeper delete in the second diff drops only its own entry', () => {
     const diff1: Difference<unknown>[] = [
       { path: ['x'], changes: 'x', type: 'delete' },
       { path: ['paths', '/users'], changes: 'users', type: 'delete' },
@@ -1226,12 +1227,16 @@ describe('mergeDiff', () => {
       conflicts: [],
     })
   })
+
   // TODO: a delete that is subsumed by a delete on the other side is discarded before we know
   // whether the covering delete ends up in `conflicts`. When it does, the subsumed delete
   // survives in neither `diffs` nor `conflicts`, so resolving the conflict toward the side that
-  // owns it brings the deleted value back. Pinned here so a future fix is a deliberate change.
-  // Note this is not caused by the index fix above: before it, the same inputs produced this
-  // result or the correct one depending on the order of the second diff list.
+  // owns it brings the deleted value back. The gap is symmetric: the mirrored input loses the
+  // entry through the first list instead. Pinned here so a future fix is a deliberate change.
+  //
+  // The flaw predates the index fix above, which only changed how consistently it shows up.
+  // Before the fix this exact ordering happened to keep the subsumed delete, because skipping
+  // the wrong index left it in place, while the reversed ordering already lost it.
   test('a delete subsumed by a delete that also conflicts is currently dropped', () => {
     const diff1: Difference<unknown>[] = [{ path: ['a'], changes: { b: 1, a: 2 }, type: 'delete' }]
     const diff2: Difference<unknown>[] = [
