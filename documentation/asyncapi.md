@@ -64,5 +64,9 @@ The broker-specific scheme types have dedicated credential inputs too:
 
 Credentials are kept in the auth store alongside the OpenAPI ones, so they persist while you browse and never leave the browser.
 
+## Generating SDKs
+
+The same document can generate a client. The [Scalar SDK Generator](guides/sdks/asyncapi.md) turns each channel into a WebSocket connect method or an HTTP streaming method, with typed send and receive events.
+
 > [!NOTE]
 > AsyncAPI support is still a work in progress, so not every part of the specification is rendered yet. The progress is tracked on GitHub in [issue #7080](https://github.com/scalar/scalar/issues/7080) — subscribe there to receive updates.
