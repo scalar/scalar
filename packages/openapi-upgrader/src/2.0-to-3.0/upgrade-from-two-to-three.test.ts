@@ -502,6 +502,58 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
+  it('migrates formData with an array type', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      paths: {
+        '/submit': {
+          post: {
+            consumes: ['application/x-www-form-urlencoded'],
+            parameters: [
+              {
+                name: 'tags',
+                in: 'formData',
+                description: 'Tags to attach',
+                required: true,
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+                collectionFormat: 'csv',
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(result.paths).toStrictEqual({
+      '/submit': {
+        post: {
+          requestBody: {
+            content: {
+              'application/x-www-form-urlencoded': {
+                schema: {
+                  required: ['tags'],
+                  properties: {
+                    tags: {
+                      type: 'array',
+                      description: 'Tags to attach',
+                      items: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                  type: 'object',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
   it('upgrades securityDefinitions from Swagger 2.0 to OpenAPI 3.0', () => {
     const input = {
       swagger: '2.0',

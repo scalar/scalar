@@ -941,9 +941,8 @@ function migrateFormDataParameter(
         for (const param of parameters) {
           if (param.name && formContent.schema.properties) {
             formContent.schema.properties[param.name] = {
-              type: param.type,
+              ...transformItemsObject(structuredClone(param)),
               description: param.description,
-              ...(param.format ? { format: param.format } : {}),
             }
 
             // Add to required array if param is required
