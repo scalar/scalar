@@ -1,6 +1,16 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
 
 import { apply, diff } from '@/diff'
+
+/** Property names the prototype pollution tests probe for on `Object.prototype` */
+const PROBE_KEYS = [
+  'pollutedByDiff',
+  'pollutedByNestedDiff',
+  'pollutedByConstructor',
+  'pollutedByPrototype',
+  'pollutedBesideSafeKeys',
+  'pollutedByRoundTrip',
+]
 
 describe('diff', () => {
   describe('Should correctly detect `add` type diff', () => {
@@ -487,6 +497,14 @@ describe('diff', () => {
   })
 
   describe('prototype pollution', () => {
+    // A regression writes the probe key onto `Object.prototype`, where it would leak into every
+    // later test in the worker and turn one failure into many. Clean it up so failures stay readable.
+    afterEach(() => {
+      for (const key of PROBE_KEYS) {
+        delete (Object.prototype as Record<string, unknown>)[key]
+      }
+    })
+
     test('skips a `__proto__` key coming from a parsed document', () => {
       // `JSON.parse` creates a real own `__proto__` property, unlike an object literal
       const doc2 = JSON.parse('{"__proto__": {"pollutedByDiff": "yes"}}')

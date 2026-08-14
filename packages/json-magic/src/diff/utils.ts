@@ -1,26 +1,4 @@
-/**
- * Path segments that reach `Object.prototype` and can poison every object in the runtime.
- *
- * `JSON.parse` turns `__proto__` into a real own property, so a parsed document carries the segment
- * into `diff`, `merge` and `apply` like any other key. `constructor` and `prototype` are the second
- * route to the same place, through the constructor function of the container.
- */
-const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'constructor', 'prototype'])
-
-/**
- * Checks whether an object key or diff path segment can be used to reach `Object.prototype`.
- *
- * Documents reach the diff utilities from remote fetches and user files, so the input is untrusted.
- * Callers must never traverse into or write through a segment this returns true for.
- *
- * @param segment - The object key or path segment to check
- * @returns true when the segment is unsafe to traverse or write through, false otherwise
- *
- * @example
- * isUnsafePathSegment('__proto__') // true
- * isUnsafePathSegment('paths') // false
- */
-export const isUnsafePathSegment = (segment: string): boolean => UNSAFE_PATH_SEGMENTS.has(segment)
+import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
 
 /**
  * Deep check for objects for collisions
@@ -91,7 +69,7 @@ export const mergeObjects = (a: Record<string, unknown>, b: Record<string, unkno
     // Merging into a prototype-reaching key writes straight onto the prototype of every object in
     // the runtime, so these keys are dropped rather than merged. `diff` skips them as well, which
     // keeps both sides of a merge consistent.
-    if (isUnsafePathSegment(key)) {
+    if (isPollutionKey(key)) {
       continue
     }
 

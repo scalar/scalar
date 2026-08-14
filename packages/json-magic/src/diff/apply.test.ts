@@ -1,8 +1,11 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
 
 import { InvalidChangesDetectedError, apply } from '@/diff/apply'
 
 const deepClone = <T extends object>(obj: T) => JSON.parse(JSON.stringify(obj)) as T
+
+/** Property names the prototype pollution tests probe for on `Object.prototype` */
+const PROBE_KEYS = ['pollutedByApply', 'pollutedDeeper', 'pollutedLeaf', 'pollutedAfterSafeEntry']
 
 describe('apply', () => {
   describe('should apply `add` operations', () => {
@@ -262,11 +265,19 @@ describe('apply', () => {
   })
 
   describe('prototype pollution', () => {
+    // A regression writes the probe key onto `Object.prototype`, where it would leak into every
+    // later test in the worker and turn one failure into many. Clean it up so failures stay readable.
+    afterEach(() => {
+      for (const key of PROBE_KEYS) {
+        delete (Object.prototype as Record<string, unknown>)[key]
+      }
+    })
+
     test.each([['__proto__'], ['constructor'], ['prototype']])(
       'rejects a changeset whose path starts with `%s`',
       (segment) => {
         expect(() => apply({}, [{ path: [segment, 'pollutedByApply'], changes: 'yes', type: 'add' }])).toThrowError(
-          InvalidChangesDetectedError,
+          new RegExp(`unsafe segment "${segment}"`),
         )
         expect(({} as Record<string, unknown>).pollutedByApply).toBeUndefined()
       },
@@ -303,9 +314,9 @@ describe('apply', () => {
       expect(doc).toEqual({ name: 'John' })
     })
 
-    test('names the offending segment in the error message', () => {
+    test('reports the full path alongside the offending segment', () => {
       expect(() => apply({}, [{ path: ['info', 'constructor'], changes: 'yes', type: 'add' }])).toThrowError(
-        /unsafe segment "constructor"/,
+        'Process aborted. Path info.constructor contains the unsafe segment "constructor", which can modify the prototype chain',
       )
     })
   })

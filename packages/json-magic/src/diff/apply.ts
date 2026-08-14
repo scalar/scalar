@@ -1,5 +1,6 @@
+import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
+
 import type { Difference } from '@/diff/diff'
-import { isUnsafePathSegment } from '@/diff/utils'
 
 export class InvalidChangesDetectedError extends Error {
   constructor(message: string) {
@@ -78,12 +79,12 @@ export const apply = <T extends Record<string, unknown>>(
     applyChange(current[path[depth]], path, d, depth + 1)
   }
 
-  // Reject prototype-polluting paths before touching the document, so a hostile changeset cannot
-  // half apply. A path segment such as `__proto__` or `constructor` would make the traversal walk
+  // Reject prototype-polluting paths up front, so an unsafe changeset is turned away before any of
+  // its entries touch the document. A path segment such as `__proto__` would make the traversal walk
   // onto `Object.prototype` and write there, poisoning every object in the runtime. `diff` never
-  // emits these segments, so only a hand crafted changeset reaches this guard.
+  // emits these segments, so only a hand-crafted changeset reaches this guard.
   for (const d of diff) {
-    const unsafeSegment = d.path.find(isUnsafePathSegment)
+    const unsafeSegment = d.path.find(isPollutionKey)
 
     if (unsafeSegment !== undefined) {
       throw new InvalidChangesDetectedError(

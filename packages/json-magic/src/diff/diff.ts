@@ -1,4 +1,4 @@
-import { isUnsafePathSegment } from '@/diff/utils'
+import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
 
 /**
  * Represents the possible types of changes that can be made to a document.
@@ -91,7 +91,7 @@ export const diff = <T extends Record<string, unknown>>(doc1: Record<string, unk
       // would otherwise make us walk the prototype chain and emit a diff that poisons every object
       // in the runtime once applied. `apply` rejects the same segments, so a document that really
       // does carry one of these keys loses it here rather than failing later.
-      const keys = [...new Set([...Object.keys(el1), ...Object.keys(el2)])].filter((key) => !isUnsafePathSegment(key))
+      const keys = [...new Set([...Object.keys(el1), ...Object.keys(el2)])].filter((key) => !isPollutionKey(key))
 
       // Removed array elements are applied with `splice` (see `apply`), which re-indexes every
       // element after the removed one. Emitting the highest index first keeps the remaining indices

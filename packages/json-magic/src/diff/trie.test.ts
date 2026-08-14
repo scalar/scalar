@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { Trie } from '@/diff/trie'
 
@@ -27,5 +27,54 @@ describe('trie', () => {
     expect(fn).toHaveBeenNthCalledWith(2, 4)
     expect(fn).toHaveBeenNthCalledWith(3, 3)
     expect(fn).toHaveBeenNthCalledWith(4, 1)
+  })
+
+  describe('prototype pollution', () => {
+    // A regression writes onto `Object.prototype`, where it would leak into every later test in the
+    // worker and turn one failure into many. Clean it up so failures stay readable.
+    afterEach(() => {
+      for (const key of ['value', 'children']) {
+        delete (Object.prototype as Record<string, unknown>)[key]
+      }
+    })
+
+    test('stores a `__proto__` segment as a real child instead of writing to the prototype', () => {
+      const trie = new Trie<number>()
+
+      trie.addPath(['__proto__'], 1)
+
+      expect(({} as Record<string, unknown>).value).toBeUndefined()
+
+      const fn = vi.fn()
+      trie.findMatch(['__proto__'], fn)
+
+      expect(fn).toHaveBeenCalledExactlyOnceWith(1)
+    })
+
+    test('walks past a `__proto__` segment without crashing', () => {
+      const trie = new Trie<number>()
+
+      trie.addPath(['__proto__', 'polluted'], 1)
+
+      expect(({} as Record<string, unknown>).value).toBeUndefined()
+
+      const fn = vi.fn()
+      trie.findMatch(['__proto__', 'polluted'], fn)
+
+      expect(fn).toHaveBeenCalledExactlyOnceWith(1)
+    })
+
+    test('keeps a `constructor` segment off the global constructor', () => {
+      const trie = new Trie<number>()
+
+      trie.addPath(['constructor'], 1)
+
+      expect((Object as unknown as Record<string, unknown>).value).toBeUndefined()
+
+      const fn = vi.fn()
+      trie.findMatch(['constructor'], fn)
+
+      expect(fn).toHaveBeenCalledExactlyOnceWith(1)
+    })
   })
 })
