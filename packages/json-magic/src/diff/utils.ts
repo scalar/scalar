@@ -20,13 +20,24 @@ import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
  *
  * // Nested objects with collision
  * isKeyCollisions({ a: { b: 1 } }, { a: { b: 2 } }) // true
+ *
+ * // An array against a plain object
+ * isKeyCollisions([1, 2], { 0: 1, 1: 2 }) // true
  */
-export const isKeyCollisions = (a: unknown, b: unknown) => {
+export const isKeyCollisions = (a: unknown, b: unknown): boolean => {
   if (typeof a !== typeof b) {
     return true
   }
 
   if (typeof a === 'object' && typeof b === 'object' && a !== null && b !== null) {
+    // An array on one side and a plain object on the other is always a collision. Comparing them
+    // key by key matches array indices against object keys, so two containers that hold the same
+    // values look mergeable, and `mergeObjects` then absorbs one into the other and drops its type.
+    // The same guard lives in `diff`, which reports a container type change as a single update.
+    if (Array.isArray(a) !== Array.isArray(b)) {
+      return true
+    }
+
     const keys = new Set([...Object.keys(a), ...Object.keys(b)])
 
     for (const key of keys) {

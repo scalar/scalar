@@ -1228,6 +1228,42 @@ describe('mergeDiff', () => {
     })
   })
 
+  test('an array and a plain object holding the same values on the same path produce a conflict', () => {
+    // The two sides describe the same values in different containers, so a key-by-key comparison
+    // finds nothing to disagree about even though one document ends up with a list and the other
+    // with a map. Only a conflict lets the user pick the container they meant.
+    const diff1: Difference<unknown>[] = [{ path: ['servers'], changes: { 0: 'https://example.com' }, type: 'update' }]
+    const diff2: Difference<unknown>[] = [{ path: ['servers'], changes: ['https://example.com'], type: 'update' }]
+
+    expect(merge(diff1, diff2)).toEqual({
+      diffs: [],
+      conflicts: [
+        [
+          [{ path: ['servers'], changes: { 0: 'https://example.com' }, type: 'update' }],
+          [{ path: ['servers'], changes: ['https://example.com'], type: 'update' }],
+        ],
+      ],
+    })
+  })
+
+  test('two arrays on the same path still merge without a conflict', () => {
+    const diff1: Difference<unknown>[] = [{ path: ['servers'], changes: ['https://example.com'], type: 'update' }]
+    const diff2: Difference<unknown>[] = [
+      { path: ['servers'], changes: ['https://example.com', 'https://staging.example.com'], type: 'update' },
+    ]
+
+    expect(merge(diff1, diff2)).toEqual({
+      diffs: [
+        {
+          path: ['servers'],
+          changes: ['https://example.com', 'https://staging.example.com'],
+          type: 'update',
+        },
+      ],
+      conflicts: [],
+    })
+  })
+
   // TODO: a delete that is subsumed by a delete on the other side is discarded before we know
   // whether the covering delete ends up in `conflicts`. When it does, the subsumed delete
   // survives in neither `diffs` nor `conflicts`, so resolving the conflict toward the side that
