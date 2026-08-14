@@ -280,6 +280,100 @@ describe('diff', () => {
 
       expect(diff(doc1, doc2)).toEqual([{ path: ['hobbies', '1'], changes: doc1.hobbies[1], type: 'delete' }])
     })
+
+    test('emits deletes from the end of the array first', () => {
+      const doc1 = { items: [1, 2, 3, 4] }
+      const doc2 = { items: [1] }
+
+      expect(diff(doc1, doc2)).toEqual([
+        { path: ['items', '3'], changes: 4, type: 'delete' },
+        { path: ['items', '2'], changes: 3, type: 'delete' },
+        { path: ['items', '1'], changes: 2, type: 'delete' },
+      ])
+    })
+
+    test('keeps additions in ascending index order', () => {
+      const doc1 = { items: [1] }
+      const doc2 = { items: [1, 2, 3] }
+
+      expect(diff(doc1, doc2)).toEqual([
+        { path: ['items', '1'], changes: 2, type: 'add' },
+        { path: ['items', '2'], changes: 3, type: 'add' },
+      ])
+    })
+
+    test('emits changes on arrays of the same length from the last index first', () => {
+      const doc1 = { items: [1, 2, 3] }
+      const doc2 = { items: [9, 8, 7] }
+
+      expect(diff(doc1, doc2)).toEqual([
+        { path: ['items', '2'], changes: 7, type: 'update' },
+        { path: ['items', '1'], changes: 8, type: 'update' },
+        { path: ['items', '0'], changes: 9, type: 'update' },
+      ])
+    })
+
+    test('removes multiple elements from the end of the array', () => {
+      const doc1 = { items: [1, 2, 3, 4] }
+      const doc2 = { items: [1] }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+
+    test('removes multiple elements from the middle of the array', () => {
+      const doc1 = { tags: ['a', 'b', 'c', 'd', 'e'] }
+      const doc2 = { tags: ['a', 'e'] }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+
+    test('removes every element of the array', () => {
+      const doc1 = { tags: ['a', 'b', 'c'] }
+      const doc2 = { tags: [] }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+
+    test('removes multiple objects from an array of objects', () => {
+      const doc1 = {
+        list: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
+      }
+      const doc2 = {
+        list: [{ id: 1 }],
+      }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+
+    test('removes elements from arrays nested inside objects inside arrays', () => {
+      const doc1 = {
+        paths: [
+          { path: '/a', tags: ['x', 'y', 'z'] },
+          { path: '/b', tags: ['1', '2', '3', '4'] },
+        ],
+      }
+      const doc2 = {
+        paths: [
+          { path: '/a', tags: ['x'] },
+          { path: '/b', tags: ['1', '2'] },
+        ],
+      }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+
+    test('keeps adding and removing elements in the same document consistent', () => {
+      const doc1 = {
+        servers: [{ url: 'a' }, { url: 'b' }, { url: 'c' }],
+        tags: ['one'],
+      }
+      const doc2 = {
+        servers: [{ url: 'a' }],
+        tags: ['one', 'two', 'three'],
+      }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
   })
 
   describe('Should treat container type changes as a single update', () => {

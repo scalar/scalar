@@ -81,9 +81,20 @@ export const diff = <T extends Record<string, unknown>>(doc1: Record<string, unk
         return
       }
 
-      const keys = new Set([...Object.keys(el1), ...Object.keys(el2)])
+      const keys = [...new Set([...Object.keys(el1), ...Object.keys(el2)])]
 
-      for (const key of keys) {
+      // Removed array elements are applied with `splice` (see `apply`), which re-indexes every
+      // element after the removed one. Emitting the highest index first keeps the remaining indices
+      // valid, so an array that loses more than one element still applies correctly. Please keep
+      // this ordering in place, applying the same deletes in ascending order corrupts the array.
+      // Only an array that shrinks can lose elements, so an array that grows keeps the natural
+      // ascending order. Equal length arrays cannot lose elements either, they take the reversed
+      // branch to keep the guard simple. Deletes nested inside elements are object keys rather than
+      // array indices, so they never reach `splice` and are unaffected by the order.
+      // `keys` is a fresh array, so reversing it in place is safe.
+      const orderedKeys = Array.isArray(el1) && Array.isArray(el2) && el1.length >= el2.length ? keys.reverse() : keys
+
+      for (const key of orderedKeys) {
         bfs(el1[key], el2[key], [...prefix, key])
       }
       return
