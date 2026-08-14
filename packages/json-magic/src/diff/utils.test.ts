@@ -38,6 +38,39 @@ describe('isKeyCollisions', () => {
     expect(isKeyCollisions(a, b)).toBe(false)
   })
 
+  test.each([
+    [[1, 2], { 0: 1, 1: 2 }],
+    [{ 0: 1, 1: 2 }, [1, 2]],
+    // The mismatch is nested rather than at the top level
+    [{ servers: ['https://example.com'] }, { servers: { 0: 'https://example.com' } }],
+    // Empty containers still carry a type
+    [[], {}],
+  ])('reports a collision when an array meets a plain object (case %#)', (a, b) => {
+    expect(isKeyCollisions(a, b)).toBe(true)
+  })
+
+  test.each([
+    [null, { a: 1 }],
+    [[1, 2], null],
+    [null, [1, 2]],
+  ])('reports a collision when only one side is null (case %#)', (a, b) => {
+    expect(isKeyCollisions(a, b)).toBe(true)
+  })
+
+  test('does not report a collision for two nulls', () => {
+    expect(isKeyCollisions(null, null)).toBe(false)
+  })
+
+  test('does not report a collision for arrays that only differ in length', () => {
+    // The shorter array has no value at the extra index, so there is nothing to disagree about and
+    // the merge appends the new element
+    expect(isKeyCollisions([1, 2], [1, 2, 3])).toBe(false)
+  })
+
+  test('reports a collision for arrays that disagree on an element', () => {
+    expect(isKeyCollisions([1, 2], [1, 3, 4])).toBe(true)
+  })
+
   test('does not report a collision for an own `__proto__` key', () => {
     // Only one side has `__proto__` as an own key, so the other side would resolve it to its own
     // prototype and look like a mismatch
@@ -145,6 +178,27 @@ describe('mergeObjects', () => {
       },
       b: 1,
     })
+  })
+
+  test('staples the keys of a plain object onto an array', () => {
+    const a = [1, 2] as unknown as Record<string, unknown>
+    const b: Record<string, unknown> = { 0: 1, 1: 2, url: 'https://example.com' }
+
+    // `mergeObjects` trusts the caller to check for collisions first, so it has no container type
+    // guard of its own. The result stays an array and picks up a key that no index can reach, which
+    // is why `isKeyCollisions` has to reject the pair before this merge is ever attempted.
+    const merged = mergeObjects(a, b)
+
+    expect(Array.isArray(merged)).toBe(true)
+    expect(merged).toHaveLength(2)
+    expect(merged.url).toBe('https://example.com')
+  })
+
+  test('appends the elements an array is missing', () => {
+    const a = [1, 2] as unknown as Record<string, unknown>
+    const b = [1, 2, 3] as unknown as Record<string, unknown>
+
+    expect(mergeObjects(a, b)).toEqual([1, 2, 3])
   })
 
   describe('prototype pollution', () => {
