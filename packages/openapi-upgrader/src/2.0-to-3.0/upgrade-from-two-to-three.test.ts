@@ -508,7 +508,7 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/submit': {
           post: {
-            consumes: ['application/x-www-form-urlencoded'],
+            consumes: ['application/x-www-form-urlencoded', 'multipart/form-data'],
             parameters: [
               {
                 name: 'tags',
@@ -533,6 +533,21 @@ describe('upgradeFromTwoToThree', () => {
           requestBody: {
             content: {
               'application/x-www-form-urlencoded': {
+                schema: {
+                  required: ['tags'],
+                  properties: {
+                    tags: {
+                      type: 'array',
+                      description: 'Tags to attach',
+                      items: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                  type: 'object',
+                },
+              },
+              'multipart/form-data': {
                 schema: {
                   required: ['tags'],
                   properties: {
