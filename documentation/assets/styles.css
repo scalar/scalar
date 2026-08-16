@@ -19,6 +19,34 @@
   z-index: 123123123123 !important;
 }
 
+.docs-overview-card {
+  display: flex;
+  position: relative;
+}
+
+.docs-overview-card > .t-editor__card {
+  flex: 1;
+}
+
+.card-content__text.t-prose:empty {
+  display: none;
+}
+
+/* Preserve the stretched link without letting its prose wrapper create a flex gap. */
+.card-content__text.t-prose:has(> .card-stretched-link:only-child) {
+  display: contents;
+}
+
+.docs-overview-card:has(.card-stretched-link:hover) > .t-editor__card {
+  background-color: var(--scalar-background-2);
+}
+
+.starter-kit-animation {
+  display: block;
+  height: fit-content !important;
+  width: 100% !important;
+}
+
 /* Component Preview Styles */
 
 .scalar-component-preview {
@@ -133,10 +161,12 @@
   flex: 1;
 }
 
+/* The link columns carry more content than the brand block, so give them the wider share. */
 .docs-global-footer .footer-links {
   display: grid;
-  gap: 48px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  flex: 2;
+  gap: 32px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .docs-global-footer .footer-content span,
@@ -232,6 +262,12 @@
 
   .docs-global-footer .footer-content > * {
     flex: initial;
+  }
+}
+
+@media screen and (max-width: 860px) {
+  .docs-global-footer .footer-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
