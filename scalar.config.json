@@ -3752,6 +3752,72 @@
                       ]
                     }
                   },
+                  "speakeasy": {
+                    "type": "page",
+                    "title": "Speakeasy",
+                    "filepath": "documentation/compare/speakeasy.md",
+                    "description": "Compare Scalar and Speakeasy for SDK generation: language coverage, generated code, Terraform and MCP targets, licensing, testing, and pricing.",
+                    "head": {
+                      "title": "Scalar vs Speakeasy — SDK Generator Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/speakeasy"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and Speakeasy for SDK generation: language coverage, generated code, Terraform and MCP targets, licensing, testing, and pricing."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs Speakeasy — SDK Generator Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and Speakeasy across SDK generation, language coverage, open source licensing, and pricing."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "stainless": {
+                    "type": "page",
+                    "title": "Stainless",
+                    "filepath": "documentation/compare/stainless.md",
+                    "description": "Compare Scalar and Stainless for SDK generation: the Anthropic wind-down, language coverage, generated code conventions, stainless.yml, and documentation.",
+                    "head": {
+                      "title": "Scalar vs Stainless — SDK Generator Comparison",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/compare/stainless"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare Scalar and Stainless for SDK generation: the Anthropic wind-down, language coverage, generated code conventions, stainless.yml, and documentation."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Scalar vs Stainless — SDK Generator Comparison"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "An honest comparison of Scalar and Stainless across SDK generation, generated code conventions, documentation, and what the wind-down means."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "readme": {
                     "type": "page",
                     "title": "ReadMe",
