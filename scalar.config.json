@@ -15,6 +15,9 @@
           "path": "documentation/assets/landing.js"
         },
         {
+          "path": "documentation/assets/powered-by.js"
+        },
+        {
           "path": "documentation/assets/fathom.js"
         },
         {
@@ -922,6 +925,9 @@
         "to": "/products"
       },
       {
+        "type": "spacer"
+      },
+      {
         "type": "group",
         "title": "Resources",
         "children": [
@@ -944,9 +950,6 @@
             "to": "/resources/blog"
           }
         ]
-      },
-      {
-        "type": "spacer"
       },
       {
         "type": "link",
@@ -1079,6 +1082,51 @@
               ]
             }
           },
+          "products": {
+            "type": "group",
+            "title": "Products",
+            "icon": "phosphor/regular/compass",
+            "mode": "folder",
+            "open": false,
+            "children": {
+              "docs": {
+                "type": "link",
+                "title": "Docs",
+                "icon": "phosphor/regular/book",
+                "url": "/products/docs"
+              },
+              "agent": {
+                "type": "link",
+                "title": "MCP & Agent",
+                "icon": "phosphor/regular/sparkle",
+                "url": "/products/agent"
+              },
+              "sdk-generator": {
+                "type": "link",
+                "title": "SDK Generator",
+                "icon": "phosphor/regular/package",
+                "url": "/products/sdk-generator"
+              },
+              "registry": {
+                "type": "link",
+                "title": "Registry",
+                "icon": "phosphor/regular/brackets-curly",
+                "url": "/products/registry"
+              },
+              "api-references": {
+                "type": "link",
+                "title": "API References",
+                "icon": "phosphor/regular/notebook",
+                "url": "/products/api-references"
+              },
+              "api-client": {
+                "type": "link",
+                "title": "API Client",
+                "icon": "phosphor/regular/paper-plane-tilt",
+                "url": "/products/api-client"
+              }
+            }
+          },
           "/customers": {
             "title": "Customers",
             "icon": "phosphor/regular/user-focus",
@@ -1116,6 +1164,49 @@
                   "content": "index, follow"
                 }
               ]
+            }
+          },
+          "/enterprise": {
+            "title": "Enterprise",
+            "icon": "phosphor/regular/briefcase",
+            "type": "page",
+            "filepath": "documentation/guides/enterprise/enterprise.md",
+            "showInSidebar": true,
+            "description": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support.",
+            "head": {
+              "title": "Scalar Enterprise — API Platform for Enterprise Teams",
+              "scripts": [
+                {
+                  "path": "documentation/assets/enterprise-contact-form.js"
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/enterprise"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar Enterprise — API Platform for Enterprise Teams"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
             }
           },
           "/company": {
@@ -1192,49 +1283,6 @@
                   "content": "index, follow"
                 }
               ]
-            }
-          },
-          "/enterprise": {
-            "title": "Enterprise",
-            "icon": "phosphor/regular/briefcase",
-            "type": "page",
-            "filepath": "documentation/guides/enterprise/enterprise.md",
-            "showInSidebar": true,
-            "description": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support.",
-            "head": {
-              "title": "Scalar Enterprise — API Platform for Enterprise Teams",
-              "scripts": [
-                {
-                  "path": "documentation/assets/enterprise-contact-form.js"
-                }
-              ],
-              "links": [
-                {
-                  "rel": "canonical",
-                  "href": "https://scalar.com/enterprise"
-                }
-              ],
-              "meta": [
-                {
-                  "name": "description",
-                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
-                },
-                {
-                  "property": "og:title",
-                  "content": "Scalar Enterprise — API Platform for Enterprise Teams"
-                },
-                {
-                  "property": "og:description",
-                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
-                },
-                {
-                  "name": "robots",
-                  "content": "index, follow"
-                }
-              ]
-            },
-            "layout": {
-              "toc": false
             }
           },
           "/solutions/openapi-documentation": {
