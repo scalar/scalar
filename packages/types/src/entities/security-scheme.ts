@@ -9,6 +9,8 @@ import { type ENTITY_BRANDS, nanoidSchema } from '../utils/nanoid'
 const commonProps = z.object({
   /* A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description: z.string().optional(),
+  /** When true, the whole scheme is hidden from the auth UI. See documentation/openapi.md. */
+  'x-scalar-ignore': z.boolean().optional(),
 })
 
 const extendedSecuritySchema = z.object({
@@ -123,6 +125,10 @@ const flowsCommon = z.object({
   'x-scalar-security-body': z.record(z.string(), z.string()).optional(),
   /** Extension to specify custom token name in the response (defaults to 'access_token') */
   'x-tokenName': z.string().optional(),
+  /** Display order of this flow's tab in the auth UI (ascending). See documentation/openapi.md. */
+  'x-order': z.number().optional(),
+  /** When true, this flow's tab is hidden from the auth UI. See documentation/openapi.md. */
+  'x-scalar-ignore': z.boolean().optional(),
 })
 
 /** Setup a default redirect uri if we can */

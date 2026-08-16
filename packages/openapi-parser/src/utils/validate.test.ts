@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import type { AnyObject } from '@/types/index'
 
 import { validate } from './validate'
@@ -129,6 +130,45 @@ paths: {}
     expect(result.errors).toContainEqual(
       expect.objectContaining({
         message: 'Path parameter "testId" must have the corresponding {testId} segment in the "/pets/{petId}" path',
+      }),
+    )
+  })
+
+  it('reports the missing `description` instead of the misleading `$ref` for a response', async () => {
+    // Regression test for https://github.com/scalar/scalar/issues/4838
+    // A response value validates against `oneOf: [Response, Reference]`. When it
+    // is missing the required `description`, both branches fail. The error should
+    // point at the missing `description`, not the `$ref` of the Reference branch
+    // (nor the opaque "oneOf must match exactly one schema in oneOf").
+    const result = await validate({
+      openapi: '3.0.0',
+      info: { title: 'DAPI', version: '1.0' },
+      paths: {
+        '/user_activity': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { foo: { type: 'string' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual(
+      expect.objectContaining({
+        message: "must have required property 'description'",
+      }),
+    )
+    expect(result.errors).not.toContainEqual(
+      expect.objectContaining({
+        message: "must have required property '$ref'",
       }),
     )
   })

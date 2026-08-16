@@ -16,7 +16,7 @@ You can upload any version of OpenAPI (even Swagger) or a Postman Collection!
 
 ![Scalar Imported OpenAPI Document](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/glhdU91VygnDIlywcnUsL.png "Scalar Imported OpenAPI Document")
 
-Awesome, now your OpenAPI Document is in the Registry under your companies namespace!
+Awesome, now your OpenAPI Document is in the Registry under your company's namespace!
 
 
 ## Update an OpenAPI Document

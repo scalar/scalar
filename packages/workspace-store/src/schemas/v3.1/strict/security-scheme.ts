@@ -1,19 +1,25 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { type XDefaultScopes, XDefaultScopesSchema } from '@/schemas/extensions/security/x-default-scopes'
 import type { OAuthFlowsObject } from '@/schemas/v3.1/strict/oauthflows'
 import { OAuthFlowsObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
-const DescriptionSchema = Type.Object({
-  /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
-  description: Type.Optional(Type.String()),
-})
+// Shared base for every security scheme: a description plus the ignore extension, so any
+// scheme can be hidden from the auth UI with `x-scalar-ignore`. See documentation/openapi.md.
+const DescriptionSchema = compose(
+  Type.Object({
+    /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
+    description: Type.Optional(Type.String()),
+  }),
+  XScalarIgnoreSchema,
+)
 
 type Description = {
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description?: string
-}
+} & XScalarIgnore
 
 const ApiKeySchema = compose(
   DescriptionSchema,

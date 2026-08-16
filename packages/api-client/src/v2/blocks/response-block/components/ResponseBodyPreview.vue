@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 
 import { type MediaPreview } from '@/v2/blocks/response-block/helpers/media-types'
+import { prettifyNdjson } from '@/v2/blocks/response-block/helpers/prettify-ndjson'
 
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
 import ResponseBodyRaw from './ResponseBodyRaw.vue'
@@ -31,6 +32,11 @@ const jsonPreviewContent = computed((): string => {
   }
   return String(value)
 })
+
+/** NDJSON pretty-printed one record per block for the `ndjson` preview. */
+const ndjsonPreviewContent = computed((): string =>
+  prettifyNdjson(jsonPreviewContent.value),
+)
 
 /**
  * Validates the `src` against an allow-list of safe protocols before it is
@@ -111,6 +117,10 @@ watch(
     :content="jsonPreviewContent"
     language="json"
     prettyPrintJson />
+  <ResponseBodyRaw
+    v-else-if="mode === 'ndjson'"
+    :content="ndjsonPreviewContent"
+    language="json" />
   <div
     v-else-if="!error && safeSrc"
     class="flex justify-center overflow-auto rounded-b"

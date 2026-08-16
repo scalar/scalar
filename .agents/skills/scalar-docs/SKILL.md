@@ -322,6 +322,26 @@ For `scripts` and `styles`: path relative to config root. For `links` (favicon):
 }
 ```
 
+### rss
+
+Publishes an RSS feed for your changelog so readers can subscribe. Written to `<path>/rss.xml` — a changelog at `/changelog` publishes its feed at `/changelog/rss.xml`.
+
+```json
+"rss": {
+  "path": "/changelog",
+  "title": "Scalar Changelog",
+  "description": "Every Scalar release, as a feed"
+}
+```
+
+| Property      | Type     | Required | Description                                              |
+| ------------- | -------- | -------- | -------------------------------------------------------- |
+| `path`        | `string` | Yes      | Changelog route, e.g. `/changelog`. No `..` segments     |
+| `title`       | `string` | No       | Feed title. Defaults to your site title plus `Changelog` |
+| `description` | `string` | No       | Feed description                                         |
+
+Entries come from dated headings (`## 1.2.0 (2026-07-24)`) on the page at `path` or any page beneath it, merged newest-first. Only the top-most dated heading level starts entries; deeper headings (dated or not) fold into the release above them. Hidden pages are skipped. Every page advertises the feed with a `<link rel="alternate" type="application/rss+xml">` tag, and pages under `path` show a subscribe button in the page header.
+
 ### routing
 
 **Redirects:**

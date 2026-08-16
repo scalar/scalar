@@ -1,6 +1,6 @@
 # Agent SDK
 
-Scalar provides SDKs to connect your AI agent to Scalar's OpenAPI MCP servers. We offer a Python and TypeScript SDk to use with your favourite language and frameworks.
+Scalar provides SDKs to connect your AI agent to Scalar's OpenAPI MCP servers. We offer a Python and TypeScript SDK to use with your favourite language and frameworks.
 
 ## TypeScript
 

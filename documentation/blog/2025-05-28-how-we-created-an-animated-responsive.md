@@ -99,7 +99,7 @@ This is done with a combination of HTML (for the links) and SVGs that look like 
 
 ## **Creating animations that will knock your socks off**
 
-Now, all this is cool so far, but you could mistake it for any other GitHub repo. Something that would be totally unique to use is some sweet, sweet animations running in our GitHub repo.
+Now, all this is cool so far, but you could mistake it for any other GitHub repo. Something that would be totally unique to us is some sweet, sweet animations running in our GitHub repo.
 
 We love our contributors. What better way to credit them than an animated shout out in our README? Contribution is a key piece of being open source after all. Again, we use SVGs and `foreignobjects`.
 

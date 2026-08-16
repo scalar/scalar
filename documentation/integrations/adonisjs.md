@@ -28,7 +28,7 @@ Do you want us to install dependencies using "npm"?
 ❯ Yes
 ```
 
-Wow, you're half way there already. Jump into the directory and start the devlopment server:
+Wow, you're half way there already. Jump into the directory and start the development server:
 
 ```bash
 cd my-awesome-app

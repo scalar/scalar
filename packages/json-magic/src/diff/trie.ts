@@ -11,10 +11,15 @@
  * @template Value - The type of value that can be stored in the node
  */
 export class TrieNode<Value> {
-  constructor(
-    public value: Value | null,
-    public children: Record<string, TrieNode<Value>>,
-  ) {}
+  /**
+   * Children are keyed by path segments taken from untrusted documents, so the map has a null
+   * prototype. A plain object would resolve `children['__proto__']` to `Object.prototype`, and
+   * `addPath` would then write onto the prototype of every object in the runtime. The map is built
+   * here rather than taken as an argument, so a caller cannot hand back a polluting one.
+   */
+  public children: Record<string, TrieNode<Value>> = Object.create(null)
+
+  constructor(public value: Value | null) {}
 }
 
 /**
@@ -32,7 +37,7 @@ export class TrieNode<Value> {
 export class Trie<Value> {
   private root: TrieNode<Value>
   constructor() {
-    this.root = new TrieNode<Value>(null, {})
+    this.root = new TrieNode<Value>(null)
   }
 
   /**
@@ -52,7 +57,7 @@ export class Trie<Value> {
       if (current.children[dir]) {
         current = current.children[dir]
       } else {
-        current.children[dir] = new TrieNode<Value>(null, {})
+        current.children[dir] = new TrieNode<Value>(null)
         current = current.children[dir]
       }
     }

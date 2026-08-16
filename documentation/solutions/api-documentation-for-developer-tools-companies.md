@@ -9,14 +9,14 @@ This page is written by Scalar. Every product claim on it is backed by our own d
 | | Scalar |
 | --- | --- |
 | Source of truth | One OpenAPI document (3.0 or 3.1; Swagger 2.0 upgraded on load) |
-| Docs update via | [Git sync](/products/docs/integrations/github): commit, merge, published |
-| Preview before merge | [Preview deployment per pull request](/products/docs/deployment/preview-deployments), with a PR comment link |
+| Docs update via | [Git sync](../guides/docs/integrations/github.md): commit, merge, published |
+| Preview before merge | [Preview deployment per pull request](../guides/docs/deployment/preview-deployments.md), with a PR comment link |
 | SDK targets | TypeScript, Python, Go, CLI generally available; more experimental |
 | Code samples in docs | Generated per SDK, injected as `x-codeSamples` into your reference |
 | Try-it-out | Open-source API client built into the reference |
 | Docs renderer license | MIT, self-hostable on any plan |
 | Framework integrations | 35 (Express, Fastify, Hono, NestJS, Next.js, FastAPI, and more) |
-| Pricing | Free tier; Pro $72/month; $100/month per SDK target — [published](/pricing) |
+| Pricing | Free tier; Pro $72/month; $100/month per SDK target — [published](../guides/pricing.md) |
 
 ## The problem, specifically
 
@@ -33,11 +33,11 @@ The fix is structural, not editorial: everything downstream of the API has to re
 
 ## How Scalar handles it
 
-**The API reference renders from your OpenAPI document, and updates through Git.** Scalar Docs [connects to GitHub](/products/docs/integrations/github) through a GitHub App scoped to the repositories you select. It reads your files, opens pull requests, and publishes when you merge. Your OpenAPI document and your Markdown guides live in your repository, reviewed like any other code. There is no separate CMS to keep in sync.
+**The API reference renders from your OpenAPI document, and updates through Git.** Scalar Docs [connects to GitHub](../guides/docs/integrations/github.md) through a GitHub App scoped to the repositories you select. It reads your files, opens pull requests, and publishes when you merge. Your OpenAPI document and your Markdown guides live in your repository, reviewed like any other code. There is no separate CMS to keep in sync.
 
-**Every pull request gets a preview.** When you open a PR, Scalar [creates a preview deployment](/products/docs/deployment/preview-deployments) and can post a comment with a direct link, so reviewers see the rendered docs — not a diff of Markdown — before anything ships. If your project is not connected to GitHub, the CLI publishes previews too: `npx @scalar/cli project publish --slug your-docs --preview`.
+**Every pull request gets a preview.** When you open a PR, Scalar [creates a preview deployment](../guides/docs/deployment/preview-deployments.md) and can post a comment with a direct link, so reviewers see the rendered docs — not a diff of Markdown — before anything ships. If your project is not connected to GitHub, the CLI publishes previews too: `npx @scalar/cli project publish --slug your-docs --preview`.
 
-**SDKs follow the same document.** The [SDK generator](/products/sdk-generator) points each SDK at an exact version of your API document or at a semver range such as `^1.2.0`. When a matching document changes, Scalar mints a new SDK version, rebuilds every target, and opens pull requests against your repositories. One commit to your API updates all of your clients.
+**SDKs follow the same document.** The [SDK generator](../guides/sdks/index.md) points each SDK at an exact version of your API document or at a semver range such as `^1.2.0`. When a matching document changes, Scalar mints a new SDK version, rebuilds every target, and opens pull requests against your repositories. One commit to your API updates all of your clients.
 
 **The code samples in your docs come from the generated SDKs.** Generation injects samples into your OpenAPI document as `x-codeSamples`, and the reference renders them. The snippet a developer copies out of your docs is derived from the same document the SDK was built from, so it does not rot independently. Examples you curated by hand are preserved.
 
@@ -50,7 +50,7 @@ What Scalar does not do: it will not keep your OpenAPI document itself accurate.
 Scalar's customer profile is companies whose API *is* the product, or is close to it: public APIs, developer-facing surfaces, teams that treat API developer experience as a competitive input rather than a compliance task. Some public examples:
 
 - **[Clerk](https://clerk.com/docs/reference/frontend-api)** — authentication and user management for the modern web. Their Frontend API reference runs on Scalar.
-- **[PAR Technology](https://developers.partech.com)** — restaurant and retail software. PAR [migrated its developer portal to Scalar](/customers/partech) to modernize a docs-as-code workflow tied to GitHub, with pull-request-based reviews and automatic publishing on merge. The full story is worth reading if your setup looks similar.
+- **[PAR Technology](https://developers.partech.com)** — restaurant and retail software. PAR [migrated its developer portal to Scalar](../guides/customers/partech.md) to modernize a docs-as-code workflow tied to GitHub, with pull-request-based reviews and automatic publishing on merge. The full story is worth reading if your setup looks similar.
 - **[Bobcat](https://developer.bobcat.com/)** — equipment manufacturer with a public developer portal on Scalar.
 - **[Thomson Reuters](https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832)** — API references inside their developer portal.
 
@@ -62,19 +62,19 @@ And scalar.com itself — this page included — is built and hosted on Scalar D
 
 Everything below is documented; each link goes to the guide.
 
-- **[Git sync](/products/docs/integrations/github)** — the Scalar GitHub App reads your files, opens pull requests, and publishes on merge. Access is limited to repositories you select. Scalar describes this as two-way: content flows from your repository into the docs, and edits made through Scalar land back as commits and pull requests attributed to you.
-- **[Preview deployments](/products/docs/deployment/preview-deployments)** — a rendered preview for every pull request, with optional PR comments linking to it.
-- **[Versioning](/products/docs/configuration/versions)** — multiple documentation versions under one domain with a version selector, each with its own navigation. Useful when v1 and v2 of your API coexist for years, which for developer tools companies they usually do.
-- **[Custom domains](/products/docs/configuration/domains)** — `docs.yourcompany.com` via a CNAME to `dns.scalar.com`, with HTTPS provisioned automatically. Requires the Pro plan.
-- **OpenAPI 3.0 and 3.1** — both supported, and Swagger 2.0 documents are [upgraded on load](/products/api-references/openapi). You do not need to modernize your descriptions before adopting the platform; PAR ran this exact incremental path.
+- **[Git sync](../guides/docs/integrations/github.md)** — the Scalar GitHub App reads your files, opens pull requests, and publishes on merge. Access is limited to repositories you select. Scalar describes this as two-way: content flows from your repository into the docs, and edits made through Scalar land back as commits and pull requests attributed to you.
+- **[Preview deployments](../guides/docs/deployment/preview-deployments.md)** — a rendered preview for every pull request, with optional PR comments linking to it.
+- **[Versioning](../guides/docs/configuration/versions.md)** — multiple documentation versions under one domain with a version selector, each with its own navigation. Useful when v1 and v2 of your API coexist for years, which for developer tools companies they usually do.
+- **[Custom domains](../guides/docs/configuration/domains.md)** — `docs.yourcompany.com` via a CNAME to `dns.scalar.com`, with HTTPS provisioned automatically. Requires the Pro plan.
+- **OpenAPI 3.0 and 3.1** — both supported, and Swagger 2.0 documents are [upgraded on load](../openapi.md). You do not need to modernize your descriptions before adopting the platform; PAR ran this exact incremental path.
 - **35 framework integrations** — if you want the reference mounted inside your own application rather than hosted, there are [integrations](/products/api-references/integrations) for Express, Fastify, Hono, NestJS, Next.js, Nuxt, FastAPI, Django, Laravel, Rails, Go, Rust, ASP.NET Core, Spring Boot, and more. The renderer is MIT licensed, so this path has no plan requirement at all.
-- **Markdown and MDX guides** alongside the reference, with [custom HTML, CSS, and JavaScript](/products/docs/content/html-css-js) when the built-in components are not enough.
+- **Markdown and MDX guides** alongside the reference, with [custom HTML, CSS, and JavaScript](../guides/docs/content/html-css-js.md) when the built-in components are not enough.
 
 ## What a devtools setup looks like end to end
 
 A concrete walkthrough, using real generated output. The TypeScript below is from the public [Warp SDK](https://github.com/TeamWarp/warp-sdk-typescript/tree/candidate), generated by Scalar.
 
-**1. Your OpenAPI document lives in your repository.** It is the input to everything: the reference, the SDKs, the code samples. Put it in the [Registry](/products/registry) or import it directly.
+**1. Your OpenAPI document lives in your repository.** It is the input to everything: the reference, the SDKs, the code samples. Put it in the [Registry](../guides/registry/index.md) or import it directly.
 
 **2. Docs connect to the repository.** Install the GitHub App, add a `scalar.config.json` describing navigation, theme, and domain, and publish. From then on, merged changes to the document or the guides deploy automatically, and every PR gets a preview link.
 
@@ -115,12 +115,12 @@ The Warp package ships `"dependencies": {}` — zero runtime dependencies unless
 
 We think it is the strongest default for this segment, for three checkable reasons: the docs renderer is MIT licensed and self-hostable, so you are not betting your primary acquisition surface on a vendor's continuity; docs and SDKs are literally generated from the same document in the same workflow, which is the failure mode this industry actually suffers from; and the pricing is published, so you can cost the whole setup without a sales call.
 
-It is not the right choice for everyone. If your API is gRPC or JSON-RPC rather than REST, or you want to run the SDK generator source yourself, read our honest comparison with [Fern](/resources/compare/fern) — we say plainly where they are stronger. If you only need a rendered reference and nothing hosted, the open-source [API Reference](https://github.com/scalar/scalar) is free and does not require an account.
+It is not the right choice for everyone. If your API is gRPC or JSON-RPC rather than REST, or you want to run the SDK generator source yourself, read our honest comparison with [Fern](../compare/fern.md) — we say plainly where they are stronger. If you only need a rendered reference and nothing hosted, the open-source [API Reference](https://github.com/scalar/scalar) is free and does not require an account.
 
 ## Getting started
 
-- [Scalar Docs](/products/docs) — the documentation platform
-- [SDK Generator](/products/sdk-generator) — client libraries from the same document
+- [Scalar Docs](../guides/docs/index.md) — the documentation platform
+- [SDK Generator](../guides/sdks/index.md) — client libraries from the same document
 - [Start free](https://dashboard.scalar.com/register), or [talk to us](https://scalar.cal.com/) if you are migrating an existing portal
 
 ---

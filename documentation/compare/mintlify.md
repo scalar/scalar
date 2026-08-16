@@ -68,7 +68,7 @@ That integration model works well right up until a dependency disappears. Stainl
 
 We raise this because it is the structural difference, not to score a point. When docs and SDKs come from separate vendors, your documentation's code samples depend on a company you did not choose and cannot control. Scalar generates both from the same OpenAPI document, in the same run.
 
-If you are on Stainless today, we have a [migration guide](/resources/migration/stainless).
+If you are on Stainless today, we have a [migration guide](../migration/stainless.md).
 
 ## The wider landscape
 
@@ -84,7 +84,7 @@ Mintlify is not your only alternative, and the category has moved considerably i
 | Standalone API client | Yes | No | No | No |
 | Entry paid tier | $72/mo | $450/mo | $150/mo | Not available |
 
-**Fern** was [acquired by Postman](https://buildwithfern.com/post/postman-acquires-fern) in January 2026. They say the product and roadmap are unchanged. Their SDK generators are genuinely Apache-2.0 and their protocol support is broader than ours — AsyncAPI, gRPC, and OpenRPC alongside OpenAPI. Their docs renderer is not public. We compare in more detail on our [Fern page](/resources/compare/fern).
+**Fern** was [acquired by Postman](https://buildwithfern.com/post/postman-acquires-fern) in January 2026. They say the product and roadmap are unchanged. Their SDK generators are genuinely Apache-2.0 and their protocol support is broader than ours — AsyncAPI, gRPC, and OpenRPC alongside OpenAPI. Their docs renderer is not public. We compare in more detail on our [Fern page](./fern.md).
 
 **Stainless** is winding down following the Anthropic acquisition. Their docs platform never left public beta. Existing customers keep the SDKs they generated; what stops is regeneration.
 

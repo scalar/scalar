@@ -198,6 +198,7 @@ const isOnScrollTargetPath = computed<boolean>(() => {
           :eventBus="eventBus"
           :expandAllSchemaProperties="options.expandAllSchemaProperties"
           :headers="headers"
+          :hideModels="options.hideModels"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy" />
 
@@ -217,6 +218,7 @@ const isOnScrollTargetPath = computed<boolean>(() => {
             orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
             orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
             expandAllSchemaProperties: options.expandAllSchemaProperties,
+            hideModels: options.hideModels,
             document,
           }"
           :required="'required' in parameter && parameter.required"

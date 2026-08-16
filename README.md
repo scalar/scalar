@@ -1,4 +1,4 @@
-[![CI](https://github.com/scalar/scalar/actions/workflows/ci.yml/badge.svg)](https://github.com/scalar/scalar/actions/workflows/ci.yml)
+[![CI](https://github.com/scalar/scalar/actions/workflows/main.yml/badge.svg)](https://github.com/scalar/scalar/actions/workflows/main.yml)
 [![Contributors](https://img.shields.io/github/contributors/scalar/scalar)](https://github.com/scalar/scalar/graphs/contributors)
 [![GitHub License](https://img.shields.io/github/license/scalar/scalar)](https://github.com/scalar/scalar/blob/main/LICENSE)
 [![Twitter](https://img.shields.io/twitter/follow/scalar)](https://x.com/scalar)
@@ -141,6 +141,7 @@ And there's an ever-growing list of plugins and integrations:
 - [Go](https://scalar.com/products/api-references/integrations/go)
 - [Hapi](https://scalar.com/products/api-references/integrations/hapi)
 - [Hono](https://scalar.com/products/api-references/integrations/hono)
+- [Java](https://scalar.com/products/api-references/integrations/java)
 - [Laravel Scribe](https://scalar.com/products/api-references/integrations/laravel-scribe)
 - [Laravel](https://scalar.com/products/api-references/integrations/laravel)
 - [Micronaut](https://scalar.com/products/api-references/integrations/micronaut)
@@ -230,12 +231,14 @@ We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
 
-**Top 10 Contributors (April 2025)**
+**Top Contributors (Last Month)**
 
+<!-- monthly-contributors:start -->
 <p>
-	<img width="830" height="280" src="https://github.com/user-attachments/assets/8c10d2aa-9eb4-4818-9ca2-625cfed5ca08#gh-light-mode-only">
-	<img width="830" height="280" src="https://github.com/user-attachments/assets/50b9b042-107e-4167-9c7f-94497f85d2e0#gh-dark-mode-only">
+	<img width="830" height="280" src="./.github/assets/contributors/top-contributors-light.svg?v=2026-07#gh-light-mode-only" alt="Top contributors in July 2026">
+	<img width="830" height="280" src="./.github/assets/contributors/top-contributors-dark.svg?v=2026-07#gh-dark-mode-only" alt="Top contributors in July 2026">
 </p>
+<!-- monthly-contributors:end -->
 
 <br>
 <br>

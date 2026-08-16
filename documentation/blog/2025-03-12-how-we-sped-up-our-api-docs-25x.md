@@ -16,7 +16,7 @@ Next, he experimented by commenting out chunks of the UI until he saw load times
 
 By timing the `onBeforeMount` and `onMounted` hooks, he found that a 7 MB OpenAPI spec took 2.6 seconds to mount (way too long). Narrowing down, it was specifically the [Request Sidebar Item](https://github.com/scalar/scalar/pull/3175/files#diff-3179b1678c7f778417b849d87878807ad518233ca909f20fa108f7fe4e8784ef) that was causing the issue.
 
-The each instance of `RequestSidebarItem` created multiple child modals and menus. These made it easy for editors to rename and delete items, but, when repeated across hundreds of sidebar items, were causing major slowdowns.
+Each instance of `RequestSidebarItem` created multiple child modals and menus. These made it easy for editors to rename and delete items, but, when repeated across hundreds of sidebar items, were causing major slowdowns.
 
 ## Refactoring our sidebar to fix the performance issues
 
@@ -38,7 +38,7 @@ Opening this menu in the right spot required:
 
 Most users probably didn't notice changes to the sidebar functionality. It looks the same and works the same.
 
-What users with large API docs will notice is a dramatic performance improvement. Thanks to these fixes, loading times for a 7 MB OpenAPI doc went improved 25x, going from 2.6s to 0.11s.
+What users with large API docs will notice is a dramatic performance improvement. Thanks to these fixes, loading times for a 7 MB OpenAPI doc improved 25x, going from 2.6s to 0.11s.
 
 Improving performance is a continual process. For example, immediately after this, we upgraded to Vue 3.5, which came with [reactivity system optimizations](https://blog.vuejs.org/posts/vue-3-5#reactivity-system-optimizations). As a company building for developers, we know how important performance is, so expect these improvements to continue.
 

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { watch } from 'vue'
-
 import { type MediaConfig } from '@/components/ResponseBody/helpers/media-types'
 import ResponseBodyInfo from '@/components/ResponseBody/ResponseBodyInfo.vue'
 import ResponseBodyPreview from '@/components/ResponseBody/ResponseBodyPreview.vue'
@@ -17,11 +15,6 @@ const { data, responseBody, mediaConfig, display } = defineProps<{
   mediaConfig?: MediaConfig
   display?: 'preview' | 'raw'
 }>()
-
-watch(
-  () => display,
-  (v) => console.log(v),
-)
 </script>
 
 <template>

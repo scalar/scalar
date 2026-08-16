@@ -5,7 +5,7 @@ descriptions, in your parameter descriptions and in a lot of other places. We're
 What's working here, is probably also working in the API reference:
 
 - bullet lists, numbered lists
-- _italic_, **bold**, ~~striked~~ text
+- _italic_, **bold**, ~~struck~~ text
 - accordions
 - links
 - tables

@@ -71,11 +71,15 @@ export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
     trie.findMatch(diff.path, (value) => {
       if (diff.type === 'delete') {
         if (value.changes.type === 'delete') {
-          // Keep the highest depth delete operation and skip the other
+          // Keep the shallowest delete operation and skip the other, since deleting an
+          // ancestor already removes everything the deeper delete would have removed.
+          // On equal paths the first list keeps the entry and the second one is skipped.
+          // Note the two sets are indexed differently: `value.index` points into `diff1`,
+          // while `index` points into `diff2`.
           if (value.changes.path.length > diff.path.length) {
             skipDiff1.add(value.index)
           } else {
-            skipDiff2.add(value.index)
+            skipDiff2.add(index)
           }
         } else {
           // Take care of updates/add on the same path (we are sure they will be on the

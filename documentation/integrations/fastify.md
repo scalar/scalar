@@ -20,7 +20,7 @@ await fastify.register(import('@scalar/fastify-api-reference'), {
 
 ## Usage
 
-If you have a OpenAPI/Swagger document already, you can pass an URL to the plugin:
+If you have an OpenAPI/Swagger document already, you can pass a URL to the plugin:
 
 ```typescript
 // Render an API reference for a given OpenAPI/Swagger spec URL
@@ -146,7 +146,7 @@ In order to use it, we need to install the official package first:
 npm install @fastify/swagger
 ```
 
-Okay, you've got this. To actually set up the package, there's a some boilerplate code required. **Replace the content** of our previous `index.js` with the following:
+Okay, you've got this. To actually set up the package, there's some boilerplate code required. **Replace the content** of our previous `index.js` with the following:
 
 ```javascript
 import FastifySwagger from '@fastify/swagger'
