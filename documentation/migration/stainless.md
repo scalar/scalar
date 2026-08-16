@@ -8,6 +8,8 @@ If you are a Stainless customer, your existing SDKs keep working — Stainless i
 
 Scalar is the closest thing to a drop-in replacement, and we have built the migration around one idea: **you should not have to re-author anything.** Give us your OpenAPI document and your `stainless.yml`, and we generate from the configuration you already have.
 
+This guide is the practical how-to. If you are still deciding rather than moving, read [Scalar vs Stainless](../compare/stainless.md) first — it covers where Stainless is genuinely stronger and where we would be overselling.
+
 ## The short version
 
 1. Export your OpenAPI document.
