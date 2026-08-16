@@ -1113,6 +1113,49 @@
               ]
             }
           },
+          "/enterprise": {
+            "title": "Enterprise",
+            "icon": "phosphor/regular/briefcase",
+            "type": "page",
+            "filepath": "documentation/guides/enterprise/enterprise.md",
+            "showInSidebar": true,
+            "description": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support.",
+            "head": {
+              "title": "Scalar Enterprise — API Platform for Enterprise Teams",
+              "scripts": [
+                {
+                  "path": "documentation/assets/enterprise-contact-form.js"
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/enterprise"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar Enterprise — API Platform for Enterprise Teams"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
+            }
+          },
           "/company": {
             "title": "Company",
             "icon": "phosphor/regular/buildings",
@@ -1187,49 +1230,6 @@
                   "content": "index, follow"
                 }
               ]
-            }
-          },
-          "/enterprise": {
-            "title": "Enterprise",
-            "icon": "phosphor/regular/briefcase",
-            "type": "page",
-            "filepath": "documentation/guides/enterprise/enterprise.md",
-            "showInSidebar": true,
-            "description": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support.",
-            "head": {
-              "title": "Scalar Enterprise — API Platform for Enterprise Teams",
-              "scripts": [
-                {
-                  "path": "documentation/assets/enterprise-contact-form.js"
-                }
-              ],
-              "links": [
-                {
-                  "rel": "canonical",
-                  "href": "https://scalar.com/enterprise"
-                }
-              ],
-              "meta": [
-                {
-                  "name": "description",
-                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
-                },
-                {
-                  "property": "og:title",
-                  "content": "Scalar Enterprise — API Platform for Enterprise Teams"
-                },
-                {
-                  "property": "og:description",
-                  "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
-                },
-                {
-                  "name": "robots",
-                  "content": "index, follow"
-                }
-              ]
-            },
-            "layout": {
-              "toc": false
             }
           },
           "/solutions/openapi-documentation": {
