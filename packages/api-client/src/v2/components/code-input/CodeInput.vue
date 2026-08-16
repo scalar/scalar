@@ -37,9 +37,12 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ScalarIconButton } from '@scalar/components/icon-button'
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { ScalarIconArrowElbowDownLeft } from '@scalar/icons'
 import {
   colorPicker as colorPickerExtension,
+  EditorView,
   useCodeMirror,
   useDropdown,
   type CodeMirrorLanguage,
@@ -92,6 +95,8 @@ type Props = {
   lint?: boolean
   /** Enable line wrapping */
   lineWrapping?: boolean
+  /** Show wrap toggle button */
+  withWrapButton?: boolean
   /** CodeMirror language mode */
   language?: CodeMirrorLanguage
   /** Additional CodeMirror extensions */
@@ -135,6 +140,7 @@ const {
   lineNumbers = false,
   lint = false,
   lineWrapping = false,
+  withWrapButton,
   language,
   extensions = [],
   disableTabIndent = false,
@@ -282,11 +288,30 @@ const pillPluginExtension = computed(() =>
   }),
 )
 
+const isLineWrapping = ref(lineWrapping)
+
+watch(
+  () => lineWrapping,
+  (val) => {
+    isLineWrapping.value = val
+  },
+)
+
+const toggleLineWrapping = (event: MouseEvent) => {
+  isLineWrapping.value = !isLineWrapping.value
+  ;(event.currentTarget as HTMLElement)?.blur()
+}
+
+const lineWrappingExtension = computed(() =>
+  isLineWrapping.value ? [EditorView.lineWrapping] : [],
+)
+
 /**
  * Combined extensions for CodeMirror.
  */
 const codeMirrorExtensions = computed((): Extension[] => [
   ...buildExtensions(),
+  ...lineWrappingExtension.value,
   pillPluginExtension.value,
   backspaceCommand,
 ])
@@ -434,6 +459,8 @@ defineExpose({
   setCodeMirrorContent,
   cursorPosition: () => codeMirror.value?.state.selection.main.head,
   serializeValue,
+  isLineWrapping,
+  toggleLineWrapping,
 })
 </script>
 
@@ -485,7 +512,7 @@ defineExpose({
     class="group/input group-[.alert]:outline-orange group-[.error]:outline-red font-code peer relative w-full overflow-hidden text-xs leading-[1.44] whitespace-nowrap -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
     :class="{
       'line-wrapping has-[:focus-visible]:bg-b-1 has-[:focus-visible]:absolute has-[:focus-visible]:z-1':
-        lineWrapping,
+        isLineWrapping,
       'flow-code-input--error': error,
       'line-through': linethrough,
     }"
@@ -493,6 +520,21 @@ defineExpose({
     @keydown.enter="handleKeyDown('enter', $event)"
     @keydown.escape="handleKeyDown('escape', $event)"
     @keydown.up.stop="handleKeyDown('up', $event)">
+    <!-- Wrap toggle button for multi-line editor (e.g. Request Body) -->
+    <div
+      v-if="lineNumbers || withWrapButton"
+      class="absolute top-2 right-2 z-10 flex items-center opacity-0 transition-opacity duration-150 group-hover/input:opacity-100 group-has-focus-visible/input:opacity-100">
+      <ScalarIconButton
+        class="bg-b-2 text-c-2 hover:text-c-1"
+        :class="{ '!bg-b-3 !text-c-1': isLineWrapping }"
+        :icon="ScalarIconArrowElbowDownLeft"
+        :label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
+        size="sm"
+        tooltip
+        variant="ghost"
+        @click.stop="toggleLineWrapping" />
+    </div>
+
     <!-- Tab exit hint (shown when focused) -->
     <div
       v-if="!disableTabIndent"
@@ -639,6 +681,13 @@ defineExpose({
 }
 :deep(.cm-scroller) {
   overflow: auto;
+}
+:deep(.cm-lineWrapping .cm-line) {
+  word-break: break-all;
+}
+:deep(.cm-lineWrapping .cm-content) {
+  white-space: pre-wrap;
+  max-height: none;
 }
 .line-wrapping:focus-within :deep(.cm-content) {
   display: inline-table;
