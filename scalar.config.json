@@ -1203,6 +1203,51 @@
               ]
             }
           },
+          "products": {
+            "type": "group",
+            "title": "Products",
+            "icon": "phosphor/regular/compass",
+            "mode": "folder",
+            "open": true,
+            "children": {
+              "docs": {
+                "type": "link",
+                "title": "Docs",
+                "icon": "phosphor/regular/book",
+                "url": "/products/docs"
+              },
+              "agent": {
+                "type": "link",
+                "title": "MCP & Agent",
+                "icon": "phosphor/regular/sparkle",
+                "url": "/products/agent"
+              },
+              "sdk-generator": {
+                "type": "link",
+                "title": "SDK Generator",
+                "icon": "phosphor/regular/package",
+                "url": "/products/sdk-generator"
+              },
+              "registry": {
+                "type": "link",
+                "title": "Registry",
+                "icon": "phosphor/regular/brackets-curly",
+                "url": "/products/registry"
+              },
+              "api-references": {
+                "type": "link",
+                "title": "API References",
+                "icon": "phosphor/regular/notebook",
+                "url": "/products/api-references"
+              },
+              "api-client": {
+                "type": "link",
+                "title": "API Client",
+                "icon": "phosphor/regular/paper-plane-tilt",
+                "url": "/products/api-client"
+              }
+            }
+          },
           "/security": {
             "title": "Security",
             "icon": "phosphor/regular/shield-check",
