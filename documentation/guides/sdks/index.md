@@ -389,7 +389,7 @@ The parity harness is the part we would want to see as a buyer. It clones produc
 
 Stainless is winding down its hosted SDK generator. Scalar reads your existing `stainless.yml` directly, so your resources, method names, pagination schemes, and per-language package names carry across and the call sites your users have already written keep working.
 
-Read the [Stainless migration guide](../../migration/stainless.md) for the practical steps, or [Scalar vs Stainless](../../compare/stainless.md) for the product comparison.
+Read the [Stainless migration guide](../../migration/stainless.md) for the practical steps, or [Scalar vs Stainless](../../compare/stainless.md) for the product comparison. If you have not settled on a replacement yet, [the wind-down write-up](../../resources/stainless-wind-down.md) covers the whole field, including where other generators are the better answer.
 
 ## Plans
 
