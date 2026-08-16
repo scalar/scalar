@@ -15,6 +15,9 @@
           "path": "documentation/assets/landing.js"
         },
         {
+          "path": "documentation/assets/powered-by.js"
+        },
+        {
           "path": "documentation/assets/fathom.js"
         },
         {
@@ -922,6 +925,9 @@
         "to": "/products"
       },
       {
+        "type": "spacer"
+      },
+      {
         "type": "group",
         "title": "Resources",
         "children": [
@@ -944,9 +950,6 @@
             "to": "/resources/blog"
           }
         ]
-      },
-      {
-        "type": "spacer"
       },
       {
         "type": "link",
