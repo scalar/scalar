@@ -18,6 +18,7 @@ import ini from 'highlight.js/lib/languages/ini'
 import java from 'highlight.js/lib/languages/java'
 import javascript from 'highlight.js/lib/languages/javascript'
 import json from 'highlight.js/lib/languages/json'
+import julia from 'highlight.js/lib/languages/julia'
 import kotlin from 'highlight.js/lib/languages/kotlin'
 import less from 'highlight.js/lib/languages/less'
 import lua from 'highlight.js/lib/languages/lua'
@@ -90,6 +91,7 @@ export const standardLanguages = {
   java,
   javascript,
   json,
+  julia,
   kotlin,
   less,
   lua,

@@ -121,6 +121,11 @@
       "types": "./dist/plugins/js/xhr/index.d.ts",
       "default": "./dist/plugins/js/xhr/index.js"
     },
+    "./plugins/julia/http": {
+      "import": "./dist/plugins/julia/http/index.js",
+      "types": "./dist/plugins/julia/http/index.d.ts",
+      "default": "./dist/plugins/julia/http/index.js"
+    },
     "./plugins/kotlin/okhttp": {
       "import": "./dist/plugins/kotlin/okhttp/index.js",
       "types": "./dist/plugins/kotlin/okhttp/index.d.ts",

@@ -25,6 +25,7 @@ export const GROUPED_CLIENTS = {
   http: ['http1.1'],
   java: ['asynchttp', 'nethttp', 'okhttp', 'unirest'],
   js: ['axios', 'fetch', 'jquery', 'ofetch', 'xhr'],
+  julia: ['http'],
   kotlin: ['okhttp'],
   node: ['axios', 'fetch', 'ofetch', 'undici'],
   objc: ['nsurlsession'],
