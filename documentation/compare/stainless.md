@@ -115,7 +115,7 @@ If you are starting fresh, this is not really a choice: Stainless is [not accept
 
 **Look hard at us if** you want the same SDK conventions without re-authoring your configuration, you want your documentation and SDKs produced by the same run, you want a documentation layer you own under MIT rather than an Astro fork you now maintain, or you want a real API client alongside your docs.
 
-**Look elsewhere if** you depend on Terraform providers, on an MCP server running as code inside your own infrastructure rather than hosted, or on a production-supported Kotlin, Java, C#, or PHP SDK. Those are places we would be overselling.
+**Look elsewhere if** you depend on Terraform providers, on an MCP server running as code inside your own infrastructure rather than hosted, or on a production-supported Kotlin, Java, C#, or PHP SDK. Those are places we would be overselling. Our [wind-down write-up](../resources/stainless-wind-down.md) says where to go instead — it weighs OpenAPI Generator, Speakeasy, Fern, APIMatic, liblab, and the open source options alongside us, and names the ones that beat us at each of those.
 
 Ready to move? The [Stainless migration guide](../migration/stainless.md) walks through the config import and the API surface diff, and we will do it with you. [Start free](https://dashboard.scalar.com/register) or [talk to us](https://scalar.cal.com/).
 
