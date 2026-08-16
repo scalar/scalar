@@ -4026,6 +4026,40 @@
                   }
                 }
               },
+              "stainless-wind-down": {
+                "type": "page",
+                "title": "Stainless Wind-Down",
+                "icon": "phosphor/regular/sun-horizon",
+                "description": "What the Stainless SDK generator wind-down means, what your options are, and how stainless.yml maps onto other generators.",
+                "filepath": "documentation/resources/stainless-wind-down.md",
+                "head": {
+                  "title": "The Stainless SDK Generator Wind-Down — Options and Migration",
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/stainless-wind-down"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "What the Stainless SDK generator wind-down means, what your options are, and how stainless.yml maps onto other generators."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "The Stainless SDK Generator Wind-Down — Options and Migration"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "An assessment of SDK generation options after the Stainless wind-down: OpenAPI Generator, Speakeasy, Fern, APIMatic, liblab, and Scalar."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              },
               "user-management": {
                 "type": "page",
                 "title": "User Management",
@@ -4283,6 +4317,13 @@
                 "type": "link"
               }
             }
+          },
+          "/blog/posts/2026-08-16-stainless-wind-down": {
+            "type": "page",
+            "title": "We wrote up the Stainless wind-down",
+            "description": "A full account of the Stainless SDK generator wind-down: what changed, what your options are, and how stainless.yml carries across.",
+            "filepath": "documentation/blog/2026-08-16-stainless-wind-down.md",
+            "showInSidebar": false
           },
           "/blog/posts/2026-04-11-oss-pledge": {
             "type": "page",
