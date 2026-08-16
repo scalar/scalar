@@ -161,10 +161,12 @@
   flex: 1;
 }
 
+/* The link columns carry more content than the brand block, so give them the wider share. */
 .docs-global-footer .footer-links {
   display: grid;
-  gap: 48px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  flex: 2;
+  gap: 32px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .docs-global-footer .footer-content span,
@@ -260,6 +262,12 @@
 
   .docs-global-footer .footer-content > * {
     flex: initial;
+  }
+}
+
+@media screen and (max-width: 860px) {
+  .docs-global-footer .footer-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
