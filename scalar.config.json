@@ -75,6 +75,11 @@
       "darkMode": "https://cdn.scalar.com/marketing/landing/logo-dark.svg",
       "lightMode": "https://cdn.scalar.com/marketing/landing/logo-light.svg"
     },
+    "rss": {
+      "path": "/resources/changelog",
+      "title": "Scalar Changelog",
+      "description": "Releases across Scalar products — API Client, API Reference, Agent, and Mock Server"
+    },
     "routing": {
       "redirects": [
         {
@@ -1410,6 +1415,13 @@
                 }
               ]
             }
+          },
+          "/blog/posts/2026-08-16-stainless-wind-down": {
+            "type": "page",
+            "title": "We wrote up the Stainless wind-down",
+            "description": "A full account of the Stainless SDK generator wind-down: what changed, what your options are, and how stainless.yml carries across.",
+            "filepath": "documentation/blog/2026-08-16-stainless-wind-down.md",
+            "showInSidebar": false
           },
           "/blog/posts/2026-04-11-oss-pledge": {
             "type": "page",
@@ -4165,6 +4177,72 @@
                   ]
                 }
               },
+              "speakeasy": {
+                "type": "page",
+                "title": "Speakeasy",
+                "filepath": "documentation/compare/speakeasy.md",
+                "description": "Compare Scalar and Speakeasy for SDK generation: language coverage, generated code, Terraform and MCP targets, licensing, testing, and pricing.",
+                "head": {
+                  "title": "Scalar vs Speakeasy — SDK Generator Comparison",
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/compare/speakeasy"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Compare Scalar and Speakeasy for SDK generation: language coverage, generated code, Terraform and MCP targets, licensing, testing, and pricing."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "Scalar vs Speakeasy — SDK Generator Comparison"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "An honest comparison of Scalar and Speakeasy across SDK generation, language coverage, open source licensing, and pricing."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              },
+              "stainless": {
+                "type": "page",
+                "title": "Stainless",
+                "filepath": "documentation/compare/stainless.md",
+                "description": "Compare Scalar and Stainless for SDK generation: the Anthropic wind-down, language coverage, generated code conventions, stainless.yml, and documentation.",
+                "head": {
+                  "title": "Scalar vs Stainless — SDK Generator Comparison",
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/resources/compare/stainless"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "Compare Scalar and Stainless for SDK generation: the Anthropic wind-down, language coverage, generated code conventions, stainless.yml, and documentation."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "Scalar vs Stainless — SDK Generator Comparison"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "An honest comparison of Scalar and Stainless across SDK generation, generated code conventions, documentation, and what the wind-down means."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
+              },
               "readme": {
                 "type": "page",
                 "title": "ReadMe",
@@ -4371,6 +4449,40 @@
                 "description": "Compare Zuplo docs with Scalar and migrate your API reference step by step.",
                 "type": "page"
               }
+            }
+          },
+          "stainless-wind-down": {
+            "type": "page",
+            "title": "Stainless Wind-Down",
+            "icon": "phosphor/regular/sun-horizon",
+            "description": "What the Stainless SDK generator wind-down means, what your options are, and how stainless.yml maps onto other generators.",
+            "filepath": "documentation/resources/stainless-wind-down.md",
+            "head": {
+              "title": "The Stainless SDK Generator Wind-Down — Options and Migration",
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/resources/stainless-wind-down"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "What the Stainless SDK generator wind-down means, what your options are, and how stainless.yml maps onto other generators."
+                },
+                {
+                  "property": "og:title",
+                  "content": "The Stainless SDK Generator Wind-Down — Options and Migration"
+                },
+                {
+                  "property": "og:description",
+                  "content": "An assessment of SDK generation options after the Stainless wind-down: OpenAPI Generator, Speakeasy, Fern, APIMatic, liblab, and Scalar."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
             }
           },
           "blog": {

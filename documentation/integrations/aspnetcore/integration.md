@@ -79,7 +79,7 @@ if (app.Environment.IsDevelopment())
 You're all set! 🎉 Navigate to `/scalar` to view your API Reference.
 
 > [!NOTE]
-> For multiple OpenAPI documents, see [Multiple OpenAPI Documents](#configuration-options__multiple-openapi-documents).
+> For multiple OpenAPI documents, see [Multiple OpenAPI Documents](#multiple-openapi-documents).
 
 ## MapScalarApiReference Overloads
 

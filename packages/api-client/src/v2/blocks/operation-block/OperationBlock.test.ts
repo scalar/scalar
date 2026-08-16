@@ -555,6 +555,43 @@ describe('OperationBlock', () => {
     expect(sendRequest).not.toHaveBeenCalled()
   })
 
+  it('persists a pre-request script variable when the request never builds', async () => {
+    const mockEventBus = createMockEventBus()
+
+    // The request fails to build, so the flow bails out before sending.
+    vi.mocked(buildRequest).mockReturnValue(err('BUILD_REQUEST_FAILED' as const, 'Invalid URL'))
+
+    // A pre-request script stores a token in the active environment.
+    const setTokenPlugin: ClientPlugin = {
+      hooks: {
+        beforeRequest: ({ variablesStore }) => {
+          variablesStore?.setEnvironment?.([{ key: 'token', value: 'from-script' }])
+        },
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus: mockEventBus,
+        plugins: [setTokenPlugin],
+        activeEnvironment: 'default',
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(sendRequest).not.toHaveBeenCalled()
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'environment:upsert:environment-variable',
+      expect.objectContaining({
+        environmentName: 'default',
+        variable: { name: 'token', value: 'from-script' },
+        collectionType: 'workspace',
+      }),
+    )
+  })
+
   it('displays toast error when sendRequest fails', async () => {
     const mockController = new AbortController()
 
@@ -576,6 +613,187 @@ describe('OperationBlock', () => {
     await triggerExecute(wrapper)
 
     expect(mockToast).toHaveBeenCalledWith(ERRORS.REQUEST_FAILED, 'error')
+  })
+
+  it('persists a pre-request script variable even when the request fails', async () => {
+    const mockEventBus = createMockEventBus()
+
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: new AbortController(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
+
+    // The request fails, so persistence must run outside the success branch.
+    vi.mocked(sendRequest).mockResolvedValue([new Error(ERRORS.REQUEST_FAILED), null])
+
+    // A pre-request script stores a token in the active environment.
+    const setTokenPlugin: ClientPlugin = {
+      hooks: {
+        beforeRequest: ({ variablesStore }) => {
+          variablesStore?.setEnvironment?.([{ key: 'token', value: 'from-script' }])
+        },
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus: mockEventBus,
+        plugins: [setTokenPlugin],
+        activeEnvironment: 'default',
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'environment:upsert:environment-variable',
+      expect.objectContaining({
+        environmentName: 'default',
+        variable: { name: 'token', value: 'from-script' },
+        collectionType: 'workspace',
+      }),
+    )
+  })
+
+  it('persists script writes to the environment active when the request started, not one switched to mid-flight', async () => {
+    const mockEventBus = createMockEventBus()
+
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: new AbortController(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
+
+    // Hold the request open so the active environment can change before persistence runs.
+    let resolveSend!: (value: Awaited<ReturnType<typeof sendRequest>>) => void
+    vi.mocked(sendRequest).mockReturnValue(
+      new Promise<Awaited<ReturnType<typeof sendRequest>>>((resolve) => {
+        resolveSend = resolve
+      }),
+    )
+
+    const setTokenPlugin: ClientPlugin = {
+      hooks: {
+        beforeRequest: ({ variablesStore }) => {
+          variablesStore?.setEnvironment?.([{ key: 'token', value: 'from-script' }])
+        },
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus: mockEventBus,
+        plugins: [setTokenPlugin],
+        activeEnvironment: 'default',
+      },
+    })
+
+    // Start the request; it suspends at the pending sendRequest.
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('execute')
+    await flushPromises()
+
+    // The user switches environments while the request is in flight.
+    await wrapper.setProps({ activeEnvironment: 'switched' })
+
+    // Complete the request so persistence runs.
+    resolveSend([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
+      },
+    ])
+    await flushPromises()
+
+    // The write lands on the environment that was active when the request began.
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'environment:upsert:environment-variable',
+      expect.objectContaining({
+        environmentName: 'default',
+        variable: { name: 'token', value: 'from-script' },
+      }),
+    )
+    expect(mockEventBus.emit).not.toHaveBeenCalledWith(
+      'environment:upsert:environment-variable',
+      expect.objectContaining({ environmentName: 'switched' }),
+    )
+  })
+
+  it('resolves persistence indexes against a seed-time copy when the environment array is spliced mid-flight', async () => {
+    const mockEventBus = createMockEventBus()
+    // token sits at index 0 in the workspace scope when the request starts.
+    const environment: XScalarEnvironment = { color: 'blue', variables: [{ name: 'token', value: 'old' }] }
+
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: new AbortController(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
+
+    // Hold the request open so the environment array can be spliced before persistence runs.
+    let resolveSend!: (value: Awaited<ReturnType<typeof sendRequest>>) => void
+    vi.mocked(sendRequest).mockReturnValue(
+      new Promise<Awaited<ReturnType<typeof sendRequest>>>((resolve) => {
+        resolveSend = resolve
+      }),
+    )
+
+    const setTokenPlugin: ClientPlugin = {
+      hooks: {
+        beforeRequest: ({ variablesStore }) => {
+          variablesStore?.setEnvironment?.([{ key: 'token', value: 'new' }])
+        },
+      },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus: mockEventBus,
+        plugins: [setTokenPlugin],
+        activeEnvironment: 'default',
+        environment,
+      },
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('execute')
+    await flushPromises()
+
+    // A concurrent change prepends a variable, shifting token to index 1 in the live array.
+    environment.variables.unshift({ name: 'other', value: 'x' })
+
+    resolveSend([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
+      },
+    ])
+    await flushPromises()
+
+    // token must still resolve to its seed-time index (0), not the shifted one.
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'environment:upsert:environment-variable',
+      expect.objectContaining({
+        environmentName: 'default',
+        variable: { name: 'token', value: 'new' },
+        index: 0,
+        collectionType: 'workspace',
+      }),
+    )
   })
 
   it('cancels request when cancelRequest is invoked via event bus', async () => {

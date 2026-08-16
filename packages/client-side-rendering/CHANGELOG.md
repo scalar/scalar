@@ -1,5 +1,7 @@
 # @scalar/client-side-rendering
 
+## 0.3.7
+
 ## 0.3.6
 
 ## 0.3.5

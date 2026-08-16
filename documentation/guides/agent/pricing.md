@@ -72,4 +72,4 @@ No, included messages and tokens reset each billing period.
 
 ### Can I disable Agent to avoid charges?
 
-Yes, you can disable it entirely. See [Disabling Agent](getting-started.md#disabling-agent).
+Yes, you can disable it entirely. See [Disabling Agent](api-reference.md#disabling-agent).

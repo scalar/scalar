@@ -75,5 +75,6 @@ Set `publish.packagist` to `true` to tag each release for Packagist. Packagist s
 
 | Property             | Description                                                   |
 | -------------------- | ------------------------------------------------------------- |
-| `authMethod`         | Registry authentication mechanism, such as `oidc` or `access-token`. |
-| `releaseEnvironment` | Release environment name used by generated publishing workflows. |
+| `packagist`          | Set to `true` to tag each release for Packagist.              |
+
+Packagist serves the package from the Git tag, so no publish job is generated for this target. The shared `authMethod` and `releaseEnvironment` publish options have nothing to act on here and are ignored.

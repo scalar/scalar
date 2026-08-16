@@ -16,6 +16,10 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
 
 import { getSchemaType } from './helpers/get-schema-type'
+import {
+  isModelLinkable,
+  type ModelLinkOptions,
+} from './helpers/is-model-linkable'
 import { getModelNameFromSchema } from './helpers/schema-name'
 import RenderString from './RenderString.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
@@ -31,6 +35,11 @@ const props = withDefaults(
     additional?: boolean
     withExamples?: boolean
     hideModelNames?: boolean
+    /**
+     * Config for deciding whether a model name links to the models section. When the section or
+     * the referenced model is hidden there is nothing to scroll to, so the name renders as plain text.
+     */
+    modelLinkOptions?: ModelLinkOptions
     /** When the schema was resolved from a $ref, pass the ref name so it displays as e.g. "Data" instead of "object". */
     modelName?: string | null
     /** Resolved propertyNames schema, used to surface key constraints like `format` for additional properties. */
@@ -246,6 +255,11 @@ const modelLink = computed(() => {
   return null
 })
 
+/** Whether the model name links to the models section, or renders as plain text. */
+const modelLinkable = computed(() =>
+  isModelLinkable(modelLink.value?.schemaKey, props.modelLinkOptions ?? {}),
+)
+
 /** Check if we should show the type information */
 const shouldShowType = computed(() => {
   if (!props.value || !('type' in props.value)) {
@@ -337,7 +351,7 @@ const exampleValue = computed(() => {
         <template v-if="modelLink">
           ·
           <LinkButton
-            v-if="props.eventBus && modelLink.schemaKey"
+            v-if="props.eventBus && modelLink.schemaKey && modelLinkable"
             @click="
               props.eventBus.emit('scroll-to:model-by-name', {
                 name: modelLink.schemaKey,

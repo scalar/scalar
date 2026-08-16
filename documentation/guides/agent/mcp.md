@@ -10,7 +10,7 @@ Scalar exposes two separate MCP surfaces, and they're easy to conflate because m
 
 The **Installation MCP** lives at `https://mcp.scalar.com/mcp/YOUR_INSTALL_ID` and lets AI clients call the API endpoints you've selected, using the authentication you've stored for the installation. It is a completely separate endpoint and is private by default: team members connect with a Personal Access Token, while people outside your team sign in through OAuth once you grant them access (see [Authentication](./authentication/index.md)). If you want to verify which one a client is actually pointed at, `curl` the URL directly: the Installation MCP responds with `401` when no valid credentials are present.
 
-## Create a MCP Server
+## Create an MCP Server
 
 Create a new MCP Server for your API in under a minute (I promise):
 

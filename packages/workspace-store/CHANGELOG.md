@@ -1,5 +1,17 @@
 # @scalar/workspace-store
 
+## 0.57.1
+
+## 0.57.0
+
+### Minor Changes
+
+- [#9868](https://github.com/scalar/scalar/pull/9868): Control OAuth2 flow tabs from your OpenAPI document. Add `x-order` to a flow to set the order of the tabs in the auth section (the first tab is selected by default, so the lowest `x-order` also becomes the default flow), and add `x-scalar-ignore` to a flow to hide its tab — useful for flows that cannot run in the browser, like Client Credentials, which usually fails on CORS. `x-scalar-ignore` on a whole security scheme now hides it from the auth selector too.
+
+### Patch Changes
+
+- [#9850](https://github.com/scalar/scalar/pull/9850): Add OpenAPI 3.2 schema definitions under `schemas/v3.2` (a copy of the v3.1 strict and loose schemas) with the new 3.2 fields: tag `summary`/`parent`/`kind`, response `summary` and optional `description`, server `name`, security-scheme `deprecated` and OAuth2 `oauth2MetadataUrl`, the OAuth device authorization flow, root `$self`, path item `query` and `additionalOperations`, parameter `in: querystring`, media type `itemSchema`/`prefixEncoding`/`itemEncoding`/`description`, nested encoding, example `dataValue`/`serializedValue`, components `mediaTypes`, discriminator `defaultMapping`, and XML `nodeType`. The workspace store still uses the v3.1 schemas; this only adds the v3.2 set as groundwork.
+
 ## 0.56.1
 
 ### Patch Changes

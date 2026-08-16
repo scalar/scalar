@@ -57,7 +57,7 @@ and pass it via `plugins` instead.
 
 ### Specification Extensions
 
-The OpenAPI specification allows to [**extend the format**](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#specification-extensions).
+The OpenAPI specification allows you to [**extend the format**](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#specification-extensions).
 You can add custom properties. They are always prefixed with a `x-`, here is an example:
 
 ```diff
@@ -326,7 +326,7 @@ export const FeedbackPlugin = (): ApiReferencePlugin => {
 
 # API Client Plugins
 
-The API Reference uses the API Client to test requests. The API Client has its own plugin API and you can't pass a API Client plugin directly, to the API Reference, but you can wrap it in a API Reference plugin.
+The API Reference uses the API Client to test requests. The API Client has its own plugin API and you can't pass an API Client plugin directly, to the API Reference, but you can wrap it in an API Reference plugin.
 
 API Client Plugins can add lifecycle hooks, custom UI components, and custom response body handlers for content types the client does not natively support.
 

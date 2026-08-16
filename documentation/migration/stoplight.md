@@ -49,7 +49,7 @@ Scalar has a free tier, and you can get quite a lot done with it. No credit card
 
 ## Step 2: Introduce your OpenAPI to Scalar
 
-Stoplight had various flavors of project: Web Projects, Git Projects, Local Projects. We're going to make life easy and show you all how to convert to Git projects, and you can play around with others approaches once you've got the hang of the basics.
+Stoplight had various flavors of project: Web Projects, Git Projects, Local Projects. We're going to make life easy and show you all how to convert to Git projects, and you can play around with other approaches once you've got the hang of the basics.
 
 ### Git Projects
 
@@ -59,7 +59,7 @@ To use GitHub Sync go to the dashboard, click **Create Documentation**, then sel
 
 ![](../assets/migration/create-docs-from-git.png)
 
-Click the **Link Repository** link next to the repository of interest, and a page will appear with some GitHub Repository Settings will appear. The defaults are probably all fine, but perhaps you're using a special branch called `docs` or a particular version branch like `v3` instead of `main`.
+Click the **Link Repository** link next to the repository of interest, and a page with some GitHub Repository Settings will appear. The defaults are probably all fine, but perhaps you're using a special branch called `docs` or a particular version branch like `v3` instead of `main`.
 
 All of this can be changed later so pick whatever and click publish, it'll be private by default so no worries about anyone seeing anything that's not ready.
 
@@ -198,7 +198,7 @@ Commit this file and push. If automatic deployment is enabled in the [Scalar Das
 
 ## Step 4: Review The New Documentation
 
-Click the deployment to see find the projects docs URL, something like `https://name-of-your-api.apidocumentation.com`.
+Click the deployment to find the project's docs URL, something like `https://name-of-your-api.apidocumentation.com`.
 
 This will show two distinct sections.
 
@@ -225,7 +225,7 @@ Maybe this is just turning some rules on and off.
 
 Maybe it is defining custom rules.
 
-Be aware rules with custom functions wont work, so just comment those out.
+Be aware rules with custom functions won't work, so just comment those out.
 
 ## Step 6: (Optional) Update Custom Domains
 
@@ -275,4 +275,4 @@ The biggest advantage in this migration is that both tools are fundamentally Ope
 
 Most teams can complete this migration in somewhere between a few hours and a few days, depending on how many projects and APIs need moving over. Larger enterprises will take slightly longer depending on the complexity of their API ecosystem.
 
-Scalar's team is happy to offer migration assistance and consultation to help streamline this process, particularly for teams with complex Stoplight implementations. The team consist of experts that helped build Stoplight in the first place, so they're well placed to help migrate anyone regardless of the size or complexity of the projects.
+Scalar's team is happy to offer migration assistance and consultation to help streamline this process, particularly for teams with complex Stoplight implementations. The team consists of experts that helped build Stoplight in the first place, so they're well placed to help migrate anyone regardless of the size or complexity of the projects.

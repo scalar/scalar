@@ -10,14 +10,14 @@ Scalar helps teams create API interfaces built for developers and agents, includ
 ## Trust and compliance
 
 - **SOC 2 report:** Scalar has received a SOC 2 Type 1 report for controls relevant to security.
-- **GDPR privacy:** Scalar publishes European privacy rights and data processing details in our [Privacy Policy](/legal/privacy-policy).
+- **GDPR privacy:** Scalar publishes European privacy rights and data processing details in our [Privacy Policy](../legal/privacy-policy.md).
 - **Trust Center:** Security documentation and compliance materials are available at [trust.scalar.com](https://trust.scalar.com).
 
 ## Access controls
 
 Use Scalar as a controlled surface for API descriptions, SDK generation, MCP installations, registry workflows, and developer tooling.
 
-- **Single sign-on:** SAML-based SSO keeps authentication tied to your organization's identity provider. Read the [SSO guide](/resources/sso/getting-started).
+- **Single sign-on:** SAML-based SSO keeps authentication tied to your organization's identity provider. Read the [SSO guide](./sso/getting-started.md).
 - **Role-based access:** Manage access boundaries across workspaces, teams, and API projects as your organization grows.
 - **Private API interfaces:** Publish internal references, portals, and API workflows behind access controls while keeping public interfaces simple to share.
 - **Git-native review:** Keep API description changes visible in the same review flow your engineers already use.
@@ -31,7 +31,7 @@ Scalar's hosted API interfaces are privacy-friendly by default, with only techni
 - **No request IP logging:** Request traffic is not logged; internal proxy error logs do not include IP addresses.
 - **GDPR privacy rights:** European users can request access, correction, deletion, transfer, or withdraw consent through Scalar's privacy contact.
 
-Read more in the [privacy notes](/products/docs/privacy).
+Read more in the [privacy notes](./docs/privacy.md).
 
 ## API lifecycle security
 
@@ -39,8 +39,8 @@ Scalar treats OpenAPI as a source of truth for developer docs, API clients, gene
 
 - **Auth-aware API descriptions:** Model API keys, bearer tokens, OAuth flows, and other security schemes directly in your OpenAPI document.
 - **Rules and validation:** Add review gates and linting so API changes are caught before they reach consumers.
-- **SDK generation:** Generate production-ready SDKs and CLIs from reviewed API descriptions. See the [SDK Generator](/products/sdk-generator).
-- **MCP guardrails:** Choose which endpoints become tools, decide search versus execute modes, and apply API auth per installation. See [MCP & Agent](/products/agent).
+- **SDK generation:** Generate production-ready SDKs and CLIs from reviewed API descriptions. See the [SDK Generator](./sdks/index.md).
+- **MCP guardrails:** Choose which endpoints become tools, decide search versus execute modes, and apply API auth per installation. See [MCP & Agent](./agent/index.md).
 - **Self-hostable foundation:** Run Scalar's open-source tooling in your own environment when your architecture requires it.
 
 ## Responsible disclosure

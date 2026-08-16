@@ -12,7 +12,8 @@
       "@types/node": "catalog:*",
       "lodash": "4.18.1",
       "property-information": "7.1.0",
-      "undici": "catalog:*"
+      "undici": "catalog:*",
+      "scalar-app>undici": "8.10.0"
     }
   },
   "devDependencies": {

@@ -92,6 +92,7 @@ import {
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
+import { buildModelsIndex } from '@/helpers/build-models-index'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import {
@@ -801,21 +802,13 @@ defineExpose({
 
 /**
  * Computes a mapping from model names to their sidebar entry IDs.
- * This is used for quick lookups and navigation within the sidebar.
+ *
+ * We collect model entries from the whole navigation tree, not just the top-level `models` group,
+ * so that schemas grouped under a tag via `x-tags` are still reachable by name.
+ *
+ * @see https://github.com/scalar/scalar/issues/9854
  */
-const modelsIndex = computed(() => {
-  return sidebarItems.value
-    .filter((item) => item.type === 'models')
-    .flatMap((item) => item.children ?? [])
-    .filter((item) => item.type === 'model')
-    .reduce(
-      (acc, item) => {
-        acc[item.name] = item.id
-        return acc
-      },
-      {} as Record<string, string>,
-    )
-})
+const modelsIndex = computed(() => buildModelsIndex(sidebarItems.value))
 
 eventBus.on('scroll-to:model-by-name', ({ name }) => {
   /** Find the model in the models index */

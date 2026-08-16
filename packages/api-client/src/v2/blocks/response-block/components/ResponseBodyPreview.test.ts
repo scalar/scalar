@@ -37,6 +37,37 @@ describe('ResponseBodyPreview', () => {
     })
   })
 
+  describe('ndjson mode', () => {
+    it('renders ResponseBodyRaw with each record pretty-printed', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'blob:http://localhost/fake',
+          type: 'application/x-ndjson',
+          mode: 'ndjson',
+          content: '{"a":1}\n{"b":2}',
+        },
+      })
+
+      const raw = wrapper.findComponent(ResponseBodyRaw)
+      expect(raw.exists()).toBe(true)
+      expect(raw.props('language')).toBe('json')
+      expect(raw.props('content')).toBe('{\n  "a": 1\n}\n\n{\n  "b": 2\n}')
+    })
+
+    it('does not render an image wrapper for ndjson mode', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'blob:http://localhost/fake',
+          type: 'application/x-ndjson',
+          mode: 'ndjson',
+          content: '{"a":1}',
+        },
+      })
+
+      expect(wrapper.find('img').exists()).toBe(false)
+    })
+  })
+
   describe('image mode', () => {
     it('renders image element for image mode', () => {
       const wrapper = mount(ResponseBodyPreview, {

@@ -1,0 +1,515 @@
+import { Type } from '@scalar/typebox'
+
+import { compose } from '@/schemas/compose'
+import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
+import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { type XTags, XTagsSchema } from '@/schemas/extensions/document/x-tags'
+import {
+  type XAdditionalPropertiesName,
+  XAdditionalPropertiesNameSchema,
+} from '@/schemas/extensions/schema/x-additional-properties-name'
+import { type XEnumDescriptions, XEnumDescriptionsSchema } from '@/schemas/extensions/schema/x-enum-descriptions'
+import { type XEnumVarNames, XEnumVarNamesSchema } from '@/schemas/extensions/schema/x-enum-varnames'
+import { type XExamples, XExamplesSchema } from '@/schemas/extensions/schema/x-examples'
+import { type XOrder, XOrderSchema } from '@/schemas/extensions/schema/x-order'
+import { type XVariable, XVariableSchema } from '@/schemas/extensions/schema/x-variable'
+import type { ExternalDocumentationObject } from '@/schemas/v3.2/strict/external-documentation'
+import type { XMLObject } from '@/schemas/v3.2/strict/xml'
+
+import type { DiscriminatorObject } from './discriminator'
+import {
+  DiscriminatorObjectRef,
+  ExternalDocumentationObjectRef,
+  SchemaObjectRef,
+  XMLObjectRef,
+} from './ref-definitions'
+import { type ReferenceObject, ReferenceObjectSchema } from './reference'
+
+export type SchemaReferenceType<Value> = Value | (ReferenceObject & { '$ref-value'?: unknown })
+
+/**
+ * A schema position can hold either a schema object or a reference to one.
+ *
+ * The reference variant keeps `$ref-value` optional on purpose: an unresolved
+ * reference (for example a sparse chunk `$ref` produced by the server store) is
+ * just `{ $ref }` with no resolved value yet. If the reference variant required
+ * `$ref-value`, such a value would match neither variant, so coercion would fall
+ * back to the schema-object variant and silently drop the `$ref`, which breaks
+ * lazy chunk resolution. With `$ref-value` optional the `{ $ref }` already matches
+ * the reference variant and is preserved unchanged, independent of order.
+ *
+ * The schema-object variant comes first so that a value matching neither variant
+ * (genuinely invalid input, never a reference) falls back to an empty schema
+ * object rather than a bogus `{ $ref: '' }` that would read as a real reference.
+ */
+const schemaOrReference = Type.Union([
+  SchemaObjectRef,
+  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Optional(Type.Unknown()) })),
+])
+
+const PrimitiveSchemaTypeSchema = Type.Union([
+  Type.Literal('null'),
+  Type.Literal('boolean'),
+  Type.Literal('string'),
+  Type.Literal('number'),
+  Type.Literal('integer'),
+  Type.Literal('object'),
+  Type.Literal('array'),
+])
+
+type PrimitiveSchemaType = 'null' | 'boolean' | 'string' | 'number' | 'integer' | 'object' | 'array'
+
+/** We use this type to ensure that we are parsing a schema object as every property can be optional */
+type _InternalType = CoreProperties & {
+  __scalar_: string
+} & Extensions
+
+/**
+ * Primitive types that don't have additional validation properties.
+ * These types (null, boolean) can be used
+ * without additional validation constraints.
+ */
+const OtherTypes = Type.Object({
+  type: Type.Union([Type.Literal('null'), Type.Literal('boolean')]),
+})
+
+type OtherType = 'boolean' | 'null'
+
+type OtherTypes = CoreProperties & {
+  type: OtherType
+} & Extensions
+
+const Extensions = compose(
+  XScalarIgnoreSchema,
+  XInternalSchema,
+  XVariableSchema,
+  XExamplesSchema,
+  XEnumDescriptionsSchema,
+  XEnumVarNamesSchema,
+  XAdditionalPropertiesNameSchema,
+  XOrderSchema,
+  XTagsSchema,
+)
+
+type Extensions = XScalarIgnore &
+  XInternal &
+  XVariable &
+  XEnumDescriptions &
+  XEnumVarNames &
+  XExamples &
+  XAdditionalPropertiesName &
+  XOrder &
+  XTags
+
+const CorePropertiesWithSchema = Type.Object({
+  /**
+   * JSON Schema 2020-12 core reference keywords.
+   *
+   * OpenAPI 3.1 adopts the JSON Schema 2020-12 dialect for Schema Objects, which means a schema may carry an
+   * identifier (`$id`), a plain-name anchor (`$anchor`), and the dynamic binding keywords (`$dynamicAnchor` /
+   * `$dynamicRef`) used for generic and recursive patterns such as `PaginatedResponse<T>`. We keep these typed so
+   * the keywords survive parsing instead of being dropped as unknown properties. Resolution of `$dynamicRef`
+   * against the active `$dynamicAnchor` is tracked separately, see https://github.com/scalar/scalar/issues/9414.
+   */
+  $id: Type.Optional(Type.String()),
+  /** Plain-name anchor that other schemas can reference with `#anchor`. */
+  $anchor: Type.Optional(Type.String()),
+  /** Dynamic anchor, the target a matching `$dynamicRef` resolves to within the dynamic scope. */
+  $dynamicAnchor: Type.Optional(Type.String()),
+  /** Dynamic reference, resolved against the outermost matching `$dynamicAnchor` in the dynamic scope. */
+  $dynamicRef: Type.Optional(Type.String()),
+  name: Type.Optional(Type.String()),
+  /** A title for the schema. */
+  title: Type.Optional(Type.String()),
+  /** A description of the schema. */
+  description: Type.Optional(Type.String()),
+  /** Default value for the schema. */
+  default: Type.Optional(Type.Unknown()),
+  /** Array of allowed values. */
+  enum: Type.Optional(Type.Array(Type.Unknown())),
+  /** Constant value that must match exactly. */
+  const: Type.Optional(Type.Unknown()),
+  /** Media type for content validation. */
+  contentMediaType: Type.Optional(Type.String()),
+  /** Content encoding. */
+  contentEncoding: Type.Optional(Type.String()),
+  /** Schema for content validation. */
+  contentSchema: Type.Optional(schemaOrReference),
+  /** Whether the schema is deprecated. */
+  deprecated: Type.Optional(Type.Boolean()),
+  /** Adds support for polymorphism. The discriminator is used to determine which of a set of schemas a payload is expected to satisfy. See Composition and Inheritance for more details. */
+  discriminator: Type.Optional(DiscriminatorObjectRef),
+  /** Whether the schema is read-only. */
+  readOnly: Type.Optional(Type.Boolean()),
+  /** Whether the schema is write-only. */
+  writeOnly: Type.Optional(Type.Boolean()),
+  /** This MAY be used only on property schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property. */
+  xml: Type.Optional(XMLObjectRef),
+  /** Additional external documentation for this schema. */
+  externalDocs: Type.Optional(ExternalDocumentationObjectRef),
+  /**
+   * A free-form field to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary.
+   *
+   * @deprecated The example field has been deprecated in favor of the JSON Schema examples keyword. Use of example is discouraged, and later versions of this specification may remove it.
+   */
+  example: Type.Optional(Type.Unknown()),
+  /**
+   * An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.
+   * Each example should be a valid instance of the schema.
+   */
+  examples: Type.Optional(Type.Array(Type.Unknown())),
+  /** All schemas must be valid. */
+  allOf: Type.Optional(Type.Array(schemaOrReference)),
+  /** Exactly one schema must be valid. */
+  oneOf: Type.Optional(Type.Array(schemaOrReference)),
+  /** At least one schema must be valid. */
+  anyOf: Type.Optional(Type.Array(schemaOrReference)),
+  /** Schema must not be valid. */
+  not: Type.Optional(schemaOrReference),
+})
+
+type CoreProperties = {
+  /**
+   * JSON Schema 2020-12 core reference keywords.
+   *
+   * OpenAPI 3.1 adopts the JSON Schema 2020-12 dialect for Schema Objects, which means a schema may carry an
+   * identifier (`$id`), a plain-name anchor (`$anchor`), and the dynamic binding keywords (`$dynamicAnchor` /
+   * `$dynamicRef`) used for generic and recursive patterns such as `PaginatedResponse<T>`. We keep these typed so
+   * the keywords survive parsing instead of being dropped as unknown properties. Resolution of `$dynamicRef`
+   * against the active `$dynamicAnchor` is tracked separately, see https://github.com/scalar/scalar/issues/9414.
+   */
+  $id?: string
+  /** Plain-name anchor that other schemas can reference with `#anchor`. */
+  $anchor?: string
+  /** Dynamic anchor, the target a matching `$dynamicRef` resolves to within the dynamic scope. */
+  $dynamicAnchor?: string
+  /** Dynamic reference, resolved against the outermost matching `$dynamicAnchor` in the dynamic scope. */
+  $dynamicRef?: string
+  name?: string
+  /** A title for the schema. */
+  title?: string
+  /** A description of the schema. */
+  description?: string
+  /** Default value for the schema. */
+  default?: unknown
+  /** Array of allowed values. */
+  enum?: unknown[]
+  /** Constant value that must match exactly. */
+  const?: unknown
+  /** Media type for content validation. */
+  contentMediaType?: string
+  /** Content encoding. */
+  contentEncoding?: string
+  /** Schema for content validation. */
+  contentSchema?: SchemaReferenceType<SchemaObject>
+  /** Whether the schema is deprecated. */
+  deprecated?: boolean
+  /** Adds support for polymorphism. The discriminator is used to determine which of a set of schemas a payload is expected to satisfy. See Composition and Inheritance for more details. */
+  discriminator?: DiscriminatorObject
+  /** Whether the schema is read-only. */
+  readOnly?: boolean
+  /** Whether the schema is write-only. */
+  writeOnly?: boolean
+  /** This MAY be used only on property schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property. */
+  xml?: XMLObject
+  /** Additional external documentation for this schema. */
+  externalDocs?: ExternalDocumentationObject
+  /**
+   * A free-form field to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary.
+   *
+   * @deprecated The example field has been deprecated in favor of the JSON Schema examples keyword. Use of example is discouraged, and later versions of this specification may remove it.
+   */
+  example?: unknown
+  /**
+   * An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.
+   * Each example should be a valid instance of the schema.
+   */
+  examples?: unknown[]
+  /** All schemas must be valid. */
+  allOf?: SchemaReferenceType<SchemaObject>[]
+  /** Exactly one schema must be valid. */
+  oneOf?: SchemaReferenceType<SchemaObject>[]
+  /** At least one schema must be valid. */
+  anyOf?: SchemaReferenceType<SchemaObject>[]
+  /** Schema must not be valid. */
+  not?: SchemaReferenceType<SchemaObject>
+}
+
+/**
+ * Numeric validation properties for number and integer types.
+ */
+const NumericValidationKeywords = Type.Object({
+  /** Number must be a multiple of this value. */
+  multipleOf: Type.Optional(Type.Number()),
+  /** Maximum value (inclusive). */
+  maximum: Type.Optional(Type.Number()),
+  /** Maximum value (exclusive). */
+  exclusiveMaximum: Type.Optional(Type.Number({ minimum: 0 })),
+  /** Minimum value (inclusive). */
+  minimum: Type.Optional(Type.Number()),
+  /** Minimum value (exclusive). */
+  exclusiveMinimum: Type.Optional(Type.Number({ minimum: 0 })),
+})
+
+const NumericProperties = compose(
+  Type.Object({
+    type: Type.Union([Type.Literal('number'), Type.Literal('integer')]),
+    /** Different subtypes */
+    format: Type.Optional(Type.String()),
+  }),
+  NumericValidationKeywords,
+)
+
+type NumericKeywords = {
+  /** Number must be a multiple of this value. */
+  multipleOf?: number
+  /** Maximum value (inclusive). */
+  maximum?: number
+  /** Maximum value (exclusive). */
+  exclusiveMaximum?: number
+  /** Minimum value (inclusive). */
+  minimum?: number
+  /** Minimum value (exclusive). */
+  exclusiveMinimum?: number
+}
+
+type NumericFormat =
+  | 'int8'
+  | 'int16'
+  | 'int32'
+  | 'int64'
+  | 'uint8'
+  | 'uint16'
+  | 'uint32'
+  | 'uint64'
+  | 'double-int'
+  | 'float'
+  | 'double'
+  | 'decimal'
+  | 'decimal128'
+  | 'sf-integer'
+  | 'sf-decimal'
+  | (string & {})
+
+type NumericObject = CoreProperties &
+  NumericKeywords & {
+    type: 'number' | 'integer'
+    /** Different subtypes */
+    format?: NumericFormat
+  } & Extensions
+
+/**
+ * String validation properties for string types.
+ */
+const StringValidationKeywords = Type.Object({
+  /** Maximum string length. */
+  maxLength: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Minimum string length. */
+  minLength: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Regular expression pattern. */
+  pattern: Type.Optional(Type.String()),
+})
+
+const StringValidationProperties = compose(
+  Type.Object({
+    type: Type.Literal('string'),
+    /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
+    format: Type.Optional(Type.String()),
+  }),
+  StringValidationKeywords,
+)
+
+/**
+ * Supported string formats in OpenAPI schemas.
+ *
+ * These provide better type safety for string format validation. We wanted to allow any arbitrary string
+ * in the schema, so we type it in typescript instead. This gives us autocomplete while allowing any string!
+ */
+type StringFormat =
+  // Date and time formats
+  | 'date'
+  | 'date-time'
+  | 'date-time-local'
+  | 'time'
+  | 'time-local'
+  | 'duration'
+  | 'http-date'
+  // Network formats
+  | 'email'
+  | 'idn-email'
+  | 'hostname'
+  | 'idn-hostname'
+  | 'ipv4'
+  | 'ipv6'
+  | 'uri'
+  | 'uri-reference'
+  | 'uri-template'
+  | 'iri'
+  | 'iri-reference'
+  | 'uuid'
+  // Content formats
+  | 'binary'
+  | 'byte'
+  | 'base64url'
+  | 'html'
+  | 'commonmark'
+  | 'password'
+  | 'regex'
+  | 'json-pointer'
+  | 'relative-json-pointer'
+  | 'media-range'
+  // Character formats
+  | 'char'
+  // Structured field string formats
+  | 'sf-string'
+  | 'sf-token'
+  | 'sf-binary'
+  | 'sf-boolean'
+  | (string & {})
+
+type StringKeywords = {
+  /** Maximum string length. */
+  maxLength?: number
+  /** Minimum string length. */
+  minLength?: number
+  /** Regular expression pattern. */
+  pattern?: string
+}
+
+type StringObject = CoreProperties &
+  StringKeywords & {
+    type: 'string'
+    /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
+    format?: StringFormat
+  } & Extensions
+
+const ArrayValidationKeywordsWithSchema = Type.Object({
+  /** Maximum number of items in array. */
+  maxItems: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Minimum number of items in array. */
+  minItems: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Whether array items must be unique. */
+  uniqueItems: Type.Optional(Type.Boolean()),
+  /** Schema for array items. */
+  items: Type.Optional(schemaOrReference),
+  /** Schema for tuple validation. */
+  prefixItems: Type.Optional(Type.Array(schemaOrReference)),
+})
+
+const ArrayValidationPropertiesWithSchema = compose(
+  Type.Object({
+    type: Type.Literal('array'),
+  }),
+  ArrayValidationKeywordsWithSchema,
+)
+
+type ArrayKeywords = {
+  /** Maximum number of items in array. */
+  maxItems?: number
+  /** Minimum number of items in array. */
+  minItems?: number
+  /** Whether array items must be unique. */
+  uniqueItems?: boolean
+  /** Schema for array items. */
+  items?: SchemaReferenceType<SchemaObject>
+  /** Schema for tuple validation. */
+  prefixItems?: SchemaReferenceType<SchemaObject>[]
+}
+
+type ArrayObject = CoreProperties &
+  ArrayKeywords & {
+    type: 'array'
+  } & Extensions
+
+const ObjectValidationKeywordsWithSchema = Type.Object({
+  /** Maximum number of properties. */
+  maxProperties: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Minimum number of properties. */
+  minProperties: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Array of required property names. */
+  required: Type.Optional(Type.Array(Type.String())),
+  /** Object property definitions. */
+  properties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
+  /** Schema for additional properties. */
+  additionalProperties: Type.Optional(Type.Union([Type.Boolean(), schemaOrReference])),
+  /** Properties matching regex patterns. */
+  patternProperties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
+  /** Constraints on property names (JSON Schema propertyNames keyword). */
+  propertyNames: Type.Optional(schemaOrReference),
+})
+
+const ObjectValidationPropertiesWithSchema = compose(
+  Type.Object({
+    type: Type.Literal('object'),
+  }),
+  ObjectValidationKeywordsWithSchema,
+)
+
+type ObjectKeywords = {
+  /** Maximum number of properties. */
+  maxProperties?: number
+  /** Minimum number of properties. */
+  minProperties?: number
+  /** Array of required property names. */
+  required?: string[]
+  /** Object property definitions. */
+  properties?: Record<string, SchemaReferenceType<SchemaObject>>
+  /** Schema for additional properties. */
+  additionalProperties?: boolean | SchemaReferenceType<SchemaObject>
+  /** Properties matching regex patterns. */
+  patternProperties?: Record<string, SchemaReferenceType<SchemaObject>>
+  /** Constraints on property names (JSON Schema propertyNames keyword). */
+  propertyNames?: SchemaReferenceType<SchemaObject>
+}
+
+type ObjectObject = CoreProperties &
+  ObjectKeywords & {
+    type: 'object'
+  } & Extensions
+
+const MultiTypeValidationPropertiesWithSchema = compose(
+  Type.Object({
+    type: Type.Array(PrimitiveSchemaTypeSchema),
+    /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
+    format: Type.Optional(Type.String()),
+  }),
+  NumericValidationKeywords,
+  StringValidationKeywords,
+  ArrayValidationKeywordsWithSchema,
+  ObjectValidationKeywordsWithSchema,
+)
+
+type MultiTypeObject = CoreProperties &
+  NumericKeywords &
+  StringKeywords &
+  ArrayKeywords &
+  ObjectKeywords & {
+    type: PrimitiveSchemaType[]
+    /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
+    format?: StringFormat | NumericFormat
+  } & Extensions
+
+/** Builds the recursive schema schema */
+export const SchemaObjectSchemaDefinition = Type.Union([
+  // Keep compositions first so they get priority when union is evaluated
+  // Make sure there is always a required field so not all properties are optional
+  // When all properties are optional (1) typescript will not throw any warnings/error and accepts anything
+  // even a non resolved ref and (2) it will match any schema so it will not validate the refs correctly
+  compose(Type.Object({ __scalar_: Type.String() }), CorePropertiesWithSchema, Extensions),
+  compose(OtherTypes, CorePropertiesWithSchema, Extensions),
+  compose(NumericProperties, CorePropertiesWithSchema, Extensions),
+  compose(StringValidationProperties, CorePropertiesWithSchema, Extensions),
+  compose(ObjectValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
+  compose(ArrayValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
+  compose(MultiTypeValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
+])
+
+export type SchemaObject =
+  | _InternalType
+  | OtherTypes
+  | MultiTypeObject
+  | NumericObject
+  | StringObject
+  | ObjectObject
+  | ArrayObject
+export type MaybeRefSchemaObject = SchemaReferenceType<SchemaObject>

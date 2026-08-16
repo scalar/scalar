@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.65.1
+
+## 1.65.0
+
+### Minor Changes
+
+- [#9884](https://github.com/scalar/scalar/pull/9884): Export the AsyncAPI content components (AsyncApiChannel, AsyncApiOperation, AsyncApiMessage, AsyncApiTraversedEntry) from `@scalar/api-reference/components` so downstream renderers can render an individual channel/operation/message on its own page.
+
+### Patch Changes
+
+- [#9856](https://github.com/scalar/scalar/pull/9856): Render model names as plain text when there is no models section to link to. The names next to types and on the request body heading used to be links even when the whole models section was hidden via `hideModels`, or when the referenced model itself was hidden via `x-internal` / `x-scalar-ignore`. There was nothing to scroll to, so clicking them did nothing. They now render as plain text in both cases.
+- [#9858](https://github.com/scalar/scalar/pull/9858): Only render a clickable model name link when the `$ref` actually targets `#/components/schemas/`. Refs into other component buckets (parameters, responses, ...) or external files now show the name as plain text instead of a dead link that scrolls nowhere.
+- [#9857](https://github.com/scalar/scalar/pull/9857): Fix dead model-name links for schemas grouped under a tag via `x-tags`. The models index now collects model entries from the whole navigation tree, so clicking a model name that lives under a tag group scrolls to the model instead of doing nothing.
+- [#9859](https://github.com/scalar/scalar/pull/9859): Fix empty popup when hovering the "Generate MCP" button without an MCP config
+- [#9862](https://github.com/scalar/scalar/pull/9862): Use the webhook icon for webhooks in search results so they are easy to tell apart from operations
+
 ## 1.64.1
 
 ### Patch Changes

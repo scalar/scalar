@@ -5,7 +5,7 @@ There are two types of OpenAPI variables:
 1. **Server variables:** Strings used specifically in the server URL, primarily used for configuration.
 2. **Parameters:** Potentially complex data types used to define data passed through the API.
 
-This guide providers an overview of defining and using both.
+This guide provides an overview of defining and using both.
 
 ## Server variables
 
@@ -34,7 +34,7 @@ Generally, server variables fit into one of the following use cases:
 * Configuring an API to work across dev, staging, and production environments
 * Testing APIs across both `http` and `https` protocols
 * Allowing flexibility in port selection
-* Defining subdomains values for customers, regions, or multi-tenant applications.
+* Defining subdomain values for customers, regions, or multi-tenant applications.
 
 ## Parameters
 
