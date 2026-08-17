@@ -559,7 +559,9 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     // onSidebarClick: function
     const sidebarItems = wrapper.findAllComponents({ name: 'ScalarSidebarItem' })
     const operationItem = sidebarItems.find((item) => item.text().includes('Get posts'))
-    await operationItem?.trigger('click')
+    // Entries render as anchors, so click the link rather than the surrounding
+    // list item — only clicks landing on the link drive in-app navigation
+    await operationItem?.find('a').trigger('click')
     expect(onSidebarClick).toHaveBeenCalled()
     expect(onSidebarClick).toHaveBeenCalledWith(expect.stringContaining('/posts'))
 

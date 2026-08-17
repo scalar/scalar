@@ -1,10 +1,13 @@
 <script lang="ts" setup>
 import {
+  ScalarSidebarButton,
   ScalarSidebarGroup,
   ScalarSidebarGroupToggle,
+  ScalarSidebarIndent,
   ScalarSidebarItem,
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
+import { isPlainLeftClick } from '@scalar/helpers/dom/is-plain-left-click'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 
@@ -31,6 +34,7 @@ const {
   isDraggable,
   isDroppable,
   options,
+  getHref,
 } = defineProps<{
   /**
    * The sidebar item to render.
@@ -53,6 +57,14 @@ const {
    * - operationTitleSource: sets whether operations show their path or summary as the display title.
    */
   options?: SidebarOptions
+
+  /**
+   * Returns the URL for a sidebar item.
+   *
+   * When provided (and it returns a value) items render as anchor tags
+   * instead of buttons, so search engines can crawl the navigation.
+   */
+  getHref?: (item: Item) => string | undefined
 
   /**
    * Prevents this item from being dragged.
@@ -136,6 +148,35 @@ const children = computed(() =>
     ? filterItems(layout, item.children, options?.hideOperationDefaultExamples)
     : [],
 )
+
+/** The URL for this item, when the consumer provides one it renders as a link */
+const href = computed(() => getHref?.(item) || undefined)
+
+/**
+ * Emit the select event for a click on the item label.
+ *
+ * When the item renders as a link we only hijack plain left clicks on the
+ * link itself for in-app navigation. Modified clicks (meta, ctrl, shift,
+ * alt) and middle clicks keep the browser's default behavior so the link
+ * can be opened in a new tab or window, and clicks on surrounding content
+ * (like the decorator menu) keep their native behavior. A click whose
+ * default is already prevented has been handled by someone else, so it is
+ * left alone rather than navigated a second time.
+ */
+const handleSelect = (event: MouseEvent) => {
+  if (href.value) {
+    const anchor =
+      event.target instanceof Element ? event.target.closest('a') : null
+    if (anchor?.getAttribute('href') !== href.value) {
+      return
+    }
+    if (event.defaultPrevented || !isPlainLeftClick(event)) {
+      return
+    }
+    event.preventDefault()
+  }
+  emit('selectItem', item.id)
+}
 </script>
 <template>
   <!-- Sidebar section -->
@@ -149,6 +190,7 @@ const children = computed(() =>
       <SidebarItem
         v-for="child in children"
         :key="child.id"
+        :getHref="getHref"
         :isDraggable="isDraggable"
         :isDroppable="isDroppable"
         :isExpanded="isExpanded"
@@ -202,68 +244,92 @@ const children = computed(() =>
     :discrete="layout === 'reference' && item.type === 'text'"
     :open="isExpanded(item.id)"
     v-on="draggableEvents"
-    @click="() => emit('selectItem', item.id)"
     @toggle="() => emit('toggleGroup', item.id)">
-    <template
-      v-if="item.type === 'document'"
-      #icon="{ open }">
-      <slot
-        :item="item"
-        name="icon"
-        :open="open">
-        <LibraryIcon
-          class="block"
-          :src="('icon' in item && item.icon) || 'interface-content-folder'" />
-      </slot>
-    </template>
-    <span
-      v-if="isDeprecated(item)"
-      class="line-through">
-      <SidebarItemLabel
-        :item
-        :operationTitleSource="options?.operationTitleSource" />
-    </span>
-    <SidebarItemLabel
-      v-else
-      :item
-      :operationTitleSource="options?.operationTitleSource" />
-    <template
-      v-if="'method' in item"
-      #aside>
-      <SidebarHttpBadge
+    <template #button="{ open, level }">
+      <ScalarSidebarButton
+        :is="href ? 'a' : 'button'"
         :active="isSelected(item.id)"
-        class="ml-2 h-4 self-start"
-        :class="{
-          // Hide the badge when we're showing the decorator
-          'group-hover/button:opacity-0 group-focus-visible/button:opacity-0 group-has-[~*_[aria-expanded=true]]/button:opacity-0 group-has-[~*:focus-within]/button:opacity-0 group-has-[~*:hover]/button:opacity-0':
-            slots.decorator,
-        }"
-        :label="options?.labels?.httpMethod"
-        :method="item.method"
-        :webhook="item.type === 'webhook'" />
-    </template>
-    <!--
-      Hide the chevron
-    -->
-    <template
-      v-if="'method' in item"
-      #toggle>
-      <span class="hidden"></span>
-    </template>
-    <template
-      v-else
-      #toggle="{ open }">
-      <ScalarSidebarGroupToggle
-        class="text-sidebar-c-2"
-        :open>
-        <template #label>
-          {{
-            open
-              ? (options?.labels?.closeGroup ?? 'Close Group')
-              : (options?.labels?.openGroup ?? 'Open Group')
-          }}
+        :aria-expanded="open"
+        :href="href"
+        :indent="level"
+        @click="handleSelect">
+        <template #indent>
+          <ScalarSidebarIndent
+            class="-my-2 mr-0"
+            :indent="level" />
         </template>
-      </ScalarSidebarGroupToggle>
+        <template
+          v-if="item.type === 'document'"
+          #icon>
+          <slot
+            :item="item"
+            name="icon"
+            :open="open">
+            <LibraryIcon
+              class="block"
+              :src="
+                ('icon' in item && item.icon) || 'interface-content-folder'
+              " />
+          </slot>
+        </template>
+        <span
+          v-if="isDeprecated(item)"
+          class="line-through">
+          <SidebarItemLabel
+            :item
+            :operationTitleSource="options?.operationTitleSource" />
+        </span>
+        <SidebarItemLabel
+          v-else
+          :item
+          :operationTitleSource="options?.operationTitleSource" />
+        <template #aside>
+          <SidebarHttpBadge
+            v-if="'method' in item"
+            :active="isSelected(item.id)"
+            class="ml-2 h-4 self-start"
+            :class="{
+              // Hide the badge when we're showing the decorator
+              'group-hover/button:opacity-0 group-focus-visible/button:opacity-0 group-has-[~*_[aria-expanded=true]]/button:opacity-0 group-has-[~*:focus-within]/button:opacity-0 group-has-[~*:hover]/button:opacity-0':
+                slots.decorator,
+            }"
+            :label="options?.labels?.httpMethod"
+            :method="item.method"
+            :webhook="item.type === 'webhook'" />
+          <!-- Placeholder for the discrete group toggle -->
+          <div
+            v-if="layout === 'reference' && item.type === 'text'"
+            class="size-4"></div>
+          <ScalarSidebarGroupToggle
+            v-else-if="!('method' in item)"
+            class="text-sidebar-c-2"
+            :open>
+            <template #label>
+              {{
+                open
+                  ? (options?.labels?.closeGroup ?? 'Close Group')
+                  : (options?.labels?.openGroup ?? 'Open Group')
+              }}
+            </template>
+          </ScalarSidebarGroupToggle>
+        </template>
+      </ScalarSidebarButton>
+      <button
+        v-if="layout === 'reference' && item.type === 'text'"
+        :aria-expanded="open"
+        class="text-sidebar-c-2 hover:bg-sidebar-b-hover hover:text-sidebar-c-hover absolute top-[1lh] right-1.25 -translate-y-1/2 rounded p-0.75"
+        type="button"
+        @click="() => emit('toggleGroup', item.id)">
+        <ScalarSidebarGroupToggle :open>
+          <template #label>
+            {{
+              open
+                ? (options?.labels?.closeGroup ?? 'Close Group')
+                : (options?.labels?.openGroup ?? 'Open Group')
+            }}
+          </template>
+        </ScalarSidebarGroupToggle>
+      </button>
     </template>
     <template
       v-if="slots.decorator"
@@ -278,6 +344,7 @@ const children = computed(() =>
       <SidebarItem
         v-for="child in children"
         :key="child.id"
+        :getHref="getHref"
         :isDraggable="isDraggable"
         :isDroppable="isDroppable"
         :isExpanded="isExpanded"
@@ -321,48 +388,53 @@ const children = computed(() =>
 
   <!-- Sidebar item (leaf node) -->
   <ScalarSidebarItem
-    is="button"
     v-else
     v-bind="draggableAttrs"
     class="relative"
     :data-sidebar-id="item.id"
-    :selected="isSelected(item.id)"
     v-on="draggableEvents"
-    @click="() => emit('selectItem', item.id)">
-    <template
-      v-if="slots.icon"
-      #icon>
-      <slot
-        :item="item"
-        name="icon"
-        :open="true" />
-    </template>
-    <span
-      v-if="isDeprecated(item)"
-      class="line-through">
-      <SidebarItemLabel
-        :item
-        :operationTitleSource="options?.operationTitleSource" />
-    </span>
-    <SidebarItemLabel
-      v-else
-      :item
-      :operationTitleSource="options?.operationTitleSource" />
-    <template
-      v-if="'method' in item"
-      #aside>
-      <SidebarHttpBadge
-        v-if="'method' in item"
-        :active="isSelected(item.id)"
-        class="ml-2 h-4 self-start"
-        :class="{
-          // Hide the badge when we're showing the decorator
-          'group-hover/button:opacity-0 group-focus-visible/button:opacity-0 group-has-[~*_[aria-expanded=true]]/button:opacity-0 group-has-[~*:focus-within]/button:opacity-0 group-has-[~*:hover]/button:opacity-0':
-            slots.decorator,
-        }"
-        :label="options?.labels?.httpMethod"
-        :method="item.method"
-        :webhook="item.type === 'webhook'" />
+    @click="handleSelect">
+    <template #button="{ level }">
+      <ScalarSidebarButton
+        :is="href ? 'a' : 'button'"
+        :href="href"
+        :indent="level"
+        :selected="isSelected(item.id)">
+        <template
+          v-if="slots.icon"
+          #icon>
+          <slot
+            :item="item"
+            name="icon"
+            :open="true" />
+        </template>
+        <span
+          v-if="isDeprecated(item)"
+          class="line-through">
+          <SidebarItemLabel
+            :item
+            :operationTitleSource="options?.operationTitleSource" />
+        </span>
+        <SidebarItemLabel
+          v-else
+          :item
+          :operationTitleSource="options?.operationTitleSource" />
+        <template
+          v-if="'method' in item"
+          #aside>
+          <SidebarHttpBadge
+            :active="isSelected(item.id)"
+            class="ml-2 h-4 self-start"
+            :class="{
+              // Hide the badge when we're showing the decorator
+              'group-hover/button:opacity-0 group-focus-visible/button:opacity-0 group-has-[~*_[aria-expanded=true]]/button:opacity-0 group-has-[~*:focus-within]/button:opacity-0 group-has-[~*:hover]/button:opacity-0':
+                slots.decorator,
+            }"
+            :label="options?.labels?.httpMethod"
+            :method="item.method"
+            :webhook="item.type === 'webhook'" />
+        </template>
+      </ScalarSidebarButton>
     </template>
     <template
       v-if="slots.decorator"

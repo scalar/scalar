@@ -724,14 +724,19 @@ Welcome to the API.
     }
 
     const introductionRoot = wrapper.find(`[data-sidebar-id="${introduction.id}"]`)
-    // Discrete groups: main item button + separate absolute caret toggle.
+    // Discrete groups: main item label (an anchor, since the sidebar renders
+    // links for SEO) + separate absolute caret toggle button.
     // Do not key off aria-current — it is only present when the item is selected.
-    const expandedButtons = introductionRoot.findAll('button[aria-expanded]')
+    const expandedButtons = introductionRoot.findAll('[aria-expanded]')
     const introductionButton = expandedButtons.find((btn) => !btn.classes().includes('absolute'))
     const introductionToggle = expandedButtons.find((btn) => btn.classes().includes('absolute'))
 
     expect(introductionButton).toBeDefined()
     expect(introductionToggle).toBeDefined()
+    // The label is a crawlable link, the caret stays a button
+    expect(introductionButton!.element.tagName).toBe('A')
+    expect(introductionButton!.attributes('href')).toBeDefined()
+    expect(introductionToggle!.element.tagName).toBe('BUTTON')
     expect(introductionButton!.attributes('aria-expanded')).toBe('false')
     expect(introductionToggle!.attributes('aria-expanded')).toBe('false')
 
