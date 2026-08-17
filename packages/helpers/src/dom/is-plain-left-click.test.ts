@@ -29,10 +29,12 @@ describe('is-plain-left-click', () => {
     expect(isPlainLeftClick(event)).toBe(false)
   })
 
-  it('returns false when the default is already prevented', () => {
+  it('ignores whether the default has already been prevented', () => {
     const event = new MouseEvent('click', { button: 0, cancelable: true })
     event.preventDefault()
 
-    expect(isPlainLeftClick(event)).toBe(false)
+    // The click is still a plain left click; whether it has already been
+    // handled is the caller's question, not this predicate's
+    expect(isPlainLeftClick(event)).toBe(true)
   })
 })

@@ -159,7 +159,9 @@ const href = computed(() => getHref?.(item) || undefined)
  * link itself for in-app navigation. Modified clicks (meta, ctrl, shift,
  * alt) and middle clicks keep the browser's default behavior so the link
  * can be opened in a new tab or window, and clicks on surrounding content
- * (like the decorator menu) keep their native behavior.
+ * (like the decorator menu) keep their native behavior. A click whose
+ * default is already prevented has been handled by someone else, so it is
+ * left alone rather than navigated a second time.
  */
 const handleSelect = (event: MouseEvent) => {
   if (href.value) {
@@ -168,7 +170,7 @@ const handleSelect = (event: MouseEvent) => {
     if (anchor?.getAttribute('href') !== href.value) {
       return
     }
-    if (!isPlainLeftClick(event)) {
+    if (event.defaultPrevented || !isPlainLeftClick(event)) {
       return
     }
     event.preventDefault()

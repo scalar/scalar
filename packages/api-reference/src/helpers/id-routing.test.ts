@@ -909,7 +909,7 @@ describe('makeHrefFromId', () => {
     )
   })
 
-  it('spells ids exactly like the URLs makeUrlFromId pushes to history', () => {
+  it('spells the path and hash exactly like makeUrlFromId', () => {
     vi.stubGlobal('window', {
       location: {
         href: 'https://example.com/',
@@ -928,6 +928,31 @@ describe('makeHrefFromId', () => {
     expect(makeHrefFromId(id, 'api', true)).toBe(makeUrlFromId(id, 'api', true)?.pathname)
     expect(makeHrefFromId(id, undefined, true)).toBe(makeUrlFromId(id, undefined, true)?.hash)
     expect(makeHrefFromId(id, '#/base', true)).toBe(makeUrlFromId(id, '#/base', true)?.hash)
+
+    vi.unstubAllGlobals()
+  })
+
+  it('omits the query string that makeUrlFromId carries over from the current URL', () => {
+    vi.stubGlobal('window', {
+      location: {
+        href: 'https://example.com/api/tag/users?theme=dark',
+        protocol: 'https:',
+        host: 'example.com',
+        pathname: '/api/tag/users',
+        search: '?theme=dark',
+        hash: '',
+      } as Location,
+    })
+
+    const id = 'doc/tag/users'
+
+    // makeUrlFromId clones the current location, so in-app navigation keeps
+    // query params
+    expect(makeUrlFromId(id, 'api', true)?.search).toBe('?theme=dark')
+
+    // The crawlable href is built from scratch and is query-less, so opening
+    // an entry in a new tab drops params the in-app navigation preserves
+    expect(makeHrefFromId(id, 'api', true)).toBe('/api/doc/tag/users')
 
     vi.unstubAllGlobals()
   })
