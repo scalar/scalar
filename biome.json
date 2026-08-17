@@ -289,7 +289,8 @@
         "packages/*/src/**/index.{js,ts}",
         "projects/*/src/**/index.{js,ts}",
         "integrations/*/index.ts",
-        "integrations/*/src/**/index.ts"
+        "integrations/*/src/**/index.ts",
+        "packages/highlight/src/{all,lazy}.ts"
       ],
       "linter": {
         "rules": {

@@ -63,6 +63,7 @@ catalogs:
     commander: 13.1.0
     concurrently: 9.1.2
     cross-env: 10.1.0
+    esbuild: ^0.28.2
     express: 5.1.0
     fake-indexeddb: 6.2.5
     fast-glob: ^3.3.3
@@ -72,6 +73,7 @@ catalogs:
     hono: ^4.12.7
     get-port-please: 3.2.0
     github-slugger: 2.0.0
+    highlight.js: ^11.11.1
     js-base64: ^3.9.2
     jsdom: 27.4.0
     jsonc-parser: 3.3.1

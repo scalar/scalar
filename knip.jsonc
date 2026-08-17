@@ -177,6 +177,19 @@
     "packages/helpers": {
       "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
     },
+    "packages/highlight": {
+      // Every published `exports` entry, plus the benchmark scripts
+      "entry": [
+        "src/index.ts",
+        "src/all.ts",
+        "src/lazy.ts",
+        "src/core/index.ts",
+        "src/compat/index.ts",
+        "src/langs/*.ts",
+        "!src/langs/*.test.ts",
+        "bench/*.ts"
+      ]
+    },
     "packages/icons": {
       "ignoreFiles": ["src/library/.svglintrc.js"],
       "entry": ["src/index.ts", "src/types.ts", "src/library/index.ts"]

@@ -44,8 +44,11 @@ export function codeBlockLinesPlugin() {
           }
         })
 
-        // We need to maintain a count of the total lines to allow space for the labels
-        node.properties.style = [`--line-count: ${numLines};`, `--line-digits: ${numLines.toString().length};`]
+        // We need to maintain a count of the total lines to allow space for the labels.
+        // Written as one string rather than the array the serializer used to join for us,
+        // because `@types/hast` no longer accepts an array for `style`. The single space
+        // between the two declarations is what that join produced.
+        node.properties.style = `--line-count: ${numLines}; --line-digits: ${numLines.toString().length};`
       }
     })
 
