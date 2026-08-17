@@ -28,9 +28,6 @@ import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
 import type { ScalarSidebarGroupProps, ScalarSidebarItemProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
-// The section heading is never a navigation link, so href is declared but
-// deliberately not rendered. Declaring it keeps it out of $attrs, which is
-// what stops it from landing on the list element as an invalid attribute.
 const { is = 'li' } = defineProps<
   ScalarSidebarItemProps & Pick<ScalarSidebarGroupProps, 'loading'>
 >()

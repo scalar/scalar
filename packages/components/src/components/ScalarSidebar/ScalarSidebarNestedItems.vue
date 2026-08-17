@@ -30,10 +30,6 @@ import type { ScalarSidebarGroupProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 import { useSidebarNestedItem } from './useSidebarNestedItems'
 
-// The toggle is a drill-in control, never a navigation link, so href is
-// declared but deliberately not rendered. Declaring it keeps it out of
-// $attrs, which is what stops it from landing on the toggle button as an
-// invalid attribute.
 const { controlled } = defineProps<ScalarSidebarGroupProps>()
 
 const emit = defineEmits<{

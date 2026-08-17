@@ -61,8 +61,8 @@ describe('SidebarItem', () => {
         },
       })
 
-      const sidebarItem = wrapper.findComponent(ScalarSidebarItemComponent)
-      expect(sidebarItem.props('is')).toBe('button')
+      expect(wrapper.find('button').exists()).toBe(true)
+      expect(wrapper.find('a').exists()).toBe(false)
     })
 
     it('emits click event when item is clicked', async () => {
@@ -109,8 +109,7 @@ describe('SidebarItem', () => {
         },
       })
 
-      const sidebarItem = wrapper.findComponent(ScalarSidebarItemComponent)
-      expect(sidebarItem.props('selected')).toBe(true)
+      expect(wrapper.find('button').attributes('aria-current')).toBe('page')
     })
 
     it('does not show selected state when item is not in selectedItems', () => {
