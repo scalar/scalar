@@ -179,6 +179,173 @@ describe('SidebarItem', () => {
     })
   })
 
+  describe('link rendering', () => {
+    const leafItem: Item = {
+      id: 'doc/users/get',
+      title: 'Get User',
+      type: 'operation',
+      ref: 'ref-1',
+      method: 'get',
+      path: '/users',
+    }
+
+    const folderItem: Item = {
+      id: 'doc/users',
+      title: 'User API',
+      type: 'document',
+      name: 'userAPI',
+      children: [leafItem],
+    }
+
+    const getHref = (item: Item) => `#${item.id}`
+
+    it('renders a leaf item as an anchor when getHref returns a value', () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: leafItem,
+          getHref,
+        },
+      })
+
+      const anchor = wrapper.find('a')
+      expect(anchor.exists()).toBe(true)
+      expect(anchor.attributes('href')).toBe('#doc/users/get')
+      expect(wrapper.find('button').exists()).toBe(false)
+    })
+
+    it('renders a leaf item as a button when getHref returns undefined', () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: leafItem,
+          getHref: () => undefined,
+        },
+      })
+
+      expect(wrapper.find('button').exists()).toBe(true)
+      expect(wrapper.find('a').exists()).toBe(false)
+    })
+
+    it('renders a group label as an anchor when getHref returns a value', () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: folderItem,
+          getHref,
+        },
+      })
+
+      const anchor = wrapper.findComponent(ScalarSidebarGroup).find('a')
+      expect(anchor.exists()).toBe(true)
+      expect(anchor.attributes('href')).toBe('#doc/users')
+    })
+
+    it('emits selectItem and prevents default navigation on a plain left click', () => {
+      const onSelectItem = vi.fn()
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: leafItem,
+          getHref,
+          onSelectItem,
+        },
+      })
+
+      const event = new MouseEvent('click', {
+        button: 0,
+        bubbles: true,
+        cancelable: true,
+      })
+      wrapper.find('a').element.dispatchEvent(event)
+
+      expect(onSelectItem).toHaveBeenCalledWith('doc/users/get')
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('keeps the browser default for modified clicks so links open in a new tab', () => {
+      const onSelectItem = vi.fn()
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: leafItem,
+          getHref,
+          onSelectItem,
+        },
+      })
+
+      const event = new MouseEvent('click', {
+        button: 0,
+        metaKey: true,
+        bubbles: true,
+        cancelable: true,
+      })
+      wrapper.find('a').element.dispatchEvent(event)
+
+      expect(onSelectItem).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('normalizes an empty string href to a button without an href attribute', () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: leafItem,
+          getHref: () => '',
+        },
+      })
+
+      const button = wrapper.find('button')
+      expect(button.exists()).toBe(true)
+      expect(button.attributes('href')).toBeUndefined()
+      expect(wrapper.find('a').exists()).toBe(false)
+    })
+
+    it('leaves clicks on decorator content outside the link to the browser', () => {
+      const onSelectItem = vi.fn()
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: leafItem,
+          getHref,
+          onSelectItem,
+        },
+        slots: {
+          decorator: '<input type="checkbox" data-testid="decorator-checkbox" />',
+        },
+      })
+
+      const event = new MouseEvent('click', {
+        button: 0,
+        bubbles: true,
+        cancelable: true,
+      })
+      wrapper.find('[data-testid="decorator-checkbox"]').element.dispatchEvent(event)
+
+      // The checkbox click must keep its native behavior and not select the item
+      expect(onSelectItem).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('passes getHref down to child items', () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: folderItem,
+          getHref,
+          isExpanded: () => true,
+        },
+      })
+
+      const childAnchor = wrapper
+        .findAllComponents(SidebarItem)
+        .find((child) => child.props('item')?.id === 'doc/users/get')
+        ?.find('a')
+
+      expect(childAnchor?.attributes('href')).toBe('#doc/users/get')
+    })
+  })
+
   describe('HTTP method badge rendering', () => {
     it('renders HTTP badge for operation items with method', () => {
       const item: Item = {

@@ -25,6 +25,7 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { isPlainLeftClick } from '@scalar/helpers/dom/is-plain-left-click'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
@@ -37,6 +38,7 @@ import { useSidebarGroups } from './useSidebarGroups'
 const {
   controlled,
   discrete,
+  href,
   is = 'li',
 } = defineProps<ScalarSidebarGroupProps>()
 
@@ -62,12 +64,27 @@ const { cx } = useBindCx()
 
 /** Handle the click event for the group toggle */
 const handleClick = (event: MouseEvent) => {
+  // A consumer handling the click may prevent the default navigation, which
+  // is what flips isPlainLeftClick, so the check has to happen before the emit
+  const isPlainClick = isPlainLeftClick(event)
+
   // Bubble up the click event
   emit('click', event)
-  if (!controlled && !discrete) {
-    // Only toggle the open state if the group is uncontrolled and not discrete
-    open.value = !open.value
+
+  if (controlled || discrete) {
+    return
   }
+
+  // When the label is a link the browser navigates away unless the consumer
+  // prevented it, so the group only toggles once navigation is off the table.
+  // A modified click (meta, ctrl, shift, alt or a non-primary button) opens
+  // the link in a new tab and must not mutate the state of this tab.
+  if (href && !(isPlainClick && event.defaultPrevented)) {
+    return
+  }
+
+  // Only toggle the open state if the group is uncontrolled and not discrete
+  open.value = !open.value
 }
 
 /** Handle the click event for the group toggle */
@@ -93,10 +110,11 @@ const handleToggle = (event: MouseEvent) => {
         name="button"
         :open>
         <ScalarSidebarButton
-          is="button"
+          :is="href && !disabled ? 'a' : 'button'"
           :active
           :aria-expanded="open"
           :disabled
+          :href
           :icon
           :indent="level"
           :selected

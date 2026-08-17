@@ -160,6 +160,53 @@ export const makeUrlFromId = (_id: string, basePath: string | undefined, isMulti
   return url
 }
 
+/**
+ * Builds a crawlable href for a navigation id without reading the current location
+ *
+ * Unlike {@link makeUrlFromId} this does not depend on `window`, so it is safe to
+ * call during server side rendering. That matters because the hrefs must be present
+ * in the server rendered HTML for search engines to crawl the sidebar navigation.
+ *
+ * A scratch URL carries the encoding so the href is spelled the same way as the
+ * path {@link makeUrlFromId} pushes to history — otherwise the same section would
+ * exist under two URL spellings (the crawled one and the clicked one). The href is
+ * relative, so unlike the pushed URL it does not carry the current query string,
+ * and a degenerate id that would resolve off site is normalized (see below).
+ *
+ * @param id - The id to build the href for
+ * @param basePath - The base path used in path routing
+ * @param isMultiDocument - Whether the document is multi-document or single-document. Single-document documents will strip the document slug from the id
+ */
+export const makeHrefFromId = (_id: string, basePath: string | undefined, isMultiDocument: boolean): string => {
+  /** When there is only 1 document we don't need to include the document name in the URL */
+  const id = isMultiDocument ? _id : stripFirstSegment(_id)
+
+  // The scheme must be a special one (like http) so the WHATWG encoding rules
+  // match the ones applied to window.location by makeUrlFromId
+  const url = new URL('http://scratch')
+
+  if (typeof basePath === 'string') {
+    if (isHashBasePath(basePath)) {
+      const base = sanitizeHashBasePath(basePath)
+      url.hash = [base, id].filter(Boolean).join('/')
+      return url.hash || '#'
+    }
+
+    url.pathname = `${sanitizeBasePath(basePath)}/${id}`
+
+    // A path starting with two slashes is a protocol-relative reference, so an
+    // href of `//example.com/x` would leave the site entirely. That can happen
+    // when there is no base path and the id itself starts with a slash (a
+    // document whose title slugifies to an empty string). Collapsing the
+    // leading slashes keeps the link on this origin, which is where the
+    // equivalent URL from makeUrlFromId points too.
+    return url.pathname.replace(/^\/+/, '/')
+  }
+
+  url.hash = id
+  return url.hash || '#'
+}
+
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 /**

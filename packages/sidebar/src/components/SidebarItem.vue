@@ -5,6 +5,7 @@ import {
   ScalarSidebarItem,
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
+import { isPlainLeftClick } from '@scalar/helpers/dom/is-plain-left-click'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 
@@ -31,6 +32,7 @@ const {
   isDraggable,
   isDroppable,
   options,
+  getHref,
 } = defineProps<{
   /**
    * The sidebar item to render.
@@ -53,6 +55,14 @@ const {
    * - operationTitleSource: sets whether operations show their path or summary as the display title.
    */
   options?: SidebarOptions
+
+  /**
+   * Returns the URL for a sidebar item.
+   *
+   * When provided (and it returns a value) items render as anchor tags
+   * instead of buttons, so search engines can crawl the navigation.
+   */
+  getHref?: (item: Item) => string | undefined
 
   /**
    * Prevents this item from being dragged.
@@ -136,6 +146,33 @@ const children = computed(() =>
     ? filterItems(layout, item.children, options?.hideOperationDefaultExamples)
     : [],
 )
+
+/** The URL for this item, when the consumer provides one it renders as a link */
+const href = computed(() => getHref?.(item) || undefined)
+
+/**
+ * Emit the select event for a click on the item label.
+ *
+ * When the item renders as a link we only hijack plain left clicks on the
+ * link itself for in-app navigation. Modified clicks (meta, ctrl, shift,
+ * alt) and middle clicks keep the browser's default behavior so the link
+ * can be opened in a new tab or window, and clicks on surrounding content
+ * (like the decorator menu) keep their native behavior.
+ */
+const handleSelect = (event: MouseEvent) => {
+  if (href.value) {
+    const anchor =
+      event.target instanceof Element ? event.target.closest('a') : null
+    if (anchor?.getAttribute('href') !== href.value) {
+      return
+    }
+    if (!isPlainLeftClick(event)) {
+      return
+    }
+    event.preventDefault()
+  }
+  emit('selectItem', item.id)
+}
 </script>
 <template>
   <!-- Sidebar section -->
@@ -149,6 +186,7 @@ const children = computed(() =>
       <SidebarItem
         v-for="child in children"
         :key="child.id"
+        :getHref="getHref"
         :isDraggable="isDraggable"
         :isDroppable="isDroppable"
         :isExpanded="isExpanded"
@@ -200,9 +238,10 @@ const children = computed(() =>
     :data-sidebar-id="item.id"
     v-bind="draggableAttrs"
     :discrete="layout === 'reference' && item.type === 'text'"
+    :href="href"
     :open="isExpanded(item.id)"
     v-on="draggableEvents"
-    @click="() => emit('selectItem', item.id)"
+    @click="handleSelect"
     @toggle="() => emit('toggleGroup', item.id)">
     <template
       v-if="item.type === 'document'"
@@ -278,6 +317,7 @@ const children = computed(() =>
       <SidebarItem
         v-for="child in children"
         :key="child.id"
+        :getHref="getHref"
         :isDraggable="isDraggable"
         :isDroppable="isDroppable"
         :isExpanded="isExpanded"
@@ -321,14 +361,15 @@ const children = computed(() =>
 
   <!-- Sidebar item (leaf node) -->
   <ScalarSidebarItem
-    is="button"
+    :is="href ? 'a' : 'button'"
     v-else
     v-bind="draggableAttrs"
     class="relative"
     :data-sidebar-id="item.id"
+    :href="href"
     :selected="isSelected(item.id)"
     v-on="draggableEvents"
-    @click="() => emit('selectItem', item.id)">
+    @click="handleSelect">
     <template
       v-if="slots.icon"
       #icon>

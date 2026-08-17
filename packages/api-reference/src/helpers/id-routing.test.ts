@@ -6,6 +6,7 @@ import {
   getIdFromPath,
   getIdFromUrl,
   getSchemaParamsFromId,
+  makeHrefFromId,
   makeUrlFromId,
   matchesBasePath,
   redirectUrl,
@@ -836,6 +837,99 @@ describe('makeUrlFromId', () => {
   it('handles id with only slashes in multi-document mode', () => {
     const result = makeUrlFromId('///', undefined, true)
     expect(result?.hash).toBe('#///')
+  })
+})
+
+describe('makeHrefFromId', () => {
+  it('uses hash routing when basePath is undefined', () => {
+    expect(makeHrefFromId('tag/users', undefined, true)).toBe('#tag/users')
+  })
+
+  it('uses path routing when basePath is a string', () => {
+    expect(makeHrefFromId('tag/users', 'api', true)).toBe('/api/tag/users')
+  })
+
+  it('uses hash-base routing when basePath starts with a hash', () => {
+    expect(makeHrefFromId('tag/users', '#/services/petstore/openapi', true)).toBe(
+      '#/services/petstore/openapi/tag/users',
+    )
+  })
+
+  it('uses path routing with empty basePath', () => {
+    expect(makeHrefFromId('tag/users', '', true)).toBe('/tag/users')
+  })
+
+  it('sanitizes basePath with leading and trailing slashes', () => {
+    expect(makeHrefFromId('tag/users', '/api/', true)).toBe('/api/tag/users')
+  })
+
+  it('strips document slug in single-document mode with hash routing', () => {
+    expect(makeHrefFromId('doc/tag/users', undefined, false)).toBe('#tag/users')
+  })
+
+  it('strips document slug in single-document mode with path routing', () => {
+    expect(makeHrefFromId('doc/tag/users', 'api', false)).toBe('/api/tag/users')
+  })
+
+  it('keeps all segments in multi-document mode', () => {
+    expect(makeHrefFromId('doc/tag/users', undefined, true)).toBe('#doc/tag/users')
+  })
+
+  it('handles single segment id in single-document mode', () => {
+    expect(makeHrefFromId('doc', undefined, false)).toBe('#')
+  })
+
+  it('encodes special characters per segment with path routing', () => {
+    expect(makeHrefFromId('tag/user email', 'api', true)).toBe('/api/tag/user%20email')
+  })
+
+  it('encodes the base path like the browser encodes the pathname', () => {
+    expect(makeHrefFromId('tag/users', 'my docs', true)).toBe('/my%20docs/tag/users')
+  })
+
+  it('does not depend on window', () => {
+    vi.stubGlobal('window', undefined)
+
+    expect(makeHrefFromId('tag/users', undefined, true)).toBe('#tag/users')
+    expect(makeHrefFromId('tag/users', 'api', true)).toBe('/api/tag/users')
+
+    vi.unstubAllGlobals()
+  })
+
+  it('never produces a protocol-relative href that would leave the site', () => {
+    // A document whose title slugifies to an empty string yields ids with a
+    // leading slash. Combined with an empty base path that would otherwise
+    // render `//evil.com/x`, which a browser resolves as an external URL.
+    expect(makeHrefFromId('/evil.com/phish', '', true)).toBe('/evil.com/phish')
+    expect(makeHrefFromId('//evil.com/phish', '', true)).toBe('/evil.com/phish')
+    expect(makeHrefFromId('/tag/users', '/', true)).toBe('/tag/users')
+
+    expect(new URL(makeHrefFromId('/evil.com/phish', '', true), 'https://example.com/docs').origin).toBe(
+      'https://example.com',
+    )
+  })
+
+  it('spells ids exactly like the URLs makeUrlFromId pushes to history', () => {
+    vi.stubGlobal('window', {
+      location: {
+        href: 'https://example.com/',
+        protocol: 'https:',
+        host: 'example.com',
+        pathname: '/',
+        search: '',
+        hash: '',
+      } as Location,
+    })
+
+    // Characters like ':' and '@' are legal in OpenAPI paths, so the
+    // crawlable href must not spell them differently than the pushed URL —
+    // otherwise the same section exists under two URLs
+    const id = 'doc/tag/users/GET/users:search@v2'
+    expect(makeHrefFromId(id, 'api', true)).toBe(makeUrlFromId(id, 'api', true)?.pathname)
+    expect(makeHrefFromId(id, undefined, true)).toBe(makeUrlFromId(id, undefined, true)?.hash)
+    expect(makeHrefFromId(id, '#/base', true)).toBe(makeUrlFromId(id, '#/base', true)?.hash)
+
+    vi.unstubAllGlobals()
   })
 })
 

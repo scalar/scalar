@@ -8,6 +8,30 @@ import type { SidebarGroupLevel } from './useSidebarGroups'
 export type ScalarSidebarItemProps = {
   /** Overrides the rendered element */
   is?: Component | string
+  /**
+   * Sets the link target for the item
+   *
+   * Must be a declared prop (instead of a fallthrough attribute) so it
+   * reaches the anchor tag rather than the wrapping list item, which keeps
+   * the navigation crawlable for search engines. It is dropped while the item
+   * is `disabled`, since an anchor cannot be disabled the way a button can.
+   *
+   * On ScalarSidebarItem and ScalarSidebarButton the rendered tag comes from
+   * `is`, which already defaults to an anchor, so the href is dropped when
+   * `is` names another element such as a button.
+   *
+   * On ScalarSidebarGroup the href instead switches the label from a button to
+   * an anchor (there, `is` names the wrapping element), and a plain left click
+   * on the label follows the link. The caret sits inside that link, so a group
+   * with an href should be `controlled` or `discrete` for its toggle to be
+   * operable: `discrete` renders the caret as a separate button beside the
+   * link, while an uncontrolled group only toggles when the consumer prevents
+   * the default navigation in its own click handler.
+   *
+   * ScalarSidebarSection and ScalarSidebarNestedItems never render a link, so
+   * they ignore the href entirely.
+   */
+  href?: string
   /** Sets the icon for the item */
   icon?: Icon | ScalarIconComponent
   /**

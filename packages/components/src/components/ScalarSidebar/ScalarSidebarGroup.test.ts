@@ -441,6 +441,122 @@ describe('ScalarSidebarGroup', () => {
     expect(mainButton.attributes('aria-expanded')).toBe('false')
   })
 
+  it('renders the group label as a button by default', () => {
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarGroup, ScalarSidebarItem },
+      template: `
+        <ScalarSidebarGroup>
+          Group 1
+          <template #items>
+            <ScalarSidebarItem>Items</ScalarSidebarItem>
+          </template>
+        </ScalarSidebarGroup>
+      `,
+    })
+
+    const wrapper = mount(TestComponent)
+    const groupButton = wrapper.findComponent(ScalarSidebarButton)
+
+    expect(groupButton.element.tagName).toBe('BUTTON')
+    expect(groupButton.attributes('href')).toBeUndefined()
+  })
+
+  it('renders the group label as a link when an href is provided', () => {
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarGroup, ScalarSidebarItem },
+      template: `
+        <ScalarSidebarGroup href="/guides/getting-started">
+          Group 1
+          <template #items>
+            <ScalarSidebarItem>Items</ScalarSidebarItem>
+          </template>
+        </ScalarSidebarGroup>
+      `,
+    })
+
+    const wrapper = mount(TestComponent)
+    const groupButton = wrapper.findComponent(ScalarSidebarButton)
+
+    // The label should be a crawlable anchor tag
+    expect(groupButton.element.tagName).toBe('A')
+    expect(groupButton.attributes('href')).toBe('/guides/getting-started')
+    expect(groupButton.attributes('type')).toBeUndefined()
+  })
+
+  it('keeps a disabled group a button instead of an inert link', () => {
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarGroup, ScalarSidebarItem },
+      template: `
+        <ScalarSidebarGroup disabled href="/guides/getting-started">
+          Group 1
+          <template #items>
+            <ScalarSidebarItem>Items</ScalarSidebarItem>
+          </template>
+        </ScalarSidebarGroup>
+      `,
+    })
+
+    const wrapper = mount(TestComponent)
+    const groupButton = wrapper.findComponent(ScalarSidebarButton)
+
+    // An anchor cannot be disabled, and an anchor without an href is not
+    // focusable, so a disabled group has to stay a button
+    expect(groupButton.element.tagName).toBe('BUTTON')
+    expect(groupButton.attributes('type')).toBe('button')
+    expect(groupButton.attributes('href')).toBeUndefined()
+  })
+
+  it('does not toggle a link label when the click is left to the browser', async () => {
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarGroup, ScalarSidebarItem },
+      template: `
+        <ScalarSidebarGroup href="/guides/getting-started">
+          Group 1
+          <template #items>
+            <ScalarSidebarItem>Items</ScalarSidebarItem>
+          </template>
+        </ScalarSidebarGroup>
+      `,
+    })
+
+    const wrapper = mount(TestComponent)
+    const groupButton = wrapper.findComponent(ScalarSidebarButton)
+
+    // Without preventDefault the browser navigates to the href, so the
+    // group must not flash its open state
+    await groupButton.trigger('click')
+    expect(groupButton.attributes('aria-expanded')).toBe('false')
+  })
+
+  it('toggles a link label when the consumer prevents the navigation', async () => {
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarGroup, ScalarSidebarItem },
+      setup() {
+        // SPA-style handling: hijack the plain left click
+        return { onClick: (event: MouseEvent) => event.preventDefault() }
+      },
+      template: `
+        <ScalarSidebarGroup href="/guides/getting-started" @click="onClick">
+          Group 1
+          <template #items>
+            <ScalarSidebarItem>Items</ScalarSidebarItem>
+          </template>
+        </ScalarSidebarGroup>
+      `,
+    })
+
+    const wrapper = mount(TestComponent)
+    const groupButton = wrapper.findComponent(ScalarSidebarButton)
+
+    await groupButton.trigger('click')
+    expect(groupButton.attributes('aria-expanded')).toBe('true')
+
+    // Modified clicks open the link in a new tab and must not toggle this
+    // tab's state, even if the consumer prevented the default
+    await groupButton.trigger('click', { metaKey: true })
+    expect(groupButton.attributes('aria-expanded')).toBe('true')
+  })
+
   it('allows main button click and toggle button click to work independently in discrete mode', async () => {
     const onClick = vi.fn()
     const onToggle = vi.fn()

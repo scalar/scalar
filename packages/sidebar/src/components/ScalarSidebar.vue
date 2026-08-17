@@ -15,6 +15,7 @@ const {
   layout,
   items,
   indent = 20,
+  getHref,
 } = defineProps<{
   /**
    * Layout type for the sidebar.
@@ -42,6 +43,13 @@ const {
    * The indentation in pixels to apply to nested items/groups in the sidebar.
    */
   indent?: number
+  /**
+   * Returns the URL for a sidebar item.
+   *
+   * When provided (and it returns a value) items render as anchor tags
+   * instead of buttons, so search engines can crawl the navigation.
+   */
+  getHref?: (item: Item) => string | undefined
   /**
    * Prevents this item from being dragged.
    *
@@ -119,6 +127,7 @@ const handleDragEnd = (
         <SidebarItem
           v-for="item in filterItems(layout, items)"
           :key="item.id"
+          :getHref="getHref"
           :isDraggable="isDraggable ?? layout === 'client'"
           :isDroppable="isDroppable"
           :isExpanded="isExpanded"
