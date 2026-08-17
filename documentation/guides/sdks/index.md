@@ -243,7 +243,7 @@ Across a large API that consistency is the difference between guessing a method 
 - **Auto-paginating iterators** across ten pagination schemes: cursor, cursor id, cursor URL, offset, page number, `Link` header, header token, body link, compound cursor, and `hasMore`.
 - **Streaming responses** over server-sent events and newline-delimited JSON, with event metadata preserved.
 - **WebSockets** with separate Node and browser adapters.
-- **[AsyncAPI](asyncapi.md) channels** lowered into typed connect and streaming methods, with send and receive events discriminated by their event type.
+- **[AsyncAPI](asyncapi.md) channels** lowered into typed connect and streaming methods, with send and receive events discriminated by their event type. Experimental.
 - **File uploads** as multipart, URL-encoded, or raw binary.
 - **Multi-content-type operations** get a content-type selector instead of a guess.
 
@@ -286,7 +286,7 @@ Across a large API that consistency is the difference between guessing a method 
 <scalar-steps>
   <scalar-step id="step-openapi" title="Start from your OpenAPI document">
 
-Put your API description in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load. [AsyncAPI](asyncapi.md) documents work too, with each channel becoming a WebSocket connect method or an HTTP streaming method.
+Put your API description in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load. [AsyncAPI](asyncapi.md) documents work too — experimentally — with each channel becoming a WebSocket connect method or an HTTP streaming method.
 
   </scalar-step>
 

@@ -2583,8 +2583,8 @@
                   "asyncapi": {
                     "filepath": "documentation/guides/sdks/asyncapi.md",
                     "type": "page",
-                    "title": "AsyncAPI",
-                    "description": "Generate SDKs from AsyncAPI documents: WebSocket connect methods, HTTP streaming channels, typed events, and authentication.",
+                    "title": "AsyncAPI (Experimental)",
+                    "description": "Generate SDKs from AsyncAPI documents with the experimental AsyncAPI input: WebSocket connect methods, HTTP streaming channels, typed events, and authentication.",
                     "head": {
                       "links": [
                         {

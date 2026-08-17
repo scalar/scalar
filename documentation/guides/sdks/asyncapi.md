@@ -1,5 +1,8 @@
 # AsyncAPI
 
+> [!NOTE]
+> AsyncAPI support is experimental. It generates working code, but the surface it produces may change: talk to us before you depend on it.
+
 The SDK generator reads [AsyncAPI](https://www.asyncapi.com/) documents as well as OpenAPI ones. Point it at an AsyncAPI description and it generates the same kind of client you get from OpenAPI — typed models, authentication, environments, a resource tree — with each channel exposed as a method on that tree.
 
 The document format is detected from the file itself, so nothing extra needs to be configured. A document with an `asyncapi` field takes the AsyncAPI path, and one with an `openapi` field takes the OpenAPI path.
