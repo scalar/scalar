@@ -1,13 +1,43 @@
 import { slugify } from '@scalar/helpers/string/slugify'
 
+/**
+ * Strips leading slashes.
+ *
+ * Scanned by hand rather than with a regex: an unanchored `\/+` alternative
+ * is retried at every index, so a base path made of many slashes costs
+ * quadratic time. The base path comes from consumer configuration, which
+ * makes it reachable from the exported helpers below.
+ */
+const trimLeadingSlashes = (value: string) => {
+  let start = 0
+
+  while (start < value.length && value[start] === '/') {
+    start += 1
+  }
+
+  return value.slice(start)
+}
+
+/** Strips trailing slashes, linear for the same reason as {@link trimLeadingSlashes} */
+const trimTrailingSlashes = (value: string) => {
+  let end = value.length
+
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1
+  }
+
+  return value.slice(0, end)
+}
+
 export const sanitizeBasePath = (basePath: string) => {
-  return basePath.replace(/^\/+|\/+$/g, '')
+  return trimTrailingSlashes(trimLeadingSlashes(basePath))
 }
 
 const isHashBasePath = (basePath: string) => basePath.startsWith('#')
 
 const sanitizeHashBasePath = (basePath: string) => {
-  return basePath.replace(/^#+/, '').replace(/\/+$/g, '')
+  // The leading `#` strip is anchored, so it cannot backtrack
+  return trimTrailingSlashes(basePath.replace(/^#+/, ''))
 }
 
 const applySlugPrefix = (base: string, slugPrefix: string | undefined) => {

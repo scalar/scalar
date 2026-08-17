@@ -932,6 +932,19 @@ describe('makeHrefFromId', () => {
     vi.unstubAllGlobals()
   })
 
+  it('trims a hash base path of many slashes in linear time', () => {
+    // The trailing-slash trim used to be `/\/+$/`, which retries at every
+    // index when the run never reaches the end of the string — quadratic, and
+    // measurably so: this input took over three seconds before the fix
+    const basePath = `#${'/'.repeat(50_000)}x`
+
+    const started = performance.now()
+    const href = makeHrefFromId('tag/users', basePath, true)
+    expect(performance.now() - started).toBeLessThan(1_000)
+
+    expect(href.endsWith('x/tag/users')).toBe(true)
+  })
+
   it('omits the query string that makeUrlFromId carries over from the current URL', () => {
     vi.stubGlobal('window', {
       location: {
