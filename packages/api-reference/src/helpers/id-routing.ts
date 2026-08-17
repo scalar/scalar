@@ -129,6 +129,37 @@ const stripFirstSegment = (id: string): string => {
 }
 
 /**
+ * Builds the href for a navigation id without touching `window`, so it also works during
+ * server-side rendering.
+ *
+ * Returns a root-relative pathname for path routing and a `#`-prefixed fragment for hash
+ * routing (with or without a hash base path) — exactly the shape a plain anchor tag expects.
+ * The URL API is borrowed for percent-encoding so the result matches what `makeUrlFromId`
+ * puts into the address bar. Returns an empty string when the id resolves to an empty hash,
+ * because there is nothing to link to in that case.
+ *
+ * @param id - The id to build the href for
+ * @param basePath - The base path used in path routing
+ * @param isMultiDocument - Whether the document is multi-document or single-document. Single-document documents will strip the document slug from the id
+ */
+export const makeHrefFromId = (_id: string, basePath: string | undefined, isMultiDocument: boolean): string => {
+  /** When there is only 1 document we don't need to include the document name in the URL */
+  const id = isMultiDocument ? _id : stripFirstSegment(_id)
+
+  // The placeholder origin only exists to borrow the URL API's percent-encoding; it is never returned.
+  const url = new URL('https://example.com/')
+
+  if (typeof basePath === 'string' && !isHashBasePath(basePath)) {
+    url.pathname = `${sanitizeBasePath(basePath)}/${id}`
+    return url.pathname
+  }
+
+  url.hash = typeof basePath === 'string' ? [sanitizeHashBasePath(basePath), id].filter(Boolean).join('/') : id
+
+  return url.hash
+}
+
+/**
  * Generate a new URL and applies the ID to the path or hash
  * depending on the type of routing used
  *
@@ -141,20 +172,14 @@ export const makeUrlFromId = (_id: string, basePath: string | undefined, isMulti
     return undefined
   }
 
-  /** When there is only 1 document we don't need to include the document name in the URL */
-  const id = isMultiDocument ? _id : stripFirstSegment(_id)
+  const href = makeHrefFromId(_id, basePath, isMultiDocument)
   const url = new URL(window.location.href)
 
-  if (typeof basePath === 'string') {
-    if (isHashBasePath(basePath)) {
-      const base = sanitizeHashBasePath(basePath)
-      url.hash = [base, id].filter(Boolean).join('/')
-    } else {
-      const base = sanitizeBasePath(basePath)
-      url.pathname = `${base}/${id}`
-    }
+  if (typeof basePath === 'string' && !isHashBasePath(basePath)) {
+    // Assigning only the pathname keeps the query string (e.g. the `api` document parameter) intact.
+    url.pathname = href
   } else {
-    url.hash = id
+    url.hash = href
   }
 
   return url

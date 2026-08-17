@@ -569,6 +569,72 @@ describe('Rendering', () => {
 
     expect(html).toContain('Test API')
   })
+
+  it('includes crawler navigation links for entries inside collapsed groups', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/planets': {
+          get: { summary: 'List planets', tags: ['planets'] },
+        },
+        '/moons': {
+          get: { summary: 'List moons', tags: ['moons'] },
+        },
+      },
+      components: {
+        schemas: {
+          Moon: { type: 'object' },
+        },
+      },
+    }
+
+    const app = createSSRApp({
+      render: () =>
+        h(ApiReference, {
+          configuration: {
+            content: document,
+          },
+        }),
+    })
+
+    const html = await renderToString(app)
+
+    // Only the first tag is expanded during SSR, so the links for the second tag and the
+    // models section have to come from the crawler navigation
+    expect(html).toContain('data-scalar-crawler-nav')
+    expect(html).toContain('href="#tag/moons/GET/moons"')
+    expect(html).toContain('href="#models/Moon"')
+  })
+
+  it('removes the crawler navigation after mounting', async () => {
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          content: {
+            openapi: '3.1.0',
+            info: {
+              title: 'Test API',
+              version: '1.0.0',
+            },
+            paths: {
+              '/planets': {
+                get: { summary: 'List planets', tags: ['planets'] },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('[data-scalar-crawler-nav]').exists()).toBe(false)
+  })
 })
 
 describe('proxy configuration', () => {
