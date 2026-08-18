@@ -43,11 +43,12 @@ toTest.forEach((source) => {
     await expect(nav.getByRole('link', { name: 'Models' })).toBeVisible()
     await expect(page).toHaveScreenshot(`${slug}-sidebar.png`, opts)
 
-    // Open all the sections: group labels are links while discrete caret
-    // toggles are still buttons, so match both roles
-    const closedTag = nav
-      .getByRole('link', { name: 'Open Group', expanded: false })
-      .or(nav.getByRole('button', { name: 'Open Group', expanded: false }))
+    // Open all the sections. Group labels are links, so the caret next to
+    // them is a button of its own that owns the expanded state.
+    const closedTag = nav.getByRole('button', {
+      name: 'Open Group',
+      expanded: false,
+    })
     do {
       await closedTag.first().click()
 
@@ -57,9 +58,7 @@ toTest.forEach((source) => {
 
     // Wait for all expanded sections to be visible and stable
     const sections = nav.getByRole('listitem').filter({
-      has: page
-        .getByRole('link', { name: 'Close Group', expanded: true })
-        .or(page.getByRole('button', { name: 'Close Group', expanded: true })),
+      has: page.getByRole('button', { name: 'Close Group', expanded: true }),
     })
 
     // Wait for sections to appear and be stable
@@ -114,4 +113,39 @@ test('Custom Sidebar Width', async ({ page }) => {
   const opts = getScreenshotOptions(page)
   await page.goto(example)
   await expect(page).toHaveScreenshot('custom-width.png', opts)
+})
+
+/**
+ * The point of the discrete toggle: a group label is a link, so the caret next
+ * to it has to be its own control that the keyboard can reach and activate.
+ */
+test('Collapses a group from the keyboard', async ({ page }) => {
+  const example = await serveExample(sources[0])
+  await page.goto(example)
+
+  const nav = page.getByRole('complementary', { name: 'Sidebar for' })
+
+  // Pick a collapsed group and hold on to its id, so the locators below survive
+  // the accessible name flipping between "Open Group" and "Close Group"
+  const collapsed = nav.getByRole('button', { name: 'Open Group', expanded: false }).first()
+  await expect(collapsed).toBeVisible()
+
+  const groupId = await collapsed.locator('xpath=ancestor::li[@data-sidebar-id][1]').getAttribute('data-sidebar-id')
+
+  const group = nav.locator(`[data-sidebar-id="${groupId}"]`)
+  const label = group.locator('a').first()
+  const toggle = group.locator('button[aria-expanded]').first()
+
+  // The toggle is the next tab stop after the label it belongs to
+  await label.focus()
+  await page.keyboard.press('Tab')
+  await expect(toggle).toBeFocused()
+
+  await page.keyboard.press('Enter')
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+
+  // Collapsing again is the part that was impossible while the caret lived
+  // inside the link
+  await page.keyboard.press('Enter')
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false')
 })
