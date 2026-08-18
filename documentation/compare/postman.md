@@ -70,7 +70,7 @@ And because the reference embeds the client, every operation in your docs has a 
 
 Postman's client generates [code snippets](https://github.com/postmanlabs/postman-code-generators) for a request in a wide range of languages — open source, and genuinely useful for copy-paste. But a snippet is not a client library. For SDK generation proper, Postman's answer is now Fern: since the [acquisition](https://blog.postman.com/postman-acquires-fern/), publishing client libraries from Postman means adopting Fern's stack, where the free tier [caps at 50 endpoints](https://buildwithfern.com/pricing) and most SDK capability is Enterprise, priced per SDK and billed annually with no published rate. We compare Fern's generated output in detail [on its own page](./fern.md).
 
-Scalar generates SDKs natively — TypeScript, Python, C#, Java, PHP, and Go — from the same OpenAPI document that renders your reference and drives the client, in the same generation run, so your docs, your client, and your libraries cannot describe different APIs. Custom code survives regeneration through a three-way merge, and each language target is a published [$100/month add-on](../guides/pricing.md). You can work out what it costs without talking to sales.
+Scalar generates SDKs natively — TypeScript, Python, C#, Java, PHP, and Go — from the same OpenAPI document that renders your reference and drives the client, in the same generation run, so your docs, your client, and your libraries cannot describe different APIs. Custom code survives regeneration through a three-way merge, one language target is included with every plan, and additional targets are a published [$150/month each](../guides/pricing.md). You can work out what it costs without talking to sales.
 
 ## Scripting, tests, and moving over
 
@@ -82,7 +82,7 @@ The client [imports Postman Collections](../guides/app/import.md) (v2.0 and v2.1
 
 Postman's [pricing](https://www.postman.com/pricing/) at the time of writing: a free tier for one user, then Solo at $9/month, Team at $19 per user per month, and Enterprise at $49 per user per month, billed annually. The free tier is genuinely usable, and the paid tiers are reasonable for what the platform does — but the cost scales with every seat, and the features that make Postman sticky (shared workspaces, RBAC, higher API call limits) are the ones that add seats.
 
-Scalar's API client is free and open source for everyone, on every plan, with no per-seat fee, because it is not where we make money. The [docs platform](../guides/pricing.md) starts free and is $72/month on Pro — a flat price, not per user.
+Scalar's API client is free and open source for everyone, on every plan, with no per-seat fee, because it is not where we make money. The [docs platform](../guides/pricing.md) starts free and is $150/month on Pro with 3 editor seats included — a flat price, not per user.
 
 ## Which should you choose?
 

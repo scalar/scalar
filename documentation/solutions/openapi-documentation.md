@@ -14,7 +14,7 @@ If you are evaluating documentation tools around an existing OpenAPI document, t
 | Framework integrations | More than 35 — Express, Fastify, Hono, NestJS, Next.js, FastAPI, Django, Rails, Laravel, ASP.NET Core, Spring Boot, and more |
 | Where it runs | Hosted on Scalar, self-hosted, or mounted inside your own application |
 | Staying in sync | Automatic redeploys from Git or from the Scalar Registry |
-| Price | Free hosted docs; Pro at $72/month; SDKs at $100/month per language |
+| Price | Free hosted docs; Pro at $150/month with one SDK included; additional SDKs at $150/month each |
 
 ## What Scalar does with an OpenAPI document
 
@@ -83,10 +83,11 @@ To be precise about the boundary: the documentation stack is open source; the SD
 
 Pricing is published in full on the [pricing page](https://scalar.com/pricing):
 
-- **Free** — $0. Hosted OpenAPI docs, the built-in API client, and viewer seats.
-- **Pro** — $72/month. Custom domains, Git Sync, Markdown and MDX guides, hosted MCP servers, and automated GitHub workflows.
-- **SDKs** — $100/month per language, as an add-on to Pro or Enterprise.
-- **Enterprise** — custom pricing, with SSO/SAML, RBAC, and SLAs.
+- **Free** — $0. Hosted OpenAPI docs, the built-in API client, viewer seats, and one SDK for APIs up to 25 endpoints.
+- **Pro** — $150/month. Custom domains, Git Sync, Markdown and MDX guides, hosted MCP servers, automated GitHub workflows, 3 editor seats, and one SDK for APIs up to 100 endpoints.
+- **Business** — $600/month. Everything in Pro, plus SSO, access groups, 10 editor seats, and APIs up to 250 endpoints.
+- **SDKs** — one included with every plan; additional SDKs are $150/month each, with volume discounts as you add more.
+- **Enterprise** — custom pricing, with SAML, RBAC, and SLAs.
 
 The MIT-licensed renderer is free regardless of plan, on your own infrastructure.
 

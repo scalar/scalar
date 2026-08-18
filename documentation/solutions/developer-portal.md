@@ -58,9 +58,10 @@ Both are credible choices for a developer portal, and the honest comparison is a
 
 Scalar publishes its prices, so you can work out what a portal costs without talking to sales. Full details are on the [pricing page](../guides/pricing.md).
 
-- **Free ($0)** — hosted OpenAPI docs, the built-in API client, and one editor seat. Enough to put a real reference online.
-- **Pro ($72/month)** — the full developer portal: custom domains and subdomains, Git Sync, Markdown and MDX, guides, versions, landing pages, email domain access control, and hosted MCP servers. Each SDK language is a $100/month add-on.
-- **Enterprise (custom)** — adds SSO/SAML, RBAC, priority support with SLAs, migration services, and a dedicated Slack or Teams channel. [Book a demo](https://scalar.cal.com/).
+- **Free ($0)** — hosted OpenAPI docs, the built-in API client, one SDK for APIs up to 25 endpoints, and one editor seat. Enough to put a real reference online.
+- **Pro ($150/month)** — the full developer portal: custom domains and subdomains, Git Sync, Markdown and MDX, guides, versions, landing pages, email domain access control, and hosted MCP servers. Includes 3 editor seats and one SDK for APIs up to 100 endpoints; additional SDKs are $150/month each.
+- **Business ($600/month)** — everything in Pro, plus SSO and access groups, 10 editor seats, APIs up to 250 endpoints, and volume discounts on additional SDKs.
+- **Enterprise (custom)** — adds SAML, RBAC, priority support with SLAs, migration services, and a dedicated Slack or Teams channel. [Book a demo](https://scalar.cal.com/).
 
 ## Portals built on Scalar
 

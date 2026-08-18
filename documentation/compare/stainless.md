@@ -21,7 +21,7 @@ If you are looking for the practical steps rather than the product comparison, g
 | Docs renderer | MIT, self-hostable on any plan | [Hosted docs platform](https://www.stainless.com/products/docs/) |
 | Standalone API client | Yes, open source | No |
 | Reads `stainless.yml` | Yes | Yes |
-| Published price | $100/month per target | [Published](https://www.stainless.com/pricing/) |
+| Published price | One target included; additional targets $150/month | [Published](https://www.stainless.com/pricing/) |
 
 ## Where Stainless is stronger
 
