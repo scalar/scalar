@@ -253,7 +253,18 @@ describe('cost stays linear in line length', () => {
       // the machine, and grows with the length multiplier (4x here) for a
       // quadratic one. That makes the threshold a property of the grammar
       // rather than of the hardware.
-      const ratio = nsPerChar(lang, big) / nsPerChar(lang, small)
+      //
+      // Best of several ratios rather than one. Some of these seeds cost a
+      // microsecond per character by design, so the big run takes tens of
+      // milliseconds and a single preemption on a shared CI runner is enough
+      // to inflate one reading past the threshold. Noise can only ever push a
+      // ratio up — a rule that really rescans the line cannot produce a low
+      // one — so taking the minimum sheds the false alarms without softening
+      // what the check catches.
+      let ratio = Number.POSITIVE_INFINITY
+      for (let attempt = 0; attempt < 3; attempt++) {
+        ratio = Math.min(ratio, nsPerChar(lang, big) / nsPerChar(lang, small))
+      }
       expect(
         ratio,
         `${lang} ${JSON.stringify(seed)}: per-character cost grew ${ratio.toFixed(1)}x between ` +
