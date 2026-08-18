@@ -43,11 +43,12 @@ toTest.forEach((source) => {
     await expect(nav.getByRole('link', { name: 'Models' })).toBeVisible()
     await expect(page).toHaveScreenshot(`${slug}-sidebar.png`, opts)
 
-    // Open all the sections: group labels are links while discrete caret
-    // toggles are still buttons, so match both roles
-    const closedTag = nav
-      .getByRole('link', { name: 'Open Group', expanded: false })
-      .or(nav.getByRole('button', { name: 'Open Group', expanded: false }))
+    // Open all the sections. Group labels are links, so the caret next to
+    // them is a button of its own that owns the expanded state.
+    const closedTag = nav.getByRole('button', {
+      name: 'Open Group',
+      expanded: false,
+    })
     do {
       await closedTag.first().click()
 
@@ -57,9 +58,7 @@ toTest.forEach((source) => {
 
     // Wait for all expanded sections to be visible and stable
     const sections = nav.getByRole('listitem').filter({
-      has: page
-        .getByRole('link', { name: 'Close Group', expanded: true })
-        .or(page.getByRole('button', { name: 'Close Group', expanded: true })),
+      has: page.getByRole('button', { name: 'Close Group', expanded: true }),
     })
 
     // Wait for sections to appear and be stable

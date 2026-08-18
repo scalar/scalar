@@ -1,6 +1,7 @@
 import {
   ScalarSidebarGroup,
   ScalarSidebarGroupToggle,
+  ScalarSidebarGroupToggleButton,
   ScalarSidebarItem,
   ScalarSidebarItem as ScalarSidebarItemComponent,
   ScalarSidebarSection,
@@ -238,6 +239,64 @@ describe('SidebarItem', () => {
       const anchor = wrapper.findComponent(ScalarSidebarGroup).find('a')
       expect(anchor.exists()).toBe(true)
       expect(anchor.attributes('href')).toBe('#doc/users')
+    })
+
+    it('gives a linked group a toggle button that owns the expanded state', () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: folderItem,
+          getHref,
+        },
+      })
+
+      const anchor = wrapper.findComponent(ScalarSidebarGroup).find('a')
+      const toggle = wrapper.findComponent(ScalarSidebarGroupToggleButton)
+
+      // Following the link is the only thing the label does, so the toggle
+      // button is what carries the expanded state
+      expect(anchor.attributes('aria-expanded')).toBeUndefined()
+      expect(toggle.exists()).toBe(true)
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+    })
+
+    it('emits toggleGroup when the toggle button of a linked group is clicked', async () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: folderItem,
+          getHref,
+        },
+      })
+
+      await wrapper.findComponent(ScalarSidebarGroupToggleButton).trigger('click')
+
+      expect(wrapper.emitted('toggleGroup')).toEqual([['doc/users']])
+    })
+
+    it('names the toggle button after the group it belongs to', () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: folderItem,
+          getHref,
+        },
+      })
+
+      // A page can hold a lot of these, so the title tells them apart
+      expect(wrapper.findComponent(ScalarSidebarGroupToggleButton).text()).toContain('Open Group - User API')
+    })
+
+    it('leaves the toggle on the label when the group does not link anywhere', () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: folderItem,
+        },
+      })
+
+      expect(wrapper.findComponent(ScalarSidebarGroupToggleButton).exists()).toBe(false)
+      expect(wrapper.findComponent(ScalarSidebarGroupToggle).exists()).toBe(true)
     })
 
     it('emits selectItem and prevents default navigation on a plain left click', () => {
