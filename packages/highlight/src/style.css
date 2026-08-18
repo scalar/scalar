@@ -154,7 +154,13 @@
   counter-increment: shl-line;
   content: counter(shl-line);
   display: inline-block;
-  width: 2ch;
+  /*
+   * Sized for the widest number in the block, so the code starts at the same
+   * column on line 9 and line 10. `highlightBlock` sets `--shl-line-digits`;
+   * the fallback covers markup rendered before that existed, and the `max`
+   * keeps a narrow block from looking cramped.
+   */
+  min-width: max(2ch, calc(var(--shl-line-digits, 2) * 1ch));
   margin-right: 1.25em;
   text-align: right;
   color: var(--scalar-color-3);

@@ -299,6 +299,38 @@ describe('highlightBlock', () => {
     expect(highlightBlock('42', grammar, { showLanguage: true })).toMatch(/data-lang="tiny"/)
   })
 
+  it('sizes the gutter for the widest line number in the block', () => {
+    // The gutter is one width for the whole block, so the code starts at the
+    // same column on line 9 and line 10. Without this the counter overflows a
+    // fixed-width box once a block passes 99 lines.
+    const block = (lines: number): string => {
+      const code = Array.from({ length: lines }, (_, i) => `${i}`).join('\n')
+      return highlightBlock(code, grammar, { lineNumbers: true })
+    }
+
+    expect(block(9)).toContain('--shl-line-digits: 1')
+    expect(block(10)).toContain('--shl-line-digits: 2')
+    expect(block(99)).toContain('--shl-line-digits: 2')
+    expect(block(100)).toContain('--shl-line-digits: 3')
+    expect(block(1000)).toContain('--shl-line-digits: 4')
+  })
+
+  it('counts gutter digits from the lines it actually renders', () => {
+    // A trailing newline closes the last line rather than opening an empty
+    // one, so the count has to match the renderer rather than count newlines.
+    const digitsOf = (code: string): string | undefined =>
+      highlightBlock(code, grammar, { lineNumbers: true }).match(/--shl-line-digits: \d+/)?.[0]
+
+    expect(digitsOf('')).toBe('--shl-line-digits: 1')
+    expect(digitsOf('1\n')).toBe('--shl-line-digits: 1')
+    expect(digitsOf(`${Array.from({ length: 10 }, (_, i) => i).join('\n')}\n`)).toBe('--shl-line-digits: 2')
+  })
+
+  it('sets no gutter variable when not numbering', () => {
+    expect(highlightBlock('1\n2', grammar)).not.toContain('shl-line-digits')
+    expect(highlightBlock('1\n2', grammar, { lines: true })).not.toContain('shl-line-digits')
+  })
+
   it('escapes options that land in an attribute', () => {
     // These are interpolated into `class`, where an unescaped quote would close
     // the attribute and let the rest of the value become markup.

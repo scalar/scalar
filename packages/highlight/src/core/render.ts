@@ -31,6 +31,7 @@ export const DEFAULT_PREFIX = 'shl-'
 const AMP = 38
 const LT = 60
 const GT = 62
+const NEWLINE = 10
 
 /**
  * Escapes `&`, `<` and `>`.
@@ -238,5 +239,27 @@ export const highlightBlock = (code: string, grammar: CompiledGrammar, options: 
     .filter(Boolean)
     .join(' ')
   const langAttr = options.showLanguage ? ` data-lang="${escapeAttribute(grammar.name)}"` : ''
-  return `<pre class="${classes}"${langAttr}><code>${inner}</code></pre>`
+
+  // The gutter is sized for the widest number in the block, not per line, so
+  // the code starts at the same column on line 9 and line 10. CSS counters
+  // cannot measure that themselves — the stylesheet reads this variable.
+  const gutter = options.lineNumbers ? ` style="--shl-line-digits: ${countLines(code).toString().length}"` : ''
+
+  return `<pre class="${classes}"${langAttr}${gutter}><code>${inner}</code></pre>`
+}
+
+/**
+ * How many lines the gutter will number.
+ *
+ * Matches the renderer's own line splitting: a trailing newline closes the
+ * last line rather than opening an empty one, so `"a\n"` is one line.
+ */
+const countLines = (code: string): number => {
+  if (code.length === 0) return 1
+
+  let lines = 1
+  for (let i = 0; i < code.length; i++) {
+    if (code.charCodeAt(i) === NEWLINE && i !== code.length - 1) lines++
+  }
+  return lines
 }

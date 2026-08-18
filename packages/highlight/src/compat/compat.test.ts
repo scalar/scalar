@@ -27,6 +27,7 @@ import { describe, expect, it } from 'vitest'
 import '../all'
 
 import { syntaxHighlight as referenceHighlight } from '@scalar/code-highlight/code'
+import { standardLanguages as referenceStandardLanguages } from '@scalar/code-highlight/languages'
 
 import { colorAgreement } from '../../test/colors'
 import { textFromHtml } from '../../test/html'
@@ -392,61 +393,10 @@ describe('colour agreement with code.css', () => {
 
 describe('compat surface', () => {
   it('keeps the standardLanguages key set, so StandardLanguageKey is unchanged', () => {
-    // Mirrors packages/code-highlight/src/languages/standard.ts.
-    const expected = [
-      'bash',
-      'c',
-      'clojure',
-      'cpp',
-      'csharp',
-      'css',
-      'curl',
-      'dart',
-      'diff',
-      'docker',
-      'dockerfile',
-      'elixir',
-      'fsharp',
-      'go',
-      'graphql',
-      'haskell',
-      'html',
-      'http',
-      'ini',
-      'java',
-      'javascript',
-      'json',
-      'kotlin',
-      'less',
-      'lua',
-      'makefile',
-      'markdown',
-      'matlab',
-      'mojo',
-      'nginx',
-      'objectivec',
-      'ocaml',
-      'perl',
-      'php',
-      'plaintext',
-      'powershell',
-      'properties',
-      'python',
-      'r',
-      'ruby',
-      'rust',
-      'scala',
-      'scss',
-      'shell',
-      'sql',
-      'swift',
-      'toml',
-      'typescript',
-      'xml',
-      'yaml',
-    ]
-
-    expect(Object.keys(standardLanguages).sort()).toEqual(expected.sort())
+    // Compared against the real export rather than a copy of it. A language
+    // added to `@scalar/code-highlight` upstream would otherwise drop out of
+    // `StandardLanguageKey` silently, with this test still green.
+    expect(Object.keys(standardLanguages).sort()).toEqual(Object.keys(referenceStandardLanguages).sort())
   })
 
   it('reports exactly which standard languages have no grammar', () => {
