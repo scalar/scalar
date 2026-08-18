@@ -299,6 +299,27 @@ describe('SidebarItem', () => {
       expect(wrapper.findComponent(ScalarSidebarGroupToggle).exists()).toBe(true)
     })
 
+    it('keeps the toggle button on text groups in the reference layout without a link', () => {
+      const textItem: Item = {
+        id: 'doc/introduction',
+        title: 'Introduction',
+        type: 'text',
+        children: [leafItem],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: textItem,
+        },
+      })
+
+      // Text groups were discrete before they became links, so they keep their
+      // toggle button even when the consumer provides no href
+      expect(wrapper.find('a').exists()).toBe(false)
+      expect(wrapper.findComponent(ScalarSidebarGroupToggleButton).exists()).toBe(true)
+    })
+
     it('emits selectItem and prevents default navigation on a plain left click', () => {
       const onSelectItem = vi.fn()
       const wrapper = mount(SidebarItem, {
