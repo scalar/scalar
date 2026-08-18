@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { SCOPES } from '../core/scopes'
 import { highlight, registerLanguage, tokenize } from '../index'
 import mojo from './mojo'
@@ -160,11 +161,7 @@ describe('mojo', () => {
   })
 
   it('round-trips through the HTML renderer', () => {
-    const text = highlight(SAMPLE, 'mojo')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(highlight(SAMPLE, 'mojo'))
     expect(text).toBe(SAMPLE)
   })
 

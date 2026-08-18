@@ -4,7 +4,7 @@ import type { CompiledGrammar } from '../core/types'
 import { hljsClass } from './hljs'
 import { canonicalName, grammarFor } from './languages'
 
-export interface SyntaxHighlightOptions {
+export type SyntaxHighlightOptions = {
   /** Language name, in highlight.js vocabulary. */
   lang: string
   /**

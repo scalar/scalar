@@ -2,7 +2,7 @@
 
 Scalar's code highlighter.
 
-- **Small.** 2.3 KB core, ~1.7 KB for Python, gzipped. Nothing you don't import.
+- **Small.** 2.4 KB core, ~1.7 KB for Python, gzipped. Nothing you do not import.
 - **No theme system.** Colors come from the `--scalar-*` variables `@scalar/themes` already defines, so a code block follows the app's theme and switches with `.light-mode` / `.dark-mode` — without being re-highlighted.
 - **Zero runtime dependencies.**
 
@@ -83,12 +83,12 @@ re-exporting it, so tree-shaking runs the way it does in a real app.
 
 | Bundle | Gzipped |
 | --- | ---: |
-| `@scalar/highlight` core | 2.38 KB |
-| …+ Python | 4.42 KB |
-| …lazy loader, initial chunk | 4.01 KB |
+| `@scalar/highlight` core | 2.40 KB |
+| …+ Python | 4.44 KB |
+| …lazy loader, initial chunk | 4.04 KB |
 | …`style.css` | 1.23 KB |
 
-Per language, on top of the core: `diff` 0.15 KB · `json` 0.29 KB · `html` 0.33 KB · `yaml` 0.43 KB · `markdown` 0.46 KB · `css` 0.54 KB · `nginx` 0.56 KB · `http` 0.64 KB · `graphql` 0.73 KB · `ini` 0.74 KB · `go` 0.78 KB · `bash` 0.81 KB · `rust` 0.83 KB · `makefile` 0.92 KB · `dockerfile` 0.95 KB · `sql` 0.98 KB · `java` 1.16 KB · `lua` 1.20 KB · `dart` 1.21 KB · `swift` 1.30 KB · `r` 1.31 KB · `kotlin` 1.33 KB · `c` 1.34 KB · `clojure` 1.34 KB · `javascript` 1.37 KB · `scala` 1.38 KB · `elixir` 1.41 KB · `powershell` 1.42 KB · `haskell` 1.43 KB · `ocaml` 1.43 KB · `objectivec` 1.45 KB · `matlab` 1.49 KB · `csharp` 1.52 KB · `mojo` 1.57 KB · `fsharp` 1.71 KB · `python` 1.72 KB · `ruby` 1.72 KB · `php` 1.77 KB · `cpp` 1.79 KB · `perl` 1.89 KB.
+Per language, on top of the core: `diff` 0.14 KB · `json` 0.29 KB · `html` 0.33 KB · `yaml` 0.43 KB · `markdown` 0.46 KB · `css` 0.54 KB · `nginx` 0.56 KB · `http` 0.64 KB · `graphql` 0.73 KB · `ini` 0.74 KB · `go` 0.77 KB · `bash` 0.81 KB · `rust` 0.83 KB · `makefile` 0.92 KB · `dockerfile` 0.94 KB · `sql` 0.98 KB · `java` 1.16 KB · `lua` 1.20 KB · `dart` 1.21 KB · `swift` 1.29 KB · `r` 1.31 KB · `kotlin` 1.33 KB · `c` 1.34 KB · `clojure` 1.34 KB · `javascript` 1.37 KB · `scala` 1.38 KB · `elixir` 1.41 KB · `powershell` 1.42 KB · `haskell` 1.43 KB · `ocaml` 1.43 KB · `objectivec` 1.44 KB · `matlab` 1.49 KB · `csharp` 1.52 KB · `mojo` 1.57 KB · `fsharp` 1.71 KB · `python` 1.72 KB · `ruby` 1.72 KB · `php` 1.77 KB · `cpp` 1.79 KB · `perl` 1.88 KB.
 
 Reproduce with `pnpm size`.
 
@@ -268,8 +268,8 @@ For the same three languages `ScalarCodeBlock` shows most often:
 
 | | gzipped |
 | --- | ---: |
-| `@scalar/code-highlight` | 127.15 KB |
-| `@scalar/highlight/compat` | 5.65 KB |
+| `@scalar/code-highlight` | 129.92 KB |
+| `@scalar/highlight/compat` | 5.74 KB |
 
 ## Trade-offs
 

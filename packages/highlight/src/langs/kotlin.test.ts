@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { SCOPES } from '../core/scopes'
 import { highlight, registerLanguage, tokenize } from '../index'
 import kotlin from './kotlin'
@@ -147,11 +148,7 @@ describe('kotlin', () => {
   })
 
   it('round-trips through the HTML renderer', () => {
-    const text = highlight(sample, 'kotlin')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(highlight(sample, 'kotlin'))
     expect(text).toBe(sample)
   })
 

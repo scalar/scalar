@@ -224,7 +224,10 @@ export const unsupportedLanguages: string[] = STANDARD_LANGUAGE_NAMES.filter((na
  * `language-*` class, whether or not we can highlight it.
  */
 export const canonicalName = (lang: string): string => {
-  return lowlightLanguageMappings[lang] ?? lang
+  // `lang` reaches here straight from a markdown fence, so `constructor` and
+  // `__proto__` are names a document can ask for. A bare index would return
+  // something off Object.prototype rather than undefined.
+  return Object.hasOwn(lowlightLanguageMappings, lang) ? (lowlightLanguageMappings[lang] ?? lang) : lang
 }
 
 /**
@@ -236,5 +239,5 @@ export const canonicalName = (lang: string): string => {
  */
 export const grammarFor = (lang: string): CompiledGrammar | undefined => {
   const key = lang.toLowerCase()
-  return getLanguage(GRAMMAR_FOR[key] ?? key)
+  return getLanguage(Object.hasOwn(GRAMMAR_FOR, key) ? (GRAMMAR_FOR[key] ?? key) : key)
 }

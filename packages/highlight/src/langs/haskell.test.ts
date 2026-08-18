@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { SCOPES } from '../core/scopes'
 import { compile, highlight, registerLanguage, tokenize, tokenizeStream } from '../index'
 import haskell from './haskell'
@@ -166,11 +167,7 @@ describe('haskell', () => {
   })
 
   it('round-trips through the HTML renderer', () => {
-    const text = highlight(SAMPLE, 'haskell')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(highlight(SAMPLE, 'haskell'))
     expect(text).toBe(SAMPLE)
   })
 

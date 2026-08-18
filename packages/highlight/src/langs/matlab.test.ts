@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { SCOPES } from '../core/scopes'
 import { highlight, registerLanguage, tokenize } from '../index'
 import matlab from './matlab'
@@ -151,11 +152,7 @@ describe('matlab', () => {
   })
 
   it('round-trips through the HTML renderer', () => {
-    const text = highlight(SAMPLE, 'matlab')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(highlight(SAMPLE, 'matlab'))
     expect(text).toBe(SAMPLE)
   })
 

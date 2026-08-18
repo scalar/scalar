@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { SCOPES } from '../core/scopes'
 import { highlight, registerLanguage, tokenize } from '../index'
 import objectivec from './objectivec'
@@ -156,11 +157,7 @@ describe('objectivec', () => {
   })
 
   it('round-trips through the HTML renderer', () => {
-    const text = highlight(code, 'objectivec')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(highlight(code, 'objectivec'))
     expect(text).toBe(code)
   })
 

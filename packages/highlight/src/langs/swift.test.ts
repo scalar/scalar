@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { SCOPES } from '../core/scopes'
 import { highlight, registerLanguage, tokenize } from '../index'
 import swift from './swift'
@@ -152,11 +153,7 @@ describe('swift', () => {
   })
 
   it('round-trips through the HTML renderer', () => {
-    const text = highlight(SAMPLE, 'swift')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(highlight(SAMPLE, 'swift'))
     expect(text).toBe(SAMPLE)
   })
 

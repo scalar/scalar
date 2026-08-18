@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { SCOPES } from '../core/scopes'
 import { highlight, registerLanguage, tokenize } from '../index'
 import graphql from './graphql'
@@ -148,11 +149,7 @@ describe('graphql', () => {
   })
 
   it('round-trips through the HTML renderer', () => {
-    const text = highlight(SAMPLE, 'graphql')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(highlight(SAMPLE, 'graphql'))
     expect(text).toBe(SAMPLE)
   })
 

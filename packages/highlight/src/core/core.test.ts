@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { compile } from './compile'
 import { registerLanguage, resolveGrammar } from './registry'
 import { escapeHtml, highlight, highlightBlock } from './render'
@@ -46,6 +47,28 @@ describe('compile', () => {
       states: { root: { rules: [{ match: 'a', push: 'nope' }] } },
     }
     expect(() => compile(grammar)).toThrow(/unknown state "nope"/)
+  })
+
+  it('rejects a transition to a state named after an Object member', () => {
+    // A plain object lookup finds `constructor` on the prototype, so the
+    // unknown-state check has to ask for own properties.
+    for (const name of ['constructor', '__proto__', 'toString']) {
+      const grammar: Grammar = {
+        name: 'x',
+        states: { root: { rules: [{ match: 'a', push: name }] } },
+      }
+      expect(() => compile(grammar), name).toThrow(new RegExp(`unknown state "${name}"`))
+    }
+  })
+
+  it('rejects an include of a state named after an Object member', () => {
+    for (const name of ['constructor', 'toString']) {
+      const grammar: Grammar = {
+        name: 'x',
+        states: { root: { rules: [{ include: name }] } },
+      }
+      expect(() => compile(grammar), name).toThrow(new RegExp(`include of unknown state "${name}"`))
+    }
   })
 
   it('rejects a circular include', () => {
@@ -199,7 +222,7 @@ describe('highlight', () => {
 
   it('escapes token text', () => {
     expect(highlight('"<script>"', grammar)).toMatch(/&lt;script&gt;/)
-    expect(highlight('"<script>"', grammar)).not.toMatch(/<script>/)
+    expect(highlight('"<script>"', grammar)).not.toMatch(/<script>/i)
   })
 
   it('honours a custom class prefix', () => {
@@ -235,11 +258,7 @@ describe('highlight', () => {
     const html = highlight(code, grammar, { lines: true })
     // Stripping tags must give back the source exactly: that is what a user
     // gets when they select and copy the block.
-    const text = html
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(html)
     expect(text).toBe(code)
   })
 
@@ -257,7 +276,7 @@ describe('highlight', () => {
 
   it('keeps blank lines in the copyable text', () => {
     const html = highlight('a\n\nb\n', grammar, { lines: true })
-    const text = html.replace(/<[^>]*>/g, '')
+    const text = textFromHtml(html)
     expect(text).toBe('a\n\nb\n')
   })
 })

@@ -63,7 +63,7 @@ catalogs:
     commander: 13.1.0
     concurrently: 9.1.2
     cross-env: 10.1.0
-    esbuild: ^0.28.2
+    esbuild: 0.27.3
     express: 5.1.0
     fake-indexeddb: 6.2.5
     fast-glob: ^3.3.3

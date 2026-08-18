@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { registerLanguage } from '../core/registry'
 import { SCOPES } from '../core/scopes'
 import { highlight, tokenize } from '../index'
@@ -140,11 +141,7 @@ describe('dart grammar invariants', () => {
   })
 
   it('round-trips through the HTML renderer', () => {
-    const text = highlight(SAMPLE, 'dart')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(highlight(SAMPLE, 'dart'))
     expect(text).toBe(SAMPLE)
   })
 

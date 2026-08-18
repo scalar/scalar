@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { SCOPES } from '../core/scopes'
 import { highlight, registerLanguage, tokenize } from '../index'
 import ocaml from './ocaml'
@@ -151,11 +152,7 @@ describe('ocaml', () => {
   })
 
   it('round-trips through the HTML renderer', () => {
-    const text = highlight(code, 'ocaml')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(highlight(code, 'ocaml'))
     expect(text).toBe(code)
   })
 

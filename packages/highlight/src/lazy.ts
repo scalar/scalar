@@ -161,8 +161,11 @@ export const bundledLanguages = Object.keys(loaders) as BundledLanguage[]
 /** Resolves a name or alias to a bundled language, or `undefined`. */
 export const resolveLanguageName = (name: string): BundledLanguage | undefined => {
   const key = name.toLowerCase()
-  if (key in loaders) return key as BundledLanguage
-  return aliases[key]
+  // `hasOwn` rather than `in`: `in` walks the prototype chain, so a caller
+  // asking for `constructor` would get past this check and then try to call
+  // `Object.prototype.constructor` as a loader.
+  if (Object.hasOwn(loaders, key)) return key as BundledLanguage
+  return Object.hasOwn(aliases, key) ? aliases[key] : undefined
 }
 
 const pending = new Map<BundledLanguage, Promise<CompiledGrammar>>()

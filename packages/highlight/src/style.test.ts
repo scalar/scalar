@@ -90,7 +90,7 @@ const contrast = (fg: [number, number, number], bg: [number, number, number]): n
 
 // --- extracting what the stylesheet actually declares -----------------------
 
-interface Slot {
+type Slot = {
   name: string
   hue: string
   pct: number

@@ -11,7 +11,7 @@
 /** A scope name from `SCOPES`, e.g. `'keyword.control'`. */
 export type ScopeName = string
 
-export interface Rule {
+export type Rule = {
   /**
    * Pattern to match. Written without flags — the compiler merges every rule
    * in a state into one alternation, so flags are set per state.
@@ -43,13 +43,13 @@ export interface Rule {
 }
 
 /** Splices another state's rules in at this position, keeping priority order. */
-export interface Include {
+export type Include = {
   include: string
 }
 
 export type StateRule = Rule | Include
 
-export interface State {
+export type State = {
   /** Scope applied to text no rule matched. `undefined` renders unstyled. */
   default?: ScopeName
   /** Compile this state's patterns case-insensitively. */
@@ -57,14 +57,14 @@ export interface State {
   rules: StateRule[]
 }
 
-export interface Grammar {
+export type Grammar = {
   name: string
   aliases?: string[]
   /** Must contain a `root` state — tokenizing starts there. */
   states: Record<string, State>
 }
 
-export interface Token {
+export type Token = {
   /** `null` for text with no scope. */
   scope: ScopeName | null
   text: string
@@ -77,7 +77,7 @@ export type Emit = (scope: ScopeName | null, start: number, end: number) => void
 
 // --- compiled forms (internal, but exported for tooling) --------------------
 
-export interface CompiledRule {
+export type CompiledRule = {
   /** Scope for the whole match, when `scope` was a string. */
   scope: ScopeName | null
   /** Positional capture-group scopes, when `scope` was an array. */
@@ -99,14 +99,14 @@ export interface CompiledRule {
   pop: number
 }
 
-export interface CompiledState {
+export type CompiledState = {
   name: string
   re: RegExp
   rules: CompiledRule[]
   default: ScopeName | null
 }
 
-export interface CompiledGrammar {
+export type CompiledGrammar = {
   name: string
   aliases: string[]
   states: Record<string, CompiledState>

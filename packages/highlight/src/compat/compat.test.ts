@@ -3,7 +3,8 @@
  *
  * Two things are checked here. First, the four assertions that
  * `packages/code-highlight/src/code/highlight.test.ts` makes today, ported
- * verbatim — a drop-in has to pass the tests the thing it replaces passes.
+ * verbatim (renamed to drop the `should` prefix this repo does not use) —
+ * a drop-in has to pass the tests the thing it replaces passes.
  * Second, a differential run against the real lowlight pipeline — imported
  * straight from `@scalar/code-highlight`, so the comparison tracks the
  * package we are replacing rather than a snapshot of it — over the shared
@@ -28,6 +29,7 @@ import '../all'
 import { syntaxHighlight as referenceHighlight } from '@scalar/code-highlight/code'
 
 import { colorAgreement } from '../../test/colors'
+import { textFromHtml } from '../../test/html'
 import { referenceLanguages } from '../../test/languages'
 import { samples } from '../../test/samples'
 import { hljsClass } from './hljs'
@@ -36,22 +38,6 @@ import { standardLanguages, unsupportedLanguages } from './languages'
 
 // --- helpers ---------------------------------------------------------------
 
-/** Decodes the entity forms either serializer can produce. */
-const decodeEntities = (html: string): string => {
-  return html
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(Number.parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, '&')
-}
-
-/** The text a reader sees: tags removed, entities resolved. */
-const textOf = (html: string): string => {
-  return decodeEntities(html.replace(/<[^>]*>/g, ''))
-}
-
 /** The `<code …>` opening tag, which carries the classes and the gutter vars. */
 const envelope = (html: string): string => {
   return html.match(/<code[^>]*>/)?.[0] ?? ''
@@ -59,7 +45,7 @@ const envelope = (html: string): string => {
 
 /** Text content of each `<span class="line">`, in order. */
 const lineTexts = (html: string): string[] => {
-  return [...html.matchAll(/<span class="line">(.*?)\n<\/span>/gs)].map((m) => textOf(m[1]!))
+  return [...html.matchAll(/<span class="line">(.*?)\n<\/span>/gs)].map((m) => textFromHtml(m[1]!))
 }
 
 /** Every distinct token class in the output. */
@@ -81,12 +67,12 @@ describe('syntaxHighlight — ported from @scalar/code-highlight', () => {
     })
   `
 
-  it('should return highlighted HTML for a given code string', () => {
+  it('returns highlighted HTML for a given code string', () => {
     const result = syntaxHighlight(codeExample, defaultOptions)
     expect(result).toContain('class="hljs language-javascript"')
   })
 
-  it('should mask credentials in the code string', () => {
+  it('masks credentials in the code string', () => {
     const codeWithCredentials = `
       fetch('https://galaxy.scalar.com/planets', {
         method: 'POST',
@@ -105,7 +91,7 @@ describe('syntaxHighlight — ported from @scalar/code-highlight', () => {
     expect(result).toContain('<span class="credential"><span class="credential-value">secret</span></span>')
   })
 
-  it('should handle line numbers if option is enabled', () => {
+  it('wraps lines when the option is enabled', () => {
     const result = syntaxHighlight(codeExample, {
       ...defaultOptions,
       lineNumbers: true,
@@ -113,7 +99,7 @@ describe('syntaxHighlight — ported from @scalar/code-highlight', () => {
     expect(result).toContain('class="line"')
   })
 
-  it('should correctly work with special characters in credentials', () => {
+  it('masks credentials containing special characters', () => {
     const result = syntaxHighlight(`\n      const secret = '(secret';\n    `, {
       ...defaultOptions,
       maskCredentials: ['(secret'],
@@ -136,7 +122,7 @@ describe('parity with the lowlight pipeline', () => {
       const after = syntaxHighlight(code, options)
 
       it('renders the same text', () => {
-        expect(textOf(after)).toBe(textOf(before))
+        expect(textFromHtml(after)).toBe(textFromHtml(before))
       })
 
       it('renders the same <code> envelope', () => {
@@ -239,7 +225,7 @@ describe('parity on edge cases', () => {
     const options = { lang, languages: referenceLanguages }
 
     it(`${name}: same text`, () => {
-      expect(textOf(syntaxHighlight(code, options))).toBe(textOf(referenceHighlight(code, options)))
+      expect(textFromHtml(syntaxHighlight(code, options))).toBe(textFromHtml(referenceHighlight(code, options)))
     })
 
     it(`${name}: same envelope and lines`, () => {
@@ -496,5 +482,15 @@ describe('compat surface', () => {
       maskCredentials: ['abcdef'],
     })
     expect(one).toBe(many)
+  })
+
+  it('treats a language named after an Object member as unknown', () => {
+    // ```constructor is a fence a document can write, and the lowlight
+    // pipeline renders it as plain text rather than throwing. So must we.
+    for (const lang of ['constructor', '__proto__', 'toString', 'valueOf', 'hasOwnProperty']) {
+      const html = syntaxHighlight('x = 1', { lang })
+      expect(html, lang).toContain(`language-${lang}`)
+      expect(html, lang).toContain('x = 1')
+    }
   })
 })

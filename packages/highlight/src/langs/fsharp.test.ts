@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { SCOPES } from '../core/scopes'
 import { highlight, registerLanguage, tokenize } from '../index'
 import fsharp from './fsharp'
@@ -154,11 +155,7 @@ describe('fsharp', () => {
   })
 
   it('round-trips through the HTML renderer', () => {
-    const text = highlight(sample, 'fsharp')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
+    const text = textFromHtml(highlight(sample, 'fsharp'))
     expect(text).toBe(sample)
   })
 

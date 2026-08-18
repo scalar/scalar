@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { textFromHtml } from '../../test/html'
 import { samples } from '../../test/samples'
 import { languages as bundled, highlight, isRegistered, tokenize } from '../all'
 import { SCOPES } from '../core/scopes'
@@ -114,6 +115,18 @@ describe('every bundled language', () => {
     expect(misdirected, 'aliases src/lazy.ts points at the wrong grammar').toEqual([])
   })
 
+  it('rejects a language named after an Object member rather than throwing', async () => {
+    // `loadLanguage` promises a rejected promise for an unknown name. A bare
+    // `in` check would let `constructor` through and then throw synchronously,
+    // escaping the caller's `.catch()`.
+    const { loadLanguage, resolveLanguageName } = await import('../lazy')
+
+    for (const name of ['constructor', '__proto__', 'toString', 'valueOf']) {
+      expect(resolveLanguageName(name), name).toBeUndefined()
+      await expect(loadLanguage(name), name).rejects.toThrow(/Unknown language/)
+    }
+  })
+
   it('resolves every name the compat layer highlights through the lazy loader too', async () => {
     // A third table, and so a third chance to drift. A name the compat layer
     // can highlight but `src/lazy.ts` cannot resolve is a chunk no consumer
@@ -163,11 +176,7 @@ describe('every bundled language', () => {
       })
 
       it('round-trips through the HTML renderer', () => {
-        const text = highlight(code, lang)
-          .replace(/<[^>]*>/g, '')
-          .replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>')
-          .replace(/&amp;/g, '&')
+        const text = textFromHtml(highlight(code, lang))
         expect(text).toBe(code)
       })
 

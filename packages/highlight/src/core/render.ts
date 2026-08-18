@@ -2,7 +2,7 @@ import { scopeClass } from './scopes'
 import { tokenize } from './tokenize'
 import type { CompiledGrammar } from './types'
 
-export interface RenderOptions {
+export type RenderOptions = {
   /**
    * Prefix for generated class names. Must match the stylesheet — change it
    * only alongside a stylesheet of your own.
@@ -208,7 +208,7 @@ const renderLines = (
   return out
 }
 
-export interface BlockOptions extends RenderOptions {
+export type BlockOptions = RenderOptions & {
   /** Render a line-number gutter. Implies `lines`. */
   lineNumbers?: boolean
   /** Extra classes on the `<pre>`. */

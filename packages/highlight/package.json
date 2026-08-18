@@ -73,7 +73,10 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "dist/all.js",
+    "**/*.css"
+  ],
   "devDependencies": {
     "@scalar/code-highlight": "workspace:*",
     "esbuild": "catalog:*",

@@ -59,7 +59,10 @@ const flatten = (
     throw new Error(`[${grammarName}] circular include of state "${name}"`)
   }
   seen.add(name)
-  const state = states[name]
+  // `hasOwn` because a grammar is data a caller supplies: an `include` of
+  // `constructor` would otherwise resolve off Object.prototype and sail past
+  // this check, failing later with something far less legible.
+  const state = Object.hasOwn(states, name) ? states[name] : undefined
   if (!state) throw new Error(`[${grammarName}] include of unknown state "${name}"`)
 
   const out: Rule[] = []
@@ -128,11 +131,14 @@ const compileState = (grammar: Grammar, name: string): CompiledState => {
 }
 
 export const compile = (grammar: Grammar): CompiledGrammar => {
-  if (!grammar.states['root']) {
+  if (!Object.hasOwn(grammar.states, 'root')) {
     throw new Error(`[${grammar.name}] grammar has no "root" state`)
   }
 
-  const states: Record<string, CompiledState> = {}
+  // Null-prototype: state names come from grammar data, and the unknown-state
+  // check below has to see `constructor` and `__proto__` as missing rather
+  // than as inherited Object members. Tokenizing looks states up here too.
+  const states: Record<string, CompiledState> = Object.create(null)
   for (const name of Object.keys(grammar.states)) {
     states[name] = compileState(grammar, name)
   }
