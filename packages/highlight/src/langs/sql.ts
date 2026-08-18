@@ -51,6 +51,13 @@ const sql: Grammar = {
         { match: '\\b\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?\\b', scope: 'number' },
         { match: '\\$\\d+|[:@][A-Za-z_]\\w*|\\?', scope: 'variable' },
 
+        // Table, column and correlation names are deliberately left at the
+        // block foreground, the same as the quoted identifiers above and the
+        // same as `variable` everywhere else in the vocabulary. Scoping them
+        // reads better against shiki's coverage but is worse in practice: it
+        // paints most of a statement, and `@scalar/code-highlight` renders
+        // them muted, so colouring them here would break the compat floor.
+
         { match: '::|<>|!=|>=|<=|\\|\\||[-+*/%<>=]', scope: 'operator' },
         { match: '[()]', scope: 'punctuation.bracket' },
         { match: '[,;.]', scope: 'punctuation.delimiter' },

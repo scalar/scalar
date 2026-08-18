@@ -96,41 +96,68 @@ type Slot = {
   pct: number
 }
 
+/** The stylesheet with comments removed, so a `{` inside one cannot be read as a rule. */
+const rules = css.replace(/\/\*[\s\S]*?\*\//g, '')
+
 /**
- * Reads the `--scalar-hl-*` declarations out of one mode block, resolving both
- * forms the stylesheet uses: a bare `var(--scalar-color-x)` (100% of the hue)
- * and a `color-mix(... N%, var(--scalar-color-1))`.
+ * Every `--scalar-hl-*` declaration that takes effect in one mode, resolving
+ * both forms the stylesheet uses: a bare `var(--scalar-color-x)` (100% of the
+ * hue) and a `color-mix(... N%, var(--scalar-color-1))`.
+ *
+ * Only blocks whose selector list names the mode class count, and later
+ * declarations replace earlier ones — which is what the cascade does for two
+ * blocks of equal specificity. Both halves matter. `@scalar/themes` defines
+ * `--scalar-color-*` on the mode classes rather than on `:root`, and a custom
+ * property resolves its `var()` against the element it is declared on, so a
+ * slot declared only at `:root` reads an undefined palette and silently falls
+ * back to plain text. Reading the file the way the browser does is what makes
+ * that visible here.
  */
 const slotsFor = (mode: 'light' | 'dark'): Slot[] => {
-  const marker = mode === 'light' ? '.light-mode,' : ':root,'
-  const start = css.indexOf(marker)
-  expect(start, `could not find the ${mode} block`).not.toBe(-1)
-  const block = css.slice(start, css.indexOf('}', start))
+  const cls = `.${mode}-mode`
+  const resolved = new Map<string, Slot>()
 
-  const slots: Slot[] = []
-  for (const [, name, value] of block.matchAll(/--scalar-hl-([\w-]+):\s*([^;]+);/g)) {
-    const mixed = value!.match(/color-mix\(in oklab,\s*var\(--scalar-color-([\w-]+)\)\s*(\d+)%/)
-    if (mixed) {
-      slots.push({ name: name!, hue: mixed[1]!, pct: Number(mixed[2]) })
-      continue
+  for (const [, selector, body] of rules.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!selector!.split(',').some((part) => part.trim() === cls)) continue
+
+    for (const [, name, value] of body!.matchAll(/--scalar-hl-([\w-]+):\s*([^;]+);/g)) {
+      const mixed = value!.match(/color-mix\(in oklab,\s*var\(--scalar-color-([\w-]+)\)\s*(\d+)%/)
+      if (mixed) {
+        resolved.set(name!, { name: name!, hue: mixed[1]!, pct: Number(mixed[2]) })
+        continue
+      }
+      const plain = value!.match(/var\(--scalar-color-([\w-]+)\)/)
+      if (plain) resolved.set(name!, { name: name!, hue: plain[1]!, pct: 100 })
     }
-    const plain = value!.match(/var\(--scalar-color-([\w-]+)\)/)
-    if (plain) slots.push({ name: name!, hue: plain[1]!, pct: 100 })
   }
-  return slots
+  return [...resolved.values()]
 }
 
 describe('stylesheet', () => {
-  it('declares the same slots in both modes it overrides', () => {
+  it('resolves every slot in both modes', () => {
+    // A slot missing from one mode is not a cosmetic gap: it falls back to the
+    // block foreground, so those tokens render as plain text. That is exactly
+    // what happened to declaration, punctuation, muted and doc in light mode
+    // when they were declared only at `:root`.
     const light = new Set(slotsFor('light').map((s) => s.name))
-    for (const slot of slotsFor('dark')) {
-      expect(slot.name.length, 'slot must be named').toBeGreaterThan(0)
-    }
-    // Light only overrides the slots that need correcting; every one it does
-    // override must exist in the base block.
-    const base = new Set(slotsFor('dark').map((s) => s.name))
-    for (const name of light) {
-      expect(base.has(name), `light mode overrides "${name}", which the base block never defines`).toBeTruthy()
+    const dark = new Set(slotsFor('dark').map((s) => s.name))
+
+    expect(
+      [...dark].filter((name) => !light.has(name)),
+      'slots that resolve in dark mode but not light',
+    ).toEqual([])
+    expect(
+      [...light].filter((name) => !dark.has(name)),
+      'slots that resolve in light mode but not dark',
+    ).toEqual([])
+  })
+
+  it('gives every slot a hue the palette defines', () => {
+    for (const mode of ['light', 'dark'] as const) {
+      for (const slot of slotsFor(mode)) {
+        expect(slot.name.length, 'slot must be named').toBeGreaterThan(0)
+        expect(slot.hue.length, `${mode} slot "${slot.name}" resolves to no palette hue`).toBeGreaterThan(0)
+      }
     }
   })
 
@@ -154,10 +181,9 @@ describe('stylesheet', () => {
       const palette = PALETTE[mode]
       const bg = parse(palette.background)
 
-      // Light only overrides some slots; the rest fall through to the base.
-      const base = new Map(slotsFor('dark').map((s) => [s.name, s]))
-      const resolved = new Map(base)
-      if (mode === 'light') for (const s of slotsFor('light')) resolved.set(s.name, s)
+      // `slotsFor` already applies the cascade, so this is what the mode
+      // actually resolves to rather than a base plus an override list.
+      const resolved = new Map(slotsFor(mode).map((s) => [s.name, s]))
 
       for (const [name, slot] of resolved) {
         // Structural glyphs are held to the 3:1 non-text bar instead. Raising

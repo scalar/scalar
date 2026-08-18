@@ -48,6 +48,13 @@ const rust: Grammar = {
           match: '\\b(?:if|else|match|loop|while|for|break|continue|return|await|yield)\\b',
           scope: 'keyword.control',
         },
+        // Ahead of the bare keyword list below, which also matches `fn`. Rule
+        // order is priority order, so listing this second would mean `fn`
+        // always won as a plain keyword and the name never got scoped.
+        {
+          match: '(fn)(\\s+)([A-Za-z_]\\w*)',
+          scope: ['keyword.declaration', null, 'function'],
+        },
         {
           match:
             '\\b(?:fn|let|const|static|struct|enum|trait|impl|type|mod|union|async|move|dyn|pub|crate|unsafe|extern|ref|mut|where)\\b',
@@ -79,11 +86,6 @@ const rust: Grammar = {
           match: '(\\.)([A-Za-z_]\\w*)',
           scope: ['punctuation', 'variable.member'],
         },
-        {
-          match: '(fn)(\\s+)([A-Za-z_]\\w*)',
-          scope: ['keyword.declaration', null, 'function'],
-        },
-
         { match: '\\b[A-Z][A-Z0-9_]+\\b', scope: 'constant' },
         { match: '\\b[A-Z][A-Za-z0-9_]*\\b', scope: 'type' },
         { match: '\\b[a-z_]\\w*(?=\\s*\\()', scope: 'function.call' },

@@ -19,6 +19,7 @@ const yaml: Grammar = {
         {
           match: '^([ \\t]*)(-)(?=[ \\t]|$)',
           scope: [null, 'punctuation.delimiter'],
+          push: 'value',
         },
 
         // `key:` — quoted or bare, optionally after a list dash.
@@ -31,6 +32,7 @@ const yaml: Grammar = {
         {
           match: '((?:"[^"\\n]*"|\'[^\'\\n]*\'|[^\\s#:][^:\\n]{0,256}?))([ \\t]*)(:)(?=[ \\t]|$)',
           scope: ['property', null, 'punctuation.delimiter'],
+          push: 'value',
         },
 
         { match: '[&*][\\w-]+', scope: 'variable.special' },
@@ -57,6 +59,67 @@ const yaml: Grammar = {
 
         { match: '[\\[\\]{}]', scope: 'punctuation.bracket' },
         { match: ',', scope: 'punctuation.delimiter' },
+      ],
+    },
+
+    /**
+     * Everything to the right of a `key:` or a list `-`.
+     *
+     * A plain (unquoted) scalar is still a string, and in a real document —
+     * an OpenAPI description, a CI workflow — it is most of the file. Scoping
+     * it needs to know it sits in value position, which is what this state is
+     * for: `on:` is a key, `on` after a colon is a string.
+     *
+     * The state lasts one line. `$` pops it, so a nested block on the next
+     * line is read as keys again.
+     */
+    value: {
+      rules: [
+        { match: '#[^\\n]*', scope: 'comment' },
+
+        {
+          match: '([|>][-+]?)([ \\t]*)$',
+          scope: ['operator', null],
+          set: 'block-scalar',
+        },
+
+        // `- uses: actions/checkout@v4` reaches here through the dash, so the
+        // key form has to be recognised in value position too.
+        {
+          match: '((?:"[^"\\n]*"|\'[^\'\\n]*\'|[^\\s#:][^:\\n]{0,256}?))([ \\t]*)(:)(?=[ \\t]|$)',
+          scope: ['property', null, 'punctuation.delimiter'],
+        },
+
+        { match: '"(?:[^"\\\\\\n]|\\\\.)*"', scope: 'string' },
+        { match: "'(?:[^'\\n]|'')*'", scope: 'string' },
+
+        { match: '[&*][\\w-]+', scope: 'variable.special' },
+        { match: '!!?[\\w/-]+', scope: 'type' },
+
+        // Anchored to a value boundary so `no-cache` stays one plain scalar
+        // rather than the boolean `no` followed by `-cache`.
+        {
+          match: '(?:true|false|yes|no|on|off|True|False|Yes|No|On|Off)(?=[ \\t]*(?:[,\\]}]|#|$))',
+          scope: 'boolean',
+        },
+        {
+          match: '(?:null|Null|NULL|~)(?=[ \\t]*(?:[,\\]}]|#|$))',
+          scope: 'constant.builtin',
+        },
+        {
+          match: '-?\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?(?=[ \\t]*(?:[,\\]}]|#|$))',
+          scope: 'number',
+        },
+
+        { match: '[\\[\\]{}]', scope: 'punctuation.bracket' },
+        { match: ',', scope: 'punctuation.delimiter' },
+
+        // The plain scalar itself. Greedy and unanchored on the right rather
+        // than a capped lazy scan: a lazy `{0,n}?` here is retried at every
+        // column and is what makes a long single-line value quadratic.
+        { match: '[^\\s#,\\[\\]{}][^,\\[\\]{}\\n#]*', scope: 'string' },
+
+        { match: '$', pop: true },
       ],
     },
 

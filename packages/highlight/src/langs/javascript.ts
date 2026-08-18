@@ -119,7 +119,9 @@ const javascript: Grammar = {
         { match: `\\b${ID}(?=[ \\t]*[(<])`, scope: 'function.call' },
 
         {
-          match: '=>|\\?\\?=?|\\?\\.|\\.{3}|&&=?|\\|\\|=?|\\*\\*=?|[-+*/%&|^]=?|[!=]==?|[<>]=?|<<=?|>>>?=?|[?~!]',
+          // Bare `=` goes last so `=>`, `==`, `===` and the compound forms all
+          // get first refusal. Without it plain assignment matched nothing.
+          match: '=>|\\?\\?=?|\\?\\.|\\.{3}|&&=?|\\|\\|=?|\\*\\*=?|[-+*/%&|^]=?|[!=]==?|[<>]=?|<<=?|>>>?=?|[?~!]|=',
           scope: 'operator',
         },
         { match: '[()\\[\\]{}]', scope: 'punctuation.bracket' },

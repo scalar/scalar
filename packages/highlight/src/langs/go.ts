@@ -22,6 +22,19 @@ const go: Grammar = {
             '\\b(?:if|else|for|range|switch|case|default|break|continue|return|goto|fallthrough|select|defer|go)\\b',
           scope: 'keyword.control',
         },
+        // Ahead of the bare keyword list, which also matches `func` and
+        // `package`. Rule order is priority order, so listing these after it
+        // would mean the keyword always won and the name never got scoped.
+        // The receiver is captured whole and left unscoped — its own name and
+        // type are picked up by the rules further down.
+        {
+          match: '(func)(\\s+)(\\([^)\\n]*\\))?(\\s*)([A-Za-z_]\\w*)',
+          scope: ['keyword.declaration', null, null, null, 'function'],
+        },
+        {
+          match: '(package)(\\s+)([A-Za-z_]\\w*)',
+          scope: ['keyword.declaration', null, 'namespace'],
+        },
         {
           match: '\\b(?:func|var|const|type|struct|interface|map|chan|package)\\b',
           scope: 'keyword.declaration',
@@ -40,10 +53,6 @@ const go: Grammar = {
           scope: 'type.builtin',
         },
 
-        {
-          match: '(func)(\\s+)(\\([^)]*\\))?(\\s*)([A-Za-z_]\\w*)',
-          scope: ['keyword.declaration', null, null, null, 'function'],
-        },
         {
           match: '(\\.)([A-Za-z_]\\w*)(?=\\s*\\()',
           scope: ['punctuation', 'function.method'],

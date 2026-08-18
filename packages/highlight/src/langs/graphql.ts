@@ -7,9 +7,11 @@ import type { Grammar } from '../core/types'
  * is telling them apart without a parser:
  *
  * - a name followed by `:` names an output key — an SDL field or a query alias
- *   — and reads as a property, while the field an alias selects stays plain.
- *   That makes the alias the one token in a selection set that stands out,
- *   which is exactly the part a reader has to notice.
+ *   — and reads as a property, and so does the field being selected. An
+ *   earlier version left the selected field plain so the alias would stand out
+ *   on its own, but that leaves the body of a query — the part a reader is
+ *   actually there for — at the block foreground. The alias is still legible
+ *   from the `alias: field` shape.
  * - argument names live in their own state, so `episode` in `hero(episode: $ep)`
  *   is a parameter and `hero` is not.
  * - a string that starts a line is a description. Every string *value* in the
@@ -44,6 +46,12 @@ const graphql: Grammar = {
           scope: [null, 'comment.doc'],
         },
         { include: 'common' },
+
+        // Whatever is left in a selection set or an SDL body is a field being
+        // selected or declared. Listed after `common`, so it only claims names
+        // no earlier rule wanted, and kept out of `args` — which includes
+        // `common` but not this — so an argument's value is not read as a field.
+        { match: `\\b${NAME}\\b`, scope: 'property' },
       ],
     },
 

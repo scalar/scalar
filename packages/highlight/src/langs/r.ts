@@ -175,7 +175,10 @@ const r: Grammar = {
         // `:` is a sequence operator in R rather than a delimiter, so it is
         // scoped with the operators and only `,` and `;` separate.
         {
-          match: '<<-|<-|->>|->|\\|>|:::?|%[^%\\n]*%|&&|\\|\\||[-+*/^!<>=]=?|[~?:@$]',
+          // `[&|]` goes last so `&&`, `||` and `|>` all get first refusal.
+          // Without it R's elementwise and/or — the common form in a filter —
+          // matched nothing.
+          match: '<<-|<-|->>|->|\\|>|:::?|%[^%\\n]*%|&&|\\|\\||[-+*/^!<>=]=?|[~?:@$]|[&|]',
           scope: 'operator',
         },
 

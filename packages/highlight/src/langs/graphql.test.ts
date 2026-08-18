@@ -176,12 +176,13 @@ describe('graphql', () => {
     assertHas(code, 'graphql', 'User', 'type')
   })
 
-  it('scopes an alias and leaves the field it aliases plain', () => {
+  it('scopes an alias and the field it aliases', () => {
     const code = '{\n  handle: displayName\n  displayName\n}\n'
     assertHas(code, 'graphql', 'handle', 'property')
-    // A selection is the document's ordinary content, so it carries no scope at
-    // all — which is what makes the alias visible.
-    expect(scoped(code, 'graphql').some(([t]) => t === 'displayName')).toBeFalsy()
+    // The selected field carries a scope too. Leaving it bare made the alias
+    // stand out but left the body of a query at the block foreground, which is
+    // the part a reader came for. The `alias: field` shape still reads.
+    assertHas(code, 'graphql', 'displayName', 'property')
   })
 
   it('separates a builtin scalar from a user-defined type', () => {
@@ -219,7 +220,9 @@ describe('graphql', () => {
     assertHas(code, 'graphql', '$ep', 'variable')
     assertHas(code, 'graphql', 'episode', 'variable.parameter')
     assertHas(code, 'graphql', 'if', 'variable.parameter')
-    expect(scoped(code, 'graphql').some(([t]) => t === 'hero')).toBeFalsy()
+    // The field is a property; an argument name inside the list is not, which
+    // is the distinction this grammar exists to draw.
+    assertHas(code, 'graphql', 'hero', 'property')
   })
 
   it('reads a fragment spread as a call and a type condition as a keyword', () => {
@@ -286,8 +289,8 @@ describe('graphql', () => {
     assertHas(code, 'graphql', 'false', 'boolean')
     assertHas(code, 'graphql', '-2', 'number')
     // The list still closes on its own parenthesis, so what follows is a
-    // selection set and the field in it stays plain.
-    expect(scoped(code, 'graphql').some(([t]) => t === 'ok')).toBeFalsy()
+    // selection set and `ok` in it is a field rather than another argument.
+    assertHas(code, 'graphql', 'ok', 'property')
   })
 
   it('treats an introspection meta-field as special', () => {

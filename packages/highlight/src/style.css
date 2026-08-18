@@ -37,9 +37,19 @@
 
 /* ── semantic slots ─────────────────────────────────────────────────────── */
 /* Defaults are the dark-mode values; they also apply when no mode class is
-   present, which is the common case for a dark-first app shell. */
+   present, which is the common case for a dark-first app shell.
+ *
+ * `.light-mode` is in this list too, and it matters. `@scalar/themes` defines
+ * `--scalar-color-*` on the mode classes, not on `:root`, and a custom
+ * property resolves its `var()` against the element it is declared on. A slot
+ * declared only at `:root` therefore reads an undefined palette, becomes
+ * invalid, and leaves `color` to inherit plain text — which is what happened
+ * in light mode to every slot the block below does not override. Declaring
+ * them here on `.light-mode` as well resolves them against a real palette; the
+ * block below then overrides the ten that want a different mix in light. */
 :root,
 .dark-mode,
+.light-mode,
 .light-mode .dark-mode {
   /* Grey tiers, dimmest first: punctuation < comment < muted < doc < text.
      Both mixes pull toward --scalar-color-1, so the hierarchy holds on a light
