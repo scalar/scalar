@@ -4,8 +4,10 @@ import type { AddressInfo } from 'node:net'
 import { cwd } from 'node:process'
 
 import { type FastifyInstance, fastify } from 'fastify'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { assert, beforeEach, describe, expect, it } from 'vitest'
 
+import { isAsyncApiDocument } from '@/schemas'
+import type { TraversedDocument } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
@@ -573,6 +575,155 @@ describe('create-server-store', () => {
         expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
         expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
       })
+    })
+  })
+
+  describe('asyncapi documents', () => {
+    const exampleAsyncApiDocument = () => ({
+      'asyncapi': '3.0.0',
+      'info': {
+        'title': 'Scalar Galaxy Events',
+        'version': '1.0.0',
+      },
+      'servers': {
+        'broker': {
+          'host': 'broker.example.com',
+          'protocol': 'mqtt',
+        },
+      },
+      'channels': {
+        'planetEvents': {
+          'address': 'planet/events',
+          'messages': {
+            'planetCreated': { '$ref': '#/components/messages/PlanetCreated' },
+          },
+        },
+      },
+      'operations': {
+        'onPlanetCreated': {
+          'action': 'receive',
+          'channel': { '$ref': '#/channels/planetEvents' },
+          'messages': [{ '$ref': '#/channels/planetEvents/messages/planetCreated' }],
+        },
+      },
+      'components': {
+        'messages': {
+          'PlanetCreated': {
+            'name': 'PlanetCreated',
+            'title': 'Planet Created',
+            'payload': { '$ref': '#/components/schemas/Planet' },
+          },
+        },
+        'schemas': {
+          'Planet': {
+            'type': 'object',
+            'properties': {
+              'id': { 'type': 'integer' },
+              'name': { 'type': 'string' },
+            },
+          },
+        },
+      },
+    })
+
+    const addAsyncApiDocument = async (document: Record<string, unknown> = exampleAsyncApiDocument()) => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [{ name: 'events', document }],
+      })
+
+      const storedDocument = store.getWorkspace().documents['events']
+      assert(isAsyncApiDocument(storedDocument))
+
+      return { store, document: storedDocument }
+    }
+
+    it('keeps the channels and operations of an asyncapi document', async () => {
+      const { document } = await addAsyncApiDocument()
+
+      const channel = document.channels?.['planetEvents']
+      assert(channel && !('$ref' in channel))
+      expect(channel.address).toBe('planet/events')
+      expect(Object.keys(channel.messages ?? {})).toEqual(['planetCreated'])
+
+      const operation = document.operations?.['onPlanetCreated']
+      assert(operation && !('$ref' in operation))
+      expect(operation.action).toBe('receive')
+      expect(operation.channel).toEqual({ '$ref': '#/channels/planetEvents' })
+    })
+
+    it('does not run the openapi ingestion pipeline on an asyncapi document', async () => {
+      const { document } = await addAsyncApiDocument()
+
+      // The OpenAPI coerce would set `openapi: ''`, which breaks the discriminator both stores
+      // branch on, and would add an empty `paths` object the renderer then treats as an API with
+      // no operations.
+      expect(document).not.toHaveProperty('openapi')
+      expect(document).not.toHaveProperty('paths')
+      expect(document.asyncapi).toBe('3.1.0')
+    })
+
+    it('records the original asyncapi version and upgrades legacy documents', async () => {
+      const { document } = await addAsyncApiDocument({
+        'asyncapi': '2.6.0',
+        'info': { 'title': 'Legacy Galaxy Events', 'version': '1.0.0' },
+        'channels': {
+          'planet/events': {
+            'publish': {
+              'operationId': 'onPlanetCreated',
+              'message': { '$ref': '#/components/messages/PlanetCreated' },
+            },
+          },
+        },
+        'components': {
+          'messages': { 'PlanetCreated': { 'name': 'PlanetCreated' } },
+        },
+      })
+
+      expect(document.asyncapi).toBe('3.1.0')
+      expect(document['x-original-aas-version']).toBe('2.6.0')
+
+      // The 2.x upgrade lifts `publish`/`subscribe` into top-level operations.
+      expect(Object.keys(document.operations ?? {})).toEqual(['onPlanetCreated'])
+      expect(Object.keys(document.channels ?? {})).toEqual(['planet-events'])
+    })
+
+    it('builds channel and operation navigation entries', async () => {
+      const { document } = await addAsyncApiDocument()
+
+      const navigation = document['x-scalar-navigation'] as TraversedDocument
+
+      const channelEntry = navigation.children?.find((entry) => entry.type === 'asyncapi-channel')
+      assert(channelEntry?.type === 'asyncapi-channel')
+      expect(channelEntry.title).toBe('planet/events')
+      expect(channelEntry.channelName).toBe('planetEvents')
+      expect(channelEntry.channelAddress).toBe('planet/events')
+
+      const operationEntry = channelEntry.children?.[0]
+      assert(operationEntry?.type === 'asyncapi-operation')
+      expect(operationEntry.operationName).toBe('onPlanetCreated')
+      expect(operationEntry.action).toBe('receive')
+      expect(operationEntry.channelName).toBe('planetEvents')
+      expect(operationEntry.channelAddress).toBe('planet/events')
+    })
+
+    it('leaves the document it was handed untouched', async () => {
+      // The navigation traversal writes `x-scalar-order` onto channels, and the upgrader rewrites
+      // legacy documents in place, so callers that keep using their own object (the docs build
+      // does) must not see either.
+      const input = exampleAsyncApiDocument()
+
+      await addAsyncApiDocument(input)
+
+      expect(input).toEqual(exampleAsyncApiDocument())
+    })
+
+    it('does not externalize asyncapi content into chunks', async () => {
+      const { store } = await addAsyncApiDocument()
+
+      expect(store.get('#/events/operations')).toBeUndefined()
+      expect(store.get('#/events/components')).toBeUndefined()
     })
   })
 })

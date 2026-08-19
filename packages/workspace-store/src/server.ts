@@ -1,20 +1,24 @@
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { upgrade } from '@scalar/openapi-upgrader'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 
+import { deepClone } from '@/helpers/deep-clone'
 import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
 import { keyOf } from '@/helpers/general'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { createNavigation } from '@/navigation'
+import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument } from '@/schemas/navigation'
+import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   type ComponentsObject,
@@ -247,9 +251,9 @@ export type ServerWorkspaceStore = {
    * Loads and registers a document in the workspace.
    *
    * Supported inputs include:
-   * - `url`: fetch and parse an OpenAPI document from a remote URL
-   * - `path`: read and parse an OpenAPI document from the filesystem
-   * - `document`: use an in-memory OpenAPI object directly
+   * - `url`: fetch and parse an OpenAPI or AsyncAPI document from a remote URL
+   * - `path`: read and parse an OpenAPI or AsyncAPI document from the filesystem
+   * - `document`: use an in-memory OpenAPI or AsyncAPI object directly
    *
    * If loading fails, the document is not added.
    *
@@ -365,6 +369,48 @@ export async function createServerWorkspaceStore(
   >
 
   /**
+   * Adds an AsyncAPI document to the workspace.
+   *
+   * AsyncAPI keeps its content under `channels` and `operations` instead of `paths`, so none of the
+   * OpenAPI externalization applies: there are no path operations to split into chunks, and the
+   * consumers read channels and operations straight off the stored document. The document is
+   * therefore kept whole, and only the AsyncAPI upgrader runs so 1.x/2.x documents reach the 3.x
+   * shape the traversal and renderer expect.
+   *
+   * @param document - The AsyncAPI document to process and add
+   * @param meta - The document name plus any metadata to merge onto the stored document
+   */
+  const addAsyncApiDocumentSync = (
+    document: AsyncApiDocument,
+    { name, documentMeta }: { name: string; documentMeta: WorkspaceDocumentMeta },
+    navigationOptions?: NavigationOptions,
+  ) => {
+    // Capture the original version before the upgrader bumps `asyncapi` to the latest.
+    const originalAasVersion = document.asyncapi
+
+    // Clone first: the upgrader and the traversal both write to the document they are handed, and
+    // the caller may keep using the object it passed in.
+    // The upgrader is typed against the loose `UnknownObject` shape; the result is a valid 3.x
+    // AsyncAPI document, so cast it back.
+    const asyncApiDocument = upgradeAsyncApi(deepClone(document)) as AsyncApiDocument
+
+    // Nothing is externalized, so the document owns no chunks. The empty entry keeps `get()` and
+    // chunk generation well defined for the document name.
+    assets[name] = {}
+
+    workspace.documents[name] = {
+      ...documentMeta,
+      ...asyncApiDocument,
+      'x-original-aas-version': originalAasVersion,
+      [extensions.document.navigation]: traverseAsyncApiDocument(
+        name,
+        asyncApiDocument,
+        navigationOptions ?? workspaceProps.navigationOptions,
+      ),
+    }
+  }
+
+  /**
    * Adds a new document to the workspace.
    *
    * This function processes an OpenAPI document by:
@@ -385,6 +431,14 @@ export async function createServerWorkspaceStore(
     navigationOptions?: NavigationOptions,
   ) => {
     const { name, ...documentMeta } = meta
+
+    // AsyncAPI documents get their own ingestion path, mirroring the client store. The OpenAPI
+    // upgrade and coerce steps would strip `channels` and `operations`, inject an empty
+    // `openapi: ''` that breaks the type discriminator, and add an empty `paths` object.
+    if (isAsyncApiDocument(document)) {
+      addAsyncApiDocumentSync(document, { name, documentMeta }, navigationOptions)
+      return
+    }
 
     const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
 
