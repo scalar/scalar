@@ -134,6 +134,19 @@ app.MapScalarApiReference("/docs", (options, httpContext) =>
 });
 ```
 
+## MapScalarApiReference Async Overloads
+
+The `MapScalarApiReference` method provides several overloads to allow for asynchronous code in the `configureOptions` parameter.
+
+### Basic Async Example
+
+```csharp
+app.MapScalarApiReference(async options =>
+{
+    options.HeaderContent = await File.ReadAllTextAsync("header.html");
+});
+```
+
 ## Configuration Options
 
 The `options` parameter provides a fluent API to customize Scalar. The fluent methods make configuration more intuitive and readable:
