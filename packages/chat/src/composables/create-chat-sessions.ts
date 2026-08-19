@@ -26,8 +26,9 @@ export type ChatSessionsOptions<TChat extends SessionChat> = {
   /** Skip storage access during SSR/SSG rendering. */
   isServer?: boolean
   /**
-   * When provided, stored messages hydrate lazily on the first `true` —
-   * the donors' open-on-panel behavior. Full-page surfaces pass a `ref(true)`.
+   * When provided, stored messages hydrate on every flip to `true` — the
+   * donors' open-on-panel behavior (hydration is idempotent). Full-page
+   * surfaces pass a `ref(true)`.
    */
   open?: Ref<boolean>
   /** Extra fields persisted on every record (for example `projectUid`, `mode`). */
@@ -128,6 +129,13 @@ export const createChatSessions = <TChat extends SessionChat>(
 
   const chatInstances = new Map<string, TChat>()
 
+  /**
+   * Stop handles for each instance's persistence watchers. Without stopping
+   * them on delete, a chat deleted mid-stream would re-persist itself when
+   * its stream settles — resurrecting the record the user just deleted.
+   */
+  const instanceWatchStops = new Map<string, (() => void)[]>()
+
   const persist = (chatId: string, instance: TChat): void => {
     if (!history || !instance.messages.length) {
       return
@@ -156,7 +164,7 @@ export const createChatSessions = <TChat extends SessionChat>(
     // watcher captures each message as it is added; the status watcher
     // captures the final streamed content, because the count does not change
     // while the last message's parts mutate in place.
-    watch(
+    const stopCountWatcher = watch(
       () => instance.messages.length,
       (length) => {
         if (length) {
@@ -164,7 +172,7 @@ export const createChatSessions = <TChat extends SessionChat>(
         }
       },
     )
-    watch(
+    const stopStatusWatcher = watch(
       () => instance.status,
       (status) => {
         if (status === 'ready' && instance.messages.length) {
@@ -173,7 +181,18 @@ export const createChatSessions = <TChat extends SessionChat>(
       },
     )
 
+    instanceWatchStops.set(chatId, [stopCountWatcher, stopStatusWatcher])
+
     return instance
+  }
+
+  const disposeInstance = (chatId: string): void => {
+    for (const stop of instanceWatchStops.get(chatId) ?? []) {
+      stop()
+    }
+
+    instanceWatchStops.delete(chatId)
+    chatInstances.delete(chatId)
   }
 
   const getChatInstance = (chatId: string): TChat => chatInstances.get(chatId) ?? createChatInstance(chatId)
@@ -220,62 +239,76 @@ export const createChatSessions = <TChat extends SessionChat>(
   }
 
   const deleteChat = async (chatId: string): Promise<void> => {
-    chatInstances.delete(chatId)
+    const wasActive = chatId === currentChatId.value
+
+    disposeInstance(chatId)
     await history?.deleteChat(chatId)
 
-    if (!chatList.value.length) {
+    if (history && !chatList.value.length) {
       // The list emptied: land on a fresh chat even when the deleted chat
       // was not active, so a stale pointer never survives an empty list.
       currentChatId.value = generateChatId()
       return
     }
 
-    if (chatId === currentChatId.value) {
+    if (wasActive) {
       const nextId = chatList.value[0]?.id
 
       if (nextId) {
         await switchToChat(nextId)
+      } else {
+        currentChatId.value = generateChatId()
       }
     }
   }
 
   const clearAllChats = async (): Promise<void> => {
-    chatInstances.clear()
+    for (const chatId of [...chatInstances.keys()]) {
+      disposeInstance(chatId)
+    }
+
     await history?.clearAll()
     currentChatId.value = generateChatId()
   }
 
+  /**
+   * The most-recent fallback runs once per scope: a deliberately fresh new
+   * chat must not be yanked back to an older one on every reopen. `reset()`
+   * re-arms it for the next scope.
+   */
+  let restoredOnce = false
+
   const reset = (): void => {
-    chatInstances.clear()
+    for (const chatId of [...chatInstances.keys()]) {
+      disposeInstance(chatId)
+    }
+
+    restoredOnce = false
     currentChatId.value = readLastChatId()
   }
 
-  // Lazy hydration: on the first open, wait for the history read, hydrate
-  // the remembered chat, and fall back to the most recent stored chat when
-  // the remembered id has no record.
   if (history && open) {
-    const restored = ref(false)
-
     watch(
       open,
       async (isOpen) => {
-        if (!isOpen || restored.value) {
+        if (!isOpen) {
           return
         }
 
-        restored.value = true
         await history.ready.value
 
-        const instance = getChatInstance(currentChatId.value)
+        // Hydration runs on every open, like the donors — it is idempotent,
+        // and a one-shot flag here would skip rehydration after reset().
+        await ensureLoaded(currentChatId.value)
 
-        if (!instance.messages.length) {
-          const stored = await history.loadChat(currentChatId.value)
+        if (restoredOnce) {
+          return
+        }
 
-          if (stored) {
-            instance.messages = stored.messages as TChat['messages']
-          } else if (chatList.value.length) {
-            await switchToChat(chatList.value[0]?.id ?? currentChatId.value)
-          }
+        restoredOnce = true
+
+        if (!activeChat.value.messages.length && chatList.value.length) {
+          await switchToChat(chatList.value[0]?.id ?? currentChatId.value)
         }
       },
       { immediate: true },

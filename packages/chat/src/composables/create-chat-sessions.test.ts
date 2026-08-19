@@ -17,9 +17,15 @@ const userMessage = (text: string): FakeChat['messages'][number] => ({
   parts: [{ type: 'text', text }],
 })
 
-const flush = async (): Promise<void> => {
+/**
+ * The production chains cross several fake-indexeddb macrotask turns (each
+ * IndexedDB operation opens a fresh connection), so a single timer turn is
+ * a race. Poll with vi.waitFor instead of guessing turn counts.
+ */
+const waitFor = (assertion: () => void): Promise<void> => vi.waitFor(assertion, { timeout: 2000, interval: 5 })
+
+const flushWatchers = async (): Promise<void> => {
   await nextTick()
-  await new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 describe('create-chat-sessions', () => {
@@ -75,21 +81,17 @@ describe('create-chat-sessions', () => {
     const chat = sessions.activeChat.value
 
     chat.messages.push(userMessage('Hello there'))
-    await flush()
-
-    expect(history.chatList.value).toHaveLength(1)
-    expect(history.chatList.value[0]?.title).toBe('Hello there')
+    await waitFor(() => expect(history.chatList.value[0]?.title).toBe('Hello there'))
 
     // The status watcher persists the final streamed content: mutate a part
     // in place (no count change), then settle the status.
     chat.status = 'streaming'
-    await flush()
+    await flushWatchers()
     const part = chat.messages[0]?.parts[0] as unknown as { text: string }
     part.text = 'Hello there, edited'
     chat.status = 'ready'
-    await flush()
 
-    expect(history.chatList.value[0]?.title).toBe('Hello there, edited')
+    await waitFor(() => expect(history.chatList.value[0]?.title).toBe('Hello there, edited'))
   })
 
   it('remembers the last chat id in localStorage', async () => {
@@ -100,7 +102,7 @@ describe('create-chat-sessions', () => {
 
     sessions.activeChat.value.messages.push(userMessage('first'))
     sessions.startNewChat()
-    await flush()
+    await flushWatchers()
 
     expect(localStorage.getItem('scalar-agent-last-chat')).toBe(sessions.currentChatId.value)
   })
@@ -142,13 +144,13 @@ describe('create-chat-sessions', () => {
     const sessions = createChatSessions({ createChat: createFakeChat, history })
 
     sessions.activeChat.value.messages.push(userMessage('first chat'))
-    await flush()
     const firstId = sessions.currentChatId.value
+    await waitFor(() => expect(history.chatList.value).toHaveLength(1))
 
     sessions.startNewChat()
     sessions.activeChat.value.messages.push(userMessage('second chat'))
-    await flush()
     const secondId = sessions.currentChatId.value
+    await waitFor(() => expect(history.chatList.value).toHaveLength(2))
 
     await sessions.deleteChat(secondId)
     expect(sessions.currentChatId.value).toBe(firstId)
@@ -160,12 +162,50 @@ describe('create-chat-sessions', () => {
 
     const sessions = createChatSessions({ createChat: createFakeChat, history })
     sessions.activeChat.value.messages.push(userMessage('only chat'))
-    await flush()
     const onlyId = sessions.currentChatId.value
+    await waitFor(() => expect(history.chatList.value).toHaveLength(1))
 
     await sessions.deleteChat(onlyId)
     expect(sessions.currentChatId.value).not.toBe(onlyId)
     expect(sessions.hasHistory.value).toBe(false)
+  })
+
+  it('keeps the active chat when deleting an inactive one without history', async () => {
+    const sessions = createChatSessions({ createChat: createFakeChat })
+
+    sessions.activeChat.value.messages.push(userMessage('active conversation'))
+    const activeId = sessions.currentChatId.value
+
+    await sessions.deleteChat('some-other-id')
+
+    expect(sessions.currentChatId.value).toBe(activeId)
+    expect(sessions.activeChat.value.messages).toHaveLength(1)
+  })
+
+  it('does not resurrect a chat deleted while its stream settles', async () => {
+    const history = createChatHistory({ dbName: 'scalar-agent-chat' })
+    await history.ready.value
+
+    const sessions = createChatSessions({ createChat: createFakeChat, history })
+    const chat = sessions.activeChat.value
+    const chatId = sessions.currentChatId.value
+
+    chat.messages.push(userMessage('streaming chat'))
+    await waitFor(() => expect(history.chatList.value).toHaveLength(1))
+
+    chat.status = 'streaming'
+    await flushWatchers()
+
+    await sessions.deleteChat(chatId)
+    await waitFor(() => expect(history.chatList.value).toHaveLength(0))
+
+    // The stream settles after deletion: the disposed watchers must not
+    // re-persist the record.
+    chat.status = 'ready'
+    await flushWatchers()
+    await new Promise((resolve) => setTimeout(resolve, 20))
+
+    expect(history.chatList.value).toHaveLength(0)
   })
 
   it('restores the remembered chat on first open, with a most-recent fallback', async () => {
@@ -190,10 +230,41 @@ describe('create-chat-sessions', () => {
     })
 
     open.value = true
-    await flush()
 
-    expect(sessions.currentChatId.value).toBe('recent-chat')
+    await waitFor(() => expect(sessions.currentChatId.value).toBe('recent-chat'))
     expect(sessions.activeChat.value.messages).toHaveLength(1)
+  })
+
+  it('rehydrates after reset — the project-switch flow must not skip hydration', async () => {
+    const history = createChatHistory({ dbName: 'scalar-editor-agent-chat' })
+    await history.ready.value
+    await history.saveChat({
+      id: 'project-chat',
+      title: 'Project chat',
+      messages: [userMessage('existing conversation')],
+      createdAt: 1,
+      updatedAt: 1,
+    })
+
+    localStorage.setItem('last-chat', 'project-chat')
+    const open = ref(true)
+    const sessions = createChatSessions({
+      createChat: createFakeChat,
+      history,
+      lastChatStorageKey: 'last-chat',
+      open,
+    })
+
+    await waitFor(() => expect(sessions.activeChat.value.messages).toHaveLength(1))
+
+    // Project switch: instances dropped, the pointer re-read.
+    open.value = false
+    sessions.reset()
+
+    // Reopening must hydrate again — skipping it would leave the chat empty
+    // and the next persist would overwrite the stored conversation.
+    open.value = true
+    await waitFor(() => expect(sessions.activeChat.value.messages).toHaveLength(1))
   })
 
   it('persists extended record fields', async () => {
@@ -207,9 +278,8 @@ describe('create-chat-sessions', () => {
     })
 
     sessions.activeChat.value.messages.push(userMessage('editor chat'))
-    await flush()
 
-    expect(history.chatList.value[0]).toMatchObject({ projectUid: 'project-1', mode: 'medium' })
+    await waitFor(() => expect(history.chatList.value[0]).toMatchObject({ projectUid: 'project-1', mode: 'medium' }))
   })
 
   it('clears everything and resets to a fresh chat', async () => {
@@ -218,7 +288,7 @@ describe('create-chat-sessions', () => {
 
     const sessions = createChatSessions({ createChat: createFakeChat, history })
     sessions.activeChat.value.messages.push(userMessage('a chat'))
-    await flush()
+    await waitFor(() => expect(history.chatList.value).toHaveLength(1))
 
     await sessions.clearAllChats()
     expect(sessions.hasHistory.value).toBe(false)

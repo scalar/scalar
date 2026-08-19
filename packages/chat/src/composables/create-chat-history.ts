@@ -26,7 +26,10 @@ export type ChatHistoryOptions = {
   version?: number
   /**
    * Scope records by an indexed field, like the editor's `projectUid`.
-   * The index is created on upgrade; reads filter with `IDBKeyRange.only`.
+   * The index is created when the database (or a version upgrade) creates the
+   * store; for a pre-existing database that never had the index — IndexedDB
+   * cannot add one outside a version upgrade — reads fall back to a full
+   * scan filtered in memory, so shipped histories stay visible either way.
    * When the value changes, the list reloads and `ready` is reassigned.
    */
   scope?: {
@@ -89,12 +92,14 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
       request.onupgradeneeded = () => {
         const db = request.result
 
-        if (!db.objectStoreNames.contains(storeName)) {
-          const store = db.createObjectStore(storeName, { keyPath: 'id' })
+        const store = db.objectStoreNames.contains(storeName)
+          ? // A version upgrade against an existing store (only possible here
+            // when `version` is raised) can still gain the scope index.
+            (request.transaction?.objectStore(storeName) ?? undefined)
+          : db.createObjectStore(storeName, { keyPath: 'id' })
 
-          if (scope) {
-            store.createIndex(scope.indexName, scope.indexName, { unique: false })
-          }
+        if (scope && store && !store.indexNames.contains(scope.indexName)) {
+          store.createIndex(scope.indexName, scope.indexName, { unique: false })
         }
       }
       request.onsuccess = () => resolve(request.result)
@@ -109,26 +114,55 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
 
     try {
       return await new Promise<T>((resolve, reject) => {
-        const request = operation(db.transaction(storeName, mode).objectStore(storeName))
-        request.onsuccess = () => resolve(request.result)
-        request.onerror = () => reject(request.error)
+        const transaction = db.transaction(storeName, mode)
+        const request = operation(transaction.objectStore(storeName))
+
+        if (mode === 'readwrite') {
+          // Writes resolve on commit, not on request success: a commit-time
+          // abort (for example QuotaExceededError) rolls the write back
+          // after the request already reported success.
+          transaction.oncomplete = () => resolve(request.result)
+          transaction.onerror = () => reject(transaction.error)
+          transaction.onabort = () => reject(transaction.error ?? new Error('IndexedDB transaction aborted'))
+        } else {
+          request.onsuccess = () => resolve(request.result)
+          request.onerror = () => reject(request.error)
+        }
       })
     } finally {
       db.close()
     }
   }
 
-  const readAll = async (): Promise<StoredChat[]> => {
-    const records = await withStore('readonly', (store) => {
-      if (scope) {
-        return store.index(scope.indexName).getAll(IDBKeyRange.only(scope.value.value))
+  const readAllRaw = async (): Promise<unknown[]> => {
+    if (!scope) {
+      return await withStore('readonly', (store) => store.getAll())
+    }
+
+    try {
+      return await withStore('readonly', (store) =>
+        store.index(scope.indexName).getAll(IDBKeyRange.only(scope.value.value)),
+      )
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'NotFoundError')) {
+        throw error
       }
 
-      return store.getAll()
-    })
+      // The store predates the index (created by an older client) and
+      // IndexedDB cannot add one outside a version upgrade: scan and filter.
+      const all = await withStore('readonly', (store) => store.getAll())
 
-    return (records as unknown[]).map(normalizeRecord).filter((record): record is StoredChat => record !== undefined)
+      return (all as unknown[]).filter(
+        (record) =>
+          typeof record === 'object' &&
+          record !== null &&
+          (record as Record<string, unknown>)[scope.indexName] === scope.value.value,
+      )
+    }
   }
+
+  const readAll = async (): Promise<StoredChat[]> =>
+    (await readAllRaw()).map(normalizeRecord).filter((record): record is StoredChat => record !== undefined)
 
   const sortList = (records: StoredChat[]): StoredChat[] =>
     [...records].sort((a, b) => (b[sortBy] as number) - (a[sortBy] as number))

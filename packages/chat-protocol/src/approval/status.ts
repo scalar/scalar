@@ -19,7 +19,9 @@ export type ToolCardStatus =
 /**
  * The rejection texts shipped by existing clients before native denial
  * existed. Persisted histories contain them forever, so they must always be
- * recognized as rejections rather than failures.
+ * recognized as rejections rather than failures. `agent-chat` emits the
+ * first as `output-error` errorText; the editor emits the second inside an
+ * `output-available` payload (see `isLegacyRejectionOutput`).
  */
 export const LEGACY_REJECTION_MESSAGES = [
   'The user denied the request.',
@@ -29,6 +31,18 @@ export const LEGACY_REJECTION_MESSAGES = [
 /** Whether an `output-error` text is a legacy user rejection. */
 export const isLegacyRejection = (errorText: string | undefined): boolean =>
   errorText !== undefined && (LEGACY_REJECTION_MESSAGES as readonly string[]).includes(errorText)
+
+/**
+ * Whether a tool output payload is the editor's legacy rejection encoding.
+ * The shipped editor persists a rejected `write_file` as a *successful* tool
+ * output whose payload says `{ ok: false, rejected: true }` — the part state
+ * is `output-available`, so the payload is the only signal.
+ */
+export const isLegacyRejectionOutput = (output: unknown): boolean =>
+  typeof output === 'object' &&
+  output !== null &&
+  'rejected' in output &&
+  (output as { rejected: unknown }).rejected === true
 
 /**
  * Client-side context the part state alone cannot carry: whether the local
@@ -71,7 +85,7 @@ export const toolCardStatus = (part: ToolPartLike, context: ToolCardStatusContex
       return part.approval?.approved === false ? 'rejected' : 'applying'
 
     case 'output-available':
-      return 'complete'
+      return isLegacyRejectionOutput(part.output) ? 'rejected' : 'complete'
 
     case 'output-error':
       return isLegacyRejection(part.errorText) ? 'rejected' : 'failed'

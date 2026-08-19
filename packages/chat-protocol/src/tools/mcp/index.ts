@@ -19,12 +19,16 @@ export const searchDocumentationInputSchema = z.object({
 
 export type SearchDocumentationInput = z.infer<typeof searchDocumentationInputSchema>
 
-/** A documentation search hit. */
+/**
+ * A documentation search hit. The `metadata` key is always present on the
+ * wire and its value can be `null` — narrow with a null check, not an
+ * `undefined` check.
+ */
 export type SearchDocumentationSource = {
   title: string
   url: string
   pageContent: string
-  metadata?: Record<string, unknown>
+  metadata: Record<string, unknown> | null
 }
 
 export type SearchDocumentationOutput = {
@@ -44,7 +48,9 @@ export const mcpExecuteRequestInputSchema = z.object({
   xScalarDocumentId: z.string(),
   xScalarOperationId: z.string(),
   method: z.string(),
-  serverBaseUrl: z.url().describe("Must be one of the document's declared server URLs"),
+  serverBaseUrl: z
+    .url()
+    .describe("Must be one of the document's declared server URLs. Requests to any other host are rejected."),
   path: z.string(),
   headers: z.record(z.string(), z.string()).optional(),
   body: z.string().optional(),

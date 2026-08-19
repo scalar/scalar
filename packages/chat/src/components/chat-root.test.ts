@@ -45,6 +45,17 @@ describe('chat-root', () => {
     expect(style).toContain('--chat-bubble-max-w: 90%')
   })
 
+  it('propagates copy changes after mount — locale switches must not require a remount', async () => {
+    const wrapper = mount(ChatRoot, {
+      props: { copy: { composer: { placeholder: 'Ask about this API' } } },
+      slots: { default: () => h(Probe) },
+    })
+
+    await wrapper.setProps({ copy: { composer: { placeholder: 'Posez une question sur cette API' } } })
+
+    expect(wrapper.get('span').attributes('data-placeholder')).toBe('Posez une question sur cette API')
+  })
+
   it('deep-merges copy overrides over the English defaults', () => {
     const wrapper = mount(ChatRoot, {
       props: { copy: { composer: { placeholder: 'Ask about this API' } } },

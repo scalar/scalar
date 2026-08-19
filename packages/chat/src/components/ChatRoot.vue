@@ -25,7 +25,7 @@ provide(
   CHAT_DENSITY_KEY,
   toRef(() => density),
 )
-provideChatCopy(copy)
+provideChatCopy(() => copy)
 
 const densityVariables = computed(() => chatDensityVariables[density])
 </script>

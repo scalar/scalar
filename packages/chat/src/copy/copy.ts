@@ -1,4 +1,4 @@
-import { type InjectionKey, inject, provide } from 'vue'
+import { type InjectionKey, type MaybeRefOrGetter, inject, provide, reactive, toValue, watchEffect } from 'vue'
 
 /**
  * The chat copy dictionary.
@@ -105,9 +105,25 @@ export const mergeChatCopy = (override: ChatCopyOverride = {}): ChatCopy => {
   return merged
 }
 
-/** Provide a (partially overridden) copy dictionary to the subtree. */
-export const provideChatCopy = (override: ChatCopyOverride = {}): ChatCopy => {
-  const merged = mergeChatCopy(override)
+/**
+ * Provide a (partially overridden) copy dictionary to the subtree.
+ *
+ * The provided object is reactive and re-merges when the override source
+ * changes — shells that switch locale at runtime (the api-reference
+ * translation bridge) update every consumer without a remount. Pass a getter
+ * for a reactive source.
+ */
+export const provideChatCopy = (override: MaybeRefOrGetter<ChatCopyOverride> = {}): ChatCopy => {
+  const merged = reactive(mergeChatCopy(toValue(override))) as ChatCopy
+
+  watchEffect(() => {
+    const next = mergeChatCopy(toValue(override))
+
+    for (const section of Object.keys(next) as (keyof ChatCopy)[]) {
+      Object.assign(merged[section], next[section])
+    }
+  })
+
   provide(CHAT_COPY_KEY, merged)
   return merged
 }

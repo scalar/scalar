@@ -11,6 +11,7 @@ export {
   type ToolCardStatus,
   type ToolCardStatusContext,
   isLegacyRejection,
+  isLegacyRejectionOutput,
   toolCardStatus,
 } from './approval/status'
 export {

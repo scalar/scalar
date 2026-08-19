@@ -11,5 +11,6 @@ export {
   type ToolCardStatus,
   type ToolCardStatusContext,
   isLegacyRejection,
+  isLegacyRejectionOutput,
   toolCardStatus,
 } from './status'

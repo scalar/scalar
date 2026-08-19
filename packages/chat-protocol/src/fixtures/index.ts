@@ -106,6 +106,32 @@ export const legacyRejectionFixture: FixtureMessage[] = [
   },
 ]
 
+/**
+ * The editor's legacy rejection encoding: a rejected write persisted as a
+ * *successful* tool output whose payload says `{ ok: false, rejected: true }`.
+ */
+export const editorLegacyRejectionFixture: FixtureMessage[] = [
+  {
+    id: 'msg-251',
+    role: 'user',
+    parts: [{ type: 'text', text: 'Rewrite guides/getting-started.md from scratch.' }],
+  },
+  {
+    id: 'msg-252',
+    role: 'assistant',
+    parts: [
+      {
+        type: 'tool-write_file',
+        toolCallId: 'call-251',
+        state: 'output-available',
+        input: { path: 'guides/getting-started.md', content: '# Getting started\n\nRewritten content.' },
+        output: { ok: false, rejected: true, error: 'User rejected the write. Ask what they want instead.' },
+      },
+      { type: 'text', text: 'No problem — tell me what you would like to keep.' },
+    ],
+  },
+]
+
 /** The native denial encoding, produced via `addToolApprovalResponse({ approved: false })`. */
 export const nativeDenialFixture: FixtureMessage[] = [
   {
@@ -198,6 +224,7 @@ export const chatFixtures = {
   textConversation: textConversationFixture,
   approvalFlow: approvalFlowFixture,
   legacyRejection: legacyRejectionFixture,
+  editorLegacyRejection: editorLegacyRejectionFixture,
   nativeDenial: nativeDenialFixture,
   dynamicTool: dynamicToolFixture,
   largeOutput: largeOutputFixture,

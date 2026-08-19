@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { ToolPartLike } from '../parts/tool-part'
-import { isLegacyRejection, toolCardStatus } from './status'
+import { isLegacyRejection, isLegacyRejectionOutput, toolCardStatus } from './status'
 
 const part = (overrides: Partial<ToolPartLike>): ToolPartLike => ({
   type: 'tool-execute-request',
@@ -44,6 +44,23 @@ describe('status', () => {
   it('maps terminal output states', () => {
     expect(toolCardStatus(part({ state: 'output-available', output: { status: 200 } }))).toBe('complete')
     expect(toolCardStatus(part({ state: 'output-error', errorText: 'boom' }))).toBe('failed')
+  })
+
+  it('recognizes the editor’s persisted rejection payload as rejected, not complete', () => {
+    // The shipped editor persists a rejected write_file as a *successful*
+    // output whose payload says { ok: false, rejected: true } — the part
+    // state alone would render it as complete.
+    const rejectedWrite = part({
+      type: 'tool-write_file',
+      state: 'output-available',
+      output: { ok: false, rejected: true, error: 'User rejected the write. Ask what they want instead.' },
+    })
+
+    expect(toolCardStatus(rejectedWrite)).toBe('rejected')
+    expect(isLegacyRejectionOutput(rejectedWrite.output)).toBe(true)
+    expect(isLegacyRejectionOutput({ ok: true })).toBe(false)
+    expect(isLegacyRejectionOutput(undefined)).toBe(false)
+    expect(toolCardStatus(part({ state: 'output-available', output: { ok: true } }))).toBe('complete')
   })
 
   it('recognizes legacy rejection encodings forever', () => {

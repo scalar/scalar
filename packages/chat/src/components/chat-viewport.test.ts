@@ -7,10 +7,10 @@ import { CHAT_VIEWPORT_ANCHOR_ATTRIBUTE } from './chat-viewport'
 
 // jsdom has no layout, so element heights are 0 and the reservation always
 // falls below the short-viewport threshold. These tests cover the state
-// machine (reservation lifecycle, epoch resets, exposure); the geometry is
-// exercised in the playground.
+// machine (reservation lifecycle, anchor triggers, exposure); the geometry
+// is exercised in the playground.
 describe('chat-viewport', () => {
-  const mountViewport = (props: { streaming: boolean; messageCount: number; chatKey?: string }) =>
+  const mountViewport = (props: { streaming: boolean; anchorKey?: string; chatKey?: string }) =>
     mount(ChatViewport, {
       props,
       slots: {
@@ -19,15 +19,27 @@ describe('chat-viewport', () => {
     })
 
   it('renders the reservation spacer collapsed initially', () => {
-    const wrapper = mountViewport({ streaming: false, messageCount: 0 })
+    const wrapper = mountViewport({ streaming: false })
 
     expect(wrapper.get('.chat-viewport-reservation').attributes('style')).toContain('height: 0px')
   })
 
-  it('handles a new exchange without a crash and stays collapsed under the threshold', async () => {
-    const wrapper = mountViewport({ streaming: true, messageCount: 1 })
+  it('anchors a new exchange while streaming and stays collapsed under the threshold', async () => {
+    const wrapper = mountViewport({ streaming: true, anchorKey: 'msg-1' })
 
-    await wrapper.setProps({ messageCount: 2 })
+    await wrapper.setProps({ anchorKey: 'msg-2' })
+    await nextTick()
+    await nextTick()
+
+    expect(wrapper.get('.chat-viewport-reservation').attributes('style')).toContain('height: 0px')
+  })
+
+  it('treats an anchorKey change without streaming as hydration, not an exchange', async () => {
+    // A restored chat sets the anchor while streaming is false; the viewport
+    // must open at the end of content instead of reserving space.
+    const wrapper = mountViewport({ streaming: false })
+
+    await wrapper.setProps({ anchorKey: 'msg-9' })
     await nextTick()
     await nextTick()
 
@@ -35,7 +47,7 @@ describe('chat-viewport', () => {
   })
 
   it('releases the reservation when streaming completes', async () => {
-    const wrapper = mountViewport({ streaming: true, messageCount: 2 })
+    const wrapper = mountViewport({ streaming: true, anchorKey: 'msg-1' })
 
     await wrapper.setProps({ streaming: false })
     await nextTick()
@@ -44,7 +56,7 @@ describe('chat-viewport', () => {
   })
 
   it('resets on chat switch and exposes scrollToEnd', async () => {
-    const wrapper = mountViewport({ streaming: false, messageCount: 2, chatKey: 'chat-a' })
+    const wrapper = mountViewport({ streaming: false, anchorKey: 'msg-1', chatKey: 'chat-a' })
 
     await wrapper.setProps({ chatKey: 'chat-b' })
     await nextTick()

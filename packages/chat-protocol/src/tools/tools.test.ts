@@ -69,6 +69,20 @@ describe('tools', () => {
     expect(grepInputSchema.safeParse({ pattern: 'auth', contextLines: 9 }).success).toBe(false)
   })
 
+  it('carries the model-visible field descriptions from the server schemas', () => {
+    // The .describe() strings are behavior, not documentation: they are part
+    // of the tool JSON schema the model sees. Dropping them silently would
+    // degrade tool calls — exactly the drift this package exists to prevent.
+    expect(readFileInputSchema.shape.path.description).toBe('Absolute file path inside the project, starting with /.')
+    expect(readFileInputSchema.shape.startLine.description).toBe('1-indexed first line to include.')
+    expect(editFileInputSchema.shape.oldString.description).toBe(
+      'Exact substring to match. Include 3+ lines of surrounding context so the match is unique.',
+    )
+    expect(mcpExecuteRequestInputSchema.shape.serverBaseUrl.description).toBe(
+      "Must be one of the document's declared server URLs. Requests to any other host are rejected.",
+    )
+  })
+
   it('keeps every editor tool covered by the auto-execution split', () => {
     // write_file is the only editor tool that is not auto-executed.
     const autoExecuted = new Set<string>(EDITOR_AUTO_EXECUTED_TOOL_NAMES)
