@@ -3,6 +3,8 @@ import {
   ScalarSidebarButton,
   ScalarSidebarGroup,
   ScalarSidebarGroupToggle,
+  ScalarSidebarGroupToggleButton,
+  ScalarSidebarGroupToggleSpacer,
   ScalarSidebarIndent,
   ScalarSidebarItem,
   ScalarSidebarSection,
@@ -153,6 +155,33 @@ const children = computed(() =>
 const href = computed(() => getHref?.(item) || undefined)
 
 /**
+ * Whether the group renders its toggle separately from its label.
+ *
+ * A label that navigates cannot also own the open state, so a group that
+ * renders as a link needs a toggle button of its own. Without one there is no
+ * way to collapse the group from the keyboard, because pressing Enter on the
+ * label follows the link instead.
+ */
+const isDiscrete = computed(
+  () => Boolean(href.value) || (layout === 'reference' && item.type === 'text'),
+)
+
+/**
+ * Builds the screen reader label for the discrete group toggle.
+ *
+ * The title of the group is appended so the toggles can be told apart. A page
+ * can hold a lot of them, and a list of identical "Open Group" buttons gives a
+ * screen reader user nothing to navigate by.
+ */
+const getToggleLabel = (open: boolean): string => {
+  const label = open
+    ? (options?.labels?.closeGroup ?? 'Close Group')
+    : (options?.labels?.openGroup ?? 'Open Group')
+
+  return item.title ? `${label} - ${item.title}` : label
+}
+
+/**
  * Emit the select event for a click on the item label.
  *
  * When the item renders as a link we only hijack plain left clicks on the
@@ -241,15 +270,14 @@ const handleSelect = (event: MouseEvent) => {
     controlled
     :data-sidebar-id="item.id"
     v-bind="draggableAttrs"
-    :discrete="layout === 'reference' && item.type === 'text'"
+    :discrete="isDiscrete"
     :open="isExpanded(item.id)"
-    v-on="draggableEvents"
-    @toggle="() => emit('toggleGroup', item.id)">
+    v-on="draggableEvents">
     <template #button="{ open, level }">
       <ScalarSidebarButton
         :is="href ? 'a' : 'button'"
         :active="isSelected(item.id)"
-        :aria-expanded="open"
+        :aria-expanded="isDiscrete ? undefined : open"
         :href="href"
         :indent="level"
         @click="handleSelect">
@@ -296,10 +324,7 @@ const handleSelect = (event: MouseEvent) => {
             :label="options?.labels?.httpMethod"
             :method="item.method"
             :webhook="item.type === 'webhook'" />
-          <!-- Placeholder for the discrete group toggle -->
-          <div
-            v-if="layout === 'reference' && item.type === 'text'"
-            class="size-4"></div>
+          <ScalarSidebarGroupToggleSpacer v-if="isDiscrete" />
           <ScalarSidebarGroupToggle
             v-else-if="!('method' in item)"
             class="text-sidebar-c-2"
@@ -314,22 +339,12 @@ const handleSelect = (event: MouseEvent) => {
           </ScalarSidebarGroupToggle>
         </template>
       </ScalarSidebarButton>
-      <button
-        v-if="layout === 'reference' && item.type === 'text'"
-        :aria-expanded="open"
-        class="text-sidebar-c-2 hover:bg-sidebar-b-hover hover:text-sidebar-c-hover absolute top-[1lh] right-1.25 -translate-y-1/2 rounded p-0.75"
-        type="button"
+      <ScalarSidebarGroupToggleButton
+        v-if="isDiscrete"
+        :open
         @click="() => emit('toggleGroup', item.id)">
-        <ScalarSidebarGroupToggle :open>
-          <template #label>
-            {{
-              open
-                ? (options?.labels?.closeGroup ?? 'Close Group')
-                : (options?.labels?.openGroup ?? 'Open Group')
-            }}
-          </template>
-        </ScalarSidebarGroupToggle>
-      </button>
+        <template #label>{{ getToggleLabel(open) }}</template>
+      </ScalarSidebarGroupToggleButton>
     </template>
     <template
       v-if="slots.decorator"

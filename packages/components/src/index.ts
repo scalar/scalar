@@ -89,6 +89,8 @@ export {
   ScalarSidebarFooter,
   ScalarSidebarGroup,
   ScalarSidebarGroupToggle,
+  ScalarSidebarGroupToggleButton,
+  ScalarSidebarGroupToggleSpacer,
   ScalarSidebarIndent,
   ScalarSidebarItem,
   ScalarSidebarItems,
