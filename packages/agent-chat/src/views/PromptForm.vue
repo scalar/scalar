@@ -5,17 +5,19 @@ import { ScalarTooltip } from '@scalar/components/tooltip'
 import {
   ScalarIconCheck,
   ScalarIconLockSimple,
-  ScalarIconPlus,
   ScalarIconX,
 } from '@scalar/icons'
 import { computed, useTemplateRef } from 'vue'
 
-import ActionsDropdown from '@/components/ActionsDropdown.vue'
+// TODO: The add-API affordances (the plus button popovers and the
+// "Load additional APIs" row) are temporarily disabled. Restore these
+// imports together with the commented template blocks below.
+// import ActionsDropdown from '@/components/ActionsDropdown.vue'
+// import SearchPopover from '@/components/SearchPopover.vue'
 import ApprovalSection from '@/components/ApprovalSection.vue'
 import ErrorMessageMessage from '@/components/ErrorMessage.vue'
 import FreeMessagesInfoSection from '@/components/FreeMessagesInfoSection.vue'
 import PaymentSection from '@/components/PaymentSection.vue'
-import SearchPopover from '@/components/SearchPopover.vue'
 import UploadSection from '@/components/UploadSection.vue'
 import { AgentErrorCodes } from '@/entities/error/constants'
 import { useRequestApprovals } from '@/hooks/use-chat-approvals'
@@ -132,6 +134,8 @@ const chatError = useChatError()
       @stop="handleStop"
       @submit="handleSubmit">
       <template #actionsStart>
+        <!-- TODO: The add-API button is temporarily disabled together with
+          the "Load additional APIs" row below.
         <template v-if="!state.hideAddApi">
           <SearchPopover v-if="!state.isLoggedIn?.value">
             <button
@@ -154,6 +158,7 @@ const chatError = useChatError()
             </button>
           </ActionsDropdown>
         </template>
+        -->
         <div
           v-for="document in state.registryDocuments.value"
           :key="document.id"
@@ -206,6 +211,7 @@ const chatError = useChatError()
       </template>
     </ChatComposer>
 
+    <!-- TODO: The "Load additional APIs" row is temporarily disabled.
     <div
       v-if="state.chat.messages.length <= 1 && !state.hideAddApi"
       class="addMoreContext">
@@ -225,6 +231,7 @@ const chatError = useChatError()
         </button>
       </div>
     </div>
+    -->
   </div>
 </template>
 
@@ -239,8 +246,9 @@ const chatError = useChatError()
   border-radius: var(--scalar-radius-3xl);
   width: 100%;
   position: relative;
-  /* visually hides overflowing text below */
-  box-shadow: 0 24px 0 2px var(--scalar-background-1);
+  /* TODO: Restore together with the "Load additional APIs" row below, whose
+     overflowing text this solid shadow masked:
+     box-shadow: 0 24px 0 2px var(--scalar-background-1); */
 }
 
 /* The kit composer's input box adopts the shell's rounding. */

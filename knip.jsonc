@@ -118,7 +118,18 @@
       ]
     },
     "packages/agent-chat": {
-      "ignore": ["playground/**", "src/entities/**"],
+      // The add-API affordances and the start screen logo are temporarily
+      // disabled (commented out in PromptForm.vue and dropped from Start.vue).
+      // Their files stay in place for the planned restore.
+      "ignore": [
+        "playground/**",
+        "src/entities/**",
+        "src/components/ActionsDropdown.vue",
+        "src/components/Logo.vue",
+        "src/components/SearchPopover.vue",
+        "src/hooks/use-search.ts",
+        "src/views/Catalog/Catalog.vue"
+      ],
       "ignoreDependencies": ["@scalar/themes", "@scalar/sidebar", "hono"]
     },
     "packages/chat-protocol": {
