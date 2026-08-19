@@ -140,10 +140,16 @@ export const ru = {
     askAi: 'Спросить AI',
     askAiAgent: 'Спросить AI-агента',
     close: 'Закрыть клиент',
+    closeChat: 'Закрыть',
+    expand: 'Развернуть чат',
+    collapse: 'Свернуть чат',
   },
   mcp: {
     generate: 'Создать MCP',
     connect: 'Подключить MCP',
+    installCursor: 'Установить в Cursor',
+    installVsCode: 'Установить в VS Code',
+    copyUrl: 'Скопировать URL MCP',
   },
   developerTools: {
     title: 'Инструменты разработчика',

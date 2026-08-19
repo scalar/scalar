@@ -140,10 +140,16 @@ export const pt = {
     askAi: 'Perguntar à IA',
     askAiAgent: 'Perguntar ao Agente de IA',
     close: 'Fechar Cliente',
+    closeChat: 'Fechar',
+    expand: 'Expandir chat',
+    collapse: 'Recolher chat',
   },
   mcp: {
     generate: 'Gerar MCP',
     connect: 'Conectar MCP',
+    installCursor: 'Instalar no Cursor',
+    installVsCode: 'Instalar no VS Code',
+    copyUrl: 'Copiar URL do MCP',
   },
   developerTools: {
     title: 'Ferramentas de Desenvolvedor',
