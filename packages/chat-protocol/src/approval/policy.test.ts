@@ -37,6 +37,15 @@ describe('policy', () => {
     expect(resolveApprovalDecision(editorApprovalPolicies, 'brand-new-tool', {})).toBe('approval')
   })
 
+  it('treats Object.prototype key collisions as unregistered', () => {
+    // Tool names come off the wire — dynamic MCP tool names are generated
+    // from user OpenAPI documents. A name like hasOwnProperty must hit the
+    // default-deny, not the prototype chain.
+    for (const hostileName of ['hasOwnProperty', 'toString', 'valueOf', 'constructor', '__proto__']) {
+      expect(resolveApprovalDecision(openApiApprovalPolicies, hostileName, {})).toBe('approval')
+    }
+  })
+
   it('honors an explicit default decision', () => {
     expect(resolveApprovalDecision({}, 'anything', {}, 'auto')).toBe('auto')
   })

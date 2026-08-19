@@ -1,4 +1,4 @@
-import { type ComputedRef, type Ref, computed, nextTick, ref, watch } from 'vue'
+import { type ComputedRef, type Ref, computed, effectScope, nextTick, ref, watch } from 'vue'
 
 import type { ChatHistory, StoredChat } from '@/composables/create-chat-history'
 
@@ -27,8 +27,8 @@ export type ChatSessionsOptions<TChat extends SessionChat> = {
   isServer?: boolean
   /**
    * When provided, stored messages hydrate on every flip to `true` — the
-   * donors' open-on-panel behavior (hydration is idempotent). Full-page
-   * surfaces pass a `ref(true)`.
+   * donors' open-on-panel behavior (hydration is idempotent). Without it,
+   * hydration runs once at creation, which is what full-page surfaces want.
    */
   open?: Ref<boolean>
   /** Extra fields persisted on every record (for example `projectUid`, `mode`). */
@@ -48,8 +48,10 @@ export type ChatSessions<TChat extends SessionChat> = {
   startNewChat: () => void
   deleteChat: (chatId: string) => Promise<void>
   clearAllChats: () => Promise<void>
-  /** Drop every instance and re-read the last-chat pointer — the editor's project-switch reset. */
+  /** Drop every instance, re-read the last-chat pointer and rehydrate — the editor's project-switch reset. */
   reset: () => void
+  /** Stop every watcher this factory created. Call when the owning surface is torn down for good. */
+  dispose: () => void
 }
 
 const TITLE_MAX_LENGTH = 50
@@ -90,6 +92,28 @@ export const getChatTitle = (messages: SessionChat['messages'], untitledTitle: s
 const generateChatId = (): string => crypto.randomUUID()
 
 /**
+ * localStorage access can throw (sandboxed iframes without
+ * `allow-same-origin`, blocked third-party storage, full quotas) — exactly
+ * the environments customer docs get embedded in. Storage is an enhancement,
+ * never a gate on chatting.
+ */
+const safeReadStorage = (key: string): string | null => {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+const safeWriteStorage = (key: string, value: string): void => {
+  try {
+    localStorage.setItem(key, value)
+  } catch {
+    // Degrade to not remembering the last chat.
+  }
+}
+
+/**
  * The session core every chat surface shares: a lazily-populated
  * `Map<chatId, Chat>`, IndexedDB persistence with the two-watcher pair, and
  * the session operations. Ported from the two org implementations that
@@ -109,21 +133,48 @@ export const createChatSessions = <TChat extends SessionChat>(
     untitledTitle = 'Untitled chat',
   } = options
 
+  /**
+   * All watchers live in a detached scope. Vue binds watchers to the ambient
+   * effect scope at creation time — instances are created lazily from
+   * whatever call site touches a chat id first, and if that happens inside a
+   * short-lived component's setup, the component's unmount would silently
+   * stop the persistence watchers while the instance stays cached.
+   */
+  const scope = effectScope(true)
+
+  /**
+   * Chat ids that are safe to persist: freshly generated ids, and ids whose
+   * stored record has been loaded (or confirmed absent). A remembered id is
+   * NOT safe until hydration lands — persisting an empty instance over its
+   * stored record would destroy the previous conversation.
+   */
+  const hydratedIds = new Set<string>()
+
+  const newChatId = (): string => {
+    const id = generateChatId()
+    hydratedIds.add(id)
+    return id
+  }
+
   const readLastChatId = (): string => {
     if (isServer || !lastChatStorageKey) {
-      return generateChatId()
+      return newChatId()
     }
 
-    return localStorage.getItem(lastChatStorageKey) || generateChatId()
+    const remembered = safeReadStorage(lastChatStorageKey)
+
+    return remembered || newChatId()
   }
 
   const currentChatId = ref(readLastChatId())
 
   if (lastChatStorageKey) {
-    watch(currentChatId, (id) => {
-      if (!isServer) {
-        localStorage.setItem(lastChatStorageKey, id)
-      }
+    scope.run(() => {
+      watch(currentChatId, (id) => {
+        if (!isServer) {
+          safeWriteStorage(lastChatStorageKey, id)
+        }
+      })
     })
   }
 
@@ -136,16 +187,8 @@ export const createChatSessions = <TChat extends SessionChat>(
    */
   const instanceWatchStops = new Map<string, (() => void)[]>()
 
-  /**
-   * Chat ids whose messages are currently being assigned from storage.
-   * Hydration must not fire the persistence watchers — re-persisting on view
-   * would bump `updatedAt` (reordering updatedAt-sorted lists into
-   * recently-viewed order) and rewrite records without any user action.
-   */
-  const hydratingIds = new Set<string>()
-
   const persist = (chatId: string, instance: TChat): void => {
-    if (!history || !instance.messages.length) {
+    if (!history || !instance.messages.length || !hydratedIds.has(chatId)) {
       return
     }
 
@@ -175,24 +218,26 @@ export const createChatSessions = <TChat extends SessionChat>(
     // watcher captures each message as it is added; the status watcher
     // captures the final streamed content, because the count does not change
     // while the last message's parts mutate in place.
-    const stopCountWatcher = watch(
-      () => instance.messages.length,
-      (length) => {
-        if (length && !hydratingIds.has(chatId)) {
-          persist(chatId, instance)
-        }
-      },
-    )
-    const stopStatusWatcher = watch(
-      () => instance.status,
-      (status) => {
-        if (status === 'ready' && instance.messages.length && !hydratingIds.has(chatId)) {
-          persist(chatId, instance)
-        }
-      },
-    )
+    scope.run(() => {
+      const stopCountWatcher = watch(
+        () => instance.messages.length,
+        (length) => {
+          if (length && !hydratingIds.has(chatId)) {
+            persist(chatId, instance)
+          }
+        },
+      )
+      const stopStatusWatcher = watch(
+        () => instance.status,
+        (status) => {
+          if (status === 'ready' && instance.messages.length && !hydratingIds.has(chatId)) {
+            persist(chatId, instance)
+          }
+        },
+      )
 
-    instanceWatchStops.set(chatId, [stopCountWatcher, stopStatusWatcher])
+      instanceWatchStops.set(chatId, [stopCountWatcher, stopStatusWatcher])
+    })
 
     return instance
   }
@@ -224,36 +269,88 @@ export const createChatSessions = <TChat extends SessionChat>(
   const chatList = computed(() => history?.chatList.value ?? [])
   const hasHistory = computed(() => chatList.value.length > 0)
 
+  /**
+   * Chat ids whose messages are currently being assigned from storage.
+   * Hydration must not fire the persistence watchers — re-persisting on view
+   * would bump `updatedAt` (reordering updatedAt-sorted lists into
+   * recently-viewed order) and rewrite records without any user action.
+   */
+  const hydratingIds = new Set<string>()
+
+  const assignHydrated = async (instance: TChat, chatId: string, messages: TChat['messages']): Promise<void> => {
+    // The guard stays set until the watcher flush after the assignment has
+    // run, so hydration never masquerades as user activity.
+    hydratingIds.add(chatId)
+    instance.messages = messages
+    await nextTick()
+    hydratingIds.delete(chatId)
+  }
+
+  /**
+   * Bumped by `reset()`. A hydration continuation that was suspended on its
+   * storage read when the reset happened must discard everything — merging
+   * a stale record, and above all re-marking the id as safe to persist,
+   * would re-open the clobber window the `hydratedIds` gate closes.
+   */
+  let hydrationEpoch = 0
+
   const ensureLoaded = async (chatId: string): Promise<void> => {
-    if (!history) {
+    if (!history || hydratedIds.has(chatId)) {
       return
     }
 
     const instance = getChatInstance(chatId)
-
-    if (instance.messages.length) {
-      return
-    }
+    const epoch = hydrationEpoch
 
     const stored = await history.loadChat(chatId)
 
-    if (stored) {
-      // The guard stays set until the watcher flush after the assignment has
-      // run, so hydration never masquerades as user activity.
-      hydratingIds.add(chatId)
-      instance.messages = stored.messages as TChat['messages']
-      await nextTick()
-      hydratingIds.delete(chatId)
+    if (epoch !== hydrationEpoch) {
+      return
     }
+
+    if (stored?.messages.length) {
+      // Merge, never assign wholesale: a message the user sent while the
+      // record was loading (before OR during the await) must survive, in
+      // front of nothing — the stored conversation happened earlier, so it
+      // goes first. Ids dedupe re-hydrations.
+      const localIds = new Set(instance.messages.map((message) => message.id))
+      const storedMessages = (stored.messages as TChat['messages']).filter((message) => !localIds.has(message.id))
+
+      if (storedMessages.length) {
+        await assignHydrated(instance, chatId, [...storedMessages, ...instance.messages])
+
+        if (epoch !== hydrationEpoch) {
+          return
+        }
+      }
+    }
+
+    // Loaded or confirmed absent — either way the id is now safe to persist.
+    hydratedIds.add(chatId)
   }
+
+  /** The id of the most recent switch request; an awaited older switch must not win over it. */
+  let latestSwitchTarget: string | undefined
 
   const switchToChat = async (chatId: string): Promise<void> => {
     if (chatId === currentChatId.value) {
       return
     }
 
+    latestSwitchTarget = chatId
     await ensureLoaded(chatId)
+
+    // A later switch superseded this one while its record was loading.
+    if (latestSwitchTarget !== chatId) {
+      return
+    }
+
     currentChatId.value = chatId
+  }
+
+  /** Direct navigations must beat any in-flight switch that is still loading. */
+  const cancelPendingSwitch = (): void => {
+    latestSwitchTarget = undefined
   }
 
   const startNewChat = (): void => {
@@ -261,20 +358,33 @@ export const createChatSessions = <TChat extends SessionChat>(
       return
     }
 
+    cancelPendingSwitch()
     // The old instance stays in the map; its record persists lazily.
-    currentChatId.value = generateChatId()
+    currentChatId.value = newChatId()
   }
 
   const deleteChat = async (chatId: string): Promise<void> => {
     const wasActive = chatId === currentChatId.value
 
-    disposeInstance(chatId)
     await history?.deleteChat(chatId)
+
+    if (history && chatList.value.some((chat) => chat.id === chatId)) {
+      // The storage delete failed (quota, transient IndexedDB error): leave
+      // the chat fully alive rather than disposing a chat the user can still
+      // see. The adapter has already rolled back its delete tombstone.
+      return
+    }
+
+    cancelPendingSwitch()
+
+    // Dispose after the successful delete; the adapter's tombstone protects
+    // against an in-flight save resurrecting the record in the meantime.
+    disposeInstance(chatId)
 
     if (history && !chatList.value.length) {
       // The list emptied: land on a fresh chat even when the deleted chat
       // was not active, so a stale pointer never survives an empty list.
-      currentChatId.value = generateChatId()
+      currentChatId.value = newChatId()
       return
     }
 
@@ -284,7 +394,7 @@ export const createChatSessions = <TChat extends SessionChat>(
       if (nextId) {
         await switchToChat(nextId)
       } else {
-        currentChatId.value = generateChatId()
+        currentChatId.value = newChatId()
       }
     }
   }
@@ -295,7 +405,8 @@ export const createChatSessions = <TChat extends SessionChat>(
     }
 
     await history?.clearAll()
-    currentChatId.value = generateChatId()
+    cancelPendingSwitch()
+    currentChatId.value = newChatId()
   }
 
   /**
@@ -305,42 +416,84 @@ export const createChatSessions = <TChat extends SessionChat>(
    */
   let restoredOnce = false
 
+  const hydrate = async (): Promise<void> => {
+    if (!history) {
+      return
+    }
+
+    const epoch = hydrationEpoch
+
+    // Wait a flush first: a scope change (editor project switch) reassigns
+    // the adapter's `ready` in a pre-flush watcher, and a synchronously
+    // invoked hydrate would otherwise await the OLD scope's already-resolved
+    // promise and read the previous project's list in the fallback below.
+    await nextTick()
+    await history.ready.value
+
+    if (epoch !== hydrationEpoch) {
+      return
+    }
+
+    // Hydration runs on every open, like the donors — it is idempotent.
+    await ensureLoaded(currentChatId.value)
+
+    if (epoch !== hydrationEpoch || restoredOnce) {
+      return
+    }
+
+    restoredOnce = true
+
+    if (!activeChat.value.messages.length && chatList.value.length) {
+      await switchToChat(chatList.value[0]?.id ?? currentChatId.value)
+    }
+  }
+
   const reset = (): void => {
     for (const chatId of [...chatInstances.keys()]) {
       disposeInstance(chatId)
     }
 
     restoredOnce = false
+    hydratedIds.clear()
+    hydrationEpoch += 1
+    cancelPendingSwitch()
     currentChatId.value = readLastChatId()
     instanceGeneration.value += 1
+
+    // The open ref may never flip again (full-page surfaces); rehydrate
+    // directly so the remembered chat is never left as an empty instance
+    // whose first persist would clobber the stored record.
+    if (!open || open.value) {
+      void hydrate()
+    }
   }
 
-  if (history && open) {
-    watch(
-      open,
-      async (isOpen) => {
-        if (!isOpen) {
-          return
-        }
+  if (history) {
+    if (open) {
+      scope.run(() => {
+        watch(
+          open,
+          (isOpen) => {
+            if (isOpen) {
+              void hydrate()
+            }
+          },
+          { immediate: true },
+        )
+      })
+    } else {
+      // No panel to wait for: hydrate immediately so the remembered chat is
+      // never persist-clobbered by a message sent before its record loaded.
+      void hydrate()
+    }
+  }
 
-        await history.ready.value
+  const dispose = (): void => {
+    for (const chatId of [...chatInstances.keys()]) {
+      disposeInstance(chatId)
+    }
 
-        // Hydration runs on every open, like the donors — it is idempotent,
-        // and a one-shot flag here would skip rehydration after reset().
-        await ensureLoaded(currentChatId.value)
-
-        if (restoredOnce) {
-          return
-        }
-
-        restoredOnce = true
-
-        if (!activeChat.value.messages.length && chatList.value.length) {
-          await switchToChat(chatList.value[0]?.id ?? currentChatId.value)
-        }
-      },
-      { immediate: true },
-    )
+    scope.stop()
   }
 
   return {
@@ -355,5 +508,6 @@ export const createChatSessions = <TChat extends SessionChat>(
     deleteChat,
     clearAllChats,
     reset,
+    dispose,
   }
 }

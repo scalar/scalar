@@ -29,7 +29,10 @@ export const resolveApprovalDecision = (
   input: unknown,
   defaultDecision: ApprovalDecision = 'approval',
 ): ApprovalDecision => {
-  const policy = registry[toolName]
+  // Own-property lookup only: tool names come off the wire (dynamic MCP
+  // tools are generated from user OpenAPI documents), so a name like
+  // `hasOwnProperty` or `toString` must hit the default, not the prototype.
+  const policy = Object.hasOwn(registry, toolName) ? registry[toolName] : undefined
 
   if (policy === undefined) {
     return defaultDecision

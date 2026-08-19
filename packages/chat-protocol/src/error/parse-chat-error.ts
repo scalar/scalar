@@ -36,14 +36,18 @@ const upgradeUrlFromDetail = (detail: unknown): string | undefined => {
   return undefined
 }
 
+const FALLBACK_MESSAGE = 'Something went wrong. Please try again.'
+
 /**
  * The wire envelope and the legacy client shape overlap structurally (both
- * carry `code` + `message`), so one merged parse handles either — `detail`
- * comes from the envelope, `status` from the legacy shape.
+ * carry `code`), so one merged parse handles either — `detail` comes from
+ * the envelope, `status` from the legacy shape. `message` is tolerated as
+ * missing: the shipped OpenAPI chat route serializes its 403/400 errors
+ * without one, and the code is the field UIs branch on.
  */
 const anyChatErrorSchema = z.object({
   code: z.string(),
-  message: z.string(),
+  message: z.string().optional(),
   detail: z.unknown().optional(),
   status: z.number().optional(),
 })
@@ -57,7 +61,7 @@ const fromCandidate = (candidate: unknown): ParsedChatError | undefined => {
 
   return {
     code: parsed.data.code,
-    message: parsed.data.message,
+    message: parsed.data.message ?? FALLBACK_MESSAGE,
     status: parsed.data.status,
     upgradeUrl: upgradeUrlFromDetail(parsed.data.detail),
     detail: parsed.data.detail,
@@ -99,7 +103,7 @@ export const parseChatError = (error: unknown): ParsedChatError => {
   return (
     fromCandidate(error) ?? {
       code: ChatErrorCodes.UNKNOWN_ERROR,
-      message: 'Something went wrong. Please try again.',
+      message: FALLBACK_MESSAGE,
     }
   )
 }

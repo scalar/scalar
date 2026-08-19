@@ -45,6 +45,16 @@ describe('parse-chat-error', () => {
     })
   })
 
+  it('tolerates envelopes without a message — the shipped 403/400 wire shape', () => {
+    // The OpenAPI chat route serializes its error definitions without a
+    // message field; the code must still reach consumers that branch on it.
+    const error = new Error(JSON.stringify({ code: 'UNAUTHORIZED', schema: { def: {} } }))
+    const parsed = parseChatError(error)
+
+    expect(parsed.code).toBe('UNAUTHORIZED')
+    expect(parsed.message).toBe('Something went wrong. Please try again.')
+  })
+
   it('falls back to UNKNOWN_ERROR for plain error messages', () => {
     expect(parseChatError(new Error('connection refused'))).toEqual({
       code: 'UNKNOWN_ERROR',

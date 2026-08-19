@@ -1,4 +1,4 @@
-import { type Ref, ref, watch } from 'vue'
+import { type Ref, effectScope, ref, watch } from 'vue'
 
 /**
  * The persisted chat record. Extra fields (for example the editor's
@@ -51,6 +51,8 @@ export type ChatHistory = {
   deleteChat: (id: string) => Promise<void>
   loadChat: (id: string) => Promise<StoredChat | undefined>
   clearAll: () => Promise<void>
+  /** Stop the adapter's scope watcher. Call when the owning surface is torn down for good. */
+  dispose: () => void
 }
 
 /**
@@ -167,16 +169,35 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
   const sortList = (records: StoredChat[]): StoredChat[] =>
     [...records].sort((a, b) => (b[sortBy] as number) - (a[sortBy] as number))
 
+  /**
+   * Guards every whole-list assignment. Deletions, clears and newer
+   * refreshes bump it, so a slow read that started earlier can never
+   * overwrite the list with a stale snapshot (ghost-resurrecting deleted
+   * rows, or showing the previous scope's records after a scope switch).
+   */
+  let listGeneration = 0
+
   const refresh = async (): Promise<void> => {
     if (isServer) {
       return
     }
 
+    const generation = ++listGeneration
+
     try {
-      chatList.value = sortList(await readAll())
+      const records = sortList(await readAll())
+
+      if (generation !== listGeneration) {
+        return
+      }
+
+      chatList.value = records
     } catch (error) {
       console.warn('Failed to load chat history', error)
-      chatList.value = []
+
+      if (generation === listGeneration) {
+        chatList.value = []
+      }
     }
   }
 
@@ -228,8 +249,12 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
 
     try {
       await withStore('readwrite', (store) => store.delete(id))
+      listGeneration += 1
       chatList.value = chatList.value.filter((chat) => chat.id !== id)
     } catch (error) {
+      // The record survived: roll the tombstone back so the still-alive
+      // chat's future saves are not silently discarded.
+      deletedIds.delete(id)
       console.warn('Failed to delete chat', error)
     }
   }
@@ -252,8 +277,10 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
     }
 
     // Discard saves in flight for records the list does not know about yet
-    // (a brand-new chat's first persist has no tombstone to hit).
+    // (a brand-new chat's first persist has no tombstone to hit), and stale
+    // refreshes that would repopulate the list mid-clear.
     clearEpoch += 1
+    listGeneration += 1
 
     // Serial per-record deletes, scope-aware: with a scope configured this
     // must not wipe other scopes' records, so there is no store.clear().
@@ -261,16 +288,34 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
       await deleteChat(chat.id)
     }
 
-    chatList.value = []
+    if (!chatList.value.length) {
+      return
+    }
+
+    // Some deletes failed and rolled back — reflect reality instead of
+    // clearing a list whose records still exist.
+    await refresh()
   }
 
   const ready = ref<Promise<void>>(refresh())
 
+  // Detached scope: the adapter outlives whichever component happens to
+  // create it, so the scope watcher must not die with that component —
+  // but a torn-down surface must be able to stop it, or every recreated
+  // adapter stays subscribed to the shell's scope ref forever.
+  const watcherScope = effectScope(true)
+
   if (scope) {
-    watch(scope.value, () => {
-      ready.value = refresh()
+    watcherScope.run(() => {
+      watch(scope.value, () => {
+        ready.value = refresh()
+      })
     })
   }
 
-  return { chatList, ready, refresh, saveChat, deleteChat, loadChat, clearAll }
+  const dispose = (): void => {
+    watcherScope.stop()
+  }
+
+  return { chatList, ready, refresh, saveChat, deleteChat, loadChat, clearAll, dispose }
 }

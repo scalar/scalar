@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto'
 
 import { IDBFactory } from 'fake-indexeddb'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, reactive, ref } from 'vue'
+import { effectScope, nextTick, reactive, ref } from 'vue'
 
 import { createChatHistory } from './create-chat-history'
 import { type SessionChat, createChatSessions, getChatTitle } from './create-chat-sessions'
@@ -399,5 +399,200 @@ describe('create-chat-sessions', () => {
 
     expect(getItem).not.toHaveBeenCalled()
     getItem.mockRestore()
+  })
+
+  it('degrades to an ephemeral session when localStorage throws', async () => {
+    // Sandboxed iframes without allow-same-origin throw SecurityError on
+    // any localStorage access — the factory must not crash the surface.
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('denied', 'SecurityError')
+    })
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('denied', 'SecurityError')
+    })
+
+    try {
+      const sessions = createChatSessions({
+        createChat: createFakeChat,
+        lastChatStorageKey: 'scalar-agent-last-chat',
+      })
+
+      sessions.activeChat.value.messages.push(userMessage('works without storage'))
+      sessions.startNewChat()
+      await flushWatchers()
+
+      expect(sessions.activeChat.value.messages).toHaveLength(0)
+    } finally {
+      getItem.mockRestore()
+      setItem.mockRestore()
+    }
+  })
+
+  it('never persists a remembered chat before its record has hydrated', async () => {
+    const history = createChatHistory({ dbName: 'scalar-agent-chat' })
+    await history.ready.value
+    await history.saveChat({
+      id: 'remembered-chat',
+      title: 'Remembered',
+      messages: [userMessage('one'), userMessage('two')],
+      createdAt: 1,
+      updatedAt: 1,
+    })
+
+    localStorage.setItem('last-chat', 'remembered-chat')
+    // The panel never opens, so hydration never runs — a message sent now
+    // must not overwrite the stored two-message conversation.
+    const sessions = createChatSessions({
+      createChat: createFakeChat,
+      history,
+      lastChatStorageKey: 'last-chat',
+      open: ref(false),
+    })
+
+    sessions.activeChat.value.messages.push(userMessage('pre-hydration message'))
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    const stored = await history.loadChat('remembered-chat')
+    expect(stored?.messages).toHaveLength(2)
+  })
+
+  it('hydrates immediately when no open ref is given', async () => {
+    const history = createChatHistory({ dbName: 'scalar-agent-chat' })
+    await history.ready.value
+    await history.saveChat({
+      id: 'full-page-chat',
+      title: 'Full page',
+      messages: [userMessage('restored')],
+      createdAt: 1,
+      updatedAt: 1,
+    })
+
+    localStorage.setItem('last-chat', 'full-page-chat')
+    const sessions = createChatSessions({
+      createChat: createFakeChat,
+      history,
+      lastChatStorageKey: 'last-chat',
+    })
+
+    await waitFor(() => expect(sessions.activeChat.value.messages).toHaveLength(1))
+  })
+
+  describe('hydration races', () => {
+    type StoredChatLike = {
+      id: string
+      title: string
+      messages: unknown[]
+      createdAt: number
+      updatedAt: number
+    }
+
+    /** A history stub whose loadChat resolution the test controls. */
+    const createGatedHistory = (stored: Record<string, StoredChatLike>) => {
+      const releases: (() => void)[] = []
+      const saveChat = vi.fn(async (_chat: StoredChatLike) => {})
+
+      return {
+        history: {
+          chatList: ref([]),
+          ready: ref(Promise.resolve()),
+          refresh: async () => {},
+          saveChat,
+          deleteChat: async () => {},
+          loadChat: (id: string) =>
+            new Promise<StoredChatLike | undefined>((resolve) => {
+              releases.push(() => resolve(stored[id]))
+            }),
+          clearAll: async () => {},
+          dispose: () => {},
+        },
+        releases,
+        saveChat,
+      }
+    }
+
+    it('keeps a message sent while the record was loading', async () => {
+      const { history, releases } = createGatedHistory({
+        'remembered-chat': {
+          id: 'remembered-chat',
+          title: 'Remembered',
+          messages: [userMessage('one'), userMessage('two')],
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      })
+
+      localStorage.setItem('last-chat', 'remembered-chat')
+      const sessions = createChatSessions({
+        createChat: createFakeChat,
+        history,
+        lastChatStorageKey: 'last-chat',
+      })
+
+      // Hydration is awaiting the gated loadChat; the user sends now.
+      await waitFor(() => expect(releases).toHaveLength(1))
+      sessions.activeChat.value.messages.push(userMessage('typed mid-load'))
+
+      releases[0]?.()
+
+      // The stored conversation merges IN FRONT of the live message —
+      // a wholesale assignment would silently destroy it.
+      await waitFor(() => expect(sessions.activeChat.value.messages).toHaveLength(3))
+      expect(sessions.activeChat.value.messages.at(-1)?.parts[0]).toMatchObject({ text: 'typed mid-load' })
+    })
+
+    it('discards a hydration continuation that predates reset()', async () => {
+      const { history, releases, saveChat } = createGatedHistory({
+        'remembered-chat': {
+          id: 'remembered-chat',
+          title: 'Remembered',
+          messages: [userMessage('one'), userMessage('two'), userMessage('three')],
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      })
+
+      localStorage.setItem('last-chat', 'remembered-chat')
+      const sessions = createChatSessions({
+        createChat: createFakeChat,
+        history,
+        lastChatStorageKey: 'last-chat',
+      })
+
+      await waitFor(() => expect(releases).toHaveLength(1))
+
+      // Project switch while the initial load is still in flight.
+      sessions.reset()
+
+      // The stale continuation resolves now — it must NOT re-mark the id
+      // as safe to persist.
+      releases[0]?.()
+      await flushWatchers()
+
+      // A message sent before the post-reset rehydration lands must not
+      // overwrite the stored three-message conversation.
+      sessions.activeChat.value.messages.push(userMessage('after reset'))
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      const clobber = saveChat.mock.calls.find(([saved]) => saved.messages.length === 1)
+      expect(clobber).toBeUndefined()
+    })
+  })
+
+  it('keeps persisting when the creating component scope dies', async () => {
+    const history = createChatHistory({ dbName: 'scalar-agent-chat' })
+    await history.ready.value
+
+    const sessions = createChatSessions({ createChat: createFakeChat, history })
+
+    // A short-lived component is the first to touch the active chat: its
+    // effect scope must not adopt (and later kill) the persistence watchers.
+    const shortLived = effectScope()
+    shortLived.run(() => {
+      void sessions.activeChat.value
+    })
+    shortLived.stop()
+
+    sessions.activeChat.value.messages.push(userMessage('after scope death'))
+    await waitFor(() => expect(history.chatList.value).toHaveLength(1))
   })
 })

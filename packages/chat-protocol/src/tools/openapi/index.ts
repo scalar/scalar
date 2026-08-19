@@ -82,7 +82,11 @@ export type ExecuteClientSideRequestOutput = ToolResult<
   | ToolError<'FAILED_TO_PARSE_RESPONSE_BODY', { originalError: unknown }>
   | ToolError<'REQUEST_NOT_OK', { status: number; url: string; responseBody: unknown; headers: Record<string, string> }>
   | ToolError<'FAILED_TO_FETCH', { originalError: unknown }>
-  | ToolError<'DOCUMENT_SETTINGS_COULD_NOT_BE_DETERMINED', { documentName: string; namespace: string; slug: string }>
+  | ToolError<
+      'DOCUMENT_SETTINGS_COULD_NOT_BE_DETERMINED',
+      /** Older clients sent namespace/slug; the shipped client sends only documentName. Both encodings persist forever. */
+      { documentName: string; namespace?: string; slug?: string }
+    >
   | ToolError<'FAILED_TO_DETERMINE_DOCUMENT', { namespace?: string; slug?: string; documentIdentifier: string }>
   | ToolError<'FAILED_TO_EXECUTE_REQUEST', unknown>
 >

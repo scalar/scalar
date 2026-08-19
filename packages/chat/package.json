@@ -60,5 +60,13 @@
     "@ai-sdk/vue": "^3.0.168",
     "ai": "^6.0.168",
     "vue": "^3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@ai-sdk/vue": {
+      "optional": true
+    },
+    "ai": {
+      "optional": true
+    }
   }
 }

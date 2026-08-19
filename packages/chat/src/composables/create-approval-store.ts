@@ -86,7 +86,9 @@ export const createApprovalStore = (options: ApprovalStoreOptions): ApprovalStor
 
       if (
         part.state === 'input-available' &&
-        toolName in executors &&
+        // Own-property check: wire-derived tool names like `hasOwnProperty`
+        // must not match through the prototype chain.
+        Object.hasOwn(executors, toolName) &&
         !applying.has(part.toolCallId) &&
         resolveApprovalDecision(registry, toolName, part.input) === 'approval'
       ) {
@@ -112,7 +114,7 @@ export const createApprovalStore = (options: ApprovalStoreOptions): ApprovalStor
       return
     }
 
-    const executor = executors[approval.toolName]
+    const executor = Object.hasOwn(executors, approval.toolName) ? executors[approval.toolName] : undefined
 
     if (!executor) {
       return

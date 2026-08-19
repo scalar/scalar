@@ -114,6 +114,18 @@ const computeReservation = (): number => {
   return reservation
 }
 
+/**
+ * The distance from the bottom as of the last time this component looked —
+ * updated on every scroll event, programmatic write and observer pass.
+ * Follow decisions read this PRE-event value: the post-event distance
+ * conflates appended content, above-viewport growth compensated by the
+ * browser's scroll anchoring, and viewport shrinks with actual user intent.
+ */
+let lastDistanceFromBottom = 0
+
+const measureDistanceFromBottom = (element: HTMLElement): number =>
+  element.scrollHeight - element.scrollTop - element.clientHeight
+
 const setScrollTop = (value: number): void => {
   const element = viewportRef.value
 
@@ -125,13 +137,19 @@ const setScrollTop = (value: number): void => {
   // Read back after the write: the browser clamps to the scrollable range,
   // and the clamped value is what the async scroll event will report.
   lastWrittenScrollTop = element.scrollTop
+  lastDistanceFromBottom = measureDistanceFromBottom(element)
 }
 
 const scrollToEnd = (): void => {
   const element = viewportRef.value
 
   if (element) {
-    setScrollTop(element.scrollHeight)
+    // End of CONTENT: the reservation spacer is not a destination — parking
+    // an exposed jump-to-latest call inside a blank reserved tail would
+    // strand the user on empty space for the rest of the stream.
+    setScrollTop(
+      Math.max(0, element.scrollHeight - reserved.value - element.clientHeight),
+    )
     userScrolledAway.value = false
   }
 }
@@ -157,11 +175,14 @@ const scrollAnchorToTop = (): void => {
       element.scrollTop
 
     setScrollTop(anchorOffset - anchorGap(element))
-  } else {
-    setScrollTop(element.scrollHeight)
+    userScrolledAway.value = false
+    return
   }
 
-  userScrolledAway.value = false
+  // No anchor to pin (contract breach or the element vanished mid-flush):
+  // land at the end of CONTENT — the raw scrollHeight would park the user
+  // inside the reservation spacer for the rest of the stream.
+  scrollToEnd()
 }
 
 /** A new exchange started: reserve space and pin, or stick to the bottom on short viewports. */
@@ -219,9 +240,9 @@ const onScroll = (): void => {
 
   lastWrittenScrollTop = undefined
 
-  const distanceFromBottom =
-    element.scrollHeight - element.scrollTop - element.clientHeight
+  const distanceFromBottom = measureDistanceFromBottom(element)
 
+  lastDistanceFromBottom = distanceFromBottom
   userScrolledAway.value = distanceFromBottom > NEAR_BOTTOM_PX + reserved.value
 }
 
@@ -268,6 +289,17 @@ watch(
   },
 )
 
+/**
+ * The follow decisions below read `lastDistanceFromBottom` — where the user
+ * was BEFORE the event being handled — never the live post-event distance
+ * and never the `userScrolledAway` flag. Observers can run before the
+ * frame's coalesced scroll event dispatches (stale flag), appended content
+ * inflates the live distance for a user who was at the bottom, a viewport
+ * shrink inflates it without any user intent, and above-viewport growth
+ * compensated by the browser's scroll anchoring inflates a growth heuristic
+ * instead. The pre-event distance is the one signal that means what the
+ * user actually did.
+ */
 let resizeObserver: ResizeObserver | undefined
 let mutationObserver: MutationObserver | undefined
 
@@ -284,18 +316,31 @@ onMounted(() => {
   if (typeof ResizeObserver !== 'undefined') {
     resizeObserver = new ResizeObserver(() => {
       const currentEpoch = epoch
+      const wasNearBottom =
+        lastDistanceFromBottom <= NEAR_BOTTOM_PX + reserved.value
 
       if (props.streaming && reserved.value > 0) {
         reserved.value = computeReservation()
+
+        if (reserved.value === 0) {
+          // The shrink pushed the reservation under the threshold: the pin
+          // is no longer viable, fall back to sticking at the content end.
+          scrollToEnd()
+        } else {
+          lastDistanceFromBottom = measureDistanceFromBottom(element)
+        }
+
         return
       }
 
-      if (!userScrolledAway.value) {
+      if (wasNearBottom) {
         void nextTick().then(() => {
           if (currentEpoch === epoch) {
             scrollToEnd()
           }
         })
+      } else {
+        lastDistanceFromBottom = measureDistanceFromBottom(element)
       }
     })
     resizeObserver.observe(element)
@@ -305,13 +350,17 @@ onMounted(() => {
     // Stick-to-bottom must follow the streamed reply as it grows — content
     // growth inside a fixed-height scroller never fires the ResizeObserver.
     mutationObserver = new MutationObserver(() => {
-      if (
-        props.streaming &&
-        reserved.value === 0 &&
-        !userScrolledAway.value &&
-        !anchorPending
-      ) {
+      const wasNearBottom = lastDistanceFromBottom <= NEAR_BOTTOM_PX
+
+      if (!props.streaming || reserved.value > 0 || anchorPending) {
+        lastDistanceFromBottom = measureDistanceFromBottom(element)
+        return
+      }
+
+      if (wasNearBottom) {
         scrollToEnd()
+      } else {
+        lastDistanceFromBottom = measureDistanceFromBottom(element)
       }
     })
     mutationObserver.observe(element, {
@@ -327,7 +376,7 @@ onBeforeUnmount(() => {
   mutationObserver?.disconnect()
 })
 
-defineExpose({ scrollToEnd })
+defineExpose({ scrollToEnd, userScrolledAway })
 </script>
 
 <template>
