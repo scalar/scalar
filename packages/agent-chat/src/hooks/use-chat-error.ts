@@ -1,30 +1,17 @@
-import { coerce, number, object, optional, string, validate, type Static } from '@scalar/validation'
-import { computed } from 'vue'
+import { type ParsedChatError, parseChatError } from '@scalar/chat-protocol'
+import { type ComputedRef, computed } from 'vue'
 
-import { safeParseJson } from '@/helpers'
 import { useState } from '@/state/state'
 
-const chatErrorSchema = object({
-  message: string(),
-  code: string(),
-  status: optional(number()),
-})
-export type ChatError = Static<typeof chatErrorSchema>
+/**
+ * Kept as an alias so existing consumers keep compiling — the parsing now
+ * lives in @scalar/chat-protocol, shared by every chat surface instead of
+ * re-implemented per package.
+ */
+export type ChatError = ParsedChatError
 
-export function useChatError() {
+export function useChatError(): ComputedRef<ChatError | undefined> {
   const { chat } = useState()
 
-  return computed(() => {
-    if (!chat.error) return
-
-    const errorJson = safeParseJson(chat.error.message)
-
-    if (!errorJson || !validate(chatErrorSchema, errorJson))
-      return {
-        message: chat.error.message,
-        code: 'UNKNOWN_ERROR',
-      }
-
-    return coerce(chatErrorSchema, errorJson)
-  })
+  return computed(() => (chat.error ? parseChatError(chat.error) : undefined))
 }

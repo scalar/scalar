@@ -1,4 +1,5 @@
 import { Chat } from '@ai-sdk/vue'
+import { openApiApprovalPolicies, resolveApprovalDecision } from '@scalar/chat-protocol'
 import { type ModalState, useModal } from '@scalar/components/modal'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
@@ -132,7 +133,9 @@ function createChat({
 
       if (
         toolCall.toolName === EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME &&
-        toolCall.input.method.toLowerCase() === 'get'
+        // The declared policy registry replaces the inline GET heuristic.
+        resolveApprovalDecision(openApiApprovalPolicies, EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME, toolCall.input) ===
+          'auto'
       ) {
         await executeRequestTool({
           documentSettings: createDocumentSettings(workspaceStore),

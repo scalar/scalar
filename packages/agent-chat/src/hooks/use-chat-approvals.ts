@@ -1,3 +1,4 @@
+import { openApiApprovalPolicies, resolveApprovalDecision } from '@scalar/chat-protocol'
 import type { ToolUIPart, UIMessagePart } from 'ai'
 import { computed } from 'vue'
 
@@ -16,7 +17,9 @@ export function requestPartRequiresApproval(part: UIMessagePart<any, Tools>): pa
   return (
     part.type === (`tool-${EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME}` as const) &&
     part.state === 'input-available' &&
-    part.input?.method?.toLowerCase() !== 'get'
+    // The declared policy registry replaces the inline GET heuristic — one
+    // definition of what auto-executes, shared with every chat surface.
+    resolveApprovalDecision(openApiApprovalPolicies, EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME, part.input) === 'approval'
   )
 }
 

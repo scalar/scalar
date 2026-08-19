@@ -41,8 +41,18 @@
     "dist",
     "CHANGELOG.md"
   ],
+  "peerDependenciesMeta": {
+    "@ai-sdk/vue": {
+      "optional": true
+    },
+    "ai": {
+      "optional": true
+    }
+  },
   "dependencies": {
-    "@scalar/chat-protocol": "workspace:*"
+    "@scalar/chat-protocol": "workspace:*",
+    "@scalar/components": "workspace:*",
+    "@scalar/icons": "workspace:*"
   },
   "devDependencies": {
     "@ai-sdk/vue": "catalog:*",
@@ -60,13 +70,5 @@
     "@ai-sdk/vue": "^3.0.168",
     "ai": "^6.0.168",
     "vue": "^3.5.0"
-  },
-  "peerDependenciesMeta": {
-    "@ai-sdk/vue": {
-      "optional": true
-    },
-    "ai": {
-      "optional": true
-    }
   }
 }
