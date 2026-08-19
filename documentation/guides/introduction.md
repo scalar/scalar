@@ -159,7 +159,14 @@
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/docs" aria-label="Create your new API documentation with Scalar">Create Your New Documentation →</a>
+      <div class="product-actions mt-3">
+        <a class="product-action t-editor__anchor" href="https://dashboard.scalar.com/register" aria-label="Create documentation with Scalar">
+          Create Docs &rarr;
+        </a>
+        <a class="product-action t-editor__anchor" data-scalar-type="page-link" href="/products/docs" aria-label="Learn more about Scalar Docs">
+          Learn More &rarr;
+        </a>
+      </div>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -206,7 +213,14 @@
           File Streaming Support
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/sdk-generator" aria-label="Generate your first SDK with Scalar">Generate your first SDK →</a>
+      <div class="product-actions mt-3">
+        <a class="product-action t-editor__anchor" href="https://dashboard.scalar.com/register" aria-label="Generate an SDK with Scalar">
+          Generate SDK &rarr;
+        </a>
+        <a class="product-action t-editor__anchor" data-scalar-type="page-link" href="/products/sdk-generator" aria-label="Learn more about Scalar SDK Generation">
+          Learn More &rarr;
+        </a>
+      </div>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -253,7 +267,14 @@
           Linux, Windows, macOS
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/api-client" aria-label="Send your first API request with Scalar">Send Your First Request →</a>
+      <div class="product-actions mt-3">
+        <a class="product-action t-editor__anchor" href="https://client.scalar.com/" target="_blank" rel="noopener noreferrer" aria-label="Send an API request with Scalar">
+          Send Request &rarr;
+        </a>
+        <a class="product-action t-editor__anchor" data-scalar-type="page-link" href="/products/api-client" aria-label="Learn more about Scalar API Client">
+          Learn More &rarr;
+        </a>
+      </div>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -600,6 +621,16 @@
   }
   .product-copy h2 {
     margin-top: 0;
+  }
+  .product-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .product-action {
+    display: inline-block;
+    width: fit-content;
   }
   .icon-text svg {
     width: 18px;

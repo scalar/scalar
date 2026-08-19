@@ -1,5 +1,7 @@
 # @scalar/openapi-parser
 
+## 0.28.14
+
 ## 0.28.13
 
 ### Patch Changes

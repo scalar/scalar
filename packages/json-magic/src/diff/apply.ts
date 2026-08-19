@@ -1,3 +1,5 @@
+import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
+
 import type { Difference } from '@/diff/diff'
 
 export class InvalidChangesDetectedError extends Error {
@@ -12,9 +14,13 @@ export class InvalidChangesDetectedError extends Error {
  * The function traverses the document structure following the paths specified in the differences
  * and applies the corresponding changes (add, update, or delete) at each location.
  *
+ * Paths that reach the prototype chain (`__proto__`, `constructor` or `prototype`) are rejected
+ * before anything is written, so a hostile changeset cannot poison `Object.prototype`.
+ *
  * @param document - The original document to apply changes to
  * @param diff - Array of differences to apply, each containing a path and change type
  * @returns The modified document with all changes applied
+ * @throws {InvalidChangesDetectedError} When a path is unusable or reaches the prototype chain
  *
  * @example
  * const original = {
@@ -71,6 +77,20 @@ export const apply = <T extends Record<string, unknown>>(
       throw new InvalidChangesDetectedError('Process aborted, check diff object')
     }
     applyChange(current[path[depth]], path, d, depth + 1)
+  }
+
+  // Reject prototype-polluting paths up front, so an unsafe changeset is turned away before any of
+  // its entries touch the document. A path segment such as `__proto__` would make the traversal walk
+  // onto `Object.prototype` and write there, poisoning every object in the runtime. `diff` never
+  // emits these segments, so only a hand-crafted changeset reaches this guard.
+  for (const d of diff) {
+    const unsafeSegment = d.path.find(isPollutionKey)
+
+    if (unsafeSegment !== undefined) {
+      throw new InvalidChangesDetectedError(
+        `Process aborted. Path ${d.path.join('.')} contains the unsafe segment "${unsafeSegment}", which can modify the prototype chain`,
+      )
+    }
   }
 
   for (const d of diff) {

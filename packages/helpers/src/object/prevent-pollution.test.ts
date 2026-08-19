@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { preventPollution } from './prevent-pollution'
+import { isPollutionKey, preventPollution } from './prevent-pollution'
 
 describe('preventPollution', () => {
   it('throws when __proto__ is passed', () => {
@@ -43,5 +43,27 @@ describe('preventPollution', () => {
     expect(() => preventPollution('user-id')).not.toThrow()
     expect(() => preventPollution('user_name')).not.toThrow()
     expect(() => preventPollution('user.email')).not.toThrow()
+  })
+})
+
+describe('isPollutionKey', () => {
+  it('flags the keys that reach the prototype chain', () => {
+    expect(isPollutionKey('__proto__')).toBe(true)
+    expect(isPollutionKey('prototype')).toBe(true)
+    expect(isPollutionKey('constructor')).toBe(true)
+  })
+
+  it('leaves safe keys alone', () => {
+    expect(isPollutionKey('name')).toBe(false)
+    expect(isPollutionKey('path')).toBe(false)
+    expect(isPollutionKey('0')).toBe(false)
+    expect(isPollutionKey('')).toBe(false)
+  })
+
+  it('leaves keys that only contain a dangerous string alone', () => {
+    expect(isPollutionKey('proto')).toBe(false)
+    expect(isPollutionKey('__proto')).toBe(false)
+    expect(isPollutionKey('myprototype')).toBe(false)
+    expect(isPollutionKey('constructorName')).toBe(false)
   })
 })

@@ -6,6 +6,13 @@
   Summaries are preserved between runs and normalized for brevity.
 -->
 <div class="blog-post-list">
+<article class="blog-post-list__item" data-file="2026-08-16-stainless-wind-down.md">
+  <a class="blog-post-list__link" href="./2026-08-16-stainless-wind-down.md">
+    <div class="blog-post-list__meta">Aug 16, 2026</div>
+    <h2 class="blog-post-list__title">We wrote up the Stainless wind-down</h2>
+    <p class="blog-post-list__description">Stainless is winding down its hosted SDK generator. A full account of what changed, what the realistic options are, and how stainless.yml maps onto other generators.</p>
+  </a>
+</article>
 <article class="blog-post-list__item" data-file="2026-04-11-oss-pledge.md">
   <a class="blog-post-list__link" href="./2026-04-11-oss-pledge.md">
     <div class="blog-post-list__meta">Apr 11, 2026</div>
