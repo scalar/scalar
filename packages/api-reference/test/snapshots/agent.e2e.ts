@@ -10,5 +10,5 @@ test(galaxy.title, async ({ page }) => {
   await page.goto(example)
 
   await page.getByRole('complementary', { name: 'Sidebar' }).getByRole('button', { name: 'Ask AI' }).click()
-  await expect(page).toHaveScreenshot('drawer.png')
+  await expect(page).toHaveScreenshot('panel.png')
 })

@@ -5,7 +5,7 @@ import App from './App.vue'
 /**
  * The facade contract test required by the chat unification plan before any
  * recomposition of this package onto @scalar/chat. agent.scalar.com and the
- * api-reference drawer consume the full public surface of the exported
+ * api-reference panel consume the full public surface of the exported
  * `Chat` component — renaming or removing anything below is a breaking
  * change and must fail here first.
  */

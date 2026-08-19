@@ -80,7 +80,7 @@ import {
 } from '@/blocks/scalar-asyncapi-sidebar-filters-block'
 import {
   AgentScalarButton,
-  AgentScalarDrawer,
+  AgentScalarPanel,
   OpenMCPButton,
 } from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
@@ -1598,10 +1598,13 @@ const showMCPButton = computed(() => {
       :dir="apiReferenceLocalization.direction.value"
       :lang="documentLang">
       <!-- Agent Scalar -->
-      <AgentScalarDrawer
+      <AgentScalarPanel
         v-if="agent.agentEnabled.value"
         :agentScalarConfiguration="configList[activeSlug]?.agent"
         :externalUrls="mergedConfig.externalUrls"
+        :mcpConfiguration="mergedConfig.mcp"
+        :showMcp="showMCPButton"
+        :url="documentUrl"
         :workspaceStore />
 
       <!-- Mobile Header and Sidebar when in modern layout -->
