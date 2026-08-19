@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { ChatStatusBadge } from '@scalar/chat'
 import type { ToolUIPart, UIMessage } from 'ai'
 import { ref, watch, type Reactive, type Ref } from 'vue'
 
-import LoadingOpenAPISpecsSummary from '@/components/LoadingOpenAPISpecsSummary.vue'
 import type { SUMMARIZE_OPENAPI_SPECS_TOOL_NAME } from '@/entities/tools/get-openapi-specs-summary'
 import { type Tools } from '@/state/state'
 
@@ -32,9 +32,22 @@ watch(
 </script>
 
 <template>
-  <div v-if="!messageFinished">
-    <LoadingOpenAPISpecsSummary />
+  <div
+    v-if="!messageFinished"
+    class="loadingApiSpecs">
+    <ChatStatusBadge
+      label="Loading APIs..."
+      status="running" />
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.loadingApiSpecs {
+  margin-bottom: 10px;
+}
+/* The donor badge used the muted tone for this row; keep it. */
+.loadingApiSpecs :deep(.chat-status-badge) {
+  color: var(--scalar-color-2);
+  min-height: 0;
+}
+</style>

@@ -3,6 +3,7 @@ import {
   createApiClientModal,
   type ApiClientModal,
 } from '@scalar/api-client/modal'
+import { ChatRoot, type ChatCopyOverride } from '@scalar/chat'
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 
 import { useAgentKeyDocuments } from '@/hooks/use-agent-key-documents'
@@ -63,6 +64,12 @@ useChatScroll()
 useAgentKeyDocuments()
 useCuratedDocuments()
 
+/** Start.vue renders its own disclaimer, so the kit's footnote is cleared. */
+const CHAT_COPY: ChatCopyOverride = {
+  composer: { placeholder: 'Ask me anything…' },
+  disclaimer: { short: '' },
+}
+
 async function handleSubmit() {
   await chat.sendMessage({ text: prompt.value })
 }
@@ -70,8 +77,10 @@ async function handleSubmit() {
 
 <template>
   <div ref="clientModal" />
-  <Layout
-    @submit="handleSubmit"
-    @uploadApi="$emit('uploadApi')" />
+  <ChatRoot :copy="CHAT_COPY">
+    <Layout
+      @submit="handleSubmit"
+      @uploadApi="$emit('uploadApi')" />
+  </ChatRoot>
   <Settings :modalState="settingsModal" />
 </template>

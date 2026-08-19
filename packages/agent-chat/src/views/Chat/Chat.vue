@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ChatMarkdown } from '@scalar/chat'
 import { reactive, toRef } from 'vue'
 
 import { ASK_FOR_AUTHENTICATION_TOOL_NAME } from '@/entities/tools/ask-for-authentication'
@@ -10,7 +11,6 @@ import AskForAuthentication from '@/views/Chat/Messages/AskForAuthentication.vue
 import ExecuteRequestTool from '@/views/Chat/Messages/ExecuteRequestTool.vue'
 import GetOpenAPISpecsSummary from '@/views/Chat/Messages/GetOpenAPISpecsSummary.vue'
 import SearchOpenAPIOperationsTool from '@/views/Chat/Messages/SearchOpenAPIOperationsTool.vue'
-import Text from '@/views/Chat/Messages/Text.vue'
 import PromptForm from '@/views/PromptForm.vue'
 
 const emit = defineEmits<{
@@ -19,6 +19,17 @@ const emit = defineEmits<{
 }>()
 
 const state = useState()
+
+/**
+ * Whether this part is the one still receiving tokens: the last part of the
+ * last message while a response streams. `ChatMarkdown` keeps every earlier
+ * block's DOM stable and confines churn to this one.
+ */
+function isStreamingPart(messageId: string, index: number): boolean {
+  if (state.chat.status !== 'streaming') return false
+  const last = state.chat.messages[state.chat.messages.length - 1]
+  return last?.id === messageId && index === last.parts.length - 1
+}
 </script>
 
 <template>
@@ -38,9 +49,11 @@ const state = useState()
         <div
           v-for="(part, index) in message.parts"
           :key="`${message.id}-${index}`">
-          <Text
+          <ChatMarkdown
             v-if="part.type === 'text'"
-            :messagePart="toRef(part)" />
+            class="assistantText"
+            :content="part.text"
+            :streaming="isStreamingPart(message.id, index)" />
           <ExecuteRequestTool
             v-if="
               part.type ===
@@ -122,7 +135,7 @@ div + .userMessage {
   max-width: 744px;
   z-index: 1;
 }
-.chat :deep(.markdown) {
+.chat :deep(.assistantText) {
   margin-bottom: 12px;
 }
 </style>

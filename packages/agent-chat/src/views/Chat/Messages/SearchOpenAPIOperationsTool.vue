@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { ChatStatusBadge } from '@scalar/chat'
 import { ScalarPopover } from '@scalar/components/popover'
 import { type ToolUIPart, type UIMessage } from 'ai'
 import { computed, ref, watch, type Reactive, type Ref } from 'vue'
 
 import ContextItem from '@/components/ContextItem.vue'
-import LoadingSearchOpenAPIOperations from '@/components/LoadingSearchOpenAPIOperations.vue'
 import type { SEARCH_OPENAPI_OPERATIONS_TOOL_NAME } from '@/entities/tools/search-openapi-operations'
 import { getOperations } from '@/helpers'
 import { useState, type Tools } from '@/state/state'
@@ -70,7 +70,9 @@ const state = useState()
       messagePart.value.state === 'input-available' &&
       state.chat.status === 'streaming'
     ">
-    <LoadingSearchOpenAPIOperations />
+    <ChatStatusBadge
+      label="Retrieving relevant information..."
+      status="running" />
   </div>
   <div
     v-if="operations"

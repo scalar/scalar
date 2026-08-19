@@ -1,15 +1,14 @@
 <script setup lang="ts">
+import { ChatComposer } from '@scalar/chat'
 import { ScalarIconButton } from '@scalar/components/icon-button'
-import { ScalarLoading } from '@scalar/components/loading'
 import { ScalarTooltip } from '@scalar/components/tooltip'
 import {
-  ScalarIconArrowUp,
   ScalarIconCheck,
   ScalarIconLockSimple,
   ScalarIconPlus,
   ScalarIconX,
 } from '@scalar/icons'
-import { computed, useTemplateRef, watch } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 
 import ActionsDropdown from '@/components/ActionsDropdown.vue'
 import ApprovalSection from '@/components/ApprovalSection.vue'
@@ -19,7 +18,6 @@ import PaymentSection from '@/components/PaymentSection.vue'
 import SearchPopover from '@/components/SearchPopover.vue'
 import UploadSection from '@/components/UploadSection.vue'
 import { AgentErrorCodes } from '@/entities/error/constants'
-import { MAX_PROMPT_SIZE } from '@/entities/prompt/constants'
 import { useRequestApprovals } from '@/hooks/use-chat-approvals'
 import { useChatError } from '@/hooks/use-chat-error'
 import { useChatPendingClientToolParts } from '@/hooks/use-chat-pending-client-tool-parts'
@@ -33,14 +31,10 @@ const emit = defineEmits<{
 
 defineExpose({ focusPrompt })
 
-const promptRef = useTemplateRef<HTMLTextAreaElement>('agentPrompt')
+const composerRef =
+  useTemplateRef<InstanceType<typeof ChatComposer>>('composer')
 
 const state = useState()
-
-const inputHasContent = computed(() => state.prompt.value.trim().length > 0)
-const promptTooLarge = computed(
-  () => state.prompt.value.trim().length > MAX_PROMPT_SIZE,
-)
 
 /** Show free messages info only after at least one message has been sent and when no API key is set. */
 const showFreeMessagesInfo = computed(
@@ -50,51 +44,9 @@ const showFreeMessagesInfo = computed(
     chatError?.value?.code !== AgentErrorCodes.LIMIT_REACHED,
 )
 
-watch(state.prompt, () => {
-  if (!promptRef?.value) {
-    return
-  }
-
-  if (!state.prompt.value.length) {
-    promptRef.value.style.height = '0px'
-    return
-  }
-
-  promptRef.value.style.height = 'auto'
-  promptRef.value.style.height = promptRef.value.scrollHeight + 'px'
-})
-
-function handlePromptKeydown(e: KeyboardEvent) {
-  // Ignore the Enter that only commits an IME composition (e.g. Japanese, Chinese,
-  // Korean). On macOS Chrome that keydown still reports key === 'Enter' with
-  // isComposing === true, so without this guard the message sends mid-composition.
-  if (e.isComposing) {
-    return
-  }
-
-  if (state.loading.value) {
-    return
-  }
-
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault()
-    handleSubmit()
-    window.scrollTo(0, document.body.scrollHeight)
-  }
-}
-
 function focusPrompt() {
-  promptRef.value?.focus()
+  composerRef.value?.focus()
 }
-
-watch(
-  () => state.chat.status,
-  (status) => {
-    if (status === 'ready' || status === 'error') {
-      promptRef.value?.focus()
-    }
-  },
-)
 
 const { approvalRequiredParts, respondToRequestApprovals } =
   useRequestApprovals()
@@ -115,9 +67,16 @@ const isPending = computed(() =>
   Object.values(state.pendingDocuments).some(Boolean),
 )
 
-const submitDisabled = computed(() => {
-  const tooLarge = promptTooLarge.value
-  const missingInput = !inputHasContent.value
+/** Whether a response is in flight, for the composer's Send/Stop morph. */
+const isResponding = computed(
+  () => state.chat.status === 'submitted' || state.chat.status === 'streaming',
+)
+
+/**
+ * The surface's extra send gates. Empty and over-limit drafts are gated by
+ * the composer itself.
+ */
+const sendDisabled = computed(() => {
   const awaitingApproval = approvalRequiredParts.value.length > 0
   const pendingToolParts = pendingClientToolParts.value.length > 0
 
@@ -125,25 +84,26 @@ const submitDisabled = computed(() => {
 
   const termsNotAccepted = isPreview && !state.terms.accepted.value
   const uploadingTmpDoc = isPreview && !!uploadTmpDoc.uploadState.value
-  const isLoading = isPending.value
 
   return (
-    tooLarge ||
-    missingInput ||
     awaitingApproval ||
     pendingToolParts ||
     termsNotAccepted ||
     uploadingTmpDoc ||
-    isLoading
+    isPending.value
   )
 })
 
 function handleSubmit() {
-  if (submitDisabled.value) {
+  if (sendDisabled.value) {
     return
   }
 
   emit('submit')
+}
+
+function handleStop() {
+  void state.chat.stop()
 }
 
 const chatError = useChatError()
@@ -163,125 +123,88 @@ const chatError = useChatError()
       @reject="respondToRequestApprovals(false)" />
     <PaymentSection v-if="chatError?.code === AgentErrorCodes.LIMIT_REACHED" />
     <FreeMessagesInfoSection v-if="showFreeMessagesInfo" />
-    <form
-      class="promptForm"
-      @submit.prevent="handleSubmit">
-      <label
-        class="agentLabel"
-        for="agentTextarea">
-        Type a Request To get Started
-      </label>
-      <textarea
-        id="agentTextarea"
-        ref="agentPrompt"
-        v-model="state.prompt.value"
-        class="prompt custom-scroll"
-        :disabled="state.loading.value"
-        name="prompt"
-        placeholder="Ask me anything…"
-        @keydown="handlePromptKeydown" />
-      <div class="inputActionsContainer">
-        <div class="inputActionsLeft">
-          <template v-if="!state.hideAddApi">
-            <SearchPopover v-if="!state.isLoggedIn?.value">
-              <button
-                class="addAPIButton"
-                type="button">
-                <ScalarIconPlus
-                  class="size-4"
-                  weight="bold" />
-              </button>
-            </SearchPopover>
-            <ActionsDropdown
-              v-else
-              @uploadApi="$emit('uploadApi')">
-              <button
-                class="addAPIButton"
-                type="button">
-                <ScalarIconPlus
-                  class="size-4"
-                  weight="bold" />
-              </button>
-            </ActionsDropdown>
-          </template>
-          <div
-            v-for="document in state.registryDocuments.value"
-            :key="document.id"
-            class="apiPill">
-            <img
-              v-if="document.logoUrl"
-              class="apiPillLogo"
-              :src="document.logoUrl" />
-            {{ document.title }}
+    <ChatComposer
+      ref="composer"
+      v-model="state.prompt.value"
+      class="promptComposer"
+      :sendDisabled="sendDisabled"
+      :streaming="isResponding"
+      @stop="handleStop"
+      @submit="handleSubmit">
+      <template #actionsStart>
+        <template v-if="!state.hideAddApi">
+          <SearchPopover v-if="!state.isLoggedIn?.value">
             <button
-              v-if="document.removable"
-              class="apiPillRemove"
-              type="button"
-              @click="state.removeDocument(document)">
-              <ScalarIconX
+              class="addAPIButton"
+              type="button">
+              <ScalarIconPlus
                 class="size-4"
                 weight="bold" />
             </button>
-          </div>
-        </div>
-
-        <div class="inputActionsRight">
-          <template v-if="!state.loading.value">
-            <ScalarTooltip content="Settings">
-              <ScalarIconButton
-                class="settingsButton h-7 w-7 p-1.5"
-                :icon="ScalarIconLockSimple"
-                label="Scalar"
-                size="md"
-                weight="bold"
-                @click="state.settingsModal.show()" />
-            </ScalarTooltip>
-          </template>
-          <div class="sendCheckboxContinue">
-            <div
-              v-if="!state.terms.accepted.value && state.mode === 'preview'"
-              class="relative flex items-center gap-1.5">
-              <input
-                id="agentTermsAgree"
-                class="sr-only"
-                type="checkbox"
-                @change="acceptTerms" />
-              <label
-                class="termsAgree"
-                for="agentTermsAgree">
-                <ScalarIconCheck
-                  class="termsAgreeIcon"
-                  weight="bold" />
-                Agree to Terms & Conditions
-              </label>
-            </div>
-            <ScalarIconButton
-              v-if="!state.loading.value"
-              class="sendButton h-7 w-7 p-1.5"
-              :disabled="submitDisabled"
-              :icon="ScalarIconArrowUp"
-              label="Scalar"
-              size="md"
-              type="submit"
+          </SearchPopover>
+          <ActionsDropdown
+            v-else
+            @uploadApi="$emit('uploadApi')">
+            <button
+              class="addAPIButton"
+              type="button">
+              <ScalarIconPlus
+                class="size-4"
+                weight="bold" />
+            </button>
+          </ActionsDropdown>
+        </template>
+        <div
+          v-for="document in state.registryDocuments.value"
+          :key="document.id"
+          class="apiPill">
+          <img
+            v-if="document.logoUrl"
+            class="apiPillLogo"
+            :src="document.logoUrl" />
+          {{ document.title }}
+          <button
+            v-if="document.removable"
+            class="apiPillRemove"
+            type="button"
+            @click="state.removeDocument(document)">
+            <ScalarIconX
+              class="size-4"
               weight="bold" />
-            <ScalarLoading
-              v-else
-              class="loader h-7 w-7"
-              :loader="{
-                isLoading: state.loading.value,
-                isValid: false,
-                clear: async () => {},
-                invalidate: async () => {},
-                isInvalid: false,
-                isActive: false,
-                validate: async () => {},
-                start: () => {},
-              }"
-              size="2xl" />
+          </button>
+        </div>
+        <!-- Pushes the settings/terms cluster against the send control. -->
+        <div class="actionsSpacer" />
+        <ScalarTooltip content="Settings">
+          <ScalarIconButton
+            class="settingsButton h-7 w-7 p-1.5"
+            :icon="ScalarIconLockSimple"
+            label="Scalar"
+            size="md"
+            weight="bold"
+            @click="state.settingsModal.show()" />
+        </ScalarTooltip>
+        <div class="sendCheckboxContinue">
+          <div
+            v-if="!state.terms.accepted.value && state.mode === 'preview'"
+            class="relative flex items-center gap-1.5">
+            <input
+              id="agentTermsAgree"
+              class="sr-only"
+              type="checkbox"
+              @change="acceptTerms" />
+            <label
+              class="termsAgree"
+              for="agentTermsAgree">
+              <ScalarIconCheck
+                class="termsAgreeIcon"
+                weight="bold" />
+              Agree to Terms & Conditions
+            </label>
           </div>
         </div>
-      </div>
-    </form>
+      </template>
+    </ChatComposer>
 
     <div
       v-if="state.chat.messages.length <= 1 && !state.hideAddApi"
@@ -319,35 +242,48 @@ const chatError = useChatError()
   /* visually hides overflowing text below */
   box-shadow: 0 24px 0 2px var(--scalar-background-1);
 }
-.promptForm {
-  width: 100%;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background: var(--scalar-background-1);
-  box-shadow:
-    var(--scalar-shadow-1),
-    0 0 0 var(--scalar-border-width) var(--scalar-border-color);
+
+/* The kit composer's input box adopts the shell's rounding. */
+.promptComposer :deep(.chat-composer-input) {
   border-radius: var(--scalar-radius-3xl);
+  box-shadow: var(--scalar-shadow-1);
 }
 
-.inputActionsContainer {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 8px 8px 8px;
+.promptComposer :deep(.chat-composer-field) {
+  min-height: 64px;
+  max-height: 250px;
+  padding: 12px 14px 4px;
 }
 
-.inputActionsLeft {
+.actionsSpacer {
+  flex: 1;
+}
+
+.addAPIButton {
   display: flex;
-  flex-wrap: wrap; /* key: allows pills to go to next line */
   align-items: center;
-  gap: 5px; /* spacing between pills */
+  justify-content: center;
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-font-size-3);
+  height: 28px;
+  width: 28px;
+  font-weight: var(--scalar-bold);
+  border-radius: var(--scalar-radius-full);
+  gap: 4px;
+  pointer-events: all;
+  z-index: 1;
+  box-shadow: 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
 }
-
-.inputActionsRight {
-  display: flex;
-  gap: 5px;
-  position: relative;
+.addAPIButton:hover {
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-2),
+    var(--scalar-background-1)
+  );
+  box-shadow: 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
+}
+.dark-mode .addAPIButton:hover {
+  background: var(--scalar-background-3);
 }
 
 .apiPill {
@@ -389,60 +325,6 @@ const chatError = useChatError()
   color: var(--scalar-color-1);
 }
 
-.prompt {
-  width: 100%;
-  outline: none;
-  border: none;
-  resize: none;
-  field-sizing: content;
-  min-height: 64px;
-  z-index: 1;
-  max-height: 250px;
-  max-width: 100%;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  word-wrap: break-word;
-  font-family: var(--scalar-font);
-  font-size: 16px;
-  padding: 12px 12px 14px 12px;
-}
-.dark-mode .promptForm {
-  background: var(--scalar-background-2);
-}
-
-.prompt:disabled {
-  color: var(--scalar-color-3);
-}
-
-.addAPIButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--scalar-color-2);
-  font-size: var(--scalar-font-size-3);
-  height: 28px;
-  width: 28px;
-  font-weight: var(--scalar-bold);
-  border-radius: var(--scalar-radius-full);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  pointer-events: all;
-  z-index: 1;
-  box-shadow: 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
-}
-.addAPIButton:hover {
-  background: color-mix(
-    in srgb,
-    var(--scalar-background-2),
-    var(--scalar-background-1)
-  );
-  box-shadow: 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
-}
-.dark-mode .addAPIButton:hover {
-  background: var(--scalar-background-3);
-}
-
 .settingsButton {
   color: var(--scalar-color-3) !important;
   border-radius: var(--scalar-radius-full) !important;
@@ -456,61 +338,6 @@ const chatError = useChatError()
   background: var(--scalar-background-3);
 }
 
-.sendButton {
-  background: var(--scalar-color-blue) !important;
-  border-radius: var(--scalar-radius-full) !important;
-  margin: 0 !important;
-  z-index: 1;
-  border: var(--scalar-border-width) solid var(--scalar-color-blue);
-}
-.sendButton:not([aria-disabled='true']) {
-  color: white !important;
-}
-.sendButton:not([aria-disabled='true']):hover {
-  background: color-mix(
-    in srgb,
-    var(--scalar-color-blue),
-    transparent 10%
-  ) !important;
-}
-.sendButton[aria-disabled='true'] {
-  background: var(--scalar-background-2) !important;
-  color: var(--scalar-color-3) !important;
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-}
-
-.dark-mode .sendButton[aria-disabled='true'] {
-  background: var(--scalar-background-3) !important;
-}
-.contextContainer {
-  display: flex;
-  width: 100%;
-  padding: 10px 12px 12px 12px;
-  color: var(--scalar-color-2);
-  font-size: var(--scalar-font-size-3);
-  user-select: none;
-  justify-content: space-between;
-}
-
-.settingsButton {
-  font-weight: var(--scalar-semibold);
-  border-radius: var(--scalar-radius-lg);
-  padding: 4px 6px;
-  margin: -4px -6px;
-}
-.settingsButton:hover {
-  background: var(--scalar-background-2);
-  box-shadow: 0 0 var(--scalar-border-width) 0 var(--scalar-border-color);
-  cursor: pointer;
-}
-
-.agentLabel {
-  font-size: 0px;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  cursor: text;
-}
 .sendCheckboxContinue:has(input) {
   display: flex;
   align-items: center;

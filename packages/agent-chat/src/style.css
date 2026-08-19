@@ -5,6 +5,7 @@
  * sheet for Agent Chat.
  */
 
+@import "@scalar/chat/vue-styles.css";
 @import "@scalar/components/vue-styles.css";
 @import "@scalar/sidebar/vue-styles.css";
 @import "@scalar/api-client/vue-styles.css";

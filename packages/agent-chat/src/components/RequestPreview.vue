@@ -1,20 +1,14 @@
 <script setup lang="ts">
+import { ChatStatusBadge } from '@scalar/chat'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarIconCaretDown, ScalarIconCaretRight } from '@scalar/icons'
 import { type DeepPartial } from 'ai'
 import { computed, ref } from 'vue'
 
-import AutosendPaused from '@/components/AutosendPaused.vue'
-import BuildingRequest from '@/components/BuildingRequest.vue'
-import RequestApproved from '@/components/RequestApproved.vue'
-import RequestFailed from '@/components/RequestFailed.vue'
-import RequestRejected from '@/components/RequestRejected.vue'
-import RequestSuccess from '@/components/RequestSuccess.vue'
 import { getMediaTypeConfig } from '@/components/ResponseBody/helpers/media-types'
 import { processResponseBody } from '@/components/ResponseBody/helpers/process-response-body'
 import ResponseBody from '@/components/ResponseBody/ResponseBody.vue'
 import ResponseBodyToggle from '@/components/ResponseBody/ResponseBodyToggle.vue'
-import SendingRequest from '@/components/SendingRequest.vue'
 import type {
   ExecuteClientSideRequestToolInput,
   ExecuteClientSideRequestToolOutput,
@@ -30,7 +24,6 @@ const { request, response, state } = defineProps<{
     | 'sendingRequest'
     | 'requestSucceeded'
     | 'requestFailed'
-    | 'approved'
     | 'rejected'
     | 'buildingRequest'
 }>()
@@ -96,23 +89,28 @@ const displayMode = computed(() => {
       open: shouldShowRequest,
       succeeded: state === 'requestSucceeded',
     }">
-    <RequestApproved v-if="state === 'approved'" />
     <div
-      v-else-if="state === 'buildingRequest'"
+      v-if="state === 'buildingRequest'"
       class="autosendContainer">
-      <BuildingRequest />
+      <ChatStatusBadge
+        label="Building Request..."
+        status="running" />
     </div>
     <div
       v-else-if="state === 'requiresApproval'"
       class="autosendContainer">
-      <AutosendPaused />
+      <ChatStatusBadge
+        label="Accept Request to Continue"
+        status="awaiting-approval" />
     </div>
     <button
       v-else-if="state === 'sendingRequest'"
       class="toggleButton"
       type="button"
       @click="showRequestToggle = !showRequestToggle">
-      <SendingRequest />
+      <ChatStatusBadge
+        label="Sending Request to Endpoint"
+        status="applying" />
 
       <ScalarIconCaretDown v-if="shouldShowRequest" />
       <ScalarIconCaretRight v-else />
@@ -122,7 +120,9 @@ const displayMode = computed(() => {
       class="toggleButton"
       type="button"
       @click="showRequestToggle = !showRequestToggle">
-      <RequestSuccess />
+      <ChatStatusBadge
+        label="Request Succeeded"
+        status="complete" />
 
       <ScalarIconCaretDown v-if="shouldShowRequest" />
       <ScalarIconCaretRight v-else />
@@ -132,12 +132,17 @@ const displayMode = computed(() => {
       class="toggleButton"
       type="button"
       @click="showRequestToggle = !showRequestToggle">
-      <RequestRejected />
+      <ChatStatusBadge
+        label="Request Rejected"
+        status="rejected" />
 
       <ScalarIconCaretDown v-if="shouldShowRequest" />
       <ScalarIconCaretRight v-else />
     </button>
-    <RequestFailed v-else-if="state === 'requestFailed'" />
+    <ChatStatusBadge
+      v-else-if="state === 'requestFailed'"
+      label="Request Failed"
+      status="failed" />
     <div class="requestContent">
       <div class="requestContentInner">
         <div

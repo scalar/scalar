@@ -56,6 +56,7 @@
   "dependencies": {
     "@ai-sdk/vue": "catalog:*",
     "@scalar/api-client": "workspace:*",
+    "@scalar/chat": "workspace:*",
     "@scalar/chat-protocol": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
