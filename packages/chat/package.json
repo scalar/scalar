@@ -1,0 +1,64 @@
+{
+  "name": "@scalar/chat",
+  "description": "Vue primitives for the Scalar agent chat surfaces: session core, approval store, density provider and viewport",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/chat"
+  },
+  "keywords": [
+    "scalar",
+    "chat",
+    "agent",
+    "vue"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build:watch": "vite build --watch",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "types:check": "vue-tsc --noEmit"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./vue-styles.css": "./dist/vue-styles.css"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@scalar/chat-protocol": "workspace:*"
+  },
+  "devDependencies": {
+    "@ai-sdk/vue": "catalog:*",
+    "@types/jsdom": "catalog:*",
+    "@vitejs/plugin-vue": "catalog:*",
+    "@vue/test-utils": "catalog:*",
+    "ai": "catalog:*",
+    "fake-indexeddb": "catalog:*",
+    "jsdom": "catalog:*",
+    "vite": "catalog:*",
+    "vitest": "catalog:*",
+    "vue": "catalog:*"
+  },
+  "peerDependencies": {
+    "@ai-sdk/vue": "^3.0.168",
+    "ai": "^6.0.168",
+    "vue": "^3.5.0"
+  }
+}
