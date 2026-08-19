@@ -219,7 +219,7 @@ defineExpose({
   display: flex;
   background: var(--chat-composer-input-bg, var(--scalar-background-1));
   border: 1px solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius-lg);
+  border-radius: var(--scalar-radius-3xl);
 }
 
 /* The dock always takes its own full row, above the field. */
@@ -270,11 +270,16 @@ defineExpose({
 
 .chat-composer-stacked .chat-composer-input {
   flex-direction: column;
+  /* The design's fixed frame: never shorter than 84px, growing with the
+     draft up to 240px; past that the field scrolls internally. */
+  min-height: 84px;
+  max-height: 240px;
 }
 
 .chat-composer-stacked .chat-composer-field {
   min-height: 48px;
-  max-height: 220px;
+  /* Leaves room for the actions row inside the input box's 240px cap. */
+  max-height: 196px;
   padding: 12px 12px 4px;
 }
 
