@@ -119,11 +119,3 @@ export const restoreAuthSecretsFromStorage = ({
   const auth = authPersistence.getAuth(documentName)
   workspaceStore.auth.load({ [documentName]: auth })
 }
-
-export function safeParseJson(value: string) {
-  try {
-    return JSON.parse(value)
-  } catch {
-    return
-  }
-}

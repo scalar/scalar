@@ -8,6 +8,19 @@
  * those heuristics with declared policy, per the unification plan.
  */
 
+import {
+  EDIT_FILE_TOOL_NAME,
+  GET_CURRENT_FILE_TOOL_NAME,
+  GLOB_TOOL_NAME,
+  GREP_TOOL_NAME,
+  LIST_FILES_TOOL_NAME,
+  READ_FILE_TOOL_NAME,
+  SUMMARIZE_OPENAPI_TOOL_NAME,
+  VALIDATE_OPENAPI_TOOL_NAME,
+  WRITE_FILE_TOOL_NAME,
+} from '../tools/editor'
+import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '../tools/openapi'
+
 /** What should happen when a client-executed tool call arrives. */
 export type ApprovalDecision = 'auto' | 'approval'
 
@@ -57,7 +70,7 @@ const isGetRequest = (input: unknown): boolean =>
  * automatically, everything else asks first.
  */
 export const openApiApprovalPolicies: ApprovalPolicyRegistry = {
-  'execute-request': (input) => (isGetRequest(input) ? 'auto' : 'approval'),
+  [EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME]: (input) => (isGetRequest(input) ? 'auto' : 'approval'),
 }
 
 /**
@@ -67,13 +80,13 @@ export const openApiApprovalPolicies: ApprovalPolicyRegistry = {
  * not part of the infrastructure migration.
  */
 export const editorApprovalPolicies: ApprovalPolicyRegistry = {
-  read_file: 'auto',
-  list_files: 'auto',
-  glob: 'auto',
-  grep: 'auto',
-  get_current_file: 'auto',
-  validate_openapi: 'auto',
-  summarize_openapi: 'auto',
-  edit_file: 'auto',
-  write_file: 'approval',
+  [READ_FILE_TOOL_NAME]: 'auto',
+  [LIST_FILES_TOOL_NAME]: 'auto',
+  [GLOB_TOOL_NAME]: 'auto',
+  [GREP_TOOL_NAME]: 'auto',
+  [GET_CURRENT_FILE_TOOL_NAME]: 'auto',
+  [VALIDATE_OPENAPI_TOOL_NAME]: 'auto',
+  [SUMMARIZE_OPENAPI_TOOL_NAME]: 'auto',
+  [EDIT_FILE_TOOL_NAME]: 'auto',
+  [WRITE_FILE_TOOL_NAME]: 'approval',
 }

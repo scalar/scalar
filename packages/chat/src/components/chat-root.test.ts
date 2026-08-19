@@ -45,6 +45,19 @@ describe('chat-root', () => {
     expect(style).toContain('--chat-bubble-max-w: 90%')
   })
 
+  it('propagates a density change after mount — no remount required', async () => {
+    const wrapper = mount(ChatRoot, {
+      props: { density: 'default' },
+      slots: { default: () => h(Probe) },
+    })
+
+    await wrapper.setProps({ density: 'compact' })
+
+    expect(wrapper.get('span').attributes('data-density')).toBe('compact')
+    const style = wrapper.get('.chat-root').attributes('style') ?? ''
+    expect(style).toContain('--chat-row-min-h: 32px')
+  })
+
   it('propagates copy changes after mount — locale switches must not require a remount', async () => {
     const wrapper = mount(ChatRoot, {
       props: { copy: { composer: { placeholder: 'Ask about this API' } } },

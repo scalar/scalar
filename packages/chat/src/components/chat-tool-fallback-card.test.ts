@@ -92,12 +92,59 @@ describe('chat-tool-fallback-card', () => {
   it('renders the editor legacy rejection payload as rejected despite output-available', () => {
     const wrapper = mount(ChatToolFallbackCard, {
       props: {
-        part: createPart({ state: 'output-available', output: { ok: false, rejected: true } }),
+        part: createPart({
+          state: 'output-available',
+          output: { ok: false, rejected: true, error: 'User rejected the write. Ask what they want instead.' },
+        }),
       },
     })
 
     expect(wrapper.classes()).toContain('chat-tool-fallback-card--rejected')
     expect(wrapper.classes()).not.toContain('chat-tool-fallback-card--complete')
+    // The payload's error string is the only reason carrier in this encoding.
+    expect(wrapper.get('.chat-tool-fallback-card-preview').text()).toBe(
+      'User rejected the write. Ask what they want instead.',
+    )
+  })
+
+  it('narrates a rejection as rejected, never as called', () => {
+    // A rejected call never executed; `Called {tool}` would assert the
+    // opposite of what happened, with only icon color to say otherwise.
+    const wrapper = mount(ChatToolFallbackCard, {
+      props: {
+        part: createPart({
+          type: 'tool-write_file',
+          state: 'output-denied',
+          approval: { id: 'appr-1', approved: false, reason: 'Keep the existing intro.' },
+        }),
+      },
+    })
+
+    expect(wrapper.get('.chat-tool-fallback-card-header').text()).toContain('Rejected')
+    expect(wrapper.get('.chat-tool-fallback-card-header').text()).not.toContain('Called')
+    // The chip carries a text label, not just a color, and the structured
+    // denial reason surfaces in the preview.
+    expect(wrapper.get('.chat-tool-fallback-card-status').text()).toBe('Rejected')
+    expect(wrapper.get('.chat-tool-fallback-card-preview').text()).toBe('Keep the existing intro.')
+  })
+
+  it('keeps the denial reason visible when a native denial is expanded', async () => {
+    // The native encoding carries no output and no errorText — the reason
+    // must not vanish from the DOM when the preview yields to the body.
+    const wrapper = mount(ChatToolFallbackCard, {
+      props: {
+        part: createPart({
+          type: 'tool-write_file',
+          state: 'output-denied',
+          approval: { id: 'appr-1', approved: false, reason: 'Keep the existing intro.' },
+        }),
+      },
+    })
+
+    await wrapper.get('.chat-tool-fallback-card-header').trigger('click')
+
+    expect(wrapper.find('.chat-tool-fallback-card-preview').exists()).toBe(false)
+    expect(wrapper.get('.chat-tool-fallback-card-error').text()).toBe('Keep the existing intro.')
   })
 
   it('expands and collapses through the header button', async () => {

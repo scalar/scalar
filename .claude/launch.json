@@ -12,26 +12,6 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@scalar/chat", "playground"],
       "port": 9210
-    },
-    {
-      "name": "org-guide-playground",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": [
-        "--dir",
-        "/Users/marclaventure/Software/please/packages/guide-layout",
-        "dev"
-      ],
-      "port": 9000
-    },
-    {
-      "name": "org-dashboard-playground",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": [
-        "--dir",
-        "/Users/marclaventure/Software/please/projects/dashboard",
-        "dev"
-      ],
-      "port": 3560
     }
   ]
 }

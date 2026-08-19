@@ -61,6 +61,22 @@ describe('chat-send', () => {
     expect(wrapper.emitted('stop')).toHaveLength(1)
   })
 
+  it('ignores clicks for 150ms after the morph back to send', async () => {
+    // The mirror-image mis-click: a click aimed at Stop landing just after
+    // the stream completes must not send the half-typed draft.
+    const wrapper = mount(ChatSend, { props: { streaming: true } })
+
+    await wrapper.setProps({ streaming: false })
+
+    await wrapper.get('button').trigger('click')
+    expect(wrapper.emitted('send')).toBeUndefined()
+    expect(wrapper.emitted('stop')).toBeUndefined()
+
+    vi.advanceTimersByTime(150)
+    await wrapper.get('button').trigger('click')
+    expect(wrapper.emitted('send')).toHaveLength(1)
+  })
+
   it('does not send while disabled', () => {
     const wrapper = mount(ChatSend, {
       props: { streaming: false, disabled: true },

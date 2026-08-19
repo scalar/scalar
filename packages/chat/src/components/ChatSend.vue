@@ -41,29 +41,27 @@ let pulseTimer: ReturnType<typeof setTimeout> | undefined
 
 watch(
   () => streaming,
-  (isStreaming) => {
+  () => {
+    // The guard arms on BOTH morph directions, and only at a morph — never
+    // at mount. A click aimed at Send as the stream starts must not hit
+    // Stop, and a click aimed at Stop as the stream completes must not send
+    // the half-typed draft.
     clearTimeout(stopGuardTimer)
-
-    if (isStreaming) {
-      // The guard starts at the morph, not at mount: only a button that was
-      // Send a moment ago can collect a click that was aimed at Send.
-      stopGuarded.value = true
-      stopGuardTimer = setTimeout(() => {
-        stopGuarded.value = false
-      }, STOP_GUARD_MS)
-    } else {
+    stopGuarded.value = true
+    stopGuardTimer = setTimeout(() => {
       stopGuarded.value = false
-    }
+    }, STOP_GUARD_MS)
   },
 )
 
 const onClick = (): void => {
-  if (streaming) {
-    if (stopGuarded.value) {
-      // This click was almost certainly aimed at Send — swallow it.
-      return
-    }
+  if (stopGuarded.value) {
+    // The button just morphed in either direction — this click was almost
+    // certainly aimed at what it showed a moment ago. Swallow it.
+    return
+  }
 
+  if (streaming) {
     emit('stop')
     return
   }

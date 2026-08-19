@@ -227,7 +227,18 @@ export function createState({
   watch(
     () => chat.status,
     () => {
-      if (chat.status === 'streaming') {
+      if (chat.status !== 'streaming') {
+        return
+      }
+
+      // Clear only the draft that was actually sent. The kit composer stays
+      // editable through the 'submitted' wait (the donor textarea was
+      // disabled there), so a draft the user started typing in the meantime
+      // no longer matches the sent message and must survive.
+      const lastUserMessage = [...chat.messages].reverse().find((message) => message.role === 'user')
+      const sentText = lastUserMessage?.parts.find((part) => part.type === 'text')?.text
+
+      if (typeof sentText === 'string' && prompt.value === sentText) {
         prompt.value = ''
       }
     },

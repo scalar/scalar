@@ -107,6 +107,26 @@ describe('create-chat-sessions', () => {
     expect(localStorage.getItem('scalar-agent-last-chat')).toBe(sessions.currentChatId.value)
   })
 
+  it('resolves a getter lastChatStorageKey at read and write time', async () => {
+    // The editor scopes the pointer per project; the key must follow.
+    let project = 'project-a'
+    localStorage.setItem('editor-last-chat-project-a', 'chat-a')
+
+    const sessions = createChatSessions({
+      createChat: createFakeChat,
+      lastChatStorageKey: () => `editor-last-chat-${project}`,
+    })
+
+    expect(sessions.currentChatId.value).toBe('chat-a')
+
+    project = 'project-b'
+    sessions.activeChat.value.messages.push(userMessage('first'))
+    sessions.startNewChat()
+    await flushWatchers()
+
+    expect(localStorage.getItem('editor-last-chat-project-b')).toBe(sessions.currentChatId.value)
+  })
+
   it('starts a new chat only when the current one has messages', () => {
     const sessions = createChatSessions({ createChat: createFakeChat })
     const initialId = sessions.currentChatId.value
@@ -576,6 +596,111 @@ describe('create-chat-sessions', () => {
       const clobber = saveChat.mock.calls.find(([saved]) => saved.messages.length === 1)
       expect(clobber).toBeUndefined()
     })
+  })
+
+  describe('delete and clear races', () => {
+    /** A history stub whose deleteChat/clearAll resolution the test controls. */
+    const createGatedDeleteHistory = () => {
+      const releases: (() => void)[] = []
+
+      return {
+        history: {
+          chatList: ref([]),
+          ready: ref(Promise.resolve()),
+          refresh: async () => {},
+          saveChat: async () => {},
+          deleteChat: () =>
+            new Promise<void>((resolve) => {
+              releases.push(resolve)
+            }),
+          loadChat: async () => undefined,
+          clearAll: () =>
+            new Promise<void>((resolve) => {
+              releases.push(resolve)
+            }),
+          dispose: () => {},
+        },
+        releases,
+      }
+    }
+
+    it('never lets a deleteChat that predates reset() clobber the new scope', async () => {
+      const { history, releases } = createGatedDeleteHistory()
+      let project = 'project-a'
+
+      const sessions = createChatSessions({
+        createChat: createFakeChat,
+        history,
+        lastChatStorageKey: () => `last-chat-${project}`,
+      })
+
+      // The delete suspends on storage while a project switch lands.
+      void sessions.deleteChat(sessions.currentChatId.value)
+      await waitFor(() => expect(releases).toHaveLength(1))
+
+      project = 'project-b'
+      sessions.reset()
+      const resetId = sessions.currentChatId.value
+
+      releases[0]?.()
+      await flushWatchers()
+
+      // The stale delete's aftermath must not replace the id the reset chose
+      // — nor overwrite the NEW scope's remembered pointer with a bogus id.
+      expect(sessions.currentChatId.value).toBe(resetId)
+      expect(localStorage.getItem('last-chat-project-b')).toBe(resetId)
+    })
+
+    it('never lets a clearAllChats that predates reset() clobber the new scope', async () => {
+      const { history, releases } = createGatedDeleteHistory()
+      let project = 'project-a'
+
+      const sessions = createChatSessions({
+        createChat: createFakeChat,
+        history,
+        lastChatStorageKey: () => `last-chat-${project}`,
+      })
+
+      void sessions.clearAllChats()
+      await waitFor(() => expect(releases).toHaveLength(1))
+
+      project = 'project-b'
+      sessions.reset()
+      const resetId = sessions.currentChatId.value
+
+      releases[0]?.()
+      await flushWatchers()
+
+      expect(sessions.currentChatId.value).toBe(resetId)
+      expect(localStorage.getItem('last-chat-project-b')).toBe(resetId)
+    })
+  })
+
+  it('keeps a remembered fresh chat when mostRecentFallback is off', async () => {
+    const history = createChatHistory({ dbName: 'scalar-editor-agent-chat' })
+    await history.ready.value
+    await history.saveChat({
+      id: 'older-chat',
+      title: 'Older',
+      messages: [userMessage('stored')],
+      createdAt: 1,
+      updatedAt: 1,
+    })
+
+    // The pointer names a deliberately fresh chat that was never persisted —
+    // the editor's "New chat" surviving a reload.
+    localStorage.setItem('last-chat', 'fresh-empty-chat')
+    const sessions = createChatSessions({
+      createChat: createFakeChat,
+      history,
+      lastChatStorageKey: 'last-chat',
+      mostRecentFallback: false,
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    expect(sessions.currentChatId.value).toBe('fresh-empty-chat')
+    expect(sessions.activeChat.value.messages).toHaveLength(0)
   })
 
   it('keeps persisting when the creating component scope dies', async () => {

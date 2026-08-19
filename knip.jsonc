@@ -121,6 +121,24 @@
       "ignore": ["playground/**", "src/entities/**"],
       "ignoreDependencies": ["@scalar/themes", "@scalar/sidebar", "hono"]
     },
+    "packages/chat-protocol": {
+      // Every subpath in the package exports map is a public entry point.
+      "entry": [
+        "src/index.ts",
+        "src/error/index.ts",
+        "src/approval/index.ts",
+        "src/limits/index.ts",
+        "src/tools/*/index.ts",
+        "src/fixtures/index.ts"
+      ]
+    },
+    "packages/chat": {
+      "ignore": ["playground/**"],
+      // The themes dependency is consumed by the playground (ignored above);
+      // ai and @ai-sdk/vue are optional peers the kit types against
+      // structurally, kept as devDependencies for future type-compat tests.
+      "ignoreDependencies": ["@scalar/themes", "ai", "@ai-sdk/vue"]
+    },
     "packages/api-reference": {
       "entry": [
         "src/index.ts",

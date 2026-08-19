@@ -36,6 +36,8 @@ export type ChatCopy = {
     called: string
     /** Failure row: `{verb} failed · {reason}`. */
     failed: string
+    /** Rejected-tool row: `Rejected {tool}` — the one decline term. */
+    rejectedTool: string
     /** The no-data fallback only. */
     requestFailed: string
   }
@@ -43,6 +45,8 @@ export type ChatCopy = {
     arguments: string
     result: string
     error: string
+    /** Status chip label on rejected tool calls. */
+    rejected: string
   }
   diff: {
     /** Single-line hunk label, `{line}` placeholder. */
@@ -88,12 +92,14 @@ export const defaultChatCopy: ChatCopy = {
     calling: 'Calling {tool}…',
     called: 'Called {tool}',
     failed: '{verb} failed · {reason}',
+    rejectedTool: 'Rejected {tool}',
     requestFailed: 'Request failed',
   },
   tool: {
     arguments: 'Arguments',
     result: 'Result',
     error: 'Error',
+    rejected: 'Rejected',
   },
   diff: {
     line: 'Line {line}',

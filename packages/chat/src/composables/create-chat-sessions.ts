@@ -1,4 +1,14 @@
-import { type ComputedRef, type Ref, computed, effectScope, nextTick, ref, watch } from 'vue'
+import {
+  type ComputedRef,
+  type MaybeRefOrGetter,
+  type Ref,
+  computed,
+  effectScope,
+  nextTick,
+  ref,
+  toValue,
+  watch,
+} from 'vue'
 
 import type { ChatHistory, StoredChat } from '@/composables/create-chat-history'
 
@@ -21,8 +31,12 @@ export type ChatSessionsOptions<TChat extends SessionChat> = {
   createChat: (chatId: string) => TChat
   /** Persistence adapter. Omit for ephemeral surfaces — everything else keeps working. */
   history?: ChatHistory
-  /** localStorage key remembering the last active chat. Shipped surfaces keep their existing keys. */
-  lastChatStorageKey?: string
+  /**
+   * localStorage key remembering the last active chat. Shipped surfaces keep
+   * their existing keys. A getter makes the key dynamic — the editor scopes
+   * it per project, and `reset()` re-reads it through the getter.
+   */
+  lastChatStorageKey?: MaybeRefOrGetter<string>
   /** Skip storage access during SSR/SSG rendering. */
   isServer?: boolean
   /**
@@ -31,6 +45,13 @@ export type ChatSessionsOptions<TChat extends SessionChat> = {
    * hydration runs once at creation, which is what full-page surfaces want.
    */
   open?: Ref<boolean>
+  /**
+   * When the remembered chat turns out empty on first hydration, switch to
+   * the most recent stored chat instead (default). Surfaces that remember a
+   * deliberately fresh chat across reloads — the editor's "New chat" —
+   * disable this so the fresh chat is never yanked back to an older one.
+   */
+  mostRecentFallback?: boolean
   /** Extra fields persisted on every record (for example `projectUid`, `mode`). */
   extendRecord?: () => Record<string, unknown>
   /** Title for chats without a user message yet. Wire the copy dictionary's `session.untitledChat` here. */
@@ -129,6 +150,7 @@ export const createChatSessions = <TChat extends SessionChat>(
     lastChatStorageKey,
     isServer = false,
     open,
+    mostRecentFallback = true,
     extendRecord,
     untitledTitle = 'Untitled chat',
   } = options
@@ -161,7 +183,7 @@ export const createChatSessions = <TChat extends SessionChat>(
       return newChatId()
     }
 
-    const remembered = safeReadStorage(lastChatStorageKey)
+    const remembered = safeReadStorage(toValue(lastChatStorageKey))
 
     return remembered || newChatId()
   }
@@ -172,7 +194,7 @@ export const createChatSessions = <TChat extends SessionChat>(
     scope.run(() => {
       watch(currentChatId, (id) => {
         if (!isServer) {
-          safeWriteStorage(lastChatStorageKey, id)
+          safeWriteStorage(toValue(lastChatStorageKey), id)
         }
       })
     })
@@ -365,8 +387,17 @@ export const createChatSessions = <TChat extends SessionChat>(
 
   const deleteChat = async (chatId: string): Promise<void> => {
     const wasActive = chatId === currentChatId.value
+    const epoch = hydrationEpoch
 
     await history?.deleteChat(chatId)
+
+    if (epoch !== hydrationEpoch) {
+      // A reset() landed while the delete was in flight: the record is gone
+      // from storage, but `wasActive` and the list now describe the previous
+      // scope — acting on them would clobber the id (and last-chat pointer)
+      // the reset just set for the new scope.
+      return
+    }
 
     if (history && chatList.value.some((chat) => chat.id === chatId)) {
       // The storage delete failed (quota, transient IndexedDB error): leave
@@ -400,11 +431,20 @@ export const createChatSessions = <TChat extends SessionChat>(
   }
 
   const clearAllChats = async (): Promise<void> => {
+    const epoch = hydrationEpoch
+
     for (const chatId of [...chatInstances.keys()]) {
       disposeInstance(chatId)
     }
 
     await history?.clearAll()
+
+    if (epoch !== hydrationEpoch) {
+      // A reset() landed while the clear was in flight — same stale-scope
+      // hazard as deleteChat: never overwrite the id the reset chose.
+      return
+    }
+
     cancelPendingSwitch()
     currentChatId.value = newChatId()
   }
@@ -443,7 +483,7 @@ export const createChatSessions = <TChat extends SessionChat>(
 
     restoredOnce = true
 
-    if (!activeChat.value.messages.length && chatList.value.length) {
+    if (mostRecentFallback && !activeChat.value.messages.length && chatList.value.length) {
       await switchToChat(chatList.value[0]?.id ?? currentChatId.value)
     }
   }

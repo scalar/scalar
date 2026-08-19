@@ -17,6 +17,8 @@ const {
   modelValue,
   streaming,
   sendDisabled = false,
+  allowEmptySubmit = false,
+  maxlength,
   layout = 'stacked',
 } = defineProps<{
   /** The draft text; the shell owns it and clears it after a successful send. */
@@ -25,6 +27,19 @@ const {
   streaming: boolean
   /** Extra send gate from the shell (pending approvals, missing session, …). */
   sendDisabled?: boolean
+  /**
+   * Let an empty draft submit — for shells whose message can be something
+   * other than text (the editor sends attachment-only messages). The shell
+   * still gates via `sendDisabled` when nothing at all is ready to send.
+   */
+  allowEmptySubmit?: boolean
+  /**
+   * A hard draft length cap, enforced by the browser's native `maxlength`.
+   * Shells must never clamp the model programmatically instead — rewriting
+   * the value mid-IME-composition garbles the composition; the native
+   * attribute is composition-safe.
+   */
+  maxlength?: number
   /** `stacked` is the full block layout, `inline` the single-row variant. */
   layout?: 'stacked' | 'inline'
 }>()
@@ -38,6 +53,7 @@ const emit = defineEmits<{
 
 const copy = useChatCopy()
 
+const rootRef = useTemplateRef<HTMLDivElement>('root')
 const fieldRef = useTemplateRef<HTMLTextAreaElement>('field')
 const sendRef = useTemplateRef<InstanceType<typeof ChatSend>>('send')
 
@@ -59,7 +75,7 @@ const submit = (): void => {
 
   const text = modelValue.trim()
 
-  if (!text) {
+  if (!text && !allowEmptySubmit) {
     return
   }
 
@@ -71,8 +87,11 @@ const onKeydown = (event: KeyboardEvent): void => {
     return
   }
 
-  if (event.isComposing) {
-    // An Enter that only commits an IME composition must not send.
+  if (event.isComposing || event.keyCode === 229) {
+    // An Enter that only commits an IME composition must not send. WebKit
+    // fires compositionend before the confirming keydown, so that Enter
+    // arrives with isComposing already false — keyCode 229 is the standard
+    // secondary signal for it.
     return
   }
 
@@ -88,12 +107,33 @@ const onKeydown = (event: KeyboardEvent): void => {
   submit()
 }
 
+/**
+ * Whether handing focus back to the field would steal it from somewhere
+ * else. Focus is only reclaimed when it already sits inside this composer
+ * (the user pressed Send or Stop) or nowhere at all (body/null). A rail
+ * chat renders next to unrelated inputs, and a stream completing must not
+ * interrupt the user typing in one of them.
+ */
+const canReclaimFocus = (): boolean => {
+  const active = document.activeElement
+
+  return (
+    !active ||
+    active === document.body ||
+    (rootRef.value?.contains(active) ?? false)
+  )
+}
+
 watch(
   () => streaming,
   (isStreaming, wasStreaming) => {
     if (wasStreaming && !isStreaming) {
       // Hand focus back once the reply finishes so the user can keep typing.
-      void nextTick().then(() => fieldRef.value?.focus())
+      void nextTick().then(() => {
+        if (canReclaimFocus()) {
+          fieldRef.value?.focus()
+        }
+      })
     }
   },
 )
@@ -106,17 +146,27 @@ defineExpose({
 
 <template>
   <div
+    ref="root"
     class="chat-composer"
     :class="
       layout === 'inline' ? 'chat-composer-inline' : 'chat-composer-stacked'
     "
     :data-over-limit="overLimit ? 'true' : undefined">
     <div class="chat-composer-input">
+      <!-- Content docked inside the input box above the field, like the
+           editor's attachment preview strip. The wrapper forces its own
+           row, so the dock sits above the field in both layouts. -->
+      <div
+        v-if="$slots.inputStart"
+        class="chat-composer-input-start">
+        <slot name="inputStart" />
+      </div>
       <textarea
         ref="field"
         class="chat-composer-field"
         rows="1"
         :value="modelValue"
+        :maxlength="maxlength"
         :placeholder="copy.composer.placeholder"
         @input="onInput"
         @keydown="onKeydown" />
@@ -162,11 +212,25 @@ defineExpose({
   order: -1;
 }
 
+/* `--chat-composer-input-bg` is the public hook for the input surface —
+   shells (dark-mode overrides included) set the variable on an ancestor
+   instead of reaching into this component's internal classes. */
 .chat-composer-input {
   display: flex;
-  background: var(--scalar-background-1);
+  background: var(--chat-composer-input-bg, var(--scalar-background-1));
   border: 1px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
+}
+
+/* The dock always takes its own full row, above the field. */
+.chat-composer-input-start {
+  width: 100%;
+}
+
+/* The accent ring every focused Scalar input shows; surface focus flashes
+   (the MCP rail's rainbow sweep) are designed to resolve into it. */
+.chat-composer-input:focus-within {
+  border-color: var(--scalar-color-accent, var(--scalar-color-1));
 }
 
 .chat-composer[data-over-limit='true'] .chat-composer-input {
@@ -217,6 +281,8 @@ defineExpose({
 .chat-composer-inline .chat-composer-input {
   align-items: flex-end;
   min-height: 40px;
+  /* Lets the inputStart dock's full-width row sit above the field. */
+  flex-wrap: wrap;
 }
 
 .chat-composer-inline .chat-composer-field {

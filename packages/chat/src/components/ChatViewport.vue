@@ -257,7 +257,15 @@ watch(
       void anchorNewExchange()
     } else {
       // A restored or hydrated chat: no exchange to pin, open at the end.
-      void nextTick().then(scrollToEnd)
+      // Epoch-guarded like every other deferred write, so a chat switch or
+      // fresh anchor landing before the tick wins scroll ownership.
+      const currentEpoch = epoch
+
+      void nextTick().then(() => {
+        if (currentEpoch === epoch) {
+          scrollToEnd()
+        }
+      })
     }
   },
 )

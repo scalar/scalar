@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { ChatErrorCodes } from './envelope'
+import { ChatErrorCodes, chatErrorEnvelopeSchema, legacyChatErrorSchema } from './envelope'
 
 /**
  * A chat error normalized for rendering, whatever shape it arrived in.
@@ -41,16 +41,17 @@ const FALLBACK_MESSAGE = 'Something went wrong. Please try again.'
 /**
  * The wire envelope and the legacy client shape overlap structurally (both
  * carry `code`), so one merged parse handles either — `detail` comes from
- * the envelope, `status` from the legacy shape. `message` is tolerated as
- * missing: the shipped OpenAPI chat route serializes its 403/400 errors
+ * the envelope, `status` from the legacy shape. Derived from the canonical
+ * schemas so a field added there propagates here. `message` is loosened to
+ * optional: the shipped OpenAPI chat route serializes its 403/400 errors
  * without one, and the code is the field UIs branch on.
  */
-const anyChatErrorSchema = z.object({
-  code: z.string(),
-  message: z.string().optional(),
-  detail: z.unknown().optional(),
-  status: z.number().optional(),
-})
+const anyChatErrorSchema = z
+  .object({
+    ...chatErrorEnvelopeSchema.shape,
+    ...legacyChatErrorSchema.shape,
+  })
+  .partial({ message: true })
 
 const fromCandidate = (candidate: unknown): ParsedChatError | undefined => {
   const parsed = anyChatErrorSchema.safeParse(candidate)

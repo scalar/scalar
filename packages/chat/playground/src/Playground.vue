@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toolCardStatus, type ToolPartLike } from '@scalar/chat-protocol'
 import { chatFixtures } from '@scalar/chat-protocol/fixtures'
-import { computed, ref } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
 
 import { CHAT_VIEWPORT_ANCHOR_ATTRIBUTE } from '@/components/chat-viewport'
 import ChatApprovalBar from '@/components/ChatApprovalBar.vue'
@@ -82,20 +82,33 @@ const CHUNKS = [
   ' Want me to build that request?',
 ]
 
+let streamInterval: ReturnType<typeof setInterval> | undefined
+
+const stopStreaming = (): void => {
+  clearInterval(streamInterval)
+  streamInterval = undefined
+  streamedMarkdown.value = ''
+  streaming.value = false
+}
+
 const submit = (text: string): void => {
+  // A previous simulated stream must not keep writing into the shared
+  // buffer after Stop or a re-send.
+  stopStreaming()
+
   transcript.value.push({ id: `user-${Date.now()}`, role: 'user', text })
   prompt.value = ''
   anchorKey.value = transcript.value.at(-1)?.id
   messageCount.value += 1
   streaming.value = true
-  streamedMarkdown.value = ''
 
   let index = 0
-  const interval = setInterval(() => {
+  streamInterval = setInterval(() => {
     const chunk = CHUNKS[index]
 
     if (chunk === undefined) {
-      clearInterval(interval)
+      clearInterval(streamInterval)
+      streamInterval = undefined
       transcript.value.push({
         id: `assistant-${Date.now()}`,
         role: 'assistant',
@@ -110,6 +123,8 @@ const submit = (text: string): void => {
     index += 1
   }, 350)
 }
+
+onUnmounted(stopStreaming)
 
 const approvals = ref([
   {
@@ -230,7 +245,7 @@ const diffRows = {
           :streaming="streaming"
           :send-disabled="approvals.length > 0"
           @submit="submit"
-          @stop="streaming = false">
+          @stop="stopStreaming">
           <template #banners>
             <ChatApprovalBar
               :approvals="approvals"
@@ -247,7 +262,7 @@ const diffRows = {
           layout="inline"
           :streaming="streaming"
           @submit="submit"
-          @stop="streaming = false" />
+          @stop="stopStreaming" />
       </section>
 
       <section>

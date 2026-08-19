@@ -184,7 +184,12 @@ watch(
 
 .chat-tool-card--compact .chat-tool-card-header {
   padding: 8px;
-  min-height: var(--chat-row-min-h, 32px);
+  /*
+   * A literal, not the density variable: the prop is a per-card tighten for
+   * dense stacks inside ANY density (the donor's 32px), and the variable
+   * would make it a no-op wherever ChatRoot already sets the row height.
+   */
+  min-height: 32px;
 }
 
 .chat-tool-card-lead {

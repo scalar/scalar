@@ -63,6 +63,23 @@ describe('chat-composer', () => {
     expect(event.defaultPrevented).toBe(false)
   })
 
+  it('ignores the WebKit-shaped IME commit Enter (keyCode 229, isComposing false)', async () => {
+    // Safari fires compositionend before the confirming keydown, so the
+    // Enter arrives with isComposing false and keyCode 229.
+    const wrapper = mount(ChatComposer, {
+      props: { modelValue: 'こんにちは', streaming: false },
+    })
+
+    const event = pressEnter(wrapper.get('textarea').element, {
+      isComposing: false,
+      keyCode: 229,
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('submit')).toBeUndefined()
+    expect(event.defaultPrevented).toBe(false)
+  })
+
   it('treats Enter mid-stream as a pulse, not a submit or interrupt', async () => {
     const wrapper = mount(ChatComposer, {
       props: { modelValue: 'queued thought', streaming: true },
@@ -208,6 +225,105 @@ describe('chat-composer', () => {
 
     expect(document.activeElement).toBe(wrapper.get('textarea').element)
     wrapper.unmount()
+  })
+
+  it('does not steal focus from outside the composer when streaming ends', async () => {
+    // A rail chat renders next to unrelated inputs; a stream completing must
+    // not interrupt the user typing in one of them.
+    const outside = document.createElement('input')
+    document.body.appendChild(outside)
+
+    const wrapper = mount(ChatComposer, {
+      props: { modelValue: '', streaming: true },
+      attachTo: document.body,
+    })
+
+    outside.focus()
+    await wrapper.setProps({ streaming: false })
+    await flushPromises()
+
+    expect(document.activeElement).toBe(outside)
+    wrapper.unmount()
+    outside.remove()
+  })
+
+  it('reclaims focus when it sits inside the composer when streaming ends', async () => {
+    const wrapper = mount(ChatComposer, {
+      props: { modelValue: '', streaming: true },
+      attachTo: document.body,
+    })
+
+    // The user just clicked the Stop control inside the composer.
+    ;(wrapper.get('.chat-send').element as HTMLButtonElement).focus()
+    await wrapper.setProps({ streaming: false })
+    await flushPromises()
+
+    expect(document.activeElement).toBe(wrapper.get('textarea').element)
+    wrapper.unmount()
+  })
+
+  it('submits an empty draft when allowEmptySubmit is set', async () => {
+    // Shells whose message can be attachment-only (the editor) opt in.
+    const wrapper = mount(ChatComposer, {
+      props: { modelValue: '', streaming: false, allowEmptySubmit: true },
+    })
+
+    await wrapper.get('.chat-send').trigger('click')
+
+    expect(wrapper.emitted('submit')).toEqual([['']])
+  })
+
+  it('still blocks an empty draft without allowEmptySubmit', async () => {
+    const wrapper = mount(ChatComposer, {
+      props: { modelValue: '   ', streaming: false },
+    })
+
+    await wrapper.get('.chat-send').trigger('click')
+
+    expect(wrapper.emitted('submit')).toBeUndefined()
+  })
+
+  it('submits an empty draft via Enter when allowEmptySubmit is set', async () => {
+    const wrapper = mount(ChatComposer, {
+      props: { modelValue: '', streaming: false, allowEmptySubmit: true },
+    })
+
+    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+
+    expect(wrapper.emitted('submit')).toEqual([['']])
+  })
+
+  it('forwards maxlength to the native textarea', () => {
+    // The native attribute is the composition-safe cap; shells must never
+    // clamp the model programmatically instead.
+    const wrapper = mount(ChatComposer, {
+      props: { modelValue: '', streaming: false, maxlength: 5000 },
+    })
+
+    expect(wrapper.get('textarea').attributes('maxlength')).toBe('5000')
+  })
+
+  it('omits maxlength when the prop is not set', () => {
+    const wrapper = mount(ChatComposer, {
+      props: { modelValue: '', streaming: false },
+    })
+
+    expect(wrapper.get('textarea').attributes('maxlength')).toBeUndefined()
+  })
+
+  it('renders inputStart slot content inside the input box before the field', () => {
+    const wrapper = mount(ChatComposer, {
+      props: { modelValue: '', streaming: false },
+      slots: { inputStart: () => h('div', { class: 'probe-attachments' }) },
+    })
+
+    const input = wrapper.get('.chat-composer-input').element
+    const probe = wrapper.get('.probe-attachments').element
+    const field = wrapper.get('textarea').element
+
+    expect(input.contains(probe)).toBe(true)
+    // The strip docks above the field: it must precede it in the DOM.
+    expect(probe.compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('uses the copy dictionary for the placeholder', () => {

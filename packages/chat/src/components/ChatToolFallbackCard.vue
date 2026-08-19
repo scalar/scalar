@@ -76,6 +76,11 @@ const headerTemplate = computed<{ template: string; placeholder: string }>(
     if (status.value === 'awaiting-approval') {
       return { template: copy.approval.runAction, placeholder: 'action' }
     }
+    if (status.value === 'rejected') {
+      // A rejected call never executed — narrating it as `Called {tool}`
+      // would assert the opposite of what happened.
+      return { template: copy.status.rejectedTool, placeholder: 'tool' }
+    }
     if (isTerminal.value) {
       return { template: copy.status.called, placeholder: 'tool' }
     }
@@ -155,6 +160,33 @@ const formattedOutput = computed<string>(() => {
 const errorText = computed<string>(() => description.value.errorText ?? '')
 
 /**
+ * The rejection reason across all three encodings: the native denial's
+ * structured `approval.reason`, the legacy `output-error` text, or the
+ * editor-legacy payload's `error` string inside an `output-available` part.
+ */
+const rejectionReason = computed<string>(() => {
+  if (part.approval?.reason) {
+    return part.approval.reason
+  }
+
+  if (errorText.value) {
+    return errorText.value
+  }
+
+  const output = description.value.output
+
+  if (typeof output === 'object' && output !== null && 'error' in output) {
+    const legacyError = (output as { error: unknown }).error
+
+    if (typeof legacyError === 'string') {
+      return legacyError
+    }
+  }
+
+  return ''
+})
+
+/**
  * Reduce an arbitrary output to a single preview string. MCP-shaped results
  * surface their first text content because that is what the user asked for;
  * everything else renders as compact JSON — data only, so no English leaks
@@ -203,7 +235,10 @@ const preview = computed<string>(() => {
   if (!isTerminal.value) {
     return ''
   }
-  if (status.value === 'failed' || status.value === 'rejected') {
+  if (status.value === 'rejected') {
+    return guardPreviewSize(rejectionReason.value)
+  }
+  if (status.value === 'failed') {
     return guardPreviewSize(errorText.value)
   }
   return guardPreviewSize(summarizeOutput(description.value.output))
@@ -247,6 +282,9 @@ const preview = computed<string>(() => {
           weight="bold" />
         <template v-if="status === 'failed'">{{
           copy.status.requestFailed
+        }}</template>
+        <template v-else-if="status === 'rejected'">{{
+          copy.tool.rejected
         }}</template>
       </span>
       <span
@@ -298,6 +336,20 @@ const preview = computed<string>(() => {
           class="chat-tool-fallback-card-code"
           :content="formattedOutput"
           lang="json" />
+      </div>
+
+      <!--
+        A native denial carries neither an error text nor an output — its
+        reason lives in `approval.reason` alone. Without this section the
+        collapsed preview's reason would vanish on expand.
+      -->
+      <div
+        v-else-if="status === 'rejected' && rejectionReason"
+        class="chat-tool-fallback-card-section">
+        <span class="chat-tool-fallback-card-section-label">{{
+          copy.tool.rejected
+        }}</span>
+        <pre class="chat-tool-fallback-card-error">{{ rejectionReason }}</pre>
       </div>
     </div>
   </article>
