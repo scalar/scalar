@@ -212,18 +212,29 @@ defineExpose({
   order: -1;
 }
 
-/* A docked approval bar caps the input: the pair reads as one rounded
-   stack — the bar keeps the composer's top radius, the shared edge is
-   the input's own top border. */
-.chat-composer-banners :deep(.chat-approval-bar) {
+/* A docked approval bar rides a connected backdrop plate: the plate is
+   rounded on top and tucks under the composer box, so the two read as
+   connected while the input NEVER loses its full radius (design ruling
+   on the editor adoption). `--chat-approval-dock-bg` is the public hook
+   for the plate color — background-2 by default, and dark shells set
+   their own mix. */
+.chat-composer-banners:has(.chat-approval-bar) {
+  background: var(--chat-approval-dock-bg, var(--scalar-background-2));
   border-radius: var(--scalar-radius-3xl) var(--scalar-radius-3xl) 0 0;
-  border-bottom: none;
+  padding-bottom: var(--scalar-radius-3xl);
+  margin-bottom: calc(-1 * var(--scalar-radius-3xl));
 }
 
-.chat-composer:has(.chat-composer-banners .chat-approval-bar)
-  .chat-composer-input {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+/* Inside the plate the bar is just the row — the plate owns the chrome. */
+.chat-composer-banners :deep(.chat-approval-bar) {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+/* Paints above the plate's tucked-under lip. */
+.chat-composer-input {
+  position: relative;
 }
 
 /* `--chat-composer-input-bg` is the public hook for the input surface —
