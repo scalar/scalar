@@ -149,7 +149,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// <br />
     /// You can also provide a document name as a route parameter in the browser (e.g., <c>"/scalar/v1"</c>).
     /// </remarks>
-    public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string endpointPrefix, Action<ScalarOptions, HttpContext>? configureOptions) =>
+    public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string endpointPrefix, Action<ScalarOptions, HttpContext>? configureOptions = null) =>
         endpoints.MapScalarApiReference(endpointPrefix, (options, httpContext) =>
         {
             configureOptions?.Invoke(options, httpContext);
@@ -169,7 +169,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// <br />
     /// You can also provide a document name as a route parameter in the browser (e.g., <c>"/scalar/v1"</c>).
     /// </remarks>
-    public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string endpointPrefix, Func<ScalarOptions, HttpContext, Task> configureOptions = null)
+    public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string endpointPrefix, Func<ScalarOptions, HttpContext, Task> configureOptions)
     {
         // Validate the endpoint prefix. The {documentName} placeholder is reserved for the '{documentName?}' route parameter.
         if (endpointPrefix.Contains(DocumentName))
