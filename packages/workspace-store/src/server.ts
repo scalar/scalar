@@ -7,6 +7,7 @@ import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
+import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 
@@ -62,6 +63,50 @@ type CreateServerWorkspaceStoreProps =
 const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
 
 /**
+ * Wraps a document so local `$ref`s resolve while it is inspected.
+ *
+ * Navigation and externalization both read through `getResolvedRef`, which needs the `$ref-value`
+ * the magic proxy provides. Without it a `$ref`'d path item reads as a bare `{ $ref }`, so its
+ * operations reach neither the sidebar nor the chunks and disappear from the rendered document.
+ * Upstream bundling does not avoid this: it rewrites external references into local ones
+ * (`#/x-ext/…`) rather than inlining them, which is exactly the shape that fails here.
+ *
+ * Resolution is lazy and local, so this stays synchronous and never fetches. `$ref-value` is
+ * virtual — it comes from the proxy's `get` trap and is not an own key — so the stored document
+ * and the generated chunks still serialize with their original `$ref`s.
+ */
+const resolveLocalReferences = <T extends Record<string, unknown>>(document: T): T => createMagicProxy(document) as T
+
+/**
+ * The keys `@scalar/json-magic` bundling parks external documents under.
+ *
+ * These mirror the `extensions` defaults in `json-magic/bundle`, which are not re-exported from its
+ * entry point. Keep them in step with those defaults.
+ *
+ * Both are needed: `x-ext` holds the bundled documents that rewritten references resolve against,
+ * and `x-ext-urls` maps each bucket key back to its original URL — `restoreOriginalRefs` reads it
+ * to turn the local pointers back into the references the author wrote. The client treats both as
+ * bundler metadata and strips them on export, so neither is served to a reader.
+ */
+const BUNDLED_EXTERNAL_KEYS = ['x-ext', 'x-ext-urls'] as const
+
+/**
+ * Copies the bucket bundling parks external documents in onto the coerced document.
+ *
+ * Bundling does not inline an external reference — it moves the target under `x-ext` and rewrites
+ * the `$ref` to a local pointer into that bucket. The OpenAPI schema does not model that key, so
+ * coercion drops it and every rewritten reference is left dangling, which is how a split-file
+ * document loses the operations it keeps in other files.
+ */
+const preserveBundledExternals = (source: Record<string, unknown>, target: Record<string, unknown>): void => {
+  for (const key of BUNDLED_EXTERNAL_KEYS) {
+    if (source[key] !== undefined) {
+      target[key] = source[key]
+    }
+  }
+}
+
+/**
  * Filters an OpenAPI PathsObject to only include standard HTTP methods.
  * Removes any vendor extensions or other non-HTTP properties.
  *
@@ -92,7 +137,10 @@ export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record
 
     forEachPathItemOperation(pathItemRef, (method, operation) => {
       if (httpMethods.has(method.toLowerCase())) {
-        filteredMethods[method] = getResolvedRef(operation) ?? operation
+        // `getRaw` because the caller may hand us a resolved document: a magic proxy enumerates a
+        // virtual `$ref-value`, so storing one here would inline every referenced component beside
+        // its `$ref` in the chunk — and recurse forever on a self-referential schema.
+        filteredMethods[method] = getRaw(getResolvedRef(operation) ?? operation)
       }
     })
 
@@ -103,6 +151,16 @@ export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record
 
   return result
 }
+
+/**
+ * Whether a merged path-item key is reference plumbing rather than something to serve.
+ *
+ * `$ref` and `$ref-value` are how a reference is carried; the referenced path item is externalized
+ * on its own, so re-emitting either produces a hybrid entry. Numeric keys appear when a `$ref` aims
+ * at something that is not a path item — a string or an array — and `mergeSiblingReferences` spreads
+ * it by index; no real path item has one.
+ */
+const isReferencePlumbing = (key: string): boolean => key === '$ref' || key === '$ref-value' || /^\d+$/.test(key)
 
 /**
  * Escapes path keys in an OpenAPI PathsObject to be JSON Pointer compatible.
@@ -192,11 +250,12 @@ export function externalizePathReferences(
             : `./chunks/${meta.name}/operations/${escapedPath}/${type}.json#`
 
         result[path][type] = { '$ref': ref, $global: true }
-      } else if (type !== '$ref') {
+      } else if (!isReferencePlumbing(type)) {
         // Skip the path-item `$ref` merged in by getResolvedPathItem: the referenced component is
         // externalized on its own and the operations are externalized above, so keeping it would
         // emit a hybrid entry with both a component `$ref` and inlined operation references.
-        result[path][type] = pathItemRecord[type]
+        // `getRaw` keeps a resolved document's proxies out of the stored value — see above.
+        result[path][type] = getRaw(pathItemRecord[type])
       }
     })
   })
@@ -398,15 +457,19 @@ export async function createServerWorkspaceStore(
     // chunk generation well defined for the document name.
     assets[name] = {}
 
+    // Traverse before the spread below: the traversal writes `x-scalar-order` onto the document and
+    // its channels, and a spread taken first would copy the document without it.
+    const navigation = traverseAsyncApiDocument(
+      name,
+      resolveLocalReferences(asyncApiDocument),
+      navigationOptions ?? workspaceProps.navigationOptions,
+    )
+
     workspace.documents[name] = {
       ...documentMeta,
       ...asyncApiDocument,
       'x-original-aas-version': originalAasVersion,
-      [extensions.document.navigation]: traverseAsyncApiDocument(
-        name,
-        asyncApiDocument,
-        navigationOptions ?? workspaceProps.navigationOptions,
-      ),
+      [extensions.document.navigation]: navigation,
     }
   }
 
@@ -440,12 +503,16 @@ export async function createServerWorkspaceStore(
       return
     }
 
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
+    const upgradedDocument = upgrade(document, '3.1')
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgradedDocument)
+    preserveBundledExternals(upgradedDocument, documentV3)
+
+    const resolvedDocument = resolveLocalReferences(documentV3)
 
     // add the assets
     assets[meta.name] = {
-      components: documentV3.components,
-      operations: documentV3.paths && escapePaths(filterHttpMethodsOnly(documentV3.paths)),
+      components: getRaw(resolvedDocument.components),
+      operations: resolvedDocument.paths && escapePaths(filterHttpMethodsOnly(resolvedDocument.paths)),
     }
 
     const options =
@@ -453,11 +520,11 @@ export async function createServerWorkspaceStore(
         ? { mode: workspaceProps.mode, name, baseUrl: workspaceProps.baseUrl }
         : { mode: workspaceProps.mode, name, directory: workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER }
 
-    const components = externalizeComponentReferences(documentV3, options)
-    const paths = externalizePathReferences(documentV3, options)
+    const components = externalizeComponentReferences(resolvedDocument, options)
+    const paths = externalizePathReferences(resolvedDocument, options)
 
     // Build the sidebar entries
-    const navigation = createNavigation(name, documentV3, navigationOptions ?? workspaceProps.navigationOptions)
+    const navigation = createNavigation(name, resolvedDocument, navigationOptions ?? workspaceProps.navigationOptions)
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
@@ -488,7 +555,25 @@ export async function createServerWorkspaceStore(
       return
     }
 
-    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
+    // Captured so a failed add can put back exactly what was there: several steps throw before the
+    // assets are written, and under a repeated name that would otherwise strip a working document's
+    // chunks while leaving the document itself in the workspace.
+    const assetsBeforeAdd = assets[input.name]
+
+    try {
+      addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
+    } catch (error) {
+      // A document the pipeline cannot process is skipped rather than taking the workspace with it —
+      // one malformed description should not fail an entire documentation build. Half-written assets
+      // go with it, so no chunk is served for a document the workspace does not list.
+      if (assetsBeforeAdd === undefined) {
+        delete assets[input.name]
+      } else {
+        assets[input.name] = assetsBeforeAdd
+      }
+
+      console.warn(`Failed to process document "${input.name}"`, error)
+    }
   }
 
   // Load and process all initial documents in parallel

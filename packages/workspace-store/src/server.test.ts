@@ -7,7 +7,8 @@ import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 
 import { isAsyncApiDocument } from '@/schemas'
-import type { TraversedDocument } from '@/schemas/navigation'
+import { extensions } from '@/schemas/extensions'
+import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
@@ -578,6 +579,208 @@ describe('create-server-store', () => {
     })
   })
 
+  describe('local reference resolution', () => {
+    const refPathItemDocument = () => ({
+      'openapi': '3.1.0',
+      'info': { 'title': 'Galaxy', 'version': '1.0.0' },
+      'paths': {
+        '/planets': { 'get': { 'summary': 'List all planets', 'tags': ['Inline'] } },
+        '/moons': { '$ref': '#/components/pathItems/Moons' },
+      },
+      'components': {
+        'parameters': { 'Limit': { 'name': 'limit', 'in': 'query' } },
+        'pathItems': {
+          'Moons': {
+            // A path-level key alongside the operation, so the branch that copies non-method keys
+            // out of a `$ref`'d path item is actually exercised.
+            'summary': 'Everything about moons',
+            'get': {
+              'summary': 'List all moons',
+              'tags': ['Referenced'],
+              // A reference nested inside the operation, so the assertions below about what ends up
+              // in the stored document and the chunks are not vacuous.
+              'parameters': [{ '$ref': '#/components/parameters/Limit' }],
+            },
+          },
+        },
+      },
+    })
+
+    const navigationTitles = (navigation: TraversedDocument | undefined): string[] => {
+      const titles: string[] = []
+
+      const walk = (entries: TraversedEntry[] = []) => {
+        for (const entry of entries) {
+          titles.push(entry.title)
+          walk('children' in entry ? entry.children : undefined)
+        }
+      }
+
+      walk(navigation?.children)
+      return titles
+    }
+
+    const addDocument = async (document: Record<string, unknown>) => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [{ name: 'api', document }],
+      })
+
+      return { store, document: store.getWorkspace().documents['api'] }
+    }
+
+    it('keeps an operation whose path item is a local $ref', async () => {
+      const { document } = await addDocument(refPathItemDocument())
+
+      expect(navigationTitles(document?.[extensions.document.navigation])).toContain('List all moons')
+    })
+
+    it('keeps an operation whose path item came from another file', async () => {
+      // The shape a split-file document has once it reaches the store: bundling rewrites
+      // `$ref: './paths-moons.yaml'` into a local pointer into `x-ext` rather than inlining it.
+      const { document } = await addDocument({
+        'openapi': '3.1.0',
+        'info': { 'title': 'Galaxy', 'version': '1.0.0' },
+        'paths': { '/moons': { '$ref': '#/x-ext/45c71c7' } },
+        'x-ext': {
+          '45c71c7': { 'get': { 'summary': 'List all moons', 'tags': ['Referenced'] } },
+        },
+      })
+
+      expect(navigationTitles(document?.[extensions.document.navigation])).toContain('List all moons')
+    })
+
+    it('externalizes the operations of a $ref path item into resolvable chunks', async () => {
+      // Navigation entries are only useful when the chunk they point at exists.
+      const { store } = await addDocument(refPathItemDocument())
+
+      expect(store.get('#/api/operations/~1moons/get')).toMatchObject({ summary: 'List all moons' })
+    })
+
+    it('does not invent a path item from a reference that does not point at one', async () => {
+      // A chained or mistargeted `$ref` used to be spread key-by-key into the output, inlining the
+      // referenced value and emitting a `$ref-value` key the client never expects.
+      const { document } = await addDocument({
+        'openapi': '3.1.0',
+        'info': { 'title': 'Galaxy', 'version': '1.0.0' },
+        'paths': {
+          '/chained': { '$ref': '#/components/pathItems/Chained' },
+          '/mistargeted': { '$ref': '#/info/title' },
+        },
+        'components': {
+          'pathItems': {
+            'Chained': { '$ref': '#/components/pathItems/Moons' },
+            'Moons': { 'get': { 'summary': 'List all moons' } },
+          },
+        },
+      })
+
+      // Neither yields a servable path item, which is what main did too. What matters is that
+      // neither arrives inlined, self-referential, or carrying invented index keys.
+      const paths = JSON.parse(JSON.stringify(document))?.paths ?? {}
+      expect(JSON.stringify(paths)).not.toContain('$ref-value')
+      expect(paths['/mistargeted']).toEqual({})
+      expect(paths['/chained']).toEqual({})
+    })
+
+    it('keeps the operations written beside an unresolvable reference', async () => {
+      // The sibling operation resolves perfectly well even though the reference does not, and it is
+      // what navigation and the chunks are built from — dropping it here would leave the sidebar
+      // pointing at a page the document never externalizes.
+      const { store, document } = await addDocument({
+        'openapi': '3.1.0',
+        'info': { 'title': 'Galaxy', 'version': '1.0.0' },
+        'paths': {
+          '/moons': { '$ref': './never-bundled.yaml', 'get': { 'summary': 'List all moons' } },
+        },
+      })
+
+      expect(JSON.parse(JSON.stringify(document))?.paths?.['/moons']).toHaveProperty('get')
+      expect(store.get('#/api/operations/~1moons/get')).toMatchObject({ summary: 'List all moons' })
+    })
+
+    it('leaves an existing document intact when a later one reuses its name and fails', async () => {
+      // The assets are written partway through, so undoing a failed add has to restore what was
+      // there rather than clear the key outright.
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [{ name: 'api', document: refPathItemDocument() }],
+      })
+
+      await store.addDocument({ name: 'api', document: { 'asyncapi': '3.0.0' } })
+
+      expect(store.get('#/api/operations/~1moons/get')).toMatchObject({ summary: 'List all moons' })
+    })
+
+    it('drops the chunks of a document that failed to ingest', async () => {
+      // The assets are written before the steps that can throw, so a skipped document would
+      // otherwise keep serving operation bodies the workspace does not list.
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [{ name: 'broken', document: { 'asyncapi': '3.0.0' } }],
+      })
+
+      expect(store.getWorkspace().documents).toEqual({})
+      expect(store.get('#/broken')).toBeUndefined()
+    })
+
+    it('serializes a self-referential schema without recursing forever', async () => {
+      // Resolution must not put a live proxy anywhere that gets serialized: enumerating one expands
+      // `$ref-value` on every hop, so a schema that references itself never terminates.
+      const { store } = await addDocument({
+        'openapi': '3.1.0',
+        'info': { 'title': 'Galaxy', 'version': '1.0.0' },
+        'paths': { '/planets': { 'get': { 'summary': 'List all planets' } } },
+        'components': {
+          'schemas': {
+            'Node': { 'type': 'object', 'properties': { 'child': { '$ref': '#/components/schemas/Node' } } },
+          },
+        },
+      })
+
+      expect(() => JSON.stringify(store.get('#/api/components/schemas/Node'))).not.toThrow()
+    })
+
+    it('carries the bundler buckets through the coerce step', async () => {
+      const { document } = await addDocument({
+        'openapi': '3.1.0',
+        'info': { 'title': 'Galaxy', 'version': '1.0.0' },
+        'paths': { '/moons': { '$ref': '#/x-ext/45c71c7' } },
+        'x-ext': { '45c71c7': { 'get': { 'summary': 'List all moons' } } },
+        'x-ext-urls': { '45c71c7': './paths-moons.yaml' },
+      })
+
+      // Both survive: `x-ext` is what rewritten references resolve against, and `x-ext-urls` is
+      // what `restoreOriginalRefs` reads to turn them back into the references the author wrote.
+      expect(document).toHaveProperty('x-ext')
+      expect(document).toHaveProperty('x-ext-urls')
+    })
+
+    it('leaves the stored document and its chunks serializing as plain $refs', async () => {
+      // `$ref-value` is virtual, so resolution must not leak resolved copies into the output.
+      const { store, document } = await addDocument(refPathItemDocument())
+
+      expect(JSON.parse(JSON.stringify(document))?.paths?.['/moons']).toEqual({
+        'get': { '$ref': 'https://example.com/api/operations/~1moons/get#', '$global': true },
+        'summary': 'Everything about moons',
+      })
+      expect(JSON.stringify(document)).not.toContain('$ref-value')
+
+      // Serialized rather than subset-matched: a stored proxy satisfies `toMatchObject` but expands
+      // its resolved copies the moment it is written to a chunk file.
+      const chunk = JSON.parse(JSON.stringify(store.get('#/api/operations/~1moons/get')))
+      expect(chunk.parameters[0]['$ref']).toBe('#/components/parameters/Limit')
+
+      // The path-level key survives, and the `$ref` plumbing does not.
+      const storedMoons = JSON.parse(JSON.stringify(document))?.paths?.['/moons']
+      expect(storedMoons?.summary).toBe('Everything about moons')
+      expect(storedMoons).not.toHaveProperty('$ref-value')
+    })
+  })
+
   describe('asyncapi documents', () => {
     const exampleAsyncApiDocument = () => ({
       'asyncapi': '3.0.0',
@@ -706,6 +909,52 @@ describe('create-server-store', () => {
       expect(operationEntry.action).toBe('receive')
       expect(operationEntry.channelName).toBe('planetEvents')
       expect(operationEntry.channelAddress).toBe('planet/events')
+    })
+
+    it('resolves a referenced message title rather than its map key', async () => {
+      // The channel declares `planetCreated` as a `$ref` into `components.messages`, so the
+      // sidebar label only reads correctly when local references resolve during traversal.
+      const { document } = await addAsyncApiDocument()
+
+      const navigation = document['x-scalar-navigation'] as TraversedDocument
+      const channelEntry = navigation.children?.find((entry) => entry.type === 'asyncapi-channel')
+      assert(channelEntry?.type === 'asyncapi-channel')
+      const operationEntry = channelEntry.children?.[0]
+      assert(operationEntry?.type === 'asyncapi-operation')
+      const messageEntry = operationEntry.children?.[0]
+      assert(messageEntry?.type === 'asyncapi-message')
+
+      expect(messageEntry.messageName).toBe('planetCreated')
+      expect(messageEntry.title).toBe('Planet Created')
+    })
+
+    it('records the rendered order on the stored document', async () => {
+      // The traversal writes `x-scalar-order` while it walks, so the stored copy has to be taken
+      // after it runs — otherwise the ordering is lost and cannot be read back.
+      const { document } = await addAsyncApiDocument()
+
+      // `x-scalar-order` is written by the traversal and is not modelled on `AsyncApiDocument`.
+      const ordered = document as typeof document & { 'x-scalar-order'?: string[] }
+
+      expect(ordered['x-scalar-order']).toEqual([
+        'events/description/introduction',
+        'events/asyncapi-channel/planetevents',
+        'events/models',
+      ])
+    })
+
+    it('skips a document it cannot process instead of failing the workspace', async () => {
+      // One malformed description should not take a whole documentation build down with it.
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [
+          { name: 'broken', document: { 'asyncapi': '3.0.0' } },
+          { name: 'events', document: exampleAsyncApiDocument() },
+        ],
+      })
+
+      expect(Object.keys(store.getWorkspace().documents)).toEqual(['events'])
     })
 
     it('leaves the document it was handed untouched', async () => {
