@@ -55,6 +55,131 @@ describe('RequestBody', () => {
     mockFiles.value = null
   })
 
+  it('resets an edited body when a different discriminated oneOf branch is selected', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            discriminator: { propertyName: 'planetType' },
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  planetType: { const: 'terrestrial' },
+                  name: { type: 'string' },
+                  mass: { type: 'number' },
+                },
+              },
+              {
+                type: 'object',
+                properties: {
+                  planetType: { const: 'gas giant' },
+                  name: { type: 'string' },
+                  mass: { type: 'number' },
+                  hasRings: { type: 'boolean' },
+                },
+              },
+            ],
+          },
+          example: JSON.stringify({
+            planetType: 'terrestrial',
+            name: 'Edited Earth',
+            mass: 1,
+          }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toStrictEqual([
+      [
+        {
+          contentType: 'application/json',
+          payload: JSON.stringify(
+            {
+              planetType: 'gas giant',
+              name: '',
+              mass: 0,
+              hasRings: false,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
+    ])
+  })
+
+  it('preserves edits when the selected discriminator branch is unchanged', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            discriminator: { propertyName: 'planetType' },
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  planetType: { const: 'terrestrial' },
+                  name: { type: 'string' },
+                },
+              },
+            ],
+          },
+          example: JSON.stringify({
+            planetType: 'terrestrial',
+            name: 'Edited Earth',
+          }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+  })
+
   it('renders different content types and handles content type selection', async () => {
     const requestBody: RequestBodyObject = {
       content: {

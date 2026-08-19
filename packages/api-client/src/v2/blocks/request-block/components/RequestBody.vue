@@ -10,6 +10,7 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
+  getExampleFromSchema,
   getSelectedBodyContentType,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -221,6 +222,75 @@ const parsedBody = computed<{ ok: boolean; value?: unknown }>(() => {
   // Spec-provided examples can be stored as objects directly.
   return { ok: true, value: raw }
 })
+
+/**
+ * OpenAPI uses a Discriminator Object, while older and non-standard API descriptions sometimes
+ * put the property name directly in `discriminator`. Supporting both forms lets branch changes
+ * safely replace stale request bodies without changing how the schema itself is rendered.
+ */
+const discriminatorPropertyName = computed<string | undefined>(() => {
+  const discriminator: unknown = bodySchema.value?.discriminator
+
+  if (typeof discriminator === 'string') {
+    return discriminator
+  }
+  if (
+    isObject(discriminator) &&
+    typeof discriminator.propertyName === 'string'
+  ) {
+    return discriminator.propertyName
+  }
+
+  return undefined
+})
+
+/**
+ * An edited example normally takes precedence over schema-generated data. When a different
+ * discriminated branch is selected, however, keeping that example leaves the editor showing the
+ * previous branch. Replace it with the newly selected branch only when the discriminator changes;
+ * edits survive remounts and repeated selection of the same branch.
+ */
+watch(
+  () => JSON.stringify(requestBodyCompositionSelection ?? {}),
+  () => {
+    const schema = bodySchema.value
+    const codec = structuredCodec.value
+    const propertyName = discriminatorPropertyName.value
+    const currentValue = parsedBody.value.value
+
+    if (
+      !schema ||
+      !codec ||
+      !propertyName ||
+      !isObject(currentValue) ||
+      Object.keys(requestBodyCompositionSelection ?? {}).length === 0
+    ) {
+      return
+    }
+
+    const selectedValue = getExampleFromSchema(
+      schema,
+      {
+        mode: 'write',
+        compositionSelection: requestBodyCompositionSelection,
+      },
+      { schemaPath: ['requestBody'] },
+    )
+
+    if (
+      !isObject(selectedValue) ||
+      currentValue[propertyName] === selectedValue[propertyName]
+    ) {
+      return
+    }
+
+    emits('update:value', {
+      payload: codec.stringify(selectedValue),
+      contentType: selectedContentType.value,
+    })
+  },
+  { immediate: true },
+)
 
 /** The form view only works on an object-shaped body root */
 const isFormViewAvailable = computed(
