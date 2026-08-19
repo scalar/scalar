@@ -55,17 +55,16 @@ describe('RequestBody', () => {
     mockFiles.value = null
   })
 
-  it('resets an edited body when a different discriminated oneOf branch is selected', async () => {
+  it('resets an edited body when a different oneOf branch is selected', async () => {
     const requestBody: RequestBodyObject = {
       content: {
         'application/json': {
           schema: {
-            discriminator: { propertyName: 'planetType' },
+            type: 'object',
             oneOf: [
               {
                 type: 'object',
                 properties: {
-                  planetType: { const: 'terrestrial' },
                   name: { type: 'string' },
                   mass: { type: 'number' },
                 },
@@ -73,7 +72,6 @@ describe('RequestBody', () => {
               {
                 type: 'object',
                 properties: {
-                  planetType: { const: 'gas giant' },
                   name: { type: 'string' },
                   mass: { type: 'number' },
                   hasRings: { type: 'boolean' },
@@ -82,7 +80,6 @@ describe('RequestBody', () => {
             ],
           },
           example: JSON.stringify({
-            planetType: 'terrestrial',
             name: 'Edited Earth',
             mass: 1,
           }),
@@ -94,7 +91,7 @@ describe('RequestBody', () => {
       props: {
         ...defaultProps,
         requestBody,
-        requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
       },
       global: {
         stubs: {
@@ -110,6 +107,9 @@ describe('RequestBody', () => {
       },
     })
 
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
     await nextTick()
 
     expect(wrapper.emitted('update:value')).toStrictEqual([
@@ -118,7 +118,6 @@ describe('RequestBody', () => {
           contentType: 'application/json',
           payload: JSON.stringify(
             {
-              planetType: 'gas giant',
               name: '',
               mass: 0,
               hasRings: false,
@@ -136,12 +135,13 @@ describe('RequestBody', () => {
       content: {
         'application/json': {
           schema: {
+            type: 'object',
             discriminator: { propertyName: 'planetType' },
             oneOf: [
               {
                 type: 'object',
                 properties: {
-                  planetType: { const: 'terrestrial' },
+                  planetType: { type: 'string', const: 'terrestrial' },
                   name: { type: 'string' },
                 },
               },
@@ -175,6 +175,9 @@ describe('RequestBody', () => {
       },
     })
 
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+    })
     await nextTick()
 
     expect(wrapper.emitted('update:value')).toBeUndefined()

@@ -49,10 +49,9 @@ export function initializeModalEvents({
         : EMPTY_REQUEST_BODY_COMPOSITION_SELECTION
     ) as Record<string, number>
 
-    requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
-
     // Just open the modal
     if (!payload) {
+      requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
       modalState.show()
       return
     }
@@ -90,6 +89,10 @@ export function initializeModalEvents({
         })?.id ?? '',
       )
     }
+
+    // Apply the selection after routing so the request body compares it with the selection used
+    // for this operation, rather than briefly resetting the operation that was previously open.
+    requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
 
     modalState.show()
   })

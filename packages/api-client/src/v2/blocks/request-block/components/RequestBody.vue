@@ -224,73 +224,60 @@ const parsedBody = computed<{ ok: boolean; value?: unknown }>(() => {
 })
 
 /**
- * OpenAPI uses a Discriminator Object, while older and non-standard API descriptions sometimes
- * put the property name directly in `discriminator`. Supporting both forms lets branch changes
- * safely replace stale request bodies without changing how the schema itself is rendered.
- */
-const discriminatorPropertyName = computed<string | undefined>(() => {
-  const discriminator: unknown = bodySchema.value?.discriminator
-
-  if (typeof discriminator === 'string') {
-    return discriminator
-  }
-  if (
-    isObject(discriminator) &&
-    typeof discriminator.propertyName === 'string'
-  ) {
-    return discriminator.propertyName
-  }
-
-  return undefined
-})
-
-/**
  * An edited example normally takes precedence over schema-generated data. When a different
- * discriminated branch is selected, however, keeping that example leaves the editor showing the
- * previous branch. Replace it with the newly selected branch only when the discriminator changes;
- * edits survive remounts and repeated selection of the same branch.
+ * composition branch is selected, however, keeping that example leaves the editor showing the
+ * previous branch. Track the selection itself instead of inspecting discriminator fields so this
+ * also works for compositions whose members are distinguished only by their shape.
  */
-watch(
-  () => JSON.stringify(requestBodyCompositionSelection ?? {}),
-  () => {
-    const schema = bodySchema.value
-    const codec = structuredCodec.value
-    const propertyName = discriminatorPropertyName.value
-    const currentValue = parsedBody.value.value
-
-    if (
-      !schema ||
-      !codec ||
-      !propertyName ||
-      !isObject(currentValue) ||
-      Object.keys(requestBodyCompositionSelection ?? {}).length === 0
-    ) {
-      return
-    }
-
-    const selectedValue = getExampleFromSchema(
-      schema,
-      {
-        mode: 'write',
-        compositionSelection: requestBodyCompositionSelection,
-      },
-      { schemaPath: ['requestBody'] },
-    )
-
-    if (
-      !isObject(selectedValue) ||
-      currentValue[propertyName] === selectedValue[propertyName]
-    ) {
-      return
-    }
-
-    emits('update:value', {
-      payload: codec.stringify(selectedValue),
-      contentType: selectedContentType.value,
-    })
-  },
-  { immediate: true },
+const compositionSelectionKey = computed(() =>
+  JSON.stringify(requestBodyCompositionSelection ?? {}),
 )
+const previousCompositionSelectionKey = ref(compositionSelectionKey.value)
+
+// A selection from another operation is not a branch change for this body. Establish a new
+// baseline before the modal applies the selection belonging to the newly routed operation.
+watch(
+  () => [requestBody, exampleKey],
+  () => {
+    previousCompositionSelectionKey.value = compositionSelectionKey.value
+  },
+  { flush: 'sync' },
+)
+
+watch(compositionSelectionKey, (selection) => {
+  const previousSelection = previousCompositionSelectionKey.value
+  previousCompositionSelectionKey.value = selection
+
+  const schema = bodySchema.value
+  const codec = structuredCodec.value
+
+  if (
+    selection === previousSelection ||
+    !schema ||
+    !codec ||
+    Object.keys(requestBodyCompositionSelection ?? {}).length === 0
+  ) {
+    return
+  }
+
+  const selectedValue = getExampleFromSchema(
+    schema,
+    {
+      mode: 'write',
+      compositionSelection: requestBodyCompositionSelection,
+    },
+    { schemaPath: ['requestBody'] },
+  )
+
+  if (selectedValue === undefined) {
+    return
+  }
+
+  emits('update:value', {
+    payload: codec.stringify(selectedValue),
+    contentType: selectedContentType.value,
+  })
+})
 
 /** The form view only works on an object-shaped body root */
 const isFormViewAvailable = computed(

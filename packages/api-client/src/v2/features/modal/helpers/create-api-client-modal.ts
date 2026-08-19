@@ -126,11 +126,6 @@ export const createApiClientModal = ({
     options: optionsRef,
   } satisfies ModalProps)
 
-  /** Restore the workspace store when the modal is closed. */
-  const handleModalClose = () => {
-    requestBodyCompositionSelection.value = {}
-  }
-
   /** Initialize plugins and subscribe to event bus events */
   const pluginUnsubscribes: (() => void)[] = []
   for (const plugin of plugins) {
@@ -148,11 +143,6 @@ export const createApiClientModal = ({
       plugin.lifecycle?.onDestroy?.()
     }
   })
-
-  watch(
-    () => modalState.open,
-    (open) => (open ? null : handleModalClose()),
-  )
 
   // Update the active proxy when the proxyUrl changes
   watch(
