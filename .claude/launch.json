@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "chat-playground",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@scalar/chat", "playground"],
+      "port": 9210
+    }
+  ]
+}

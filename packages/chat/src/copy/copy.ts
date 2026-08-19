@@ -39,6 +39,17 @@ export type ChatCopy = {
     /** The no-data fallback only. */
     requestFailed: string
   }
+  tool: {
+    arguments: string
+    result: string
+    error: string
+  }
+  diff: {
+    /** Single-line hunk label, `{line}` placeholder. */
+    line: string
+    /** Line-range hunk label, `{start}`/`{end}` placeholders. */
+    lines: string
+  }
   errors: {
     unknown: string
     retry: string
@@ -78,6 +89,15 @@ export const defaultChatCopy: ChatCopy = {
     called: 'Called {tool}',
     failed: '{verb} failed · {reason}',
     requestFailed: 'Request failed',
+  },
+  tool: {
+    arguments: 'Arguments',
+    result: 'Result',
+    error: 'Error',
+  },
+  diff: {
+    line: 'Line {line}',
+    lines: 'Lines {start}–{end}',
   },
   errors: {
     unknown: 'Something went wrong. Please try again.',

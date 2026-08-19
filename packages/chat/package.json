@@ -23,6 +23,8 @@
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:watch": "vite build --watch",
+    "dev": "pnpm playground",
+    "playground": "cd playground && vite",
     "test": "vitest --run",
     "test:watch": "vitest",
     "types:check": "vue-tsc --noEmit"
@@ -56,6 +58,7 @@
   },
   "devDependencies": {
     "@ai-sdk/vue": "catalog:*",
+    "@scalar/themes": "workspace:*",
     "@types/jsdom": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
