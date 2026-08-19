@@ -1,5 +1,6 @@
 [![CI](https://github.com/scalar/scalar/actions/workflows/main.yml/badge.svg)](https://github.com/scalar/scalar/actions/workflows/main.yml)
 [![Contributors](https://img.shields.io/github/contributors/scalar/scalar)](https://github.com/scalar/scalar/graphs/contributors)
+[![inspect.software](https://raw.githubusercontent.com/inspect-software/badges/main/v1/s/scalar/scalar.svg)](https://inspect.software/software/scalar/scalar)
 [![GitHub License](https://img.shields.io/github/license/scalar/scalar)](https://github.com/scalar/scalar/blob/main/LICENSE)
 [![Twitter](https://img.shields.io/twitter/follow/scalar)](https://x.com/scalar)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
