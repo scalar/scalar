@@ -108,6 +108,14 @@ describe('chat-markdown', () => {
       expect(splitMarkdownBlocks('<!-- note -->\n\nAfter')).toEqual(['<!-- note -->', 'After'])
     })
 
+    it('accepts the invalid-but-parsed --!> comment close', () => {
+      // Both the HTML spec and micromark end a comment at `--!>`; gluing
+      // until a later `-->` would diverge from the parser (js/bad-tag-filter).
+      const source = 'Before\n\n<!--\nhidden\n--!>\n\nAfter'
+
+      expect(splitMarkdownBlocks(source)).toEqual(['Before', '<!--\nhidden\n--!>', 'After'])
+    })
+
     it('keeps everything from an unterminated HTML block in one trailing block', () => {
       // Matches whole-document semantics: an unclosed comment swallows the
       // rest of the source, so nothing after it may render independently.

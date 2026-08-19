@@ -83,7 +83,10 @@ const HTML_BLOCK_MARKERS: { open: RegExp; close: RegExp }[] = [
     open: /^ {0,3}<(?:pre|script|style|textarea)\b/i,
     close: /<\/(?:pre|script|style|textarea)>/i,
   },
-  { open: /^ {0,3}<!--/, close: /-->/ },
+  // `--!>` is an (invalid but accepted) comment close in both the HTML
+  // spec and micromark — verified empirically: micromark ends the comment
+  // block there, so gluing past it would diverge from the parser.
+  { open: /^ {0,3}<!--/, close: /--!?>/ },
   { open: /^ {0,3}<\?/, close: /\?>/ },
   { open: /^ {0,3}<!\[CDATA\[/, close: /\]\]>/ },
   { open: /^ {0,3}<![A-Za-z]/, close: />/ },
