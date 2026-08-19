@@ -1,5 +1,15 @@
 # @scalar/json-magic
 
+## 0.13.0
+
+### Minor Changes
+
+- [#9897](https://github.com/scalar/scalar/pull/9897): Export the `get-value-by-path`, `set-value-at-path`, `is-yaml`, and `is-json-object` helpers, and expose `isLocalRef`, `prefixInternalRef`, and `prefixInternalRefRecursive` from the bundle entry point.
+
+### Patch Changes
+
+- [#9898](https://github.com/scalar/scalar/pull/9898): Treat array/object container mismatches as a single update in diff instead of descending into per-index adds. Before, `diff({ tags: {} }, { tags: ['x', 'y'] })` walked the array's indices as object keys and emitted per-index `add` differences, so `apply` wrote numeric string properties onto the existing object and produced the corrupted hybrid `{ tags: { '0': 'x', '1': 'y' } }`. A container type change (either direction) is now one `update` difference carrying the full new value, and applying it replaces the container correctly.
+
 ## 0.12.20
 
 ## 0.12.19

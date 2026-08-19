@@ -724,24 +724,26 @@ Welcome to the API.
     }
 
     const introductionRoot = wrapper.find(`[data-sidebar-id="${introduction.id}"]`)
-    // Discrete groups: main item button + separate absolute caret toggle.
+    // Discrete groups render two controls: the label, which is an anchor so
+    // the navigation stays crawlable, and a separate caret button.
     // Do not key off aria-current — it is only present when the item is selected.
-    const expandedButtons = introductionRoot.findAll('button[aria-expanded]')
-    const introductionButton = expandedButtons.find((btn) => !btn.classes().includes('absolute'))
-    const introductionToggle = expandedButtons.find((btn) => btn.classes().includes('absolute'))
+    const introductionButton = introductionRoot.find('a[href]')
+    const introductionToggle = introductionRoot.find('button[aria-expanded]')
 
-    expect(introductionButton).toBeDefined()
-    expect(introductionToggle).toBeDefined()
-    expect(introductionButton!.attributes('aria-expanded')).toBe('false')
-    expect(introductionToggle!.attributes('aria-expanded')).toBe('false')
+    expect(introductionButton.exists()).toBe(true)
+    expect(introductionToggle.exists()).toBe(true)
 
-    await introductionButton!.trigger('click')
-    expect(introductionButton!.attributes('aria-expanded')).toBe('true')
-    expect(introductionToggle!.attributes('aria-expanded')).toBe('true')
+    // The caret is the control that expands and collapses, so it is the only
+    // one that reports the expanded state. A link that also claimed to be a
+    // toggle would be announced as something it cannot do.
+    expect(introductionButton.attributes('aria-expanded')).toBeUndefined()
+    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
 
-    await introductionToggle!.trigger('click')
-    expect(introductionButton!.attributes('aria-expanded')).toBe('false')
-    expect(introductionToggle!.attributes('aria-expanded')).toBe('false')
+    await introductionButton.trigger('click')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('true')
+
+    await introductionToggle.trigger('click')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
   })
 })
 
