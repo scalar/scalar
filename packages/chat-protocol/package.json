@@ -1,0 +1,92 @@
+{
+  "name": "@scalar/chat-protocol",
+  "description": "Framework-free chat protocol for the Scalar agent surfaces: tool schemas, error envelope, approval policy, limits and fixtures",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/chat-protocol"
+  },
+  "keywords": [
+    "scalar",
+    "chat",
+    "agent",
+    "protocol"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "types:check": "tsc --noEmit"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./error": {
+      "import": "./dist/error/index.js",
+      "types": "./dist/error/index.d.ts",
+      "default": "./dist/error/index.js"
+    },
+    "./approval": {
+      "import": "./dist/approval/index.js",
+      "types": "./dist/approval/index.d.ts",
+      "default": "./dist/approval/index.js"
+    },
+    "./limits": {
+      "import": "./dist/limits/index.js",
+      "types": "./dist/limits/index.d.ts",
+      "default": "./dist/limits/index.js"
+    },
+    "./tools/openapi": {
+      "import": "./dist/tools/openapi/index.js",
+      "types": "./dist/tools/openapi/index.d.ts",
+      "default": "./dist/tools/openapi/index.js"
+    },
+    "./tools/editor": {
+      "import": "./dist/tools/editor/index.js",
+      "types": "./dist/tools/editor/index.d.ts",
+      "default": "./dist/tools/editor/index.js"
+    },
+    "./tools/mcp": {
+      "import": "./dist/tools/mcp/index.js",
+      "types": "./dist/tools/mcp/index.d.ts",
+      "default": "./dist/tools/mcp/index.js"
+    },
+    "./tools/dynamic": {
+      "import": "./dist/tools/dynamic/index.js",
+      "types": "./dist/tools/dynamic/index.d.ts",
+      "default": "./dist/tools/dynamic/index.js"
+    },
+    "./fixtures": {
+      "import": "./dist/fixtures/index.js",
+      "types": "./dist/fixtures/index.d.ts",
+      "default": "./dist/fixtures/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "zod": "catalog:*"
+  },
+  "devDependencies": {
+    "ai": "catalog:*",
+    "vitest": "catalog:*"
+  }
+}
