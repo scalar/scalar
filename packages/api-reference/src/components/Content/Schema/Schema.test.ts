@@ -161,6 +161,34 @@ describe('Schema', () => {
       expect(text).toContain('This description should not be shown')
     })
 
+    it('shows the own description of a standalone allOf schema', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          level: 1,
+          noncollapsible: true,
+          hideHeading: true,
+          schema: coerceValue(SchemaObjectSchema, {
+            description: 'A job.',
+            allOf: [
+              {
+                type: 'object',
+                description: 'Base class for all searchable entities.',
+                properties: { entityType: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                properties: { jobNumber: { type: 'string' } },
+              },
+            ],
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('A job.')
+    })
+
     it('shows the parent description for discriminator-based oneOf schemas', () => {
       const wrapper = mount(Schema, {
         props: {
