@@ -123,7 +123,9 @@ const approveLabel = computed<string>(() => {
   /* The 28px control height is constant across densities. */
   height: 28px;
   padding: 0 12px;
-  border-radius: var(--scalar-radius);
+  /* Borderless full pills, per the design review. */
+  border: none;
+  border-radius: var(--scalar-radius-full);
   font-family: var(--scalar-font);
   font-size: var(--chat-font-row);
   cursor: pointer;
@@ -131,13 +133,16 @@ const approveLabel = computed<string>(() => {
 
 .chat-approval-bar-reject {
   background: transparent;
-  border: 1px solid var(--scalar-border-color);
   color: var(--scalar-color-2);
+}
+
+.chat-approval-bar-reject:hover {
+  background: color-mix(in srgb, var(--scalar-color-1) 8%, transparent);
+  color: var(--scalar-color-1);
 }
 
 .chat-approval-bar-approve {
   background: var(--scalar-color-accent);
-  border: 1px solid transparent;
   /* Same pairing ruling as the send glyph: --scalar-background-1, never white. */
   color: var(--scalar-background-1);
 }

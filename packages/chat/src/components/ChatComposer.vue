@@ -203,13 +203,27 @@ defineExpose({
 .chat-composer {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   font-size: var(--chat-font-prose);
 }
 
-/* Visually above the input while DOM-after it — see the template note. */
+/* Visually above the input while DOM-after it — see the template note.
+   The dock sits flush on the input box (no gap, per the design review). */
 .chat-composer-banners {
   order: -1;
+}
+
+/* A docked approval bar caps the input: the pair reads as one rounded
+   stack — the bar keeps the composer's top radius, the shared edge is
+   the input's own top border. */
+.chat-composer-banners :deep(.chat-approval-bar) {
+  border-radius: var(--scalar-radius-3xl) var(--scalar-radius-3xl) 0 0;
+  border-bottom: none;
+}
+
+.chat-composer:has(.chat-composer-banners .chat-approval-bar)
+  .chat-composer-input {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 /* `--chat-composer-input-bg` is the public hook for the input surface —
@@ -316,6 +330,7 @@ defineExpose({
 }
 
 .chat-composer-footnote {
+  margin-top: 8px;
   font-size: var(--chat-font-meta);
   color: var(--scalar-color-3);
   text-align: center;
