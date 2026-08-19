@@ -91,7 +91,14 @@ const isContentValid = computed(() => {
 })
 
 /** Whether the copy button is rendered on top of the code */
-const showCopy = computed(() => copy !== false && isContentValid.value)
+const showCopy = computed(() => copy && isContentValid.value)
+
+/**
+ * A one-liner has the copy button floating over the end of the line, so the line needs room to
+ * scroll clear of it. The padding goes on the `w-fit` <pre> because browsers disagree about whether
+ * trailing padding on an `overflow-x` container is scrollable.
+ */
+const reserveCopySpace = computed(() => isOneLine.value && showCopy.value)
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
@@ -108,16 +115,10 @@ const { cx } = useBindCx()
     <div
       tabindex="0"
       class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1">
-      <!-- On a one-liner the copy button sits centered over the only line there
-           is, so the end of a long line stays underneath it even at full scroll.
-           Trailing space keeps the line clear of the button, and it goes on the
-           `w-fit` <pre> because browsers disagree about whether padding on an
-           `overflow-x` container counts as scrollable. 4.5rem clears the 24px
-           button, its 4px offset and the label it grows to on hover. -->
       <pre
         :id="id"
         class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"
-        :class="{ 'pr-18': isOneLine && showCopy }"
+        :class="{ 'pr-18': reserveCopySpace }"
         v-html="highlightedCode" />
     </div>
     <ScalarCodeBlockCopy
