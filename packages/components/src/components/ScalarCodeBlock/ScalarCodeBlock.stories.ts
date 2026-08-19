@@ -140,6 +140,20 @@ export const SingleLine: Story = {
 }
 
 /**
+ * A one-line snippet that is wider than the block. The copy button floats over
+ * the end of the line, so the line reserves room to scroll clear of it.
+ */
+export const SingleLineOverflow: Story = {
+  args: {
+    content: 'npm install git+https://github.com/scalar/a-rather-long-staging-repository-name.git',
+    lang: 'shell',
+    class: 'border rounded',
+    copy: 'always',
+  },
+  render: SingleLine.render,
+}
+
+/**
  * Code with character sequences that ligature fonts (like JetBrains Mono) would
  * normally combine into a single glyph. Ligatures are disabled so each character
  * renders literally.
