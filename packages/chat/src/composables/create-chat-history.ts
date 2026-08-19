@@ -180,13 +180,30 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
     }
   }
 
+  /**
+   * Deletion wins over in-flight saves. A save whose `put` commits after the
+   * record was deleted (or after `clearAll` started) would otherwise
+   * resurrect it — in the store and in the list. Ids are UUIDs and never
+   * reused, so tombstones are permanent within the session.
+   */
+  const deletedIds = new Set<string>()
+  let clearEpoch = 0
+
   const saveChat = async (chat: StoredChat): Promise<void> => {
     if (isServer) {
       return
     }
 
+    const epochAtWrite = clearEpoch
+
     try {
       await withStore('readwrite', (store) => store.put(chat))
+
+      if (epochAtWrite !== clearEpoch || deletedIds.has(chat.id)) {
+        // The chat was deleted while the write was in flight: undo it.
+        await withStore('readwrite', (store) => store.delete(chat.id))
+        return
+      }
 
       const index = chatList.value.findIndex((existing) => existing.id === chat.id)
 
@@ -206,6 +223,8 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
     if (isServer) {
       return
     }
+
+    deletedIds.add(id)
 
     try {
       await withStore('readwrite', (store) => store.delete(id))
@@ -231,6 +250,10 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
     if (isServer) {
       return
     }
+
+    // Discard saves in flight for records the list does not know about yet
+    // (a brand-new chat's first persist has no tombstone to hit).
+    clearEpoch += 1
 
     // Serial per-record deletes, scope-aware: with a scope configured this
     // must not wipe other scopes' records, so there is no store.clear().

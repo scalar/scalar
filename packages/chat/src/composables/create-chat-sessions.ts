@@ -1,4 +1,4 @@
-import { type ComputedRef, type Ref, computed, ref, watch } from 'vue'
+import { type ComputedRef, type Ref, computed, nextTick, ref, watch } from 'vue'
 
 import type { ChatHistory, StoredChat } from '@/composables/create-chat-history'
 
@@ -136,21 +136,32 @@ export const createChatSessions = <TChat extends SessionChat>(
    */
   const instanceWatchStops = new Map<string, (() => void)[]>()
 
+  /**
+   * Chat ids whose messages are currently being assigned from storage.
+   * Hydration must not fire the persistence watchers — re-persisting on view
+   * would bump `updatedAt` (reordering updatedAt-sorted lists into
+   * recently-viewed order) and rewrite records without any user action.
+   */
+  const hydratingIds = new Set<string>()
+
   const persist = (chatId: string, instance: TChat): void => {
     if (!history || !instance.messages.length) {
       return
     }
 
-    // createdAt is looked up at persist time so a record created by another
-    // instance of the same chat keeps its original timestamp.
-    const createdAt = history.chatList.value.find((chat) => chat.id === chatId)?.createdAt ?? Date.now()
+    // The stored record is spread first so unknown ride-along fields older
+    // clients persisted survive the rewrite; createdAt is looked up at
+    // persist time so a record created by another instance of the same chat
+    // keeps its original timestamp.
+    const stored = history.chatList.value.find((chat) => chat.id === chatId)
 
     void history.saveChat({
+      ...stored,
       ...extendRecord?.(),
       id: chatId,
       title: getChatTitle(instance.messages, untitledTitle),
       messages: JSON.parse(JSON.stringify(instance.messages)) as unknown[],
-      createdAt,
+      createdAt: stored?.createdAt ?? Date.now(),
       updatedAt: Date.now(),
     })
   }
@@ -167,7 +178,7 @@ export const createChatSessions = <TChat extends SessionChat>(
     const stopCountWatcher = watch(
       () => instance.messages.length,
       (length) => {
-        if (length) {
+        if (length && !hydratingIds.has(chatId)) {
           persist(chatId, instance)
         }
       },
@@ -175,7 +186,7 @@ export const createChatSessions = <TChat extends SessionChat>(
     const stopStatusWatcher = watch(
       () => instance.status,
       (status) => {
-        if (status === 'ready' && instance.messages.length) {
+        if (status === 'ready' && instance.messages.length && !hydratingIds.has(chatId)) {
           persist(chatId, instance)
         }
       },
@@ -197,7 +208,18 @@ export const createChatSessions = <TChat extends SessionChat>(
 
   const getChatInstance = (chatId: string): TChat => chatInstances.get(chatId) ?? createChatInstance(chatId)
 
-  const activeChat = computed(() => getChatInstance(currentChatId.value))
+  /**
+   * Bumped by `reset()`. Without it, a reset that re-reads an unchanged
+   * last-chat pointer would be a same-value ref write — the computed below
+   * would keep exposing the disposed pre-reset instance, whose messages are
+   * never persisted again.
+   */
+  const instanceGeneration = ref(0)
+
+  const activeChat = computed(() => {
+    void instanceGeneration.value
+    return getChatInstance(currentChatId.value)
+  })
 
   const chatList = computed(() => history?.chatList.value ?? [])
   const hasHistory = computed(() => chatList.value.length > 0)
@@ -216,7 +238,12 @@ export const createChatSessions = <TChat extends SessionChat>(
     const stored = await history.loadChat(chatId)
 
     if (stored) {
+      // The guard stays set until the watcher flush after the assignment has
+      // run, so hydration never masquerades as user activity.
+      hydratingIds.add(chatId)
       instance.messages = stored.messages as TChat['messages']
+      await nextTick()
+      hydratingIds.delete(chatId)
     }
   }
 
@@ -285,6 +312,7 @@ export const createChatSessions = <TChat extends SessionChat>(
 
     restoredOnce = false
     currentChatId.value = readLastChatId()
+    instanceGeneration.value += 1
   }
 
   if (history && open) {

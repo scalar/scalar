@@ -13,6 +13,8 @@ import { z } from 'zod'
 /** Server-executed: search the project documentation. */
 export const SEARCH_DOCUMENTATION_TOOL_NAME = 'search-documentation' as const
 
+export const searchDocumentationToolDescription = `Search the available documentation for pages related to a user's query and return a list of related content matching the search criteria.`
+
 export const searchDocumentationInputSchema = z.object({
   question: z.string().default(''),
 })
@@ -43,6 +45,8 @@ export type SearchDocumentationOutput = {
  * the documented name collision. Each surface registers its own renderer.
  */
 export const MCP_EXECUTE_REQUEST_TOOL_NAME = 'execute-request' as const
+
+export const mcpExecuteRequestToolDescription = 'Execute an HTTP request for a specific scalar document and operation.'
 
 export const mcpExecuteRequestInputSchema = z.object({
   xScalarDocumentId: z.string(),

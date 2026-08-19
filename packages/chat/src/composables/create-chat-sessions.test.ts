@@ -256,15 +256,108 @@ describe('create-chat-sessions', () => {
     })
 
     await waitFor(() => expect(sessions.activeChat.value.messages).toHaveLength(1))
+    const beforeReset = sessions.activeChat.value
 
-    // Project switch: instances dropped, the pointer re-read.
+    // Project switch: instances dropped, the pointer re-read. The remembered
+    // pointer is unchanged, which must still invalidate activeChat — the
+    // disposed pre-reset instance persists nothing anymore. Close and open
+    // flush separately, as they do in real usage.
     open.value = false
+    await nextTick()
     sessions.reset()
-
-    // Reopening must hydrate again — skipping it would leave the chat empty
-    // and the next persist would overwrite the stored conversation.
     open.value = true
+    await nextTick()
+
     await waitFor(() => expect(sessions.activeChat.value.messages).toHaveLength(1))
+    expect(sessions.activeChat.value).not.toBe(beforeReset)
+
+    // Messages sent after the reset must reach storage through the fresh
+    // instance's watchers.
+    sessions.activeChat.value.messages.push(userMessage('after reset'))
+    await waitFor(() => {
+      const stored = history.chatList.value.find((chat) => chat.id === 'project-chat')
+      expect(stored?.messages).toHaveLength(2)
+    })
+  })
+
+  it('does not resurrect a record whose save was in flight when everything was cleared', async () => {
+    const history = createChatHistory({ dbName: 'scalar-agent-chat' })
+    await history.ready.value
+
+    const sessions = createChatSessions({ createChat: createFakeChat, history })
+    const chatId = sessions.currentChatId.value
+
+    sessions.activeChat.value.messages.push(userMessage('racing'))
+    // One flush: the persistence watcher fires and the put is in flight,
+    // but the record is not yet in chatList when clearAll snapshots it.
+    await nextTick()
+
+    await sessions.clearAllChats()
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    expect(history.chatList.value).toHaveLength(0)
+    expect(await history.loadChat(chatId)).toBeUndefined()
+  })
+
+  it('does not rewrite stored records on view', async () => {
+    const history = createChatHistory({ dbName: 'scalar-editor-agent-chat' })
+    await history.ready.value
+    await history.saveChat({
+      id: 'old-chat',
+      title: 'Old chat',
+      messages: [userMessage('old conversation')],
+      createdAt: 1,
+      updatedAt: 1,
+    })
+    await history.saveChat({
+      id: 'new-chat',
+      title: 'New chat',
+      messages: [userMessage('new conversation')],
+      createdAt: 100,
+      updatedAt: 100,
+    })
+
+    const sessions = createChatSessions({ createChat: createFakeChat, history })
+    await sessions.switchToChat('old-chat')
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    await history.refresh()
+    const oldChat = history.chatList.value.find((chat) => chat.id === 'old-chat')
+
+    // Viewing must not bump updatedAt — in updatedAt-sorted lists it would
+    // reorder history into recently-viewed order.
+    expect(oldChat?.updatedAt).toBe(1)
+    expect(history.chatList.value[0]?.id).toBe('new-chat')
+  })
+
+  it('preserves unknown stored fields when re-persisting', async () => {
+    const history = createChatHistory({ dbName: 'scalar-agent-chat' })
+    await history.ready.value
+    await history.saveChat({
+      id: 'annotated-chat',
+      title: 'Annotated',
+      messages: [userMessage('hello')],
+      createdAt: 1,
+      updatedAt: 1,
+      customField: 'ride-along',
+    })
+
+    localStorage.setItem('last-chat', 'annotated-chat')
+    const sessions = createChatSessions({
+      createChat: createFakeChat,
+      history,
+      lastChatStorageKey: 'last-chat',
+      open: ref(true),
+    })
+
+    await waitFor(() => expect(sessions.activeChat.value.messages).toHaveLength(1))
+    sessions.activeChat.value.messages.push(userMessage('a real new message'))
+
+    await waitFor(() => {
+      const stored = history.chatList.value.find((chat) => chat.id === 'annotated-chat')
+      expect(stored?.messages).toHaveLength(2)
+      expect(stored?.customField).toBe('ride-along')
+    })
   })
 
   it('persists extended record fields', async () => {
