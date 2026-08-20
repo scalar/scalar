@@ -1,5 +1,10 @@
 # @scalar/highlight
 
+[![Version](https://img.shields.io/npm/v/%40scalar/highlight)](https://www.npmjs.com/package/@scalar/highlight)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar/highlight)](https://www.npmjs.com/package/@scalar/highlight)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fhighlight)](https://www.npmjs.com/package/@scalar/highlight)
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
+
 Scalar's code highlighter.
 
 - **Small.** 2.3 KB core, ~1.7 KB for Python, gzipped. Nothing you do not import.
@@ -319,6 +324,10 @@ devDependencies and neither reaches consumers.
 
 Repository-wide conventions live in the root [`AGENTS.md`](../../AGENTS.md).
 
+## Community
+
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
+
 ## License
 
-MIT
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
