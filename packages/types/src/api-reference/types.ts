@@ -378,6 +378,7 @@ export type ApiReferenceTranslations = {
     nullable: string
     path: string
     pattern: string
+    copyPattern: string
     propertyNames: string
     readOnly: string
     required: string

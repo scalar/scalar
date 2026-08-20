@@ -22,6 +22,7 @@ export const ar = {
     path: 'المسار',
     propertyNames: 'أسماء الخصائص',
     pattern: 'النمط',
+    copyPattern: 'نسخ النمط',
     readOnly: 'قراءة فقط',
     required: 'مطلوب',
     hideValues: 'إخفاء القيم',

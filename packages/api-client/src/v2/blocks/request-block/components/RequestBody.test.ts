@@ -1,5 +1,5 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
@@ -53,6 +53,536 @@ describe('RequestBody', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockFiles.value = null
+  })
+
+  it('resets an edited body when a different oneOf branch is selected', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  mass: { type: 'number' },
+                },
+              },
+              {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  mass: { type: 'number' },
+                  hasRings: { type: 'boolean' },
+                },
+              },
+            ],
+          },
+          example: JSON.stringify({
+            name: 'Edited Earth',
+            mass: 1,
+          }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toStrictEqual([
+      [
+        {
+          contentType: 'application/json',
+          payload: JSON.stringify(
+            {
+              name: '',
+              mass: 1,
+              hasRings: true,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
+    ])
+  })
+
+  it('preserves edits when the selected discriminator branch is unchanged', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            discriminator: { propertyName: 'planetType' },
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  planetType: { type: 'string', const: 'terrestrial' },
+                  name: { type: 'string' },
+                },
+              },
+            ],
+          },
+          example: JSON.stringify({
+            planetType: 'terrestrial',
+            name: 'Edited Earth',
+          }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+  })
+
+  it('resets to the resolved branch when oneOf members are $refs', async () => {
+    // Composition members commonly arrive as resolved `$ref` nodes from the workspace store, so
+    // guard that a branch change still emits the referenced branch's example and not an empty body.
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            oneOf: [
+              {
+                $ref: '#/components/schemas/Star',
+                '$ref-value': {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    mass: { type: 'number' },
+                  },
+                },
+              },
+              {
+                $ref: '#/components/schemas/Planet',
+                '$ref-value': {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    mass: { type: 'number' },
+                    hasRings: { type: 'boolean' },
+                  },
+                },
+              },
+            ],
+          },
+          example: JSON.stringify({
+            name: 'Edited Star',
+            mass: 1,
+          }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toStrictEqual([
+      [
+        {
+          contentType: 'application/json',
+          payload: JSON.stringify(
+            {
+              name: '',
+              mass: 1,
+              hasRings: true,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
+    ])
+  })
+
+  it('does not reset the body when switching operations changes the selection', async () => {
+    // Routing to another operation changes the body, example key, and selection at once. That is not
+    // a branch change within one operation, so the newly routed operation's edited body must survive.
+    const operationA: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            oneOf: [
+              { type: 'object', properties: { name: { type: 'string' } } },
+              { type: 'object', properties: { label: { type: 'string' } } },
+            ],
+          },
+          example: JSON.stringify({ name: 'Operation A' }),
+        },
+      },
+    }
+
+    const operationB: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            oneOf: [
+              { type: 'object', properties: { title: { type: 'string' } } },
+              { type: 'object', properties: { heading: { type: 'string' } } },
+            ],
+          },
+          example: JSON.stringify({ heading: 'Edited Operation B' }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        exampleKey: 'operation-a',
+        requestBody: operationA,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      exampleKey: 'operation-b',
+      requestBody: operationB,
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+  })
+
+  it('resets an edited body when a different anyOf branch is selected', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            anyOf: [
+              {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  mass: { type: 'number' },
+                },
+              },
+              {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  mass: { type: 'number' },
+                  hasRings: { type: 'boolean' },
+                },
+              },
+            ],
+          },
+          example: JSON.stringify({
+            name: 'Edited Earth',
+            mass: 1,
+          }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.anyOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.anyOf': 1 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toStrictEqual([
+      [
+        {
+          contentType: 'application/json',
+          payload: JSON.stringify(
+            {
+              name: '',
+              mass: 1,
+              hasRings: true,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
+    ])
+  })
+
+  it('resets a structured YAML body using the YAML codec', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/yaml': {
+          schema: {
+            type: 'object',
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  mass: { type: 'number' },
+                },
+              },
+              {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  mass: { type: 'number' },
+                  hasRings: { type: 'boolean' },
+                },
+              },
+            ],
+          },
+          example: 'name: Edited Earth\nmass: 1\n',
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toStrictEqual([
+      [
+        {
+          contentType: 'application/yaml',
+          // Assert the literal YAML so a serialization/formatting regression is actually caught,
+          // rather than comparing the codec's output against itself.
+          payload: 'name: ""\nmass: 1\nhasRings: true\n',
+        },
+      ],
+    ])
+  })
+
+  it('clears the body when the selected branch generates null', async () => {
+    // A `type: null` (or otherwise value-less) branch makes schema generation return `null`, not
+    // `undefined`. The reset must still clear the editor rather than write the literal text `null`.
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+              { type: 'null' },
+            ],
+          } as SchemaObject,
+          example: JSON.stringify({ name: 'Edited Earth' }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toStrictEqual([
+      [
+        {
+          contentType: 'application/json',
+          payload: '',
+        },
+      ],
+    ])
+  })
+
+  it('clears the body when the selected branch has no writable content', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          // No root `type` so the body is exactly the selected branch. The read-only primitive
+          // branch produces no value in write mode, so the reset must clear the editor.
+          schema: {
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+              { type: 'string', readOnly: true },
+            ],
+          } as SchemaObject,
+          example: JSON.stringify({ name: 'Edited Earth' }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toStrictEqual([
+      [
+        {
+          contentType: 'application/json',
+          payload: '',
+        },
+      ],
+    ])
   })
 
   it('renders different content types and handles content type selection', async () => {
