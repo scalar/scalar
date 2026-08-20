@@ -39,6 +39,14 @@ import type { Grammar } from '../core/types'
 const NAME = '[A-Za-z_]\\w*(?:::\\w+)*'
 
 /**
+ * Leading deref sigils, as in `$$ref` or `$$$ref`. Capped rather than `\$*`
+ * because a sigil rule is retried at every position a term could start: an
+ * uncapped run over a line of bare `$` backtracks the same way the pattern
+ * scans above do, so it is bounded for the same reason they are.
+ */
+const DEREF = '\\${0,8}'
+
+/**
  * The body of a `/`-delimited pattern. The repetition is capped because the
  * rule is retried at every position a term could start: an uncapped scan that
  * runs to the end of a long line and then fails costs O(n²), which is a denial
@@ -211,7 +219,7 @@ const perl: Grammar = {
         // ---- sigils ---------------------------------------------------------
         // `$#{$ref}` and `$#array` both give the last index of an array.
         { match: '\\$#\\{', scope: 'variable', push: 'deref' },
-        { match: `\\$#\\$*${NAME}`, scope: 'variable' },
+        { match: `\\$#${DEREF}${NAME}`, scope: 'variable' },
 
         { match: '[$@%]_(?!\\w)', scope: 'variable.builtin' },
         {
@@ -222,8 +230,8 @@ const perl: Grammar = {
         // `${name}` and `@{name}` are just a fenced name; `@{$ref}`, `${\ … }`
         // and the `@{[ … ]}` idiom hold an expression, so they push a state.
         { match: '[$@%]\\{\\^?\\w+\\}', scope: 'variable' },
-        { match: '[$@%&]\\$*\\{', scope: 'variable', push: 'deref' },
-        { match: `[$@%]\\$*${NAME}`, scope: 'variable' },
+        { match: `[$@%&]${DEREF}\\{`, scope: 'variable', push: 'deref' },
+        { match: `[$@%]${DEREF}${NAME}`, scope: 'variable' },
         // Capture groups and the punctuation variables that show up in real
         // code. `$'` and `` $` `` are left out: mistaking either for a sigil
         // would take the following quote with it.
@@ -238,7 +246,7 @@ const perl: Grammar = {
         // `&` rather than in front: it says the same thing either way, but this
         // order leaves the rule a known first character, so the merged
         // alternation keeps its first-character scan.
-        { match: `&(?<![\\w$)\\]}&]&)\\$*${NAME}`, scope: 'function.call' },
+        { match: `&(?<![\\w$)\\]}&]&)${DEREF}${NAME}`, scope: 'function.call' },
 
         // `<$fh>`, `<STDIN>`, `<>` — readline, not a comparison. The `\\w*`
         // never spans a space, so `$a < $b > $c` is unaffected.
@@ -369,13 +377,13 @@ const perl: Grammar = {
           scope: 'string.escape',
         },
         { match: FORMAT, scope: 'string.special' },
-        { match: `\\$#\\$*${NAME}`, scope: 'variable' },
+        { match: `\\$#${DEREF}${NAME}`, scope: 'variable' },
         { match: '[$@]\\{\\^?\\w+\\}', scope: 'variable' },
-        { match: '[$@]\\$*\\{', scope: 'variable', push: 'deref' },
+        { match: `[$@]${DEREF}\\{`, scope: 'variable', push: 'deref' },
         // A subscript chain is part of the interpolation: `$row->{tags}[0]`.
         // Every scan is capped so a line of `${` cannot go quadratic.
         {
-          match: `[$@]\\$*(?:${NAME}|\\d+)(?:(?:->)?(?:\\[[^\\]\\n]{0,80}\\]|\\{[^}\\n]{0,80}\\})){0,6}`,
+          match: `[$@]${DEREF}(?:${NAME}|\\d+)(?:(?:->)?(?:\\[[^\\]\\n]{0,80}\\]|\\{[^}\\n]{0,80}\\})){0,6}`,
           scope: 'variable',
         },
       ],
