@@ -13,6 +13,7 @@ import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 import { allFilesMatch, getOpenApiServerDocument } from '../test/helpers'
 import {
+  WORKSPACE_FILE_NAME,
   createServerWorkspaceStore,
   escapePaths,
   externalizeComponentReferences,
@@ -719,11 +720,115 @@ describe('create-server-store', () => {
       expect(input).toEqual(exampleAsyncApiDocument())
     })
 
-    it('does not externalize asyncapi content into chunks', async () => {
+    it('registers an empty asset entry rather than externalizing asyncapi content', async () => {
       const { store } = await addAsyncApiDocument()
 
+      // The entry itself exists — that is what keeps `get()` and chunk generation defined for the
+      // document — but it holds nothing to externalize.
+      expect(store.get('#/events')).toEqual({})
       expect(store.get('#/events/operations')).toBeUndefined()
       expect(store.get('#/events/components')).toBeUndefined()
+    })
+
+    it('writes no chunk files for an asyncapi document in static mode', async () => {
+      const directory = randomUUID()
+      const store = await createServerWorkspaceStore({
+        mode: 'static',
+        directory,
+        documents: [{ name: 'events', document: exampleAsyncApiDocument() }],
+      })
+
+      await store.generateWorkspaceChunks()
+
+      const written = await fs.readdir(`${cwd()}/${directory}`)
+      expect(written).toEqual([WORKSPACE_FILE_NAME])
+
+      await fs.rm(`${cwd()}/${directory}`, { recursive: true, force: true })
+    })
+
+    it('normalizes a partial document instead of throwing', async () => {
+      // `info` is read unguarded by the traversal, so a document without it used to take the whole
+      // store down. Coercion fills it, the same way the client store's asyncapi path does.
+      const { document } = await addAsyncApiDocument({ 'asyncapi': '3.0.0' })
+
+      expect(document.info).toEqual({ title: '', version: '' })
+    })
+
+    it('normalizes a null info rather than treating it as fatal', async () => {
+      const { document } = await addAsyncApiDocument({ 'asyncapi': '3.0.0', 'info': null })
+
+      expect(document.info).toEqual({ title: '', version: '' })
+    })
+
+    it('does not let one unprocessable document fail the workspace', async () => {
+      // Nothing in the happy path throws any more, so this exercises the contract itself: whatever
+      // does throw in future, the other documents still load.
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        navigationOptions: {
+          generateOperationSlug: () => {
+            throw new Error('slug generator exploded')
+          },
+        },
+        documents: [
+          { name: 'broken', document: exampleDocument() },
+          { name: 'events', document: exampleAsyncApiDocument() },
+        ],
+      })
+
+      expect(Object.keys(store.getWorkspace().documents)).toEqual(['events'])
+      expect(store.get('#/broken')).toBeUndefined()
+    })
+
+    it('stores the order the traversal computed rather than the one it was handed', async () => {
+      // The traversal writes `x-scalar-order` onto the document as its last act, so the stored copy
+      // has to be taken after it runs — otherwise the input's value survives and contradicts the
+      // navigation stored beside it. (An input order whose ids match real entries is still honoured
+      // as a sort order; this fixture's does not match, so only the write ordering is observed.)
+      const { document } = await addAsyncApiDocument({
+        ...exampleAsyncApiDocument(),
+        'x-scalar-order': ['stale-entry-id'],
+      })
+
+      const ordered = document as typeof document & { 'x-scalar-order'?: string[] }
+      expect(ordered['x-scalar-order']).toEqual([
+        'events/description/introduction',
+        'events/asyncapi-channel/planetevents',
+        'events/models',
+      ])
+    })
+
+    it('leaves an existing document intact when a later one reuses its name and fails', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [{ name: 'events', document: exampleDocument() }],
+      })
+
+      await store.addDocument(
+        { name: 'events', document: exampleDocument() },
+        {
+          generateOperationSlug: () => {
+            throw new Error('slug generator exploded')
+          },
+        },
+      )
+
+      // The healthy document's chunks are still served — the failed add restored what it found.
+      expect(store.get('#/events/operations/~1planets/get')).toMatchObject({ summary: 'List planets' })
+    })
+
+    it('stores a document carrying both discriminators as the type it was read as', async () => {
+      // `getDocumentType` checks OpenAPI first, so leaving `openapi` behind would classify the
+      // stored document as OpenAPI while its navigation is full of channel entries.
+      const { document } = await addAsyncApiDocument({
+        ...exampleAsyncApiDocument(),
+        'openapi': '3.1.0',
+      })
+
+      expect(document).not.toHaveProperty('openapi')
+      expect(document.asyncapi).toBe('3.1.0')
     })
   })
 })

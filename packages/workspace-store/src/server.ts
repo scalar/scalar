@@ -8,12 +8,15 @@ import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { upgrade } from '@scalar/openapi-upgrader'
+import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { type Schema, coerce } from '@scalar/validation'
 
 import { deepClone } from '@/helpers/deep-clone'
 import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
 import { keyOf } from '@/helpers/general'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { extensions } from '@/schemas/extensions'
@@ -394,20 +397,37 @@ export async function createServerWorkspaceStore(
     // AsyncAPI document, so cast it back.
     const asyncApiDocument = upgradeAsyncApi(deepClone(document)) as AsyncApiDocument
 
+    // Coerced against the AsyncAPI schema for the same reason the OpenAPI path coerces against its
+    // own: the traversal and every consumer downstream expect a normalized document. Skipping it
+    // leaves `info` missing on a partial document (which the traversal reads unguarded) and passes
+    // shapes like `channels: null` straight through to the browser. Merged rather than assigned, so
+    // nothing the schema does not model is dropped.
+    mergeObjects(asyncApiDocument, coerce(asyncApiObjectSchema as Schema, deepClone(asyncApiDocument)))
+
     // Nothing is externalized, so the document owns no chunks. The empty entry keeps `get()` and
     // chunk generation well defined for the document name.
     assets[name] = {}
+
+    // Traversed before the spread below: its last act is a top-level `x-scalar-order` write on the
+    // document, and a snapshot taken first would both miss it and preserve whatever stale order the
+    // input arrived with.
+    const navigation = traverseAsyncApiDocument(
+      name,
+      asyncApiDocument,
+      navigationOptions ?? workspaceProps.navigationOptions,
+    )
 
     workspace.documents[name] = {
       ...documentMeta,
       ...asyncApiDocument,
       'x-original-aas-version': originalAasVersion,
-      [extensions.document.navigation]: traverseAsyncApiDocument(
-        name,
-        asyncApiDocument,
-        navigationOptions ?? workspaceProps.navigationOptions,
-      ),
+      [extensions.document.navigation]: navigation,
     }
+
+    // A document carrying both discriminators is ingested as AsyncAPI here, but `getDocumentType`
+    // checks OpenAPI first — so leaving `openapi` in place would hand an OpenAPI renderer a
+    // navigation tree of channel entries. The document is stored as the type it was read as.
+    delete (workspace.documents[name] as Record<string, unknown>)['openapi']
   }
 
   /**
@@ -481,14 +501,39 @@ export async function createServerWorkspaceStore(
    * @param input - The document input containing the document source and metadata
    */
   const addDocument: ServerWorkspaceStore['addDocument'] = async (input, navigationOptions) => {
-    const document = await loadDocument(input)
+    // Captured so a failed add restores exactly what was there. The assets are written partway
+    // through, and several steps throw before that point, so clearing the key outright would strip
+    // a working document's chunks whenever a name is reused — leaving the workspace pointing at
+    // references that resolve to nothing.
+    //
+    // The snapshot is taken before the first await, so two adds racing under the same name would
+    // both capture the pre-state and the failing one could put back what the other just replaced.
+    // Adds are not serialized per name: concurrent adds sharing a name are already last-write-wins,
+    // and callers are expected to await one before starting another.
+    const assetsBeforeAdd = assets[input.name]
 
-    if (!document.ok) {
-      console.warn(`Failed to load document "${input.name}`)
-      return
+    try {
+      const document = await loadDocument(input)
+
+      if (!document.ok) {
+        console.warn(`Failed to load document "${input.name}"`)
+        return
+      }
+
+      addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
+    } catch (error) {
+      // Honours the contract above: a document that cannot be processed is skipped rather than
+      // taking the workspace with it, since the initial documents are ingested together and one
+      // malformed description should not fail an entire documentation build. Loading is inside the
+      // try too, so a document that cannot even be serialized is skipped the same way.
+      if (assetsBeforeAdd === undefined) {
+        delete assets[input.name]
+      } else {
+        assets[input.name] = assetsBeforeAdd
+      }
+
+      console.warn(`Failed to process document "${input.name}"`, error)
     }
-
-    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
   }
 
   // Load and process all initial documents in parallel
