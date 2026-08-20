@@ -92,4 +92,49 @@ describe('parse-chat-error', () => {
       message: error.message,
     })
   })
+
+  it('parses an envelope wrapped in Error.cause', () => {
+    // fetch and nested AI-SDK errors surface the original in `.cause` rather
+    // than serializing it into `.message`.
+    const error = new Error('Failed to fetch', {
+      cause: new Error(JSON.stringify({ code: 'LIMIT_REACHED', detail: { upgradeUrl: 'https://example.com/plan' } })),
+    })
+
+    const parsed = parseChatError(error)
+
+    expect(parsed.code).toBe('LIMIT_REACHED')
+    expect(parsed.upgradeUrl).toBe('https://example.com/plan')
+  })
+
+  it('parses an already-parsed envelope object carried in Error.cause', () => {
+    const error = new Error('wrapper', { cause: { code: 'UNAUTHORIZED', status: 403 } })
+
+    expect(parseChatError(error)).toMatchObject({ code: 'UNAUTHORIZED', status: 403 })
+  })
+
+  it('prefers the message envelope over the cause', () => {
+    const error = new Error(JSON.stringify({ code: 'AGENT_FAILED', message: 'From message.' }), {
+      cause: new Error(JSON.stringify({ code: 'LIMIT_REACHED' })),
+    })
+
+    expect(parseChatError(error).code).toBe('AGENT_FAILED')
+  })
+
+  it('does not loop when a cause points back at the error', () => {
+    const error = new Error('self')
+    error.cause = error
+
+    expect(parseChatError(error)).toEqual({ code: 'UNKNOWN_ERROR', message: 'self' })
+  })
+
+  it('falls back to the default message when Error.message is not a string', () => {
+    const error = new Error('placeholder')
+    // Subclasses can assign a non-string message; parsing must not throw.
+    Object.defineProperty(error, 'message', { value: { unexpected: true } })
+
+    expect(parseChatError(error)).toEqual({
+      code: 'UNKNOWN_ERROR',
+      message: 'Something went wrong. Please try again.',
+    })
+  })
 })

@@ -77,19 +77,47 @@ const fromCandidate = (candidate: unknown): ParsedChatError | undefined => {
  * independently. This is the one shared implementation. It accepts:
  *
  * - an `Error` with a JSON envelope (or legacy shape) in `.message`
+ * - an `Error` that wraps the envelope in `.cause` (fetch / nested AI-SDK errors)
  * - an already-parsed envelope object
  * - a raw JSON string
  * - anything else, which falls back to `UNKNOWN_ERROR` with a best-effort message
  */
 export const parseChatError = (error: unknown): ParsedChatError => {
   if (error instanceof Error) {
-    const candidate = safeParseJson(error.message)
-    return (
-      fromCandidate(candidate) ?? {
-        code: ChatErrorCodes.UNKNOWN_ERROR,
-        message: error.message,
+    // The envelope usually rides in `.message` as JSON. Guard against a
+    // non-string `.message` (subclasses can set anything) before parsing.
+    const fromMessage = typeof error.message === 'string' ? fromCandidate(safeParseJson(error.message)) : undefined
+
+    if (fromMessage) {
+      return fromMessage
+    }
+
+    // Fall back to `.cause`: fetch and nested AI-SDK errors wrap the original
+    // there instead of serializing it into `.message`. One level only — a
+    // cause that points back at the error itself would otherwise loop.
+    const { cause } = error
+
+    if (cause !== undefined && cause !== error) {
+      const causeCandidate =
+        cause instanceof Error
+          ? typeof cause.message === 'string'
+            ? safeParseJson(cause.message)
+            : undefined
+          : typeof cause === 'string'
+            ? safeParseJson(cause)
+            : cause
+
+      const fromCause = fromCandidate(causeCandidate)
+
+      if (fromCause) {
+        return fromCause
       }
-    )
+    }
+
+    return {
+      code: ChatErrorCodes.UNKNOWN_ERROR,
+      message: typeof error.message === 'string' && error.message.length > 0 ? error.message : FALLBACK_MESSAGE,
+    }
   }
 
   if (typeof error === 'string') {

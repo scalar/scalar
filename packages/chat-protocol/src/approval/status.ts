@@ -37,12 +37,18 @@ export const isLegacyRejection = (errorText: string | undefined): boolean =>
  * The shipped editor persists a rejected `write_file` as a *successful* tool
  * output whose payload says `{ ok: false, rejected: true }` — the part state
  * is `output-available`, so the payload is the only signal.
+ *
+ * Both keys are required: a dynamic MCP tool's output shape is unconstrained
+ * (generated from an arbitrary user API), so a bare `{ rejected: true }` that
+ * happens to be legitimate success output must not be misread as a rejection.
  */
 export const isLegacyRejectionOutput = (output: unknown): boolean =>
   typeof output === 'object' &&
   output !== null &&
   'rejected' in output &&
-  (output as { rejected: unknown }).rejected === true
+  (output as { rejected: unknown }).rejected === true &&
+  'ok' in output &&
+  (output as { ok: unknown }).ok === false
 
 /**
  * Client-side context the part state alone cannot carry: whether the local
@@ -92,5 +98,14 @@ export const toolCardStatus = (part: ToolPartLike, context: ToolCardStatusContex
 
     case 'output-denied':
       return 'rejected'
+
+    default:
+      // `part` is untrusted wire data, so an unexpected `state` (a value from
+      // a future AI SDK version, or a corrupted persisted history) must not
+      // return `undefined` and crash the badge. The `satisfies never` keeps
+      // the switch exhaustive at compile time: adding a state to the union
+      // without a case above turns this into a type error.
+      part.state satisfies never
+      return 'pending'
   }
 }

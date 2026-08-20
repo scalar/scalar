@@ -63,6 +63,19 @@ describe('status', () => {
     expect(toolCardStatus(part({ state: 'output-available', output: { ok: true } }))).toBe('complete')
   })
 
+  it('does not misread a dynamic tool’s bare rejected flag as a rejection', () => {
+    // A dynamic MCP tool's output shape is unconstrained; a legitimate
+    // `{ rejected: true }` without the editor's `ok: false` marker is success.
+    expect(isLegacyRejectionOutput({ rejected: true })).toBe(false)
+    expect(isLegacyRejectionOutput({ rejected: true, ok: true })).toBe(false)
+    expect(toolCardStatus(part({ state: 'output-available', output: { rejected: true, count: 3 } }))).toBe('complete')
+  })
+
+  it('returns a safe status for an unknown wire state', () => {
+    // Untrusted persisted history / future SDK states must not crash the badge.
+    expect(toolCardStatus(part({ state: 'totally-unknown' as never }))).toBe('pending')
+  })
+
   it('recognizes legacy rejection encodings forever', () => {
     expect(toolCardStatus(part({ state: 'output-error', errorText: 'The user denied the request.' }))).toBe('rejected')
     expect(
