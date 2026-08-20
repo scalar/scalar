@@ -495,6 +495,30 @@ Whether to always start with all tags open, regardless of the URL.
 }
 ```
 
+### defaultRequestBodyView
+
+**Type:** `'form' | 'raw'`
+
+Which view the request body editor opens in for structured (JSON/YAML) bodies. Use `form` to start in the schema-driven form view, or `raw` for the code editor. When a body cannot be shown as a form, Scalar falls back to `raw`.
+
+**Default:** `'raw'`
+
+```javascript
+{
+  defaultRequestBodyView: 'form'
+}
+```
+
+You can also set this per document with the `x-scalar-default-request-body-view` extension in your OpenAPI document, which takes precedence over this option:
+
+```yaml
+openapi: 3.1.0
+x-scalar-default-request-body-view: form
+info:
+  title: Example
+  version: 1.0.0
+```
+
 ### documentDownloadType
 
 **Type:** `'json' | 'yaml' | 'both' | 'direct' | 'none'`
