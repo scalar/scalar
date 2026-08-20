@@ -752,6 +752,27 @@ watch(
   },
 )
 
+/**
+ * Paint the editor as soon as its element appears.
+ *
+ * When a reused table row flips a cell from a non-editor mode (a readonly
+ * disabled label, or an `enum`/`examples`/`boolean` select) into editor mode,
+ * the `<div ref="editorRef">` is created only on the next render. `onMounted`
+ * already ran for this instance, and the `modelValue` watch fired while
+ * `editorRef` was still `null`, so `renderModel` bailed and the fresh editor
+ * stays empty forever (scalar/scalar#9903). Repaint once the element exists —
+ * but only while it is still blank, so we never clobber an in-progress edit.
+ */
+watch(editorRef, (editor) => {
+  if (!editor || !isBlankValue(serializeEditor())) {
+    return
+  }
+  const serialized = serializeValue(modelValue)
+  lastPillSignature = pillSignature(serialized, withVariables)
+  renderModel(serialized)
+  isEmpty.value = isBlankValue(serialized)
+})
+
 watch(
   [() => environment, () => withVariables],
   () => {

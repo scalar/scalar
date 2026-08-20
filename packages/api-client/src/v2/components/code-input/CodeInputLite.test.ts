@@ -1056,6 +1056,38 @@ describe('CodeInputLite', () => {
     })
   })
 
+  describe('mode switch into editor', () => {
+    // Reused table rows (RequestTable keys its v-for by index) can flip a cell
+    // from a non-editor mode into editor mode. The editor element only appears
+    // on the next render, after onMounted and the modelValue watch have already
+    // run, so the fresh editor must still be painted (scalar/scalar#9903).
+    it('paints the value when switching from enum-select mode into editor mode', async () => {
+      const wrapper = mountInput({ modelValue: '1', enum: ['1'] })
+      await nextTick()
+      expect(wrapper.find('.code-input-lite__editor').exists()).toBe(false)
+
+      await wrapper.setProps({ modelValue: 'web', enum: undefined })
+      await nextTick()
+      await nextTick()
+
+      const editor = wrapper.get('.code-input-lite__editor').element as HTMLDivElement
+      expect(editor.textContent).toBe('web')
+    })
+
+    it('paints the value when switching from a disabled label into editor mode', async () => {
+      const wrapper = mountInput({ modelValue: '*/*', disabled: true })
+      await nextTick()
+      expect(wrapper.find('.code-input-lite__editor').exists()).toBe(false)
+
+      await wrapper.setProps({ modelValue: 'acme', disabled: false })
+      await nextTick()
+      await nextTick()
+
+      const editor = wrapper.get('.code-input-lite__editor').element as HTMLDivElement
+      expect(editor.textContent).toBe('acme')
+    })
+  })
+
   describe('autofocus', () => {
     it('focuses the editor on mount when the autofocus attribute is present', () => {
       const wrapper = mount(CodeInputLite, {
