@@ -85,6 +85,7 @@ import {
 } from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
+import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
 import {
@@ -728,6 +729,21 @@ const infoSectionId = computed(
     sidebarItems.value.find(isIntroductionEntry)?.id ??
     `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`,
 )
+
+/**
+ * Whether to render the crawler-only navigation links.
+ *
+ * The list is part of the server-rendered HTML so crawlers can discover the URL of every
+ * sidebar entry, including the ones inside collapsed groups that the interactive sidebar
+ * keeps out of the DOM. The flag must stay `true` through the client's hydration render —
+ * flipping it any earlier (for example in onBeforeMount) would make the client render a
+ * different tree than the server HTML and cause a hydration mismatch. Once the app is
+ * interactive the real sidebar takes over, so the list is dropped right after mount.
+ */
+const showCrawlerNav = ref(true)
+onMounted(() => {
+  showCrawlerNav.value = false
+})
 
 /** User for mobile navigation */
 const breadcrumb = ref('')
@@ -1717,6 +1733,17 @@ const showMCPButton = computed(() => {
           </ScalarSidebar>
         </template>
       </MobileHeader>
+
+      <!-- Crawler-only navigation: exposes every sidebar URL in the server-rendered HTML -->
+      <!-- Passing the same `sidebarOptions` the interactive sidebar reads (see the
+           ScalarSidebar below) keeps both filtering the tree identically, so the crawler
+           list can never drift from what the sidebar would show. -->
+      <CrawlerNav
+        v-if="showCrawlerNav"
+        :basePath="basePath"
+        :isMultiDocument="isMultiDocument"
+        :items="sidebarItems"
+        :options="sidebarOptions" />
 
       <!-- Primary Content -->
       <main
