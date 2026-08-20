@@ -20,7 +20,7 @@ catalogs:
     '@floating-ui/utils': 0.2.10
     '@floating-ui/vue': 1.1.9
     '@faker-js/faker': 10.4.0
-    '@google-cloud/storage': 7.16.0
+    '@google-cloud/storage': 7.21.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
     '@hono/node-server': ^1.19.10
@@ -63,15 +63,15 @@ catalogs:
     concurrently: 9.1.2
     cross-env: 10.1.0
     express: 5.1.0
-    fake-indexeddb: 6.2.3
+    fake-indexeddb: 6.2.5
     fast-glob: ^3.3.3
-    fastify: ^5.8.1
+    fastify: ^5.11.2
     flatted: ^3.4.0
     fuse.js: ^7.5.0
     hono: ^4.12.7
     get-port-please: 3.2.0
     github-slugger: 2.0.0
-    js-base64: ^3.7.8
+    js-base64: ^3.9.2
     jsdom: 27.4.0
     jsonc-parser: 3.3.1
     jwt-decode: 4.0.0
@@ -91,7 +91,7 @@ catalogs:
     shx: ^0.4.0
     supertest: '7.2.2'
     tailwindcss: ^4.3.3
-    type-fest: ^5.3.1
+    type-fest: ^5.8.0
     truncate-json: 3.0.1
     tsx: 4.19.4
     undici: 7.24.4
