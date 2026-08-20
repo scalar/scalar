@@ -97,6 +97,7 @@ export const ICONS = [
   'programming-language-java',
   'programming-language-javascript',
   'programming-language-json',
+  'programming-language-julia',
   'programming-language-kotlin',
   'programming-language-node',
   'programming-language-objc',

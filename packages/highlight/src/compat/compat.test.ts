@@ -400,7 +400,10 @@ describe('compat surface', () => {
   })
 
   it('reports exactly which standard languages have no grammar', () => {
-    expect(unsupportedLanguages).toEqual(['plaintext'])
+    // Julia is a standard language in `@scalar/code-highlight` but has no
+    // hand-written grammar in this zero-dependency package yet, so it renders
+    // as plain escaped text alongside plaintext.
+    expect(unsupportedLanguages).toEqual(['julia', 'plaintext'])
   })
 
   it('never throws on an unknown language, unlike resolveGrammar', () => {

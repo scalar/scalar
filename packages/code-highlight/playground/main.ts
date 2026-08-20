@@ -119,6 +119,26 @@ code.hljs {
 )
 
 // ---------------------------------------------------------------------------
+// Julia
+
+const julia = String.raw`using HTTP
+using JSON
+
+response = HTTP.post(
+    "https://galaxy.scalar.com/user/signup",
+    ["Content-Type" => "application/json"],
+    JSON.json(Dict(
+        "name" => "Marc",
+        "email" => "marc@scalar.com",
+        "password" => "i-love-scalar"
+    ))
+)
+
+println(String(response.body))`
+
+createCodeBlock(julia, 'Julia', 'julia')
+
+// ---------------------------------------------------------------------------
 // Kotlin
 
 const kotlin = String.raw`val client = OkHttpClient()
