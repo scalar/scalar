@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MAX_PROMPT_SIZE } from '@scalar/chat-protocol/limits'
-import { computed, nextTick, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onMounted, useTemplateRef, watch } from 'vue'
 
 import ChatSend from '@/components/ChatSend.vue'
 import { useChatCopy } from '@/copy/copy'
@@ -64,9 +64,39 @@ const sendRef = useTemplateRef<InstanceType<typeof ChatSend>>('send')
  */
 const overLimit = computed<boolean>(() => modelValue.length > MAX_PROMPT_SIZE)
 
+/**
+ * `field-sizing: content` autogrows the field with zero JS — but it is
+ * Chromium-only. Where it is unsupported (Firefox, Safari) the field would be
+ * stuck at one row, so mirror the height from `scrollHeight` there. The check
+ * gates the JS off in Chromium so it never fights the native behavior; the
+ * per-layout `max-height` still caps growth and hands over to internal scroll.
+ */
+const supportsFieldSizing = (): boolean =>
+  typeof CSS !== 'undefined' &&
+  typeof CSS.supports === 'function' &&
+  CSS.supports('field-sizing', 'content')
+
+const autosize = (): void => {
+  const field = fieldRef.value
+
+  if (!field || supportsFieldSizing()) {
+    return
+  }
+
+  field.style.height = 'auto'
+  field.style.height = `${field.scrollHeight}px`
+}
+
 const onInput = (event: Event): void => {
   emit('update:modelValue', (event.target as HTMLTextAreaElement).value)
+  autosize()
 }
+
+onMounted(autosize)
+
+// Programmatic model changes (the shell clearing the draft after a send, or
+// seeding one) must resize too; `post` flush measures after the DOM updates.
+watch(() => modelValue, autosize, { flush: 'post' })
 
 const submit = (): void => {
   if (streaming || sendDisabled || overLimit.value) {
@@ -269,7 +299,8 @@ defineExpose({
 }
 
 .chat-composer-field {
-  /* Autogrow without a JS mirror; the per-layout max-height clamps it. */
+  /* Autogrow in Chromium with zero JS; the `autosize` fallback mirrors the
+     height elsewhere. The per-layout max-height clamps both. */
   field-sizing: content;
   flex: 1;
   width: 100%;
