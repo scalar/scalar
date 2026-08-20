@@ -39,6 +39,43 @@ describe('prettyPrintJson', () => {
     expect(JSON.parse(result).properties.ClientId).toEqual(id)
   })
 
+  it('expands a shared reference at every occurrence while the graph stays small', () => {
+    /*
+     * The subtree below is reused by many sibling properties, but a full expansion stays well
+     * under the node limit. So every occurrence should be shown in full rather than collapsed
+     * to "[Circular]" after the first one.
+     */
+    const shared = { items: Array.from({ length: 100 }, (_, index) => ({ index })) }
+
+    const root = Object.fromEntries(Array.from({ length: 10 }, (_, index) => [`ref${index}`, shared]))
+
+    const result = prettyPrintJson(root)
+    const parsed = JSON.parse(result)
+
+    expect(result).not.toContain('[Circular]')
+    expect(parsed.ref0).toEqual(shared)
+    expect(parsed.ref9).toEqual(shared)
+  })
+
+  it('collapses a shared reference once its expansion would pass the node limit', () => {
+    /*
+     * Here the same subtree is shared widely enough that expanding it for every property would
+     * emit far more nodes than the limit allows. Rather than freeze the tab, prettyPrintJson
+     * falls back to collapsing the repeats: the first occurrence is still expanded in full and
+     * the rest become "[Circular]". This is the non-cyclic counterpart to the deep-diamond case
+     * below, and it exercises the node-count guard directly instead of exponential blow-up.
+     */
+    const shared = { items: Array.from({ length: 1000 }, (_, index) => ({ index })) }
+
+    const root = Object.fromEntries(Array.from({ length: 200 }, (_, index) => [`ref${index}`, shared]))
+
+    const parsed = JSON.parse(prettyPrintJson(root))
+
+    // The first occurrence is expanded in full, later occurrences collapse to keep the output linear
+    expect(parsed.ref0).toEqual(shared)
+    expect(parsed.ref199).toBe('[Circular]')
+  })
+
   it('does not explode on heavily shared references', () => {
     /*
      * A deeply resolved, recursive OpenAPI schema (e.g. the "Show Schema" toggle on a
