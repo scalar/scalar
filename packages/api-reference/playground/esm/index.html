@@ -13,11 +13,8 @@
     <script type="module">
       import { createApiReference } from '../../src'
 
-      // CDN:
-      // import { createApiReference } from 'https://esm.sh/@scalar/api-reference';
-
-      // Doesn't work:
-      // import { createApiReference } from 'https://esm.run/@scalar/api-reference';
+      // On the CDN, the built bundle is served from a short URL:
+      // import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'
 
       createApiReference('#app', {
         sources: [
