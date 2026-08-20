@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.6.65
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.6.64
 
 ## 0.6.63

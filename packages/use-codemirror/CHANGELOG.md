@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.14.15
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.14.14
 
 ### Patch Changes

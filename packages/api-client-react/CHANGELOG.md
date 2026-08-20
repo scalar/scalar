@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 2.0.42
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 2.0.41
 
 ## 2.0.40

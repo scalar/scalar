@@ -1,5 +1,11 @@
 # @scalar/core
 
+## 0.5.30
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.5.29
 
 ## 0.5.28
