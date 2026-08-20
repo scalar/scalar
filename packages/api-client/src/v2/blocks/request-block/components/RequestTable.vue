@@ -70,6 +70,25 @@ const displayData = computed(() => {
 
   return data
 })
+
+/**
+ * Stable identity key for each row so Vue never reuses a RequestTableRow instance for a different
+ * parameter or the appended placeholder row. Parameter rows are keyed by their parameter identity —
+ * the name plus the value path for expanded object parameters. The parts are combined through
+ * JSON.stringify so the name/path boundary is unambiguous (for example `ab` + `['c']` never
+ * collides with `a` + `['bc']`). Rows without a parameter (like the placeholder) fall back to their
+ * name, and finally the index, which is only reached for transient empty rows.
+ */
+const getRowKey = (row: TableRow, index: number): string => {
+  if (row.originalParameter) {
+    return JSON.stringify([
+      row.originalParameter.name,
+      ...(row.sourceParameterValuePath ?? []),
+    ])
+  }
+
+  return row.name || String(index)
+}
 </script>
 <template>
   <DataTable
@@ -83,14 +102,7 @@ const displayData = computed(() => {
 
     <RequestTableRow
       v-for="(row, index) in displayData"
-      :key="
-        row.originalParameter
-          ? row.originalParameter.name +
-            (row.sourceParameterValuePath
-              ? row.sourceParameterValuePath.join('.')
-              : '')
-          : row.name || index
-      "
+      :key="getRowKey(row, index)"
       :data="row"
       :environment="environment"
       :hasCheckboxDisabled="hasCheckboxDisabled"
