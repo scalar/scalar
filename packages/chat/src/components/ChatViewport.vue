@@ -310,6 +310,7 @@ watch(
  */
 let resizeObserver: ResizeObserver | undefined
 let mutationObserver: MutationObserver | undefined
+let mutationFrame: number | undefined
 
 onMounted(() => {
   const element = viewportRef.value
@@ -355,9 +356,14 @@ onMounted(() => {
   }
 
   if (typeof MutationObserver !== 'undefined') {
-    // Stick-to-bottom must follow the streamed reply as it grows — content
-    // growth inside a fixed-height scroller never fires the ResizeObserver.
-    mutationObserver = new MutationObserver(() => {
+    // The follow decision reads layout (scrollHeight/scrollTop) and may write
+    // scrollTop, so running it per mutation thrashes layout on every streamed
+    // token. Coalesce a burst of mutations into a single measure+scroll per
+    // frame — `lastDistanceFromBottom` from the previous frame is exactly the
+    // pre-event distance the decision needs.
+    const followContent = (): void => {
+      mutationFrame = undefined
+
       const wasNearBottom = lastDistanceFromBottom <= NEAR_BOTTOM_PX
 
       if (!props.streaming || reserved.value > 0 || anchorPending) {
@@ -369,6 +375,20 @@ onMounted(() => {
         scrollToEnd()
       } else {
         lastDistanceFromBottom = measureDistanceFromBottom(element)
+      }
+    }
+
+    // Stick-to-bottom must follow the streamed reply as it grows — content
+    // growth inside a fixed-height scroller never fires the ResizeObserver.
+    mutationObserver = new MutationObserver(() => {
+      if (mutationFrame !== undefined) {
+        return
+      }
+
+      if (typeof requestAnimationFrame === 'function') {
+        mutationFrame = requestAnimationFrame(followContent)
+      } else {
+        followContent()
       }
     })
     mutationObserver.observe(element, {
@@ -382,6 +402,13 @@ onMounted(() => {
 onBeforeUnmount(() => {
   resizeObserver?.disconnect()
   mutationObserver?.disconnect()
+
+  if (
+    mutationFrame !== undefined &&
+    typeof cancelAnimationFrame === 'function'
+  ) {
+    cancelAnimationFrame(mutationFrame)
+  }
 })
 
 defineExpose({ scrollToEnd, userScrolledAway })
