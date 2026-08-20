@@ -101,6 +101,10 @@ onKeyStroke('Escape', () => {
   /* Cap the width so the centered popup never overflows a narrow viewport
    * (mobile, modal). Long patterns wrap instead of widening it. */
   max-width: min(500px, calc(100vw - 32px));
+  /* Cap the height too, so a very long multi-line regex scrolls inside the
+   * popup instead of running off the bottom of the viewport. */
+  max-height: min(400px, calc(100vh - 32px));
+  overflow-y: auto;
   display: none;
   @apply z-context;
 }
