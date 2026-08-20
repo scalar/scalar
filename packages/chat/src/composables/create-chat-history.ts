@@ -106,6 +106,11 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
       }
       request.onsuccess = () => resolve(request.result)
       request.onerror = () => reject(request.error)
+      // A version upgrade (raising `version` to add the scope index) while
+      // another tab holds the database open fires `blocked`, and the request
+      // then neither succeeds nor errors — reject so `withStore` fails fast
+      // instead of hanging every read and write forever.
+      request.onblocked = () => reject(new Error('IndexedDB upgrade blocked by another open connection'))
     })
 
   const withStore = async <T>(
@@ -216,6 +221,7 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
     }
 
     const epochAtWrite = clearEpoch
+    const generationAtWrite = listGeneration
 
     try {
       await withStore('readwrite', (store) => store.put(chat))
@@ -223,6 +229,16 @@ export const createChatHistory = (options: ChatHistoryOptions): ChatHistory => {
       if (epochAtWrite !== clearEpoch || deletedIds.has(chat.id)) {
         // The chat was deleted while the write was in flight: undo it.
         await withStore('readwrite', (store) => store.delete(chat.id))
+        return
+      }
+
+      if (generationAtWrite !== listGeneration) {
+        // A delete or a scope-switch refresh reshaped the list while the write
+        // was in flight. The store now holds the record correctly, but the
+        // in-memory list belongs to a newer generation (a different scope, or
+        // one a delete already filtered) — splicing this record in from the
+        // stale generation could leak it across scopes. Leave the list to the
+        // authoritative refresh; the store is already correct.
         return
       }
 
