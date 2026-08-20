@@ -227,8 +227,8 @@ println(String(response.body))`)
     expect(result).toBe(`using HTTP
 
 response = HTTP.post(
-    "https://example.com",
-    "{ not json }"
+    "https://example.com";
+    body = "{ not json }"
 )
 
 println(String(response.body))`)
@@ -279,8 +279,8 @@ println(String(response.body))`)
     expect(result).toBe(`using HTTP
 
 response = HTTP.post(
-    "https://example.com",
-    HTTP.Form([
+    "https://example.com";
+    body = HTTP.Form([
         "file" => HTTP.Multipart("test.txt", open("test.txt"), "text/plain"),
         "field" => "value"
     ])

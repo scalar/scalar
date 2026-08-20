@@ -178,9 +178,13 @@ export const juliaHttp: Plugin = {
     }
 
     if (body) {
-      // `HTTP.get` and friends do not take a body argument, and passing a body
-      // without headers to `HTTP.request` would be read as the headers argument
-      if (VERBS_WITHOUT_BODY.includes(method) || (!verb && headers.size === 0)) {
+      // The first positional argument after the URL is always the headers, both
+      // for the verb helpers (`HTTP.post(url, headers, body)`) and for
+      // `HTTP.request(method, url, headers, body)`. A body passed positionally
+      // without headers in front of it would therefore be read as the headers
+      // argument, so it has to go through the `body =` keyword instead.
+      // `HTTP.get`, `HTTP.head` and `HTTP.options` never take a positional body.
+      if (VERBS_WITHOUT_BODY.includes(method) || headers.size === 0) {
         keywords.push(`body = ${body.value}`)
       } else {
         optional.push(body.value)
