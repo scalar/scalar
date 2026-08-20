@@ -65,9 +65,11 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
       pos = end
       spin = 0
     } else if (++spin > 32) {
-      // Give up on the cycle and consume a character so we always terminate.
-      emit(top.default, pos, pos + 1)
-      pos++
+      // Give up on the cycle and consume a whole code point so we always
+      // terminate — stepping by one UTF-16 unit could bisect a surrogate pair.
+      const step = code.codePointAt(pos)! > 0xffff ? 2 : 1
+      emit(top.default, pos, pos + step)
+      pos += step
       spin = 0
     }
   }
