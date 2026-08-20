@@ -12,6 +12,18 @@ name: Release
 #   2. create-github-release (only when something was published)
 #   3. push-to-scalar-registry (galaxy registry)
 #
+# Authentication is npm trusted publishing (OIDC), not a long-lived token. Each
+# public package carries a trusted publisher on npmjs.com pointing at this
+# repository and — because npm validates the *calling* workflow when a publish
+# runs inside a `workflow_call` — at `main.yml`, with the `production-npm`
+# environment. Configure a package (or a new one, after its first publish) with:
+#
+#   npm trust github <package> --repo scalar/scalar --file main.yml \
+#     --env production-npm --allow-publish
+#
+# A package without that configuration fails its PUT with a 404, which is how
+# the registry reports "not allowed to write here".
+#
 # Integration publishes (publish-integrations.yml) and the ToDesktop build
 # (todesktop.yml) are invoked from main.yml as siblings of the deploys instead
 # of from here: the deploys need this workflow's outputs, which only become
@@ -167,9 +179,24 @@ jobs:
         run: git status
       - name: Stash changes
         run: git stash
+      # `pnpm publish` has no OIDC support of its own: it packs a tarball and
+      # shells out to `npm publish`, and it is npm that trades the id-token for
+      # a publish token. That exchange landed in npm 11.5.1, which is newer than
+      # the npm bundled with some Node 24.x releases, so pin the floor here
+      # rather than inherit whatever .nvmrc resolves to this week.
+      - name: Ensure npm supports trusted publishing
+        run: |
+          MINIMUM=11.5.1
+          CURRENT=$(npm --version)
+          if [ "$(printf '%s\n' "$MINIMUM" "$CURRENT" | sort -V | head -n1)" != "$MINIMUM" ]; then
+            echo "npm $CURRENT is older than $MINIMUM, upgrading"
+            npm install --global npm@latest
+          fi
+          echo "npm $(npm --version)"
+
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         with:
           # The pull request title.
           title: 'chore: release'
@@ -191,11 +218,11 @@ jobs:
           # The app token (not GITHUB_TOKEN) is what makes the release PR
           # trigger CI — see the "Generate GitHub App token" step above.
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new
-          # Custom Expiration: 01-01-2100
-          # Permissions: Read and Write
-          # Select packages: @scalar
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # No NPM_TOKEN on purpose. Without one, changesets/action leaves
+          # ~/.npmrc alone and npm exchanges this job's OIDC id-token for a
+          # short-lived, package-scoped publish token — see the trusted
+          # publishing note at the top of this file. Setting NPM_TOKEN again
+          # would put a static credential back in front of that exchange.
           # Used by `pnpm release:version` to summarise the just-bumped
           # CHANGELOG.md section into a friendly release-notes entry.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
