@@ -1692,4 +1692,47 @@ describe('RequestBody', () => {
     // The trigger label should show the actual content type, not "None".
     expect(wrapper.find('[data-testid="trigger"]').text()).toContain('text/csv')
   })
+
+  it('opens the form view when defaultView is form for a JSON object body', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          },
+          example: { name: 'test' },
+        },
+      },
+    }
+
+    const stubs = {
+      RequestBodyStructured: {
+        template: '<div data-testid="structured-form"></div>',
+      },
+      CodeInput: {
+        template: '<div data-testid="code-input"></div>',
+        props: ['modelValue', 'language', 'environment'],
+        emits: ['update:modelValue'],
+      },
+    }
+
+    // With defaultView 'form' the schema-driven form view is shown up front.
+    const formWrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody, defaultView: 'form' },
+      global: { stubs },
+    })
+    await nextTick()
+    expect(formWrapper.find('[data-testid="structured-form"]').exists()).toBe(true)
+    expect(formWrapper.find('[data-testid="code-input"]').exists()).toBe(false)
+
+    // Without the prop it keeps the existing raw editor default.
+    const rawWrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody },
+      global: { stubs },
+    })
+    await nextTick()
+    expect(rawWrapper.find('[data-testid="code-input"]').exists()).toBe(true)
+    expect(rawWrapper.find('[data-testid="structured-form"]').exists()).toBe(false)
+  })
 })
