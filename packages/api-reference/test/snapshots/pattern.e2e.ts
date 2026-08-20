@@ -45,16 +45,19 @@ const patternContent = {
 }
 
 test.describe('pattern hover dropdown', () => {
-  test('shows Pattern button inline for a string property with pattern', async ({ page }) => {
+  // A fixed, wide viewport keeps the absolute-positioned popup snapshots stable.
+  test.use({ viewport: { width: 900, height: 700 } })
+
+  test.beforeEach(async ({ page }) => {
     const example = await serveExample({ content: patternContent })
-    await page.goto(example)
-    await page.setViewportSize({ width: 900, height: 700 })
 
-    // Navigate to the operation
+    // Deep-link straight to the operation so its request body is rendered.
     await page.goto(`${example}#tag/users/post-users`)
+    await expect(page.getByRole('group', { name: 'Request Body' })).toBeVisible()
+  })
 
+  test('shows Pattern button inline for a string property with pattern', async ({ page }) => {
     const requestBody = page.getByRole('group', { name: 'Request Body' })
-    await expect(requestBody).toBeVisible()
 
     // The Pattern label button should be visible for the username field
     const usernameRow = requestBody.locator('.property').filter({ hasText: 'username' }).first()
@@ -64,14 +67,7 @@ test.describe('pattern hover dropdown', () => {
   })
 
   test('shows full pattern in popup on hover', async ({ page }) => {
-    const example = await serveExample({ content: patternContent })
-    await page.goto(example)
-    await page.setViewportSize({ width: 900, height: 700 })
-
-    await page.goto(`${example}#tag/users/post-users`)
-
     const requestBody = page.getByRole('group', { name: 'Request Body' })
-    await expect(requestBody).toBeVisible()
 
     const usernameRow = requestBody.locator('.property').filter({ hasText: 'username' }).first()
     const patternTrigger = usernameRow.locator('.property-pattern')
@@ -87,14 +83,7 @@ test.describe('pattern hover dropdown', () => {
   })
 
   test('shows full long regex pattern in popup without truncation', async ({ page }) => {
-    const example = await serveExample({ content: patternContent })
-    await page.goto(example)
-    await page.setViewportSize({ width: 900, height: 700 })
-
-    await page.goto(`${example}#tag/users/post-users`)
-
     const requestBody = page.getByRole('group', { name: 'Request Body' })
-    await expect(requestBody).toBeVisible()
 
     const passwordRow = requestBody.locator('.property').filter({ hasText: 'password' }).first()
     const patternTrigger = passwordRow.locator('.property-pattern')
@@ -111,14 +100,7 @@ test.describe('pattern hover dropdown', () => {
   })
 
   test('request body with pattern fields snapshot', async ({ page }) => {
-    const example = await serveExample({ content: patternContent })
-    await page.goto(example)
-    await page.setViewportSize({ width: 900, height: 700 })
-
-    await page.goto(`${example}#tag/users/post-users`)
-
     const requestBody = page.getByRole('group', { name: 'Request Body' })
-    await expect(requestBody).toBeVisible()
 
     await expect(requestBody).toHaveScreenshot('pattern-request-body.png')
   })
