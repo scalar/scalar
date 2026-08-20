@@ -112,6 +112,17 @@ const FOOTNOTE_DEFINITION_RE = /^ {0,3}\[\^[^\]]+\]:/m
 const LINK_DEFINITION_LINE_RE = /^ {0,3}\[(?!\^)[^\]]+\]:/
 
 /**
+ * A definition line whose destination sits on the SAME line. CommonMark
+ * also permits `[label]:` with the destination on the following line — that
+ * first line alone is not a valid definition, and appending it to every
+ * block would render as literal text everywhere. Such a source bails to a
+ * whole-document parse instead (see the collection site). A definition
+ * whose title continues on the next line still collects: the appendix copy
+ * loses only the title, and the link itself resolves in every block.
+ */
+const LINK_DEFINITION_WITH_DESTINATION_RE = /^ {0,3}\[(?!\^)[^\]]+\]:\s*\S/
+
+/**
  * Matches any line that OPENS like a definition. The glue decision must be
  * stable from a streaming line's very first character — a decision that
  * flips when `]:`, or the line after it, arrives would retroactively
@@ -240,6 +251,16 @@ export const splitMarkdownBlocks = (source: string, options: SplitMarkdownOption
     }
 
     if (isDefinition && isTerminated) {
+      // A terminated definition line with no destination continues onto the
+      // next line — the fragment is not a valid definition on its own, so
+      // appending it would render literal text in every block. Bail to a
+      // whole-document parse, exactly like footnotes. Stable while
+      // streaming: an unterminated line never reaches this branch, and once
+      // the line is final the decision can never flip back.
+      if (!LINK_DEFINITION_WITH_DESTINATION_RE.test(line)) {
+        return source.length > 0 ? [source] : []
+      }
+
       definitions.push(line)
     }
 

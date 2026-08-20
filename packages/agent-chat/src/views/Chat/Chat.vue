@@ -135,7 +135,7 @@ div + .userMessage {
   max-width: 744px;
   z-index: 1;
 }
-.chat :deep(.assistantText) {
+.chat .assistantText {
   margin-bottom: 12px;
 }
 </style>

@@ -144,6 +144,18 @@ describe('chat-composer', () => {
     expect(wrapper.emitted('submit')).toBeUndefined()
   })
 
+  it('renders the send control disabled while the draft is empty', async () => {
+    const wrapper = mount(ChatComposer, {
+      props: { modelValue: '', streaming: false },
+    })
+
+    expect(wrapper.get('.chat-send').attributes('disabled')).toBeDefined()
+
+    await wrapper.setProps({ modelValue: 'ready' })
+
+    expect(wrapper.get('.chat-send').attributes('disabled')).toBeUndefined()
+  })
+
   it('emits the model update as the user types', async () => {
     const wrapper = mount(ChatComposer, {
       props: { modelValue: '', streaming: false },

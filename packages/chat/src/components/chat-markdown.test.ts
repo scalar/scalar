@@ -216,6 +216,38 @@ describe('chat-markdown', () => {
 
       expect(splitMarkdownBlocks(source)).toEqual([source])
     })
+
+    it('never splits when a definition continues its destination on the next line', () => {
+      // `[foo]:` alone is not a valid definition — appending it to every
+      // block would render as literal text. CommonMark resolves the
+      // destination from the following line, so only a whole-document
+      // parse renders this correctly.
+      const source = 'See [foo] here.\n\n[foo]:\n/url\n\nTrailing paragraph.'
+
+      expect(splitMarkdownBlocks(source)).toEqual([source])
+    })
+
+    it('still collects a definition whose title continues on the next line', () => {
+      // The destination is on the definition line, so the appendix copy
+      // resolves the link everywhere; only the title stays local to the
+      // defining block, where first-definition-wins keeps it effective.
+      const source = '[foo]: /url\n"The title"\n\nSee [foo].'
+
+      expect(splitMarkdownBlocks(source)).toEqual([
+        '[foo]: /url\n"The title"\n\n[foo]: /url',
+        'See [foo].\n\n[foo]: /url',
+      ])
+    })
+
+    it('does not bail on a destination-less definition line that is still streaming', () => {
+      // The last line is still growing — its destination may be about to
+      // arrive on the same line, so the bail decision must wait for the
+      // line to terminate. The bracket line glues to the block before it,
+      // per the stability ruling.
+      const source = 'Paragraph.\n\n[foo]:'
+
+      expect(splitMarkdownBlocks(source, { complete: false })).toEqual(['Paragraph.\n\n[foo]:'])
+    })
   })
 
   describe('hashMarkdownBlock', () => {

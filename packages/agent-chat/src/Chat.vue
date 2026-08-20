@@ -71,7 +71,13 @@ const CHAT_COPY: ChatCopyOverride = {
 }
 
 async function handleSubmit() {
-  await chat.sendMessage({ text: prompt.value })
+  // Clear the composer as soon as the send is issued (not before, so a
+  // synchronous failure keeps the draft) — the streaming watcher's equality
+  // guard still covers the prefill path and drafts typed before the stream
+  // begins.
+  const sending = chat.sendMessage({ text: prompt.value })
+  prompt.value = ''
+  await sending
 }
 </script>
 

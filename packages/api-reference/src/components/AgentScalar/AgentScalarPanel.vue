@@ -95,6 +95,9 @@ const panelResize = useResizablePane({
   },
 })
 
+const showMcpList = ref(false)
+const mcpListAreaRef = useTemplateRef<HTMLDivElement>('mcpListArea')
+
 watch(
   () => agentContext.value?.showAgent.value,
   (open) => {
@@ -105,10 +108,12 @@ watch(
       showMcpList.value = false
     }
   },
+  // Immediate, because `showAgent` outlives the panel: on a multi-document
+  // reference the panel can unmount (a document that disables the agent)
+  // and re-mount while the agent is still open — without the immediate run
+  // the latch would stay false and the open panel would render empty.
+  { immediate: true },
 )
-
-const showMcpList = ref(false)
-const mcpListAreaRef = useTemplateRef<HTMLDivElement>('mcpListArea')
 
 const handleClickOutside = (e: MouseEvent): void => {
   if (

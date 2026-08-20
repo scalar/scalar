@@ -176,7 +176,11 @@ defineExpose({
           ref="send"
           class="chat-composer-send"
           :streaming="streaming"
-          :disabled="sendDisabled || overLimit"
+          :disabled="
+            sendDisabled ||
+            overLimit ||
+            (!modelValue.trim() && !allowEmptySubmit)
+          "
           @send="submit"
           @stop="emit('stop')" />
       </div>
