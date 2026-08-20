@@ -183,6 +183,89 @@ describe('RequestBody', () => {
     expect(wrapper.emitted('update:value')).toBeUndefined()
   })
 
+  it('resets to the resolved branch when oneOf members are $refs', async () => {
+    // Composition members commonly arrive as resolved `$ref` nodes from the workspace store, so
+    // guard that a branch change still emits the referenced branch's example and not an empty body.
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            oneOf: [
+              {
+                $ref: '#/components/schemas/Star',
+                '$ref-value': {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    mass: { type: 'number' },
+                  },
+                },
+              },
+              {
+                $ref: '#/components/schemas/Planet',
+                '$ref-value': {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    mass: { type: 'number' },
+                    hasRings: { type: 'boolean' },
+                  },
+                },
+              },
+            ],
+          },
+          example: JSON.stringify({
+            name: 'Edited Star',
+            mass: 1,
+          }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toStrictEqual([
+      [
+        {
+          contentType: 'application/json',
+          payload: JSON.stringify(
+            {
+              name: '',
+              mass: 1,
+              hasRings: true,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
+    ])
+  })
+
   it('renders different content types and handles content type selection', async () => {
     const requestBody: RequestBodyObject = {
       content: {
