@@ -7,6 +7,15 @@
 
 Scalar's code highlighter.
 
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="https://github.com/user-attachments/assets/380abb34-8814-4b34-8926-19ab84a91d79">
+  <img
+    alt="Python, TypeScript, Rust and HTTP highlighted by @scalar/highlight"
+    src="https://github.com/user-attachments/assets/8ac62023-f56c-4dcd-a7e3-d0272a43c610">
+</picture>
+
 - **Small.** 2.3 KB core, ~1.7 KB for Python, gzipped. Nothing you do not import.
 - **No theme system.** Colors come from the `--scalar-*` variables `@scalar/themes` already defines, so a code block follows the app's theme and switches with `.light-mode` / `.dark-mode` — without being re-highlighted.
 - **Zero runtime dependencies.**
