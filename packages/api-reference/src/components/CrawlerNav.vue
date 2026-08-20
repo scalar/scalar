@@ -13,6 +13,11 @@
  *
  * The parent unmounts this component right after hydration (see ApiReference.vue), so it
  * never affects the interactive experience.
+ *
+ * Scope: this mirrors the sidebar, which shows one document at a time, so `items` is the
+ * active document's tree. In multi-document mode the other documents' deep links are not
+ * exposed here — a crawler still has to reach each document's own URL first. Widening this
+ * to every document would need each document's own `basePath`, so it is left for later.
  */
 import { filterItems, type SidebarOptions } from '@scalar/sidebar'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
