@@ -1,6 +1,6 @@
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import type { ComputedRef, Ref } from 'vue'
-import { type InjectionKey, computed, inject, ref } from 'vue'
+import { type InjectionKey, computed, inject, nextTick, ref } from 'vue'
 
 type UseAgentOptions = {
   /** Optional. When provided, controls whether the agent UI is enabled (e.g. from doc config). Defaults to isLocalUrl. */
@@ -40,7 +40,19 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
 
   const agentEnabled = options.agentEnabled ?? computed(() => isLocalUrl(window.location.href))
 
+  /**
+   * What had focus when the panel opened. Closing (via Escape, the close
+   * button or a toggle) returns focus here so keyboard users are not dropped at
+   * the top of the document.
+   */
+  let previouslyFocused: HTMLElement | null = null
+
   const openAgent = (message?: string) => {
+    // Only capture on a real open, so re-opening an already-open panel does not
+    // overwrite the trigger with something inside the panel.
+    if (!showAgent.value && typeof document !== 'undefined') {
+      previouslyFocused = document.activeElement as HTMLElement | null
+    }
     prefilledMessage.value = message ?? ''
     showAgent.value = true
   }
@@ -48,12 +60,25 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
   const closeAgent = () => {
     showAgent.value = false
     prefilledMessage.value = ''
+
+    // Restore after the DOM settles: the main content is `inert` while the
+    // panel is open, so the trigger cannot take focus until that clears.
+    const target = previouslyFocused
+    previouslyFocused = null
+    if (target) {
+      void nextTick(() => {
+        if (target.isConnected) {
+          target.focus()
+        }
+      })
+    }
   }
 
   const toggleAgent = () => {
-    showAgent.value = !showAgent.value
-    if (!showAgent.value) {
-      prefilledMessage.value = ''
+    if (showAgent.value) {
+      closeAgent()
+    } else {
+      openAgent()
     }
   }
 

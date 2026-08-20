@@ -79,7 +79,7 @@ public enum ScalarClient
     Guzzle,
 
     /// <summary>
-    /// Http client.
+    /// HTTP.jl client.
     /// </summary>
     [Description("http")]
     Http,
