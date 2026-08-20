@@ -24,6 +24,20 @@ describe('chat-diff', () => {
     expect(wrapper.get('.chat-diff-hunk').text()).toBe('Lines 12–15')
   })
 
+  it('labels a range spanning added rows even without trailing context', () => {
+    const wrapper = mount(ChatDiff, {
+      props: {
+        added: [
+          { line: 13, text: 'a' },
+          { line: 14, text: 'b' },
+          { line: 15, text: 'c' },
+        ],
+      },
+    })
+
+    expect(wrapper.get('.chat-diff-hunk').text()).toBe('Lines 13–15')
+  })
+
   it('falls back to the line number hint when rows carry no line numbers', () => {
     const wrapper = mount(ChatDiff, {
       props: {

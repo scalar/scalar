@@ -32,15 +32,26 @@ const {
 const copy = useChatCopy()
 
 const hunkLabel = computed<string | null>(() => {
+  // Span every numbered row, not just the trailing context: a change with no
+  // trailing context (lines added at the end of a file) would otherwise be
+  // mislabeled as a single line. Removed rows carry no new-file line number.
+  const lineNumbers = [...contextBefore, ...added, ...contextAfter]
+    .map((row) => row.line)
+    .filter((line): line is number => line !== null && line !== undefined)
+
   const start =
-    contextBefore[0]?.line ?? added[0]?.line ?? lineNumberHint ?? null
-  if (start === null || start === undefined) {
+    lineNumbers.length > 0 ? Math.min(...lineNumbers) : (lineNumberHint ?? null)
+
+  if (start === null) {
     return null
   }
-  const trailing = contextAfter[contextAfter.length - 1]?.line
-  if (trailing && trailing !== start) {
-    return formatChatCopy(copy.diff.lines, { start, end: trailing })
+
+  const end = lineNumbers.length > 0 ? Math.max(...lineNumbers) : start
+
+  if (end !== start) {
+    return formatChatCopy(copy.diff.lines, { start, end })
   }
+
   return formatChatCopy(copy.diff.line, { line: start })
 })
 
