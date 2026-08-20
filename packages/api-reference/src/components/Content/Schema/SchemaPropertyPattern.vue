@@ -19,9 +19,11 @@ const { translate } = useLocalization()
       <button
         class="property-pattern-value group"
         type="button"
+        :aria-label="translate('common.copyPattern')"
         @click="copyToClipboard(pattern)">
         <code>{{ pattern }}</code>
         <ScalarIcon
+          aria-hidden="true"
           class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3"
           icon="Clipboard"
           size="xs" />
