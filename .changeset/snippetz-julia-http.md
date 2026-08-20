@@ -2,6 +2,7 @@
 '@scalar/snippetz': patch
 '@scalar/types': patch
 '@scalar/code-highlight': patch
+'@scalar/highlight': patch
 '@scalar/components': patch
 '@scalar/workspace-store': patch
 ---
