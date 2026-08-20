@@ -499,6 +499,7 @@ export type ApiReferenceTranslations = {
     closeChat: string
     expand: string
     collapse: string
+    resize: string
   }
   mcp: {
     generate: string

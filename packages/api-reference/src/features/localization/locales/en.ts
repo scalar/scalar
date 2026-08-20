@@ -142,6 +142,7 @@ export const en = {
     closeChat: 'Close',
     expand: 'Expand chat',
     collapse: 'Collapse chat',
+    resize: 'Resize chat',
   },
   mcp: {
     generate: 'Generate MCP',

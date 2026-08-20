@@ -142,6 +142,7 @@ export const ar = {
     closeChat: 'إغلاق',
     expand: 'توسيع المحادثة',
     collapse: 'طي المحادثة',
+    resize: 'تغيير حجم المحادثة',
   },
   mcp: {
     generate: 'إنشاء MCP',

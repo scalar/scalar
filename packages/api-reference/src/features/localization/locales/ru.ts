@@ -143,6 +143,7 @@ export const ru = {
     closeChat: 'Закрыть',
     expand: 'Развернуть чат',
     collapse: 'Свернуть чат',
+    resize: 'Изменить размер чата',
   },
   mcp: {
     generate: 'Создать MCP',

@@ -142,6 +142,7 @@ export const zhCn = {
     closeChat: '关闭',
     expand: '展开聊天',
     collapse: '收起聊天',
+    resize: '调整聊天大小',
   },
   mcp: {
     generate: '生成 MCP',

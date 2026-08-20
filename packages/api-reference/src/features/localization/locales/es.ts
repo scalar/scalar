@@ -142,6 +142,7 @@ export const es = {
     closeChat: 'Cerrar',
     expand: 'Expandir chat',
     collapse: 'Contraer chat',
+    resize: 'Cambiar el tamaño del chat',
   },
   mcp: {
     generate: 'Generar MCP',

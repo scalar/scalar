@@ -143,6 +143,7 @@ export const pt = {
     closeChat: 'Fechar',
     expand: 'Expandir chat',
     collapse: 'Recolher chat',
+    resize: 'Redimensionar chat',
   },
   mcp: {
     generate: 'Gerar MCP',

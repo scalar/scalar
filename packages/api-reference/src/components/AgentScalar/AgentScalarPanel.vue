@@ -24,6 +24,7 @@ import {
 
 import { useLocalization } from '@/features/localization'
 import { useAgentContext } from '@/hooks/use-agent'
+import { useResizablePane } from '@/hooks/use-resizable-pane'
 
 import CursorLogo from './logos/CursorLogo.vue'
 import McpLogo from './logos/McpLogo.vue'
@@ -69,6 +70,31 @@ const isExpanded = ref(false)
 /** The expanded panel fills the viewport up to the reference sidebar. */
 const expandedWidth = 'calc(100vw - var(--refs-sidebar-width, 0px))'
 
+const panelRef = useTemplateRef<HTMLDivElement>('panel')
+
+/** Drag-resizable width, following the docs editor's pane wiring. */
+const panelResize = useResizablePane({
+  anchor: 'end',
+  min: 360,
+  max: () =>
+    typeof window === 'undefined' ? 480 : Math.round(window.innerWidth * 0.75),
+  defaultSize: 480,
+  storageKey: 'api-reference.agent-panel.width',
+  measureEdge: () => panelRef.value?.getBoundingClientRect().right,
+  apply: (width) => {
+    // Live writes go straight to the custom property so the drag does not
+    // re-render the panel per move; the root's reactive binding re-asserts
+    // the committed width whenever the panel state changes, so only the
+    // regular (non-expanded) panel takes imperative writes.
+    if (!isExpanded.value) {
+      panelRef.value?.style.setProperty(
+        '--agent-scalar-panel-width',
+        `${width}px`,
+      )
+    }
+  },
+})
+
 watch(
   () => agentContext.value?.showAgent.value,
   (open) => {
@@ -108,12 +134,38 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
 <template>
   <div
+    ref="panel"
     :aria-label="translate('agent.askAi')"
     class="agent-scalar-panel"
-    :class="{ 'agent-scalar-panel--open': agentContext?.showAgent.value }"
+    :class="{
+      'agent-scalar-panel--open': agentContext?.showAgent.value,
+      'agent-scalar-panel--resizing': panelResize.isResizing.value,
+    }"
     role="complementary"
-    :style="isExpanded ? { '--agent-scalar-panel-width': expandedWidth } : {}"
+    :style="{
+      '--agent-scalar-panel-width': isExpanded
+        ? expandedWidth
+        : `${panelResize.size.value}px`,
+    }"
     @keydown.escape="agentContext?.closeAgent()">
+    <div
+      v-if="!isExpanded"
+      :aria-label="translate('agent.resize')"
+      aria-orientation="vertical"
+      :aria-valuemax="panelResize.maxSize.value"
+      :aria-valuemin="panelResize.minSize"
+      :aria-valuenow="Math.round(panelResize.size.value)"
+      class="agent-scalar-panel-resize-handle"
+      role="separator"
+      tabindex="0"
+      @dblclick="panelResize.reset"
+      @keydown="panelResize.onKeydown"
+      @pointercancel="panelResize.cancel"
+      @pointerdown="panelResize.start"
+      @pointermove="panelResize.track"
+      @pointerup="panelResize.end">
+      <div class="agent-scalar-panel-resize-line" />
+    </div>
     <div class="agent-scalar-panel-header">
       <div class="agent-scalar-panel-header-left">
         <ScalarTooltip
@@ -253,6 +305,44 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   transform: translateX(0);
   transition: width 0.3s ease;
   visibility: visible;
+}
+
+/* A drag writes the width per frame; easing it would lag the pointer. */
+.agent-scalar-panel--resizing {
+  transition: none;
+}
+
+.agent-scalar-panel-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  width: 8px;
+  cursor: ew-resize;
+  z-index: 1;
+}
+
+.agent-scalar-panel-resize-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--scalar-color-3);
+  opacity: 0;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 20px,
+    black calc(100% - 20px),
+    transparent
+  );
+}
+
+.agent-scalar-panel-resize-handle:hover .agent-scalar-panel-resize-line,
+.agent-scalar-panel-resize-handle:focus-visible .agent-scalar-panel-resize-line,
+.agent-scalar-panel--resizing .agent-scalar-panel-resize-line {
+  opacity: 0.6;
 }
 
 .agent-scalar-panel-header {
@@ -414,7 +504,8 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     z-index: 15;
   }
 
-  .agent-scalar-panel-expand-btn {
+  .agent-scalar-panel-expand-btn,
+  .agent-scalar-panel-resize-handle {
     display: none;
   }
 }
