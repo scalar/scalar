@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, type Ref } from 'vue'
+import { onMounted, onUnmounted, provide, type Ref } from 'vue'
 
 import Chat from '@/Chat.vue'
 import { createState, STATE_SYMBOL, type RegistryDocument } from '@/state/state'
@@ -33,9 +33,31 @@ const {
   hideAddApi?: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'uploadApi'): void
+  /**
+   * The user pressed Escape. Emitted rather than handled here so each host
+   * decides what to dismiss: an embedding drawer closes, while the standalone
+   * page has no listener and does nothing.
+   */
+  (e: 'close'): void
 }>()
+
+/**
+ * Escape asks the host to dismiss the chat. A nested overlay that already
+ * handled Escape (calling preventDefault) wins, and an Escape that only cancels
+ * an IME composition must never bubble up as a dismiss.
+ */
+const onDocumentKeydown = (event: KeyboardEvent): void => {
+  if (event.key !== 'Escape' || event.defaultPrevented || event.isComposing) {
+    return
+  }
+
+  emit('close')
+}
+
+onMounted(() => document.addEventListener('keydown', onDocumentKeydown))
+onUnmounted(() => document.removeEventListener('keydown', onDocumentKeydown))
 
 const state = createState({
   getActiveDocumentJson,

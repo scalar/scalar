@@ -154,6 +154,19 @@ const handleInstallClick = (e: MouseEvent): void => {
   showMcpList.value = false
 }
 
+/**
+ * Escape (from anywhere) dismisses the panel — even when expanded — but only
+ * while it is actually open, so a stray Escape with the panel hidden never
+ * closes it or yanks focus back to the trigger.
+ */
+const handleAgentClose = (): void => {
+  if (!agentContext.value?.showAgent.value) {
+    return
+  }
+
+  agentContext.value.closeAgent()
+}
+
 onMounted(() => document.addEventListener('click', handleClickOutside))
 onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 </script>
@@ -172,8 +185,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
       '--agent-scalar-panel-width': isExpanded
         ? expandedWidth
         : `${panelResize.size.value}px`,
-    }"
-    @keydown.escape="agentContext?.closeAgent()">
+    }">
     <div
       v-if="!isExpanded"
       :aria-label="translate('agent.resize')"
@@ -303,7 +315,8 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         :agentScalarConfiguration
         :externalUrls
         :prefilledMessage="agentContext?.prefilledMessage"
-        :workspaceStore />
+        :workspaceStore
+        @close="handleAgentClose" />
     </div>
   </div>
 </template>
