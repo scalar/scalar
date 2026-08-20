@@ -50,6 +50,10 @@ const css: Grammar = {
         { match: `\\$${IDENT}`, scope: 'variable' },
         { match: `[.#&]${IDENT}`, scope: 'selector' },
         { match: '::?[A-Za-z-]+', scope: 'selector' },
+        // A bareword with no `:` after it is incomplete, but consuming it keeps
+        // the property rule above from being retried — and failing for want of a
+        // colon — at every position of a long identifier run, which is O(n) each.
+        { match: IDENT },
         { include: 'strings' },
       ],
     },
