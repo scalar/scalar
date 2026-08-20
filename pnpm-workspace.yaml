@@ -14,6 +14,7 @@ packages:
 catalogs:
   '*':
     '@ai-sdk/vue': 3.0.33
+    '@astrojs/starlight': 0.37.7
     '@fastify/basic-auth': ^5.1.1
     '@fastify/http-proxy': ^9.5.0
     '@fastify/swagger': ^8.10.1
