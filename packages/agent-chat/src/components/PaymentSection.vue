@@ -8,12 +8,14 @@ const { navigateToSignup } = useSignupLink()
 
 <template>
   <div class="paymentSection">
-    <strong class="approvalText flex items-center gap-1.5">
+    <strong class="approvalText">
       <ScalarIconInfo
-        class="text-blue size-4"
+        class="approvalIcon text-blue size-4"
         weight="bold" />
-      You've used up your complimentary Scalar Credits. Sign up to get free
-      Credits.
+      <span class="approvalCopy">
+        You've used up your complimentary Scalar Credits. Sign up to get free
+        Credits.
+      </span>
     </strong>
     <div class="paymentContainer">
       <button
@@ -65,19 +67,38 @@ const { navigateToSignup } = useSignupLink()
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   position: absolute;
   top: 0;
   transform: translate3d(0, calc(-100% + 16px), 0);
 }
 
 .approvalText {
+  /* Let the copy flow and wrap as a sentence while the action keeps its line. */
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-font-size-3);
+  line-height: 1.4;
+}
+
+.approvalIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.approvalCopy {
+  min-width: 0;
 }
 
 .paymentContainer {
   display: flex;
   gap: 5px;
+  /* The Sign up button never shrinks into the copy or wraps its label. */
+  flex-shrink: 0;
 }
 
 .actionButton {
@@ -86,6 +107,7 @@ const { navigateToSignup } = useSignupLink()
   font-weight: var(--scalar-semibold);
   border-radius: var(--scalar-radius-full);
   padding: 6px 12px;
+  white-space: nowrap;
 }
 
 .rejectButton {
