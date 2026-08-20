@@ -8,7 +8,7 @@ describe('generateClientOptions', () => {
     it('returns all available clients grouped by target', () => {
       const result = generateClientOptions(AVAILABLE_CLIENTS)
 
-      expect(result).toHaveLength(21)
+      expect(result).toHaveLength(22)
       expect(result.map((group) => group.label)).toEqual([
         'C',
         'C#',
@@ -19,6 +19,7 @@ describe('generateClientOptions', () => {
         'HTTP',
         'Java',
         'JavaScript',
+        'Julia',
         'Kotlin',
         'Node.js',
         'Objective-C',
@@ -54,11 +55,11 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('returns 41 total client options', () => {
+    it('returns 42 total client options', () => {
       const result = generateClientOptions(AVAILABLE_CLIENTS)
       const allOptions = result.flatMap((group) => group.options)
 
-      expect(allOptions).toHaveLength(41)
+      expect(allOptions).toHaveLength(42)
     })
   })
 
