@@ -1,5 +1,42 @@
 # @scalar/json-magic
 
+## 0.13.1
+
+### Patch Changes
+
+- [#9900](https://github.com/scalar/scalar/pull/9900): Emit array deletions highest-index-first in diff so removing more than one element applies correctly. Before, `diff({ items: [1, 2, 3, 4] }, { items: [1] })` emitted the deletes in ascending index order, and because `apply` removes array elements with `splice`, every delete after the first hit a stale index and left elements behind (`{ items: [1, 3] }`). Deletes on arrays are now ordered from the end of the array, so `apply(a, diff(a, b))` round-trips for arrays that lose any number of elements.
+- [#9906](https://github.com/scalar/scalar/pull/9906): Treat an array and a plain object on the same path as a merge conflict. `isKeyCollisions` compared the two containers key by key, so an array and an object holding the same values under the same indices looked mergeable:
+
+  ```ts
+  isKeyCollisions([1, 2], { 0: 1, 1: 2 }) // → false, so the two were merged
+  mergeObjects([1, 2], { 0: 1, 1: 2 }) // → [1, 2], the object silently absorbed
+  ```
+
+  In practice that meant one side turning `servers: ['https://example.com']` into `servers: { 0: 'https://example.com' }` merged cleanly and lost the container the user picked. Both sides now surface as a conflict to resolve, matching the guard `diff` already applies when a container changes type.
+
+- [#9904](https://github.com/scalar/scalar/pull/9904): Stop the diff utilities from writing through the prototype chain. Documents reach them from remote fetches and user files, and `JSON.parse` turns `__proto__` into a real own property, so `apply({}, diff({}, JSON.parse('{"__proto__": {"polluted": "yes"}}')))` used to write onto `Object.prototype` and poison every object in the runtime. `diff`, `isKeyCollisions` and `mergeObjects` now skip the `__proto__`, `constructor` and `prototype` keys, the trie backing `merge` keys its children on a null prototype, and `apply` rejects any changeset containing one of those segments with an `InvalidChangesDetectedError` before it touches the document.
+
+  This does change behaviour for documents that legitimately carry a property with one of those names, which JSON allows and a schema is free to describe. `diff` no longer compares such a property, so editing it on its own is not reported as a change, and a merge that previously surfaced it as a conflict now merges cleanly. The property still travels along when its parent object is added or updated wholesale, because a new subtree is emitted as a single value. This trade-off matches `preventPollution`, which the rest of the codebase already applies to untrusted keys.
+
+  `@scalar/helpers` gains an `isPollutionKey` predicate next to the existing `preventPollution`, so the list of dangerous keys lives in one place.
+
+- [#9907](https://github.com/scalar/scalar/pull/9907): Explain the root-level change `apply` cannot handle, and document that `diff`, `merge` and `apply` share references with the documents they work on.
+
+  A change with an empty path asks to replace the document itself, which `apply` cannot do since it writes through the parent container of each path. It used to fail with `Process aborted. Path  at depth 0 is undefined, check diff object` halfway through a changeset, and now says so up front and leaves the document untouched:
+
+  ```ts
+  // `diff` emits a change with an empty path whenever the two documents differ at the root
+  apply({ name: 'John' }, [{ path: [], changes: [1, 2], type: 'update' }])
+  // InvalidChangesDetectedError: Process aborted. Root-level replacement is not supported, the
+  // change targets the document itself instead of a property inside it
+  ```
+
+  The changes a diff carries are live references into the documents it compared, so `merge` writes into the document behind its second diff list and an applied document stays structurally shared with the diff. That contract is now spelled out on `diff`, `merge` and `apply` — deep clone the documents when a caller needs isolation.
+
+- [#9902](https://github.com/scalar/scalar/pull/9902): Skip the correct entry when `merge` resolves a delete against a delete. The matching entry was skipped using an index into the first diff list to address the second one, so whenever the two matching deletes sat at different positions in their lists, an unrelated change was silently dropped and the shared delete was duplicated. Merging `[delete x, delete a]` with `[delete a, delete y]` returned `[delete x, delete a, delete a]` instead of `[delete x, delete a, delete y]`.
+
+  One case changes for the worse and is pinned by a test: when a delete is subsumed by a delete on the other side that itself ends up in `conflicts`, the subsumed delete is dropped from the result. That gap already existed, but skipping the wrong index used to hide it for some orderings of the second diff list, so it is now consistent rather than order-dependent.
+
 ## 0.13.0
 
 ### Minor Changes
