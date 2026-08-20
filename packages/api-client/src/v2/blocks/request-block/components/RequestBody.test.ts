@@ -119,8 +119,8 @@ describe('RequestBody', () => {
           payload: JSON.stringify(
             {
               name: '',
-              mass: 0,
-              hasRings: false,
+              mass: 1,
+              hasRings: true,
             },
             null,
             2,
