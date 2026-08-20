@@ -1,4 +1,4 @@
-export { getExampleFromBody } from './body/get-request-body-example'
+export { getExampleFromBody, getSchemaExampleFromBody } from './body/get-request-body-example'
 export { getSelectedBodyContentType } from './body/get-selected-body-content-type'
 export {
   buildDottedNestedRowPredicate,

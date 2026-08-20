@@ -10,6 +10,7 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
+  getSchemaExampleFromBody,
   getSelectedBodyContentType,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -221,6 +222,63 @@ const parsedBody = computed<{ ok: boolean; value?: unknown }>(() => {
   // Spec-provided examples can be stored as objects directly.
   return { ok: true, value: raw }
 })
+
+/**
+ * An edited example normally takes precedence over schema-generated data. When a different
+ * composition branch is selected, however, keeping that example leaves the editor showing the
+ * previous branch. Track the selection itself instead of inspecting discriminator fields so this
+ * also works for compositions whose members are distinguished only by their shape.
+ */
+const compositionSelectionKey = computed(() =>
+  JSON.stringify(requestBodyCompositionSelection ?? {}),
+)
+
+// Switching operations changes the body (and often the selection) at once, which is not a branch
+// change, so we only regenerate the body when the selection changes while the operation and example
+// stay the same. Watching all three together and comparing against the watcher's own previous values
+// keeps this correct regardless of the order in which props update or watchers flush.
+watch(
+  [() => requestBody, () => exampleKey, compositionSelectionKey],
+  (
+    [, , selection],
+    [previousRequestBody, previousExampleKey, previousSelection],
+  ) => {
+    const operationChanged =
+      requestBody !== previousRequestBody || exampleKey !== previousExampleKey
+    const selectionChanged = selection !== previousSelection
+
+    // Only a genuine branch switch within the same operation should reset the edited body. An empty
+    // selection means there is no composition to switch between (or the selection was cleared on an
+    // operation change), so there is nothing to reset.
+    if (
+      operationChanged ||
+      !selectionChanged ||
+      Object.keys(requestBodyCompositionSelection ?? {}).length === 0
+    ) {
+      return
+    }
+
+    const codec = structuredCodec.value
+    if (!requestBody || !codec) {
+      return
+    }
+
+    // Regenerate through the same helper the initial example uses so a reset produces exactly the
+    // value a fresh render of this branch would, rather than a hand-copied second code path.
+    const selectedValue = getSchemaExampleFromBody(
+      requestBody,
+      selectedContentType.value,
+      requestBodyCompositionSelection,
+    )
+
+    emits('update:value', {
+      // A branch with no writable content generates `null`/`undefined`; clear the editor rather than
+      // writing the literal text `null` or leaving the previously selected branch's body behind.
+      payload: selectedValue == null ? '' : codec.stringify(selectedValue),
+      contentType: selectedContentType.value,
+    })
+  },
+)
 
 /** The form view only works on an object-shaped body root */
 const isFormViewAvailable = computed(
