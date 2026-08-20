@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components/icon'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { onClickOutside, onKeyStroke } from '@vueuse/core'
+import { ref } from 'vue'
 
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 import { useLocalization } from '@/features/localization'
@@ -9,10 +11,39 @@ const { pattern } = defineProps<{ pattern: string }>()
 
 const { copyToClipboard } = useClipboard()
 const { translate } = useLocalization()
+
+/**
+ * The popup reveals on hover and keyboard focus purely via CSS. Touch devices
+ * have no hover, so a click/tap also pins it open, and a second click, a click
+ * outside, or Escape closes it again. Without this the full pattern was
+ * unreachable on mobile — a regression from the old inline (truncated) text.
+ */
+const rootRef = ref<HTMLElement | null>(null)
+const isOpen = ref(false)
+
+const toggle = () => {
+  isOpen.value = !isOpen.value
+}
+
+const close = () => {
+  isOpen.value = false
+}
+
+onClickOutside(rootRef, close)
+onKeyStroke('Escape', () => {
+  if (isOpen.value) {
+    close()
+  }
+})
 </script>
 <template>
-  <div class="property-pattern">
-    <LinkButton class="decoration-dotted">
+  <div
+    ref="rootRef"
+    class="property-pattern"
+    :class="{ 'is-open': isOpen }">
+    <LinkButton
+      class="decoration-dotted"
+      @click="toggle">
       {{ translate('common.pattern') }}
     </LinkButton>
     <div class="property-pattern-popup">
@@ -75,7 +106,8 @@ const { translate } = useLocalization()
 }
 
 .property-pattern:hover .property-pattern-popup,
-.property-pattern:focus-within .property-pattern-popup {
+.property-pattern:focus-within .property-pattern-popup,
+.property-pattern.is-open .property-pattern-popup {
   display: flex;
 }
 
