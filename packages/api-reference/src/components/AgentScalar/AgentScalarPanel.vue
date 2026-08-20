@@ -41,9 +41,24 @@ const props = defineProps<{
 }>()
 
 const agentContext = useAgentContext()
-const { translate } = useLocalization()
+const { translate, direction } = useLocalization()
 
-const docUrl = defineModel<string>('url')
+// The panel docks to the inline-end edge, so a right-to-left layout anchors it
+// on the left and grows toward the pointer from that edge. Snapshotted at
+// setup; a live locale switch is rare and does not remount the panel.
+const isRtl = direction.value === 'rtl'
+
+// The document URL is a one-way input (the parent binds `:url`). The register
+// flow may replace it with an uploaded temp-document URL and cache that for the
+// panel's lifetime, so this is local writable state rather than a v-model —
+// re-seeded from the prop when the underlying document changes.
+const docUrl = ref<string | undefined>(props.url)
+watch(
+  () => props.url,
+  (value) => {
+    docUrl.value = value
+  },
+)
 
 const { hasConfig, cursorLink, vscodeLink, copyMcpUrl, generateRegisterLink } =
   useMcpActions({
@@ -74,13 +89,18 @@ const panelRef = useTemplateRef<HTMLDivElement>('panel')
 
 /** Drag-resizable width, following the docs editor's pane wiring. */
 const panelResize = useResizablePane({
-  anchor: 'end',
+  // A right-to-left panel is docked left: it grows from its left edge toward
+  // the pointer, the mirror of the left-to-right right-docked case.
+  anchor: isRtl ? 'start' : 'end',
   min: 360,
   max: () =>
     typeof window === 'undefined' ? 480 : Math.round(window.innerWidth * 0.75),
   defaultSize: 480,
   storageKey: 'api-reference.agent-panel.width',
-  measureEdge: () => panelRef.value?.getBoundingClientRect().right,
+  measureEdge: () => {
+    const rect = panelRef.value?.getBoundingClientRect()
+    return isRtl ? rect?.left : rect?.right
+  },
   apply: (width) => {
     // Live writes go straight to the custom property so the drag does not
     // re-render the panel per move; the root's reactive binding re-asserts
@@ -291,7 +311,11 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 .agent-scalar-panel {
   position: fixed;
   top: 0;
-  right: 0;
+  /* Logical inset so the panel docks to the inline-end edge (right in LTR,
+     left in RTL). The hidden offset is a variable, flipped for RTL below, so
+     the panel always slides off toward its docked edge. */
+  inset-inline-end: 0;
+  --agent-scalar-panel-hidden-x: 100%;
   width: var(--agent-scalar-panel-width, 480px);
   max-width: 100vw;
   height: 100dvh;
@@ -299,11 +323,16 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   display: flex;
   flex-direction: column;
   background: var(--scalar-background-1);
-  border-left: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-inline-start: var(--scalar-border-width) solid
+    var(--scalar-border-color);
   box-shadow: var(--scalar-shadow-1);
-  transform: translateX(100%);
+  transform: translateX(var(--agent-scalar-panel-hidden-x));
   transition: width 0.3s ease;
   visibility: hidden;
+}
+
+[dir='rtl'] .agent-scalar-panel {
+  --agent-scalar-panel-hidden-x: -100%;
 }
 
 .agent-scalar-panel--open {
@@ -321,7 +350,9 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -4px;
+  /* The draggable edge is the one facing the page content — the inline-start
+     edge of the docked panel in both directions. */
+  inset-inline-start: -4px;
   width: 8px;
   cursor: ew-resize;
   z-index: 1;
@@ -331,7 +362,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
+  inset-inline-start: 50%;
   width: 1px;
   background: var(--scalar-color-3);
   opacity: 0;
@@ -503,9 +534,10 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 /* Mobile: full-width panel */
 @media (max-width: 1000px) {
   .agent-scalar-panel {
-    left: 0;
+    /* Pin both inline edges so the panel is full-width in either direction. */
+    inset-inline-start: 0;
     width: auto;
-    border-left: none;
+    border-inline-start: none;
     z-index: 15;
   }
 
