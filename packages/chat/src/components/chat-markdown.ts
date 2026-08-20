@@ -134,6 +134,21 @@ const LINK_DEFINITION_WITH_DESTINATION_RE = /^ {0,3}\[(?!\^)[^\]]+\]:\s*\S/
  */
 const BRACKET_LINE_RE = /^ {0,3}\[/
 
+/**
+ * Whether the block built so far is a plain paragraph — every line is running
+ * text, none opens a container (list item, blockquote, indented continuation).
+ *
+ * A plain paragraph is always terminated by the blank line that follows it, so
+ * splitting it from whatever comes next is render-identical: `Intro\n\n- item`
+ * renders the same whether parsed whole or as `Intro` + `- item`. Keeping it
+ * split lets the finished paragraph stay in the live region — stable DOM, no
+ * re-parse, announced once — while the following list or quote streams in.
+ * Only a real container (a loose list, an indented continuation) needs to glue
+ * across the blank, and those blocks are not plain paragraphs.
+ */
+const currentIsPlainParagraph = (lines: string[]): boolean =>
+  lines.length > 0 && lines.every((line) => !CONTINUATION_LINE_RE.test(line) && !BRACKET_LINE_RE.test(line))
+
 type SplitMarkdownOptions = {
   /**
    * The source is final, so its last line counts as terminated. While
@@ -242,7 +257,15 @@ export const splitMarkdownBlocks = (source: string, options: SplitMarkdownOption
     const isTerminated = complete || index < lastIndex
 
     if (pendingBlanks.length > 0) {
-      if (CONTINUATION_LINE_RE.test(line) || BRACKET_LINE_RE.test(line)) {
+      // A container continuation glues across the blank — but only when the
+      // current block is itself a container. A finished plain paragraph never
+      // glues to a following list/blockquote (render-identical when split, so
+      // it stays a stable, already-announced block); it still glues to a
+      // bracket line, so a link reference definition never forms an
+      // empty-rendering block of its own.
+      const glues = (CONTINUATION_LINE_RE.test(line) && !currentIsPlainParagraph(current)) || BRACKET_LINE_RE.test(line)
+
+      if (glues) {
         current.push(...pendingBlanks)
         pendingBlanks = []
       } else {

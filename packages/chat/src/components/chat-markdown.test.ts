@@ -63,12 +63,22 @@ describe('chat-markdown', () => {
       expect(splitMarkdownBlocks('1. one\n\n2. two')).toEqual(['1. one\n\n2. two'])
     })
 
-    it('glues a bare list marker so mid-stream chunk boundaries do not split', () => {
-      // A chunk boundary can land right after the `-`; splitting there would
-      // promote the previous block into the live region and re-mount it a
-      // moment later when the item text arrives.
-      expect(splitMarkdownBlocks('Intro:\n\n-')).toEqual(['Intro:\n\n-'])
+    it('glues a bare list marker to a preceding list so a chunk boundary does not split', () => {
+      // Inside a loose list a chunk boundary can land right after the `-`;
+      // splitting there would render two tight lists a moment apart. The
+      // preceding block is a list, so it glues.
       expect(splitMarkdownBlocks('- one\n\n-')).toEqual(['- one\n\n-'])
+    })
+
+    it('splits a completed paragraph from a following list instead of re-parsing it', () => {
+      // A plain paragraph is terminated by the blank line, so splitting it
+      // from the list is render-identical — and it keeps the finished
+      // paragraph a stable, already-announced block while the list streams.
+      // The decision is stable across the streamed marker, so the paragraph
+      // never flips in and out of the live region.
+      expect(splitMarkdownBlocks('Intro:\n\n-')).toEqual(['Intro:', '-'])
+      expect(splitMarkdownBlocks('Intro:\n\n- item')).toEqual(['Intro:', '- item'])
+      expect(splitMarkdownBlocks('Intro:\n\n> quote')).toEqual(['Intro:', '> quote'])
     })
 
     it('keeps indented continuations with their list item', () => {
