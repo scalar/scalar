@@ -21,7 +21,7 @@ test.describe('generateOperationSlug', () => {
 
     await page.goto(example)
 
-    await page.getByRole('complementary').getByRole('button', { name: 'Get all planets' }).click()
+    await page.getByRole('complementary').getByRole('link', { name: 'Get all planets' }).click()
 
     // `tag/<tag-slug>/` is prepended automatically, so we assert the custom part
     await expect(page).toHaveURL(/get-planets/)

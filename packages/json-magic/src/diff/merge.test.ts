@@ -1264,6 +1264,30 @@ describe('mergeDiff', () => {
     })
   })
 
+  // `merge` folds two compatible changes together with `mergeObjects`, which writes in place, and
+  // the changes a diff carries point straight into the documents it compared. Merging therefore
+  // writes into the document behind the second diff list. The behavior is pinned here so a future
+  // switch to cloning is a deliberate change rather than a silent one.
+  describe('mutates the second diff list while merging', () => {
+    test('merges the changes of the first list into the entries of the second one', () => {
+      const diff1: Difference<unknown>[] = [{ path: ['info'], changes: { title: 'Pets' }, type: 'add' }]
+      const changes = { version: '1.0.0' }
+      const diff2: Difference<unknown>[] = [{ path: ['info'], changes, type: 'add' }]
+
+      merge(diff1, diff2)
+
+      expect(changes).toEqual({ version: '1.0.0', title: 'Pets' })
+    })
+
+    test('writes into the document the second diff list was built from', () => {
+      const remote = { info: { version: '1.0.0' } }
+
+      merge(diff({}, { info: { title: 'Pets' } }), diff({}, remote))
+
+      expect(remote).toEqual({ info: { version: '1.0.0', title: 'Pets' } })
+    })
+  })
+
   // TODO: a delete that is subsumed by a delete on the other side is discarded before we know
   // whether the covering delete ends up in `conflicts`. When it does, the subsumed delete
   // survives in neither `diffs` nor `conflicts`, so resolving the conflict toward the side that

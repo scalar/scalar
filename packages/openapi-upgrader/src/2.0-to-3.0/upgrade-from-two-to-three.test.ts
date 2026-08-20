@@ -502,6 +502,165 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
+  it('does not add an undefined description to a formData property without one', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      paths: {
+        '/planets': {
+          get: {
+            parameters: [
+              {
+                name: 'name',
+                in: 'formData',
+                required: true,
+                type: 'string',
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    // A strict comparison fails if the property carries an explicit `description: undefined`.
+    expect(result.paths?.['/planets']?.get?.requestBody).toStrictEqual({
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            required: ['name'],
+            properties: {
+              name: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('migrates formData with an array type', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      paths: {
+        '/submit': {
+          post: {
+            consumes: ['application/x-www-form-urlencoded', 'multipart/form-data'],
+            parameters: [
+              {
+                name: 'tags',
+                in: 'formData',
+                description: 'Tags to attach',
+                required: true,
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+                collectionFormat: 'csv',
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(result.paths).toStrictEqual({
+      '/submit': {
+        post: {
+          requestBody: {
+            content: {
+              'application/x-www-form-urlencoded': {
+                schema: {
+                  required: ['tags'],
+                  properties: {
+                    tags: {
+                      type: 'array',
+                      description: 'Tags to attach',
+                      items: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                  type: 'object',
+                },
+                encoding: {
+                  tags: { style: 'form', explode: false },
+                },
+              },
+              'multipart/form-data': {
+                schema: {
+                  required: ['tags'],
+                  properties: {
+                    tags: {
+                      type: 'array',
+                      description: 'Tags to attach',
+                      items: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                  type: 'object',
+                },
+                encoding: {
+                  tags: { style: 'form', explode: false },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('maps a multi collectionFormat to an exploded form encoding without leaking into the schema', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      paths: {
+        '/submit': {
+          post: {
+            consumes: ['multipart/form-data'],
+            parameters: [
+              {
+                name: 'tags',
+                in: 'formData',
+                required: false,
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+                collectionFormat: 'multi',
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    // The strict comparison proves both the exploded encoding and that `collectionFormat` did not
+    // leak onto the property schema.
+    expect(result.paths?.['/submit']?.post?.requestBody).toStrictEqual({
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            required: [],
+            properties: {
+              tags: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+          encoding: {
+            tags: { style: 'form', explode: true },
+          },
+        },
+      },
+    })
+  })
+
   it('upgrades securityDefinitions from Swagger 2.0 to OpenAPI 3.0', () => {
     const input = {
       swagger: '2.0',

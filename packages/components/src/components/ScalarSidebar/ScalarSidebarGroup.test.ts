@@ -4,6 +4,7 @@ import { defineComponent, ref } from 'vue'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroup from './ScalarSidebarGroup.vue'
+import ScalarSidebarGroupToggleButton from './ScalarSidebarGroupToggleButton.vue'
 import ScalarSidebarItem from './ScalarSidebarItem.vue'
 
 describe('ScalarSidebarGroup', () => {
@@ -215,6 +216,30 @@ describe('ScalarSidebarGroup', () => {
     expect(toggleButtons.length).toBeGreaterThanOrEqual(2)
   })
 
+  it('puts aria-expanded on the toggle button rather than the label in discrete mode', () => {
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarGroup, ScalarSidebarItem },
+      template: `
+        <ScalarSidebarGroup discrete>
+          Group 1
+          <template #items>
+            <ScalarSidebarItem>Items</ScalarSidebarItem>
+          </template>
+        </ScalarSidebarGroup>
+      `,
+    })
+
+    const wrapper = mount(TestComponent)
+    const groupComponent = wrapper.findComponent(ScalarSidebarGroup)
+    const mainButton = groupComponent.findComponent(ScalarSidebarButton)
+    const toggleButton = wrapper.findComponent(ScalarSidebarGroupToggleButton)
+
+    // The label is a control of its own in discrete mode, so the toggle button
+    // is the only thing that owns the expanded state
+    expect(mainButton.attributes('aria-expanded')).toBeUndefined()
+    expect(toggleButton.attributes('aria-expanded')).toBe('false')
+  })
+
   it('does not render separate toggle button when discrete is false', () => {
     const TestComponent = defineComponent({
       components: { ScalarSidebarGroup, ScalarSidebarItem },
@@ -284,15 +309,16 @@ describe('ScalarSidebarGroup', () => {
     const wrapper = mount(TestComponent)
     const groupComponent = wrapper.findComponent(ScalarSidebarGroup)
     const mainButton = groupComponent.findComponent(ScalarSidebarButton)
+    const toggleButton = wrapper.findComponent(ScalarSidebarGroupToggleButton)
 
     // Group should be closed initially
-    expect(mainButton.attributes('aria-expanded')).toBe('false')
+    expect(toggleButton.attributes('aria-expanded')).toBe('false')
 
     // Click the main button
     await mainButton.trigger('click')
 
     // Group should still be closed (discrete mode prevents toggle on main button)
-    expect(mainButton.attributes('aria-expanded')).toBe('false')
+    expect(toggleButton.attributes('aria-expanded')).toBe('false')
   })
 
   it('toggles when separate toggle button is clicked in discrete mode', async () => {
@@ -309,23 +335,18 @@ describe('ScalarSidebarGroup', () => {
     })
 
     const wrapper = mount(TestComponent)
-    const groupComponent = wrapper.findComponent(ScalarSidebarGroup)
-    const mainButton = groupComponent.findComponent(ScalarSidebarButton)
+    const toggleButton = wrapper.findComponent(ScalarSidebarGroupToggleButton)
+
+    expect(toggleButton.exists()).toBe(true)
 
     // Group should be closed initially
-    expect(mainButton.attributes('aria-expanded')).toBe('false')
-
-    // Find the separate toggle button (it's positioned absolutely)
-    const toggleButtons = wrapper.findAll('button[type="button"]')
-    const toggleButton = toggleButtons.find((btn) => btn.classes().includes('absolute'))
-
-    expect(toggleButton).toBeDefined()
+    expect(toggleButton.attributes('aria-expanded')).toBe('false')
 
     // Click the separate toggle button
-    await toggleButton?.trigger('click')
+    await toggleButton.trigger('click')
 
     // Group should now be open
-    expect(mainButton.attributes('aria-expanded')).toBe('true')
+    expect(toggleButton.attributes('aria-expanded')).toBe('true')
   })
 
   it('emits toggle event when separate toggle button is clicked in discrete mode', async () => {
@@ -348,12 +369,11 @@ describe('ScalarSidebarGroup', () => {
     const wrapper = mount(TestComponent)
 
     // Find the separate toggle button
-    const toggleButtons = wrapper.findAll('button[type="button"]')
-    const toggleButton = toggleButtons.find((btn) => btn.classes().includes('absolute'))
+    const toggleButton = wrapper.findComponent(ScalarSidebarGroupToggleButton)
 
-    expect(toggleButton).toBeDefined()
+    expect(toggleButton.exists()).toBe(true)
 
-    await toggleButton?.trigger('click')
+    await toggleButton.trigger('click')
 
     // Toggle event should be emitted
     expect(onToggle).toHaveBeenCalled()
@@ -377,29 +397,24 @@ describe('ScalarSidebarGroup', () => {
     const wrapper = mount(TestComponent, {
       props: { open: false },
     })
-    const groupComponent = wrapper.findComponent(ScalarSidebarGroup)
-    const mainButton = groupComponent.findComponent(ScalarSidebarButton)
+    const toggleButton = wrapper.findComponent(ScalarSidebarGroupToggleButton)
+
+    expect(toggleButton.exists()).toBe(true)
 
     // Group should be closed initially
-    expect(mainButton.attributes('aria-expanded')).toBe('false')
-
-    // Find the separate toggle button
-    const toggleButtons = wrapper.findAll('button[type="button"]')
-    const toggleButton = toggleButtons.find((btn) => btn.classes().includes('absolute'))
-
-    expect(toggleButton).toBeDefined()
+    expect(toggleButton.attributes('aria-expanded')).toBe('false')
 
     // Click the separate toggle button
-    await toggleButton?.trigger('click')
+    await toggleButton.trigger('click')
 
     // Group should still be closed (controlled mode prevents toggle)
-    expect(mainButton.attributes('aria-expanded')).toBe('false')
+    expect(toggleButton.attributes('aria-expanded')).toBe('false')
 
     // Now update the prop to open the group
     await wrapper.setProps({ open: true })
 
     // Group should now be open
-    expect(mainButton.attributes('aria-expanded')).toBe('true')
+    expect(toggleButton.attributes('aria-expanded')).toBe('true')
   })
 
   it('toggles when separate toggle button is clicked in discrete uncontrolled mode', async () => {
@@ -416,29 +431,24 @@ describe('ScalarSidebarGroup', () => {
     })
 
     const wrapper = mount(TestComponent)
-    const groupComponent = wrapper.findComponent(ScalarSidebarGroup)
-    const mainButton = groupComponent.findComponent(ScalarSidebarButton)
+    const toggleButton = wrapper.findComponent(ScalarSidebarGroupToggleButton)
+
+    expect(toggleButton.exists()).toBe(true)
 
     // Group should be closed initially
-    expect(mainButton.attributes('aria-expanded')).toBe('false')
-
-    // Find the separate toggle button
-    const toggleButtons = wrapper.findAll('button[type="button"]')
-    const toggleButton = toggleButtons.find((btn) => btn.classes().includes('absolute'))
-
-    expect(toggleButton).toBeDefined()
+    expect(toggleButton.attributes('aria-expanded')).toBe('false')
 
     // Click the separate toggle button to open
-    await toggleButton?.trigger('click')
+    await toggleButton.trigger('click')
 
     // Group should now be open
-    expect(mainButton.attributes('aria-expanded')).toBe('true')
+    expect(toggleButton.attributes('aria-expanded')).toBe('true')
 
     // Click again to close
-    await toggleButton?.trigger('click')
+    await toggleButton.trigger('click')
 
     // Group should now be closed
-    expect(mainButton.attributes('aria-expanded')).toBe('false')
+    expect(toggleButton.attributes('aria-expanded')).toBe('false')
   })
 
   it('allows main button click and toggle button click to work independently in discrete mode', async () => {
@@ -464,30 +474,29 @@ describe('ScalarSidebarGroup', () => {
     const mainButton = groupComponent.findComponent(ScalarSidebarButton)
 
     // Find the separate toggle button
-    const toggleButtons = wrapper.findAll('button[type="button"]')
-    const toggleButton = toggleButtons.find((btn) => btn.classes().includes('absolute'))
+    const toggleButton = wrapper.findComponent(ScalarSidebarGroupToggleButton)
 
-    expect(toggleButton).toBeDefined()
+    expect(toggleButton.exists()).toBe(true)
 
     // Click the main button
     await mainButton.trigger('click')
 
     // Click event should be emitted, but group should not toggle
     expect(onClick).toHaveBeenCalledTimes(1)
-    expect(mainButton.attributes('aria-expanded')).toBe('false')
+    expect(toggleButton.attributes('aria-expanded')).toBe('false')
 
     // Click the toggle button
-    await toggleButton?.trigger('click')
+    await toggleButton.trigger('click')
 
     // Toggle event should be emitted, and group should toggle
     expect(onToggle).toHaveBeenCalledTimes(1)
-    expect(mainButton.attributes('aria-expanded')).toBe('true')
+    expect(toggleButton.attributes('aria-expanded')).toBe('true')
 
     // Click the main button again
     await mainButton.trigger('click')
 
     // Click event should be emitted again, but group should remain open
     expect(onClick).toHaveBeenCalledTimes(2)
-    expect(mainButton.attributes('aria-expanded')).toBe('true')
+    expect(toggleButton.attributes('aria-expanded')).toBe('true')
   })
 })

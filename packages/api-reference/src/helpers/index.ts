@@ -1,6 +1,6 @@
 export { getSystemModePreference } from './color-mode'
 export { downloadDocument } from './download'
-export { getIdFromUrl, makeUrlFromId } from './id-routing'
+export { getIdFromUrl, makeHrefFromId, makeUrlFromId } from './id-routing'
 export {
   addToPriorityQueue,
   blockIntersection,

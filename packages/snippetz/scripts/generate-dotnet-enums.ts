@@ -80,6 +80,23 @@ const OBSOLETE_CLIENT_ENTRIES = [
 ]
 
 /**
+ * Conditional namespace declaration shared by every generated file.
+ *
+ * The shared sources are compiled into each .NET integration package, so the namespace is selected
+ * by the compilation symbol that package defines. Keep this in sync with the hand-written files in
+ * Scalar.Shared - adding a new integration means adding a branch here as well.
+ */
+const NAMESPACE_DECLARATION = `#if SCALAR_ASPIRE
+namespace Scalar.Aspire;
+#elif SCALAR_AZURE_FUNCTIONS
+namespace Scalar.Azure.Functions;
+#elif SCALAR_AWS_LAMBDA
+namespace Scalar.Aws.Lambda;
+#else
+namespace Scalar.AspNetCore;
+#endif`
+
+/**
  * Package configurations
  */
 const PACKAGE_CONFIGS: DotNetPackageConfig[] = [
@@ -163,11 +180,7 @@ using System.ComponentModel;
 using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
-#if SCALAR_ASPIRE
-namespace Scalar.Aspire;
-#else
-namespace Scalar.AspNetCore;
-#endif
+${NAMESPACE_DECLARATION}
 
 /// <summary>
 /// Represents the different targets available in Scalar.
@@ -205,11 +218,7 @@ using System.ComponentModel;
 using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
-#if SCALAR_ASPIRE
-namespace Scalar.Aspire;
-#else
-namespace Scalar.AspNetCore;
-#endif
+${NAMESPACE_DECLARATION}
 
 /// <summary>
 /// Represents the different clients available in Scalar.
@@ -243,11 +252,7 @@ function generateClientOptionsMapping(targets: Target[]): string {
   return `${header}
 
 #pragma warning disable CS0618 // Type or member is obsolete
-#if SCALAR_ASPIRE
-namespace Scalar.Aspire;
-#else
-namespace Scalar.AspNetCore;
-#endif
+${NAMESPACE_DECLARATION}
 
 /// <summary>
 /// Auto-generated mapping between targets and their available clients.

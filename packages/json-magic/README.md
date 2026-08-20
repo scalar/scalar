@@ -495,7 +495,9 @@ Compare two JSON objects, merge changes made in parallel, and surface the confli
 | `merge(diffA, diffB)` | Combines two changesets made against the same base into `{ diffs, conflicts }` |
 | `apply(base, diffs)` | Applies a changeset to a document and returns it |
 
-Note that `apply` mutates the document it is given. Clone it first if you need to keep the original around. It throws an `InvalidChangesDetectedError` when a change points at a path that does not exist.
+These three functions work on the documents themselves, not on copies of them. `apply` mutates the document it is given, `merge` merges one changeset into the entries of the other, and the changes a diff carries are live references into the documents that were compared. That means an applied document keeps sharing subtrees with the document it was diffed against, and a merge writes into the document behind its second changeset. Deep clone the documents before diffing them whenever you need the originals to stay untouched — cloning only the document you apply to is not enough.
+
+`apply` throws an `InvalidChangesDetectedError` when a change points at a path that does not exist, when a change targets the document itself (an empty path, which a diff produces whenever the two documents differ at the root), and when a path reaches the prototype chain through `__proto__`, `constructor` or `prototype`.
 
 ### Quickstart
 

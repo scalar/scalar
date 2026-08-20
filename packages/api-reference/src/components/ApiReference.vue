@@ -31,6 +31,7 @@ import {
   createSidebarState,
   ScalarSidebar,
   scrollSidebarToTop,
+  type Item,
 } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
@@ -98,6 +99,7 @@ import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import {
   getIdFromUrl,
+  makeHrefFromId,
   makeUrlFromId,
   matchesBasePath,
   redirectUrl,
@@ -344,6 +346,15 @@ const documentLang = computed(() =>
 
 /** Convenience break out var to determine which routing mode we are using */
 const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
+
+/**
+ * Builds the href for a sidebar item so the sidebar renders real anchor tags.
+ *
+ * Rendering anchors (instead of buttons) lets search engines crawl the
+ * navigation, and lets users open entries in a new tab.
+ */
+const getSidebarItemHref = (item: Item): string =>
+  makeHrefFromId(item.id, basePath.value, isMultiDocument.value)
 
 const themeStyle = computed(() =>
   getThemeStyles(mergedConfig.value.theme, {
@@ -1623,6 +1634,7 @@ const showMCPButton = computed(() => {
             "
             class="t-doc__sidebar"
             :class="sidebarClasses"
+            :getHref="getSidebarItemHref"
             :isExpanded="sidebarState.isExpanded"
             :isSelected="sidebarState.isSelected"
             :items="sidebarItems"

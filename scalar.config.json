@@ -1087,7 +1087,7 @@
             "title": "Products",
             "icon": "phosphor/regular/compass",
             "mode": "folder",
-            "open": false,
+            "open": true,
             "children": {
               "docs": {
                 "type": "link",
@@ -2579,6 +2579,30 @@
                     "type": "page",
                     "title": "Custom Code",
                     "description": "Customize generated SDKs and keep your changes across regenerations with a three-way merge."
+                  },
+                  "asyncapi": {
+                    "filepath": "documentation/guides/sdks/asyncapi.md",
+                    "type": "page",
+                    "title": "AsyncAPI (Experimental)",
+                    "description": "Generate SDKs from AsyncAPI documents with the experimental AsyncAPI input: WebSocket connect methods, HTTP streaming channels, typed events, and authentication.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/asyncapi"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate SDKs from AsyncAPI documents: WebSocket connect methods, HTTP streaming channels, typed events, and authentication."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
                   }
                 }
               },
