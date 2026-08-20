@@ -4,6 +4,7 @@ import { textFromHtml } from '../../test/html'
 import { compile } from './compile'
 import { registerLanguage, resolveGrammar } from './registry'
 import { escapeHtml, highlight, highlightBlock } from './render'
+import { scopeClass } from './scopes'
 import { tokenizeToArray } from './tokenize'
 import type { Grammar } from './types'
 
@@ -343,6 +344,25 @@ describe('highlightBlock', () => {
     ]) {
       expect(html).not.toMatch(/<img/)
     }
+  })
+})
+
+describe('scopeClass', () => {
+  it('maps known scopes to their short class suffix', () => {
+    expect(scopeClass('keyword')).toBe('k')
+    expect(scopeClass('keyword.declaration')).toBe('kd')
+  })
+
+  it('slugifies an unknown scope rather than throwing', () => {
+    expect(scopeClass('string.heredoc')).toBe('string-heredoc')
+  })
+
+  it('slugifies prototype-named scopes rather than resolving inherited members', () => {
+    // A scope is data a grammar supplies, so `constructor` must not come back as
+    // Object.prototype.constructor and stringify a function into the class.
+    expect(scopeClass('constructor')).toBe('constructor')
+    expect(scopeClass('toString')).toBe('toString')
+    expect(scopeClass('__proto__')).toBe('-proto-')
   })
 })
 

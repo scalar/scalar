@@ -103,7 +103,10 @@ export const SCOPE_NAMES = Object.keys(SCOPES) as Scope[]
  * slugified name rather than throwing, so a custom grammar still renders.
  */
 export const scopeClass = (scope: string): string => {
-  const known = (SCOPES as Record<string, string | undefined>)[scope]
+  // `hasOwn` because a scope is data a grammar supplies: a scope named
+  // `constructor` or `toString` would otherwise resolve off Object.prototype
+  // and stringify a function into the class attribute rather than slugifying.
+  const known = Object.hasOwn(SCOPES, scope) ? (SCOPES as Record<string, string>)[scope] : undefined
   return known ?? scope.replace(/[^a-zA-Z0-9]+/g, '-')
 }
 

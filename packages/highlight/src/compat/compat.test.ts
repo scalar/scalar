@@ -414,6 +414,14 @@ describe('compat surface', () => {
     expect(hljsClass('nonsense')).toBe(null)
   })
 
+  it('treats prototype-named scopes as unmapped rather than inherited members', () => {
+    // A grammar is data a caller supplies, so a scope named `constructor` must
+    // not resolve off Object.prototype into a function.
+    expect(hljsClass('constructor')).toBe(null)
+    expect(hljsClass('toString')).toBe(null)
+    expect(hljsClass('__proto__')).toBe(null)
+  })
+
   it('ignores credentials shorter than three characters', () => {
     const html = syntaxHighlight('ab cd', {
       lang: 'plaintext',

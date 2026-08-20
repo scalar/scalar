@@ -91,8 +91,12 @@ const HLJS_CLASSES: Record<string, string | null> = {
  */
 export const hljsClass = (scope: string): string | null => {
   for (const name of scopeChain(scope)) {
-    const mapped = HLJS_CLASSES[name]
-    if (mapped !== undefined) return mapped
+    // `hasOwn` because scope names come from grammar data: `constructor` or
+    // `toString` would otherwise resolve off Object.prototype instead of
+    // falling through to the next, less specific scope. An owned value is
+    // `string | null` (null means bare text); `?? null` only satisfies the
+    // index-access type, it never fires for a key we have confirmed we own.
+    if (Object.hasOwn(HLJS_CLASSES, name)) return HLJS_CLASSES[name] ?? null
   }
   return null
 }
