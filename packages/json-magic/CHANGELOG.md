@@ -1,5 +1,11 @@
 # @scalar/json-magic
 
+## 0.13.2
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.13.1
 
 ### Patch Changes
