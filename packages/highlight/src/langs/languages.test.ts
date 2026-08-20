@@ -227,6 +227,7 @@ describe('cost stays linear in line length', () => {
     ['ocaml', 'val a:'], // signature lookahead, now a capped scan
     ['ruby', ',/['], // regex literal, now a capped character class
     ['ruby', '(/['], // same rule, reached from a bracket opener
+    ['perl', '$'], // sigil deref before a name, now a capped run of `$`
   ]
 
   const SMALL = 4000
@@ -300,6 +301,8 @@ describe('cost stays linear in line length', () => {
     ['http', `POST /x HTTP/1.1\n\n${'# a\n'.repeat(16_000)}`, 'a body that is entirely comment lines'],
     ['objectivec', `x = "%${'0'.repeat(50_000)}";`, 'one format specifier with a long flag run'],
     ['java', `x = "%${'0'.repeat(50_000)}";`, 'one format specifier with a long flag run'],
+    ['powershell', `[${'a'.repeat(50_000)}`, 'a type literal that never closes'],
+    ['css', `{${'a'.repeat(50_000)}`, 'a declaration bareword with no colon'],
   ]
 
   for (const [lang, code, what] of budgets) {
