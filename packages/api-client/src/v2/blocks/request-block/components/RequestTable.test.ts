@@ -204,10 +204,13 @@ describe('RequestTable', () => {
     expect(headers[2]?.text()).toBe('Parameter Value')
   })
 
-  it('uses a stable key per row so parameter rows are not reused for the placeholder', async () => {
-    // Regression: key:index caused the x-scenario-id component instance to be
-    // reused for the placeholder row { name: '' } when displayData recomputed,
-    // blanking the parameter name in the UI.
+  it('keys rows by parameter identity so a row instance is never reused for a different parameter', async () => {
+    // Regression: key:index bound each RequestTableRow instance to a position, so
+    // when displayData recomputed and the row order shifted, Vue reused the
+    // x-scenario-id instance for a different row (or the appended placeholder),
+    // blanking the parameter name. We assert on component-instance identity — not
+    // just the props — because that is what the stable key guarantees on its own,
+    // independent of the defensive guards inside RequestTableRow.
     const wrapper = mount(RequestTable, {
       props: {
         data: [
@@ -222,35 +225,36 @@ describe('RequestTable', () => {
       },
     })
 
-    const rowsBefore = wrapper.findAllComponents({ name: 'RequestTableRow' })
-    // One real row + one placeholder
-    expect(rowsBefore.length).toBe(2)
-    expect(rowsBefore[0]?.props('data').name).toBe('x-scenario-id')
+    const findScenario = () =>
+      wrapper.findAllComponents({ name: 'RequestTableRow' }).find((row) => row.props('data').name === 'x-scenario-id')
 
-    // Add a second real row — this shifts the placeholder index and previously
-    // caused the first row to receive the placeholder data.
+    // The DOM node rendering x-scenario-id is the identity we track: Vue keeps the
+    // same node when it moves a keyed instance, but reuses a different node when it
+    // patches by index.
+    const elementBefore = findScenario()?.element
+    expect(elementBefore).toBeDefined()
+
+    // Prepend another parameter so x-scenario-id shifts from index 0 to index 1.
+    // With key:index Vue reuses the instance that sat at the new index (previously
+    // the placeholder) for x-scenario-id; with a stable key it moves the original
+    // instance, keeping the same node.
     await wrapper.setProps({
       data: [
-        {
-          name: 'x-scenario-id',
-          value: '200_success',
-          isDisabled: false,
-          originalParameter: { name: 'x-scenario-id', in: 'header' },
-        },
         {
           name: 'x-request-id',
           value: 'abc',
           isDisabled: false,
           originalParameter: { name: 'x-request-id', in: 'header' },
         },
+        {
+          name: 'x-scenario-id',
+          value: '200_success',
+          isDisabled: false,
+          originalParameter: { name: 'x-scenario-id', in: 'header' },
+        },
       ],
     })
 
-    const rowsAfter = wrapper.findAllComponents({ name: 'RequestTableRow' })
-    // Two real rows + one placeholder
-    expect(rowsAfter.length).toBe(3)
-    // The first row must still carry the original parameter, not the placeholder.
-    expect(rowsAfter[0]?.props('data').name).toBe('x-scenario-id')
-    expect(rowsAfter[1]?.props('data').name).toBe('x-request-id')
+    expect(findScenario()?.element).toBe(elementBefore)
   })
 })
