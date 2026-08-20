@@ -25,9 +25,9 @@ All navigation is configured within the `navigation.routes` object in your `scal
 
 ## Header
 
-The `navigation.header` array defines links that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons. Each item can be `type: "link"` or `type: "spacer"`. A spacer pushes items before it to the left and items after it to the right.
+The `navigation.header` array defines the items that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons.
 
-The header only renders when this array has at least one item, and it is where your [logo](site-config.md#logo) appears. If you want the logo in the header but have no links to put there, a single spacer is enough.
+The header renders when this array has at least one item, and it is where your [logo](site-config.md#logo) appears.
 
 ### Example
 
@@ -44,11 +44,9 @@ The header only renders when this array has at least one item, and it is where y
         "to": "/"
       },
       {
-        "type": "spacer"
-      },
-      {
         "type": "link",
         "title": "Log in",
+        "align": "end",
         "to": "https://dashboard.scalar.com/login"
       },
       {
@@ -56,6 +54,7 @@ The header only renders when this array has at least one item, and it is where y
         "title": "Register",
         "style": "button",
         "icon": "phosphor/regular/user-plus",
+        "align": "end",
         "newTab": true,
         "to": "https://dashboard.scalar.com/register"
       }
@@ -67,18 +66,96 @@ The header only renders when this array has at least one item, and it is where y
 }
 ```
 
-### Properties
+### Alignment
 
-| Property | Type                   | Required | Description                              |
-| -------- | ---------------------- | -------- | ---------------------------------------- |
-| `title`  | `string`               | Yes      | The display text for the header link     |
-| `type`   | `"link"` \| `"spacer"` | Yes      | Must be `"link"` or `"spacer"`           |
-| `to`     | `string`               | Yes      | The route path or URL the link points to |
-| `style`  | `"button" \| "text"`   | No       | Display style (defaults to `"text"`)     |
-| `icon`   | `string`               | No       | An icon to display next to the link      |
-| `newTab` | `boolean`              | No       | Whether to open the link in a new tab    |
+The header lays out in three regions, and each item picks its region with `align`:
 
-For `type: "spacer"`, no other properties are used; only `type` is required.
+| Value               | Where the item sits                                   |
+| ------------------- | ----------------------------------------------------- |
+| `start` (Default)   | Beside your logo                                      |
+| `center`            | In the middle of the header, alongside the search bar |
+| `end`               | At the far end of the header, opposite your logo      |
+
+Alignment is a property of top-level items. Items nested inside a [group](#group-dropdowns) ignore the `align` property.
+
+### Item types
+
+The header supports three types of item.
+
+#### Header links
+
+A link to a page on your site or to an external URL.
+
+```json
+{
+  "type": "link",
+  "title": "Log in",
+  "align": "end",
+  "to": "https://dashboard.scalar.com/login"
+}
+```
+
+| Property | Type                              | Required | Description                                                     |
+| -------- | --------------------------------- | -------- | --------------------------------------------------------------- |
+| `type`   | `"link"`                          | Yes      | Must be `"link"`                                                |
+| `title`  | `string`                          | Yes      | The display text for the header link                            |
+| `to`     | `string`                          | Yes      | The route path or URL the link points to                        |
+| `align`  | `"start" \| "center" \| "end"`    | No       | Which region the link sits in (defaults to `"start"`)           |
+| `style`  | `"text" \| "button"`              | No       | Display style (defaults to `"text"`)                            |
+| `icon`   | `string`                          | No       | An icon to display next to the link                             |
+| `newTab` | `boolean`                         | No       | Whether to open the link in a new tab (defaults to `false`)     |
+
+#### Group dropdowns
+
+A group collects several links into a single dropdown.
+
+```json
+{
+  "type": "group",
+  "title": "Resources",
+  "icon": "phosphor/regular/books",
+  "children": [
+    {
+      "type": "link",
+      "title": "API Reference",
+      "to": "/reference"
+    },
+    {
+      "type": "link",
+      "title": "Changelog",
+      "to": "/changelog"
+    }
+  ]
+}
+```
+
+| Property   | Type                           | Required | Description                                            |
+| ---------- | ------------------------------ | -------- | ------------------------------------------------------ |
+| `type`     | `"group"`                      | Yes      | Must be `"group"`                                      |
+| `title`    | `string`                       | Yes      | The display text for the dropdown                      |
+| `children` | `array`                        | Yes      | The links inside the dropdown                          |
+| `align`    | `"start" \| "center" \| "end"` | No       | Which region the group sits in (defaults to `"start"`) |
+| `icon`     | `string`                       | No       | An icon to display next to the group                   |
+
+`children` accepts link items only. Each child takes the same properties as a [header link](#header-links).
+
+#### Version selector
+
+Places the [version](versions.md) dropdown at a specific position in the header.
+
+```json
+{
+  "type": "version-selector",
+  "align": "end"
+}
+```
+
+| Property | Type                           | Required | Description                                               |
+| -------- | ------------------------------ | -------- | --------------------------------------------------------- |
+| `type`   | `"version-selector"`           | Yes      | Must be `"version-selector"`                              |
+| `align`  | `"start" \| "center" \| "end"` | No       | Which region the selector sits in (defaults to `"start"`) |
+
+The selector only renders when your project defines more than one version. If you do not add this item, it renders next to your logo.
 
 ## Sidebar
 
