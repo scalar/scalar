@@ -72,7 +72,7 @@ function dismiss() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 16px;
 }
 
 .infoText {
@@ -86,6 +86,7 @@ function dismiss() {
   min-width: 0;
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-font-size-3);
+  line-height: 1.4;
 }
 
 .infoIcon {

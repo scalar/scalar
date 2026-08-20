@@ -532,6 +532,14 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   padding-inline: 24px;
 }
 
+/* The docked composer is `position: fixed`, so it escapes the panel body's
+   inline padding and would otherwise sit flush against the drawer edges.
+   Inset it by the same amount so it lines up with the message column. */
+.agent-scalar-panel-body :deep(.formContainer) {
+  box-sizing: border-box;
+  padding-inline: 24px;
+}
+
 /* Mobile: full-width panel */
 @media (max-width: 1000px) {
   .agent-scalar-panel {
