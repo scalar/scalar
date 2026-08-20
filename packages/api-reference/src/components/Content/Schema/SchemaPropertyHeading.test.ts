@@ -86,7 +86,12 @@ describe('SchemaPropertyHeading', () => {
     const detailsElement = wrapper.find('.property-heading')
     expect(detailsElement.text()).toContain('2')
     expect(detailsElement.text()).toContain('8')
-    expect(detailsElement.text()).toContain('^[a-z]+$')
+
+    // The pattern of primitive array items is surfaced on the array heading via
+    // the SchemaPropertyPattern popup (the items are not rendered on their own).
+    const patternComponent = wrapper.findComponent({ name: 'SchemaPropertyPattern' })
+    expect(patternComponent.exists()).toBe(true)
+    expect(patternComponent.props('pattern')).toBe('^[a-z]+$')
   })
 
   it('renders numeric constraints of primitive array items', () => {
@@ -517,7 +522,7 @@ describe('SchemaPropertyHeading', () => {
   })
 
   describe('pattern', () => {
-    it('renders pattern property', () => {
+    it('renders SchemaPropertyPattern component for a pattern', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: coerceValue(SchemaObjectSchema, {
@@ -526,12 +531,13 @@ describe('SchemaPropertyHeading', () => {
           }),
         },
       })
-      const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('Pattern:')
-      expect(detailsElement.text()).toContain('^[a-zA-Z0-9]+$')
+
+      const patternComponent = wrapper.findComponent({ name: 'SchemaPropertyPattern' })
+      expect(patternComponent.exists()).toBe(true)
+      expect(patternComponent.props('pattern')).toBe('^[a-zA-Z0-9]+$')
     })
 
-    it('renders pattern property with complex regex', () => {
+    it('renders the full pattern value in the hover popup', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: coerceValue(SchemaObjectSchema, {
@@ -540,9 +546,19 @@ describe('SchemaPropertyHeading', () => {
           }),
         },
       })
-      const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('Pattern:')
-      expect(detailsElement.text()).toContain('^\\d{4}-\\d{2}-\\d{2}$')
+
+      expect(wrapper.find('.property-pattern-popup code').text()).toBe('^\\d{4}-\\d{2}-\\d{2}$')
+    })
+
+    it('does not render SchemaPropertyPattern when pattern is absent', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+        },
+      })
+
+      const patternComponent = wrapper.findComponent({ name: 'SchemaPropertyPattern' })
+      expect(patternComponent.exists()).toBe(false)
     })
   })
 
