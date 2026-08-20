@@ -15,6 +15,14 @@ export type McpLinkConfiguration = {
   url?: string
 }
 
+/**
+ * Base64-encode a UTF-8 string. `btoa` operates on Latin1 and throws on any
+ * multibyte character (for example a Unicode MCP server name), so encode the
+ * string to UTF-8 bytes first. The MCP config is small, so spreading the byte
+ * array into `fromCharCode` is safe.
+ */
+const base64Utf8 = (value: string): string => btoa(String.fromCharCode(...new TextEncoder().encode(value)))
+
 type UseMcpActionsOptions = {
   config?: McpLinkConfiguration
   externalUrls: ExternalUrls
@@ -50,7 +58,7 @@ export const useMcpActions = (options: UseMcpActionsOptions): UseMcpActionsRetur
 
   const hasConfig = Boolean(options.config?.name || options.config?.url)
 
-  const encoded = btoa(JSON.stringify(options.config ?? {}))
+  const encoded = base64Utf8(JSON.stringify(options.config ?? {}))
 
   const name = encodeURIComponent(options.config?.name ?? '')
   const cursorLink = `cursor://anysphere.cursor-deeplink/mcp/install?name=${name}&config=${encoded}`
@@ -99,11 +107,19 @@ export const useMcpActions = (options: UseMcpActionsOptions): UseMcpActionsRetur
 
   /** Open the registration link in a new tab */
   const openRegisterLink = (documentUrl: string): void => {
-    const url = new URL(`${options.externalUrls.dashboardUrl}/register`)
-    url.searchParams.set('url', documentUrl)
-    url.searchParams.set('createMcp', 'true')
+    try {
+      const url = new URL(`${options.externalUrls.dashboardUrl}/register`)
+      url.searchParams.set('url', documentUrl)
+      url.searchParams.set('createMcp', 'true')
 
-    window.open(url.toString(), '_blank')
+      // `noopener,noreferrer`: the opened dashboard tab must not reach back
+      // into this window through `window.opener`.
+      window.open(url.toString(), '_blank', 'noopener,noreferrer')
+    } catch {
+      // A missing or malformed `dashboardUrl` makes `new URL` throw — surface
+      // it instead of leaving the click silently dead.
+      toast(translate('developerTools.unknownError'), 'error')
+    }
   }
 
   return {
