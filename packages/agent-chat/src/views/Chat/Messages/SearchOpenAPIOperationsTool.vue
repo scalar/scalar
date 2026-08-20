@@ -69,7 +69,8 @@ const state = useState()
     v-if="
       messagePart.value.state === 'input-available' &&
       state.chat.status === 'streaming'
-    ">
+    "
+    class="loadingOperations">
     <ChatStatusBadge
       label="Retrieving relevant information..."
       status="running" />
@@ -104,6 +105,14 @@ const state = useState()
 </template>
 
 <style scoped>
+.loadingOperations {
+  margin-bottom: 10px;
+}
+/* The donor badge used the muted tone for this row; keep it. */
+.loadingOperations :deep(.chat-status-badge) {
+  color: var(--scalar-color-2);
+  min-height: 0;
+}
 .operations {
   display: flex;
   gap: 5px;
