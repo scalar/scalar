@@ -95,8 +95,8 @@ const showCopy = computed(() => copy && isContentValid.value)
 
 /**
  * A one-liner has the copy button floating over the end of the line, so the line needs room to
- * scroll clear of it. The padding goes on the `w-fit` <pre> because browsers disagree about whether
- * trailing padding on an `overflow-x` container is scrollable.
+ * scroll clear of the button. The padding goes on the `w-fit` <pre> because browsers disagree about
+ * whether trailing padding on an `overflow-x` container is scrollable.
  */
 const reserveCopySpace = computed(() => isOneLine.value && showCopy.value)
 
@@ -118,7 +118,7 @@ const { cx } = useBindCx()
       <pre
         :id="id"
         class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"
-        :class="{ 'pr-18': reserveCopySpace }"
+        :class="{ 'pr-6': reserveCopySpace }"
         v-html="highlightedCode" />
     </div>
     <ScalarCodeBlockCopy
