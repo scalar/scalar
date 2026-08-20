@@ -341,8 +341,15 @@ export function useResizablePane(options: ResizablePaneOptions): ResizablePane {
   }
 
   function onKeydown(event: KeyboardEvent) {
-    const grow = axis === 'x' ? 'ArrowLeft' : 'ArrowUp'
-    const shrink = axis === 'x' ? 'ArrowRight' : 'ArrowDown'
+    // The arrow that grows the pane mirrors the drag: an `end`-anchored pane
+    // (docked right or bottom) grows as the pointer moves toward its edge —
+    // left or up — while a `start`-anchored pane (a right-to-left docked
+    // panel, or a top dock) grows the opposite way. Hardcoding the end-anchor
+    // directions inverted keyboard resizing for every start-anchored pane.
+    const grow =
+      axis === 'x' ? (anchor === 'end' ? 'ArrowLeft' : 'ArrowRight') : anchor === 'end' ? 'ArrowUp' : 'ArrowDown'
+    const shrink =
+      axis === 'x' ? (anchor === 'end' ? 'ArrowRight' : 'ArrowLeft') : anchor === 'end' ? 'ArrowDown' : 'ArrowUp'
 
     let next: number | null = null
 

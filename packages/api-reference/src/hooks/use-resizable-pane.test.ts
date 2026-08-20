@@ -260,6 +260,19 @@ describe('use-resizable-pane', () => {
       expect(pane.size.value).toBe(400)
     })
 
+    it('flips the arrow direction for a start-anchored pane', () => {
+      // A start-anchored pane (the right-to-left agent panel) grows toward the
+      // pointer as it moves away from the left edge, so the keyboard must grow
+      // it with ArrowRight — the mirror of the end-anchored default.
+      const { pane } = setup({ anchor: 'start', measureEdge: () => 0 })
+
+      pane.onKeydown(keyEvent('ArrowRight'))
+      expect(pane.size.value).toBe(416)
+
+      pane.onKeydown(keyEvent('ArrowLeft'))
+      expect(pane.size.value).toBe(400)
+    })
+
     it('pages by the larger step', () => {
       const { pane } = setup()
 
