@@ -8,7 +8,9 @@ import { type Ref, ref } from 'vue'
 import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
-const EMPTY_REQUEST_BODY_COMPOSITION_SELECTION = {} as Record<string, number>
+// Frozen so this shared fallback cannot be mutated in place, which would leak a stale selection into
+// every future open that falls back to empty. Callers only ever reassign the ref, never mutate it.
+const EMPTY_REQUEST_BODY_COMPOSITION_SELECTION = Object.freeze({}) as Record<string, number>
 
 export function initializeModalEvents({
   eventBus,

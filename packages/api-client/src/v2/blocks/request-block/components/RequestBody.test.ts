@@ -3,7 +3,6 @@ import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/sc
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
-import { stringify as stringifyYaml } from 'yaml'
 
 import RequestBody from './RequestBody.vue'
 import RequestTable from './RequestTable.vue'
@@ -464,7 +463,66 @@ describe('RequestBody', () => {
       [
         {
           contentType: 'application/yaml',
-          payload: stringifyYaml({ name: '', mass: 1, hasRings: true }),
+          // Assert the literal YAML so a serialization/formatting regression is actually caught,
+          // rather than comparing the codec's output against itself.
+          payload: 'name: ""\nmass: 1\nhasRings: true\n',
+        },
+      ],
+    ])
+  })
+
+  it('clears the body when the selected branch generates null', async () => {
+    // A `type: null` (or otherwise value-less) branch makes schema generation return `null`, not
+    // `undefined`. The reset must still clear the editor rather than write the literal text `null`.
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+              { type: 'null' },
+            ],
+          } as SchemaObject,
+          example: JSON.stringify({ name: 'Edited Earth' }),
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+        requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toStrictEqual([
+      [
+        {
+          contentType: 'application/json',
+          payload: '',
         },
       ],
     ])

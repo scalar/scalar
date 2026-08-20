@@ -7,12 +7,10 @@ import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
-  getExampleFromSchema,
+  getSchemaExampleFromBody,
   getSelectedBodyContentType,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -195,21 +193,6 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
   )
 })
 
-/**
- * Deep-resolved request body schema. `bodySchema` only resolves the top-level `$ref`, which leaves
- * nested `$ref` members (common for composition branches) unresolved. Mirror `getExampleFromBody`
- * and deep-resolve here so regenerating a body on a branch switch produces the same value the
- * initial example does, instead of emitting `null` for referenced sub-objects.
- */
-const resolvedBodySchema = computed<SchemaObject | undefined>(() => {
-  const schema = requestBody?.content?.[selectedContentType.value]?.schema
-  if (!schema) {
-    return undefined
-  }
-
-  return getResolvedRefDeep(getResolvedRef(schema)) as SchemaObject
-})
-
 /** Codec for structured (JSON/YAML) bodies, undefined for everything else */
 const structuredCodec = computed(() =>
   selectedContentType.value === 'none'
@@ -264,7 +247,9 @@ watch(
       requestBody !== previousRequestBody || exampleKey !== previousExampleKey
     const selectionChanged = selection !== previousSelection
 
-    // Only a genuine branch switch within the same operation should reset the edited body.
+    // Only a genuine branch switch within the same operation should reset the edited body. An empty
+    // selection means there is no composition to switch between (or the selection was cleared on an
+    // operation change), so there is nothing to reset.
     if (
       operationChanged ||
       !selectionChanged ||
@@ -273,26 +258,23 @@ watch(
       return
     }
 
-    const schema = resolvedBodySchema.value
     const codec = structuredCodec.value
-    if (!schema || !codec) {
+    if (!requestBody || !codec) {
       return
     }
 
-    const selectedValue = getExampleFromSchema(
-      schema,
-      {
-        mode: 'write',
-        compositionSelection: requestBodyCompositionSelection,
-      },
-      { schemaPath: ['requestBody'] },
+    // Regenerate through the same helper the initial example uses so a reset produces exactly the
+    // value a fresh render of this branch would, rather than a hand-copied second code path.
+    const selectedValue = getSchemaExampleFromBody(
+      requestBody,
+      selectedContentType.value,
+      requestBodyCompositionSelection,
     )
 
     emits('update:value', {
-      // A branch with no writable content generates `undefined`; clear the editor rather than
-      // leaving the previously selected branch's body behind.
-      payload:
-        selectedValue === undefined ? '' : codec.stringify(selectedValue),
+      // A branch with no writable content generates `null`/`undefined`; clear the editor rather than
+      // writing the literal text `null` or leaving the previously selected branch's body behind.
+      payload: selectedValue == null ? '' : codec.stringify(selectedValue),
       contentType: selectedContentType.value,
     })
   },
