@@ -161,6 +161,41 @@ describe('Schema', () => {
       expect(text).toContain('This description should not be shown')
     })
 
+    it('shows the own description of a standalone allOf schema', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          level: 1,
+          noncollapsible: true,
+          hideHeading: true,
+          schema: coerceValue(SchemaObjectSchema, {
+            description: 'A job.',
+            allOf: [
+              {
+                type: 'object',
+                description: 'Base class for all searchable entities.',
+                properties: { entityType: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                properties: { jobNumber: { type: 'string' } },
+              },
+            ],
+          }),
+          options: {},
+        },
+      })
+
+      const text = wrapper.text()
+
+      // The schema's own description renders exactly once. The member cards must
+      // not repeat it, otherwise the same text would show twice.
+      expect(text.split('A job.').length - 1).toBe(1)
+
+      // The allOf member still renders its own description, so nothing is lost.
+      expect(text).toContain('Base class for all searchable entities.')
+    })
+
     it('shows the parent description for discriminator-based oneOf schemas', () => {
       const wrapper = mount(Schema, {
         props: {

@@ -712,6 +712,58 @@ describe('createSearchIndex', () => {
         body: '',
       })
     })
+
+    it('labels a legacy x-tagGroups wrapper as a tag group', () => {
+      const document = createMockDocument({
+        tags: [{ name: 'Users' }],
+        'x-tagGroups': [{ name: 'Administration', tags: ['Users'] }],
+        paths: {
+          '/users': {
+            get: {
+              tags: ['Users'],
+              summary: 'Get Users',
+            },
+          },
+        },
+      })
+
+      const index = createSearchIndex(document)
+
+      const groupEntry = index.find((item) => item.type === 'tag' && item.title === 'Administration')
+      expect(groupEntry).toMatchObject({
+        type: 'tag',
+        title: 'Administration',
+        description: 'Tag Group',
+      })
+    })
+
+    it('keeps the description of an OpenAPI 3.2 operation-less parent tag', () => {
+      const document = createMockDocument({
+        tags: [
+          { name: 'Galaxy', description: 'Everything about the galaxy' },
+          { name: 'Planets', parent: 'Galaxy' },
+        ],
+        paths: {
+          '/planets': {
+            get: {
+              tags: ['Planets'],
+              summary: 'List planets',
+            },
+          },
+        },
+      })
+
+      const index = createSearchIndex(document)
+
+      // The parent is a real tag section, not a legacy x-tagGroups wrapper, so it keeps
+      // its own description instead of the generic "Tag Group" label.
+      const parentEntry = index.find((item) => item.type === 'tag' && item.title === 'Galaxy')
+      expect(parentEntry).toMatchObject({
+        type: 'tag',
+        title: 'Galaxy',
+        description: 'Everything about the galaxy',
+      })
+    })
   })
 
   describe('document info', () => {

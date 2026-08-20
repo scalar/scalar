@@ -1,5 +1,13 @@
 # @scalar/types
 
+## 0.18.1
+
+### Patch Changes
+
+- [#9872](https://github.com/scalar/scalar/pull/9872): Bump shared runtime dependencies: `js-base64` (`^3.7.8` -> `^3.9.2`) and `type-fest` (`^5.3.1` -> `^5.8.0`).
+- [#9893](https://github.com/scalar/scalar/pull/9893): Show schema `pattern` as a hover dropdown in the API reference, similar to examples. Long regex patterns are now revealed on hover instead of being truncated inline.
+- [#9913](https://github.com/scalar/scalar/pull/9913): Add Julia (HTTP.jl) as a code example target. The new `julia/http` client generates HTTP.jl snippets, including headers, query parameters, cookies, basic auth, JSON bodies (as `Dict`s serialized with `JSON.json`), url-encoded bodies and `HTTP.Form` multipart uploads. Julia syntax highlighting and a Julia icon are included, so the client shows up in the code example picker like any other language.
+
 ## 0.18.0
 
 ### Minor Changes

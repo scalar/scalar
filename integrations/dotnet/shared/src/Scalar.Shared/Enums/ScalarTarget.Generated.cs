@@ -85,6 +85,12 @@ public enum ScalarTarget
     JavaScript,
 
     /// <summary>
+    /// Julia.
+    /// </summary>
+    [Description("julia")]
+    Julia,
+
+    /// <summary>
     /// Kotlin.
     /// </summary>
     [Description("kotlin")]

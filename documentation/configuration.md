@@ -748,6 +748,8 @@ Here's a list of all clients that you can potentially hide:
     java: ['asynchttp', 'nethttp', 'okhttp', 'unirest'],
     // JavaScript
     js: ['axios', 'fetch', 'jquery', 'ofetch', 'xhr'],
+    // Julia
+    julia: ['http'],
     // Kotlin
     kotlin: ['okhttp'],
     // Node.js
