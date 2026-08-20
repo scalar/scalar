@@ -206,6 +206,35 @@ describe('create-approval-store', () => {
     expect(store.pending.value).toEqual([])
   })
 
+  it('keeps approving the queue when one executor throws', async () => {
+    const chat = createFakeChat([requestPart('call-1', 'POST'), requestPart('call-2', 'POST')])
+    const seen: string[] = []
+    const store = createApprovalStore({
+      chat,
+      registry: openApiApprovalPolicies,
+      executors: {
+        'execute-request': (part) => {
+          seen.push(part.toolCallId)
+
+          // The first call's executor blows up; the rest of the queue must
+          // still be processed rather than stranded on the approval bar.
+          if (part.toolCallId === 'call-1') {
+            return Promise.reject(new Error('boom'))
+          }
+
+          chat.addToolOutput({ tool: 'execute-request', toolCallId: part.toolCallId, output: { success: true } })
+          return Promise.resolve()
+        },
+      },
+    })
+
+    await store.approveAll()
+
+    expect(seen).toEqual(['call-1', 'call-2'])
+    // call-2 resolved and reported output, so only the failed call-1 lingers.
+    expect(store.pending.value.map((approval) => approval.toolCallId)).toEqual(['call-1'])
+  })
+
   it('rejects everything pending at once', async () => {
     const chat = createFakeChat([requestPart('call-1', 'POST'), requestPart('call-2', 'PUT')])
     const store = createApprovalStore({

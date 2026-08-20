@@ -188,15 +188,28 @@ export const createApprovalStore = (options: ApprovalStoreOptions): ApprovalStor
     })
   }
 
+  // Bulk decisions must not strand the rest of the queue: an executor (or a
+  // legacy `addToolOutput`) that throws for one call would otherwise abort the
+  // loop, leaving every later pending decision unhandled and still on the bar.
+  // Isolate each so one failure never blocks the others; the single-call
+  // `approve`/`reject` still surface their errors to direct callers.
   const approveAll = async (): Promise<void> => {
     for (const approval of [...pending.value]) {
-      await approve(approval.toolCallId)
+      try {
+        await approve(approval.toolCallId)
+      } catch (error) {
+        console.warn('Failed to approve tool call', error)
+      }
     }
   }
 
   const rejectAll = async (reason?: string): Promise<void> => {
     for (const approval of [...pending.value]) {
-      await reject(approval.toolCallId, reason)
+      try {
+        await reject(approval.toolCallId, reason)
+      } catch (error) {
+        console.warn('Failed to reject tool call', error)
+      }
     }
   }
 
