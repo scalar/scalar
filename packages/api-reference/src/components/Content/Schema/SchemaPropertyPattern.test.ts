@@ -40,12 +40,14 @@ describe('SchemaPropertyPattern', () => {
     expect(wrapper.find('svg').exists()).toBe(true)
   })
 
-  it('popup is hidden by default (display: none via CSS)', () => {
+  it('always renders the popup element in the DOM', () => {
     const wrapper = mount(SchemaPropertyPattern, {
       props: { pattern: '^\\d+$' },
     })
 
-    // The popup element exists in the DOM but is hidden via CSS
+    // The popup is always present and toggled purely via CSS (hover/focus-within).
+    // Its actual visibility is covered by the Playwright e2e tests, since jsdom
+    // does not apply the scoped stylesheet.
     expect(wrapper.find('.property-pattern-popup').exists()).toBe(true)
   })
 })
