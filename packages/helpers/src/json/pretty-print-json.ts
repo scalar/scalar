@@ -19,70 +19,59 @@ export const prettyPrintJson = (value: string | number | any[] | Record<any, any
 
   if (typeof value === 'object') {
     /*
-     * A structure that reuses the same object reference in many places (a "diamond" graph) gets
-     * expanded once per path by JSON.stringify. That is the output we want, since a schema type
-     * used by two properties should be shown for both. But for a deeply shared graph the expansion
-     * grows exponentially and freezes the tab. This happens with deeply resolved, recursive OpenAPI
-     * schemas, where circular $refs are already cut to '[circular]' strings yet sibling types remain
-     * shared. So expand shared references, unless expanding them would blow up the output.
+     * A structure that reuses the same object reference in many places (a "diamond" graph) is
+     * expanded once per path, so a schema type used by two properties is shown for both. But a
+     * deeply shared graph expands exponentially and would freeze the tab. This happens with deeply
+     * resolved, recursive OpenAPI schemas, where circular $refs are already cut to '[circular]'
+     * strings yet sibling types remain shared. So we expand shared references up to a node budget,
+     * and fall back to collapsing every repeated reference once that budget is exceeded, which keeps
+     * the output linear no matter how the graph is shaped.
      */
-    return countExpandedNodes(value, new Map()) > MAX_EXPANDED_NODES
-      ? replaceRepeatedReferences(value)
-      : replaceCircularDependencies(value)
+    try {
+      return replaceCircularDependencies(value)
+    } catch (error) {
+      if (error === EXPANSION_LIMIT_EXCEEDED) {
+        return replaceRepeatedReferences(value)
+      }
+
+      throw error
+    }
   }
 
   return value?.toString() ?? ''
 }
 
-/** How many nodes the fully expanded output may hold before repeated references are collapsed. */
+/** How many nodes the expanded output may hold before repeated references are collapsed. */
 const MAX_EXPANDED_NODES = 100_000
 
 /**
- * Counts the nodes a fully expanded JSON.stringify would emit, so a shared reference reachable
- * through many paths is counted once per path. Results are memoized, which keeps the walk itself
- * cheap even when the expanded count is astronomical.
+ * Sentinel thrown to unwind out of JSON.stringify once the expanded output grows past the node
+ * budget. A single shared instance is reused, so recognizing it is a cheap identity check.
  */
-const countExpandedNodes = (value: any, cache: Map<object, number>): number => {
-  if (typeof value !== 'object' || value === null) {
-    return 1
-  }
-
-  const cached = cache.get(value)
-
-  if (cached !== undefined) {
-    return cached
-  }
-
-  // Seed the cache before recursing, so a circular reference does not loop forever
-  cache.set(value, 1)
-
-  let total = 1
-
-  for (const child of Object.values(value)) {
-    total += countExpandedNodes(child, cache)
-
-    if (total > MAX_EXPANDED_NODES) {
-      break
-    }
-  }
-
-  cache.set(value, total)
-
-  return total
-}
+const EXPANSION_LIMIT_EXCEEDED = new Error('Expanded JSON exceeded the node limit')
 
 /**
  * JSON.stringify, but with circular references replaced with '[Circular]'.
  *
  * Only references that are already on the current path are collapsed, so the same object used in
- * two sibling positions is expanded in both.
+ * two sibling positions is expanded in both. Expanding a deeply shared graph can still blow up
+ * exponentially, so the number of emitted nodes is capped: once it passes MAX_EXPANDED_NODES the
+ * walk throws EXPANSION_LIMIT_EXCEEDED, which prettyPrintJson catches to fall back to collapsing
+ * every repeated reference.
  */
 export function replaceCircularDependencies(content: any) {
   const ancestors: any[] = []
+  let expandedNodes = 0
 
   return JSON.stringify(
     content,
     function (this: any, _key, value) {
+      expandedNodes += 1
+
+      if (expandedNodes > MAX_EXPANDED_NODES) {
+        throw EXPANSION_LIMIT_EXCEEDED
+      }
+
       if (typeof value !== 'object' || value === null) {
         return value
       }

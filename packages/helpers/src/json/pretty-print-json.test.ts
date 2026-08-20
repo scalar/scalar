@@ -99,4 +99,32 @@ describe('prettyPrintJson', () => {
     expect(result.length).toBeLessThan(10_000)
     expect(result).toContain('[Circular]')
   })
+
+  it('does not explode on a graph that mixes real cycles with heavy sharing', () => {
+    /*
+     * Measuring the expanded size up front can under-count this shape: a node first reached through a
+     * cycle is measured with its back-edge cut, yet it expands in full wherever the cycle is absent, so
+     * the real output still grows as 2^depth. The node budget is therefore enforced while expanding
+     * rather than predicted up front, so this falls back to collapsing repeats instead of freezing the
+     * tab (or throwing on the maximum string length).
+     */
+    const buildCyclicDiamond = (depth: number): Record<string, unknown> => {
+      if (depth === 0) {
+        return { leaf: true }
+      }
+
+      const shared: Record<string, unknown> = { data: buildCyclicDiamond(depth - 1) }
+      const cycle = { ref: shared }
+      shared.cycle = cycle
+
+      // `shared` is used twice and `shared.cycle.ref` points back to it: a real cycle plus sharing
+      return { a: shared, b: cycle }
+    }
+
+    const result = prettyPrintJson(buildCyclicDiamond(40))
+
+    // Bounded output rather than 2^depth, and no thrown RangeError
+    expect(result.length).toBeLessThan(1_000_000)
+    expect(result).toContain('[Circular]')
+  })
 })
