@@ -44,10 +44,10 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// You can also provide a document name as a route parameter in the browser (e.g., <c>"/scalar/v1"</c>).
     /// </remarks>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, Action<ScalarOptions> configureOptions) =>
-        endpoints.MapScalarApiReference(DefaultEndpointPrefix, (options, _) => 
-        { 
-            configureOptions?.Invoke(options); 
-            return Task.CompletedTask; 
+        endpoints.MapScalarApiReference(DefaultEndpointPrefix, (options, _) =>
+        {
+            configureOptions?.Invoke(options);
+            return Task.CompletedTask;
         });
 
     /// <summary>
@@ -76,10 +76,10 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// You can also provide a document name as a route parameter in the browser (e.g., <c>"/scalar/v1"</c>).
     /// </remarks>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, Action<ScalarOptions, HttpContext>? configureOptions) =>
-        endpoints.MapScalarApiReference(DefaultEndpointPrefix, (options, context) => 
-        { 
-            configureOptions?.Invoke(options, context); 
-            return Task.CompletedTask; 
+        endpoints.MapScalarApiReference(DefaultEndpointPrefix, (options, httpContext) =>
+        {
+            configureOptions?.Invoke(options, httpContext);
+            return Task.CompletedTask;
         });
 
     /// <summary>
@@ -112,10 +112,10 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// The <paramref name="endpointPrefix" /> parameter allows you to customize the base path where the Scalar API reference will be served.
     /// </remarks>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string endpointPrefix, Action<ScalarOptions> configureOptions) =>
-        endpoints.MapScalarApiReference(endpointPrefix, (options, _) => 
-        { 
-            configureOptions?.Invoke(options); 
-            return Task.CompletedTask; 
+        endpoints.MapScalarApiReference(endpointPrefix, (options, _) =>
+        {
+            configureOptions?.Invoke(options);
+            return Task.CompletedTask;
         });
 
     /// <summary>
@@ -190,10 +190,7 @@ public static class ScalarEndpointRouteBuilderExtensions
             }
 
             var options = optionsSnapshot.Value;
-            if (configureOptions is not null)
-            {
-                await configureOptions.Invoke(options, httpContext);
-            }
+            await configureOptions(options, httpContext);
 
             // If a document name is provided as route parameter, clear the document names and add the provided document name
             if (!string.IsNullOrEmpty(documentName))
