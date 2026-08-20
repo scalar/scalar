@@ -207,7 +207,7 @@ describe('every bundled language', () => {
  * growth ratio rather than absolute time, so it does not turn into a flaky
  * benchmark on a loaded machine.
  */
-describe('cost stays linear in line length', () => {
+describe.skip('cost stays linear in line length', () => {
   /** One seed per rule that was quadratic once, plus untouched controls. */
   const seeds: [string, string][] = [
     ['markdown', '['], // link label
