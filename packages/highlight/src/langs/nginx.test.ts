@@ -323,11 +323,18 @@ describe('nginx cost on a pathological line', () => {
    * stall landing in the middle of the first input's runs shows up as a
    * regression; alternating puts that stall in both sides' samples, and
    * best-of keeps whichever runs were not disturbed.
+   *
+   * The count is high on purpose. Best-of only works once each side has landed
+   * one undisturbed run, and on a loaded CI runner nine passes were not always
+   * enough — every `braces` run caught a stall while `semicolons` found a clean
+   * one, so the numerator never reached its floor and the ratio flaked to 2.x
+   * against a healthy 1.1x. More passes is more chances for each side to reach
+   * its true minimum; the ratio of the two floors is a property of the grammar.
    */
   const costRatio = (a: string, b: string): number => {
     let bestA = Number.POSITIVE_INFINITY
     let bestB = Number.POSITIVE_INFINITY
-    for (let run = 0; run < 9; run++) {
+    for (let run = 0; run < 40; run++) {
       let start = performance.now()
       tokenize(a, 'nginx')
       bestA = Math.min(bestA, (performance.now() - start) / a.length)
@@ -375,9 +382,9 @@ describe('nginx cost on a pathological line', () => {
       `a brace-dense line cost ${ratio.toFixed(1)}x a semicolon-dense one of the same shape, ` +
         'which means the block lookahead is scanning its whole window at every brace',
     ).toBeLessThan(2)
-    // Eighteen timed passes over 360 KB do not fit the 5 s default. The
-    // payload is deliberately this large: the shorter one made each run brief
-    // enough that a scheduler stall was a large fraction of it, and the ratio
-    // flaked to 2.7x under CPU contention against a healthy 1.2x.
+    // Eighty timed passes over 360 KB do not fit the 5 s default. The payload
+    // is deliberately this large: the shorter one made each run brief enough
+    // that a scheduler stall was a large fraction of it, and the ratio flaked
+    // to 2.7x under CPU contention against a healthy 1.2x.
   }, 60_000)
 })
