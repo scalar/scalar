@@ -232,52 +232,55 @@ const parsedBody = computed<{ ok: boolean; value?: unknown }>(() => {
 const compositionSelectionKey = computed(() =>
   JSON.stringify(requestBodyCompositionSelection ?? {}),
 )
-const previousCompositionSelectionKey = ref(compositionSelectionKey.value)
 
-// A selection from another operation is not a branch change for this body. Establish a new
-// baseline before the modal applies the selection belonging to the newly routed operation.
+// Switching operations changes the body (and often the selection) at once, which is not a branch
+// change, so we only regenerate the body when the selection changes while the operation and example
+// stay the same. Watching all three together and comparing against the watcher's own previous values
+// keeps this correct regardless of the order in which props update or watchers flush.
 watch(
-  () => [requestBody, exampleKey],
-  () => {
-    previousCompositionSelectionKey.value = compositionSelectionKey.value
+  [() => requestBody, () => exampleKey, compositionSelectionKey],
+  (
+    [, , selection],
+    [previousRequestBody, previousExampleKey, previousSelection],
+  ) => {
+    const operationChanged =
+      requestBody !== previousRequestBody || exampleKey !== previousExampleKey
+    const selectionChanged = selection !== previousSelection
+
+    // Only a genuine branch switch within the same operation should reset the edited body.
+    if (
+      operationChanged ||
+      !selectionChanged ||
+      Object.keys(requestBodyCompositionSelection ?? {}).length === 0
+    ) {
+      return
+    }
+
+    const schema = bodySchema.value
+    const codec = structuredCodec.value
+    if (!schema || !codec) {
+      return
+    }
+
+    const selectedValue = getExampleFromSchema(
+      schema,
+      {
+        mode: 'write',
+        compositionSelection: requestBodyCompositionSelection,
+      },
+      { schemaPath: ['requestBody'] },
+    )
+
+    if (selectedValue === undefined) {
+      return
+    }
+
+    emits('update:value', {
+      payload: codec.stringify(selectedValue),
+      contentType: selectedContentType.value,
+    })
   },
-  { flush: 'sync' },
 )
-
-watch(compositionSelectionKey, (selection) => {
-  const previousSelection = previousCompositionSelectionKey.value
-  previousCompositionSelectionKey.value = selection
-
-  const schema = bodySchema.value
-  const codec = structuredCodec.value
-
-  if (
-    selection === previousSelection ||
-    !schema ||
-    !codec ||
-    Object.keys(requestBodyCompositionSelection ?? {}).length === 0
-  ) {
-    return
-  }
-
-  const selectedValue = getExampleFromSchema(
-    schema,
-    {
-      mode: 'write',
-      compositionSelection: requestBodyCompositionSelection,
-    },
-    { schemaPath: ['requestBody'] },
-  )
-
-  if (selectedValue === undefined) {
-    return
-  }
-
-  emits('update:value', {
-    payload: codec.stringify(selectedValue),
-    contentType: selectedContentType.value,
-  })
-})
 
 /** The form view only works on an object-shaped body root */
 const isFormViewAvailable = computed(
