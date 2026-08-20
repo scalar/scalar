@@ -65,7 +65,9 @@ const { translate } = useLocalization()
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   padding: 9px;
   min-width: 200px;
-  max-width: 500px;
+  /* Cap the width so the centered popup never overflows a narrow viewport
+   * (mobile, modal). Long patterns wrap instead of widening it. */
+  max-width: min(500px, calc(100vw - 32px));
   display: none;
   @apply z-context;
 }
