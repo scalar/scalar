@@ -64,7 +64,8 @@ const { translate } = useLocalization()
   font-family: var(--scalar-font-code);
   display: flex;
   gap: 8px;
-  align-items: center;
+  /* Top-align so the copy icon stays with the first line of a wrapped pattern. */
+  align-items: flex-start;
   width: 100%;
   padding: 6px;
   background: var(--scalar-background-2);
@@ -76,9 +77,10 @@ const { translate } = useLocalization()
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-font-size-3);
   color: var(--scalar-color-2);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wrap long regex so the full pattern is readable, not just copyable. */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   flex: 1;
   text-align: left;
 }
