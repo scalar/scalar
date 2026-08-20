@@ -203,4 +203,58 @@ describe('RequestTable', () => {
     expect(headers[1]?.text()).toBe('Parameter Key')
     expect(headers[2]?.text()).toBe('Parameter Value')
   })
+
+  it('keys rows by parameter identity so a row instance is never reused for a different parameter', async () => {
+    // Regression: key:index bound each RequestTableRow instance to a position, so
+    // when displayData recomputed and the row order shifted, Vue reused the
+    // x-scenario-id instance for a different row (or the appended placeholder),
+    // blanking the parameter name. We assert on component-instance identity — not
+    // just the props — because that is what the stable key guarantees on its own,
+    // independent of the defensive guards inside RequestTableRow.
+    const wrapper = mount(RequestTable, {
+      props: {
+        data: [
+          {
+            name: 'x-scenario-id',
+            value: '200_success',
+            isDisabled: false,
+            originalParameter: { name: 'x-scenario-id', in: 'header' },
+          },
+        ],
+        environment,
+      },
+    })
+
+    const findScenario = () =>
+      wrapper.findAllComponents({ name: 'RequestTableRow' }).find((row) => row.props('data').name === 'x-scenario-id')
+
+    // The DOM node rendering x-scenario-id is the identity we track: Vue keeps the
+    // same node when it moves a keyed instance, but reuses a different node when it
+    // patches by index.
+    const elementBefore = findScenario()?.element
+    expect(elementBefore).toBeDefined()
+
+    // Prepend another parameter so x-scenario-id shifts from index 0 to index 1.
+    // With key:index Vue reuses the instance that sat at the new index (previously
+    // the placeholder) for x-scenario-id; with a stable key it moves the original
+    // instance, keeping the same node.
+    await wrapper.setProps({
+      data: [
+        {
+          name: 'x-request-id',
+          value: 'abc',
+          isDisabled: false,
+          originalParameter: { name: 'x-request-id', in: 'header' },
+        },
+        {
+          name: 'x-scenario-id',
+          value: '200_success',
+          isDisabled: false,
+          originalParameter: { name: 'x-scenario-id', in: 'header' },
+        },
+      ],
+    })
+
+    expect(findScenario()?.element).toBe(elementBefore)
+  })
 })
