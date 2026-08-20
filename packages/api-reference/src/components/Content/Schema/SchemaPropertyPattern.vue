@@ -39,6 +39,21 @@ const { translate } = useLocalization()
   position: relative;
 }
 
+/*
+ * Invisible bridge that fills the gap between the label and the popup, so the
+ * pointer can travel down into the popup without dropping the `:hover` state.
+ * Mirrors the same trick in SchemaPropertyExamples.vue.
+ */
+.property-pattern:hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  border-radius: var(--scalar-radius);
+}
+
 .property-pattern-popup {
   position: absolute;
   top: 18px;
