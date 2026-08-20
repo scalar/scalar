@@ -288,12 +288,11 @@ watch(
       { schemaPath: ['requestBody'] },
     )
 
-    if (selectedValue === undefined) {
-      return
-    }
-
     emits('update:value', {
-      payload: codec.stringify(selectedValue),
+      // A branch with no writable content generates `undefined`; clear the editor rather than
+      // leaving the previously selected branch's body behind.
+      payload:
+        selectedValue === undefined ? '' : codec.stringify(selectedValue),
       contentType: selectedContentType.value,
     })
   },
