@@ -12,18 +12,6 @@ name: Release
 #   2. create-github-release (only when something was published)
 #   3. push-to-scalar-registry (galaxy registry)
 #
-# Authentication is npm trusted publishing (OIDC), not a long-lived token. Each
-# public package carries a trusted publisher on npmjs.com pointing at this
-# repository and — because npm validates the *calling* workflow when a publish
-# runs inside a `workflow_call` — at `main.yml`, with the `production-npm`
-# environment. Configure a package (or a new one, after its first publish) with:
-#
-#   npm trust github <package> --repo scalar/scalar --file main.yml \
-#     --env production-npm --allow-publish
-#
-# A package without that configuration fails its PUT with a 404, which is how
-# the registry reports "not allowed to write here".
-#
 # Integration publishes (publish-integrations.yml) and the ToDesktop build
 # (todesktop.yml) are invoked from main.yml as siblings of the deploys instead
 # of from here: the deploys need this workflow's outputs, which only become
