@@ -65,7 +65,12 @@ export const upsertOperationParameter = (
     const param = originalParameter as typeof originalParameter & {
       examples: Record<string, ReferenceType<ExampleObject>>
     }
-    param.name = payload.name
+    // Only update the name when the payload carries a non-empty value — an
+    // empty name in the payload means the key input blurred before rendering
+    // its initial value and should not overwrite the existing parameter name.
+    if (payload.name || !param.name) {
+      param.name = payload.name
+    }
     if (!param.examples) {
       param.examples = {}
     }

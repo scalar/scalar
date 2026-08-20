@@ -106,7 +106,13 @@ const isDisabled = ref<boolean>(data.isDisabled ?? false)
 // Keep the above state synced with the data prop
 watch(
   () => data.name,
-  (newName) => (name.value = newName ?? ''),
+  (newName) => {
+    // Do not overwrite a valid local name with an empty incoming prop — this
+    // can happen when the placeholder row (appended by displayData) is briefly
+    // mapped onto this component instance before Vue re-keys the list.
+    if (!newName && name.value) return
+    name.value = newName ?? ''
+  },
 )
 watch(
   () => data.value,
@@ -205,6 +211,11 @@ const handleUpdateRow = (
  */
 const handleKeyBlur = (newName: string): void => {
   if (newName === data.name) {
+    return
+  }
+  // Do not emit an update that would blank the parameter name — this can fire
+  // when CodeInputLite blurs before it has rendered its initial value.
+  if (!newName && data.name) {
     return
   }
 

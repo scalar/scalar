@@ -68,8 +68,14 @@ export const isKeyCollisions = (a: unknown, b: unknown): boolean => {
  * ⚠️ Note: This operation assumes there are no key collisions between the objects.
  * Use isKeyCollisions() to check for collisions before merging.
  *
- * @param a - Target object to merge into
- * @param b - Source object to merge from
+ * ⚠️ Note: `a` is mutated in place and the subtrees `b` contributes are attached by reference, not
+ * cloned. Those subtrees stay shared with `b`, so a later write into one of them is seen through
+ * `b` as well. A key both objects already hold keeps the subtree of `a` and merges into it, so
+ * only what `b` brings along is shared. `merge` relies on this to fold two changes into one, which
+ * is how a merge ends up writing into the documents its diffs were built from.
+ *
+ * @param a - Target object to merge into, mutated in place
+ * @param b - Source object to merge from, whose subtrees are shared with the result
  * @returns The merged object (mutates and returns a)
  *
  * @example
