@@ -5,7 +5,7 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 import { useLocalization } from '@/features/localization'
 
-defineProps<{ pattern: string }>()
+const { pattern } = defineProps<{ pattern: string }>()
 
 const { copyToClipboard } = useClipboard()
 const { translate } = useLocalization()
@@ -19,7 +19,7 @@ const { translate } = useLocalization()
       <button
         class="property-pattern-value group"
         type="button"
-        :aria-label="translate('common.copyPattern')"
+        :aria-label="`${translate('common.copyPattern')}: ${pattern}`"
         @click="copyToClipboard(pattern)">
         <code>{{ pattern }}</code>
         <ScalarIcon

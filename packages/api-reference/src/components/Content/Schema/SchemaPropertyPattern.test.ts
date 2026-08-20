@@ -40,12 +40,15 @@ describe('SchemaPropertyPattern', () => {
     expect(wrapper.find('svg').exists()).toBe(true)
   })
 
-  it('gives the copy button an accessible label', () => {
+  it('gives the copy button an accessible label that includes the pattern', () => {
     const wrapper = mount(SchemaPropertyPattern, {
       props: { pattern: '^\\d+$' },
     })
 
-    expect(wrapper.find('.property-pattern-value').attributes('aria-label')).toBe('Copy pattern')
+    // The pattern is part of the label so screen readers announce the value,
+    // not just the copy action (the raw regex inside the button is otherwise
+    // not exposed as accessible text).
+    expect(wrapper.find('.property-pattern-value').attributes('aria-label')).toBe('Copy pattern: ^\\d+$')
   })
 
   it('always renders the popup element in the DOM', () => {
