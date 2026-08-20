@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.12.27
+
+### Patch Changes
+
+- [#9872](https://github.com/scalar/scalar/pull/9872): Bump shared runtime dependencies: `js-base64` (`^3.7.8` -> `^3.9.2`) and `type-fest` (`^5.3.1` -> `^5.8.0`).
+
 ## 0.12.26
 
 ## 0.12.25
