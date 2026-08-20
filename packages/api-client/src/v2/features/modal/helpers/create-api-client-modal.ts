@@ -177,6 +177,9 @@ export const createApiClientModal = ({
     app,
     /** Open the modal and optionally navigate to a specific route. */
     open: (payload?: RoutePayload): void => {
+      // This path does not carry a composition selection, so clear any selection left over from a
+      // previously opened operation. (The event-driven open path re-establishes it from its payload.)
+      requestBodyCompositionSelection.value = {}
       modalState.open = true
       if (payload) {
         route(payload)
