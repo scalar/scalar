@@ -142,6 +142,49 @@ describe('create-approval-store', () => {
     })
   })
 
+  it('sends a native approval only once for a rapid double-approve', async () => {
+    // The native part stays approval-requested until the SDK applies the
+    // response, so without the in-flight guard both clicks would send.
+    let resolveResponse: () => void = () => {}
+    const nativePart: ToolPartLike = {
+      type: 'tool-write_file',
+      toolCallId: 'call-9',
+      state: 'approval-requested',
+      input: { path: 'a.md', content: '' },
+      approval: { id: 'appr-9' },
+    }
+    const chat = createFakeChat([nativePart])
+    chat.addToolApprovalResponse = vi.fn(() => new Promise<void>((resolve) => (resolveResponse = resolve)))
+
+    const store = createApprovalStore({ chat, registry: {} })
+
+    const first = store.approve('call-9')
+    const second = store.approve('call-9')
+
+    resolveResponse()
+    await Promise.all([first, second])
+
+    expect(chat.addToolApprovalResponse).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not send a native response when the part has no approval id', async () => {
+    const nativePart: ToolPartLike = {
+      type: 'tool-write_file',
+      toolCallId: 'call-9',
+      state: 'approval-requested',
+      input: { path: 'a.md', content: '' },
+      // A malformed/streamed part can arrive without an approval id.
+      approval: { id: '' },
+    }
+    const chat = createFakeChat([nativePart])
+    const store = createApprovalStore({ chat, registry: {} })
+
+    await store.approve('call-9')
+    await store.reject('call-9', 'No thanks.')
+
+    expect(chat.addToolApprovalResponse).not.toHaveBeenCalled()
+  })
+
   it('approves in strict emission order', async () => {
     const chat = createFakeChat([requestPart('call-1', 'POST'), requestPart('call-2', 'POST')])
     const order: string[] = []

@@ -71,6 +71,12 @@ export const createApprovalStore = (options: ApprovalStoreOptions): ApprovalStor
   // derivation excludes them, which is what keeps the count honest.
   const applying = reactive(new Set<string>())
 
+  // toolCallIds whose native approval response is in flight. The native part
+  // stays `approval-requested` until the SDK applies the response, so without
+  // this a second click (or an `approveAll` snapshot) would send a duplicate
+  // `addToolApprovalResponse`. Excluding them from `pending` closes that.
+  const responding = reactive(new Set<string>())
+
   const toolParts = (): ToolPartLike[] =>
     chat.messages.flatMap((message) =>
       message.parts.filter((part): part is ToolPartLike & { [key: string]: unknown } => isToolPart(part)),
@@ -79,6 +85,10 @@ export const createApprovalStore = (options: ApprovalStoreOptions): ApprovalStor
   const pending = computed<PendingApproval[]>(() =>
     toolParts().flatMap((part): PendingApproval[] => {
       if (part.state === 'approval-requested') {
+        if (responding.has(part.toolCallId)) {
+          return []
+        }
+
         return [{ toolCallId: part.toolCallId, toolName: toolNameFromPart(part), part, native: true }]
       }
 
@@ -102,6 +112,35 @@ export const createApprovalStore = (options: ApprovalStoreOptions): ApprovalStor
   const findPending = (toolCallId: string): PendingApproval | undefined =>
     pending.value.find((approval) => approval.toolCallId === toolCallId)
 
+  /**
+   * Send a native approval decision. A part without an approval id cannot be
+   * answered — sending an empty id would apply the decision to the wrong call
+   * (or none), so bail instead. The `responding` guard keeps the part out of
+   * `pending` while the response is in flight, so a rapid double-click can no
+   * longer send a duplicate `addToolApprovalResponse`; once the response
+   * settles the part has transitioned and `pending` excludes it by state.
+   */
+  const respondNatively = async (
+    toolCallId: string,
+    part: ToolPartLike,
+    approved: boolean,
+    reason?: string,
+  ): Promise<void> => {
+    const id = part.approval?.id
+
+    if (!id || !chat.addToolApprovalResponse) {
+      return
+    }
+
+    responding.add(toolCallId)
+
+    try {
+      await chat.addToolApprovalResponse({ id, approved, reason })
+    } finally {
+      responding.delete(toolCallId)
+    }
+  }
+
   const approve = async (toolCallId: string): Promise<void> => {
     const approval = findPending(toolCallId)
 
@@ -110,7 +149,7 @@ export const createApprovalStore = (options: ApprovalStoreOptions): ApprovalStor
     }
 
     if (approval.native) {
-      await chat.addToolApprovalResponse?.({ id: approval.part.approval?.id ?? '', approved: true })
+      await respondNatively(toolCallId, approval.part, true)
       return
     }
 
@@ -137,7 +176,7 @@ export const createApprovalStore = (options: ApprovalStoreOptions): ApprovalStor
     }
 
     if (approval.native) {
-      await chat.addToolApprovalResponse?.({ id: approval.part.approval?.id ?? '', approved: false, reason })
+      await respondNatively(toolCallId, approval.part, false, reason)
       return
     }
 
