@@ -1,20 +1,28 @@
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { upgrade } from '@scalar/openapi-upgrader'
+import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { type Schema, coerce } from '@scalar/validation'
 
+import { deepClone } from '@/helpers/deep-clone'
 import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
 import { keyOf } from '@/helpers/general'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { createNavigation } from '@/navigation'
+import { mergeObjects } from '@/helpers/merge-object'
+import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument } from '@/schemas/navigation'
+import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   type ComponentsObject,
@@ -247,9 +255,9 @@ export type ServerWorkspaceStore = {
    * Loads and registers a document in the workspace.
    *
    * Supported inputs include:
-   * - `url`: fetch and parse an OpenAPI document from a remote URL
-   * - `path`: read and parse an OpenAPI document from the filesystem
-   * - `document`: use an in-memory OpenAPI object directly
+   * - `url`: fetch and parse an OpenAPI or AsyncAPI document from a remote URL
+   * - `path`: read and parse an OpenAPI or AsyncAPI document from the filesystem
+   * - `document`: use an in-memory OpenAPI or AsyncAPI object directly
    *
    * If loading fails, the document is not added.
    *
@@ -365,6 +373,65 @@ export async function createServerWorkspaceStore(
   >
 
   /**
+   * Adds an AsyncAPI document to the workspace.
+   *
+   * AsyncAPI keeps its content under `channels` and `operations` instead of `paths`, so none of the
+   * OpenAPI externalization applies: there are no path operations to split into chunks, and the
+   * consumers read channels and operations straight off the stored document. The document is
+   * therefore kept whole, and only the AsyncAPI upgrader runs so 1.x/2.x documents reach the 3.x
+   * shape the traversal and renderer expect.
+   *
+   * @param document - The AsyncAPI document to process and add
+   * @param meta - The document name plus any metadata to merge onto the stored document
+   */
+  const addAsyncApiDocumentSync = (
+    document: AsyncApiDocument,
+    { name, documentMeta }: { name: string; documentMeta: WorkspaceDocumentMeta },
+    navigationOptions?: NavigationOptions,
+  ) => {
+    // Capture the original version before the upgrader bumps `asyncapi` to the latest.
+    const originalAasVersion = document.asyncapi
+
+    // Clone first: the upgrader and the traversal both write to the document they are handed, and
+    // the caller may keep using the object it passed in.
+    // The upgrader is typed against the loose `UnknownObject` shape; the result is a valid 3.x
+    // AsyncAPI document, so cast it back.
+    const asyncApiDocument = upgradeAsyncApi(deepClone(document)) as AsyncApiDocument
+
+    // Coerced against the AsyncAPI schema for the same reason the OpenAPI path coerces against its
+    // own: the traversal and every consumer downstream expect a normalized document. Skipping it
+    // leaves `info` missing on a partial document (which the traversal reads unguarded) and passes
+    // shapes like `channels: null` straight through to the browser. Merged rather than assigned, so
+    // nothing the schema does not model is dropped.
+    mergeObjects(asyncApiDocument, coerce(asyncApiObjectSchema as Schema, deepClone(asyncApiDocument)))
+
+    // Nothing is externalized, so the document owns no chunks. The empty entry keeps `get()` and
+    // chunk generation well defined for the document name.
+    assets[name] = {}
+
+    // Traversed before the spread below: its last act is a top-level `x-scalar-order` write on the
+    // document, and a snapshot taken first would both miss it and preserve whatever stale order the
+    // input arrived with.
+    const navigation = traverseAsyncApiDocument(
+      name,
+      asyncApiDocument,
+      navigationOptions ?? workspaceProps.navigationOptions,
+    )
+
+    workspace.documents[name] = {
+      ...documentMeta,
+      ...asyncApiDocument,
+      'x-original-aas-version': originalAasVersion,
+      [extensions.document.navigation]: navigation,
+    }
+
+    // A document carrying both discriminators is ingested as AsyncAPI here, but `getDocumentType`
+    // checks OpenAPI first — so leaving `openapi` in place would hand an OpenAPI renderer a
+    // navigation tree of channel entries. The document is stored as the type it was read as.
+    delete (workspace.documents[name] as Record<string, unknown>)['openapi']
+  }
+
+  /**
    * Adds a new document to the workspace.
    *
    * This function processes an OpenAPI document by:
@@ -385,6 +452,19 @@ export async function createServerWorkspaceStore(
     navigationOptions?: NavigationOptions,
   ) => {
     const { name, ...documentMeta } = meta
+
+    // The name is caller-supplied and used as a computed key on both `workspace.documents` and
+    // `assets`, so a name like `__proto__` would write straight onto Object.prototype. Rejected
+    // here rather than filtered, and `addDocument` turns the throw into a skipped document.
+    preventPollution(name, 'server workspace document name')
+
+    // AsyncAPI documents get their own ingestion path, mirroring the client store. The OpenAPI
+    // upgrade and coerce steps would strip `channels` and `operations`, inject an empty
+    // `openapi: ''` that breaks the type discriminator, and add an empty `paths` object.
+    if (isAsyncApiDocument(document)) {
+      addAsyncApiDocumentSync(document, { name, documentMeta }, navigationOptions)
+      return
+    }
 
     const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
 
@@ -427,14 +507,39 @@ export async function createServerWorkspaceStore(
    * @param input - The document input containing the document source and metadata
    */
   const addDocument: ServerWorkspaceStore['addDocument'] = async (input, navigationOptions) => {
-    const document = await loadDocument(input)
+    // Captured so a failed add restores exactly what was there. The assets are written partway
+    // through, and several steps throw before that point, so clearing the key outright would strip
+    // a working document's chunks whenever a name is reused — leaving the workspace pointing at
+    // references that resolve to nothing.
+    //
+    // The snapshot is taken before the first await, so two adds racing under the same name would
+    // both capture the pre-state and the failing one could put back what the other just replaced.
+    // Adds are not serialized per name: concurrent adds sharing a name are already last-write-wins,
+    // and callers are expected to await one before starting another.
+    const assetsBeforeAdd = assets[input.name]
 
-    if (!document.ok) {
-      console.warn(`Failed to load document "${input.name}`)
-      return
+    try {
+      const document = await loadDocument(input)
+
+      if (!document.ok) {
+        console.warn(`Failed to load document "${input.name}"`)
+        return
+      }
+
+      addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
+    } catch (error) {
+      // Honours the contract above: a document that cannot be processed is skipped rather than
+      // taking the workspace with it, since the initial documents are ingested together and one
+      // malformed description should not fail an entire documentation build. Loading is inside the
+      // try too, so a document that cannot even be serialized is skipped the same way.
+      if (assetsBeforeAdd === undefined) {
+        delete assets[input.name]
+      } else {
+        assets[input.name] = assetsBeforeAdd
+      }
+
+      console.warn(`Failed to process document "${input.name}"`, error)
     }
-
-    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
   }
 
   // Load and process all initial documents in parallel
