@@ -252,10 +252,10 @@ defineExpose({
   width: 100%;
 }
 
-/* The accent ring every focused Scalar input shows; surface focus flashes
+/* The blue ring every focused agent composer shows; surface focus flashes
    (the MCP rail's rainbow sweep) are designed to resolve into it. */
 .chat-composer-input:focus-within {
-  border-color: var(--scalar-color-accent, var(--scalar-color-1));
+  border-color: var(--scalar-color-blue, var(--scalar-color-1));
 }
 
 .chat-composer[data-over-limit='true'] .chat-composer-input {

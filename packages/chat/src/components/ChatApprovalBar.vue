@@ -142,7 +142,7 @@ const approveLabel = computed<string>(() => {
 }
 
 .chat-approval-bar-approve {
-  background: var(--scalar-color-accent);
+  background: var(--scalar-color-blue);
   /* Same pairing ruling as the send glyph: --scalar-background-1, never white. */
   color: var(--scalar-background-1);
 }
@@ -154,7 +154,7 @@ const approveLabel = computed<string>(() => {
 
 .chat-approval-bar-reject:focus-visible,
 .chat-approval-bar-approve:focus-visible {
-  outline: 1px solid var(--scalar-color-accent);
+  outline: 1px solid var(--scalar-color-blue);
   outline-offset: 1px;
 }
 </style>

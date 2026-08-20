@@ -129,9 +129,10 @@ defineExpose({ pulse })
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: var(--scalar-color-accent);
+  /* The agent surfaces run on the blue token, not the theme accent. */
+  background: var(--scalar-color-blue);
   /*
-   * The glyph pairs with the accent fill through --scalar-background-1:
+   * The glyph pairs with the blue fill through --scalar-background-1:
    * in dark mode that token is the contrast-correct choice, never white.
    */
   color: var(--scalar-background-1);
@@ -157,7 +158,7 @@ defineExpose({ pulse })
 }
 
 .chat-send:focus-visible {
-  outline: 1px solid var(--scalar-color-accent);
+  outline: 1px solid var(--scalar-color-blue);
   outline-offset: 2px;
 }
 
