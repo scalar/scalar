@@ -72,6 +72,7 @@ catalogs:
     hono: ^4.12.7
     get-port-please: 3.2.0
     github-slugger: 2.0.0
+    highlight.js: ^11.11.1
     js-base64: ^3.9.2
     jsdom: 27.4.0
     jsonc-parser: 3.3.1
@@ -87,6 +88,7 @@ catalogs:
     radix-vue: ^1.9.17
     react-dom: ^19.2.3
     react: ^19.2.3
+    rolldown: 1.1.5
     set-cookie-parser: 3.1.0
     semver: 7.7.2
     shx: ^0.4.0
