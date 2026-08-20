@@ -496,10 +496,17 @@ export type ApiReferenceTranslations = {
     askAi: string
     askAiAgent: string
     close: string
+    closeChat: string
+    expand: string
+    collapse: string
+    resize: string
   }
   mcp: {
     generate: string
     connect: string
+    installCursor: string
+    installVsCode: string
+    copyUrl: string
   }
   developerTools: {
     title: string

@@ -3,7 +3,6 @@
 '@scalar/api-client': patch
 '@scalar/snippetz': patch
 '@scalar/blocks': patch
-'@scalar/agent-chat': patch
 '@scalar/types': patch
 ---
 
