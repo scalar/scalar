@@ -227,11 +227,14 @@ const schemaDescription = computed(() => {
     return null
   }
 
-  // Will be shown in the properties anyway
+  // Will be shown in the properties anyway. A composed schema is the exception:
+  // its members render as their own cards with their own descriptions, so the
+  // schema's own description has nowhere else to go.
   if (
     !('properties' in value) &&
     !('patternProperties' in value) &&
-    !('additionalProperties' in value)
+    !('additionalProperties' in value) &&
+    !('allOf' in value)
   ) {
     return null
   }
