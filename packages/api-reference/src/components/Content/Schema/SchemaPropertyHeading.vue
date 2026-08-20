@@ -321,6 +321,32 @@ const exampleValue = computed(() => {
 
   return undefined
 })
+
+/**
+ * The regex `pattern` to surface via the hover dropdown. It lives on a string
+ * schema, or on the items of a primitive array (which is not rendered on its
+ * own, so its constraints are surfaced on the array heading — see
+ * https://github.com/scalar/scalar/issues/9690).
+ */
+const patternValue = computed(() => {
+  const schema = valueRef.value
+  if (!schema) {
+    return undefined
+  }
+
+  if (isStringSchema(schema) && schema.pattern) {
+    return schema.pattern
+  }
+
+  if (isArraySchema(schema) && schema.items) {
+    const items = resolve.schema(schema.items)
+    if (isStringSchema(items) && items.pattern) {
+      return items.pattern
+    }
+  }
+
+  return undefined
+})
 </script>
 <template>
   <div class="property-heading">
@@ -384,8 +410,8 @@ const exampleValue = computed(() => {
 
       <!-- Pattern: shown as hover dropdown to handle long regex -->
       <SchemaPropertyPattern
-        v-if="props.value && 'pattern' in props.value && props.value.pattern"
-        :pattern="(props.value as any).pattern" />
+        v-if="patternValue"
+        :pattern="patternValue" />
 
       <!-- Enum indicator -->
       <SchemaPropertyDetail v-if="props.enum">

@@ -86,8 +86,12 @@ describe('SchemaPropertyHeading', () => {
     const detailsElement = wrapper.find('.property-heading')
     expect(detailsElement.text()).toContain('2')
     expect(detailsElement.text()).toContain('8')
-    // pattern for array items is shown via SchemaPropertyPattern popup on the items schema,
-    // not surfaced in the array heading
+
+    // The pattern of primitive array items is surfaced on the array heading via
+    // the SchemaPropertyPattern popup (the items are not rendered on their own).
+    const patternComponent = wrapper.findComponent({ name: 'SchemaPropertyPattern' })
+    expect(patternComponent.exists()).toBe(true)
+    expect(patternComponent.props('pattern')).toBe('^[a-z]+$')
   })
 
   it('renders numeric constraints of primitive array items', () => {
