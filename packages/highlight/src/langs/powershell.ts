@@ -32,6 +32,14 @@ import type { Grammar } from '../core/types'
 const ID = '[a-z_]\\w*'
 
 /**
+ * A dotted identifier such as `System.Collections`. Written as one quantifier
+ * rather than `${ID}[\\w.]*`: two adjacent word-class runs (`\\w*[\\w.]*`) let
+ * the engine split the same characters between them O(n) ways, so a `[` literal
+ * with no closing `]` or `(` would backtrack quadratically.
+ */
+const DOTTED = '[a-z_][\\w.]*'
+
+/**
  * Word-shaped operators, including the `-c`/`-i` case-sensitivity prefixes.
  * The trailing `\b` is what keeps `-not` from claiming the front of `-notlike`
  * and lets `-Force` fall through to the parameter rule instead of matching the
@@ -50,7 +58,7 @@ const BUILTIN_TYPE =
  * suffix excludes both brackets, so a line of `[` cannot make it rescan.
  * Deeper nesting (`[List[List[int]]]`) falls back to plain brackets.
  */
-const TYPE_NAME = `${ID}[\\w.]*(?:\\[[^\\][\\n]*\\])?`
+const TYPE_NAME = `${DOTTED}(?:\\[[^\\][\\n]*\\])?`
 
 const powershell: Grammar = {
   name: 'powershell',
@@ -99,7 +107,7 @@ const powershell: Grammar = {
         // `[Parameter(...)]` is an attribute, `[string]` is a type. The only
         // difference a regex can see is the `(`.
         {
-          match: `(\\[)(${ID}[\\w.]*)(?=\\()`,
+          match: `(\\[)(${DOTTED})(?=\\()`,
           scope: ['punctuation.bracket', 'decorator'],
         },
         {
