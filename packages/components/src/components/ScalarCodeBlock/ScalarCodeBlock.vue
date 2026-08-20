@@ -2,7 +2,7 @@
 /**
  * Scalar Code Block component
  *
- * Renders syntax-highlighted code using highlight.js.
+ * Renders syntax-highlighted code using @scalar/highlight.
  * Supports line numbers, credential masking, and an optional copy button.
  *
  * @example
@@ -12,8 +12,9 @@ export default {}
 </script>
 <script lang="ts" setup>
 import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
-import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
+import '@scalar/highlight/all'
+import { standardLanguages, syntaxHighlight } from '@scalar/highlight/compat'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useId } from 'vue'
 
@@ -30,7 +31,7 @@ type BaseProps = {
 }
 
 /**
- * Uses highlight.js for syntax highlighting
+ * Uses @scalar/highlight for syntax highlighting
  *
  * Requires at least one of content or prettyPrintedContent
  */

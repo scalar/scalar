@@ -235,6 +235,7 @@
     "@headlessui/vue": "catalog:*",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
+    "@scalar/highlight": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
