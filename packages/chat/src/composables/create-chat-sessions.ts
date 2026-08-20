@@ -273,6 +273,13 @@ export const createChatSessions = <TChat extends SessionChat>(
     chatInstances.delete(chatId)
   }
 
+  /** Tear down every cached instance and its watchers — the clear/reset/dispose shape. */
+  const disposeAllInstances = (): void => {
+    for (const chatId of [...chatInstances.keys()]) {
+      disposeInstance(chatId)
+    }
+  }
+
   const getChatInstance = (chatId: string): TChat => chatInstances.get(chatId) ?? createChatInstance(chatId)
 
   /**
@@ -433,9 +440,7 @@ export const createChatSessions = <TChat extends SessionChat>(
   const clearAllChats = async (): Promise<void> => {
     const epoch = hydrationEpoch
 
-    for (const chatId of [...chatInstances.keys()]) {
-      disposeInstance(chatId)
-    }
+    disposeAllInstances()
 
     await history?.clearAll()
 
@@ -489,9 +494,7 @@ export const createChatSessions = <TChat extends SessionChat>(
   }
 
   const reset = (): void => {
-    for (const chatId of [...chatInstances.keys()]) {
-      disposeInstance(chatId)
-    }
+    disposeAllInstances()
 
     restoredOnce = false
     hydratedIds.clear()
@@ -529,9 +532,7 @@ export const createChatSessions = <TChat extends SessionChat>(
   }
 
   const dispose = (): void => {
-    for (const chatId of [...chatInstances.keys()]) {
-      disposeInstance(chatId)
-    }
+    disposeAllInstances()
 
     scope.stop()
   }
