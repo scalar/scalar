@@ -7,6 +7,8 @@ import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
@@ -193,6 +195,21 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
   )
 })
 
+/**
+ * Deep-resolved request body schema. `bodySchema` only resolves the top-level `$ref`, which leaves
+ * nested `$ref` members (common for composition branches) unresolved. Mirror `getExampleFromBody`
+ * and deep-resolve here so regenerating a body on a branch switch produces the same value the
+ * initial example does, instead of emitting `null` for referenced sub-objects.
+ */
+const resolvedBodySchema = computed<SchemaObject | undefined>(() => {
+  const schema = requestBody?.content?.[selectedContentType.value]?.schema
+  if (!schema) {
+    return undefined
+  }
+
+  return getResolvedRefDeep(getResolvedRef(schema)) as SchemaObject
+})
+
 /** Codec for structured (JSON/YAML) bodies, undefined for everything else */
 const structuredCodec = computed(() =>
   selectedContentType.value === 'none'
@@ -256,7 +273,7 @@ watch(
       return
     }
 
-    const schema = bodySchema.value
+    const schema = resolvedBodySchema.value
     const codec = structuredCodec.value
     if (!schema || !codec) {
       return
