@@ -5,7 +5,7 @@ import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
-import type { LoaderPlugin } from '@scalar/json-magic/bundle'
+import { type LoaderPlugin, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
@@ -84,8 +84,8 @@ const resolveLocalReferences = <T extends object>(document: T): T =>
 /**
  * The keys `@scalar/json-magic` bundling parks external documents under.
  *
- * These mirror the `extensions` defaults in `json-magic/bundle`, which are not re-exported from its
- * entry point. Keep them in step with those defaults.
+ * Sourced straight from the bundler's own `extensions` defaults so the two cannot drift: if bundling
+ * ever renames a bucket, this follows without a silent break.
  *
  * Both are needed. `x-ext` holds the bundled documents that rewritten references resolve against,
  * and `x-ext-urls` maps each bucket key back to the URL it came from — `restoreOriginalRefs` reads it
@@ -95,7 +95,7 @@ const resolveLocalReferences = <T extends object>(document: T): T =>
  * because the generated chunks keep their `#/x-ext/…` pointers and the client resolves those against
  * the document root. Only the client's export path (`purgeInternalDocumentKeys`) strips them.
  */
-const BUNDLED_EXTERNAL_KEYS = ['x-ext', 'x-ext-urls'] as const
+const BUNDLED_EXTERNAL_KEYS = [bundleExtensions.externalDocuments, bundleExtensions.externalDocumentsMappings] as const
 
 /**
  * Copies the buckets bundling parks external documents in onto the coerced document.
