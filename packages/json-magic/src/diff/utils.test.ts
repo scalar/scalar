@@ -228,6 +228,37 @@ describe('mergeObjects', () => {
       expect(({} as Record<string, unknown>).pollutedBesideSafeMerge).toBeUndefined()
     })
   })
+
+  // The merge happens in place and the subtrees of the source are attached by reference, which is
+  // how `merge` ends up writing into the documents its diffs were built from. The behavior is
+  // pinned here so a future switch to cloning is a deliberate change rather than a silent one.
+  describe('shares structure with both operands', () => {
+    test('returns the target it was given', () => {
+      const a: Record<string, unknown> = { keep: 1 }
+
+      expect(mergeObjects(a, { added: 2 })).toBe(a)
+      expect(a).toEqual({ keep: 1, added: 2 })
+    })
+
+    test('attaches the subtrees of the source by reference', () => {
+      const a: Record<string, unknown> = {}
+      const nested = { title: 'Pets' }
+
+      mergeObjects(a, { info: nested })
+
+      expect(a.info).toBe(nested)
+    })
+
+    test('merges into the subtree the target already holds instead of replacing it', () => {
+      const a: Record<string, unknown> = { info: { title: 'Pets' } }
+      const b = { info: { version: '1.0.0' } }
+
+      mergeObjects(a, b)
+
+      expect(a.info).toEqual({ title: 'Pets', version: '1.0.0' })
+      expect(b.info).toEqual({ version: '1.0.0' })
+    })
+  })
 })
 
 describe('isArrayEqual', () => {

@@ -8,8 +8,15 @@ import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
  * that arise when both diffs modify the same paths. It uses a trie data structure for
  * efficient path matching and conflict detection.
  *
+ * ⚠️ This function mutates the entries of `diff2`. When two changes on the same path can be folded
+ * together without a collision, the value from `diff1` is merged into the `changes` of the `diff2`
+ * entry, in place. Diffs built by `diff` carry live references into the documents they came from
+ * (see `diff`), so folding two changes together also writes into the document behind `diff2`.
+ * Callers that need the source documents to stay untouched have to deep clone them before diffing,
+ * or clone the changes afterwards.
+ *
  * @param diff1 - First list of differences
- * @param diff2 - Second list of differences
+ * @param diff2 - Second list of differences, whose entries are mutated, see the note above
  * @returns Object containing:
  *   - diffs: Combined list of non-conflicting differences
  *   - conflicts: Array of conflicting difference pairs that need manual resolution
