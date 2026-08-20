@@ -4,7 +4,7 @@ import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { type Ref, nextTick } from 'vue'
+import { type ComputedRef, type MaybeRefOrGetter, type Ref, computed, nextTick, toValue } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
@@ -24,7 +24,12 @@ export type McpLinkConfiguration = {
 const base64Utf8 = (value: string): string => btoa(String.fromCharCode(...new TextEncoder().encode(value)))
 
 type UseMcpActionsOptions = {
-  config?: McpLinkConfiguration
+  /**
+   * The MCP configuration the install links are built from. A ref or getter,
+   * so a multi-document reference that swaps the config per document — without
+   * remounting the panel — keeps `hasConfig` and the deep links in sync.
+   */
+  config?: MaybeRefOrGetter<McpLinkConfiguration | undefined>
   externalUrls: ExternalUrls
   workspace: WorkspaceStore
   /** Caches the uploaded temp document URL across register link generations. */
@@ -33,11 +38,11 @@ type UseMcpActionsOptions = {
 
 type UseMcpActionsReturn = {
   /** Whether an MCP server is already configured for this reference. */
-  hasConfig: boolean
+  hasConfig: ComputedRef<boolean>
   /** Deep link installing the configured MCP server in Cursor. */
-  cursorLink: string
+  cursorLink: ComputedRef<string>
   /** Deep link installing the configured MCP server in VS Code. */
-  vscodeLink: string
+  vscodeLink: ComputedRef<string>
   /** Copies the configured MCP server URL to the clipboard. */
   copyMcpUrl: () => void
   /** Uploads the active document and opens the dashboard MCP registration flow. */
@@ -56,16 +61,20 @@ export const useMcpActions = (options: UseMcpActionsOptions): UseMcpActionsRetur
 
   const loader = useLoadingState()
 
-  const hasConfig = Boolean(options.config?.name || options.config?.url)
+  const config = computed<McpLinkConfiguration>(() => toValue(options.config) ?? {})
 
-  const encoded = base64Utf8(JSON.stringify(options.config ?? {}))
+  const hasConfig = computed<boolean>(() => Boolean(config.value.name || config.value.url))
 
-  const name = encodeURIComponent(options.config?.name ?? '')
-  const cursorLink = `cursor://anysphere.cursor-deeplink/mcp/install?name=${name}&config=${encoded}`
-  const vscodeLink = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(options.config ?? {}))}`
+  const cursorLink = computed<string>(() => {
+    const encoded = base64Utf8(JSON.stringify(config.value))
+    const name = encodeURIComponent(config.value.name ?? '')
+    return `cursor://anysphere.cursor-deeplink/mcp/install?name=${name}&config=${encoded}`
+  })
+
+  const vscodeLink = computed<string>(() => `vscode:mcp/install?${encodeURIComponent(JSON.stringify(config.value))}`)
 
   const copyMcpUrl = (): void => {
-    copyToClipboard(options.config?.url ?? '')
+    copyToClipboard(config.value.url ?? '')
   }
 
   /** Generate and open the registration link */

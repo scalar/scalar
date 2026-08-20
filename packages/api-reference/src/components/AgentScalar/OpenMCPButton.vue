@@ -23,7 +23,8 @@ const docUrl = defineModel<string>('url')
 
 const { hasConfig, cursorLink, vscodeLink, copyMcpUrl, generateRegisterLink } =
   useMcpActions({
-    config: props.config,
+    // A getter so the links stay reactive to a config change.
+    config: () => props.config,
     externalUrls: props.externalUrls,
     workspace: props.workspace,
     docUrl,

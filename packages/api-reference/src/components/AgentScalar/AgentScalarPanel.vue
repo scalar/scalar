@@ -62,7 +62,8 @@ watch(
 
 const { hasConfig, cursorLink, vscodeLink, copyMcpUrl, generateRegisterLink } =
   useMcpActions({
-    config: props.mcpConfiguration,
+    // A getter so the links track a per-document config swap without a remount.
+    config: () => props.mcpConfiguration,
     externalUrls: props.externalUrls,
     workspace: props.workspaceStore,
     docUrl,
@@ -146,7 +147,7 @@ const handleClickOutside = (e: MouseEvent): void => {
 }
 
 const handleInstallClick = (e: MouseEvent): void => {
-  if (!hasConfig) {
+  if (!hasConfig.value) {
     e.preventDefault()
     generateRegisterLink()
   }
