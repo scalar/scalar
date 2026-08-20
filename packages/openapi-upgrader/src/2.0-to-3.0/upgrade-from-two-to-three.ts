@@ -829,6 +829,29 @@ function getParameterSerializationStyle(parameter: OpenAPIV2.ParameterObject): P
   return {}
 }
 
+/**
+ * Translate the Swagger 2.0 `collectionFormat` of a formData array parameter into an OpenAPI 3.0
+ * encoding entry. Form bodies serialize arrays with the same styles as query parameters, so the
+ * query serialization mapping is reused. Returns undefined when there is nothing to preserve, for
+ * example a non-array parameter, one without a `collectionFormat`, or `tsv` which has no OpenAPI
+ * 3.0 equivalent.
+ */
+function getFormDataEncoding(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.EncodingObject | undefined {
+  if (parameter.type !== 'array' || typeof parameter.collectionFormat !== 'string') {
+    return undefined
+  }
+
+  const encoding = querySerialization[parameter.collectionFormat as CollectionFormat] as
+    | ParameterSerializationStyle
+    | undefined
+
+  if (!encoding || Object.keys(encoding).length === 0) {
+    return undefined
+  }
+
+  return encoding
+}
+
 type ParameterMigrationResult = {
   parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[]
   requestBody?: OpenAPIV3.RequestBodyObject
@@ -945,6 +968,14 @@ function migrateFormDataParameter(
               // Only carry the description over when it exists, so a parameter without one does not
               // end up with an explicit `description: undefined` on its schema.
               ...(param.description !== undefined ? { description: param.description } : {}),
+            }
+
+            // Preserve the array serialization hint (Swagger 2.0 `collectionFormat`) as an
+            // OpenAPI 3.0 encoding entry on the media type, so it is not silently dropped.
+            const encoding = getFormDataEncoding(param)
+            if (encoding) {
+              formContent.encoding ??= {}
+              formContent.encoding[param.name] = encoding
             }
 
             // Add to required array if param is required

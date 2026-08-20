@@ -521,12 +521,22 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    const property = (result.paths?.['/planets']?.get?.requestBody as OpenAPIV3.RequestBodyObject).content[
-      'multipart/form-data'
-    ]?.schema as OpenAPIV3.SchemaObject
-
-    expect(property.properties?.name).toStrictEqual({ type: 'string' })
-    expect(Object.hasOwn(property.properties?.name ?? {}, 'description')).toBe(false)
+    // A strict comparison fails if the property carries an explicit `description: undefined`.
+    expect(result.paths?.['/planets']?.get?.requestBody).toStrictEqual({
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            required: ['name'],
+            properties: {
+              name: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    })
   })
 
   it('migrates formData with an array type', () => {
@@ -573,6 +583,9 @@ describe('upgradeFromTwoToThree', () => {
                   },
                   type: 'object',
                 },
+                encoding: {
+                  tags: { style: 'form', explode: false },
+                },
               },
               'multipart/form-data': {
                 schema: {
@@ -588,8 +601,60 @@ describe('upgradeFromTwoToThree', () => {
                   },
                   type: 'object',
                 },
+                encoding: {
+                  tags: { style: 'form', explode: false },
+                },
               },
             },
+          },
+        },
+      },
+    })
+  })
+
+  it('maps a multi collectionFormat to an exploded form encoding without leaking into the schema', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      paths: {
+        '/submit': {
+          post: {
+            consumes: ['multipart/form-data'],
+            parameters: [
+              {
+                name: 'tags',
+                in: 'formData',
+                required: false,
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+                collectionFormat: 'multi',
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    // The strict comparison proves both the exploded encoding and that `collectionFormat` did not
+    // leak onto the property schema.
+    expect(result.paths?.['/submit']?.post?.requestBody).toStrictEqual({
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            required: [],
+            properties: {
+              tags: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+          encoding: {
+            tags: { style: 'form', explode: true },
           },
         },
       },
