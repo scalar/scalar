@@ -1949,6 +1949,10 @@ const showMCPButton = computed(() => {
   height: initial !important;
   max-height: initial !important;
 }
+/* Give the classic layout some breathing room at the end of the scroll */
+.references-classic .references-rendered {
+  padding-bottom: 80px;
+}
 
 @layer scalar-config {
   .references-sidebar {
