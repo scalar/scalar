@@ -2,7 +2,7 @@
 
 Scalar's code highlighter.
 
-- **Small.** 2.4 KB core, ~1.7 KB for Python, gzipped. Nothing you do not import.
+- **Small.** 2.3 KB core, ~1.7 KB for Python, gzipped. Nothing you do not import.
 - **No theme system.** Colors come from the `--scalar-*` variables `@scalar/themes` already defines, so a code block follows the app's theme and switches with `.light-mode` / `.dark-mode` — without being re-highlighted.
 - **Zero runtime dependencies.**
 
@@ -43,7 +43,7 @@ highlight(source, 'rust');
 ```
 
 Every entry in the loader is a static `import()`, so bundlers split each language into its
-own chunk. The initial chunk with the loader and no languages is 4.0 KB.
+own chunk. The initial chunk with the loader and no languages is 3.9 KB.
 
 ### Entry points
 
@@ -78,17 +78,17 @@ tokenizeStream(source, resolveGrammar('python'), (scope, start, end) => { … })
 
 ## Bundle size
 
-Bundled with esbuild, minified, gzipped. Entry points *call* the API rather than
+Bundled with Rolldown, minified, gzipped. Entry points *call* the API rather than
 re-exporting it, so tree-shaking runs the way it does in a real app.
 
 | Bundle | Gzipped |
 | --- | ---: |
-| `@scalar/highlight` core | 2.40 KB |
-| …+ Python | 4.44 KB |
-| …lazy loader, initial chunk | 4.04 KB |
+| `@scalar/highlight` core | 2.32 KB |
+| …+ Python | 4.33 KB |
+| …lazy loader, initial chunk | 3.93 KB |
 | …`style.css` | 1.26 KB |
 
-Per language, on top of the core: `diff` 0.15 KB · `json` 0.29 KB · `html` 0.33 KB · `yaml` 0.43 KB · `markdown` 0.46 KB · `css` 0.54 KB · `nginx` 0.56 KB · `http` 0.64 KB · `graphql` 0.73 KB · `ini` 0.74 KB · `go` 0.77 KB · `bash` 0.81 KB · `rust` 0.83 KB · `makefile` 0.92 KB · `dockerfile` 0.95 KB · `sql` 0.98 KB · `java` 1.16 KB · `lua` 1.20 KB · `dart` 1.21 KB · `swift` 1.30 KB · `r` 1.31 KB · `kotlin` 1.34 KB · `c` 1.34 KB · `clojure` 1.35 KB · `javascript` 1.37 KB · `scala` 1.39 KB · `elixir` 1.41 KB · `powershell` 1.42 KB · `haskell` 1.43 KB · `ocaml` 1.43 KB · `objectivec` 1.45 KB · `matlab` 1.49 KB · `csharp` 1.52 KB · `mojo` 1.57 KB · `fsharp` 1.71 KB · `python` 1.72 KB · `ruby` 1.72 KB · `php` 1.77 KB · `cpp` 1.79 KB · `perl` 1.89 KB.
+Per language, on top of the core: `diff` 0.14 KB · `json` 0.28 KB · `html` 0.32 KB · `markdown` 0.46 KB · `yaml` 0.52 KB · `css` 0.53 KB · `nginx` 0.54 KB · `http` 0.64 KB · `ini` 0.71 KB · `graphql` 0.73 KB · `go` 0.79 KB · `bash` 0.80 KB · `rust` 0.83 KB · `makefile` 0.90 KB · `dockerfile` 0.95 KB · `sql` 0.97 KB · `java` 1.15 KB · `dart` 1.18 KB · `lua` 1.20 KB · `r` 1.28 KB · `swift` 1.30 KB · `c` 1.32 KB · `clojure` 1.32 KB · `kotlin` 1.33 KB · `javascript` 1.36 KB · `scala` 1.37 KB · `elixir` 1.38 KB · `powershell` 1.38 KB · `haskell` 1.41 KB · `ocaml` 1.41 KB · `matlab` 1.44 KB · `objectivec` 1.44 KB · `csharp` 1.50 KB · `mojo` 1.55 KB · `fsharp` 1.69 KB · `python` 1.70 KB · `ruby` 1.71 KB · `php` 1.75 KB · `cpp` 1.76 KB · `perl` 1.86 KB.
 
 Reproduce with `pnpm size`.
 
@@ -268,8 +268,8 @@ For the same three languages `ScalarCodeBlock` shows most often:
 
 | | gzipped |
 | --- | ---: |
-| `@scalar/code-highlight` | 129.92 KB |
-| `@scalar/highlight/compat` | 5.74 KB |
+| `@scalar/code-highlight` | 127.34 KB |
+| `@scalar/highlight/compat` | 5.36 KB |
 
 ## Trade-offs
 
@@ -313,7 +313,7 @@ pnpm size           # bundle size per entry point and per language
 pnpm compat:report  # @scalar/code-highlight swap report; --detail for colour drift
 ```
 
-The published package ships zero dependencies. `esbuild` measures bundle size and
+The published package ships zero dependencies. `rolldown` measures bundle size and
 `highlight.js` supplies the reference grammars the compat tests differ against; both are
 devDependencies and neither reaches consumers.
 

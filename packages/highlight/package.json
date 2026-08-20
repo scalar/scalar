@@ -79,8 +79,8 @@
   ],
   "devDependencies": {
     "@scalar/code-highlight": "workspace:*",
-    "esbuild": "catalog:*",
     "highlight.js": "catalog:*",
+    "rolldown": "catalog:*",
     "vitest": "catalog:*"
   }
 }

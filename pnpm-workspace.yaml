@@ -63,7 +63,6 @@ catalogs:
     commander: 13.1.0
     concurrently: 9.1.2
     cross-env: 10.1.0
-    esbuild: 0.27.3
     express: 5.1.0
     fake-indexeddb: 6.2.5
     fast-glob: ^3.3.3
@@ -89,6 +88,7 @@ catalogs:
     radix-vue: ^1.9.17
     react-dom: ^19.2.3
     react: ^19.2.3
+    rolldown: 1.1.5
     set-cookie-parser: 3.1.0
     semver: 7.7.2
     shx: ^0.4.0

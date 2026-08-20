@@ -1,9 +1,9 @@
 /**
  * Measures what an app would actually download.
  *
- * Each entry is bundled and minified with esbuild, then gzipped — the same
- * path a real bundler takes. Two details matter for the numbers to mean
- * anything:
+ * Each entry is bundled and minified with Rolldown, then gzipped — the same
+ * path a real bundler takes (Rolldown is what Vite builds on in this repo).
+ * Two details matter for the numbers to mean anything:
  *
  * - entries *call* the API rather than re-exporting it, so tree-shaking runs
  *   the way it would in an app. Re-exporting everything would quietly bill us
@@ -17,7 +17,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { gzipSync } from 'node:zlib'
 
-import { build } from 'esbuild'
+import { type OutputChunk, rolldown } from 'rolldown'
 
 import { saveResults } from './results'
 
@@ -67,7 +67,7 @@ const languages = [
   'yaml',
 ]
 
-/** Keeps esbuild from dropping the whole program as dead code. */
+/** Keeps Rolldown from dropping the whole program as dead code. */
 const SINK = 'globalThis.__sink = '
 
 const scenarios: [string, string][] = [
@@ -117,23 +117,24 @@ const comparisons: [string, string][] = [
   ],
 ]
 
-const measure = async (source: string, splitting = false): Promise<number> => {
+const measure = async (source: string): Promise<number> => {
   const name = `entry-${Math.random().toString(36).slice(2)}.js`
   writeFileSync(join(dir, name), source)
-  const result = await build({
-    entryPoints: [join(dir, name)],
-    bundle: true,
-    minify: true,
-    format: 'esm',
-    splitting,
-    outdir: splitting ? join(dir, 'out') : undefined,
-    write: false,
+  const bundle = await rolldown({
+    input: join(dir, name),
+    cwd: root,
+    platform: 'browser',
     logLevel: 'silent',
-    absWorkingDir: root,
   })
-  // With code splitting, the initial download is the entry chunk alone.
-  const entryFile = result.outputFiles.find((f) => f.path.includes(name.replace('.js', ''))) ?? result.outputFiles[0]!
-  return gzipSync(entryFile.contents, { level: 9 }).byteLength
+  try {
+    const { output } = await bundle.generate({ format: 'es', minify: true })
+    // A lazy loader's dynamic imports split into their own chunks, so the
+    // initial download is the entry chunk alone — the rest arrives on demand.
+    const entry = output.find((chunk): chunk is OutputChunk => chunk.type === 'chunk' && chunk.isEntry) ?? output[0]
+    return gzipSync(entry.code, { level: 9 }).byteLength
+  } finally {
+    await bundle.close()
+  }
 }
 
 const kb = (bytes: number) => `${(bytes / 1024).toFixed(2)} KB`
@@ -162,7 +163,7 @@ try {
     sizes[label] = await measure(entry)
     console.log(`  ${label.padEnd(34)} ${kb(sizes[label]!).padStart(9)}`)
   }
-  sizes[lazyScenario[0]] = await measure(lazyScenario[1], true)
+  sizes[lazyScenario[0]] = await measure(lazyScenario[1])
   console.log(`  ${lazyScenario[0].padEnd(34)} ${kb(sizes[lazyScenario[0]]!).padStart(9)}`)
   sizes['style.css (minified)'] = stylesheetSize()
   console.log(`  ${'style.css (minified)'.padEnd(34)} ${kb(sizes['style.css (minified)']!).padStart(9)}`)
