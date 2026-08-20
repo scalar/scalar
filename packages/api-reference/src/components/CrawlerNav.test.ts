@@ -143,7 +143,7 @@ describe('CrawlerNav', () => {
       props: {
         items: withExample,
         isMultiDocument: false,
-        hideOperationDefaultExamples: true,
+        options: { hideOperationDefaultExamples: true },
       },
     })
 

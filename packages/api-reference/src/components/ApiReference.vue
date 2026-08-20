@@ -1723,11 +1723,15 @@ const showMCPButton = computed(() => {
       </MobileHeader>
 
       <!-- Crawler-only navigation: exposes every sidebar URL in the server-rendered HTML -->
+      <!-- Passing the same `sidebarOptions` the interactive sidebar reads (see the
+           ScalarSidebar below) keeps both filtering the tree identically, so the crawler
+           list can never drift from what the sidebar would show. -->
       <CrawlerNav
         v-if="showCrawlerNav"
         :basePath="basePath"
         :isMultiDocument="isMultiDocument"
-        :items="sidebarItems" />
+        :items="sidebarItems"
+        :options="sidebarOptions" />
 
       <!-- Primary Content -->
       <main

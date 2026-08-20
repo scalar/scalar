@@ -14,23 +14,26 @@
  * The parent unmounts this component right after hydration (see ApiReference.vue), so it
  * never affects the interactive experience.
  */
-import { filterItems } from '@scalar/sidebar'
+import { filterItems, type SidebarOptions } from '@scalar/sidebar'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
 import { makeHrefFromId } from '@/helpers/id-routing'
 
-const { items, basePath, isMultiDocument, hideOperationDefaultExamples } =
-  defineProps<{
-    /** The navigation tree of the active document, as passed to the sidebar. */
-    items: TraversedEntry[]
-    /** The base path used in path routing. */
-    basePath?: string
-    /** Whether the reference renders multiple documents (keeps the document slug in URLs). */
-    isMultiDocument: boolean
-    /** Mirrors the sidebar option so both render the same set of entries. */
-    hideOperationDefaultExamples?: boolean
-  }>()
+const { items, basePath, isMultiDocument, options } = defineProps<{
+  /** The navigation tree of the active document, as passed to the sidebar. */
+  items: TraversedEntry[]
+  /** The base path used in path routing. */
+  basePath?: string
+  /** Whether the reference renders multiple documents (keeps the document slug in URLs). */
+  isMultiDocument: boolean
+  /**
+   * The same options object passed to the interactive sidebar. Only the filtering-related
+   * fields are read (see `filterItems`), but taking the whole object keeps this list wired
+   * to the exact source the sidebar uses so the two cannot expose a different set of entries.
+   */
+  options?: SidebarOptions
+}>()
 
 type CrawlerLink = {
   id: string
@@ -49,7 +52,7 @@ const links = computed<CrawlerLink[]>(() => {
     for (const entry of filterItems(
       'reference',
       entries,
-      hideOperationDefaultExamples,
+      options?.hideOperationDefaultExamples,
     )) {
       const href = makeHrefFromId(entry.id, basePath, isMultiDocument)
 
