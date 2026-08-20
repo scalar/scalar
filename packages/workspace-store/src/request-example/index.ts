@@ -39,6 +39,7 @@ export {
   getExampleFromBody,
   getExampleFromSchema,
   getResolvedUrl,
+  getSchemaExampleFromBody,
   getSelectedBodyContentType,
   getServerVariables,
   isEncryptionSchemeType,
