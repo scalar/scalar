@@ -192,14 +192,17 @@ const rejectionReason = computed<string>(() => {
  * everything else renders as compact JSON — data only, so no English leaks
  * past the copy dictionary.
  */
-const summarizeOutput = (value: unknown): string => {
+const summarizeOutput = (value: unknown, depth = 0): string => {
   if (value === undefined || value === null) {
     return ''
   }
   if (typeof value === 'string') {
     return value
   }
-  if (typeof value === 'object' && !Array.isArray(value)) {
+  // The `structuredContent` unwrap recurses; a self-referential output (a
+  // cycle the JSON fallback below would catch) must not overflow the stack
+  // first, so cap the descent. Real MCP results nest at most a level or two.
+  if (depth < 4 && typeof value === 'object' && !Array.isArray(value)) {
     const record = value as Record<string, unknown>
     if (Array.isArray(record.content)) {
       const first = record.content[0] as { text?: unknown } | undefined
@@ -208,7 +211,7 @@ const summarizeOutput = (value: unknown): string => {
       }
     }
     if ('structuredContent' in record) {
-      return summarizeOutput(record.structuredContent)
+      return summarizeOutput(record.structuredContent, depth + 1)
     }
   }
   try {
@@ -317,8 +320,24 @@ const preview = computed<string>(() => {
           lang="json" />
       </div>
 
+      <!--
+        A rejection wins over the raw error/result: its reason is the human
+        message, whichever encoding carried it (native `approval.reason`, the
+        legacy `output-error` text, or an editor-legacy `{ rejected: true }`
+        payload). Showing the reason here also keeps the collapsed preview's
+        text from vanishing — or being mislabeled as an error — on expand.
+      -->
       <div
-        v-if="errorText"
+        v-if="status === 'rejected' && rejectionReason"
+        class="chat-tool-fallback-card-section">
+        <span class="chat-tool-fallback-card-section-label">{{
+          copy.tool.rejected
+        }}</span>
+        <pre class="chat-tool-fallback-card-error">{{ rejectionReason }}</pre>
+      </div>
+
+      <div
+        v-else-if="errorText"
         class="chat-tool-fallback-card-section">
         <span class="chat-tool-fallback-card-section-label">{{
           copy.tool.error
@@ -336,20 +355,6 @@ const preview = computed<string>(() => {
           class="chat-tool-fallback-card-code"
           :content="formattedOutput"
           lang="json" />
-      </div>
-
-      <!--
-        A native denial carries neither an error text nor an output — its
-        reason lives in `approval.reason` alone. Without this section the
-        collapsed preview's reason would vanish on expand.
-      -->
-      <div
-        v-else-if="status === 'rejected' && rejectionReason"
-        class="chat-tool-fallback-card-section">
-        <span class="chat-tool-fallback-card-section-label">{{
-          copy.tool.rejected
-        }}</span>
-        <pre class="chat-tool-fallback-card-error">{{ rejectionReason }}</pre>
       </div>
     </div>
   </article>

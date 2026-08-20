@@ -147,6 +147,39 @@ describe('chat-tool-fallback-card', () => {
     expect(wrapper.get('.chat-tool-fallback-card-error').text()).toBe('Keep the existing intro.')
   })
 
+  it('labels a legacy output-error rejection as rejected, not an error, when expanded', async () => {
+    const wrapper = mount(ChatToolFallbackCard, {
+      props: {
+        part: createPart({ state: 'output-error', errorText: 'The user denied the request.' }),
+      },
+    })
+
+    await wrapper.get('.chat-tool-fallback-card-header').trigger('click')
+
+    expect(wrapper.get('.chat-tool-fallback-card-section-label').text()).toBe('Rejected')
+    expect(wrapper.get('.chat-tool-fallback-card-error').text()).toBe('The user denied the request.')
+  })
+
+  it('shows the editor legacy rejection reason instead of the raw result when expanded', async () => {
+    const wrapper = mount(ChatToolFallbackCard, {
+      props: {
+        part: createPart({
+          state: 'output-available',
+          output: { ok: false, rejected: true, error: 'User rejected the write. Ask what they want instead.' },
+        }),
+      },
+    })
+
+    await wrapper.get('.chat-tool-fallback-card-header').trigger('click')
+
+    expect(wrapper.get('.chat-tool-fallback-card-section-label').text()).toBe('Rejected')
+    expect(wrapper.get('.chat-tool-fallback-card-error').text()).toBe(
+      'User rejected the write. Ask what they want instead.',
+    )
+    // The raw JSON result is not shown for a rejection.
+    expect(wrapper.findAllComponents(ScalarCodeBlock)).toHaveLength(0)
+  })
+
   it('expands and collapses through the header button', async () => {
     const wrapper = mount(ChatToolFallbackCard, {
       props: {
