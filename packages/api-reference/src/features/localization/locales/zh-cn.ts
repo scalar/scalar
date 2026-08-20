@@ -139,10 +139,17 @@ export const zhCn = {
     askAi: '询问 AI',
     askAiAgent: '询问 AI 助手',
     close: '关闭客户端',
+    closeChat: '关闭',
+    expand: '展开聊天',
+    collapse: '收起聊天',
+    resize: '调整聊天大小',
   },
   mcp: {
     generate: '生成 MCP',
     connect: '连接 MCP',
+    installCursor: '在 Cursor 中安装',
+    installVsCode: '在 VS Code 中安装',
+    copyUrl: '复制 MCP URL',
   },
   developerTools: {
     title: '开发者工具',

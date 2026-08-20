@@ -109,9 +109,10 @@
   },
   "dependencies": {
     "@headlessui/vue": "catalog:*",
-    "@scalar/agent-chat": "workspace:*",
+    "@scalar/agent-chat": "^1.0.0",
     "@scalar/api-client": "workspace:*",
     "@scalar/blocks": "workspace:*",
+    "@scalar/chat": "^0.1.0",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",

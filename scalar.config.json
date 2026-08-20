@@ -2268,19 +2268,6 @@
                     "type": "page",
                     "description": "Scalar Agent pricing: what is free, what is metered, and how usage is billed.",
                     "filepath": "documentation/guides/agent/pricing.md"
-                  },
-                  "release-notes": {
-                    "title": "Release Notes",
-                    "filepath": "packages/agent-chat/RELEASE_NOTES.md",
-                    "type": "page",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/changelog/agent"
-                        }
-                      ]
-                    }
                   }
                 }
               },
@@ -4096,21 +4083,6 @@
                         {
                           "rel": "canonical",
                           "href": "https://scalar.com/resources/changelog/api-reference"
-                        }
-                      ]
-                    }
-                  },
-                  "/agent": {
-                    "type": "page",
-                    "title": "Agent",
-                    "filepath": "packages/agent-chat/RELEASE_NOTES.md",
-                    "icon": "phosphor/regular/sparkle",
-                    "description": "Release notes for Scalar Agent and MCP servers.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/resources/changelog/agent"
                         }
                       ]
                     }

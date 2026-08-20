@@ -139,10 +139,17 @@ export const ar = {
     askAi: 'اسأل الذكاء الاصطناعي',
     askAiAgent: 'اسأل وكيل الذكاء الاصطناعي',
     close: 'إغلاق العميل',
+    closeChat: 'إغلاق',
+    expand: 'توسيع المحادثة',
+    collapse: 'طي المحادثة',
+    resize: 'تغيير حجم المحادثة',
   },
   mcp: {
     generate: 'إنشاء MCP',
     connect: 'ربط MCP',
+    installCursor: 'التثبيت في Cursor',
+    installVsCode: 'التثبيت في VS Code',
+    copyUrl: 'نسخ رابط MCP',
   },
   developerTools: {
     title: 'أدوات المطورين',

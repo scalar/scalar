@@ -140,10 +140,17 @@ export const de = {
     askAi: 'KI fragen',
     askAiAgent: 'KI-Agent fragen',
     close: 'Client schließen',
+    closeChat: 'Schließen',
+    expand: 'Chat erweitern',
+    collapse: 'Chat verkleinern',
+    resize: 'Chatgröße ändern',
   },
   mcp: {
     generate: 'MCP generieren',
     connect: 'MCP verbinden',
+    installCursor: 'In Cursor installieren',
+    installVsCode: 'In VS Code installieren',
+    copyUrl: 'MCP-URL kopieren',
   },
   developerTools: {
     title: 'Entwicklertools',

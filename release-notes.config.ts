@@ -20,14 +20,6 @@ export default defineReleaseNotesConfig({
       outputPath: 'packages/api-reference/RELEASE_NOTES.json',
     },
     {
-      slug: 'agent',
-      packageName: '@scalar/agent-chat',
-      displayName: 'Scalar Agent',
-      description: 'an OpenAPI-backed agent chat UI and SDK for connecting APIs to LLMs',
-      changelogPath: 'packages/agent-chat/CHANGELOG.md',
-      outputPath: 'packages/agent-chat/RELEASE_NOTES.json',
-    },
-    {
       slug: 'mock-server',
       packageName: '@scalar/mock-server',
       displayName: 'Scalar Mock Server',
