@@ -502,6 +502,33 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
+  it('does not add an undefined description to a formData property without one', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      paths: {
+        '/planets': {
+          get: {
+            parameters: [
+              {
+                name: 'name',
+                in: 'formData',
+                required: true,
+                type: 'string',
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    const property = (result.paths?.['/planets']?.get?.requestBody as OpenAPIV3.RequestBodyObject).content[
+      'multipart/form-data'
+    ]?.schema as OpenAPIV3.SchemaObject
+
+    expect(property.properties?.name).toStrictEqual({ type: 'string' })
+    expect(Object.hasOwn(property.properties?.name ?? {}, 'description')).toBe(false)
+  })
+
   it('migrates formData with an array type', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

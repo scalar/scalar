@@ -942,7 +942,9 @@ function migrateFormDataParameter(
           if (param.name && formContent.schema.properties) {
             formContent.schema.properties[param.name] = {
               ...transformItemsObject(structuredClone(param)),
-              description: param.description,
+              // Only carry the description over when it exists, so a parameter without one does not
+              // end up with an explicit `description: undefined` on its schema.
+              ...(param.description !== undefined ? { description: param.description } : {}),
             }
 
             // Add to required array if param is required
