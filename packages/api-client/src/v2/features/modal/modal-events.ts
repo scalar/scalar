@@ -43,6 +43,8 @@ export function initializeModalEvents({
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
   eventBus.on('ui:close:client-modal', () => modalState.hide())
   eventBus.on('ui:open:client-modal', (payload) => {
+    // Every open re-establishes the selection (falling back to empty), so the modal no longer needs
+    // to reset it on close. Keep this assignment unconditional to preserve that invariant.
     const nextRequestBodyCompositionSelection = (
       payload && 'requestBodyCompositionSelection' in payload && payload.requestBodyCompositionSelection
         ? payload.requestBodyCompositionSelection
