@@ -31,7 +31,6 @@ export const DEFAULT_PREFIX = 'shl-'
 const AMP = 38
 const LT = 60
 const GT = 62
-const NEWLINE = 10
 
 /**
  * Escapes `&`, `<` and `>`.
@@ -99,7 +98,7 @@ const openTag = (tags: Map<string, string>, prefix: string, scope: string): stri
  */
 export const highlight = (code: string, grammar: CompiledGrammar, options: RenderOptions = {}): string => {
   const prefix = escapeAttribute(options.classPrefix ?? DEFAULT_PREFIX)
-  if (options.lines) return renderLines(code, grammar, prefix, options.highlightLines)
+  if (options.lines) return renderLines(code, grammar, prefix, options.highlightLines).html
 
   const tags = tagsFor(prefix)
   let out = ''
@@ -153,7 +152,7 @@ const renderLines = (
   grammar: CompiledGrammar,
   prefix: string,
   highlightLines: readonly number[] | undefined,
-): string => {
+): { html: string; count: number } => {
   const marked = highlightLines?.length ? new Set(highlightLines) : null
   const lines: string[] = []
   let line = ''
@@ -206,7 +205,9 @@ const renderLines = (
     const br = i < lines.length - 1 || endsWithNewline ? '\n' : ''
     out += `<span class="${prefix}line"${hl}>${lines[i]}${br}</span>`
   }
-  return out
+  // The count is the number of rendered line elements, which is exactly what
+  // the gutter needs — no second scan of the source to size it.
+  return { html: out, count: lines.length }
 }
 
 export type BlockOptions = RenderOptions & {
@@ -228,11 +229,24 @@ export type BlockOptions = RenderOptions & {
 export const highlightBlock = (code: string, grammar: CompiledGrammar, options: BlockOptions = {}): string => {
   const prefix = escapeAttribute(options.classPrefix ?? DEFAULT_PREFIX)
   const block = `${prefix}code`
-  const lines = options.lines || options.lineNumbers
-  const inner = highlight(code, grammar, { ...options, lines })
+  const lined = options.lines || options.lineNumbers
+
+  // Render once. When lined, the renderer already splits the source into line
+  // elements, so it hands back the count too — no second scan to size the
+  // gutter, and no separate line-counter that could drift from the split.
+  let inner: string
+  let count = 1
+  if (lined) {
+    const rendered = renderLines(code, grammar, prefix, options.highlightLines)
+    inner = rendered.html
+    count = rendered.count
+  } else {
+    inner = highlight(code, grammar, options)
+  }
+
   const classes = [
     block,
-    lines ? `${block}-lined` : '',
+    lined ? `${block}-lined` : '',
     options.lineNumbers ? `${block}-numbered` : '',
     options.className ? escapeAttribute(options.className) : '',
   ]
@@ -243,23 +257,7 @@ export const highlightBlock = (code: string, grammar: CompiledGrammar, options: 
   // The gutter is sized for the widest number in the block, not per line, so
   // the code starts at the same column on line 9 and line 10. CSS counters
   // cannot measure that themselves — the stylesheet reads this variable.
-  const gutter = options.lineNumbers ? ` style="--shl-line-digits: ${countLines(code).toString().length}"` : ''
+  const gutter = options.lineNumbers ? ` style="--shl-line-digits: ${count.toString().length}"` : ''
 
   return `<pre class="${classes}"${langAttr}${gutter}><code>${inner}</code></pre>`
-}
-
-/**
- * How many lines the gutter will number.
- *
- * Matches the renderer's own line splitting: a trailing newline closes the
- * last line rather than opening an empty one, so `"a\n"` is one line.
- */
-const countLines = (code: string): number => {
-  if (code.length === 0) return 1
-
-  let lines = 1
-  for (let i = 0; i < code.length; i++) {
-    if (code.charCodeAt(i) === NEWLINE && i !== code.length - 1) lines++
-  }
-  return lines
 }
