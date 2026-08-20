@@ -86,6 +86,23 @@ describe('getResolvedPathItem', () => {
     warn.mockRestore()
   })
 
+  it('does not mutate the path item it was handed', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    // A `$ref-value` with no `$ref` beside it never resolves to anything, so the walk runs all the
+    // way to the cap with the caller's own object still in hand. Resolving a path item is a read:
+    // callers reach it with `document.paths[somePath]`, and a document is free to name a path
+    // `__proto__`, which makes that lookup `Object.prototype`.
+    const pathItem = { '$ref-value': { get: { summary: 'List all moons' } } } as unknown as NodeInput<PathItemObject>
+
+    const resolved = getResolvedPathItem(pathItem)
+
+    expect(pathItem).toHaveProperty('$ref-value')
+    expect(resolved).not.toHaveProperty('$ref-value')
+
+    warn.mockRestore()
+  })
+
   it('does not spread a reference whose target is not an object', () => {
     // Spreading a string copies it character by character, so a pointer at a title used to resolve
     // into `{ 0: 'G', 1: 'a', ... }` and every consumer downstream read those digits as properties.

@@ -47,13 +47,18 @@ export const getResolvedPathItem = (pathItem: NodeInput<PathItemObject> | undefi
       // Give up rather than spin, and drop the hop that was never followed: `$ref-value` is meant to
       // be virtual, so leaving a real one behind would serialize the half-resolved target into the
       // stored document.
-      delete (resolved as Record<string, unknown>)['$ref-value']
+      //
+      // Copied rather than deleted from, so resolving stays free of side effects. A caller reaches
+      // this with `document.paths[somePath]`, and a document is free to name a path `__proto__` —
+      // which makes that lookup `Object.prototype`. Mutating whatever arrives is not worth the risk
+      // when dropping a key costs a destructure.
+      const { '$ref-value': _unfollowed, ...withoutUnfollowedRef } = resolved as Record<string, unknown>
 
       console.warn(
         `Stopped resolving "${(resolved as { $ref?: string }).$ref}" after ${MAX_REF_HOPS} hops.\n\nThis reference most likely points at itself, directly or through another reference.`,
       )
 
-      return resolved
+      return withoutUnfollowedRef as PathItemObject
     }
 
     resolved = getResolvedRef(resolved as NodeInput<PathItemObject>, mergeSiblingReferences)
