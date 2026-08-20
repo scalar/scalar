@@ -142,7 +142,18 @@ defineExpose({ pulse })
 
 .chat-send:disabled {
   cursor: default;
-  opacity: 0.4;
+  /*
+   * The muted treatment the scalar.com composer uses for a disabled send:
+   * the half-step background between background-1 and background-2
+   * (the design system's b-1.5), the tertiary icon color, and a border.
+   */
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
+  color: var(--scalar-color-3);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .chat-send:focus-visible {
