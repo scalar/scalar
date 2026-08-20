@@ -752,6 +752,37 @@ watch(
   },
 )
 
+// The editable surface only exists in "editor mode" (see template). When a row switches into editor
+// mode after mount — most notably when this component instance is reused for a different table row —
+// `onMounted` has already run and the `modelValue` watch fired while `editorRef` was still null, so
+// the model was never painted into the freshly created element and the cell renders empty.
+//
+// Paint the model when the element appears, but only into a still-empty editor: an editor that
+// already holds text is either up to date or ahead of `modelValue` with an uncommitted edit/paste,
+// and must not be clobbered.
+//
+// `flush: 'sync'` makes the paint part of the same step that creates the element. Vue assigns a
+// non-null template ref from a post-render effect, so the element is already mounted and patched
+// when this runs — deferring any further (the `pre` default, or `post`) only pushes the paint past
+// the consumer effects that run later in the same flush. A parent that focuses the cell as it
+// switches into editor mode would then place the caret in a still-empty editor, and the paint's
+// `replaceChildren` would drop that selection.
+watch(
+  editorRef,
+  (editor) => {
+    if (!editor || !isBlankValue(serializeEditor())) {
+      return
+    }
+    const serialized = serializeValue(modelValue)
+    if (serialized === '') {
+      return
+    }
+    lastPillSignature = pillSignature(serialized, withVariables)
+    renderModel(serialized)
+  },
+  { flush: 'sync' },
+)
+
 watch(
   [() => environment, () => withVariables],
   () => {

@@ -1,7 +1,7 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
-import { nextTick } from 'vue'
+import { defineComponent, h, nextTick, useTemplateRef, watch } from 'vue'
 
 import CodeInputLite from './CodeInputLite.vue'
 
@@ -58,6 +58,33 @@ type ExposedApi = {
   cursorPosition: () => number | undefined
 }
 const api = (wrapper: ReturnType<typeof mountInput>) => wrapper.vm as unknown as ExposedApi
+
+/**
+ * A host that focuses the input as soon as its cell switches into editor mode — the focus-management
+ * pattern table cells use, running from a post-flush effect so the DOM is guaranteed to be patched.
+ */
+const FocusOnEditorMode = defineComponent({
+  props: {
+    modelValue: { type: String, required: true },
+    type: { type: String, required: true },
+  },
+  setup(props) {
+    const inputRef = useTemplateRef<ExposedApi>('inputRef')
+    watch(
+      () => props.type,
+      () => inputRef.value?.focus('end'),
+      { flush: 'post' },
+    )
+
+    return () =>
+      h(CodeInputLite, {
+        ref: 'inputRef',
+        modelValue: props.modelValue,
+        environment: env,
+        type: props.type,
+      })
+  },
+})
 
 describe('CodeInputLite', () => {
   it('renders the model value in the input', async () => {
@@ -1074,6 +1101,50 @@ describe('CodeInputLite', () => {
       const wrapper = mountInput({ modelValue: '' })
       const editor = wrapper.get('.code-input-lite__editor').element
       expect(document.activeElement).not.toBe(editor)
+    })
+  })
+
+  describe('editor created after mount', () => {
+    // The editable surface only exists in editor mode, so a table row that starts out in a select
+    // mode (or a reused component instance that switches rows) creates it long after `onMounted`
+    // has run.
+    it('paints the model value when the instance switches from select mode into editor mode', async () => {
+      const wrapper = mountInput({ modelValue: 'true', type: 'boolean' })
+      expect(wrapper.find('.code-input-lite__editor').exists()).toBe(false)
+
+      // The reused instance now serves a plain string row with a different value.
+      await wrapper.setProps({ modelValue: 'Bearer 123', type: 'string' })
+
+      const editor = wrapper.get('.code-input-lite__editor').element as HTMLDivElement
+      expect(editor.textContent).toBe('Bearer 123')
+      expect(api(wrapper).getValue()).toBe('Bearer 123')
+      expect(wrapper.find('.code-input-lite').classes()).not.toContain('code-input-lite--empty')
+    })
+
+    it('renders variable pills when the editor is created after mount', async () => {
+      const wrapper = mountInput({ modelValue: 'true', type: 'boolean' })
+      await wrapper.setProps({ modelValue: '{{baseUrl}}/users', type: 'string' })
+
+      const pill = wrapper.get('.scalar-pill').element as HTMLElement
+      expect(pill.dataset.variable).toBe('baseUrl')
+      expect(api(wrapper).getValue()).toBe('{{baseUrl}}/users')
+    })
+
+    it('paints the value before consumers position the caret in the same update', async () => {
+      // Consumers do focus work in post-flush effects, because that is where Vue guarantees the DOM
+      // is patched. The paint has to land before that: it replaces the editor's children, so a caret
+      // placed into a still-empty editor is dropped and lands back at offset 0.
+      const wrapper = mount(FocusOnEditorMode, {
+        attachTo: document.body,
+        props: { modelValue: 'true', type: 'boolean' },
+      })
+
+      await wrapper.setProps({ modelValue: 'Bearer 123', type: 'string' })
+
+      const input = wrapper.findComponent(CodeInputLite)
+      const editor = wrapper.get('.code-input-lite__editor').element as HTMLDivElement
+      expect(document.activeElement).toBe(editor)
+      expect((input.vm as unknown as ExposedApi).cursorPosition()).toBe('Bearer 123'.length)
     })
   })
 })
