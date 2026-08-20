@@ -20,18 +20,20 @@ function dismiss() {
   <div
     v-show="!isDismissed"
     class="freeMessagesInfoSection">
-    <strong class="infoText flex items-center gap-1.5">
+    <strong class="infoText">
       <!-- Sign up -->
       <ScalarIconInfo
-        class="text-blue size-4"
+        class="infoIcon text-blue size-4"
         weight="bold" />
-      <a
-        class="underline"
-        :href="signupLink"
-        target="_blank"
-        >Sign up for Agent Scalar</a
-      >
-      to continue without hitting limits.
+      <span class="infoCopy">
+        <a
+          class="underline"
+          :href="signupLink"
+          target="_blank"
+          >Sign up for Agent Scalar</a
+        >
+        to continue without hitting limits.
+      </span>
     </strong>
     <div class="actionsContainer">
       <a
@@ -70,17 +72,37 @@ function dismiss() {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .infoText {
+  /* Let the copy flow as one wrapping sentence instead of a rigid single row:
+     the text side takes the free space and shrinks (min-width: 0) so it wraps
+     cleanly, while the actions keep their own line. */
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-font-size-3);
+}
+
+.infoIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.infoCopy {
+  min-width: 0;
 }
 
 .actionsContainer {
   display: flex;
   align-items: center;
   gap: 8px;
+  /* The Read more pill and close button never shrink or wrap into the copy. */
+  flex-shrink: 0;
 }
 
 .actionButton {
@@ -89,6 +111,7 @@ function dismiss() {
   font-weight: var(--scalar-semibold);
   border-radius: var(--scalar-radius-full);
   padding: 6px 12px;
+  white-space: nowrap;
 }
 
 .upgradeButton {
