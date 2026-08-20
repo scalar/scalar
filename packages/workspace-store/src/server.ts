@@ -4,6 +4,7 @@ import { cwd } from 'node:process'
 import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
@@ -451,6 +452,11 @@ export async function createServerWorkspaceStore(
     navigationOptions?: NavigationOptions,
   ) => {
     const { name, ...documentMeta } = meta
+
+    // The name is caller-supplied and used as a computed key on both `workspace.documents` and
+    // `assets`, so a name like `__proto__` would write straight onto Object.prototype. Rejected
+    // here rather than filtered, and `addDocument` turns the throw into a skipped document.
+    preventPollution(name, 'server workspace document name')
 
     // AsyncAPI documents get their own ingestion path, mirroring the client store. The OpenAPI
     // upgrade and coerce steps would strip `channels` and `operations`, inject an empty

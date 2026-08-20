@@ -799,6 +799,20 @@ describe('create-server-store', () => {
       ])
     })
 
+    it('refuses a document name that would write onto Object.prototype', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [
+          { name: '__proto__', document: exampleDocument() },
+          { name: 'events', document: exampleAsyncApiDocument() },
+        ],
+      })
+
+      expect(Object.keys(store.getWorkspace().documents)).toEqual(['events'])
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    })
+
     it('leaves an existing document intact when a later one reuses its name and fails', async () => {
       const store = await createServerWorkspaceStore({
         mode: 'ssr',
