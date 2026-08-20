@@ -252,10 +252,12 @@ defineExpose({
   width: 100%;
 }
 
-/* The blue ring every focused agent composer shows; surface focus flashes
-   (the MCP rail's rainbow sweep) are designed to resolve into it. */
+/* Focus keeps the resting border, matching agent.scalar.com. Surfaces that
+   want a colored focus ring (the MCP rail's rainbow sweep resolves into
+   one) opt in through the public hook:
+   --chat-composer-focus-border: var(--scalar-color-blue) */
 .chat-composer-input:focus-within {
-  border-color: var(--scalar-color-blue, var(--scalar-color-1));
+  border-color: var(--chat-composer-focus-border, var(--scalar-border-color));
 }
 
 .chat-composer[data-over-limit='true'] .chat-composer-input {

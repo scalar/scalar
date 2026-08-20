@@ -75,10 +75,13 @@ const isResponding = computed(
 )
 
 /**
- * The surface's extra send gates. Empty and over-limit drafts are gated by
- * the composer itself.
+ * The surface's extra send gates. The composer blocks empty and over-limit
+ * submits on its own, but the empty draft is included here so the button
+ * renders its disabled treatment, matching agent.scalar.com.
  */
 const sendDisabled = computed(() => {
+  const emptyDraft = !state.prompt.value.trim()
+
   const awaitingApproval = approvalRequiredParts.value.length > 0
   const pendingToolParts = pendingClientToolParts.value.length > 0
 
@@ -88,6 +91,7 @@ const sendDisabled = computed(() => {
   const uploadingTmpDoc = isPreview && !!uploadTmpDoc.uploadState.value
 
   return (
+    emptyDraft ||
     awaitingApproval ||
     pendingToolParts ||
     termsNotAccepted ||
