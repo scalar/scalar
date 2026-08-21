@@ -447,6 +447,35 @@ Point `path` at the route your changelog lives on. The feed is written to `rss.x
 | `title`       | `string` | No       | Title of the feed, shown in feed readers. Defaults to your site title plus `Changelog` |
 | `description` | `string` | No       | Description of the feed, shown in feed readers                                      |
 
+### Multiple Feeds
+
+To publish more than one feed, set `rss` to a list. Each entry is a feed with its own `path`, and each is written to `rss.xml` under that path — so `/changelog` and `/blog` publish `/changelog/rss.xml` and `/blog/rss.xml` side by side:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "rss": [
+      {
+        "path": "/changelog",
+        "title": "Scalar Changelog",
+        "description": "Every Scalar release, as a feed"
+      },
+      {
+        "path": "/blog",
+        "title": "Scalar Blog"
+      }
+    ]
+  }
+}
+```
+
+Every feed takes the same properties as a single one, and each path must be unique. A single feed still works exactly as shown above — the list is only needed when you want more than one.
+
+When a page sits under more than one feed, its header shows a subscribe button for each, with the nearest feed first.
+
 ### Writing Entries
 
 Each entry in the feed comes from a heading that carries a date in `YYYY-MM-DD` form:
@@ -487,7 +516,7 @@ Every page on your site advertises the feed in its `<head>`, so feed readers and
 <link rel="alternate" type="application/rss+xml" href="https://example.com/changelog/rss.xml">
 ```
 
-Pages at `path` and beneath it also show a subscribe button in the page header, next to Copy Page.
+Pages at `path` and beneath it also show a subscribe button in the page header, next to Copy Page — one per feed the page belongs to.
 
 ## Routing
 
