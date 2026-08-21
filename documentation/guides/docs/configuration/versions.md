@@ -102,7 +102,7 @@ You can organize your documentation to share common pages across versions while 
       "tabs": [
         {
           "title": "API Reference",
-          "path": "/api",
+          "to": "/api",
           "icon": "phosphor/regular/plug"
         }
       ],
@@ -142,7 +142,7 @@ You can organize your documentation to share common pages across versions while 
       "tabs": [
         {
           "title": "API Reference",
-          "path": "/api",
+          "to": "/api",
           "icon": "phosphor/regular/plug"
         }
       ],
