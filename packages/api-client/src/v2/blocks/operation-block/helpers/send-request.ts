@@ -11,6 +11,7 @@ import type { RequestPayload } from '@scalar/workspace-store/request-example'
 import { parseSetCookie } from 'set-cookie-parser'
 
 import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
+import { type RequestTiming, parseServerTiming } from '@/v2/blocks/response-block/helpers/parse-server-timing'
 import { resolveResponseBodyHandler } from '@/v2/blocks/response-block/helpers/resolve-response-body-handler'
 import {
   resolveResponseContentType,
@@ -27,6 +28,12 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
   cookieHeaderKeys: string[]
   /** Time in ms the request took */
   duration: number
+  /**
+   * Detailed network phase timings (DNS, connect, TLS, TTFB) parsed from the
+   * proxy's `Server-Timing` header. Only present for proxied requests, since
+   * browsers do not expose these phases for direct cross-origin requests.
+   */
+  timing?: RequestTiming
   /** The response status */
   status: number
   /** The response status text */
@@ -110,6 +117,9 @@ export const sendRequest = async ({
     // Extract response metadata early for reuse
     const contentType = response.headers.get('content-type')
     const responseHeaders = normalizeHeaders(response.headers, isUsingProxy)
+    // The proxy reports detailed network phases via Server-Timing. Direct
+    // requests will not carry this header, leaving timing undefined.
+    const timing = parseServerTiming(response.headers.get('server-timing')) ?? undefined
     const responseUrl = new URL(response.url)
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
@@ -127,6 +137,7 @@ export const sendRequest = async ({
         requestPayload,
         timestamp,
         duration,
+        timing,
         responseHeaders,
         statusText,
         method,
@@ -139,6 +150,7 @@ export const sendRequest = async ({
       requestPayload,
       timestamp,
       duration,
+      timing,
       responseHeaders,
       statusText,
       method,
@@ -183,6 +195,7 @@ const buildStreamingResponse = ({
   requestPayload,
   timestamp,
   duration,
+  timing,
   responseHeaders,
   statusText,
   method,
@@ -192,6 +205,7 @@ const buildStreamingResponse = ({
   requestPayload: RequestPayload
   timestamp: number
   duration: number
+  timing?: RequestTiming
   responseHeaders: Record<string, string>
   statusText: string
   method: HttpMethod
@@ -222,6 +236,7 @@ const buildStreamingResponse = ({
         cookieHeaderKeys,
         reader: response.body!.getReader(),
         duration,
+        timing,
         method,
         path: fullPath,
       },
@@ -239,6 +254,7 @@ const buildStandardResponse = async ({
   requestPayload,
   timestamp,
   duration,
+  timing,
   responseHeaders,
   statusText,
   method,
@@ -251,6 +267,7 @@ const buildStandardResponse = async ({
   requestPayload: RequestPayload
   timestamp: number
   duration: number
+  timing?: RequestTiming
   responseHeaders: Record<string, string>
   statusText: string
   method: HttpMethod
@@ -302,6 +319,7 @@ const buildStandardResponse = async ({
         data: responseData,
         size: arrayBuffer.byteLength,
         duration,
+        timing,
         method,
         status: response.status,
         path: fullPath,

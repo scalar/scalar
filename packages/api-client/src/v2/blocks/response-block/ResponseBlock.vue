@@ -17,6 +17,7 @@ import ResponseCookies from '@/v2/blocks/response-block/components/ResponseCooki
 import ResponseEmpty from '@/v2/blocks/response-block/components/ResponseEmpty.vue'
 import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/ResponseLoadingOverlay.vue'
 import ResponseMetaInformation from '@/v2/blocks/response-block/components/ResponseMetaInformation.vue'
+import ResponseTiming from '@/v2/blocks/response-block/components/ResponseTiming.vue'
 import { textMediaTypes } from '@/v2/blocks/response-block/helpers/media-types'
 import { parseSetCookie } from '@/v2/blocks/response-block/helpers/parse-set-cookie'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -59,11 +60,17 @@ const responseCookies = computed(
       .filter(isDefined) ?? [],
 )
 
-const responseSections = ['Cookies', 'Headers', 'Body'] as const
+const responseSections = ['Cookies', 'Headers', 'Body', 'Timing'] as const
 type Filter = 'All' | (typeof responseSections)[number]
 const activeFilter = ref<Filter>('All')
 
-const filters = computed<Filter[]>(() => ['All', ...responseSections])
+// Timing is only meaningful for proxied requests, which carry Server-Timing.
+const filters = computed<Filter[]>(() => [
+  'All',
+  ...responseSections.filter(
+    (section) => section !== 'Timing' || response?.timing,
+  ),
+])
 
 const filterIds = computed(
   () =>
@@ -201,6 +208,14 @@ defineExpose({
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'">
           <template #title>Response Headers</template>
         </HeadersComponent>
+
+        <!-- Timing waterfall, available for proxied requests -->
+        <ResponseTiming
+          v-if="response.timing && isSectionVisible('Timing')"
+          :id="filterIds.Timing"
+          class="response-section-content-timing"
+          :role="activeFilter === 'All' ? 'none' : 'tabpanel'"
+          :timing="response.timing" />
 
         <!-- Inject response section plugin components -->
         <ScalarErrorBoundary
