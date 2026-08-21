@@ -34,13 +34,15 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
           </div>
         </div>
         <div class="sdk-demo-chrome-right">
-          <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 23a2 2 0 0 1-1.4-.6A2 2 0 0 1 4 21V10c0-.6.2-1 .6-1.4A2 2 0 0 1 6 8h3v2H6v11h12V10h-3V8h3c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v11c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H6Zm5-7V4.8L9.4 6.4 8 5l4-4 4 4-1.4 1.4L13 4.8V16h-2Z" />
-          </svg>
+          <button class="sdk-demo-chrome-button" type="button" data-sdk-demo-share aria-expanded="false" aria-label="Share">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 23a2 2 0 0 1-1.4-.6A2 2 0 0 1 4 21V10c0-.6.2-1 .6-1.4A2 2 0 0 1 6 8h3v2H6v11h12V10h-3V8h3c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v11c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H6Zm5-7V4.8L9.4 6.4 8 5l4-4 4 4-1.4 1.4L13 4.8V16h-2Z" />
+            </svg>
+          </button>
           <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2v-6Z" />
           </svg>
-          <button class="sdk-demo-chrome-tabs" type="button" data-sdk-demo-tabs aria-expanded="false" aria-label="Show tabs">
+          <button class="sdk-demo-chrome-button" type="button" data-sdk-demo-tabs aria-expanded="false" aria-label="Show tabs">
             <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M8 22a2 2 0 0 1-1.4-.6A2 2 0 0 1 6 20v-2H4a2 2 0 0 1-1.4-.6A2 2 0 0 1 2 16V6h2v10h2V8c0-.5.2-1 .6-1.4A2 2 0 0 1 8 6h8V4H6V2h10c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v2h2c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H8Zm0-2h12V8H8v12ZM2 6V4c0-.5.2-1 .6-1.4A2 2 0 0 1 4 2h2v2H4v2H2Z" />
             </svg>
@@ -100,7 +102,20 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
               <span class="sdk-demo-mini-play"></span>
             </span>
           </button>
-          <span class="sdk-demo-tab-card sdk-demo-tab-card-new" aria-hidden="true">+</span>
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="site" data-title="scalar.com Scalar" hidden>
+            <span class="sdk-demo-tab-card-head">
+              <span class="sdk-demo-tab-card-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" /></svg></span>
+              Scalar
+            </span>
+            <span class="sdk-demo-tab-card-preview sdk-demo-tab-card-preview-site" aria-hidden="true">
+              <span class="sdk-demo-mini-site">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </span>
+          </button>
+          <button class="sdk-demo-tab-card sdk-demo-tab-card-new" type="button" data-sdk-demo-new-tab aria-label="New tab">+</button>
         </div>
       </div>
       <div class="sdk-demo-viewport">
@@ -190,6 +205,14 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
           </div>
           <p class="sdk-demo-video-caption">Rick Astley &mdash; Never Gonna Give You Up</p>
         </div>
+        <div class="sdk-demo-site" data-sdk-demo-site hidden>
+          <iframe
+            data-sdk-demo-site-embed
+            title="scalar.com"
+            referrerpolicy="strict-origin-when-cross-origin"
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
       </div>
     </div>
     <div class="sdk-demo-hint" data-sdk-demo-hint hidden>
@@ -208,7 +231,7 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
       </div>
       <div class="sdk-demo-log" data-sdk-demo-log role="log" aria-label="Build log"></div>
     </div>
-    <div class="sdk-demo-window sdk-demo-window-api" data-sdk-demo-api-window data-sdk-demo-end hidden>
+    <div class="sdk-demo-window sdk-demo-window-api" data-sdk-demo-api-window hidden>
       <div class="sdk-demo-window-bar" data-sdk-demo-api-window-bar>
         <div class="sdk-demo-window-lights">
           <button type="button" data-sdk-demo-api-window-close aria-label="Close the API document"></button>
@@ -218,6 +241,80 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
         <span class="sdk-demo-window-title">openapi.yaml</span>
       </div>
       <pre class="sdk-demo-api-doc" data-sdk-demo-api-doc></pre>
+    </div>
+    <div class="sdk-demo-share-layer" data-sdk-demo-share-sheet data-sdk-demo-end hidden>
+      <div class="sdk-demo-share-scrim" data-sdk-demo-share-scrim></div>
+      <div class="sdk-demo-share-sheet" role="dialog" aria-modal="true" aria-label="Share">
+        <span class="sdk-demo-share-grabber" aria-hidden="true"></span>
+        <div class="sdk-demo-share-card sdk-demo-share-preview">
+          <span class="sdk-demo-share-favicon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" /></svg>
+          </span>
+          <span class="sdk-demo-share-preview-text">
+            <span class="sdk-demo-share-preview-title">Warp HR SDK</span>
+            <span class="sdk-demo-share-preview-host" data-sdk-demo-share-host>dashboard.scalar.com</span>
+          </span>
+          <span class="sdk-demo-share-options">Options <span aria-hidden="true">&rsaquo;</span></span>
+        </div>
+        <div class="sdk-demo-share-people">
+          <span class="sdk-demo-share-person">
+            <span class="sdk-demo-share-avatar" aria-hidden="true">M<span class="sdk-demo-share-avatar-badge"></span></span>
+            <span class="sdk-demo-share-person-name">Marc</span>
+          </span>
+        </div>
+        <div class="sdk-demo-share-apps">
+          <span class="sdk-demo-share-app">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-messages" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.9 3 2.8 6.4 2.8 10.6c0 2.4 1.3 4.5 3.4 5.9-.2 1.2-.8 2.4-1.7 3.3 1.6-.2 3.1-.8 4.4-1.7 1 .3 2 .4 3.1.4 5.1 0 9.2-3.4 9.2-7.6S17.1 3 12 3Z" /></svg>
+            </span>
+            <span class="sdk-demo-share-app-name">Messages</span>
+          </span>
+          <span class="sdk-demo-share-app">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-mail" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5.5" width="18" height="13" rx="2.5" /><path d="m3.8 7.5 7.1 5.2c.7.5 1.6.5 2.2 0l7.1-5.2" /></svg>
+            </span>
+            <span class="sdk-demo-share-app-name">Mail</span>
+          </span>
+          <span class="sdk-demo-share-app">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-slack" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <rect x="8.6" y="1.8" width="3.4" height="9.2" rx="1.7" fill="#36c5f0" />
+                <rect x="13" y="8.6" width="9.2" height="3.4" rx="1.7" fill="#2eb67d" />
+                <rect x="12" y="13" width="3.4" height="9.2" rx="1.7" fill="#e01e5a" />
+                <rect x="1.8" y="12" width="9.2" height="3.4" rx="1.7" fill="#ecb22e" />
+              </svg>
+            </span>
+            <span class="sdk-demo-share-app-name">Slack</span>
+          </span>
+          <span class="sdk-demo-share-app">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-notes" aria-hidden="true">
+              <svg viewBox="0 0 24 24" stroke="#8a6d1f" stroke-width="1.6" stroke-linecap="round"><path d="M7 9h10M7 13h10M7 17h6" /></svg>
+            </span>
+            <span class="sdk-demo-share-app-name">Notes</span>
+          </span>
+          <span class="sdk-demo-share-app">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-more" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="18" cy="12" r="1.8" /></svg>
+            </span>
+            <span class="sdk-demo-share-app-name">More</span>
+          </span>
+        </div>
+        <div class="sdk-demo-share-card sdk-demo-share-actions">
+          <button class="sdk-demo-share-action" type="button" data-sdk-demo-share-copy>
+            <span data-sdk-demo-share-copy-label>Copy</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 18a2 2 0 0 1-2-2V4c0-.6.2-1 .6-1.4A2 2 0 0 1 9 2h9c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H9Zm0-2h9V4H9v12Zm-4 6a2 2 0 0 1-1.4-.6A2 2 0 0 1 3 20V6h2v14h11v2H5Z" /></svg>
+          </button>
+          <button class="sdk-demo-share-action" type="button">
+            <span>Add to Reading List</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 21V5c0-.6.2-1 .6-1.4A2 2 0 0 1 6 3h12c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v16l-8-3.4L4 21Z" /></svg>
+          </button>
+          <button class="sdk-demo-share-action" type="button">
+            <span>Find on Page</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /></svg>
+          </button>
+        </div>
+        <button class="sdk-demo-share-cancel" type="button" data-sdk-demo-share-cancel>Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -391,21 +488,6 @@ The parts that need your accounts rather than a browser:
   .sdk-demo-chrome-right svg {
     width: 17px;
     height: 17px;
-  }
-
-  .sdk-demo-chrome-tabs {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-  }
-
-  .sdk-demo-chrome-tabs:hover,
-  .sdk-demo-chrome-tabs[aria-expanded="true"] {
-    color: var(--scalar-color-1);
   }
 
   /* ---------------------------------------------------------------------
@@ -1185,6 +1267,319 @@ The parts that need your accounts rather than a browser:
   }
 
   /* ---------------------------------------------------------------------
+     Third tab: scalar.com, embedded
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-site {
+    height: 100%;
+    min-height: 520px;
+    background: var(--scalar-background-1);
+  }
+
+  .sdk-demo-site[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-site iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+    border: 0;
+  }
+
+  .sdk-demo-tab-card-preview-site {
+    background: var(--scalar-background-2);
+  }
+
+  .sdk-demo-mini-site {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sdk-demo-mini-site > span {
+    height: 12px;
+    border-radius: 3px;
+    background: var(--scalar-background-3);
+  }
+
+  .sdk-demo-mini-site > span:first-child {
+    height: 34px;
+  }
+
+  .sdk-demo-mini-site > span:last-child {
+    width: 60%;
+  }
+
+  .sdk-demo-tab-card-new {
+    cursor: pointer;
+  }
+
+  .sdk-demo-tab-card-new:hover {
+    color: var(--scalar-color-1);
+  }
+
+  /* ---------------------------------------------------------------------
+     Share sheet, in the shape iOS shows it
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-share-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 18;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    border-radius: var(--scalar-radius-3xl);
+    overflow: hidden;
+  }
+
+  .sdk-demo-share-layer[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-share-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 35%);
+  }
+
+  .sdk-demo-share-sheet {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(400px, 100%);
+    max-height: 100%;
+    overflow-y: auto;
+    padding: 8px 12px 14px;
+    border-radius: 18px 18px 0 0;
+    background: var(--scalar-background-2);
+    animation: sdk-demo-sheet-up 0.28s cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
+  @keyframes sdk-demo-sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  .sdk-demo-share-grabber {
+    width: 36px;
+    height: 5px;
+    margin: 0 auto 2px;
+    border-radius: 999px;
+    background: var(--scalar-color-3);
+    opacity: 0.5;
+  }
+
+  .sdk-demo-share-card {
+    border-radius: 12px;
+    background: var(--scalar-background-1);
+  }
+
+  .sdk-demo-share-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .sdk-demo-share-favicon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--scalar-background-2);
+    color: var(--scalar-color-1);
+  }
+
+  .sdk-demo-share-favicon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sdk-demo-share-preview-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sdk-demo-share-preview-title {
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-share-preview-host {
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-micro);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sdk-demo-share-options {
+    flex-shrink: 0;
+    color: var(--scalar-color-accent);
+    font-size: var(--scalar-micro);
+  }
+
+  .sdk-demo-share-people,
+  .sdk-demo-share-apps {
+    display: flex;
+    gap: 18px;
+    padding: 4px 12px 6px;
+    overflow-x: auto;
+  }
+
+  .sdk-demo-share-person,
+  .sdk-demo-share-app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    width: 58px;
+    color: var(--scalar-color-2);
+    font-size: 10px;
+    text-align: center;
+  }
+
+  .sdk-demo-share-avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(#a2a7ae, #7e848c);
+    color: #fff;
+    font-size: 20px;
+    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-share-avatar-badge {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--scalar-background-2);
+    border-radius: 50%;
+    background: #4cd964;
+  }
+
+  .sdk-demo-share-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: var(--scalar-background-3);
+    color: var(--scalar-color-2);
+  }
+
+  .sdk-demo-share-tile svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .sdk-demo-share-tile-messages {
+    background: #4cd964;
+  }
+
+  .sdk-demo-share-tile-mail {
+    background: #1a8cff;
+  }
+
+  .sdk-demo-share-tile-slack {
+    background: #fff;
+  }
+
+  .sdk-demo-share-tile-notes {
+    background: #fbdd6d;
+  }
+
+  .sdk-demo-share-person-name,
+  .sdk-demo-share-app-name {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sdk-demo-share-actions {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sdk-demo-share-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 12px;
+    background: transparent;
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-small);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sdk-demo-share-action + .sdk-demo-share-action {
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  }
+
+  .sdk-demo-share-action:hover {
+    background: var(--scalar-background-2);
+  }
+
+  .sdk-demo-share-action svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--scalar-color-2);
+  }
+
+  .sdk-demo-share-cancel {
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+    cursor: pointer;
+  }
+
+  .sdk-demo-share-cancel:hover {
+    background: var(--scalar-background-3);
+  }
+
+  .sdk-demo-chrome-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .sdk-demo-chrome-button:hover,
+  .sdk-demo-chrome-button[aria-expanded="true"] {
+    color: var(--scalar-color-1);
+  }
+
+  /* ---------------------------------------------------------------------
      Floating windows — the build terminal and the API document. Both share
      one minimal chrome: stoplights, a shorter bar than the omnibar, no URL.
      They stay dark in either theme, the way a terminal is.
@@ -1366,7 +1761,8 @@ The parts that need your accounts rather than a browser:
     }
 
     .sdk-demo-hint-pill,
-    .sdk-demo-hint-dot {
+    .sdk-demo-hint-dot,
+    .sdk-demo-share-sheet {
       animation: none;
     }
   }

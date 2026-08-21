@@ -599,7 +599,18 @@ const VIDEO_EMBED = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0'
 const PAGE_URLS = {
   dashboard: 'dashboard.scalar.com',
   video: 'youtube.com/watch?v=dQw4w9WgXcQ',
+  site: 'scalar.com',
 }
+
+const PAGE_TITLES = {
+  dashboard: 'Warp HR SDK',
+  video: 'Untitled',
+  site: 'Scalar',
+}
+
+/* The third tab, opened from "+" in the tab overview. Like the video embed,
+ * it is only ever given a src once someone opens that tab. */
+const SITE_EMBED = 'https://scalar.com'
 
 const REDUCED_MOTION = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
 
@@ -823,6 +834,18 @@ const initSdkDemo = (root) => {
     main: qs(root, '.sdk-demo-main'),
     video: qs(root, '[data-sdk-demo-video]'),
     videoEmbed: qs(root, '[data-sdk-demo-video-embed]'),
+    site: qs(root, '[data-sdk-demo-site]'),
+    siteEmbed: qs(root, '[data-sdk-demo-site-embed]'),
+    siteTab: qs(root, '[data-sdk-demo-page-tab="site"]'),
+    newTab: qs(root, '[data-sdk-demo-new-tab]'),
+    share: qs(root, '[data-sdk-demo-share]'),
+    shareSheet: qs(root, '[data-sdk-demo-share-sheet]'),
+    shareScrim: qs(root, '[data-sdk-demo-share-scrim]'),
+    shareCancel: qs(root, '[data-sdk-demo-share-cancel]'),
+    shareCopy: qs(root, '[data-sdk-demo-share-copy]'),
+    shareCopyLabel: qs(root, '[data-sdk-demo-share-copy-label]'),
+    shareHost: qs(root, '[data-sdk-demo-share-host]'),
+    shareTitle: qs(root, '.sdk-demo-share-preview-title'),
     hint: qs(root, '[data-sdk-demo-hint]'),
     targets: qs(root, '[data-sdk-demo-targets]'),
     addTarget: qs(root, '[data-sdk-demo-add]'),
@@ -1136,6 +1159,10 @@ const initSdkDemo = (root) => {
     setBuildWindowOpen(false)
     setApiWindowOpen(false)
     setOverviewOpen(false)
+    setShareOpen(false)
+    if (nodes.siteTab) {
+      nodes.siteTab.hidden = true
+    }
     showPage('dashboard')
     resetPosition(nodes.frame)
     resetPosition(nodes.buildWindow)
@@ -1152,14 +1179,17 @@ const initSdkDemo = (root) => {
   const showPage = (page) => {
     root.dataset.sdkDemoPage = page
 
-    if (nodes.main) {
-      nodes.main.hidden = page !== 'dashboard'
-    }
-    if (nodes.video) {
-      nodes.video.hidden = page !== 'video'
+    /* One pane per tab; everything else is hidden. */
+    const panes = { dashboard: nodes.main, video: nodes.video, site: nodes.site }
+    for (const [key, pane] of Object.entries(panes)) {
+      if (pane) {
+        pane.hidden = key !== page
+      }
     }
 
     setText(nodes.url, PAGE_URLS[page] ?? PAGE_URLS.dashboard)
+    setText(nodes.shareHost, PAGE_URLS[page] ?? PAGE_URLS.dashboard)
+    setText(nodes.shareTitle, PAGE_TITLES[page] ?? PAGE_TITLES.dashboard)
 
     nodes.pageTabs.forEach((tab) => {
       const active = tab.dataset.sdkDemoPageTab === page
@@ -1172,9 +1202,12 @@ const initSdkDemo = (root) => {
       }
     })
 
-    /* Load the embed on first visit, and never before. */
+    /* Load each embed on first visit, and never before. */
     if (page === 'video' && nodes.videoEmbed && !nodes.videoEmbed.src) {
       nodes.videoEmbed.src = VIDEO_EMBED
+    }
+    if (page === 'site' && nodes.siteEmbed && !nodes.siteEmbed.src) {
+      nodes.siteEmbed.src = SITE_EMBED
     }
   }
 
@@ -1216,6 +1249,55 @@ const initSdkDemo = (root) => {
       showPage(tab.dataset.sdkDemoPageTab)
       setOverviewOpen(false)
     })
+  })
+
+  /* "+" opens the third tab the first time, and switches to it after that. */
+  nodes.newTab?.addEventListener('click', () => {
+    if (nodes.siteTab) {
+      nodes.siteTab.hidden = false
+    }
+    showPage('site')
+    setOverviewOpen(false)
+  })
+
+  /* ---------------------------------------------------------------------
+     Share sheet
+     --------------------------------------------------------------------- */
+
+  const setShareOpen = (open) => {
+    if (nodes.shareSheet) {
+      nodes.shareSheet.hidden = !open
+    }
+    nodes.share?.setAttribute('aria-expanded', open ? 'true' : 'false')
+
+    if (open) {
+      hideHint()
+    } else {
+      /* Leave the copy row in its resting state for the next open. */
+      setText(nodes.shareCopyLabel, 'Copy')
+    }
+  }
+
+  nodes.share?.addEventListener('click', () => {
+    setShareOpen(nodes.shareSheet?.hidden ?? true)
+  })
+
+  nodes.shareScrim?.addEventListener('click', () => setShareOpen(false))
+  nodes.shareCancel?.addEventListener('click', () => setShareOpen(false))
+
+  /* The one row that does something real: it copies the address being shared. */
+  nodes.shareCopy?.addEventListener('click', async () => {
+    const url = `https://${PAGE_URLS[root.dataset.sdkDemoPage] ?? PAGE_URLS.dashboard}`
+
+    try {
+      await navigator.clipboard.writeText(url)
+      setText(nodes.shareCopyLabel, 'Copied')
+    } catch {
+      /* Denied clipboard, an insecure origin, or an older browser. */
+      setText(nodes.shareCopyLabel, 'Copy failed')
+    }
+
+    later(() => setText(nodes.shareCopyLabel, 'Copy'), 1600)
   })
 
   /* ---------------------------------------------------------------------
@@ -1318,7 +1400,9 @@ const initSdkDemo = (root) => {
     if (event.key !== 'Escape') {
       return
     }
-    if (nodes.overview && !nodes.overview.hidden) {
+    if (nodes.shareSheet && !nodes.shareSheet.hidden) {
+      setShareOpen(false)
+    } else if (nodes.overview && !nodes.overview.hidden) {
       setOverviewOpen(false)
     } else if (root.dataset.sdkDemoMenu === 'open') {
       closeAddMenu()
