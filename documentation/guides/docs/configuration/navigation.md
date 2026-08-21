@@ -25,9 +25,9 @@ All navigation is configured within the `navigation.routes` object in your `scal
 
 ## Header
 
-The `navigation.header` array defines links that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons. Each item can be `type: "link"` or `type: "spacer"`. A spacer pushes items before it to the left and items after it to the right.
+The `navigation.header` array defines the items that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons.
 
-The header only renders when this array has at least one item, and it is where your [logo](site-config.md#logo) appears. If you want the logo in the header but have no links to put there, a single spacer is enough.
+The header renders whenever you declare `navigation.header`, and it is where your [logo](site-config.md#logo) appears. To override that, set `header` in your [site layout options](site-config.md#layout), `true` to always show the header or `false` to always hide it. You can also override the header visibility per page in its [layout options](#layout-options).
 
 ### Example
 
@@ -44,11 +44,9 @@ The header only renders when this array has at least one item, and it is where y
         "to": "/"
       },
       {
-        "type": "spacer"
-      },
-      {
         "type": "link",
         "title": "Log in",
+        "align": "end",
         "to": "https://dashboard.scalar.com/login"
       },
       {
@@ -56,6 +54,7 @@ The header only renders when this array has at least one item, and it is where y
         "title": "Register",
         "style": "button",
         "icon": "phosphor/regular/user-plus",
+        "align": "end",
         "newTab": true,
         "to": "https://dashboard.scalar.com/register"
       }
@@ -67,18 +66,96 @@ The header only renders when this array has at least one item, and it is where y
 }
 ```
 
-### Properties
+### Alignment
 
-| Property | Type                   | Required | Description                              |
-| -------- | ---------------------- | -------- | ---------------------------------------- |
-| `title`  | `string`               | Yes      | The display text for the header link     |
-| `type`   | `"link"` \| `"spacer"` | Yes      | Must be `"link"` or `"spacer"`           |
-| `to`     | `string`               | Yes      | The route path or URL the link points to |
-| `style`  | `"button" \| "text"`   | No       | Display style (defaults to `"text"`)     |
-| `icon`   | `string`               | No       | An icon to display next to the link      |
-| `newTab` | `boolean`              | No       | Whether to open the link in a new tab    |
+The header lays out in three regions, and each item picks its region with `align`:
 
-For `type: "spacer"`, no other properties are used; only `type` is required.
+| Value             | Where the item sits                                |
+| ----------------- | -------------------------------------------------- |
+| `start` (Default) | Next to your logo                                  |
+| `center`          | In the middle of the header next to the search bar |
+| `end`             | At the far end of the header opposite your logo    |
+
+Alignment is a property of top-level items. Items nested inside a [group](#group-dropdowns) ignore the `align` property.
+
+### Item types
+
+The header supports three types of item.
+
+#### Header links
+
+A link to a page on your site or to an external URL.
+
+```json
+{
+  "type": "link",
+  "title": "Log in",
+  "align": "end",
+  "to": "https://dashboard.scalar.com/login"
+}
+```
+
+| Property | Type                              | Required | Description                                                     |
+| -------- | --------------------------------- | -------- | --------------------------------------------------------------- |
+| `type`   | `"link"`                          | Yes      | Must be `"link"`                                                |
+| `title`  | `string`                          | Yes      | The display text for the header link                            |
+| `to`     | `string`                          | Yes      | The route path or URL the link points to                        |
+| `align`  | `"start" \| "center" \| "end"`    | No       | Which region the link sits in (defaults to `"start"`)           |
+| `style`  | `"text" \| "button"`              | No       | Display style (defaults to `"text"`)                            |
+| `icon`   | `string`                          | No       | An icon to display next to the link. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
+| `newTab` | `boolean`                         | No       | Whether to open the link in a new tab (defaults to `false`)     |
+
+#### Group dropdowns
+
+A group collects several links into a single dropdown.
+
+```json
+{
+  "type": "group",
+  "title": "Resources",
+  "icon": "phosphor/regular/books",
+  "children": [
+    {
+      "type": "link",
+      "title": "API Reference",
+      "to": "/reference"
+    },
+    {
+      "type": "link",
+      "title": "Changelog",
+      "to": "/changelog"
+    }
+  ]
+}
+```
+
+| Property   | Type                           | Required | Description                                            |
+| ---------- | ------------------------------ | -------- | ------------------------------------------------------ |
+| `type`     | `"group"`                      | Yes      | Must be `"group"`                                      |
+| `title`    | `string`                       | Yes      | The display text for the dropdown                      |
+| `children` | `array`                        | Yes      | The links inside the dropdown                          |
+| `align`    | `"start" \| "center" \| "end"` | No       | Which region the group sits in (defaults to `"start"`) |
+| `icon`     | `string`                       | No       | An icon to display next to the group. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
+
+`children` accepts link items only. Each child takes the same properties as a [header link](#header-links).
+
+#### Version selector
+
+Places the [version](versions.md) dropdown at a specific position in the header.
+
+```json
+{
+  "type": "version-selector",
+  "align": "end"
+}
+```
+
+| Property | Type                           | Required | Description                                               |
+| -------- | ------------------------------ | -------- | --------------------------------------------------------- |
+| `type`   | `"version-selector"`           | Yes      | Must be `"version-selector"`                              |
+| `align`  | `"start" \| "center" \| "end"` | No       | Which region the selector sits in (defaults to `"start"`) |
+
+The selector only renders when your project defines more than one version. If you do not add this item, it renders next to your logo.
 
 ## Sidebar
 
@@ -112,7 +189,7 @@ The `navigation.sidebar` array defines links that appear in the footer of the si
 | -------- | -------------------- | -------- | ---------------------------------------- |
 | `title`  | `string`             | Yes      | The display text for the sidebar link    |
 | `to`     | `string`             | Yes      | The route path or URL the link points to |
-| `icon`   | `string`             | No       | An icon to display next to the link      |
+| `icon`   | `string`             | No       | An icon to display next to the link. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
 | `newTab` | `boolean`            | No       | Whether to open the link in a new tab    |
 
 ## Tabs
@@ -149,7 +226,7 @@ Tabs and a header work together, and you do not need both. If you use tabs witho
 | -------- | -------- | -------- | -------------------------------------- |
 | `title`  | `string` | Yes      | The display text for the tab           |
 | `to`     | `string` | Yes      | The route path or URL the tab links to |
-| `icon`   | `string` | No       | An icon to display next to the tab     |
+| `icon`   | `string` | No       | An icon to display next to the tab. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
 
 ### Multiple Tabs
 
@@ -190,7 +267,7 @@ Pages render markdown content from files in your repository. They are the most c
 | `title`         | `string`  | No       | The display text in the navigation                        |
 | `filepath`      | `string`  | Yes      | Relative path to the markdown file                        |
 | `description`   | `string`  | No       | A description for SEO and metadata                        |
-| `icon`          | `string`  | No       | An icon to display next to the page                       |
+| `icon`          | `string`  | No       | An icon to display next to the page. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
 | `showInSidebar` | `boolean` | No       | Whether to show the page in the sidebar (defaults `true`) |
 | `hidden`        | `boolean` | No       | Fully hide the page: no sidebar entry, no sitemap entry, and `noindex` (defaults `false`) |
 | `layout`        | `object`  | No       | Layout configuration options                              |
@@ -241,7 +318,7 @@ In short: use `hidden: true` when the page should be invisible to search engines
 
 ### Layout Options
 
-Pages support layout configuration to customize how they are displayed:
+Pages support layout configuration to customize how they are displayed. These options override the site-wide defaults in [`siteConfig.layout`](site-config.md#layout) for a single page:
 
 ```json
 "/introduction": {
@@ -260,7 +337,7 @@ Pages support layout configuration to customize how they are displayed:
 | `toc`         | `boolean` | `true`  | Whether to show the table of contents    |
 | `sidebar`     | `boolean` | `true`  | Whether to show the sidebar navigation   |
 | `tabs`        | `boolean` | `true`  | Whether to show the navigation tabs      |
-| `header`      | `boolean` | `true`  | Whether to show the header               |
+| `header`      | `boolean` | —       | Whether to show the header. Falls back to the site-level [`layout.header`](site-config.md#layout) option |
 | `pageTitle`   | `boolean` | `true`  | Whether to show the page title           |
 | `pageActions` | `boolean` | `true`  | Whether to show page actions             |
 | `search`      | `object`  | —       | Search configuration for this page       |
@@ -386,7 +463,7 @@ To document an event-driven API, use `type: "asyncapi"` and point it at your Asy
 | `namespace`  | `string`                         | No       | Registry namespace (when using Registry)                         |
 | `slug`       | `string`                         | No       | Registry slug (when using Registry)                              |
 | `version`    | `string`                         | No       | Registry version (when using Registry)                           |
-| `icon`       | `string`                         | No       | An icon to display next to the reference                         |
+| `icon`       | `string`                         | No       | An icon to display next to the reference. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
 | `mode`       | `"flat" \| "nested" \| "folder"` | No       | How the API reference is displayed in the sidebar                |
 | `singlePage` | `boolean`                        | No       | Render all operations on a single page (defaults to `false`)     |
 | `hidden`     | `boolean`                        | No       | Fully hide the API reference and all its generated pages (defaults to `false`) |
@@ -489,7 +566,7 @@ Groups allow you to organize related pages, API references, and links into colla
 | `title`    | `string`                         | No       | The display text in the navigation                               |
 | `children` | `object`                         | Yes      | An object containing nested routes                               |
 | `mode`     | `"flat" \| "nested" \| "folder"` | No       | How the group is displayed                                       |
-| `icon`     | `string`                         | No       | An icon to display next to the group                             |
+| `icon`     | `string`                         | No       | An icon to display next to the group. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
 | `page`     | `object`                         | No       | A page to navigate to when clicking the folder (folder mode only) |
 | `open`     | `boolean`                        | No       | Whether the folder is expanded by default (folder mode only)     |
 | `hidden`   | `boolean`                        | No       | Fully hide the group and everything nested under it (defaults to `false`) |
@@ -648,7 +725,7 @@ Links allow you to add external URLs to your navigation. Unlike pages that rende
 | `type`   | `"link"`  | Yes      | Must be `"link"`                    |
 | `title`  | `string`  | No       | The display text in the navigation  |
 | `url`    | `string`  | Yes      | The external URL to link to         |
-| `icon`   | `string`  | No       | An icon to display next to the link |
+| `icon`   | `string`  | No       | An icon to display next to the link. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
 | `hidden` | `boolean` | No       | Hide the link from the sidebar (defaults to `false`) |
 
 Since a link points to an external URL, there is no page to exclude from the sitemap or deindex — on links, `hidden: true` only removes the sidebar entry. The option exists on all route types for consistency.

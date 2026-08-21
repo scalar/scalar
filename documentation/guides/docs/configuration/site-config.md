@@ -26,11 +26,11 @@ The `logo` property defines your site's logo. You can provide a single URL for a
 
 Your logo renders on the first of these surfaces your site has:
 
-1. The **header**, if `navigation.header` has any items
+1. The **header**, if you declare `navigation.header` or set `layout.header` to `true`
 2. The **tabs**, if you have `navigation.tabs` but no header
 3. The **sidebar**, if you have neither
 
-To put your logo in the header, add at least one item to [`navigation.header`](navigation.md#header) — a single spacer is enough. If a page hides all three surfaces through its [layout options](navigation.md#layout-options), the logo does not render on that page.
+To force the logo to go in the header, set `layout.header` to `true`. If a page hides all three surfaces through its [layout options](navigation.md#layout-options), the logo does not render on that page.
 
 If you do not set a `logo`, your project title from `info.title` renders in the same place instead.
 
@@ -177,7 +177,7 @@ Respect the user's system preference while allowing them to override it:
 
 ## Layout
 
-The `layout` property controls global layout options that apply to all pages unless overridden at the page level.
+The `layout` property controls global layout options that apply to all pages unless overridden by a page's own [layout options](navigation.md#layout-options).
 
 ```json
 // scalar.config.json
@@ -204,7 +204,7 @@ The `layout` property controls global layout options that apply to all pages unl
 | Property      | Type      | Default  | Description                                    |
 | ------------- | --------- | -------- | ---------------------------------------------- |
 | `toc`         | `boolean` | `true`   | Whether to show the table of contents globally |
-| `header`      | `boolean` | `true`   | Whether to show the header globally            |
+| `header`      | `boolean` | —        | Whether to show the header globally. Falls back to whether or not [`navigation.header`](navigation.md#header) is declared |
 | `pageTitle`   | `boolean` | `true`   | Whether to show page titles globally           |
 | `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |
 | `search`      | `object`  | —        | Search bar configuration                       |
