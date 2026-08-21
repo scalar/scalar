@@ -195,7 +195,6 @@ The parts that need your accounts rather than a browser:
   .sdk-demo-chrome {
     position: relative;
     display: flex;
-    align-items: center;
     justify-content: space-between;
     height: 40px;
     background: var(--scalar-background-2);
@@ -256,7 +255,7 @@ The parts that need your accounts rather than a browser:
     padding: 0 24px;
     border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: 7px;
-    font-size: 13px;
+    font-size: var(--scalar-micro);
     color: var(--scalar-color-1);
     white-space: nowrap;
     overflow: hidden;
@@ -268,8 +267,8 @@ The parts that need your accounts rather than a browser:
   }
 
   .sdk-demo-chrome-url > svg {
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
     flex-shrink: 0;
     margin-right: 3px;
     color: var(--scalar-color-3);
@@ -295,8 +294,8 @@ The parts that need your accounts rather than a browser:
   }
 
   .sdk-demo-chrome-url button svg {
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
   }
 
   .sdk-demo-chrome-right {
