@@ -837,7 +837,10 @@ const initSdkDemo = (root) => {
     site: qs(root, '[data-sdk-demo-site]'),
     siteEmbed: qs(root, '[data-sdk-demo-site-embed]'),
     siteTab: qs(root, '[data-sdk-demo-page-tab="site"]'),
-    newTab: qs(root, '[data-sdk-demo-new-tab]'),
+    newTabs: qsa(root, '[data-sdk-demo-new-tab]'),
+    shareLinks: qsa(root, '[data-sdk-demo-share-link]'),
+    sharePastes: qsa(root, '[data-sdk-demo-share-paste]'),
+    shareStatus: qs(root, '[data-sdk-demo-share-status]'),
     share: qs(root, '[data-sdk-demo-share]'),
     shareSheet: qs(root, '[data-sdk-demo-share-sheet]'),
     shareScrim: qs(root, '[data-sdk-demo-share-scrim]'),
@@ -1187,9 +1190,22 @@ const initSdkDemo = (root) => {
       }
     }
 
-    setText(nodes.url, PAGE_URLS[page] ?? PAGE_URLS.dashboard)
-    setText(nodes.shareHost, PAGE_URLS[page] ?? PAGE_URLS.dashboard)
-    setText(nodes.shareTitle, PAGE_TITLES[page] ?? PAGE_TITLES.dashboard)
+    const host = PAGE_URLS[page] ?? PAGE_URLS.dashboard
+    const title = PAGE_TITLES[page] ?? PAGE_TITLES.dashboard
+
+    setText(nodes.url, host)
+    setText(nodes.shareHost, host)
+    setText(nodes.shareTitle, title)
+
+    /* Mail and Messages are ordinary links, so the browser hands them to
+     * whatever the reader has set up. They point at the tab in front. */
+    const url = `https://${host}`
+    nodes.shareLinks.forEach((link) => {
+      link.href =
+        link.dataset.sdkDemoShareLink === 'mailto'
+          ? `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`
+          : `sms:?&body=${encodeURIComponent(`${title} ${url}`)}`
+    })
 
     nodes.pageTabs.forEach((tab) => {
       const active = tab.dataset.sdkDemoPageTab === page
@@ -1251,13 +1267,16 @@ const initSdkDemo = (root) => {
     })
   })
 
-  /* "+" opens the third tab the first time, and switches to it after that. */
-  nodes.newTab?.addEventListener('click', () => {
-    if (nodes.siteTab) {
-      nodes.siteTab.hidden = false
-    }
-    showPage('site')
-    setOverviewOpen(false)
+  /* Both "+" buttons — the omnibar's and the overview's — open the third tab
+   * the first time, and switch to it after that. */
+  nodes.newTabs.forEach((button) => {
+    button.addEventListener('click', () => {
+      if (nodes.siteTab) {
+        nodes.siteTab.hidden = false
+      }
+      showPage('site')
+      setOverviewOpen(false)
+    })
   })
 
   /* ---------------------------------------------------------------------
@@ -1273,8 +1292,9 @@ const initSdkDemo = (root) => {
     if (open) {
       hideHint()
     } else {
-      /* Leave the copy row in its resting state for the next open. */
+      /* Leave the sheet in its resting state for the next open. */
       setText(nodes.shareCopyLabel, 'Copy')
+      setText(nodes.shareStatus, '')
     }
   }
 
@@ -1285,19 +1305,47 @@ const initSdkDemo = (root) => {
   nodes.shareScrim?.addEventListener('click', () => setShareOpen(false))
   nodes.shareCancel?.addEventListener('click', () => setShareOpen(false))
 
-  /* The one row that does something real: it copies the address being shared. */
-  nodes.shareCopy?.addEventListener('click', async () => {
+  /** Copy the address of the tab in front. False when the browser refuses. */
+  const copyShareUrl = async () => {
     const url = `https://${PAGE_URLS[root.dataset.sdkDemoPage] ?? PAGE_URLS.dashboard}`
 
     try {
       await navigator.clipboard.writeText(url)
-      setText(nodes.shareCopyLabel, 'Copied')
+      return true
     } catch {
       /* Denied clipboard, an insecure origin, or an older browser. */
-      setText(nodes.shareCopyLabel, 'Copy failed')
+      return false
     }
+  }
 
+  const announceShare = (message) => {
+    setText(nodes.shareStatus, message)
+    later(() => setText(nodes.shareStatus, ''), 2600)
+  }
+
+  nodes.shareCopy?.addEventListener('click', async () => {
+    setText(nodes.shareCopyLabel, (await copyShareUrl()) ? 'Copied' : 'Copy failed')
     later(() => setText(nodes.shareCopyLabel, 'Copy'), 1600)
+  })
+
+  /* Slack and Notes have no share URL a web page can call, so they do the
+   * useful half honestly: put the link on the clipboard and say so. */
+  nodes.sharePastes.forEach((button) => {
+    button.addEventListener('click', async () => {
+      const app = button.dataset.sdkDemoSharePaste
+      announceShare(
+        (await copyShareUrl()) ? `Link copied — paste it into ${app}` : `Could not copy the link for ${app}`,
+      )
+    })
+  })
+
+  /* Mail and Messages navigate on their own; this only reports it, and gets
+   * out of the way so the handover is visible. */
+  nodes.shareLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      announceShare(`Opening ${link.dataset.sdkDemoShareApp}…`)
+      later(() => setShareOpen(false), 1200)
+    })
   })
 
   /* ---------------------------------------------------------------------

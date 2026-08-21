@@ -39,9 +39,11 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
               <path d="M6 23a2 2 0 0 1-1.4-.6A2 2 0 0 1 4 21V10c0-.6.2-1 .6-1.4A2 2 0 0 1 6 8h3v2H6v11h12V10h-3V8h3c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v11c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H6Zm5-7V4.8L9.4 6.4 8 5l4-4 4 4-1.4 1.4L13 4.8V16h-2Z" />
             </svg>
           </button>
-          <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2v-6Z" />
-          </svg>
+          <button class="sdk-demo-chrome-button" type="button" data-sdk-demo-new-tab aria-label="New tab">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2v-6Z" />
+            </svg>
+          </button>
           <button class="sdk-demo-chrome-button" type="button" data-sdk-demo-tabs aria-expanded="false" aria-label="Show tabs">
             <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M8 22a2 2 0 0 1-1.4-.6A2 2 0 0 1 6 20v-2H4a2 2 0 0 1-1.4-.6A2 2 0 0 1 2 16V6h2v10h2V8c0-.5.2-1 .6-1.4A2 2 0 0 1 8 6h8V4H6V2h10c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v2h2c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H8Zm0-2h12V8H8v12ZM2 6V4c0-.5.2-1 .6-1.4A2 2 0 0 1 4 2h2v2H4v2H2Z" />
@@ -257,48 +259,39 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
           <span class="sdk-demo-share-options">Options <span aria-hidden="true">&rsaquo;</span></span>
         </div>
         <div class="sdk-demo-share-people">
-          <span class="sdk-demo-share-person">
+          <a class="sdk-demo-share-person" data-sdk-demo-share-link="sms" data-sdk-demo-share-app="Messages" href="sms:">
             <span class="sdk-demo-share-avatar" aria-hidden="true">M<span class="sdk-demo-share-avatar-badge"></span></span>
             <span class="sdk-demo-share-person-name">Marc</span>
-          </span>
+          </a>
         </div>
         <div class="sdk-demo-share-apps">
-          <span class="sdk-demo-share-app">
-            <span class="sdk-demo-share-tile sdk-demo-share-tile-messages" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.9 3 2.8 6.4 2.8 10.6c0 2.4 1.3 4.5 3.4 5.9-.2 1.2-.8 2.4-1.7 3.3 1.6-.2 3.1-.8 4.4-1.7 1 .3 2 .4 3.1.4 5.1 0 9.2-3.4 9.2-7.6S17.1 3 12 3Z" /></svg>
-            </span>
+          <a class="sdk-demo-share-app" data-sdk-demo-share-link="sms" data-sdk-demo-share-app="Messages" href="sms:">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-messages" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.9 3 2.8 6.4 2.8 10.6c0 2.4 1.3 4.5 3.4 5.9-.2 1.2-.8 2.4-1.7 3.3 1.6-.2 3.1-.8 4.4-1.7 1 .3 2 .4 3.1.4 5.1 0 9.2-3.4 9.2-7.6S17.1 3 12 3Z" /></svg></span>
             <span class="sdk-demo-share-app-name">Messages</span>
-          </span>
-          <span class="sdk-demo-share-app">
-            <span class="sdk-demo-share-tile sdk-demo-share-tile-mail" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5.5" width="18" height="13" rx="2.5" /><path d="m3.8 7.5 7.1 5.2c.7.5 1.6.5 2.2 0l7.1-5.2" /></svg>
-            </span>
+          </a>
+          <a class="sdk-demo-share-app" data-sdk-demo-share-link="mailto" data-sdk-demo-share-app="Mail" href="mailto:">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-mail" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5.5" width="18" height="13" rx="2.5" /><path d="m3.8 7.5 7.1 5.2c.7.5 1.6.5 2.2 0l7.1-5.2" /></svg></span>
             <span class="sdk-demo-share-app-name">Mail</span>
-          </span>
-          <span class="sdk-demo-share-app">
-            <span class="sdk-demo-share-tile sdk-demo-share-tile-slack" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
+          </a>
+          <button class="sdk-demo-share-app" type="button" data-sdk-demo-share-paste="Slack">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-slack" aria-hidden="true"><svg viewBox="0 0 24 24">
                 <rect x="8.6" y="1.8" width="3.4" height="9.2" rx="1.7" fill="#36c5f0" />
                 <rect x="13" y="8.6" width="9.2" height="3.4" rx="1.7" fill="#2eb67d" />
                 <rect x="12" y="13" width="3.4" height="9.2" rx="1.7" fill="#e01e5a" />
                 <rect x="1.8" y="12" width="9.2" height="3.4" rx="1.7" fill="#ecb22e" />
-              </svg>
-            </span>
+              </svg></span>
             <span class="sdk-demo-share-app-name">Slack</span>
-          </span>
-          <span class="sdk-demo-share-app">
-            <span class="sdk-demo-share-tile sdk-demo-share-tile-notes" aria-hidden="true">
-              <svg viewBox="0 0 24 24" stroke="#8a6d1f" stroke-width="1.6" stroke-linecap="round"><path d="M7 9h10M7 13h10M7 17h6" /></svg>
-            </span>
+          </button>
+          <button class="sdk-demo-share-app" type="button" data-sdk-demo-share-paste="Notes">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-notes" aria-hidden="true"><svg viewBox="0 0 24 24" stroke="#8a6d1f" stroke-width="1.6" stroke-linecap="round"><path d="M7 9h10M7 13h10M7 17h6" /></svg></span>
             <span class="sdk-demo-share-app-name">Notes</span>
-          </span>
-          <span class="sdk-demo-share-app">
-            <span class="sdk-demo-share-tile sdk-demo-share-tile-more" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="18" cy="12" r="1.8" /></svg>
-            </span>
+          </button>
+          <span class="sdk-demo-share-app sdk-demo-share-app-inert">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-more" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="18" cy="12" r="1.8" /></svg></span>
             <span class="sdk-demo-share-app-name">More</span>
           </span>
         </div>
+        <p class="sdk-demo-share-status" data-sdk-demo-share-status role="status"></p>
         <div class="sdk-demo-share-card sdk-demo-share-actions">
           <button class="sdk-demo-share-action" type="button" data-sdk-demo-share-copy>
             <span data-sdk-demo-share-copy-label>Copy</span>
@@ -1447,9 +1440,41 @@ The parts that need your accounts rather than a browser:
     gap: 6px;
     flex-shrink: 0;
     width: 58px;
+    padding: 0;
+    background: transparent;
     color: var(--scalar-color-2);
+    font-family: inherit;
     font-size: 10px;
     text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .sdk-demo-share-person:hover .sdk-demo-share-tile,
+  .sdk-demo-share-person:hover .sdk-demo-share-avatar,
+  .sdk-demo-share-app:hover .sdk-demo-share-tile {
+    filter: brightness(0.92);
+  }
+
+  /* iOS opens an app list here; there is nothing to list. */
+  .sdk-demo-share-app-inert {
+    cursor: default;
+  }
+
+  .sdk-demo-share-app-inert:hover .sdk-demo-share-tile {
+    filter: none;
+  }
+
+  .sdk-demo-share-status {
+    margin: 0;
+    padding: 0 12px;
+    color: var(--scalar-color-2);
+    font-size: var(--scalar-micro);
+    text-align: center;
+  }
+
+  .sdk-demo-share-status:empty {
+    display: none;
   }
 
   .sdk-demo-share-avatar {
