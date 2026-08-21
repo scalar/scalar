@@ -50,7 +50,7 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
           <div class="sdk-demo-title-row">
             <div class="sdk-demo-title">Warp HR SDK</div>
             <div class="sdk-demo-title-actions">
-              <span class="sdk-demo-ghost-button">{ } View API</span>
+              <button class="sdk-demo-ghost-button" type="button" data-sdk-demo-view-api aria-expanded="false">{ } View API</button>
               <button class="sdk-demo-build-button" type="button" data-sdk-demo-build>Build</button>
             </div>
           </div>
@@ -129,15 +129,26 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
         Click to interact
       </span>
     </div>
-    <div class="sdk-demo-build-window" data-sdk-demo-build-window hidden>
-      <div class="sdk-demo-build-window-bar" data-sdk-demo-build-window-bar>
-        <div class="sdk-demo-build-window-lights">
+    <div class="sdk-demo-window sdk-demo-window-build" data-sdk-demo-build-window hidden>
+      <div class="sdk-demo-window-bar" data-sdk-demo-build-window-bar>
+        <div class="sdk-demo-window-lights">
           <button type="button" data-sdk-demo-build-window-close aria-label="Close the build log"></button>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </div>
       </div>
       <div class="sdk-demo-log" data-sdk-demo-log role="log" aria-label="Build log"></div>
+    </div>
+    <div class="sdk-demo-window sdk-demo-window-api" data-sdk-demo-api-window hidden>
+      <div class="sdk-demo-window-bar" data-sdk-demo-api-window-bar>
+        <div class="sdk-demo-window-lights">
+          <button type="button" data-sdk-demo-api-window-close aria-label="Close the API document"></button>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </div>
+        <span class="sdk-demo-window-title">openapi.yaml</span>
+      </div>
+      <pre class="sdk-demo-api-doc" data-sdk-demo-api-doc></pre>
     </div>
   </div>
 </div>
@@ -801,16 +812,14 @@ The parts that need your accounts rather than a browser:
   }
 
   /* ---------------------------------------------------------------------
-     Build window — a second, minimal window with a terminal inside.
-     It stays dark in both themes, the way a terminal does.
+     Floating windows — the build terminal and the API document. Both share
+     one minimal chrome: stoplights, a shorter bar than the omnibar, no URL.
+     They stay dark in either theme, the way a terminal is.
      --------------------------------------------------------------------- */
 
-  .sdk-demo-build-window {
+  .sdk-demo-window {
     position: absolute;
-    right: 20px;
-    bottom: 20px;
     z-index: 12;
-    width: min(370px, calc(100% - 40px));
     border: 1px solid rgb(255 255 255 / 10%);
     border-radius: var(--scalar-radius-2xl);
     background: #0d0f12;
@@ -818,13 +827,14 @@ The parts that need your accounts rather than a browser:
     box-shadow: 0 24px 48px -18px rgb(0 0 0 / 55%);
   }
 
-  .sdk-demo-build-window[hidden] {
+  .sdk-demo-window[hidden] {
     display: none;
   }
 
-  .sdk-demo-build-window-bar {
+  .sdk-demo-window-bar {
     display: flex;
     align-items: center;
+    gap: 10px;
     height: 26px;
     padding: 0 10px;
     background: #16191e;
@@ -833,17 +843,17 @@ The parts that need your accounts rather than a browser:
     user-select: none;
   }
 
-  .sdk-demo-build-window-bar[data-dragging="true"] {
+  .sdk-demo-window-bar[data-dragging="true"] {
     cursor: grabbing;
   }
 
-  .sdk-demo-build-window-lights {
+  .sdk-demo-window-lights {
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
-  .sdk-demo-build-window-lights > * {
+  .sdk-demo-window-lights > * {
     width: 9px;
     height: 9px;
     padding: 0;
@@ -851,23 +861,54 @@ The parts that need your accounts rather than a browser:
     background: #3a3f47;
   }
 
-  .sdk-demo-build-window-lights > button {
+  .sdk-demo-window-lights > button {
     cursor: pointer;
   }
 
-  .sdk-demo-build-window-lights > button:hover,
-  .sdk-demo-build-window-lights > button:focus-visible {
+  .sdk-demo-window-lights > button:hover,
+  .sdk-demo-window-lights > button:focus-visible {
     background: #ec6a5e;
   }
 
-  .sdk-demo-log {
-    height: 190px;
-    overflow-y: auto;
+  .sdk-demo-window-title {
+    color: #8b949e;
+    font-family: var(--scalar-font-code);
+    font-size: 11px;
+  }
+
+  /* The modifiers only say where each window sits. */
+  .sdk-demo-window-build {
+    right: 20px;
+    bottom: 20px;
+    width: min(370px, calc(100% - 40px));
+  }
+
+  .sdk-demo-window-api {
+    left: 20px;
+    bottom: 20px;
+    width: min(380px, calc(100% - 40px));
+  }
+
+  .sdk-demo-log,
+  .sdk-demo-api-doc {
+    overflow: auto;
     padding: 10px 12px;
     font-family: var(--scalar-font-code);
     font-size: 11px;
     line-height: 1.75;
     color: #8b949e;
+  }
+
+  .sdk-demo-log {
+    height: 190px;
+  }
+
+  .sdk-demo-api-doc {
+    margin: 0;
+    height: 230px;
+    color: #c9d1d9;
+    white-space: pre;
+    tab-size: 2;
   }
 
   .sdk-demo-log-line {
@@ -898,63 +939,24 @@ The parts that need your accounts rather than a browser:
     }
   }
 
-  /* ---------------------------------------------------------------------
-     "Click to interact" hint. Never takes pointer events, so the click that
-     dismisses it lands on whatever the reader was aiming at.
-     --------------------------------------------------------------------- */
-
-  .sdk-demo-hint {
-    position: absolute;
-    inset: 0;
-    z-index: 16;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
+  /* The document sits on the dark window, so its tokens cannot use the page
+     palette — those are tuned for the page background, not this one. */
+  .sdk-demo-api-doc .sdk-demo-tok-key {
+    color: #79c0ff;
   }
 
-  .sdk-demo-hint[hidden] {
-    display: none;
+  .sdk-demo-api-doc .sdk-demo-tok-string {
+    color: #a5d6ff;
   }
 
-  .sdk-demo-hint-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px 18px 9px 14px;
-    border: 1px solid color-mix(in srgb, var(--scalar-color-green) 55%, transparent);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--scalar-color-green) 16%, var(--scalar-background-1));
-    color: var(--scalar-color-1);
-    font-size: var(--scalar-small);
-    font-weight: var(--scalar-semibold);
-    white-space: nowrap;
-    box-shadow:
-      0 0 0 6px color-mix(in srgb, var(--scalar-color-green) 10%, transparent),
-      0 10px 24px -12px rgb(0 0 0 / 45%);
-    animation: sdk-demo-hint-in 0.4s ease both;
+  .sdk-demo-api-doc .sdk-demo-tok-number,
+  .sdk-demo-api-doc .sdk-demo-tok-builtin {
+    color: #ffa657;
   }
 
-  .sdk-demo-hint-dot {
-    width: 10px;
-    height: 10px;
-    flex-shrink: 0;
-    border-radius: 50%;
-    background: var(--scalar-color-green);
-    animation: sdk-demo-hint-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes sdk-demo-hint-in {
-    from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-  }
-
-  @keyframes sdk-demo-hint-pulse {
-    50% {
-      opacity: 0.35;
-    }
+  .sdk-demo-api-doc .sdk-demo-tok-comment,
+  .sdk-demo-api-doc .sdk-demo-tok-bullet {
+    color: #8b949e;
   }
 
   @media screen and (max-width: 760px) {
@@ -975,10 +977,12 @@ The parts that need your accounts rather than a browser:
       min-height: 0;
     }
 
-    .sdk-demo-build-window {
+    .sdk-demo-window-build,
+    .sdk-demo-window-api {
       right: 12px;
+      left: 12px;
       bottom: 12px;
-      width: calc(100% - 24px);
+      width: auto;
     }
   }
 

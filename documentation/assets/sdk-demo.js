@@ -473,15 +473,32 @@ const codeRules = (target) => {
   return rules
 }
 
-/* api.md and SKILL.md are markdown, so they get their own small rule set. */
+/*
+ * api.md and SKILL.md are markdown, so they get their own rule set — and a
+ * deliberately narrow one. Prose is full of capitalised words and words
+ * followed by brackets, so the code rules for types and calls would paint
+ * half of every sentence. These match structure instead: frontmatter,
+ * headings, inline code, and the signature lines api.md is made of.
+ */
 const MARKDOWN_RULES = [
   ['meta', '^---$'],
-  ['heading', '^#{1,6} [^\\n]*'],
-  ['bullet', '^\\s*-(?= )'],
-  ['string', '`[^`\\n]*`'],
+  ['heading', '^#{1,6} [^\n]*'],
+  ['string', '`[^`\n]*`'],
   ['keyword', '\\b(?:GET|POST|PUT|PATCH|DELETE)\\b'],
-  ['fn', '\\b[a-zA-Z_]\\w*(?=\\()'],
-  ['type', '\\b[A-Z][A-Za-z0-9_]*\\b'],
+  ['fn', '\\b[a-z]\\w*(?:\\.\\w+)+(?=\\()'],
+  ['type', '->\\s*[A-Za-z][\\w<>\\[\\],. ]*'],
+  ['bullet', '^\\s*-(?= )'],
+]
+
+/* The OpenAPI document behind "View API". Keys carry the structure, so they
+ * are what gets picked out; a bare URL must not read as one. */
+const YAML_RULES = [
+  ['comment', '#[^\n]*'],
+  ['string', '"(?:[^"\\\\\n]|\\\\.)*"|\x27(?:[^\x27\\\\\n]|\\\\.)*\x27'],
+  ['key', '^[ \t]*(?:- )?[\\w$][\\w.-]*(?=:)'],
+  ['builtin', '\\b(?:true|false|null)\\b'],
+  ['number', '\\b\\d+(?:\\.\\d+)?\\b'],
+  ['bullet', '^[ \t]*-(?= )'],
 ]
 
 /**
@@ -513,7 +530,79 @@ const highlight = (text, rules) => {
   return fragment
 }
 
+/** The document every target on this page is generated from. */
+const API_DOCUMENT = `openapi: 3.1.0
+info:
+  title: Warp HR
+  version: 1.5.0
+servers:
+  - url: https://api.warp.dev/v1
+security:
+  - apiKey: []
+paths:
+  /time-off/assignments:
+    get:
+      operationId: listTimeOffAssignments
+      summary: List time off assignments
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: A page of assignments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeOffAssignmentPage"
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  schemas:
+    TimeOffAssignmentPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimeOffAssignment"
+        next_cursor:
+          type: string
+    TimeOffAssignment:
+      type: object
+      required:
+        - id
+        - policy
+      properties:
+        id:
+          type: string
+        policy:
+          $ref: "#/components/schemas/TimeOffPolicy"
+    TimeOffPolicy:
+      type: object
+      properties:
+        name:
+          type: string
+        accrual_days:
+          type: number
+`
+
 const REDUCED_MOTION = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+
+/* Windows stack in the order they were last touched. */
+let topWindowLayer = 12
+
+const raiseWindow = (node) => {
+  if (node) {
+    topWindowLayer += 1
+    node.style.zIndex = String(topWindowLayer)
+  }
+}
 
 /** Put a window back where the layout wants it. */
 const resetPosition = (node) => {
@@ -521,6 +610,7 @@ const resetPosition = (node) => {
     return
   }
   node.style.transform = ''
+  node.style.zIndex = ''
   delete node.dataset.moved
 }
 
@@ -549,13 +639,26 @@ const makeDraggable = (node, handle) => {
   /* Keep at least this much of the window reachable on every edge. */
   const MARGIN = 48
 
-  const apply = () => {
-    const rect = node.getBoundingClientRect()
-    const left = rect.left - offsetX
-    const top = rect.top - offsetY
+  /* Where the window sits with no transform applied, plus its size. Measured
+   * only when the live transform matches offsetX/offsetY — reading it during
+   * a drag would subtract the new offset from a rect that still carries the
+   * previous one, and the clamp would let the window slide off screen. */
+  let baseLeft = 0
+  let baseTop = 0
+  let width = 0
+  let height = 0
 
-    offsetX = clamp(offsetX, MARGIN - left - rect.width, window.innerWidth - left - MARGIN)
-    offsetY = clamp(offsetY, MARGIN - top - rect.height, window.innerHeight - top - MARGIN)
+  const measure = () => {
+    const rect = node.getBoundingClientRect()
+    baseLeft = rect.left - offsetX
+    baseTop = rect.top - offsetY
+    width = rect.width
+    height = rect.height
+  }
+
+  const apply = () => {
+    offsetX = clamp(offsetX, MARGIN - baseLeft - width, window.innerWidth - baseLeft - MARGIN)
+    offsetY = clamp(offsetY, MARGIN - baseTop - height, window.innerHeight - baseTop - MARGIN)
 
     node.style.transform = `translate(${Math.round(offsetX)}px, ${Math.round(offsetY)}px)`
     node.dataset.moved = 'true'
@@ -566,6 +669,9 @@ const makeDraggable = (node, handle) => {
     if (event.button !== 0 || event.target.closest('button, a, input')) {
       return
     }
+
+    raiseWindow(node)
+    measure()
 
     dragging = true
     startX = event.clientX
@@ -604,6 +710,7 @@ const makeDraggable = (node, handle) => {
   /* A resize can strand a window off screen, so re-clamp what is already moved. */
   window.addEventListener('resize', () => {
     if (node.dataset.moved === 'true') {
+      measure()
       apply()
     }
   })
@@ -678,6 +785,11 @@ const initSdkDemo = (root) => {
     buildWindow: qs(root, '[data-sdk-demo-build-window]'),
     buildWindowBar: qs(root, '[data-sdk-demo-build-window-bar]'),
     buildWindowClose: qs(root, '[data-sdk-demo-build-window-close]'),
+    viewApi: qs(root, '[data-sdk-demo-view-api]'),
+    apiWindow: qs(root, '[data-sdk-demo-api-window]'),
+    apiWindowBar: qs(root, '[data-sdk-demo-api-window-bar]'),
+    apiWindowClose: qs(root, '[data-sdk-demo-api-window-close]'),
+    apiDoc: qs(root, '[data-sdk-demo-api-doc]'),
     hint: qs(root, '[data-sdk-demo-hint]'),
     targets: qs(root, '[data-sdk-demo-targets]'),
     addTarget: qs(root, '[data-sdk-demo-add]'),
@@ -771,16 +883,30 @@ const initSdkDemo = (root) => {
     nodes.log.scrollTop = nodes.log.scrollHeight
   }
 
-  /** The build window is a separate, draggable window layered over the browser. */
+  /** The build log and the API document are draggable windows over the browser. */
   const setBuildWindowOpen = (open) => {
     if (!nodes.buildWindow) {
       return
     }
     nodes.buildWindow.hidden = !open
     if (open) {
-      nodes.buildWindow.dataset.open = 'true'
-    } else {
-      delete nodes.buildWindow.dataset.open
+      raiseWindow(nodes.buildWindow)
+    }
+  }
+
+  const setApiWindowOpen = (open) => {
+    if (!nodes.apiWindow) {
+      return
+    }
+    nodes.apiWindow.hidden = !open
+    nodes.viewApi?.setAttribute('aria-expanded', open ? 'true' : 'false')
+
+    if (open) {
+      /* Rendered on first open, then left alone — the document never changes. */
+      if (nodes.apiDoc && !nodes.apiDoc.childNodes.length) {
+        nodes.apiDoc.replaceChildren(highlight(API_DOCUMENT, YAML_RULES))
+      }
+      raiseWindow(nodes.apiWindow)
     }
   }
 
@@ -975,8 +1101,10 @@ const initSdkDemo = (root) => {
     clearTimers()
     closeAddMenu()
     setBuildWindowOpen(false)
+    setApiWindowOpen(false)
     resetPosition(nodes.frame)
     resetPosition(nodes.buildWindow)
+    resetPosition(nodes.apiWindow)
     Object.assign(state, createState())
     render()
     showHint()
@@ -1006,10 +1134,16 @@ const initSdkDemo = (root) => {
   nodes.buildButton?.addEventListener('click', runBuild)
   nodes.reload?.addEventListener('click', reset)
   nodes.buildWindowClose?.addEventListener('click', () => setBuildWindowOpen(false))
+  nodes.apiWindowClose?.addEventListener('click', () => setApiWindowOpen(false))
 
-  /* Both windows move like windows: grab the header bar and drag. */
+  nodes.viewApi?.addEventListener('click', () => {
+    setApiWindowOpen(nodes.apiWindow?.hidden ?? true)
+  })
+
+  /* Every window moves like a window: grab the title bar and drag. */
   makeDraggable(nodes.frame, nodes.chrome)
   makeDraggable(nodes.buildWindow, nodes.buildWindowBar)
+  makeDraggable(nodes.apiWindow, nodes.apiWindowBar)
 
   nodes.targets?.addEventListener('click', (event) => {
     const button = event.target.closest('[data-target]')
