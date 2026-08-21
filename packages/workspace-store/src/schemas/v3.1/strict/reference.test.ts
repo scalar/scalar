@@ -281,6 +281,20 @@ describe('reference', () => {
 
       expect(Value.Check(Schema, invalidInput)).toBe(false)
     })
+
+    it('preserves an unresolved `{ $ref }` through coercion instead of dropping it', () => {
+      // A union of "inline object OR resolved reference", the shape every ref-wrappable position uses.
+      const ObjectSchema = Type.Object({ type: Type.String(), name: Type.String() })
+      const objectOrReference = Type.Union([ObjectSchema, reference(ObjectSchema)])
+
+      // An unresolved reference has no `$ref-value` yet (for example a sparse chunk from the server
+      // store). Because `$ref-value` is optional, this matches the reference branch and is kept as-is.
+      // If it were required, coercion would fall back to the object branch and synthesize a default,
+      // silently dropping the `$ref`.
+      const result = coerceValue(objectOrReference, { $ref: '#/components/schemas/User' })
+
+      expect(result).toEqual({ $ref: '#/components/schemas/User' })
+    })
   })
 
   describe('ReferenceType', () => {
@@ -296,7 +310,7 @@ describe('reference', () => {
         '$ref-value': { id: 123 },
       }
       expect(referenceValue.$ref).toBe('#/components/schemas/Item')
-      expect(referenceValue['$ref-value'].id).toBe(123)
+      expect(referenceValue['$ref-value']?.id).toBe(123)
     })
 
     it('allows reference object with extensions', () => {
