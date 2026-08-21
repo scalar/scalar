@@ -761,6 +761,22 @@ const initSdkDemo = (root) => {
   if (root.dataset.sdkDemoReady === 'true') {
     return
   }
+
+  /*
+   * This script is loaded from <head>, so the observer below can fire while
+   * the parser is still working through the widget: the root and its early
+   * children exist, everything after the cut does not. Initialising then
+   * captures null for every node below it and those controls do nothing for
+   * the rest of the page's life.
+   *
+   * `data-sdk-demo-end` sits on the last element of the widget, so its
+   * presence means the whole thing is parsed. Until then, leave the widget
+   * uninitialised — the observer fires again when the rest arrives.
+   */
+  if (!qs(root, '[data-sdk-demo-end]')) {
+    return
+  }
+
   root.dataset.sdkDemoReady = 'true'
 
   const state = createState()
@@ -1318,7 +1334,11 @@ const initAll = () => {
   document.querySelectorAll('[data-sdk-demo]').forEach(initSdkDemo)
 }
 
-initAll()
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => initAll(), { once: true })
+} else {
+  initAll()
+}
 
 /* Docs pages swap their content client side, so re-run when the widget lands. */
 const sdkDemoObserver = new MutationObserver((records) => {

@@ -208,7 +208,7 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
       </div>
       <div class="sdk-demo-log" data-sdk-demo-log role="log" aria-label="Build log"></div>
     </div>
-    <div class="sdk-demo-window sdk-demo-window-api" data-sdk-demo-api-window hidden>
+    <div class="sdk-demo-window sdk-demo-window-api" data-sdk-demo-api-window data-sdk-demo-end hidden>
       <div class="sdk-demo-window-bar" data-sdk-demo-api-window-bar>
         <div class="sdk-demo-window-lights">
           <button type="button" data-sdk-demo-api-window-close aria-label="Close the API document"></button>
