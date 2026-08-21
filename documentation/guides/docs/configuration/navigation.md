@@ -95,7 +95,7 @@ The `navigation.sidebar` array defines links that appear in the footer of the si
     "sidebar": [
       {
         "title": "Log in",
-        "url": "https://dashboard.scalar.com/login",
+        "to": "https://dashboard.scalar.com/login",
         "icon": "phosphor/regular/sign-in"
       }
     ],
@@ -108,12 +108,12 @@ The `navigation.sidebar` array defines links that appear in the footer of the si
 
 ### Properties
 
-| Property | Type                 | Required | Description                           |
-| -------- | -------------------- | -------- | ------------------------------------- |
-| `title`  | `string`             | Yes      | The display text for the sidebar link |
-| `url`    | `string`             | Yes      | The URL the link points to            |
-| `icon`   | `string`             | No       | An icon to display next to the link   |
-| `newTab` | `boolean`            | No       | Whether to open the link in a new tab |
+| Property | Type                 | Required | Description                              |
+| -------- | -------------------- | -------- | ---------------------------------------- |
+| `title`  | `string`             | Yes      | The display text for the sidebar link    |
+| `to`     | `string`             | Yes      | The route path or URL the link points to |
+| `icon`   | `string`             | No       | An icon to display next to the link      |
+| `newTab` | `boolean`            | No       | Whether to open the link in a new tab    |
 
 ## Tabs
 
@@ -132,7 +132,7 @@ Tabs and a header work together, and you do not need both. If you use tabs witho
     "tabs": [
       {
         "title": "API",
-        "path": "/api",
+        "to": "/api",
         "icon": "phosphor/regular/plug"
       }
     ],
@@ -145,11 +145,11 @@ Tabs and a header work together, and you do not need both. If you use tabs witho
 
 ### Properties
 
-| Property | Type     | Required | Description                        |
-| -------- | -------- | -------- | ---------------------------------- |
-| `title`  | `string` | Yes      | The display text for the tab       |
-| `path`   | `string` | Yes      | The URL path the tab links to      |
-| `icon`   | `string` | No       | An icon to display next to the tab |
+| Property | Type     | Required | Description                            |
+| -------- | -------- | -------- | -------------------------------------- |
+| `title`  | `string` | Yes      | The display text for the tab           |
+| `to`     | `string` | Yes      | The route path or URL the tab links to |
+| `icon`   | `string` | No       | An icon to display next to the tab     |
 
 ### Multiple Tabs
 
@@ -159,12 +159,12 @@ You can define multiple tabs to provide quick access to different sections:
 "tabs": [
   {
     "title": "API",
-    "path": "/tools/api",
+    "to": "/tools/api",
     "icon": "phosphor/regular/plug"
   },
   {
     "title": "SDKs",
-    "path": "/products/sdk-generator",
+    "to": "/products/sdk-generator",
     "icon": "phosphor/regular/package"
   }
 ]

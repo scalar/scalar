@@ -104,7 +104,7 @@ Links at the bottom of the sidebar:
 
 ```json
 "sidebar": [
-  { "title": "Log in", "url": "https://...", "style": "button", "newTab": true }
+  { "title": "Log in", "to": "https://...", "newTab": true }
 ]
 ```
 
@@ -114,7 +114,7 @@ Tabs for quick access to sections:
 
 ```json
 "tabs": [
-  { "title": "API", "path": "/api", "icon": "phosphor/regular/plug" }
+  { "title": "API", "to": "/api", "icon": "phosphor/regular/plug" }
 ]
 ```
 
@@ -317,8 +317,7 @@ For `scripts` and `styles`: path relative to config root. For `links` (favicon):
 
 ```json
 "footer": {
-  "filepath": "docs/footer.html",
-  "belowSidebar": true
+  "filepath": "docs/footer.html"
 }
 ```
 
