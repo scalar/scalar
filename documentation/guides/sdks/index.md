@@ -17,6 +17,7 @@
   </p>
   <div class="flex flex-wrap gap-2">
     <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
+    <a class="t-editor__button button__secondary" href="demo.md">Try the interactive demo</a>
     <a class="t-editor__button button__secondary" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a demo</a>
   </div>
 </div>
@@ -282,6 +283,8 @@ Across a large API that consistency is the difference between guessing a method 
 - **Smoke tests** that call every operation against a mock server and report the result.
 
 ## How it works
+
+The [interactive demo](demo.md) runs this whole flow in the browser, against a fictional API, without an account.
 
 <scalar-steps>
   <scalar-step id="step-openapi" title="Start from your OpenAPI document">
