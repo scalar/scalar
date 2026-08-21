@@ -24,7 +24,10 @@ import { getCycleKey } from '@/components/Content/Schema/helpers/schema-cycle'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SpecificationExtension } from '@/features/specification-extension'
 
-import { getCompositionsToRender } from './helpers/get-compositions-to-render'
+import {
+  getCompositionsToRender,
+  inferDiscriminatorMappingComposition,
+} from './helpers/get-compositions-to-render'
 import { getEnumValues } from './helpers/get-enum-values'
 import { getPropertyDescription } from './helpers/get-property-description'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
@@ -149,6 +152,21 @@ const hasComplexArrayItemsComputed = computed(() =>
 /** Check if enum should be displayed (from value schema or from propertyNames) */
 const hasEnum = computed(() => enumValues.value.length > 0)
 
+/**
+ * The `oneOf` inferred from a bare `discriminator.mapping`, or `null` when there
+ * is nothing to infer. Computed once and shared: `shouldRenderObjectProperties`
+ * uses it to suppress the duplicate base object block, and `compositionsToRender`
+ * passes it on so the inference does not run twice per render.
+ */
+const inferredDiscriminatorComposition = computed(() =>
+  optimizedValue.value
+    ? inferDiscriminatorMappingComposition(
+        optimizedValue.value,
+        props.options.document,
+      )
+    : null,
+)
+
 /** Determine if object properties should be displayed */
 const shouldRenderObjectProperties = computed(() => {
   const value = optimizedValue.value
@@ -164,6 +182,34 @@ const shouldRenderObjectProperties = computed(() => {
   // rendered result (see `mergeAllOfSchemas`), so rendering a separate object
   // block here would show those properties twice. Let the composition handle it.
   if ('allOf' in value) {
+    return false
+  }
+
+  // A *plain* bare `discriminator.mapping` base (no explicit `oneOf`/`anyOf` and
+  // no `allOf` of its own) is rendered as an inferred `oneOf` composition below,
+  // whose variants `allOf` back to this base type and therefore already include
+  // its properties (including the discriminator property). Rendering the base
+  // object block here as well would show those properties a second time, outside
+  // the selector. `Schema.vue` renders the two mutually exclusively; mirror that
+  // here so the property and the model render the base identically.
+  // See https://github.com/scalar/scalar/issues/9861
+  //
+  // This intentionally shows the base only through its variants, matching the
+  // discriminator contract that each mapped variant extends the base. A malformed
+  // mapping whose variants do not include the base (or a base carrying only
+  // `additionalProperties`/`patternProperties`) would surface those fields solely
+  // via the variants — the same behavior `Schema.vue` already has for the model.
+  //
+  // A base that composes itself via `allOf` is excluded: `optimizeValueForDisplay`
+  // flattens its members up into `properties`, and those contribute fields the
+  // inferred variants do not carry, so the block must still render them. The check
+  // reads the raw `props.schema` because the flattening has already erased `allOf`
+  // from the optimized `value`.
+  const composesWithAllOf =
+    !!props.schema &&
+    typeof props.schema === 'object' &&
+    'allOf' in props.schema
+  if (!composesWithAllOf && inferredDiscriminatorComposition.value) {
     return false
   }
 
@@ -249,7 +295,11 @@ const shouldDisplayHeadingComputed = computed(() =>
 
 /** Computes which compositions should be rendered and with which values */
 const compositionsToRender = computed(() =>
-  getCompositionsToRender(optimizedValue.value, props.options.document),
+  getCompositionsToRender(
+    optimizedValue.value,
+    props.options.document,
+    inferredDiscriminatorComposition.value,
+  ),
 )
 const getCompositionDiscriminator = (
   composition: CompositionKeyword,
@@ -543,15 +593,12 @@ const isDiscriminatorProperty = computed(() =>
   left: -2rem;
 }
 
-.property-rule
-  :deep(
-    .composition-panel
-      .schema-card--level-1
-      > .schema-properties.schema-properties-open
-  ) {
-  border-radius: 0 0 var(--scalar-radius-lg) var(--scalar-radius-lg);
-}
-
+/*
+ * Squaring the top of a composition panel's content used to live here, but it
+ * only reached compositions rendered through `SchemaProperty`. It now lives in
+ * `SchemaComposition` so it also applies to a discriminator-inferred `oneOf`
+ * rendered straight from `Schema.vue`. See https://github.com/scalar/scalar/issues/9861
+ */
 .property-rule
   :deep(.composition-panel > .schema-card > .schema-card-description) {
   padding: 10px;
