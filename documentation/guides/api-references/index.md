@@ -17,3 +17,4 @@ Ready to render your first reference? Follow the [Getting Started guide](getting
 - [Configuration](../../configuration.md) — customize behavior, authentication, and layout
 - [Themes](../../themes.md) — match the reference to your brand
 - [Plugins](../../plugins.md) — extend the reference with custom features
+- [AsyncAPI](../../asyncapi.md) — render event-driven APIs described with AsyncAPI
