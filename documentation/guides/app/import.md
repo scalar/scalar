@@ -28,6 +28,14 @@ curl -X POST https://api.example.com/users \
   -d '{"name": "Jane"}'
 ```
 
+### AsyncAPI
+
+We do not currently support AsyncAPI for the API Client. The client is built around OpenAPI operations — a request, a method, a response — while an [AsyncAPI](../../asyncapi.md) document describes channels and the messages that flow over them, so AsyncAPI documents are skipped rather than imported into a collection.
+
+You can still read one as an [API reference](../../asyncapi.md), which renders its channels, operations, and message payloads.
+
+Need it? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
+
 ## Sources
 
 You can import from different sources:

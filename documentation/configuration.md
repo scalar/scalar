@@ -221,6 +221,8 @@ Agent adds an AI chat interface to your API reference. Users can ask questions a
 - Requires an [Agent key](guides/agent/key.md) for production deployments
 - Your OpenAPI document is uploaded on first message
 
+We do not currently support AsyncAPI for Agent. An [AsyncAPI](asyncapi.md) document still renders as an API reference, but Agent skips it, so it will not answer questions about your channels or messages. Need it? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
+
 Related: [How to get an Agent key](guides/agent/key.md)
 
 ```js

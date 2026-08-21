@@ -1,6 +1,6 @@
 # Getting Started
 
-Get your first OpenAPI document into the Registry and start powering docs, SDKs, and automation from a single source of truth.
+Get your first API document into the Registry and start powering docs, SDKs, and automation from a single source of truth.
 
 ## Create your Scalar account
 
@@ -21,7 +21,7 @@ Once authenticated, you can work with Registry from:
 
 ## Upload your first API document
 
-From the [dashboard](https://dashboard.scalar.com), create a new API and upload an OpenAPI document, or publish one from your terminal with the [CLI](cli.md). Once the document is in Registry, docs, SDKs, and automation can all consume the same source.
+From the [dashboard](https://dashboard.scalar.com), create a new API and upload an OpenAPI or [AsyncAPI](../../asyncapi.md) document, or publish one from your terminal with the [CLI](cli.md). Once the document is in Registry, docs, SDKs, and automation can all consume the same source.
 
 ## Next steps
 

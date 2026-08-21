@@ -1,6 +1,6 @@
 # Registry
 
-Store, version, and manage OpenAPI documents, JSON Schema, and Spectral rules in one source of truth with a deep Git integration.
+Store, version, and manage OpenAPI and AsyncAPI documents, JSON Schema, and Spectral rules in one source of truth with a deep Git integration.
 
 <div class="flex gap-2">
   <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
@@ -17,9 +17,9 @@ Store, version, and manage OpenAPI documents, JSON Schema, and Spectral rules in
 
 ## Why a Registry?
 
-Managing OpenAPI can get messy fast. Teams need to know where the source of truth lives, how versions are managed, who has access, and how downstream consumers discover updates.
+Managing APIs can get messy fast. Teams need to know where the source of truth lives, how versions are managed, who has access, and how downstream consumers discover updates.
 
-Registry gives your team a central place for API documents and the workflows around them. Once an API document is in Registry, you can power docs, SDKs, publishing, and automation from the same source.
+Registry gives your team a central place for OpenAPI and AsyncAPI documents and the workflows around them. Once an API document is in Registry, you can power docs, SDKs, publishing, and automation from the same source.
 
 ## Create docs and SDKs
 
@@ -62,9 +62,9 @@ Generate SDKs from the same OpenAPI documents. Keep client libraries aligned wit
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
         <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-        OpenAPI documents
+        OpenAPI and AsyncAPI
       </b>
-      <p class="leading-6">Version and publish OpenAPI documents used by docs, SDKs, and automation.</p>
+      <p class="leading-6">Version and publish OpenAPI and AsyncAPI documents used by docs, SDKs, and automation.</p>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
@@ -92,7 +92,7 @@ Generate SDKs from the same OpenAPI documents. Keep client libraries aligned wit
 
 ## Ready to manage your APIs?
 
-Follow the [Getting Started guide](getting-started.md) to create an account and upload your first OpenAPI document.
+Follow the [Getting Started guide](getting-started.md) to create an account and upload your first API document.
 
 <div class="flex gap-2">
   <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
