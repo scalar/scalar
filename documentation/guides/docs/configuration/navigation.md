@@ -311,6 +311,8 @@ Scalar supports three ways to generate API references from OpenAPI documents:
 2. the [Registry](../../registry/index.md), or
 3. remote URLs.
 
+An API reference entry accepts `type: "openapi"` or `type: "asyncapi"`. Both values behave identically — `asyncapi` is a friendly alias for `openapi`, and the document format (OpenAPI or AsyncAPI) is detected automatically from the file content. AsyncAPI channels and operations render on your published docs site just like OpenAPI operations.
+
 ### 1. Files
 
 Reference an OpenAPI file stored in your repository by specifying a relative path from your configuration root:
@@ -361,11 +363,23 @@ Fetch an OpenAPI document from a remote URL. The document is fetched on each pag
 }
 ```
 
+### AsyncAPI
+
+To document an event-driven API, use `type: "asyncapi"` and point it at your AsyncAPI document. This works with files, the Registry, or a remote URL, exactly like an `openapi` entry:
+
+```json
+"/events": {
+  "type": "asyncapi",
+  "title": "My Events API",
+  "filepath": "docs/api-reference/asyncapi.yaml"
+}
+```
+
 ### Properties
 
 | Property     | Type                             | Required | Description                                                      |
 | ------------ | -------------------------------- | -------- | ---------------------------------------------------------------- |
-| `type`       | `"openapi"`                      | Yes      | Must be `"openapi"`                                              |
+| `type`       | `"openapi" \| "asyncapi"`        | Yes      | Must be `"openapi"` or `"asyncapi"` (both behave identically; the document format is detected automatically) |
 | `title`      | `string`                         | No       | The display text in the navigation                               |
 | `filepath`   | `string`                         | No       | Relative path to the OpenAPI file                                |
 | `url`        | `string`                         | No       | URL to fetch the OpenAPI document from                           |
