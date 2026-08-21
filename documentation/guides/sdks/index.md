@@ -286,7 +286,7 @@ Across a large API that consistency is the difference between guessing a method 
 <scalar-steps>
   <scalar-step id="step-openapi" title="Start from your OpenAPI document">
 
-Put your API description in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load. [AsyncAPI](asyncapi.md) documents work too — experimentally — with each channel becoming a WebSocket connect method or an HTTP streaming method.
+Put your API document in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load. [AsyncAPI](asyncapi.md) documents work too — experimentally — with each channel becoming a WebSocket connect method or an HTTP streaming method.
 
   </scalar-step>
 

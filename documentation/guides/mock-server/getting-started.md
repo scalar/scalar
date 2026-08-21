@@ -5,12 +5,12 @@
 <a href="https://discord.gg/scalar" aria-label="Join Scalar community on Discord"><img alt="Discord" src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
 </div>
 
-A powerful Node.js mock server that automatically generates realistic API responses from your OpenAPI/Swagger documents. It creates fully-functional endpoints with mock data, handles authentication, and respects content types - making it perfect for frontend development, API prototyping, and integration testing.
+A powerful Node.js mock server that automatically generates realistic API responses from your API documents. It creates fully-functional endpoints with mock data, handles authentication, and respects content types - making it perfect for frontend development, API prototyping, and integration testing.
 
 ## Features
 
 - Perfect for frontend development and testing
-- Creates endpoints automatically from OpenAPI documents
+- Creates endpoints automatically from your API documents
 - Generates realistic mock data based on your schemas
 - Handles authentication and responds with defined HTTP headers
 - Supports Swagger 2.0 and OpenAPI 3.x documents

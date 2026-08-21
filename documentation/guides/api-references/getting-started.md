@@ -1,6 +1,6 @@
 # Getting Started
 
-The API Reference renders a modern documentation for your OpenAPI/Swagger documents and all you need is a few lines of code.
+The API Reference renders a modern documentation for your API documents and all you need is a few lines of code.
 
 The quickest way to start is a HTML page, that loads our JavaScript:
 
@@ -24,7 +24,7 @@ The quickest way to start is a HTML page, that loads our JavaScript:
     <!-- Initialize the API Reference -->
     <script>
       Scalar.createApiReference('#app', {
-        // The URL of the OpenAPI/Swagger document
+        // The URL of the API document
         url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',

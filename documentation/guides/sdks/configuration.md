@@ -211,7 +211,7 @@ Supported array formats are `comma`, `repeat`, `indices`, and `brackets`. Suppor
 
 ## OpenAPI Overrides
 
-Use `openapi` for SDK-specific overrides that sit next to the source API description.
+Use `openapi` for SDK-specific overrides that sit next to the source API document.
 
 ```json
 {

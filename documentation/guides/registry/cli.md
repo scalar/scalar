@@ -3,15 +3,15 @@ This guide will help you interact with our registry with our CLI, programmatical
 
 Before running any of the commands below, make sure you are [authenticated](../cli/authentication.md) with the Scalar CLI using your [API key](../cli/authentication.md#login-with-an-api-key).
 
-## Publishing OpenAPI Documents
-To add an OpenAPI document to the registry, use the `publish` command:
+## Publishing API Documents
+To add an API document to the registry, use the `publish` command:
 
 ```bash
 scalar registry publish ./openapi.yaml --namespace your-team --slug your-api
 ```
 
 ### Required Parameters
-- `file`: Path to your OpenAPI file
+- `file`: Path to your API document
 - `--namespace`: Your Scalar team namespace
 - `--slug`: Unique identifier for the registry entry (defaults to title if not specified)
 
@@ -57,7 +57,7 @@ scalar registry delete your-team your-api
 ```
 
 ## Validation and Quality
-Before publishing, you can validate your OpenAPI document:
+Before publishing, you can validate your API document:
 
 ```bash
 scalar document validate ./openapi.yaml

@@ -6,7 +6,7 @@ The API Client supports several formats to get your API collections into the app
 
 ### OpenAPI 3.x
 
-The native format used internally by the API Client. OpenAPI descriptions can be auto-generated from your codebase or hand-written. Both JSON and YAML are supported.
+The native format used internally by the API Client. OpenAPI documents can be auto-generated from your codebase or hand-written. Both JSON and YAML are supported.
 
 This is the recommended format. All features of the API Client, including environments, authentication schemes, and server configuration, map directly to the OpenAPI specification.
 
