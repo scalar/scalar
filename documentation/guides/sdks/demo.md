@@ -1605,6 +1605,65 @@ The parts that need your accounts rather than a browser:
   }
 
   /* ---------------------------------------------------------------------
+     "Click to interact" hint. Never takes pointer events, so the click that
+     dismisses it lands on whatever the reader was aiming at.
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-hint {
+    position: absolute;
+    inset: 0;
+    z-index: 16;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .sdk-demo-hint[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-hint-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 18px 9px 14px;
+    border: 1px solid color-mix(in srgb, var(--scalar-color-green) 55%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--scalar-color-green) 16%, var(--scalar-background-1));
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+    white-space: nowrap;
+    box-shadow:
+      0 0 0 6px color-mix(in srgb, var(--scalar-color-green) 10%, transparent),
+      0 10px 24px -12px rgb(0 0 0 / 45%);
+    animation: sdk-demo-hint-in 0.4s ease both;
+  }
+
+  .sdk-demo-hint-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--scalar-color-green);
+    animation: sdk-demo-hint-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes sdk-demo-hint-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  @keyframes sdk-demo-hint-pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  /* ---------------------------------------------------------------------
      Floating windows — the build terminal and the API document. Both share
      one minimal chrome: stoplights, a shorter bar than the omnibar, no URL.
      They stay dark in either theme, the way a terminal is.
