@@ -133,6 +133,7 @@ export const zhCn = {
     copyLinkTo: '复制指向 {name} 的链接',
     copyToClipboard: '复制链接到剪贴板',
     copyEndpointUrl: '复制端点 URL',
+    copyAsMarkdownForLlm: '复制为 LLM Markdown 格式',
     showMore: '显示更多',
   },
   agent: {

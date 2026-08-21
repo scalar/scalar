@@ -134,6 +134,7 @@ export const fr = {
     copyLinkTo: 'Copier le lien vers {name}',
     copyToClipboard: 'Copier le lien dans le presse-papiers',
     copyEndpointUrl: 'Copier l’URL de l’endpoint',
+    copyAsMarkdownForLlm: 'Copier en Markdown pour LLM',
     showMore: 'Afficher plus',
   },
   agent: {
