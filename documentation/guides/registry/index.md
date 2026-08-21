@@ -64,7 +64,7 @@ Generate SDKs from the same OpenAPI documents. Keep client libraries aligned wit
         <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
         OpenAPI and AsyncAPI
       </b>
-      <p class="leading-6">Version and publish both kinds of API document, used by docs, SDKs, and automation.</p>
+      <p class="leading-6">Version and publish OpenAPI and AsyncAPI documents used by docs, SDKs, and automation.</p>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
