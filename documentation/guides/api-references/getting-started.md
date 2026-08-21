@@ -35,3 +35,5 @@ The quickest way to start is a HTML page, that loads our JavaScript:
 ```
 
 If you want a more seamless integration with your framework of choice, chances are high we got one for you.
+
+Documenting an event-driven API? [AsyncAPI documents](../../asyncapi.md) load the same way — channels, operations, and messages instead of paths and responses.

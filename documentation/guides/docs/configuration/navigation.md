@@ -375,6 +375,8 @@ To document an event-driven API, use `type: "asyncapi"` and point it at your Asy
 }
 ```
 
+The entry renders your channels, operations, and messages in the sidebar. See [AsyncAPI](../../../asyncapi.md) for what gets rendered and how the document maps onto the reference.
+
 ### Properties
 
 | Property     | Type                             | Required | Description                                                      |
