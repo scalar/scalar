@@ -76,6 +76,11 @@
       "import": "./dist/components/ScalarCopy/index.js",
       "default": "./dist/components/ScalarCopy/index.js"
     },
+    "./dialog": {
+      "types": "./dist/components/ScalarDialog/index.d.ts",
+      "import": "./dist/components/ScalarDialog/index.js",
+      "default": "./dist/components/ScalarDialog/index.js"
+    },
     "./dropdown": {
       "types": "./dist/components/ScalarDropdown/index.d.ts",
       "import": "./dist/components/ScalarDropdown/index.js",
