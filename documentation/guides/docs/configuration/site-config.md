@@ -30,7 +30,7 @@ Your logo renders on the first of these surfaces your site has:
 2. The **tabs**, if you have `navigation.tabs` but no header
 3. The **sidebar**, if you have neither
 
-To put your logo in the header, add at least one item to [`navigation.header`](navigation.md#header) — a single spacer is enough. If a page hides all three surfaces through its [layout options](navigation.md#layout-options), the logo does not render on that page.
+To put your logo in the header, add at least one item to [`navigation.header`](navigation.md#header). If you have no links to put there, a single spacer is enough (this is the legacy approach, since `spacer` is deprecated). If a page hides all three surfaces through its [layout options](navigation.md#layout-options), the logo does not render on that page.
 
 If you do not set a `logo`, your project title from `info.title` renders in the same place instead.
 

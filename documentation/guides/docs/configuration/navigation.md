@@ -25,9 +25,13 @@ All navigation is configured within the `navigation.routes` object in your `scal
 
 ## Header
 
-The `navigation.header` array defines links that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons. Each item can be `type: "link"` or `type: "spacer"`. A spacer pushes items before it to the left and items after it to the right.
+The `navigation.header` array defines links that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons.
 
-The header only renders when this array has at least one item, and it is where your [logo](site-config.md#logo) appears. If you want the logo in the header but have no links to put there, a single spacer is enough.
+Position an item with the optional `align` property, which accepts `"start"`, `"center"`, or `"end"`. Alignment is logical rather than physical, so right-to-left sites mirror automatically without any config changes. Omit `align` to let Scalar place the item for you. The `align` property is supported on `link`, `group`, and `version-selector` items, but is ignored for items nested inside a group.
+
+> `type: "spacer"` is deprecated. To move items to the end of the header, set `align: "end"` on those items instead. Spacers still work for backwards compatibility, but you should prefer `align`. With no `align` set anywhere, items before a spacer align to the start and items after it align to the end.
+
+The header only renders when this array has at least one item, and it is where your [logo](site-config.md#logo) appears. If you want the logo in the header but have no links to put there, a single spacer is enough (this is the legacy approach).
 
 ### Example
 
@@ -44,17 +48,16 @@ The header only renders when this array has at least one item, and it is where y
         "to": "/"
       },
       {
-        "type": "spacer"
-      },
-      {
         "type": "link",
         "title": "Log in",
+        "align": "end",
         "to": "https://dashboard.scalar.com/login"
       },
       {
         "type": "link",
         "title": "Register",
         "style": "button",
+        "align": "end",
         "icon": "phosphor/regular/user-plus",
         "newTab": true,
         "to": "https://dashboard.scalar.com/register"
@@ -69,16 +72,17 @@ The header only renders when this array has at least one item, and it is where y
 
 ### Properties
 
-| Property | Type                   | Required | Description                              |
-| -------- | ---------------------- | -------- | ---------------------------------------- |
-| `title`  | `string`               | Yes      | The display text for the header link     |
-| `type`   | `"link"` \| `"spacer"` | Yes      | Must be `"link"` or `"spacer"`           |
-| `to`     | `string`               | Yes      | The route path or URL the link points to |
-| `style`  | `"button" \| "text"`   | No       | Display style (defaults to `"text"`)     |
-| `icon`   | `string`               | No       | An icon to display next to the link      |
-| `newTab` | `boolean`              | No       | Whether to open the link in a new tab    |
+| Property | Type                           | Required | Description                                                                                      |
+| -------- | ------------------------------ | -------- | ----------------------------------------------------------------------------------------------- |
+| `title`  | `string`                       | Yes      | The display text for the header link                                                            |
+| `type`   | `"link"`                       | Yes      | The kind of header item. `"spacer"` is also accepted but deprecated in favor of `align`.        |
+| `to`     | `string`                       | Yes      | The route path or URL the link points to                                                        |
+| `align`  | `"start" \| "center" \| "end"` | No       | Where the item sits in the header. Omit it to let Scalar place the item. Ignored inside a group. |
+| `style`  | `"button" \| "text"`           | No       | Display style (defaults to `"text"`)                                                            |
+| `icon`   | `string`                       | No       | An icon to display next to the link                                                             |
+| `newTab` | `boolean`                      | No       | Whether to open the link in a new tab                                                           |
 
-For `type: "spacer"`, no other properties are used; only `type` is required.
+> `type: "spacer"` is deprecated. Use `align: "end"` on the items that used to come after a spacer instead. For a spacer, no other properties are used; only `type` is required.
 
 ## Sidebar
 
