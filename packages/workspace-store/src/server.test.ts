@@ -1033,7 +1033,7 @@ describe('create-server-store', () => {
       const ordered = document as typeof document & { 'x-scalar-order'?: string[] }
       expect(ordered['x-scalar-order']).toEqual([
         'events/description/introduction',
-        'events/asyncapi-channel/planetevents',
+        'events/channel/planetevents',
         'events/models',
       ])
     })
