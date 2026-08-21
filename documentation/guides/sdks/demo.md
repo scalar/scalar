@@ -87,14 +87,14 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
               </span>
             </span>
           </button>
-          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="video" data-title="Never Gonna Give You Up Rick Astley youtube">
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="video" data-title="untitled">
             <span class="sdk-demo-tab-card-head">
               <span class="sdk-demo-tab-card-mark sdk-demo-tab-card-mark-video" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" />
             </svg>
               </span>
-              Never Gonna Give You Up
+              Untitled
             </span>
             <span class="sdk-demo-tab-card-preview sdk-demo-tab-card-preview-video" aria-hidden="true">
               <span class="sdk-demo-mini-play"></span>
