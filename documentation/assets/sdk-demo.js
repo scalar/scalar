@@ -801,7 +801,8 @@ const initSdkDemo = (root) => {
     apiDoc: qs(root, '[data-sdk-demo-api-doc]'),
     url: qs(root, '[data-sdk-demo-url]'),
     tabsButton: qs(root, '[data-sdk-demo-tabs]'),
-    tabstrip: qs(root, '[data-sdk-demo-tabstrip]'),
+    overview: qs(root, '[data-sdk-demo-overview]'),
+    tabSearch: qs(root, '[data-sdk-demo-tab-search]'),
     pageTabs: qsa(root, '[data-sdk-demo-page-tab]'),
     main: qs(root, '.sdk-demo-main'),
     video: qs(root, '[data-sdk-demo-video]'),
@@ -1118,7 +1119,8 @@ const initSdkDemo = (root) => {
     closeAddMenu()
     setBuildWindowOpen(false)
     setApiWindowOpen(false)
-    setTabstripOpen(false)
+    setOverviewOpen(false)
+    showPage('dashboard')
     resetPosition(nodes.frame)
     resetPosition(nodes.buildWindow)
     resetPosition(nodes.apiWindow)
@@ -1145,8 +1147,13 @@ const initSdkDemo = (root) => {
 
     nodes.pageTabs.forEach((tab) => {
       const active = tab.dataset.sdkDemoPageTab === page
-      tab.setAttribute('aria-selected', active ? 'true' : 'false')
-      tab.tabIndex = active ? 0 : -1
+      /* aria-current marks the tab you are on; these are buttons that switch
+       * pages, not a tablist, since the overview replaces the page entirely. */
+      if (active) {
+        tab.setAttribute('aria-current', 'page')
+      } else {
+        tab.removeAttribute('aria-current')
+      }
     })
 
     /* Load the embed on first visit, and never before. */
@@ -1155,24 +1162,44 @@ const initSdkDemo = (root) => {
     }
   }
 
-  const setTabstripOpen = (open) => {
-    if (nodes.tabstrip) {
-      nodes.tabstrip.hidden = !open
+  const filterTabs = (query) => {
+    const needle = query.trim().toLowerCase()
+    nodes.pageTabs.forEach((tab) => {
+      tab.hidden = Boolean(needle) && !(tab.dataset.title ?? '').toLowerCase().includes(needle)
+    })
+  }
+
+  const setOverviewOpen = (open) => {
+    if (nodes.overview) {
+      nodes.overview.hidden = !open
     }
     nodes.tabsButton?.setAttribute('aria-expanded', open ? 'true' : 'false')
 
-    /* Closing the strip returns to the page the demo is actually about. */
-    if (!open) {
-      showPage('dashboard')
+    /* Safari swaps the address for its search prompt while the overview is up. */
+    setText(
+      nodes.url,
+      open ? 'Search or enter website name' : (PAGE_URLS[root.dataset.sdkDemoPage] ?? PAGE_URLS.dashboard),
+    )
+
+    if (open) {
+      hideHint()
+    } else if (nodes.tabSearch) {
+      nodes.tabSearch.value = ''
+      filterTabs('')
     }
   }
 
   nodes.tabsButton?.addEventListener('click', () => {
-    setTabstripOpen(nodes.tabstrip?.hidden ?? true)
+    setOverviewOpen(nodes.overview?.hidden ?? true)
   })
 
+  nodes.tabSearch?.addEventListener('input', (event) => filterTabs(event.target.value))
+
   nodes.pageTabs.forEach((tab) => {
-    tab.addEventListener('click', () => showPage(tab.dataset.sdkDemoPageTab))
+    tab.addEventListener('click', () => {
+      showPage(tab.dataset.sdkDemoPageTab)
+      setOverviewOpen(false)
+    })
   })
 
   /* ---------------------------------------------------------------------
@@ -1272,7 +1299,12 @@ const initSdkDemo = (root) => {
   })
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && root.dataset.sdkDemoMenu === 'open') {
+    if (event.key !== 'Escape') {
+      return
+    }
+    if (nodes.overview && !nodes.overview.hidden) {
+      setOverviewOpen(false)
+    } else if (root.dataset.sdkDemoMenu === 'open') {
       closeAddMenu()
     }
   })

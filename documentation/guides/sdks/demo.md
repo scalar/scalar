@@ -47,23 +47,61 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
           </button>
         </div>
       </div>
-      <div class="sdk-demo-tabstrip" data-sdk-demo-tabstrip hidden role="tablist" aria-label="Browser tabs">
-        <button class="sdk-demo-tabstrip-tab" type="button" role="tab" data-sdk-demo-page-tab="dashboard" aria-selected="true">
-          <span class="sdk-demo-tabstrip-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="currentColor">
+      <div class="sdk-demo-overview" data-sdk-demo-overview hidden>
+        <div class="sdk-demo-overview-bar">
+          <label class="sdk-demo-overview-search">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" />
+            </svg>
+            <input type="search" placeholder="Search Tabs" data-sdk-demo-tab-search aria-label="Search tabs" />
+          </label>
+        </div>
+        <div class="sdk-demo-overview-grid">
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="dashboard" data-title="Warp HR SDK Scalar dashboard" aria-current="page">
+            <span class="sdk-demo-tab-card-head">
+              <span class="sdk-demo-tab-card-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" />
             </svg>
-          </span>
-          Warp HR SDK
-        </button>
-        <button class="sdk-demo-tabstrip-tab" type="button" role="tab" data-sdk-demo-page-tab="video" aria-selected="false" tabindex="-1">
-          <span class="sdk-demo-tabstrip-mark sdk-demo-tabstrip-mark-video" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="currentColor">
+              </span>
+              Warp HR SDK
+            </span>
+            <span class="sdk-demo-tab-card-preview" aria-hidden="true">
+              <span class="sdk-demo-mini">
+                <span class="sdk-demo-mini-row">
+                  <span class="sdk-demo-mini-title"></span>
+                  <span class="sdk-demo-mini-button"></span>
+                </span>
+                <span class="sdk-demo-mini-card"></span>
+                <span class="sdk-demo-mini-grid">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+                <span class="sdk-demo-mini-panel">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+              </span>
+            </span>
+          </button>
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="video" data-title="Never Gonna Give You Up Rick Astley youtube">
+            <span class="sdk-demo-tab-card-head">
+              <span class="sdk-demo-tab-card-mark sdk-demo-tab-card-mark-video" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" />
             </svg>
-          </span>
-          Never Gonna Give You Up
-        </button>
+              </span>
+              Never Gonna Give You Up
+            </span>
+            <span class="sdk-demo-tab-card-preview sdk-demo-tab-card-preview-video" aria-hidden="true">
+              <span class="sdk-demo-mini-play"></span>
+            </span>
+          </button>
+          <span class="sdk-demo-tab-card sdk-demo-tab-card-new" aria-hidden="true">+</span>
+        </div>
       </div>
       <div class="sdk-demo-viewport">
         <div class="sdk-demo-main">
@@ -371,66 +409,247 @@ The parts that need your accounts rather than a browser:
   }
 
   /* ---------------------------------------------------------------------
-     Tab strip
+     Tab overview, in the shape Safari shows it: a dimmed sheet over the page
+     with one card per tab, each a title above a preview of what is on it.
      --------------------------------------------------------------------- */
 
-  .sdk-demo-tabstrip {
+  .sdk-demo-overview {
+    position: absolute;
+    inset: 40px 0 0;
+    z-index: 15;
     display: flex;
-    gap: 4px;
-    padding: 0 8px 6px;
-    background: var(--scalar-background-2);
-    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-    overflow-x: auto;
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px 20px 24px;
+    background: color-mix(in srgb, var(--scalar-background-3) 82%, transparent);
+    backdrop-filter: blur(6px);
+    overflow-y: auto;
   }
 
-  .sdk-demo-tabstrip[hidden] {
+  .sdk-demo-overview[hidden] {
     display: none;
   }
 
-  .sdk-demo-tabstrip-tab {
+  .sdk-demo-overview-bar {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .sdk-demo-overview-search {
     display: flex;
     align-items: center;
-    gap: 7px;
-    flex: 1;
-    min-width: 0;
-    max-width: 260px;
-    padding: 5px 10px;
-    border-radius: var(--scalar-radius-lg);
-    background: transparent;
-    color: var(--scalar-color-3);
-    font-size: var(--scalar-micro);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
-  }
-
-  .sdk-demo-tabstrip-tab:hover {
-    color: var(--scalar-color-1);
-  }
-
-  .sdk-demo-tabstrip-tab[aria-selected="true"] {
+    gap: 6px;
+    width: 200px;
+    padding: 4px 9px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius);
     background: var(--scalar-background-1);
-    color: var(--scalar-color-1);
-    box-shadow: 0 1px 3px -1px rgb(0 0 0 / 25%);
+    color: var(--scalar-color-3);
   }
 
-  .sdk-demo-tabstrip-mark {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .sdk-demo-overview-search svg {
     width: 12px;
     height: 12px;
     flex-shrink: 0;
   }
 
-  .sdk-demo-tabstrip-mark svg {
+  .sdk-demo-overview-search input {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--scalar-color-1);
+    font-family: inherit;
+    font-size: var(--scalar-micro);
+    outline: none;
+  }
+
+  .sdk-demo-overview-search input::placeholder {
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 18px;
+    align-content: start;
+  }
+
+  .sdk-demo-tab-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border-radius: var(--scalar-radius-lg);
+    background: var(--scalar-background-1);
+    box-shadow: 0 8px 20px -10px rgb(0 0 0 / 45%);
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .sdk-demo-tab-card[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-tab-card:hover,
+  .sdk-demo-tab-card:focus-visible {
+    outline: 2px solid var(--scalar-color-accent);
+    outline-offset: 1px;
+  }
+
+  .sdk-demo-tab-card[aria-current="page"] {
+    outline: 2px solid var(--scalar-color-accent);
+    outline-offset: 1px;
+  }
+
+  .sdk-demo-tab-card-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-micro);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sdk-demo-tab-card-mark {
+    display: flex;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+
+  .sdk-demo-tab-card-mark svg {
     width: 100%;
     height: 100%;
   }
 
-  .sdk-demo-tabstrip-mark-video {
+  .sdk-demo-tab-card-mark-video {
     color: #ff0033;
+  }
+
+  .sdk-demo-tab-card-preview {
+    display: block;
+    height: 128px;
+    padding: 8px;
+    background: var(--scalar-background-1);
+    overflow: hidden;
+  }
+
+  /* A drawn miniature of the dashboard, rather than a copy of it — the real
+     thing carries the demo's own hooks and must not exist twice. */
+  .sdk-demo-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .sdk-demo-mini-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .sdk-demo-mini-title {
+    width: 46%;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--scalar-color-3);
+  }
+
+  .sdk-demo-mini-button {
+    width: 22px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--scalar-color-1);
+  }
+
+  .sdk-demo-mini-card {
+    height: 16px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 3px;
+  }
+
+  .sdk-demo-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .sdk-demo-mini-grid > span {
+    height: 14px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 3px;
+    background: var(--scalar-background-2);
+  }
+
+  .sdk-demo-mini-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 3px;
+  }
+
+  .sdk-demo-mini-panel > span {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--scalar-background-3);
+  }
+
+  .sdk-demo-mini-panel > span:nth-child(2) {
+    width: 72%;
+  }
+
+  .sdk-demo-mini-panel > span:nth-child(3) {
+    width: 48%;
+  }
+
+  .sdk-demo-tab-card-preview-video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: #000;
+  }
+
+  .sdk-demo-mini-play {
+    width: 34px;
+    height: 24px;
+    border-radius: 6px;
+    background: #ff0033;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    position: relative;
+  }
+
+  .sdk-demo-mini-play::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-style: solid;
+    border-width: 5px 0 5px 8px;
+    border-color: transparent transparent transparent #fff;
+  }
+
+  /* Decorative, like the other browser furniture in the chrome. */
+  .sdk-demo-tab-card-new {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 128px;
+    background: color-mix(in srgb, var(--scalar-background-1) 45%, transparent);
+    box-shadow: none;
+    color: var(--scalar-color-3);
+    font-size: 32px;
+    font-weight: 300;
+    cursor: default;
   }
 
   /* ---------------------------------------------------------------------
