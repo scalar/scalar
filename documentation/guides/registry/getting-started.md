@@ -19,7 +19,7 @@ Once authenticated, you can work with Registry from:
   size="full">
 </scalar-image>
 
-## Upload your first API description
+## Upload your first API document
 
 From the [dashboard](https://dashboard.scalar.com), create a new API and upload an OpenAPI document, or publish one from your terminal with the [CLI](cli.md). Once the document is in Registry, docs, SDKs, and automation can all consume the same source.
 

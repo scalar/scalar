@@ -19,7 +19,7 @@ Store, version, and manage OpenAPI documents, JSON Schema, and Spectral rules in
 
 Managing OpenAPI can get messy fast. Teams need to know where the source of truth lives, how versions are managed, who has access, and how downstream consumers discover updates.
 
-Registry gives your team a central place for API descriptions and the workflows around them. Once an API description is in Registry, you can power docs, SDKs, publishing, and automation from the same source.
+Registry gives your team a central place for API documents and the workflows around them. Once an API document is in Registry, you can power docs, SDKs, publishing, and automation from the same source.
 
 ## Create docs and SDKs
 
@@ -50,7 +50,7 @@ Generate SDKs from the same OpenAPI documents. Keep client libraries aligned wit
         <scalar-icon src="phosphor/bold/git-branch"></scalar-icon>
         Single source of truth
       </b>
-      <p class="leading-6">Keep API descriptions, schemas, and rules in one managed place.</p>
+      <p class="leading-6">Keep API documents, schemas, and rules in one managed place.</p>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
@@ -71,7 +71,7 @@ Generate SDKs from the same OpenAPI documents. Keep client libraries aligned wit
         <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
         JSON Schema support
       </b>
-      <p class="leading-6">Manage shared schemas alongside the API descriptions that depend on them.</p>
+      <p class="leading-6">Manage shared schemas alongside the API documents that depend on them.</p>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
@@ -85,7 +85,7 @@ Generate SDKs from the same OpenAPI documents. Keep client libraries aligned wit
         <scalar-icon src="phosphor/bold/lock-simple"></scalar-icon>
         Private or public
       </b>
-      <p class="leading-6">Control whether API descriptions are internal, shared with a team, or public.</p>
+      <p class="leading-6">Control whether API documents are internal, shared with a team, or public.</p>
     </div>
   </div>
 </div>
