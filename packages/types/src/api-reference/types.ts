@@ -690,6 +690,16 @@ type ExtendedConfiguration = {
     targetKey: TargetId
     clientKey: ClientId<TargetId>
   }
+  /**
+   * Initial view for the request body editor with structured (JSON/YAML) bodies.
+   *
+   * Use `form` to open the schema-driven form view by default, or `raw` for the code editor.
+   * When a body cannot be shown as a form, Scalar falls back to `raw`. A document can override
+   * this per source with the `x-scalar-default-request-body-view` extension.
+   *
+   * @default 'raw'
+   */
+  defaultRequestBodyView?: 'form' | 'raw'
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onServerChange is fired on selected server change */
