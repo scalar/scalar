@@ -41,6 +41,7 @@ describe('AddressBar', () => {
       props: {
         path: custom.path ?? '/api/test',
         method: (custom.method ?? 'get') as HttpMethod,
+        isWebhook: custom.isWebhook ?? false,
         server: custom.server ?? baseServer,
         servers: custom.servers ?? [baseServer],
         history: custom.history ?? [],
@@ -149,6 +150,29 @@ describe('AddressBar', () => {
      * triggered via the event bus after the path update resolves.
      */
     expect(wrapper.emitted('execute')).toBeFalsy()
+  })
+
+  it('keeps webhook destination edits local to the request', async () => {
+    const { wrapper, eventBus } = mountWithProps({
+      path: '/',
+      method: 'post',
+      isWebhook: true,
+      layout: 'modal',
+      server: null,
+      servers: [],
+    })
+    const eventBusSpy = vi.spyOn(eventBus, 'emit')
+    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+    const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+
+    await codeInput.vm.$emit('submit', 'https://hooks.example.com/deliveries', submitEvent)
+    await nextTick()
+
+    expect(wrapper.emitted('update:webhook-server')).toStrictEqual([['https://hooks.example.com']])
+    expect(wrapper.emitted('update:webhook-path')).toStrictEqual([['/deliveries']])
+    expect(eventBusSpy).not.toHaveBeenCalledWith('operation:update:pathMethod', expect.anything())
+    expect(eventBusSpy).not.toHaveBeenCalledWith('server:add:server', expect.anything())
+    expect(codeInput.props('disabled')).toBe(false)
   })
 
   it('renders ServerDropdown only when servers are provided', () => {

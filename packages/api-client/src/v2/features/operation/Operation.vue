@@ -24,6 +24,8 @@ export type OperationProps = {
   method?: HttpMethod
   /** The name of the currently selected example (for examples within an endpoint) */
   exampleName?: string
+  /** Resolve the selected entry from the OpenAPI webhooks map. */
+  isWebhook?: boolean
   /** The currently active environment */
   environment: XScalarEnvironment
   /** The workspace store */
@@ -67,6 +69,7 @@ const {
   workspaceStore,
   plugins,
   documentSlug,
+  isWebhook = false,
 } = defineProps<
   OperationProps & {
     /** Selected anyOf/oneOf request-body variants keyed by schema path */
@@ -86,7 +89,7 @@ const requestExample = computed(() => {
   const result = getRequestExampleContext(
     workspaceStore,
     documentSlug,
-    { path, method, exampleName },
+    { path, method, exampleName, isWebhook },
     {
       baseServerUrl: toValue(options)?.baseServerURL,
       fallbackDocument: document,
@@ -183,6 +186,7 @@ const httpClients = computed(() =>
       :httpClients
       :layout
       :method
+      :isWebhook
       :operation
       :options
       :path

@@ -175,8 +175,26 @@ The `createApiClientModal` call returns:
   method: HttpMethod
   example?: string
   documentSlug?: string // For multiple documents
+  isWebhook?: boolean // Resolve path as an OpenAPI webhook name
 }
 ```
+
+### OpenAPI webhooks
+
+Set `isWebhook` to open a webhook from an OpenAPI 3.1 document. Pass the
+webhook map key as `path`:
+
+```ts
+modal.open({
+  path: 'delivery.created',
+  method: 'post',
+  isWebhook: true,
+})
+```
+
+The modal prompts for the destination URL. Destination edits apply only to
+the request and do not change the OpenAPI document. In the API reference, the
+**Test Request** button opens webhook entries this way automatically.
 
 
 ## Plugins

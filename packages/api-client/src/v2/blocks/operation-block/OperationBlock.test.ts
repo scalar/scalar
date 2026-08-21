@@ -58,7 +58,13 @@ vi.mock('@scalar/use-toasts', () => ({
 vi.mock('./components/Header.vue', () => ({
   default: {
     name: 'Header',
-    emits: ['execute', 'select:history:item'],
+    emits: [
+      'execute',
+      'select:history:item',
+      'update:webhook-path',
+      'update:webhook-server',
+      'update:webhook-server-variable',
+    ],
     template: '<div data-test="header"></div>',
   },
 }))
@@ -316,6 +322,78 @@ describe('OperationBlock', () => {
       request: expect.any(Request),
       plugins: [],
     })
+  })
+
+  it('requires an explicit destination before sending a webhook', async () => {
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        isWebhook: true,
+        path: 'delivery.created',
+        method: 'post',
+        server: null,
+        servers: [],
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(mockToast).toHaveBeenCalledWith('Webhook URL required. Enter a destination first.', 'error')
+    expect(requestFactory).not.toHaveBeenCalled()
+    expect(sendRequest).not.toHaveBeenCalled()
+  })
+
+  it('sends a webhook to its runtime destination without changing its route identity', async () => {
+    const eventBus = createMockEventBus()
+    const webhookServer = { url: 'https://hooks.example.com' }
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://hooks.example.com/deliveries', { method: 'POST', headers: new Headers() }],
+        response: {
+          status: 204,
+          cookieHeaderKeys: [],
+        } as unknown as ResponseInstance,
+        originalResponse: new Response(null, { status: 204 }),
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus,
+        isWebhook: true,
+        path: 'delivery.created',
+        method: 'post',
+        server: null,
+        servers: [],
+      },
+    })
+    const header = wrapper.findComponent({ name: 'Header' })
+    header.vm.$emit('update:webhook-server', webhookServer.url)
+    header.vm.$emit('update:webhook-path', '/deliveries')
+    await flushPromises()
+
+    await triggerExecute(wrapper)
+
+    expect(requestFactory).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'post',
+        path: '/deliveries',
+        server: webhookServer,
+      }),
+    )
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      'hooks:on:request:sent',
+      expect.objectContaining({
+        meta: {
+          method: 'post',
+          path: 'delivery.created',
+          exampleKey: 'default',
+        },
+      }),
+    )
   })
 
   it('forwards server and customFetch to beforeRequest plugins', async () => {

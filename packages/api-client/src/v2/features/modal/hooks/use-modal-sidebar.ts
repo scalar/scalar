@@ -17,6 +17,7 @@ export type UseModalSidebarReturn = {
     path?: string
     method?: HttpMethod
     example?: string
+    isWebhook?: boolean
   }) => TraversedEntry | undefined
 }
 
@@ -43,6 +44,7 @@ export const useModalSidebar = ({
   path,
   method,
   exampleName,
+  isWebhook,
   route,
 }: {
   workspaceStore: WorkspaceStore | null
@@ -50,8 +52,10 @@ export const useModalSidebar = ({
   path: ComputedRef<string | undefined>
   method: ComputedRef<HttpMethod | undefined>
   exampleName: ComputedRef<string | undefined>
+  isWebhook?: ComputedRef<boolean>
   route: (payload: RoutePayload) => void
 }): UseModalSidebarReturn => {
+  const activeIsWebhook = isWebhook ?? computed(() => false)
   const entries = computed<TraversedEntry[]>(() => {
     const doc = workspaceStore?.workspace.documents[toValue(documentSlug) ?? '']
     return isOpenApiDocument(doc) ? (doc['x-scalar-navigation']?.children ?? []) : []
@@ -69,8 +73,17 @@ export const useModalSidebar = ({
     generateReverseIndex({
       items: entries.value,
       nestedKey: 'children',
-      filter: (node) => node.type === 'operation' || node.type === 'example',
+      filter: (node) => node.type === 'operation' || node.type === 'example' || node.type === 'webhook',
       getId: (node) => {
+        if (node.type === 'webhook') {
+          return generateLocationId({
+            document: toValue(documentSlug) ?? '',
+            path: node.name,
+            method: node.method,
+            isWebhook: true,
+          })
+        }
+
         const operation = getParentEntry('operation', node)
         return generateLocationId({
           document: toValue(documentSlug) ?? '',
@@ -107,6 +120,7 @@ export const useModalSidebar = ({
         path: location.path,
         method: location.method,
         example: location.example,
+        isWebhook: location.isWebhook,
       }),
     )
 
@@ -120,6 +134,7 @@ export const useModalSidebar = ({
         document: location.document,
         path: location.path,
         method: location.method,
+        isWebhook: location.isWebhook,
       }),
     )
   }
@@ -168,14 +183,25 @@ export const useModalSidebar = ({
       })
     }
 
+    if (entry.type === 'webhook') {
+      state.setSelected(id)
+      return route({
+        documentSlug: toValue(documentSlug),
+        path: entry.name,
+        method: entry.method,
+        example: 'default',
+        isWebhook: true,
+      })
+    }
+
     state.setExpanded(id, !state.isExpanded(id))
     return
   }
 
   /** Keep the sidebar state in sync with the modal parameters */
   watch(
-    [documentSlug, path, method, exampleName],
-    ([newDocument, newPath, newMethod, newExample]) => {
+    [documentSlug, path, method, exampleName, activeIsWebhook],
+    ([newDocument, newPath, newMethod, newExample, newIsWebhook]) => {
       if (!newDocument) {
         // Reset selection if no document is selected
         state.setSelected(null)
@@ -187,6 +213,7 @@ export const useModalSidebar = ({
         path: newPath,
         method: newMethod,
         example: newExample,
+        isWebhook: newIsWebhook,
       })
 
       if (entry) {

@@ -11,6 +11,8 @@ export type HeaderProps = {
   path: string
   /** Current request method */
   method: HttpMethod
+  /** Whether this request comes from an OpenAPI webhook. */
+  isWebhook?: boolean
   /** Client layout */
   layout: ClientLayout
   /** Hides the client button on the header */
@@ -78,6 +80,15 @@ const emit = defineEmits<{
   (e: 'add:environment'): void
   /** Navigate to the settings page for the current entity */
   (e: 'navigate:settings'): void
+  /** Update the runtime path used to deliver a webhook. */
+  (e: 'update:webhook-path', path: string): void
+  /** Update the runtime server used to deliver a webhook. */
+  (e: 'update:webhook-server', url: string): void
+  /** Update a runtime webhook server variable. */
+  (
+    e: 'update:webhook-server-variable',
+    payload: { key: string; value: string },
+  ): void
 }>()
 
 const handleSelectEnvironment = (environmentName: string) => {
@@ -109,6 +120,7 @@ const handleAddEnvironment = () => {
       :eventBus
       :exampleKey
       :history
+      :isWebhook
       :layout
       :method
       :path
@@ -117,6 +129,11 @@ const handleAddEnvironment = () => {
       :servers
       @add:environment="emit('add:environment')"
       @execute="emit('execute')"
+      @update:webhook-path="(value) => emit('update:webhook-path', value)"
+      @update:webhook-server="(value) => emit('update:webhook-server', value)"
+      @update:webhook-server-variable="
+        (value) => emit('update:webhook-server-variable', value)
+      "
       @select:history:item="
         (payload) => emit('select:history:item', payload)
       " />
@@ -134,7 +151,7 @@ const handleAddEnvironment = () => {
         @select:environment="handleSelectEnvironment" />
       <!-- Operation settings -->
       <ScalarIconButton
-        v-if="layout !== 'modal'"
+        v-if="layout !== 'modal' && !isWebhook"
         :icon="ScalarIconGearSix"
         label="Operation settings"
         size="sm"
