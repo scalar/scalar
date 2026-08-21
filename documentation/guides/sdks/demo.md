@@ -108,15 +108,15 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
               <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="files" aria-selected="false" tabindex="-1">Files</button>
             </div>
             <div class="sdk-demo-code-head"><span data-sdk-demo-code-title>index.ts</span></div>
-            <pre class="sdk-demo-code" data-sdk-demo-code>import WarpAPI from "warp-hr";
+            <pre class="sdk-demo-code" data-sdk-demo-code><span class="sdk-demo-tok-keyword">import</span> <span class="sdk-demo-tok-type">WarpAPI</span> <span class="sdk-demo-tok-keyword">from</span> <span class="sdk-demo-tok-string">"warp-hr"</span>;
 
-const client = new WarpAPI({
-  apiKey: process.env["WARP_API_KEY"], // defaults to the WARP_API_KEY env var
+<span class="sdk-demo-tok-keyword">const</span> client = <span class="sdk-demo-tok-keyword">new</span> <span class="sdk-demo-tok-type">WarpAPI</span>({
+  apiKey: process.env[<span class="sdk-demo-tok-string">"WARP_API_KEY"</span>], <span class="sdk-demo-tok-comment">// defaults to the WARP_API_KEY env var</span>
 });
 
-// Auto-paginating: the next cursor page is fetched as you iterate.
-for await (const assignment of client.timeOff.listAssignments({ limit: 50 })) {
-  console.log(assignment.id, assignment.policy.name);
+<span class="sdk-demo-tok-comment">// Auto-paginating: the next cursor page is fetched as you iterate.</span>
+<span class="sdk-demo-tok-keyword">for</span> <span class="sdk-demo-tok-keyword">await</span> (<span class="sdk-demo-tok-keyword">const</span> assignment <span class="sdk-demo-tok-keyword">of</span> client.timeOff.<span class="sdk-demo-tok-fn">listAssignments</span>({ limit: <span class="sdk-demo-tok-number">50</span> })) {
+  console.<span class="sdk-demo-tok-fn">log</span>(assignment.id, assignment.policy.name);
 }</pre>
             <div class="sdk-demo-files" data-sdk-demo-files hidden></div>
           </div>
@@ -720,6 +720,47 @@ The parts that need your accounts rather than a browser:
     line-height: 1.55;
     white-space: pre;
     tab-size: 2;
+  }
+
+  /* Syntax tokens, drawn from the theme's own accent colours so both
+     schemes stay in step with the rest of the docs. */
+  .sdk-demo-tok-comment {
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-tok-string {
+    color: var(--scalar-color-green);
+  }
+
+  .sdk-demo-tok-keyword {
+    color: var(--scalar-color-purple);
+  }
+
+  .sdk-demo-tok-builtin,
+  .sdk-demo-tok-number {
+    color: var(--scalar-color-orange);
+  }
+
+  .sdk-demo-tok-type {
+    color: var(--scalar-color-yellow);
+  }
+
+  .sdk-demo-tok-fn {
+    color: var(--scalar-color-blue);
+  }
+
+  .sdk-demo-tok-flag {
+    color: var(--scalar-color-blue);
+  }
+
+  .sdk-demo-tok-heading {
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-tok-meta,
+  .sdk-demo-tok-bullet {
+    color: var(--scalar-color-3);
   }
 
   .sdk-demo-files {

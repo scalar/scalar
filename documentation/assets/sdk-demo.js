@@ -434,6 +434,85 @@ const BUILD_LOG = [
   ['Opened release pull request #128', 300],
 ]
 
+/* ---------------------------------------------------------------------
+   Syntax highlighting
+   A small tokenizer, not a parser — enough for the samples on this page,
+   with no dependency to load. Rules are tried left to right, so the order
+   inside each list matters: comments and strings claim their text first.
+   --------------------------------------------------------------------- */
+
+const KEYWORDS =
+  'import|from|export|default|const|let|var|new|function|return|await|async|for|of|in|if|else|while|do|end|def|class|module|require|package|func|range|public|private|static|void|final|implementation|puts|print'
+
+const BUILTINS = 'true|false|nil|None|null|self|this|err|panic'
+
+/** Line-comment syntax differs by target; everything else is shared. */
+const HASH_COMMENT_TARGETS = ['python', 'ruby', 'cli']
+
+const codeRules = (target) => {
+  const comment = HASH_COMMENT_TARGETS.includes(target) ? '#[^\\n]*' : '//[^\\n]*'
+
+  const rules = [
+    ['comment', comment],
+    ['string', '"(?:[^"\\\\\\n]|\\\\.)*"|\x27(?:[^\x27\\\\\\n]|\\\\.)*\x27'],
+  ]
+
+  /* Shell flags read as their own thing, not an operator plus a word. */
+  if (target === 'cli') {
+    rules.push(['flag', '--[\\w-]+'])
+  }
+
+  rules.push(
+    ['keyword', `\\b(?:${KEYWORDS})\\b`],
+    ['builtin', `\\b(?:${BUILTINS})\\b`],
+    ['type', '\\b[A-Z][A-Za-z0-9_]*\\b'],
+    ['number', '\\b\\d+(?:\\.\\d+)?\\b'],
+    ['fn', '\\b[a-zA-Z_]\\w*(?=\\()'],
+  )
+
+  return rules
+}
+
+/* api.md and SKILL.md are markdown, so they get their own small rule set. */
+const MARKDOWN_RULES = [
+  ['meta', '^---$'],
+  ['heading', '^#{1,6} [^\\n]*'],
+  ['bullet', '^\\s*-(?= )'],
+  ['string', '`[^`\\n]*`'],
+  ['keyword', '\\b(?:GET|POST|PUT|PATCH|DELETE)\\b'],
+  ['fn', '\\b[a-zA-Z_]\\w*(?=\\()'],
+  ['type', '\\b[A-Z][A-Za-z0-9_]*\\b'],
+]
+
+/**
+ * Turn source text into highlighted nodes.
+ *
+ * Built as DOM nodes rather than markup, so the sample text is never parsed
+ * as HTML no matter what it contains.
+ */
+const highlight = (text, rules) => {
+  const fragment = document.createDocumentFragment()
+  const pattern = new RegExp(rules.map(([name, re]) => `(?<${name}>${re})`).join('|'), 'gm')
+
+  let index = 0
+
+  for (const match of text.matchAll(pattern)) {
+    if (match.index > index) {
+      fragment.append(text.slice(index, match.index))
+    }
+
+    const name = Object.keys(match.groups).find((key) => match.groups[key] !== undefined)
+    fragment.append(el('span', `sdk-demo-tok-${name}`, match[0]))
+    index = match.index + match[0].length
+  }
+
+  if (index < text.length) {
+    fragment.append(text.slice(index))
+  }
+
+  return fragment
+}
+
 const REDUCED_MOTION = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
 
 /** Put a window back where the layout wants it. */
@@ -826,7 +905,9 @@ const initSdkDemo = (root) => {
         reference: config.reference,
         skill: config.skill,
       }
-      setText(nodes.code, bodies[state.tab] ?? config.quickstart)
+      /* Quickstart is source; the other two tabs are markdown. */
+      const rules = state.tab === 'quickstart' ? codeRules(state.selected) : MARKDOWN_RULES
+      nodes.code.replaceChildren(highlight(bodies[state.tab] ?? config.quickstart, rules))
     }
 
     setText(nodes.install, config.install)
