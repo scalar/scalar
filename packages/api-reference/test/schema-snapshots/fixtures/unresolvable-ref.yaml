@@ -1,0 +1,10 @@
+title: Unresolvable $ref
+notes: |
+  A reference with nothing behind it. Records how the renderer degrades when a
+  document is incomplete, which is common in the wild.
+schema:
+  type: object
+  properties:
+    ok: { type: string }
+    broken:
+      $ref: '#/components/schemas/DoesNotExist'

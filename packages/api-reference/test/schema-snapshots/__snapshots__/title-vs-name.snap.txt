@@ -1,0 +1,9 @@
+# Schema title versus property name
+# A title on a property schema shows up next to the type as a model name, which
+# is easy to break when touching the heading.
+
+- plain — string
+- titled — string · EmailAddress
+- titledArray — array string[] · TagList
+- titledObject — object · Address
+  - city — string

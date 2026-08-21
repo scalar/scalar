@@ -1,0 +1,4 @@
+# propertyNames constraints
+# Renders as a `keys:` detail on the owning object.
+
+- propertyName — string · keys: string · uuid

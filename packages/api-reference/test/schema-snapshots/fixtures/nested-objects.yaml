@@ -1,0 +1,18 @@
+title: Deeply nested objects
+notes: Four levels of nesting, to pin the indentation and the level classes.
+schema:
+  type: object
+  properties:
+    level1:
+      type: object
+      description: First level
+      properties:
+        level2:
+          type: object
+          description: Second level
+          properties:
+            level3:
+              type: object
+              description: Third level
+              properties:
+                level4: { type: string, description: A leaf }

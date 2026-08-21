@@ -1,0 +1,11 @@
+title: Empty and trivial schemas
+notes: |
+  The empty object placeholder, an object with no properties, and boolean
+  schemas that carry no shape at all.
+schema:
+  type: object
+  properties:
+    emptyObject: { type: object }
+    emptyObjectWithProps: { type: object, properties: {} }
+    trueSchema: true
+    justADescription: { description: No type at all }

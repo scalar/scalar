@@ -1,0 +1,76 @@
+title: Petstore — Pet (OpenAPI 3.1)
+notes: |
+  Vendored from the pinned Petstore 3.1 fixture at
+  https://storage.googleapis.com/scalar-test-fixtures/oas/petstore-3.1.json
+
+  The canonical smoke test: nested object refs, an array of refs and an enum,
+  with a `$schema` key that the renderer has to ignore gracefully.
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  description: Pet
+  properties:
+    id:
+      type: integer
+      format: int64
+    category:
+      $id: /api/v31/components/schemas/category
+      description: Category
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+      xml:
+        name: Category
+    name:
+      type: string
+      examples:
+      - doggie
+    photoUrls:
+      type: array
+      items:
+        type: string
+        xml:
+          name: photoUrl
+      xml:
+        wrapped: true
+    tags:
+      type: array
+      items:
+        $id: /api/v31/components/schemas/tag
+        properties:
+          id:
+            type: integer
+            format: int64
+          name:
+            type: string
+        xml:
+          name: Tag
+      xml:
+        wrapped: true
+    status:
+      type: string
+      description: pet status in the store
+      enum:
+      - available
+      - pending
+      - sold
+    availableInstances:
+      type: integer
+      format: int32
+      examples:
+      - '7'
+      exclusiveMaximum: 10
+      exclusiveMinimum: 1
+      swagger-extension: true
+    petDetailsId:
+      type: integer
+      format: int64
+    petDetails: {}
+  required:
+  - name
+  - photoUrls
+  xml:
+    name: Pet
+  

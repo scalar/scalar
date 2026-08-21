@@ -1,0 +1,9 @@
+# Empty and trivial schemas
+# The empty object placeholder, an object with no properties, and boolean
+# schemas that carry no shape at all.
+
+- emptyObject — object
+- emptyObjectWithProps — object
+- justADescription
+  description: No type at all
+- trueSchema

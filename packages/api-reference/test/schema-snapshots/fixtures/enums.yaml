@@ -1,0 +1,12 @@
+title: Enum rendering
+notes: String, numeric and mixed enums, plus a list long enough to be truncated.
+schema:
+  type: object
+  properties:
+    status: { type: string, enum: [available, pending, sold] }
+    priority: { type: integer, enum: [1, 2, 3] }
+    mixed: { enum: [a, 1, true, null] }
+    singleValue: { type: string, enum: [only] }
+    longList:
+      type: string
+      enum: [aa, bb, cc, dd, ee, ff, gg, hh, ii, jj, kk, ll, mm, nn, oo, pp]

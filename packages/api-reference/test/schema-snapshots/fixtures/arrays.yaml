@@ -1,0 +1,19 @@
+title: Array shapes
+notes: |
+  Arrays of primitives, arrays of objects, arrays of arrays and constrained
+  arrays. The type line collapses item types into `array x[]`.
+schema:
+  type: object
+  properties:
+    ofStrings: { type: array, items: { type: string } }
+    ofObjects:
+      type: array
+      items:
+        type: object
+        properties:
+          id: { type: string }
+          label: { type: string }
+    ofArrays: { type: array, items: { type: array, items: { type: integer } } }
+    constrained: { type: array, items: { type: string }, minItems: 1, maxItems: 10, uniqueItems: true }
+    untypedItems: { type: array }
+    ofEnums: { type: array, items: { type: string, enum: [red, green, blue] } }

@@ -1,0 +1,21 @@
+title: Primitive types and formats
+notes: |
+  Baseline for the type line. Every primitive we can be handed, plus the
+  formats that render as a second detail token.
+schema:
+  type: object
+  properties:
+    aString: { type: string }
+    aNumber: { type: number }
+    anInteger: { type: integer, format: int64 }
+    aBoolean: { type: boolean }
+    aNull: { type: 'null' }
+    anObject: { type: object }
+    anArray: { type: array, items: { type: string } }
+    aDate: { type: string, format: date }
+    aDateTime: { type: string, format: date-time }
+    aUuid: { type: string, format: uuid }
+    aBinary: { type: string, format: binary }
+    anEmail: { type: string, format: email }
+    aUri: { type: string, format: uri }
+    anUntyped: {}

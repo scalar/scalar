@@ -1,0 +1,9 @@
+# String constraints
+# Length, pattern and format render as detail tokens next to the type.
+
+- bounded — string · min length: 3 · max length: 50
+- formatted — string · min length: 36 · max length: 36 · uuid
+- longPattern — string
+- onlyMax — string · max length: 255
+- onlyMin — string · min length: 1
+- patterned — string

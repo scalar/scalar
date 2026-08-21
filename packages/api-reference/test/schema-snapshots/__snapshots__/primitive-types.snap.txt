@@ -1,0 +1,22 @@
+# Primitive types and formats
+# Baseline for the type line. Every primitive we can be handed, plus the
+# formats that render as a second detail token.
+
+- aBinary — string · binary
+  description: binary data, used to describe files
+- aBoolean — boolean
+- aDate — string · date
+  description: full-date notation as defined by RFC 3339, section 5.6, for example, 2017-07-21
+- aDateTime — string · date-time
+  description: the date-time notation as defined by RFC 3339, section 5.6, for example, 2017-07-21T17:32:28Z
+- anArray — array string[]
+- anEmail — string · email
+- anInteger — integer · int64
+  description: Signed 64-bit integers (long type).
+- anObject — object
+- aNull — null
+- aNumber — number
+- anUntyped
+- aString — string
+- aUri — string · uri
+- aUuid — string · uuid

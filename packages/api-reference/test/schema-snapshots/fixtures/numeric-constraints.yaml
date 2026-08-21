@@ -1,0 +1,10 @@
+title: Numeric constraints
+notes: Inclusive and exclusive bounds, multipleOf.
+schema:
+  type: object
+  properties:
+    inclusive: { type: integer, minimum: 1, maximum: 100 }
+    exclusive: { type: number, exclusiveMinimum: 0, exclusiveMaximum: 1 }
+    mixedBounds: { type: number, minimum: 0, exclusiveMaximum: 10 }
+    multiple: { type: integer, multipleOf: 5 }
+    negative: { type: integer, minimum: -100, maximum: -1 }

@@ -1,0 +1,262 @@
+title: Scalar Galaxy — Planet
+notes: |
+  Vendored from packages/galaxy/src/documents/3.1.yaml, the document every
+  playground and most e2e tests already render.
+
+  Extracted with $refs inlined one level deep, because Planet and Satellite
+  reference each other and a deeper slice never stops growing.
+schema:
+  description: A planet in the Scalar Galaxy
+  type: object
+  required:
+  - id
+  - name
+  additionalProperties: false
+  xml:
+    name: planet
+  properties:
+    id:
+      type: integer
+      format: int64
+      readOnly: true
+      examples:
+      - 1
+      x-variable: planetId
+    name:
+      type: string
+      examples:
+      - Mars
+      - Jupiter
+      - HD 40307g
+    description:
+      type:
+      - string
+      - 'null'
+      examples:
+      - The red planet
+      - A gas giant with a great red spot
+    type:
+      type: string
+      enum:
+      - terrestrial
+      - gas_giant
+      - ice_giant
+      - dwarf
+      - super_earth
+      x-enum-varnames:
+      - Terrestrial
+      - GasGiant
+      - IceGiant
+      - Dwarf
+      - SuperEarth
+      x-enum-descriptions:
+        terrestrial: Rocky planets with solid surfaces, like Earth and Mars
+        gas_giant: Large planets composed mainly of hydrogen and helium, like Jupiter and Saturn
+        ice_giant: Planets composed of water, ammonia, and methane ices, like Uranus and Neptune
+        dwarf: Small planetary bodies that don't meet full planet criteria, like Pluto
+        super_earth: Rocky planets larger than Earth but smaller than gas giants
+      examples:
+      - terrestrial
+    habitabilityIndex:
+      type: number
+      format: float
+      minimum: 0
+      maximum: 1
+      description: A score from 0 to 1 indicating potential habitability
+      examples:
+      - 0.68
+    physicalProperties:
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: measurement
+        type: number
+        format: float
+        description: Additional physical measurements for the planet
+      properties:
+        mass:
+          type: number
+          format: float
+          exclusiveMinimum: 0
+          description: Mass in Earth masses (must be greater than 0)
+          examples:
+          - 0.107
+        radius:
+          type: number
+          format: float
+          exclusiveMinimum: 0
+          description: Radius in Earth radii (must be greater than 0)
+          examples:
+          - 0.532
+        gravity:
+          type: number
+          format: float
+          description: Surface gravity in Earth g
+          examples:
+          - 0.378
+        temperature:
+          type: object
+          additionalProperties:
+            x-additionalPropertiesName: temperatureMetric
+            type: number
+            format: float
+            description: Additional temperature-related measurements in Kelvin
+          properties:
+            min:
+              type: number
+              format: float
+              description: Minimum temperature in Kelvin
+              examples:
+              - 130
+            max:
+              type: number
+              format: float
+              description: Maximum temperature in Kelvin
+              examples:
+              - 308
+            average:
+              type: number
+              format: float
+              description: Average temperature in Kelvin
+              examples:
+              - 210
+    atmosphere:
+      type: array
+      description: Atmospheric composition
+      items:
+        type: object
+        additionalProperties:
+          x-additionalPropertiesName: atmosphericData
+          type: string
+          description: Additional atmospheric composition data
+        properties:
+          compound:
+            type: string
+            examples:
+            - CO2
+            - N2
+          percentage:
+            type: number
+            format: float
+            exclusiveMaximum: 100
+            examples:
+            - 95.3
+    discoveredAt:
+      type: string
+      format: date-time
+      examples:
+      - 1610-01-07 00:00:00+00:00
+    image:
+      type:
+      - string
+      - 'null'
+      examples:
+      - https://cdn.scalar.com/photos/mars.jpg
+    satellites:
+      type: array
+      items:
+        description: Every satellite in the Scalar Galaxy
+        type: object
+        required:
+        - name
+        properties:
+          id:
+            type: integer
+            format: int64
+            readOnly: true
+            examples:
+            - 1
+          name:
+            type: string
+            examples:
+            - Phobos
+          description:
+            type:
+            - string
+            - 'null'
+            examples:
+            - Phobos is the larger and innermost of the two moons of Mars.
+          diameter:
+            type: number
+            format: float
+            description: Diameter in kilometers
+            examples:
+            - 22.2
+          type:
+            type: string
+            enum:
+            - moon
+            - asteroid
+            - comet
+            x-enum-varnames:
+            - Moon
+            - Asteroid
+            - Comet
+            x-enum-descriptions:
+              moon: Natural satellites that orbit planets
+              asteroid: Rocky objects that orbit the sun, typically found in the asteroid belt
+              comet: Icy bodies that release gas when approaching the sun, creating visible tails
+            examples:
+            - moon
+          orbit:
+            type: object
+            properties:
+              planet:
+                type: object
+                title: Planet
+              orbitalPeriod:
+                type: number
+                format: float
+                description: Orbital period in Earth days
+                examples:
+                - 0.319
+              distance:
+                type: number
+                format: float
+                description: Average distance from the planet in kilometers
+                examples:
+                - 9376
+    creator:
+      description: A user
+      type: object
+      xml:
+        name: user
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          examples:
+          - 1
+        name:
+          type: string
+          examples:
+          - Marc
+          - Cam
+          - Hans
+    tags:
+      type: array
+      items:
+        type: string
+      examples:
+      - - solar-system
+        - rocky
+        - explored
+    lastUpdated:
+      type: string
+      format: date-time
+      readOnly: true
+      examples:
+      - 2024-01-15 14:30:00+00:00
+    successCallbackUrl:
+      type: string
+      format: uri
+      description: URL which gets invoked upon a successful operation
+      examples:
+      - https://example.com/webhook
+    failureCallbackUrl:
+      type: string
+      format: uri
+      description: URL which gets invoked upon a failed operation
+      examples:
+      - https://example.com/webhook
+  

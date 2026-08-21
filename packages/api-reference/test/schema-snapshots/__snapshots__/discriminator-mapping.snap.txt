@@ -1,0 +1,7 @@
+# oneOf with a discriminator mapping
+# The discriminator names the property that selects the variant, and the mapping
+# points at the component schemas.
+
+One of → showing "Cat"
+  - petType — string — {discriminator}
+  - meows — boolean

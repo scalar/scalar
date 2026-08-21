@@ -1,0 +1,16 @@
+# const and default values
+# const renders as its own detail; default renders as a copyable chip.
+
+- emptyStringDefault — string
+- falseDefault — boolean
+  default: false
+- kind — const: user
+- nullConst — const: null
+- numberConst — const: 42
+- objectDefault — object
+  default: {"a":1}
+- withDefault — string
+  default: hello
+- zeroDefault — integer
+  description: Integer numbers.
+  default: 0

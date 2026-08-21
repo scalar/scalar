@@ -1,0 +1,14 @@
+title: allOf merges object members
+notes: Members are merged into one property list, in source order.
+schema:
+  allOf:
+    - type: object
+      required: [id]
+      properties:
+        id: { type: string, description: From the first member }
+    - type: object
+      properties:
+        name: { type: string, description: From the second member }
+    - type: object
+      properties:
+        extra: { type: boolean }

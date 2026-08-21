@@ -1,0 +1,15 @@
+# additionalProperties
+# Free-form, typed, schema-valued and explicitly disallowed.
+
+- disallowed — object
+  - known — string
+- freeForm — object
+  - propertyName — anything
+- named — object
+  - propertyName — string
+- schemaValued — object
+  - propertyName — object
+    - nested — integer
+      description: Integer numbers.
+- typed — object
+  - propertyName — string

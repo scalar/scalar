@@ -1,0 +1,6 @@
+# Unresolvable $ref
+# A reference with nothing behind it. Records how the renderer degrades when a
+# document is incomplete, which is common in the wild.
+
+- broken
+- ok — string

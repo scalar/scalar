@@ -1,0 +1,16 @@
+# Examples on properties
+# The singular `example` and the plural `examples` render differently.
+
+- numericExample — integer
+  description: Integer numbers.
+  examples: 42
+- objectExample — object
+  examples: {"a":1,"b":2}
+  - a — integer
+    description: Integer numbers.
+  - b — integer
+    description: Integer numbers.
+- plural — string
+  examples: one | two | three
+- singular — string
+  examples: hello

@@ -1,0 +1,8 @@
+# Required and optional properties
+# Property ordering is alphabetical by default, so the required marker should be
+# the only difference between these rows.
+
+- id — string — {required}
+- name — string — {required}
+- nickname — string
+- zzzRequiredLast — string

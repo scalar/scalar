@@ -1,0 +1,26 @@
+title: additionalProperties
+notes: Free-form, typed, schema-valued and explicitly disallowed.
+schema:
+  type: object
+  properties:
+    freeForm:
+      type: object
+      additionalProperties: true
+    typed:
+      type: object
+      additionalProperties: { type: string }
+    schemaValued:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          nested: { type: integer }
+    disallowed:
+      type: object
+      additionalProperties: false
+      properties:
+        known: { type: string }
+    named:
+      type: object
+      x-additionalPropertiesName: metadataKey
+      additionalProperties: { type: string }

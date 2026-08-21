@@ -1,0 +1,18 @@
+title: Schema title versus property name
+notes: |
+  A title on a property schema shows up next to the type as a model name, which
+  is easy to break when touching the heading.
+schema:
+  type: object
+  properties:
+    plain: { type: string }
+    titled: { type: string, title: EmailAddress }
+    titledObject:
+      type: object
+      title: Address
+      properties:
+        city: { type: string }
+    titledArray:
+      type: array
+      title: TagList
+      items: { type: string, title: Tag }

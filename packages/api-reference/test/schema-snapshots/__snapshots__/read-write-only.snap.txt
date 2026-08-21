@@ -1,0 +1,7 @@
+# readOnly and writeOnly
+# Both flags render in the heading and can be filtered out via options.
+
+- both — string — {write-only}
+- id — string — {read-only}
+- neither — string
+- password — string — {write-only}

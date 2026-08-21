@@ -1,0 +1,7 @@
+title: anyOf branches
+schema:
+  anyOf:
+    - type: string
+      title: AsString
+    - type: integer
+      title: AsInteger

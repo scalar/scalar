@@ -1,0 +1,14 @@
+title: Examples on properties
+notes: The singular `example` and the plural `examples` render differently.
+schema:
+  type: object
+  properties:
+    singular: { type: string, example: hello }
+    plural: { type: string, examples: [one, two, three] }
+    numericExample: { type: integer, example: 42 }
+    objectExample:
+      type: object
+      example: { a: 1, b: 2 }
+      properties:
+        a: { type: integer }
+        b: { type: integer }

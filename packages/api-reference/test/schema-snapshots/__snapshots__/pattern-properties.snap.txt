@@ -1,0 +1,8 @@
+# patternProperties
+# Keys matched by regex render with the pattern as the property name.
+
+- normal — string
+- ^x- — string
+  description: Extension fields
+- ^[0-9]+$ — integer
+  description: Numeric keys

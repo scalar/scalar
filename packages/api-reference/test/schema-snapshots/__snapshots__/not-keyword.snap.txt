@@ -1,0 +1,7 @@
+# not keyword
+# `not` has no dedicated rendering today. Recorded so a future change to it is
+# visible rather than silent.
+
+- notAString
+  Not → showing "string"
+    - string

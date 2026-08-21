@@ -1,0 +1,9 @@
+title: readOnly and writeOnly
+notes: Both flags render in the heading and can be filtered out via options.
+schema:
+  type: object
+  properties:
+    id: { type: string, readOnly: true }
+    password: { type: string, writeOnly: true }
+    both: { type: string, readOnly: true, writeOnly: true }
+    neither: { type: string }

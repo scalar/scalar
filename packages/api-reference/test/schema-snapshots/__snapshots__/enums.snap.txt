@@ -1,0 +1,15 @@
+# Enum rendering
+# String, numeric and mixed enums, plus a list long enough to be truncated.
+
+- longList — string · enum
+  values: aa | bb | cc | dd | ee
+    (truncated, more behind a toggle)
+- mixed — enum
+  values: a | 1 | true | null
+- priority — integer · enum
+  description: Integer numbers.
+  values: 1 | 2 | 3
+- singleValue — enum · const: only
+  values: only
+- status — string · enum
+  values: available | pending | sold

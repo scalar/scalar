@@ -1,0 +1,29 @@
+title: Self-referencing schema
+notes: |
+  A tree node that contains itself. The renderer has cycle detection, so this
+  pins where it stops descending.
+schema:
+  type: object
+  description: A tree node
+  properties:
+    name: { type: string }
+    children:
+      type: array
+      items:
+        $ref: '#/components/schemas/TreeNode'
+options:
+  document:
+    openapi: '3.1.0'
+    info: { title: Tree, version: '1.0.0' }
+    paths: {}
+    components:
+      schemas:
+        TreeNode:
+          type: object
+          description: A tree node
+          properties:
+            name: { type: string }
+            children:
+              type: array
+              items:
+                $ref: '#/components/schemas/TreeNode'

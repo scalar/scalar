@@ -1,0 +1,12 @@
+title: Deprecated properties
+notes: The deprecated badge and the strikethrough modifier class.
+schema:
+  type: object
+  properties:
+    old: { type: string, deprecated: true, description: Use `new` instead }
+    new: { type: string }
+    deprecatedObject:
+      type: object
+      deprecated: true
+      properties:
+        child: { type: string }

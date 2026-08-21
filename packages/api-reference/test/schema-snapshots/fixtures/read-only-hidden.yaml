@@ -1,0 +1,10 @@
+title: readOnly hidden via options
+notes: Same schema as read-only-write-only, rendered with hideReadOnly.
+options:
+  hideReadOnly: true
+schema:
+  type: object
+  properties:
+    id: { type: string, readOnly: true }
+    password: { type: string, writeOnly: true }
+    neither: { type: string }

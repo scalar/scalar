@@ -1,0 +1,24 @@
+title: Markdown in descriptions
+notes: |
+  Descriptions run through the markdown renderer, so formatting, links and code
+  spans all collapse into the snapshot's text.
+schema:
+  type: object
+  description: |
+    A **bold** intro with a [link](https://scalar.com) and `code`.
+  properties:
+    withList:
+      type: string
+      description: |
+        Supports:
+
+        - bullet one
+        - bullet two
+    withCodeBlock:
+      type: string
+      description: |
+        Example:
+
+        ```json
+        { "a": 1 }
+        ```

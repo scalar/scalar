@@ -1,0 +1,13 @@
+title: const and default values
+notes: const renders as its own detail; default renders as a copyable chip.
+schema:
+  type: object
+  properties:
+    kind: { const: user }
+    nullConst: { const: null }
+    numberConst: { const: 42 }
+    withDefault: { type: string, default: hello }
+    falseDefault: { type: boolean, default: false }
+    zeroDefault: { type: integer, default: 0 }
+    emptyStringDefault: { type: string, default: '' }
+    objectDefault: { type: object, default: { a: 1 } }

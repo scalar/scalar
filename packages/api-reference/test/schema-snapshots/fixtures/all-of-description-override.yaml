@@ -1,0 +1,18 @@
+title: allOf later member overrides the description
+notes: |
+  Regression case from https://github.com/scalar/scalar/issues/6974 - the last
+  member's description and title win over the earlier ones.
+schema:
+  title: UserDetailsHeader
+  allOf:
+    - type: object
+      title: BaseUser
+      description: Base user information
+      properties:
+        id: { type: integer, description: Unique user ID }
+        email: { type: string, description: User email address }
+    - type: object
+      title: UserDetails
+      description: Full user information
+      properties:
+        address: { type: string, description: Street address }

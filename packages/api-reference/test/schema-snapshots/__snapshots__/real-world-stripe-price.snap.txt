@@ -1,0 +1,63 @@
+# Stripe — Price
+# A real schema, vendored from the pinned Stripe fixture at
+# https://storage.googleapis.com/scalar-test-fixtures/oas/stripe.json
+#
+# Kept deliberately as-is: long markdown descriptions, `anyOf` used for
+# nullability, vendor formats like `unix-time`, and deep optional nesting are all
+# things the renderer meets in the wild but that hand written cases rarely mix.
+#
+# Extracted with $refs inlined two levels deep; deeper refs keep their title and
+# drop their body so the snapshot stays reviewable.
+
+description: Prices define the unit cost, currency, and (optional) billing cycle for both recurring and one-time purchases of products. Products help you track inventory or provisioning, and prices help you track payment terms. Different physical goods or levels of service should be represented by products, and pricing options should be represented by prices. This approach lets you change prices without having to change your provisioning scheme. For example, you might have a single "gold" product that has prices for $10/month, $100/year, and €9 once. Related guides: Set up a subscription, create an invoice, and more about products and prices.
+- active — boolean — {required}
+  description: Whether the price can be used for new purchases.
+- billing_scheme — string · enum — {required}
+  description: Describes how to compute the price per period. Either per_unit or tiered. per_unit indicates that the fixed amount (specified in unit_amount or unit_amount_decimal) will be charged per unit in quantity (for prices with usage_type=licensed), or per unit of total usage (for prices with usage_type=metered). tiered indicates that the unit pricing will be computed using a tiering strategy as defined using the tiers and tiers_mode attributes.
+  values: per_unit | tiered
+- created — integer · unix-time — {required}
+  description: Time at which the object was created. Measured in seconds since the Unix epoch.
+- currency — string · currency — {required}
+  description: Three-letter ISO currency code, in lowercase. Must be a supported currency.
+- id — string · max length: 5000 — {required}
+  description: Unique identifier for the object.
+- metadata — object — {required}
+  description: Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+  - propertyName — string · max length: 500
+- object — enum · const: price — {required}
+  description: String representing the object's type. Objects of the same type share the same value.
+  values: price
+- type — string · enum — {required}
+  description: One of one_time or recurring depending on whether the price is for a one-time purchase or a recurring (subscription) purchase.
+  values: one_time | recurring
+- custom_unit_amount — object · CustomUnitAmount
+  description: When set, provides configuration for the amount to be adjusted by the customer during Checkout Sessions and Payment Links.
+  - maximum — integer · nullable
+    description: The maximum unit amount the customer can specify for this item.
+  - minimum — integer · nullable
+    description: The minimum unit amount the customer can specify for this item. Must be at least the minimum charge amount.
+  - preset — integer · nullable
+    description: The starting unit amount which can be updated by the customer.
+- lookup_key — string · max length: 5000 · nullable
+  description: A lookup key used to retrieve prices dynamically from a static string. This may be up to 200 characters.
+- nickname — string · max length: 5000 · nullable
+  description: A brief description of the price, hidden from customers.
+- recurring — object · Recurring
+  description: The recurring components of a price such as interval and usage_type.
+  - interval — string · enum — {required}
+    description: The frequency at which a subscription is billed. One of day, week, month or year.
+    values: day | month | week | year
+  - interval_count — integer — {required}
+    description: The number of intervals (specified in the interval attribute) between subscription billings. For example, interval=month and interval_count=3 bills every 3 months.
+  - usage_type — string · enum — {required}
+    description: Configures how the quantity per period should be determined. Can be either metered or licensed. licensed automatically bills the quantity set when adding it to a subscription. metered aggregates the total usage based on usage records. Defaults to licensed.
+    values: licensed | metered
+  - meter — string · max length: 5000 · nullable
+    description: The meter tracking the usage of a metered price
+- tiers_mode — string · enum · nullable
+  description: Defines if the tiering price should be graduated or volume based. In volume-based tiering, the maximum quantity within a period determines the per unit price. In graduated tiering, pricing can change as the quantity grows.
+  values: graduated | volume
+- unit_amount — integer · nullable
+  description: The unit amount in cents (or local equivalent) to be charged, represented as a whole integer if possible. Only set if billing_scheme=per_unit.
+- unit_amount_decimal — string · decimal · nullable
+  description: The unit amount in cents (or local equivalent) to be charged, represented as a decimal string with at most 12 decimal places. Only set if billing_scheme=per_unit.

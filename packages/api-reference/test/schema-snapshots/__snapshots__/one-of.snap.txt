@@ -1,0 +1,6 @@
+# oneOf branches
+# Only the selected branch renders, so this snapshot pins the selector plus
+# branch one. See the README for the branch coverage caveat.
+
+One of → showing "Cat"
+  - meows — boolean

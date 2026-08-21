@@ -1,0 +1,8 @@
+# allOf merges object members
+# Members are merged into one property list, in source order.
+
+- id — string — {required}
+  description: From the first member
+- extra — boolean
+- name — string
+  description: From the second member

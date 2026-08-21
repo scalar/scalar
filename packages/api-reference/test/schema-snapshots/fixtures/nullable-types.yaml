@@ -1,0 +1,11 @@
+title: Nullable types
+notes: |
+  OpenAPI 3.1 uses a type array; 3.0 used `nullable: true`. Both reach the
+  renderer, so both are pinned here.
+schema:
+  type: object
+  properties:
+    unionNull: { type: [string, 'null'] }
+    legacyNullable: { type: string, nullable: true }
+    nullableArray: { type: [array, 'null'], items: { type: string } }
+    multiUnion: { type: [string, number, boolean] }

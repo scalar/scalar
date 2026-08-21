@@ -1,0 +1,16 @@
+title: oneOf branches
+notes: |
+  Only the selected branch renders, so this snapshot pins the selector plus
+  branch one. See the README for the branch coverage caveat.
+schema:
+  oneOf:
+    - type: object
+      title: Cat
+      properties:
+        meows: { type: boolean }
+    - type: object
+      title: Dog
+      properties:
+        barks: { type: boolean }
+    - type: string
+      title: JustAName

@@ -1,0 +1,8 @@
+# Deprecated properties
+# The deprecated badge and the strikethrough modifier class.
+
+- deprecatedObject — object — {deprecated}
+  - child — string
+- new — string
+- old — string — {deprecated}
+  description: Use new instead

@@ -1,0 +1,13 @@
+title: String constraints
+notes: Length, pattern and format render as detail tokens next to the type.
+schema:
+  type: object
+  properties:
+    bounded: { type: string, minLength: 3, maxLength: 50 }
+    onlyMin: { type: string, minLength: 1 }
+    onlyMax: { type: string, maxLength: 255 }
+    patterned: { type: string, pattern: '^[a-z0-9-]+$' }
+    longPattern:
+      type: string
+      pattern: '^(?:[a-z0-9!#$%&''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''*+/=?^_`{|}~-]+)*)@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$'
+    formatted: { type: string, format: uuid, minLength: 36, maxLength: 36 }

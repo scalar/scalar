@@ -1,0 +1,7 @@
+# Self-referencing schema
+# A tree node that contains itself. The renderer has cycle detection, so this
+# pins where it stops descending.
+
+description: A tree node
+- children — array · TreeNode[]
+- name — string

@@ -1,0 +1,11 @@
+# Numeric constraints
+# Inclusive and exclusive bounds, multipleOf.
+
+- exclusive — number · greater than: 0 · less than: 1
+- inclusive — integer · min: 1 · max: 100
+  description: Integer numbers.
+- mixedBounds — number · min: 0 · less than: 10
+- multiple — integer · multiple of: 5
+  description: Integer numbers.
+- negative — integer · min: -100 · max: -1
+  description: Integer numbers.

@@ -1,0 +1,7 @@
+# Vendor extensions and xml metadata
+# Keys the renderer does not have a dedicated display for. Pinned so that adding
+# one later shows up as an intentional diff.
+
+- id — string
+- labelled — string
+- variable — string

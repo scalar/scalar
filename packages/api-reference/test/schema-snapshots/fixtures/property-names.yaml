@@ -1,0 +1,9 @@
+title: propertyNames constraints
+notes: Renders as a `keys:` detail on the owning object.
+schema:
+  type: object
+  propertyNames:
+    type: string
+    format: uuid
+    maxLength: 36
+  additionalProperties: { type: string }

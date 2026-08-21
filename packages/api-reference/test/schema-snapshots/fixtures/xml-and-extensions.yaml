@@ -1,0 +1,19 @@
+title: Vendor extensions and xml metadata
+notes: |
+  Keys the renderer does not have a dedicated display for. Pinned so that adding
+  one later shows up as an intentional diff.
+schema:
+  type: object
+  xml:
+    name: widget
+  properties:
+    id:
+      type: string
+      x-internal: true
+      x-custom-thing: some value
+    labelled:
+      type: string
+      xml: { attribute: true, name: label }
+    variable:
+      type: string
+      x-variable: widgetId

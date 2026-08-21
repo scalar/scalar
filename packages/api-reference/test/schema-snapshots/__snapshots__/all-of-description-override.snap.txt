@@ -1,0 +1,11 @@
+# allOf later member overrides the description
+# Regression case from https://github.com/scalar/scalar/issues/6974 - the last
+# member's description and title win over the earlier ones.
+
+description: Full user information
+- address — string
+  description: Street address
+- email — string
+  description: User email address
+- id — integer
+  description: Unique user ID

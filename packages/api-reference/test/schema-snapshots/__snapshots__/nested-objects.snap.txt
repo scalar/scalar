@@ -1,0 +1,11 @@
+# Deeply nested objects
+# Four levels of nesting, to pin the indentation and the level classes.
+
+- level1 — object
+  description: First level
+  - level2 — object
+    description: Second level
+    - level3 — object
+      description: Third level
+      - level4 — string
+        description: A leaf

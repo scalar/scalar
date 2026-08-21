@@ -1,0 +1,38 @@
+title: oneOf with a discriminator mapping
+notes: |
+  The discriminator names the property that selects the variant, and the mapping
+  points at the component schemas.
+options:
+  document:
+    openapi: '3.1.0'
+    info: { title: Pets, version: '1.0.0' }
+    paths: {}
+    components:
+      schemas:
+        Cat:
+          type: object
+          properties:
+            petType: { type: string }
+            meows: { type: boolean }
+        Dog:
+          type: object
+          properties:
+            petType: { type: string }
+            barks: { type: boolean }
+schema:
+  oneOf:
+    - type: object
+      title: Cat
+      properties:
+        petType: { type: string }
+        meows: { type: boolean }
+    - type: object
+      title: Dog
+      properties:
+        petType: { type: string }
+        barks: { type: boolean }
+  discriminator:
+    propertyName: petType
+    mapping:
+      cat: '#/components/schemas/Cat'
+      dog: '#/components/schemas/Dog'

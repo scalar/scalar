@@ -1,0 +1,9 @@
+title: not keyword
+notes: |
+  `not` has no dedicated rendering today. Recorded so a future change to it is
+  visible rather than silent.
+schema:
+  type: object
+  properties:
+    notAString:
+      not: { type: string }

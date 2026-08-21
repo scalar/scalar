@@ -1,0 +1,187 @@
+title: Stripe — Price
+notes: |
+  A real schema, vendored from the pinned Stripe fixture at
+  https://storage.googleapis.com/scalar-test-fixtures/oas/stripe.json
+
+  Kept deliberately as-is: long markdown descriptions, `anyOf` used for
+  nullability, vendor formats like `unix-time`, and deep optional nesting are all
+  things the renderer meets in the wild but that hand written cases rarely mix.
+
+  Extracted with $refs inlined two levels deep; deeper refs keep their title and
+  drop their body so the snapshot stays reviewable.
+schema:
+  description: 'Prices define the unit cost, currency, and (optional) billing cycle for both recurring and
+    one-time purchases of products.
+  
+    [Products](https://api.stripe.com#products) help you track inventory or provisioning, and prices help
+    you track payment terms. Different physical goods or levels of service should be represented by products,
+    and pricing options should be represented by prices. This approach lets you change prices without having
+    to change your provisioning scheme.
+  
+  
+    For example, you might have a single "gold" product that has prices for $10/month, $100/year, and €9
+    once.
+  
+  
+    Related guides: [Set up a subscription](https://docs.stripe.com/billing/subscriptions/set-up-subscription),
+    [create an invoice](https://docs.stripe.com/billing/invoices/create), and more about [products and prices](https://docs.stripe.com/products-prices/overview).'
+  properties:
+    active:
+      description: Whether the price can be used for new purchases.
+      type: boolean
+    billing_scheme:
+      description: Describes how to compute the price per period. Either `per_unit` or `tiered`. `per_unit`
+        indicates that the fixed amount (specified in `unit_amount` or `unit_amount_decimal`) will be charged
+        per unit in `quantity` (for prices with `usage_type=licensed`), or per unit of total usage (for
+        prices with `usage_type=metered`). `tiered` indicates that the unit pricing will be computed using
+        a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
+      enum:
+      - per_unit
+      - tiered
+      type: string
+    created:
+      description: Time at which the object was created. Measured in seconds since the Unix epoch.
+      format: unix-time
+      type: integer
+    currency:
+      description: Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in
+        lowercase. Must be a [supported currency](https://stripe.com/docs/currencies).
+      format: currency
+      type: string
+    custom_unit_amount:
+      anyOf:
+      - description: ''
+        properties:
+          maximum:
+            description: The maximum unit amount the customer can specify for this item.
+            nullable: true
+            type: integer
+          minimum:
+            description: The minimum unit amount the customer can specify for this item. Must be at least
+              the minimum charge amount.
+            nullable: true
+            type: integer
+          preset:
+            description: The starting unit amount which can be updated by the customer.
+            nullable: true
+            type: integer
+        title: CustomUnitAmount
+        type: object
+        x-expandableFields: []
+      description: When set, provides configuration for the amount to be adjusted by the customer during
+        Checkout Sessions and Payment Links.
+      nullable: true
+    id:
+      description: Unique identifier for the object.
+      maxLength: 5000
+      type: string
+    lookup_key:
+      description: A lookup key used to retrieve prices dynamically from a static string. This may be up
+        to 200 characters.
+      maxLength: 5000
+      nullable: true
+      type: string
+    metadata:
+      additionalProperties:
+        maxLength: 500
+        type: string
+      description: Set of [key-value pairs](https://docs.stripe.com/api/metadata) that you can attach to
+        an object. This can be useful for storing additional information about the object in a structured
+        format.
+      type: object
+    nickname:
+      description: A brief description of the price, hidden from customers.
+      maxLength: 5000
+      nullable: true
+      type: string
+    object:
+      description: String representing the object's type. Objects of the same type share the same value.
+      enum:
+      - price
+      type: string
+    recurring:
+      anyOf:
+      - description: ''
+        properties:
+          interval:
+            description: The frequency at which a subscription is billed. One of `day`, `week`, `month`
+              or `year`.
+            enum:
+            - day
+            - month
+            - week
+            - year
+            type: string
+          interval_count:
+            description: The number of intervals (specified in the `interval` attribute) between subscription
+              billings. For example, `interval=month` and `interval_count=3` bills every 3 months.
+            type: integer
+          meter:
+            description: The meter tracking the usage of a metered price
+            maxLength: 5000
+            nullable: true
+            type: string
+          usage_type:
+            description: Configures how the quantity per period should be determined. Can be either `metered`
+              or `licensed`. `licensed` automatically bills the `quantity` set when adding it to a subscription.
+              `metered` aggregates the total usage based on usage records. Defaults to `licensed`.
+            enum:
+            - licensed
+            - metered
+            type: string
+        required:
+        - interval
+        - interval_count
+        - usage_type
+        title: Recurring
+        type: object
+        x-expandableFields: []
+      description: The recurring components of a price such as `interval` and `usage_type`.
+      nullable: true
+    tiers_mode:
+      description: Defines if the tiering price should be `graduated` or `volume` based. In `volume`-based
+        tiering, the maximum quantity within a period determines the per unit price. In `graduated` tiering,
+        pricing can change as the quantity grows.
+      enum:
+      - graduated
+      - volume
+      nullable: true
+      type: string
+    type:
+      description: One of `one_time` or `recurring` depending on whether the price is for a one-time purchase
+        or a recurring (subscription) purchase.
+      enum:
+      - one_time
+      - recurring
+      type: string
+    unit_amount:
+      description: The unit amount in cents (or local equivalent) to be charged, represented as a whole
+        integer if possible. Only set if `billing_scheme=per_unit`.
+      nullable: true
+      type: integer
+    unit_amount_decimal:
+      description: The unit amount in cents (or local equivalent) to be charged, represented as a decimal
+        string with at most 12 decimal places. Only set if `billing_scheme=per_unit`.
+      format: decimal
+      nullable: true
+      type: string
+  required:
+  - active
+  - billing_scheme
+  - created
+  - currency
+  - id
+  - metadata
+  - object
+  - type
+  title: Price
+  type: object
+  x-expandableFields:
+  - currency_options
+  - custom_unit_amount
+  - product
+  - recurring
+  - tiers
+  - transform_quantity
+  x-resourceId: price
+  

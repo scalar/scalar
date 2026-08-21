@@ -1,0 +1,9 @@
+# Markdown in descriptions
+# Descriptions run through the markdown renderer, so formatting, links and code
+# spans all collapse into the snapshot's text.
+
+description: A bold intro with a link and code.
+- withCodeBlock — string
+  description: Example: { "a": 1 }
+- withList — string
+  description: Supports: bullet one bullet two

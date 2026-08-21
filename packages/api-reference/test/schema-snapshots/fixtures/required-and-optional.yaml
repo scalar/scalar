@@ -1,0 +1,12 @@
+title: Required and optional properties
+notes: |
+  Property ordering is alphabetical by default, so the required marker should be
+  the only difference between these rows.
+schema:
+  type: object
+  required: [id, name]
+  properties:
+    id: { type: string }
+    name: { type: string }
+    nickname: { type: string }
+    zzzRequiredLast: { type: string }

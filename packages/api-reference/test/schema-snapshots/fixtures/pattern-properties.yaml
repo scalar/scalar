@@ -1,0 +1,9 @@
+title: patternProperties
+notes: Keys matched by regex render with the pattern as the property name.
+schema:
+  type: object
+  patternProperties:
+    '^x-': { type: string, description: Extension fields }
+    '^[0-9]+$': { type: integer, description: Numeric keys }
+  properties:
+    normal: { type: string }

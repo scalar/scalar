@@ -1,0 +1,13 @@
+# Array shapes
+# Arrays of primitives, arrays of objects, arrays of arrays and constrained
+# arrays. The type line collapses item types into `array x[]`.
+
+- constrained — array string[] · 1…10 · unique!
+- ofArrays — array array integer[][]
+- ofEnums — array string[] · enum
+  values: red | green | blue
+- ofObjects — array object[]
+  - id — string
+  - label — string
+- ofStrings — array string[]
+- untypedItems — array

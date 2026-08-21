@@ -1,0 +1,7 @@
+# oneOf nested inside a property
+# A composition below the root, which renders inline within the property row.
+
+- id — string
+- payload
+  One of → showing "TextPayload"
+    - text — string

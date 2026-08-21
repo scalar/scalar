@@ -1,0 +1,6 @@
+# allOf with conflicting property definitions
+# Both members define `name` with different constraints. Pins whichever merge
+# strategy we currently apply.
+
+- name — string · max length: 10 — {required}
+  description: First definition

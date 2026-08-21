@@ -1,0 +1,31 @@
+# Petstore — Pet (OpenAPI 3.1)
+# Vendored from the pinned Petstore 3.1 fixture at
+# https://storage.googleapis.com/scalar-test-fixtures/oas/petstore-3.1.json
+#
+# The canonical smoke test: nested object refs, an array of refs and an enum,
+# with a `$schema` key that the renderer has to ignore gracefully.
+
+description: Pet
+- name — string — {required}
+  examples: doggie
+- photoUrls — array string[] — {required}
+- availableInstances — integer · int32 · greater than: 1 · less than: 10
+  description: Signed 32-bit integers (commonly used integer type).
+  examples: 7
+- category — object
+  description: Category
+  - id — integer · int64
+    description: Signed 64-bit integers (long type).
+  - name — string
+- id — integer · int64
+  description: Signed 64-bit integers (long type).
+- petDetails
+- petDetailsId — integer · int64
+  description: Signed 64-bit integers (long type).
+- status — string · enum
+  description: pet status in the store
+  values: available | pending | sold
+- tags — array object[]
+  - id — integer · int64
+    description: Signed 64-bit integers (long type).
+  - name — string

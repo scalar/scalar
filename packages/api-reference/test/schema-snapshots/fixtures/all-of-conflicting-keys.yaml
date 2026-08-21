@@ -1,0 +1,13 @@
+title: allOf with conflicting property definitions
+notes: |
+  Both members define `name` with different constraints. Pins whichever merge
+  strategy we currently apply.
+schema:
+  allOf:
+    - type: object
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 10, description: First definition }
+    - type: object
+      properties:
+        name: { type: string, maxLength: 99, description: Second definition }

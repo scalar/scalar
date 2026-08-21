@@ -1,0 +1,16 @@
+title: oneOf nested inside a property
+notes: A composition below the root, which renders inline within the property row.
+schema:
+  type: object
+  properties:
+    id: { type: string }
+    payload:
+      oneOf:
+        - type: object
+          title: TextPayload
+          properties:
+            text: { type: string }
+        - type: object
+          title: BinaryPayload
+          properties:
+            bytes: { type: string, format: binary }

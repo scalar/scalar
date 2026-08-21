@@ -1,0 +1,101 @@
+# Scalar Galaxy — Planet
+# Vendored from packages/galaxy/src/documents/3.1.yaml, the document every
+# playground and most e2e tests already render.
+#
+# Extracted with $refs inlined one level deep, because Planet and Satellite
+# reference each other and a deeper slice never stops growing.
+
+description: A planet in the Scalar Galaxy
+- id — integer · int64 — {required, read-only}
+  description: Signed 64-bit integers (long type).
+  examples: 1
+- name — string — {required}
+  examples: Mars | Jupiter | HD 40307g
+- atmosphere — array object[]
+  description: Atmospheric composition
+  - compound — string
+    examples: CO2 | N2
+  - percentage — number · float · less than: 100
+    examples: 95.3
+  - atmosphericData — string
+    description: Additional atmospheric composition data
+- creator — object
+  description: A user
+  - id — integer · int64 — {read-only}
+    description: Signed 64-bit integers (long type).
+    examples: 1
+  - name — string
+    examples: Marc | Cam | Hans
+- description — string | null
+  examples: The red planet | A gas giant with a great red spot
+- discoveredAt — string · date-time
+  description: the date-time notation as defined by RFC 3339, section 5.6, for example, 2017-07-21T17:32:28Z
+  examples: 1610-01-07 00:00:00+00:00
+- failureCallbackUrl — string · uri
+  description: URL which gets invoked upon a failed operation
+  examples: https://example.com/webhook
+- habitabilityIndex — number · float · min: 0 · max: 1
+  description: A score from 0 to 1 indicating potential habitability
+  examples: 0.68
+- image — string | null
+  examples: https://cdn.scalar.com/photos/mars.jpg
+- lastUpdated — string · date-time — {read-only}
+  description: the date-time notation as defined by RFC 3339, section 5.6, for example, 2017-07-21T17:32:28Z
+  examples: 2024-01-15 14:30:00+00:00
+- physicalProperties — object
+  - gravity — number · float
+    description: Surface gravity in Earth g
+    examples: 0.378
+  - mass — number · float · greater than: 0
+    description: Mass in Earth masses (must be greater than 0)
+    examples: 0.107
+  - radius — number · float · greater than: 0
+    description: Radius in Earth radii (must be greater than 0)
+    examples: 0.532
+  - temperature — object
+    - average — number · float
+      description: Average temperature in Kelvin
+      examples: 210
+    - max — number · float
+      description: Maximum temperature in Kelvin
+      examples: 308
+    - min — number · float
+      description: Minimum temperature in Kelvin
+      examples: 130
+    - temperatureMetric — number · float
+      description: Additional temperature-related measurements in Kelvin
+  - measurement — number · float
+    description: Additional physical measurements for the planet
+- satellites — array object[]
+  description: Every satellite in the Scalar Galaxy
+  - name — string — {required}
+    examples: Phobos
+  - description — string | null
+    examples: Phobos is the larger and innermost of the two moons of Mars.
+  - diameter — number · float
+    description: Diameter in kilometers
+    examples: 22.2
+  - id — integer · int64 — {read-only}
+    description: Signed 64-bit integers (long type).
+    examples: 1
+  - orbit — object
+    - distance — number · float
+      description: Average distance from the planet in kilometers
+      examples: 9376
+    - orbitalPeriod — number · float
+      description: Orbital period in Earth days
+      examples: 0.319
+    - planet — object · Planet
+  - type — string · enum
+    examples: moon
+    values: moon = Moon | asteroid = Asteroid | comet = Comet
+      value descriptions: Natural satellites that orbit planets | Rocky objects that orbit the sun, typically found in the asteroid belt | Icy bodies that release gas when approaching the sun, creating visible tails
+- successCallbackUrl — string · uri
+  description: URL which gets invoked upon a successful operation
+  examples: https://example.com/webhook
+- tags — array string[]
+  examples: ["solar-system", "rocky", "explored"]
+- type — string · enum
+  examples: terrestrial
+  values: terrestrial = Terrestrial | gas_giant = GasGiant | ice_giant = IceGiant | dwarf = Dwarf | super_earth = SuperEarth
+    value descriptions: Rocky planets with solid surfaces, like Earth and Mars | Large planets composed mainly of hydrogen and helium, like Jupiter and Saturn | Planets composed of water, ammonia, and methane ices, like Uranus and Neptune | Small planetary bodies that don't meet full planet criteria, like Pluto | Rocky planets larger than Earth but smaller than gas giants

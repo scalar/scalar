@@ -1,0 +1,5 @@
+# readOnly hidden via options
+# Same schema as read-only-write-only, rendered with hideReadOnly.
+
+- neither — string
+- password — string — {write-only}
