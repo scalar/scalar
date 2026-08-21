@@ -25,7 +25,7 @@ All navigation is configured within the `navigation.routes` object in your `scal
 
 ## Header
 
-The `navigation.header` array defines links that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons. Each item can be `type: "link"` or `type: "spacer"`. A spacer pushes items before it to the left and items after it to the right.
+The `navigation.header` array defines links that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons. Each item can be `type: "link"`, `type: "group"`, `type: "version-selector"`, or `type: "spacer"`. A spacer pushes items before it to the left and items after it to the right.
 
 The header only renders when this array has at least one item, and it is where your [logo](site-config.md#logo) appears. If you want the logo in the header but have no links to put there, a single spacer is enough.
 
@@ -69,16 +69,74 @@ The header only renders when this array has at least one item, and it is where y
 
 ### Properties
 
-| Property | Type                   | Required | Description                              |
-| -------- | ---------------------- | -------- | ---------------------------------------- |
-| `title`  | `string`               | Yes      | The display text for the header link     |
-| `type`   | `"link"` \| `"spacer"` | Yes      | Must be `"link"` or `"spacer"`           |
-| `to`     | `string`               | Yes      | The route path or URL the link points to |
-| `style`  | `"button" \| "text"`   | No       | Display style (defaults to `"text"`)     |
-| `icon`   | `string`               | No       | An icon to display next to the link      |
-| `newTab` | `boolean`              | No       | Whether to open the link in a new tab    |
+| Property | Type                                                     | Required | Description                                        |
+| -------- | -------------------------------------------------------- | -------- | -------------------------------------------------- |
+| `title`  | `string`                                                 | Yes      | The display text for the header link               |
+| `type`   | `"link"` \| `"group"` \| `"version-selector"` \| `"spacer"` | Yes      | Must be `"link"`, `"group"`, `"version-selector"`, or `"spacer"` |
+| `to`     | `string`                                                 | Yes      | The route path or URL the link points to           |
+| `style`  | `"button" \| "text"`                                     | No       | Display style (defaults to `"text"`)               |
+| `icon`   | `string`                                                 | No       | An icon to display next to the link                |
+| `newTab` | `boolean`                                                | No       | Whether to open the link in a new tab              |
+| `align`  | `"start" \| "center" \| "end"`                           | No       | Where the item sits in the header                  |
 
 For `type: "spacer"`, no other properties are used; only `type` is required.
+
+### Version selector
+
+Use `type: "version-selector"` to render the version selector dropdown at a specific position in the header. This is useful when your site has multiple versions configured. See [Versions](versions.md) for how to set them up.
+
+```json
+"header": [
+  {
+    "type": "version-selector"
+  }
+]
+```
+
+#### Properties
+
+| Property | Type                           | Required | Description                       |
+| -------- | ------------------------------ | -------- | --------------------------------- |
+| `type`   | `"version-selector"`           | Yes      | Must be `"version-selector"`      |
+| `align`  | `"start" \| "center" \| "end"` | No       | Where the item sits in the header |
+
+### Group
+
+Use `type: "group"` to render a header dropdown that groups multiple links together. The `children` array holds header `link` items.
+
+```json
+"header": [
+  {
+    "type": "group",
+    "title": "Resources",
+    "icon": "phosphor/regular/books",
+    "children": [
+      {
+        "type": "link",
+        "title": "Documentation",
+        "to": "/docs"
+      },
+      {
+        "type": "link",
+        "title": "GitHub",
+        "to": "https://github.com/scalar/scalar"
+      }
+    ]
+  }
+]
+```
+
+#### Properties
+
+| Property   | Type                           | Required | Description                                    |
+| ---------- | ------------------------------ | -------- | ---------------------------------------------- |
+| `title`    | `string`                       | Yes      | The display text for the group                 |
+| `type`     | `"group"`                      | Yes      | Must be `"group"`                              |
+| `children` | `array`                        | Yes      | An array of header `link` items                |
+| `icon`     | `string`                       | No       | An icon to display next to the group           |
+| `align`    | `"start" \| "center" \| "end"` | No       | Where the group sits in the header             |
+
+The `align` property on the group applies to the group as a whole. Any `align` set on the child links is ignored.
 
 ## Sidebar
 
