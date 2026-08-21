@@ -203,7 +203,7 @@ describe('SchemaObjectProperties', () => {
     expect(wrapper.find('[data-name="propertyName"]').exists()).toBe(false)
   })
 
-  it('sorts properties alphabetically when all have same required status', () => {
+  it('preserves the original property order by default', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',
       properties: {
@@ -215,6 +215,27 @@ describe('SchemaObjectProperties', () => {
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
+    })
+
+    const props = wrapper.findAll('.schema-property')
+    expect(props).toHaveLength(3)
+    expect(props[0]?.attributes('data-name')).toBe('zebra')
+    expect(props[1]?.attributes('data-name')).toBe('alpha')
+    expect(props[2]?.attributes('data-name')).toBe('beta')
+  })
+
+  it('sorts properties alphabetically when orderSchemaPropertiesBy is alpha', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        zebra: { type: 'string' },
+        alpha: { type: 'number' },
+        beta: { type: 'boolean' },
+      },
+    })
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema, options: { orderSchemaPropertiesBy: 'alpha' }, eventBus: null },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -237,7 +258,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: { orderSchemaPropertiesBy: 'alpha' }, eventBus: null },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -266,6 +287,7 @@ describe('SchemaObjectProperties', () => {
       props: {
         schema,
         options: {
+          orderSchemaPropertiesBy: 'alpha',
           orderRequiredPropertiesFirst: false,
         },
         eventBus: null,
@@ -355,7 +377,7 @@ describe('SchemaObjectProperties', () => {
     const props = wrapper.findAll('.schema-property')
     expect(props).toHaveLength(3)
     // Properties with x-order should come first (sorted by x-order),
-    // then properties without x-order (sorted alphabetically)
+    // then properties without x-order (in their original order)
     expect(props[0]?.attributes('data-name')).toBe('zebra')
     expect(props[1]?.attributes('data-name')).toBe('beta')
     expect(props[2]?.attributes('data-name')).toBe('alpha')

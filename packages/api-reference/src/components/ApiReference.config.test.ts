@@ -181,8 +181,9 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     // showOperationId: undefined -> false
     expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
 
-    // orderSchemaPropertiesBy: undefined -> alpha
+    // orderSchemaPropertiesBy: undefined -> preserve
     // orderRequiredPropertiesFirst: undefined -> true
+    // Required properties first (in document order), then the rest in document order
     const propertyNames = wrapper
       .findComponent({ name: 'RequestBody' })
       .findAll('.property-name')
@@ -190,12 +191,12 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     expect(propertyNames).toStrictEqual([
       'isAdminCopy',
       'phoneCopy',
-      'addressCopy',
+      'nameCopy',
       'ageCopy',
       'createdAtCopy',
-      'emailCopy',
-      'nameCopy',
       'updatedAtCopy',
+      'addressCopy',
+      'emailCopy',
     ])
 
     // hideTestRequestButton: undefined -> false
