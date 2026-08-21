@@ -305,17 +305,17 @@ You can configure the search behavior on a per-page basis:
 
 ## API References
 
-Scalar supports three ways to generate API references from OpenAPI documents:
+Scalar supports three ways to generate API references:
 
 1. using a local file,
 2. the [Registry](../../registry/index.md), or
 3. remote URLs.
 
-An API reference entry accepts `type: "openapi"` or `type: "asyncapi"`. Both values behave identically — `asyncapi` is a friendly alias for `openapi`, and the document format (OpenAPI or AsyncAPI) is detected automatically from the file content. AsyncAPI channels and operations render on your published docs site just like OpenAPI operations.
+An API reference entry accepts `type: "openapi"` or `type: "asyncapi"`. Use whichever matches your document — the format is detected automatically.
 
 ### 1. Files
 
-Reference an OpenAPI file stored in your repository by specifying a relative path from your configuration root:
+Reference an API document stored in your repository by specifying a relative path from your configuration root:
 
 ```json
 {
@@ -330,7 +330,7 @@ Reference an OpenAPI file stored in your repository by specifying a relative pat
 
 ### 2. Registry
 
-Upload your OpenAPI document to the [Registry](../../registry/index.md), then reference it by namespace and slug:
+Upload your API document to the [Registry](../../registry/index.md), then reference it by namespace and slug:
 
 ```bash
 scalar auth login
@@ -349,11 +349,11 @@ scalar registry publish ./openapi.yaml \
 }
 ```
 
-When someone updates that OpenAPI document in the Registry, Scalar republishes any connected Docs project that references it. This keeps your API documentation up to date automatically.
+When someone updates that API document in the Registry, Scalar republishes any connected Docs project that references it. This keeps your API documentation up to date automatically.
 
 ### 3. URL
 
-Fetch an OpenAPI document from a remote URL. The document is fetched on each page load, keeping your documentation in sync with your live API:
+Fetch an API document from a remote URL. The document is fetched on each page load, keeping your documentation in sync with your live API:
 
 ```json
 "/api": {
@@ -379,10 +379,10 @@ To document an event-driven API, use `type: "asyncapi"` and point it at your Asy
 
 | Property     | Type                             | Required | Description                                                      |
 | ------------ | -------------------------------- | -------- | ---------------------------------------------------------------- |
-| `type`       | `"openapi" \| "asyncapi"`        | Yes      | Must be `"openapi"` or `"asyncapi"` (both behave identically; the document format is detected automatically) |
+| `type`       | `"openapi" \| "asyncapi"`        | Yes      | Marks the entry as an API reference                              |
 | `title`      | `string`                         | No       | The display text in the navigation                               |
-| `filepath`   | `string`                         | No       | Relative path to the OpenAPI file                                |
-| `url`        | `string`                         | No       | URL to fetch the OpenAPI document from                           |
+| `filepath`   | `string`                         | No       | Relative path to the API document                                |
+| `url`        | `string`                         | No       | URL to fetch the API document from                               |
 | `namespace`  | `string`                         | No       | Registry namespace (when using Registry)                         |
 | `slug`       | `string`                         | No       | Registry slug (when using Registry)                              |
 | `version`    | `string`                         | No       | Registry version (when using Registry)                           |
@@ -415,7 +415,7 @@ This is useful when you want a scrollable, single-page API reference similar to 
 
 ### Hiding an API Reference
 
-Set `hidden` to `true` to fully hide an API reference. The setting cascades to every page generated from the OpenAPI document — all operation, tag, model, and webhook pages are removed from the sidebar, excluded from `sitemap.xml`, and rendered with a `noindex` meta tag. The pages stay reachable at their URLs, so you can still share them by direct link. See [Hidden pages](#hidden-pages) for details on how `hidden` compares to `showInSidebar`.
+Set `hidden` to `true` to fully hide an API reference. The setting cascades to every page generated from the API document — all operation, tag, model, and webhook pages are removed from the sidebar, excluded from `sitemap.xml`, and rendered with a `noindex` meta tag. The pages stay reachable at their URLs, so you can still share them by direct link. See [Hidden pages](#hidden-pages) for details on how `hidden` compares to `showInSidebar`.
 
 ```json
 "/internal-api": {
@@ -428,7 +428,7 @@ Set `hidden` to `true` to fully hide an API reference. The setting cascades to e
 
 ### API Reference configuration
 
-When you add an OpenAPI route (`type: "openapi"`) in your navigation, you can pass API Reference options by adding a `config` object. The same options supported by the [API Reference configuration](../../../configuration.md) (e.g. `authentication`, `theme`) can be used here.
+When you add an API reference route (`type: "openapi"` or `type: "asyncapi"`) in your navigation, you can pass API Reference options by adding a `config` object. The same options supported by the [API Reference configuration](../../../configuration.md) (e.g. `authentication`, `theme`) can be used here.
 
 Example:
 
