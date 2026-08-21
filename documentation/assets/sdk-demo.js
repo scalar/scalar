@@ -602,11 +602,20 @@ const PAGE_URLS = {
   site: 'scalar.com',
 }
 
-const PAGE_TITLES = {
-  dashboard: 'Warp HR SDK',
-  video: 'Untitled',
-  site: 'Scalar',
-}
+/*
+ * What the share sheet sends. Scalar's own headline and positioning line,
+ * pointing at the dashboard — the sheet shares Scalar rather than whichever
+ * mock tab happens to be in front, so this is fixed.
+ */
+const SHARE_TITLE = 'Scalar — API interfaces built for developers and agents'
+const SHARE_TEXT = 'Create beautiful docs, SDKs and secure MCP servers from your API.'
+const SHARE_URL = 'https://dashboard.scalar.com'
+const SHARE_HOST = 'dashboard.scalar.com'
+const SHARE_MESSAGE = `${SHARE_TITLE}\n${SHARE_TEXT}\n${SHARE_URL}`
+
+/* Slack has no compose-with-text URL, so the tile opens Slack and leaves the
+ * message on the clipboard to paste. */
+const SLACK_URL = 'https://app.slack.com/client'
 
 /* The third tab, opened from "+" in the tab overview. Like the video embed,
  * it is only ever given a src once someone opens that tab. */
@@ -1190,22 +1199,7 @@ const initSdkDemo = (root) => {
       }
     }
 
-    const host = PAGE_URLS[page] ?? PAGE_URLS.dashboard
-    const title = PAGE_TITLES[page] ?? PAGE_TITLES.dashboard
-
-    setText(nodes.url, host)
-    setText(nodes.shareHost, host)
-    setText(nodes.shareTitle, title)
-
-    /* Mail and Messages are ordinary links, so the browser hands them to
-     * whatever the reader has set up. They point at the tab in front. */
-    const url = `https://${host}`
-    nodes.shareLinks.forEach((link) => {
-      link.href =
-        link.dataset.sdkDemoShareLink === 'mailto'
-          ? `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`
-          : `sms:?&body=${encodeURIComponent(`${title} ${url}`)}`
-    })
+    setText(nodes.url, PAGE_URLS[page] ?? PAGE_URLS.dashboard)
 
     nodes.pageTabs.forEach((tab) => {
       const active = tab.dataset.sdkDemoPageTab === page
@@ -1305,12 +1299,10 @@ const initSdkDemo = (root) => {
   nodes.shareScrim?.addEventListener('click', () => setShareOpen(false))
   nodes.shareCancel?.addEventListener('click', () => setShareOpen(false))
 
-  /** Copy the address of the tab in front. False when the browser refuses. */
-  const copyShareUrl = async () => {
-    const url = `https://${PAGE_URLS[root.dataset.sdkDemoPage] ?? PAGE_URLS.dashboard}`
-
+  /** Put `text` on the clipboard. False when the browser refuses. */
+  const copyText = async (text) => {
     try {
-      await navigator.clipboard.writeText(url)
+      await navigator.clipboard.writeText(text)
       return true
     } catch {
       /* Denied clipboard, an insecure origin, or an older browser. */
@@ -1323,19 +1315,64 @@ const initSdkDemo = (root) => {
     later(() => setText(nodes.shareStatus, ''), 2600)
   }
 
+  /* iOS "Copy" copies the link, not the whole message. */
   nodes.shareCopy?.addEventListener('click', async () => {
-    setText(nodes.shareCopyLabel, (await copyShareUrl()) ? 'Copied' : 'Copy failed')
+    setText(nodes.shareCopyLabel, (await copyText(SHARE_URL)) ? 'Copied' : 'Copy failed')
     later(() => setText(nodes.shareCopyLabel, 'Copy'), 1600)
   })
 
-  /* Slack and Notes have no share URL a web page can call, so they do the
-   * useful half honestly: put the link on the clipboard and say so. */
+  /*
+   * Neither Slack nor Apple Notes exposes a compose-with-text URL to a web
+   * page, so neither can be handed the message directly.
+   *
+   * Slack gets as close as the web allows: the message goes to the clipboard
+   * and Slack opens, ready to paste.
+   *
+   * Notes has no address at all, so the only real route to it is the system
+   * share sheet, where Notes is a genuine target. That has to be called
+   * straight from the click — awaiting anything first spends the user
+   * gesture Safari requires — with the clipboard as the fallback elsewhere.
+   */
+  const shareViaSystem = async () => {
+    if (!navigator.share) {
+      return 'unsupported'
+    }
+
+    try {
+      await navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url: SHARE_URL })
+      return 'shared'
+    } catch (error) {
+      return error?.name === 'AbortError' ? 'cancelled' : 'unsupported'
+    }
+  }
+
   nodes.sharePastes.forEach((button) => {
     button.addEventListener('click', async () => {
       const app = button.dataset.sdkDemoSharePaste
-      announceShare(
-        (await copyShareUrl()) ? `Link copied — paste it into ${app}` : `Could not copy the link for ${app}`,
-      )
+
+      if (app === 'Notes') {
+        const outcome = await shareViaSystem()
+
+        if (outcome === 'shared') {
+          announceShare('Shared')
+          later(() => setShareOpen(false), 1000)
+          return
+        }
+        if (outcome === 'cancelled') {
+          return
+        }
+      }
+
+      /* Opened before the clipboard write, not after: both need the click's
+       * transient activation, and awaiting the clipboard spends it — the
+       * window then gets blocked as an unsolicited popup. */
+      if (app === 'Slack') {
+        window.open(SLACK_URL, '_blank', 'noopener,noreferrer')
+      }
+
+      const copied = await copyText(SHARE_MESSAGE)
+
+      announceShare(copied ? `Message copied — paste it into ${app}` : `Could not copy the message for ${app}`)
     })
   })
 
@@ -1346,6 +1383,17 @@ const initSdkDemo = (root) => {
       announceShare(`Opening ${link.dataset.sdkDemoShareApp}…`)
       later(() => setShareOpen(false), 1200)
     })
+  })
+
+  /* The sheet shares Scalar rather than the mock tab in front, so its card
+   * and its two links are set once. */
+  setText(nodes.shareTitle, SHARE_TITLE)
+  setText(nodes.shareHost, SHARE_HOST)
+  nodes.shareLinks.forEach((link) => {
+    link.href =
+      link.dataset.sdkDemoShareLink === 'mailto'
+        ? `mailto:?subject=${encodeURIComponent(SHARE_TITLE)}&body=${encodeURIComponent(`${SHARE_TEXT}\n\n${SHARE_URL}`)}`
+        : `sms:?&body=${encodeURIComponent(`${SHARE_TITLE}\n${SHARE_URL}`)}`
   })
 
   /* ---------------------------------------------------------------------
