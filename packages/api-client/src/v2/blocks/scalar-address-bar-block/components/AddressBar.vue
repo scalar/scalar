@@ -12,6 +12,8 @@ export type AddressBarProps = {
   path: string
   /** Current request method */
   method: HttpMethodType
+  /** Whether the request target belongs to an OpenAPI webhook. */
+  isWebhook?: boolean
   /** Openapi document slug */
   documentSlug: string
   /** Currently selected example key for the current operation */
@@ -83,6 +85,7 @@ const {
   servers,
   environment,
   serverMeta,
+  isWebhook = false,
 } = defineProps<AddressBarProps>()
 
 const emit = defineEmits<{
@@ -90,6 +93,15 @@ const emit = defineEmits<{
   (e: 'execute'): void
   /** Select a request history item by index */
   (e: 'select:history:item', payload: { index: number }): void
+  /** Update the runtime path used to deliver a webhook. */
+  (e: 'update:webhook-path', path: string): void
+  /** Update the runtime server used to deliver a webhook. */
+  (e: 'update:webhook-server', url: string): void
+  /** Update a runtime webhook server variable. */
+  (
+    e: 'update:webhook-server-variable',
+    payload: { key: string; value: string },
+  ): void
 }>()
 
 // ───────────────────────────────────────────────────────────────────
@@ -224,6 +236,11 @@ const extractAndSelectServer = (targetPath: string): string => {
 
   const [url, remainingPath] = extracted
 
+  if (isWebhook) {
+    emit('update:webhook-server', url)
+    return remainingPath
+  }
+
   // Server is already selected — nothing to do
   if (url === server?.url) {
     return remainingPath
@@ -261,6 +278,14 @@ const emitPathMethodUpdate = (
 
   // Keep CodeMirror in sync so a conflict does not leave a stale value on screen
   addressBarRef.value?.setCodeMirrorContent(normalizedPath)
+
+  if (isWebhook) {
+    emit('update:webhook-path', normalizedPath)
+    methodConflict.value = null
+    pathConflict.value = null
+    nextTick(() => refocusBlurTarget(blurTargetSelector))
+    return
+  }
 
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
@@ -355,8 +380,35 @@ const handlePathSubmit = (
 /** Unset the server when backspace is pressed on an empty path */
 const handlePathBackspace = (event: KeyboardEvent): void => {
   if ((event.target as HTMLElement)?.innerText === '\n') {
+    if (isWebhook) {
+      emit('update:webhook-server', '')
+      return
+    }
     eventBus.emit('server:update:selected', { url: '', meta: serverMeta })
   }
+}
+
+const handleServerSelect = (
+  payload: ApiReferenceEvents['server:update:selected'],
+): void => {
+  if (isWebhook) {
+    emit('update:webhook-server', payload.url)
+    return
+  }
+  eventBus.emit('server:update:selected', payload)
+}
+
+const handleServerVariable = (
+  payload: ApiReferenceEvents['server:update:variables'],
+): void => {
+  if (isWebhook) {
+    emit('update:webhook-server-variable', {
+      key: payload.key,
+      value: payload.value,
+    })
+    return
+  }
+  eventBus.emit('server:update:variables', payload)
 }
 
 /** Address bar copy is handled in OperationBlock (same URL as Send). */
@@ -450,7 +502,7 @@ defineExpose({
       -->
       <div class="hidden @3xl:flex">
         <HttpMethod
-          :isEditable="layout !== 'modal'"
+          :isEditable="layout !== 'modal' && !isWebhook"
           isSquare
           :method="methodConflict ?? method"
           teleport
@@ -462,19 +514,15 @@ defineExpose({
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
-          :layout="layout"
+          :layout="isWebhook ? 'modal' : layout"
           :meta="serverMeta"
           :server="server"
           :servers="servers"
           :target="id"
           @update:open="(value) => (isServerDropdownOpen = value)"
-          @update:selectedServer="
-            (payload) => eventBus.emit('server:update:selected', payload)
-          "
+          @update:selectedServer="handleServerSelect"
           @update:servers="navigateToServersPage"
-          @update:variable="
-            (payload) => eventBus.emit('server:update:variables', payload)
-          " />
+          @update:variable="handleServerVariable" />
 
         <!-- Path + URL + env vars -->
         <CodeInput
@@ -483,7 +531,7 @@ defineExpose({
           aria-label="Path"
           class="ml-1 min-w-fit pl-px outline-none"
           disableCloseBrackets
-          :disabled="layout === 'modal'"
+          :disabled="layout === 'modal' && !isWebhook"
           disableEnter
           disableTabIndent
           :emitOnBlur="false"
@@ -561,7 +609,7 @@ defineExpose({
     <div
       class="mt-2 flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 @3xl:hidden">
       <HttpMethod
-        :isEditable="layout !== 'modal'"
+        :isEditable="layout !== 'modal' && !isWebhook"
         isSquare
         :method="methodConflict ?? method"
         teleport

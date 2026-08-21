@@ -33,6 +33,8 @@ export type OperationBlockProps = {
   path: string
   /** Current request method */
   method: HttpMethodType
+  /** Whether `path` identifies an OpenAPI webhook. */
+  isWebhook?: boolean
   /** HTTP clients */
   httpClients: AvailableClients
   /** The history for the operation */
@@ -168,6 +170,7 @@ const {
   history = [],
   layout,
   method,
+  isWebhook = false,
   operation,
   path,
   plugins = [],
@@ -176,6 +179,7 @@ const {
   securitySchemes,
   selectedClient,
   server,
+  servers,
   environments,
   options,
   activeEnvironment,
@@ -196,6 +200,57 @@ const { copyToClipboard } = useClipboard()
 const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
 const requestPayload = ref<RequestPayload | null>(null)
+
+/** Webhook targets are runtime destinations, not OpenAPI path keys. */
+const webhookPath = ref('')
+const webhookServer = ref<ServerObject | null>(null)
+
+const cloneServer = (value: ServerObject | null): ServerObject | null =>
+  value
+    ? {
+        ...value,
+        variables: value.variables
+          ? Object.fromEntries(
+              Object.entries(value.variables).map(([key, variable]) => [
+                key,
+                { ...variable },
+              ]),
+            )
+          : undefined,
+      }
+    : null
+
+watch(
+  [() => path, () => method, () => isWebhook],
+  () => {
+    webhookPath.value = ''
+    webhookServer.value = cloneServer(server)
+  },
+  { immediate: true },
+)
+
+const requestPath = computed(() => (isWebhook ? webhookPath.value : path))
+const requestServer = computed(() => (isWebhook ? webhookServer.value : server))
+
+const updateWebhookServer = (url: string): void => {
+  webhookServer.value = cloneServer(
+    servers.find((candidate) => candidate.url === url) ??
+      (url ? { url } : null),
+  )
+}
+
+const updateWebhookServerVariable = ({
+  key,
+  value,
+}: {
+  key: string
+  value: string
+}): void => {
+  const variable = webhookServer.value?.variables?.[key]
+  if (variable) {
+    variable.default = value
+  }
+}
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
@@ -248,9 +303,9 @@ const copyAddressBarUrl = async (): Promise<void> => {
     globalCookies: [...workspaceCookies, ...documentCookies],
     method,
     operation,
-    path,
+    path: requestPath.value,
     proxyUrl,
-    server,
+    server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
     requestBodyCompositionSelection,
@@ -264,6 +319,11 @@ const copyAddressBarUrl = async (): Promise<void> => {
 /** Execute the current operation example */
 const handleExecute = async () => {
   eventBus.flushDebouncedEmits?.()
+
+  if (isWebhook && !requestServer.value?.url) {
+    toast('Webhook URL required. Enter a destination first.', 'error')
+    return
+  }
 
   const pathValidation = validatePathParameters(
     operation.parameters ?? [],
@@ -283,9 +343,9 @@ const handleExecute = async () => {
     globalCookies,
     method,
     operation,
-    path,
+    path: requestPath.value,
     proxyUrl,
-    server,
+    server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
     requestBodyCompositionSelection,
@@ -333,7 +393,7 @@ const handleExecute = async () => {
       document,
       operation,
       variablesStore,
-      server,
+      server: requestServer.value,
       customFetch: toValue(options)?.customFetch,
     },
     'beforeRequest',
@@ -661,16 +721,20 @@ onBeforeUnmount(() => {
         :hideClientButton
         :history="operationHistory"
         :integration
+        :isWebhook
         :layout
         :method
-        :path
-        :server
+        :path="requestPath"
+        :server="requestServer"
         :serverMeta
         :servers
         :source
         @execute="handleExecute"
         @navigate:settings="handleNavigateSettings"
-        @select:history:item="handleSelectHistoryItem" />
+        @select:history:item="handleSelectHistoryItem"
+        @update:webhook-path="(value) => (webhookPath = value)"
+        @update:webhook-server="updateWebhookServer"
+        @update:webhook-server-variable="updateWebhookServerVariable" />
     </div>
 
     <ViewLayout class="border-t">
@@ -688,7 +752,7 @@ onBeforeUnmount(() => {
           :method
           :operation
           :options="toValue(options)"
-          :path
+          :path="requestPath"
           :plugins
           :proxyUrl
           :requestBodyCompositionSelection
@@ -697,7 +761,7 @@ onBeforeUnmount(() => {
           :selectedClient
           :selectedSecurity
           :selectedSecuritySchemes
-          :server
+          :server="requestServer"
           :workspaceCookies />
 
         <!-- Response Section -->

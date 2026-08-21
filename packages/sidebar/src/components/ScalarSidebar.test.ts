@@ -64,7 +64,7 @@ describe('ScalarSidebar', () => {
       expect(sidebarItems[0]?.props('item')).toEqual(items[0])
     })
 
-    it('hides webhooks and models in client layout', () => {
+    it('shows webhooks and hides models in client layout', () => {
       const items: Item[] = [
         {
           id: '1',
@@ -112,9 +112,17 @@ describe('ScalarSidebar', () => {
       })
 
       const sidebarItems = wrapper.findAllComponents(SidebarItem)
-      // Should render the parent item
-      expect(sidebarItems.length).toBe(2)
+      // Should render the parent, operation, and webhook items
+      expect(sidebarItems.length).toBe(3)
       expect(sidebarItems[0]?.props('item')).toEqual(items[0])
+      expect(sidebarItems[2]?.props('item')).toEqual({
+        id: '3',
+        title: 'Webhook',
+        type: 'webhook',
+        ref: 'ref-3',
+        method: 'post',
+        name: 'webhook',
+      })
     })
   })
 

@@ -187,7 +187,7 @@ const { copyToClipboard } = useClipboard()
         position="after" />
       <template v-if="!options.hideTestRequestButton">
         <TestRequestButton
-          v-if="active && !isWebhook"
+          v-if="active"
           :id
           :eventBus
           :exampleName="resolvedExampleKey"
