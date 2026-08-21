@@ -25,7 +25,7 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
             <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M7 10H15V6C15 5.16667 14.7083 4.45833 14.125 3.875C13.5417 3.29167 12.8333 3 12 3C11.1667 3 10.4583 3.29167 9.875 3.875C9.29167 4.45833 9 5.16667 9 6V10H7V6C7 4.61667 7.4875 3.4375 8.4625 2.4625C9.4375 1.4875 10.6167 1 12 1C13.3833 1 14.5625 1.4875 15.5375 2.4625C16.5125 3.4375 17 4.61667 17 6V10C17.55 10 18.0208 10.1958 18.4125 10.5875C18.8042 10.9792 19 11.45 19 12V20C19 20.55 18.8042 21.0208 18.4125 21.4125C18.0208 21.8042 17.55 22 17 22H7C6.45 22 5.97917 21.8042 5.5875 21.4125C5.19583 21.0208 5 20.55 5 20V12C5 11.45 5.19583 10.9792 5.5875 10.5875C5.97917 10.1958 6.45 10 7 10Z" />
             </svg>
-            <span data-sdk-demo-url>dashboard.scalar.com/sdks/warp-hr/typescript</span>
+            <span>dashboard.scalar.com</span>
             <button type="button" data-sdk-demo-reload aria-label="Reload and reset the demo">
               <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 22a8.7 8.7 0 0 0 6.4-2.6A9.1 9.1 0 0 0 21 13h-2c0 2-.7 3.6-2 5-1.4 1.3-3 2-5 2s-3.6-.7-5-2c-1.3-1.4-2-3-2-5s.7-3.6 2-5c1.4-1.3 3-2 5-2h.2l-1.6 1.5L12 9l4-4-4-4-1.4 1.5L12.2 4H12a8.7 8.7 0 0 0-6.4 2.6A9.1 9.1 0 0 0 3 13a8.7 8.7 0 0 0 2.6 6.4A9.1 9.1 0 0 0 12 22Z" />
@@ -75,7 +75,7 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
           </div>
           <div class="sdk-demo-section-head">
             <span class="sdk-demo-section-title">Targets</span>
-            <div class="sdk-demo-add-wrap" data-sdk-demo-add-wrap>
+            <div class="sdk-demo-add-wrap">
               <button class="sdk-demo-add" type="button" data-sdk-demo-add aria-expanded="false" aria-haspopup="true">+ Add target</button>
               <div class="sdk-demo-add-menu" data-sdk-demo-add-menu role="menu"></div>
             </div>
@@ -100,7 +100,7 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
             </span>
             <span class="sdk-demo-install" data-sdk-demo-install>npm install warp-hr</span>
           </div>
-          <div class="sdk-demo-panel" data-sdk-demo-panel>
+          <div class="sdk-demo-panel">
             <div class="sdk-demo-tabs" role="tablist" data-sdk-demo-tablist aria-label="Generated output">
               <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="quickstart" aria-selected="true">Quickstart</button>
               <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="reference" aria-selected="false" tabindex="-1">api.md</button>
@@ -123,32 +123,11 @@ for await (const assignment of client.timeOff.listAssignments({ limit: 50 })) {
         </div>
       </div>
     </div>
-    <div class="sdk-demo-intro" data-sdk-demo-intro hidden>
-      <div class="sdk-demo-intro-card" role="dialog" aria-modal="true" aria-labelledby="sdk-demo-intro-title">
-        <span class="sdk-demo-intro-eyebrow">Interactive demo</span>
-        <p class="sdk-demo-intro-title" id="sdk-demo-intro-title">This dashboard actually works</p>
-        <p class="sdk-demo-intro-body">Switch targets, add a language, and run a real build — right here on the page.</p>
-        <div class="sdk-demo-intro-actions">
-          <button class="sdk-demo-intro-start" type="button" data-sdk-demo-intro-start>Show me around</button>
-          <button class="sdk-demo-intro-skip" type="button" data-sdk-demo-intro-skip>I&rsquo;ll explore myself</button>
-        </div>
-      </div>
-    </div>
-    <div class="sdk-demo-tour" data-sdk-demo-tour hidden>
-      <div class="sdk-demo-tour-scrim">
-        <div class="sdk-demo-tour-spot" data-sdk-demo-tour-spot></div>
-      </div>
-      <div class="sdk-demo-tour-tip" data-sdk-demo-tour-tip role="dialog" aria-labelledby="sdk-demo-tour-title">
-        <p class="sdk-demo-tour-title" id="sdk-demo-tour-title" data-sdk-demo-tour-title></p>
-        <p class="sdk-demo-tour-body" data-sdk-demo-tour-body></p>
-        <div class="sdk-demo-tour-foot">
-          <span class="sdk-demo-tour-count" data-sdk-demo-tour-count></span>
-          <div class="sdk-demo-tour-actions">
-            <button class="sdk-demo-tour-skip" type="button" data-sdk-demo-tour-skip>Skip</button>
-            <button class="sdk-demo-tour-next" type="button" data-sdk-demo-tour-next>Next</button>
-          </div>
-        </div>
-      </div>
+    <div class="sdk-demo-hint" data-sdk-demo-hint hidden>
+      <span class="sdk-demo-hint-pill">
+        <span class="sdk-demo-hint-dot" aria-hidden="true"></span>
+        Click to interact
+      </span>
     </div>
     <div class="sdk-demo-build-window" data-sdk-demo-build-window hidden>
       <div class="sdk-demo-build-window-bar" data-sdk-demo-build-window-bar>
@@ -880,199 +859,62 @@ The parts that need your accounts rather than a browser:
   }
 
   /* ---------------------------------------------------------------------
-     First-run overlay and the guided tour.
-     Both sit outside the frame so their dim can cover it; each clips itself
-     back to the frame's bounds so nothing spills onto the page.
+     "Click to interact" hint. Never takes pointer events, so the click that
+     dismisses it lands on whatever the reader was aiming at.
      --------------------------------------------------------------------- */
 
-  .sdk-demo-intro {
+  .sdk-demo-hint {
     position: absolute;
     inset: 0;
-    z-index: 20;
+    z-index: 16;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    border-radius: var(--scalar-radius-3xl);
-    background: color-mix(in srgb, var(--scalar-background-1) 62%, transparent);
-    backdrop-filter: blur(2px);
-    cursor: pointer;
-  }
-
-  .sdk-demo-intro[hidden] {
-    display: none;
-  }
-
-  .sdk-demo-intro-card {
-    max-width: 340px;
-    padding: 20px;
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
-    border-radius: var(--scalar-radius-2xl);
-    background: var(--scalar-background-1);
-    box-shadow: 0 24px 48px -20px rgb(0 0 0 / 40%);
-    text-align: center;
-    cursor: auto;
-  }
-
-  .sdk-demo-intro-eyebrow {
-    display: inline-block;
-    margin-bottom: 10px;
-    padding: 3px 9px;
-    border-radius: 999px;
-    background: var(--scalar-background-accent);
-    color: var(--scalar-color-accent);
-    font-size: 10px;
-    font-weight: var(--scalar-semibold);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .sdk-demo-intro-title {
-    margin: 0 0 6px;
-    color: var(--scalar-color-1);
-    font-size: var(--scalar-font-size-1);
-    font-weight: var(--scalar-bold);
-    text-wrap: balance;
-  }
-
-  .sdk-demo-intro-body {
-    margin: 0 0 16px;
-    color: var(--scalar-color-2);
-    font-size: var(--scalar-small);
-    line-height: 1.5;
-    text-wrap: balance;
-  }
-
-  .sdk-demo-intro-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .sdk-demo-intro-start {
-    padding: 9px 18px;
-    border-radius: var(--scalar-radius);
-    background: var(--scalar-color-1);
-    color: var(--scalar-background-1);
-    font-size: var(--scalar-small);
-    font-weight: var(--scalar-semibold);
-    cursor: pointer;
-  }
-
-  .sdk-demo-intro-start:hover {
-    opacity: 0.85;
-  }
-
-  .sdk-demo-intro-skip {
-    padding: 6px;
-    background: transparent;
-    color: var(--scalar-color-3);
-    font-size: var(--scalar-micro);
-    cursor: pointer;
-  }
-
-  .sdk-demo-intro-skip:hover {
-    color: var(--scalar-color-1);
-  }
-
-  .sdk-demo-tour[hidden] {
-    display: none;
-  }
-
-  /* The scrim clips the spotlight's oversized shadow back to the frame. */
-  .sdk-demo-tour-scrim {
-    position: absolute;
-    inset: 0;
-    z-index: 18;
-    overflow: hidden;
-    border-radius: var(--scalar-radius-3xl);
     pointer-events: none;
   }
 
-  .sdk-demo-tour-spot {
-    position: absolute;
-    top: 0;
-    left: 0;
-    border-radius: var(--scalar-radius-lg);
-    box-shadow:
-      0 0 0 2px var(--scalar-color-accent),
-      0 0 0 9999px color-mix(in srgb, var(--scalar-background-1) 68%, transparent);
-    transition: transform 0.25s ease, width 0.25s ease, height 0.25s ease;
+  .sdk-demo-hint[hidden] {
+    display: none;
   }
 
-  .sdk-demo-tour-tip {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 19;
-    width: 264px;
-    max-width: calc(100% - 24px);
-    padding: 12px 14px;
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
-    border-radius: var(--scalar-radius-lg);
-    background: var(--scalar-background-1);
-    box-shadow: 0 16px 32px -16px rgb(0 0 0 / 45%);
-    transition: transform 0.25s ease;
-  }
-
-  .sdk-demo-tour-title {
-    margin: 0 0 4px;
+  .sdk-demo-hint-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 18px 9px 14px;
+    border: 1px solid color-mix(in srgb, var(--scalar-color-green) 55%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--scalar-color-green) 16%, var(--scalar-background-1));
     color: var(--scalar-color-1);
     font-size: var(--scalar-small);
     font-weight: var(--scalar-semibold);
+    white-space: nowrap;
+    box-shadow:
+      0 0 0 6px color-mix(in srgb, var(--scalar-color-green) 10%, transparent),
+      0 10px 24px -12px rgb(0 0 0 / 45%);
+    animation: sdk-demo-hint-in 0.4s ease both;
   }
 
-  .sdk-demo-tour-body {
-    margin: 0 0 12px;
-    color: var(--scalar-color-2);
-    font-size: var(--scalar-micro);
-    line-height: 1.55;
+  .sdk-demo-hint-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--scalar-color-green);
+    animation: sdk-demo-hint-pulse 2s ease-in-out infinite;
   }
 
-  .sdk-demo-tour-foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+  @keyframes sdk-demo-hint-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
   }
 
-  .sdk-demo-tour-count {
-    color: var(--scalar-color-3);
-    font-size: var(--scalar-micro);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .sdk-demo-tour-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .sdk-demo-tour-skip {
-    padding: 5px 8px;
-    border-radius: var(--scalar-radius);
-    background: transparent;
-    color: var(--scalar-color-3);
-    font-size: var(--scalar-micro);
-    cursor: pointer;
-  }
-
-  .sdk-demo-tour-skip:hover {
-    color: var(--scalar-color-1);
-  }
-
-  .sdk-demo-tour-next {
-    padding: 5px 12px;
-    border-radius: var(--scalar-radius);
-    background: var(--scalar-color-1);
-    color: var(--scalar-background-1);
-    font-size: var(--scalar-micro);
-    font-weight: var(--scalar-semibold);
-    cursor: pointer;
-  }
-
-  .sdk-demo-tour-next:hover {
-    opacity: 0.85;
+  @keyframes sdk-demo-hint-pulse {
+    50% {
+      opacity: 0.35;
+    }
   }
 
   @media screen and (max-width: 760px) {
@@ -1106,9 +948,9 @@ The parts that need your accounts rather than a browser:
       animation: none;
     }
 
-    .sdk-demo-tour-spot,
-    .sdk-demo-tour-tip {
-      transition: none;
+    .sdk-demo-hint-pill,
+    .sdk-demo-hint-dot {
+      animation: none;
     }
   }
 </style>

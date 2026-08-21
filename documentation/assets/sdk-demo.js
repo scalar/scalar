@@ -7,8 +7,6 @@
  * that view as the reader picks targets, runs a build, or changes tabs.
  */
 
-const SDK_NAME = 'warp-hr'
-
 /* Package registries and sample output for each target Scalar can generate.
  * `stable: false` mirrors the experimental flag the dashboard shows. */
 const TARGETS = {
@@ -436,39 +434,6 @@ const BUILD_LOG = [
   ['Opened release pull request #128', 300],
 ]
 
-/**
- * The guided walkthrough, in order. `open` steps show the add-target menu so
- * the reader sees what the control does rather than only reading about it.
- */
-const TOUR = [
-  {
-    anchor: '[data-sdk-demo-targets]',
-    title: 'Switch between targets',
-    body: 'Every language is its own target with its own config, package name and version history. Pick one to see the code it generates.',
-  },
-  {
-    anchor: ['[data-sdk-demo-add-wrap]', '[data-sdk-demo-add-menu]'],
-    title: 'Add a language',
-    body: 'Targets are added to an existing SDK whenever you need them. A new one stays a draft until you save a version.',
-    open: true,
-  },
-  {
-    anchor: '[data-sdk-demo-panel]',
-    title: 'Read what it generates',
-    body: 'The quickstart, the api.md reference, the agent SKILL.md, and every file in the package — all generated on each build.',
-  },
-  {
-    anchor: '[data-sdk-demo-build]',
-    title: 'Run a build',
-    body: 'One run compiles your document once and hands it to every emitter. The log streams into its own terminal window.',
-  },
-  {
-    anchor: '[data-sdk-demo-chrome]',
-    title: 'Move the windows',
-    body: 'Drag either window by its title bar, the way you would on your desktop. The reload button starts the demo over.',
-  },
-]
-
 const REDUCED_MOTION = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
 
 /** Put a window back where the layout wants it. */
@@ -549,7 +514,6 @@ const makeDraggable = (node, handle) => {
     }
     dragging = false
     delete handle.dataset.dragging
-    node.dispatchEvent(new CustomEvent('sdk-demo:moved', { bubbles: true }))
     if (handle.hasPointerCapture?.(event.pointerId)) {
       handle.releasePointerCapture(event.pointerId)
     }
@@ -622,7 +586,6 @@ const initSdkDemo = (root) => {
   }
 
   const nodes = {
-    url: qs(root, '[data-sdk-demo-url]'),
     reload: qs(root, '[data-sdk-demo-reload]'),
     buildButton: qs(root, '[data-sdk-demo-build]'),
     statusDot: qs(root, '[data-sdk-demo-status-dot]'),
@@ -636,18 +599,7 @@ const initSdkDemo = (root) => {
     buildWindow: qs(root, '[data-sdk-demo-build-window]'),
     buildWindowBar: qs(root, '[data-sdk-demo-build-window-bar]'),
     buildWindowClose: qs(root, '[data-sdk-demo-build-window-close]'),
-    stage: qs(root, '.sdk-demo-stage'),
-    intro: qs(root, '[data-sdk-demo-intro]'),
-    introStart: qs(root, '[data-sdk-demo-intro-start]'),
-    introSkip: qs(root, '[data-sdk-demo-intro-skip]'),
-    tour: qs(root, '[data-sdk-demo-tour]'),
-    tourSpot: qs(root, '[data-sdk-demo-tour-spot]'),
-    tourTip: qs(root, '[data-sdk-demo-tour-tip]'),
-    tourTitle: qs(root, '[data-sdk-demo-tour-title]'),
-    tourBody: qs(root, '[data-sdk-demo-tour-body]'),
-    tourCount: qs(root, '[data-sdk-demo-tour-count]'),
-    tourNext: qs(root, '[data-sdk-demo-tour-next]'),
-    tourSkip: qs(root, '[data-sdk-demo-tour-skip]'),
+    hint: qs(root, '[data-sdk-demo-hint]'),
     targets: qs(root, '[data-sdk-demo-targets]'),
     addTarget: qs(root, '[data-sdk-demo-add]'),
     addMenu: qs(root, '[data-sdk-demo-add-menu]'),
@@ -661,10 +613,6 @@ const initSdkDemo = (root) => {
   }
 
   const target = () => TARGETS[state.selected]
-
-  const renderUrl = () => {
-    setText(nodes.url, `dashboard.scalar.com/sdks/${SDK_NAME}/${state.selected}`)
-  }
 
   const renderStatus = () => {
     const running = state.build === 'running'
@@ -887,7 +835,6 @@ const initSdkDemo = (root) => {
   }
 
   const render = () => {
-    renderUrl()
     renderStatus()
     renderSteps()
     renderLog()
@@ -949,169 +896,31 @@ const initSdkDemo = (root) => {
     setBuildWindowOpen(false)
     resetPosition(nodes.frame)
     resetPosition(nodes.buildWindow)
-    endTour()
     Object.assign(state, createState())
     render()
-    showIntro()
+    showHint()
   }
 
   /* ---------------------------------------------------------------------
-     First-run overlay and guided tour
+     "Click to interact" hint
      --------------------------------------------------------------------- */
 
-  let tourStep = -1
-
-  const setInert = (value) => {
-    if (nodes.frame && 'inert' in nodes.frame) {
-      nodes.frame.inert = value
+  /* The hint never takes pointer events, so the click that dismisses it is
+   * also the click that does what the reader meant to do. */
+  const showHint = () => {
+    if (nodes.hint) {
+      nodes.hint.hidden = false
     }
   }
 
-  const showIntro = () => {
-    if (!nodes.intro) {
-      return
-    }
-    nodes.intro.hidden = false
-    /* Nothing behind the overlay should be reachable by tab or click. */
-    setInert(true)
-  }
-
-  const hideIntro = () => {
-    if (!nodes.intro) {
-      return
-    }
-    nodes.intro.hidden = true
-    setInert(false)
-  }
-
-  /** Sit the spotlight on the step's anchor and place the tip beside it. */
-  const placeTour = () => {
-    const step = TOUR[tourStep]
-    if (!step || !nodes.stage || !nodes.tourSpot || !nodes.tourTip) {
-      return
-    }
-
-    const selectors = Array.isArray(step.anchor) ? step.anchor : [step.anchor]
-    const rects = selectors
-      .map((selector) => qs(root, selector))
-      .filter((node) => node?.getClientRects().length)
-      .map((node) => node.getBoundingClientRect())
-
-    if (!rects.length) {
-      return
-    }
-
-    /* One box around everything the step is pointing at. */
-    const rect = {
-      left: Math.min(...rects.map((r) => r.left)),
-      top: Math.min(...rects.map((r) => r.top)),
-      right: Math.max(...rects.map((r) => r.right)),
-      bottom: Math.max(...rects.map((r) => r.bottom)),
-    }
-
-    const stageRect = nodes.stage.getBoundingClientRect()
-    const pad = 6
-
-    const spotLeft = rect.left - stageRect.left - pad
-    const spotTop = rect.top - stageRect.top - pad
-    const spotWidth = rect.right - rect.left + pad * 2
-    const spotHeight = rect.bottom - rect.top + pad * 2
-
-    nodes.tourSpot.style.width = `${spotWidth}px`
-    nodes.tourSpot.style.height = `${spotHeight}px`
-    nodes.tourSpot.style.transform = `translate(${spotLeft}px, ${spotTop}px)`
-
-    const tipRect = nodes.tourTip.getBoundingClientRect()
-    const gap = 12
-
-    /* Below the anchor by default, above it when there is no room. */
-    let tipTop = spotTop + spotHeight + gap
-    if (tipTop + tipRect.height > stageRect.height) {
-      tipTop = Math.max(gap, spotTop - tipRect.height - gap)
-    }
-
-    const maxLeft = stageRect.width - tipRect.width - gap
-    const tipLeft = Math.min(Math.max(spotLeft, gap), Math.max(gap, maxLeft))
-
-    nodes.tourTip.style.transform = `translate(${tipLeft}px, ${tipTop}px)`
-  }
-
-  const renderTour = () => {
-    const step = TOUR[tourStep]
-    if (!step) {
-      return
-    }
-
-    /* Only the add-target step wants the menu open. */
-    root.dataset.sdkDemoMenu = step.open ? 'open' : 'closed'
-    nodes.addTarget?.setAttribute('aria-expanded', step.open ? 'true' : 'false')
-
-    setText(nodes.tourTitle, step.title)
-    setText(nodes.tourBody, step.body)
-    setText(nodes.tourCount, `${tourStep + 1} of ${TOUR.length}`)
-    setText(nodes.tourNext, tourStep === TOUR.length - 1 ? 'Done' : 'Next')
-    setText(nodes.tourSkip, tourStep === TOUR.length - 1 ? 'Close' : 'Skip')
-
-    /* Measure after the text lands, so the tip is placed at its real size. */
-    requestAnimationFrame(placeTour)
-  }
-
-  const startTour = () => {
-    hideIntro()
-    if (!nodes.tour) {
-      return
-    }
-    tourStep = 0
-    nodes.tour.hidden = false
-    renderTour()
-    nodes.tourNext?.focus()
-  }
-
-  const endTour = () => {
-    tourStep = -1
-    closeAddMenu()
-    if (nodes.tour) {
-      nodes.tour.hidden = true
+  const hideHint = () => {
+    if (nodes.hint) {
+      nodes.hint.hidden = true
     }
   }
 
-  const nextTourStep = () => {
-    if (tourStep < 0) {
-      return
-    }
-    if (tourStep >= TOUR.length - 1) {
-      endTour()
-      return
-    }
-    tourStep += 1
-    renderTour()
-  }
-
-  nodes.introStart?.addEventListener('click', startTour)
-  nodes.introSkip?.addEventListener('click', hideIntro)
-
-  /* Clicking the dim outside the card is the same as skipping. */
-  nodes.intro?.addEventListener('click', (event) => {
-    if (event.target === nodes.intro) {
-      hideIntro()
-    }
-  })
-
-  nodes.tourNext?.addEventListener('click', nextTourStep)
-  nodes.tourSkip?.addEventListener('click', endTour)
-
-  /* A resize or a dragged window moves the anchor out from under the spotlight. */
-  window.addEventListener('resize', () => {
-    if (tourStep >= 0) {
-      placeTour()
-    }
-  })
-
-  root.addEventListener('sdk-demo:moved', () => {
-    if (tourStep >= 0) {
-      placeTour()
-    }
-  })
+  root.addEventListener('pointerdown', hideHint)
+  root.addEventListener('focusin', hideHint)
 
   nodes.buildButton?.addEventListener('click', runBuild)
   nodes.reload?.addEventListener('click', reset)
@@ -1177,27 +986,19 @@ const initSdkDemo = (root) => {
   })
 
   document.addEventListener('click', (event) => {
-    /* The tour drives the menu itself, so leave it alone while it runs. */
-    if (tourStep < 0 && !root.contains(event.target)) {
+    if (!root.contains(event.target)) {
       closeAddMenu()
     }
   })
 
   document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape') {
-      return
-    }
-    if (nodes.intro && !nodes.intro.hidden) {
-      hideIntro()
-    } else if (tourStep >= 0) {
-      endTour()
-    } else if (root.dataset.sdkDemoMenu === 'open') {
+    if (event.key === 'Escape' && root.dataset.sdkDemoMenu === 'open') {
       closeAddMenu()
     }
   })
 
   render()
-  showIntro()
+  showHint()
 }
 
 const initAll = () => {
