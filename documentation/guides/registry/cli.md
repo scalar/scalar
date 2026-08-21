@@ -10,6 +10,12 @@ To add an API document to the registry, use the `publish` command:
 scalar registry publish ./openapi.yaml --namespace your-team --slug your-api
 ```
 
+`publish` accepts OpenAPI and [AsyncAPI](../../asyncapi.md) documents alike. The format is detected when the document reaches the registry, so the command is the same either way:
+
+```bash
+scalar registry publish ./asyncapi.yaml --namespace your-team --slug your-events-api
+```
+
 ### Required Parameters
 - `file`: Path to your API document
 - `--namespace`: Your Scalar team namespace
@@ -74,6 +80,11 @@ And use Rules from the Registry:
 ```bash
 scalar document lint ./openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule
 ```
+
+> [!NOTE]
+> We do not currently support AsyncAPI for `validate` and `lint`. `validate` checks your document against the OpenAPI specification, and `lint` runs the `spectral:oas` ruleset, so pointing either one at an [AsyncAPI](../../asyncapi.md) document reports errors that do not apply to it. Publishing an AsyncAPI document to the registry works as normal.
+>
+> Need it? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
 
 ## Team Management
 If you're part of multiple teams, you can manage which team is active:
