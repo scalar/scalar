@@ -592,6 +592,15 @@ components:
           type: number
 `
 
+/* The second tab. Privacy-enhanced host, and the embed is only ever given a
+ * src once someone opens the tab — nothing is requested otherwise. */
+const VIDEO_EMBED = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0'
+
+const PAGE_URLS = {
+  dashboard: 'dashboard.scalar.com',
+  video: 'youtube.com/watch?v=dQw4w9WgXcQ',
+}
+
 const REDUCED_MOTION = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
 
 /* Windows stack in the order they were last touched. */
@@ -790,6 +799,13 @@ const initSdkDemo = (root) => {
     apiWindowBar: qs(root, '[data-sdk-demo-api-window-bar]'),
     apiWindowClose: qs(root, '[data-sdk-demo-api-window-close]'),
     apiDoc: qs(root, '[data-sdk-demo-api-doc]'),
+    url: qs(root, '[data-sdk-demo-url]'),
+    tabsButton: qs(root, '[data-sdk-demo-tabs]'),
+    tabstrip: qs(root, '[data-sdk-demo-tabstrip]'),
+    pageTabs: qsa(root, '[data-sdk-demo-page-tab]'),
+    main: qs(root, '.sdk-demo-main'),
+    video: qs(root, '[data-sdk-demo-video]'),
+    videoEmbed: qs(root, '[data-sdk-demo-video-embed]'),
     hint: qs(root, '[data-sdk-demo-hint]'),
     targets: qs(root, '[data-sdk-demo-targets]'),
     addTarget: qs(root, '[data-sdk-demo-add]'),
@@ -1102,6 +1118,7 @@ const initSdkDemo = (root) => {
     closeAddMenu()
     setBuildWindowOpen(false)
     setApiWindowOpen(false)
+    setTabstripOpen(false)
     resetPosition(nodes.frame)
     resetPosition(nodes.buildWindow)
     resetPosition(nodes.apiWindow)
@@ -1109,6 +1126,54 @@ const initSdkDemo = (root) => {
     render()
     showHint()
   }
+
+  /* ---------------------------------------------------------------------
+     Tabs
+     --------------------------------------------------------------------- */
+
+  const showPage = (page) => {
+    root.dataset.sdkDemoPage = page
+
+    if (nodes.main) {
+      nodes.main.hidden = page !== 'dashboard'
+    }
+    if (nodes.video) {
+      nodes.video.hidden = page !== 'video'
+    }
+
+    setText(nodes.url, PAGE_URLS[page] ?? PAGE_URLS.dashboard)
+
+    nodes.pageTabs.forEach((tab) => {
+      const active = tab.dataset.sdkDemoPageTab === page
+      tab.setAttribute('aria-selected', active ? 'true' : 'false')
+      tab.tabIndex = active ? 0 : -1
+    })
+
+    /* Load the embed on first visit, and never before. */
+    if (page === 'video' && nodes.videoEmbed && !nodes.videoEmbed.src) {
+      nodes.videoEmbed.src = VIDEO_EMBED
+    }
+  }
+
+  const setTabstripOpen = (open) => {
+    if (nodes.tabstrip) {
+      nodes.tabstrip.hidden = !open
+    }
+    nodes.tabsButton?.setAttribute('aria-expanded', open ? 'true' : 'false')
+
+    /* Closing the strip returns to the page the demo is actually about. */
+    if (!open) {
+      showPage('dashboard')
+    }
+  }
+
+  nodes.tabsButton?.addEventListener('click', () => {
+    setTabstripOpen(nodes.tabstrip?.hidden ?? true)
+  })
+
+  nodes.pageTabs.forEach((tab) => {
+    tab.addEventListener('click', () => showPage(tab.dataset.sdkDemoPageTab))
+  })
 
   /* ---------------------------------------------------------------------
      "Click to interact" hint
@@ -1212,6 +1277,7 @@ const initSdkDemo = (root) => {
     }
   })
 
+  showPage('dashboard')
   render()
   showHint()
 }

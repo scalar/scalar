@@ -25,7 +25,7 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
             <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M7 10H15V6C15 5.16667 14.7083 4.45833 14.125 3.875C13.5417 3.29167 12.8333 3 12 3C11.1667 3 10.4583 3.29167 9.875 3.875C9.29167 4.45833 9 5.16667 9 6V10H7V6C7 4.61667 7.4875 3.4375 8.4625 2.4625C9.4375 1.4875 10.6167 1 12 1C13.3833 1 14.5625 1.4875 15.5375 2.4625C16.5125 3.4375 17 4.61667 17 6V10C17.55 10 18.0208 10.1958 18.4125 10.5875C18.8042 10.9792 19 11.45 19 12V20C19 20.55 18.8042 21.0208 18.4125 21.4125C18.0208 21.8042 17.55 22 17 22H7C6.45 22 5.97917 21.8042 5.5875 21.4125C5.19583 21.0208 5 20.55 5 20V12C5 11.45 5.19583 10.9792 5.5875 10.5875C5.97917 10.1958 6.45 10 7 10Z" />
             </svg>
-            <span>dashboard.scalar.com</span>
+            <span data-sdk-demo-url>dashboard.scalar.com</span>
             <button type="button" data-sdk-demo-reload aria-label="Reload and reset the demo">
               <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 22a8.7 8.7 0 0 0 6.4-2.6A9.1 9.1 0 0 0 21 13h-2c0 2-.7 3.6-2 5-1.4 1.3-3 2-5 2s-3.6-.7-5-2c-1.3-1.4-2-3-2-5s.7-3.6 2-5c1.4-1.3 3-2 5-2h.2l-1.6 1.5L12 9l4-4-4-4-1.4 1.5L12.2 4H12a8.7 8.7 0 0 0-6.4 2.6A9.1 9.1 0 0 0 3 13a8.7 8.7 0 0 0 2.6 6.4A9.1 9.1 0 0 0 12 22Z" />
@@ -33,17 +33,37 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
             </button>
           </div>
         </div>
-        <div class="sdk-demo-chrome-right" aria-hidden="true">
-          <svg fill="currentColor" viewBox="0 0 24 24">
+        <div class="sdk-demo-chrome-right">
+          <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M6 23a2 2 0 0 1-1.4-.6A2 2 0 0 1 4 21V10c0-.6.2-1 .6-1.4A2 2 0 0 1 6 8h3v2H6v11h12V10h-3V8h3c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v11c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H6Zm5-7V4.8L9.4 6.4 8 5l4-4 4 4-1.4 1.4L13 4.8V16h-2Z" />
           </svg>
-          <svg fill="currentColor" viewBox="0 0 24 24">
+          <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2v-6Z" />
           </svg>
-          <svg fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 22a2 2 0 0 1-1.4-.6A2 2 0 0 1 6 20v-2H4a2 2 0 0 1-1.4-.6A2 2 0 0 1 2 16V6h2v10h2V8c0-.5.2-1 .6-1.4A2 2 0 0 1 8 6h8V4H6V2h10c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v2h2c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H8Zm0-2h12V8H8v12ZM2 6V4c0-.5.2-1 .6-1.4A2 2 0 0 1 4 2h2v2H4v2H2Z" />
-          </svg>
+          <button class="sdk-demo-chrome-tabs" type="button" data-sdk-demo-tabs aria-expanded="false" aria-label="Show tabs">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 22a2 2 0 0 1-1.4-.6A2 2 0 0 1 6 20v-2H4a2 2 0 0 1-1.4-.6A2 2 0 0 1 2 16V6h2v10h2V8c0-.5.2-1 .6-1.4A2 2 0 0 1 8 6h8V4H6V2h10c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v2h2c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H8Zm0-2h12V8H8v12ZM2 6V4c0-.5.2-1 .6-1.4A2 2 0 0 1 4 2h2v2H4v2H2Z" />
+            </svg>
+          </button>
         </div>
+      </div>
+      <div class="sdk-demo-tabstrip" data-sdk-demo-tabstrip hidden role="tablist" aria-label="Browser tabs">
+        <button class="sdk-demo-tabstrip-tab" type="button" role="tab" data-sdk-demo-page-tab="dashboard" aria-selected="true">
+          <span class="sdk-demo-tabstrip-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" />
+            </svg>
+          </span>
+          Warp HR SDK
+        </button>
+        <button class="sdk-demo-tabstrip-tab" type="button" role="tab" data-sdk-demo-page-tab="video" aria-selected="false" tabindex="-1">
+          <span class="sdk-demo-tabstrip-mark sdk-demo-tabstrip-mark-video" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" />
+            </svg>
+          </span>
+          Never Gonna Give You Up
+        </button>
       </div>
       <div class="sdk-demo-viewport">
         <div class="sdk-demo-main">
@@ -120,6 +140,17 @@ Nothing here talks to a server — it is a faithful replica of the real thing, s
 }</pre>
             <div class="sdk-demo-files" data-sdk-demo-files hidden></div>
           </div>
+        </div>
+        <div class="sdk-demo-video" data-sdk-demo-video hidden>
+          <div class="sdk-demo-video-frame">
+            <iframe
+              data-sdk-demo-video-embed
+              title="Rick Astley - Never Gonna Give You Up"
+              referrerpolicy="strict-origin-when-cross-origin"
+              loading="lazy"
+              allowfullscreen></iframe>
+          </div>
+          <p class="sdk-demo-video-caption">Rick Astley &mdash; Never Gonna Give You Up</p>
         </div>
       </div>
     </div>
@@ -322,6 +353,129 @@ The parts that need your accounts rather than a browser:
   .sdk-demo-chrome-right svg {
     width: 17px;
     height: 17px;
+  }
+
+  .sdk-demo-chrome-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .sdk-demo-chrome-tabs:hover,
+  .sdk-demo-chrome-tabs[aria-expanded="true"] {
+    color: var(--scalar-color-1);
+  }
+
+  /* ---------------------------------------------------------------------
+     Tab strip
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-tabstrip {
+    display: flex;
+    gap: 4px;
+    padding: 0 8px 6px;
+    background: var(--scalar-background-2);
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    overflow-x: auto;
+  }
+
+  .sdk-demo-tabstrip[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-tabstrip-tab {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex: 1;
+    min-width: 0;
+    max-width: 260px;
+    padding: 5px 10px;
+    border-radius: var(--scalar-radius-lg);
+    background: transparent;
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-micro);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .sdk-demo-tabstrip-tab:hover {
+    color: var(--scalar-color-1);
+  }
+
+  .sdk-demo-tabstrip-tab[aria-selected="true"] {
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    box-shadow: 0 1px 3px -1px rgb(0 0 0 / 25%);
+  }
+
+  .sdk-demo-tabstrip-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+
+  .sdk-demo-tabstrip-mark svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sdk-demo-tabstrip-mark-video {
+    color: #ff0033;
+  }
+
+  /* ---------------------------------------------------------------------
+     Second tab
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-video {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px;
+    background: var(--scalar-background-1);
+  }
+
+  .sdk-demo-video[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--scalar-radius-lg);
+    background: #000;
+    overflow: hidden;
+  }
+
+  .sdk-demo-video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .sdk-demo-video-caption {
+    margin: 0;
+    color: var(--scalar-color-2);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+  }
+
+  /* The floating windows belong to the dashboard tab. */
+  .sdk-demo[data-sdk-demo-page="video"] .sdk-demo-window {
+    display: none;
   }
 
   /* ---------------------------------------------------------------------
