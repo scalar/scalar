@@ -277,7 +277,7 @@
         </div>
         <div class="sdk-demo-share-people">
           <a class="sdk-demo-share-person" data-sdk-demo-share-link="sms" data-sdk-demo-share-app="Messages" href="sms:">
-            <span class="sdk-demo-share-avatar" aria-hidden="true">M<span class="sdk-demo-share-avatar-badge"></span></span>
+            <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/marc.jpg" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
             <span class="sdk-demo-share-person-name">Marc</span>
           </a>
         </div>
@@ -1925,10 +1925,16 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
     width: 50px;
     height: 50px;
     border-radius: 50%;
+    /* Sits behind the photo, so a slow or failed load still reads as an avatar. */
     background: linear-gradient(#a2a7ae, #7e848c);
-    color: #fff;
-    font-size: 20px;
-    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-share-avatar-photo {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+    object-fit: cover;
   }
 
   .sdk-demo-share-avatar-badge {
