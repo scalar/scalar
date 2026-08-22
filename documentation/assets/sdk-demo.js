@@ -848,6 +848,7 @@ const initSdkDemo = (root) => {
     siteTab: qs(root, '[data-sdk-demo-page-tab="site"]'),
     newTabs: qsa(root, '[data-sdk-demo-new-tab]'),
     shareLinks: qsa(root, '[data-sdk-demo-share-link]'),
+    profiles: qsa(root, '[data-sdk-demo-profile]'),
     sharePastes: qsa(root, '[data-sdk-demo-share-paste]'),
     shareStatus: qs(root, '[data-sdk-demo-share-status]'),
     share: qs(root, '[data-sdk-demo-share]'),
@@ -1373,6 +1374,15 @@ const initSdkDemo = (root) => {
       const copied = await copyText(SHARE_MESSAGE)
 
       announceShare(copied ? `Message copied — paste it into ${app}` : `Could not copy the message for ${app}`)
+    })
+  })
+
+  /* The people row is the Scalar team, and each tile is that person's
+   * LinkedIn. The browser handles the navigation; this only reports it. */
+  nodes.profiles.forEach((link) => {
+    link.addEventListener('click', () => {
+      announceShare(`Opening ${link.dataset.sdkDemoProfile} on LinkedIn…`)
+      later(() => setShareOpen(false), 1200)
     })
   })
 
