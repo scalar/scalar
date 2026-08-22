@@ -434,8 +434,9 @@ const initChangelog = (root) => {
         )
         .join('')
 
-    const fromChoices = versions.slice(1)
-    const toChoices = versions.slice(0, -1)
+    // A product with a single release cannot span a range, so both ends offer it.
+    const fromChoices = versions.length > 1 ? versions.slice(1) : versions
+    const toChoices = versions.length > 1 ? versions.slice(0, -1) : versions
 
     nodes.compareFrom.innerHTML = options(fromChoices, fromChoices[Math.min(2, fromChoices.length - 1)])
     nodes.compareTo.innerHTML = options(toChoices, toChoices[0])
@@ -445,6 +446,10 @@ const initChangelog = (root) => {
     const product = nodes.compareProduct.value
     let from = nodes.compareFrom.value
     let to = nodes.compareTo.value
+
+    if (!from || !to) {
+      return
+    }
 
     // Reading the range backwards is an easy slip; treat it as the same range.
     if (compareVersions(from, to) > 0) {

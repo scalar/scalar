@@ -14,7 +14,10 @@
     "documentation/assets/vector.js",
     "documentation/assets/brand.js",
     "documentation/assets/enterprise-contact-form.js",
-    "documentation/assets/company.js"
+    "documentation/assets/company.js",
+    "documentation/assets/sdk-demo.js",
+    "documentation/assets/changelog-data.js",
+    "documentation/assets/changelog-explorer.js"
   ],
   "ignore": [
     // Loaded at runtime by `@scalar/release-notes` (release:version script), not statically imported
