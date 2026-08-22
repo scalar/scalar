@@ -53,10 +53,10 @@ Everything that shipped across Scalar, in one stream. Filter by product, scrub t
         <select data-changelog-compare-to></select>
       </label>
     </div>
-    <p class="changelog-compare-summary" data-changelog-compare-summary role="status"></p>
+    <div class="changelog-compare-summary" data-changelog-compare-summary role="status"></div>
   </div>
 
-  <p class="changelog-count" data-changelog-count role="status"></p>
+  <div class="changelog-count" data-changelog-count role="status"></div>
 
   <ol class="changelog-stream" data-changelog-stream></ol>
 

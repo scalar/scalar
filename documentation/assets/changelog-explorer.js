@@ -336,7 +336,10 @@ const initChangelog = (root) => {
 
     if (nodes.markRead) {
       nodes.markRead.hidden = newDismissed || newCount === 0
-      nodes.markRead.querySelector('[data-changelog-new-count]').textContent = pluralize(newCount, 'new release')
+      const count = nodes.markRead.querySelector('[data-changelog-new-count]')
+      if (count) {
+        count.textContent = pluralize(newCount, 'new release')
+      }
     }
   }
 
@@ -461,6 +464,10 @@ const initChangelog = (root) => {
   }
 
   const renderCompareSummary = (matched) => {
+    if (!nodes.compareSummary) {
+      return
+    }
+
     if (!state.compare) {
       nodes.compareSummary.textContent = ''
       return
@@ -552,11 +559,14 @@ const initChangelog = (root) => {
     nodes.stream.dataset.animate = prefersReducedMotion() ? 'false' : 'true'
 
     nodes.empty.hidden = matched.length > 0
-    nodes.count.textContent = state.compare
-      ? ''
-      : matched.length === releases.length
-        ? `Showing all ${pluralize(releases.length, 'release')}`
-        : `Showing ${matched.length} of ${pluralize(releases.length, 'release')}`
+
+    if (nodes.count) {
+      nodes.count.textContent = state.compare
+        ? ''
+        : matched.length === releases.length
+          ? `Showing all ${pluralize(releases.length, 'release')}`
+          : `Showing ${matched.length} of ${pluralize(releases.length, 'release')}`
+    }
 
     if (nodes.reset) {
       nodes.reset.hidden = !hasActiveFilter() && !state.compare
