@@ -248,6 +248,99 @@
             sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
         </div>
       </div>
+      <div class="sdk-demo-share-layer" data-sdk-demo-share-sheet hidden>
+        <div class="sdk-demo-share-scrim" data-sdk-demo-share-scrim></div>
+        <div class="sdk-demo-share-sheet" role="dialog" aria-modal="true" aria-label="Share">
+          <span class="sdk-demo-share-grabber" aria-hidden="true"></span>
+          <div class="sdk-demo-share-card sdk-demo-share-preview">
+            <span class="sdk-demo-share-favicon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" /></svg>
+            </span>
+            <span class="sdk-demo-share-preview-text">
+              <span class="sdk-demo-share-preview-title">Warp HR SDK</span>
+              <span class="sdk-demo-share-preview-host" data-sdk-demo-share-host>dashboard.scalar.com</span>
+            </span>
+            <span class="sdk-demo-share-options">Options <span aria-hidden="true">&rsaquo;</span></span>
+          </div>
+          <div class="sdk-demo-share-people">
+            <a class="sdk-demo-share-person" data-sdk-demo-profile="Marc Laventure" href="https://www.linkedin.com/in/marc-laventure/" target="_blank" rel="noopener noreferrer" aria-label="Marc Laventure on LinkedIn">
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/marc.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-person-name">Marc</span>
+            </a>
+            <a class="sdk-demo-share-person" data-sdk-demo-profile="Cameron Rohani" href="https://www.linkedin.com/in/cameron-rohani-5ba99a99/" target="_blank" rel="noopener noreferrer" aria-label="Cameron Rohani on LinkedIn">
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/cam.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-person-name">Cameron</span>
+            </a>
+            <a class="sdk-demo-share-person" data-sdk-demo-profile="Hans Pagel" href="https://www.linkedin.com/in/hans-pagel-35303a18a/" target="_blank" rel="noopener noreferrer" aria-label="Hans Pagel on LinkedIn">
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/hans.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-person-name">Hans</span>
+            </a>
+            <a class="sdk-demo-share-person" data-sdk-demo-profile="Peter McGrath" href="https://www.linkedin.com/in/peter-mcgrath-cpa-795470111/" target="_blank" rel="noopener noreferrer" aria-label="Peter McGrath on LinkedIn">
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/peter.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-person-name">Peter</span>
+            </a>
+            <a class="sdk-demo-share-person" data-sdk-demo-profile="Geoff" href="https://www.linkedin.com/in/geoffgscott/" target="_blank" rel="noopener noreferrer" aria-label="Geoff on LinkedIn">
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/geoff.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-person-name">Geoff</span>
+            </a>
+            <a class="sdk-demo-share-person" data-sdk-demo-profile="Amrit" href="https://www.linkedin.com/in/amrit-kahlon/" target="_blank" rel="noopener noreferrer" aria-label="Amrit on LinkedIn">
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/amrit.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-person-name">Amrit</span>
+            </a>
+            <a class="sdk-demo-share-person" data-sdk-demo-profile="Brynn" href="https://www.linkedin.com/in/bnhwkr/" target="_blank" rel="noopener noreferrer" aria-label="Brynn on LinkedIn">
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/brynn.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-person-name">Brynn</span>
+            </a>
+            <a class="sdk-demo-share-person" data-sdk-demo-profile="Redis" href="https://www.linkedin.com/in/redis-stasa-14b2aa24a/" target="_blank" rel="noopener noreferrer" aria-label="Redis on LinkedIn">
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/redis.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-person-name">Redis</span>
+            </a>
+          </div>
+          <div class="sdk-demo-share-apps">
+            <a class="sdk-demo-share-app" data-sdk-demo-share-link="sms" data-sdk-demo-share-app="Messages" href="sms:">
+              <span class="sdk-demo-share-tile sdk-demo-share-tile-messages" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.9 3 2.8 6.4 2.8 10.6c0 2.4 1.3 4.5 3.4 5.9-.2 1.2-.8 2.4-1.7 3.3 1.6-.2 3.1-.8 4.4-1.7 1 .3 2 .4 3.1.4 5.1 0 9.2-3.4 9.2-7.6S17.1 3 12 3Z" /></svg></span>
+              <span class="sdk-demo-share-app-name">Messages</span>
+            </a>
+            <a class="sdk-demo-share-app" data-sdk-demo-share-link="mailto" data-sdk-demo-share-app="Mail" href="mailto:">
+              <span class="sdk-demo-share-tile sdk-demo-share-tile-mail" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5.5" width="18" height="13" rx="2.5" /><path d="m3.8 7.5 7.1 5.2c.7.5 1.6.5 2.2 0l7.1-5.2" /></svg></span>
+              <span class="sdk-demo-share-app-name">Mail</span>
+            </a>
+            <button class="sdk-demo-share-app" type="button" data-sdk-demo-share-paste="Slack">
+              <span class="sdk-demo-share-tile sdk-demo-share-tile-slack" aria-hidden="true"><svg viewBox="0 0 24 24">
+                  <rect x="8.6" y="1.8" width="3.4" height="9.2" rx="1.7" fill="#36c5f0" />
+                  <rect x="13" y="8.6" width="9.2" height="3.4" rx="1.7" fill="#2eb67d" />
+                  <rect x="12" y="13" width="3.4" height="9.2" rx="1.7" fill="#e01e5a" />
+                  <rect x="1.8" y="12" width="9.2" height="3.4" rx="1.7" fill="#ecb22e" />
+                </svg></span>
+              <span class="sdk-demo-share-app-name">Slack</span>
+            </button>
+            <button class="sdk-demo-share-app" type="button" data-sdk-demo-share-paste="Notes">
+              <span class="sdk-demo-share-tile sdk-demo-share-tile-notes" aria-hidden="true"><svg viewBox="0 0 24 24" stroke="#8a6d1f" stroke-width="1.6" stroke-linecap="round"><path d="M7 9h10M7 13h10M7 17h6" /></svg></span>
+              <span class="sdk-demo-share-app-name">Notes</span>
+            </button>
+            <span class="sdk-demo-share-app sdk-demo-share-app-inert">
+              <span class="sdk-demo-share-tile sdk-demo-share-tile-more" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="18" cy="12" r="1.8" /></svg></span>
+              <span class="sdk-demo-share-app-name">More</span>
+            </span>
+          </div>
+          <p class="sdk-demo-share-status" data-sdk-demo-share-status role="status"></p>
+          <div class="sdk-demo-share-card sdk-demo-share-actions">
+            <button class="sdk-demo-share-action" type="button" data-sdk-demo-share-copy>
+              <span data-sdk-demo-share-copy-label>Copy</span>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 18a2 2 0 0 1-2-2V4c0-.6.2-1 .6-1.4A2 2 0 0 1 9 2h9c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H9Zm0-2h9V4H9v12Zm-4 6a2 2 0 0 1-1.4-.6A2 2 0 0 1 3 20V6h2v14h11v2H5Z" /></svg>
+            </button>
+            <button class="sdk-demo-share-action" type="button">
+              <span>Add to Reading List</span>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 21V5c0-.6.2-1 .6-1.4A2 2 0 0 1 6 3h12c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v16l-8-3.4L4 21Z" /></svg>
+            </button>
+            <button class="sdk-demo-share-action" type="button">
+              <span>Find on Page</span>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /></svg>
+            </button>
+          </div>
+          <button class="sdk-demo-share-cancel" type="button" data-sdk-demo-share-cancel>Cancel</button>
+        </div>
+      </div>
     </div>
     <div class="sdk-demo-closed" data-sdk-demo-closed hidden>
       <p class="sdk-demo-closed-text">You closed the demo.</p>
@@ -269,7 +362,7 @@
       </div>
       <div class="sdk-demo-log" data-sdk-demo-log role="log" aria-label="Build log"></div>
     </div>
-    <div class="sdk-demo-window sdk-demo-window-api" data-sdk-demo-api-window hidden>
+    <div class="sdk-demo-window sdk-demo-window-api" data-sdk-demo-api-window data-sdk-demo-end hidden>
       <div class="sdk-demo-window-bar" data-sdk-demo-api-window-bar>
         <div class="sdk-demo-window-lights">
           <button type="button" data-sdk-demo-api-window-close aria-label="Close the API document"></button>
@@ -279,99 +372,6 @@
         <span class="sdk-demo-window-title">openapi.yaml</span>
       </div>
       <pre class="sdk-demo-api-doc" data-sdk-demo-api-doc></pre>
-    </div>
-    <div class="sdk-demo-share-layer" data-sdk-demo-share-sheet data-sdk-demo-end hidden>
-      <div class="sdk-demo-share-scrim" data-sdk-demo-share-scrim></div>
-      <div class="sdk-demo-share-sheet" role="dialog" aria-modal="true" aria-label="Share">
-        <span class="sdk-demo-share-grabber" aria-hidden="true"></span>
-        <div class="sdk-demo-share-card sdk-demo-share-preview">
-          <span class="sdk-demo-share-favicon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" /></svg>
-          </span>
-          <span class="sdk-demo-share-preview-text">
-            <span class="sdk-demo-share-preview-title">Warp HR SDK</span>
-            <span class="sdk-demo-share-preview-host" data-sdk-demo-share-host>dashboard.scalar.com</span>
-          </span>
-          <span class="sdk-demo-share-options">Options <span aria-hidden="true">&rsaquo;</span></span>
-        </div>
-        <div class="sdk-demo-share-people">
-          <a class="sdk-demo-share-person" data-sdk-demo-profile="Marc Laventure" href="https://www.linkedin.com/in/marc-laventure/" target="_blank" rel="noopener noreferrer" aria-label="Marc Laventure on LinkedIn">
-            <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/marc.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
-            <span class="sdk-demo-share-person-name">Marc</span>
-          </a>
-          <a class="sdk-demo-share-person" data-sdk-demo-profile="Cameron Rohani" href="https://www.linkedin.com/in/cameron-rohani-5ba99a99/" target="_blank" rel="noopener noreferrer" aria-label="Cameron Rohani on LinkedIn">
-            <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/cam.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
-            <span class="sdk-demo-share-person-name">Cameron</span>
-          </a>
-          <a class="sdk-demo-share-person" data-sdk-demo-profile="Hans Pagel" href="https://www.linkedin.com/in/hans-pagel-35303a18a/" target="_blank" rel="noopener noreferrer" aria-label="Hans Pagel on LinkedIn">
-            <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/hans.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
-            <span class="sdk-demo-share-person-name">Hans</span>
-          </a>
-          <a class="sdk-demo-share-person" data-sdk-demo-profile="Peter McGrath" href="https://www.linkedin.com/in/peter-mcgrath-cpa-795470111/" target="_blank" rel="noopener noreferrer" aria-label="Peter McGrath on LinkedIn">
-            <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/peter.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
-            <span class="sdk-demo-share-person-name">Peter</span>
-          </a>
-          <a class="sdk-demo-share-person" data-sdk-demo-profile="Geoff" href="https://www.linkedin.com/in/geoffgscott/" target="_blank" rel="noopener noreferrer" aria-label="Geoff on LinkedIn">
-            <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/geoff.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
-            <span class="sdk-demo-share-person-name">Geoff</span>
-          </a>
-          <a class="sdk-demo-share-person" data-sdk-demo-profile="Amrit" href="https://www.linkedin.com/in/amrit-kahlon/" target="_blank" rel="noopener noreferrer" aria-label="Amrit on LinkedIn">
-            <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/amrit.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
-            <span class="sdk-demo-share-person-name">Amrit</span>
-          </a>
-          <a class="sdk-demo-share-person" data-sdk-demo-profile="Brynn" href="https://www.linkedin.com/in/bnhwkr/" target="_blank" rel="noopener noreferrer" aria-label="Brynn on LinkedIn">
-            <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/brynn.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
-            <span class="sdk-demo-share-person-name">Brynn</span>
-          </a>
-          <a class="sdk-demo-share-person" data-sdk-demo-profile="Redis" href="https://www.linkedin.com/in/redis-stasa-14b2aa24a/" target="_blank" rel="noopener noreferrer" aria-label="Redis on LinkedIn">
-            <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/redis.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
-            <span class="sdk-demo-share-person-name">Redis</span>
-          </a>
-        </div>
-        <div class="sdk-demo-share-apps">
-          <a class="sdk-demo-share-app" data-sdk-demo-share-link="sms" data-sdk-demo-share-app="Messages" href="sms:">
-            <span class="sdk-demo-share-tile sdk-demo-share-tile-messages" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.9 3 2.8 6.4 2.8 10.6c0 2.4 1.3 4.5 3.4 5.9-.2 1.2-.8 2.4-1.7 3.3 1.6-.2 3.1-.8 4.4-1.7 1 .3 2 .4 3.1.4 5.1 0 9.2-3.4 9.2-7.6S17.1 3 12 3Z" /></svg></span>
-            <span class="sdk-demo-share-app-name">Messages</span>
-          </a>
-          <a class="sdk-demo-share-app" data-sdk-demo-share-link="mailto" data-sdk-demo-share-app="Mail" href="mailto:">
-            <span class="sdk-demo-share-tile sdk-demo-share-tile-mail" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5.5" width="18" height="13" rx="2.5" /><path d="m3.8 7.5 7.1 5.2c.7.5 1.6.5 2.2 0l7.1-5.2" /></svg></span>
-            <span class="sdk-demo-share-app-name">Mail</span>
-          </a>
-          <button class="sdk-demo-share-app" type="button" data-sdk-demo-share-paste="Slack">
-            <span class="sdk-demo-share-tile sdk-demo-share-tile-slack" aria-hidden="true"><svg viewBox="0 0 24 24">
-                <rect x="8.6" y="1.8" width="3.4" height="9.2" rx="1.7" fill="#36c5f0" />
-                <rect x="13" y="8.6" width="9.2" height="3.4" rx="1.7" fill="#2eb67d" />
-                <rect x="12" y="13" width="3.4" height="9.2" rx="1.7" fill="#e01e5a" />
-                <rect x="1.8" y="12" width="9.2" height="3.4" rx="1.7" fill="#ecb22e" />
-              </svg></span>
-            <span class="sdk-demo-share-app-name">Slack</span>
-          </button>
-          <button class="sdk-demo-share-app" type="button" data-sdk-demo-share-paste="Notes">
-            <span class="sdk-demo-share-tile sdk-demo-share-tile-notes" aria-hidden="true"><svg viewBox="0 0 24 24" stroke="#8a6d1f" stroke-width="1.6" stroke-linecap="round"><path d="M7 9h10M7 13h10M7 17h6" /></svg></span>
-            <span class="sdk-demo-share-app-name">Notes</span>
-          </button>
-          <span class="sdk-demo-share-app sdk-demo-share-app-inert">
-            <span class="sdk-demo-share-tile sdk-demo-share-tile-more" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="18" cy="12" r="1.8" /></svg></span>
-            <span class="sdk-demo-share-app-name">More</span>
-          </span>
-        </div>
-        <p class="sdk-demo-share-status" data-sdk-demo-share-status role="status"></p>
-        <div class="sdk-demo-share-card sdk-demo-share-actions">
-          <button class="sdk-demo-share-action" type="button" data-sdk-demo-share-copy>
-            <span data-sdk-demo-share-copy-label>Copy</span>
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 18a2 2 0 0 1-2-2V4c0-.6.2-1 .6-1.4A2 2 0 0 1 9 2h9c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H9Zm0-2h9V4H9v12Zm-4 6a2 2 0 0 1-1.4-.6A2 2 0 0 1 3 20V6h2v14h11v2H5Z" /></svg>
-          </button>
-          <button class="sdk-demo-share-action" type="button">
-            <span>Add to Reading List</span>
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 21V5c0-.6.2-1 .6-1.4A2 2 0 0 1 6 3h12c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v16l-8-3.4L4 21Z" /></svg>
-          </button>
-          <button class="sdk-demo-share-action" type="button">
-            <span>Find on Page</span>
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /></svg>
-          </button>
-        </div>
-        <button class="sdk-demo-share-cancel" type="button" data-sdk-demo-share-cancel>Cancel</button>
-      </div>
     </div>
   </div>
 </div>
@@ -838,6 +838,10 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
   }
 
   .sdk-demo-frame {
+    /* Containing block for the overlays that belong to the window — the tab
+       overview and the share sheet — so they travel with it when it is
+       dragged, and shrink with it when it is minimized. */
+    position: relative;
     border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: var(--scalar-radius-3xl);
     background: var(--scalar-background-1);
@@ -2012,7 +2016,6 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    border-radius: var(--scalar-radius-3xl);
     overflow: hidden;
   }
 

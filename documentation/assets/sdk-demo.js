@@ -1378,6 +1378,10 @@ const initSdkDemo = (root) => {
     }
     nodes.tabsButton?.setAttribute('aria-expanded', open ? 'true' : 'false')
 
+    if (open) {
+      setMinimized(false)
+    }
+
     /* Safari swaps the address for its search prompt while the overview is up. */
     setText(
       nodes.url,
@@ -1428,6 +1432,7 @@ const initSdkDemo = (root) => {
     nodes.share?.setAttribute('aria-expanded', open ? 'true' : 'false')
 
     if (open) {
+      setMinimized(false)
       hideHint()
     } else {
       /* Leave the sheet in its resting state for the next open. */
