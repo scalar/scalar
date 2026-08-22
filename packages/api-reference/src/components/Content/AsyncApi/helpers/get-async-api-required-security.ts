@@ -20,7 +20,24 @@ export const getAsyncApiRequiredSecurity = (
   document: AsyncApiDocument,
   operation: AsyncApiOperationObject | null | undefined,
 ): RequiredSecurity =>
-  getRequiredSecurity(
-    { security: getAsyncApiSecurityRequirements(document, operation, null) },
-    { components: undefined },
+  getRequiredSecurity({ security: getSanitizedSecurityRequirements(document, operation) }, { components: undefined })
+
+/**
+ * Normalised security requirements with non-string scopes removed.
+ *
+ * AsyncAPI documents are only loosely validated, so a `scopes:` list can contain nulls (a bare
+ * `-` in YAML) or numbers. `getRequiredSecurity` filters scopes with `s.length > 0`, which throws
+ * on a null, so the guard has to happen before the shared helper sees the list.
+ */
+const getSanitizedSecurityRequirements = (
+  document: AsyncApiDocument,
+  operation: AsyncApiOperationObject | null | undefined,
+) =>
+  getAsyncApiSecurityRequirements(document, operation, null).map((requirement) =>
+    Object.fromEntries(
+      Object.entries(requirement).map(([name, scopes]) => [
+        name,
+        (scopes ?? []).filter((scope): scope is string => typeof scope === 'string'),
+      ]),
+    ),
   )

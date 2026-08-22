@@ -49,6 +49,17 @@ export const sources = [
     url: 'examples/asyncapi-filters.yaml',
   },
   {
+    title: 'AsyncAPI Kitchen Sink',
+    slug: 'asyncapi-kitchen-sink',
+    url: 'examples/asyncapi-kitchen-sink.yaml',
+  },
+  {
+    title: 'AsyncAPI Kitchen Sink (Classic Layout)',
+    slug: 'asyncapi-kitchen-sink-classic',
+    url: 'examples/asyncapi-kitchen-sink.yaml',
+    layout: 'classic',
+  },
+  {
     title: 'Tag Groups',
     slug: 'tag-groups',
     content: {

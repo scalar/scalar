@@ -1,3 +1,4 @@
+import { ScalarCodeBlock } from '@scalar/components/code-block'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
@@ -241,5 +242,89 @@ describe('Message', () => {
     const protocols = wrapper.findAll('.async-api-label--protocol').map((el) => el.text())
     expect(protocols).toContain('ws')
     expect(protocols).toContain('mqtt')
+  })
+
+  it('renders the correlationId when expanded', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({
+          payload: { type: 'object' },
+          correlationId: { location: '$message.header#/correlationId', description: 'Tracks the request.' },
+        }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+    })
+
+    expect(wrapper.text()).toContain('Correlation ID')
+    expect(wrapper.text()).toContain('$message.header#/correlationId')
+    expect(wrapper.text()).toContain('Tracks the request.')
+  })
+
+  it('renders message examples when expanded', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({
+          payload: { type: 'object' },
+          examples: [{ name: 'signup', summary: 'A signup event', payload: { userId: '42' } }],
+        }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+    })
+
+    expect(wrapper.text()).toContain('Examples')
+    expect(wrapper.text()).toContain('signup')
+    expect(wrapper.text()).toContain('A signup event')
+  })
+
+  it('does not render a payload code block for an example with a null payload', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({
+          payload: { type: 'object' },
+          examples: [{ name: 'empty', payload: null }],
+        }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+    })
+
+    expect(wrapper.text()).toContain('empty')
+    // A null payload must be skipped, not rendered as an empty (or "null") code block.
+    expect(wrapper.findAllComponents(ScalarCodeBlock)).toHaveLength(0)
+  })
+
+  it('renders message bindings when expanded', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({
+          payload: { type: 'object' },
+          bindings: { kafka: { key: 'user-id' } },
+        }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+    })
+
+    expect(wrapper.text()).toContain('Bindings')
+    expect(wrapper.text()).toContain('kafka')
+  })
+
+  it('renders message tags when expanded', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({ payload: { type: 'object' }, tags: [{ name: 'events' }] }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+    })
+
+    expect(wrapper.text()).toContain('events')
   })
 })
