@@ -1,12 +1,346 @@
-/*
- * Styles for the interactive SDK Generator demo.
- *
- * Kept as a string and injected by the component rather than imported as a
- * stylesheet: the MDX pipeline bundles pages with esbuild, which would emit a
- * sibling .css file that nothing on the page links to.
- */
+# Interactive Demo
 
-export const SDK_DEMO_STYLES = `
+This is the SDK Generator, running against a fictional HR API called Warp. Everything below the browser bar is the Scalar dashboard: pick a target to see the code it generates, add a language, and press **Build** to watch a generation run go from OpenAPI document to a release pull request.
+
+Nothing here talks to a server — it is a faithful replica of the real thing, so you can see the whole flow before creating an account.
+
+<div class="sdk-demo" data-sdk-demo data-sdk-demo-menu="closed" data-sdk-demo-state="live">
+  <div class="sdk-demo-stage">
+    <div class="sdk-demo-frame" data-sdk-demo-frame>
+      <div class="sdk-demo-chrome" data-sdk-demo-chrome>
+        <div class="sdk-demo-chrome-lights" aria-hidden="true"></div>
+        <div class="sdk-demo-chrome-left" aria-hidden="true">
+          <svg fill="currentColor" height="16" viewBox="0 0 20 16" width="20">
+            <path clip-rule="evenodd" d="M19.4 15.4a2 2 0 0 1-1.4.6H2a2 2 0 0 1-1.4-.6A2 2 0 0 1 0 14V2C0 1.4.2 1 .6.6A2 2 0 0 1 2 0h16c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v12c0 .6-.2 1-.6 1.4ZM2 14h5V2H2v12Zm7 0h9V2H9v12ZM3.3 3c-.2 0-.3.2-.3.3v1c0 .2.1.3.3.3h2.5c.1 0 .2-.1.2-.3v-1l-.2-.2H3.3Zm0 2c-.2 0-.3.2-.3.3v1c0 .2.1.3.3.3h2.5c.1 0 .2-.1.2-.3v-1l-.2-.2H3.3ZM3 7.4c0-.1.1-.2.3-.2h2.5c.1 0 .2 0 .2.2v1c0 .2-.1.3-.2.3H3.3a.3.3 0 0 1-.3-.3v-1Z" fill-rule="evenodd" />
+          </svg>
+          <svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
+            <path d="M16 22 6 12 16 2l1.8 1.8L9.5 12l8.3 8.2L16 22Z" />
+          </svg>
+          <svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
+            <path d="m8 22 10-10L8 2 6.2 3.8l8.3 8.2-8.3 8.2L8 22Z" />
+          </svg>
+        </div>
+        <div class="sdk-demo-chrome-nav">
+          <div class="sdk-demo-chrome-url">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 10H15V6C15 5.16667 14.7083 4.45833 14.125 3.875C13.5417 3.29167 12.8333 3 12 3C11.1667 3 10.4583 3.29167 9.875 3.875C9.29167 4.45833 9 5.16667 9 6V10H7V6C7 4.61667 7.4875 3.4375 8.4625 2.4625C9.4375 1.4875 10.6167 1 12 1C13.3833 1 14.5625 1.4875 15.5375 2.4625C16.5125 3.4375 17 4.61667 17 6V10C17.55 10 18.0208 10.1958 18.4125 10.5875C18.8042 10.9792 19 11.45 19 12V20C19 20.55 18.8042 21.0208 18.4125 21.4125C18.0208 21.8042 17.55 22 17 22H7C6.45 22 5.97917 21.8042 5.5875 21.4125C5.19583 21.0208 5 20.55 5 20V12C5 11.45 5.19583 10.9792 5.5875 10.5875C5.97917 10.1958 6.45 10 7 10Z" />
+            </svg>
+            <span data-sdk-demo-url>dashboard.scalar.com</span>
+            <button type="button" data-sdk-demo-reload aria-label="Reload and reset the demo">
+              <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 22a8.7 8.7 0 0 0 6.4-2.6A9.1 9.1 0 0 0 21 13h-2c0 2-.7 3.6-2 5-1.4 1.3-3 2-5 2s-3.6-.7-5-2c-1.3-1.4-2-3-2-5s.7-3.6 2-5c1.4-1.3 3-2 5-2h.2l-1.6 1.5L12 9l4-4-4-4-1.4 1.5L12.2 4H12a8.7 8.7 0 0 0-6.4 2.6A9.1 9.1 0 0 0 3 13a8.7 8.7 0 0 0 2.6 6.4A9.1 9.1 0 0 0 12 22Z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="sdk-demo-chrome-right">
+          <button class="sdk-demo-chrome-button" type="button" data-sdk-demo-share aria-expanded="false" aria-label="Share">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 23a2 2 0 0 1-1.4-.6A2 2 0 0 1 4 21V10c0-.6.2-1 .6-1.4A2 2 0 0 1 6 8h3v2H6v11h12V10h-3V8h3c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v11c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H6Zm5-7V4.8L9.4 6.4 8 5l4-4 4 4-1.4 1.4L13 4.8V16h-2Z" />
+            </svg>
+          </button>
+          <button class="sdk-demo-chrome-button" type="button" data-sdk-demo-new-tab aria-label="New tab">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2v-6Z" />
+            </svg>
+          </button>
+          <button class="sdk-demo-chrome-button" type="button" data-sdk-demo-tabs aria-expanded="false" aria-label="Show tabs">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 22a2 2 0 0 1-1.4-.6A2 2 0 0 1 6 20v-2H4a2 2 0 0 1-1.4-.6A2 2 0 0 1 2 16V6h2v10h2V8c0-.5.2-1 .6-1.4A2 2 0 0 1 8 6h8V4H6V2h10c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v2h2c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H8Zm0-2h12V8H8v12ZM2 6V4c0-.5.2-1 .6-1.4A2 2 0 0 1 4 2h2v2H4v2H2Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="sdk-demo-overview" data-sdk-demo-overview hidden>
+        <div class="sdk-demo-overview-bar">
+          <label class="sdk-demo-overview-search">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" />
+            </svg>
+            <input type="search" placeholder="Search Tabs" data-sdk-demo-tab-search aria-label="Search tabs" />
+          </label>
+        </div>
+        <div class="sdk-demo-overview-grid">
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="dashboard" data-title="Warp HR SDK Scalar dashboard" aria-current="page">
+            <span class="sdk-demo-tab-card-head">
+              <span class="sdk-demo-tab-card-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" />
+            </svg>
+              </span>
+              Warp HR SDK
+            </span>
+            <span class="sdk-demo-tab-card-preview" aria-hidden="true">
+              <span class="sdk-demo-mini">
+                <span class="sdk-demo-mini-row">
+                  <span class="sdk-demo-mini-title"></span>
+                  <span class="sdk-demo-mini-button"></span>
+                </span>
+                <span class="sdk-demo-mini-card"></span>
+                <span class="sdk-demo-mini-grid">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+                <span class="sdk-demo-mini-panel">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+              </span>
+            </span>
+          </button>
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="video" data-title="untitled">
+            <span class="sdk-demo-tab-card-head">
+              <span class="sdk-demo-tab-card-mark sdk-demo-tab-card-mark-video" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" />
+            </svg>
+              </span>
+              Untitled
+            </span>
+            <span class="sdk-demo-tab-card-preview sdk-demo-tab-card-preview-video" aria-hidden="true">
+              <span class="sdk-demo-mini-play"></span>
+            </span>
+          </button>
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="site" data-title="scalar.com Scalar" hidden>
+            <span class="sdk-demo-tab-card-head">
+              <span class="sdk-demo-tab-card-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" /></svg></span>
+              Scalar
+            </span>
+            <span class="sdk-demo-tab-card-preview sdk-demo-tab-card-preview-site" aria-hidden="true">
+              <span class="sdk-demo-mini-site">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </span>
+          </button>
+          <button class="sdk-demo-tab-card sdk-demo-tab-card-new" type="button" data-sdk-demo-new-tab aria-label="New tab">+</button>
+        </div>
+      </div>
+      <div class="sdk-demo-viewport">
+        <div class="sdk-demo-main">
+          <div class="sdk-demo-title-row">
+            <div class="sdk-demo-title">Warp HR SDK</div>
+            <div class="sdk-demo-title-actions">
+              <button class="sdk-demo-ghost-button" type="button" data-sdk-demo-view-api aria-expanded="false">{ } View API</button>
+              <button class="sdk-demo-build-button" type="button" data-sdk-demo-build>Build</button>
+            </div>
+          </div>
+          <div class="sdk-demo-status">
+            <div class="sdk-demo-status-left">
+              <span class="sdk-demo-dot sdk-demo-dot-green" data-sdk-demo-status-dot></span>
+              <div class="sdk-demo-status-text">
+                <span class="sdk-demo-status-label" data-sdk-demo-status-label>Build live</span>
+                <span class="sdk-demo-status-meta"><code data-sdk-demo-version>v1.4.0</code><span data-sdk-demo-status-meta>4 minutes ago</span></span>
+              </div>
+            </div>
+            <div class="sdk-demo-steps" data-sdk-demo-steps>
+              <div class="sdk-demo-step">
+                <span class="sdk-demo-step-name">Codegen</span>
+                <span class="sdk-demo-step-state sdk-demo-step-done">✓</span>
+              </div>
+              <div class="sdk-demo-step">
+                <span class="sdk-demo-step-name">Build</span>
+                <span class="sdk-demo-step-state sdk-demo-step-done">✓</span>
+              </div>
+            </div>
+          </div>
+          <div class="sdk-demo-section-head">
+            <span class="sdk-demo-section-title">Targets</span>
+            <div class="sdk-demo-add-wrap">
+              <button class="sdk-demo-add" type="button" data-sdk-demo-add aria-expanded="false" aria-haspopup="true">+ Add target</button>
+              <div class="sdk-demo-add-menu" data-sdk-demo-add-menu role="menu"></div>
+            </div>
+          </div>
+          <div class="sdk-demo-targets" data-sdk-demo-targets>
+            <button class="sdk-demo-target" type="button" data-target="typescript" aria-pressed="true">
+              <span class="sdk-demo-target-mark"><svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#3178C6"><path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z" /></svg></span>
+              <span class="sdk-demo-target-body">
+                <span class="sdk-demo-target-head">
+                  <span class="sdk-demo-target-name">Typescript</span>
+                </span>
+                <span class="sdk-demo-target-registry">npm</span>
+              </span>
+              <span class="sdk-demo-dot sdk-demo-dot-green"></span>
+            </button>
+          </div>
+          <div class="sdk-demo-package">
+            <span class="sdk-demo-package-title">
+              <span class="sdk-demo-package-name" data-sdk-demo-package>warp-hr</span>
+              <span class="sdk-demo-package-sep" aria-hidden="true">·</span>
+              <span class="sdk-demo-package-registry" data-sdk-demo-registry>npm</span>
+            </span>
+            <span class="sdk-demo-install" data-sdk-demo-install>npm install warp-hr</span>
+          </div>
+          <div class="sdk-demo-panel">
+            <div class="sdk-demo-tabs" role="tablist" data-sdk-demo-tablist aria-label="Generated output">
+              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="quickstart" aria-selected="true">Quickstart</button>
+              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="reference" aria-selected="false" tabindex="-1">api.md</button>
+              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="skill" aria-selected="false" tabindex="-1">SKILL.md</button>
+              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="files" aria-selected="false" tabindex="-1">Files</button>
+            </div>
+            <div class="sdk-demo-code-head"><span data-sdk-demo-code-title>index.ts</span></div>
+            <pre class="sdk-demo-code" data-sdk-demo-code><span class="sdk-demo-tok-keyword">import</span> <span class="sdk-demo-tok-type">WarpAPI</span> <span class="sdk-demo-tok-keyword">from</span> <span class="sdk-demo-tok-string">"warp-hr"</span>;
+
+<span class="sdk-demo-tok-keyword">const</span> client = <span class="sdk-demo-tok-keyword">new</span> <span class="sdk-demo-tok-type">WarpAPI</span>({
+  apiKey: process.env[<span class="sdk-demo-tok-string">"WARP_API_KEY"</span>], <span class="sdk-demo-tok-comment">// defaults to the WARP_API_KEY env var</span>
+});
+
+<span class="sdk-demo-tok-comment">// Auto-paginating: the next cursor page is fetched as you iterate.</span>
+<span class="sdk-demo-tok-keyword">for</span> <span class="sdk-demo-tok-keyword">await</span> (<span class="sdk-demo-tok-keyword">const</span> assignment <span class="sdk-demo-tok-keyword">of</span> client.timeOff.<span class="sdk-demo-tok-fn">listAssignments</span>({ limit: <span class="sdk-demo-tok-number">50</span> })) {
+  console.<span class="sdk-demo-tok-fn">log</span>(assignment.id, assignment.policy.name);
+}</pre>
+            <div class="sdk-demo-files" data-sdk-demo-files hidden></div>
+          </div>
+        </div>
+        <div class="sdk-demo-video" data-sdk-demo-video hidden>
+          <div class="sdk-demo-video-frame">
+            <iframe
+              data-sdk-demo-video-embed
+              title="Rick Astley - Never Gonna Give You Up"
+              referrerpolicy="strict-origin-when-cross-origin"
+              loading="lazy"
+              allowfullscreen></iframe>
+          </div>
+          <p class="sdk-demo-video-caption">Rick Astley &mdash; Never Gonna Give You Up</p>
+        </div>
+        <div class="sdk-demo-site" data-sdk-demo-site hidden>
+          <iframe
+            data-sdk-demo-site-embed
+            title="scalar.com"
+            referrerpolicy="strict-origin-when-cross-origin"
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="sdk-demo-hint" data-sdk-demo-hint hidden>
+      <span class="sdk-demo-hint-pill">
+        <span class="sdk-demo-hint-dot" aria-hidden="true"></span>
+        Click to interact
+      </span>
+    </div>
+    <div class="sdk-demo-window sdk-demo-window-build" data-sdk-demo-build-window hidden>
+      <div class="sdk-demo-window-bar" data-sdk-demo-build-window-bar>
+        <div class="sdk-demo-window-lights">
+          <button type="button" data-sdk-demo-build-window-close aria-label="Close the build log"></button>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="sdk-demo-log" data-sdk-demo-log role="log" aria-label="Build log"></div>
+    </div>
+    <div class="sdk-demo-window sdk-demo-window-api" data-sdk-demo-api-window hidden>
+      <div class="sdk-demo-window-bar" data-sdk-demo-api-window-bar>
+        <div class="sdk-demo-window-lights">
+          <button type="button" data-sdk-demo-api-window-close aria-label="Close the API document"></button>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </div>
+        <span class="sdk-demo-window-title">openapi.yaml</span>
+      </div>
+      <pre class="sdk-demo-api-doc" data-sdk-demo-api-doc></pre>
+    </div>
+    <div class="sdk-demo-share-layer" data-sdk-demo-share-sheet data-sdk-demo-end hidden>
+      <div class="sdk-demo-share-scrim" data-sdk-demo-share-scrim></div>
+      <div class="sdk-demo-share-sheet" role="dialog" aria-modal="true" aria-label="Share">
+        <span class="sdk-demo-share-grabber" aria-hidden="true"></span>
+        <div class="sdk-demo-share-card sdk-demo-share-preview">
+          <span class="sdk-demo-share-favicon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" /></svg>
+          </span>
+          <span class="sdk-demo-share-preview-text">
+            <span class="sdk-demo-share-preview-title">Warp HR SDK</span>
+            <span class="sdk-demo-share-preview-host" data-sdk-demo-share-host>dashboard.scalar.com</span>
+          </span>
+          <span class="sdk-demo-share-options">Options <span aria-hidden="true">&rsaquo;</span></span>
+        </div>
+        <div class="sdk-demo-share-people">
+          <a class="sdk-demo-share-person" data-sdk-demo-share-link="sms" data-sdk-demo-share-app="Messages" href="sms:">
+            <span class="sdk-demo-share-avatar" aria-hidden="true">M<span class="sdk-demo-share-avatar-badge"></span></span>
+            <span class="sdk-demo-share-person-name">Marc</span>
+          </a>
+        </div>
+        <div class="sdk-demo-share-apps">
+          <a class="sdk-demo-share-app" data-sdk-demo-share-link="sms" data-sdk-demo-share-app="Messages" href="sms:">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-messages" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.9 3 2.8 6.4 2.8 10.6c0 2.4 1.3 4.5 3.4 5.9-.2 1.2-.8 2.4-1.7 3.3 1.6-.2 3.1-.8 4.4-1.7 1 .3 2 .4 3.1.4 5.1 0 9.2-3.4 9.2-7.6S17.1 3 12 3Z" /></svg></span>
+            <span class="sdk-demo-share-app-name">Messages</span>
+          </a>
+          <a class="sdk-demo-share-app" data-sdk-demo-share-link="mailto" data-sdk-demo-share-app="Mail" href="mailto:">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-mail" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5.5" width="18" height="13" rx="2.5" /><path d="m3.8 7.5 7.1 5.2c.7.5 1.6.5 2.2 0l7.1-5.2" /></svg></span>
+            <span class="sdk-demo-share-app-name">Mail</span>
+          </a>
+          <button class="sdk-demo-share-app" type="button" data-sdk-demo-share-paste="Slack">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-slack" aria-hidden="true"><svg viewBox="0 0 24 24">
+                <rect x="8.6" y="1.8" width="3.4" height="9.2" rx="1.7" fill="#36c5f0" />
+                <rect x="13" y="8.6" width="9.2" height="3.4" rx="1.7" fill="#2eb67d" />
+                <rect x="12" y="13" width="3.4" height="9.2" rx="1.7" fill="#e01e5a" />
+                <rect x="1.8" y="12" width="9.2" height="3.4" rx="1.7" fill="#ecb22e" />
+              </svg></span>
+            <span class="sdk-demo-share-app-name">Slack</span>
+          </button>
+          <button class="sdk-demo-share-app" type="button" data-sdk-demo-share-paste="Notes">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-notes" aria-hidden="true"><svg viewBox="0 0 24 24" stroke="#8a6d1f" stroke-width="1.6" stroke-linecap="round"><path d="M7 9h10M7 13h10M7 17h6" /></svg></span>
+            <span class="sdk-demo-share-app-name">Notes</span>
+          </button>
+          <span class="sdk-demo-share-app sdk-demo-share-app-inert">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-more" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="18" cy="12" r="1.8" /></svg></span>
+            <span class="sdk-demo-share-app-name">More</span>
+          </span>
+        </div>
+        <p class="sdk-demo-share-status" data-sdk-demo-share-status role="status"></p>
+        <div class="sdk-demo-share-card sdk-demo-share-actions">
+          <button class="sdk-demo-share-action" type="button" data-sdk-demo-share-copy>
+            <span data-sdk-demo-share-copy-label>Copy</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 18a2 2 0 0 1-2-2V4c0-.6.2-1 .6-1.4A2 2 0 0 1 9 2h9c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H9Zm0-2h9V4H9v12Zm-4 6a2 2 0 0 1-1.4-.6A2 2 0 0 1 3 20V6h2v14h11v2H5Z" /></svg>
+          </button>
+          <button class="sdk-demo-share-action" type="button">
+            <span>Add to Reading List</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 21V5c0-.6.2-1 .6-1.4A2 2 0 0 1 6 3h12c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v16l-8-3.4L4 21Z" /></svg>
+          </button>
+          <button class="sdk-demo-share-action" type="button">
+            <span>Find on Page</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /></svg>
+          </button>
+        </div>
+        <button class="sdk-demo-share-cancel" type="button" data-sdk-demo-share-cancel>Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+## What the demo is showing you
+
+Each control maps to something the real dashboard does.
+
+| In the demo | What it is |
+| --- | --- |
+| Selecting a target | Every language has its own configuration, version history, and build log. The package name and registry come from that target's config. |
+| **Add target** | Targets are added to an existing SDK at any time. A new target is a draft until you save a version, and drafts are never billed. |
+| **Build** | One generation run compiles your document to an intermediate representation once, then hands it to every configured emitter. See [managing your SDK](managing.md). |
+| The build log | The real log is per run and streams the same stages: load, bundle, compile, emit, format, push. Failures are scoped to one target where possible. |
+| **api.md** and **SKILL.md** | Generated on every build so coding agents can look up a real call signature instead of inventing one. |
+| **Files** → `your code` badge | Files you edited are carried forward by a three-way merge on every rebuild. See [custom code](custom-code.md). |
+
+## What the demo leaves out
+
+The parts that need your accounts rather than a browser:
+
+- **Linking a repository.** Scalar authors commits through a GitHub App installation, pushing generated output to `scalar-generated` and the merged result to `scalar-next`. See [GitHub](publishing/github.md).
+- **Publishing.** release-please maintains the version and changelog pull request; merging it cuts the tag and publishes from your repository. See [publishing](publishing/overview.md).
+- **Following your API.** Point an SDK at a semver range and a matching document change rebuilds every target automatically.
+
+## Try it on your own document
+
+<div class="flex flex-wrap gap-2">
+  <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Generate your first SDK</a>
+  <a class="t-editor__button button__secondary" href="getting-started.md">Read the getting started guide</a>
+</div>
+
+<style>
   .sdk-demo {
     margin: 32px 0;
   }
@@ -1516,4 +1850,4 @@ export const SDK_DEMO_STYLES = `
       animation: none;
     }
   }
-`
+</style>
