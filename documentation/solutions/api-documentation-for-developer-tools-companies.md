@@ -37,7 +37,7 @@ The fix is structural, not editorial: everything downstream of the API has to re
 
 **Every pull request gets a preview.** When you open a PR, Scalar [creates a preview deployment](../guides/docs/deployment/preview-deployments.md) and can post a comment with a direct link, so reviewers see the rendered docs — not a diff of Markdown — before anything ships. If your project is not connected to GitHub, the CLI publishes previews too: `npx @scalar/cli project publish --slug your-docs --preview`.
 
-**SDKs follow the same document.** The [SDK generator](../guides/sdks/index.md) points each SDK at an exact version of your API document or at a semver range such as `^1.2.0`. When a matching document changes, Scalar mints a new SDK version, rebuilds every target, and opens pull requests against your repositories. One commit to your API updates all of your clients.
+**SDKs follow the same document.** The [SDK generator](../guides/sdks/index.mdx) points each SDK at an exact version of your API document or at a semver range such as `^1.2.0`. When a matching document changes, Scalar mints a new SDK version, rebuilds every target, and opens pull requests against your repositories. One commit to your API updates all of your clients.
 
 **The code samples in your docs come from the generated SDKs.** Generation injects samples into your OpenAPI document as `x-codeSamples`, and the reference renders them. The snippet a developer copies out of your docs is derived from the same document the SDK was built from, so it does not rot independently. Examples you curated by hand are preserved.
 
@@ -120,7 +120,7 @@ It is not the right choice for everyone. If your API is gRPC or JSON-RPC rather 
 ## Getting started
 
 - [Scalar Docs](../guides/docs/index.md) — the documentation platform
-- [SDK Generator](../guides/sdks/index.md) — client libraries from the same document
+- [SDK Generator](../guides/sdks/index.mdx) — client libraries from the same document
 - [Start free](https://dashboard.scalar.com/register), or [talk to us](https://scalar.cal.com/) if you are migrating an existing portal
 
 ---

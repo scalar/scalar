@@ -26,7 +26,7 @@ This page describes what a developer portal on Scalar includes, how it compares 
 
 **A built-in API client.** Developers test endpoints directly in the reference — no separate tool to install, no context switch. Scalar also ships a standalone, open-source [API client](../guides/app/index.md) for desktop and web, with environments, collections, and Postman-compatible scripting, so the testing workflow developers start in your docs continues after they leave them.
 
-**SDKs in the languages your users ask for.** The [SDK Generator](../guides/sdks/index.md) produces idiomatic, type-safe client libraries — TypeScript, Python, C#, Java, PHP, Go, Ruby, Rust, Swift, and Dart — from the same OpenAPI document that renders the reference, and publishes them from your own repositories through pull requests you control.
+**SDKs in the languages your users ask for.** The [SDK Generator](../guides/sdks/index.mdx) produces idiomatic, type-safe client libraries — TypeScript, Python, C#, Java, PHP, Go, Ruby, Rust, Swift, and Dart — from the same OpenAPI document that renders the reference, and publishes them from your own repositories through pull requests you control.
 
 **MCP servers for AI clients.** Scalar exposes [two MCP surfaces](../guides/agent/index.md): a Docs MCP at `your-docs-domain/mcp` that lets tools like Cursor and Claude Code search and read your published documentation, and hosted MCP servers that let AI clients call the API endpoints you select, with delegated authentication so agents never receive your upstream credentials.
 

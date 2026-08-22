@@ -79,7 +79,7 @@ Alongside it, generally available targets carry end-to-end tests that generate, 
 
 Scalar's generally available targets are **TypeScript, Python, Go, and the CLI**.
 
-Java, Kotlin, Ruby, and C# are marked experimental. They sit in the same continuous integration matrix as the generally available targets and are the closest behind, but the label is there for a reason. PHP, Rust, Swift, Dart, and C++ generate working code and carry a talk-to-us-first caveat. The [SDK generator page](../guides/sdks/index.md) says the same thing.
+Java, Kotlin, Ruby, and C# are marked experimental. They sit in the same continuous integration matrix as the generally available targets and are the closest behind, but the label is there for a reason. PHP, Rust, Swift, Dart, and C++ generate working code and carry a talk-to-us-first caveat. The [SDK generator page](../guides/sdks/index.mdx) says the same thing.
 
 If you are on a Stainless Kotlin, Java, C#, or PHP SDK today, that is the honest friction point in moving to Scalar, and it is worth raising with us before you plan a migration rather than after.
 

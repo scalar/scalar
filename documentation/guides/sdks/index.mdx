@@ -1,0 +1,405 @@
+import { SdkDemo } from './sdk-demo/SdkDemo.jsx'
+import { PAGE_STYLES } from './page-styles.js'
+
+<style dangerouslySetInnerHTML={{ __html: PAGE_STYLES }} />
+
+<div className="relative flex flex-col gap-3 hero">
+
+# SDK Generator
+
+<a
+  className="sdk-migration-cta inline-flex w-fit max-w-full items-center gap-2 rounded-full bg-b-2 hover:bg-b-3 px-3 py-2 text-xs leading-none text-c-1 no-underline"
+  href="/resources/migration/stainless">
+  <span className="font-medium">Migrate off Stainless</span>
+  <span className="sdk-migration-cta-separator text-c-3" aria-hidden="true">•</span>
+  <span className="inline-flex items-center gap-2 text-c-2">
+    <span className="sdk-migration-cta-read-more">Read more</span>
+    <span aria-hidden="true">→</span>
+  </span>
+</a>
+
+Idiomatic, type-safe client libraries generated from the OpenAPI document your team already maintains. Pick your targets, review real code in minutes, and publish from your own repositories through pull requests you control.
+
+<div className="flex flex-wrap gap-2">
+  <a className="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
+  <a className="t-editor__button button__secondary" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a demo</a>
+</div>
+
+</div>
+
+<SdkDemo />
+
+<div className="feature">
+  <div className="feature-container">
+    <div className="feature-item">
+      <b className="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
+        <Icon src="phosphor/bold/arrow-up-right" />
+        OpenAPI-first
+      </b>
+      <p className="leading-6">Generate from the OpenAPI 3.0 or 3.1 document your team already maintains. Swagger 2.0 is upgraded on load.</p>
+    </div>
+    <div className="feature-item">
+      <b className="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
+        <Icon src="phosphor/bold/code" />
+        Idiomatic per language
+      </b>
+      <p className="leading-6">Each target is written to the conventions of its language, not templated from one shared shape.</p>
+    </div>
+    <div className="feature-item">
+      <b className="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
+        <Icon src="phosphor/bold/brackets-square" />
+        Custom code survives
+      </b>
+      <p className="leading-6">Edit generated files directly. Every rebuild carries your changes forward through a three-way merge.</p>
+    </div>
+    <div className="feature-item">
+      <b className="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
+        <Icon src="phosphor/bold/fingerprint" />
+        Authentication built in
+      </b>
+      <p className="leading-6">API keys, Basic, Bearer, OAuth 2.0, and OIDC, wired from the security schemes in your description.</p>
+    </div>
+    <div className="feature-item">
+      <b className="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
+        <Icon src="phosphor/bold/git-branch" />
+        Publishes through pull requests
+      </b>
+      <p className="leading-6">Versions, changelogs, and releases land as reviewable pull requests in your own repository.</p>
+    </div>
+    <div className="feature-item">
+      <b className="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
+        <Icon src="phosphor/bold/terminal-window" />
+        CLI targets
+      </b>
+      <p className="leading-6">Generate a full command-line client alongside your SDKs, with typed flags and structured output.</p>
+    </div>
+    <div className="feature-item">
+      <b className="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
+        <Icon src="phosphor/bold/file-cloud" />
+        Streaming and uploads
+      </b>
+      <p className="leading-6">Server-sent events, newline-delimited JSON, WebSockets, and multipart file uploads.</p>
+    </div>
+    <div className="feature-item">
+      <b className="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
+        <Icon src="phosphor/bold/robot" />
+        Ready for coding agents
+      </b>
+      <p className="leading-6">Every SDK ships an Agent Skill and a generated reference, so agents call your API correctly.</p>
+    </div>
+  </div>
+</div>
+
+## Targets and registries
+
+Every target publishes to the registry its ecosystem expects, using workflows generated into your repository.
+
+<div className="target-columns">
+<div>
+
+**Generally available**
+
+| Target | Package registry |
+| ------ | ---------------- |
+| TypeScript | npm |
+| Python | PyPI |
+| Go | Go modules |
+| CLI | npm and Homebrew |
+
+</div>
+<div>
+
+**Experimental**
+
+| Target | Package registry |
+| ------ | ---------------- |
+| Java | Maven Central |
+| Kotlin | Maven Central |
+| Ruby | RubyGems |
+| C# | NuGet |
+| PHP | Packagist |
+| Rust | crates.io |
+| Swift | Swift Package Manager |
+| Dart | pub.dev |
+| C++ | No standard registry |
+
+</div>
+</div>
+
+<Callout type="info" icon="phosphor/regular/info">
+  Generally available targets carry end-to-end tests that generate, build, and run against a live server on every change. Experimental targets generate working code, and Java, Kotlin, Ruby, and C# sit in the same test matrix, but the label is there for a reason: talk to us before you depend on one.
+</Callout>
+
+## Generated, not templated
+
+Template-based generators map each operation to a method mechanically. The result compiles, but nobody wants to write against it: the resource noun appears twice in every call, optional parameters arrive positionally, and the response is buried behind a transport object.
+
+```ts Template-based generator
+import { Configuration, TimeOffApi } from "./generated";
+
+const config = new Configuration({
+  basePath: "https://api.warp.dev",
+  apiKey: process.env.WARP_API_KEY,
+});
+
+const api = new TimeOffApi(config);
+
+const response = await api.timeOffListAssignmentsGet(
+  undefined, // limit
+  undefined, // cursor
+  undefined, // options
+);
+const assignments = response.data;
+```
+
+```ts Scalar
+import WarpAPI from "warp-hr";
+
+const client = new WarpAPI({
+  apiKey: process.env["API_KEY"], // defaults to the API_KEY env var
+});
+
+const assignments = await client.timeOff.listAssignments();
+```
+
+Two details do most of that work. The client is named after your API and exported as the default export, so the import reads like the product. And credentials come from a conventional environment variable, so the happy path does not require passing a secret at all.
+
+The third is method naming. Scalar strips the redundant resource noun and normalizes the verb, so the same handful of methods appears on every resource:
+
+| `operationId` | Template-based generator | Scalar |
+| ------------- | ------------------------ | ------ |
+| `listPets` | `client.pets.listPets()` | `client.pet.list()` |
+| `getPetById` | `client.pets.getPetById()` | `client.pet.retrieve()` |
+| `addPet` | `client.pets.addPet()` | `client.pet.create()` |
+
+Across a large API that consistency is the difference between guessing a method name and knowing it. For fuller side-by-sides against other generators, see [Scalar vs Fern](../../compare/fern.md), [Scalar vs Speakeasy](../../compare/speakeasy.md), and [Scalar vs Stainless](../../compare/stainless.md).
+
+## Everything a hand-written SDK does
+
+### Types
+
+- **Typed request and response models** for every operation, generated from your schemas.
+- **`oneOf`, `anyOf`, and `allOf`** lowered into real union types, with discriminator support.
+- **Typed errors** exposing status, headers, the parsed response body, and request metadata.
+- **Documented error statuses** enumerated per operation, so handling failures is not guesswork.
+- **Zero runtime dependencies** unless you enable a feature that needs one. The generated Warp package ships `"dependencies": {}`.
+
+### Networking
+
+- **Auto-paginating iterators** across ten pagination schemes: cursor, cursor id, cursor URL, offset, page number, `Link` header, header token, body link, compound cursor, and `hasMore`.
+- **Streaming responses** over server-sent events and newline-delimited JSON, with event metadata preserved.
+- **WebSockets** with separate Node and browser adapters.
+- **[AsyncAPI](asyncapi.md) channels** lowered into typed connect and streaming methods, with send and receive events discriminated by their event type. Experimental.
+- **File uploads** as multipart, URL-encoded, or raw binary.
+- **Multi-content-type operations** get a content-type selector instead of a guess.
+
+### Reliability
+
+- **Retries on temporary failures**, defaulting to two attempts and covering network errors, 408, 409, 429, and 5xx responses.
+- **`Retry-After` is honored** when the server sends it, with configurable backoff otherwise.
+- **Timeouts** default to 60 seconds and can be overridden per request.
+- **Idempotency keys** per request, using the header your API expects.
+- **Raw response access** so you can read the underlying response and parse it yourself.
+- **Custom HTTP client injection** for your own transport, middleware, or instrumentation.
+
+### Authentication
+
+- **API keys** in a header, query parameter, or cookie.
+- **HTTP Basic and Bearer**, with Basic split into separate username and password options.
+- **OAuth 2.0 and OIDC** schemes declared in your description.
+- **Environment variable defaults** per credential, so the quickstart needs no secrets inline.
+- **Async credential providers** for tokens you have to fetch or refresh yourself.
+- **Typed webhook events** from `webhooks` and operation `callbacks`, with HMAC-SHA256 signature verification, multi-secret rotation, and timestamp tolerance.
+
+### Docs and agents
+
+- **An Agent Skill** written to `SKILL.md` and `.claude/skills/`, so coding agents discover how to call your API.
+- **A generated `api.md`** listing every method grouped by resource, with request and response types linked to source.
+- **Code samples injected into your OpenAPI** as `x-codeSamples` and rendered in your API reference. Examples you curated by hand are preserved.
+- **A generated README** with authentication, client option, and request option tables filled in from your description.
+- **An async counterpart** in languages that have one, exposing the same resource tree.
+
+### Releases
+
+- **Version and changelog pull requests** managed by release-please against the branch you nominate.
+- **Publishing workflows** generated into your repository for eleven registries, with actions pinned by commit SHA.
+- **Trusted publishing** where the registry supports it, so no long-lived tokens are needed.
+- **Conventional Commit messages** describing what actually changed in the SDK surface, marked as breaking when they are.
+- **Smoke tests** that call every operation against a mock server and report the result.
+
+## How it works
+
+The demo at the top of this page runs this whole flow in the browser, against a fictional API, without an account.
+
+<Steps>
+  <Step id="step-openapi" title="Start from your OpenAPI document">
+
+Put your API description in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load. [AsyncAPI](asyncapi.md) documents work too — experimentally — with each channel becoming a WebSocket connect method or an HTTP streaming method.
+
+  </Step>
+
+  <Step id="step-targets" title="Pick your targets">
+
+Choose one target or a dozen. Generation begins immediately, and each target gets its own configuration, version history, and build log.
+
+<Image
+  src="/sdks/sdk-overview.png"
+  alt="An SDK in the Scalar dashboard showing build status, targets, and version history"
+  size="full" />
+
+  </Step>
+
+  <Step id="step-sample" title="Read the code before committing to anything">
+
+Every target gets a preview repository, provisioned automatically. Browse the generated code, the `api.md` reference, and the README before you wire up a repository of your own.
+
+  </Step>
+
+  <Step id="step-repo" title="Link your own repository">
+
+Connect the repository where the SDK should live. Scalar authors commits through a GitHub App installation, never a personal token. Every build pushes generated output to `scalar-generated`, merges it with your custom code on `scalar-next`, and keeps a release pull request open against the branch you nominate.
+
+<Image
+  src="/sdks/github-linked.png"
+  alt="Git settings for a target, showing the connected repository, default branch, publish toggle, and synced versions"
+  size="full" />
+
+  </Step>
+
+  <Step id="step-publish" title="Publish from your repository">
+
+release-please versions the release pull request from your commit history and maintains the changelog. When you merge it, the workflows in your repository cut the tag and GitHub Release and publish the package. Your package names, registries, and release history stay yours. See [publishing](publishing/overview.md).
+
+  </Step>
+
+  <Step id="step-autoupdate" title="Let it follow your API">
+
+Point each SDK at an exact version of your API document or at a semver range such as `^1.2.0`. When a matching document changes, Scalar mints a new SDK version and rebuilds, so one commit updates every target.
+
+  </Step>
+</Steps>
+
+## Your custom code survives regeneration
+
+Generated SDKs rarely cover every need. You will want a convenience method, a tweaked type, a helper, or a better README, and no generator should make you choose between that and staying up to date.
+
+Edit generated files as you would any other code. Every build performs a three-way merge between the previous generation, the new generation, and the current state of your repository, then opens a pull request combining the two. Untouched files update cleanly, your edits ride along, and files you added yourself are left alone.
+
+For code you want held in place explicitly, mark a region:
+
+```ts
+// scalar-sdk-generator:custom-code retry-helper:start
+export const withBackoff = async <T>(fn: () => Promise<T>) => {
+  // Anything in here is carried forward on every regeneration.
+};
+// scalar-sdk-generator:custom-code retry-helper:end
+```
+
+Conflicts happen only when a regenerated file changes the same lines you edited. When that happens, the build surfaces the conflict as a pull request you resolve on GitHub like any other merge conflict. The whole flow runs on managed branches you can inspect yourself: `scalar-generated` holds pristine output, `scalar-next` holds output merged with your commits, and `scalar-merge-conflict` carries anything that needs a human. Read more in [custom code](custom-code.md).
+
+## Built for coding agents
+
+Agents write a growing share of the code that calls your API, and they are the consumers most likely to invent a method name that does not exist. Every generated SDK ships the context needed to prevent that.
+
+- An **Agent Skill** at `SKILL.md`, plus `.claude/skills/<name>/SKILL.md` for automatic discovery, covering installation, client construction, authentication, and how to look up a call signature.
+- A generated **`api.md`** listing every operation with its request and response types, designed to drop straight into an agent's context.
+- An **`openapi.augmented.json`** carrying your description alongside generated code samples and installation metadata.
+
+All three are on by default, and all three are readable right now in the [generated Warp SDK](https://github.com/TeamWarp/warp-sdk-typescript/tree/scalar-generated).
+
+## Tested against SDKs that ship
+
+An SDK generator is only worth what its output survives, so most of the engineering here is testing rather than templating.
+
+<div className="feature">
+  <div className="feature-container">
+    <div className="feature-item">
+      <b className="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
+        <Icon src="phosphor/bold/arrow-up-right" />
+        Parity against shipped SDKs
+      </b>
+      <p className="leading-6">A harness compares our output to client libraries companies actually publish, on public API shape and on live wire traffic.</p>
+    </div>
+    <div className="feature-item">
+      <b className="flex items-center icon-text gap-3 font-medium min-h-8 text-purple">
+        <Icon src="phosphor/bold/warning-octagon" />
+        Smoke tests per target
+      </b>
+      <p className="leading-6">Generated harnesses call every operation against a mock server and report which ones fail.</p>
+    </div>
+  </div>
+</div>
+
+The parity harness is the part we would want to see as a buyer. It clones production SDKs at pinned commits, extracts the public surface from both, and fails on drift in operation coverage, wire shapes, unions, enums, pagination behavior, requiredness, or parameter location. Then it drives both clients through every shared operation against a recording mock and diffs the requests they send.
+
+## Coming from Stainless?
+
+Stainless is winding down its hosted SDK generator. Scalar reads your existing `stainless.yml` directly, so your resources, method names, pagination schemes, and per-language package names carry across and the call sites your users have already written keep working.
+
+Read the [Stainless migration guide](../../migration/stainless.md) for the practical steps, or [Scalar vs Stainless](../../compare/stainless.md) for the product comparison. If you have not settled on a replacement yet, [the wind-down write-up](../../resources/stainless-wind-down.md) covers the whole field, including where other generators are the better answer.
+
+## Plans
+
+SDK generation is billed per target, at $100 per month or $1,000 per year.
+
+| | Free | Pro | Enterprise |
+| --- | --- | --- | --- |
+| SDKs | 1 | 3 | Unlimited |
+| Targets | 1 | Billed per target | Billed per target |
+| Every target free during your trial | Included | Included | Included |
+| SSO/SAML, RBAC, priority support, and dedicated Slack or Teams support | - | - | Included |
+
+A target becomes billable when you save a version and queue its build. Drafts are never billed. [See the full comparison](../pricing.md) for SDKs and the other Scalar products.
+
+## Questions
+
+<Detail title="Which targets are production ready?">
+
+TypeScript, Python, Go, and the CLI target are generally available. The rest are marked experimental in the dashboard. Java, Kotlin, Ruby, and C# sit in the same continuous integration matrix as the generally available targets and are the closest behind them. PHP, Rust, Swift, Dart, and C++ generate working code, and we would rather talk to you first than have you discover a gap in production.
+
+</Detail>
+
+<Detail title="Do I own the generated code?">
+
+Yes. The SDK lives in your repository, under your package name, published to your registry accounts. Scalar opens pull requests against it and never cuts tags or releases on your behalf.
+
+</Detail>
+
+<Detail title="What happens to code I wrote by hand?">
+
+It is carried forward. Every build three-way merges the new generation with the current state of your repository, so your edits survive. Marked custom-code regions are preserved explicitly, and files you added yourself are never touched. Conflicts arrive as a pull request you resolve on GitHub.
+
+</Detail>
+
+<Detail title="Where can SDKs be published?">
+
+npm, PyPI, Go modules, Maven Central, RubyGems, NuGet, Packagist, crates.io, the Swift Package Manager, pub.dev, and Homebrew for CLI targets. Publishing runs from workflows generated into your repository, with actions pinned by commit SHA and trusted publishing where the registry supports it.
+
+</Detail>
+
+<Detail title="Which authentication schemes are supported?">
+
+API keys in a header, query parameter, or cookie; HTTP Basic; Bearer tokens; and OAuth 2.0 and OIDC schemes declared in your description. Each credential gets an environment variable default, and you can supply an async provider for tokens you fetch or refresh yourself.
+
+</Detail>
+
+<Detail title="Does my OpenAPI document need to be perfect?">
+
+No. Scalar generates a starting configuration from whatever you have, covering naming, pagination, and authentication. You then refine it in the [configuration](configuration.md) editor rather than by rewriting your description.
+
+</Detail>
+
+<Detail title="What keeps my SDKs in sync with the API?">
+
+Each SDK follows its API document by exact version or by a semver range you set. When a matching document changes, Scalar mints a new SDK version, rebuilds every target, and opens the pull requests. One commit to your API updates all of your clients.
+
+</Detail>
+
+## Ready to generate your first SDK?
+
+Follow the [Getting Started guide](getting-started.md) to generate a target from the dashboard, or bring an existing configuration and we will do the migration with you.
+
+<div className="flex flex-wrap gap-2">
+  <a className="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
+  <a className="t-editor__button button__secondary" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a demo</a>
+</div>
