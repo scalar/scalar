@@ -2301,6 +2301,11 @@
                     },
                     "head": {
                       "title": "Scalar SDK Generator — Idiomatic SDKs and CLIs from OpenAPI",
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/sdk-demo.js"
+                        }
+                      ],
                       "links": [
                         {
                           "rel": "canonical",
