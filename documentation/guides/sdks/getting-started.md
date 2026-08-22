@@ -42,7 +42,7 @@ Once created, you will be redirected to the SDK overview page. From there you ca
 
 ## Next steps
 
-- [Try the interactive demo](demo.md) if you want to see the flow again without the dashboard
+- [Try the interactive demo](index.md) at the top of the SDK Generator overview to walk the flow again without the dashboard
 - [Build, version, and download](managing.md) your targets
 - [Configure](configuration.md) each SDK or CLI
 - [Publish to a package registry](publishing/overview.md)

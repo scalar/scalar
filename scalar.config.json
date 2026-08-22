@@ -2301,6 +2301,11 @@
                     },
                     "head": {
                       "title": "Scalar SDK Generator — Idiomatic SDKs and CLIs from OpenAPI",
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/sdk-demo.js"
+                        }
+                      ],
                       "links": [
                         {
                           "rel": "canonical",
@@ -2376,43 +2381,6 @@
                         {
                           "property": "og:description",
                           "content": "Automatically generate type-safe SDKs from OpenAPI specifications in multiple programming languages."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "demo": {
-                    "filepath": "documentation/guides/sdks/demo.md",
-                    "type": "page",
-                    "title": "Interactive Demo",
-                    "description": "Try the Scalar SDK Generator in the browser: pick targets, run a build, and read the generated code, api.md, and SKILL.md.",
-                    "head": {
-                      "scripts": [
-                        {
-                          "path": "documentation/assets/sdk-demo.js"
-                        }
-                      ],
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/products/sdk-generator/demo"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Try the Scalar SDK Generator in the browser: pick targets, run a build, and read the generated code, api.md, and SKILL.md."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Interactive SDK Generator Demo"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Try the Scalar SDK Generator in the browser: pick targets, run a build, and read the generated code, api.md, and SKILL.md."
                         },
                         {
                           "name": "robots",

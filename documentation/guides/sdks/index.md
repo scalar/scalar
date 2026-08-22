@@ -17,71 +17,316 @@
   </p>
   <div class="flex flex-wrap gap-2">
     <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
-    <a class="t-editor__button button__secondary" href="demo.md">Try the interactive demo</a>
     <a class="t-editor__button button__secondary" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a demo</a>
   </div>
 </div>
 
-<div class="code-switcher">
+<div class="sdk-demo" data-sdk-demo data-sdk-demo-menu="closed" data-sdk-demo-state="live">
+  <div class="sdk-demo-stage">
+    <div class="sdk-demo-frame" data-sdk-demo-frame>
+      <div class="sdk-demo-chrome" data-sdk-demo-chrome>
+        <div class="sdk-demo-chrome-lights" aria-hidden="true"></div>
+        <div class="sdk-demo-chrome-left" aria-hidden="true">
+          <svg fill="currentColor" height="16" viewBox="0 0 20 16" width="20">
+            <path clip-rule="evenodd" d="M19.4 15.4a2 2 0 0 1-1.4.6H2a2 2 0 0 1-1.4-.6A2 2 0 0 1 0 14V2C0 1.4.2 1 .6.6A2 2 0 0 1 2 0h16c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v12c0 .6-.2 1-.6 1.4ZM2 14h5V2H2v12Zm7 0h9V2H9v12ZM3.3 3c-.2 0-.3.2-.3.3v1c0 .2.1.3.3.3h2.5c.1 0 .2-.1.2-.3v-1l-.2-.2H3.3Zm0 2c-.2 0-.3.2-.3.3v1c0 .2.1.3.3.3h2.5c.1 0 .2-.1.2-.3v-1l-.2-.2H3.3ZM3 7.4c0-.1.1-.2.3-.2h2.5c.1 0 .2 0 .2.2v1c0 .2-.1.3-.2.3H3.3a.3.3 0 0 1-.3-.3v-1Z" fill-rule="evenodd" />
+          </svg>
+          <svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
+            <path d="M16 22 6 12 16 2l1.8 1.8L9.5 12l8.3 8.2L16 22Z" />
+          </svg>
+          <svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
+            <path d="m8 22 10-10L8 2 6.2 3.8l8.3 8.2-8.3 8.2L8 22Z" />
+          </svg>
+        </div>
+        <div class="sdk-demo-chrome-nav">
+          <div class="sdk-demo-chrome-url">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 10H15V6C15 5.16667 14.7083 4.45833 14.125 3.875C13.5417 3.29167 12.8333 3 12 3C11.1667 3 10.4583 3.29167 9.875 3.875C9.29167 4.45833 9 5.16667 9 6V10H7V6C7 4.61667 7.4875 3.4375 8.4625 2.4625C9.4375 1.4875 10.6167 1 12 1C13.3833 1 14.5625 1.4875 15.5375 2.4625C16.5125 3.4375 17 4.61667 17 6V10C17.55 10 18.0208 10.1958 18.4125 10.5875C18.8042 10.9792 19 11.45 19 12V20C19 20.55 18.8042 21.0208 18.4125 21.4125C18.0208 21.8042 17.55 22 17 22H7C6.45 22 5.97917 21.8042 5.5875 21.4125C5.19583 21.0208 5 20.55 5 20V12C5 11.45 5.19583 10.9792 5.5875 10.5875C5.97917 10.1958 6.45 10 7 10Z" />
+            </svg>
+            <span data-sdk-demo-url>dashboard.scalar.com</span>
+            <button type="button" data-sdk-demo-reload aria-label="Reload and reset the demo">
+              <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 22a8.7 8.7 0 0 0 6.4-2.6A9.1 9.1 0 0 0 21 13h-2c0 2-.7 3.6-2 5-1.4 1.3-3 2-5 2s-3.6-.7-5-2c-1.3-1.4-2-3-2-5s.7-3.6 2-5c1.4-1.3 3-2 5-2h.2l-1.6 1.5L12 9l4-4-4-4-1.4 1.5L12.2 4H12a8.7 8.7 0 0 0-6.4 2.6A9.1 9.1 0 0 0 3 13a8.7 8.7 0 0 0 2.6 6.4A9.1 9.1 0 0 0 12 22Z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="sdk-demo-chrome-right">
+          <button class="sdk-demo-chrome-button" type="button" data-sdk-demo-share aria-expanded="false" aria-label="Share">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 23a2 2 0 0 1-1.4-.6A2 2 0 0 1 4 21V10c0-.6.2-1 .6-1.4A2 2 0 0 1 6 8h3v2H6v11h12V10h-3V8h3c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v11c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H6Zm5-7V4.8L9.4 6.4 8 5l4-4 4 4-1.4 1.4L13 4.8V16h-2Z" />
+            </svg>
+          </button>
+          <button class="sdk-demo-chrome-button" type="button" data-sdk-demo-new-tab aria-label="New tab">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2v-6Z" />
+            </svg>
+          </button>
+          <button class="sdk-demo-chrome-button" type="button" data-sdk-demo-tabs aria-expanded="false" aria-label="Show tabs">
+            <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 22a2 2 0 0 1-1.4-.6A2 2 0 0 1 6 20v-2H4a2 2 0 0 1-1.4-.6A2 2 0 0 1 2 16V6h2v10h2V8c0-.5.2-1 .6-1.4A2 2 0 0 1 8 6h8V4H6V2h10c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v2h2c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H8Zm0-2h12V8H8v12ZM2 6V4c0-.5.2-1 .6-1.4A2 2 0 0 1 4 2h2v2H4v2H2Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="sdk-demo-overview" data-sdk-demo-overview hidden>
+        <div class="sdk-demo-overview-bar">
+          <label class="sdk-demo-overview-search">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" />
+            </svg>
+            <input type="search" placeholder="Search Tabs" data-sdk-demo-tab-search aria-label="Search tabs" />
+          </label>
+        </div>
+        <div class="sdk-demo-overview-grid">
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="dashboard" data-title="Warp HR SDK Scalar dashboard" aria-current="page">
+            <span class="sdk-demo-tab-card-head">
+              <span class="sdk-demo-tab-card-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" />
+            </svg>
+              </span>
+              Warp HR SDK
+            </span>
+            <span class="sdk-demo-tab-card-preview" aria-hidden="true">
+              <span class="sdk-demo-mini">
+                <span class="sdk-demo-mini-row">
+                  <span class="sdk-demo-mini-title"></span>
+                  <span class="sdk-demo-mini-button"></span>
+                </span>
+                <span class="sdk-demo-mini-card"></span>
+                <span class="sdk-demo-mini-grid">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+                <span class="sdk-demo-mini-panel">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+              </span>
+            </span>
+          </button>
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="video" data-title="untitled">
+            <span class="sdk-demo-tab-card-head">
+              <span class="sdk-demo-tab-card-mark sdk-demo-tab-card-mark-video" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" />
+            </svg>
+              </span>
+              Untitled
+            </span>
+            <span class="sdk-demo-tab-card-preview sdk-demo-tab-card-preview-video" aria-hidden="true">
+              <span class="sdk-demo-mini-play"></span>
+            </span>
+          </button>
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="site" data-title="scalar.com Scalar" hidden>
+            <span class="sdk-demo-tab-card-head">
+              <span class="sdk-demo-tab-card-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" /></svg></span>
+              Scalar
+            </span>
+            <span class="sdk-demo-tab-card-preview sdk-demo-tab-card-preview-site" aria-hidden="true">
+              <span class="sdk-demo-mini-site">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </span>
+          </button>
+          <button class="sdk-demo-tab-card sdk-demo-tab-card-new" type="button" data-sdk-demo-new-tab aria-label="New tab">+</button>
+        </div>
+      </div>
+      <div class="sdk-demo-viewport">
+        <div class="sdk-demo-main">
+          <div class="sdk-demo-title-row">
+            <div class="sdk-demo-title">Warp HR SDK</div>
+            <div class="sdk-demo-title-actions">
+              <button class="sdk-demo-ghost-button" type="button" data-sdk-demo-view-api aria-expanded="false">{ } View API</button>
+              <button class="sdk-demo-build-button" type="button" data-sdk-demo-build>Build</button>
+            </div>
+          </div>
+          <div class="sdk-demo-status">
+            <div class="sdk-demo-status-left">
+              <span class="sdk-demo-dot sdk-demo-dot-green" data-sdk-demo-status-dot></span>
+              <div class="sdk-demo-status-text">
+                <span class="sdk-demo-status-label" data-sdk-demo-status-label>Build live</span>
+                <span class="sdk-demo-status-meta"><code data-sdk-demo-version>v1.4.0</code><span data-sdk-demo-status-meta>4 minutes ago</span></span>
+              </div>
+            </div>
+            <div class="sdk-demo-steps" data-sdk-demo-steps>
+              <div class="sdk-demo-step">
+                <span class="sdk-demo-step-name">Codegen</span>
+                <span class="sdk-demo-step-state sdk-demo-step-done">✓</span>
+              </div>
+              <div class="sdk-demo-step">
+                <span class="sdk-demo-step-name">Build</span>
+                <span class="sdk-demo-step-state sdk-demo-step-done">✓</span>
+              </div>
+            </div>
+          </div>
+          <div class="sdk-demo-section-head">
+            <span class="sdk-demo-section-title">Targets</span>
+            <div class="sdk-demo-add-wrap">
+              <button class="sdk-demo-add" type="button" data-sdk-demo-add aria-expanded="false" aria-haspopup="true">+ Add target</button>
+              <div class="sdk-demo-add-menu" data-sdk-demo-add-menu role="menu"></div>
+            </div>
+          </div>
+          <div class="sdk-demo-targets" data-sdk-demo-targets>
+            <button class="sdk-demo-target" type="button" data-target="typescript" aria-pressed="true">
+              <span class="sdk-demo-target-mark"><svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#3178C6"><path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z" /></svg></span>
+              <span class="sdk-demo-target-body">
+                <span class="sdk-demo-target-head">
+                  <span class="sdk-demo-target-name">Typescript</span>
+                </span>
+                <span class="sdk-demo-target-registry">npm</span>
+              </span>
+              <span class="sdk-demo-dot sdk-demo-dot-green"></span>
+            </button>
+          </div>
+          <div class="sdk-demo-package">
+            <span class="sdk-demo-package-title">
+              <span class="sdk-demo-package-name" data-sdk-demo-package>warp-hr</span>
+              <span class="sdk-demo-package-sep" aria-hidden="true">·</span>
+              <span class="sdk-demo-package-registry" data-sdk-demo-registry>npm</span>
+            </span>
+            <span class="sdk-demo-install" data-sdk-demo-install>npm install warp-hr</span>
+          </div>
+          <div class="sdk-demo-panel">
+            <div class="sdk-demo-tabs" role="tablist" data-sdk-demo-tablist aria-label="Generated output">
+              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="quickstart" aria-selected="true">Quickstart</button>
+              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="reference" aria-selected="false" tabindex="-1">api.md</button>
+              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="skill" aria-selected="false" tabindex="-1">SKILL.md</button>
+              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="files" aria-selected="false" tabindex="-1">Files</button>
+            </div>
+            <div class="sdk-demo-code-head"><span data-sdk-demo-code-title>index.ts</span></div>
+            <pre class="sdk-demo-code" data-sdk-demo-code><span class="sdk-demo-tok-keyword">import</span> <span class="sdk-demo-tok-type">WarpAPI</span> <span class="sdk-demo-tok-keyword">from</span> <span class="sdk-demo-tok-string">"warp-hr"</span>;
 
-<scalar-tabs default="TypeScript">
-  <scalar-tab title="TypeScript">
-
-```ts index.ts
-import WarpAPI from "warp-hr";
-
-const client = new WarpAPI({
-  apiKey: process.env["API_KEY"], // defaults to the API_KEY env var
+<span class="sdk-demo-tok-keyword">const</span> client = <span class="sdk-demo-tok-keyword">new</span> <span class="sdk-demo-tok-type">WarpAPI</span>({
+  apiKey: process.env[<span class="sdk-demo-tok-string">"WARP_API_KEY"</span>], <span class="sdk-demo-tok-comment">// defaults to the WARP_API_KEY env var</span>
 });
 
-const assignments = await client.timeOff.listAssignments();
-```
-
-  </scalar-tab>
-  <scalar-tab title="Python">
-
-```python main.py
-import os
-
-from warp import Warp
-
-client = Warp(
-    api_key=os.environ.get("WARP_API_KEY"),
-)
-
-time_off = client.time_off.list_assignments()
-```
-
-  </scalar-tab>
-  <scalar-tab title="Go">
-
-```go main.go
-package main
-
-import (
-	"context"
-	"os"
-
-	sdk "github.com/TeamWarp/warp-go-sdk"
-	"github.com/TeamWarp/warp-go-sdk/option"
-)
-
-func main() {
-	client := sdk.NewClient(
-		option.WithAPIKey(os.Getenv("WARP_API_KEY")),
-	)
-
-	timeOff, err := client.TimeOff.ListAssignments(context.Background(), sdk.TimeOffListAssignmentsParams{})
-	if err != nil {
-		panic(err)
-	}
-	_ = timeOff
-}
-```
-
-  </scalar-tab>
-</scalar-tabs>
-
+<span class="sdk-demo-tok-comment">// Auto-paginating: the next cursor page is fetched as you iterate.</span>
+<span class="sdk-demo-tok-keyword">for</span> <span class="sdk-demo-tok-keyword">await</span> (<span class="sdk-demo-tok-keyword">const</span> assignment <span class="sdk-demo-tok-keyword">of</span> client.timeOff.<span class="sdk-demo-tok-fn">listAssignments</span>({ limit: <span class="sdk-demo-tok-number">50</span> })) {
+  console.<span class="sdk-demo-tok-fn">log</span>(assignment.id, assignment.policy.name);
+}</pre>
+            <div class="sdk-demo-files" data-sdk-demo-files hidden></div>
+          </div>
+        </div>
+        <div class="sdk-demo-video" data-sdk-demo-video hidden>
+          <div class="sdk-demo-video-frame">
+            <iframe
+              data-sdk-demo-video-embed
+              title="Rick Astley - Never Gonna Give You Up"
+              referrerpolicy="strict-origin-when-cross-origin"
+              loading="lazy"
+              allowfullscreen></iframe>
+          </div>
+          <p class="sdk-demo-video-caption">Rick Astley &mdash; Never Gonna Give You Up</p>
+        </div>
+        <div class="sdk-demo-site" data-sdk-demo-site hidden>
+          <iframe
+            data-sdk-demo-site-embed
+            title="scalar.com"
+            referrerpolicy="strict-origin-when-cross-origin"
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="sdk-demo-hint" data-sdk-demo-hint hidden>
+      <span class="sdk-demo-hint-pill">
+        <span class="sdk-demo-hint-dot" aria-hidden="true"></span>
+        Click to interact
+      </span>
+    </div>
+    <div class="sdk-demo-window sdk-demo-window-build" data-sdk-demo-build-window hidden>
+      <div class="sdk-demo-window-bar" data-sdk-demo-build-window-bar>
+        <div class="sdk-demo-window-lights">
+          <button type="button" data-sdk-demo-build-window-close aria-label="Close the build log"></button>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="sdk-demo-log" data-sdk-demo-log role="log" aria-label="Build log"></div>
+    </div>
+    <div class="sdk-demo-window sdk-demo-window-api" data-sdk-demo-api-window hidden>
+      <div class="sdk-demo-window-bar" data-sdk-demo-api-window-bar>
+        <div class="sdk-demo-window-lights">
+          <button type="button" data-sdk-demo-api-window-close aria-label="Close the API document"></button>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </div>
+        <span class="sdk-demo-window-title">openapi.yaml</span>
+      </div>
+      <pre class="sdk-demo-api-doc" data-sdk-demo-api-doc></pre>
+    </div>
+    <div class="sdk-demo-share-layer" data-sdk-demo-share-sheet data-sdk-demo-end hidden>
+      <div class="sdk-demo-share-scrim" data-sdk-demo-share-scrim></div>
+      <div class="sdk-demo-share-sheet" role="dialog" aria-modal="true" aria-label="Share">
+        <span class="sdk-demo-share-grabber" aria-hidden="true"></span>
+        <div class="sdk-demo-share-card sdk-demo-share-preview">
+          <span class="sdk-demo-share-favicon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.044 0c.243 0 .486.202.486.486v5.423l3.804-3.845c.202-.202.526-.202.688 0l2.914 2.914c.162.162.202.486 0 .648v.04L18.09 9.47h5.423c.284 0 .486.203.486.486v4.088a.468.468 0 0 1-.486.486h-5.423l3.845 3.804c.162.202.202.526 0 .688l-2.914 2.914c-.162.162-.486.202-.648 0h-.04L14.53 18.09v5.423a.468.468 0 0 1-.486.486H9.956a.468.468 0 0 1-.486-.486v-2.833c0-.89.365-1.74.972-2.388l5.261-5.261a1.466 1.466 0 0 0 0-2.064l-5.22-5.221A3.4 3.4 0 0 1 9.47 3.359V.486c0-.284.203-.486.486-.486h4.088Z" /></svg>
+          </span>
+          <span class="sdk-demo-share-preview-text">
+            <span class="sdk-demo-share-preview-title">Warp HR SDK</span>
+            <span class="sdk-demo-share-preview-host" data-sdk-demo-share-host>dashboard.scalar.com</span>
+          </span>
+          <span class="sdk-demo-share-options">Options <span aria-hidden="true">&rsaquo;</span></span>
+        </div>
+        <div class="sdk-demo-share-people">
+          <a class="sdk-demo-share-person" data-sdk-demo-share-link="sms" data-sdk-demo-share-app="Messages" href="sms:">
+            <span class="sdk-demo-share-avatar" aria-hidden="true">M<span class="sdk-demo-share-avatar-badge"></span></span>
+            <span class="sdk-demo-share-person-name">Marc</span>
+          </a>
+        </div>
+        <div class="sdk-demo-share-apps">
+          <a class="sdk-demo-share-app" data-sdk-demo-share-link="sms" data-sdk-demo-share-app="Messages" href="sms:">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-messages" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.9 3 2.8 6.4 2.8 10.6c0 2.4 1.3 4.5 3.4 5.9-.2 1.2-.8 2.4-1.7 3.3 1.6-.2 3.1-.8 4.4-1.7 1 .3 2 .4 3.1.4 5.1 0 9.2-3.4 9.2-7.6S17.1 3 12 3Z" /></svg></span>
+            <span class="sdk-demo-share-app-name">Messages</span>
+          </a>
+          <a class="sdk-demo-share-app" data-sdk-demo-share-link="mailto" data-sdk-demo-share-app="Mail" href="mailto:">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-mail" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5.5" width="18" height="13" rx="2.5" /><path d="m3.8 7.5 7.1 5.2c.7.5 1.6.5 2.2 0l7.1-5.2" /></svg></span>
+            <span class="sdk-demo-share-app-name">Mail</span>
+          </a>
+          <button class="sdk-demo-share-app" type="button" data-sdk-demo-share-paste="Slack">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-slack" aria-hidden="true"><svg viewBox="0 0 24 24">
+                <rect x="8.6" y="1.8" width="3.4" height="9.2" rx="1.7" fill="#36c5f0" />
+                <rect x="13" y="8.6" width="9.2" height="3.4" rx="1.7" fill="#2eb67d" />
+                <rect x="12" y="13" width="3.4" height="9.2" rx="1.7" fill="#e01e5a" />
+                <rect x="1.8" y="12" width="9.2" height="3.4" rx="1.7" fill="#ecb22e" />
+              </svg></span>
+            <span class="sdk-demo-share-app-name">Slack</span>
+          </button>
+          <button class="sdk-demo-share-app" type="button" data-sdk-demo-share-paste="Notes">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-notes" aria-hidden="true"><svg viewBox="0 0 24 24" stroke="#8a6d1f" stroke-width="1.6" stroke-linecap="round"><path d="M7 9h10M7 13h10M7 17h6" /></svg></span>
+            <span class="sdk-demo-share-app-name">Notes</span>
+          </button>
+          <span class="sdk-demo-share-app sdk-demo-share-app-inert">
+            <span class="sdk-demo-share-tile sdk-demo-share-tile-more" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="18" cy="12" r="1.8" /></svg></span>
+            <span class="sdk-demo-share-app-name">More</span>
+          </span>
+        </div>
+        <p class="sdk-demo-share-status" data-sdk-demo-share-status role="status"></p>
+        <div class="sdk-demo-share-card sdk-demo-share-actions">
+          <button class="sdk-demo-share-action" type="button" data-sdk-demo-share-copy>
+            <span data-sdk-demo-share-copy-label>Copy</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 18a2 2 0 0 1-2-2V4c0-.6.2-1 .6-1.4A2 2 0 0 1 9 2h9c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H9Zm0-2h9V4H9v12Zm-4 6a2 2 0 0 1-1.4-.6A2 2 0 0 1 3 20V6h2v14h11v2H5Z" /></svg>
+          </button>
+          <button class="sdk-demo-share-action" type="button">
+            <span>Add to Reading List</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 21V5c0-.6.2-1 .6-1.4A2 2 0 0 1 6 3h12c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v16l-8-3.4L4 21Z" /></svg>
+          </button>
+          <button class="sdk-demo-share-action" type="button">
+            <span>Find on Page</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5Zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /></svg>
+          </button>
+        </div>
+        <button class="sdk-demo-share-cancel" type="button" data-sdk-demo-share-cancel>Cancel</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="feature">
@@ -284,7 +529,7 @@ Across a large API that consistency is the difference between guessing a method 
 
 ## How it works
 
-The [interactive demo](demo.md) runs this whole flow in the browser, against a fictional API, without an account.
+The demo at the top of this page runs this whole flow in the browser, against a fictional API, without an account.
 
 <scalar-steps>
   <scalar-step id="step-openapi" title="Start from your OpenAPI document">
@@ -505,10 +750,6 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
     }
   }
 
-  .code-switcher {
-    margin-top: 40px;
-  }
-
   .target-columns {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -523,46 +764,6 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
     }
   }
 
-  /* The tabs component does not accept an icon prop, so the language marks are
-     applied as masks on the tab labels. Scoped to the hero switcher only. */
-  .code-switcher .custom-tabs-nav .custom-tabs-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .code-switcher .custom-tabs-tab::before {
-    content: '';
-    width: 15px;
-    height: 15px;
-    flex-shrink: 0;
-    background-color: currentColor;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-  }
-
-  /* typescript */
-  .code-switcher .custom-tabs-tab:nth-child(1)::before {
-    -webkit-mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z"/></svg>');
-    mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z"/></svg>');
-  }
-
-  /* python */
-  .code-switcher .custom-tabs-tab:nth-child(2)::before {
-    -webkit-mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg>');
-    mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg>');
-  }
-
-  /* go */
-  .code-switcher .custom-tabs-tab:nth-child(3)::before {
-    -webkit-mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1.811 10.231c-.047 0-.058-.023-.035-.059l.246-.315c.023-.035.081-.058.128-.058h4.172c.046 0 .058.035.035.07l-.199.303c-.023.036-.082.07-.117.07zM.047 11.306c-.047 0-.059-.023-.035-.058l.245-.316c.023-.035.082-.058.129-.058h5.328c.047 0 .07.035.058.07l-.093.28c-.012.047-.058.07-.105.07zm2.828 1.075c-.047 0-.059-.035-.035-.07l.163-.292c.023-.035.07-.07.117-.07h2.337c.047 0 .07.035.07.082l-.023.28c0 .047-.047.082-.082.082zm12.129-2.36c-.736.187-1.239.327-1.963.514-.176.046-.187.058-.34-.117-.174-.199-.303-.327-.548-.444-.737-.362-1.45-.257-2.115.175-.795.514-1.204 1.274-1.192 2.22.011.935.654 1.706 1.577 1.835.795.105 1.46-.175 1.987-.77.105-.13.198-.27.315-.434H10.47c-.245 0-.304-.152-.222-.35.152-.362.432-.97.596-1.274a.315.315 0 01.292-.187h4.253c-.023.316-.023.631-.07.947a4.983 4.983 0 01-.958 2.29c-.841 1.11-1.94 1.8-3.33 1.986-1.145.152-2.209-.07-3.143-.77-.865-.655-1.356-1.52-1.484-2.595-.152-1.274.222-2.419.993-3.424.83-1.086 1.928-1.776 3.272-2.02 1.098-.2 2.15-.07 3.096.571.62.41 1.063.97 1.356 1.648.07.105.023.164-.117.2m3.868 6.461c-1.064-.024-2.034-.328-2.852-1.029a3.665 3.665 0 01-1.262-2.255c-.21-1.32.152-2.489.947-3.529.853-1.122 1.881-1.706 3.272-1.95 1.192-.21 2.314-.095 3.33.595.923.63 1.496 1.484 1.648 2.605.198 1.578-.257 2.863-1.344 3.962-.771.783-1.718 1.273-2.805 1.495-.315.06-.63.07-.934.106zm2.78-4.72c-.011-.153-.011-.27-.034-.387-.21-1.157-1.274-1.81-2.384-1.554-1.087.245-1.788.935-2.045 2.033-.21.912.234 1.835 1.075 2.21.643.28 1.285.244 1.905-.07.923-.48 1.425-1.228 1.484-2.233z"/></svg>');
-    mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1.811 10.231c-.047 0-.058-.023-.035-.059l.246-.315c.023-.035.081-.058.128-.058h4.172c.046 0 .058.035.035.07l-.199.303c-.023.036-.082.07-.117.07zM.047 11.306c-.047 0-.059-.023-.035-.058l.245-.316c.023-.035.082-.058.129-.058h5.328c.047 0 .07.035.058.07l-.093.28c-.012.047-.058.07-.105.07zm2.828 1.075c-.047 0-.059-.035-.035-.07l.163-.292c.023-.035.07-.07.117-.07h2.337c.047 0 .07.035.07.082l-.023.28c0 .047-.047.082-.082.082zm12.129-2.36c-.736.187-1.239.327-1.963.514-.176.046-.187.058-.34-.117-.174-.199-.303-.327-.548-.444-.737-.362-1.45-.257-2.115.175-.795.514-1.204 1.274-1.192 2.22.011.935.654 1.706 1.577 1.835.795.105 1.46-.175 1.987-.77.105-.13.198-.27.315-.434H10.47c-.245 0-.304-.152-.222-.35.152-.362.432-.97.596-1.274a.315.315 0 01.292-.187h4.253c-.023.316-.023.631-.07.947a4.983 4.983 0 01-.958 2.29c-.841 1.11-1.94 1.8-3.33 1.986-1.145.152-2.209-.07-3.143-.77-.865-.655-1.356-1.52-1.484-2.595-.152-1.274.222-2.419.993-3.424.83-1.086 1.928-1.776 3.272-2.02 1.098-.2 2.15-.07 3.096.571.62.41 1.063.97 1.356 1.648.07.105.023.164-.117.2m3.868 6.461c-1.064-.024-2.034-.328-2.852-1.029a3.665 3.665 0 01-1.262-2.255c-.21-1.32.152-2.489.947-3.529.853-1.122 1.881-1.706 3.272-1.95 1.192-.21 2.314-.095 3.33.595.923.63 1.496 1.484 1.648 2.605.198 1.578-.257 2.863-1.344 3.962-.771.783-1.718 1.273-2.805 1.495-.315.06-.63.07-.934.106zm2.78-4.72c-.011-.153-.011-.27-.034-.387-.21-1.157-1.274-1.81-2.384-1.554-1.087.245-1.788.935-2.045 2.033-.21.912.234 1.835 1.075 2.21.643.28 1.285.244 1.905-.07.923-.48 1.425-1.228 1.484-2.233z"/></svg>');
-  }
-
   .feature-container {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -575,6 +776,1518 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
     .feature-container {
       grid-template-columns: 1fr;
       row-gap: 28px;
+    }
+  }
+</style>
+
+<style>
+  .sdk-demo {
+    margin: 32px 0;
+  }
+
+  /* Positioning context for the build window, which layers over the browser. */
+  .sdk-demo-stage {
+    position: relative;
+  }
+
+  .sdk-demo-frame {
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-3xl);
+    background: var(--scalar-background-1);
+    overflow: hidden;
+    box-shadow: 0 18px 40px -24px rgb(0 0 0 / 35%);
+  }
+
+  /* ---------------------------------------------------------------------
+     Browser chrome, matching the omnibar on scalar.com/app-docs-animated.svg
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-chrome {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    height: 40px;
+    background: var(--scalar-background-2);
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .sdk-demo-chrome[data-dragging="true"] {
+    cursor: grabbing;
+  }
+
+  .sdk-demo-chrome-lights {
+    position: absolute;
+    top: 15px;
+    left: 12px;
+    width: 10px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--scalar-background-3);
+    box-shadow:
+      14px 0 0 var(--scalar-background-3),
+      29px 0 0 var(--scalar-background-3);
+  }
+
+  .sdk-demo-chrome-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 150px;
+    padding-left: 68px;
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-chrome-left svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sdk-demo-chrome-left svg:last-of-type {
+    opacity: 0.5;
+  }
+
+  .sdk-demo-chrome-nav {
+    flex: 1;
+    max-width: 600px;
+    padding: 6px 0;
+  }
+
+  .sdk-demo-chrome-url {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    padding: 0 24px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 7px;
+    font-size: var(--scalar-micro);
+    color: var(--scalar-color-1);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .sdk-demo-chrome-url > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sdk-demo-chrome-url > svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    margin-right: 3px;
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-chrome-url button {
+    position: absolute;
+    right: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--scalar-color-3);
+    cursor: pointer;
+  }
+
+  .sdk-demo-chrome-url button:hover {
+    background: var(--scalar-background-3);
+    color: var(--scalar-color-1);
+  }
+
+  .sdk-demo-chrome-url button svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .sdk-demo-chrome-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    width: 150px;
+    padding-right: 12px;
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-chrome-right svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  /* ---------------------------------------------------------------------
+     Tab overview, in the shape Safari shows it: a dimmed sheet over the page
+     with one card per tab, each a title above a preview of what is on it.
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-overview {
+    position: absolute;
+    inset: 40px 0 0;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px 20px 24px;
+    background: color-mix(in srgb, var(--scalar-background-3) 82%, transparent);
+    backdrop-filter: blur(6px);
+    overflow-y: auto;
+  }
+
+  .sdk-demo-overview[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-overview-bar {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .sdk-demo-overview-search {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 200px;
+    padding: 4px 9px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius);
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-overview-search svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+
+  .sdk-demo-overview-search input {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--scalar-color-1);
+    font-family: inherit;
+    font-size: var(--scalar-micro);
+    outline: none;
+  }
+
+  .sdk-demo-overview-search input::placeholder {
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 18px;
+    align-content: start;
+  }
+
+  .sdk-demo-tab-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border-radius: var(--scalar-radius-lg);
+    background: var(--scalar-background-1);
+    box-shadow: 0 8px 20px -10px rgb(0 0 0 / 45%);
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .sdk-demo-tab-card[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-tab-card:hover,
+  .sdk-demo-tab-card:focus-visible {
+    outline: 2px solid var(--scalar-color-accent);
+    outline-offset: 1px;
+  }
+
+  .sdk-demo-tab-card[aria-current="page"] {
+    outline: 2px solid var(--scalar-color-accent);
+    outline-offset: 1px;
+  }
+
+  .sdk-demo-tab-card-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-micro);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sdk-demo-tab-card-mark {
+    display: flex;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+
+  .sdk-demo-tab-card-mark svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sdk-demo-tab-card-mark-video {
+    color: #ff0033;
+  }
+
+  .sdk-demo-tab-card-preview {
+    display: block;
+    height: 128px;
+    padding: 8px;
+    background: var(--scalar-background-1);
+    overflow: hidden;
+  }
+
+  /* A drawn miniature of the dashboard, rather than a copy of it — the real
+     thing carries the demo's own hooks and must not exist twice. */
+  .sdk-demo-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .sdk-demo-mini-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .sdk-demo-mini-title {
+    width: 46%;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--scalar-color-3);
+  }
+
+  .sdk-demo-mini-button {
+    width: 22px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--scalar-color-1);
+  }
+
+  .sdk-demo-mini-card {
+    height: 16px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 3px;
+  }
+
+  .sdk-demo-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .sdk-demo-mini-grid > span {
+    height: 14px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 3px;
+    background: var(--scalar-background-2);
+  }
+
+  .sdk-demo-mini-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 3px;
+  }
+
+  .sdk-demo-mini-panel > span {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--scalar-background-3);
+  }
+
+  .sdk-demo-mini-panel > span:nth-child(2) {
+    width: 72%;
+  }
+
+  .sdk-demo-mini-panel > span:nth-child(3) {
+    width: 48%;
+  }
+
+  .sdk-demo-tab-card-preview-video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: #000;
+  }
+
+  .sdk-demo-mini-play {
+    width: 34px;
+    height: 24px;
+    border-radius: 6px;
+    background: #ff0033;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    position: relative;
+  }
+
+  .sdk-demo-mini-play::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-style: solid;
+    border-width: 5px 0 5px 8px;
+    border-color: transparent transparent transparent #fff;
+  }
+
+  /* Decorative, like the other browser furniture in the chrome. */
+  .sdk-demo-tab-card-new {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 128px;
+    background: color-mix(in srgb, var(--scalar-background-1) 45%, transparent);
+    box-shadow: none;
+    color: var(--scalar-color-3);
+    font-size: 32px;
+    font-weight: 300;
+    cursor: default;
+  }
+
+  /* ---------------------------------------------------------------------
+     Second tab
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-video {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px;
+    background: var(--scalar-background-1);
+  }
+
+  .sdk-demo-video[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--scalar-radius-lg);
+    background: #000;
+    overflow: hidden;
+  }
+
+  .sdk-demo-video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .sdk-demo-video-caption {
+    margin: 0;
+    color: var(--scalar-color-2);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+  }
+
+  /* The floating windows belong to the dashboard tab. */
+  .sdk-demo[data-sdk-demo-page="video"] .sdk-demo-window {
+    display: none;
+  }
+
+  /* ---------------------------------------------------------------------
+     Dashboard replica
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-viewport {
+    min-height: 520px;
+  }
+
+  .sdk-demo-main {
+    padding: 22px 24px 24px;
+  }
+
+  .sdk-demo-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .sdk-demo-title {
+    font-size: var(--scalar-font-size-1);
+    font-weight: var(--scalar-bold);
+    color: var(--scalar-color-1);
+  }
+
+  .sdk-demo-title-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sdk-demo-ghost-button {
+    padding: 5px 10px;
+    border-radius: var(--scalar-radius);
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    color: var(--scalar-color-2);
+    font-size: var(--scalar-micro);
+  }
+
+  .sdk-demo-build-button {
+    padding: 6px 16px;
+    border-radius: var(--scalar-radius);
+    background: var(--scalar-color-1);
+    color: var(--scalar-background-1);
+    font-size: var(--scalar-micro);
+    font-weight: var(--scalar-semibold);
+    cursor: pointer;
+  }
+
+  .sdk-demo-build-button:hover {
+    opacity: 0.85;
+  }
+
+  .sdk-demo-build-button:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+
+  .sdk-demo-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+  }
+
+  .sdk-demo-status-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sdk-demo-status-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sdk-demo-status-label {
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+    font-size: var(--scalar-small);
+  }
+
+  .sdk-demo-status-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-micro);
+  }
+
+  .sdk-demo-status-meta code {
+    font-family: var(--scalar-font-code);
+  }
+
+  .sdk-demo-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--scalar-color-3);
+  }
+
+  .sdk-demo-dot-green {
+    background: var(--scalar-color-green);
+  }
+
+  .sdk-demo-dot-amber {
+    background: var(--scalar-color-orange);
+  }
+
+  .sdk-demo-steps {
+    display: flex;
+    gap: 8px;
+  }
+
+  .sdk-demo-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius);
+    font-size: var(--scalar-micro);
+    color: var(--scalar-color-2);
+  }
+
+  .sdk-demo-step-done {
+    color: var(--scalar-color-green);
+  }
+
+  .sdk-demo-spinner {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid var(--scalar-border-color);
+    border-top-color: var(--scalar-color-2);
+    animation: sdk-demo-spin 0.7s linear infinite;
+  }
+
+  @keyframes sdk-demo-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .sdk-demo-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 22px 0 10px;
+  }
+
+  .sdk-demo-section-title {
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+    font-size: var(--scalar-small);
+  }
+
+  .sdk-demo-add-wrap {
+    position: relative;
+  }
+
+  .sdk-demo-add {
+    padding: 4px 8px;
+    border-radius: var(--scalar-radius);
+    background: transparent;
+    color: var(--scalar-color-2);
+    font-size: var(--scalar-micro);
+    cursor: pointer;
+  }
+
+  .sdk-demo-add:hover {
+    background: var(--scalar-background-2);
+    color: var(--scalar-color-1);
+  }
+
+  .sdk-demo-add-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 5;
+    min-width: 190px;
+    padding: 4px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+    background: var(--scalar-background-1);
+    box-shadow: 0 10px 24px -12px rgb(0 0 0 / 40%);
+  }
+
+  .sdk-demo[data-sdk-demo-menu="open"] .sdk-demo-add-menu {
+    display: block;
+  }
+
+  .sdk-demo-add-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: var(--scalar-radius);
+    background: transparent;
+    font-size: var(--scalar-micro);
+    color: var(--scalar-color-1);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .sdk-demo-add-item:hover {
+    background: var(--scalar-background-2);
+  }
+
+  .sdk-demo-add-item-meta {
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-add-empty {
+    display: block;
+    padding: 6px 8px;
+    font-size: var(--scalar-micro);
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-targets {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 8px;
+  }
+
+  .sdk-demo-target {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+    background: var(--scalar-background-1);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .sdk-demo-target:hover {
+    background: var(--scalar-background-2);
+  }
+
+  /* Selection reads as a filled row; the border stays the default. */
+  .sdk-demo-target[aria-pressed="true"] {
+    background: var(--scalar-background-2);
+  }
+
+  .sdk-demo-target-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--scalar-color-1);
+  }
+
+  .sdk-demo-target-mark svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sdk-demo-target-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sdk-demo-target-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .sdk-demo-target-name {
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sdk-demo-target-registry {
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-micro);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sdk-demo-badge {
+    flex-shrink: 0;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: var(--scalar-background-3);
+    color: var(--scalar-color-2);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  /* The package line is a section title, not a code block. */
+  .sdk-demo-package {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 22px 0 10px;
+  }
+
+  .sdk-demo-package-title {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .sdk-demo-package-name {
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-package-sep,
+  .sdk-demo-package-registry {
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-micro);
+  }
+
+  .sdk-demo-install {
+    color: var(--scalar-color-3);
+    font-family: var(--scalar-font-code);
+    font-size: var(--scalar-micro);
+  }
+
+  .sdk-demo-panel {
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+    overflow: hidden;
+  }
+
+  .sdk-demo-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 6px 8px 0;
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    overflow-x: auto;
+  }
+
+  .sdk-demo-tab {
+    padding: 6px 10px;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-micro);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .sdk-demo-tab:hover {
+    color: var(--scalar-color-1);
+  }
+
+  .sdk-demo-tab[aria-selected="true"] {
+    color: var(--scalar-color-1);
+    border-bottom-color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-code-head {
+    padding: 8px 14px;
+    background: var(--scalar-background-2);
+    color: var(--scalar-color-3);
+    font-family: var(--scalar-font-code);
+    font-size: var(--scalar-micro);
+  }
+
+  .sdk-demo-code {
+    margin: 0;
+    padding: 14px;
+    min-height: 210px;
+    max-height: 300px;
+    overflow: auto;
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    font-family: var(--scalar-font-code);
+    font-size: var(--scalar-micro);
+    line-height: 1.55;
+    white-space: pre;
+    tab-size: 2;
+  }
+
+  /* Syntax tokens, drawn from the theme's own accent colours so both
+     schemes stay in step with the rest of the docs. */
+  .sdk-demo-tok-comment {
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-tok-string {
+    color: var(--scalar-color-green);
+  }
+
+  .sdk-demo-tok-keyword {
+    color: var(--scalar-color-purple);
+  }
+
+  .sdk-demo-tok-builtin,
+  .sdk-demo-tok-number {
+    color: var(--scalar-color-orange);
+  }
+
+  .sdk-demo-tok-type {
+    color: var(--scalar-color-yellow);
+  }
+
+  .sdk-demo-tok-fn {
+    color: var(--scalar-color-blue);
+  }
+
+  .sdk-demo-tok-flag {
+    color: var(--scalar-color-blue);
+  }
+
+  .sdk-demo-tok-heading {
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-tok-meta,
+  .sdk-demo-tok-bullet {
+    color: var(--scalar-color-3);
+  }
+
+  .sdk-demo-files {
+    padding: 10px 14px;
+    min-height: 210px;
+    max-height: 300px;
+    overflow: auto;
+    font-family: var(--scalar-font-code);
+    font-size: var(--scalar-micro);
+    line-height: 1.8;
+  }
+
+  .sdk-demo-file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--scalar-color-2);
+  }
+
+  .sdk-demo-file[data-depth="1"] {
+    padding-left: 16px;
+  }
+
+  .sdk-demo-file-dir {
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-file-badge {
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--scalar-background-accent);
+    color: var(--scalar-color-accent);
+    font-family: var(--scalar-font);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* ---------------------------------------------------------------------
+     Third tab: scalar.com, embedded
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-site {
+    height: 100%;
+    min-height: 520px;
+    background: var(--scalar-background-1);
+  }
+
+  .sdk-demo-site[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-site iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+    border: 0;
+  }
+
+  .sdk-demo-tab-card-preview-site {
+    background: var(--scalar-background-2);
+  }
+
+  .sdk-demo-mini-site {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sdk-demo-mini-site > span {
+    height: 12px;
+    border-radius: 3px;
+    background: var(--scalar-background-3);
+  }
+
+  .sdk-demo-mini-site > span:first-child {
+    height: 34px;
+  }
+
+  .sdk-demo-mini-site > span:last-child {
+    width: 60%;
+  }
+
+  .sdk-demo-tab-card-new {
+    cursor: pointer;
+  }
+
+  .sdk-demo-tab-card-new:hover {
+    color: var(--scalar-color-1);
+  }
+
+  /* ---------------------------------------------------------------------
+     Share sheet, in the shape iOS shows it
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-share-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 18;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    border-radius: var(--scalar-radius-3xl);
+    overflow: hidden;
+  }
+
+  .sdk-demo-share-layer[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-share-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 35%);
+  }
+
+  .sdk-demo-share-sheet {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(400px, 100%);
+    max-height: 100%;
+    overflow-y: auto;
+    padding: 8px 12px 14px;
+    border-radius: 18px 18px 0 0;
+    background: var(--scalar-background-2);
+    animation: sdk-demo-sheet-up 0.28s cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
+  @keyframes sdk-demo-sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  .sdk-demo-share-grabber {
+    width: 36px;
+    height: 5px;
+    margin: 0 auto 2px;
+    border-radius: 999px;
+    background: var(--scalar-color-3);
+    opacity: 0.5;
+  }
+
+  .sdk-demo-share-card {
+    border-radius: 12px;
+    background: var(--scalar-background-1);
+  }
+
+  .sdk-demo-share-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .sdk-demo-share-favicon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--scalar-background-2);
+    color: var(--scalar-color-1);
+  }
+
+  .sdk-demo-share-favicon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sdk-demo-share-preview-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sdk-demo-share-preview-title {
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-share-preview-host {
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-micro);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sdk-demo-share-options {
+    flex-shrink: 0;
+    color: var(--scalar-color-accent);
+    font-size: var(--scalar-micro);
+  }
+
+  .sdk-demo-share-people,
+  .sdk-demo-share-apps {
+    display: flex;
+    gap: 18px;
+    padding: 4px 12px 6px;
+    overflow-x: auto;
+  }
+
+  .sdk-demo-share-person,
+  .sdk-demo-share-app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    width: 58px;
+    padding: 0;
+    background: transparent;
+    color: var(--scalar-color-2);
+    font-family: inherit;
+    font-size: 10px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .sdk-demo-share-person:hover .sdk-demo-share-tile,
+  .sdk-demo-share-person:hover .sdk-demo-share-avatar,
+  .sdk-demo-share-app:hover .sdk-demo-share-tile {
+    filter: brightness(0.92);
+  }
+
+  /* iOS opens an app list here; there is nothing to list. */
+  .sdk-demo-share-app-inert {
+    cursor: default;
+  }
+
+  .sdk-demo-share-app-inert:hover .sdk-demo-share-tile {
+    filter: none;
+  }
+
+  .sdk-demo-share-status {
+    margin: 0;
+    padding: 0 12px;
+    color: var(--scalar-color-2);
+    font-size: var(--scalar-micro);
+    text-align: center;
+  }
+
+  .sdk-demo-share-status:empty {
+    display: none;
+  }
+
+  .sdk-demo-share-avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(#a2a7ae, #7e848c);
+    color: #fff;
+    font-size: 20px;
+    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-share-avatar-badge {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--scalar-background-2);
+    border-radius: 50%;
+    background: #4cd964;
+  }
+
+  .sdk-demo-share-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: var(--scalar-background-3);
+    color: var(--scalar-color-2);
+  }
+
+  .sdk-demo-share-tile svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .sdk-demo-share-tile-messages {
+    background: #4cd964;
+  }
+
+  .sdk-demo-share-tile-mail {
+    background: #1a8cff;
+  }
+
+  .sdk-demo-share-tile-slack {
+    background: #fff;
+  }
+
+  .sdk-demo-share-tile-notes {
+    background: #fbdd6d;
+  }
+
+  .sdk-demo-share-person-name,
+  .sdk-demo-share-app-name {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sdk-demo-share-actions {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sdk-demo-share-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 12px;
+    background: transparent;
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-small);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sdk-demo-share-action + .sdk-demo-share-action {
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  }
+
+  .sdk-demo-share-action:hover {
+    background: var(--scalar-background-2);
+  }
+
+  .sdk-demo-share-action svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--scalar-color-2);
+  }
+
+  .sdk-demo-share-cancel {
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+    cursor: pointer;
+  }
+
+  .sdk-demo-share-cancel:hover {
+    background: var(--scalar-background-3);
+  }
+
+  .sdk-demo-chrome-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .sdk-demo-chrome-button:hover,
+  .sdk-demo-chrome-button[aria-expanded="true"] {
+    color: var(--scalar-color-1);
+  }
+
+  /* ---------------------------------------------------------------------
+     "Click to interact" hint. Never takes pointer events, so the click that
+     dismisses it lands on whatever the reader was aiming at.
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-hint {
+    position: absolute;
+    inset: 0;
+    z-index: 16;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .sdk-demo-hint[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-hint-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 18px 9px 14px;
+    border: 1px solid color-mix(in srgb, var(--scalar-color-green) 55%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--scalar-color-green) 16%, var(--scalar-background-1));
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+    white-space: nowrap;
+    box-shadow:
+      0 0 0 6px color-mix(in srgb, var(--scalar-color-green) 10%, transparent),
+      0 10px 24px -12px rgb(0 0 0 / 45%);
+    animation: sdk-demo-hint-in 0.4s ease both;
+  }
+
+  .sdk-demo-hint-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--scalar-color-green);
+    animation: sdk-demo-hint-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes sdk-demo-hint-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  @keyframes sdk-demo-hint-pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+     Floating windows — the build terminal and the API document. Both share
+     one minimal chrome: stoplights, a shorter bar than the omnibar, no URL.
+     They stay dark in either theme, the way a terminal is.
+     --------------------------------------------------------------------- */
+
+  .sdk-demo-window {
+    position: absolute;
+    z-index: 12;
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: var(--scalar-radius-2xl);
+    background: #0d0f12;
+    overflow: hidden;
+    box-shadow: 0 24px 48px -18px rgb(0 0 0 / 55%);
+  }
+
+  .sdk-demo-window[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-window-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 26px;
+    padding: 0 10px;
+    background: #16191e;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .sdk-demo-window-bar[data-dragging="true"] {
+    cursor: grabbing;
+  }
+
+  .sdk-demo-window-lights {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sdk-demo-window-lights > * {
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border-radius: 50%;
+    background: #3a3f47;
+  }
+
+  .sdk-demo-window-lights > button {
+    cursor: pointer;
+  }
+
+  .sdk-demo-window-lights > button:hover,
+  .sdk-demo-window-lights > button:focus-visible {
+    background: #ec6a5e;
+  }
+
+  .sdk-demo-window-title {
+    color: #8b949e;
+    font-family: var(--scalar-font-code);
+    font-size: 11px;
+  }
+
+  /* The modifiers only say where each window sits. */
+  .sdk-demo-window-build {
+    right: 20px;
+    bottom: 20px;
+    width: min(370px, calc(100% - 40px));
+  }
+
+  .sdk-demo-window-api {
+    left: 20px;
+    bottom: 20px;
+    width: min(380px, calc(100% - 40px));
+  }
+
+  .sdk-demo-log,
+  .sdk-demo-api-doc {
+    overflow: auto;
+    padding: 10px 12px;
+    font-family: var(--scalar-font-code);
+    font-size: 11px;
+    line-height: 1.75;
+    color: #8b949e;
+  }
+
+  .sdk-demo-log {
+    height: 190px;
+  }
+
+  .sdk-demo-api-doc {
+    margin: 0;
+    height: 230px;
+    color: #c9d1d9;
+    white-space: pre;
+    tab-size: 2;
+  }
+
+  .sdk-demo-log-line {
+    display: flex;
+    gap: 7px;
+  }
+
+  .sdk-demo-log-prompt {
+    flex-shrink: 0;
+    color: #3fb950;
+  }
+
+  .sdk-demo-log-active .sdk-demo-log-text {
+    color: #e6edf3;
+  }
+
+  .sdk-demo-log-cursor {
+    width: 6px;
+    height: 12px;
+    margin-top: 3px;
+    background: #3fb950;
+    animation: sdk-demo-blink 1s steps(2, start) infinite;
+  }
+
+  @keyframes sdk-demo-blink {
+    to {
+      visibility: hidden;
+    }
+  }
+
+  /* The document sits on the dark window, so its tokens cannot use the page
+     palette — those are tuned for the page background, not this one. */
+  .sdk-demo-api-doc .sdk-demo-tok-key {
+    color: #79c0ff;
+  }
+
+  .sdk-demo-api-doc .sdk-demo-tok-string {
+    color: #a5d6ff;
+  }
+
+  .sdk-demo-api-doc .sdk-demo-tok-number,
+  .sdk-demo-api-doc .sdk-demo-tok-builtin {
+    color: #ffa657;
+  }
+
+  .sdk-demo-api-doc .sdk-demo-tok-comment,
+  .sdk-demo-api-doc .sdk-demo-tok-bullet {
+    color: #8b949e;
+  }
+
+  @media screen and (max-width: 760px) {
+    .sdk-demo-chrome-left,
+    .sdk-demo-chrome-right {
+      display: none;
+    }
+
+    .sdk-demo-chrome-nav {
+      padding: 6px 12px 6px 68px;
+    }
+
+    .sdk-demo-main {
+      padding: 16px;
+    }
+
+    .sdk-demo-viewport {
+      min-height: 0;
+    }
+
+    .sdk-demo-window-build,
+    .sdk-demo-window-api {
+      right: 12px;
+      left: 12px;
+      bottom: 12px;
+      width: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sdk-demo-spinner,
+    .sdk-demo-log-cursor {
+      animation: none;
+    }
+
+    .sdk-demo-hint-pill,
+    .sdk-demo-hint-dot,
+    .sdk-demo-share-sheet {
+      animation: none;
     }
   }
 </style>
