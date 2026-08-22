@@ -1,6 +1,36 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalizeContent } from './normalize-configurations'
+import { normalizeConfigurations, normalizeContent } from './normalize-configurations'
+
+describe('normalizeConfigurations', () => {
+  it('preserves the documentType of a source in the normalized config', () => {
+    const normalized = normalizeConfigurations({
+      sources: [
+        {
+          title: 'Streaming API',
+          url: 'https://example.com/asyncapi.json',
+          documentType: 'asyncapi',
+        },
+      ],
+    })
+
+    expect(normalized['streaming-api']?.config).toMatchObject({ documentType: 'asyncapi' })
+    expect(normalized['streaming-api']?.source).toEqual({ url: 'https://example.com/asyncapi.json' })
+  })
+
+  it('leaves documentType undefined when not provided', () => {
+    const normalized = normalizeConfigurations({
+      sources: [
+        {
+          title: 'REST API',
+          url: 'https://example.com/openapi.json',
+        },
+      ],
+    })
+
+    expect(normalized['rest-api']?.config).not.toHaveProperty('documentType', expect.anything())
+  })
+})
 
 describe('normalizeContent', () => {
   describe('function input', () => {

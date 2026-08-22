@@ -61,6 +61,27 @@ describe('api-reference-configuration', () => {
       expect(() => coerce(apiReferenceConfigurationSchema, completeConfig)).not.toThrow()
     })
 
+    it('preserves the documentType of a source', () => {
+      expect(coerce(apiReferenceConfigurationSchema, { documentType: 'asyncapi' })).toMatchObject({
+        documentType: 'asyncapi',
+      })
+      expect(coerce(apiReferenceConfigurationSchema, { documentType: 'openapi' })).toMatchObject({
+        documentType: 'openapi',
+      })
+    })
+
+    it('falls back to the first listed value for an invalid documentType', () => {
+      // Matches the `union([literal(...), ...])` coercion behavior used elsewhere in this schema
+      // (e.g. `localization.direction`): an invalid value falls back to whichever literal is listed first.
+      const coerced = coerce(apiReferenceConfigurationSchema, { documentType: 'graphql' })
+      expect(coerced.documentType).toBe('openapi')
+    })
+
+    it('leaves documentType undefined when not provided', () => {
+      const coerced = coerce(apiReferenceConfigurationSchema, {})
+      expect(coerced.documentType).toBeUndefined()
+    })
+
     it('validates localization configuration', () => {
       const config = {
         localization: {
