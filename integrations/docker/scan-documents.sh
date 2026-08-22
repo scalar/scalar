@@ -10,7 +10,7 @@ BASE_PATH="${BASE_PATH%/}"
 BASE_URL="${BASE_PATH}/openapi"
 CONFIG_FILE="/tmp/configuration.json"
 
-echo "Scanning for OpenAPI documents in: $MOUNT_DIR"
+echo "Scanning for OpenAPI and AsyncAPI documents in: $MOUNT_DIR"
 
 # Check if mount directory exists
 if [ ! -d "$MOUNT_DIR" ]; then
@@ -18,8 +18,8 @@ if [ ! -d "$MOUNT_DIR" ]; then
     exit 0
 fi
 
-# Function to check if a file is a valid OpenAPI document
-is_openapi_doc() {
+# Function to print the document type of a file: "openapi", "asyncapi", or empty if neither.
+get_doc_type() {
     file="$1"
     ext="${file##*.}"
 
@@ -27,10 +27,20 @@ is_openapi_doc() {
         json|yaml|yml)
             if [ "$ext" = "json" ]; then
                 if grep -q '"openapi"' "$file" 2>/dev/null || grep -q '"swagger"' "$file" 2>/dev/null; then
+                    echo "openapi"
+                    return 0
+                fi
+                if grep -q '"asyncapi"' "$file" 2>/dev/null; then
+                    echo "asyncapi"
                     return 0
                 fi
             else
                 if grep -q "openapi:" "$file" 2>/dev/null || grep -q "swagger:" "$file" 2>/dev/null; then
+                    echo "openapi"
+                    return 0
+                fi
+                if grep -q "asyncapi:" "$file" 2>/dev/null; then
+                    echo "asyncapi"
                     return 0
                 fi
             fi
@@ -83,10 +93,14 @@ TEMP_FILE=$(mktemp)
 find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -print0 > "$TEMP_FILE"
 
 while IFS= read -r -d '' file; do
-    if is_openapi_doc "$file"; then
+    doc_type=$(get_doc_type "$file")
+    if [ -n "$doc_type" ]; then
         relative_path="${file#$MOUNT_DIR/}"
         title=$(generate_title "$file")
         slug=$(generate_slug "$file")
+        # Historical path: kept as "/openapi" for both document types so existing deployments
+        # don't need to change their mount/proxy setup. The Caddyfile serves the whole /docs
+        # mount under this path regardless of document type.
         url="${BASE_URL}/${relative_path}"
 
         # Escape for JSON
@@ -94,7 +108,13 @@ while IFS= read -r -d '' file; do
         escaped_slug=$(escape_json "$slug")
         escaped_url=$(escape_json "$url")
 
-        # Found OpenAPI document: $relative_path -> $title ($slug)
+        if [ "$doc_type" = "asyncapi" ]; then
+            document_type_field=",\"documentType\":\"asyncapi\""
+        else
+            document_type_field=""
+        fi
+
+        # Found document: $relative_path -> $title ($slug) [$doc_type]
 
         # Add comma if not first
         if [ "$FIRST" = "false" ]; then
@@ -110,7 +130,7 @@ while IFS= read -r -d '' file; do
         fi
 
         # Add source
-        SOURCES="${SOURCES}{\"title\":\"${escaped_title}\",\"slug\":\"${escaped_slug}\",\"url\":\"${escaped_url}\",\"default\":${default}}"
+        SOURCES="${SOURCES}{\"title\":\"${escaped_title}\",\"slug\":\"${escaped_slug}\",\"url\":\"${escaped_url}\",\"default\":${default}${document_type_field}}"
     fi
 done < "$TEMP_FILE"
 
