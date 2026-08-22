@@ -22,20 +22,31 @@
 </div>
 
 <div class="sdk-demo" data-sdk-demo data-sdk-demo-menu="closed" data-sdk-demo-state="live">
+  <div class="sdk-demo-zoom-scrim" data-sdk-demo-zoom-scrim hidden></div>
   <div class="sdk-demo-stage">
     <div class="sdk-demo-frame" data-sdk-demo-frame>
       <div class="sdk-demo-chrome" data-sdk-demo-chrome>
-        <div class="sdk-demo-chrome-lights" aria-hidden="true"></div>
-        <div class="sdk-demo-chrome-left" aria-hidden="true">
-          <svg fill="currentColor" height="16" viewBox="0 0 20 16" width="20">
+        <div class="sdk-demo-chrome-lights">
+          <button class="sdk-demo-light sdk-demo-light-close" type="button" data-sdk-demo-window="close" aria-label="Close the demo"></button>
+          <button class="sdk-demo-light sdk-demo-light-minimize" type="button" data-sdk-demo-window="minimize" aria-label="Minimize the demo"></button>
+          <button class="sdk-demo-light sdk-demo-light-zoom" type="button" data-sdk-demo-window="zoom" aria-label="Zoom the demo to fill the screen"></button>
+        </div>
+        <div class="sdk-demo-chrome-left">
+          <button class="sdk-demo-chrome-tool" type="button" data-sdk-demo-sidebar aria-expanded="false" aria-label="Show the tab sidebar">
+            <svg fill="currentColor" height="16" viewBox="0 0 20 16" width="20">
             <path clip-rule="evenodd" d="M19.4 15.4a2 2 0 0 1-1.4.6H2a2 2 0 0 1-1.4-.6A2 2 0 0 1 0 14V2C0 1.4.2 1 .6.6A2 2 0 0 1 2 0h16c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v12c0 .6-.2 1-.6 1.4ZM2 14h5V2H2v12Zm7 0h9V2H9v12ZM3.3 3c-.2 0-.3.2-.3.3v1c0 .2.1.3.3.3h2.5c.1 0 .2-.1.2-.3v-1l-.2-.2H3.3Zm0 2c-.2 0-.3.2-.3.3v1c0 .2.1.3.3.3h2.5c.1 0 .2-.1.2-.3v-1l-.2-.2H3.3ZM3 7.4c0-.1.1-.2.3-.2h2.5c.1 0 .2 0 .2.2v1c0 .2-.1.3-.2.3H3.3a.3.3 0 0 1-.3-.3v-1Z" fill-rule="evenodd" />
           </svg>
-          <svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
+          </button>
+          <button class="sdk-demo-chrome-tool" type="button" data-sdk-demo-history="back" aria-label="Go back" disabled>
+            <svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
             <path d="M16 22 6 12 16 2l1.8 1.8L9.5 12l8.3 8.2L16 22Z" />
           </svg>
-          <svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
+          </button>
+          <button class="sdk-demo-chrome-tool" type="button" data-sdk-demo-history="forward" aria-label="Go forward" disabled>
+            <svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
             <path d="m8 22 10-10L8 2 6.2 3.8l8.3 8.2-8.3 8.2L8 22Z" />
           </svg>
+          </button>
         </div>
         <div class="sdk-demo-chrome-nav">
           <div class="sdk-demo-chrome-url">
@@ -138,6 +149,10 @@
         </div>
       </div>
       <div class="sdk-demo-viewport">
+        <nav class="sdk-demo-sidebar" data-sdk-demo-sidebar-panel aria-label="Open tabs" hidden>
+          <span class="sdk-demo-sidebar-title">Tabs</span>
+          <div class="sdk-demo-sidebar-list" data-sdk-demo-sidebar-list></div>
+        </nav>
         <div class="sdk-demo-main">
           <div class="sdk-demo-title-row">
             <div class="sdk-demo-title">Warp HR SDK</div>
@@ -233,6 +248,10 @@
             sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
         </div>
       </div>
+    </div>
+    <div class="sdk-demo-closed" data-sdk-demo-closed hidden>
+      <p class="sdk-demo-closed-text">You closed the demo.</p>
+      <button class="sdk-demo-closed-button" type="button" data-sdk-demo-reopen>Open it again</button>
     </div>
     <div class="sdk-demo-hint" data-sdk-demo-hint hidden>
       <span class="sdk-demo-hint-pill">
@@ -850,13 +869,44 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
     position: absolute;
     top: 15px;
     left: 12px;
+    display: flex;
+    gap: 4.5px;
+  }
+
+  .sdk-demo-light {
+    position: relative;
     width: 10px;
     height: 9px;
+    padding: 0;
+    border: 0;
     border-radius: 50%;
     background: var(--scalar-background-3);
-    box-shadow:
-      14px 0 0 var(--scalar-background-3),
-      29px 0 0 var(--scalar-background-3);
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+
+  /* A 10px dot is a poor target, so each one claims the space around it. */
+  .sdk-demo-light::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+  }
+
+  /* Unfocused windows show grey dots and colour them on hover, the way macOS
+     does; the resting state is what the omnibar reference draws. */
+  .sdk-demo-chrome-lights:hover .sdk-demo-light-close,
+  .sdk-demo-light-close:focus-visible {
+    background: #ff5f57;
+  }
+
+  .sdk-demo-chrome-lights:hover .sdk-demo-light-minimize,
+  .sdk-demo-light-minimize:focus-visible {
+    background: #febc2e;
+  }
+
+  .sdk-demo-chrome-lights:hover .sdk-demo-light-zoom,
+  .sdk-demo-light-zoom:focus-visible {
+    background: #28c840;
   }
 
   .sdk-demo-chrome-left {
@@ -868,13 +918,32 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
     color: var(--scalar-color-3);
   }
 
+  .sdk-demo-chrome-tool {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .sdk-demo-chrome-tool:hover:not(:disabled) {
+    color: var(--scalar-color-1);
+  }
+
+  .sdk-demo-chrome-tool:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .sdk-demo-chrome-tool[aria-expanded='true'] {
+    color: var(--scalar-color-accent);
+  }
+
   .sdk-demo-chrome-left svg {
     width: 16px;
     height: 16px;
-  }
-
-  .sdk-demo-chrome-left svg:last-of-type {
-    opacity: 0.5;
   }
 
   .sdk-demo-chrome-nav {
@@ -1245,7 +1314,158 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
      --------------------------------------------------------------------- */
 
   .sdk-demo-viewport {
+    display: flex;
     min-height: 520px;
+  }
+
+  .sdk-demo-viewport > *:not(.sdk-demo-sidebar) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sdk-demo-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+    width: 190px;
+    padding: 14px 10px;
+    border-right: var(--scalar-border-width) solid var(--scalar-border-color);
+    background: var(--scalar-background-2);
+  }
+
+  .sdk-demo-sidebar[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-sidebar-title {
+    padding: 0 8px 8px;
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-micro);
+    font-weight: var(--scalar-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .sdk-demo-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 8px;
+    border: 0;
+    border-radius: var(--scalar-radius-lg);
+    background: transparent;
+    color: var(--scalar-color-2);
+    font-family: inherit;
+    font-size: var(--scalar-micro);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sdk-demo-sidebar-item:hover {
+    background: var(--scalar-background-3);
+  }
+
+  .sdk-demo-sidebar-item[aria-current='page'] {
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+  }
+
+  .sdk-demo-sidebar-item svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .sdk-demo-sidebar-item-label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* ---------------------------------------------------------------------
+     Window controls: minimize collapses to the title bar, zoom lifts the
+     whole stage over the page, close swaps it for a way back in.
+     --------------------------------------------------------------------- */
+
+  .sdk-demo[data-sdk-demo-minimized='true'] .sdk-demo-viewport,
+  .sdk-demo[data-sdk-demo-minimized='true'] .sdk-demo-overview {
+    display: none;
+  }
+
+  .sdk-demo[data-sdk-demo-closed='true'] .sdk-demo-frame,
+  .sdk-demo[data-sdk-demo-closed='true'] .sdk-demo-hint {
+    display: none;
+  }
+
+  .sdk-demo-closed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 220px;
+    padding: 32px;
+    border: var(--scalar-border-width) dashed var(--scalar-border-color);
+    border-radius: var(--scalar-radius-3xl);
+    background: var(--scalar-background-2);
+  }
+
+  .sdk-demo-closed[hidden] {
+    display: none;
+  }
+
+  .sdk-demo-closed-text {
+    margin: 0;
+    color: var(--scalar-color-2);
+    font-size: var(--scalar-small);
+  }
+
+  .sdk-demo-closed-button {
+    padding: 8px 16px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    font-family: inherit;
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+    cursor: pointer;
+  }
+
+  .sdk-demo-closed-button:hover {
+    background: var(--scalar-background-3);
+  }
+
+  .sdk-demo-zoom-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 59;
+    background: rgb(0 0 0 / 45%);
+  }
+
+  .sdk-demo-zoom-scrim[hidden] {
+    display: none;
+  }
+
+  .sdk-demo[data-sdk-demo-zoom='true'] .sdk-demo-stage {
+    position: fixed;
+    inset: 16px;
+    z-index: 60;
+  }
+
+  .sdk-demo[data-sdk-demo-zoom='true'] .sdk-demo-frame {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .sdk-demo[data-sdk-demo-zoom='true'] .sdk-demo-viewport {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   .sdk-demo-main {

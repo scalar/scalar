@@ -818,6 +818,14 @@ const initSdkDemo = (root) => {
 
   const nodes = {
     reload: qs(root, '[data-sdk-demo-reload]'),
+    lights: qsa(root, '[data-sdk-demo-window]'),
+    closedCard: qs(root, '[data-sdk-demo-closed]'),
+    reopen: qs(root, '[data-sdk-demo-reopen]'),
+    zoomScrim: qs(root, '[data-sdk-demo-zoom-scrim]'),
+    sidebarButton: qs(root, '[data-sdk-demo-sidebar]'),
+    sidebarPanel: qs(root, '[data-sdk-demo-sidebar-panel]'),
+    sidebarList: qs(root, '[data-sdk-demo-sidebar-list]'),
+    historyButtons: qsa(root, '[data-sdk-demo-history]'),
     buildButton: qs(root, '[data-sdk-demo-build]'),
     statusDot: qs(root, '[data-sdk-demo-status-dot]'),
     statusLabel: qs(root, '[data-sdk-demo-status-label]'),
@@ -1169,6 +1177,12 @@ const initSdkDemo = (root) => {
   const reset = () => {
     clearTimers()
     closeAddMenu()
+    setClosed(false)
+    setMinimized(false)
+    setZoom(false)
+    setSidebarOpen(false)
+    history = ['dashboard']
+    historyIndex = 0
     setBuildWindowOpen(false)
     setApiWindowOpen(false)
     setOverviewOpen(false)
@@ -1189,7 +1203,18 @@ const initSdkDemo = (root) => {
      Tabs
      --------------------------------------------------------------------- */
 
-  const showPage = (page) => {
+  /* Where the browser has been, so back and forward have somewhere to go. */
+  let history = ['dashboard']
+  let historyIndex = 0
+
+  const renderHistory = () => {
+    nodes.historyButtons.forEach((button) => {
+      const back = button.dataset.sdkDemoHistory === 'back'
+      button.disabled = back ? historyIndex === 0 : historyIndex >= history.length - 1
+    })
+  }
+
+  const showPage = (page, { record = true } = {}) => {
     root.dataset.sdkDemoPage = page
 
     /* One pane per tab; everything else is hidden. */
@@ -1219,6 +1244,124 @@ const initSdkDemo = (root) => {
     }
     if (page === 'site' && nodes.siteEmbed && !nodes.siteEmbed.src) {
       nodes.siteEmbed.src = SITE_EMBED
+    }
+
+    /* Navigating from a back step forks the history, exactly as a browser does. */
+    if (record && history[historyIndex] !== page) {
+      history = history.slice(0, historyIndex + 1)
+      history.push(page)
+      historyIndex = history.length - 1
+    }
+
+    renderHistory()
+    renderSidebar()
+  }
+
+  const goHistory = (offset) => {
+    const next = historyIndex + offset
+    if (next < 0 || next >= history.length) {
+      return
+    }
+    historyIndex = next
+    showPage(history[next], { record: false })
+    setOverviewOpen(false)
+  }
+
+  /* ---------------------------------------------------------------------
+     Tab sidebar
+     --------------------------------------------------------------------- */
+
+  /* Built from the overview's cards, so the two never disagree about which
+   * tabs are open — the third one only exists once someone opens it. */
+  const renderSidebar = () => {
+    if (!nodes.sidebarList) {
+      return
+    }
+    nodes.sidebarList.replaceChildren()
+
+    nodes.pageTabs.forEach((card) => {
+      if (card.hidden) {
+        return
+      }
+      const page = card.dataset.sdkDemoPageTab
+      const item = el('button', 'sdk-demo-sidebar-item')
+      item.type = 'button'
+      item.dataset.sidebarPage = page
+
+      if (page === root.dataset.sdkDemoPage) {
+        item.setAttribute('aria-current', 'page')
+      }
+
+      const mark = qs(card, '.sdk-demo-tab-card-mark svg')
+      if (mark) {
+        item.append(mark.cloneNode(true))
+      }
+
+      const label = qs(card, '.sdk-demo-tab-card-head')
+      item.append(el('span', 'sdk-demo-sidebar-item-label', label ? label.textContent.trim() : page))
+
+      nodes.sidebarList.append(item)
+    })
+  }
+
+  const setSidebarOpen = (open) => {
+    if (nodes.sidebarPanel) {
+      nodes.sidebarPanel.hidden = !open
+    }
+    nodes.sidebarButton?.setAttribute('aria-expanded', open ? 'true' : 'false')
+
+    if (open) {
+      renderSidebar()
+      hideHint()
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+     Window controls
+     --------------------------------------------------------------------- */
+
+  const setZoom = (on) => {
+    if (on) {
+      /* The stage leaves the flow, so hold its height or the page jumps. */
+      const stage = qs(root, '.sdk-demo-stage')
+      root.style.minHeight = stage ? `${Math.round(stage.getBoundingClientRect().height)}px` : ''
+      /* A dragged window would be offset inside the new frame. */
+      resetPosition(nodes.frame)
+      resetPosition(nodes.buildWindow)
+      resetPosition(nodes.apiWindow)
+      root.dataset.sdkDemoZoom = 'true'
+    } else {
+      root.style.minHeight = ''
+      delete root.dataset.sdkDemoZoom
+    }
+
+    if (nodes.zoomScrim) {
+      nodes.zoomScrim.hidden = !on
+    }
+  }
+
+  const setMinimized = (on) => {
+    if (on) {
+      root.dataset.sdkDemoMinimized = 'true'
+      setOverviewOpen(false)
+    } else {
+      delete root.dataset.sdkDemoMinimized
+    }
+  }
+
+  const setClosed = (on) => {
+    if (on) {
+      root.dataset.sdkDemoClosed = 'true'
+      setZoom(false)
+      setBuildWindowOpen(false)
+      setApiWindowOpen(false)
+      setOverviewOpen(false)
+      setShareOpen(false)
+    } else {
+      delete root.dataset.sdkDemoClosed
+    }
+    if (nodes.closedCard) {
+      nodes.closedCard.hidden = !on
     }
   }
 
@@ -1427,6 +1570,44 @@ const initSdkDemo = (root) => {
   root.addEventListener('pointerdown', hideHint)
   root.addEventListener('focusin', hideHint)
 
+  /* The stoplights do what they do on a real window. */
+  nodes.lights.forEach((light) => {
+    light.addEventListener('click', () => {
+      const action = light.dataset.sdkDemoWindow
+      if (action === 'close') {
+        setClosed(true)
+      } else if (action === 'minimize') {
+        setMinimized(root.dataset.sdkDemoMinimized !== 'true')
+      } else if (action === 'zoom') {
+        setZoom(root.dataset.sdkDemoZoom !== 'true')
+      }
+    })
+  })
+
+  nodes.reopen?.addEventListener('click', () => {
+    setClosed(false)
+    showHint()
+  })
+
+  nodes.zoomScrim?.addEventListener('click', () => setZoom(false))
+
+  nodes.sidebarButton?.addEventListener('click', () => {
+    setSidebarOpen(nodes.sidebarPanel?.hidden ?? true)
+  })
+
+  nodes.sidebarList?.addEventListener('click', (event) => {
+    const item = event.target.closest('[data-sidebar-page]')
+    if (item) {
+      showPage(item.dataset.sidebarPage)
+    }
+  })
+
+  nodes.historyButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      goHistory(button.dataset.sdkDemoHistory === 'back' ? -1 : 1)
+    })
+  })
+
   nodes.buildButton?.addEventListener('click', runBuild)
   nodes.reload?.addEventListener('click', reset)
   nodes.buildWindowClose?.addEventListener('click', () => setBuildWindowOpen(false))
@@ -1512,6 +1693,8 @@ const initSdkDemo = (root) => {
       setOverviewOpen(false)
     } else if (root.dataset.sdkDemoMenu === 'open') {
       closeAddMenu()
+    } else if (root.dataset.sdkDemoZoom === 'true') {
+      setZoom(false)
     }
   })
 
