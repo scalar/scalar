@@ -168,6 +168,24 @@ Scans `documentation/blog/` for markdown files matching `YYYY-MM-DD-slug.md`, th
 pnpm --filter @scalar-internal/build-scripts start generate-blog
 ```
 
+### `generate-changelog-data`
+
+Flatten every `RELEASE_NOTES.json` into the data file behind the interactive changelog.
+
+Reads the release notes of each product listed in `release-notes.config.ts` and writes
+`documentation/assets/changelog-data.js`, the single merged stream that the changelog
+explorer on `/resources/changelog` renders. Each release keeps its product, version,
+date, title, summary, highlights, GitHub link, and whether it was a major, minor, or
+patch bump.
+
+Rerun it after a release, once `RELEASE_NOTES.json` has been regenerated - the output is
+deterministic, so an unchanged set of release notes produces no diff.
+
+**Usage:**
+```bash
+pnpm script generate-changelog-data
+```
+
 ### `generate-readme`
 
 Generate README.md files for packages with scalarReadme metadata.

@@ -4043,11 +4043,19 @@
                   "type": "page",
                   "title": "Changelog",
                   "filepath": "documentation/changelog/index.md",
-                  "description": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server.",
+                  "description": "Every release across Scalar API Client, API Reference, Agent, and Mock Server in one searchable, filterable stream.",
                   "layout": {
                     "toc": false
                   },
                   "head": {
+                    "scripts": [
+                      {
+                        "path": "documentation/assets/changelog-data.js"
+                      },
+                      {
+                        "path": "documentation/assets/changelog-explorer.js"
+                      }
+                    ],
                     "links": [
                       {
                         "rel": "canonical",
@@ -4057,7 +4065,7 @@
                     "meta": [
                       {
                         "name": "description",
-                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
+                        "content": "Every release across Scalar API Client, API Reference, Agent, and Mock Server in one searchable, filterable stream."
                       },
                       {
                         "property": "og:title",
@@ -4065,7 +4073,7 @@
                       },
                       {
                         "property": "og:description",
-                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
+                        "content": "Every release across Scalar API Client, API Reference, Agent, and Mock Server in one searchable, filterable stream."
                       },
                       {
                         "name": "robots",
