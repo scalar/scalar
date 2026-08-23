@@ -1,0 +1,60 @@
+{
+  "name": "@scalar/plugin-mermaid",
+  "description": "Renders Mermaid diagrams for any x-mermaid specification extension in the API Reference, without adding Mermaid to the core bundle",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/plugin-mermaid"
+  },
+  "keywords": [
+    "scalar",
+    "api-reference",
+    "plugin",
+    "mermaid",
+    "diagram"
+  ],
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "dev": "vite ./playground -c ./vite.config.ts",
+    "test": "vitest --run",
+    "types:check": "vue-tsc --noEmit"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@scalar/types": "workspace:*",
+    "@scalar/use-hooks": "workspace:*",
+    "mermaid": "^11.16.1",
+    "vue": "catalog:*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "catalog:*",
+    "vite": "catalog:*",
+    "vue": "catalog:*"
+  }
+}

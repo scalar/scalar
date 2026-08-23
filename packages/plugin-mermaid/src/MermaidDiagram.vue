@@ -1,0 +1,87 @@
+<script setup lang="ts">
+import { useColorMode } from '@scalar/use-hooks/useColorMode'
+import { onMounted, ref, useId, watch } from 'vue'
+
+const props = defineProps<{
+  /**
+   * The `x-mermaid` extension value: raw Mermaid diagram source. `SpecificationExtension` binds
+   * the raw `x-mermaid` key via `v-bind`, which Vue's runtime prop resolution camelizes before
+   * matching — the prop must be declared (and read) in its camelCase form to receive it.
+   */
+  xMermaid?: unknown
+}>()
+
+const { isDarkMode } = useColorMode()
+
+const elementId = `mermaid-${useId()}`
+const svg = ref<string>('')
+const error = ref<string>('')
+
+/**
+ * Renders the diagram source into `svg`. `mermaid` is dynamically imported here rather than at
+ * module scope, so it is only ever fetched/parsed when a document actually uses `x-mermaid` and
+ * this component mounts — consumers who never register this plugin, and documents that never use
+ * the extension, pay nothing for it.
+ */
+const render = async () => {
+  const source = typeof props.xMermaid === 'string' ? props.xMermaid : ''
+  if (!source.trim()) {
+    svg.value = ''
+    error.value = ''
+    return
+  }
+
+  try {
+    const { default: mermaid } = await import('mermaid')
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: isDarkMode.value ? 'dark' : 'default',
+    })
+    const result = await mermaid.render(elementId, source)
+    svg.value = result.svg
+    error.value = ''
+  } catch (cause) {
+    svg.value = ''
+    error.value =
+      cause instanceof Error
+        ? cause.message
+        : 'Failed to render Mermaid diagram.'
+  }
+}
+
+onMounted(render)
+watch(() => props.xMermaid, render)
+watch(isDarkMode, render)
+</script>
+
+<template>
+  <div
+    v-if="svg"
+    class="scalar-mermaid-diagram"
+    v-html="svg" />
+  <div
+    v-else-if="error"
+    class="scalar-mermaid-diagram-error">
+    Failed to render Mermaid diagram: {{ error }}
+  </div>
+</template>
+
+<style scoped>
+.scalar-mermaid-diagram {
+  margin: 16px 0;
+  overflow-x: auto;
+}
+.scalar-mermaid-diagram :deep(svg) {
+  max-width: 100%;
+  height: auto;
+}
+.scalar-mermaid-diagram-error {
+  margin: 16px 0;
+  padding: 8px 12px;
+  border-radius: var(--scalar-radius, 4px);
+  border: 1px solid var(--scalar-border-color, #e5e5e5);
+  color: var(--scalar-color-2, #666);
+  font-size: 0.875em;
+}
+</style>
