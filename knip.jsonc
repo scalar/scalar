@@ -174,6 +174,10 @@
       "entry": ["src/index.ts"],
       "ignoreDependencies": ["vue"]
     },
+    "packages/plugin-mermaid": {
+      "entry": ["src/index.ts"],
+      "ignoreDependencies": ["vue"]
+    },
     "packages/helpers": {
       "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
     },
