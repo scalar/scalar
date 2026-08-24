@@ -1,6 +1,8 @@
-import { Validator } from '@/lib/Validator/Validator'
+import { validate as validateDocument } from '@scalar/openapi-validator'
+
 import type { OpenApiVersion } from '@/configuration'
 import type {
+  ErrorObject,
   Filesystem,
   StrictOpenApiDocument,
   ThrowOnErrorOption,
@@ -8,7 +10,9 @@ import type {
   ValidateResult,
 } from '@/types/index'
 
+import { getEntrypoint } from './get-entrypoint'
 import { makeFilesystem } from './make-filesystem'
+import { resolveReferences } from './resolve-references'
 
 export type ValidateOptions = ThrowOnErrorOption
 
@@ -32,7 +36,12 @@ const withStrictSpecification = (
 }
 
 /**
- * Validates an OpenAPI document
+ * Validates an OpenAPI document.
+ *
+ * Schema and semantic validation are delegated to `@scalar/openapi-validator`.
+ * Reference resolution stays in the parser: references are resolved here and any
+ * resolution errors are merged into the result, so the behaviour matches the
+ * previous, self-contained validator.
  */
 export function validate(
   value: string | UnknownObject | Filesystem,
@@ -40,44 +49,54 @@ export function validate(
 ): Promise<ValidateResult> {
   try {
     const filesystem = makeFilesystem(value)
+    const entrypoint = getEntrypoint(filesystem)
 
-    const validator = new Validator()
-    const result = validator.validate(filesystem, options)
+    // Schema, version and path-parameter validation (no reference resolution).
+    // Runs first so empty/invalid input reports the same error, in the same
+    // order, including when `throwOnError` is set.
+    const outcome = validateDocument(entrypoint.specification as UnknownObject, options)
 
-    /**
-     * Currently contains no asynchronous logic, but returns a Promise
-     * to preserve API compatibility and allow async logic in the future.
-     */
-    if (result.valid) {
-      const specification = withStrictSpecification(validator.specification, validator.version)
+    // Only resolve references once the document itself is valid, matching the
+    // previous validator, which skipped resolution when schema validation failed.
+    const resolved = outcome.valid ? resolveReferences(filesystem, options) : undefined
+    const referenceErrors: ErrorObject[] = resolved?.errors ?? []
+    const schema = (resolved?.schema ?? outcome.schema) as StrictOpenApiDocument | undefined
 
-      if (!specification) {
-        return Promise.resolve({
-          valid: false,
-          errors: [
-            {
-              message: `Validated OpenAPI ${validator.version} document is missing required top-level version field.`,
-            },
-          ],
-          schema: result.schema,
-          specification: validator.specification as UnknownObject,
-          version: validator.version,
-        })
-      }
+    const errors = [...(outcome.errors ?? []), ...referenceErrors]
+    const valid = outcome.valid && referenceErrors.length === 0
 
+    if (!valid) {
       return Promise.resolve({
-        ...result,
-        specification,
-        version: validator.version,
+        valid: false,
+        errors,
+        schema,
+        specification: entrypoint.specification as UnknownObject,
+        version: outcome.version,
+      })
+    }
+
+    const specification = withStrictSpecification(entrypoint.specification as UnknownObject, outcome.version)
+
+    if (!specification) {
+      return Promise.resolve({
+        valid: false,
+        errors: [
+          {
+            message: `Validated OpenAPI ${outcome.version} document is missing required top-level version field.`,
+          },
+        ],
+        schema,
+        specification: entrypoint.specification as UnknownObject,
+        version: outcome.version,
       })
     }
 
     return Promise.resolve({
-      valid: false,
-      errors: result.errors,
-      schema: result.schema,
-      specification: validator.specification as UnknownObject,
-      version: validator.version,
+      valid: true,
+      errors,
+      schema: schema as StrictOpenApiDocument,
+      specification,
+      version: outcome.version,
     })
   } catch (err) {
     return Promise.reject(err)
