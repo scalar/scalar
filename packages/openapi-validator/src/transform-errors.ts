@@ -1,7 +1,7 @@
 import type { AnyObject } from '@scalar/types/utils'
 
+import { type AjvError, prettifyAjvErrors } from '@/prettify-ajv-errors'
 import type { ErrorObject } from '@/types'
-import { type AjvError, betterAjvErrors } from '@/vendor/better-ajv-errors/index'
 
 /**
  * Transforms raw Ajv errors into enriched, human-friendly error objects.
@@ -14,24 +14,24 @@ export function transformErrors(specification: AnyObject, errors: string | AjvEr
     return [{ message: errors }]
   }
 
-  // If the specification is null or invalid, betterAjvErrors cannot process it.
+  // If the specification is null or invalid, the errors cannot be prettified.
   // This can happen when reference resolution fails.
   if (!specification || typeof specification !== 'object') {
     return [{ message: 'Invalid specification' }]
   }
 
-  // Wrap betterAjvErrors in a try-catch since it can fail with malformed schemas.
+  // Wrap prettifyAjvErrors in a try-catch since it can fail with malformed schemas.
   let processedErrors: ErrorObject[]
 
   try {
-    processedErrors = betterAjvErrors(specification, errors).map((error) => ({
+    processedErrors = prettifyAjvErrors(specification, errors).map((error) => ({
       ...error,
       message: error.message.trim(),
     }))
   } catch (error) {
     console.error(error)
 
-    // If betterAjvErrors fails, fall back to the raw Ajv errors.
+    // If prettifying fails, fall back to the raw Ajv errors.
     if (Array.isArray(errors)) {
       return errors.map((err) => {
         let message = err.message || 'Validation error'
