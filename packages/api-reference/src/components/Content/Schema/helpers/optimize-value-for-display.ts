@@ -123,18 +123,21 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
 
       // Flatten single-item allOf and merge with root properties. If the
       // variant has its own properties/required/$ref, the allOf member's own
-      // `$ref` is dropped before merging so it cannot overwrite the variant's
-      // identity, which would otherwise mislabel the flattened schema as the
-      // base it extends instead of the variant itself (#9964). A variant that
-      // is a bare wrapper around the allOf member has no identity of its own
-      // to protect, so the base's `$ref` is kept as a fallback label.
+      // identity (`$ref`, `title`, `name`) is dropped before merging so it
+      // cannot overwrite the variant's, which would otherwise mislabel the
+      // flattened schema as the base it extends instead of the variant itself
+      // (#9964). `getModelNameFromSchema` labels a variant by title → name →
+      // $ref, so any of those leaking from the base is enough to mislabel it.
+      // A variant that is a bare wrapper around the allOf member has no
+      // identity of its own to protect, so the base's identity is kept as a
+      // fallback label.
       if (schema.allOf?.length === 1) {
         const { allOf, ...otherProps } = schema
         const allOfMember = resolve.schema(allOf[0])!
         const variantHasOwnIdentity = 'properties' in otherProps || 'required' in otherProps || '$ref' in otherProps
         if (variantHasOwnIdentity) {
-          const { $ref: _allOfRef, ...allOfMemberWithoutRef } = allOfMember
-          return mergeSchemaProperties(rootProperties, otherProps, allOfMemberWithoutRef)
+          const { $ref: _ref, title: _title, name: _name, ...allOfMemberWithoutIdentity } = allOfMember
+          return mergeSchemaProperties(rootProperties, otherProps, allOfMemberWithoutIdentity)
         }
         return mergeSchemaProperties(rootProperties, otherProps, allOfMember)
       }

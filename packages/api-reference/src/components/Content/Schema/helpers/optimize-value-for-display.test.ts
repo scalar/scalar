@@ -475,6 +475,54 @@ describe('optimizeValueForDisplay', () => {
     })
   })
 
+  it('drops a flattened allOf base title/name so it does not overwrite the variant (#9964)', () => {
+    // The base's identity is not only its `$ref`: `getModelNameFromSchema`
+    // prefers `title` (then `name`) over `$ref`, so a base that carries a
+    // `title` would still mislabel every variant even after the base's `$ref`
+    // is dropped. Here the variant (Cat) keeps its own `$ref`, and the base
+    // (Animal) contributes only its properties, not its title.
+    const input = {
+      oneOf: [
+        {
+          '$ref': '#/components/schemas/Cat',
+          type: 'object',
+          allOf: [
+            {
+              '$ref': '#/components/schemas/Animal',
+              title: 'Animal',
+              type: 'object',
+              properties: { id: { type: 'string' } },
+            },
+          ],
+          properties: { meow: { type: 'boolean' } },
+        },
+        {
+          type: 'object',
+          properties: { bark: { type: 'boolean' } },
+        },
+      ],
+    } as unknown as SchemaObject
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      oneOf: [
+        {
+          '$ref': '#/components/schemas/Cat',
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            meow: { type: 'boolean' },
+          },
+        },
+        {
+          type: 'object',
+          properties: { bark: { type: 'boolean' } },
+        },
+      ],
+    })
+  })
+
   it('should not merge allOf when it contains multiple items', () => {
     const input = {
       type: 'object',
