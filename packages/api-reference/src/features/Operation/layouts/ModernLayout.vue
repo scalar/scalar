@@ -256,9 +256,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
                   :deprecated="operation?.deprecated"
                   :path="path" />
               </template>
-              <template
-                v-if="!isWebhook"
-                #footer="{ exampleName }">
+              <template #footer="{ exampleName }">
                 <div class="flex">
                   <AskAgentButton />
                   <TestRequestButton

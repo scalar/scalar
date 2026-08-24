@@ -261,6 +261,7 @@ describe('resolve-route-parameters', () => {
     await store.addDocument({
       name: 'my-doc',
       document: getDocument({
+        openapi: '3.1.1',
         paths: {
           '/users': {
             parameters: [{ name: 'limit', in: 'query' }],
@@ -600,5 +601,74 @@ describe('resolve-route-parameters', () => {
     expect(result.documentSlug).toBe('active-doc')
     expect(result.path).toBe('/new')
     expect(result.method).toBe('post')
+  })
+
+  it('resolves an explicit webhook route without matching a path operation', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'my-doc',
+      document: getDocument({
+        openapi: '3.1.1',
+        paths: {
+          'delivery.created': {
+            get: { summary: 'An unrelated API path' },
+          },
+        },
+        webhooks: {
+          'delivery.created': {
+            post: { summary: 'Receive a delivery' },
+          },
+        },
+      }),
+    })
+
+    const result = resolveRouteParameters(store, {
+      documentSlug: 'my-doc',
+      path: 'delivery.created',
+      method: 'post',
+      example: 'default',
+      isWebhook: true,
+    })
+
+    expect(result).toStrictEqual({
+      documentSlug: 'my-doc',
+      path: 'delivery.created',
+      method: 'post',
+      example: 'default',
+      isWebhook: true,
+    })
+  })
+
+  it('resolves default webhook route parameters from the webhooks map', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'my-doc',
+      document: getDocument({
+        paths: {
+          '/users': { get: { summary: 'Get users' } },
+        },
+        webhooks: {
+          'delivery.created': {
+            post: { summary: 'Receive a delivery' },
+          },
+        },
+      }),
+    })
+
+    const result = resolveRouteParameters(store, {
+      documentSlug: 'my-doc',
+      path: 'default',
+      method: 'default',
+      example: 'default',
+      isWebhook: true,
+    })
+
+    expect(result).toStrictEqual({
+      documentSlug: 'my-doc',
+      path: 'delivery.created',
+      method: 'post',
+      example: 'default',
+      isWebhook: true,
+    })
   })
 })

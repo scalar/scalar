@@ -230,4 +230,101 @@ describe('getRequestExampleContext', () => {
       }),
     ])
   })
+
+  it('resolves webhook operations without inheriting document servers', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'doc',
+      document: createMinimalDocument({
+        openapi: '3.1.1',
+        servers: [{ url: 'https://api.example.com' }],
+        webhooks: {
+          'delivery.created': {
+            post: {
+              summary: 'Receive a delivery',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        eventType: { type: 'string' },
+                        deliveryId: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+              responses: {},
+            },
+          },
+        },
+      }),
+    })
+
+    const result = getRequestExampleContext(workspaceStore, 'doc', {
+      path: 'delivery.created',
+      method: 'post',
+      exampleName: 'default',
+      isWebhook: true,
+    })
+
+    assert(result.ok)
+    expect(result.data.operation.summary).toBe('Receive a delivery')
+    expect(result.data.servers.list).toStrictEqual([])
+    expect(result.data.servers.selected).toBeNull()
+  })
+
+  it('does not resolve webhook names as API paths', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'doc',
+      document: createMinimalDocument({
+        openapi: '3.1.1',
+        webhooks: {
+          'delivery.created': {
+            post: { responses: {} },
+          },
+        },
+      }),
+    })
+
+    const result = getRequestExampleContext(workspaceStore, 'doc', {
+      path: 'delivery.created',
+      method: 'post',
+      exampleName: 'default',
+    })
+
+    expect(result).toStrictEqual({
+      ok: false,
+      error: 'Path delivery.created not found',
+    })
+  })
+
+  it('reports a missing webhook operation method', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'doc',
+      document: createMinimalDocument({
+        openapi: '3.1.1',
+        webhooks: {
+          'delivery.created': {
+            post: { responses: {} },
+          },
+        },
+      }),
+    })
+
+    const result = getRequestExampleContext(workspaceStore, 'doc', {
+      path: 'delivery.created',
+      method: 'get',
+      exampleName: 'default',
+      isWebhook: true,
+    })
+
+    expect(result).toStrictEqual({
+      ok: false,
+      error: 'Method get not found on webhook delivery.created',
+    })
+  })
 })
