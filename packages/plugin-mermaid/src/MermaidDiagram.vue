@@ -43,10 +43,9 @@ const render = async () => {
     error.value = ''
   } catch (cause) {
     svg.value = ''
-    error.value =
-      cause instanceof Error
-        ? cause.message
-        : 'Failed to render Mermaid diagram.'
+    // The template already prefixes "Failed to render Mermaid diagram:", so keep this to the
+    // underlying reason to avoid repeating that sentence when the cause is not an `Error`.
+    error.value = cause instanceof Error ? cause.message : 'Unknown error.'
   }
 }
 
