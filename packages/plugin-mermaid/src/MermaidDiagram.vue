@@ -13,9 +13,19 @@ const props = defineProps<{
 
 const { isDarkMode } = useColorMode()
 
-const elementId = `mermaid-${useId()}`
+const baseId = `mermaid-${useId()}`
 const svg = ref<string>('')
 const error = ref<string>('')
+
+/**
+ * Monotonic counter identifying the most recent render. `mermaid.render` mutates and then removes a
+ * temporary DOM node keyed by the id it is given, so two overlapping renders that share an id clobber
+ * each other and one resolves to an empty diagram. The mount does trigger overlapping renders — the
+ * initial one plus a color-mode change once `useColorMode` resolves the system preference — so each
+ * call gets its own id (`baseId-token`), and the token also guards the write so only the newest
+ * render's result reaches the DOM, never a slower stale one.
+ */
+let renderToken = 0
 
 /**
  * Renders the diagram source into `svg`. `mermaid` is dynamically imported here rather than at
@@ -24,6 +34,8 @@ const error = ref<string>('')
  * the extension, pay nothing for it.
  */
 const render = async () => {
+  const token = ++renderToken
+  const id = `${baseId}-${token}`
   const source = typeof props.xMermaid === 'string' ? props.xMermaid : ''
   if (!source.trim()) {
     svg.value = ''
@@ -38,14 +50,27 @@ const render = async () => {
       securityLevel: 'strict',
       theme: isDarkMode.value ? 'dark' : 'default',
     })
-    const result = await mermaid.render(elementId, source)
+    const result = await mermaid.render(id, source)
+    // A newer render started while this one was awaiting; let it win rather than overwrite it.
+    if (token !== renderToken) {
+      return
+    }
     svg.value = result.svg
     error.value = ''
   } catch (cause) {
+    if (token !== renderToken) {
+      return
+    }
     svg.value = ''
     // The template already prefixes "Failed to render Mermaid diagram:", so keep this to the
     // underlying reason to avoid repeating that sentence when the cause is not an `Error`.
     error.value = cause instanceof Error ? cause.message : 'Unknown error.'
+  } finally {
+    // mermaid appends a temporary `d<id>` node to <body> to measure the diagram. It removes that
+    // node on success but leaves it behind — holding its "Syntax error" graphic — when the source
+    // fails to parse, so remove it here to keep failed renders from piling orphaned diagrams onto
+    // the page.
+    document.getElementById(`d${id}`)?.remove()
   }
 }
 
