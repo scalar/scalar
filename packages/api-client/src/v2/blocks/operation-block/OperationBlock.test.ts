@@ -58,13 +58,7 @@ vi.mock('@scalar/use-toasts', () => ({
 vi.mock('./components/Header.vue', () => ({
   default: {
     name: 'Header',
-    emits: [
-      'execute',
-      'select:history:item',
-      'update:webhook-path',
-      'update:webhook-server',
-      'update:webhook-server-variable',
-    ],
+    emits: ['execute', 'select:history:item', 'update:webhook-url'],
     template: '<div data-test="header"></div>',
   },
 }))
@@ -343,9 +337,8 @@ describe('OperationBlock', () => {
     expect(sendRequest).not.toHaveBeenCalled()
   })
 
-  it('sends a webhook to its runtime destination without changing its route identity', async () => {
+  it('sends a webhook to its full destination URL without changing its route identity', async () => {
     const eventBus = createMockEventBus()
-    const webhookServer = { url: 'https://hooks.example.com' }
     vi.mocked(sendRequest).mockResolvedValue([
       null,
       {
@@ -371,8 +364,8 @@ describe('OperationBlock', () => {
       },
     })
     const header = wrapper.findComponent({ name: 'Header' })
-    header.vm.$emit('update:webhook-server', webhookServer.url)
-    header.vm.$emit('update:webhook-path', '/deliveries')
+    // The whole URL is the destination — there is no separate server for a webhook.
+    header.vm.$emit('update:webhook-url', 'https://hooks.example.com/deliveries')
     await flushPromises()
 
     await triggerExecute(wrapper)
@@ -380,8 +373,8 @@ describe('OperationBlock', () => {
     expect(requestFactory).toHaveBeenCalledWith(
       expect.objectContaining({
         method: 'post',
-        path: '/deliveries',
-        server: webhookServer,
+        path: 'https://hooks.example.com/deliveries',
+        server: null,
       }),
     )
     expect(eventBus.emit).toHaveBeenCalledWith(

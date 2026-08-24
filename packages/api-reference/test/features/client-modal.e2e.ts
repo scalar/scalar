@@ -80,5 +80,10 @@ test.describe('client modal', () => {
     await expect(destination).toBeEditable()
     await destination.fill('https://hooks.example.com/deliveries')
     await expect(destination).toHaveText('https://hooks.example.com/deliveries')
+
+    // Blurring must keep the full URL. A webhook destination is not split into a
+    // server plus a path, so the value must not collapse to a stray "/".
+    await destination.blur()
+    await expect(destination).toHaveText('https://hooks.example.com/deliveries')
   })
 })

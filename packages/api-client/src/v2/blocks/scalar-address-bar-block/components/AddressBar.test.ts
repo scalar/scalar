@@ -152,9 +152,9 @@ describe('AddressBar', () => {
     expect(wrapper.emitted('execute')).toBeFalsy()
   })
 
-  it('keeps webhook destination edits local to the request', async () => {
+  it('emits the full webhook URL locally and does not split it into a server', async () => {
     const { wrapper, eventBus } = mountWithProps({
-      path: '/',
+      path: '',
       method: 'post',
       isWebhook: true,
       layout: 'modal',
@@ -168,10 +168,12 @@ describe('AddressBar', () => {
     await codeInput.vm.$emit('submit', 'https://hooks.example.com/deliveries', submitEvent)
     await nextTick()
 
-    expect(wrapper.emitted('update:webhook-server')).toStrictEqual([['https://hooks.example.com']])
-    expect(wrapper.emitted('update:webhook-path')).toStrictEqual([['/deliveries']])
+    // The whole URL is the destination — it is not split into server + path,
+    // and no server events leak into the document.
+    expect(wrapper.emitted('update:webhook-url')).toStrictEqual([['https://hooks.example.com/deliveries']])
     expect(eventBusSpy).not.toHaveBeenCalledWith('operation:update:pathMethod', expect.anything())
     expect(eventBusSpy).not.toHaveBeenCalledWith('server:add:server', expect.anything())
+    expect(eventBusSpy).not.toHaveBeenCalledWith('server:update:selected', expect.anything())
     expect(codeInput.props('disabled')).toBe(false)
   })
 
@@ -189,9 +191,9 @@ describe('AddressBar', () => {
     await codeInput.vm.$emit('blur', '', new FocusEvent('blur'))
     await nextTick()
 
-    // An empty webhook field must not normalize to "/", otherwise the
-    // placeholder disappears and the "URL required" guard reads oddly.
-    expect(wrapper.emitted('update:webhook-path')).toStrictEqual([['']])
+    // An empty webhook field must stay empty, not normalize to "/", so the
+    // placeholder stays visible and the "URL required" guard reads correctly.
+    expect(wrapper.emitted('update:webhook-url')).toStrictEqual([['']])
   })
 
   it('hints that a webhook path field expects a full URL', async () => {

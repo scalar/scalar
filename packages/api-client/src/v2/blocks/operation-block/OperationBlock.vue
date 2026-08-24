@@ -201,56 +201,25 @@ const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
 const requestPayload = ref<RequestPayload | null>(null)
 
-/** Webhook targets are runtime destinations, not OpenAPI path keys. */
-const webhookPath = ref('')
-const webhookServer = ref<ServerObject | null>(null)
-
-const cloneServer = (value: ServerObject | null): ServerObject | null =>
-  value
-    ? {
-        ...value,
-        variables: value.variables
-          ? Object.fromEntries(
-              Object.entries(value.variables).map(([key, variable]) => [
-                key,
-                { ...variable },
-              ]),
-            )
-          : undefined,
-      }
-    : null
+/**
+ * A webhook has no OpenAPI server, so its destination is the full URL the user
+ * enters at runtime. The field holds that whole URL (not a server-relative path),
+ * and the request is sent to it directly with no separate server base.
+ */
+const webhookUrl = ref('')
 
 watch(
   [() => path, () => method, () => isWebhook],
   () => {
-    webhookPath.value = ''
-    webhookServer.value = cloneServer(server)
+    webhookUrl.value = ''
   },
   { immediate: true },
 )
 
-const requestPath = computed(() => (isWebhook ? webhookPath.value : path))
-const requestServer = computed(() => (isWebhook ? webhookServer.value : server))
-
-const updateWebhookServer = (url: string): void => {
-  webhookServer.value = cloneServer(
-    servers.find((candidate) => candidate.url === url) ??
-      (url ? { url } : null),
-  )
-}
-
-const updateWebhookServerVariable = ({
-  key,
-  value,
-}: {
-  key: string
-  value: string
-}): void => {
-  const variable = webhookServer.value?.variables?.[key]
-  if (variable) {
-    variable.default = value
-  }
-}
+const requestPath = computed(() => (isWebhook ? webhookUrl.value : path))
+const requestServer = computed<ServerObject | null>(() =>
+  isWebhook ? null : server,
+)
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
@@ -320,7 +289,7 @@ const copyAddressBarUrl = async (): Promise<void> => {
 const handleExecute = async () => {
   eventBus.flushDebouncedEmits?.()
 
-  if (isWebhook && !requestServer.value?.url) {
+  if (isWebhook && !requestPath.value.trim()) {
     toast('Webhook URL required. Enter a destination first.', 'error')
     return
   }
@@ -732,9 +701,7 @@ onBeforeUnmount(() => {
         @execute="handleExecute"
         @navigate:settings="handleNavigateSettings"
         @select:history:item="handleSelectHistoryItem"
-        @update:webhook-path="(value) => (webhookPath = value)"
-        @update:webhook-server="updateWebhookServer"
-        @update:webhook-server-variable="updateWebhookServerVariable" />
+        @update:webhook-url="(value) => (webhookUrl = value)" />
     </div>
 
     <ViewLayout class="border-t">

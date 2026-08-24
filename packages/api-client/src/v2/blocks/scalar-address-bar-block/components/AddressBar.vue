@@ -93,15 +93,8 @@ const emit = defineEmits<{
   (e: 'execute'): void
   /** Select a request history item by index */
   (e: 'select:history:item', payload: { index: number }): void
-  /** Update the runtime path used to deliver a webhook. */
-  (e: 'update:webhook-path', path: string): void
-  /** Update the runtime server used to deliver a webhook. */
-  (e: 'update:webhook-server', url: string): void
-  /** Update a runtime webhook server variable. */
-  (
-    e: 'update:webhook-server-variable',
-    payload: { key: string; value: string },
-  ): void
+  /** Update the full destination URL used to deliver a webhook. */
+  (e: 'update:webhook-url', url: string): void
 }>()
 
 // ───────────────────────────────────────────────────────────────────
@@ -252,11 +245,6 @@ const extractAndSelectServer = (targetPath: string): string => {
 
   const [url, remainingPath] = extracted
 
-  if (isWebhook) {
-    emit('update:webhook-server', url)
-    return remainingPath
-  }
-
   // Server is already selected — nothing to do
   if (url === server?.url) {
     return remainingPath
@@ -289,22 +277,21 @@ const emitPathMethodUpdate = (
   targetPath: string,
   blurTargetSelector: string | null = null,
 ): void => {
-  const extractedPath = extractAndSelectServer(targetPath)
-
   if (isWebhook) {
-    // A webhook field holds the full destination URL, not a path relative to a
-    // server. Leave it empty when nothing was entered so the placeholder stays
-    // visible and the "URL required" guard applies — rather than normalizing an
-    // empty value into a stray "/".
-    const webhookDestination = extractedPath ? normalizePath(extractedPath) : ''
-    addressBarRef.value?.setCodeMirrorContent(webhookDestination)
-    emit('update:webhook-path', webhookDestination)
+    // A webhook has no OpenAPI server, so the field holds the full destination
+    // URL. Keep exactly what the user entered — do not split it into an invisible
+    // server plus a leftover path, and do not force a leading slash. That split
+    // is what made a typed URL collapse to a stray "/" on blur.
+    const webhookUrl = targetPath.trim()
+    addressBarRef.value?.setCodeMirrorContent(webhookUrl)
+    emit('update:webhook-url', webhookUrl)
     methodConflict.value = null
     pathConflict.value = null
     nextTick(() => refocusBlurTarget(blurTargetSelector))
     return
   }
 
+  const extractedPath = extractAndSelectServer(targetPath)
   const normalizedPath = normalizePath(extractedPath)
 
   // Keep CodeMirror in sync so a conflict does not leave a stale value on screen
@@ -403,8 +390,8 @@ const handlePathSubmit = (
 /** Unset the server when backspace is pressed on an empty path */
 const handlePathBackspace = (event: KeyboardEvent): void => {
   if ((event.target as HTMLElement)?.innerText === '\n') {
+    // A webhook has no server to unset; its full URL lives in the field itself.
     if (isWebhook) {
-      emit('update:webhook-server', '')
       return
     }
     eventBus.emit('server:update:selected', { url: '', meta: serverMeta })
@@ -414,23 +401,12 @@ const handlePathBackspace = (event: KeyboardEvent): void => {
 const handleServerSelect = (
   payload: ApiReferenceEvents['server:update:selected'],
 ): void => {
-  if (isWebhook) {
-    emit('update:webhook-server', payload.url)
-    return
-  }
   eventBus.emit('server:update:selected', payload)
 }
 
 const handleServerVariable = (
   payload: ApiReferenceEvents['server:update:variables'],
 ): void => {
-  if (isWebhook) {
-    emit('update:webhook-server-variable', {
-      key: payload.key,
-      value: payload.value,
-    })
-    return
-  }
   eventBus.emit('server:update:variables', payload)
 }
 
