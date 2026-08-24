@@ -2,7 +2,7 @@ import type { AnyObject } from '@scalar/types/utils'
 import { parse as parseYaml } from 'yaml'
 
 import type { ThrowOnErrorOption, ValidationOutcome } from '@/types'
-import { Validator } from '@/validator'
+import { validateDocument } from '@/validate-document'
 
 export type ValidateOptions = ThrowOnErrorOption
 
@@ -35,5 +35,5 @@ export function validate(document: string | AnyObject, options?: ValidateOptions
     specification = document
   }
 
-  return new Validator().validate(specification, options)
+  return validateDocument(specification, options)
 }

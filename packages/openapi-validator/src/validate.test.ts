@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { supportedVersions } from './index'
 import { validate } from './validate'
 
 describe('validate', () => {
@@ -64,5 +65,9 @@ describe('validate', () => {
     expect(() =>
       validate({ openapi: '4.0.0', info: { title: 'Nope', version: '1.0.0' } }, { throwOnError: true }),
     ).toThrow()
+  })
+
+  it('exposes the supported versions', () => {
+    expect(supportedVersions).toEqual(['2.0', '3.0', '3.1', '3.2'])
   })
 })
