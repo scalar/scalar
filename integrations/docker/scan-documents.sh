@@ -80,11 +80,15 @@ escape_json() {
 SOURCES=""
 FIRST=true
 
-# Find and process OpenAPI documents using a temporary file for POSIX compatibility
+# Find and process documents using a temporary file so the loop body runs in the
+# current shell (a piped `while` would run in a subshell and lose SOURCES/FIRST).
+# Use newline-delimited output and a plain `read`: `find -print0` paired with
+# `read -d ''` is a bashism that fails under a POSIX `/bin/sh` such as dash, which
+# is what CI uses. Document filenames do not contain newlines, so this is safe.
 TEMP_FILE=$(mktemp)
-find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -print0 > "$TEMP_FILE"
+find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) > "$TEMP_FILE"
 
-while IFS= read -r -d '' file; do
+while IFS= read -r file; do
     if is_api_document "$file"; then
         relative_path="${file#$MOUNT_DIR/}"
         title=$(generate_title "$file")
