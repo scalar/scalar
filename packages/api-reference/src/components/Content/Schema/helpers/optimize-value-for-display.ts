@@ -121,10 +121,14 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
     const mergedSchemas = filteredSchemas.map((_schema) => {
       const schema = resolve.schema(_schema)
 
-      // Flatten single-item allOf and merge with root properties
+      // Flatten single-item allOf and merge with root properties. The allOf
+      // member's own `$ref` is dropped before merging so it cannot overwrite
+      // the variant's `$ref`, which would otherwise mislabel the flattened
+      // schema as the base it extends instead of the variant itself (#9964).
       if (schema.allOf?.length === 1) {
         const { allOf, ...otherProps } = schema
-        return mergeSchemaProperties(rootProperties, otherProps, resolve.schema(allOf[0]))
+        const { $ref: _allOfRef, ...allOfMember } = resolve.schema(allOf[0])!
+        return mergeSchemaProperties(rootProperties, otherProps, allOfMember)
       }
       return mergeSchemaProperties(rootProperties, schema)
     })

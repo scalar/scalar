@@ -387,6 +387,52 @@ describe('optimizeValueForDisplay', () => {
     })
   })
 
+  it('drops a flattened allOf base $ref so it does not overwrite the variant (#9964)', () => {
+    // Mirrors the reported bug: a oneOf variant (Cat) extends a base (Animal)
+    // through a single-$ref allOf. Flattening that allOf must not leave the
+    // base's own $ref on the variant, or the selector shows the base's name
+    // instead of the variant's.
+    const input = {
+      oneOf: [
+        {
+          type: 'object',
+          allOf: [
+            {
+              '$ref': '#/components/schemas/Animal',
+              '$ref-value': {
+                type: 'object',
+                properties: { id: { type: 'string' } },
+              },
+            },
+          ],
+          properties: { type: { type: 'string', const: 'cat' } },
+        },
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'dog' } },
+        },
+      ],
+    } as unknown as SchemaObject
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      oneOf: [
+        {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            type: { type: 'string', const: 'cat' },
+          },
+        },
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'dog' } },
+        },
+      ],
+    })
+  })
+
   it('should not merge allOf when it contains multiple items', () => {
     const input = {
       type: 'object',
