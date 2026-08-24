@@ -1,8 +1,9 @@
 import type { UnknownObject } from '@scalar/types/utils'
 
-import type { ERRORS, OpenApiVersion } from '@/configuration'
+import type { ERRORS } from '@/errors'
+import type { OpenApiVersion } from '@/specifications'
 
-export type { OpenApiVersion } from '@/configuration'
+export type { OpenApiVersion } from '@/specifications'
 
 /**
  * A single validation error.

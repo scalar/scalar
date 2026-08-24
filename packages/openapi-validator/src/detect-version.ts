@@ -1,6 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { type OpenApiVersion, OpenApiVersions } from '@/configuration'
+import { type OpenApiVersion, OpenApiVersions } from '@/specifications'
 
 /**
  * Detects the OpenAPI/Swagger version of a document by looking at its top-level

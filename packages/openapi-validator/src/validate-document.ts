@@ -4,11 +4,12 @@ import Ajv2020 from 'ajv/dist/2020.js'
 import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
 
-import { ERRORS, OpenApiSpecifications, type OpenApiVersion } from '@/configuration'
 import { detectVersion } from '@/detect-version'
+import { ERRORS } from '@/errors'
+import { OpenApiSpecifications, type OpenApiVersion } from '@/specifications'
+import { transformErrors } from '@/transform-errors'
 import type { ThrowOnErrorOption, ValidationOutcome } from '@/types'
-import { transformErrors } from '@/utils/transform-errors'
-import { validatePathParameters } from '@/utils/validate-path-parameters'
+import { validatePathParameters } from '@/validate-path-parameters'
 
 /**
  * Ajv classes keyed by the JSON Schema dialect a document declares in `$schema`.
