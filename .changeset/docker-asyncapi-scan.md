@@ -1,5 +1,5 @@
 ---
-'@scalarapi/docker-api-reference': patch
+'@scalarapi/docker-api-reference': minor
 ---
 
 fix: detect and serve mounted AsyncAPI documents
