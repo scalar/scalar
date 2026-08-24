@@ -768,6 +768,10 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
+    devDependencies:
+      vitest:
+        specifier: catalog:*
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@29.0.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   integrations/docusaurus:
     dependencies:
