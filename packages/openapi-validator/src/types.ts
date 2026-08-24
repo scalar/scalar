@@ -1,21 +1,11 @@
+import type { ErrorObject } from '@scalar/json-schema-validator'
 import type { UnknownObject } from '@scalar/types/utils'
 
-import type { ERRORS } from '@/errors'
 import type { OpenApiVersion } from '@/specifications'
 
-export type { OpenApiVersion } from '@/specifications'
+export type { ErrorObject } from '@scalar/json-schema-validator'
 
-/**
- * A single validation error.
- *
- * `path` is either a JSON Pointer string (from schema validation) or a list of
- * path segments (from the semantic path-parameter checks).
- */
-export type ErrorObject = {
-  path?: string | string[]
-  message: string
-  code?: keyof typeof ERRORS | string
-}
+export type { OpenApiVersion } from '@/specifications'
 
 export type ThrowOnErrorOption = {
   /**
