@@ -1,5 +1,11 @@
 # @scalar/nestjs-api-reference
 
+## 1.2.16
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 1.2.15
 
 ## 1.2.14

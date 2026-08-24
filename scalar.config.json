@@ -966,12 +966,12 @@
     "sidebar": [
       {
         "title": "Email",
-        "url": "mailto:support@scalar.com",
+        "to": "mailto:support@scalar.com",
         "icon": "phosphor/regular/envelope-simple-open"
       },
       {
         "title": "Demo",
-        "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
+        "to": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
         "icon": "phosphor/regular/user-rectangle",
         "newTab": true
       }

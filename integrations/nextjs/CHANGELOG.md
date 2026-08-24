@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.11.16
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.11.15
 
 ## 0.11.14
