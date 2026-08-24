@@ -175,6 +175,21 @@ describe('AddressBar', () => {
     expect(codeInput.props('disabled')).toBe(false)
   })
 
+  it('hints that a webhook path field expects a full URL', async () => {
+    const { wrapper } = mountWithProps({
+      path: '/',
+      method: 'post',
+      isWebhook: true,
+      layout: 'modal',
+      servers: [],
+    })
+    // A fresh webhook has no server, so the path field doubles as the full URL.
+    await wrapper.setProps({ server: null })
+
+    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+    expect(codeInput.props('placeholder')).toContain('https://')
+  })
+
   it('renders ServerDropdown only when servers are provided', () => {
     /**
      * ServerDropdown should render when servers array has items.

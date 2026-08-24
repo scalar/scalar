@@ -140,6 +140,22 @@ const style = computed(() => ({
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 
+/**
+ * Placeholder for the path field.
+ *
+ * Webhooks have no server to prefix the path, so the field doubles as the full
+ * destination URL. Hint that a complete URL (including the host) is expected,
+ * rather than a bare path.
+ */
+const pathPlaceholder = computed(() => {
+  if (server) {
+    return ''
+  }
+  return isWebhook
+    ? 'Enter the full webhook URL, e.g. https://example.com/hook'
+    : 'Enter a URL'
+})
+
 /** Whether either dropdown (server or history) is open */
 const isDropdownOpen = computed(
   () => isServerDropdownOpen.value || isHistoryDropdownOpen.value,
@@ -540,7 +556,7 @@ defineExpose({
           importCurl
           :layout="layout"
           :modelValue="path"
-          :placeholder="server ? '' : 'Enter a URL'"
+          :placeholder="pathPlaceholder"
           server
           @blur="handlePathBlur"
           @keydown.delete="handlePathBackspace"
