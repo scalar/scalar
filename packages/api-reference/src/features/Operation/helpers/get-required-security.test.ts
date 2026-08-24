@@ -272,11 +272,11 @@ describe('getRequiredScopeGroups', () => {
     expect(getRequiredScopeGroups(result)).toEqual([])
   })
 
-  it('ignores scopes for schemes not defined on the document', () => {
+  it('keeps scopes for an unresolved scheme (e.g. the AsyncAPI path, which leaves schemes unresolved on purpose)', () => {
     const result = getRequiredSecurity(
       { security: [{ unknownScheme: ['some:custom:scope'] }] },
       { components: { securitySchemes: {} } },
     )
-    expect(getRequiredScopeGroups(result)).toEqual([])
+    expect(getRequiredScopeGroups(result)).toEqual([['some:custom:scope']])
   })
 })

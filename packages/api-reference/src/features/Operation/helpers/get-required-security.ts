@@ -100,7 +100,8 @@ export const getRequiredScopeGroups = (requiredSecurity: RequiredSecurity): stri
     const collected = new Set<string>()
 
     for (const scheme of group.schemes) {
-      if (scheme.scheme?.type !== 'oauth2' && scheme.scheme?.type !== 'openIdConnect') {
+      // Skip only schemes resolved to a non-OAuth type; an unresolved scheme (e.g. the AsyncAPI path, which leaves schemes unresolved on purpose) still carries its scopes through.
+      if (scheme.scheme && scheme.scheme.type !== 'oauth2' && scheme.scheme.type !== 'openIdConnect') {
         continue
       }
 
