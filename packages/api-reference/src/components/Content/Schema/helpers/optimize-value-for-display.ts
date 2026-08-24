@@ -121,13 +121,21 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
     const mergedSchemas = filteredSchemas.map((_schema) => {
       const schema = resolve.schema(_schema)
 
-      // Flatten single-item allOf and merge with root properties. The allOf
-      // member's own `$ref` is dropped before merging so it cannot overwrite
-      // the variant's `$ref`, which would otherwise mislabel the flattened
-      // schema as the base it extends instead of the variant itself (#9964).
+      // Flatten single-item allOf and merge with root properties. If the
+      // variant has its own properties/required/$ref, the allOf member's own
+      // `$ref` is dropped before merging so it cannot overwrite the variant's
+      // identity, which would otherwise mislabel the flattened schema as the
+      // base it extends instead of the variant itself (#9964). A variant that
+      // is a bare wrapper around the allOf member has no identity of its own
+      // to protect, so the base's `$ref` is kept as a fallback label.
       if (schema.allOf?.length === 1) {
         const { allOf, ...otherProps } = schema
-        const { $ref: _allOfRef, ...allOfMember } = resolve.schema(allOf[0])!
+        const allOfMember = resolve.schema(allOf[0])!
+        const variantHasOwnIdentity = 'properties' in otherProps || 'required' in otherProps || '$ref' in otherProps
+        if (variantHasOwnIdentity) {
+          const { $ref: _allOfRef, ...allOfMemberWithoutRef } = allOfMember
+          return mergeSchemaProperties(rootProperties, otherProps, allOfMemberWithoutRef)
+        }
         return mergeSchemaProperties(rootProperties, otherProps, allOfMember)
       }
       return mergeSchemaProperties(rootProperties, schema)

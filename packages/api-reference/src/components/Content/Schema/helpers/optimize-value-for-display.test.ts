@@ -433,6 +433,48 @@ describe('optimizeValueForDisplay', () => {
     })
   })
 
+  it('keeps the allOf base $ref when the variant is a bare wrapper with no identity of its own (#9964)', () => {
+    // A variant that only wraps a single allOf member, with no properties,
+    // required, or $ref of its own, has nothing to protect from the base's
+    // $ref, so the base's $ref is kept as a fallback label instead of being
+    // dropped and leaving the variant unlabeled.
+    const input = {
+      oneOf: [
+        {
+          allOf: [
+            {
+              '$ref': '#/components/schemas/Animal',
+              '$ref-value': {
+                type: 'object',
+                properties: { id: { type: 'string' } },
+              },
+            },
+          ],
+        },
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'dog' } },
+        },
+      ],
+    } as unknown as SchemaObject
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      oneOf: [
+        {
+          '$ref': '#/components/schemas/Animal',
+          type: 'object',
+          properties: { id: { type: 'string' } },
+        },
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'dog' } },
+        },
+      ],
+    })
+  })
+
   it('should not merge allOf when it contains multiple items', () => {
     const input = {
       type: 'object',
