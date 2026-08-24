@@ -16,7 +16,7 @@ echo "Scanning for OpenAPI and AsyncAPI documents in: $MOUNT_DIR"
 
 # Check if mount directory exists
 if [ ! -d "$MOUNT_DIR" ]; then
-    echo '{"sources":[]}' > "$CONFIG_FILE"
+    printf '%s\n' '{"sources":[]}' > "$CONFIG_FILE"
     exit 0
 fi
 
@@ -41,7 +41,10 @@ is_api_document() {
     return 1
 }
 
-# Function to generate title from filename
+# Function to generate title from filename.
+# `printf '%s\n'` is used instead of `echo` so a filename containing a backslash
+# sequence (for example "a\name.json") is not mangled by shells whose `echo`
+# interprets backslash escapes.
 generate_title() {
     filepath="$1"
     filename=$(basename "$filepath")
@@ -50,9 +53,9 @@ generate_title() {
 
     if [ "$dirname" != "$MOUNT_DIR" ] && [ "$dirname" != "." ]; then
         parent_dir=$(basename "$dirname")
-        echo "${parent_dir} - ${name}"
+        printf '%s\n' "${parent_dir} - ${name}"
     else
-        echo "$name"
+        printf '%s\n' "$name"
     fi
 }
 
@@ -65,15 +68,28 @@ generate_slug() {
 
     if [ "$dirname" != "$MOUNT_DIR" ] && [ "$dirname" != "." ]; then
         parent_dir=$(basename "$dirname")
-        echo "${parent_dir}-${name}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g'
+        printf '%s\n' "${parent_dir}-${name}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g'
     else
-        echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g'
+        printf '%s\n' "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g'
     fi
 }
 
-# Function to escape JSON strings
+# Function to escape a string for embedding inside a JSON string literal.
+# Order matters: backslashes are escaped first so the backslashes added when
+# escaping the other characters are not doubled again.
+# `printf '%s'` is used instead of `echo` because some POSIX shells (dash,
+# busybox) let `echo` interpret backslash sequences in the value, which would
+# corrupt a filename containing a backslash before it is ever escaped.
+# Tabs and carriage returns are control characters that are invalid unescaped
+# inside a JSON string; they are spelled out via `printf` because POSIX `sed`
+# does not portably understand the "\t"/"\r" escapes. Newlines cannot reach here
+# because the file list is newline delimited.
 escape_json() {
-    echo "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+    tab=$(printf '\t')
+    cr=$(printf '\r')
+    printf '%s' "$1" \
+        | sed 's/\\/\\\\/g; s/"/\\"/g' \
+        | sed "s/${tab}/\\\\t/g; s/${cr}/\\\\r/g"
 }
 
 # Build sources array
@@ -85,12 +101,14 @@ FIRST=true
 # Use newline-delimited output and a plain `read`: `find -print0` paired with
 # `read -d ''` is a bashism that fails under a POSIX `/bin/sh` such as dash, which
 # is what CI uses. Document filenames do not contain newlines, so this is safe.
+# `sort` makes the traversal order deterministic so the "first document is the
+# default" selection below does not depend on the filesystem's directory order.
 TEMP_FILE=$(mktemp)
-find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) > "$TEMP_FILE"
+find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) | sort > "$TEMP_FILE"
 
 while IFS= read -r file; do
     if is_api_document "$file"; then
-        relative_path="${file#$MOUNT_DIR/}"
+        relative_path="${file#"$MOUNT_DIR"/}"
         title=$(generate_title "$file")
         slug=$(generate_slug "$file")
         # Historical path: kept as "/openapi" for both document types so existing deployments
@@ -126,10 +144,13 @@ done < "$TEMP_FILE"
 # Clean up temporary file
 rm -f "$TEMP_FILE"
 
-# Generate final JSON
+# Generate final JSON.
+# `printf '%s\n'` is used instead of `echo` because SOURCES contains JSON escape
+# sequences (`\"`, `\\`, `\t`) and some shells let `echo` re-interpret those
+# backslashes, which would corrupt the escaping added by escape_json.
 if [ -n "$SOURCES" ]; then
-    echo "{\"sources\":[${SOURCES}]}" > "$CONFIG_FILE"
+    printf '%s\n' "{\"sources\":[${SOURCES}]}" > "$CONFIG_FILE"
 else
-    echo "No OpenAPI documents found"
-    echo '{"sources":[]}' > "$CONFIG_FILE"
+    echo "No documents found"
+    printf '%s\n' '{"sources":[]}' > "$CONFIG_FILE"
 fi

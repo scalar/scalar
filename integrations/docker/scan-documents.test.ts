@@ -106,6 +106,35 @@ describe('scan-documents', () => {
     expect(sources.filter((source) => source.default)).toHaveLength(1)
   })
 
+  it('selects the alphabetically first document as the default regardless of write order', () => {
+    const sources = scan({
+      'zebra.json': '{"openapi":"3.1.0"}',
+      'alpha.json': '{"openapi":"3.1.0"}',
+      'middle.json': '{"openapi":"3.1.0"}',
+    })
+
+    expect(sources.find((source) => source.default)?.slug).toBe('alpha')
+  })
+
+  it('escapes special characters in filenames so the configuration stays valid JSON', () => {
+    // A parse error inside the scan helper would already fail the test, but assert
+    // the escaped values explicitly to document the expected output.
+    const sources = scan({ 'we"ird\\name.json': '{"openapi":"3.1.0"}' })
+
+    expect(sources).toHaveLength(1)
+    expect(sources[0]?.title).toBe('we"ird\\name')
+    expect(sources[0]?.url).toBe('/openapi/we"ird\\name.json')
+  })
+
+  it('escapes control characters in filenames as JSON escape sequences', () => {
+    // A tab in the filename must be emitted as a "\t" escape, not a raw control
+    // character, so the configuration stays valid JSON.
+    const sources = scan({ 'a\tb.json': '{"openapi":"3.1.0"}' })
+
+    expect(sources).toHaveLength(1)
+    expect(sources[0]?.title).toBe('a\tb')
+  })
+
   it('generates titles and slugs from nested directories', () => {
     const sources = scan({
       'internal/admin-api.yml': 'openapi: 3.0.0\ninfo:\n  title: Admin\n',
