@@ -290,18 +290,25 @@ const emitPathMethodUpdate = (
   blurTargetSelector: string | null = null,
 ): void => {
   const extractedPath = extractAndSelectServer(targetPath)
-  const normalizedPath = normalizePath(extractedPath)
-
-  // Keep CodeMirror in sync so a conflict does not leave a stale value on screen
-  addressBarRef.value?.setCodeMirrorContent(normalizedPath)
 
   if (isWebhook) {
-    emit('update:webhook-path', normalizedPath)
+    // A webhook field holds the full destination URL, not a path relative to a
+    // server. Leave it empty when nothing was entered so the placeholder stays
+    // visible and the "URL required" guard applies — rather than normalizing an
+    // empty value into a stray "/".
+    const webhookDestination = extractedPath ? normalizePath(extractedPath) : ''
+    addressBarRef.value?.setCodeMirrorContent(webhookDestination)
+    emit('update:webhook-path', webhookDestination)
     methodConflict.value = null
     pathConflict.value = null
     nextTick(() => refocusBlurTarget(blurTargetSelector))
     return
   }
+
+  const normalizedPath = normalizePath(extractedPath)
+
+  // Keep CodeMirror in sync so a conflict does not leave a stale value on screen
+  addressBarRef.value?.setCodeMirrorContent(normalizedPath)
 
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },

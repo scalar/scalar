@@ -175,6 +175,25 @@ describe('AddressBar', () => {
     expect(codeInput.props('disabled')).toBe(false)
   })
 
+  it('keeps an empty webhook destination empty on blur instead of inserting a slash', async () => {
+    const { wrapper } = mountWithProps({
+      path: '',
+      method: 'post',
+      isWebhook: true,
+      layout: 'modal',
+      servers: [],
+    })
+    await wrapper.setProps({ server: null })
+    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+
+    await codeInput.vm.$emit('blur', '', new FocusEvent('blur'))
+    await nextTick()
+
+    // An empty webhook field must not normalize to "/", otherwise the
+    // placeholder disappears and the "URL required" guard reads oddly.
+    expect(wrapper.emitted('update:webhook-path')).toStrictEqual([['']])
+  })
+
   it('hints that a webhook path field expects a full URL', async () => {
     const { wrapper } = mountWithProps({
       path: '/',
