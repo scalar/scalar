@@ -388,18 +388,21 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		return err
 	}
 
-	// Copy the headers but exclude Origin. It's not required and might confuse some target servers.
+	// Copy the headers but exclude Origin and Cookie.
+	// Origin is not required and might confuse some target servers.
+	// Cookies are excluded by default so browser cookies are not leaked;
+	// users need to specifically set cookies via X-Scalar-Cookie.
 	for key, values := range r.Header {
-		if !strings.EqualFold(strings.ToLower(key), "origin") {
+		lowerKey := strings.ToLower(key)
+		if lowerKey != "origin" && lowerKey != "cookie" {
 			outreq.Header[key] = values
 		}
 	}
 
 	// Users need to specifically set their cookies in X-Scalar-Cookie
-	xScalarCookie := r.Header.Get("X-Scalar-Cookie")
-
-	// Set the cookie
-	outreq.Header.Set("Cookie", xScalarCookie)
+	if xScalarCookie := r.Header.Get("X-Scalar-Cookie"); xScalarCookie != "" {
+		outreq.Header.Set("Cookie", xScalarCookie)
+	}
 	// Remove the X-Scalar-Cookie header
 	outreq.Header.Del("X-Scalar-Cookie")
 
