@@ -1,6 +1,6 @@
-import type { AnyObject } from '@/types/index'
+import type { AnyObject } from '@scalar/types/utils'
 
-import { betterAjvErrors } from './betterAjvErrors/index'
+import { betterAjvErrors } from './better-ajv-errors/index'
 
 /**
  * Transforms ajv errors, finds the positions in the schema and returns an enriched format.

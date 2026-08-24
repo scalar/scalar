@@ -1,12 +1,12 @@
+import type { AnyObject } from '@scalar/types/utils'
 import Ajv, { type ValidateFunction } from 'ajv'
 import Ajv2020 from 'ajv/dist/2020.js'
 import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
 
 import { ERRORS, OpenApiSpecifications, type OpenApiVersion, OpenApiVersions } from '@/configuration'
-import type { Filesystem, OpenApiDocument, ThrowOnErrorOption, UnknownObject, ValidationOutcome } from '@/types/index'
-import { details as getOpenApiVersion } from '@/utils/details'
-import { resolveReferences } from '@/utils/resolve-references'
+import { detectVersion } from '@/detect-version'
+import type { ThrowOnErrorOption, ValidationOutcome } from '@/types'
 import { transformErrors } from '@/utils/transform-errors'
 import { validatePathParameters } from '@/utils/validate-path-parameters'
 
@@ -19,6 +19,12 @@ const jsonSchemaVersions = {
   'https://json-schema.org/draft/2020-12/schema': Ajv2020,
 }
 
+/**
+ * Validates a single OpenAPI document against the OpenAPI Specification.
+ *
+ * This is schema-only: it does not resolve references. Pass a self-contained
+ * (bundled or dereferenced) document.
+ */
 export class Validator {
   public version: OpenApiVersion
 
@@ -27,29 +33,19 @@ export class Validator {
   // Object with function *or* object { errors: string }
   protected ajvValidators: Record<string, ValidateFunction> = {}
 
-  protected errors: string
-
-  protected specificationVersion: string
-
-  protected specificationType: string
-
-  public specification: UnknownObject
+  public specification: AnyObject
 
   private isMutableRecord(value: unknown): value is Record<string, any> {
     return typeof value === 'object' && value !== null && !Array.isArray(value)
   }
 
   /**
-   * Checks whether a specification is valid and all references can be resolved.
+   * Checks whether a specification is valid against the OpenAPI schema.
    */
-  validate(filesystem: Filesystem, options?: ThrowOnErrorOption): ValidationOutcome {
-    const entrypoint = filesystem.find((file) => file.isEntrypoint)
-    const specification = entrypoint?.specification
-
-    // TODO: How does this work with a filesystem?
+  validate(specification: AnyObject, options?: ThrowOnErrorOption): ValidationOutcome {
     this.specification = specification
 
-    // TODO: defaulting info.version to keep parser compatible with the previous one
+    // TODO: defaulting info.version to keep the validator compatible with the previous parser
     // we should bubble this error up and not throw on it
     if (
       this.isMutableRecord(this.specification) &&
@@ -72,12 +68,8 @@ export class Validator {
         }
       }
 
-      // Meta data about the specification
-      const { version, specificationType, specificationVersion } = getOpenApiVersion(specification)
-
-      this.version = version
-      this.specificationVersion = specificationVersion
-      this.specificationType = specificationType
+      // Detect the OpenAPI/Swagger version
+      const version = detectVersion(specification)
 
       // AnyObject is not supported
       if (!version) {
@@ -91,42 +83,43 @@ export class Validator {
         }
       }
 
+      this.version = version
+
       // Get the correct OpenAPI validator
       const validateSchema = this.getAjvValidator(version)
       const schemaResult = validateSchema(specification)
 
       // Error handling
-      if (validateSchema.errors) {
-        if (validateSchema.errors.length > 0) {
-          if (options?.throwOnError) {
-            throw new Error(validateSchema.errors[0].message)
-          }
+      if (validateSchema.errors && validateSchema.errors.length > 0) {
+        if (options?.throwOnError) {
+          throw new Error(validateSchema.errors[0].message)
+        }
 
-          return {
-            valid: false,
-            errors: transformErrors(specification, validateSchema.errors),
-          }
+        return {
+          valid: false,
+          version,
+          errors: transformErrors(specification, validateSchema.errors),
         }
       }
 
-      // Check if the references are valid
-      const resolvedReferences = resolveReferences(filesystem, options)
-      const semanticErrors = validatePathParameters(resolvedReferences.schema)
-      const errors = [...resolvedReferences.errors, ...semanticErrors]
-      const valid = schemaResult && resolvedReferences.valid && semanticErrors.length === 0
+      // Path-template semantics that the JSON schema cannot express
+      const semanticErrors = validatePathParameters(specification)
+      const valid = schemaResult && semanticErrors.length === 0
 
       if (!valid) {
         return {
           valid: false,
-          errors,
-          schema: resolvedReferences.schema as OpenApiDocument,
+          version,
+          errors: semanticErrors,
+          schema: specification,
         }
       }
 
       return {
         valid: true,
-        errors,
-        schema: resolvedReferences.schema as OpenApiDocument,
+        version,
+        errors: semanticErrors,
+        schema: specification,
       }
     } catch (error) {
       // Something went horribly wrong!

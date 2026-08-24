@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { Validator } from './Validator'
+import { Validator } from './validator'
 
 describe('Validator', () => {
   it('returns all supported versions', () => {

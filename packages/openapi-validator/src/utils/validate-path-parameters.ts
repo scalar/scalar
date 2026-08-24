@@ -1,4 +1,6 @@
-import type { AnyObject, ErrorObject } from '@/types/index'
+import type { AnyObject } from '@scalar/types/utils'
+
+import type { ErrorObject } from '@/types'
 
 const OPERATION_KEYS = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
 const PATH_PARAMETER_PATTERN = /{([^}]+)}/g
