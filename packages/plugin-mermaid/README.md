@@ -47,3 +47,13 @@ paths:
 
 The diagram renders in place, adapts to light/dark color mode, and re-renders on a color-mode
 change.
+
+## Styling
+
+The plugin ships a small stylesheet for the diagram container and the error message. It is not
+required — the diagram itself renders without it — but if your bundler does not pick it up
+automatically, import it once:
+
+```ts
+import '@scalar/plugin-mermaid/style.css'
+```
