@@ -100,6 +100,10 @@ export const getRequiredScopeGroups = (requiredSecurity: RequiredSecurity): stri
     const collected = new Set<string>()
 
     for (const scheme of group.schemes) {
+      if (scheme.scheme?.type !== 'oauth2' && scheme.scheme?.type !== 'openIdConnect') {
+        continue
+      }
+
       for (const scope of scheme.scopes) {
         collected.add(scope)
       }
