@@ -81,7 +81,7 @@ export type DereferenceResult = {
 }
 
 export type ErrorObject = {
-  path?: string[]
+  path?: string | string[]
   message: string
   code?: keyof typeof ERRORS | string
 }

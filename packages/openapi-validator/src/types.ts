@@ -6,9 +6,12 @@ export type { OpenApiVersion } from '@/configuration'
 
 /**
  * A single validation error.
+ *
+ * `path` is either a JSON Pointer string (from schema validation) or a list of
+ * path segments (from the semantic path-parameter checks).
  */
 export type ErrorObject = {
-  path?: string[]
+  path?: string | string[]
   message: string
   code?: keyof typeof ERRORS | string
 }

@@ -114,7 +114,8 @@ function deduplicateErrors(errors: ErrorObject[]) {
   const seen = new Set<string>()
 
   return errors.filter((error) => {
-    const key = `${error.message}||${error.path?.join('.') ?? ''}`
+    const pathKey = Array.isArray(error.path) ? error.path.join('.') : (error.path ?? '')
+    const key = `${error.message}||${pathKey}`
 
     if (seen.has(key)) {
       return false
