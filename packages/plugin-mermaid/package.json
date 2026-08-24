@@ -54,6 +54,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
+    "@vue/test-utils": "catalog:*",
+    "jsdom": "catalog:*",
     "vite": "catalog:*",
     "vue": "catalog:*"
   }
