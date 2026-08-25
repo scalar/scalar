@@ -22,7 +22,7 @@ export type AnyApiDefinitionFormat = string | UnknownObject | Filesystem
 
 export type StrictOpenApiDocument = OpenApiDocumentV2 | OpenApiDocumentV3 | OpenApiDocumentV3_1 | OpenApiDocumentV3_2
 
-export type OpenApiDocument = StrictOpenApiDocument
+type OpenApiDocument = StrictOpenApiDocument
 
 export type LoadResult = {
   filesystem: Filesystem
@@ -42,18 +42,6 @@ export type ValidateResult =
       valid: false
       specification?: UnknownObject
       version?: OpenApiVersion
-      errors: ErrorObject[]
-      schema?: UnknownObject
-    }
-
-export type ValidationOutcome =
-  | {
-      valid: true
-      errors?: ErrorObject[]
-      schema: StrictOpenApiDocument
-    }
-  | {
-      valid: false
       errors: ErrorObject[]
       schema?: UnknownObject
     }
