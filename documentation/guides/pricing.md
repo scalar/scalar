@@ -62,6 +62,29 @@
 </section>
 
 
+<h4 class="text-c-3 mt-10 font-normal">Trusted by the world's best API teams</h4>
+
+<div class="logowall">
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
+  </div>
+</div>
+
 <div class="pricing-billing" role="radiogroup" aria-label="Billing period">
   <label for="billing-monthly"><input type="radio" name="billing" id="billing-monthly" checked>Monthly</label>
   <label for="billing-yearly"><input type="radio" name="billing" id="billing-yearly">Yearly<span class="pricing-billing-badge">2 months free</span></label>
@@ -214,28 +237,6 @@
   </article>
 </section>
 
-<h4 class="text-c-3 mt-10 font-normal">Trusted by the world's best API teams</h4>
-
-<div class="logowall">
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
-  </div>
-</div>
 
 ## Overview
 
@@ -1005,7 +1006,7 @@
   width: fit-content;
   gap: 4px;
   align-items: center;
-  margin-top: 32px;
+  margin-top: 0;
   padding: 4px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
@@ -1188,7 +1189,7 @@
   fill: currentColor;
 }
 .logowall.logowall {
-  margin: 24px 0 100px;
+  margin: 24px 0 40px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   align-items: center;
