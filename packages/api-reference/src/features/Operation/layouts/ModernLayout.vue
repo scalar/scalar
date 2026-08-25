@@ -103,6 +103,12 @@ const requestBodyCompositionSelectionKey = computed(() =>
 )
 
 provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
+
+/**
+ * Selected response content type per status code. Shared between the response list (which writes
+ * the selection) and the example response panel (which reads it) so the two stay in sync.
+ */
+const selectedResponseContentTypes = ref<Record<string, string>>({})
 </script>
 
 <template>
@@ -204,6 +210,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             :parameters="operation.parameters"
             :requestBody="getResolvedRef(operation.requestBody)" />
           <OperationResponses
+            v-model:selectedContentTypes="selectedResponseContentTypes"
             :breadcrumb="[id]"
             :collapsableItems="!options.expandAllResponses"
             :document
@@ -279,6 +286,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
               v-if="operation.responses"
               :eventBus
               :responses="operation.responses"
+              :selectedContentTypes="selectedResponseContentTypes"
               :selectedExample
               style="margin-top: 12px" />
           </ScalarErrorBoundary>
