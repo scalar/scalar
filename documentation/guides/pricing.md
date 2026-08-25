@@ -84,11 +84,6 @@
   </div>
 </div>
 
-<div class="pricing-billing" role="radiogroup" aria-label="Billing period">
-  <label for="billing-monthly"><input type="radio" name="billing" id="billing-monthly" checked>Monthly</label>
-  <label for="billing-yearly"><input type="radio" name="billing" id="billing-yearly">Yearly<span class="pricing-billing-badge">2 months free</span></label>
-</div>
-
 <section class="pricing-overview-cards" aria-label="Pricing overview">
   <article class="pricing-overview-card pricing-overview-card-free">
     <div class="pricing-overview-card-content">
@@ -238,6 +233,11 @@
 
 
 ## Overview
+
+<div class="pricing-billing" role="radiogroup" aria-label="Billing period">
+  <label for="billing-monthly"><input type="radio" name="billing" id="billing-monthly" checked>Monthly</label>
+  <label for="billing-yearly"><input type="radio" name="billing" id="billing-yearly">Yearly<span class="pricing-billing-badge">2 months free</span></label>
+</div>
 
 <div class="mobiletabs">
   <div class="mobiletabs-container" role="radiogroup" aria-label="Select a plan">
@@ -1005,7 +1005,7 @@
   width: fit-content;
   gap: 4px;
   align-items: center;
-  margin-top: 0;
+  margin: 4px 0 20px;
   padding: 4px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
@@ -1188,7 +1188,7 @@
   fill: currentColor;
 }
 .logowall.logowall {
-  margin: 24px 0 40px;
+  margin: 24px 0 0;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   align-items: center;
