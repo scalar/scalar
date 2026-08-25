@@ -229,8 +229,11 @@ function filterRedundantErrors(node: ErrorNode, parent?: ErrorNode, key?: string
     node.children = {}
   }
 
-  // An `anyOf` error means the meaningful errors live in the children.
-  if (hasAnyOfError && hasChildren) {
+  // An `anyOf` error means the meaningful errors live in the children. Re-check
+  // the children here rather than reusing `hasChildren`: the `required` branch
+  // above may have just cleared them, and wiping the errors in that case would
+  // drop the actionable `required` message.
+  if (hasAnyOfError && Object.keys(node.children).length > 0) {
     node.errors = []
   }
 
