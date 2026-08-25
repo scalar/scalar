@@ -55,12 +55,36 @@ const compile = (schema: SchemaObject, formats?: Record<string, unknown>): Valid
  */
 const compiledValidators = new WeakMap<SchemaObject, ValidateFunction>()
 
+/**
+ * Schemas that failed to compile, and why. Cached alongside the successes so a
+ * broken schema fails fast instead of paying the full Ajv setup cost per call.
+ */
+const failedCompilations = new WeakMap<SchemaObject, unknown>()
+
+const toMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error))
+
 const runValidation = (
   validateFn: ValidateFunction,
   document: unknown,
   options?: ValidateOptions,
 ): ValidationResult => {
-  const value = typeof document === 'string' ? parseYaml(document) : document
+  let value: unknown
+
+  if (typeof document === 'string') {
+    // A malformed JSON/YAML string is a validation failure like any other, so it
+    // has to respect `throwOnError` rather than escaping as a parser exception.
+    try {
+      value = parseYaml(document)
+    } catch (error) {
+      if (options?.throwOnError) {
+        throw error
+      }
+
+      return { valid: false, errors: [{ message: toMessage(error) }] }
+    }
+  } else {
+    value = document
+  }
 
   if (validateFn(value)) {
     return { valid: true, errors: [] }
@@ -79,6 +103,10 @@ const runValidation = (
  * Compiles a JSON Schema once and returns a reusable validator function.
  *
  * Prefer this when validating many documents against the same schema.
+ *
+ * Compiling happens up front, so a schema Ajv cannot compile throws from this
+ * call rather than from the returned function. Use `validate` instead when a
+ * schema is untrusted and an uncompilable one should come back as a result.
  */
 export function createValidator(schema: SchemaObject, options?: CreateValidatorOptions) {
   const validateFn = compile(schema, options?.formats)
@@ -100,11 +128,43 @@ export function validate(
   schema: SchemaObject,
   options?: ValidateOptions & CreateValidatorOptions,
 ): ValidationResult {
+  // Booleans are valid JSON Schemas but cannot key a WeakMap, so they skip the
+  // caches entirely rather than throwing.
+  const isCacheable = typeof schema === 'object' && schema !== null
+
+  if (isCacheable && failedCompilations.has(schema)) {
+    const previousFailure = failedCompilations.get(schema)
+
+    if (options?.throwOnError) {
+      throw previousFailure
+    }
+
+    return { valid: false, errors: [{ message: toMessage(previousFailure) }] }
+  }
+
   let validateFn = compiledValidators.get(schema)
 
   if (!validateFn) {
-    validateFn = compile(schema, options?.formats)
-    compiledValidators.set(schema, validateFn)
+    // A schema that cannot be compiled (a malformed `pattern`, an unresolvable
+    // `$ref`, an unknown dialect) is reported like any other failure, so
+    // `throwOnError: false` keeps its promise not to throw.
+    try {
+      validateFn = compile(schema, options?.formats)
+    } catch (error) {
+      if (isCacheable) {
+        failedCompilations.set(schema, error)
+      }
+
+      if (options?.throwOnError) {
+        throw error
+      }
+
+      return { valid: false, errors: [{ message: toMessage(error) }] }
+    }
+
+    if (isCacheable) {
+      compiledValidators.set(schema, validateFn)
+    }
   }
 
   return runValidation(validateFn, document, options)
