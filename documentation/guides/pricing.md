@@ -53,7 +53,6 @@
     <li>Every plan can be billed monthly or yearly. Yearly billing gives you two months free: Pro is $125 per month billed yearly ($1,500 per year) and Business is $500 per month billed yearly ($6,000 per year).</li>
     <li>Max APIs: 3 on Free, 15 on Pro, 25 on Business, unlimited on Enterprise.</li>
     <li>SDK size is measured by the number of endpoints in your OpenAPI document. Free covers SDKs up to 25 endpoints; Pro includes 100 endpoints; Business includes 250 endpoints; Enterprise is custom.</li>
-    <li>On Pro and Business, endpoints beyond the included amount are $5 per endpoint per month, per SDK.</li>
     <li>Every plan includes 1 SDK. Additional SDKs are $150 per month each on Pro and $600 per month each on Business, with volume discounts as you add more. Enterprise SDK pricing is custom.</li>
     <li>Editor seats: 1 on Free, 5 on Pro, 10 on Business, custom on Enterprise.</li>
     <li>Agent Scalar includes 50 credits on Free, 500 credits on Pro, 2,000 credits on Business, and custom usage on Enterprise.</li>
@@ -883,7 +882,7 @@
     </details>
     <details class="pricing-faq-item">
       <summary>What happens when my SDK grows past the included endpoints?</summary>
-      <p>Nothing breaks. On Pro and Business, endpoints beyond the included amount are billed at $5 per endpoint per month for each SDK you generate — or you can move up a plan. Docs and MCP servers are not metered by API size.</p>
+      <p>Nothing breaks. Move up a plan when your SDK outgrows the included endpoints, or <a href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a">get in touch</a> and we will size it to your API. Docs and MCP servers are not metered by SDK size.</p>
     </details>
     <details class="pricing-faq-item">
       <summary>What counts as one SDK?</summary>
