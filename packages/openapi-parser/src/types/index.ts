@@ -11,7 +11,7 @@ import type { ERRORS, OpenApiVersion } from '@/configuration'
  */
 type Merge<A, B> = A & Omit<B, keyof A>
 
-export type AnyObject = Record<string, any>
+export type { AnyObject } from '@scalar/types/utils'
 
 export type UnknownObject = Record<string, unknown>
 
