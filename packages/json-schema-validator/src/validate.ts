@@ -7,7 +7,7 @@ import { parse as parseYaml } from 'yaml'
 
 import type { AjvError } from '@/prettify-ajv-errors'
 import { transformErrors } from '@/transform-errors'
-import type { ValidateOptions, ValidationResult } from '@/types'
+import type { CreateValidatorOptions, ValidateOptions, ValidationResult } from '@/types'
 
 type SchemaObject = Record<string, any>
 
@@ -75,7 +75,7 @@ const runValidation = (
  *
  * Prefer this when validating many documents against the same schema.
  */
-export function createValidator(schema: SchemaObject, options?: Pick<ValidateOptions, 'formats'>) {
+export function createValidator(schema: SchemaObject, options?: CreateValidatorOptions) {
   const validateFn = compile(schema, options?.formats)
 
   return (document: unknown, callOptions?: ValidateOptions): ValidationResult =>
@@ -86,9 +86,15 @@ export function createValidator(schema: SchemaObject, options?: Pick<ValidateOpt
  * Validates a document against a JSON Schema.
  *
  * The document can be an object, or a JSON or YAML string. Compiled schemas are
- * cached by identity, so passing the same schema object again is cheap.
+ * cached by identity, so passing the same schema object again is cheap. Because
+ * of that cache, `formats` only take effect the first time a given schema object
+ * is validated; reuse `createValidator` when you need per-schema formats.
  */
-export function validate(document: unknown, schema: SchemaObject, options?: ValidateOptions): ValidationResult {
+export function validate(
+  document: unknown,
+  schema: SchemaObject,
+  options?: ValidateOptions & CreateValidatorOptions,
+): ValidationResult {
   let validateFn = compiledValidators.get(schema)
 
   if (!validateFn) {

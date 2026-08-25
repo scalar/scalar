@@ -10,6 +10,9 @@ export type ErrorObject = {
   code?: string
 }
 
+/**
+ * Options for a single validation call.
+ */
 export type ValidateOptions = {
   /**
    * If `true`, throw on the first error instead of returning them.
@@ -17,6 +20,15 @@ export type ValidateOptions = {
    * @default false
    */
   throwOnError?: boolean
+}
+
+/**
+ * Options that affect how a schema is compiled into a validator.
+ *
+ * These only take effect at compile time, so they belong on `createValidator`
+ * (or the first `validate` call for a given schema), not on individual calls.
+ */
+export type CreateValidatorOptions = {
   /**
    * Extra Ajv formats to register beyond `ajv-formats`, keyed by name.
    *
