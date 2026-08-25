@@ -261,4 +261,38 @@ paths: {}
     expect(result.valid).toBe(false)
     expect(result.errors).toMatchObject([{ message: "Can't find JSON, YAML or filename in data." }])
   })
+
+  it('throws on a schema error when throwOnError is set', async () => {
+    await expect(() => validate({ openapi: '3.1.0', paths: {} }, { throwOnError: true })).rejects.toThrowError()
+  })
+
+  it('throws on an unsupported version when throwOnError is set', async () => {
+    await expect(() =>
+      validate({ openapi: '4.0.0', info: { title: 'Nope', version: '1.0.0' }, paths: {} }, { throwOnError: true }),
+    ).rejects.toThrowError("Can't find supported Swagger/OpenAPI version")
+  })
+
+  it('throws on an unresolvable reference when throwOnError is set', async () => {
+    await expect(() =>
+      validate(
+        {
+          openapi: '3.1.0',
+          info: { title: 'Missing ref', version: '1.0.0' },
+          paths: {
+            '/pets': {
+              get: {
+                responses: {
+                  '200': {
+                    description: 'OK',
+                    content: { 'application/json': { schema: { $ref: '#/components/schemas/Missing' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+        { throwOnError: true },
+      ),
+    ).rejects.toThrowError('#/components/schemas/Missing')
+  })
 })
