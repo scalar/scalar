@@ -86,7 +86,7 @@ const formatPath = (path?: string | string[]) => {
         <p
           v-if="result.valid"
           class="text-sm text-gray-500">
-          This document is valid. 🎉
+          This document is valid.
         </p>
 
         <ul
