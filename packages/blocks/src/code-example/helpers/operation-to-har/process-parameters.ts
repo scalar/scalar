@@ -62,8 +62,8 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
     return { style: 'form', explode }
   }
 
-  // The 3.2 `querystring` location has no style/explode of its own (it is serialized via `content`),
-  // so it falls through to the `form` default here. TODO: serialize `querystring` parameters properly.
+  // The 3.2 `querystring` location has no style/explode of its own, so it falls through to the
+  // `form` default here and is then serialized like a regular query parameter (see the switch below).
   const defaultStyle =
     (
       {
@@ -161,7 +161,11 @@ export const processParameters = ({
         break
       }
 
-      case 'query': {
+      // The 3.2 `querystring` location represents the whole query string. Handle it like a
+      // regular query parameter so its value still lands in the query string instead of
+      // being silently dropped.
+      case 'query':
+      case 'querystring': {
         // Content type parameters should be serialized according to the parameter's own content type
         if ('content' in param && param.content) {
           // We grab the first for now but eventually we should support selecting the content type per parameter

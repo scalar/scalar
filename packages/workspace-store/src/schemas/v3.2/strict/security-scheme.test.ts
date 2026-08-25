@@ -73,6 +73,26 @@ describe('security-scheme', () => {
         })
       })
 
+      it('preserves the x-scalar-ignore extension used to hide schemes from the auth UI', () => {
+        // Typed as SecuritySchemeObject so this also guards the type staying a 3.1 superset:
+        // if `x-scalar-ignore` were dropped from the schema, this would fail to type-check.
+        const validInput: SecuritySchemeObject = {
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          'x-scalar-ignore': true,
+        }
+
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+
+        expect(result).toEqual({
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          'x-scalar-ignore': true,
+        })
+      })
+
       it('parses valid apiKey security scheme in cookie correctly', () => {
         const validInput = {
           type: 'apiKey',
