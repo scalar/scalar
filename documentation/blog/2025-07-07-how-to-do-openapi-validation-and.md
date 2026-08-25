@@ -1,3 +1,7 @@
+---
+date: 2025-07-07
+---
+
 # How to do OpenAPI validation (and why it matters)
 
 To validate your OpenAPI document, download the [Scalar CLI](https://github.com/scalar/scalar/blob/main/documentation/guides/cli/getting-started.md):

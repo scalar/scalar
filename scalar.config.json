@@ -78,11 +78,19 @@
       "darkMode": "https://cdn.scalar.com/marketing/landing/logo-dark.svg",
       "lightMode": "https://cdn.scalar.com/marketing/landing/logo-light.svg"
     },
-    "rss": {
-      "path": "/resources/changelog",
-      "title": "Scalar Changelog",
-      "description": "Releases across Scalar products — API Client, API Reference, Agent, and Mock Server"
-    },
+    "rss": [
+      {
+        "path": "/resources/changelog",
+        "title": "Scalar Changelog",
+        "description": "Releases across Scalar products — API Client, API Reference, Agent, and Mock Server"
+      },
+      {
+        "path": "/blog",
+        "entries": "pages",
+        "title": "Scalar Blog",
+        "description": "Engineering stories and news from the Scalar team"
+      }
+    ],
     "routing": {
       "redirects": [
         {

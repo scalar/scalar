@@ -1,3 +1,7 @@
+---
+date: 2025-04-23
+---
+
 # An introduction to OpenAPI variables
 
 There are two types of OpenAPI variables:
