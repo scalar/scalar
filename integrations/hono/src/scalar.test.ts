@@ -272,4 +272,93 @@ describe('Scalar', () => {
     expect(text).toContain('Test API')
     expect(text).toContain('deepSpace')
   })
+
+  describe('serve', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Serve API', version: '1.0.0' },
+      paths: {},
+    }
+
+    it('serves the OpenAPI document as JSON at the mount point', async () => {
+      const app = new Hono()
+      app.route('/reference', Scalar.serve({ document }))
+
+      const response = await app.request('/reference/openapi.json')
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toContain('application/json')
+      expect(await response.json()).toEqual(document)
+    })
+
+    it('renders the reference at the mount point, pointing at the served document', async () => {
+      const app = new Hono()
+      app.route('/reference', Scalar.serve({ document }))
+
+      const response = await app.request('/reference')
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toContain('text/html')
+
+      const text = await response.text()
+      expect(text).toContain('<title>Scalar API Reference</title>')
+      // The reference points at the document we serve alongside it
+      expect(text).toContain('/reference/openapi.json')
+      // The document is referenced by URL, not inlined
+      expect(text).not.toContain('Serve API')
+    })
+
+    it('serves the document at a custom specPath', async () => {
+      const app = new Hono()
+      app.route('/reference', Scalar.serve({ document, specPath: '/spec.json' }))
+
+      const json = await app.request('/reference/spec.json')
+      expect(json.status).toBe(200)
+      expect(await json.json()).toEqual(document)
+
+      const html = await (await app.request('/reference')).text()
+      expect(html).toContain('/reference/spec.json')
+    })
+
+    it('resolves the document from a function with access to the context', async () => {
+      const app = new Hono()
+      app.route(
+        '/reference',
+        Scalar.serve({
+          document: (c) => ({ ...document, info: { ...document.info, title: c.req.path } }),
+        }),
+      )
+
+      const response = await app.request('/reference/openapi.json')
+      expect(await response.json()).toMatchObject({ info: { title: '/reference/openapi.json' } })
+    })
+
+    it('passes through reference options like pageTitle and theme', async () => {
+      const app = new Hono()
+      app.route('/reference', Scalar.serve({ document, pageTitle: 'Serve Title', theme: 'kepler' }))
+
+      const text = await (await app.request('/reference')).text()
+      expect(text).toContain('<title>Serve Title</title>')
+      // A theme was provided, so the custom Hono theme CSS is not injected
+      expect(text).not.toContain('--scalar-color-1: rgba(255, 255, 245, .86);')
+    })
+
+    it('includes the hono integration marker and the custom theme by default', async () => {
+      const app = new Hono()
+      app.route('/reference', Scalar.serve({ document }))
+
+      const text = await (await app.request('/reference')).text()
+      expect(text).toContain('_integration": "hono"')
+      expect(text).toContain('--scalar-color-1: rgba(255, 255, 245, .86);')
+    })
+
+    it('works when mounted at the root', async () => {
+      const app = new Hono()
+      app.route('/', Scalar.serve({ document }))
+
+      const html = await (await app.request('/')).text()
+      expect(html).toContain('/openapi.json')
+
+      const json = await app.request('/openapi.json')
+      expect(await json.json()).toEqual(document)
+    })
+  })
 })
