@@ -37,7 +37,6 @@ import {
   REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
   type RequestBodyCompositionSelection,
 } from '@/features/Operation/request-body-composition-index'
-import { RESPONSE_CONTENT_TYPE_SYMBOL } from '@/features/Operation/response-content-type'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
@@ -105,8 +104,11 @@ const requestBodyCompositionSelectionKey = computed(() =>
 
 provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
 
+/**
+ * Selected response content type per status code. Shared between the response list (which writes
+ * the selection) and the example response panel (which reads it) so the two stay in sync.
+ */
 const selectedResponseContentTypes = ref<Record<string, string>>({})
-provide(RESPONSE_CONTENT_TYPE_SYMBOL, selectedResponseContentTypes)
 </script>
 
 <template>
@@ -208,6 +210,7 @@ provide(RESPONSE_CONTENT_TYPE_SYMBOL, selectedResponseContentTypes)
             :parameters="operation.parameters"
             :requestBody="getResolvedRef(operation.requestBody)" />
           <OperationResponses
+            v-model:selectedContentTypes="selectedResponseContentTypes"
             :breadcrumb="[id]"
             :collapsableItems="!options.expandAllResponses"
             :document
@@ -283,6 +286,7 @@ provide(RESPONSE_CONTENT_TYPE_SYMBOL, selectedResponseContentTypes)
               v-if="operation.responses"
               :eventBus
               :responses="operation.responses"
+              :selectedContentTypes="selectedResponseContentTypes"
               :selectedExample
               style="margin-top: 12px" />
           </ScalarErrorBoundary>

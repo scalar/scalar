@@ -14,12 +14,11 @@ import type {
   ResponseObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { RESPONSE_CONTENT_TYPE_SYMBOL } from '@/features/Operation/response-content-type'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
@@ -43,6 +42,10 @@ const { name, parameter, options, collapsableItems, breadcrumb, document } =
       | 'expandAllSchemaProperties'
     >
   }>()
+
+const emit = defineEmits<{
+  (e: 'update:selectedContentType', value: string): void
+}>()
 
 /** Whether the markdown summary is being truncated */
 const truncated = ref(false)
@@ -70,21 +73,14 @@ const selectedContentType = ref<string>(
   Object.keys(content.value || {})[0] ?? '',
 )
 
-const responseContentTypes = inject(RESPONSE_CONTENT_TYPE_SYMBOL, null)
-
-/** Sync content type selection into the shared map when this item is a response */
-watch(
-  selectedContentType,
-  (type) => {
-    if (responseContentTypes && !('in' in parameter)) {
-      responseContentTypes.value = {
-        ...responseContentTypes.value,
-        [name]: type,
-      }
-    }
-  },
-  { immediate: true },
-)
+/**
+ * Report the selected content type upward so the example response panel can mirror it.
+ * The parent decides whether the value is relevant (only response items are wired up),
+ * so this item does not need to know whether it represents a response or a parameter.
+ */
+watch(selectedContentType, (type) => {
+  emit('update:selectedContentType', type)
+})
 
 /** Response headers */
 const headers = computed<ResponseObject['headers'] | null>(() =>

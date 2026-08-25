@@ -16,12 +16,11 @@ import type {
   MediaTypeObject,
   ResponsesObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, inject, ref, toValue, useId, watch } from 'vue'
+import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
 import { useLocalization } from '@/features/localization'
-import { RESPONSE_CONTENT_TYPE_SYMBOL } from '@/features/Operation/response-content-type'
 
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
@@ -33,17 +32,23 @@ import { normalizeMimeTypeObject } from './helpers/normalize-mime-type-object'
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
  */
 
-const { responses, selectedExample, eventBus } = defineProps<{
-  responses: ResponsesObject
-  /**
-   * The document-wide selected example key. Honored only when the current response defines an
-   * example with the same key, so response example pickers stay in sync between operations without
-   * blanking out responses that do not share that key.
-   */
-  selectedExample?: string
-  /** Event bus, used to broadcast the selected example so other operations can follow */
-  eventBus?: WorkspaceEventBus
-}>()
+const { responses, selectedExample, eventBus, selectedContentTypes } =
+  defineProps<{
+    responses: ResponsesObject
+    /**
+     * The document-wide selected example key. Honored only when the current response defines an
+     * example with the same key, so response example pickers stay in sync between operations without
+     * blanking out responses that do not share that key.
+     */
+    selectedExample?: string
+    /** Event bus, used to broadcast the selected example so other operations can follow */
+    eventBus?: WorkspaceEventBus
+    /**
+     * Selected response content type per status code, mirrored from the response list on the left
+     * so the displayed example matches the chosen content type. Keyed by status code (e.g. "200").
+     */
+    selectedContentTypes?: Record<string, string>
+  }>()
 const { translate } = useLocalization()
 
 const id = useId()
@@ -95,14 +100,14 @@ const normalizedResponseContent = computed(() =>
   normalizeMimeTypeObject(currentResponse.value?.content),
 )
 
-const responseContentTypes = inject(RESPONSE_CONTENT_TYPE_SYMBOL, null)
-
 const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
   const content = normalizedResponseContent.value
-  if (!content) return undefined
+  if (!content) {
+    return undefined
+  }
   const statusCode =
     toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
-  const selected = responseContentTypes?.value[statusCode]
+  const selected = selectedContentTypes?.[statusCode]
   const keys = objectKeys(content)
   return content[
     selected && keys.includes(selected) ? selected : (keys[0] ?? '')
