@@ -153,19 +153,43 @@ describe('html-rendering', () => {
       expect(tags).toContain("createApiReference('#app'")
     })
 
-    it('uses custom CDN when provided', () => {
+    it('keeps a non-ESM cdn on the classic UMD script tag for backwards compatibility', () => {
       const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}), 'https://example.com/script.js')
-      expect(tags).toContain('https://example.com/script.js')
+      expect(tags).toContain('<script src="https://example.com/script.js"></script>')
+      expect(tags).toContain("Scalar.createApiReference('#app'")
     })
 
-    it('applies the nonce to the module script when provided', () => {
+    it('uses a module script when the cdn points at an ESM entry', () => {
+      const tags = getScriptTags(
+        apiReferenceConfigurationWithSourceSchema({}),
+        'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js',
+      )
+      expect(tags).toContain('<script type="module">')
+      expect(tags).toContain(
+        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
+      )
+    })
+
+    it('applies the nonce to the classic script tags for a UMD cdn', () => {
       const tags = getScriptTags(
         apiReferenceConfigurationWithSourceSchema({}),
         'https://example.com/script.js',
         'abc123',
       )
+      expect(tags).toContain('<script src="https://example.com/script.js" nonce="abc123"></script>')
+      expect(tags).toContain('<script type="text/javascript" nonce="abc123">')
+    })
+
+    it('applies the nonce to the module script for an ESM cdn', () => {
+      const tags = getScriptTags(
+        apiReferenceConfigurationWithSourceSchema({}),
+        'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js',
+        'abc123',
+      )
       expect(tags).toContain('<script type="module" nonce="abc123">')
-      expect(tags).toContain("import { createApiReference } from 'https://example.com/script.js'")
+      expect(tags).toContain(
+        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
+      )
     })
 
     it('preserves function properties in configuration', () => {
@@ -246,7 +270,7 @@ describe('html-rendering', () => {
 
       // Check that body contains required elements
       expect(html).toContain('<div id="app"></div>')
-      expect(html).toContain("import { createApiReference } from 'https://example.com/script.js'")
+      expect(html).toContain('<script src="https://example.com/script.js"></script>')
 
       // Check that configuration is properly embedded
       expect(html).toContain('"theme": "kepler"')

@@ -198,28 +198,58 @@ export function serializeConfigToJs(configuration: Record<string, unknown>): str
 }
 
 /**
- * The script tag to load the @scalar/api-reference package from the CDN and initialize it.
+ * Whether a CDN URL points at the ESM build (loaded as a `<script type="module">`) rather than the
+ * classic UMD bundle (loaded via `<script src>` and read off the `window.Scalar` global).
  *
- * Loads the ESM standalone build as a module and calls `createApiReference` directly, so the browser
- * only downloads the lazy chunks the rendered page needs (see `DEFAULT_ESM_CDN`) instead of the whole
- * monolithic UMD bundle. Pass a `cdn` that points at an ESM entry to override the default.
+ * The jsDelivr short entry is `.../esm.js`; self-hosted ESM builds are conventionally `*.mjs` or
+ * `*.esm.js`. Everything else is treated as the classic UMD bundle, so any `cdn` URL that already
+ * worked keeps working exactly as before.
+ */
+const isEsmUrl = (cdn: string): boolean => {
+  const path = cdn.replace(/[?#].*$/, '')
+  return path.endsWith('.mjs') || path.endsWith('esm.js')
+}
+
+/**
+ * The script tag(s) to load the @scalar/api-reference package from the CDN and initialize it.
  *
- * When a `nonce` is provided it is applied to the module script so it is allowed under a strict
- * `script-src` Content Security Policy. The bundle then loads its lazy chunks through the module
- * loader, so a strict policy needs `'strict-dynamic'` (or the CDN host allow-listed) for those
- * follow-up requests.
+ * By default (no `cdn`) it loads the ESM standalone build as a module and calls `createApiReference`
+ * directly, so the browser only downloads the lazy chunks the rendered page needs (see
+ * `DEFAULT_ESM_CDN`) instead of the whole monolithic UMD bundle before it can paint.
+ *
+ * A provided `cdn` keeps its historic meaning — a classic UMD bundle loaded via `<script src>` that
+ * registers `window.Scalar` — so existing URLs (including pinned versions) keep working. Point `cdn`
+ * at an ESM entry (`.../esm.js` or an `.mjs`/`*.esm.js` URL) to opt into the module build instead.
+ *
+ * When a `nonce` is provided it is applied to the script tag(s) so they are allowed under a strict
+ * `script-src` Content Security Policy. For the module build the bundle then loads its lazy chunks
+ * through the module loader, so a strict policy needs `'strict-dynamic'` (or the CDN host
+ * allow-listed) for those follow-up requests.
  */
 export function getScriptTags(configuration: Record<string, unknown>, cdn?: string, nonce?: string): string {
   const configString = serializeConfigToJs(configuration)
 
   const nonceAttr = nonceAttribute(nonce)
 
-  return `
+  // No `cdn` opts into the ESM default; a provided `cdn` stays on the classic UMD path unless it
+  // explicitly points at an ESM entry. This keeps every previously-working `cdn` URL working.
+  if (cdn === undefined || isEsmUrl(cdn)) {
+    return `
     <!-- Load the Scalar API Reference -->
     <script type="module"${nonceAttr}>
       import { createApiReference } from '${cdn ?? DEFAULT_ESM_CDN}'
 
       createApiReference('#app', ${configString})
+    </script>`
+  }
+
+  return `
+    <!-- Load the Script -->
+    <script src="${cdn}"${nonceAttr}></script>
+
+    <!-- Initialize the Scalar API Reference -->
+    <script type="text/javascript"${nonceAttr}>
+      Scalar.createApiReference('#app', ${configString})
     </script>`
 }
 
