@@ -23,6 +23,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "pnpm playground",
+    "playground": "cd playground && vite",
     "test": "vitest --run",
     "types:check": "tsgo --noEmit"
   },
@@ -49,7 +51,13 @@
     "yaml": "catalog:*"
   },
   "devDependencies": {
+    "@scalar/themes": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*",
+    "@tailwindcss/vite": "catalog:*",
     "@types/node": "catalog:*",
-    "vite": "catalog:*"
+    "@vitejs/plugin-vue": "catalog:*",
+    "tailwindcss": "catalog:*",
+    "vite": "catalog:*",
+    "vue": "catalog:*"
   }
 }

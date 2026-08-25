@@ -236,6 +236,14 @@
     "packages/openapi-types": {
       "entry": ["src/index.ts", "src/helpers/index.ts"]
     },
+    "packages/openapi-validator": {
+      "entry": [
+        "src/index.ts",
+        //
+        "playground/src/main.ts",
+        "playground/vite.config.ts"
+      ]
+    },
     "packages/sidebar": {
       "entry": [
         "src/index.ts",
