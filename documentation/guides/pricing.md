@@ -232,12 +232,12 @@
 </section>
 
 
-## Overview
-
 <div class="pricing-billing" role="radiogroup" aria-label="Billing period">
   <label for="billing-monthly"><input type="radio" name="billing" id="billing-monthly" checked>Monthly</label>
   <label for="billing-yearly"><input type="radio" name="billing" id="billing-yearly">Yearly<span class="pricing-billing-badge">2 months free</span></label>
 </div>
+
+## Overview
 
 <div class="mobiletabs">
   <div class="mobiletabs-container" role="radiogroup" aria-label="Select a plan">
@@ -1005,7 +1005,8 @@
   width: fit-content;
   gap: 4px;
   align-items: center;
-  margin: 4px 0 20px;
+  /* The plan cards above supply the top gap; this keeps the Overview heading off the toggle. */
+  margin: 0 0 32px;
   padding: 4px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
