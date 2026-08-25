@@ -20,7 +20,7 @@ The short version: ReadMe is a hosted developer hub with the best built-in API a
 | Git sync | Yes | Yes, bi-directional |
 | Versioning | Yes | Yes — 1 version free, unlimited on Pro |
 | Framework integrations | 35 | None |
-| Entry paid tier | $72/month | $250/month, billed annually |
+| Entry paid tier | $150/month | $250/month, billed annually |
 
 ## Where ReadMe is stronger
 
@@ -42,7 +42,7 @@ Both products render an OpenAPI document into a documentation site with an inter
 
 ## SDKs
 
-Scalar generates SDKs natively in TypeScript, Python, C#, Java, PHP, and Go from the same OpenAPI document that renders your reference, in the same run, so your docs and your client libraries cannot describe different APIs. Each language target is a published [$100/month add-on](../guides/pricing.md).
+Scalar generates SDKs natively in TypeScript, Python, C#, Java, PHP, and Go from the same OpenAPI document that renders your reference, in the same run, so your docs and your client libraries cannot describe different APIs. One language target is included with every plan; additional targets are a published [$150/month each](../guides/pricing.md).
 
 ReadMe's SDK story is narrower. Their open-source [`api` package](https://api.readme.dev/docs/getting-started) generates a TypeScript or JavaScript client from an OpenAPI definition — but it is a CLI your API consumers run themselves, in one language family, not a managed pipeline that generates, versions, and publishes packages to registries on your behalf. Teams on ReadMe who want multi-language SDKs typically add a third-party generator such as [APIMatic](https://www.apimatic.io/integrations/readme), which brings back the separate-vendor problem: your documentation's code samples then depend on a company you did not choose.
 
@@ -56,7 +56,7 @@ Both products ship this. ReadMe generates [an MCP server from your documentation
 
 ## Pricing
 
-Scalar: Free at $0, [Pro at $72/month](../guides/pricing.md), SDK language targets at $100/month each, Enterprise custom.
+Scalar: Free at $0, [Pro at $150/month](../guides/pricing.md) with one SDK target and 5 editor seats included, Business at $600/month with SSO and 10 seats, additional SDK targets at $150/month each, Enterprise custom.
 
 ReadMe: [Starter at $0, Pro at $250/month billed annually, Enterprise from $3,000/month](https://readme.com/pricing), with Ask AI as a $150/month add-on. Team collaboration, private docs, custom MDX, and CSS/HTML all start at Pro, so the realistic entry point for a team is $250/month. You may find older ReadMe pricing quoted around the web at $99/month; that reflects a previous pricing model, so check their current page.
 
@@ -66,7 +66,7 @@ Both companies publish their numbers, which we appreciate — you can work out w
 
 **Choose ReadMe if** built-in API analytics and per-developer observability are what you are buying, or their free tier already covers what you need.
 
-**Choose Scalar if** you want a documentation layer you own outright under MIT, you want docs mounted inside your existing application rather than only on a hosted site, you want SDKs in six languages generated from the same OpenAPI document as your docs, you want a real API client alongside your reference, or you want a paid tier that starts at $72 rather than $250.
+**Choose Scalar if** you want a documentation layer you own outright under MIT, you want docs mounted inside your existing application rather than only on a hosted site, you want SDKs in six languages generated from the same OpenAPI document as your docs, you want a real API client alongside your reference, or you want a paid tier that starts at $150 rather than $250.
 
 [Start free](https://dashboard.scalar.com/register) or [talk to us](https://scalar.cal.com/).
 

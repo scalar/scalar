@@ -394,14 +394,16 @@ Read the [Stainless migration guide](../../migration/stainless.md) for the pract
 
 ## Plans
 
-SDK generation is billed per target, at $100 per month or $1,000 per year.
+Every plan includes one SDK target, and pricing scales with the size of your SDK — measured by the number of endpoints in your OpenAPI document. Additional targets are $150 per month each.
 
-| | Free | Pro | Enterprise |
-| --- | --- | --- | --- |
-| SDKs | 1 | 3 | Unlimited |
-| Targets | 1 | Billed per target | Billed per target |
-| Every target free during your trial | Included | Included | Included |
-| SSO/SAML, RBAC, priority support, and dedicated Slack or Teams support | - | - | Included |
+| | Free | Pro | Business | Enterprise |
+| --- | --- | --- | --- | --- |
+| SDK targets included | 1 | 1 | 1 | Custom |
+| Included SDK size | Up to 25 endpoints | 100 endpoints | 250 endpoints | Custom |
+| Additional targets | - | $150 / month each | $150 / month each, volume discounts | Volume discounts |
+| Every target free during your trial | Included | Included | Included | Included |
+| SSO/SAML | - | - | Included | Included |
+| RBAC, priority support, and dedicated Slack or Teams support | - | - | - | Included |
 
 A target becomes billable when you save a version and queue its build. Drafts are never billed. [See the full comparison](../pricing.md) for SDKs and the other Scalar products.
 

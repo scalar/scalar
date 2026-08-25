@@ -14,40 +14,42 @@ This is perfect for testing and exploring the feature before committing to produ
 
 ## Production Pricing
 
-For production deployments, Agent requires a [Scalar Pro](../pricing.md) subscription. Pricing depends on how you use Agent:
+For production deployments, Agent requires a [Scalar Pro or Business](../pricing.md) subscription. Pricing depends on how you use Agent:
 
 ### Keys
 
 When you use Agent in API References or Docs, usage is billed by message count.
 
-| Plan       | Price              | Messages Included | Additional Messages |
-| ---------- | ------------------ | ----------------- | ------------------- |
-| Scalar Pro | $24/seat/month (3-seat minimum, $72/month base) | 250 messages      | $0.02 per message   |
+| Plan            | Price                          | Messages Included | Additional Messages |
+| --------------- | ------------------------------ | ----------------- | ------------------- |
+| Scalar Pro      | $150/month (5 seats included)  | 250 messages      | $0.02 per message   |
+| Scalar Business | $600/month (10 seats included) | 1,000 messages    | $0.02 per message   |
 
 #### Pricing Example
 
 Here is what you would pay for different message levels under the Scalar Pro plan:
 
-| Total Messages | Included | Additional | Total Price                      |
-| -------------- | -------- | ---------- | -------------------------------- |
-| 250            | 250      | 0          | $72 (base price)                 |
-| 1,000          | 250      | 750        | $72 + (750 × $0.02) = **$87**    |
-| 5,000          | 250      | 4,750      | $72 + (4,750 × $0.02) = **$167** |
+| Total Messages | Included | Additional | Total Price                       |
+| -------------- | -------- | ---------- | --------------------------------- |
+| 250            | 250      | 0          | $150 (base price)                 |
+| 1,000          | 250      | 750        | $150 + (750 × $0.02) = **$165**   |
+| 5,000          | 250      | 4,750      | $150 + (4,750 × $0.02) = **$245** |
 
 ### agent.scalar.com
 
 [agent.scalar.com](https://agent.scalar.com) is billed by token usage (input and output tokens combined across your requests).
 
-| Plan       | Price              | Tokens Included | Additional Input | Additional Output |
-| ---------- | ------------------ | --------------- | ---------------- | ----------------- |
-| Scalar Pro | $24/seat/month (3-seat minimum, $72/month base) | 2,000,000       | $2 / Million     | $10 / Million     |
+| Plan            | Price                          | Tokens Included | Additional Input | Additional Output |
+| --------------- | ------------------------------ | --------------- | ---------------- | ----------------- |
+| Scalar Pro      | $150/month (5 seats included)  | 2,000,000       | $2 / Million     | $10 / Million     |
+| Scalar Business | $600/month (10 seats included) | 8,000,000       | $2 / Million     | $10 / Million     |
 
 - **Included:** 2,000,000 tokens per billing period.
 - **Overage:** $0.000002 per additional input token ($2 / Million input tokens), $0.00001 per additional output token ($10 / Million output tokens).
 
 ### What Is a Seat?
 
-A seat is one team member with editor access. The Pro plan has a 3-seat minimum.
+A seat is one team member with editor access. The Pro plan includes 5 seats and the Business plan includes 10.
 
 ### What Are "Member, Usage, and Service Fees"?
 
