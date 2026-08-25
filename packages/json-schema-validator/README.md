@@ -78,6 +78,12 @@ validate(document, schema, {
 })
 ```
 
+Formats are applied when a schema is compiled, and `validate` caches the compiled
+schema by identity. So `formats` only takes effect the first time it sees a given
+schema object — later calls reuse the validator built from that first set. When
+different documents need different formats for the same schema, build a validator
+per format set with `createValidator` instead.
+
 ### Throw on error
 
 ```ts
