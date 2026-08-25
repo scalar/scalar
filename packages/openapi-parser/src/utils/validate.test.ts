@@ -227,4 +227,38 @@ paths: {}
     expect(result.valid).toBe(true)
     expect(document.info.version).toBe('0.1.0')
   })
+
+  it('accepts a path parameter declared through a $ref', async () => {
+    // Path-parameter semantics run on the resolved document, so a parameter
+    // referenced via $ref must not be reported as an undefined path parameter.
+    const result = await validate({
+      openapi: '3.1.0',
+      info: { title: 'Referenced path parameter', version: '1.0.0' },
+      paths: {
+        '/pets/{petId}': {
+          get: {
+            parameters: [{ $ref: '#/components/parameters/PetId' }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        parameters: {
+          PetId: { name: 'petId', in: 'path', required: true, schema: { type: 'string' } },
+        },
+      },
+    })
+
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+  })
+
+  it('returns a graceful error for a top-level array document', async () => {
+    // A document with no entrypoint (a top-level array) must report the same
+    // empty/invalid error, not throw.
+    const result = await validate('[1, 2, 3]')
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toMatchObject([{ message: "Can't find JSON, YAML or filename in data." }])
+  })
 })

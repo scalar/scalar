@@ -1,7 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
-import { validate as validateDocument } from '@scalar/openapi-validator'
+import { validate as validateDocument, validatePathParameters } from '@scalar/openapi-validator'
 
-import type { OpenApiVersion } from '@/configuration'
+import { ERRORS, type OpenApiVersion } from '@/configuration'
 import type {
   ErrorObject,
   Filesystem,
@@ -52,6 +52,16 @@ export function validate(
     const filesystem = makeFilesystem(value)
     const entrypoint = getEntrypoint(filesystem)
 
+    // A filesystem without an entrypoint (for example a top-level array) has no
+    // document to validate.
+    if (!entrypoint || entrypoint.specification === undefined || entrypoint.specification === null) {
+      if (options?.throwOnError) {
+        throw new Error(ERRORS.EMPTY_OR_INVALID)
+      }
+
+      return Promise.resolve({ valid: false, errors: [{ message: ERRORS.EMPTY_OR_INVALID }] })
+    }
+
     const specification = entrypoint.specification as UnknownObject
 
     // Be lenient about a missing `info.version`: default it before validation so
@@ -61,23 +71,29 @@ export function validate(
       specification.info.version = '0.1.0'
     }
 
-    // Schema, version and path-parameter validation (no reference resolution).
-    // Runs first so empty/invalid input reports the same error, in the same
-    // order, including when `throwOnError` is set.
-    const outcome = validateDocument(specification, options)
+    // Schema and version validation only (no reference resolution). Runs first so
+    // empty/invalid input reports the same error, in the same order, including
+    // when `throwOnError` is set. Path-parameter semantics are skipped here and
+    // run below on the resolved document, so parameters declared via `$ref` are
+    // seen (validating the unresolved document would report them as missing).
+    const outcome = validateDocument(specification, { ...options, skipPathParameterValidation: true })
 
-    // Resolve references whenever the document passed schema validation, even
-    // when path-parameter semantics failed, so reference-resolution errors are
-    // reported alongside those semantic errors. This matches the previous
-    // validator, which merged both error sets. `outcome.schema` is only set once
-    // schema and version validation succeeded.
+    // Resolve references whenever the document passed schema validation.
+    // `outcome.schema` is only set once schema and version validation succeeded.
     const passedSchemaValidation = outcome.schema !== undefined
     const resolved = passedSchemaValidation ? resolveReferences(filesystem, options) : undefined
     const referenceErrors: ErrorObject[] = resolved?.errors ?? []
     const schema = (resolved?.schema ?? outcome.schema) as StrictOpenApiDocument | undefined
 
-    const errors = [...(outcome.errors ?? []), ...referenceErrors]
-    const valid = outcome.valid && referenceErrors.length === 0
+    // Path-template semantics run on the resolved document (schema validation
+    // stays on the unresolved one to avoid following circular references). This
+    // matches the previous validator, which merged reference and semantic errors.
+    const semanticErrors = passedSchemaValidation
+      ? validatePathParameters((schema ?? specification) as UnknownObject)
+      : []
+
+    const errors = [...(outcome.errors ?? []), ...referenceErrors, ...semanticErrors]
+    const valid = outcome.valid && referenceErrors.length === 0 && semanticErrors.length === 0
 
     if (!valid) {
       return Promise.resolve({

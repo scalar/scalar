@@ -8,7 +8,19 @@ import { OpenApiSpecifications, type OpenApiVersion } from '@/specifications'
 import type { ThrowOnErrorOption, ValidationOutcome } from '@/types'
 import { validatePathParameters } from '@/validate-path-parameters'
 
-export type ValidateOptions = ThrowOnErrorOption
+export type ValidateOptions = ThrowOnErrorOption & {
+  /**
+   * Skip the path-parameter semantic checks.
+   *
+   * These checks need a fully resolved document, because a path parameter can be
+   * declared through a `$ref`. Callers that resolve references themselves — like
+   * `@scalar/openapi-parser` — skip them here and run `validatePathParameters` on
+   * the resolved document instead.
+   *
+   * @default false
+   */
+  skipPathParameterValidation?: boolean
+}
 
 /**
  * Core validators, compiled once per OpenAPI version and reused across calls.
@@ -90,11 +102,15 @@ export function validate(document: string | AnyObject, options?: ValidateOptions
       return { valid: false, version, errors: result.errors }
     }
 
-    // Path-template semantics that the JSON schema cannot express
-    const semanticErrors = validatePathParameters(specification)
+    // Path-template semantics that the JSON schema cannot express. These need a
+    // fully resolved document (a path parameter can be declared via `$ref`), so
+    // callers that resolve references run them separately and skip them here.
+    if (!options?.skipPathParameterValidation) {
+      const semanticErrors = validatePathParameters(specification)
 
-    if (semanticErrors.length > 0) {
-      return { valid: false, version, errors: semanticErrors, schema: specification }
+      if (semanticErrors.length > 0) {
+        return { valid: false, version, errors: semanticErrors, schema: specification }
+      }
     }
 
     return { valid: true, version, errors: [], schema: specification }
