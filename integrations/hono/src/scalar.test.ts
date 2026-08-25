@@ -282,9 +282,9 @@ describe('Scalar', () => {
 
     it('serves the OpenAPI document as JSON at the mount point', async () => {
       const app = new Hono()
-      app.route('/reference', Scalar.serve({ document }))
+      app.route('/scalar', Scalar.serve({ document }))
 
-      const response = await app.request('/reference/openapi.json')
+      const response = await app.request('/scalar/openapi.json')
       expect(response.status).toBe(200)
       expect(response.headers.get('content-type')).toContain('application/json')
       expect(await response.json()).toEqual(document)
@@ -292,50 +292,50 @@ describe('Scalar', () => {
 
     it('renders the reference at the mount point, pointing at the served document', async () => {
       const app = new Hono()
-      app.route('/reference', Scalar.serve({ document }))
+      app.route('/scalar', Scalar.serve({ document }))
 
-      const response = await app.request('/reference')
+      const response = await app.request('/scalar')
       expect(response.status).toBe(200)
       expect(response.headers.get('content-type')).toContain('text/html')
 
       const text = await response.text()
       expect(text).toContain('<title>Scalar API Reference</title>')
       // The reference points at the document we serve alongside it
-      expect(text).toContain('/reference/openapi.json')
+      expect(text).toContain('/scalar/openapi.json')
       // The document is referenced by URL, not inlined
       expect(text).not.toContain('Serve API')
     })
 
     it('serves the document at a custom specPath', async () => {
       const app = new Hono()
-      app.route('/reference', Scalar.serve({ document, specPath: '/spec.json' }))
+      app.route('/scalar', Scalar.serve({ document, specPath: '/spec.json' }))
 
-      const json = await app.request('/reference/spec.json')
+      const json = await app.request('/scalar/spec.json')
       expect(json.status).toBe(200)
       expect(await json.json()).toEqual(document)
 
-      const html = await (await app.request('/reference')).text()
-      expect(html).toContain('/reference/spec.json')
+      const html = await (await app.request('/scalar')).text()
+      expect(html).toContain('/scalar/spec.json')
     })
 
     it('resolves the document from a function with access to the context', async () => {
       const app = new Hono()
       app.route(
-        '/reference',
+        '/scalar',
         Scalar.serve({
           document: (c) => ({ ...document, info: { ...document.info, title: c.req.path } }),
         }),
       )
 
-      const response = await app.request('/reference/openapi.json')
-      expect(await response.json()).toMatchObject({ info: { title: '/reference/openapi.json' } })
+      const response = await app.request('/scalar/openapi.json')
+      expect(await response.json()).toMatchObject({ info: { title: '/scalar/openapi.json' } })
     })
 
     it('passes through reference options like pageTitle and theme', async () => {
       const app = new Hono()
-      app.route('/reference', Scalar.serve({ document, pageTitle: 'Serve Title', theme: 'kepler' }))
+      app.route('/scalar', Scalar.serve({ document, pageTitle: 'Serve Title', theme: 'kepler' }))
 
-      const text = await (await app.request('/reference')).text()
+      const text = await (await app.request('/scalar')).text()
       expect(text).toContain('<title>Serve Title</title>')
       // A theme was provided, so the custom Hono theme CSS is not injected
       expect(text).not.toContain('--scalar-color-1: rgba(255, 255, 245, .86);')
@@ -343,9 +343,9 @@ describe('Scalar', () => {
 
     it('includes the hono integration marker and the custom theme by default', async () => {
       const app = new Hono()
-      app.route('/reference', Scalar.serve({ document }))
+      app.route('/scalar', Scalar.serve({ document }))
 
-      const text = await (await app.request('/reference')).text()
+      const text = await (await app.request('/scalar')).text()
       expect(text).toContain('_integration": "hono"')
       expect(text).toContain('--scalar-color-1: rgba(255, 255, 245, .86);')
     })

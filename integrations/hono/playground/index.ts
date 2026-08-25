@@ -198,9 +198,9 @@ app.get(
 )
 
 // One line to serve the reference and the OpenAPI document together.
-// Renders the reference at `/reference` and the document at `/reference/openapi.json`.
+// Renders the reference at `/scalar` and the document at `/scalar/openapi.json`.
 app.route(
-  '/reference',
+  '/scalar',
   Scalar.serve({
     document: () =>
       app.getOpenAPI31Document({

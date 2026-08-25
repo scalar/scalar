@@ -48,9 +48,9 @@ const app = new OpenAPIHono()
 
 // ... register your routes ...
 
-// Renders the reference at /reference and serves the document at /reference/openapi.json
+// Renders the reference at /scalar and serves the document at /scalar/openapi.json
 app.route(
-  '/reference',
+  '/scalar',
   Scalar.serve({
     document: () =>
       app.getOpenAPI31Document({

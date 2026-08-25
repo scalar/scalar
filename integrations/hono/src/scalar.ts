@@ -121,7 +121,7 @@ export type ServeConfiguration<E extends Env> = Omit<Partial<ApiReferenceConfigu
    *
    * @example
    * ```ts
-   * app.route('/reference', Scalar.serve({
+   * app.route('/scalar', Scalar.serve({
    *   document: () => app.getOpenAPI31Document({ openapi: '3.1.0', info: { title: 'Example', version: 'v1' } }),
    * }))
    * ```
@@ -148,8 +148,8 @@ export type ServeConfiguration<E extends Env> = Omit<Partial<ApiReferenceConfigu
  * ```ts
  * import { Scalar } from '@scalar/hono-api-reference'
  *
- * // Serves the reference at `/reference` and the document at `/reference/openapi.json`
- * app.route('/reference', Scalar.serve({ document: myOpenApiDocument }))
+ * // Serves the reference at `/scalar` and the document at `/scalar/openapi.json`
+ * app.route('/scalar', Scalar.serve({ document: myOpenApiDocument }))
  * ```
  */
 const scalarServe = <E extends Env>(options: ServeConfiguration<E>): Hono<E> => {
