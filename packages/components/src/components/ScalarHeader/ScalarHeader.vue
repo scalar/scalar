@@ -56,14 +56,12 @@ const hasCenterSlot = computed(() => Boolean(slots.default))
       )
     ">
     <div
-      v-bind="
-        cx(
-          'flex items-center gap-1',
-          hasCenterSlot
-            ? 'shrink-0 justify-start'
-            : 'min-w-0 flex-1 justify-start',
-        )
-      ">
+      :class="[
+        'flex items-center gap-1',
+        hasCenterSlot
+          ? 'shrink-0 justify-start'
+          : 'min-w-0 flex-1 justify-start',
+      ]">
       <slot name="start" />
     </div>
     <div
