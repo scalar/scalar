@@ -197,6 +197,20 @@ app.get(
   }),
 )
 
+// One line to serve the reference and the OpenAPI document together.
+// Renders the reference at `/reference` and the document at `/reference/openapi.json`.
+app.route(
+  '/reference',
+  Scalar.serve({
+    document: () =>
+      app.getOpenAPI31Document({
+        openapi: '3.1.0',
+        info: { title: 'Example', version: 'v1' },
+      }),
+    pageTitle: 'Hono API Reference (Scalar.serve)',
+  }),
+)
+
 // Markdown for LLMs
 const content = app.getOpenAPI31Document({
   openapi: '3.1.0',

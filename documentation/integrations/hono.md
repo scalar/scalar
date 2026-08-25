@@ -36,6 +36,35 @@ export default app
 
 The Hono middleware takes our universal configuration object, [read more about configuration](../configuration.md) in the core package README.
 
+### Serve the reference and document together
+
+With the middleware above you serve the OpenAPI document on one route and point the reference at it on another. If you generate your document with [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi), `Scalar.serve` does both from a single mount, so you do not have to add a separate document route and keep its `url` in sync:
+
+```typescript
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { Scalar } from '@scalar/hono-api-reference'
+
+const app = new OpenAPIHono()
+
+// ... register your routes ...
+
+// Renders the reference at /reference and serves the document at /reference/openapi.json
+app.route(
+  '/reference',
+  Scalar.serve({
+    document: () =>
+      app.getOpenAPI31Document({
+        openapi: '3.1.0',
+        info: { title: 'Example', version: 'v1' },
+      }),
+  }),
+)
+
+export default app
+```
+
+`document` can be the OpenAPI object itself or a function that returns it. The function receives the Hono `Context`, so you can read `c.env` or `c.req` and build the document per request. Pass any other [configuration option](../configuration.md) (such as `theme` or `pageTitle`) alongside `document`, and change where the JSON is served with `specPath` (defaults to `/openapi.json`).
+
 ### Themes
 
 The middleware comes with a custom theme for Hono. You can use one of [the other predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
