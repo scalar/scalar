@@ -341,6 +341,9 @@ Commands:
   preview [options] [config]  Preview scalar guides
   publish [options]           Publish new build for a github sync project that
                               is not linked.
+  rollback [options]          Roll the live deployment back to a previously
+                              deployed build.
+  deployments                 Inspect a project deployment history.
   upgrade [config]            Upgrade scalar project
   help [command]              display help for command
 ```
@@ -420,6 +423,45 @@ Options:
   -p, --preview          Publish in preview mode
   -g, --github           Publish from your linked remote GitHub repository
   -h, --help             display help for command
+```
+
+### rollback
+```
+Usage: scalar project rollback [options]
+
+Roll the live deployment back to a previously deployed build.
+
+Options:
+  -s, --slug [slug]       Project slug found in Scalar Dashboard
+  -t, --to <publishUid>   Roll back to a specific build id (defaults to the next
+                          older deployed build)
+  -y, --yes               Skip the confirmation prompt
+  -h, --help              display help for command
+```
+
+### deployments
+```
+Usage: scalar project deployments [options] [command]
+
+Inspect a project deployment history.
+
+Options:
+  -h, --help      display help for command
+
+Commands:
+  list [options]  List the production deployment history for a project.
+  help [command]  display help for command
+```
+
+#### deployments list
+```
+Usage: scalar project deployments list [options]
+
+List the production deployment history for a project.
+
+Options:
+  -s, --slug [slug]  Project slug found in Scalar Dashboard
+  -h, --help         display help for command
 ```
 
 ### upgrade
@@ -732,6 +774,7 @@ Options:
   --namespace <namespace>  Scalar team namespace
   --version <version>      API version (e.g. 0.1.0)
   --private                Make API private (default: false)
+  --force                  Force override an existing version (default: false)
   --bundle                 Bundle all external references before uploading
   --treeShake              Remove unused components from the bundled document
   --urlMap                 Generate a map of resolved URLs when bundling the
