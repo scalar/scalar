@@ -116,7 +116,11 @@ export function renderApiReference(
      * Which build to load. The modern, code-split ESM build is the default.
      *
      * Pass a URL string to load a specific ESM build, or `false` to fall back to the classic UMD
-     * bundle (equivalent to setting `cdn`). When set, `bundle` takes precedence over `cdn`.
+     * bundle. When set, `bundle` takes precedence over both `cdn` and the `nonce` fallback.
+     *
+     * When a `nonce` is set (a strict, nonce-based CSP) the UMD bundle is used by default, because the
+     * ESM build's `import`-loaded chunks cannot be nonced. Pass `bundle: true` to force the ESM build
+     * if your CSP uses `'strict-dynamic'`.
      */
     bundle?: string | boolean
   },
@@ -214,13 +218,16 @@ export function serializeConfigToJs(configuration: Record<string, unknown>): str
  * `createApiReference` directly (from `DEFAULT_ESM_CDN`), so the browser only downloads the lazy
  * chunks the page needs rather than the whole monolithic UMD bundle before it can paint.
  *
- * Opt into the classic UMD bundle — loaded via `<script src>` and `Scalar.createApiReference`, exactly
- * as before — by setting `cdn` (for example to pin a version) or `bundle: false`. Set `bundle` to a
- * URL string to load a specific ESM build. `bundle` takes precedence over `cdn`.
+ * The classic UMD bundle — loaded via `<script src>` and `Scalar.createApiReference`, exactly as
+ * before — is used instead when it is the safer choice or is explicitly requested: when a `nonce` is
+ * set (see below), when a `cdn` URL is given (for example to pin a version), or when `bundle: false`.
+ * Set `bundle` to `true` or a URL string to force the ESM build in those cases; `bundle` takes
+ * precedence over both `cdn` and the `nonce` fallback.
  *
- * When a `nonce` is provided it is applied to the script tag(s) so they are allowed under a strict
- * `script-src` Content Security Policy. For the ESM build the bundle then loads its chunks through the
- * module loader, so a strict policy also needs `'strict-dynamic'` (or the CDN host allow-listed).
+ * A `nonce` signals a strict, nonce-based `script-src` CSP. The ESM build pulls its chunks with native
+ * `import`, which cannot carry a nonce, so those requests are blocked under such a policy unless it
+ * also has `'strict-dynamic'` (or allow-lists the CDN host). The single-file UMD bundle has no such
+ * follow-up requests, so it is the safe default when a `nonce` is present.
  */
 export function getScriptTags(
   configuration: Record<string, unknown>,
@@ -232,9 +239,10 @@ export function getScriptTags(
 
   const nonceAttr = nonceAttribute(nonce)
 
-  // The ESM build is the default. Fall back to the classic UMD bundle only when it is explicitly
-  // requested: `bundle: false`, or a `cdn` URL with no `bundle` set.
-  const useUmd = bundle === false || (bundle === undefined && cdn !== undefined)
+  // The ESM build is the default, but fall back to the single-file UMD bundle when it is the safe or
+  // requested choice: a `nonce` (strict nonce-based CSP, where the ESM build's `import`-loaded chunks
+  // cannot be nonced), a `cdn` URL, or `bundle: false`. An explicit `bundle` (true/URL) always wins.
+  const useUmd = bundle === false || (bundle === undefined && (cdn !== undefined || Boolean(nonce)))
 
   if (!useUmd) {
     const esmUrl = typeof bundle === 'string' ? bundle : DEFAULT_ESM_CDN

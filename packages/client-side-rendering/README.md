@@ -52,8 +52,13 @@ To use the classic UMD bundle instead (loaded via `<script src>` and the `window
 
 You can also pass `bundle: 'https://.../esm.js'` to load a specific ESM build.
 
-Under a strict `script-src` Content Security Policy the ESM build loads its chunks through the module
-loader, so add `'strict-dynamic'` (or allow-list the CDN host).
+#### Content Security Policy
+
+Passing a `nonce` implies a strict, nonce-based CSP. The ESM build loads its chunks with native
+`import`, which cannot carry a nonce, so those requests would be blocked unless your policy also has
+`'strict-dynamic'`. For that reason, **the UMD bundle is used automatically whenever a `nonce` is
+set** — it is a single nonced `<script>` with no follow-up requests. If your CSP uses
+`'strict-dynamic'` (or allow-lists the CDN host), pass `bundle: true` to opt back into the ESM build.
 
 ## Community
 

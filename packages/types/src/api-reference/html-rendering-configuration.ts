@@ -19,8 +19,12 @@ export type HtmlRenderingConfiguration = Partial<ApiReferenceConfigurationWithMu
    * Which build to load. The modern, code-split ESM build is the default, because it lets less
    * JavaScript block the first render.
    *
-   * Pass a URL string to load a specific ESM build, or `false` to fall back to the classic UMD bundle
-   * (equivalent to setting `cdn`). When set, `bundle` takes precedence over `cdn`.
+   * Pass a URL string to load a specific ESM build, or `false` to fall back to the classic UMD bundle.
+   * When set, `bundle` takes precedence over both `cdn` and the `nonce` fallback.
+   *
+   * When a `nonce` is set (a strict, nonce-based CSP) the UMD bundle is used by default, because the
+   * ESM build's `import`-loaded chunks cannot be nonced. Pass `bundle: true` to force the ESM build if
+   * your CSP uses `'strict-dynamic'`.
    */
   bundle?: string | boolean
   /**

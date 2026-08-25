@@ -149,15 +149,23 @@ describe('html-rendering', () => {
       expect(html).not.toContain('"bundle"')
     })
 
-    it('applies the nonce to the module script and style tags', () => {
+    it('defaults to the classic UMD bundle when a nonce is set, and applies the nonce', () => {
+      // A nonce implies a strict CSP, where the ESM build's import-loaded chunks cannot be nonced,
+      // so the single-file UMD bundle is the safe default.
       const html = renderApiReference({ config: { customCss: 'body { color: red }' }, nonce: 'r4nd0m' })
-      // Module script that loads the bundle and initializes it
+      expect(html).toContain(
+        '<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference" nonce="r4nd0m"></script>',
+      )
+      expect(html).toContain('<script type="text/javascript" nonce="r4nd0m">')
+      expect(html).toContain('<style type="text/css" nonce="r4nd0m">')
+    })
+
+    it('still uses the ESM build with a nonce when bundle is explicitly enabled', () => {
+      const html = renderApiReference({ config: {}, nonce: 'r4nd0m', bundle: true })
       expect(html).toContain('<script type="module" nonce="r4nd0m">')
       expect(html).toContain(
         "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
       )
-      // Inline style
-      expect(html).toContain('<style type="text/css" nonce="r4nd0m">')
     })
 
     it('emits a csp-nonce meta tag so the bundle can nonce its injected styles', () => {
@@ -204,6 +212,12 @@ describe('html-rendering', () => {
       const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}), undefined, undefined, false)
       expect(tags).toContain('<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>')
       expect(tags).toContain("Scalar.createApiReference('#app'")
+    })
+
+    it('falls back to the classic UMD bundle when a nonce is set', () => {
+      const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}), undefined, 'abc123')
+      expect(tags).toContain('<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference" nonce="abc123">')
+      expect(tags).toContain('<script type="text/javascript" nonce="abc123">')
     })
 
     it('uses custom CDN when provided', () => {

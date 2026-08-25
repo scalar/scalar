@@ -10,4 +10,4 @@ The generated HTML now loads the code-split ESM build (`.../@scalar/api-referenc
 
 To keep the classic UMD bundle (loaded via `<script src>` and the `window.Scalar` global), set `cdn` to a UMD URL — for example to pin a version — or pass `bundle: false`. You can also pass `bundle: 'https://.../esm.js'` to load a specific ESM build.
 
-Under a strict `script-src` Content Security Policy the ESM build loads its chunks through the module loader, so add `'strict-dynamic'` (or allow-list the CDN host).
+When a `nonce` is set (a strict, nonce-based CSP) the UMD bundle is used automatically, because the ESM build's `import`-loaded chunks cannot be nonced. Pass `bundle: true` to force the ESM build if your CSP uses `'strict-dynamic'`.
