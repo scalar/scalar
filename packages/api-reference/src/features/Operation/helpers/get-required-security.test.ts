@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getRequiredScopeGroups, getRequiredSecurity } from './get-required-security'
+import { getEffectiveScopes, getRequiredScopeGroups, getRequiredSecurity } from './get-required-security'
 
 describe('getRequiredSecurity', () => {
   describe('fallback (operation.security ?? document.security)', () => {
@@ -310,6 +310,44 @@ describe('getRequiredSecurity', () => {
         },
       )
       expect(getRequiredScopeGroups(result)).toEqual([['read:items']])
+    })
+  })
+
+  describe('getEffectiveScopes', () => {
+    it('keeps scopes for oauth2 schemes', () => {
+      expect(
+        getEffectiveScopes({ name: 'oauth2', scheme: { type: 'oauth2', flows: {} }, scopes: ['read:items'] }),
+      ).toEqual(['read:items'])
+    })
+
+    it('keeps scopes for openIdConnect schemes', () => {
+      expect(
+        getEffectiveScopes({
+          name: 'oidc',
+          scheme: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com' },
+          scopes: ['read:items'],
+        }),
+      ).toEqual(['read:items'])
+    })
+
+    it('drops scope-shaped strings for http schemes', () => {
+      expect(
+        getEffectiveScopes({ name: 'bearerToken', scheme: { type: 'http', scheme: 'bearer' }, scopes: ['some:scope'] }),
+      ).toEqual([])
+    })
+
+    it('drops scope-shaped strings for apiKey schemes', () => {
+      expect(
+        getEffectiveScopes({
+          name: 'apiKey',
+          scheme: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+          scopes: ['some:scope'],
+        }),
+      ).toEqual([])
+    })
+
+    it('keeps scopes for an unresolved scheme, whose type is unknown', () => {
+      expect(getEffectiveScopes({ name: 'unknown', scheme: undefined, scopes: ['some:scope'] })).toEqual(['some:scope'])
     })
   })
 })
