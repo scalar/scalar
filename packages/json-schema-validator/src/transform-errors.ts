@@ -1,5 +1,6 @@
 import type { AnyObject } from '@scalar/types/utils'
 
+import { deduplicateErrors } from '@/deduplicate-errors'
 import { type AjvError, prettifyAjvErrors } from '@/prettify-ajv-errors'
 import type { ErrorObject } from '@/types'
 
@@ -52,17 +53,5 @@ export function transformErrors(specification: AnyObject, errors: string | AjvEr
   }
 
   // Deduplicate errors with the same message and path
-  const seen = new Set<string>()
-
-  return processedErrors.filter((error) => {
-    const key = `${error.message}||${error.path}`
-
-    if (seen.has(key)) {
-      return false
-    }
-
-    seen.add(key)
-
-    return true
-  })
+  return deduplicateErrors(processedErrors)
 }

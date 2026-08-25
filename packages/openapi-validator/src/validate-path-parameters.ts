@@ -1,3 +1,5 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+import { deduplicateErrors } from '@scalar/json-schema-validator'
 import type { AnyObject } from '@scalar/types/utils'
 
 import type { ErrorObject } from '@/types'
@@ -23,12 +25,12 @@ export function validatePathParameters(specification: AnyObject): ErrorObject[] 
   const errors: ErrorObject[] = []
 
   for (const [pathName, pathItem] of Object.entries(paths)) {
-    if (!isRecord(pathItem)) {
+    if (!isObject(pathItem)) {
       continue
     }
 
     const operations = Object.entries(pathItem).filter(
-      ([key, value]) => OPERATION_KEYS.has(key) && isRecord(value),
+      ([key, value]) => OPERATION_KEYS.has(key) && isObject(value),
     ) as Array<[string, AnyObject]>
 
     // Preserve the repo's current behaviour for empty path items.
@@ -97,7 +99,7 @@ function getPathParameters(parameters: unknown, pathPrefix: string[]): PathParam
   }
 
   return parameters.flatMap((parameter, index) => {
-    if (!isRecord(parameter) || parameter.in !== 'path' || typeof parameter.name !== 'string') {
+    if (!isObject(parameter) || parameter.in !== 'path' || typeof parameter.name !== 'string') {
       return []
     }
 
@@ -108,25 +110,4 @@ function getPathParameters(parameters: unknown, pathPrefix: string[]): PathParam
       },
     ]
   })
-}
-
-function deduplicateErrors(errors: ErrorObject[]) {
-  const seen = new Set<string>()
-
-  return errors.filter((error) => {
-    const pathKey = Array.isArray(error.path) ? error.path.join('.') : (error.path ?? '')
-    const key = `${error.message}||${pathKey}`
-
-    if (seen.has(key)) {
-      return false
-    }
-
-    seen.add(key)
-
-    return true
-  })
-}
-
-function isRecord(value: unknown): value is AnyObject {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
