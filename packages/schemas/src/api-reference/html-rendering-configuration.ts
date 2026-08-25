@@ -5,7 +5,8 @@ export const htmlRenderingConfigurationSchema = object({
    * The URL to the Scalar API Reference UMD bundle (the classic build that registers `window.Scalar`
    * and is loaded via `<script src>`).
    *
-   * Use this to pin a specific version of the Scalar API Reference.
+   * Setting it selects the UMD build instead of the default ESM build — use it to pin a specific
+   * version of the classic bundle.
    *
    * @default https://cdn.jsdelivr.net/npm/@scalar/api-reference
    *
@@ -15,11 +16,10 @@ export const htmlRenderingConfigurationSchema = object({
     default: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
   }),
   /**
-   * Load the modern, code-split ESM build instead of the classic UMD bundle.
+   * Which build to load. The modern, code-split ESM build is the default.
    *
-   * Pass `true` to load the default ESM entry (`.../@scalar/api-reference/esm.js`) as a
-   * `<script type="module">`, or a URL string to point at a specific ESM build. When set, `bundle`
-   * takes precedence over `cdn`.
+   * Pass a URL string to load a specific ESM build, or `false` to fall back to the classic UMD bundle
+   * (equivalent to setting `cdn`). When set, `bundle` takes precedence over `cdn`.
    */
   bundle: optional(union([string(), boolean()])),
   pageTitle: string({

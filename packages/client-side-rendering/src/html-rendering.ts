@@ -6,15 +6,15 @@ export type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration }
  * Default CDN URL for the @scalar/api-reference UMD standalone bundle.
  *
  * This is the classic build that registers a global `window.Scalar` and is loaded through a plain
- * `<script src="...">` tag. It stays the default so existing setups keep working unchanged.
+ * `<script src="...">` tag. It is used when the UMD bundle is selected via `cdn` or `bundle: false`.
  */
 export const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
 
 /**
  * Default CDN URL for the @scalar/api-reference ESM standalone build (added in #9871).
  *
- * Used when `bundle` is enabled. It is loaded as a `<script type="module">`, so the browser only
- * downloads the lazy chunks the rendered page needs instead of the whole monolithic UMD bundle.
+ * This is the default: it is loaded as a `<script type="module">`, so the browser only downloads the
+ * lazy chunks the rendered page needs instead of the whole monolithic UMD bundle.
  */
 export const DEFAULT_ESM_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'
 
@@ -113,10 +113,10 @@ export function renderApiReference(
      */
     nonce?: string
     /**
-     * Load the modern ESM build instead of the classic UMD bundle.
+     * Which build to load. The modern, code-split ESM build is the default.
      *
-     * Pass `true` to load the default ESM entry (`DEFAULT_ESM_CDN`) as a `<script type="module">`, or
-     * a URL string to point at a specific ESM build. When set, `bundle` takes precedence over `cdn`.
+     * Pass a URL string to load a specific ESM build, or `false` to fall back to the classic UMD
+     * bundle (equivalent to setting `cdn`). When set, `bundle` takes precedence over `cdn`.
      */
     bundle?: string | boolean
   },
@@ -210,17 +210,17 @@ export function serializeConfigToJs(configuration: Record<string, unknown>): str
 /**
  * The script tag(s) to load the @scalar/api-reference package from the CDN and initialize it.
  *
- * By default this loads the classic UMD bundle via `<script src>` (from `cdn`, defaulting to
- * `DEFAULT_CDN`) and calls `Scalar.createApiReference`, which is unchanged from previous versions.
+ * By default this loads the modern, code-split ESM build as a `<script type="module">` that imports
+ * `createApiReference` directly (from `DEFAULT_ESM_CDN`), so the browser only downloads the lazy
+ * chunks the page needs rather than the whole monolithic UMD bundle before it can paint.
  *
- * Set `bundle` to opt into the modern ESM build instead: it is loaded as a `<script type="module">`
- * that imports `createApiReference` directly, so the browser only downloads the lazy chunks the page
- * needs rather than the whole monolithic UMD bundle. Pass `bundle: true` for the default ESM entry
- * (`DEFAULT_ESM_CDN`), or a URL string to point at a specific ESM build. `bundle` wins over `cdn`.
+ * Opt into the classic UMD bundle — loaded via `<script src>` and `Scalar.createApiReference`, exactly
+ * as before — by setting `cdn` (for example to pin a version) or `bundle: false`. Set `bundle` to a
+ * URL string to load a specific ESM build. `bundle` takes precedence over `cdn`.
  *
  * When a `nonce` is provided it is applied to the script tag(s) so they are allowed under a strict
- * `script-src` Content Security Policy. In `bundle` mode the ESM build then loads its chunks through
- * the module loader, so a strict policy also needs `'strict-dynamic'` (or the CDN host allow-listed).
+ * `script-src` Content Security Policy. For the ESM build the bundle then loads its chunks through the
+ * module loader, so a strict policy also needs `'strict-dynamic'` (or the CDN host allow-listed).
  */
 export function getScriptTags(
   configuration: Record<string, unknown>,
@@ -232,7 +232,11 @@ export function getScriptTags(
 
   const nonceAttr = nonceAttribute(nonce)
 
-  if (bundle) {
+  // The ESM build is the default. Fall back to the classic UMD bundle only when it is explicitly
+  // requested: `bundle: false`, or a `cdn` URL with no `bundle` set.
+  const useUmd = bundle === false || (bundle === undefined && cdn !== undefined)
+
+  if (!useUmd) {
     const esmUrl = typeof bundle === 'string' ? bundle : DEFAULT_ESM_CDN
 
     return `

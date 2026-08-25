@@ -33,8 +33,6 @@ import { renderApiReference } from '@scalar/client-side-rendering'
 
 const html = renderApiReference({
   pageTitle: 'My API Reference',
-  // Load the modern, code-split ESM build (recommended)
-  bundle: true,
   config: {
     url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
   },
@@ -43,13 +41,16 @@ const html = renderApiReference({
 
 ### Choosing the bundle
 
-By default the generated HTML loads the classic UMD bundle via a `<script src>` tag. Set `bundle: true`
-to load the modern ESM build (`.../@scalar/api-reference/esm.js`) as a `<script type="module">`
-instead. Because it is code-split, less JavaScript blocks the first render.
+By default the generated HTML loads the modern, code-split ESM build
+(`.../@scalar/api-reference/esm.js`) as a `<script type="module">`. Because it is code-split, less
+JavaScript blocks the first render.
 
-- `bundle: true` — load the default ESM entry.
-- `bundle: 'https://.../esm.js'` — load a specific ESM build.
-- `cdn: 'https://.../@scalar/api-reference'` — pin a specific UMD build (unchanged, still supported).
+To use the classic UMD bundle instead (loaded via `<script src>` and the `window.Scalar` global):
+
+- `cdn: 'https://.../@scalar/api-reference'` — pin a specific UMD build.
+- `bundle: false` — use the default UMD build.
+
+You can also pass `bundle: 'https://.../esm.js'` to load a specific ESM build.
 
 Under a strict `script-src` Content Security Policy the ESM build loads its chunks through the module
 loader, so add `'strict-dynamic'` (or allow-list the CDN host).

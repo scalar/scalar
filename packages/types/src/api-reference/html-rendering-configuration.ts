@@ -9,18 +9,18 @@ export type HtmlRenderingConfiguration = Partial<ApiReferenceConfigurationWithMu
   pageTitle: string
   /**
    * The URL to the Scalar API Reference UMD bundle (the classic build that registers `window.Scalar`
-   * and is loaded via `<script src>`). Use this to pin a specific version.
+   * and is loaded via `<script src>`). Setting it selects the UMD build instead of the default ESM
+   * build — use it to pin a specific version of the classic bundle.
    *
    * @default https://cdn.jsdelivr.net/npm/@scalar/api-reference
    */
   cdn: string
   /**
-   * Load the modern, code-split ESM build instead of the classic UMD bundle.
+   * Which build to load. The modern, code-split ESM build is the default, because it lets less
+   * JavaScript block the first render.
    *
-   * Pass `true` to load the default ESM entry (`.../@scalar/api-reference/esm.js`) as a
-   * `<script type="module">`, or a URL string to point at a specific ESM build. Because the ESM build
-   * is code-split, less JavaScript blocks the first render. When set, `bundle` takes precedence over
-   * `cdn`.
+   * Pass a URL string to load a specific ESM build, or `false` to fall back to the classic UMD bundle
+   * (equivalent to setting `cdn`). When set, `bundle` takes precedence over `cdn`.
    */
   bundle?: string | boolean
   /**
