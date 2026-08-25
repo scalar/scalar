@@ -3,7 +3,7 @@ import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/navigation/helpers/utils'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedDescription } from '@/schemas/navigation'
-import type { InfoObject } from '@/schemas/v3.1/strict/info'
+import type { InfoObject } from '@/schemas/v3.2/strict/info'
 
 const DEFAULT_DESCRIPTION_ENTRY = {
   TITLE: 'Introduction',

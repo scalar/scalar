@@ -2,7 +2,7 @@
 import { sanitizeUrl } from '@scalar/helpers/url/is-safe-url'
 import { ScalarIconEnvelopeSimple, ScalarIconLink } from '@scalar/icons'
 import { cva } from '@scalar/use-hooks/useBindCx'
-import type { ContactObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ContactObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 const { value } = defineProps<{

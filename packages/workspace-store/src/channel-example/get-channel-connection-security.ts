@@ -1,7 +1,7 @@
 import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiServerObject } from '@scalar/types/asyncapi/3.1'
 
 import { getAsyncApiSecurityRequirements } from '@/channel-example/get-asyncapi-security-requirements'
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
+import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
 
 import { dedupeRequirements } from './dedupe-requirements'
 import type { ChannelOperationSummary } from './get-channel-operations'

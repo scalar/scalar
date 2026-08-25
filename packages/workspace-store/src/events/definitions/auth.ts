@@ -6,8 +6,8 @@ import type {
   OAuthFlowsObject,
   SecurityRequirementObject,
   SecuritySchemeObject,
-} from '@/schemas/v3.1/strict/openapi-document'
-import type { ApiKeyObject, HttpObject, OAuth2Object, OpenIdConnectObject } from '@/schemas/v3.1/strict/security-scheme'
+} from '@/schemas/v3.2/strict/openapi-document'
+import type { ApiKeyObject, HttpObject, OAuth2Object, OpenIdConnectObject } from '@/schemas/v3.2/strict/security-scheme'
 
 /**
  * AuthMeta defines the meta information needed to specify whether the authentication operation

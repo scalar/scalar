@@ -18,8 +18,8 @@ import {
   OAuthFlowClientCredentialsSchema,
   OAuthFlowImplicitSchema,
   OAuthFlowPasswordSchema,
-} from '@/schemas/v3.1/strict/oauth-flow'
-import { SecurityRequirementObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
+} from '@/schemas/v3.2/strict/oauth-flow'
+import { SecurityRequirementObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
 const SecretsApiKeySchema = compose(
   Type.Object({

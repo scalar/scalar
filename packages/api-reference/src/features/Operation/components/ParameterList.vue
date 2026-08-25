@@ -3,7 +3,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   OpenApiDocument,
   ParameterObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { useId } from 'vue'
 
 import type { OperationProps } from '@/features/Operation/Operation.vue'

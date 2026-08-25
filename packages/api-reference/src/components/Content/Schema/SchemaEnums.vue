@@ -2,8 +2,8 @@
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconPlus } from '@scalar/icons'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import { computed, ref } from 'vue'
 
 import { useLocalization } from '@/features/localization'

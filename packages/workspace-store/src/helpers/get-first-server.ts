@@ -1,4 +1,4 @@
-import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getResolvedRef } from './get-resolved-ref'
 
