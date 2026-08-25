@@ -130,6 +130,7 @@
   ],
   "dependencies": {
     "@scalar/helpers": "workspace:*",
+    "@scalar/validation": "workspace:*",
     "nanoid": "catalog:*",
     "type-fest": "catalog:*",
     "zod": "catalog:*"

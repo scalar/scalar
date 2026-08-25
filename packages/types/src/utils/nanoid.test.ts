@@ -1,34 +1,36 @@
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
-import { z } from 'zod'
 
 import { type Nanoid, nanoidSchema } from './nanoid'
 
 describe('nanoidSchema', () => {
-  it('should generate a string with minimum length of 7 characters when no value is provided', () => {
-    const result = nanoidSchema.parse(undefined)
+  it('generates a string with minimum length of 7 characters when no value is provided', () => {
+    const result = coerce(nanoidSchema, undefined)
     expect(typeof result).toBe('string')
     expect(result.length).toBeGreaterThanOrEqual(7)
   })
 
-  it('should accept valid strings with length >= 7', () => {
+  it('accepts valid strings with length >= 7', () => {
     const validString = '1234567'
-    const result = nanoidSchema.parse(validString)
+    const result = coerce(nanoidSchema, validString)
     expect(result).toBe(validString)
   })
 
-  it('should reject strings shorter than 7 characters', () => {
+  it('generates a new id for strings shorter than 7 characters', () => {
     const invalidString = '123456'
-    expect(() => nanoidSchema.parse(invalidString)).toThrow(z.ZodError)
+    const result = coerce(nanoidSchema, invalidString)
+    expect(result).not.toBe(invalidString)
+    expect(result.length).toBeGreaterThanOrEqual(7)
   })
 
-  it('should generate different IDs for multiple calls', () => {
-    const id1 = nanoidSchema.parse(undefined)
-    const id2 = nanoidSchema.parse(undefined)
+  it('generates different IDs for multiple calls', () => {
+    const id1 = coerce(nanoidSchema, undefined)
+    const id2 = coerce(nanoidSchema, undefined)
     expect(id1).not.toBe(id2)
   })
 
-  it('should properly type the generated ID as Nanoid', () => {
-    const id: Nanoid = nanoidSchema.parse(undefined)
+  it('types the generated ID as Nanoid', () => {
+    const id: Nanoid = coerce(nanoidSchema, undefined)
     expect(typeof id).toBe('string')
   })
 })

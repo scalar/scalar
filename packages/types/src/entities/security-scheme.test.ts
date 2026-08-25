@@ -1,5 +1,7 @@
+import { coerce, validate } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
+import type { SecuritySchemeOauth2 } from './security-scheme'
 import {
   oasSecurityRequirementSchema,
   pkceOptions,
@@ -12,7 +14,7 @@ import {
 
 describe('Security Schemas', () => {
   describe('API Key Schema', () => {
-    it('should validate a valid API key schema', () => {
+    it('validates a valid API key schema', () => {
       const apiKey = {
         type: 'apiKey',
         name: 'api_key',
@@ -23,17 +25,16 @@ describe('Security Schemas', () => {
         value: 'test-api-key',
       }
 
-      const result = securityApiKeySchema.safeParse(apiKey)
-      expect(result.success).toBe(true)
+      expect(validate(securityApiKeySchema, apiKey)).toBe(true)
     })
 
-    it('should apply default values', () => {
+    it('applies default values', () => {
       const minimalApiKey = {
         type: 'apiKey',
         uid: 'apikey123',
       }
 
-      const result = securityApiKeySchema.parse(minimalApiKey)
+      const result = coerce(securityApiKeySchema, minimalApiKey)
       expect(result).toEqual({
         type: 'apiKey',
         uid: 'apikey123',
@@ -46,21 +47,23 @@ describe('Security Schemas', () => {
   })
 
   describe('HTTP Schema', () => {
-    it('should validate a valid HTTP basic schema', () => {
+    it('validates a valid HTTP basic schema', () => {
       const httpBasic = {
         type: 'http',
         scheme: 'basic',
         description: 'Basic HTTP Authentication',
         uid: 'http123',
+        bearerFormat: 'JWT',
+        nameKey: '',
         username: 'user',
         password: 'pass',
+        token: '',
       }
 
-      const result = securityHttpSchema.safeParse(httpBasic)
-      expect(result.success).toBe(true)
+      expect(validate(securityHttpSchema, httpBasic)).toBe(true)
     })
 
-    it('should validate a valid HTTP bearer schema', () => {
+    it('coerces a valid HTTP bearer schema', () => {
       const httpBearer = {
         type: 'http',
         scheme: 'bearer',
@@ -70,17 +73,19 @@ describe('Security Schemas', () => {
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
       }
 
-      const result = securityHttpSchema.safeParse(httpBearer)
-      expect(result.success).toBe(true)
+      const result = coerce(securityHttpSchema, httpBearer)
+      expect(result.type).toBe('http')
+      expect(result.scheme).toBe('bearer')
+      expect(result.token).toBe('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')
     })
 
-    it('should apply default values', () => {
+    it('applies default values', () => {
       const minimalHttp = {
         type: 'http',
         uid: 'http123',
       }
 
-      const result = securityHttpSchema.parse(minimalHttp)
+      const result = coerce(securityHttpSchema, minimalHttp)
       expect(result).toEqual({
         type: 'http',
         uid: 'http123',
@@ -93,20 +98,20 @@ describe('Security Schemas', () => {
       })
     })
 
-    it('should reject invalid scheme values', () => {
+    it('falls back to basic for invalid scheme values', () => {
       const invalidHttp = {
         type: 'http',
         scheme: 'digest',
         uid: 'http123',
       }
 
-      const result = securityHttpSchema.safeParse(invalidHttp)
-      expect(result.success).toBe(false)
+      const result = coerce(securityHttpSchema, invalidHttp)
+      expect(result.scheme).toBe('basic')
     })
   })
 
   describe('OpenID Connect Schema', () => {
-    it('should validate a valid OpenID schema', () => {
+    it('validates a valid OpenID schema', () => {
       const openId = {
         type: 'openIdConnect',
         openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
@@ -115,17 +120,16 @@ describe('Security Schemas', () => {
         nameKey: 'openid',
       }
 
-      const result = securityOpenIdSchema.safeParse(openId)
-      expect(result.success).toBe(true)
+      expect(validate(securityOpenIdSchema, openId)).toBe(true)
     })
 
-    it('should apply default values', () => {
+    it('applies default values', () => {
       const minimalOpenId = {
         type: 'openIdConnect',
         uid: 'openid123',
       }
 
-      const result = securityOpenIdSchema.parse(minimalOpenId)
+      const result = coerce(securityOpenIdSchema, minimalOpenId)
       expect(result).toEqual({
         type: 'openIdConnect',
         uid: 'openid123',
@@ -136,7 +140,7 @@ describe('Security Schemas', () => {
   })
 
   describe('OAuth2 Schema', () => {
-    it('should validate a valid OAuth2 implicit flow schema', () => {
+    it('coerces a valid OAuth2 implicit flow schema', () => {
       const oauth2Implicit = {
         type: 'oauth2',
         description: 'OAuth2 Implicit Flow',
@@ -155,11 +159,13 @@ describe('Security Schemas', () => {
         },
       }
 
-      const result = securityOauthSchema.safeParse(oauth2Implicit)
-      expect(result.success).toBe(true)
+      const result = coerce(securityOauthSchema, oauth2Implicit) as SecuritySchemeOauth2
+      expect(result.type).toBe('oauth2')
+      expect(result.flows.implicit?.authorizationUrl).toBe('https://example.com/oauth/authorize')
+      expect(result.flows.implicit?.selectedScopes).toEqual(['read:api'])
     })
 
-    it('should validate a valid OAuth2 with missing scopes', () => {
+    it('coerces a valid OAuth2 with missing scopes', () => {
       const oauth2Implicit = {
         type: 'oauth2',
         description: 'OAuth2 Implicit Flow',
@@ -175,11 +181,13 @@ describe('Security Schemas', () => {
         },
       }
 
-      const result = securityOauthSchema.safeParse(oauth2Implicit)
-      expect(result.success).toBe(true)
+      const result = coerce(securityOauthSchema, oauth2Implicit) as SecuritySchemeOauth2
+      expect(result.type).toBe('oauth2')
+      // Invalid `scopes` falls back to an empty record.
+      expect(result.flows.implicit?.scopes).toEqual({})
     })
 
-    it('should validate a valid OAuth2 authorization code flow schema', () => {
+    it('coerces a valid OAuth2 authorization code flow schema', () => {
       const oauth2AuthCode = {
         type: 'oauth2',
         description: 'OAuth2 Authorization Code Flow',
@@ -206,17 +214,18 @@ describe('Security Schemas', () => {
         },
       }
 
-      const result = securityOauthSchema.safeParse(oauth2AuthCode)
-      expect(result.success).toBe(true)
-      expect(result.data?.flows.authorizationCode?.['x-scalar-security-query']).toEqual({
+      const result = coerce(securityOauthSchema, oauth2AuthCode) as SecuritySchemeOauth2
+      expect(result.type).toBe('oauth2')
+      expect(result.flows.authorizationCode?.['x-usePkce']).toBe('SHA-256')
+      expect(result.flows.authorizationCode?.['x-scalar-security-query']).toEqual({
         prompt: 'consent',
       })
-      expect(result.data?.flows.authorizationCode?.['x-scalar-security-body']).toEqual({
+      expect(result.flows.authorizationCode?.['x-scalar-security-body']).toEqual({
         audience: 'foo',
       })
     })
 
-    it('should validate a valid OAuth2 client credentials flow schema', () => {
+    it('coerces a valid OAuth2 client credentials flow schema', () => {
       const oauth2ClientCreds = {
         type: 'oauth2',
         description: 'OAuth2 Client Credentials Flow',
@@ -232,11 +241,12 @@ describe('Security Schemas', () => {
         },
       }
 
-      const result = securityOauthSchema.safeParse(oauth2ClientCreds)
-      expect(result.success).toBe(true)
+      const result = coerce(securityOauthSchema, oauth2ClientCreds) as SecuritySchemeOauth2
+      expect(result.type).toBe('oauth2')
+      expect(result.flows.clientCredentials?.tokenUrl).toBe('https://example.com/oauth/token')
     })
 
-    it('should validate a valid OAuth2 password flow schema', () => {
+    it('coerces a valid OAuth2 password flow schema', () => {
       const oauth2Password = {
         type: 'oauth2',
         description: 'OAuth2 Password Flow',
@@ -258,17 +268,18 @@ describe('Security Schemas', () => {
         },
       }
 
-      const result = securityOauthSchema.safeParse(oauth2Password)
-      expect(result.success).toBe(true)
+      const result = coerce(securityOauthSchema, oauth2Password) as SecuritySchemeOauth2
+      expect(result.type).toBe('oauth2')
+      expect(result.flows.password?.username).toBe('testuser')
     })
 
-    it('should apply default values', () => {
+    it('applies default values', () => {
       const minimalOauth2 = {
         type: 'oauth2',
         uid: 'oauth123',
       }
 
-      const result = securityOauthSchema.parse(minimalOauth2)
+      const result = coerce(securityOauthSchema, minimalOauth2) as SecuritySchemeOauth2
       expect(result.flows.implicit).toBeDefined()
       expect(result.flows.implicit?.authorizationUrl).toBe('http://localhost:8080')
       expect(result.flows.implicit?.scopes).toEqual({})
@@ -277,20 +288,20 @@ describe('Security Schemas', () => {
       expect(result.nameKey).toBe('')
     })
 
-    it('should validate PKCE options', () => {
+    it('validates PKCE options', () => {
       expect(pkceOptions).toContain('SHA-256')
       expect(pkceOptions).toContain('plain')
       expect(pkceOptions).toContain('no')
     })
 
-    it('should apply x-default-scopes', () => {
+    it('applies x-default-scopes', () => {
       const oauth2 = {
         type: 'oauth2',
         uid: 'oauth123',
         'x-default-scopes': ['read:api', 'write:api'],
       }
 
-      const result = securitySchemeSchema.parse(oauth2)
+      const result = coerce(securitySchemeSchema, oauth2)
       if (result.type !== 'oauth2') {
         throw new Error('Expected oauth2 schema')
       }
@@ -300,22 +311,21 @@ describe('Security Schemas', () => {
   })
 
   describe('Security Requirement Schema', () => {
-    it('should validate a valid security requirement', () => {
+    it('validates a valid security requirement', () => {
       const securityRequirement = {
         'api_key': [],
         'oauth2': ['read:api', 'write:api'],
       }
 
-      const result = oasSecurityRequirementSchema.safeParse(securityRequirement)
-      expect(result.success).toBe(true)
+      expect(validate(oasSecurityRequirementSchema, securityRequirement)).toBe(true)
     })
 
-    it('should apply default values for empty scopes', () => {
+    it('applies default values for empty scopes', () => {
       const securityRequirement = {
         'api_key': undefined,
       }
 
-      const result = oasSecurityRequirementSchema.parse(securityRequirement)
+      const result = coerce(oasSecurityRequirementSchema, securityRequirement)
       expect(result).toEqual({
         'api_key': [],
       })
@@ -323,7 +333,7 @@ describe('Security Schemas', () => {
   })
 
   describe('Combined Security Scheme', () => {
-    it('should validate all security scheme types', () => {
+    it('coerces all security scheme types', () => {
       const apiKey = {
         type: 'apiKey',
         name: 'api_key',
@@ -358,10 +368,10 @@ describe('Security Schemas', () => {
         },
       }
 
-      expect(securitySchemeSchema.safeParse(apiKey).success).toBe(true)
-      expect(securitySchemeSchema.safeParse(http).success).toBe(true)
-      expect(securitySchemeSchema.safeParse(openId).success).toBe(true)
-      expect(securitySchemeSchema.safeParse(oauth2).success).toBe(true)
+      expect(coerce(securitySchemeSchema, apiKey).type).toBe('apiKey')
+      expect(coerce(securitySchemeSchema, http).type).toBe('http')
+      expect(coerce(securitySchemeSchema, openId).type).toBe('openIdConnect')
+      expect(coerce(securitySchemeSchema, oauth2).type).toBe('oauth2')
     })
   })
 })

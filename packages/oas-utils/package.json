@@ -54,6 +54,7 @@
     "yaml": "catalog:*"
   },
   "devDependencies": {
+    "@scalar/validation": "workspace:*",
     "@types/node": "catalog:*",
     "fake-indexeddb": "catalog:*",
     "vite": "catalog:*",
