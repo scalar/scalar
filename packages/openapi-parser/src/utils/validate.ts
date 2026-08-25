@@ -56,9 +56,13 @@ export function validate(
     // order, including when `throwOnError` is set.
     const outcome = validateDocument(entrypoint.specification as UnknownObject, options)
 
-    // Only resolve references once the document itself is valid, matching the
-    // previous validator, which skipped resolution when schema validation failed.
-    const resolved = outcome.valid ? resolveReferences(filesystem, options) : undefined
+    // Resolve references whenever the document passed schema validation, even
+    // when path-parameter semantics failed, so reference-resolution errors are
+    // reported alongside those semantic errors. This matches the previous
+    // validator, which merged both error sets. `outcome.schema` is only set once
+    // schema and version validation succeeded.
+    const passedSchemaValidation = outcome.schema !== undefined
+    const resolved = passedSchemaValidation ? resolveReferences(filesystem, options) : undefined
     const referenceErrors: ErrorObject[] = resolved?.errors ?? []
     const schema = (resolved?.schema ?? outcome.schema) as StrictOpenApiDocument | undefined
 

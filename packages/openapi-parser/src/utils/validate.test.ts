@@ -172,4 +172,49 @@ paths: {}
       }),
     )
   })
+
+  it('reports reference-resolution errors alongside path-parameter errors', async () => {
+    // A path-parameter semantic error must not stop reference resolution: both
+    // the semantic error and the unresolvable `$ref` should be reported.
+    const result = await validate({
+      openapi: '3.0.0',
+      info: { title: 'Hello World', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            parameters: [
+              {
+                name: 'petId',
+                in: 'path',
+                required: true,
+                schema: { type: 'string' },
+              },
+            ],
+            responses: {
+              200: {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/Missing' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual(
+      expect.objectContaining({
+        message: 'Path parameter "petId" must have the corresponding {petId} segment in the "/pets" path',
+      }),
+    )
+    expect(result.errors).toContainEqual(
+      expect.objectContaining({
+        message: expect.stringContaining('#/components/schemas/Missing'),
+      }),
+    )
+  })
 })
