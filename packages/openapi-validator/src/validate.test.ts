@@ -44,6 +44,28 @@ describe('validate', () => {
     expect(result.valid).toBe(false)
   })
 
+  it('validates a patch version against its minor schema', () => {
+    // There is no dedicated 3.1.4 schema, so it validates against the 3.1 one.
+    const result = validate({ openapi: '3.1.4', info: { title: 'Hello', version: '1.0.0' }, paths: {} })
+
+    expect(result.valid).toBe(true)
+    expect(result.version).toBe('3.1')
+  })
+
+  it('is strict about the required info.version', () => {
+    const result = validate({ openapi: '3.1.0', info: { title: 'No version' }, paths: {} })
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual(expect.objectContaining({ message: "must have required property 'version'" }))
+  })
+
+  it('does not mutate the input document', () => {
+    const document = { openapi: '3.1.0', info: { title: 'No version' }, paths: {} }
+    validate(document)
+
+    expect(document.info).not.toHaveProperty('version')
+  })
+
   it('reports unused path parameters', () => {
     const result = validate({
       openapi: '3.1.0',

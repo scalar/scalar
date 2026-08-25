@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import { validate as validateDocument } from '@scalar/openapi-validator'
 
 import type { OpenApiVersion } from '@/configuration'
@@ -51,10 +52,19 @@ export function validate(
     const filesystem = makeFilesystem(value)
     const entrypoint = getEntrypoint(filesystem)
 
+    const specification = entrypoint.specification as UnknownObject
+
+    // Be lenient about a missing `info.version`: default it before validation so
+    // documents that omit this required field still validate. The standalone
+    // `@scalar/openapi-validator` is strict and would otherwise reject them.
+    if (isObject(specification) && isObject(specification.info) && typeof specification.info.version !== 'string') {
+      specification.info.version = '0.1.0'
+    }
+
     // Schema, version and path-parameter validation (no reference resolution).
     // Runs first so empty/invalid input reports the same error, in the same
     // order, including when `throwOnError` is set.
-    const outcome = validateDocument(entrypoint.specification as UnknownObject, options)
+    const outcome = validateDocument(specification, options)
 
     // Resolve references whenever the document passed schema validation, even
     // when path-parameter semantics failed, so reference-resolution errors are
@@ -74,14 +84,14 @@ export function validate(
         valid: false,
         errors,
         schema,
-        specification: entrypoint.specification as UnknownObject,
+        specification,
         version: outcome.version,
       })
     }
 
-    const specification = withStrictSpecification(entrypoint.specification as UnknownObject, outcome.version)
+    const strictSpecification = withStrictSpecification(specification, outcome.version)
 
-    if (!specification) {
+    if (!strictSpecification) {
       return Promise.resolve({
         valid: false,
         errors: [
@@ -90,7 +100,7 @@ export function validate(
           },
         ],
         schema,
-        specification: entrypoint.specification as UnknownObject,
+        specification,
         version: outcome.version,
       })
     }
@@ -99,7 +109,7 @@ export function validate(
       valid: true,
       errors,
       schema: schema as StrictOpenApiDocument,
-      specification,
+      specification: strictSpecification,
       version: outcome.version,
     })
   } catch (err) {

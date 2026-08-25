@@ -29,14 +29,15 @@ const getValidator = (version: OpenApiVersion) => {
   return validator
 }
 
-const isMutableRecord = (value: unknown): value is AnyObject =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
-
 /**
  * Validates a single OpenAPI document against the OpenAPI Specification.
  *
  * Schema validation is delegated to `@scalar/json-schema-validator`; version
  * detection and the path-parameter semantic checks are OpenAPI-specific.
+ *
+ * This validator is strict about the specification: every required field,
+ * including `info.version`, must be present. Callers that want to be lenient
+ * (as `@scalar/openapi-parser` is) should fill in defaults before validating.
  *
  * The input must be a self-contained document. This validator does not resolve
  * external `$ref`s, so bundle or dereference documents that span multiple files
@@ -59,16 +60,6 @@ export function validate(document: string | AnyObject, options?: ValidateOptions
     }
   } else {
     specification = document
-  }
-
-  // Default a missing info.version to keep the validator compatible with the
-  // previous parser behaviour.
-  if (
-    isMutableRecord(specification) &&
-    isMutableRecord(specification.info) &&
-    typeof specification.info.version !== 'string'
-  ) {
-    specification.info.version = '0.0.1'
   }
 
   try {

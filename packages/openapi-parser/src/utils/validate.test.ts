@@ -217,4 +217,14 @@ paths: {}
       }),
     )
   })
+
+  it('stays lenient about a missing info.version by defaulting it', async () => {
+    // The standalone validator is strict, but the parser defaults a missing
+    // info.version so documents that omit it still validate.
+    const document: AnyObject = { openapi: '3.1.0', info: { title: 'No version' }, paths: {} }
+    const result = await validate(document)
+
+    expect(result.valid).toBe(true)
+    expect(document.info.version).toBe('0.1.0')
+  })
 })
