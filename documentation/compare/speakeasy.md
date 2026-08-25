@@ -22,7 +22,7 @@ The second is that Speakeasy's company focus has moved. As of August 2026 their 
 | Custom code survives regeneration | Yes, three-way merge | [Yes](https://www.speakeasy.com/docs/sdks/customize/basics), three-way merge |
 | Speakeasy call-site compatibility | Yes, generated compat module | n/a |
 | Standalone API client | Yes, open source | No |
-| Published SDK price | One target included; additional targets $150/month | Not published; free tier is [1 SDK, 50 API methods](https://www.speakeasy.com/docs/sdks/introduction) |
+| Published SDK price | One target included; additional targets from $150/month | Not published; free tier is [1 SDK, 50 API methods](https://www.speakeasy.com/docs/sdks/introduction) |
 
 ## Where Speakeasy is stronger
 
@@ -162,7 +162,7 @@ So if what matters is owning and modifying the documentation layer, Scalar is th
 
 Speakeasy's free tier is [one SDK with up to 50 API methods](https://www.speakeasy.com/docs/sdks/introduction), and new accounts get a 14-day trial of the business tier. Beyond that, their [pricing page](https://www.speakeasy.com/pricing) as of August 2026 prices the AI control plane and lists a single "Enterprise — Tailored" tier, so SDK pricing is a conversation. [SDK contract testing](https://www.speakeasy.com/docs/sdks/sdk-contract-testing) additionally requires an Enterprise account and an add-on.
 
-Scalar publishes its price: **one SDK target is included with every plan, and additional targets are $150 per month each**, with volume discounts as you add more. Pricing scales with the number of endpoints in your OpenAPI document. A target becomes billable when you save a version and queue its build, and drafts are never billed. You can work out what it costs without talking to us.
+Scalar publishes its price: **one SDK target is included with every plan, and additional targets start at $150 per month each**, with volume discounts as you add more. Pricing scales with the number of endpoints in your OpenAPI document. A target becomes billable when you save a version and queue its build, and drafts are never billed. You can work out what it costs without talking to us.
 
 To be fair about it: unpublished pricing is not the same as expensive pricing, and a company selling mostly to enterprises has real reasons not to publish. But it does mean the two products cannot be compared on cost without a call, and we would rather be the one you can price in advance.
 

@@ -15,7 +15,7 @@ This page is written by Scalar, so read it with that in mind. Every claim we mak
 | Docs + SDKs from one spec | Yes | Yes |
 | Standalone API client | Yes, open source | No |
 | Framework integrations | 35 | None (iframe embed only) |
-| SDK pricing | One target included; additional targets $150/month, published | "Per SDK, billed annually", contact sales |
+| SDK pricing | One target included; additional targets from $150/month, published | "Per SDK, billed annually", contact sales |
 
 ## Where Fern is stronger
 
@@ -125,7 +125,7 @@ Fern's free SDK tier caps at **50 endpoints**, and the following are all [Enterp
 
 Enterprise is priced "per SDK, billed annually" with no published rate, so most of what Fern markets as SDK capability sits behind a per-language annual contract you have to call about.
 
-Scalar publishes its price: **one SDK target is included with every plan, and additional targets are $150/month each**. Pricing scales with the number of endpoints in your OpenAPI document — Free covers SDKs up to 25 endpoints, Pro includes 100, Business includes 250 — so you can work out what it costs without talking to us.
+Scalar publishes its price: **one SDK target is included with every plan, and additional targets start at $150/month each**. Pricing scales with the number of endpoints in your OpenAPI document — Free covers SDKs up to 25 endpoints, Pro includes 100, Business includes 250 — so you can work out what it costs without talking to us.
 
 ## Webhooks
 

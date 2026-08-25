@@ -47,7 +47,7 @@ If a target is [linked to a repository](publishing/github.md), the build pushes 
 </scalar-steps>
 
 > [!NOTE]
-> Every plan includes one SDK target; additional targets are $150 per month each. When you add a new target on a paid plan, the dashboard shows a cost confirmation before the first build.
+> Every plan includes one SDK target; additional targets start at $150 per month each. When you add a new target on a paid plan, the dashboard shows a cost confirmation before the first build.
 
 ## Versions
 
