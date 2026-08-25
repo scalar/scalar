@@ -9,6 +9,11 @@ import { type AsyncApiVersion, AsyncApiVersions } from '@/specifications'
  * We keep one schema per minor version, so any patch release validates against
  * its minor: `3.1.4` is checked against the `3.1.0` schema. Returns the matching
  * supported version, or `undefined` when none exists.
+ *
+ * The fallback matches on major and minor only, so a prerelease like `3.0.0-rc1`
+ * also resolves to `3.0.0`. That is deliberate — there are no prerelease schemas
+ * to validate against — but it means the returned version can be more precise
+ * than the document's own `asyncapi` field.
  */
 export function detectVersion(document: unknown): AsyncApiVersion | undefined {
   if (!isObject(document)) {
