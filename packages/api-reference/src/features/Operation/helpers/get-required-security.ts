@@ -82,6 +82,27 @@ export const getRequiredSecurity = (
 }
 
 /**
+ * Scopes that carry OAuth meaning for a scheme. Only `oauth2` and `openIdConnect` schemes
+ * have real scopes; anything else (for example `http` bearer or `apiKey`) can list
+ * scope-shaped strings in a `security` requirement, but those are not OAuth scopes and are
+ * dropped here.
+ *
+ * A scheme with no resolved definition (name not defined on the document, or, as the
+ * AsyncAPI path does on purpose, left unresolved) keeps its scopes — the type is unknown,
+ * so we cannot rule them out.
+ *
+ * This is the single source of truth for "does this scheme contribute scopes?", shared by
+ * every consumer so they never disagree about what counts as a scope.
+ */
+export const getEffectiveScopes = (scheme: RequiredSecurityScheme): string[] => {
+  if (scheme.scheme && scheme.scheme.type !== 'oauth2' && scheme.scheme.type !== 'openIdConnect') {
+    return []
+  }
+
+  return scheme.scopes
+}
+
+/**
  * Required OAuth scopes grouped by security alternative (OR).
  *
  * Each returned array is the de-duplicated set of scopes for one alternative, kept in
@@ -100,7 +121,7 @@ export const getRequiredScopeGroups = (requiredSecurity: RequiredSecurity): stri
     const collected = new Set<string>()
 
     for (const scheme of group.schemes) {
-      for (const scope of scheme.scopes) {
+      for (const scope of getEffectiveScopes(scheme)) {
         collected.add(scope)
       }
     }
