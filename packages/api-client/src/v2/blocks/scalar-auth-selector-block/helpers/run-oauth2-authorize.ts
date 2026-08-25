@@ -2,7 +2,7 @@ import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { type OAuthFlowsObjectSecret, getEnvironmentVariables } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import { type OAuth2Tokens, authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'

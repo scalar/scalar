@@ -8,7 +8,7 @@ import {
   updateOperationExtraParameters,
   upsertOperationParameter,
 } from '@/mutators/operation/parameters'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => {
   return {

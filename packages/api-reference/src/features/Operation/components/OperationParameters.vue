@@ -7,7 +7,7 @@ import type {
   ParameterObject,
   ReferenceType,
   RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'

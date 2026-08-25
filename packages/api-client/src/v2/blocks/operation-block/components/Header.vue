@@ -56,7 +56,7 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
 import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'

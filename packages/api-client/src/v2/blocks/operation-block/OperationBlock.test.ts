@@ -9,8 +9,8 @@ import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events
 import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 

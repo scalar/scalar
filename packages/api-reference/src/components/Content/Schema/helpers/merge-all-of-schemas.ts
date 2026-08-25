@@ -1,8 +1,8 @@
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 /**
  * Schema keywords whose value should reflect the *last* occurrence when merging

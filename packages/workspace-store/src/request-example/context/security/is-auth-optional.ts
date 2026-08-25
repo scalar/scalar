@@ -1,4 +1,4 @@
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** Determines if the authentication is optional */
 export const isAuthOptional = (securityRequirements: NonNullable<OpenApiDocument['security']>): boolean => {

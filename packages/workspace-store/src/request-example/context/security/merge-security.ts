@@ -12,7 +12,7 @@ import {
   type ComponentsObject,
   type SecuritySchemeObject,
   SecuritySchemeObjectSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { isEncryptionSchemeType, isSaslSchemeType } from '@/request-example/builder/security/broker-scheme-types'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'

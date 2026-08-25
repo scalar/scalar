@@ -5,7 +5,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   OpenApiDocument,
   RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'

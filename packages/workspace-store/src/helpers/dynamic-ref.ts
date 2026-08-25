@@ -1,6 +1,6 @@
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
+import type { SchemaObject } from '@/schemas/v3.2/strict/schema'
 
 /**
  * Resolution of JSON Schema 2020-12 `$dynamicRef` / `$dynamicAnchor`.

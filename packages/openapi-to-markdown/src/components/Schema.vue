@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/schema'
 
 const MAX_DEPTH = 10
 

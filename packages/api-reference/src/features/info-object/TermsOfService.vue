@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { sanitizeUrl } from '@scalar/helpers/url/is-safe-url'
 import { ScalarIconScroll } from '@scalar/icons'
-import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { InfoObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'

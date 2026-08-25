@@ -1,7 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
  * A resolved schema-bearing value may be a JSON Schema object, a boolean (`true`/`false`)

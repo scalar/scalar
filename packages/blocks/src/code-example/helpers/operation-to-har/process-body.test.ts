@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { EncodingObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { EncodingObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { processBody } from './process-body'

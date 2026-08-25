@@ -7,7 +7,7 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema,
   type OpenApiDocument,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 

@@ -1,6 +1,6 @@
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 /** Normalize a schema's `type` (string | string[] | absent) into a plain string array. */
 const normalizeSchemaTypes = (schema: SchemaObject): string[] => {

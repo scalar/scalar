@@ -1,4 +1,4 @@
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/openapi-document'
 
 /** Type guard to determine if a security requirement is non-optional */
 export const isNonOptionalSecurityRequirement = (

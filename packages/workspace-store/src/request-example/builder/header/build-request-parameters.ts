@@ -6,7 +6,7 @@ import {
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { deSerializeParameter } from '@/request-example/builder/header/de-serialize-parameter'
 

@@ -1,7 +1,7 @@
 import type { ModelsSectionLabel } from '@scalar/types/api-reference'
 
 import type { IdGenerator, TraversedEntry } from '@/schemas/navigation'
-import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
 /** Map of tagNames and their entries */
 export type TagsMap = Map<string, { id: string; parentId: string; tag: TagObject; entries: TraversedEntry[] }>

@@ -3,8 +3,8 @@ import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/reference'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/schema'
 import { computed } from 'vue'
 
 const { id, schema } = defineProps<{
