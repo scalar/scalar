@@ -1820,6 +1820,30 @@
                           ]
                         }
                       },
+                      "llms-txt": {
+                        "title": "llms.txt",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/llms-txt.md",
+                        "description": "Every published Scalar Docs site automatically serves llms.txt and llms-full.txt so AI agents and LLMs can read your documentation.",
+                        "head": {
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/configuration/llms-txt"
+                            }
+                          ],
+                          "meta": [
+                            {
+                              "name": "description",
+                              "content": "Every published Scalar Docs site automatically serves llms.txt and llms-full.txt so AI agents and LLMs can read your documentation."
+                            },
+                            {
+                              "name": "robots",
+                              "content": "index, follow"
+                            }
+                          ]
+                        }
+                      },
                       "private-docs": {
                         "title": "Private Docs",
                         "filepath": "documentation/guides/docs/configuration/private-docs.md",
