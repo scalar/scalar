@@ -67,6 +67,10 @@ export function validate(
     // Be lenient about a missing `info.version`: default it before validation so
     // documents that omit this required field still validate. The standalone
     // `@scalar/openapi-validator` is strict and would otherwise reject them.
+    //
+    // Semver recommends `0.1.0` as the starting version for initial development,
+    // which makes it the right stand-in for a document that never declared one.
+    // (This used to be `0.0.1`, which semver does not suggest anywhere.)
     if (isObject(specification) && isObject(specification.info) && typeof specification.info.version !== 'string') {
       specification.info.version = '0.1.0'
     }
