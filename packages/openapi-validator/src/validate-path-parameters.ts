@@ -1,8 +1,17 @@
-import { isObject } from '@scalar/helpers/object/is-object'
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { deduplicateErrors } from '@scalar/json-schema-validator'
 import type { AnyObject } from '@scalar/types/utils'
 
 import type { ErrorObject } from '@/types'
+
+/**
+ * Any non-array object, whatever its prototype.
+ *
+ * `isObject` is deliberately not used here: it also rejects objects with a
+ * custom prototype, which would silently skip whole path items in a
+ * hand-constructed document rather than validating them.
+ */
+const isRecord = (value: unknown): value is AnyObject => isObjectLike(value) && !Array.isArray(value)
 
 const OPERATION_KEYS = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
 const PATH_PARAMETER_PATTERN = /{([^}]+)}/g
@@ -25,12 +34,12 @@ export function validatePathParameters(specification: AnyObject): ErrorObject[] 
   const errors: ErrorObject[] = []
 
   for (const [pathName, pathItem] of Object.entries(paths)) {
-    if (!isObject(pathItem)) {
+    if (!isRecord(pathItem)) {
       continue
     }
 
     const operations = Object.entries(pathItem).filter(
-      ([key, value]) => OPERATION_KEYS.has(key) && isObject(value),
+      ([key, value]) => OPERATION_KEYS.has(key) && isRecord(value),
     ) as Array<[string, AnyObject]>
 
     // Preserve the repo's current behaviour for empty path items.
@@ -99,7 +108,7 @@ function getPathParameters(parameters: unknown, pathPrefix: string[]): PathParam
   }
 
   return parameters.flatMap((parameter, index) => {
-    if (!isObject(parameter) || parameter.in !== 'path' || typeof parameter.name !== 'string') {
+    if (!isRecord(parameter) || parameter.in !== 'path' || typeof parameter.name !== 'string') {
       return []
     }
 

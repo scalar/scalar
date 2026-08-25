@@ -108,4 +108,23 @@ describe('validatePathParameters', () => {
 
     expect(errors).toEqual([])
   })
+
+  it('inspects path items that are not plain objects', () => {
+    // A hand-constructed document can carry class instances. Skipping those
+    // would silently leave a whole path item unvalidated.
+    class PathItem {
+      get = {
+        parameters: [{ name: 'testId', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'OK' } },
+      }
+    }
+
+    const errors = validatePathParameters({ paths: { '/pets': new PathItem() } })
+
+    expect(errors).toContainEqual(
+      expect.objectContaining({
+        message: 'Path parameter "testId" must have the corresponding {testId} segment in the "/pets" path',
+      }),
+    )
+  })
 })
