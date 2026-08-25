@@ -63,7 +63,7 @@ app.route(
 export default app
 ```
 
-`document` can be the OpenAPI object itself or a function that returns it. The function receives the Hono `Context`, so you can read `c.env` or `c.req` and build the document per request. Pass any other [configuration option](../configuration.md) (such as `theme` or `pageTitle`) alongside `document`, and change where the JSON is served with `specPath` (defaults to `/openapi.json`).
+`document` can be the OpenAPI object itself or a function that returns it. The function receives the Hono `Context`, so you can read `c.env` or `c.req` and build the document per request. Pass any other [configuration option](../configuration.md) (such as `theme` or `pageTitle`) alongside `document`, and change where the JSON is served with `documentPath` (defaults to `/openapi.json`).
 
 ### Themes
 

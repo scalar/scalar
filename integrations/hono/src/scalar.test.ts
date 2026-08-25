@@ -306,9 +306,9 @@ describe('Scalar', () => {
       expect(text).not.toContain('Serve API')
     })
 
-    it('serves the document at a custom specPath', async () => {
+    it('serves the document at a custom documentPath', async () => {
       const app = new Hono()
-      app.route('/scalar', Scalar.serve({ document, specPath: '/spec.json' }))
+      app.route('/scalar', Scalar.serve({ document, documentPath: '/spec.json' }))
 
       const json = await app.request('/scalar/spec.json')
       expect(json.status).toBe(200)

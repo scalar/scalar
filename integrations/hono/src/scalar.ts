@@ -132,7 +132,7 @@ export type ServeConfiguration<E extends Env> = Omit<Partial<ApiReferenceConfigu
    *
    * @default '/openapi.json'
    */
-  specPath?: string
+  documentPath?: string
 }
 
 /**
@@ -153,7 +153,7 @@ export type ServeConfiguration<E extends Env> = Omit<Partial<ApiReferenceConfigu
  * ```
  */
 const scalarServe = <E extends Env>(options: ServeConfiguration<E>): Hono<E> => {
-  const { document, specPath = '/openapi.json', ...rest } = options
+  const { document, documentPath = '/openapi.json', ...rest } = options
 
   const app = new Hono<E>()
 
@@ -161,13 +161,13 @@ const scalarServe = <E extends Env>(options: ServeConfiguration<E>): Hono<E> => 
     typeof document === 'function' ? document(c) : document
 
   // Expose the OpenAPI document as JSON, so a single call powers both the reference and its source.
-  app.get(specPath, async (c) => c.json(await resolveDocument(c)))
+  app.get(documentPath, async (c) => c.json(await resolveDocument(c)))
 
   // Render the reference, pointing it at the document we expose above.
   app.get('/', (c) => {
     // Build a root-absolute URL to the document from the current request path. This keeps the
     // reference working wherever it is mounted, and whether or not the request has a trailing slash.
-    const url = `${c.req.path.replace(/\/+$/, '')}${specPath}`
+    const url = `${c.req.path.replace(/\/+$/, '')}${documentPath}`
 
     const { cdn, pageTitle, nonce, ...config } = {
       ...DEFAULT_CONFIGURATION,
