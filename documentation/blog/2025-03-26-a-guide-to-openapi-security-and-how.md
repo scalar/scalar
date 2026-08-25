@@ -1,3 +1,7 @@
+---
+date: 2025-03-26
+---
+
 # A guide to OpenAPI security (and how we handle it in Scalar)
 
 Just like the real world, there are often areas of your code you want to protect and you set up security to protect them. Unlike the real world, it’s often not obvious how to interact with these security mechanisms, especially when it comes to APIs.

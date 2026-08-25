@@ -1,3 +1,7 @@
+---
+date: 2025-05-07
+---
+
 # How Scalar themes work
 
 Every product can be thought of as a combination of three things: data, functionality, and display.
