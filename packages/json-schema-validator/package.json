@@ -44,9 +44,9 @@
   "sideEffects": false,
   "dependencies": {
     "@scalar/types": "workspace:*",
-    "ajv": "^8.17.1",
-    "ajv-draft-04": "^1.0.0",
-    "ajv-formats": "^3.0.1",
+    "ajv": "catalog:*",
+    "ajv-draft-04": "catalog:*",
+    "ajv-formats": "catalog:*",
     "yaml": "catalog:*"
   },
   "devDependencies": {
