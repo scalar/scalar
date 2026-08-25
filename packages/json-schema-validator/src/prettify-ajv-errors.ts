@@ -50,11 +50,50 @@ const isUnevaluatedPropertiesError = isKeyword('unevaluatedProperties')
 const getChildren = (node: ErrorNode): ErrorNode[] => Object.values(node.children)
 
 /**
+ * Whether this node, or anything below it, carries an error.
+ *
+ * Pruning decisions look at whole subtrees: a sibling that only holds errors on
+ * its own children is still a sibling with errors.
+ */
+const hasErrorsDeep = (node: ErrorNode): boolean => node.errors.length > 0 || getChildren(node).some(hasErrorsDeep)
+
+/**
  * The JSON Pointer to the value that failed validation. Ajv exposes this as
  * `instancePath`; older versions used `dataPath`.
  */
 const getInstancePath = (error: AjvError): string =>
   error.instancePath !== undefined ? error.instancePath : (error.dataPath ?? '')
+
+/**
+ * The name of the property an error points at.
+ *
+ * Ajv only sets `propertyName` for the `propertyNames` keyword, so for every
+ * other keyword the name has to come from the last segment of the instance
+ * path. Returns `undefined` when the error points at the document root or at an
+ * array item, neither of which has a property name to report.
+ *
+ * A numeric segment is only an array index when the value holding it really is
+ * an array — OpenAPI is full of numeric object keys, `responses.404` among them
+ * — so the document decides, not the shape of the segment.
+ */
+const getPropertyName = (error: AjvError, document: unknown): string | undefined => {
+  if (error.propertyName) {
+    return error.propertyName
+  }
+
+  const segments = pointerSegments(getInstancePath(error))
+  const last = segments.at(-1)
+
+  if (last === undefined) {
+    return undefined
+  }
+
+  if (/^\d+$/.test(last) && Array.isArray(resolvePointer(document, segments.slice(0, -1)))) {
+    return undefined
+  }
+
+  return last
+}
 
 /**
  * Words a single Ajv error, dispatched by keyword.
@@ -69,8 +108,16 @@ function formatError(error: AjvError, document: unknown): PrettyError {
     case 'unevaluatedProperties':
       return { message: `Property ${error.params?.unevaluatedProperty} is not expected to be here`, path }
 
-    case 'pattern':
-      return { message: `Property "${error.propertyName}" must match pattern ${error.params?.pattern}`, path }
+    case 'pattern': {
+      const propertyName = getPropertyName(error, document)
+
+      return {
+        message: propertyName
+          ? `Property "${propertyName}" must match pattern ${error.params?.pattern}`
+          : `${error.keyword} ${error.message}`,
+        path,
+      }
+    }
 
     case 'required':
       return { message: `${error.message}`, path }
@@ -119,6 +166,31 @@ function uriReferenceMessage(document: unknown, path: string): string {
   return '$ref is not a valid URI reference'
 }
 
+/** Decodes the `~1` and `~0` escapes of a single JSON Pointer segment. */
+const unescapePointerSegment = (segment: string): string => segment.replace(/~1/g, '/').replace(/~0/g, '~')
+
+/** Splits a JSON Pointer into its decoded segments. */
+const pointerSegments = (path: string): string[] => path.split('/').filter(Boolean).map(unescapePointerSegment)
+
+/**
+ * Walks the document along a list of JSON Pointer segments.
+ *
+ * Returns `undefined` as soon as the path leaves the document.
+ */
+function resolvePointer(document: unknown, segments: string[]): unknown {
+  let current: unknown = document
+
+  for (const segment of segments) {
+    if (current === null || typeof current !== 'object') {
+      return undefined
+    }
+
+    current = (current as Record<string, unknown>)[segment]
+  }
+
+  return current
+}
+
 /**
  * Walks the document along a JSON Pointer to read the actual `$ref` value.
  */
@@ -127,22 +199,9 @@ function extractRefValue(document: unknown, path: string): string | null {
     return null
   }
 
-  const segments = path
-    .split('/')
-    .filter(Boolean)
-    .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'))
+  const value = resolvePointer(document, pointerSegments(path))
 
-  let current: unknown = document
-
-  for (const segment of segments) {
-    if (current === null || typeof current !== 'object') {
-      return null
-    }
-
-    current = (current as Record<string, unknown>)[segment]
-  }
-
-  return typeof current === 'string' ? current : null
+  return typeof value === 'string' ? value : null
 }
 
 /**
@@ -153,11 +212,12 @@ function makeTree(ajvErrors: AjvError[]): ErrorNode {
 
   for (const ajvError of ajvErrors) {
     const instancePath = getInstancePath(ajvError)
-    const paths = instancePath === '' ? [''] : instancePath.match(JSON_POINTERS_REGEX)
-
-    if (!paths) {
-      continue
-    }
+    // The pointer pattern only recognizes ASCII-word segments. A path it cannot
+    // match (a Unicode property name, for example) still has to be reported, so
+    // give it a node of its own keyed by the whole path. Grouping it under the
+    // root instead would expose it to the root's own pruning rules, which drop
+    // everything next to a `required` error.
+    const paths = instancePath === '' ? [''] : (instancePath.match(JSON_POINTERS_REGEX) ?? [instancePath])
 
     paths.reduce((node, path, index) => {
       node.children[path] = node.children[path] ?? { errors: [], children: {} }
@@ -238,11 +298,15 @@ function filterRedundantErrors(node: ErrorNode, parent?: ErrorNode, key?: string
   }
 
   // If every error here is an `enum` error and a sibling has any error, this node
-  // can be dropped as noise.
-  if (node.errors.length > 0 && node.errors.every(isEnumError) && parent && key) {
+  // can be dropped as noise. `key` is compared against `undefined` rather than
+  // checked for truthiness: the root node's key is the empty string, and it is
+  // eligible for pruning like any other.
+  if (node.errors.length > 0 && node.errors.every(isEnumError) && parent && key !== undefined) {
+    // A sibling counts as having errors when anything in its subtree does — the
+    // meaningful error is often on a grandchild rather than the sibling itself.
     const siblingsHaveErrors = getChildren(parent)
       .filter((sibling) => sibling !== node)
-      .some((sibling) => sibling.errors.length > 0)
+      .some(hasErrorsDeep)
 
     if (siblingsHaveErrors) {
       delete parent.children[key]
