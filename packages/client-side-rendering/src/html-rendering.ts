@@ -5,16 +5,16 @@ export type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration }
 /**
  * Default CDN URL for the @scalar/api-reference UMD standalone bundle.
  *
- * This is the classic build that registers a global `window.Scalar`. It is meant for consumers that
- * load the reference through a plain `<script src="...">` tag (for example the Astro client loader).
+ * This is the classic build that registers a global `window.Scalar` and is loaded through a plain
+ * `<script src="...">` tag. It stays the default so existing setups keep working unchanged.
  */
 export const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
 
 /**
  * Default CDN URL for the @scalar/api-reference ESM standalone build (added in #9871).
  *
- * Loading this entry as a module lets the browser download a small entry plus only the lazy chunks
- * the rendered page actually needs, instead of the whole monolithic UMD bundle up front.
+ * Used when `bundle` is enabled. It is loaded as a `<script type="module">`, so the browser only
+ * downloads the lazy chunks the rendered page needs instead of the whole monolithic UMD bundle.
  */
 export const DEFAULT_ESM_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'
 
@@ -112,6 +112,13 @@ export function renderApiReference(
      * `style="..."` attributes that a CSP nonce cannot authorize.
      */
     nonce?: string
+    /**
+     * Load the modern ESM build instead of the classic UMD bundle.
+     *
+     * Pass `true` to load the default ESM entry (`DEFAULT_ESM_CDN`) as a `<script type="module">`, or
+     * a URL string to point at a specific ESM build. When set, `bundle` takes precedence over `cdn`.
+     */
+    bundle?: string | boolean
   },
   customTheme = '',
 ): string {
@@ -119,7 +126,10 @@ export function renderApiReference(
   const title = escapeHtml(pageTitle ?? 'Scalar API Reference')
 
   const unwrapped = Array.isArray(givenConfig) ? givenConfig[0] : givenConfig
-  const { customCss, theme, ...rest } = (unwrapped ?? {}) as Record<string, unknown>
+  // `bundle` may also arrive inside the config object (integrations spread unknown options into it),
+  // so read it from there too and keep it out of the config that gets serialized to the client.
+  const { customCss, theme, bundle: configBundle, ...rest } = (unwrapped ?? {}) as Record<string, unknown>
+  const bundle = (options.bundle ?? configBundle) as string | boolean | undefined
 
   const configuration = getConfiguration({
     ...rest,
@@ -141,7 +151,7 @@ export function renderApiReference(
       content="width=device-width, initial-scale=1" />${cspNonceMeta}${getStyles(configuration as Record<string, unknown>, customTheme, nonce)}
   </head>
   <body>
-    <div id="app"></div>${getScriptTags(configuration, cdn, nonce)}
+    <div id="app"></div>${getScriptTags(configuration, cdn, nonce, bundle)}
   </body>
 </html>`
 }
@@ -198,46 +208,37 @@ export function serializeConfigToJs(configuration: Record<string, unknown>): str
 }
 
 /**
- * Whether a CDN URL points at the ESM build (loaded as a `<script type="module">`) rather than the
- * classic UMD bundle (loaded via `<script src>` and read off the `window.Scalar` global).
- *
- * The jsDelivr short entry is `.../esm.js`; self-hosted ESM builds are conventionally `*.mjs` or
- * `*.esm.js`. Everything else is treated as the classic UMD bundle, so any `cdn` URL that already
- * worked keeps working exactly as before.
- */
-const isEsmUrl = (cdn: string): boolean => {
-  const path = cdn.replace(/[?#].*$/, '')
-  return path.endsWith('.mjs') || path.endsWith('esm.js')
-}
-
-/**
  * The script tag(s) to load the @scalar/api-reference package from the CDN and initialize it.
  *
- * By default (no `cdn`) it loads the ESM standalone build as a module and calls `createApiReference`
- * directly, so the browser only downloads the lazy chunks the rendered page needs (see
- * `DEFAULT_ESM_CDN`) instead of the whole monolithic UMD bundle before it can paint.
+ * By default this loads the classic UMD bundle via `<script src>` (from `cdn`, defaulting to
+ * `DEFAULT_CDN`) and calls `Scalar.createApiReference`, which is unchanged from previous versions.
  *
- * A provided `cdn` keeps its historic meaning — a classic UMD bundle loaded via `<script src>` that
- * registers `window.Scalar` — so existing URLs (including pinned versions) keep working. Point `cdn`
- * at an ESM entry (`.../esm.js` or an `.mjs`/`*.esm.js` URL) to opt into the module build instead.
+ * Set `bundle` to opt into the modern ESM build instead: it is loaded as a `<script type="module">`
+ * that imports `createApiReference` directly, so the browser only downloads the lazy chunks the page
+ * needs rather than the whole monolithic UMD bundle. Pass `bundle: true` for the default ESM entry
+ * (`DEFAULT_ESM_CDN`), or a URL string to point at a specific ESM build. `bundle` wins over `cdn`.
  *
  * When a `nonce` is provided it is applied to the script tag(s) so they are allowed under a strict
- * `script-src` Content Security Policy. For the module build the bundle then loads its lazy chunks
- * through the module loader, so a strict policy needs `'strict-dynamic'` (or the CDN host
- * allow-listed) for those follow-up requests.
+ * `script-src` Content Security Policy. In `bundle` mode the ESM build then loads its chunks through
+ * the module loader, so a strict policy also needs `'strict-dynamic'` (or the CDN host allow-listed).
  */
-export function getScriptTags(configuration: Record<string, unknown>, cdn?: string, nonce?: string): string {
+export function getScriptTags(
+  configuration: Record<string, unknown>,
+  cdn?: string,
+  nonce?: string,
+  bundle?: string | boolean,
+): string {
   const configString = serializeConfigToJs(configuration)
 
   const nonceAttr = nonceAttribute(nonce)
 
-  // No `cdn` opts into the ESM default; a provided `cdn` stays on the classic UMD path unless it
-  // explicitly points at an ESM entry. This keeps every previously-working `cdn` URL working.
-  if (cdn === undefined || isEsmUrl(cdn)) {
+  if (bundle) {
+    const esmUrl = typeof bundle === 'string' ? bundle : DEFAULT_ESM_CDN
+
     return `
     <!-- Load the Scalar API Reference -->
     <script type="module"${nonceAttr}>
-      import { createApiReference } from '${cdn ?? DEFAULT_ESM_CDN}'
+      import { createApiReference } from '${esmUrl}'
 
       createApiReference('#app', ${configString})
     </script>`
@@ -245,7 +246,7 @@ export function getScriptTags(configuration: Record<string, unknown>, cdn?: stri
 
   return `
     <!-- Load the Script -->
-    <script src="${cdn}"${nonceAttr}></script>
+    <script src="${cdn ?? DEFAULT_CDN}"${nonceAttr}></script>
 
     <!-- Initialize the Scalar API Reference -->
     <script type="text/javascript"${nonceAttr}>

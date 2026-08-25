@@ -15,12 +15,9 @@ describe('html-rendering', () => {
       expect(html).toContain('<!doctype html>')
       expect(html).toContain('<title>Scalar API Reference</title>')
       expect(html).toContain('body { color: red }')
-      expect(html).toContain('<script type="module">')
-      expect(html).toContain(
-        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
-      )
+      expect(html).toContain('https://cdn.jsdelivr.net/npm/@scalar/api-reference')
       expect(html).toContain('<div id="app"></div>')
-      expect(html).toContain("createApiReference('#app'")
+      expect(html).toContain("Scalar.createApiReference('#app'")
     })
 
     it('handles custom page title correctly', () => {
@@ -98,33 +95,31 @@ describe('html-rendering', () => {
       expect(html).toContain('"url": "https://api.example.com/spec"')
       expect(html).not.toContain('"content"')
     })
+
+    it('loads the ESM module build when bundle is enabled', () => {
+      const html = getHtmlDocument({ bundle: true })
+      expect(html).toContain('<script type="module">')
+      expect(html).toContain(
+        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
+      )
+      expect(html).not.toContain('Scalar.createApiReference')
+    })
   })
 
   describe('getScriptTags', () => {
-    it('returns a module script with the default ESM CDN', () => {
-      const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}))
-      expect(tags).toContain('<script type="module">')
-      expect(tags).toContain(
-        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
+    it('returns script tags with default CDN', () => {
+      const tags = getScriptTags(
+        apiReferenceConfigurationWithSourceSchema({}),
+        'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
       )
-      expect(tags).toContain("createApiReference('#app'")
-    })
-
-    it('keeps a non-ESM cdn on the classic UMD script tag for backwards compatibility', () => {
-      const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}), 'https://example.com/script.js')
-      expect(tags).toContain('<script src="https://example.com/script.js"></script>')
+      expect(tags).toContain('<!-- Load the Script -->')
+      expect(tags).toContain('<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>')
       expect(tags).toContain("Scalar.createApiReference('#app'")
     })
 
-    it('uses a module script when the cdn points at an ESM entry', () => {
-      const tags = getScriptTags(
-        apiReferenceConfigurationWithSourceSchema({}),
-        'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js',
-      )
-      expect(tags).toContain('<script type="module">')
-      expect(tags).toContain(
-        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
-      )
+    it('uses custom CDN when provided', () => {
+      const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}), 'https://example.com/script.js')
+      expect(tags).toContain('https://example.com/script.js')
     })
 
     it('preserves function properties in configuration', () => {

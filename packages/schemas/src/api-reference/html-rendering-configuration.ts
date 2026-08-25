@@ -1,8 +1,9 @@
-import { object, optional, string } from '@scalar/validation'
+import { boolean, object, optional, string, union } from '@scalar/validation'
 
 export const htmlRenderingConfigurationSchema = object({
   /**
-   * The URL to the Scalar API Reference JS CDN.
+   * The URL to the Scalar API Reference UMD bundle (the classic build that registers `window.Scalar`
+   * and is loaded via `<script src>`).
    *
    * Use this to pin a specific version of the Scalar API Reference.
    *
@@ -13,6 +14,14 @@ export const htmlRenderingConfigurationSchema = object({
   cdn: string({
     default: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
   }),
+  /**
+   * Load the modern, code-split ESM build instead of the classic UMD bundle.
+   *
+   * Pass `true` to load the default ESM entry (`.../@scalar/api-reference/esm.js`) as a
+   * `<script type="module">`, or a URL string to point at a specific ESM build. When set, `bundle`
+   * takes precedence over `cdn`.
+   */
+  bundle: optional(union([string(), boolean()])),
   pageTitle: string({
     default: 'Scalar API Reference',
   }),

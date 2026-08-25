@@ -3,11 +3,26 @@ import type { ApiReferenceConfigurationWithMultipleSources } from './types'
 /**
  * The configuration for the static HTML rendering using the CDN.
  *
- * It's the ApiReferenceConfiguration, but extended with the `pageTitle` and `cdn` options.
+ * It's the ApiReferenceConfiguration, but extended with the `pageTitle`, `cdn` and `bundle` options.
  */
 export type HtmlRenderingConfiguration = Partial<ApiReferenceConfigurationWithMultipleSources> & {
   pageTitle: string
+  /**
+   * The URL to the Scalar API Reference UMD bundle (the classic build that registers `window.Scalar`
+   * and is loaded via `<script src>`). Use this to pin a specific version.
+   *
+   * @default https://cdn.jsdelivr.net/npm/@scalar/api-reference
+   */
   cdn: string
+  /**
+   * Load the modern, code-split ESM build instead of the classic UMD bundle.
+   *
+   * Pass `true` to load the default ESM entry (`.../@scalar/api-reference/esm.js`) as a
+   * `<script type="module">`, or a URL string to point at a specific ESM build. Because the ESM build
+   * is code-split, less JavaScript blocks the first render. When set, `bundle` takes precedence over
+   * `cdn`.
+   */
+  bundle?: string | boolean
   /**
    * A Content Security Policy (CSP) nonce to apply to the generated inline `<script>` and `<style>`
    * tags (and the CDN `<script>` tag).
