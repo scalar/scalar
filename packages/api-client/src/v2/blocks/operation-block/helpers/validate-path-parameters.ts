@@ -1,6 +1,6 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExample, isParamDisabled } from '@scalar/workspace-store/request-example'
-import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 type ValidatePathParametersResult = { ok: true } | { ok: false; invalidParams: string[] }
 

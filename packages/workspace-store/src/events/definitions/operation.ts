@@ -1,6 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
-import type { OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ParameterObject } from '@/schemas/v3.2/strict/openapi-document'
 
 /**
  * Describes the minimal identity for an operation in the workspace document.

@@ -5,8 +5,8 @@ import { canHaveOrder, getOpenapiObject } from '@/navigation/helpers/get-openapi
 import { getParentEntry } from '@/navigation/helpers/get-parent-entry'
 import type { IdGenerator, TraversedOperation, TraversedTag, TraversedWebhook, WithParent } from '@/schemas/navigation'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
+import type { TagObject } from '@/schemas/v3.2/strict/openapi-document'
+import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 
 type UpdateOrderIdParams = {
   store: WorkspaceStore

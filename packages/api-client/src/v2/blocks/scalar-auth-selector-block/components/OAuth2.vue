@@ -36,7 +36,7 @@ import { type XusePkce } from '@scalar/workspace-store/schemas/extensions/securi
 import type {
   OAuthFlow,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'

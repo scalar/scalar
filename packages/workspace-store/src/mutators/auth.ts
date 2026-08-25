@@ -9,8 +9,8 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
 import type { WorkspaceDocument } from '@/schemas'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
-import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
+import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
+import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.2/strict/security-scheme'
 
 /**
  * The auth-store key for a document's selection and secret state.

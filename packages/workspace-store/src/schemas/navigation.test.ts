@@ -4,7 +4,7 @@ import type { RequiredDeep } from 'type-fest'
 import { describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
-import type { TraversedEntrySchema } from '@/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntrySchema } from '@/schemas/v3.2/strict/openapi-document'
 
 import {
   TraversedDescriptionSchemaDefinition,

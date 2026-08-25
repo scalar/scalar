@@ -8,7 +8,7 @@ import type {
 
 import { getNameFromRef } from '@/helpers/get-name-from-ref'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
+import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
 
 import { dedupeRequirements } from './dedupe-requirements'
 

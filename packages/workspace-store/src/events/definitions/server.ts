@@ -1,6 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
-import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@/schemas/v3.2/strict/openapi-document'
 
 export type ServerMeta =
   | {

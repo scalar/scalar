@@ -1,5 +1,5 @@
 import { type DynamicScope, isDynamicRef, resolveDynamicRef } from '@scalar/workspace-store/helpers/dynamic-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type InjectionKey, inject } from 'vue'
 
 /**

@@ -5,7 +5,7 @@ import type {
   OpenApiDocument,
   OperationObject,
   ResponseObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { SectionHeaderTag } from '@/components/Section'

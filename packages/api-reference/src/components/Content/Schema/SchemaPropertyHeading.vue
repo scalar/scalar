@@ -2,12 +2,12 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   isArraySchema,
   isNumberSchema,
   isStringSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+} from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import { computed, toRef } from 'vue'
 
 import { Badge } from '@/components/Badge'
