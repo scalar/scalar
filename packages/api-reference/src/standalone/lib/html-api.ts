@@ -8,6 +8,7 @@ import { createHead } from '@unhead/vue/client'
 import { createApp, createSSRApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
+import { default as SsrTakeover } from '@/components/SsrTakeover.vue'
 import { hasPluginUrls, loadPluginsFromUrls } from '@/standalone/lib/load-plugins-from-urls'
 
 const getSpecScriptTag = (doc: Document) => doc.getElementById('api-reference')
@@ -248,8 +249,28 @@ export const createApiReference: CreateApiReference = (
     configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as AnyApiReferenceConfiguration) ?? {},
   })
 
+  // If we have an optional config, then we must mount the element immediately (not sure why type is not narrowing)
+  const mountElement = optionalConfiguration
+    ? typeof elementOrSelectorOrConfig === 'string'
+      ? document.querySelector(elementOrSelectorOrConfig)
+      : (elementOrSelectorOrConfig as Element)
+    : null
+
   const createReferenceApp = (isSsr = false) => {
-    const referenceApp = isSsr ? createSSRApp(() => h(ApiReference, props)) : createApp(() => h(ApiReference, props))
+    // When the server rendered through SsrTakeover, hydrate the same way: it reuses the
+    // server HTML as an opaque v-html node (so hydration never mismatches and no state is
+    // serialized into the response) and swaps in the interactive reference after mount.
+    // See SsrTakeover.vue and https://github.com/scalar/scalar/issues/4458.
+    //
+    // We only engage the takeover when the takeover host is actually present, so a server
+    // that rendered a bare <ApiReference> keeps hydrating exactly as before.
+    const ssrHost = isSsr ? (mountElement?.querySelector('.scalar-ssr-takeover') ?? null) : null
+
+    const root = ssrHost
+      ? () => h(SsrTakeover, { configuration: props.configuration, ssrHtml: ssrHost.innerHTML })
+      : () => h(ApiReference, props)
+
+    const referenceApp = isSsr ? createSSRApp(root) : createApp(root)
 
     // Meta tags, etc.
     referenceApp.use(createHead())
@@ -257,13 +278,6 @@ export const createApiReference: CreateApiReference = (
 
     return referenceApp
   }
-
-  // If we have an optional config, then we must mount the element immediately (not sure why type is not narrowing)
-  const mountElement = optionalConfiguration
-    ? typeof elementOrSelectorOrConfig === 'string'
-      ? document.querySelector(elementOrSelectorOrConfig)
-      : (elementOrSelectorOrConfig as Element)
-    : null
 
   // Detect server-rendered content and use createSSRApp for hydration
   const shouldHydrate = !!optionalConfiguration && !!mountElement && mountElement.children.length > 0

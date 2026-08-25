@@ -7,7 +7,7 @@ describe('ssr-hydration-config', () => {
     vi.clearAllMocks()
   })
 
-  it('unwraps array configuration before passing it to ApiReference in SSR', async () => {
+  it('unwraps array configuration before passing it to the reference in SSR', async () => {
     const app = {
       app: 'mock-app',
       config: {} as { idPrefix?: string },
@@ -25,7 +25,7 @@ describe('ssr-hydration-config', () => {
       renderToString,
     }))
     vi.doMock('@scalar/api-reference', () => ({
-      ApiReference: 'MockApiReference',
+      SsrTakeover: 'MockSsrTakeover',
     }))
 
     const { renderApiReferenceToString } = await import('./ssr')
@@ -43,7 +43,7 @@ describe('ssr-hydration-config', () => {
     expect(typeof renderRoot).toBe('function')
     renderRoot?.()
 
-    expect(h).toHaveBeenCalledWith('MockApiReference', {
+    expect(h).toHaveBeenCalledWith('MockSsrTakeover', {
       configuration: { url: 'https://example.com/openapi.json' },
     })
     expect(app.use).toHaveBeenCalledTimes(1)
