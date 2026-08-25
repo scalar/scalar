@@ -58,12 +58,14 @@
     "packages/types/src/openapi/3.1/index.generated.ts": ["types"],
     // Public extension type namespaces are consumed via @scalar/types/extensions/* package exports
     "packages/types/src/extensions/**/*.ts": ["types", "exports"],
-    // The v3.2 schemas mirror v3.1 as a superset. These exports are used by their v3.1 counterparts
-    // (resolve.ts, navigation.ts, and the openapi-types codegen script) and become used once the
-    // store is wired to v3.2. Until then knip cannot see a consumer.
-    "packages/workspace-store/src/schemas/v3.2/openapi/reference.ts": ["exports"],
-    "packages/workspace-store/src/schemas/v3.2/strict/ref-definitions.ts": ["exports"],
-    "packages/workspace-store/src/schemas/v3.2/strict/schema.ts": ["types"]
+    // The v3.1 and v3.2 strict schema trees mirror each other as a superset. The store is now wired
+    // to the v3.2 tree, so these v3.1 mirror exports (TraversedEntryObjectRef, MaybeRefSchemaObject)
+    // no longer have an internal consumer. They are kept for parity with v3.2 and the 3.1 upgrade
+    // path, and remain reachable via the package `./schemas/*` export.
+    "packages/workspace-store/src/schemas/v3.1/strict/ref-definitions.ts": ["exports"],
+    "packages/workspace-store/src/schemas/v3.1/strict/schema.ts": ["types"],
+    // `normalRef` mirrors `recursiveRef` for the non-recursive variant and has no consumer yet.
+    "packages/workspace-store/src/schemas/v3.2/openapi/reference.ts": ["exports"]
   },
   "workspaces": {
     "packages/api-client": {
