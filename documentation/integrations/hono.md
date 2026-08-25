@@ -18,18 +18,25 @@ Set up [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/package
 import { Hono } from 'hono'
 import { Scalar } from '@scalar/hono-api-reference'
 
-const app = new Hono()
+// Type your runtime bindings once (for example Cloudflare Workers env vars)
+type Bindings = {
+  ENVIRONMENT: string
+}
+
+const app = new Hono<{ Bindings: Bindings }>()
 
 // Use the middleware to serve the API Reference at /scalar
 app.get('/scalar', Scalar({ url: '/doc' }))
 
-// Or with dynamic configuration
-app.get('/scalar', Scalar((c) => {
-  return {
+// Or resolve the configuration per request from the context. Pass the same
+// bindings to `Scalar` so `c.env` is fully typed:
+app.get(
+  '/scalar',
+  Scalar<{ Bindings: Bindings }>((c) => ({
     url: '/doc',
     proxyUrl: c.env.ENVIRONMENT === 'development' ? 'https://proxy.scalar.com' : undefined,
-  }
-}))
+  })),
+)
 
 export default app
 ```
@@ -38,7 +45,7 @@ The Hono middleware takes our universal configuration object, [read more about c
 
 ### Themes
 
-The middleware comes with a custom theme for Hono. You can use one of [the other predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
+The middleware ships with a custom Hono theme that is applied by default, so there is nothing to opt into and no `hono` theme token to set. To use a different look, set `theme` to one of [the predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts) — `alternate`, `default`, `moon`, `purple`, `solarized`, `bluePlanet`, `deepSpace`, `saturn`, `kepler`, `mars`, or `laserwave` — or set it to `none` to drop the default Hono theme and start from a blank slate. All themes come with a light and dark color scheme.
 
 ```typescript
 import { Scalar } from '@scalar/hono-api-reference'
@@ -48,6 +55,68 @@ app.get('/scalar', Scalar({
   url: '/doc',
   theme: 'purple',
 }))
+```
+
+### Using hono-openapi
+
+The example above uses [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi). If you prefer [hono-openapi](https://github.com/rhinobase/hono-openapi), it generates the document as middleware, so you can add it to an existing app without rewriting your routes. Describe routes with `describeRoute`, serve the generated document with `openAPIRouteHandler`, and point `Scalar` at it:
+
+```typescript
+import { Hono } from 'hono'
+import { describeRoute, openAPIRouteHandler } from 'hono-openapi'
+import { Scalar } from '@scalar/hono-api-reference'
+
+const app = new Hono()
+
+app.get(
+  '/',
+  describeRoute({
+    summary: 'Say hello',
+    responses: { 200: { description: 'OK' } },
+  }),
+  (c) => c.text('Hello!'),
+)
+
+// Serve the generated OpenAPI document
+app.get(
+  '/openapi.json',
+  openAPIRouteHandler(app, {
+    documentation: {
+      info: { title: 'Example', version: '1.0.0' },
+    },
+  }),
+)
+
+// Render the reference from it
+app.get('/scalar', Scalar({ url: '/openapi.json' }))
+
+export default app
+```
+
+### Runtimes
+
+Hono runs on many runtimes, and the `Scalar` middleware works on all of them — it only renders HTML, so nothing here is Node-specific. Only the server entrypoint changes.
+
+**Cloudflare Workers, Bun, and Deno** export the app directly:
+
+```typescript
+app.get('/scalar', Scalar({ url: '/doc' }))
+
+export default app
+```
+
+**Deno** can also serve it explicitly:
+
+```typescript
+Deno.serve(app.fetch)
+```
+
+**Node.js** uses [`@hono/node-server`](https://github.com/honojs/node-server):
+
+```typescript
+import { serve } from '@hono/node-server'
+
+serve({ fetch: app.fetch, port: 3000 })
 ```
 
 ### Custom page title
