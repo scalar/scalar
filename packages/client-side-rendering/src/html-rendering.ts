@@ -2,8 +2,21 @@ import type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration } from '@
 
 export type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration }
 
-/** Default CDN URL for the @scalar/api-reference standalone bundle. */
+/**
+ * Default CDN URL for the @scalar/api-reference UMD standalone bundle.
+ *
+ * This is the classic build that registers a global `window.Scalar`. It is meant for consumers that
+ * load the reference through a plain `<script src="...">` tag (for example the Astro client loader).
+ */
 export const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+
+/**
+ * Default CDN URL for the @scalar/api-reference ESM standalone build (added in #9871).
+ *
+ * Loading this entry as a module lets the browser download a small entry plus only the lazy chunks
+ * the rendered page actually needs, instead of the whole monolithic UMD bundle up front.
+ */
+export const DEFAULT_ESM_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'
 
 /**
  * Escape HTML special characters in user-provided strings.
@@ -185,10 +198,16 @@ export function serializeConfigToJs(configuration: Record<string, unknown>): str
 }
 
 /**
- * The script tags to load the @scalar/api-reference package from the CDN.
+ * The script tag to load the @scalar/api-reference package from the CDN and initialize it.
  *
- * When a `nonce` is provided it is applied to both script tags so they are allowed under a strict
- * `script-src` Content Security Policy.
+ * Loads the ESM standalone build as a module and calls `createApiReference` directly, so the browser
+ * only downloads the lazy chunks the rendered page needs (see `DEFAULT_ESM_CDN`) instead of the whole
+ * monolithic UMD bundle. Pass a `cdn` that points at an ESM entry to override the default.
+ *
+ * When a `nonce` is provided it is applied to the module script so it is allowed under a strict
+ * `script-src` Content Security Policy. The bundle then loads its lazy chunks through the module
+ * loader, so a strict policy needs `'strict-dynamic'` (or the CDN host allow-listed) for those
+ * follow-up requests.
  */
 export function getScriptTags(configuration: Record<string, unknown>, cdn?: string, nonce?: string): string {
   const configString = serializeConfigToJs(configuration)
@@ -196,12 +215,11 @@ export function getScriptTags(configuration: Record<string, unknown>, cdn?: stri
   const nonceAttr = nonceAttribute(nonce)
 
   return `
-    <!-- Load the Script -->
-    <script src="${cdn ?? DEFAULT_CDN}"${nonceAttr}></script>
+    <!-- Load the Scalar API Reference -->
+    <script type="module"${nonceAttr}>
+      import { createApiReference } from '${cdn ?? DEFAULT_ESM_CDN}'
 
-    <!-- Initialize the Scalar API Reference -->
-    <script type="text/javascript"${nonceAttr}>
-      Scalar.createApiReference('#app', ${configString})
+      createApiReference('#app', ${configString})
     </script>`
 }
 

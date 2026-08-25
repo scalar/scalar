@@ -15,9 +15,12 @@ describe('html-rendering', () => {
       expect(html).toContain('<!doctype html>')
       expect(html).toContain('<title>Scalar API Reference</title>')
       expect(html).toContain('body { color: red }')
-      expect(html).toContain('https://cdn.jsdelivr.net/npm/@scalar/api-reference')
+      expect(html).toContain('<script type="module">')
+      expect(html).toContain(
+        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
+      )
       expect(html).toContain('<div id="app"></div>')
-      expect(html).toContain("Scalar.createApiReference('#app'")
+      expect(html).toContain("createApiReference('#app'")
     })
 
     it('handles custom page title correctly', () => {
@@ -98,14 +101,13 @@ describe('html-rendering', () => {
   })
 
   describe('getScriptTags', () => {
-    it('returns script tags with default CDN', () => {
-      const tags = getScriptTags(
-        apiReferenceConfigurationWithSourceSchema({}),
-        'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
+    it('returns a module script with the default ESM CDN', () => {
+      const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}))
+      expect(tags).toContain('<script type="module">')
+      expect(tags).toContain(
+        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
       )
-      expect(tags).toContain('<!-- Load the Script -->')
-      expect(tags).toContain('<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>')
-      expect(tags).toContain("Scalar.createApiReference('#app'")
+      expect(tags).toContain("createApiReference('#app'")
     })
 
     it('uses custom CDN when provided', () => {
@@ -191,7 +193,7 @@ describe('html-rendering', () => {
 
       // Check that body contains required elements
       expect(html).toContain('<div id="app"></div>')
-      expect(html).toContain('<script src="https://example.com/script.js"></script>')
+      expect(html).toContain("import { createApiReference } from 'https://example.com/script.js'")
 
       // Check that configuration is properly embedded
       expect(html).toContain('"theme": "kepler"')

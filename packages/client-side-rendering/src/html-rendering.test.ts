@@ -15,9 +15,12 @@ describe('html-rendering', () => {
       expect(html).toContain('<!doctype html>')
       expect(html).toContain('<title>Scalar API Reference</title>')
       expect(html).toContain('body { color: red }')
-      expect(html).toContain('https://cdn.jsdelivr.net/npm/@scalar/api-reference')
+      expect(html).toContain('<script type="module">')
+      expect(html).toContain(
+        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
+      )
       expect(html).toContain('<div id="app"></div>')
-      expect(html).toContain("Scalar.createApiReference('#app'")
+      expect(html).toContain("createApiReference('#app'")
     })
 
     it('handles custom page title correctly', () => {
@@ -109,14 +112,13 @@ describe('html-rendering', () => {
       expect(html).toContain('https://example.com/scalar.js')
     })
 
-    it('applies the nonce to the inline script, style and CDN script tags', () => {
+    it('applies the nonce to the module script and style tags', () => {
       const html = renderApiReference({ config: { customCss: 'body { color: red }' }, nonce: 'r4nd0m' })
-      // CDN script
+      // Module script that loads the bundle and initializes it
+      expect(html).toContain('<script type="module" nonce="r4nd0m">')
       expect(html).toContain(
-        '<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference" nonce="r4nd0m"></script>',
+        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
       )
-      // Inline init script
-      expect(html).toContain('<script type="text/javascript" nonce="r4nd0m">')
       // Inline style
       expect(html).toContain('<style type="text/css" nonce="r4nd0m">')
     })
@@ -131,7 +133,7 @@ describe('html-rendering', () => {
       expect(html).not.toContain('nonce=')
       expect(html).not.toContain('csp-nonce')
       expect(html).toContain('<style type="text/css">')
-      expect(html).toContain('<script type="text/javascript">')
+      expect(html).toContain('<script type="module">')
     })
 
     it('escapes the nonce to prevent attribute injection', () => {
@@ -142,14 +144,13 @@ describe('html-rendering', () => {
   })
 
   describe('getScriptTags', () => {
-    it('returns script tags with default CDN', () => {
-      const tags = getScriptTags(
-        apiReferenceConfigurationWithSourceSchema({}),
-        'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
+    it('returns a module script with the default ESM CDN', () => {
+      const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}))
+      expect(tags).toContain('<script type="module">')
+      expect(tags).toContain(
+        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
       )
-      expect(tags).toContain('<!-- Load the Script -->')
-      expect(tags).toContain('<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>')
-      expect(tags).toContain("Scalar.createApiReference('#app'")
+      expect(tags).toContain("createApiReference('#app'")
     })
 
     it('uses custom CDN when provided', () => {
@@ -157,14 +158,14 @@ describe('html-rendering', () => {
       expect(tags).toContain('https://example.com/script.js')
     })
 
-    it('applies the nonce to both script tags when provided', () => {
+    it('applies the nonce to the module script when provided', () => {
       const tags = getScriptTags(
         apiReferenceConfigurationWithSourceSchema({}),
         'https://example.com/script.js',
         'abc123',
       )
-      expect(tags).toContain('<script src="https://example.com/script.js" nonce="abc123"></script>')
-      expect(tags).toContain('<script type="text/javascript" nonce="abc123">')
+      expect(tags).toContain('<script type="module" nonce="abc123">')
+      expect(tags).toContain("import { createApiReference } from 'https://example.com/script.js'")
     })
 
     it('preserves function properties in configuration', () => {
@@ -245,7 +246,7 @@ describe('html-rendering', () => {
 
       // Check that body contains required elements
       expect(html).toContain('<div id="app"></div>')
-      expect(html).toContain('<script src="https://example.com/script.js"></script>')
+      expect(html).toContain("import { createApiReference } from 'https://example.com/script.js'")
 
       // Check that configuration is properly embedded
       expect(html).toContain('"theme": "kepler"')
