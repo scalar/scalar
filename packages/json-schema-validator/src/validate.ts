@@ -13,15 +13,20 @@ type SchemaObject = Record<string, any>
 
 /**
  * Ajv classes keyed by the JSON Schema dialect a schema declares in `$schema`.
+ *
+ * The keys omit the trailing `#`, which schemas include inconsistently (OpenAPI
+ * draft-04 has it, the AsyncAPI draft-07 schemas do not). Lookups normalize the
+ * `$schema` value the same way so both variants resolve.
  */
 const ajvClassesByDialect = {
-  'http://json-schema.org/draft-04/schema#': Ajv04,
-  'http://json-schema.org/draft-07/schema#': Ajv,
+  'http://json-schema.org/draft-04/schema': Ajv04,
+  'http://json-schema.org/draft-07/schema': Ajv,
   'https://json-schema.org/draft/2020-12/schema': Ajv2020,
 }
 
 const compile = (schema: SchemaObject, formats?: Record<string, unknown>): ValidateFunction => {
-  const AjvClass = ajvClassesByDialect[schema.$schema as keyof typeof ajvClassesByDialect] ?? Ajv
+  const dialect = typeof schema.$schema === 'string' ? schema.$schema.replace(/#$/, '') : ''
+  const AjvClass = ajvClassesByDialect[dialect as keyof typeof ajvClassesByDialect] ?? Ajv
 
   const ajv = new AjvClass({
     // Ajv is a bit too strict in its strict validation of these schemas.
