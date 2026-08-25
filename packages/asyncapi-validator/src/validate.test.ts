@@ -41,8 +41,26 @@ describe('validate', () => {
     expect(result.errors?.length).toBeGreaterThan(0)
   })
 
+  it('validates a patch version against its minor schema', () => {
+    // There is no dedicated 3.1.4 schema, so it falls back to the 3.1.0 schema.
+    const result = validate({
+      asyncapi: '3.1.4',
+      info: { title: 'Hello World', version: '1.0.0' },
+    })
+
+    expect(result.valid).toBe(true)
+    expect(result.version).toBe('3.1.0')
+  })
+
   it('fails when the version is not supported', () => {
     const result = validate({ asyncapi: '9.9.9', info: { title: 'Nope', version: '1.0.0' } })
+
+    expect(result.valid).toBe(false)
+  })
+
+  it('fails for an unsupported minor version', () => {
+    // 3.9 has no schema, and must not fall back to another minor.
+    const result = validate({ asyncapi: '3.9.0', info: { title: 'Nope', version: '1.0.0' } })
 
     expect(result.valid).toBe(false)
   })

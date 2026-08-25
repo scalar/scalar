@@ -75,8 +75,15 @@ export function validate(document: string | AnyObject, options?: ValidateOptions
       return { valid: false, errors: [{ message: ERRORS.ASYNCAPI_VERSION_NOT_SUPPORTED }] }
     }
 
+    // The AsyncAPI schema pins the `asyncapi` field to an exact version (a
+    // `const`), so a patch release (e.g. 3.1.4) has to be normalized to its
+    // minor before schema validation. Validate a shallow copy to avoid mutating
+    // the caller's document.
+    const documentToValidate =
+      specification.asyncapi === version ? specification : { ...specification, asyncapi: version }
+
     // Validate against the matching AsyncAPI JSON Schema (shared engine)
-    const result = getValidator(version)(specification, options)
+    const result = getValidator(version)(documentToValidate, options)
 
     if (!result.valid) {
       return { valid: false, version, errors: result.errors }
