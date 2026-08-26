@@ -1,6 +1,3 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
 import {
   type BrowserContext,
   type BrowserContextOptions,
@@ -60,8 +57,6 @@ export type ComponentTestOptions = {
    * Falls back to the args of the test block if not provided.
    */
   args: StoryTestArgs | undefined
-  /** Whether to render with a background. Defaults to false. */
-  background: boolean
   /** Whether to crop the snapshot to the component root, body, or viewport. Defaults to 'body'. */
   crop: 'component' | 'body' | 'viewport'
   /** Device scale factor used for screenshots. Defaults to 2. */
@@ -102,9 +97,6 @@ const devices = {
 function toSlug(input: string): string {
   return input.replace(/ /g, '-').toLowerCase()
 }
-
-const currentDir = path.dirname(fileURLToPath(import.meta.url))
-const transparentCssPath = path.resolve(currentDir, './transparent.css')
 
 const componentDetailsFromContext = (
   component: string | undefined,
@@ -175,7 +167,6 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   component: [undefined, { option: true }],
   story: [undefined, { option: true }],
   args: [undefined, { option: true }],
-  background: [false, { option: true }],
   crop: ['body', { option: true }],
   scale: [2, { option: true }],
   device: [undefined, { option: true }],
@@ -226,7 +217,7 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   ],
 
   // Snapshot helper bound to current test settings
-  snapshot: async ({ page, background, crop, colorModes, theme, component: c, story: s }, use, testInfo) => {
+  snapshot: async ({ page, crop, colorModes, theme, component: c, story: s }, use, testInfo) => {
     const takeSnapshot: SnapshotFn = async (suffix?: string): Promise<void> => {
       const { story } = componentDetailsFromContext(c, s, testInfo)
       const target = crop === 'viewport' ? page : page.locator(crop === 'component' ? '#storybook-root > *' : 'body')
@@ -235,10 +226,9 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
         const colorModeSuffix = colorMode === 'light' ? '' : `-${colorMode}`
         const filename = `${toSlug(story)}${suffix ? `-${toSlug(suffix)}` : ''}${themeSuffix}${colorModeSuffix}.png`
         await setColorMode(page, colorMode)
-        await expect(target).toHaveScreenshot(filename, {
-          omitBackground: !background,
-          stylePath: background ? undefined : transparentCssPath,
-        })
+        // Stories paint their own background (see the wrapper in each *.stories.ts), so the default
+        // opaque screenshot is enough — no transparent-canvas handling needed.
+        await expect(target).toHaveScreenshot(filename)
       }
     }
 
