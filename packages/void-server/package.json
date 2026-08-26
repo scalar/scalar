@@ -45,7 +45,7 @@
     "@scalar/helpers": "workspace:*",
     "hono": "catalog:*",
     "js-base64": "catalog:*",
-    "ws": "^8.19.0"
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@types/ws": "catalog:*",
