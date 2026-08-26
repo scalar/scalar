@@ -31,7 +31,7 @@ catalogs:
     '@nestjs/common': '^11.1.11'
     '@nestjs/core': '^11.1.11'
     '@nestjs/platform-express': '^11.1.11'
-    '@nestjs/platform-fastify': '^11.1.14'
+    '@nestjs/platform-fastify': '^11.1.24'
     '@nestjs/schematics': '^11.0.9'
     '@nestjs/swagger': '^7.3.1'
     '@nestjs/testing': '^11.1.11'
@@ -146,3 +146,5 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
+  # Renovate security update: @nestjs/platform-fastify@11.1.24
+  - "@nestjs/platform-fastify@11.1.24"
