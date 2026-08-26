@@ -1,7 +1,4 @@
 openapi: 3.2.0
-# `$self` (new in OpenAPI 3.2) declares this document's own base URI. It anchors
-# reference resolution when a description is split across multiple documents.
-$self: https://galaxy.scalar.com/openapi/3.2.yaml
 info:
   title: Scalar Galaxy
   description: |
@@ -63,8 +60,6 @@ externalDocs:
   description: Documentation
   url: https://github.com/scalar/scalar
 servers:
-  # `name` (new in OpenAPI 3.2) gives each server a short, unique handle that
-  # tooling can use to refer to a specific host.
   - url: https://galaxy.scalar.com
     name: production
   - url: '{protocol}://void.scalar.com/{path}'
@@ -95,9 +90,6 @@ x-speakeasy-webhooks:
     signatureTextEncoding: base64
     algorithm: hmac-sha256
 tags:
-  # OpenAPI 3.2 enriches the Tag Object with `summary`, `parent` (to build a
-  # navigation hierarchy) and `kind` (from the Tag Kinds registry, e.g. `nav`,
-  # `badge`, `audience`).
   - name: Authentication
     summary: Accounts and tokens
     kind: nav
@@ -157,7 +149,6 @@ paths:
             application/json:
               schema:
                 $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets'
-                # Bind the generic PaginatedResource template's item type to Planet via a $dynamicAnchor.
                 $defs:
                   itemType:
                     $dynamicAnchor: itemType
@@ -482,9 +473,6 @@ paths:
           pm.response.to.have.status(204);
         });
     additionalOperations:
-      # `additionalOperations` (new in OpenAPI 3.2) documents HTTP methods beyond
-      # the fixed set of get, put, post, delete, options, head, patch, trace and
-      # query. The map key is the exact method name sent on the wire.
       COPY:
         tags:
           - Planets
@@ -932,8 +920,6 @@ components:
       in: query
       name: api_key
       description: API key query parameter
-      # `deprecated` on a Security Scheme is new in OpenAPI 3.2. Passing API keys
-      # in the URL query string is discouraged, so this scheme is marked deprecated.
       deprecated: true
     apiKeyCookie:
       type: apiKey
@@ -943,8 +929,6 @@ components:
     oAuth2:
       type: oauth2
       description: OAuth 2.0 authentication
-      # `oauth2MetadataUrl` (new in OpenAPI 3.2) points to the OAuth 2.0
-      # Authorization Server Metadata document for automatic discovery.
       oauth2MetadataUrl: https://galaxy.scalar.com/.well-known/oauth-authorization-server
       flows:
         authorizationCode:
@@ -960,8 +944,6 @@ components:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
-        # New in OpenAPI 3.2: the OAuth 2.0 Device Authorization flow, for
-        # input-constrained devices such as CLIs, smart TVs and IoT hardware.
         deviceAuthorization:
           deviceAuthorizationUrl: https://galaxy.scalar.com/oauth/device
           tokenUrl: https://galaxy.scalar.com/oauth/token
@@ -969,14 +951,12 @@ components:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
-        # Legacy
         implicit:
           authorizationUrl: https://galaxy.scalar.com/oauth/authorize
           scopes:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
-        # Legacy
         password:
           tokenUrl: https://galaxy.scalar.com/oauth/token
           scopes:
@@ -1253,8 +1233,6 @@ components:
           type: integer
           format: int64
           readOnly: true
-          # Serialize the id as an XML attribute (<planet id="1">) using the new
-          # 3.2 `nodeType` field instead of the deprecated `attribute: true`.
           xml:
             nodeType: attribute
           examples:
@@ -1270,7 +1248,6 @@ components:
           type:
             - string
             - 'null'
-          # `nodeType: cdata` wraps free-form text in a CDATA section.
           xml:
             nodeType: cdata
           examples:
@@ -1398,8 +1375,6 @@ components:
             - https://cdn.scalar.com/photos/mars.jpg
         satellites:
           type: array
-          # `nodeType: none` keeps the array unwrapped: each <satellite> appears
-          # directly, with no surrounding <satellites> element (the array default).
           xml:
             nodeType: none
           items:
@@ -1408,8 +1383,6 @@ components:
           $ref: '#/components/schemas/User'
         tags:
           type: array
-          # `nodeType: element` wraps the items in a <tags> element, replacing the
-          # deprecated `wrapped: true`.
           xml:
             nodeType: element
             name: tags

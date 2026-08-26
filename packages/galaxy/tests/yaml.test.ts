@@ -52,7 +52,6 @@ type ThreeTwoSecurityScheme = {
 }
 
 type ThreeTwoDocument = {
-  $self?: string
   servers: Array<{ url: string; name?: string }>
   tags: Array<{ name: string; summary?: string; parent?: string; kind?: string }>
   paths: Record<string, ThreeTwoPathItem>
@@ -71,10 +70,6 @@ describe('yaml', () => {
 
   it('ships a 3.2 document on version 3.2.0', () => {
     expect(galaxyThreeTwo).toContain('openapi: 3.2.0')
-  })
-
-  it('declares the document base URI with $self', () => {
-    expect(getThreeTwoDocument().$self).toBeTypeOf('string')
   })
 
   it('gives every server a name', () => {
