@@ -9,5 +9,9 @@ import { takeSnapshot, test } from '@test/helpers'
  * `Schema.stories.ts`. Keep each entry's slug in sync with its story export.
  */
 test.describe('Schema', () => {
+  // Crop to the painted story wrapper (see Schema.stories.ts) and keep an opaque background, so the
+  // baselines render on the real Scalar page background (white in light mode) instead of transparent.
+  test.use({ crop: 'component', background: true })
+
   ;['Base', 'With Required', 'Composition'].forEach((story) => test(story, takeSnapshot))
 })

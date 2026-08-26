@@ -11,11 +11,13 @@ import Schema from './Schema.vue'
 const meta: Meta<typeof Schema> = {
   title: 'Schema/Schema',
   component: Schema,
-  // Keep the rendered width stable so snapshots do not depend on the canvas size.
+  // Wrap in a fixed-width, padded card painted with the Scalar page background (white in light mode)
+  // so the snapshot has a stable size and an opaque background instead of a transparent one.
   render: (args) => ({
     components: { Schema },
     setup: () => ({ args }),
-    template: '<div style="max-width: 600px"><Schema v-bind="args" /></div>',
+    template:
+      '<div style="width: 600px; padding: 16px; background: var(--scalar-background-1)"><Schema v-bind="args" /></div>',
   }),
 }
 
