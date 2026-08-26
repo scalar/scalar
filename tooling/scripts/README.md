@@ -148,12 +148,18 @@ This command builds and pushes Docker images for Playwright testing. It creates 
 - `scalarapi/playwright:${version}` - Base Playwright image
 - `scalarapi/playwright-runner:${version}` - Runner image
 
+Both images are built for `linux/amd64` and `linux/arm64` with buildx and pushed as a
+multi-arch manifest, so the runner works on amd64 CI runners as well as arm64 (Apple
+Silicon) machines. The command creates a reusable `scalar-multiarch` buildx builder on
+first run.
+
 **Usage:**
 ```bash
 pnpm --filter @scalar-internal/build-scripts start update-playwright-docker
 ```
 
-**Note:** This command requires Docker to be installed and configured, and you must have push access to the `scalarapi` Docker Hub organization.
+**Note:** This command requires Docker (with buildx) to be installed and configured, and
+you must have push access to the `scalarapi` Docker Hub organization.
 
 ### `generate-blog`
 
