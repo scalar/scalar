@@ -59,7 +59,7 @@ catalogs:
     'fastify-plugin': ^4.5.1
     ai: 6.0.33
     ansis: 4.1.0
-    astro: 5.18.1
+    astro: 7.1.0
     commander: 13.1.0
     concurrently: 9.1.2
     cross-env: 10.1.0
@@ -136,8 +136,8 @@ minimumReleaseAgeExclude:
   - '@scalar/*'
   # Renovate security update: flatted@3.4.0
   - flatted@3.4.0
-  # Renovate security update: astro@6.0.0 || 5.18.1
-  - astro@6.0.0 || 5.18.1
+  # Renovate security update: astro@6.0.0 || 5.18.1 || 7.1.0
+  - astro@6.0.0 || 5.18.1 || 7.1.0
   # Renovate security update: yaml@2.8.3
   - yaml@2.8.3
   # Renovate security update: picomatch@4.0.4
