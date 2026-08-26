@@ -108,7 +108,7 @@ catalogs:
     vue-tsc: ^3.3.8
     vue: ^3.5.40
     yaml: ^2.9.0
-    zod: ^4.3.5
+    zod: ^4.4.3
     posthog-js: 1.407.5
     ws: 8.21.0
 ignoredBuiltDependencies:
