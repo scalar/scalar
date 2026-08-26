@@ -24,8 +24,14 @@
  */
 export default {}
 
-/** Deprecation notices are about the API, not the instance, so warn once */
-const hasWarned = false
+/**
+ * Deprecation notices are about the API, not the instance, so warn once.
+ *
+ * Held in an object because this block is linted on its own: a `let` reassigned
+ * only from `<script setup>` reads as never reassigned, and gets rewritten to a
+ * `const` that then throws on assignment.
+ */
+const deprecation = { warned: false }
 </script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
@@ -48,8 +54,8 @@ const slots = useSlots()
 // Vue drops content for slots we no longer render, so an unmigrated consumer
 // would otherwise just get an empty header. Warn once per module rather than
 // per instance - a header can mount many times over a session.
-if (!hasWarned && (slots.start || slots.end)) {
-  hasWarned = true
+if (!deprecation.warned && (slots.start || slots.end)) {
+  deprecation.warned = true
   console.warn(
     'ScalarHeader: the `start` and `end` slots have been removed. Compose `ScalarHeaderColumn` children in the default slot instead.',
   )
