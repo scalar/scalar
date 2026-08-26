@@ -69,7 +69,7 @@ catalogs:
     fastify: ^5.11.2
     flatted: ^3.4.0
     fuse.js: ^7.5.0
-    hono: ^4.12.7
+    hono: ^4.12.34
     get-port-please: 3.2.0
     github-slugger: 2.0.0
     highlight.js: ^11.11.1
@@ -146,3 +146,5 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
+  # Renovate security update: hono@4.12.34
+  - hono@4.12.34
