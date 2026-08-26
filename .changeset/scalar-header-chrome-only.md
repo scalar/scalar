@@ -37,4 +37,6 @@ Passing the old slots logs a deprecation warning, and typed consumers get a `vue
 
 `is` is worth reaching for when a header is nested inside an existing `header` landmark — `is="div"` avoids exposing a second `banner` role.
 
+`ScalarMenu`'s default logo now renders at a fixed size. It previously inherited `ScalarIcon`'s `size: 'full'`, and because the Scalar logo ships a `viewBox` with no intrinsic dimensions, that percentage width resolved against the available space in WebKit — stretching the logo box to fill the header and leaving the mark floating in the middle of it.
+
 This also fixes the app header overflowing narrow viewports, including on iOS Safari. `ScalarHeaderColumn` carries `min-w-0`, so a `flex-1` column shrinks and its long title ellipsizes instead of pushing the header past the screen. Hug columns still size to their content, so keep a trailing action cluster narrow enough to fit on its own.
