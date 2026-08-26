@@ -65,6 +65,16 @@ describe('validate', () => {
     expect(result.valid).toBe(false)
   })
 
+  it('reports a scalar or array as empty/invalid, not an unsupported version', () => {
+    // A YAML string can parse to a primitive or an array; neither is a document.
+    for (const input of ['42', 'true', '- a\n- b']) {
+      const result = validate(input)
+
+      expect(result.valid).toBe(false)
+      expect(result.errors).toEqual([{ message: "Can't find JSON, YAML or filename in data." }])
+    }
+  })
+
   it('throws when throwOnError is set', () => {
     expect(() => validate({ asyncapi: '9.9.9' }, { throwOnError: true })).toThrow()
   })

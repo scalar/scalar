@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import { createValidator } from '@scalar/json-schema-validator'
 import type { AnyObject } from '@scalar/types/utils'
 import { parse as parseYaml } from 'yaml'
@@ -55,8 +56,10 @@ export function validate(document: string | AnyObject, options?: ValidateOptions
   }
 
   try {
-    // The document is empty or invalid
-    if (specification === undefined || specification === null) {
+    // The document is empty or invalid. A YAML/JSON string can parse to a
+    // primitive or an array, neither of which is a document, so guard against
+    // anything that is not a plain object rather than only null/undefined.
+    if (!isObject(specification)) {
       if (options?.throwOnError) {
         throw new Error(ERRORS.EMPTY_OR_INVALID)
       }
