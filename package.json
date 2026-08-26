@@ -41,7 +41,7 @@
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "tsx": "catalog:*",
-    "turbo": "^2.8.11",
+    "turbo": "^2.9.14",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.53.0",
     "typescript-language-server": "^5.1.3",
