@@ -2248,6 +2248,9 @@ importers:
       '@scalar/openapi-validator':
         specifier: workspace:*
         version: link:../openapi-validator
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
       yaml:
         specifier: catalog:*
         version: 2.9.0
@@ -2255,9 +2258,6 @@ importers:
       '@apidevtools/swagger-parser':
         specifier: 10.1.0
         version: 10.1.0(openapi-types@12.1.3)
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../types
       '@types/node':
         specifier: ^24.1.0
         version: 24.10.13

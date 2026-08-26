@@ -58,11 +58,11 @@
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/openapi-validator": "workspace:*",
+    "@scalar/types": "workspace:*",
     "yaml": "catalog:*"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "10.1.0",
-    "@scalar/types": "workspace:*",
     "@types/node": "catalog:*",
     "just-diff": "^6.0.2",
     "vite": "catalog:*"
