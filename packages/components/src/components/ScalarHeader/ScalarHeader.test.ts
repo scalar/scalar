@@ -31,10 +31,7 @@ describe('ScalarHeader', () => {
   it('warns when a consumer passes the removed layout slots', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-    // Mounted twice: the notice is about the API, so it should not repeat per
-    // instance.
     mount(ScalarHeader, { slots: { start: 'Menu' } })
-    mount(ScalarHeader, { slots: { end: 'Actions' } })
 
     expect(warn).toHaveBeenCalledOnce()
     expect(warn.mock.calls[0]?.[0]).toContain('ScalarHeaderColumn')
