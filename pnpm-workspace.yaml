@@ -136,8 +136,8 @@ minimumReleaseAgeExclude:
   - '@scalar/*'
   # Renovate security update: flatted@3.4.0
   - flatted@3.4.0
-  # Renovate security update: astro@6.0.0 || 5.18.1
-  - astro@6.0.0 || 5.18.1
+  # Renovate security update: astro@6.0.0 || 5.18.1 || 7.2.7 || 7.1.0
+  - astro@6.0.0 || 5.18.1 || 7.2.7 || 7.1.0
   # Renovate security update: yaml@2.8.3
   - yaml@2.8.3
   # Renovate security update: picomatch@4.0.4
