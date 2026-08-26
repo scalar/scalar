@@ -182,6 +182,24 @@ describe('prettify-ajv-errors', () => {
     expect(result).toEqual([expect.objectContaining({ message: 'if must match "else" schema' })])
   })
 
+  it('lets a required error win over deeper child errors', () => {
+    // `required` is terminal: a missing property makes the rest of that object's
+    // errors moot, so the child error is dropped in favor of the required one.
+    const errors: AjvError[] = [
+      {
+        keyword: 'required',
+        instancePath: '/foo',
+        message: "must have required property 'name'",
+        params: { missingProperty: 'name' },
+      },
+      { keyword: 'type', instancePath: '/foo/bar', message: 'must be string', params: {} },
+    ]
+
+    const result = prettifyAjvErrors({ foo: {} }, errors)
+
+    expect(result).toEqual([expect.objectContaining({ message: "must have required property 'name'" })])
+  })
+
   it('keeps both sibling enum errors instead of dropping one as noise', () => {
     // Two properties each failing their own enum are equally actionable. An
     // earlier rule dropped one whenever any sibling had an error, silently losing

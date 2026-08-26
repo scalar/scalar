@@ -49,6 +49,9 @@ const isUnevaluatedPropertiesError = isKeyword('unevaluatedProperties')
 
 const getChildren = (node: ErrorNode): ErrorNode[] => Object.values(node.children)
 
+/** Whether the node currently has any child nodes. */
+const hasChildren = (node: ErrorNode): boolean => Object.keys(node.children).length > 0
+
 /**
  * Whether this node, or anything below it, carries a non-`enum` error.
  *
@@ -237,96 +240,140 @@ function makeTree(ajvErrors: AjvError[]): ErrorNode {
 }
 
 /**
- * Prunes redundant errors from the tree so the most actionable message wins.
- *
- * The rules here are load-bearing (see the `oneOf`/`$ref` handling, which keeps
- * a missing `description` error instead of the misleading `$ref` one).
+ * The flags a node's pruning decisions depend on, derived once from the errors
+ * as first seen so a rule never reacts to an earlier rule's output.
  */
-function filterRedundantErrors(node: ErrorNode, parent?: ErrorNode, key?: string): void {
-  const errors = node.errors
-  const hasOneOfError = errors.some(isOneOfError)
-  const hasAnyOfError = errors.some(isAnyOfError)
-  const hasRequiredError = errors.some(isRequiredError)
-  const hasIfError = errors.some(isIfError)
-  const hasAdditionalPropertiesError = errors.some(isAdditionalPropertiesError)
-  const hasUnevaluatedPropertiesError = errors.some(isUnevaluatedPropertiesError)
-  const hasChildren = Object.keys(node.children).length > 0
+type NodeErrorFlags = {
+  hasOneOf: boolean
+  hasAnyOf: boolean
+  hasRequired: boolean
+  hasIf: boolean
+  /** `additionalProperties` or `unevaluatedProperties` — treated the same here. */
+  hasExtraProperties: boolean
+  /** Whether the node had children when first seen, before any rule cleared them. */
+  hasChildren: boolean
+}
 
-  // An `if` error next to an `additionalProperties`/`unevaluatedProperties` error
-  // is just noise from the if/then/else conditional.
-  if (hasIfError && (hasAdditionalPropertiesError || hasUnevaluatedPropertiesError)) {
-    node.errors = errors.filter((error) => !isIfError(error))
-  }
-
-  if (hasOneOfError && hasRequiredError) {
-    if (hasAdditionalPropertiesError || hasUnevaluatedPropertiesError) {
-      // Keep the meaningful errors at this level, drop `required`/`oneOf`.
+/**
+ * Resolves the `oneOf`/`required` tangle at a single node.
+ *
+ * OpenAPI's `oneOf: [Schema, Reference]` unions make `oneOf` and `required` fire
+ * together, and the right message depends on what else failed. `errors` is the
+ * node's list as first seen; every branch resets from it, so the decision never
+ * depends on a prior rule's output.
+ */
+function resolveCompositionAndRequired(node: ErrorNode, errors: AjvError[], flags: NodeErrorFlags): void {
+  if (flags.hasOneOf && flags.hasRequired) {
+    if (flags.hasExtraProperties) {
+      // A concrete `additionalProperties`/`unevaluatedProperties` error is the
+      // actionable one; drop the `required`/`oneOf` branch noise around it.
       node.errors = errors.filter((error) => !isRequiredError(error) && !isOneOfError(error))
-    } else if (hasChildren) {
-      // Children are more meaningful than the parent's errors.
+    } else if (flags.hasChildren) {
+      // The children carry the specific reason, so drop this node's errors.
       node.errors = []
     } else {
       // Both `oneOf` branches produced a `required` error: one from the schema the
       // user most likely intended (e.g. a Response needs `description`) and one
       // from the `Reference` branch (needs `$ref`). Surface the intended error and
-      // drop the `$ref` noise. Fall back to the generic `oneOf` error only when the
-      // sole requirement left is `$ref` (i.e. the value looks like a broken ref).
+      // drop the `$ref` noise, falling back to the generic `oneOf` error only when
+      // the sole requirement left is `$ref` (i.e. the value looks like a broken ref).
       const meaningfulRequiredErrors = errors.filter(
         (error) => isRequiredError(error) && error.params?.missingProperty !== '$ref',
       )
       node.errors = meaningfulRequiredErrors.length > 0 ? meaningfulRequiredErrors : errors.filter(isOneOfError)
     }
-  } else if (hasOneOfError && hasChildren) {
+  } else if (flags.hasOneOf && flags.hasChildren) {
     // Only a `oneOf` error with children: let the more specific children surface.
     node.errors = []
-  } else if (hasOneOfError) {
+  } else if (flags.hasOneOf) {
     // Multiple duplicate `oneOf` errors from different branches: keep just one.
     const oneOfErrors = errors.filter(isOneOfError)
 
     if (oneOfErrors.length > 1) {
       node.errors = [oneOfErrors[0]]
     }
-  } else if (hasRequiredError) {
-    // A `required` error takes priority over everything else, including `anyOf`.
+  } else if (flags.hasRequired) {
+    // A missing property makes the rest of that object's errors moot, so a
+    // `required` error wins outright — over `anyOf`, and over the children.
     node.errors = errors.filter(isRequiredError)
     node.children = {}
   }
+}
 
-  // An `anyOf` error means the meaningful errors live in the children. Re-check
-  // the children here rather than reusing `hasChildren`: the `required` branch
-  // above may have just cleared them, and wiping the errors in that case would
-  // drop the actionable `required` message.
-  if (hasAnyOfError && Object.keys(node.children).length > 0) {
+/**
+ * Drops a node whose errors are all `enum` errors when a sibling carries a more
+ * specific (non-`enum`) error. Two properties each failing their own `enum` are
+ * equally actionable, so neither silences the other. The root node's key is the
+ * empty string, so compare `key` against `undefined` rather than truthiness.
+ */
+function pruneEnumNextToSpecificSibling(node: ErrorNode, parent?: ErrorNode, key?: string): void {
+  if (!(node.errors.length > 0 && node.errors.every(isEnumError) && parent && key !== undefined)) {
+    return
+  }
+
+  // The more specific error is often on a grandchild rather than the sibling
+  // itself, so weigh whole subtrees.
+  const siblingsHaveMoreSpecificErrors = getChildren(parent)
+    .filter((sibling) => sibling !== node)
+    .some(hasMoreSpecificErrorDeep)
+
+  if (siblingsHaveMoreSpecificErrors) {
+    delete parent.children[key]
+  }
+}
+
+/**
+ * Prunes redundant errors from the tree so the most actionable message wins.
+ *
+ * Ajv reports every failing branch, which for OpenAPI (full of `oneOf`/`anyOf`/
+ * `if`) is mostly noise. The rules rank errors by how specific they are:
+ *
+ *   - "container" errors — `oneOf`, `anyOf`, `if` — only report that a branch
+ *     failed, never why, so they yield to any more specific error that survives.
+ *   - `required` is specific and terminal: a missing property makes the rest of
+ *     that object's errors moot (except the `oneOf: [Schema, Reference]` pattern,
+ *     resolved first).
+ *   - `enum` is specific but weak: a more specific sibling error wins.
+ *   - everything else (`type`, `pattern`, `format`, …) is specific and kept.
+ *
+ * The steps below run in order and mutate the node; the ordering is load-bearing
+ * and called out where it matters.
+ */
+function filterRedundantErrors(node: ErrorNode, parent?: ErrorNode, key?: string): void {
+  // Snapshot the errors and the flags derived from them. Later steps reset from
+  // this snapshot, so an earlier filter never hides a keyword a later step weighs.
+  const errors = node.errors
+  const flags: NodeErrorFlags = {
+    hasOneOf: errors.some(isOneOfError),
+    hasAnyOf: errors.some(isAnyOfError),
+    hasRequired: errors.some(isRequiredError),
+    hasIf: errors.some(isIfError),
+    hasExtraProperties: errors.some(isAdditionalPropertiesError) || errors.some(isUnevaluatedPropertiesError),
+    hasChildren: hasChildren(node),
+  }
+
+  // 1. An `if` error next to an `additionalProperties`/`unevaluatedProperties`
+  //    error is just noise from the if/then/else conditional.
+  if (flags.hasIf && flags.hasExtraProperties) {
+    node.errors = errors.filter((error) => !isIfError(error))
+  }
+
+  // 2. Resolve the `oneOf`/`required` composition tangle.
+  resolveCompositionAndRequired(node, errors, flags)
+
+  // 3. A container error whose real cause sits in a surviving child is noise.
+  //    Re-check children live: step 2's `required` branch may have cleared them,
+  //    and wiping the errors then would drop the actionable `required` message.
+  if (flags.hasAnyOf && hasChildren(node)) {
     node.errors = []
   }
 
-  // An `if` error only restates that a conditional's `then`/`else` branch did
-  // not match; the real failure is the more specific error on a child (a bad
-  // `enum` value on `parameter.in`, say). Drop just the `if` noise when children
-  // remain to surface it, keeping any other error at this node. Re-check the
-  // children for the same reason as `anyOf` above. Without a child to fall back
-  // on, the `if` error is the only signal and is left in place.
-  if (hasIfError && Object.keys(node.children).length > 0) {
+  if (flags.hasIf && hasChildren(node)) {
     node.errors = node.errors.filter((error) => !isIfError(error))
   }
 
-  // If every error here is an `enum` error and a sibling carries a more specific
-  // error, this node can be dropped as noise. `key` is compared against
-  // `undefined` rather than checked for truthiness: the root node's key is the
-  // empty string, and it is eligible for pruning like any other.
-  if (node.errors.length > 0 && node.errors.every(isEnumError) && parent && key !== undefined) {
-    // Only a non-`enum` sibling error justifies dropping this one — the more
-    // specific error is often on a grandchild rather than the sibling itself. Two
-    // properties each failing their own `enum` are equally actionable, so neither
-    // silences the other.
-    const siblingsHaveMoreSpecificErrors = getChildren(parent)
-      .filter((sibling) => sibling !== node)
-      .some(hasMoreSpecificErrorDeep)
-
-    if (siblingsHaveMoreSpecificErrors) {
-      delete parent.children[key]
-    }
-  }
+  // 4. An all-`enum` node yields to a more specific sibling.
+  pruneEnumNextToSpecificSibling(node, parent, key)
 
   for (const [childKey, child] of Object.entries(node.children)) {
     filterRedundantErrors(child, node, childKey)
