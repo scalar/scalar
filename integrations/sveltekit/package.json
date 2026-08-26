@@ -70,7 +70,7 @@
     "@sveltejs/kit": "^2.57.1",
     "@sveltejs/package": "^2.5.7",
     "publint": "^0.3.18",
-    "svelte": "^5.55.2",
+    "svelte": "^5.55.7",
     "svelte-check": "^4.4.6"
   },
   "peerDependencies": {
