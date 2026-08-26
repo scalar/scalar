@@ -7,8 +7,8 @@ import type {
   ServerObject,
   TagObject,
 } from '@scalar/openapi-types/3.1'
+import type { UnknownObject } from '@scalar/types/utils'
 
-import type { UnknownObject } from '@/types'
 import { mergeObjects } from '@/utils/join/merge-objects'
 import { upgrade } from '@/utils/upgrade'
 

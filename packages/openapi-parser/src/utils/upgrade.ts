@@ -1,7 +1,8 @@
 import type { Document as OpenApiDocumentV3_1 } from '@scalar/openapi-types/3.1'
 import { upgrade as originalUpgrade } from '@scalar/openapi-upgrader'
+import type { UnknownObject } from '@scalar/types/utils'
 
-import type { Filesystem, UnknownObject, UpgradeResult } from '@/types/index'
+import type { Filesystem, UpgradeResult } from '@/types/index'
 
 import { getEntrypoint } from './get-entrypoint'
 import { isFilesystem } from './is-filesystem'

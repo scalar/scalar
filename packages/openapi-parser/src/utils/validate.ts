@@ -1,5 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { validate as validateDocument, validatePathParameters } from '@scalar/openapi-validator'
+import type { UnknownObject } from '@scalar/types/utils'
 
 import { ERRORS, type OpenApiVersion } from '@/configuration'
 import type {
@@ -7,7 +8,6 @@ import type {
   Filesystem,
   StrictOpenApiDocument,
   ThrowOnErrorOption,
-  UnknownObject,
   ValidateResult,
 } from '@/types/index'
 
