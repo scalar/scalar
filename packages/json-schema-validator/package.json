@@ -43,6 +43,7 @@
   ],
   "sideEffects": false,
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "@scalar/types": "workspace:*",
     "ajv": "catalog:*",
     "ajv-draft-04": "catalog:*",

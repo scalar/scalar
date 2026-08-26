@@ -1,7 +1,5 @@
-import { isObject } from '@scalar/helpers/object/is-object'
-import { type ValidationResult, createValidator } from '@scalar/json-schema-validator'
+import { createSpecificationValidator } from '@scalar/json-schema-validator'
 import type { AnyObject } from '@scalar/types/utils'
-import { parse as parseYaml } from 'yaml'
 
 import { detectVersion } from '@/detect-version'
 import { ERRORS } from '@/errors'
@@ -26,24 +24,18 @@ export type ValidateOptions = ThrowOnErrorOption & {
   checkPathParameters?: boolean
 }
 
-/**
- * Core validators, compiled once per OpenAPI version and reused across calls.
- */
-const validatorsByVersion = new Map<OpenApiVersion, ReturnType<typeof createValidator>>()
-
-const getValidator = (version: OpenApiVersion) => {
-  let validator = validatorsByVersion.get(version)
-
-  if (!validator) {
-    validator = createValidator(OpenApiSpecifications[version], {
-      // OpenAPI 3.1 and 3.2 use the media-range format
-      formats: version === '3.1' || version === '3.2' ? { 'media-range': true } : undefined,
-    })
-    validatorsByVersion.set(version, validator)
-  }
-
-  return validator
-}
+const validateDocument = createSpecificationValidator<OpenApiVersion, ValidateOptions>({
+  schemas: OpenApiSpecifications,
+  detectVersion,
+  // OpenAPI 3.1 and 3.2 use the media-range format.
+  formats: (version) => (version === '3.1' || version === '3.2' ? { 'media-range': true } : undefined),
+  errors: { emptyOrInvalid: ERRORS.EMPTY_OR_INVALID, versionNotSupported: ERRORS.OPENAPI_VERSION_NOT_SUPPORTED },
+  // Path-template semantics that the JSON schema cannot express. These need a
+  // fully resolved document (a path parameter can be declared via `$ref`), so
+  // they are opt-in: callers that resolve references first can enable them.
+  postValidate: (specification, _version, options) =>
+    options?.checkPathParameters ? validatePathParameters(specification) : [],
+})
 
 /**
  * Validates a single OpenAPI document against the OpenAPI Specification.
@@ -62,69 +54,5 @@ const getValidator = (version: OpenApiVersion) => {
  * @param document - A JSON string, a YAML string, or an object.
  */
 export function validate(document: string | AnyObject, options?: ValidateOptions): ValidationOutcome {
-  let specification: AnyObject
-
-  if (typeof document === 'string') {
-    try {
-      specification = parseYaml(document)
-    } catch (error) {
-      if (options?.throwOnError) {
-        throw error
-      }
-
-      return { valid: false, errors: [{ message: error instanceof Error ? error.message : String(error) }] }
-    }
-  } else {
-    specification = document
-  }
-
-  try {
-    // The document is empty or invalid. A YAML/JSON string can parse to a
-    // primitive or an array, neither of which is a document, so guard against
-    // anything that is not a plain object rather than only null/undefined.
-    if (!isObject(specification)) {
-      if (options?.throwOnError) {
-        throw new Error(ERRORS.EMPTY_OR_INVALID)
-      }
-
-      return { valid: false, errors: [{ message: ERRORS.EMPTY_OR_INVALID }] }
-    }
-
-    // Detect the OpenAPI/Swagger version
-    const version = detectVersion(specification)
-
-    if (!version) {
-      if (options?.throwOnError) {
-        throw new Error(ERRORS.OPENAPI_VERSION_NOT_SUPPORTED)
-      }
-
-      return { valid: false, errors: [{ message: ERRORS.OPENAPI_VERSION_NOT_SUPPORTED }] }
-    }
-
-    // Validate against the matching OpenAPI JSON Schema (shared engine)
-    const result: ValidationResult = getValidator(version)(specification, options)
-
-    if (!result.valid) {
-      return { valid: false, version, errors: result.errors }
-    }
-
-    // Path-template semantics that the JSON schema cannot express. These need a
-    // fully resolved document (a path parameter can be declared via `$ref`), so
-    // they are opt-in: callers that resolve references first can enable them.
-    if (options?.checkPathParameters) {
-      const semanticErrors = validatePathParameters(specification)
-
-      if (semanticErrors.length > 0) {
-        return { valid: false, version, errors: semanticErrors, schema: specification }
-      }
-    }
-
-    return { valid: true, version, errors: [], schema: specification }
-  } catch (error) {
-    if (options?.throwOnError) {
-      throw error
-    }
-
-    return { valid: false, errors: [{ message: error instanceof Error ? error.message : String(error) }] }
-  }
+  return validateDocument(document, options)
 }

@@ -1,4 +1,15 @@
+export {
+  type SpecificationValidatorConfig,
+  type SpecificationValidatorOptions,
+  createSpecificationValidator,
+} from '@/create-specification-validator'
 export { deduplicateErrors } from '@/deduplicate-errors'
 export { type AjvError, type PrettyError, prettifyAjvErrors } from '@/prettify-ajv-errors'
-export type { CreateValidatorOptions, ErrorObject, ValidateOptions, ValidationResult } from '@/types'
+export type {
+  CreateValidatorOptions,
+  ErrorObject,
+  ValidateOptions,
+  ValidationOutcome,
+  ValidationResult,
+} from '@/types'
 export { createValidator, validate } from '@/validate'

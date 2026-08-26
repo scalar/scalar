@@ -1,3 +1,5 @@
+import type { UnknownObject } from '@scalar/types/utils'
+
 /**
  * A single validation error.
  *
@@ -9,6 +11,25 @@ export type ErrorObject = {
   path?: string | string[]
   code?: string
 }
+
+/**
+ * The result of validating a document against a specification (OpenAPI,
+ * AsyncAPI, …). Generic over the specification's version union so each validator
+ * reports its own versions.
+ */
+export type ValidationOutcome<TVersion extends string = string> =
+  | {
+      valid: true
+      version: TVersion
+      errors?: ErrorObject[]
+      schema: UnknownObject
+    }
+  | {
+      valid: false
+      version?: TVersion
+      errors: ErrorObject[]
+      schema?: UnknownObject
+    }
 
 /**
  * Options for a single validation call.

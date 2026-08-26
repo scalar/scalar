@@ -1,5 +1,4 @@
-import type { ErrorObject } from '@scalar/json-schema-validator'
-import type { UnknownObject } from '@scalar/types/utils'
+import type { ValidationOutcome as GenericValidationOutcome } from '@scalar/json-schema-validator'
 
 import type { OpenApiVersion } from '@/specifications'
 
@@ -17,18 +16,6 @@ export type ThrowOnErrorOption = {
 }
 
 /**
- * The result of validating a document.
+ * The result of validating an OpenAPI document.
  */
-export type ValidationOutcome =
-  | {
-      valid: true
-      version: OpenApiVersion
-      errors?: ErrorObject[]
-      schema: UnknownObject
-    }
-  | {
-      valid: false
-      version?: OpenApiVersion
-      errors: ErrorObject[]
-      schema?: UnknownObject
-    }
+export type ValidationOutcome = GenericValidationOutcome<OpenApiVersion>
