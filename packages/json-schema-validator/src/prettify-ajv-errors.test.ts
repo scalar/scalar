@@ -181,4 +181,47 @@ describe('prettify-ajv-errors', () => {
 
     expect(result).toEqual([expect.objectContaining({ message: 'if must match "else" schema' })])
   })
+
+  it('keeps both sibling enum errors instead of dropping one as noise', () => {
+    // Two properties each failing their own enum are equally actionable. An
+    // earlier rule dropped one whenever any sibling had an error, silently losing
+    // the other (and making the survivor depend on Ajv's emission order).
+    const errors: AjvError[] = [
+      {
+        keyword: 'enum',
+        instancePath: '/a',
+        message: 'must be equal to one of the allowed values',
+        params: { allowedValues: ['x'] },
+      },
+      {
+        keyword: 'enum',
+        instancePath: '/b',
+        message: 'must be equal to one of the allowed values',
+        params: { allowedValues: ['y'] },
+      },
+    ]
+
+    const result = prettifyAjvErrors({ a: 1, b: 2 }, errors)
+
+    expect(result).toContainEqual(expect.objectContaining({ path: '/a' }))
+    expect(result).toContainEqual(expect.objectContaining({ path: '/b' }))
+  })
+
+  it('still drops an enum error when a sibling carries a more specific error', () => {
+    // A bare enum next to a genuinely more specific (non-enum) error is noise and
+    // should still be pruned.
+    const errors: AjvError[] = [
+      {
+        keyword: 'enum',
+        instancePath: '/a',
+        message: 'must be equal to one of the allowed values',
+        params: { allowedValues: ['x'] },
+      },
+      { keyword: 'type', instancePath: '/b', message: 'must be string', params: {} },
+    ]
+
+    const result = prettifyAjvErrors({ a: 1, b: 2 }, errors)
+
+    expect(result).toEqual([expect.objectContaining({ path: '/b' })])
+  })
 })

@@ -50,12 +50,15 @@ const isUnevaluatedPropertiesError = isKeyword('unevaluatedProperties')
 const getChildren = (node: ErrorNode): ErrorNode[] => Object.values(node.children)
 
 /**
- * Whether this node, or anything below it, carries an error.
+ * Whether this node, or anything below it, carries a non-`enum` error.
  *
  * Pruning decisions look at whole subtrees: a sibling that only holds errors on
- * its own children is still a sibling with errors.
+ * its own children still counts. Only non-`enum` errors count as "more
+ * specific", so a bare `enum` error is not dropped merely because a sibling also
+ * failed its own `enum` — both of those are equally actionable and must survive.
  */
-const hasErrorsDeep = (node: ErrorNode): boolean => node.errors.length > 0 || getChildren(node).some(hasErrorsDeep)
+const hasMoreSpecificErrorDeep = (node: ErrorNode): boolean =>
+  node.errors.some((error) => !isEnumError(error)) || getChildren(node).some(hasMoreSpecificErrorDeep)
 
 /**
  * The JSON Pointer to the value that failed validation. Ajv exposes this as
@@ -307,18 +310,20 @@ function filterRedundantErrors(node: ErrorNode, parent?: ErrorNode, key?: string
     node.errors = node.errors.filter((error) => !isIfError(error))
   }
 
-  // If every error here is an `enum` error and a sibling has any error, this node
-  // can be dropped as noise. `key` is compared against `undefined` rather than
-  // checked for truthiness: the root node's key is the empty string, and it is
-  // eligible for pruning like any other.
+  // If every error here is an `enum` error and a sibling carries a more specific
+  // error, this node can be dropped as noise. `key` is compared against
+  // `undefined` rather than checked for truthiness: the root node's key is the
+  // empty string, and it is eligible for pruning like any other.
   if (node.errors.length > 0 && node.errors.every(isEnumError) && parent && key !== undefined) {
-    // A sibling counts as having errors when anything in its subtree does — the
-    // meaningful error is often on a grandchild rather than the sibling itself.
-    const siblingsHaveErrors = getChildren(parent)
+    // Only a non-`enum` sibling error justifies dropping this one — the more
+    // specific error is often on a grandchild rather than the sibling itself. Two
+    // properties each failing their own `enum` are equally actionable, so neither
+    // silences the other.
+    const siblingsHaveMoreSpecificErrors = getChildren(parent)
       .filter((sibling) => sibling !== node)
-      .some(hasErrorsDeep)
+      .some(hasMoreSpecificErrorDeep)
 
-    if (siblingsHaveErrors) {
+    if (siblingsHaveMoreSpecificErrors) {
       delete parent.children[key]
     }
   }
