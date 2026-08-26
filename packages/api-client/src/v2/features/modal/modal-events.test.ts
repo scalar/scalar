@@ -8,6 +8,8 @@ import { computed, nextTick, ref } from 'vue'
 
 import 'fake-indexeddb/auto'
 
+import { createMockEventBus } from '@/v2/helpers/test-utils'
+
 import { useModalSidebar } from './hooks/use-modal-sidebar'
 import { initializeModalEvents } from './modal-events'
 
@@ -23,10 +25,18 @@ const getDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDocument 
 })
 
 /**
- * Wires up the modal events against a real sidebar and returns the pieces the tests assert on.
+ * Helper to wait for async operations and Vue updates.
+ */
+const waitForUpdates = async () => {
+  await nextTick()
+  await flushPromises()
+}
+
+/**
+ * Wires the modal events up to a real sidebar and returns the pieces the tests assert on.
  *
- * The event bus is a stub that records the registered handlers, so a test can call them the same
- * way the workspace event bus would when `ui:open:client-modal` is emitted.
+ * The mock event bus records the handlers that are registered, so a test can call them the same way
+ * the workspace event bus would when the event is emitted.
  */
 const createTestSetup = async () => {
   const store = createWorkspaceStore()
@@ -38,6 +48,9 @@ const createTestSetup = async () => {
         '/pets': { post: { operationId: 'createPet' } },
         '/users': { post: { operationId: 'createUser' } },
       },
+      webhooks: {
+        newPet: { post: { operationId: 'newPetWebhook' } },
+      },
     }),
   })
 
@@ -46,11 +59,13 @@ const createTestSetup = async () => {
   const path = ref<string | undefined>(undefined)
   const method = ref<HttpMethod | undefined>(undefined)
   const exampleName = ref<string | undefined>(undefined)
+  const isWebhook = ref(false)
 
-  const route = vi.fn((payload: { path?: string; method?: HttpMethod; example?: string }) => {
+  const route = vi.fn((payload: { path?: string; method?: HttpMethod; example?: string; isWebhook?: boolean }) => {
     path.value = payload.path
     method.value = payload.method
     exampleName.value = payload.example
+    isWebhook.value = payload.isWebhook ?? false
   })
 
   const sidebarState = useModalSidebar({
@@ -59,77 +74,98 @@ const createTestSetup = async () => {
     path: computed(() => path.value),
     method: computed(() => method.value),
     exampleName: computed(() => exampleName.value),
+    isWebhook: computed(() => isWebhook.value),
     route,
   })
 
-  const handlers: Record<string, (payload?: any) => void> = {}
-  const eventBus = {
-    on: vi.fn((event: string, handler: (payload?: any) => void) => {
-      handlers[event] = handler
-      return vi.fn()
-    }),
-    once: vi.fn(() => vi.fn()),
-    off: vi.fn(),
-    onAny: vi.fn(() => vi.fn()),
-    offAny: vi.fn(),
-    emit: vi.fn(() => null),
-    flushDebouncedEmits: vi.fn(),
-  } as any
+  const handlers: Record<string, (payload?: unknown) => void> = {}
+  const eventBus = createMockEventBus()
+  vi.mocked(eventBus.on).mockImplementation((event, handler) => {
+    handlers[event] = handler as (payload?: unknown) => void
+    return vi.fn()
+  })
 
   const requestBodyCompositionSelection = ref<Record<string, number>>({})
+  const modalState = useModal()
 
   initializeModalEvents({
     eventBus,
     isSidebarOpen: ref(false),
     requestBodyCompositionSelection,
     sidebarState,
-    modalState: useModal(),
+    modalState,
     store,
   })
 
-  const getOperationId = (operationPath: string) =>
-    sidebarState.getEntryByLocation({ document: 'test-doc', path: operationPath, method: 'post' })?.id ?? ''
+  const getEntryId = (location: { path?: string; method?: HttpMethod; isWebhook?: boolean }) =>
+    sidebarState.getEntryByLocation({ document: 'test-doc', method: 'post', ...location })?.id ?? ''
 
   const openClientModal = async (payload: Record<string, unknown>) => {
     handlers['ui:open:client-modal']?.(payload)
-    await nextTick()
-    await flushPromises()
+    await waitForUpdates()
   }
 
-  return { getOperationId, openClientModal, requestBodyCompositionSelection, route }
+  return { getEntryId, modalState, openClientModal, requestBodyCompositionSelection, route }
 }
 
 describe('modal-events', () => {
   it('keeps the request body composition selection when the operation is already open', async () => {
-    const { getOperationId, openClientModal, requestBodyCompositionSelection, route } = await createTestSetup()
-    const petsId = getOperationId('/pets')
+    const { getEntryId, openClientModal, requestBodyCompositionSelection, route } = await createTestSetup()
+    const id = getEntryId({ path: '/pets' })
 
-    await openClientModal({ id: petsId, requestBodyCompositionSelection: { 'requestBody.oneOf': 0 } })
+    await openClientModal({ id, requestBodyCompositionSelection: { 'requestBody.oneOf': 0 } })
 
     expect(route).toHaveBeenCalledTimes(1)
     expect(requestBodyCompositionSelection.value).toEqual({ 'requestBody.oneOf': 0 })
 
-    await openClientModal({ id: petsId, requestBodyCompositionSelection: { 'requestBody.oneOf': 1 } })
+    await openClientModal({ id, requestBodyCompositionSelection: { 'requestBody.oneOf': 1 } })
 
     /**
      * Nothing was routed, so the operation still shows the body the user was working on and the
-     * selection that produced it must survive the second open.
+     * selection that produced it has to survive the second open.
      */
     expect(route).toHaveBeenCalledTimes(1)
     expect(requestBodyCompositionSelection.value).toEqual({ 'requestBody.oneOf': 0 })
   })
 
+  it('keeps the request body composition selection when the webhook is already open', async () => {
+    const { getEntryId, openClientModal, requestBodyCompositionSelection } = await createTestSetup()
+    const id = getEntryId({ path: 'newPet', isWebhook: true })
+
+    await openClientModal({ id, requestBodyCompositionSelection: { 'requestBody.oneOf': 0 } })
+    await openClientModal({ id, requestBodyCompositionSelection: { 'requestBody.oneOf': 1 } })
+
+    /**
+     * Webhooks re-route with the same path, method and example instead of bailing out early, so the
+     * body on screen does not change either.
+     */
+    expect(requestBodyCompositionSelection.value).toEqual({ 'requestBody.oneOf': 0 })
+  })
+
   it('applies the request body composition selection when another operation is opened', async () => {
-    const { getOperationId, openClientModal, requestBodyCompositionSelection } = await createTestSetup()
+    const { getEntryId, openClientModal, requestBodyCompositionSelection } = await createTestSetup()
 
     await openClientModal({
-      id: getOperationId('/pets'),
+      id: getEntryId({ path: '/pets' }),
       requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
     })
     await openClientModal({
-      id: getOperationId('/users'),
+      id: getEntryId({ path: '/users' }),
       requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
     })
+
+    expect(requestBodyCompositionSelection.value).toEqual({ 'requestBody.oneOf': 1 })
+  })
+
+  it('applies the request body composition selection when the modal is closed in between', async () => {
+    const { getEntryId, modalState, openClientModal, requestBodyCompositionSelection } = await createTestSetup()
+    const id = getEntryId({ path: '/pets' })
+
+    await openClientModal({ id, requestBodyCompositionSelection: { 'requestBody.oneOf': 0 } })
+
+    modalState.hide()
+
+    await openClientModal({ id, requestBodyCompositionSelection: { 'requestBody.oneOf': 1 } })
 
     expect(requestBodyCompositionSelection.value).toEqual({ 'requestBody.oneOf': 1 })
   })

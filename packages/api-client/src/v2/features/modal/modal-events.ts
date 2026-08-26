@@ -45,8 +45,8 @@ export function initializeModalEvents({
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
   eventBus.on('ui:close:client-modal', () => modalState.hide())
   eventBus.on('ui:open:client-modal', (payload) => {
-    // Every open that lands on a different entry re-establishes the selection (falling back to
-    // empty), so the modal no longer needs to reset it on close.
+    // Every open re-establishes the selection (falling back to empty), so the modal no longer needs
+    // to reset it on close.
     const nextRequestBodyCompositionSelection = (
       payload && 'requestBodyCompositionSelection' in payload && payload.requestBodyCompositionSelection
         ? payload.requestBodyCompositionSelection
@@ -60,7 +60,7 @@ export function initializeModalEvents({
       return
     }
 
-    const previouslySelectedId = sidebarState.state.selectedItem.value
+    const previousSelectedId = sidebarState.state.selectedItem.value
 
     // We route to the exact ID
     if ('id' in payload && payload.id) {
@@ -98,9 +98,11 @@ export function initializeModalEvents({
 
     // Apply the selection after routing so the request body compares it with the selection used
     // for this operation, rather than briefly resetting the operation that was previously open.
-    // Reopening the entry that is already shown routes nowhere, so the request body would read the
-    // new selection as a manual branch switch and throw away whatever the user typed into it.
-    if (sidebarState.state.selectedItem.value !== previouslySelectedId) {
+    // Reopening the entry already on screen routes nowhere, so a new selection would read as a
+    // manual branch switch and discard the edited body.
+    const isReopeningVisibleEntry = modalState.open && sidebarState.state.selectedItem.value === previousSelectedId
+
+    if (!isReopeningVisibleEntry) {
       requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
     }
 
