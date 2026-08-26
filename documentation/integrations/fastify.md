@@ -56,6 +56,35 @@ await fastify.register(import('@scalar/fastify-api-reference'), {
 })
 ```
 
+## Content Security Policy (CSP)
+
+The plugin serves the Scalar bundle from your own origin (`${routePrefix}/js/scalar.js`), so you do not need to allowlist a CDN — `script-src 'self'` already covers it.
+
+To run under a strict CSP without `script-src 'unsafe-inline'` (and without `'unsafe-eval'`), pass a `nonce`. It is applied to the inline bootstrap `<script>` and `<style>` the plugin emits, and exposed to the bundle via a `<meta property="csp-nonce">` tag so the stylesheet it injects at runtime carries the same nonce:
+
+```typescript
+await fastify.register(import('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+  configuration: {
+    nonce: 'r4nd0m-nonce-value',
+  },
+})
+```
+
+A matching policy looks like this:
+
+```
+Content-Security-Policy: script-src 'self' 'nonce-r4nd0m-nonce-value'; style-src 'self' 'unsafe-inline'
+```
+
+> [!NOTE]
+> `style-src` still needs `'unsafe-inline'`. The reference renders inline `style="..."` attributes that a nonce cannot authorize — that is a limitation of CSP itself, not of the plugin.
+
+> [!NOTE]
+> The `nonce` is read once, when the plugin is registered, so the same value is sent on every response. A per-request nonce is not currently supported.
+
+Depending on how you use the reference you may need to extend other directives too — for example `connect-src` so the built-in API client can reach your API, and `img-src`/`font-src` for images and fonts referenced by your document or theme.
+
 ## Logging
 
 The plugin is compatible with the Fastify logger. You can configure the log level for the routes registered by the plugin:
