@@ -32,24 +32,21 @@ export function transformErrors(specification: AnyObject, errors: string | AjvEr
   } catch (error) {
     console.error(error)
 
-    // If prettifying fails, fall back to the raw Ajv errors.
-    if (Array.isArray(errors)) {
-      return errors.map((err) => {
-        let message = err.message || 'Validation error'
+    // If prettifying fails, fall back to the raw Ajv errors. `errors` is always
+    // an array here: the string case returned above.
+    return errors.map((err) => {
+      let message = err.message || 'Validation error'
 
-        // For additionalProperties errors, include the property name
-        if (err.keyword === 'additionalProperties' && err.params?.additionalProperty) {
-          message = `Property ${err.params.additionalProperty} is not expected to be here`
-        }
+      // For additionalProperties errors, include the property name
+      if (err.keyword === 'additionalProperties' && err.params?.additionalProperty) {
+        message = `Property ${err.params.additionalProperty} is not expected to be here`
+      }
 
-        return {
-          message,
-          path: err.dataPath || err.instancePath,
-        }
-      })
-    }
-
-    return [{ message: 'Validation failed' }]
+      return {
+        message,
+        path: err.dataPath || err.instancePath,
+      }
+    })
   }
 
   // Deduplicate errors with the same message and path
