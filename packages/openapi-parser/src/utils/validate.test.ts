@@ -173,6 +173,39 @@ paths: {}
     )
   })
 
+  it('surfaces the specific enum error, not the conditional `if`, for a bad parameter `in`', async () => {
+    // Regression: an invalid `parameter.in` makes Ajv report both a shallow
+    // `if must match "else" schema` (from the parameter's if/then/else) and the
+    // specific enum failure. The actionable enum message must win — and be what
+    // `throwOnError` surfaces — instead of the conditional noise.
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Bad parameter in', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            parameters: [{ name: 'petId', in: 'nonsense', schema: { type: 'string' } }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+
+    const result = await validate(structuredClone(document))
+
+    expect(result.valid).toBe(false)
+    expect(result.errors[0]).toEqual(
+      expect.objectContaining({
+        message: 'must be equal to one of the allowed values: query, header, path, cookie',
+      }),
+    )
+    expect(result.errors).not.toContainEqual(expect.objectContaining({ message: 'if must match "else" schema' }))
+
+    await expect(() => validate(structuredClone(document), { throwOnError: true })).rejects.toThrowError(
+      'must be equal to one of the allowed values: query, header, path, cookie',
+    )
+  })
+
   it('reports reference-resolution errors alongside path-parameter errors', async () => {
     // A path-parameter semantic error must not stop reference resolution: both
     // the semantic error and the unresolvable `$ref` should be reported.

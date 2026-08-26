@@ -144,4 +144,41 @@ describe('prettify-ajv-errors', () => {
 
     expect(result[0]?.message).toBe('Property "404" must match pattern ^[a-z]+$')
   })
+
+  it('drops an `if` error when a more specific child error exists', () => {
+    // An if/then/else conditional reports `if must match "else" schema` at the
+    // parent while the real failure (a bad enum value) sits on a child. The
+    // conditional restatement is noise, so the specific child error is the only
+    // survivor and stays first — this is what `throwOnError` surfaces.
+    const errors: AjvError[] = [
+      { keyword: 'if', instancePath: '/foo', message: 'must match "else" schema', params: {} },
+      {
+        keyword: 'enum',
+        instancePath: '/foo/in',
+        message: 'must be equal to one of the allowed values',
+        params: { allowedValues: ['query', 'header', 'path', 'cookie'] },
+      },
+    ]
+
+    const result = prettifyAjvErrors({ foo: { in: 'nonsense' } }, errors)
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        message: 'must be equal to one of the allowed values: query, header, path, cookie',
+        path: '/foo/in',
+      }),
+    ])
+  })
+
+  it('keeps an `if` error when it is the only signal', () => {
+    // With no more specific error to fall back to, the conditional error is all
+    // there is, so it must survive rather than leaving an empty error list.
+    const errors: AjvError[] = [
+      { keyword: 'if', instancePath: '/foo', message: 'must match "else" schema', params: {} },
+    ]
+
+    const result = prettifyAjvErrors({ foo: {} }, errors)
+
+    expect(result).toEqual([expect.objectContaining({ message: 'if must match "else" schema' })])
+  })
 })

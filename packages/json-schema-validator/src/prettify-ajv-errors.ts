@@ -297,6 +297,16 @@ function filterRedundantErrors(node: ErrorNode, parent?: ErrorNode, key?: string
     node.errors = []
   }
 
+  // An `if` error only restates that a conditional's `then`/`else` branch did
+  // not match; the real failure is the more specific error on a child (a bad
+  // `enum` value on `parameter.in`, say). Drop just the `if` noise when children
+  // remain to surface it, keeping any other error at this node. Re-check the
+  // children for the same reason as `anyOf` above. Without a child to fall back
+  // on, the `if` error is the only signal and is left in place.
+  if (hasIfError && Object.keys(node.children).length > 0) {
+    node.errors = node.errors.filter((error) => !isIfError(error))
+  }
+
   // If every error here is an `enum` error and a sibling has any error, this node
   // can be dropped as noise. `key` is compared against `undefined` rather than
   // checked for truthiness: the root node's key is the empty string, and it is
