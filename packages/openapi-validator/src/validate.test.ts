@@ -66,8 +66,8 @@ describe('validate', () => {
     expect(document.info).not.toHaveProperty('version')
   })
 
-  it('reports unused path parameters', () => {
-    const result = validate({
+  it('reports unused path parameters when checkPathParameters is set', () => {
+    const document = {
       openapi: '3.1.0',
       info: { title: 'Hello', version: '1.0.0' },
       paths: {
@@ -78,9 +78,28 @@ describe('validate', () => {
           },
         },
       },
-    })
+    }
 
-    expect(result.valid).toBe(false)
+    expect(validate(document, { checkPathParameters: true }).valid).toBe(false)
+  })
+
+  it('leaves path-parameter checks off by default', () => {
+    // The checks need a resolved document, so a standalone call must not report
+    // a path-parameter mismatch unless explicitly enabled.
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Hello', version: '1.0.0' },
+      paths: {
+        '/foo': {
+          get: {
+            parameters: [{ name: 'bar', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+
+    expect(validate(document).valid).toBe(true)
   })
 
   it('throws when throwOnError is set', () => {

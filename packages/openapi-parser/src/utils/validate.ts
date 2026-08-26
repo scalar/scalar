@@ -77,10 +77,11 @@ export function validate(
 
     // Schema and version validation only (no reference resolution). Runs first so
     // empty/invalid input reports the same error, in the same order, including
-    // when `throwOnError` is set. Path-parameter semantics are skipped here and
-    // run below on the resolved document, so parameters declared via `$ref` are
-    // seen (validating the unresolved document would report them as missing).
-    const outcome = validateDocument(specification, { ...options, skipPathParameterValidation: true })
+    // when `throwOnError` is set. Path-parameter semantics are left off here (the
+    // validator's default) and run below on the resolved document, so parameters
+    // declared via `$ref` are seen (validating the unresolved document would
+    // report them as missing).
+    const outcome = validateDocument(specification, options)
 
     // Resolve references whenever the document passed schema validation.
     // `outcome.schema` is only set once schema and version validation succeeded.

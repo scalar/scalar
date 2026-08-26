@@ -5,7 +5,7 @@ import missingPathParam2 from './missingPathParam2.yaml?raw'
 
 describe('missingPathParam2', () => {
   it('returns an error', async () => {
-    const result = await validate(missingPathParam2)
+    const result = await validate(missingPathParam2, { checkPathParameters: true })
 
     expect(result.errors?.[0]?.message).toBe(
       'Declared path parameter "test2" needs to be defined as a path parameter at either the path or operation level',

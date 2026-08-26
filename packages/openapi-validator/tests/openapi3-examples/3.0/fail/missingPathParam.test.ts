@@ -5,7 +5,7 @@ import missingPathParam from './missingPathParam.yaml?raw'
 
 describe('missingPathParam', () => {
   it('returns an error', async () => {
-    const result = await validate(missingPathParam)
+    const result = await validate(missingPathParam, { checkPathParameters: true })
 
     expect(result.errors).toContainEqual(
       expect.objectContaining({

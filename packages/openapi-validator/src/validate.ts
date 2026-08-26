@@ -10,16 +10,19 @@ import { validatePathParameters } from '@/validate-path-parameters'
 
 export type ValidateOptions = ThrowOnErrorOption & {
   /**
-   * Skip the path-parameter semantic checks.
+   * Run the path-parameter semantic checks (declared parameters match the
+   * `{template}` segments in the path, and vice versa).
    *
-   * These checks need a fully resolved document, because a path parameter can be
-   * declared through a `$ref`. Callers that resolve references themselves — like
-   * `@scalar/openapi-parser` — skip them here and run `validatePathParameters` on
-   * the resolved document instead.
+   * Off by default: these checks need a fully resolved document, because a path
+   * parameter can be declared through a `$ref`, and this validator does not
+   * resolve references — running them on an unresolved document would report
+   * false positives. Callers that resolve references first (bundle or
+   * dereference) can opt in; `@scalar/openapi-parser` leaves them off here and
+   * runs `validatePathParameters` on the resolved document itself.
    *
    * @default false
    */
-  skipPathParameterValidation?: boolean
+  checkPathParameters?: boolean
 }
 
 /**
@@ -104,8 +107,8 @@ export function validate(document: string | AnyObject, options?: ValidateOptions
 
     // Path-template semantics that the JSON schema cannot express. These need a
     // fully resolved document (a path parameter can be declared via `$ref`), so
-    // callers that resolve references run them separately and skip them here.
-    if (!options?.skipPathParameterValidation) {
+    // they are opt-in: callers that resolve references first can enable them.
+    if (options?.checkPathParameters) {
       const semanticErrors = validatePathParameters(specification)
 
       if (semanticErrors.length > 0) {
