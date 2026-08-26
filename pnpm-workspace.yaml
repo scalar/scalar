@@ -16,7 +16,7 @@ catalogs:
     '@ai-sdk/vue': 3.0.33
     '@astrojs/starlight': 0.37.7
     '@fastify/basic-auth': ^5.1.1
-    '@fastify/http-proxy': ^9.5.0
+    '@fastify/http-proxy': ^11.4.4
     '@fastify/swagger': ^8.10.1
     '@floating-ui/utils': 0.2.10
     '@floating-ui/vue': 1.1.9
@@ -146,3 +146,5 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
+  # Renovate security update: @fastify/http-proxy@11.4.4
+  - "@fastify/http-proxy@11.4.4"
