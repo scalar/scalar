@@ -80,7 +80,7 @@ catalogs:
     microdiff: ^1.5.0
     monaco-editor: 0.54.0
     monaco-yaml: 5.4.1
-    nanoid: ^5.1.6
+    nanoid: ^5.1.16
     next: ^15.5.14
     neverpanic: 0.0.8
     picomatch: ^4.0.4
@@ -146,3 +146,5 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
+  # Renovate security update: nanoid@5.1.16
+  - nanoid@5.1.16
