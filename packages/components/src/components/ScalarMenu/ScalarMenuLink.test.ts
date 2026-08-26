@@ -1,9 +1,9 @@
+import { openScalarMenuPanel } from '@test/open-scalar-menu-panel'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent } from 'vue'
 
 import { ScalarMenu, ScalarMenuLink } from './'
-import { openScalarMenuPanel } from './openScalarMenuPanel'
 
 const menuWithLink = (attrs: Record<string, unknown> = {}, slotText = 'My Link') =>
   defineComponent({

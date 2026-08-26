@@ -21,10 +21,19 @@ test.describe('ScalarHeader', () => {
     test('Overflow', takeSnapshot)
 
     test('shrinks to the viewport instead of pushing past it', async ({ page }) => {
-      const header = page.locator('header')
-      const box = await header.boundingBox()
+      // The header is block-level, so its own box is capped by the viewport no
+      // matter how far its contents spill. Overflow shows up as a scrollable
+      // header and a horizontally scrollable page, which is what a user sees.
+      const overflow = await page.evaluate(() => {
+        const header = document.querySelector('header')
+        return {
+          header: header ? header.scrollWidth - header.clientWidth : -1,
+          page: document.documentElement.scrollWidth,
+        }
+      })
 
-      expect(box?.width).toBeLessThanOrEqual(375)
+      expect(overflow.header).toBeLessThanOrEqual(0)
+      expect(overflow.page).toBeLessThanOrEqual(375)
     })
 
     test('ellipsizes the long label rather than overflowing its column', async ({ page }) => {

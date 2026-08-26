@@ -1,9 +1,9 @@
+import { getScalarMenuTrigger, openScalarMenuPanel } from '@test/open-scalar-menu-panel'
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent } from 'vue'
 
 import { ScalarMenu } from './'
-import { getScalarMenuTrigger, openScalarMenuPanel } from './openScalarMenuPanel'
 
 describe('ScalarMenu', () => {
   it('exposes Open Menu as the default trigger label while closed', () => {
