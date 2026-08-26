@@ -29,7 +29,7 @@ catalogs:
     '@modelcontextprotocol/sdk': 1.26.0
     '@nestjs/cli': '^11.0.14'
     '@nestjs/common': '^11.1.11'
-    '@nestjs/core': '^11.1.11'
+    '@nestjs/core': '^11.1.18'
     '@nestjs/platform-express': '^11.1.11'
     '@nestjs/platform-fastify': '^11.1.14'
     '@nestjs/schematics': '^11.0.9'
@@ -146,3 +146,5 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
+  # Renovate security update: @nestjs/core@11.1.18
+  - "@nestjs/core@11.1.18"
