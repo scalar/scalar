@@ -84,7 +84,7 @@ catalogs:
     next: ^15.5.14
     neverpanic: 0.0.8
     picomatch: ^4.0.4
-    postcss: ^8.4.38
+    postcss: ^8.5.23
     radix-vue: ^1.9.17
     react-dom: ^19.2.3
     react: ^19.2.3
@@ -146,3 +146,5 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
+  # Renovate security update: postcss@8.5.23
+  - postcss@8.5.23
