@@ -97,7 +97,7 @@ catalogs:
     type-fest: ^5.8.0
     truncate-json: 3.0.1
     tsx: 4.19.4
-    undici: 7.24.4
+    undici: 7.29.0
     vite-plugin-monaco-editor-esm: 2.0.2
     vite-ssg: 28.3.0
     vite-svg-loader: 5.1.1
@@ -146,3 +146,5 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
+  # Renovate security update: undici@7.29.0
+  - undici@7.29.0
