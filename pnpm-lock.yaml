@@ -1539,6 +1539,15 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
+      '@storybook/addon-docs':
+        specifier: 10.3.5
+        version: 10.3.5(@types/react@19.2.7)(esbuild@0.27.3)(rollup@4.59.0)(storybook@10.3.5(@testing-library/dom@10.4.1)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))(webpack@5.103.0(esbuild@0.27.3))
+      '@storybook/addon-links':
+        specifier: 10.3.5
+        version: 10.3.5(react@19.2.3)(storybook@10.3.5(@testing-library/dom@10.4.1)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
+      '@storybook/vue3-vite':
+        specifier: 10.3.5
+        version: 10.3.5(esbuild@0.27.3)(rollup@4.59.0)(storybook@10.3.5(@testing-library/dom@10.4.1)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))(vue@3.5.40(typescript@5.9.3))(webpack@5.103.0(esbuild@0.27.3))
       '@tailwindcss/cli':
         specifier: catalog:*
         version: 4.3.3
@@ -1554,6 +1563,9 @@ importers:
       '@vue/test-utils':
         specifier: catalog:*
         version: 2.4.11(@vue/compiler-dom@3.5.40)(@vue/server-renderer@3.5.40)(vue@3.5.40(typescript@5.9.3))
+      '@vueless/storybook-dark-mode':
+        specifier: ^10.0.7
+        version: 10.0.7(storybook@10.3.5(@testing-library/dom@10.4.1)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       hono:
         specifier: catalog:*
         version: 4.12.9
@@ -1566,6 +1578,9 @@ importers:
       rollup-plugin-webpack-stats:
         specifier: ^0.2.5
         version: 0.2.6(rollup@4.59.0)
+      storybook:
+        specifier: 10.3.5
+        version: 10.3.5(@testing-library/dom@10.4.1)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       tailwindcss:
         specifier: catalog:*
         version: 4.3.3
