@@ -18,7 +18,15 @@ export function detectVersion(document: unknown): OpenApiVersion | undefined {
     const field = version === '2.0' ? 'swagger' : 'openapi'
     const value = document[field]
 
-    if (typeof value === 'string' && value.startsWith(version)) {
+    if (typeof value !== 'string') {
+      continue
+    }
+
+    // Match on major.minor exactly. A `startsWith` check would mistake a future
+    // "3.10.0" for "3.1" and validate it against the wrong schema.
+    const [major, minor] = value.split('.')
+
+    if (`${major}.${minor}` === version) {
       return version
     }
   }
