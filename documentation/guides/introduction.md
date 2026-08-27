@@ -1803,9 +1803,6 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     .t-doc {
       --scalar-sidebar-width: 0px;
     }
-    .hero.hero {
-      margin-top: 188px;
-    }
     .sticker-1,
     .sticker-2,
     .sticker-3,
