@@ -44,6 +44,13 @@ on:
 permissions:
   contents: read
 
+env:
+  # The Netlify CLI is pinned because netlify@27.3.0 and newer pull in
+  # @netlify/dev@5.0.4, which depends on an @netlify/ai version that was never
+  # published — every install fails to resolve. Drop the pin once upstream
+  # publishes a working release.
+  NETLIFY_CLI_VERSION: '27.1.2'
+
 jobs:
   deploy-examples:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -72,7 +79,7 @@ jobs:
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
 
       - name: Install Netlify CLI
-        run: pnpm install -g netlify
+        run: pnpm install -g netlify@${{ env.NETLIFY_CLI_VERSION }}
 
       - name: Deploy to Netlify
         run: |
@@ -147,7 +154,7 @@ jobs:
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
 
       - name: Install Netlify CLI
-        run: pnpm install -g netlify
+        run: pnpm install -g netlify@${{ env.NETLIFY_CLI_VERSION }}
 
       - name: Build storybook
         run: pnpm --filter components build:storybook
