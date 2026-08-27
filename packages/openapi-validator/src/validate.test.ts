@@ -83,6 +83,25 @@ describe('validate', () => {
     expect(validate(document, { checkPathParameters: true }).valid).toBe(false)
   })
 
+  it('throws on a path-parameter error when throwOnError is set', () => {
+    // A semantic (postValidate) failure must honor throwOnError the same way a
+    // schema failure does, instead of quietly returning an invalid result.
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Hello', version: '1.0.0' },
+      paths: {
+        '/foo': {
+          get: {
+            parameters: [{ name: 'bar', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+
+    expect(() => validate(document, { checkPathParameters: true, throwOnError: true })).toThrow()
+  })
+
   it('leaves path-parameter checks off by default', () => {
     // The checks need a resolved document, so a standalone call must not report
     // a path-parameter mismatch unless explicitly enabled.

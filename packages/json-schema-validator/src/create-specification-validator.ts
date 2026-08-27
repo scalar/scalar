@@ -127,6 +127,10 @@ export function createSpecificationValidator<
       const semanticErrors = config.postValidate?.(specification, version, options) ?? []
 
       if (semanticErrors.length > 0) {
+        if (options?.throwOnError) {
+          throw new Error(semanticErrors[0]?.message ?? 'Validation failed')
+        }
+
         return { valid: false, version, errors: semanticErrors, schema: specification }
       }
 
