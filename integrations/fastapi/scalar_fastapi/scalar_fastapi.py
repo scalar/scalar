@@ -212,9 +212,6 @@ scalar_theme = """
   --scalar-radius: 3px;
   --scalar-radius-lg: 6px;
   --scalar-radius-xl: 8px;
-}
-.scalar-card:nth-of-type(3) {
-  display: none;
 }"""
 
 
