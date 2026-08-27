@@ -7,10 +7,15 @@ describe('incorrectSecType', () => {
   it('returns an error', async () => {
     const result = await validate(incorrectSecType)
 
-    // This file has multiple errors. The first one is about description
-    // being incorrectly placed in a MediaType object.
-    expect(result.errors?.[0]?.message).toBe('Property description is not expected to be here')
-    expect(result.errors?.[0]?.path).toBe('/paths/~1store~1order/post/requestBody/content/application~1json')
+    // This file has multiple errors. One of them is a `description` incorrectly
+    // placed in a MediaType object, reported with the JSON Pointer-escaped path
+    // to it (each `/` in the path key escaped as `~1`).
+    expect(result.errors).toContainEqual(
+      expect.objectContaining({
+        message: 'Property description is not expected to be here',
+        path: '/paths/~1store~1order/post/requestBody/content/application~1json',
+      }),
+    )
 
     // It also has security scheme errors:
     // - jwt has type: "scheme" (should be "http")

@@ -225,6 +225,27 @@ describe('prettify-ajv-errors', () => {
     expect(result).toContainEqual(expect.objectContaining({ path: '/b' }))
   })
 
+  it('keeps errors on distinct paths whose keys need JSON Pointer escaping', () => {
+    // The path keys `/a` and `/b` are JSON Pointer-escaped to `~1a` and `~1b` in
+    // the instance path. A segment class that only matched word characters
+    // dropped those segments, collapsing both operations onto the same node so
+    // the `/b` type error pruned away the unrelated `/a` enum error.
+    const errors: AjvError[] = [
+      {
+        keyword: 'enum',
+        instancePath: '/paths/~1a/get',
+        message: 'must be equal to one of the allowed values',
+        params: { allowedValues: ['x'] },
+      },
+      { keyword: 'type', instancePath: '/paths/~1b/post', message: 'must be string', params: {} },
+    ]
+
+    const result = prettifyAjvErrors({ paths: { '/a': { get: 1 }, '/b': { post: 2 } } }, errors)
+
+    expect(result).toContainEqual(expect.objectContaining({ path: '/paths/~1a/get' }))
+    expect(result).toContainEqual(expect.objectContaining({ path: '/paths/~1b/post' }))
+  })
+
   it('still drops an enum error when a sibling carries a more specific error', () => {
     // A bare enum next to a genuinely more specific (non-enum) error is noise and
     // should still be pruned.

@@ -36,7 +36,13 @@ type ErrorNode = {
   children: Record<string, ErrorNode>
 }
 
-const JSON_POINTERS_REGEX = /\/[\w$_-]+(\/\d+)?/g
+// Splits an instance path into its `/segment` chunks, keeping a trailing array
+// index attached to its property (`/parameters/0`). The segment class is
+// `[^/]+` (anything up to the next slash) rather than word characters only, so
+// JSON Pointer-escaped keys (`/paths/~1pets`) and keys with dots (`/pet.store`)
+// keep their own node instead of being dropped — dropping them collapsed
+// distinct paths onto the same node and let one error prune away another.
+const JSON_POINTERS_REGEX = /\/[^/]+(\/\d+)?/g
 
 const isKeyword = (keyword: string) => (error: AjvError) => error.keyword === keyword
 const isRequiredError = isKeyword('required')
@@ -218,8 +224,7 @@ function makeTree(ajvErrors: AjvError[]): ErrorNode {
 
   for (const ajvError of ajvErrors) {
     const instancePath = getInstancePath(ajvError)
-    // The pointer pattern only recognizes ASCII-word segments. A path it cannot
-    // match (a Unicode property name, for example) still has to be reported, so
+    // A pointer the pattern somehow cannot split still has to be reported, so
     // give it a node of its own keyed by the whole path. Grouping it under the
     // root instead would expose it to the root's own pruning rules, which drop
     // everything next to a `required` error.
