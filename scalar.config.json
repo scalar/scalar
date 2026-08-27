@@ -746,8 +746,8 @@
           "to": "/blog/posts/2024-09-01-oss-pledge"
         },
         {
-          "from": "/blog",
-          "to": "/resources/blog"
+          "from": "/resources/blog",
+          "to": "/blog"
         },
         {
           "from": "/changelog",
@@ -960,7 +960,7 @@
             "type": "link",
             "title": "Blog",
             "icon": "phosphor/regular/newspaper",
-            "to": "/resources/blog"
+            "to": "/blog"
           },
           {
             "type": "link",
@@ -1495,139 +1495,6 @@
                 }
               ]
             }
-          },
-          "/blog/posts/2026-08-16-stainless-wind-down": {
-            "type": "page",
-            "title": "We wrote up the Stainless wind-down",
-            "description": "A full account of the Stainless SDK generator wind-down: what changed, what your options are, and how stainless.yml carries across.",
-            "filepath": "documentation/blog/2026-08-16-stainless-wind-down.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2026-04-11-oss-pledge": {
-            "type": "page",
-            "title": "Scalar's 2025 Open Source Pledge",
-            "description": "Scalar renews its Open Source Pledge for 2025, continuing to fund the open source maintainers we depend on.",
-            "filepath": "documentation/blog/2026-04-11-oss-pledge.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2026-03-25-scalar-mcp-oauth": {
-            "type": "page",
-            "title": "Too Long; Didn't Read; Used MCP",
-            "description": "How OAuth works with Scalar MCP servers: authenticate agents against your API with delegated user permissions.",
-            "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
-            "showInSidebar": false,
-            "head": {
-              "scripts": [
-                {
-                  "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
-                }
-              ]
-            }
-          },
-          "/blog/posts/2026-03-17-agent-mcp": {
-            "type": "page",
-            "title": "Use your API in Cursor",
-            "description": "Expose your OpenAPI document as an MCP server and use your API directly in Cursor or any MCP-compatible tool.",
-            "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
-            "showInSidebar": false,
-            "head": {
-              "scripts": [
-                {
-                  "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
-                }
-              ]
-            }
-          },
-          "/blog/posts/2026-03-05-agent-scalar": {
-            "type": "page",
-            "title": "Introducing Agent",
-            "description": "Introducing Scalar Agent: connect LLMs to your API using a fraction of the context window instead of pasting your whole OpenAPI document.",
-            "filepath": "documentation/blog/2026-03-05-agent-scalar.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-08-19-how-to-set-up-an-openapi-mock-server": {
-            "type": "page",
-            "title": "How to set up an OpenAPI mock server",
-            "description": "How to set up an OpenAPI mock server with the Scalar CLI in a few commands.",
-            "filepath": "documentation/blog/2025-08-19-how-to-set-up-an-openapi-mock-server.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-07-07-how-to-do-openapi-validation-and": {
-            "type": "page",
-            "title": "How to do OpenAPI validation (and why it matters)",
-            "description": "How to validate OpenAPI documents with the Scalar CLI, and why validation matters for your API workflow.",
-            "filepath": "documentation/blog/2025-07-07-how-to-do-openapi-validation-and.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-05-28-how-we-created-an-animated-responsive": {
-            "type": "page",
-            "title": "How we created an animated, responsive README",
-            "description": "How we built an animated, responsive README for the Scalar GitHub repository with GitHub-flavored Markdown.",
-            "filepath": "documentation/blog/2025-05-28-how-we-created-an-animated-responsive.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-05-07-how-scalar-themes-work": {
-            "type": "page",
-            "title": "How Scalar themes work",
-            "description": "How Scalar themes work: the CSS variable system that lets you restyle an entire API reference.",
-            "filepath": "documentation/blog/2025-05-07-how-scalar-themes-work.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-04-28-how-cloudinarys-api-docs-create-a": {
-            "type": "page",
-            "title": "How Cloudinary’s API docs create a great developer experience",
-            "description": "What Cloudinary API docs get right, and what API-first companies can learn from their developer experience.",
-            "filepath": "documentation/blog/2025-04-28-how-cloudinarys-api-docs-create-a.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-04-23-an-introduction-to-openapi-variables": {
-            "type": "page",
-            "title": "An introduction to OpenAPI variables",
-            "description": "An introduction to OpenAPI variables: the different types and how to use them in your API documentation.",
-            "filepath": "documentation/blog/2025-04-23-an-introduction-to-openapi-variables.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-04-06-how-we-extended-the-openapi-specification": {
-            "type": "page",
-            "title": "How we extended the OpenAPI specification",
-            "description": "The extensions we added to the OpenAPI specification and how we process them under the hood.",
-            "filepath": "documentation/blog/2025-04-06-how-we-extended-the-openapi-specification.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-03-26-a-guide-to-openapi-security-and-how": {
-            "type": "page",
-            "title": "A guide to OpenAPI security (and how we handle it in Scalar)",
-            "description": "A practical guide to defining authentication and authorization in OpenAPI, and how Scalar renders security schemes.",
-            "filepath": "documentation/blog/2025-03-26-a-guide-to-openapi-security-and-how.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-03-19-the-hidden-complexity-of-building": {
-            "type": "page",
-            "title": "The hidden complexity of building drag and drop",
-            "description": "Why drag and drop is deceptively hard to build, and how we implemented it in the Scalar API Client.",
-            "filepath": "documentation/blog/2025-03-19-the-hidden-complexity-of-building.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-03-12-how-we-sped-up-our-api-docs-25x": {
-            "type": "page",
-            "title": "How we sped up our API docs 25x",
-            "description": "The structural and rendering changes that made our API documentation 25x faster.",
-            "filepath": "documentation/blog/2025-03-12-how-we-sped-up-our-api-docs-25x.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2025-03-05-how-net-9-and-scalar-solve-the-problem": {
-            "type": "page",
-            "title": "How .NET 9 and Scalar solve the problem of under-documented APIs",
-            "description": "How .NET 9 OpenAPI document generation and Scalar work together to keep your APIs documented.",
-            "filepath": "documentation/blog/2025-03-05-how-net-9-and-scalar-solve-the-problem.md",
-            "showInSidebar": false
-          },
-          "/blog/posts/2024-09-01-oss-pledge": {
-            "type": "page",
-            "title": "Scalar Joins the Open-Source Pledge",
-            "description": "Scalar joins the Open Source Pledge, committing at least $2,000 per developer per year to open source maintainers.",
-            "filepath": "documentation/blog/2024-09-01-oss-pledge.md",
-            "showInSidebar": false
           }
         }
       },
@@ -4660,15 +4527,154 @@
               ]
             }
           },
-          "blog": {
-            "type": "page",
+          "../blog": {
+            "type": "group",
             "title": "Blog",
             "icon": "phosphor/regular/newspaper",
-            "description": "News and engineering stories from the Scalar team on OpenAPI, API documentation, and developer experience.",
-            "filepath": "documentation/blog/index.md",
-            "showInSidebar": true,
-            "layout": {
-              "toc": false
+            "mode": "folder",
+            "page": {
+              "type": "page",
+              "title": "Blog",
+              "description": "News and engineering stories from the Scalar team on OpenAPI, API documentation, and developer experience.",
+              "filepath": "documentation/blog/index.md",
+              "layout": {
+                "toc": false
+              }
+            },
+            "children": {
+              "/posts/2026-08-16-stainless-wind-down": {
+                "type": "page",
+                "title": "We wrote up the Stainless wind-down",
+                "description": "A full account of the Stainless SDK generator wind-down: what changed, what your options are, and how stainless.yml carries across.",
+                "filepath": "documentation/blog/2026-08-16-stainless-wind-down.md",
+                "showInSidebar": false
+              },
+              "/posts/2026-04-11-oss-pledge": {
+                "type": "page",
+                "title": "Scalar's 2025 Open Source Pledge",
+                "description": "Scalar renews its Open Source Pledge for 2025, continuing to fund the open source maintainers we depend on.",
+                "filepath": "documentation/blog/2026-04-11-oss-pledge.md",
+                "showInSidebar": false
+              },
+              "/posts/2026-03-25-scalar-mcp-oauth": {
+                "type": "page",
+                "title": "Too Long; Didn't Read; Used MCP",
+                "description": "How OAuth works with Scalar MCP servers: authenticate agents against your API with delegated user permissions.",
+                "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
+                "showInSidebar": false,
+                "head": {
+                  "scripts": [
+                    {
+                      "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
+                    }
+                  ]
+                }
+              },
+              "/posts/2026-03-17-agent-mcp": {
+                "type": "page",
+                "title": "Use your API in Cursor",
+                "description": "Expose your OpenAPI document as an MCP server and use your API directly in Cursor or any MCP-compatible tool.",
+                "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
+                "showInSidebar": false,
+                "head": {
+                  "scripts": [
+                    {
+                      "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
+                    }
+                  ]
+                }
+              },
+              "/posts/2026-03-05-agent-scalar": {
+                "type": "page",
+                "title": "Introducing Agent",
+                "description": "Introducing Scalar Agent: connect LLMs to your API using a fraction of the context window instead of pasting your whole OpenAPI document.",
+                "filepath": "documentation/blog/2026-03-05-agent-scalar.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-08-19-how-to-set-up-an-openapi-mock-server": {
+                "type": "page",
+                "title": "How to set up an OpenAPI mock server",
+                "description": "How to set up an OpenAPI mock server with the Scalar CLI in a few commands.",
+                "filepath": "documentation/blog/2025-08-19-how-to-set-up-an-openapi-mock-server.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-07-07-how-to-do-openapi-validation-and": {
+                "type": "page",
+                "title": "How to do OpenAPI validation (and why it matters)",
+                "description": "How to validate OpenAPI documents with the Scalar CLI, and why validation matters for your API workflow.",
+                "filepath": "documentation/blog/2025-07-07-how-to-do-openapi-validation-and.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-05-28-how-we-created-an-animated-responsive": {
+                "type": "page",
+                "title": "How we created an animated, responsive README",
+                "description": "How we built an animated, responsive README for the Scalar GitHub repository with GitHub-flavored Markdown.",
+                "filepath": "documentation/blog/2025-05-28-how-we-created-an-animated-responsive.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-05-07-how-scalar-themes-work": {
+                "type": "page",
+                "title": "How Scalar themes work",
+                "description": "How Scalar themes work: the CSS variable system that lets you restyle an entire API reference.",
+                "filepath": "documentation/blog/2025-05-07-how-scalar-themes-work.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-04-28-how-cloudinarys-api-docs-create-a": {
+                "type": "page",
+                "title": "How Cloudinary’s API docs create a great developer experience",
+                "description": "What Cloudinary API docs get right, and what API-first companies can learn from their developer experience.",
+                "filepath": "documentation/blog/2025-04-28-how-cloudinarys-api-docs-create-a.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-04-23-an-introduction-to-openapi-variables": {
+                "type": "page",
+                "title": "An introduction to OpenAPI variables",
+                "description": "An introduction to OpenAPI variables: the different types and how to use them in your API documentation.",
+                "filepath": "documentation/blog/2025-04-23-an-introduction-to-openapi-variables.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-04-06-how-we-extended-the-openapi-specification": {
+                "type": "page",
+                "title": "How we extended the OpenAPI specification",
+                "description": "The extensions we added to the OpenAPI specification and how we process them under the hood.",
+                "filepath": "documentation/blog/2025-04-06-how-we-extended-the-openapi-specification.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-03-26-a-guide-to-openapi-security-and-how": {
+                "type": "page",
+                "title": "A guide to OpenAPI security (and how we handle it in Scalar)",
+                "description": "A practical guide to defining authentication and authorization in OpenAPI, and how Scalar renders security schemes.",
+                "filepath": "documentation/blog/2025-03-26-a-guide-to-openapi-security-and-how.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-03-19-the-hidden-complexity-of-building": {
+                "type": "page",
+                "title": "The hidden complexity of building drag and drop",
+                "description": "Why drag and drop is deceptively hard to build, and how we implemented it in the Scalar API Client.",
+                "filepath": "documentation/blog/2025-03-19-the-hidden-complexity-of-building.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-03-12-how-we-sped-up-our-api-docs-25x": {
+                "type": "page",
+                "title": "How we sped up our API docs 25x",
+                "description": "The structural and rendering changes that made our API documentation 25x faster.",
+                "filepath": "documentation/blog/2025-03-12-how-we-sped-up-our-api-docs-25x.md",
+                "showInSidebar": false
+              },
+              "/posts/2025-03-05-how-net-9-and-scalar-solve-the-problem": {
+                "type": "page",
+                "title": "How .NET 9 and Scalar solve the problem of under-documented APIs",
+                "description": "How .NET 9 OpenAPI document generation and Scalar work together to keep your APIs documented.",
+                "filepath": "documentation/blog/2025-03-05-how-net-9-and-scalar-solve-the-problem.md",
+                "showInSidebar": false
+              },
+              "/posts/2024-09-01-oss-pledge": {
+                "type": "page",
+                "title": "Scalar Joins the Open-Source Pledge",
+                "description": "Scalar joins the Open Source Pledge, committing at least $2,000 per developer per year to open source maintainers.",
+                "filepath": "documentation/blog/2024-09-01-oss-pledge.md",
+                "showInSidebar": false
+              }
             }
           }
         }
