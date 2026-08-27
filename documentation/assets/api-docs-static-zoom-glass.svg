@@ -1386,14 +1386,10 @@ svg {
    box. The content lays out ~10% narrower and is scaled up, composing with
    the responsive --var scale ladder. Delete this block to revert. */
 .h-animation-ref.rr {
-  /* pin the shell full-bleed: the ungated media ladder tries to switch it to
-     position:relative at small viewports, which floats the slab inset */
-  position: fixed;
-  top: 0;
-  left: 0;
-  border-radius: 16px; /* matches the overlay clip so the hairline ring is not cut */
+  /* same recipe as the clerk mock's .ck-page.rr -- the shell is already
+     pinned by the base rule, and Safari drives the ladder untouched */
   width: calc(100% / 1.1);
-  min-width: calc(1280px / 1.1);
+  height: calc(765px / 1.1);
   transform: scale(calc(var(--var, 1) * 1.1));
   transform-origin: top left;
 }
@@ -1474,24 +1470,35 @@ svg {
   background-color: transparent;
 }
 
-/* Geometric viewBox scaling replaces the runtime ladder */
-.transform-rr {
-  --var: 1 !important;
-}
-
 /* Lock icon pinned to the omnibar's left edge (mirrors the refresh at right) */
 .h-animation-ref-safari-nav-url svg:first-of-type {
   position: absolute;
   left: 8px;
 }
 
-/* The Safari-gated embed-centering transform assumes the ladder-driven --var;
-   with --var pinned to 1 its offsets go negative and shift the mock off-canvas.
-   Our image fills its viewport exactly, so disable the centering in Safari. */
-@supports (hanging-punctuation: first) and (font: -apple-system-body) and (-webkit-appearance: none) {
-  .transform-rr {
-    transform: none !important;
-  }
+/* SCALE-137 fixes: with the request card forced nowrap, the content column's
+   min-content width squeezed the sidebar below its 280px max, and the selected
+   row's fixed 256px pill then overflowed the card. Let the content column
+   shrink instead, and size the pill relative to its row. */
+.h-animation-content {
+  min-width: 0;
+}
+.beforeme:before {
+  /* -12px, not -24: the pill starts at the sidebar's padding edge, matching
+     the original 256px design, not flush against the card border */
+  width: auto;
+  left: -12px;
+  right: 0;
+}
+
+/* GLASS-LS: Lightspark's recipe -- transparent bar, hairline ring at 18% */
+.h-animation-ref-safari {
+  background-color: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.18);
+}
+/* stoplights clear of the tighter outer corner radius */
+.dotted-top {
+  left: 20px;
 }
 </style>
     </foreignObject>

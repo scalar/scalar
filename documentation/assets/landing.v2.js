@@ -197,26 +197,10 @@ const initHeroSdkTabs = debounce(() => {
         const target = [...panels].find((panel) => panel.dataset.sdkLang === button.dataset.sdkLang)
         if (!target || target === current) return
 
-        const startHeight = current ? current.offsetHeight : 0
+        // The code area is a fixed-height scroller now: no height animation,
+        // just land the new language scrolled to the top
         panels.forEach((panel) => panel.classList.toggle('is-hidden', panel !== target))
-        const endHeight = target.offsetHeight
-
-        // Animate the height change so switching languages does not jump
-        if (startHeight && startHeight !== endHeight) {
-          target.style.height = `${startHeight}px`
-          target.style.overflow = 'hidden'
-          void target.offsetHeight
-          target.style.transition = 'height 260ms cubic-bezier(0.33, 1, 0.68, 1)'
-          target.style.height = `${endHeight}px`
-          const cleanup = () => {
-            target.style.height = ''
-            target.style.overflow = ''
-            target.style.transition = ''
-            target.removeEventListener('transitionend', cleanup)
-          }
-          target.addEventListener('transitionend', cleanup)
-          setTimeout(cleanup, 420)
-        }
+        target.scrollTop = 0
       })
       bound += 1
     })
@@ -283,11 +267,174 @@ const initHeroScenes = debounce(() => {
   console.log(`Initialized ${buttons.length} hero scene tabs`)
 })
 
+/* Hero cards: hover affordance, and a view-transitioned popup on click.
+   The real cell node is moved into the overlay rather than cloned, so the
+   artwork's turbulence filters are never re-run and the browser has a single
+   element to morph. View transitions animate static snapshots on the
+   compositor, which is what keeps this at 60fps despite the heavy SVG. */
+const initHeroCards = debounce(() => {
+  const grid = document.querySelector('.hero-grid')
+  if (!grid) return
+
+  const cells = grid.querySelectorAll('.hero-cell')
+  if (!cells.length) return
+
+  let overlay = document.querySelector('.hero-modal')
+  if (!overlay) {
+    overlay = document.createElement('div')
+    overlay.className = 'hero-modal'
+    overlay.hidden = true
+    overlay.innerHTML =
+      '<div class="hero-modal-scrim"></div>' +
+      '<div class="hero-modal-stage"></div>' +
+      '<button type="button" class="hero-modal-close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+    document.body.appendChild(overlay)
+  }
+  const stage = overlay.querySelector('.hero-modal-stage')
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
+  const animate = (update) => {
+    if (reduced.matches || !document.startViewTransition) {
+      update()
+      return Promise.resolve()
+    }
+    const transition = document.startViewTransition(update)
+    // an aborted transition rejects ready/updateCallbackDone as well as
+    // finished; leaving those unhandled logs InvalidStateError noise
+    const hush = () => {}
+    transition.ready.catch(hush)
+    transition.updateCallbackDone.catch(hush)
+    return transition.finished.catch(hush)
+  }
+
+  let open = null
+  let anchor = null
+  let natural = null
+  let busy = false
+
+  /* One transition at a time. Without this, clicking again mid-animation
+     aborts the running transition and desyncs `open` from the DOM, leaving a
+     card on screen that no close path can dismiss. */
+  const settle = (promise) => {
+    busy = true
+    return Promise.resolve(promise)
+      .catch(() => {})
+      .finally(() => {
+        busy = false
+      })
+  }
+
+  /* Scale the opened card with zoom rather than transform: zoom re-lays the
+     card out at the larger size, so the vector art and code stay crisp. */
+  const fit = (cell) => {
+    if (!natural) return
+    const factor = Math.min(
+      (window.innerWidth * 0.92) / natural.w,
+      (window.innerHeight * 0.86) / natural.h,
+      2.6,
+    )
+    cell.style.zoom = Math.max(1, factor)
+  }
+
+  const openCard = (cell) => {
+    if (open || busy) return
+
+    const rect = cell.getBoundingClientRect()
+    natural = { w: rect.width, h: rect.height }
+    anchor = document.createComment('hero-cell')
+    cell.before(anchor)
+    cell.dataset.heroCellOpen = 'true'
+    cell.style.viewTransitionName = 'hero-card'
+    open = cell
+
+    settle(animate(() => {
+      stage.appendChild(cell)
+      overlay.hidden = false
+      document.documentElement.style.overflow = 'hidden'
+      // outside the grid there is no column to size against, and every child
+      // is absolutely positioned, so the card needs its width carried over
+      cell.style.width = `${natural.w}px`
+      fit(cell)
+    })).then(() => {
+      const close = overlay.querySelector('.hero-modal-close')
+      if (close && open) close.focus({ preventScroll: true })
+    })
+  }
+
+  const closeCard = () => {
+    // recover if a previous run desynced: the stage still holds a card
+    if (!open) open = stage.querySelector('.hero-cell')
+    if (!open || busy) return
+    const cell = open
+    open = null
+
+    settle(animate(() => {
+      cell.style.zoom = ''
+      cell.style.width = ''
+      if (anchor && anchor.parentNode) {
+        anchor.replaceWith(cell)
+      } else {
+        grid.appendChild(cell)
+      }
+      anchor = null
+      overlay.hidden = true
+      document.documentElement.style.overflow = ''
+    })).then(() => {
+      delete cell.dataset.heroCellOpen
+      cell.style.viewTransitionName = ''
+    })
+  }
+
+  if (overlay.dataset.heroModalBound !== 'true') {
+    overlay.dataset.heroModalBound = 'true'
+    overlay.addEventListener('click', (event) => {
+      // anywhere off the card closes: the scrim, the gap around it, or the X
+      if (event.target.closest('.hero-modal-close') || !event.target.closest('.hero-cell')) {
+        closeCard()
+      }
+    })
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeCard()
+    })
+    window.addEventListener('resize', () => {
+      if (open) fit(open)
+    })
+  }
+
+  let bound = 0
+  cells.forEach((cell) => {
+    if (cell.dataset.heroCardBound === 'true') return
+    cell.dataset.heroCardBound = 'true'
+    cell.setAttribute('role', 'button')
+    cell.setAttribute('tabindex', '0')
+
+    cell.addEventListener('click', (event) => {
+      // an opened card is just content; its language tabs keep working
+      if (cell.dataset.heroCellOpen === 'true') return
+      // and in the grid, a language tab is a tab, not a card click
+      if (event.target.closest('.hero-glass-tabs')) return
+      openCard(cell)
+    })
+
+    cell.addEventListener('keydown', (event) => {
+      if (cell.dataset.heroCellOpen === 'true') return
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        openCard(cell)
+      }
+    })
+    bound += 1
+  })
+
+  if (bound) console.log(`Initialized ${bound} hero cards`)
+})
+
 initDraggableElements()
 initFooterAnimation()
 initGallery()
 initHeroSdkTabs()
 initHeroScenes()
+initHeroCards()
 
 const observer = new MutationObserver((records) => {
   if (!records.some((r) => r.addedNodes.length)) {
@@ -299,6 +446,7 @@ const observer = new MutationObserver((records) => {
   initGallery()
   initHeroSdkTabs()
   initHeroScenes()
+  initHeroCards()
 })
 
 observer.observe(document.documentElement || document.body, { childList: true, subtree: true })

@@ -965,6 +965,17 @@
   position: absolute;
   left: 8px;
 }
+
+
+/* GLASS-LS: Lightspark's recipe -- transparent bar, hairline ring at 18% */
+.h-animation-ref-safari {
+  background-color: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.18);
+}
+/* stoplights clear of the tighter outer corner radius */
+.dotted-top {
+  left: 20px;
+}
 </style>
   </foreignObject>
 </svg>
