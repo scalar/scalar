@@ -12,7 +12,7 @@
     "head": {
       "scripts": [
         {
-          "path": "documentation/assets/landing.v2.js"
+          "path": "documentation/assets/landing.js"
         },
         {
           "path": "documentation/assets/powered-by.js"
