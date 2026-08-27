@@ -306,6 +306,97 @@ describe('createMockServer', () => {
     expect(await response.text()).toBe('data: {"type":"edit"}\n\n')
   })
 
+  it('GET /events -> frames an array schema as events', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          type: {
+                            type: 'string',
+                            example: 'edit',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events')
+
+    expect(await response.text()).toBe('data: {"type":"edit"}\n\ndata: {"type":"edit"}\n\ndata: {"type":"edit"}\n\n')
+  })
+
+  it('GET /events -> keeps the status code and declared headers of the streamed response', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': { example: { from: '200' } },
+                },
+              },
+              '201': {
+                description: 'Created',
+                headers: {
+                  'X-Stream-Id': {
+                    schema: {
+                      type: 'string',
+                      example: 'stream-1',
+                    },
+                  },
+                },
+                content: {
+                  'text/event-stream': { example: { from: '201' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events', {
+      headers: { Prefer: 'code=201' },
+    })
+
+    expect(response.status).toBe(201)
+    expect(response.headers.get('X-Stream-Id')).toBe('stream-1')
+    expect(await response.text()).toBe('data: {"from":"201"}\n\n')
+  })
+
   it('GET /events -> keeps returning a buffered body for the JSON variant', async () => {
     const document = {
       openapi: '3.1.0',

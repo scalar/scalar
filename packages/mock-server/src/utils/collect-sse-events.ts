@@ -1,3 +1,4 @@
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
@@ -9,14 +10,8 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
  */
 const GENERATED_EVENT_COUNT = 3
 
-/**
- * Matches text that is already Server-Sent Events framing, so it is written to the wire as is.
- *
- * Some documents spell the wire format out in their example (`data: {"type":"edit"}\n\n`) instead of
- * describing a single event payload. Wrapping that in another `data:` line would hand the client the
- * framing as its payload, so it is passed through untouched.
- */
-const SSE_FRAMING = /^(?:data|event|id|retry):/m
+/** The field prefixes an SSE line may start with (`data`, `event`, `id`, `retry`). */
+const SSE_FIELD = /^(?:data|event|id|retry):/
 
 /** One event of a mocked Server-Sent Events response. */
 type SseEvent = {
@@ -26,8 +21,36 @@ type SseEvent = {
   framed: boolean
 }
 
-/** Closes framed text with the blank line that ends an SSE event, if the document left it out. */
-const terminate = (text: string): string => (text.endsWith('\n\n') ? text : `${text}\n\n`)
+/**
+ * Whether text is already Server-Sent Events framing, so it goes to the wire as is.
+ *
+ * Some documents spell the wire format out in their example (`data: {"type":"edit"}`) instead of
+ * describing a single event payload. Wrapping that in another `data:` line would hand the client the
+ * framing as its payload, so it is passed through untouched.
+ *
+ * The test is deliberately narrow: real framing starts with a field on its first line and carries at
+ * least one `data:` line. Prose that merely happens to contain a colon (`user created\nid: 42`) is
+ * not framing — passing it through would make a compliant client dispatch nothing at all.
+ */
+const isFramed = (text: string): boolean => {
+  const lines = text.split(/\r\n|\r|\n/)
+  const firstLine = lines.find((line) => line.trim() !== '')
+
+  return firstLine !== undefined && SSE_FIELD.test(firstLine) && lines.some((line) => line.startsWith('data:'))
+}
+
+/**
+ * Closes framed text with the blank line that ends an SSE event.
+ *
+ * Documents terminate their framing inconsistently — a YAML block scalar drops all but one newline,
+ * and a Windows-authored document uses CRLF — so the tail is normalized to exactly one blank line in
+ * the document's own line ending instead of being appended to blindly.
+ */
+const terminate = (text: string): string => {
+  const lineEnding = text.includes('\r\n') ? '\r\n' : '\n'
+
+  return `${text.replace(/[\r\n]+$/, '')}${lineEnding}${lineEnding}`
+}
 
 /** Turns one payload into an event, serializing anything that is not already text. */
 const toEvent = (payload: unknown): SseEvent => {
@@ -36,7 +59,7 @@ const toEvent = (payload: unknown): SseEvent => {
     return { text: JSON.stringify(payload) ?? 'null', framed: false }
   }
 
-  return SSE_FRAMING.test(payload) ? { text: terminate(payload), framed: true } : { text: payload, framed: false }
+  return isFramed(payload) ? { text: terminate(payload), framed: true } : { text: payload, framed: false }
 }
 
 /**
@@ -50,7 +73,7 @@ const expand = (payload: unknown): SseEvent[] => (Array.isArray(payload) ? paylo
  *
  * Examples win over the schema, mirroring `selectResponseExample`, but a stream reads them as a
  * sequence rather than a single body:
- * 1. A named example requested via `Prefer: example=<name>` pins the stream to that one event.
+ * 1. A named example requested via `Prefer: example=<name>`.
  * 2. The singular `example` keyword.
  * 3. Every entry of the `examples` map, in declaration order — an event stream that documents a
  *    `summary` and a `row` example is documenting the two events it sends.
@@ -77,6 +100,8 @@ export const collectSseEvents = (
   }
 
   if (examples) {
+    // An Example Object that only carries an `externalValue` has no value to send, so it is skipped
+    // rather than turned into a `data: null` event.
     const values = Object.values(examples)
       .map((entry) => getResolvedRef(entry)?.value)
       .filter((value) => value !== undefined)
@@ -93,11 +118,17 @@ export const collectSseEvents = (
     return []
   }
 
-  return Array.isArray(generated)
-    ? generated.map(toEvent)
-    : Array.from({ length: GENERATED_EVENT_COUNT }, () => toEvent(generated))
+  const events = expand(generated)
+  const [firstEvent] = events
+
+  // Only a lone generated payload is repeated. Framing generated from the schema already spells the
+  // whole stream out (repeating it would replay a terminal event such as `[DONE]`), and a generated
+  // sequence of several events is a sequence already.
+  return events.length === 1 && firstEvent && !firstEvent.framed
+    ? Array.from({ length: GENERATED_EVENT_COUNT }, () => firstEvent)
+    : events
 }
 
 /** Whether a media type is Server-Sent Events, ignoring parameters such as `; charset=utf-8`. */
-export const isEventStreamContentType = (contentType: string | undefined | null): boolean =>
-  contentType?.split(';')[0]?.trim().toLowerCase() === 'text/event-stream'
+export const isEventStreamContentType = (contentType: string | undefined): boolean =>
+  parseMimeType(contentType).essence === 'text/event-stream'

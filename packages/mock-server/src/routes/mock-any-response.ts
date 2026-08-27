@@ -108,6 +108,9 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
     c.status(statusCode)
 
+    // `streamSSE` sets the transport headers itself (`Content-Type`, `Cache-Control`, `Connection`,
+    // `Transfer-Encoding`), so those win over a value the document declared for the same header —
+    // they are what makes the stream readable. Every other declared header set above survives.
     return streamSSE(c, async (stream) => {
       for (const event of events) {
         if (event.framed) {

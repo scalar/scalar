@@ -318,7 +318,9 @@ paths:
 
 ```bash
 curl http://localhost:3000/events -H 'Accept: text/event-stream'
+```
 
+```text
 data: {"total_rows":2}
 
 data: {"count":42}
@@ -326,10 +328,10 @@ data: {"count":42}
 
 How the events are picked:
 
-- Named `examples` are read as the sequence of events the endpoint emits, in declaration order. `Prefer: example=<name>` still works and pins the stream to that single event.
-- An array (in an `example` or generated from an `array` schema) is read as the event sequence too, one event per item.
+- Named `examples` are read as the sequence of events the endpoint emits, in declaration order. `Prefer: example=<name>` still works and pins the stream to that one example.
+- An array example is read as the event sequence too, one event per item.
 - An example that already spells out the wire format (`data: {"type":"edit"}`) is written verbatim, so it is not wrapped in a second `data:` line.
-- When the response only has a schema, the generated payload is sent three times, so a client's read loop sees more than one event before the stream ends.
+- When the response only has a schema, the generated payload is sent three times, so a client's read loop sees more than one event before the stream ends. A schema that generates several events (an `array` schema with more than one item) is sent once, as its own sequence.
 
 ### Custom Request Handlers
 
