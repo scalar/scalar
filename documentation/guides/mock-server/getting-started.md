@@ -295,6 +295,30 @@ Each violation reports its `location` (`path`, `query`, `header`, `cookie`, or `
 
 > This validates path, query, header, and cookie parameters (across every OpenAPI serialization style, including array and object values), plus JSON request bodies. Response validation, non-JSON bodies, and proxy mode are planned follow-ups.
 
+### Error Responses
+
+When mocking a request fails in a way nothing else handles — a declared response header name that is not a valid HTTP header name, an example that cannot be serialized — the server responds with `500 Internal Server Error` and a JSON body naming the operation that failed:
+
+```json
+{
+  "error": "Internal Server Error",
+  "message": "Headers.set: \"X Invalid Name\" is an invalid header name.",
+  "operation": {
+    "method": "GET",
+    "path": "/pets/{petId}",
+    "operationId": "getPet"
+  }
+}
+```
+
+`operation` reports the HTTP method and the OpenAPI path key of the matched operation, plus its `operationId` when the document declares one. It is left out when the request did not match a mocked operation, for example on a route you added to the returned app yourself. Either way, the error is also logged to the console, so the stack trace stays available.
+
+Failures that are already handled elsewhere never reach this handler, so they keep their own shape and carry no `operation` key:
+
+- **`x-handler` errors** — an extension that throws responds with `{ "error": "Handler execution failed", "message": … }`.
+- **Operations with no response** — an operation whose `responses` are empty responds with `{ "error": "No response defined for this operation." }`.
+- **Errors that carry a response** — an error such as Hono's `HTTPException` keeps the status and body it chose, and is not logged.
+
 ### Custom Request Handlers
 
 Use the `x-handler` extension to write custom JavaScript code for handling requests. This gives you access to a `store` helper for data persistence, `faker` for generating realistic data, and full access to request/response objects.
