@@ -124,8 +124,8 @@
     <div class="pricing-overview-card-content">
       <h2 class="pricing-overview-plan">Pro</h2>
       <p class="pricing-overview-headline">Ship docs, SDKs, and MCP servers.</p>
-      <p class="pricing-overview-price"><span class="pricing-monthly">$150 <span class="pricing-per">/ Month</span></span><span class="pricing-yearly">$125 <span class="pricing-per">/ Month</span></span></p>
-      <p class="pricing-overview-pricenote"><span class="pricing-monthly">Volume discounts available</span><span class="pricing-yearly">$1,500 billed yearly</span></p>
+      <p class="pricing-overview-price">$150 <span>/ Month</span></p>
+      <p class="pricing-overview-pricenote">Volume discounts available</p>
       <a class="pricing-overview-cta" href="https://dashboard.scalar.com/register">Get started</a>
       <ul>
         <li>
@@ -163,8 +163,8 @@
     <div class="pricing-overview-card-content">
       <h2 class="pricing-overview-plan">Business</h2>
       <p class="pricing-overview-headline">Scale to bigger APIs and teams.</p>
-      <p class="pricing-overview-price"><span class="pricing-monthly">$600 <span class="pricing-per">/ Month</span></span><span class="pricing-yearly">$500 <span class="pricing-per">/ Month</span></span></p>
-      <p class="pricing-overview-pricenote"><span class="pricing-monthly">Volume discounts available</span><span class="pricing-yearly">$6,000 billed yearly</span></p>
+      <p class="pricing-overview-price">$600 <span>/ Month</span></p>
+      <p class="pricing-overview-pricenote">Volume discounts available</p>
       <a class="pricing-overview-cta" href="https://dashboard.scalar.com/register">Get started</a>
       <ul>
         <li>
@@ -232,11 +232,6 @@
 </section>
 
 
-<div class="pricing-billing" role="radiogroup" aria-label="Billing period">
-  <label for="billing-monthly"><input type="radio" name="billing" id="billing-monthly" checked>Monthly</label>
-  <label for="billing-yearly"><input type="radio" name="billing" id="billing-yearly">Yearly<span class="pricing-billing-badge">2 months free</span></label>
-</div>
-
 ## Overview
 
 <div class="mobiletabs">
@@ -260,13 +255,13 @@
               </th>
               <th class="pricing-table-column pro-price _align-start pb-0" scope="col">
                 <b class="text-sm">Pro</b>
-                <p class="text-xl font-bold "><span class="pricing-monthly">$150 <span class="text-lg font-normal text-c-2">/ Month</span></span><span class="pricing-yearly">$125 <span class="text-lg font-normal text-c-2">/ Month</span></span></p>
-                <p class="pricing-volume-note"><span class="pricing-monthly">Volume discounts available</span><span class="pricing-yearly">$1,500 billed yearly</span></p>
+                <p class="text-xl font-bold ">$150 <span class="text-lg font-normal text-c-2">/ Month</span></p>
+                <p class="pricing-volume-note">Volume discounts available</p>
               </th>
               <th class="pricing-table-column business-price _align-start pb-0" scope="col">
                 <b class="text-sm">Business</b>
-                <p class="text-xl font-bold "><span class="pricing-monthly">$600 <span class="text-lg font-normal text-c-2">/ Month</span></span><span class="pricing-yearly">$500 <span class="text-lg font-normal text-c-2">/ Month</span></span></p>
-                <p class="pricing-volume-note"><span class="pricing-monthly">Volume discounts available</span><span class="pricing-yearly">$6,000 billed yearly</span></p>
+                <p class="text-xl font-bold ">$600 <span class="text-lg font-normal text-c-2">/ Month</span></p>
+                <p class="pricing-volume-note">Volume discounts available</p>
               </th>
               <th class="pricing-table-column enterprise-price _align-start pb-0" scope="col">
                 <b class="text-sm">Enterprise</b>
@@ -894,7 +889,7 @@
     </details>
     <details class="pricing-faq-item">
       <summary>Can I pay yearly?</summary>
-      <p>Yes. Switch the toggle at the top of this page to see yearly pricing. Paying yearly gives you two months free — Pro works out to $125 per month ($1,500 per year) and Business to $500 per month ($6,000 per year).</p>
+      <p>Yes. Paying yearly gives you two months free — Pro works out to $125 per month ($1,500 per year) and Business to $500 per month ($6,000 per year).</p>
     </details>
     <details class="pricing-faq-item">
       <summary>Do Agent Scalar credits roll over?</summary>
@@ -1000,65 +995,6 @@
 .pricing-agent-context {
   display: none;
 }
-.pricing-billing {
-  display: flex;
-  width: fit-content;
-  gap: 4px;
-  align-items: center;
-  /* The plan cards above supply the top gap; this keeps the Overview heading off the toggle. */
-  margin: 0 0 32px;
-  padding: 4px;
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius-lg);
-  background: var(--scalar-background-2);
-}
-.pricing-billing input {
-  position: absolute;
-  left: -200vw;
-}
-.pricing-billing label {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 6px 14px;
-  border-radius: var(--scalar-radius);
-  color: var(--scalar-color-2);
-  cursor: pointer;
-  font-size: var(--scalar-font-size-3);
-  line-height: var(--scalar-line-height-3);
-  user-select: none;
-}
-.pricing-billing label:hover {
-  color: var(--scalar-color-1);
-}
-.pricing-billing label:has(input:checked) {
-  background: var(--scalar-background-1);
-  box-shadow: var(--scalar-shadow-1);
-  color: var(--scalar-color-1);
-  font-weight: var(--scalar-semibold);
-}
-.pricing-billing label:has(input:focus-visible) {
-  outline: var(--scalar-border-width) solid var(--scalar-color-blue);
-  outline-offset: 2px;
-}
-.pricing-billing-badge {
-  padding: 2px 6px;
-  border-radius: var(--scalar-radius);
-  background: color-mix(in srgb, var(--scalar-color-green), transparent 85%);
-  color: var(--scalar-color-green);
-  font-size: var(--scalar-font-size-5);
-  font-weight: var(--scalar-semibold);
-}
-/* The toggle above swaps every price on the page between monthly and yearly. */
-.pricing-yearly {
-  display: none;
-}
-:root:has(#billing-yearly:checked) .pricing-monthly {
-  display: none;
-}
-:root:has(#billing-yearly:checked) .pricing-yearly {
-  display: inline;
-}
 .pricing-overview-cards {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1122,7 +1058,7 @@
   line-height: var(--scalar-line-height-1);
   white-space: nowrap;
 }
-.pricing-overview-price .pricing-per {
+.pricing-overview-price span {
   color: var(--scalar-color-2);
   font-size: var(--scalar-font-size-2);
   font-weight: var(--scalar-regular);
