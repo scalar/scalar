@@ -12,8 +12,8 @@ import { handleAuthentication } from '@/utils/handle-authentication'
 import { type PathKeyQueryParameter, parsePathKey } from '@/utils/hono-route-from-path'
 import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
-import { onlyWhenQueryMatches } from '@/utils/only-when-query-matches'
 import { processOpenApiDocument } from '@/utils/process-openapi-document'
+import { onlyWhenPathKeyAnswers } from '@/utils/select-path-key'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
 import { validateRequest } from '@/utils/validate-request'
 
@@ -78,23 +78,17 @@ export async function createMockServer(configuration: MockServerOptions): Promis
     route: string
     /** HTTP method the operation answers */
     method: HttpMethod
-    /** Query parameters that pick this operation over another one sharing its route */
-    query: PathKeyQueryParameter[]
-    /** Position of the path key in the document, which decides precedence between routes */
-    index: number
+    /** Route and method the operation shares with the path keys it competes against */
+    group: string
+    /** Position of the operation's path key among the ones sharing that group */
+    position: number
     /** The operation itself */
     operation: OpenAPIV3_1.OperationObject
     /** Parameters shared by every operation of the path item */
     pathItemParameters: OpenAPIV3_1.PathItemObject['parameters']
   }
 
-  /**
-   * Build every handler of one operation, in the order they run.
-   *
-   * Handlers are built once per operation and registered as they are: the fallback registration below
-   * puts the same instances on the route a second time, and rebuilding them would compile the
-   * operation's request validators twice.
-   */
+  /** Build every handler of one operation, in the order they run. */
   const buildHandlers = ({ operation, pathItemParameters }: RegisteredOperation): H[] => {
     const handlers: H[] = []
 
@@ -135,28 +129,18 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   }
 
   /**
-   * Register an operation's handlers on its route.
+   * Query parameters of the path keys sharing a route and method, in document order.
    *
-   * The `query` argument gates the handlers, so a request that does not carry those parameters falls
-   * through to the next operation registered on the same route.
+   * A path key that carries a query string (`/v1/messages?beta=true`) shares its route with the key
+   * it is a variant of, so every operation on that route needs to know about the others to tell
+   * which of them answers a given request.
    */
-  const registerHandlers = (
-    { route, method }: RegisteredOperation,
-    handlers: H[],
-    query: PathKeyQueryParameter[],
-  ): void => {
-    handlers.forEach((handler) => app[method](route, onlyWhenQueryMatches(query, handler)))
-  }
+  const queriesByGroup = new Map<string, PathKeyQueryParameter[][]>()
 
-  /**
-   * Operations grouped by the route and method they answer on.
-   *
-   * A path key that carries a query string (`/v1/messages?beta=true`) shares its route with the key it
-   * is a variant of, and only operations sharing a route compete for a request.
-   */
-  const operationsByRoute = new Map<string, RegisteredOperation[]>()
+  /** Every operation of the document, in the order its path key was declared */
+  const operations: RegisteredOperation[] = []
 
-  Object.keys(paths).forEach((path, index) => {
+  Object.keys(paths).forEach((path) => {
     // A path item may itself be a `$ref`, so resolve it before reading its operations.
     const pathItem = getResolvedRef(paths[path])
     const { route, query } = parsePathKey(path)
@@ -164,75 +148,33 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
     /** Keys for all operations of a specified path */
     methods.forEach((method) => {
-      const group = operationsByRoute.get(`${method} ${route}`) ?? []
+      const group = `${method} ${route}`
+      const keys = queriesByGroup.get(group) ?? []
 
-      group.push({
+      operations.push({
         route,
         method,
-        query,
-        index,
+        group,
+        position: keys.length,
         operation: pathItem?.[method] as OpenAPIV3_1.OperationObject,
         pathItemParameters: pathItem?.parameters,
       })
 
-      operationsByRoute.set(`${method} ${route}`, group)
+      keys.push(query)
+      queriesByGroup.set(group, keys)
     })
   })
 
-  /** One registration of an operation's handlers, in the document slot it competes for */
-  type Registration = {
-    /** Document slot the handlers are registered in, which is what decides precedence */
-    slot: number
-    /** The operation the handlers belong to */
-    operation: RegisteredOperation
-    /** Query parameters the request has to carry, empty when the handlers answer unconditionally */
-    query: PathKeyQueryParameter[]
-    /** The operation's handlers, built once and shared with the fallback registration */
-    handlers: H[]
-  }
+  // Registering in document order keeps precedence between overlapping routes — whether `/pets/mine`
+  // or `/pets/{id}` answers `GET /pets/mine` — exactly where the document put it. Which path key of a
+  // route answers is decided per request instead, by `selectPathKey`.
+  operations.forEach((registered) => {
+    const keys = queriesByGroup.get(registered.group) ?? []
 
-  const registrations: Registration[] = []
-
-  operationsByRoute.forEach((group) => {
-    // The most specific path key goes first, so `/v1/messages?beta=true` answers a request that
-    // carries `beta=true` and `/v1/messages` answers the rest. The sort is stable, so path keys with
-    // the same number of query parameters keep their document order.
-    const operations = [...group].sort((a, b) => b.query.length - a.query.length)
-
-    // Ordering by specificity may only shuffle the group's own path keys, never move the route as a
-    // whole: which of `/pets/mine` and `/pets/{id}` answers `GET /pets/mine` follows from where each
-    // was declared. Reusing the group's own document slots keeps that intact.
-    const slots = group.map(({ index }) => index).sort((a, b) => a - b)
-
-    const built = operations.map((operation, position) => ({
-      slot: slots[position] ?? operation.index,
-      operation,
-      query: operation.query,
-      handlers: buildHandlers(operation),
-    }))
-
-    registrations.push(...built)
-
-    // A query string in a path key tells two operations apart, it is not a parameter clients have to
-    // send, and documents written this way often carry no plain key at all. The path key with the
-    // fewest query parameters therefore answers a request that carries none, through a second
-    // registration without the gate.
-    const fallback = built.reduce((fewest, registration) =>
-      registration.query.length < fewest.query.length ? registration : fewest,
+    buildHandlers(registered).forEach((handler) =>
+      app[registered.method](registered.route, onlyWhenPathKeyAnswers(keys, registered.position, handler)),
     )
-
-    if (fallback.query.length > 0) {
-      // The group's last slot, so a path key that does require a query string still wins over the
-      // fallback for a request that carries it.
-      registrations.push({ ...fallback, slot: slots.at(-1) ?? fallback.slot, query: [] })
-    }
   })
-
-  // Hono answers with the first matching registration, so the document order of the path keys — with
-  // each group's own keys ordered by specificity — is what resolves overlapping routes.
-  registrations
-    .sort((a, b) => a.slot - b.slot)
-    .forEach(({ operation, handlers, query }) => registerHandlers(operation, handlers, query))
 
   // OpenAPI JSON file
   app.get('/openapi.json', (c) =>

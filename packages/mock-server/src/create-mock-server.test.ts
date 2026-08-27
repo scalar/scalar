@@ -1196,6 +1196,86 @@ describe('createMockServer', () => {
       })
     })
 
+    it('does not let a path key added at the end of a document move an unrelated route', async () => {
+      // The shape generators produce: plain keys first, the query-bearing variants appended after.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/files/upload': {
+            post: { responses: jsonResponse('upload') },
+          },
+          '/v1/files/{file_id}': {
+            post: { responses: jsonResponse('by-id') },
+          },
+          '/v1/files/upload?beta=true': {
+            post: { responses: jsonResponse('upload-beta') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      // Appending the beta key must not hand `/v1/files/upload` to the templated route.
+      expect(await (await server.request('/v1/files/upload', { method: 'POST' })).json()).toStrictEqual({
+        variant: 'upload',
+      })
+      expect(await (await server.request('/v1/files/7', { method: 'POST' })).json()).toStrictEqual({
+        variant: 'by-id',
+      })
+    })
+
+    it('answers a route declared before a query-bearing key of another route', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/{id}': {
+            get: { responses: jsonResponse('by-id') },
+          },
+          '/mine': {
+            get: { responses: jsonResponse('mine') },
+          },
+          '/{id}?v=1': {
+            get: { responses: jsonResponse('by-id-v1') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      // `/{id}` is declared first, so it answers — exactly as it would without the third key.
+      expect(await (await server.request('/mine')).json()).toStrictEqual({ variant: 'by-id' })
+      // With `v=1` the templated route hands the request on, and `/mine` answers.
+      expect(await (await server.request('/mine?v=1')).json()).toStrictEqual({ variant: 'mine' })
+      expect(await (await server.request('/7?v=1')).json()).toStrictEqual({ variant: 'by-id-v1' })
+    })
+
+    it('answers with the least specific key of a route whose keys all carry a query string', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/a/mine?v=1': {
+            get: { responses: jsonResponse('mine-v1') },
+          },
+          '/a/{id}': {
+            get: { responses: jsonResponse('by-id') },
+          },
+          '/a/mine?v=2': {
+            get: { responses: jsonResponse('mine-v2') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      // `/a/mine?v=1` is declared before the templated route, so it still answers a request that
+      // carries neither query string.
+      expect(await (await server.request('/a/mine')).json()).toStrictEqual({ variant: 'mine-v1' })
+      expect(await (await server.request('/a/mine?v=1')).json()).toStrictEqual({ variant: 'mine-v1' })
+    })
+
     it('keeps a path key ahead of a route declared after it', async () => {
       // The beta key is declared before the templated route, so it has to answer a request carrying
       // its query string even though the key it shares a route with comes last.
