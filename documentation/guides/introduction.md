@@ -20,6 +20,7 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
   </div>
+  <!--
   <div class="stickers stickers-marc">
     <div class="draggable sticker-5">
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/SiTCkdsfi2287iQBEGzN2.svg"></scalar-icon>
@@ -34,26 +35,392 @@
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/-dJduqbPTJP5xwDRhB5VS.svg"></scalar-icon>
     </div>
   </div>
+  -->
 </div>
 
-<div class="slider">
-  <button class="active" type="button" data-target="#slide-1">API Docs</button>
-  <button type="button" data-target="#slide-2">SDKs</button>
-  <button type="button" data-target="#slide-3">API Client</button>
-  <ul class="gallery container-full" id="gallery">
-    <li id="slide-1">
-      <img alt="API References Animation" class="light-image" src="/app-docs-animated.svg" />
-      <img alt="API References Animation" class="dark-image" src="/app-docs-animated-dark.svg" />
-    </li>
-    <li id="slide-2">
-      <img alt="SDK Animation" class="light-image" src="/sdks-animated.svg" />
-      <img alt="SDK Animation" class="dark-image" src="/sdks-animated-dark.svg" />
-    </li>
-    <li id="slide-3">
-      <img alt="Client Animation" class="light-image" src="/api-client-animated.svg" />
-      <img alt="Client Animation" class="dark-image" src="/api-client-animated-dark.svg" />
-    </li>
-  </ul>
+<div class="hero-tabs">
+<button type="button" class="active" data-hero-scene="profound-sdk">Profound SDK</button>
+<button type="button" data-hero-scene="zoom-api">Zoom API</button>
+<button type="button" data-hero-scene="clerk-api">Clerk API</button>
+<button type="button" data-hero-scene="warp-sdk">Warp SDK</button>
+</div>
+<div class="hero-visual">
+<div class="hero-glass" data-hero-scene-panel="profound-sdk">
+<div class="hero-glass-tabs">
+<button type="button" class="active" data-sdk-lang="typescript" data-sdk-abbr="TS">TypeScript</button>
+<button type="button" data-sdk-lang="python" data-sdk-abbr="PY">Python</button>
+<button type="button" data-sdk-lang="java" data-sdk-abbr="JV">Java</button>
+<button type="button" data-sdk-lang="kotlin" data-sdk-abbr="KT">Kotlin</button>
+<button type="button" data-sdk-lang="rust" data-sdk-abbr="RS">Rust</button>
+</div>
+<div class="hero-glass-codewrap dark-mode" data-sdk-lang="typescript" data-sdk-abbr="TS">
+
+```typescript
+import Profound from '@profoundai/client';
+
+const client = new Profound({
+  apiKey: process.env['PROFOUND_API_KEY'], // defaults to the PROFOUND_API_KEY env var
+  environment: 'production',
+});
+
+const category = await client.organizations.categories.list();
+
+console.log(category);
+```
+
+</div>
+<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="python" data-sdk-abbr="PY">
+
+```python
+import os
+
+from profound import Profound
+
+client = Profound(
+    api_key=os.environ.get("PROFOUND_API_KEY"),
+)
+
+category = client.organizations.categories.list()
+
+print(category)
+```
+
+</div>
+<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="java" data-sdk-abbr="JV">
+
+```java
+import com.profound.api.client.ProfoundClient;
+import com.profound.api.client.okhttp.ProfoundOkHttpClient;
+
+ProfoundClient client =
+    ProfoundOkHttpClient.builder().apiKey(System.getenv("PROFOUND_API_KEY")).build();
+
+var category = client.organizations().categories().list();
+
+System.out.println(category);
+```
+
+</div>
+<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="kotlin" data-sdk-abbr="KT">
+
+```kotlin
+import com.profound.api.client.ProfoundClient
+import com.profound.api.client.okhttp.ProfoundOkHttpClient
+import com.profound.api.models.organizations.categories.CategoryListParams
+
+val client: ProfoundClient =
+    ProfoundOkHttpClient.builder().apiKey(System.getenv("PROFOUND_API_KEY")).build()
+
+val category = client.organizations().categories().list(CategoryListParams.none())
+
+println(category)
+```
+
+</div>
+<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="rust" data-sdk-abbr="RS">
+
+```rust
+use profound_rust::*;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = ProfoundClient::builder()
+        .api_key(std::env::var("PROFOUND_API_KEY")?)
+        .build()?;
+
+    let response = client.organizations().categories().list().send().await?;
+
+    println!("{:?}", response);
+
+    Ok(())
+}
+```
+
+</div>
+</div>
+<svg id="hero-art" preserveAspectRatio="xMidYMid slice" data-hero-scene-panel="profound-sdk" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dark charcoal gradient artwork" style="width: 100%; height: auto; display: block">
+<defs>
+<clipPath id="hero-art-clip"><rect width="1600" height="1000"/></clipPath>
+<linearGradient id="hero-art-grad" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#43474e"/>
+<stop offset="0.4" stop-color="#2b2e34"/>
+<stop offset="1" stop-color="#0f1114"/>
+</linearGradient>
+<radialGradient id="hero-art-glow" cx="0.5" cy="0" r="0.85">
+<stop offset="0" stop-color="#5f656e" stop-opacity="0.5"/>
+<stop offset="0.45" stop-color="#5f656e" stop-opacity="0.12"/>
+<stop offset="1" stop-color="#5f656e" stop-opacity="0"/>
+</radialGradient>
+<filter id="hero-art-grain-fine" x="0" y="0" width="100%" height="100%">
+<feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="2" seed="7" stitchTiles="stitch"/>
+<feColorMatrix type="saturate" values="0"/>
+<feComponentTransfer>
+<feFuncR type="linear" slope="1.6" intercept="-0.3"/>
+<feFuncG type="linear" slope="1.6" intercept="-0.3"/>
+<feFuncB type="linear" slope="1.6" intercept="-0.3"/>
+<feFuncA type="linear" slope="0" intercept="1"/>
+</feComponentTransfer>
+</filter>
+</defs>
+<g clip-path="url(#hero-art-clip)">
+<rect width="1600" height="1000" fill="url(#hero-art-grad)"/>
+<rect width="1600" height="1000" fill="url(#hero-art-glow)"/>
+<rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-grain-fine)" style="mix-blend-mode:soft-light;opacity:.12"/>
+</g>
+<style>@supports (-moz-appearance:none){#hero-art .hero-art-noise{display:none}}</style>
+</svg>
+<svg id="hero-art-zoom" class="scene-hidden" preserveAspectRatio="xMidYMid slice" data-hero-scene-panel="zoom-api" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract blue streaked artwork" style="width: 100%; height: auto; display: block">
+<defs>
+<clipPath id="hero-art-zoom-clip"><rect width="1600" height="1000"/></clipPath>
+<filter id="hero-art-zoom-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="60"/></filter>
+<filter id="hero-art-zoom-streak" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="110 18"/></filter>
+<filter id="hero-art-zoom-core" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="55 7"/></filter>
+<filter id="hero-art-zoom-grain" x="0" y="0" width="100%" height="100%">
+<feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="9" stitchTiles="stitch"/>
+<feColorMatrix type="saturate" values="0"/>
+<feComponentTransfer>
+<feFuncR type="linear" slope="1.4" intercept="-0.2"/>
+<feFuncG type="linear" slope="1.4" intercept="-0.2"/>
+<feFuncB type="linear" slope="1.4" intercept="-0.2"/>
+<feFuncA type="linear" slope="0" intercept="1"/>
+</feComponentTransfer>
+</filter>
+</defs>
+<g clip-path="url(#hero-art-zoom-clip)">
+<g filter="url(#hero-art-zoom-soft)">
+<rect x="-160" y="-160" width="1920" height="1320" fill="#16a8e0"/>
+<ellipse cx="120" cy="120" rx="560" ry="350" fill="#0a7fc4"/>
+<ellipse cx="700" cy="0" rx="620" ry="170" fill="#0c8ecd"/>
+<ellipse cx="1470" cy="120" rx="440" ry="250" fill="#0973b8"/>
+<ellipse cx="1120" cy="500" rx="420" ry="260" fill="#109ad6"/>
+<ellipse cx="1000" cy="560" rx="350" ry="200" fill="#0e97d2"/>
+<ellipse cx="430" cy="540" rx="420" ry="250" fill="#0fa2dc"/>
+<ellipse cx="1560" cy="1010" rx="420" ry="210" fill="#0e97d0"/>
+</g>
+<g transform="rotate(-22 800 500)">
+<g filter="url(#hero-art-zoom-streak)">
+<ellipse cx="675" cy="169" rx="420" ry="95" fill="#c9ecfa"/>
+<ellipse cx="605" cy="103" rx="280" ry="55" fill="#e6f7fd"/>
+<ellipse cx="948" cy="161" rx="400" ry="40" fill="#9fdcf4"/>
+<ellipse cx="1256" cy="253" rx="430" ry="42" fill="#d9f2fb"/>
+<ellipse cx="1458" cy="259" rx="380" ry="55" fill="#b7e6f7"/>
+<ellipse cx="1533" cy="527" rx="400" ry="30" fill="#c4eaf8"/>
+<ellipse cx="1749" cy="474" rx="320" ry="60" fill="#a9e0f5"/>
+<ellipse cx="115" cy="407" rx="320" ry="24" fill="#8fd8f2"/>
+<ellipse cx="131" cy="715" rx="430" ry="48" fill="#ade2f6"/>
+<ellipse cx="544" cy="866" rx="480" ry="45" fill="#c9ecf9"/>
+<ellipse cx="1021" cy="967" rx="500" ry="58" fill="#daf3fc"/>
+<ellipse cx="1178" cy="1165" rx="420" ry="38" fill="#a9dff4"/>
+<ellipse cx="1396" cy="1161" rx="340" ry="42" fill="#c4eaf7"/>
+</g>
+<g filter="url(#hero-art-zoom-core)">
+<ellipse cx="606" cy="98" rx="270" ry="16" fill="#f4fcfe"/>
+<ellipse cx="1248" cy="244" rx="300" ry="12" fill="#eef9fd"/>
+<ellipse cx="1535" cy="522" rx="240" ry="10" fill="#ddf3fb"/>
+<ellipse cx="1023" cy="962" rx="330" ry="16" fill="#f6fdfe"/>
+<ellipse cx="546" cy="861" rx="290" ry="13" fill="#eaf8fd"/>
+<ellipse cx="170" cy="725" rx="240" ry="11" fill="#d8f1fb"/>
+</g>
+</g>
+<rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-zoom-grain)" style="mix-blend-mode:soft-light;opacity:.2"/>
+</g>
+<style>@supports (-moz-appearance:none){#hero-art-zoom .hero-art-noise{display:none}}</style>
+</svg>
+<div class="hero-zoom-docs scene-hidden" data-hero-scene-panel="zoom-api">
+<img class="light-image" src="/api-docs-static-zoom-glass.svg" alt="Zoom API documentation preview" />
+<img class="dark-image" src="/api-docs-static-zoom-glass-dark.svg" alt="Zoom API documentation preview" />
+</div>
+<svg id="hero-art-clerk" class="scene-hidden" preserveAspectRatio="xMidYMid slice" data-hero-scene-panel="clerk-api" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract violet streaked artwork" style="width: 100%; height: auto; display: block">
+<defs>
+<clipPath id="hero-art-clerk-clip"><rect width="1600" height="1000"/></clipPath>
+<filter id="hero-art-clerk-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="60"/></filter>
+<filter id="hero-art-clerk-streak" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="110 18"/></filter>
+<filter id="hero-art-clerk-core" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="55 7"/></filter>
+<filter id="hero-art-clerk-grain" x="0" y="0" width="100%" height="100%">
+<feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="13" stitchTiles="stitch"/>
+<feColorMatrix type="saturate" values="0"/>
+<feComponentTransfer>
+<feFuncR type="linear" slope="1.4" intercept="-0.2"/>
+<feFuncG type="linear" slope="1.4" intercept="-0.2"/>
+<feFuncB type="linear" slope="1.4" intercept="-0.2"/>
+<feFuncA type="linear" slope="0" intercept="1"/>
+</feComponentTransfer>
+</filter>
+</defs>
+<g clip-path="url(#hero-art-clerk-clip)">
+<g filter="url(#hero-art-clerk-soft)">
+<rect x="-160" y="-160" width="1920" height="1320" fill="#453a8c"/>
+<ellipse cx="800" cy="-40" rx="900" ry="260" fill="#987aa8"/>
+<ellipse cx="200" cy="60" rx="480" ry="240" fill="#8f74a4"/>
+<ellipse cx="1450" cy="20" rx="360" ry="180" fill="#87709f"/>
+<ellipse cx="1580" cy="240" rx="280" ry="160" fill="#64559f"/>
+<ellipse cx="400" cy="400" rx="500" ry="240" fill="#5b4fa4"/>
+<ellipse cx="1250" cy="600" rx="480" ry="280" fill="#3c3280"/>
+<ellipse cx="700" cy="900" rx="520" ry="240" fill="#372e78"/>
+<ellipse cx="120" cy="900" rx="360" ry="220" fill="#453b8b"/>
+</g>
+<g transform="rotate(-34 800 500)">
+<g filter="url(#hero-art-clerk-streak)">
+<ellipse cx="551" cy="-114" rx="400" ry="70" fill="#9a7fbe"/>
+<ellipse cx="1029" cy="160" rx="500" ry="80" fill="#a687c0"/>
+<ellipse cx="1452" cy="517" rx="420" ry="70" fill="#9880ba"/>
+<ellipse cx="1643" cy="538" rx="300" ry="60" fill="#ab8bc2"/>
+<ellipse cx="374" cy="237" rx="350" ry="35" fill="#7c6fbe"/>
+<ellipse cx="922" cy="498" rx="400" ry="30" fill="#6f63b4"/>
+<ellipse cx="1226" cy="763" rx="380" ry="40" fill="#7d70c0"/>
+<ellipse cx="531" cy="451" rx="400" ry="45" fill="#362e6f"/>
+<ellipse cx="959" cy="800" rx="420" ry="40" fill="#342c6b"/>
+<ellipse cx="1111" cy="1023" rx="400" ry="40" fill="#332b68"/>
+<ellipse cx="600" cy="618" rx="300" ry="22" fill="#565a82"/>
+<ellipse cx="172" cy="269" rx="300" ry="30" fill="#8579c2"/>
+<ellipse cx="171" cy="449" rx="400" ry="45" fill="#7a6cba"/>
+<ellipse cx="258" cy="677" rx="420" ry="50" fill="#8073c0"/>
+<ellipse cx="930" cy="1022" rx="450" ry="50" fill="#6f61b2"/>
+<ellipse cx="1145" cy="1276" rx="380" ry="45" fill="#7d6fbe"/>
+</g>
+<g filter="url(#hero-art-clerk-core)">
+<ellipse cx="1065" cy="196" rx="320" ry="14" fill="#c4a6d6"/>
+<ellipse cx="140" cy="405" rx="240" ry="10" fill="#9184c8"/>
+<ellipse cx="206" cy="594" rx="280" ry="14" fill="#978ac9"/>
+<ellipse cx="983" cy="1034" rx="300" ry="12" fill="#8c7ec4"/>
+</g>
+</g>
+<rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-clerk-grain)" style="mix-blend-mode:soft-light;opacity:.18"/>
+</g>
+<style>@supports (-moz-appearance:none){#hero-art-clerk .hero-art-noise{display:none}}</style>
+</svg>
+<div class="hero-clerk-docs scene-hidden" data-hero-scene-panel="clerk-api">
+<img class="light-image" src="/clerk-docs-glass.svg" alt="Clerk API documentation preview" />
+<img class="dark-image" src="/clerk-docs-glass-dark.svg" alt="Clerk API documentation preview" />
+</div>
+<svg id="hero-art-warp" class="scene-hidden" preserveAspectRatio="xMidYMid slice" data-hero-scene-panel="warp-sdk" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract red-orange silk artwork" style="width: 100%; height: auto; display: block">
+<defs>
+<clipPath id="hero-art-warp-clip"><rect width="1600" height="1000"/></clipPath>
+<filter id="hero-art-warp-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="70"/></filter>
+<filter id="hero-art-warp-crest" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="28"/></filter>
+<filter id="hero-art-warp-grain" x="0" y="0" width="100%" height="100%">
+<feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="17" stitchTiles="stitch"/>
+<feColorMatrix type="saturate" values="0"/>
+<feComponentTransfer>
+<feFuncR type="linear" slope="1.4" intercept="-0.2"/>
+<feFuncG type="linear" slope="1.4" intercept="-0.2"/>
+<feFuncB type="linear" slope="1.4" intercept="-0.2"/>
+<feFuncA type="linear" slope="0" intercept="1"/>
+</feComponentTransfer>
+</filter>
+</defs>
+<g clip-path="url(#hero-art-warp-clip)">
+<g filter="url(#hero-art-warp-soft)">
+<rect x="-160" y="-160" width="1920" height="1320" fill="#f0821c"/>
+<ellipse cx="700" cy="40" rx="700" ry="220" fill="#f5a029"/>
+<ellipse cx="60" cy="-10" rx="260" ry="100" fill="#f6ecd8"/>
+<ellipse cx="1450" cy="80" rx="420" ry="200" fill="#f2911f"/>
+<ellipse cx="500" cy="420" rx="620" ry="220" fill="#d94e12" transform="rotate(-14 500 420)"/>
+<ellipse cx="1200" cy="520" rx="560" ry="240" fill="#dd5514" transform="rotate(-10 1200 520)"/>
+<ellipse cx="800" cy="560" rx="900" ry="150" fill="#d04a10" transform="rotate(-11 800 560)"/>
+<ellipse cx="250" cy="800" rx="440" ry="260" fill="#f9b53f" transform="rotate(-18 250 800)"/>
+<ellipse cx="900" cy="920" rx="520" ry="200" fill="#ee7317" transform="rotate(-8 900 920)"/>
+<ellipse cx="1500" cy="900" rx="420" ry="240" fill="#f07d1a" transform="rotate(-12 1500 900)"/>
+</g>
+<g filter="url(#hero-art-warp-crest)">
+<ellipse cx="380" cy="700" rx="380" ry="46" fill="#fbc954" transform="rotate(-20 380 700)"/>
+<ellipse cx="240" cy="850" rx="300" ry="34" fill="#fdda75" transform="rotate(-22 240 850)"/>
+<ellipse cx="720" cy="330" rx="420" ry="36" fill="#ec6d13" transform="rotate(-14 720 330)"/>
+<ellipse cx="520" cy="770" rx="360" ry="30" fill="#c9430e" transform="rotate(-20 520 770)"/>
+<ellipse cx="1150" cy="700" rx="420" ry="40" fill="#f7a832" transform="rotate(-9 1150 700)"/>
+<ellipse cx="1050" cy="180" rx="380" ry="42" fill="#f8ad38" transform="rotate(-8 1050 180)"/>
+</g>
+<rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-warp-grain)" style="mix-blend-mode:soft-light;opacity:.2"/>
+</g>
+<style>@supports (-moz-appearance:none){#hero-art-warp .hero-art-noise{display:none}}</style>
+</svg>
+<div class="hero-glass scene-hidden" data-hero-scene-panel="warp-sdk">
+<div class="hero-glass-tabs">
+<button type="button" class="active" data-sdk-lang="typescript" data-sdk-abbr="TS">TypeScript</button>
+<button type="button" data-sdk-lang="python" data-sdk-abbr="PY">Python</button>
+<button type="button" data-sdk-lang="go" data-sdk-abbr="GO">Go</button>
+<button type="button" data-sdk-lang="bash" data-sdk-abbr="CLI">CLI</button>
+</div>
+<div class="hero-glass-codewrap dark-mode" data-sdk-lang="typescript" data-sdk-abbr="TS">
+
+```typescript
+import WarpAPI from "warp-hr";
+
+const client = new WarpAPI({
+  apiKey: process.env["WARP_API_KEY"], // defaults to the WARP_API_KEY env var
+});
+
+// Auto-paginating: the next cursor page is fetched as you iterate.
+for await (const assignment of client.timeOff.listAssignments({ limit: 50 })) {
+  console.log(assignment.id, assignment.policy.name);
+}
+```
+
+</div>
+<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="python" data-sdk-abbr="PY">
+
+```python
+import os
+
+from warp import Warp
+
+client = Warp(api_key=os.environ.get("WARP_API_KEY"))
+
+# Auto-paginating: the next cursor page is fetched as you iterate.
+for assignment in client.time_off.list_assignments(limit=50):
+    print(assignment.id, assignment.policy.name)
+```
+
+</div>
+<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="go" data-sdk-abbr="GO">
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	sdk "github.com/TeamWarp/warp-go-sdk"
+	"github.com/TeamWarp/warp-go-sdk/option"
+)
+
+func main() {
+	client := sdk.NewClient(option.WithAPIKey(os.Getenv("WARP_API_KEY")))
+
+	iter := client.TimeOff.ListAssignmentsAutoPaging(context.Background(),
+		sdk.TimeOffListAssignmentsParams{Limit: sdk.Int(50)})
+
+	for iter.Next() {
+		assignment := iter.Current()
+		fmt.Println(assignment.ID, assignment.Policy.Name)
+	}
+
+	if err := iter.Err(); err != nil {
+		panic(err)
+	}
+}
+```
+
+</div>
+<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="bash" data-sdk-abbr="CLI">
+
+```bash
+# Install from Homebrew, or run it with npx warp
+brew install teamwarp/tap/warp
+
+export WARP_API_KEY="wrp_live_..."
+
+# Flags are typed from the OpenAPI parameters
+warp time-off list-assignments --limit 50 --output table
+
+# Every command speaks JSON too, so it composes
+warp time-off list-assignments --output json | jq '.data[].policy.name'
+```
+
+</div>
+</div>
 </div>
 
 <div class="logowall">
@@ -480,7 +847,8 @@
   .t-editor.page {
     margin-right: unset;
   }
-  .t-editor .slider {
+  .t-editor .slider,
+  .t-editor .hero-visual {
     margin-top: unset;
   }
   .t-editor .editor-static .page-node,
@@ -537,6 +905,199 @@
   }
   .slider {
     padding-top: 100px;
+  }
+  .hero-visual {
+    position: relative;
+    padding-top: 14px;
+    /* Up to 150px wider per side than the content column, shrinking when the
+       viewport cannot fit the full overhang, and always centred on the column. */
+    --hero-art-overhang: max(
+      0px,
+      min(
+        150px,
+        (100dvw - var(--scalar-sidebar-width) - 100%) / 2 - 20px
+      )
+    );
+    width: calc(100% + 2 * var(--hero-art-overhang));
+    margin-left: calc(-1 * var(--hero-art-overhang));
+  }
+  /* Zoom API docs mock over the blue artwork: glass topbar baked into the
+     asset, bottom fade identical to the Profound SDK card. */
+  .hero-zoom-docs,
+  .hero-clerk-docs {
+    position: absolute;
+    top: calc(14px + 50px);
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    width: min(1000px, 96%);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-360%22 y=%22-360%22 width=%222320%22 height=%221720%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2230%22/%3E%3C/filter%3E%3C/defs%3E%3Crect x=%22-200%22 y=%22-200%22 width=%222000%22 height=%221080%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-360%22 y=%22-360%22 width=%222320%22 height=%221720%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2230%22/%3E%3C/filter%3E%3C/defs%3E%3Crect x=%22-200%22 y=%22-200%22 width=%222000%22 height=%221080%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+  .hero-zoom-docs img,
+  .hero-clerk-docs img {
+    width: 100%;
+    height: auto;
+  }
+  /* Glass SDK card over the hero art, matching the frosted panel in
+     Lightspark's B2B hero: translucent white + backdrop blur + hairline
+     light border, with a solid code block inside (visual placeholder). */
+  .hero-glass {
+    /* dark editor panel, anchored like the API mocks with the same bottom fade */
+    position: absolute;
+    top: calc(14px + 50px);
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    width: min(1000px, 96%);
+    border-radius: 16px;
+    overflow: hidden;
+    background: #101114;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-360%22 y=%22-360%22 width=%222320%22 height=%221720%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2230%22/%3E%3C/filter%3E%3C/defs%3E%3Crect x=%22-200%22 y=%22-200%22 width=%222000%22 height=%221080%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-360%22 y=%22-360%22 width=%222320%22 height=%221720%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2230%22/%3E%3C/filter%3E%3C/defs%3E%3Crect x=%22-200%22 y=%22-200%22 width=%222000%22 height=%221080%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+  .hero-glass-tabs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  /* no copy chrome on the SDK panes */
+  .hero-glass-codewrap .t-editor__language-picker {
+    display: none;
+  }
+  .hero-glass-codewrap code {
+    counter-reset: line;
+  }
+  .hero-glass-codewrap .t-code__line {
+    display: block;
+    counter-increment: line;
+  }
+  .hero-glass-codewrap .t-code__line::before {
+    content: counter(line);
+    display: inline-block;
+    width: 2ch;
+    margin-right: 18px;
+    text-align: right;
+    color: rgba(255, 255, 255, 0.32);
+  }
+  .hero-glass::before {
+    left: calc(50% - var(--hero-code-w) / 2 - 1px);
+  }
+  .hero-glass::after {
+    right: calc(50% - var(--hero-code-w) / 2 - 1px);
+  }
+  .hero-glass-tabs::before {
+    left: calc(50% - var(--hero-code-w) / 2 - 1px);
+  }
+  .hero-glass-tabs::after {
+    right: calc(50% - var(--hero-code-w) / 2 - 1px);
+  }
+  .hero-glass-tabs button {
+    appearance: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 20px;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.4);
+  }
+  .hero-glass-tabs button:hover {
+    color: rgb(255, 255, 255);
+  }
+  .hero-glass-tabs button.active {
+    color: rgba(255, 255, 255, 0.95);
+  }
+  .hero-glass-codewrap.is-hidden {
+    display: none;
+  }
+  .hero-glass-codewrap {
+    position: relative;
+    width: 100%;
+  }
+  .hero-glass-codewrap pre {
+    margin: 0;
+    padding: 18px 20px 20px 6px;
+    background: transparent;
+    font-size: 14px;
+    line-height: 1.75;
+    box-shadow: none;
+  }
+  /* Scene tabs above the hero art, in the old slider's position: in-flow,
+     left-aligned to the content column (the overhang padding re-aligns them). */
+  .hero-tabs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 64px 0 0;
+  }
+  .hero-tabs button {
+    appearance: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+    margin-right: 16px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--scalar-color-3);
+  }
+  .hero-tabs button:hover {
+    color: var(--scalar-color-1);
+  }
+  .hero-tabs button.active {
+    color: var(--scalar-color-1);
+    font-weight: bold;
+    text-decoration: underline;
+    text-decoration-color: var(--scalar-border-color);
+    text-underline-offset: 8px;
+  }
+  /* Non-default scenes stay invisible until the scene switcher takes over,
+     so first paint shows only the default scene instead of a stack */
+  .hero-visual .scene-hidden {
+    display: none !important;
+  }
+  /* All scene artworks: crisp 6px corners at the product-mock width
+     (1100px, matching .product-image img). Direct child only, so nested
+     icon svgs inside the cards are unaffected. The important beats the
+     svg root's inline width. */
+  .hero-visual > svg {
+    /* slightly larger frame, melted edges via the blurred-squircle mask */
+    width: min(100%, 1200px) !important;
+    height: 680px !important;
+    margin-inline: auto;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-160%22 y=%22-160%22 width=%221920%22 height=%221320%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2241%22/%3E%3C/filter%3E%3C/defs%3E%3Cpath transform=%22translate(95 95)%22 d=%22M 183 0 L 1227 0 L 1247.38 0.00 L 1265.18 0.04 L 1281.95 0.22 L 1297.94 0.65 L 1313.15 1.52 L 1327.54 3.07 L 1341.00 5.45 L 1353.41 8.86 L 1364.68 13.47 L 1374.67 19.39 L 1383.32 26.68 L 1390.61 35.33 L 1396.53 45.32 L 1401.14 56.59 L 1404.55 69.00 L 1406.93 82.46 L 1408.47 96.85 L 1409.35 112.06 L 1409.78 128.05 L 1409.96 144.82 L 1410.00 162.62 L 1410.00 183.00 L 1410 627 L 1410.00 627.00 L 1410.00 647.38 L 1409.96 665.18 L 1409.78 681.95 L 1409.35 697.94 L 1408.47 713.15 L 1406.93 727.54 L 1404.55 741.00 L 1401.14 753.41 L 1396.53 764.68 L 1390.61 774.67 L 1383.32 783.32 L 1374.67 790.61 L 1364.68 796.53 L 1353.41 801.14 L 1341.00 804.55 L 1327.54 806.93 L 1313.15 808.48 L 1297.94 809.35 L 1281.95 809.78 L 1265.18 809.96 L 1247.38 810.00 L 183 810 L 162.62 810.00 L 144.82 809.96 L 128.05 809.78 L 112.06 809.35 L 96.85 808.48 L 82.46 806.93 L 69.00 804.55 L 56.59 801.14 L 45.32 796.53 L 35.33 790.61 L 26.68 783.32 L 19.39 774.67 L 13.47 764.68 L 8.86 753.41 L 5.45 741.00 L 3.07 727.54 L 1.53 713.15 L 0.65 697.94 L 0.22 681.95 L 0.04 665.18 L 0.00 647.38 L 0.00 627.00 L 0 183 L 0.00 183.00 L 0.00 162.62 L 0.04 144.82 L 0.22 128.05 L 0.65 112.06 L 1.53 96.85 L 3.07 82.46 L 5.45 69.00 L 8.86 56.59 L 13.47 45.32 L 19.39 35.33 L 26.68 26.68 L 35.33 19.39 L 45.32 13.47 L 56.59 8.86 L 69.00 5.45 L 82.46 3.07 L 96.85 1.52 L 112.06 0.65 L 128.05 0.22 L 144.82 0.04 L 162.62 0.00 Z%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-160%22 y=%22-160%22 width=%221920%22 height=%221320%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2241%22/%3E%3C/filter%3E%3C/defs%3E%3Cpath transform=%22translate(95 95)%22 d=%22M 183 0 L 1227 0 L 1247.38 0.00 L 1265.18 0.04 L 1281.95 0.22 L 1297.94 0.65 L 1313.15 1.52 L 1327.54 3.07 L 1341.00 5.45 L 1353.41 8.86 L 1364.68 13.47 L 1374.67 19.39 L 1383.32 26.68 L 1390.61 35.33 L 1396.53 45.32 L 1401.14 56.59 L 1404.55 69.00 L 1406.93 82.46 L 1408.47 96.85 L 1409.35 112.06 L 1409.78 128.05 L 1409.96 144.82 L 1410.00 162.62 L 1410.00 183.00 L 1410 627 L 1410.00 627.00 L 1410.00 647.38 L 1409.96 665.18 L 1409.78 681.95 L 1409.35 697.94 L 1408.47 713.15 L 1406.93 727.54 L 1404.55 741.00 L 1401.14 753.41 L 1396.53 764.68 L 1390.61 774.67 L 1383.32 783.32 L 1374.67 790.61 L 1364.68 796.53 L 1353.41 801.14 L 1341.00 804.55 L 1327.54 806.93 L 1313.15 808.48 L 1297.94 809.35 L 1281.95 809.78 L 1265.18 809.96 L 1247.38 810.00 L 183 810 L 162.62 810.00 L 144.82 809.96 L 128.05 809.78 L 112.06 809.35 L 96.85 808.48 L 82.46 806.93 L 69.00 804.55 L 56.59 801.14 L 45.32 796.53 L 35.33 790.61 L 26.68 783.32 L 19.39 774.67 L 13.47 764.68 L 8.86 753.41 L 5.45 741.00 L 3.07 727.54 L 1.53 713.15 L 0.65 697.94 L 0.22 681.95 L 0.04 665.18 L 0.00 647.38 L 0.00 627.00 L 0 183 L 0.00 183.00 L 0.00 162.62 L 0.04 144.82 L 0.22 128.05 L 0.65 112.06 L 1.53 96.85 L 3.07 82.46 L 5.45 69.00 L 8.86 56.59 L 13.47 45.32 L 19.39 35.33 L 26.68 26.68 L 35.33 19.39 L 45.32 13.47 L 56.59 8.86 L 69.00 5.45 L 82.46 3.07 L 96.85 1.52 L 112.06 0.65 L 128.05 0.22 L 144.82 0.04 L 162.62 0.00 Z%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
   }
   .slider button {
     margin-right: 16px;
@@ -1005,6 +1566,10 @@
       width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
+    }
+    .hero-visual {
+      width: 100%;
+      margin-left: unset;
     }
     .gallery {
       --scalar-gallery-item-offset: 10px;

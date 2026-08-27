@@ -12,7 +12,7 @@
     "head": {
       "scripts": [
         {
-          "path": "documentation/assets/landing.js"
+          "path": "documentation/assets/landing.v2.js"
         },
         {
           "path": "documentation/assets/powered-by.js"
@@ -1423,6 +1423,17 @@
               "search": {
                 "enabled": false
               }
+            }
+          },
+          "/svg-playground": {
+            "title": "SVG Playground",
+            "description": "Scratch page for iterating on landing page artwork.",
+            "filepath": "documentation/guides/svg-playground.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false
             }
           },
           "/brand": {
