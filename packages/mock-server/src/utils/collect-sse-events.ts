@@ -17,16 +17,16 @@ const SSE_FIELD = /^(?:data|event|id|retry):/
 type SseEvent = {
   /** Already-framed event text when `framed` is true, otherwise the `data` payload of one event. */
   text: string
-  /** Whether `text` is complete SSE framing that has to be written verbatim. */
+  /** Whether `text` is SSE framing of its own, to be written as is rather than wrapped in a `data:` line. */
   framed: boolean
 }
 
 /**
- * Whether text is already Server-Sent Events framing, so it goes to the wire as is.
+ * Whether text is already Server-Sent Events framing, so it goes to the wire as its own framing.
  *
  * Some documents spell the wire format out in their example (`data: {"type":"edit"}`) instead of
  * describing a single event payload. Wrapping that in another `data:` line would hand the client the
- * framing as its payload, so it is passed through untouched.
+ * framing as its payload, so it is written as is, with only its terminating blank line normalized.
  *
  * The test is deliberately narrow: real framing starts with a field on its first line and carries at
  * least one `data:` line. Prose that merely happens to contain a colon (`user created\nid: 42`) is

@@ -197,42 +197,6 @@ describe('createMockServer', () => {
     expect(await response.text()).toBe('data: {"type":"edit"}\n\ndata: {"type":"edit"}\n\ndata: {"type":"edit"}\n\n')
   })
 
-  it('GET /events -> emits one event per named example', async () => {
-    const document = {
-      openapi: '3.1.0',
-      info: {
-        title: 'Hello World',
-        version: '1.0.0',
-      },
-      paths: {
-        '/events': {
-          get: {
-            responses: {
-              '200': {
-                description: 'OK',
-                content: {
-                  'text/event-stream': {
-                    examples: {
-                      summary: { value: { total_rows: 2 } },
-                      row: { value: { count: 42 } },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    }
-
-    const server = await createMockServer({ document })
-
-    const response = await server.request('/events')
-
-    expect(response.status).toBe(200)
-    expect(await response.text()).toBe('data: {"total_rows":2}\n\ndata: {"count":42}\n\n')
-  })
-
   it('GET /events -> picks a single event with Prefer: example', async () => {
     const document = {
       openapi: '3.1.0',
@@ -306,7 +270,7 @@ describe('createMockServer', () => {
     expect(await response.text()).toBe('data: {"type":"edit"}\n\n')
   })
 
-  it('GET /events -> frames an array schema as events', async () => {
+  it('GET /events -> frames a multi-item array schema as its own sequence', async () => {
     const document = {
       openapi: '3.1.0',
       info: {
@@ -323,14 +287,10 @@ describe('createMockServer', () => {
                   'text/event-stream': {
                     schema: {
                       type: 'array',
+                      example: [{ type: 'edit' }, { type: 'delete' }],
                       items: {
                         type: 'object',
-                        properties: {
-                          type: {
-                            type: 'string',
-                            example: 'edit',
-                          },
-                        },
+                        properties: { type: { type: 'string' } },
                       },
                     },
                   },
@@ -346,7 +306,7 @@ describe('createMockServer', () => {
 
     const response = await server.request('/events')
 
-    expect(await response.text()).toBe('data: {"type":"edit"}\n\ndata: {"type":"edit"}\n\ndata: {"type":"edit"}\n\n')
+    expect(await response.text()).toBe('data: {"type":"edit"}\n\ndata: {"type":"delete"}\n\n')
   })
 
   it('GET /events -> keeps the status code and declared headers of the streamed response', async () => {

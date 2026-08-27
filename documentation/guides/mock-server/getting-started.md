@@ -298,22 +298,39 @@ Each violation reports its `location` (`path`, `query`, `header`, `cookie`, or `
 
 ### Server-Sent Events
 
-A response with a `text/event-stream` content type is streamed as real Server-Sent Events: every event goes out as a `data:` line terminated by a blank line, and the stream closes when the last event is written.
+When `text/event-stream` is the negotiated response media type, the response is streamed as real Server-Sent Events: every event goes out as a `data:` line terminated by a blank line, and the stream closes when the last event is written.
 
-```yaml
-paths:
-  /events:
-    get:
-      responses:
-        '200':
-          description: Server-sent events stream. Emits a summary event, then one row event.
-          content:
-            text/event-stream:
-              examples:
-                summary:
-                  value: { total_rows: 2 }
-                row:
-                  value: { count: 42 }
+```typescript
+const document = {
+  openapi: '3.1.1',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {
+    '/events': {
+      get: {
+        responses: {
+          '200': {
+            description: 'Server-Sent Events stream. Emits a summary event, then one row event.',
+            content: {
+              'text/event-stream': {
+                examples: {
+                  summary: {
+                    value: { total_rows: 2 },
+                  },
+                  row: {
+                    value: { count: 42 },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
 ```
 
 ```bash
@@ -330,7 +347,7 @@ How the events are picked:
 
 - Named `examples` are read as the sequence of events the endpoint emits, in declaration order. `Prefer: example=<name>` still works and pins the stream to that one example.
 - An array example is read as the event sequence too, one event per item.
-- An example that already spells out the wire format (`data: {"type":"edit"}`) is written verbatim, so it is not wrapped in a second `data:` line.
+- An example that already spells out the wire format (`data: {"type":"edit"}`) is written as its own framing, with only its terminating blank line normalized, instead of being wrapped in a second `data:` line.
 - When the response only has a schema, the generated payload is sent three times, so a client's read loop sees more than one event before the stream ends. A schema that generates several events (an `array` schema with more than one item) is sent once, as its own sequence.
 
 ### Custom Request Handlers

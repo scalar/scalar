@@ -87,7 +87,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
   const responseSchema = acceptedResponse?.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined
 
-  /** The response body generated from the schema, or `undefined` when the response declares none. */
+  /** Generates the response body from the schema, or returns `undefined` when there is no schema. */
   const generateFromSchema = (): unknown =>
     responseSchema
       ? getExampleFromSchema(responseSchema, {
