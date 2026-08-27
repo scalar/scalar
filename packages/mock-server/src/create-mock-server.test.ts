@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createMockServer } from './create-mock-server'
 
@@ -1040,26 +1040,46 @@ describe('createMockServer', () => {
       },
     }
 
+    // The spies replace the global console, so restore them even when an assertion throws first.
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
     it('prints the authentication instructions by default', async () => {
-      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
       await createMockServer({ document: authenticatedDocument })
 
-      expect(log).toHaveBeenCalledWith('Authentication:')
-
-      log.mockRestore()
+      expect(consoleLogSpy).toHaveBeenCalledWith('Authentication:')
     })
 
-    it('prints nothing when quiet is enabled', async () => {
-      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    it('prints no authentication instructions when quiet is enabled', async () => {
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+      await createMockServer({ document: authenticatedDocument, quiet: true })
+
+      expect(consoleLogSpy).not.toHaveBeenCalled()
+    })
+
+    it('warns about unsupported security schemes even when quiet is enabled', async () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+      await createMockServer({
+        document: {
+          ...authenticatedDocument,
+          components: { securitySchemes: { mutualTls: { type: 'mutualTLS' } } },
+        },
+        quiet: true,
+      })
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Unsupported security scheme type: mutualTLS')
+    })
+
+    it('answers requests as usual when quiet is enabled', async () => {
+      vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
       const server = await createMockServer({ document: authenticatedDocument, quiet: true })
 
-      expect(log).not.toHaveBeenCalled()
-
-      log.mockRestore()
-
-      // Silencing the startup output must not change how the server answers requests.
       const response = await server.request('/foobar', {
         headers: { 'X-API-Key': 'super-secret' },
       })

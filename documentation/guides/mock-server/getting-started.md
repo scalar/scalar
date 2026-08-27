@@ -96,7 +96,7 @@ serve(
 
 ### Authentication
 
-You can define security schemes in your OpenAPI document and the mock server will validate the authentication:
+You can define security schemes in your OpenAPI document and the mock server will validate the authentication. On startup it prints instructions on how to authenticate, which you can turn off with [Quiet Startup](#quiet-startup):
 
 ```typescript
 import { serve } from '@hono/node-server'
@@ -309,7 +309,7 @@ const app = await createMockServer({
 })
 ```
 
-Warnings and errors are not affected, so real problems still surface.
+Diagnostics are not affected, so real problems still surface: warnings about security schemes the mock server cannot handle, request validator compilation errors, and `x-seed` errors are printed either way.
 
 ### Custom Request Handlers
 

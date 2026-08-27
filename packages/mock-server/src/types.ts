@@ -53,13 +53,14 @@ type BaseMockServerOptions = {
    * Suppress the informational output the server prints while starting up, which is currently the
    * authentication instructions for the security schemes of the document.
    *
-   * Warnings and errors are not affected.
+   * Diagnostics are not affected: warnings about security schemes the mock server cannot handle,
+   * request validator compilation errors, and `x-seed` errors are printed either way.
    *
    * @default false
    *
-   * The banner is helpful in a terminal, but it is noise when the mock server runs inside a test
-   * harness or another program. Set this to `true` to keep the output clean without having to
-   * replace the global console.
+   * The instructions are helpful in a terminal, but they are noise when the mock server runs inside
+   * a test harness or another program. Set this to `true` to keep them out of the output without
+   * having to replace the global console.
    */
   quiet?: boolean
 }

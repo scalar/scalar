@@ -63,14 +63,12 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   /** Authentication methods defined in the OpenAPI document */
   setUpAuthenticationRoutes(app, schema)
 
-  // The startup instructions are helpful in a terminal, but they are noise when the mock server
-  // runs inside a test harness or another program, so `quiet` turns them off. Keeping the check
-  // here means callers do not have to replace the global console to get a clean output.
-  if (!configuration.quiet) {
-    logAuthenticationInstructions(
-      schema?.components?.securitySchemes || ({} as Record<string, OpenAPIV3_1.SecuritySchemeObject>),
-    )
-  }
+  // Handing `quiet` down instead of skipping the call keeps the warnings about security schemes
+  // the mock server cannot handle, which a quiet startup should still surface.
+  logAuthenticationInstructions(
+    schema?.components?.securitySchemes || ({} as Record<string, OpenAPIV3_1.SecuritySchemeObject>),
+    { quiet: configuration?.quiet },
+  )
 
   /** Paths specified in the OpenAPI document */
   const paths = schema?.paths ?? {}
