@@ -1,6 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { type Context, Hono } from 'hono'
+import { type Context, Hono, type MiddlewareHandler } from 'hono'
+import { every } from 'hono/combine'
 import { cors } from 'hono/cors'
 
 import type { HttpMethod, MockServerOptions } from '@/types'
@@ -12,7 +13,9 @@ import { honoRouteFromPath } from '@/utils/hono-route-from-path'
 import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
 import { processOpenApiDocument } from '@/utils/process-openapi-document'
+import { requestMatchesPinnedQuery } from '@/utils/request-matches-pinned-query'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
+import { splitPathKey } from '@/utils/split-path-key'
 import { validateRequest } from '@/utils/validate-request'
 
 import { store } from './libs/store'
@@ -144,7 +147,16 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   /** Paths specified in the OpenAPI document */
   const paths = schema?.paths ?? {}
 
-  Object.keys(paths).forEach((path) => {
+  // A path key may pin query parameters to describe a variant of an operation, for example
+  // `/v1/messages?beta=true` next to `/v1/messages`. Hono runs every matching route in registration
+  // order, so the variants have to come first — otherwise the plain sibling answers their requests
+  // too. More pinned parameters means a more specific key, and the sort is stable, so path keys that
+  // pin nothing keep their document order.
+  const pathKeys = Object.keys(paths)
+    .map((path) => ({ path, query: splitPathKey(path).query }))
+    .sort((a, b) => b.query.length - a.query.length)
+
+  pathKeys.forEach(({ path, query }) => {
     // A path item may itself be a `$ref`, so resolve it before reading its operations.
     const pathItem = getResolvedRef(paths[path])
     const methods = Object.keys(getOperations(pathItem)) as HttpMethod[]
@@ -166,7 +178,13 @@ export async function createMockServer(configuration: MockServerOptions): Promis
         ...(operation?.operationId ? { operationId: operation.operationId } : {}),
       }
 
-      app[method](route, async (c, next) => {
+      /** Middleware chain answering this operation, in the order it runs */
+      const handlers: MiddlewareHandler[] = []
+
+      // Runs first, so the error handler can name the operation even when validation fails. For a
+      // path key that pins a query it is part of the guarded chain below, so it only fires once the
+      // request actually matches the variant rather than for one that is handed on to the sibling.
+      handlers.push(async (c, next) => {
         setMockedOperation(c, mockedOperation)
         await next()
       })
@@ -177,13 +195,13 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
       // Check if authentication is required for this operation
       if (isAuthenticationRequired(effectiveSecurity)) {
-        app[method](route, handleAuthentication(schema, operation))
+        handlers.push(handleAuthentication(schema, operation))
       }
 
       // Notify the `onRequest` callback before validation runs, so it fires for every request —
       // including ones the validation middleware rejects with a `422`.
       if (configuration.onRequest) {
-        app[method](route, async (c, next) => {
+        handlers.push(async (c, next) => {
           configuration.onRequest?.({ context: c, operation })
           await next()
         })
@@ -193,7 +211,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
       // opt out with `validateRequest: false`). Runs after authentication but before the
       // mock handler. Validators are compiled once here, so there is no per-request recompilation.
       if (configuration.validateRequest !== false) {
-        app[method](route, validateRequest(operation, pathItem?.parameters))
+        handlers.push(validateRequest(operation, pathItem?.parameters))
       }
 
       // Check if operation has x-handler extension
@@ -203,10 +221,31 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
       // Route to appropriate handler
       if (hasHandler) {
-        app[method](route, (c) => mockHandlerResponse(c, operation))
+        handlers.push(async (c) => await mockHandlerResponse(c, operation))
       } else {
-        app[method](route, (c) => mockAnyResponse(c, operation))
+        handlers.push(async (c) => await mockAnyResponse(c, operation))
       }
+
+      if (query.length === 0) {
+        handlers.forEach((handler) => app[method](route, handler))
+
+        return
+      }
+
+      // The pinned query parameters are not part of the route, so they are checked here. A request
+      // that does not carry them is handed on to the next matching route — usually the sibling path
+      // key without the query string.
+      const operationChain = every(...handlers)
+
+      app[method](route, async (c, next) => {
+        if (!requestMatchesPinnedQuery(c, query)) {
+          await next()
+
+          return
+        }
+
+        await operationChain(c, next)
+      })
     })
   })
 

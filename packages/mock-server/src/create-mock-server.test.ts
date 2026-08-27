@@ -1755,4 +1755,129 @@ describe('createMockServer', () => {
     expect(response.status).toBe(418)
     expect(await response.text()).toBe('I am a teapot')
   })
+
+  describe('path keys with a query string', () => {
+    /** Build a document with a plain path key and a variant that pins `beta=true`. */
+    const documentWithBetaVariant = (paths: string[]) => ({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: Object.fromEntries(
+        paths.map((path) => [
+          path,
+          {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/json': { example: { path } } },
+                },
+              },
+            },
+          },
+        ]),
+      ),
+    })
+
+    it('routes the variant and the plain sibling independently', async () => {
+      const server = await createMockServer({
+        document: documentWithBetaVariant(['/v1/messages?beta=true', '/v1/messages']),
+      })
+
+      expect(await (await server.request('/v1/messages?beta=true')).json()).toStrictEqual({
+        path: '/v1/messages?beta=true',
+      })
+      expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ path: '/v1/messages' })
+    })
+
+    it('routes the variant even when the plain sibling comes first in the document', async () => {
+      const server = await createMockServer({
+        document: documentWithBetaVariant(['/v1/messages', '/v1/messages?beta=true']),
+      })
+
+      expect(await (await server.request('/v1/messages?beta=true')).json()).toStrictEqual({
+        path: '/v1/messages?beta=true',
+      })
+    })
+
+    it('ignores a request that does not carry the pinned value', async () => {
+      const server = await createMockServer({ document: documentWithBetaVariant(['/v1/messages?beta=true']) })
+
+      expect((await server.request('/v1/messages?beta=false')).status).toBe(404)
+      expect((await server.request('/v1/messages')).status).toBe(404)
+      expect((await server.request('/v1/messages?beta=true')).status).toBe(200)
+    })
+
+    it('keeps the path parameters of a variant', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/models/{model_id}?beta=true': {
+            get: {
+              parameters: [{ name: 'model_id', in: 'path', required: true, schema: { type: 'string' } }],
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/json': { example: { beta: true } } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect((await server.request('/v1/models/claude?beta=true')).status).toBe(200)
+    })
+
+    it('still runs authentication and validation for a variant', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          securitySchemes: {
+            bearerAuth: { type: 'http', scheme: 'bearer' },
+          },
+        },
+        paths: {
+          '/v1/messages?beta=true': {
+            get: {
+              security: [{ bearerAuth: [] }],
+              parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/json': { example: { beta: true } } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect((await server.request('/v1/messages?beta=true&limit=1')).status).toBe(401)
+
+      const headers = { Authorization: 'Bearer super-secret-token' }
+
+      expect((await server.request('/v1/messages?beta=true', { headers })).status).toBe(422)
+      expect((await server.request('/v1/messages?beta=true&limit=1', { headers })).status).toBe(200)
+    })
+
+    it('answers requests for a document whose parameterized path keys carry a query string', async () => {
+      // Path keys like these used to make Hono compile an invalid regular expression, so every
+      // single request failed with an empty `500`.
+      const server = await createMockServer({
+        document: documentWithBetaVariant(['/a/{x}/b?q=1', '/a/{x}/b/{y}?q=1']),
+      })
+
+      expect((await server.request('/a/1/b?q=1')).status).toBe(200)
+      expect((await server.request('/a/1/b/2?q=1')).status).toBe(200)
+    })
+  })
 })
