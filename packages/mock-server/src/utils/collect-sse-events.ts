@@ -28,26 +28,26 @@ type SseEvent = {
  * describing a single event payload. Wrapping that in another `data:` line would hand the client the
  * framing as its payload, so it is written as is, with only its terminating blank line normalized.
  *
- * The test is deliberately narrow: real framing opens with an SSE field or a comment on its first
- * line and, unless it opens with a comment, carries at least one `data:` line. Prose that merely
- * happens to contain a colon (`user created\nid: 42`) is not framing — passing it through would make
- * a compliant client dispatch nothing at all.
+ * The test is deliberately narrow: real framing opens with an SSE field or a `:` comment on its first
+ * line and carries at least one `data:` line. Prose that merely happens to contain a colon
+ * (`user created\nid: 42`) is not framing — passing it through would make a compliant client dispatch
+ * nothing at all.
  */
 const isFramed = (text: string): boolean => {
-  const lines = text.split(/\r\n|\r|\n/)
-  const firstLine = lines.find((line) => line.trim() !== '')
+  const lines = text.split(/\r\n|\r|\n/).filter((line) => line.trim() !== '')
+  const [firstLine] = lines
 
   if (firstLine === undefined) {
     return false
   }
 
-  // A line opening with `:` is an SSE comment — the keep-alive form nothing but a stream writes — so
-  // it is framing on its own, even when the rest of the example carries no event.
-  if (firstLine.startsWith(':')) {
+  // Text made only of `:` comments is the keep-alive form nothing but a stream writes, so it is
+  // framing even though it carries no event of its own.
+  if (lines.every((line) => line.startsWith(':'))) {
     return true
   }
 
-  return SSE_FIELD.test(firstLine) && lines.some((line) => line.startsWith('data:'))
+  return (firstLine.startsWith(':') || SSE_FIELD.test(firstLine)) && lines.some((line) => line.startsWith('data:'))
 }
 
 /**
@@ -87,7 +87,8 @@ const expand = (payload: unknown): SseEvent[] => (Array.isArray(payload) ? paylo
  * 1. A named example requested via `Prefer: example=<name>`.
  * 2. The singular `example` keyword.
  * 3. Every entry of the `examples` map, in declaration order — an event stream that documents a
- *    `summary` and a `row` example is documenting the two events it sends.
+ *    `summary` and a `row` example is documenting the two events it sends. Entries that are complete
+ *    framing are the exception: those are alternative streams, so only the first is served.
  * 4. Nothing declared: a schema-generated payload, repeated so the stream has more than one event.
  *
  * `generate` is a callback so the schema is only turned into an example when no example is declared.
@@ -117,8 +118,16 @@ export const collectSseEvents = (
       .map((entry) => getResolvedRef(entry)?.value)
       .filter((value) => value !== undefined)
 
+    const [firstValue] = values
+
     if (values.length > 0) {
-      return values.flatMap(expand)
+      const events = values.flatMap(expand)
+
+      // An example that is framing already describes a whole stream, so a map of them lists
+      // alternative streams rather than consecutive events. Sending them back to back would replay a
+      // terminal event such as `[DONE]`, so only the first is served — `Prefer: example=<name>`
+      // picks another one.
+      return events.some((event) => event.framed) ? expand(firstValue) : events
     }
   }
 

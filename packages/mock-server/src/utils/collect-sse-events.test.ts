@@ -56,6 +56,34 @@ describe('collect-sse-events', () => {
       ])
     })
 
+    it('serves the first example when the examples map lists alternative framed streams', () => {
+      const events = collectSseEvents(
+        {
+          examples: {
+            text: { value: 'data: 1\n\ndata: [DONE]\n\n' },
+            toolCall: { value: 'data: 2\n\ndata: [DONE]\n\n' },
+          },
+        },
+        { generate: () => undefined },
+      )
+
+      expect(events).toStrictEqual([{ text: 'data: 1\n\ndata: [DONE]\n\n', framed: true }])
+    })
+
+    it('picks another framed stream by name', () => {
+      const events = collectSseEvents(
+        {
+          examples: {
+            text: { value: 'data: 1\n\ndata: [DONE]\n\n' },
+            toolCall: { value: 'data: 2\n\ndata: [DONE]\n\n' },
+          },
+        },
+        { exampleName: 'toolCall', generate: () => undefined },
+      )
+
+      expect(events).toStrictEqual([{ text: 'data: 2\n\ndata: [DONE]\n\n', framed: true }])
+    })
+
     it('skips examples that carry no value', () => {
       const events = collectSseEvents(
         {
@@ -175,9 +203,20 @@ describe('collect-sse-events', () => {
       expect(collectSseEvents({ example: ': ping\n\ndata: 1\n\n' }, { generate: () => undefined })).toStrictEqual([
         { text: ': ping\n\ndata: 1\n\n', framed: true },
       ])
+    })
+
+    it('passes a comment-only keep-alive through as framing', () => {
       expect(collectSseEvents({ example: ': keep-alive\n\n' }, { generate: () => undefined })).toStrictEqual([
         { text: ': keep-alive\n\n', framed: true },
       ])
+    })
+
+    it('treats a comment followed by a payload as a data payload', () => {
+      // Only the comment looks like SSE here, so passing it through would leave a compliant client
+      // with nothing to dispatch.
+      const events = collectSseEvents({ example: ': one event per row\n{"count":42}' }, { generate: () => undefined })
+
+      expect(events).toStrictEqual([{ text: ': one event per row\n{"count":42}', framed: false }])
     })
 
     it('treats prose that merely looks like a field as a data payload', () => {
