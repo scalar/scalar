@@ -295,6 +295,22 @@ Each violation reports its `location` (`path`, `query`, `header`, `cookie`, or `
 
 > This validates path, query, header, and cookie parameters (across every OpenAPI serialization style, including array and object values), plus JSON request bodies. Response validation, non-JSON bodies, and proxy mode are planned follow-ups.
 
+### Quiet Startup
+
+When the document declares security schemes, the mock server prints instructions on how to authenticate as it starts up. That is handy in a terminal, but it is just noise when the server runs inside a test suite or another program. Set `quiet: true` to skip it:
+
+```ts
+import { createMockServer } from '@scalar/mock-server'
+
+const app = await createMockServer({
+  document,
+  // Do not print the authentication instructions
+  quiet: true,
+})
+```
+
+Warnings and errors are not affected, so real problems still surface.
+
 ### Custom Request Handlers
 
 Use the `x-handler` extension to write custom JavaScript code for handling requests. This gives you access to a `store` helper for data persistence, `faker` for generating realistic data, and full access to request/response objects.

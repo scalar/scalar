@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createMockServer } from './create-mock-server'
 
@@ -1001,5 +1001,71 @@ describe('createMockServer', () => {
 
     expect(response.status).toBe(301)
     expect(response.headers.get('Location')).toBe('/new-location')
+  })
+
+  describe('quiet', () => {
+    /** A document with a security scheme, so the server has authentication instructions to print. */
+    const authenticatedDocument = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      components: {
+        securitySchemes: {
+          apiKey: {
+            type: 'apiKey',
+            name: 'X-API-Key',
+            in: 'header',
+          },
+        },
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    it('prints the authentication instructions by default', async () => {
+      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+      await createMockServer({ document: authenticatedDocument })
+
+      expect(log).toHaveBeenCalledWith('Authentication:')
+
+      log.mockRestore()
+    })
+
+    it('prints nothing when quiet is enabled', async () => {
+      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+      const server = await createMockServer({ document: authenticatedDocument, quiet: true })
+
+      expect(log).not.toHaveBeenCalled()
+
+      log.mockRestore()
+
+      // Silencing the startup output must not change how the server answers requests.
+      const response = await server.request('/foobar', {
+        headers: { 'X-API-Key': 'super-secret' },
+      })
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({ foo: 'bar' })
+    })
   })
 })

@@ -48,6 +48,20 @@ type BaseMockServerOptions = {
    * always return a mock response regardless of whether the request matches the contract.
    */
   validateRequest?: boolean
+
+  /**
+   * Suppress the informational output the server prints while starting up, which is currently the
+   * authentication instructions for the security schemes of the document.
+   *
+   * Warnings and errors are not affected.
+   *
+   * @default false
+   *
+   * The banner is helpful in a terminal, but it is noise when the mock server runs inside a test
+   * harness or another program. Set this to `true` to keep the output clean without having to
+   * replace the global console.
+   */
+  quiet?: boolean
 }
 
 export type MockServerOptions = RequireAtLeastOne<BaseMockServerOptions, 'specification' | 'document'>

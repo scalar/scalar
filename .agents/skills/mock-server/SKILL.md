@@ -53,6 +53,7 @@ At least one of the following is required:
 Optional:
 
 - `onRequest({ context, operation })`: callback before each request is processed
+- `quiet`: set to `true` to suppress the authentication instructions printed on startup (default: `false`)
 
 ## Built-in Behavior
 
