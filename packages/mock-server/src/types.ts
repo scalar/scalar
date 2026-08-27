@@ -53,7 +53,7 @@ type BaseMockServerOptions = {
    * Suppress the informational output the server prints while starting up, which is currently the
    * authentication instructions for the security schemes of the document.
    *
-   * Diagnostics are not affected: warnings about security schemes the mock server cannot handle,
+   * Diagnostics are not affected: warnings and errors about security schemes the mock server cannot handle,
    * request validator compilation errors, and `x-seed` errors are printed either way.
    *
    * @default false

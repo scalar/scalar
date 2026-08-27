@@ -309,7 +309,7 @@ const app = await createMockServer({
 })
 ```
 
-Diagnostics are not affected, so real problems still surface: warnings about security schemes the mock server cannot handle, request validator compilation errors, and `x-seed` errors are printed either way.
+Diagnostics are not affected, so real problems still surface: warnings and errors about security schemes the mock server cannot handle, request validator compilation errors, and `x-seed` errors are printed either way.
 
 ### Custom Request Handlers
 

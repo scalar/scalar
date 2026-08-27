@@ -1011,6 +1011,7 @@ describe('createMockServer', () => {
         title: 'Hello World',
         version: '1.0.0',
       },
+      security: [{ apiKey: [] }],
       components: {
         securitySchemes: {
           apiKey: {
@@ -1067,6 +1068,7 @@ describe('createMockServer', () => {
       await createMockServer({
         document: {
           ...authenticatedDocument,
+          security: [{ mutualTls: [] }],
           components: { securitySchemes: { mutualTls: { type: 'mutualTLS' } } },
         },
         quiet: true,
