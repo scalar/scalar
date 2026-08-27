@@ -79,6 +79,7 @@
   ],
   "devDependencies": {
     "@scalar/code-highlight": "workspace:*",
+    "@types/hast": "^3.0.4",
     "highlight.js": "catalog:*",
     "rolldown": "catalog:*",
     "vitest": "catalog:*"
