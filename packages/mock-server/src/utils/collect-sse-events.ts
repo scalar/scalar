@@ -59,11 +59,28 @@ const isFramed = (text: string): boolean => {
  */
 const terminate = (text: string): string => {
   const lineEnding = text.includes('\r\n') ? '\r\n' : '\n'
-  // Trailing blank lines go, indentation a block scalar left behind with them. Every run stripped
-  // contains a line break, so spaces inside the last field's value survive.
-  const trimmed = text.replace(/(?:[ \t]*(?:\r\n|\r|\n))+[ \t]*$/, '')
 
-  return `${trimmed}${lineEnding}${lineEnding}`
+  // Walk back over the trailing blank lines, taking the indentation a block scalar left on them.
+  // Spaces are only dropped once a line break is found past them, so spaces inside the last field's
+  // value survive. A scan rather than a regex: the pattern for this needs nested quantifiers, which
+  // backtrack quadratically on a long run of spaces.
+  let cursor = text.length
+  let end = text.length
+
+  while (cursor > 0) {
+    const character = text[cursor - 1]
+
+    if (character === '\n' || character === '\r') {
+      cursor -= 1
+      end = cursor
+    } else if (character === ' ' || character === '\t') {
+      cursor -= 1
+    } else {
+      break
+    }
+  }
+
+  return `${text.slice(0, end)}${lineEnding}${lineEnding}`
 }
 
 /** Turns one payload into an event, serializing anything that is not already text. */
