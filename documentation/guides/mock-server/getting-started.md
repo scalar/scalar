@@ -203,7 +203,7 @@ Both keys are routed. The variant answers only requests that actually send every
 
 Everything else in a path key is matched literally, so a path such as `/users:batchGet` or `/reports*` is served as written.
 
-A segment that mixes a path parameter with literal text of that kind (`/v1/jobs/{jobId}:cancel`) routes to the right operation, but `jobId` is not bound by name — a single path segment can only carry one parameter. Request validation reads it as missing, so give such an operation `validateRequest: false`.
+A segment that mixes a path parameter with literal text of that kind (`/v1/jobs/{jobId}:cancel`) routes to the right operation, but `jobId` is not bound by name — a single path segment can only carry one parameter. Request validation reads it as missing, so a document that describes such a path has to run the mock server with `validateRequest: false`, which turns validation off for every operation in it.
 
 ### Selecting responses
 

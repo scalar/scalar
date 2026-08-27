@@ -8,4 +8,4 @@ Path keys such as `/v1/messages?beta=true` used to be registered verbatim as rou
 
 Characters that would otherwise be read as routing syntax (`:`, `*`, `|`, and braces outside a path parameter) are escaped, so a path key can no longer act as a pattern. Note that this also applies to `*`: a path key ending in `*` is now served as a literal path instead of matching everything below it.
 
-One limitation is worth knowing: Hono allows a single parameter per path segment, so a segment that mixes a path parameter with escaped literal text (`/v1/jobs/{jobId}:cancel`) routes to the right operation but does not bind `jobId` by name. Request validation reads it as missing, so such an operation needs `validateRequest: false` for now.
+One limitation is worth knowing: Hono allows a single parameter per path segment, so a segment that mixes a path parameter with escaped literal text (`/v1/jobs/{jobId}:cancel`) routes to the right operation but does not bind `jobId` by name. Request validation reads it as missing, so a document describing such a path needs the server-wide `validateRequest: false` for now.
