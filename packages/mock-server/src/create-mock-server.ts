@@ -63,8 +63,8 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   /** Authentication methods defined in the OpenAPI document */
   setUpAuthenticationRoutes(app, schema)
 
-  // Handing `quiet` down instead of skipping the call keeps the warnings about security schemes
-  // the mock server cannot handle, which a quiet startup should still surface.
+  // Handing `quiet` down instead of skipping the call keeps the warnings and errors about security
+  // schemes the mock server cannot handle, which a quiet startup should still surface.
   logAuthenticationInstructions(
     schema?.components?.securitySchemes || ({} as Record<string, OpenAPIV3_1.SecuritySchemeObject>),
     { quiet: configuration?.quiet },

@@ -1004,8 +1004,12 @@ describe('createMockServer', () => {
   })
 
   describe('quiet', () => {
-    /** A document with a security scheme, so the server has authentication instructions to print. */
-    const authenticatedDocument = {
+    /**
+     * A document with a security scheme, so the server has authentication instructions to print.
+     *
+     * Built per test, because `createMockServer` bundles and upgrades the object it is handed.
+     */
+    const authenticatedDocument = () => ({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -1039,7 +1043,7 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    })
 
     // The spies replace the global console, so restore them even when an assertion throws first.
     afterEach(() => {
@@ -1049,7 +1053,7 @@ describe('createMockServer', () => {
     it('prints the authentication instructions by default', async () => {
       const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
-      await createMockServer({ document: authenticatedDocument })
+      await createMockServer({ document: authenticatedDocument() })
 
       expect(consoleLogSpy).toHaveBeenCalledWith('Authentication:')
     })
@@ -1057,7 +1061,7 @@ describe('createMockServer', () => {
     it('prints no authentication instructions when quiet is enabled', async () => {
       const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
-      await createMockServer({ document: authenticatedDocument, quiet: true })
+      await createMockServer({ document: authenticatedDocument(), quiet: true })
 
       expect(consoleLogSpy).not.toHaveBeenCalled()
     })
@@ -1067,7 +1071,7 @@ describe('createMockServer', () => {
 
       await createMockServer({
         document: {
-          ...authenticatedDocument,
+          ...authenticatedDocument(),
           security: [{ mutualTls: [] }],
           components: { securitySchemes: { mutualTls: { type: 'mutualTLS' } } },
         },
@@ -1080,7 +1084,7 @@ describe('createMockServer', () => {
     it('answers requests as usual when quiet is enabled', async () => {
       vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
-      const server = await createMockServer({ document: authenticatedDocument, quiet: true })
+      const server = await createMockServer({ document: authenticatedDocument(), quiet: true })
 
       const response = await server.request('/foobar', {
         headers: { 'X-API-Key': 'super-secret' },

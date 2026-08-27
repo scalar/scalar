@@ -57,25 +57,41 @@ describe('logAuthenticationInstructions', () => {
 
   describe('diagnostics survive a quiet startup', () => {
     it.each([
-      ['an unsupported API key location', { type: 'apiKey', name: 'X-API-Key', in: 'body' }],
-      ['an unknown HTTP scheme', { type: 'http', scheme: 'digest' }],
-    ])('reports %s', (_, scheme) => {
+      {
+        name: 'an unsupported API key location',
+        scheme: { type: 'apiKey', name: 'X-API-Key', in: 'body' },
+        expected: ['❌ Unsupported API Key Location: body'],
+      },
+      {
+        name: 'an unknown HTTP scheme',
+        scheme: { type: 'http', scheme: 'digest' },
+        expected: ['❌ Unknown Security Scheme:', { type: 'http', scheme: 'digest' }],
+      },
+    ])('reports $name', ({ scheme, expected }) => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       logAuthenticationInstructions({ scheme: scheme as OpenAPIV3_1.SecuritySchemeObject }, { quiet: true })
 
-      expect(consoleErrorSpy).toHaveBeenCalledOnce()
+      expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith(...expected)
     })
 
     it.each([
-      ['an unsupported OAuth 2.0 flow', { type: 'oauth2', flows: { deviceAuthorization: {} } }],
-      ['an unknown scheme type', { type: 'mutualTLS' }],
-    ])('reports %s', (_, scheme) => {
+      {
+        name: 'an unsupported OAuth 2.0 flow',
+        scheme: { type: 'oauth2', flows: { deviceAuthorization: {} } },
+        expected: 'Unsupported OAuth 2.0 flow: deviceAuthorization',
+      },
+      {
+        name: 'an unknown scheme type',
+        scheme: { type: 'mutualTLS' },
+        expected: 'Unsupported security scheme type: mutualTLS',
+      },
+    ])('reports $name', ({ scheme, expected }) => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
       logAuthenticationInstructions({ scheme: scheme as OpenAPIV3_1.SecuritySchemeObject }, { quiet: true })
 
-      expect(consoleWarnSpy).toHaveBeenCalledOnce()
+      expect(consoleWarnSpy).toHaveBeenCalledExactlyOnceWith(expected)
     })
   })
 })

@@ -5,7 +5,7 @@ import { getPathFromUrl } from './get-open-auth-token-urls'
 
 /** Options for {@link logAuthenticationInstructions} */
 type LogAuthenticationInstructionsOptions = {
-  /** Skip the instructions. Warnings about schemes that are not supported are printed either way. */
+  /** Skip the instructions. Warnings and errors about unsupported schemes are printed either way. */
   quiet?: boolean
 }
 
@@ -21,7 +21,7 @@ export function logAuthenticationInstructions(
   }
 
   // Only the instructions are optional. Somebody who asks for a quiet startup still wants to hear
-  // about security schemes the mock server cannot handle, so the warnings below stay unconditional.
+  // about security schemes the mock server cannot handle, so the diagnostics below stay unconditional.
   const log = options?.quiet ? () => undefined : (...args: unknown[]) => console.log(...args)
 
   log('Authentication:')
