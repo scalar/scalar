@@ -345,6 +345,36 @@ describe('createMockServer', () => {
     expect(await response.text()).toBe('data: {"type":"edit"}\n\ndata: {"type":"delete"}\n\n')
   })
 
+  it('GET /events -> splits a multi-line payload across data lines', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': { example: 'user created\nid: 42' },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events')
+
+    expect(await response.text()).toBe('data: user created\ndata: id: 42\n\n')
+  })
+
   it('GET /events -> keeps the status code and declared headers of the streamed response', async () => {
     const document = {
       openapi: '3.1.0',

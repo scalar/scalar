@@ -348,7 +348,7 @@ How the events are picked:
 - Named `examples` are read as the sequence of events the endpoint emits, in declaration order. `Prefer: example=<name>` still works and pins the stream to that one example.
 - An array example is read as the event sequence too, one event per item.
 - An example that already spells out the wire format (`data: {"type":"edit"}`) is written as its own framing, with only its terminating blank line normalized, instead of being wrapped in a second `data:` line.
-- When the response only has a schema, the generated payload is sent three times, so a client's read loop sees more than one event before the stream ends. A schema that already generates a sequence — an `array` with more than one item, or a string that spells the wire format out — is sent once, as it stands.
+- When the response only has a schema, the generated payload is sent three times, so a client's read loop sees more than one event before the stream ends. A schema that already generates a sequence — an `array` with more than one item, or a string that spells the wire format out — is sent once, not repeated.
 
 ### Custom Request Handlers
 

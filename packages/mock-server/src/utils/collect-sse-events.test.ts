@@ -212,7 +212,7 @@ describe('collect-sse-events', () => {
   })
 
   describe('isEventStreamContentType', () => {
-    it('matches text/event-stream with and without parameters', () => {
+    it('matches text/event-stream regardless of parameters or casing', () => {
       expect(isEventStreamContentType('text/event-stream')).toBe(true)
       expect(isEventStreamContentType('text/event-stream; charset=utf-8')).toBe(true)
       expect(isEventStreamContentType('TEXT/EVENT-STREAM')).toBe(true)

@@ -28,9 +28,10 @@ type SseEvent = {
  * describing a single event payload. Wrapping that in another `data:` line would hand the client the
  * framing as its payload, so it is written as is, with only its terminating blank line normalized.
  *
- * The test is deliberately narrow: real framing starts with a field on its first line and carries at
- * least one `data:` line. Prose that merely happens to contain a colon (`user created\nid: 42`) is
- * not framing — passing it through would make a compliant client dispatch nothing at all.
+ * The test is deliberately narrow: real framing opens with an SSE field or a comment on its first
+ * line and, unless it opens with a comment, carries at least one `data:` line. Prose that merely
+ * happens to contain a colon (`user created\nid: 42`) is not framing — passing it through would make
+ * a compliant client dispatch nothing at all.
  */
 const isFramed = (text: string): boolean => {
   const lines = text.split(/\r\n|\r|\n/)
