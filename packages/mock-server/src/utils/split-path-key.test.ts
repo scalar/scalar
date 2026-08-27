@@ -49,6 +49,13 @@ describe('splitPathKey', () => {
     expect(splitPathKey('/v1/models/{model?id}')).toEqual({ path: '/v1/models/{model?id}', query: [] })
   })
 
+  it('treats an unbalanced brace as literal text rather than an open template', () => {
+    expect(splitPathKey('/v4/i{j?beta=true')).toEqual({
+      path: '/v4/i{j',
+      query: [{ name: 'beta', value: 'true' }],
+    })
+  })
+
   it('splits at the first question mark only', () => {
     expect(splitPathKey('/search?q=a?b')).toEqual({ path: '/search', query: [{ name: 'q', value: 'a?b' }] })
   })

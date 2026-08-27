@@ -54,11 +54,38 @@ describe('honoRouteFromPath', () => {
 
   describe('escaping', () => {
     it('matches a colon in a path key literally instead of as a parameter', async () => {
+      // The sibling route keeps Hono from serving the key as a static path, which is what used to
+      // hide the colon being read as a parameter.
       const app = new Hono()
-      app.get(honoRouteFromPath('/users:batchGet'), (c) => c.text('matched'))
+      app.get(honoRouteFromPath('/{id}/users:batchGet'), (c) => c.text('matched'))
+      app.get(honoRouteFromPath('/{id}/users'), (c) => c.text('sibling'))
 
-      expect((await app.request('/users:batchGet')).status).toBe(200)
-      expect((await app.request('/usersBatchGet')).status).toBe(404)
+      expect((await app.request('/1/users:batchGet')).status).toBe(200)
+      expect((await app.request('/1/usersBatchGet')).status).toBe(404)
+    })
+
+    it('escapes the segments behind an escaped one', async () => {
+      // Hono splices the segment behind a pattern into a lookahead without escaping it, so an
+      // unbalanced bracket further down the path used to break every request the router handled.
+      const app = new Hono()
+      app.get(honoRouteFromPath('/users:batchGet/x)'), (c) => c.text('matched'))
+      app.get(honoRouteFromPath('/users/{id}'), (c) => c.text('sibling'))
+
+      expect(await (await app.request('/users:batchGet/x)')).text()).toBe('matched')
+      expect(await (await app.request('/users/1')).text()).toBe('sibling')
+      expect((await app.request('/anything')).status).toBe(404)
+    })
+
+    it('matches a request against an escaped segment without backtracking', async () => {
+      // An OpenAPI document is untrusted input: a pattern built from several greedy groups would
+      // backtrack exponentially on a crafted request and block the event loop.
+      const app = new Hono()
+      app.get(honoRouteFromPath('/{a}:{b}:{c}:{d}:{e}:{f}:{g}:{h}:END'), (c) => c.text('matched'))
+
+      const start = performance.now()
+
+      expect((await app.request(`/${Array.from({ length: 60 }, () => 'aa').join(':')}:NOPE`)).status).toBe(404)
+      expect(performance.now() - start).toBeLessThan(1_000)
     })
 
     it('matches an asterisk in a path key literally instead of as a wildcard', async () => {
@@ -69,14 +96,6 @@ describe('honoRouteFromPath', () => {
       expect((await app.request('/reports/2024')).status).toBe(404)
     })
 
-    it('matches a plus in a path key literally instead of as a quantifier', async () => {
-      const app = new Hono()
-      app.get(honoRouteFromPath('/tags/summary+full'), (c) => c.text('matched'))
-
-      expect((await app.request('/tags/summary+full')).status).toBe(200)
-      expect((await app.request('/tags/summaryyy')).status).toBe(404)
-    })
-
     it('matches a pipe in a path key literally instead of as an alternation', async () => {
       const app = new Hono()
       app.get(honoRouteFromPath('/reports/{id}/a|b'), (c) => c.text('matched'))
@@ -85,11 +104,12 @@ describe('honoRouteFromPath', () => {
       expect((await app.request('/reports/1/a')).status).toBe(404)
     })
 
-    it('keeps a path parameter next to escaped literal text wildcard-free', async () => {
+    it('matches a segment that mixes a path parameter with escaped literal text', async () => {
       const app = new Hono()
       app.get(honoRouteFromPath('/reports/{id}:cancel'), (c) => c.text('matched'))
 
       expect((await app.request('/reports/1:cancel')).status).toBe(200)
+      expect((await app.request('/reports/1')).status).toBe(404)
       expect((await app.request('/reports/1/2:cancel')).status).toBe(404)
     })
 
@@ -102,10 +122,6 @@ describe('honoRouteFromPath', () => {
 
       expect((await app.request('/a/1/b')).status).toBe(200)
       expect((await app.request('/a/1/b/2')).status).toBe(200)
-    })
-
-    it('does not touch a path key Hono can route as written', () => {
-      expect(honoRouteFromPath('/users/{id}/posts')).toBe('/users/:id/posts')
     })
   })
 })

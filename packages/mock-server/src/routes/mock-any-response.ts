@@ -11,6 +11,7 @@ import { collectSseEvents, isEventStreamContentType } from '@/utils/collect-sse-
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
+import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
 import { serializeResponseBody } from '@/utils/serialize-response-body'
 
@@ -92,7 +93,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
     responseSchema
       ? getExampleFromSchema(responseSchema, {
           emptyString: 'string',
-          variables: c.req.param(),
+          variables: pathParameters(c),
           mode: 'read',
         })
       : undefined

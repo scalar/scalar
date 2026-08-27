@@ -149,14 +149,31 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
   // A path key may pin query parameters to describe a variant of an operation, for example
   // `/v1/messages?beta=true` next to `/v1/messages`. Hono runs every matching route in registration
-  // order, so the variants have to come first — otherwise the plain sibling answers their requests
-  // too. More pinned parameters means a more specific key, and the sort is stable, so path keys that
-  // pin nothing keep their document order.
-  const pathKeys = Object.keys(paths)
-    .map((path) => ({ path, query: splitPathKey(path).query }))
-    .sort((a, b) => b.query.length - a.query.length)
+  // order, so a variant has to come before the sibling it shares a path with — otherwise the sibling
+  // answers its requests too, and the more pinned parameters a key has the more specific it is.
+  const pathKeys = Object.keys(paths).map((path) => {
+    const { path: pathname, query } = splitPathKey(path)
 
-  pathKeys.forEach(({ path, query }) => {
+    return { path, pathname, query }
+  })
+
+  /** Where each path first shows up in the document, so its variants stay with it */
+  const documentOrder = new Map<string, number>()
+
+  pathKeys.forEach(({ pathname }, index) => {
+    if (!documentOrder.has(pathname)) {
+      documentOrder.set(pathname, index)
+    }
+  })
+
+  // Only keys that share a path are reordered against each other. Everything else keeps its document
+  // order, so a literal path still wins over a parameterized one that happens to pin a query.
+  const orderedPathKeys = [...pathKeys].sort(
+    (a, b) =>
+      (documentOrder.get(a.pathname) ?? 0) - (documentOrder.get(b.pathname) ?? 0) || b.query.length - a.query.length,
+  )
+
+  orderedPathKeys.forEach(({ path, query }) => {
     // A path item may itself be a `$ref`, so resolve it before reading its operations.
     const pathItem = getResolvedRef(paths[path])
     const methods = Object.keys(getOperations(pathItem)) as HttpMethod[]

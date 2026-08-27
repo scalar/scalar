@@ -1,3 +1,10 @@
+/**
+ * Matches a `{parameterName}` template inside a path key.
+ *
+ * A template has to be balanced and non-empty, so a stray brace counts as literal path text.
+ */
+export const PATH_KEY_TEMPLATE = /\{([^{}]+)\}/g
+
 /** A query parameter that an OpenAPI path key pins, for example `beta=true` in `/v1/messages?beta=true`. */
 export type PinnedQueryParameter = {
   /** Decoded name of the query parameter. */
@@ -32,19 +39,18 @@ const decodeQueryPart = (value: string): string => {
  * Find the `?` that starts the query string of a path key.
  *
  * Only a `?` outside a `{…}` template counts, so a path parameter whose name contains a `?` does not
- * accidentally cut the key in half. Returns `-1` when the key carries no query string.
+ * accidentally cut the key in half. An unbalanced brace is literal path text rather than an open
+ * template, so it cannot hide the query string of the rest of the key. Returns `-1` when the key
+ * carries no query string.
  */
 const findQueryStart = (pathKey: string): number => {
-  let insideTemplate = false
+  const templates = [...pathKey.matchAll(PATH_KEY_TEMPLATE)].map((match) => ({
+    start: match.index,
+    end: match.index + match[0].length,
+  }))
 
-  for (let index = 0; index < pathKey.length; index++) {
-    const character = pathKey[index]
-
-    if (character === '{') {
-      insideTemplate = true
-    } else if (character === '}') {
-      insideTemplate = false
-    } else if (character === '?' && !insideTemplate) {
+  for (let index = pathKey.indexOf('?'); index !== -1; index = pathKey.indexOf('?', index + 1)) {
+    if (!templates.some(({ start, end }) => index > start && index < end)) {
       return index
     }
   }

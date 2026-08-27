@@ -1,7 +1,4 @@
-import { splitPathKey } from '@/utils/split-path-key'
-
-/** Matches a `{parameterName}` template inside a path key. */
-const TEMPLATE_PARAMETER = /\{([^{}]+)\}/g
+import { PATH_KEY_TEMPLATE, splitPathKey } from '@/utils/split-path-key'
 
 /**
  * Characters Hono reads as routing syntax instead of as literal path text.
@@ -15,7 +12,7 @@ const TEMPLATE_PARAMETER = /\{([^{}]+)\}/g
 const HONO_ROUTING_CHARACTERS = /[:*?|{}]/
 
 /** Prefix for the parameters we synthesize to match a literal path segment verbatim. */
-const LITERAL_PARAMETER_PREFIX = '__scalar_literal_'
+export const LITERAL_PARAMETER_PREFIX = '__scalar_literal_'
 
 /**
  * Escape a literal for use inside the regular expression of a Hono `:name{pattern}` parameter.
@@ -35,24 +32,48 @@ const escapeRegExpLiteral = (value: string): string =>
 /**
  * Build a regular expression that matches a path segment verbatim.
  *
- * Templates match anything but a slash, everything else is escaped. Splitting on a regular
- * expression with a capturing group interleaves literals and parameter names, so every odd entry is
- * a template.
+ * Literal text is escaped and a template matches anything but a slash. A template also excludes the
+ * character the literal behind it starts with, which keeps the match unambiguous: an OpenAPI
+ * document is untrusted input, and a pattern made of several plain `[^/]+` groups backtracks
+ * exponentially on a crafted request, which would block the event loop of the whole server.
  */
-const patternFromSegment = (segment: string): string =>
-  segment
-    .split(TEMPLATE_PARAMETER)
-    .map((part, index) => (index % 2 === 1 ? '[^/]+' : escapeRegExpLiteral(part)))
-    .join('')
+const patternFromSegment = (segment: string): string => {
+  // Splitting on a regular expression with a capturing group interleaves literals and parameter
+  // names, so every odd entry is a template and the list always begins and ends with a literal.
+  const parts = segment.split(PATH_KEY_TEMPLATE)
+
+  let pattern = ''
+
+  for (let index = 0; index < parts.length; index++) {
+    if (index % 2 === 0) {
+      pattern += escapeRegExpLiteral(parts[index] ?? '')
+      continue
+    }
+
+    const followingLiteral = parts[index + 1] ?? ''
+
+    // Templates with nothing between them cannot be told apart, so they match as a single group.
+    if (followingLiteral === '' && index + 2 < parts.length) {
+      continue
+    }
+
+    pattern += `[^/${escapeRegExpLiteral(followingLiteral.slice(0, 1))}]+`
+  }
+
+  return pattern
+}
 
 /**
  * Convert an OpenAPI path key into a Hono route.
  *
  * Example: `/posts/{id}` → `/posts/:id`
  *
- * A segment whose literal text would be read as routing syntax is registered as a parameter with an
- * explicit pattern instead, because that is the only way to make Hono match it verbatim. Such a
- * segment gives up its parameter names, which is a fair trade for routing the request at all.
+ * A segment whose literal text would be read as routing syntax is registered as a single parameter
+ * with an explicit pattern instead, because Hono allows only one parameter per segment and that is
+ * the only way to make it match such a segment verbatim. The request then routes to the right
+ * operation, but the path parameters of that one segment are no longer bound by name: they surface
+ * as the synthesized parameter, and a required path parameter in it reads as missing to request
+ * validation. Hono cannot express both at once, and matching the wrong operation is worse.
  *
  * A query string in the key (`/v1/messages?beta=true`) is dropped here — it is matched against the
  * incoming request separately, see `splitPathKey`.
@@ -60,20 +81,32 @@ const patternFromSegment = (segment: string): string =>
 export function honoRouteFromPath(path: string): string {
   const { path: pathname } = splitPathKey(path)
 
+  const route: string[] = []
+
   let literalIndex = 0
+  let previousIsPattern: boolean = false
 
-  return pathname
-    .split('/')
-    .map((segment) => {
-      // Check the literal text and the parameter names, but not the braces around them — the `:` we
-      // generate for a template is meant to be routing syntax, a `?` in a parameter name is not.
-      const routeText = segment.replace(TEMPLATE_PARAMETER, '$1')
+  for (const segment of pathname.split('/')) {
+    // Check the literal text and the parameter names, but not the braces around them — the `:` we
+    // generate for a template is meant to be routing syntax, a `?` in a parameter name is not.
+    const routeText = segment.replace(PATH_KEY_TEMPLATE, '$1')
+    const plainSegment = segment.replace(PATH_KEY_TEMPLATE, ':$1')
 
-      if (!HONO_ROUTING_CHARACTERS.test(routeText)) {
-        return segment.replace(TEMPLATE_PARAMETER, ':$1')
-      }
+    // Hono splices the segment that follows a pattern into a lookahead without escaping it, unless
+    // that segment is a parameter itself. So once one segment is a pattern, every segment behind it
+    // has to be one too — otherwise a regular expression metacharacter further down the path makes
+    // the router throw on every request.
+    const needsPattern: boolean =
+      HONO_ROUTING_CHARACTERS.test(routeText) || (previousIsPattern && !plainSegment.startsWith(':'))
 
-      return `:${LITERAL_PARAMETER_PREFIX}${literalIndex++}{${patternFromSegment(segment)}}`
-    })
-    .join('/')
+    if (needsPattern) {
+      route.push(`:${LITERAL_PARAMETER_PREFIX}${literalIndex++}{${patternFromSegment(segment)}}`)
+    } else {
+      route.push(plainSegment)
+    }
+
+    previousIsPattern = needsPattern
+  }
+
+  return route.join('/')
 }

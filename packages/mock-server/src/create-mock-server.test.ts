@@ -1834,6 +1834,33 @@ describe('createMockServer', () => {
       expect((await server.request('/v1/models/claude?beta=true')).status).toBe(200)
     })
 
+    it('leaves a literal path ahead of a parameterized one that pins a query', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages': {
+            get: {
+              responses: {
+                '200': { description: 'OK', content: { 'application/json': { example: { via: 'literal' } } } },
+              },
+            },
+          },
+          '/v1/{anything}?beta=true': {
+            get: {
+              responses: {
+                '200': { description: 'OK', content: { 'application/json': { example: { via: 'catch-all' } } } },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/v1/messages?beta=true')).json()).toStrictEqual({ via: 'literal' })
+    })
+
     it('still runs authentication and validation for a variant', async () => {
       const document = {
         openapi: '3.1.0',
