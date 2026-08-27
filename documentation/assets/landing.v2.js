@@ -310,6 +310,7 @@ const initHeroCards = debounce(() => {
   let open = null
   let anchor = null
   let natural = null
+  let cellIndex = 0
   let busy = false
 
   /* One transition at a time. Without this, clicking again mid-animation
@@ -328,11 +329,7 @@ const initHeroCards = debounce(() => {
      card out at the larger size, so the vector art and code stay crisp. */
   const fit = (cell) => {
     if (!natural) return
-    const factor = Math.min(
-      (window.innerWidth * 0.92) / natural.w,
-      (window.innerHeight * 0.86) / natural.h,
-      2.6,
-    )
+    const factor = Math.min((window.innerWidth * 0.92) / natural.w, (window.innerHeight * 0.86) / natural.h, 2.6)
     cell.style.zoom = Math.max(1, factor)
   }
 
@@ -343,22 +340,41 @@ const initHeroCards = debounce(() => {
     natural = { w: rect.width, h: rect.height }
     anchor = document.createComment('hero-cell')
     cell.before(anchor)
+    // index is the fallback of last resort: anchors and the grid element
+    // itself can both be replaced if the app re-renders while a card is open
+    cellIndex = [...cell.parentElement.children].indexOf(cell)
     cell.dataset.heroCellOpen = 'true'
     cell.style.viewTransitionName = 'hero-card'
     open = cell
 
-    settle(animate(() => {
-      stage.appendChild(cell)
-      overlay.hidden = false
-      document.documentElement.style.overflow = 'hidden'
-      // outside the grid there is no column to size against, and every child
-      // is absolutely positioned, so the card needs its width carried over
-      cell.style.width = `${natural.w}px`
-      fit(cell)
-    })).then(() => {
+    settle(
+      animate(() => {
+        stage.appendChild(cell)
+        overlay.hidden = false
+        document.documentElement.style.overflow = 'hidden'
+        // outside the grid there is no column to size against, and every child
+        // is absolutely positioned, so the card needs its width carried over
+        cell.style.width = `${natural.w}px`
+        fit(cell)
+      }),
+    ).then(() => {
       const close = overlay.querySelector('.hero-modal-close')
       if (close && open) close.focus({ preventScroll: true })
     })
+  }
+
+  /* Put the card back in the document, whatever happened while it was open.
+     Re-queries the grid every time: the captured element can be detached by a
+     re-render, and appending to a detached node makes the card disappear. */
+  const restore = (cell) => {
+    const liveGrid = document.querySelector('.hero-grid') || grid
+    if (anchor && anchor.isConnected) {
+      anchor.replaceWith(cell)
+    } else if (liveGrid) {
+      const at = liveGrid.children[cellIndex]
+      if (at) liveGrid.insertBefore(cell, at)
+      else liveGrid.appendChild(cell)
+    }
   }
 
   const closeCard = () => {
@@ -368,20 +384,24 @@ const initHeroCards = debounce(() => {
     const cell = open
     open = null
 
-    settle(animate(() => {
-      cell.style.zoom = ''
-      cell.style.width = ''
-      if (anchor && anchor.parentNode) {
-        anchor.replaceWith(cell)
-      } else {
-        grid.appendChild(cell)
-      }
-      anchor = null
-      overlay.hidden = true
-      document.documentElement.style.overflow = ''
-    })).then(() => {
+    settle(
+      animate(() => {
+        cell.style.zoom = ''
+        cell.style.width = ''
+        restore(cell)
+        anchor = null
+        overlay.hidden = true
+        document.documentElement.style.overflow = ''
+      }),
+    ).then(() => {
       delete cell.dataset.heroCellOpen
       cell.style.viewTransitionName = ''
+      // last line of defence: if the card is not in the live grid by now,
+      // put it there. A visible card is always better than a lost one.
+      if (!cell.isConnected || !cell.closest('.hero-grid')) {
+        anchor = null
+        restore(cell)
+      }
     })
   }
 
