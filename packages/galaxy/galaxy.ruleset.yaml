@@ -6,6 +6,14 @@
 #
 # Run it with:
 #   pnpm --filter @scalar/galaxy lint
+#
+# Only the 3.1 document is linted. Spectral's spectral:oas ruleset does not
+# understand OpenAPI 3.2 yet, so linting src/documents/3.2.yaml validates it
+# against the 3.0 schema and reports false positives (for example, it rejects
+# schema-level "examples"). The 3.2 document is a version-only copy of 3.1
+# (enforced by tests/yaml.test.ts) and is checked structurally by
+# `pnpm --filter @scalar/galaxy validate`, so its content is already covered.
+# Revisit once Spectral gains OpenAPI 3.2 support.
 extends: spectral:oas
 rules:
   # Every operation should carry a human-readable description, not just a summary.

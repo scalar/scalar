@@ -51,7 +51,7 @@ export {
   ScalarFormInputGroup,
   ScalarFormSection,
 } from './components/ScalarForm'
-export { ScalarHeader, ScalarHeaderButton } from './components/ScalarHeader'
+export { ScalarHeader, ScalarHeaderButton, ScalarHeaderColumn } from './components/ScalarHeader'
 export type { ScalarHotkeyModifier } from './components/ScalarHotkey'
 export { ScalarHotkey, formatHotkeySymbols } from './components/ScalarHotkey'
 export type { Icon } from './components/ScalarIcon'
