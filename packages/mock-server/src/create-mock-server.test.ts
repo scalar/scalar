@@ -330,6 +330,259 @@ describe('createMockServer', () => {
     expect(await response.text()).toContain('<foo>bar</foo>')
   })
 
+  it('GET /foobar -> JSON-encodes a string schema body', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('"string"')
+  })
+
+  it('GET /foobar -> JSON-encodes a string enum body', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                      enum: ['available', 'pending', 'sold'],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('"available"')
+  })
+
+  it('GET /foobar -> JSON-encodes a formatted string body', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                      format: 'date-time',
+                      example: '2024-01-01T00:00:00Z',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('"2024-01-01T00:00:00Z"')
+  })
+
+  it('GET /foobar -> JSON-encodes a string body for a suffixed JSON media type', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '400': {
+                description: 'Bad Request',
+                content: {
+                  'application/problem+json': {
+                    example: 'something went wrong',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(400)
+    expect(response.headers.get('Content-Type')).toBe('application/problem+json')
+    expect(await response.text()).toBe('"something went wrong"')
+  })
+
+  it('GET /foobar -> keeps a pre-serialized JSON example raw', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        foo: {
+                          type: 'string',
+                        },
+                      },
+                    },
+                    example: '{"foo":"bar"}',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ foo: 'bar' })
+  })
+
+  it('GET /foobar -> keeps a line-delimited JSON string body raw', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/x-ndjson': {
+                    example: '{"foo":"bar"}\n{"foo":"baz"}',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toBe('application/x-ndjson')
+    expect(await response.text()).toBe('{"foo":"bar"}\n{"foo":"baz"}')
+  })
+
+  it('GET /foobar -> keeps a plain text string body raw', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/plain': {
+                    schema: {
+                      type: 'string',
+                      example: 'foobar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('foobar')
+  })
+
   it('uses http verbs only to register routes', async () => {
     const document = {
       openapi: '3.1.0',
