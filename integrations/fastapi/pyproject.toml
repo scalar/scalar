@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "scalar-fastapi"
+dynamic = ["version"]
+description = "FastAPI plugin to serve beautiful, interactive API documentation from OpenAPI/Swagger documents."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Scalar", email = "support@scalar.com" }]
+keywords = [
+  "fastapi",
+  "openapi",
+  "swagger",
+  "api",
+  "documentation",
+  "api-reference",
+  "scalar",
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: FastAPI",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Documentation",
+  "Typing :: Typed",
+]
+dependencies = ["fastapi", "pydantic>=2", "typing_extensions>=4.8"]
+
+[project.urls]
+Homepage = "https://github.com/scalar/scalar"
+Documentation = "https://scalar.com/products/api-references/integrations/fastapi"
+Changelog = "https://github.com/scalar/scalar/blob/main/integrations/fastapi/CHANGELOG.md"
+Issues = "https://github.com/scalar/scalar/issues/new/choose"
+Source = "https://github.com/scalar/scalar/tree/main/integrations/fastapi"
+
+# The version is kept in sync with the monorepo via Changesets, which bump the
+# "version" field in package.json. Hatchling reads it straight from there so the
+# Python package and the rest of the repository never drift apart.
+[tool.hatch.version]
+path = "package.json"
+pattern = '"version":\s*"(?P<version>[^"]+)"'
+
+[tool.hatch.build.targets.wheel]
+packages = ["scalar_fastapi"]
+
+[tool.hatch.build.targets.sdist]
+include = ["scalar_fastapi", "README.md", "package.json", "CHANGELOG.md"]
