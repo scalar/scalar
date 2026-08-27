@@ -1,4 +1,3 @@
-import { json2xml } from '@scalar/helpers/file/json2xml'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
@@ -11,6 +10,7 @@ import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
 import { selectResponseExample } from '@/utils/select-response-example'
+import { serializeResponseBody } from '@/utils/serialize-response-body'
 
 /**
  * Mock any response
@@ -103,20 +103,12 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
   c.status(statusCode)
 
-  return c.body(
-    // `null` is `typeof 'object'` too, but it is not a valid XML/JSON object
-    // root — serialize it (and any non-string primitive) with `JSON.stringify`
-    // so a `null` example does not get fed into `json2xml`.
-    body !== null && typeof body === 'object'
-      ? // XML
-        acceptedContentType?.includes('xml')
-        ? json2xml(body as Record<string, unknown>)
-        : // JSON
-          JSON.stringify(body)
-      : typeof body === 'string'
-        ? // String
-          body
-        : // null / number / boolean
-          JSON.stringify(body),
-  )
+  const serializedBody = serializeResponseBody(body, acceptedContentType, responseSchema)
+
+  // `JSON.stringify` returns `undefined` for an `undefined` body, which is an empty response.
+  if (serializedBody === undefined) {
+    return c.body(null)
+  }
+
+  return c.body(serializedBody)
 }
