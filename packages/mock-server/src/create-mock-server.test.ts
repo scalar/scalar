@@ -155,6 +155,196 @@ describe('createMockServer', () => {
     expect(await response.text()).toBe('{"foo":"bar"}')
   })
 
+  it('GET /events -> frames a schema-generated text/event-stream response', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        type: {
+                          type: 'string',
+                          example: 'edit',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toBe('text/event-stream')
+    expect(await response.text()).toBe('data: {"type":"edit"}\n\ndata: {"type":"edit"}\n\ndata: {"type":"edit"}\n\n')
+  })
+
+  it('GET /events -> emits one event per named example', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    examples: {
+                      summary: { value: { total_rows: 2 } },
+                      row: { value: { count: 42 } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('data: {"total_rows":2}\n\ndata: {"count":42}\n\n')
+  })
+
+  it('GET /events -> picks a single event with Prefer: example', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    examples: {
+                      summary: { value: { total_rows: 2 } },
+                      row: { value: { count: 42 } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events', {
+      headers: { Prefer: 'example=row' },
+    })
+
+    expect(await response.text()).toBe('data: {"count":42}\n\n')
+  })
+
+  it('GET /events -> writes an already framed example verbatim', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    schema: {
+                      type: 'object',
+                      properties: { type: { type: 'string' } },
+                    },
+                    example: 'data: {"type":"edit"}\n\n',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events')
+
+    expect(await response.text()).toBe('data: {"type":"edit"}\n\n')
+  })
+
+  it('GET /events -> keeps returning a buffered body for the JSON variant', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: { type: 'edit' },
+                  },
+                  'text/event-stream': {
+                    example: { type: 'edit' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const json = await server.request('/events', { headers: { Accept: 'application/json' } })
+    expect(json.headers.get('Content-Type')).toBe('application/json')
+    expect(await json.text()).toBe('{"type":"edit"}')
+
+    const stream = await server.request('/events', { headers: { Accept: 'text/event-stream' } })
+    expect(stream.headers.get('Content-Type')).toBe('text/event-stream')
+    expect(await stream.text()).toBe('data: {"type":"edit"}\n\n')
+  })
+
   it('GET /foobar -> omits writeOnly properties in responses', async () => {
     const document = {
       openapi: '3.1.0',
