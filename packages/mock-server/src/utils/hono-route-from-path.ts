@@ -3,7 +3,7 @@
  *
  * Example: `beta=true` in the path key `/v1/messages?beta=true`.
  */
-export type RequiredQueryParameter = {
+export type PathKeyQueryParameter = {
   /** Name of the query parameter */
   name: string
   /** Value the request has to send for that parameter */
@@ -15,7 +15,7 @@ type ParsedPathKey = {
   /** Hono route pattern, for example `/posts/:id` */
   route: string
   /** Query parameters that pick this path key over another one sharing its route */
-  query: RequiredQueryParameter[]
+  query: PathKeyQueryParameter[]
 }
 
 /**

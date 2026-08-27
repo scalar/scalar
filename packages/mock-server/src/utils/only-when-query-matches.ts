@@ -1,6 +1,6 @@
 import type { H } from 'hono/types'
 
-import type { RequiredQueryParameter } from '@/utils/hono-route-from-path'
+import type { PathKeyQueryParameter } from '@/utils/hono-route-from-path'
 
 /**
  * Gate a handler on the query parameters an OpenAPI path key carries.
@@ -12,17 +12,21 @@ import type { RequiredQueryParameter } from '@/utils/hono-route-from-path'
  *
  * Handlers of a key without a query string are returned untouched.
  */
-export const onlyWhenQueryMatches = (query: RequiredQueryParameter[], handler: H): H => {
+export const onlyWhenQueryMatches = (query: PathKeyQueryParameter[], handler: H): H => {
   if (query.length === 0) {
     return handler
   }
 
   return (c, next) => {
     // Read the whole query at once, so repeated parameters stay a list and `?beta=false&beta=true`
-    // still matches. Names come from the document, so only own properties count — `__proto__` and
-    // friends would otherwise resolve to something inherited that is not a list of values.
+    // still matches. Names come from the document, so a name such as `constructor` or `toString` can
+    // read back something inherited from the record's prototype — only an actual list of values counts.
     const queries = c.req.queries()
-    const matches = query.every(({ name, value }) => Object.hasOwn(queries, name) && queries[name]?.includes(value))
+    const matches = query.every(({ name, value }) => {
+      const values = queries[name]
+
+      return Array.isArray(values) && values.includes(value)
+    })
 
     return matches ? handler(c, next) : next()
   }

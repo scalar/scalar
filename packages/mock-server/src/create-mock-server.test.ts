@@ -1170,13 +1170,16 @@ describe('createMockServer', () => {
       expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ variant: 'a' })
     })
 
-    it('does not crash on a path key whose query parameter is named after an object member', async () => {
+    it('routes a path key whose query parameter is named after an object member', async () => {
       const document = {
         openapi: '3.1.0',
         info: { title: 'Hello World', version: '1.0.0' },
         paths: {
           '/v1/messages?__proto__=1': {
             get: { responses: jsonResponse('inherited') },
+          },
+          '/v1/messages?toString=1': {
+            get: { responses: jsonResponse('stringified') },
           },
           '/v1/messages': {
             get: { responses: jsonResponse('plain') },
@@ -1187,6 +1190,38 @@ describe('createMockServer', () => {
       const server = await createMockServer({ document })
 
       expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ variant: 'plain' })
+      expect(await (await server.request('/v1/messages?__proto__=1')).json()).toStrictEqual({ variant: 'inherited' })
+      expect(await (await server.request('/v1/messages?toString=1')).json()).toStrictEqual({
+        variant: 'stringified',
+      })
+    })
+
+    it('keeps a path key ahead of a route declared after it', async () => {
+      // The beta key is declared before the templated route, so it has to answer a request carrying
+      // its query string even though the key it shares a route with comes last.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/a/mine?v=1': {
+            get: { responses: jsonResponse('mine-beta') },
+          },
+          '/a/{id}': {
+            get: { responses: jsonResponse('by-id') },
+          },
+          '/a/mine': {
+            get: { responses: jsonResponse('mine') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/a/mine?v=1')).json()).toStrictEqual({ variant: 'mine-beta' })
+      // `/a/{id}` is declared before `/a/mine`, so it answers everything else, as it would without
+      // the beta key in the document.
+      expect(await (await server.request('/a/mine')).json()).toStrictEqual({ variant: 'by-id' })
+      expect(await (await server.request('/a/7')).json()).toStrictEqual({ variant: 'by-id' })
     })
 
     it('runs the handlers of a fallback path key once per request', async () => {

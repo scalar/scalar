@@ -9,7 +9,7 @@ import { buildSeedContext } from '@/utils/build-seed-context'
 import { executeSeed } from '@/utils/execute-seed'
 import { getOperations } from '@/utils/get-operation'
 import { handleAuthentication } from '@/utils/handle-authentication'
-import { type RequiredQueryParameter, parsePathKey } from '@/utils/hono-route-from-path'
+import { type PathKeyQueryParameter, parsePathKey } from '@/utils/hono-route-from-path'
 import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
 import { onlyWhenQueryMatches } from '@/utils/only-when-query-matches'
@@ -79,7 +79,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
     /** HTTP method the operation answers */
     method: HttpMethod
     /** Query parameters that pick this operation over another one sharing its route */
-    query: RequiredQueryParameter[]
+    query: PathKeyQueryParameter[]
     /** Position of the path key in the document, which decides precedence between routes */
     index: number
     /** The operation itself */
@@ -143,7 +143,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   const registerHandlers = (
     { route, method }: RegisteredOperation,
     handlers: H[],
-    query: RequiredQueryParameter[],
+    query: PathKeyQueryParameter[],
   ): void => {
     handlers.forEach((handler) => app[method](route, onlyWhenQueryMatches(query, handler)))
   }
@@ -179,39 +179,60 @@ export async function createMockServer(configuration: MockServerOptions): Promis
     })
   })
 
-  const groups = Array.from(operationsByRoute.values(), (group) => {
+  /** One registration of an operation's handlers, in the document slot it competes for */
+  type Registration = {
+    /** Document slot the handlers are registered in, which is what decides precedence */
+    slot: number
+    /** The operation the handlers belong to */
+    operation: RegisteredOperation
+    /** Query parameters the request has to carry, empty when the handlers answer unconditionally */
+    query: PathKeyQueryParameter[]
+    /** The operation's handlers, built once and shared with the fallback registration */
+    handlers: H[]
+  }
+
+  const registrations: Registration[] = []
+
+  operationsByRoute.forEach((group) => {
     // The most specific path key goes first, so `/v1/messages?beta=true` answers a request that
     // carries `beta=true` and `/v1/messages` answers the rest. The sort is stable, so path keys with
     // the same number of query parameters keep their document order.
     const operations = [...group].sort((a, b) => b.query.length - a.query.length)
 
+    // Ordering by specificity may only shuffle the group's own path keys, never move the route as a
+    // whole: which of `/pets/mine` and `/pets/{id}` answers `GET /pets/mine` follows from where each
+    // was declared. Reusing the group's own document slots keeps that intact.
+    const slots = group.map(({ index }) => index).sort((a, b) => a - b)
+
+    const built = operations.map((operation, position) => ({
+      slot: slots[position] ?? operation.index,
+      operation,
+      query: operation.query,
+      handlers: buildHandlers(operation),
+    }))
+
+    registrations.push(...built)
+
     // A query string in a path key tells two operations apart, it is not a parameter clients have to
     // send, and documents written this way often carry no plain key at all. The path key with the
-    // fewest query parameters therefore answers a request that carries none.
-    const fallback = operations.reduce((fewest, operation) =>
-      operation.query.length < fewest.query.length ? operation : fewest,
+    // fewest query parameters therefore answers a request that carries none, through a second
+    // registration without the gate.
+    const fallback = built.reduce((fewest, registration) =>
+      registration.query.length < fewest.query.length ? registration : fewest,
     )
 
-    return { operations, fallback }
-  })
-    // That fallback is also the only path key of the group a request without a query string can
-    // reach, so its position in the document is what decides precedence against other routes — such
-    // as whether `/pets/mine` or `/pets/{id}` answers `GET /pets/mine`.
-    .sort((a, b) => a.fallback.index - b.fallback.index)
-
-  groups.forEach(({ operations, fallback }) => {
-    const built = operations.map((operation) => ({ operation, handlers: buildHandlers(operation) }))
-
-    built.forEach(({ operation, handlers }) => registerHandlers(operation, handlers, operation.query))
-
-    // Registered after every gated handler of the group, so a path key that requires a query string
-    // still wins over the fallback for a request that carries it.
     if (fallback.query.length > 0) {
-      built
-        .filter(({ operation }) => operation === fallback)
-        .forEach(({ operation, handlers }) => registerHandlers(operation, handlers, []))
+      // The group's last slot, so a path key that does require a query string still wins over the
+      // fallback for a request that carries it.
+      registrations.push({ ...fallback, slot: slots.at(-1) ?? fallback.slot, query: [] })
     }
   })
+
+  // Hono answers with the first matching registration, so the document order of the path keys — with
+  // each group's own keys ordered by specificity — is what resolves overlapping routes.
+  registrations
+    .sort((a, b) => a.slot - b.slot)
+    .forEach(({ operation, handlers, query }) => registerHandlers(operation, handlers, query))
 
   // OpenAPI JSON file
   app.get('/openapi.json', (c) =>
