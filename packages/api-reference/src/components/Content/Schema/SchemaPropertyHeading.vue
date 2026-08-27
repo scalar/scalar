@@ -114,7 +114,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (schema.minLength) {
       properties.push({
         key: 'min-length',
-        prefix: `${translate('common.minLength')}: `,
+        prefix: `${translate('schema.minLength')}: `,
         value: schema.minLength,
       })
     }
@@ -122,7 +122,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (schema.maxLength) {
       properties.push({
         key: 'max-length',
-        prefix: `${translate('common.maxLength')}: `,
+        prefix: `${translate('schema.maxLength')}: `,
         value: schema.maxLength,
       })
     }
@@ -142,7 +142,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.exclusiveMinimum)) {
       properties.push({
         key: 'exclusive-minimum',
-        prefix: `${translate('common.greaterThan')}: `,
+        prefix: `${translate('schema.greaterThan')}: `,
         value: schema.exclusiveMinimum,
       })
     }
@@ -150,7 +150,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.minimum)) {
       properties.push({
         key: 'minimum',
-        prefix: `${translate('common.min')}: `,
+        prefix: `${translate('schema.min')}: `,
         value: schema.minimum,
       })
     }
@@ -158,7 +158,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.exclusiveMaximum)) {
       properties.push({
         key: 'exclusive-maximum',
-        prefix: `${translate('common.lessThan')}: `,
+        prefix: `${translate('schema.lessThan')}: `,
         value: schema.exclusiveMaximum,
       })
     }
@@ -166,7 +166,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.maximum)) {
       properties.push({
         key: 'maximum',
-        prefix: `${translate('common.max')}: `,
+        prefix: `${translate('schema.max')}: `,
         value: schema.maximum,
       })
     }
@@ -174,7 +174,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.multipleOf)) {
       properties.push({
         key: 'multiple-of',
-        prefix: `${translate('common.multipleOf')}: `,
+        prefix: `${translate('schema.multipleOf')}: `,
         value: schema.multipleOf,
       })
     }
@@ -204,7 +204,7 @@ const validationProperties = computed(() => {
     if (schema.uniqueItems) {
       properties.push({
         key: 'unique-items',
-        value: `${translate('common.unique')}!`,
+        value: `${translate('schema.unique')}!`,
       })
     }
   }
@@ -359,14 +359,14 @@ const patternValue = computed(() => {
     <div
       v-if="props.isDiscriminator"
       class="property-discriminator">
-      {{ translate('common.discriminator') }}
+      {{ translate('schema.discriminator') }}
     </div>
     <template v-if="props.value">
       <!-- Type information -->
       <SchemaPropertyDetail
         v-if="shouldShowType"
         truncate>
-        <ScreenReader>{{ translate('common.type') }}:</ScreenReader>
+        <ScreenReader>{{ translate('schema.type') }}:</ScreenReader>
         {{ displayType }}
         <template v-if="modelLink">
           ·
@@ -387,7 +387,7 @@ const patternValue = computed(() => {
       <SchemaPropertyDetail
         v-if="propertyNamesDetail"
         truncate>
-        <template #prefix>{{ translate('common.keys') }}:</template>
+        <template #prefix>{{ translate('schema.keys') }}:</template>
         {{ propertyNamesDetail }}
       </SchemaPropertyDetail>
 
@@ -398,7 +398,7 @@ const patternValue = computed(() => {
         :code="property.code"
         :truncate="property.truncate">
         <ScreenReader v-if="property.key === 'format'">
-          {{ translate('common.format') }}:
+          {{ translate('schema.format') }}:
         </ScreenReader>
         <template
           v-if="property.prefix"
@@ -415,7 +415,7 @@ const patternValue = computed(() => {
 
       <!-- Enum indicator -->
       <SchemaPropertyDetail v-if="props.enum">
-        {{ translate('common.enum') }}
+        {{ translate('schema.enum') }}
       </SchemaPropertyDetail>
     </template>
     <div
@@ -424,42 +424,42 @@ const patternValue = computed(() => {
       <template v-if="props.value?.['x-additionalPropertiesName']">
         {{ props.value['x-additionalPropertiesName'] }}
       </template>
-      <template v-else>{{ translate('common.additionalProperties') }}</template>
+      <template v-else>{{ translate('schema.additionalProperties') }}</template>
     </div>
     <div
       v-if="props.value?.deprecated"
       class="property-deprecated">
-      <Badge>{{ translate('common.deprecated') }}</Badge>
+      <Badge>{{ translate('schema.deprecated') }}</Badge>
     </div>
     <!-- Don't use `isDefined` here, we want to show `const` when the value is `null` -->
     <div
       v-if="constValue !== undefined"
       class="property-const">
       <SchemaPropertyDetail truncate>
-        <template #prefix>{{ translate('common.const') }}: </template>
+        <template #prefix>{{ translate('schema.const') }}: </template>
         <RenderString :value="constValue" />
       </SchemaPropertyDetail>
     </div>
     <template v-else>
       <!-- Shows only when a composition is used (so props.value?.type is undefined) -->
       <SchemaPropertyDetail v-if="(props.value as any)?.nullable === true">
-        {{ translate('common.nullable') }}
+        {{ translate('schema.nullable') }}
       </SchemaPropertyDetail>
     </template>
     <div
       v-if="props.value?.writeOnly"
       class="property-write-only">
-      {{ translate('common.writeOnly') }}
+      {{ translate('schema.writeOnly') }}
     </div>
     <div
       v-else-if="props.value?.readOnly"
       class="property-read-only">
-      {{ translate('common.readOnly') }}
+      {{ translate('schema.readOnly') }}
     </div>
     <div
       v-if="props.required"
       class="property-required">
-      {{ translate('common.required') }}
+      {{ translate('schema.required') }}
     </div>
     <SchemaPropertyDefault :value="props.value?.default" />
     <SchemaPropertyExamples

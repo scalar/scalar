@@ -122,12 +122,12 @@ const toggleExpanded = () => {
     <div
       v-if="propertyNames"
       class="property-enum-property-names">
-      {{ translate('common.propertyNames') }}
+      {{ translate('schema.propertyNames') }}
     </div>
     <div
       v-else
       class="property-enum-property-names">
-      {{ translate('common.values') }}
+      {{ translate('schema.values') }}
     </div>
     <ul class="property-enum-values">
       <!-- Visible enum values -->
@@ -161,8 +161,8 @@ const toggleExpanded = () => {
             weight="bold" />
           {{
             isExpanded
-              ? translate('common.hideValues')
-              : translate('common.showAllValues')
+              ? translate('schema.hideValues')
+              : translate('schema.showAllValues')
           }}
         </ScalarButton>
       </li>
