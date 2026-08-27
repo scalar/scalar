@@ -1756,6 +1756,33 @@ describe('createMockServer', () => {
     expect(await response.text()).toBe('I am a teapot')
   })
 
+  it('routes a path key whose segment mixes a parameter with literal text', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Hello World', version: '1.0.0' },
+      paths: {
+        '/v1/jobs/{jobId}:cancel': {
+          post: {
+            responses: { '200': { description: 'OK', content: { 'application/json': { example: { ok: true } } } } },
+          },
+        },
+        '/v1/jobs/{jobId}': {
+          get: {
+            responses: { '200': { description: 'OK', content: { 'application/json': { example: { ok: false } } } } },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    expect(await (await server.request('/v1/jobs/42:cancel', { method: 'POST' })).json()).toStrictEqual({ ok: true })
+
+    // Before the literal text was escaped this route was a plain parameter, so it answered any
+    // single segment — including one without the `:cancel` the operation is named for.
+    expect((await server.request('/v1/jobs/42', { method: 'POST' })).status).toBe(404)
+  })
+
   describe('path keys with a query string', () => {
     /** Build a document with a plain path key and a variant that pins `beta=true`. */
     const documentWithBetaVariant = (paths: string[]) => ({

@@ -166,8 +166,10 @@ export async function createMockServer(configuration: MockServerOptions): Promis
     }
   })
 
-  // Only keys that share a path are reordered against each other. Everything else keeps its document
-  // order, so a literal path still wins over a parameterized one that happens to pin a query.
+  // Keys that share a path are grouped where the first of them appears and the most specific one
+  // leads the group; a key with a path of its own never moves. So a literal path keeps winning over
+  // a parameterized one that happens to pin a query, and the only keys that change places with
+  // anything unrelated are the variants of a path that is described more than once.
   const orderedPathKeys = [...pathKeys].sort(
     (a, b) =>
       (documentOrder.get(a.pathname) ?? 0) - (documentOrder.get(b.pathname) ?? 0) || b.query.length - a.query.length,

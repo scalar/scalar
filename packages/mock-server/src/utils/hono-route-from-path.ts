@@ -86,7 +86,7 @@ const patternFromSegment = (segment: string): string => {
  * A query string in the key (`/v1/messages?beta=true`) is dropped here — it is matched against the
  * incoming request separately, see `splitPathKey`.
  */
-export function honoRouteFromPath(path: string): string {
+export const honoRouteFromPath = (path: string): string => {
   const { path: pathname } = splitPathKey(path)
 
   const route: string[] = []

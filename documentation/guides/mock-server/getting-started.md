@@ -203,6 +203,8 @@ Both keys are routed. The variant answers only requests that actually send every
 
 Everything else in a path key is matched literally, so a path such as `/users:batchGet` or `/reports*` is served as written.
 
+A segment that mixes a path parameter with literal text of that kind (`/v1/jobs/{jobId}:cancel`) routes to the right operation, but `jobId` is not bound by name — a single path segment can only carry one parameter. Request validation reads it as missing, so give such an operation `validateRequest: false`.
+
 ### Selecting responses
 
 By default the mock server picks a response (and its status code) for you and returns the first example it can find. You can override both with the standard [`Prefer` header](https://www.rfc-editor.org/rfc/rfc7240), just like [Stoplight Prism](https://github.com/stoplightio/prism).

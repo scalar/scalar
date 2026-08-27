@@ -1920,7 +1920,7 @@ describe('x-handler', () => {
     expect(await response.json()).toStrictEqual({ id: '1' })
   })
 
-  it('keeps a declared parameter that is named like a synthesized one', async () => {
+  it('keeps a declared parameter named like a synthesized one when the route has none', async () => {
     const document = {
       openapi: '3.1.0',
       info: {
