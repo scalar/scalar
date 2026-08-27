@@ -77,6 +77,14 @@ export const de = {
   asyncapi: {
     servers: 'Server',
     protocols: 'Protokolle',
+    bindings: 'Bindungen',
+    tags: 'Tags',
+    reply: 'Antwort',
+    replyChannel: 'Antwortkanal',
+    replyAddress: 'Antwortadresse',
+    replyMessages: 'Antwortnachrichten',
+    correlationId: 'Korrelations-ID',
+    examples: 'Beispiele',
   },
   clientLibraries: {
     heading: 'Client-Bibliotheken',

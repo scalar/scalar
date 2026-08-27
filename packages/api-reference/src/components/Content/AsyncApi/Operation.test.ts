@@ -141,4 +141,55 @@ describe('Operation', () => {
     expect(wrapper.findComponent({ name: 'Message' }).exists()).toBe(true)
     expect(wrapper.text()).toContain('User signed up')
   })
+
+  it('renders operation bindings', () => {
+    const wrapper = mount(Operation, {
+      props: {
+        operation: createOperation(),
+        document: createDocument({
+          action: 'receive',
+          channel: { $ref: '#/channels/userSignedUp' },
+          bindings: { kafka: { groupId: 'my-group', clientId: 'my-client' } },
+        }),
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain('Bindings')
+    expect(wrapper.text()).toContain('kafka')
+    expect(wrapper.text()).toContain('groupId')
+  })
+
+  it('renders the operation reply', () => {
+    const wrapper = mount(Operation, {
+      props: {
+        operation: createOperation(),
+        document: createDocument({
+          action: 'receive',
+          channel: { $ref: '#/channels/userSignedUp' },
+          reply: { address: { location: '$message.header#/replyTo' } },
+        }),
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain('Reply')
+    expect(wrapper.text()).toContain('$message.header#/replyTo')
+  })
+
+  it('renders operation tags', () => {
+    const wrapper = mount(Operation, {
+      props: {
+        operation: createOperation(),
+        document: createDocument({
+          action: 'receive',
+          channel: { $ref: '#/channels/userSignedUp' },
+          tags: [{ name: 'users' }],
+        }),
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain('users')
+  })
 })
