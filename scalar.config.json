@@ -925,6 +925,11 @@
         "to": "/products"
       },
       {
+        "type": "link",
+        "title": "Pricing",
+        "to": "/pricing"
+      },
+      {
         "type": "spacer"
       },
       {
@@ -1050,9 +1055,11 @@
             "description": "Transparent pricing for developer documentation, SDKs, and API tools. Start free and scale as you grow.",
             "filepath": "documentation/guides/pricing.md",
             "type": "page",
+            "showInSidebar": false,
             "layout": {
               "toc": false,
-              "pageTitle": false
+              "pageTitle": false,
+              "sidebar": false
             },
             "head": {
               "title": "Scalar Pricing — Free & Paid Plans for API Docs & SDKs",
