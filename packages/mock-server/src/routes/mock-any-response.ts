@@ -4,8 +4,10 @@ import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
+import { streamSSE } from 'hono/streaming'
 import type { StatusCode } from 'hono/utils/http-status'
 
+import { collectSseEvents, isEventStreamContentType } from '@/utils/collect-sse-events'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
@@ -83,22 +85,51 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
   const acceptedResponse = selectedResponse?.content?.[acceptedContentType]
 
+  const responseSchema = acceptedResponse?.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined
+
+  /** Generates the response body from the schema, or returns `undefined` when there is no schema. */
+  const generateFromSchema = (): unknown =>
+    responseSchema
+      ? getExampleFromSchema(responseSchema, {
+          emptyString: 'string',
+          variables: c.req.param(),
+          mode: 'read',
+        })
+      : undefined
+
+  // Server-Sent Events are a framed, multi-event wire format, so they cannot go out as one buffered
+  // body: a client reading the stream expects `data:` lines terminated by a blank line. Everything
+  // else (JSON, XML, text) keeps taking the single-body path below.
+  if (isEventStreamContentType(acceptedContentType)) {
+    const events = collectSseEvents(acceptedResponse, {
+      exampleName: prefer.example,
+      generate: generateFromSchema,
+    })
+
+    c.status(statusCode)
+
+    // `streamSSE` sets the transport headers itself (`Content-Type`, `Cache-Control`, `Connection`,
+    // `Transfer-Encoding`), so those win over a value the document declared for the same header —
+    // they are what makes the stream readable. Every other declared header set above survives.
+    return streamSSE(c, async (stream) => {
+      for (const event of events) {
+        if (event.framed) {
+          await stream.write(event.text)
+        } else {
+          await stream.writeSSE({ data: event.text })
+        }
+      }
+    })
+  }
+
   // Body: a named/singular/first example if one is defined, otherwise generate
   // a value from the schema. `Prefer: example=<name>` picks a named example.
   const selectedExample = selectResponseExample(acceptedResponse, prefer.example)
-  const responseSchema = acceptedResponse?.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined
 
   const body = selectedExample
     ? normalizeResponseBody(selectedExample.value, responseSchema)
     : responseSchema
-      ? normalizeResponseBody(
-          getExampleFromSchema(responseSchema, {
-            emptyString: 'string',
-            variables: c.req.param(),
-            mode: 'read',
-          }),
-          responseSchema,
-        )
+      ? normalizeResponseBody(generateFromSchema(), responseSchema)
       : null
 
   c.status(statusCode)
