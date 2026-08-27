@@ -1324,8 +1324,8 @@ describe('createMockServer', () => {
         },
       })
 
-      // The fallback puts the same handlers on the route a second time, so a request that reaches it
-      // must not notify twice.
+      // A route whose only path key carries a query string answers a request without it, and has to
+      // notify once for that request rather than once per path key.
       await server.request('/v1/messages')
       await server.request('/v1/messages?beta=true')
 
