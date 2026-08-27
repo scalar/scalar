@@ -15,6 +15,7 @@ A powerful Node.js mock server that automatically generates realistic API respon
 - Handles authentication and responds with defined HTTP headers
 - Supports Swagger 2.0 and OpenAPI 3.x documents
 - Mocks event-driven APIs from AsyncAPI 3.1 documents over WebSocket and SSE
+- Streams `text/event-stream` responses as real Server-Sent Events
 - Write custom JavaScript handlers for dynamic responses
 - Automatically seed initial data on server startup
 - Validates incoming requests against your OpenAPI contract
@@ -294,6 +295,60 @@ Content-Type: application/problem+json
 Each violation reports its `location` (`path`, `query`, `header`, `cookie`, or `body`), a `path` pointing at the offending value, and a human-readable `message`. All violations are returned at once, not just the first.
 
 > This validates path, query, header, and cookie parameters (across every OpenAPI serialization style, including array and object values), plus JSON request bodies. Response validation, non-JSON bodies, and proxy mode are planned follow-ups.
+
+### Server-Sent Events
+
+When `text/event-stream` is the negotiated response media type, the response is streamed as real Server-Sent Events: every event goes out as a `data:` line terminated by a blank line, and the stream closes when the last event is written.
+
+```typescript
+const document = {
+  openapi: '3.1.1',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {
+    '/events': {
+      get: {
+        responses: {
+          '200': {
+            description: 'Server-Sent Events stream. Emits a summary event, then one row event.',
+            content: {
+              'text/event-stream': {
+                examples: {
+                  summary: {
+                    value: { total_rows: 2 },
+                  },
+                  row: {
+                    value: { count: 42 },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+```
+
+```bash
+curl http://localhost:3000/events -H 'Accept: text/event-stream'
+```
+
+```text
+data: {"total_rows":2}
+
+data: {"count":42}
+```
+
+How the events are picked:
+
+- Named `examples` are read as the sequence of events the endpoint emits, in declaration order. `Prefer: example=<name>` still works and pins the stream to that one example.
+- An array example is read as the event sequence too, one event per item.
+- An example that already spells out the wire format — `data:` and `event:` lines, or a `:` comment heartbeat — is written as its own framing, with only its terminating blank line normalized, instead of being wrapped in a second `data:` line. Examples like that describe a whole stream, so a map of them lists alternatives: the first one is served, and `Prefer: example=<name>` picks another.
+- When the response only has a schema, the generated payload is sent three times, so a client's read loop sees more than one event before the stream ends. A schema that already generates a sequence — an `array` with more than one item, or a string that spells the wire format out — is sent once, not repeated.
 
 ### Custom Request Handlers
 

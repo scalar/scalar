@@ -22,6 +22,11 @@ concurrency:
 env:
   # Exclude these packages from turbo as they are handled by dedicated jobs
   TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
+  # The Netlify CLI is pinned because netlify@27.3.0 and newer pull in
+  # @netlify/dev@5.0.4, which depends on an @netlify/ai version that was never
+  # published — every install fails to resolve. Drop the pin once upstream
+  # publishes a working release.
+  NETLIFY_CLI_VERSION: '27.1.2'
 
 jobs:
   # Initial build.
@@ -335,7 +340,7 @@ jobs:
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify deploy --dir "./packages/api-reference/playwright-report" \
+          pnpx netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/api-reference/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -383,7 +388,7 @@ jobs:
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify deploy --dir "./projects/scalar-app/playwright-report" \
+          pnpx netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./projects/scalar-app/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -430,7 +435,7 @@ jobs:
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify deploy --dir "./packages/components/playwright-report" \
+          pnpx netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/components/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -476,7 +481,7 @@ jobs:
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify deploy --dir "./packages/api-reference/playwright-report-cdn" \
+          pnpx netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/api-reference/playwright-report-cdn" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
