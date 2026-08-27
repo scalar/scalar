@@ -59,8 +59,11 @@ const isFramed = (text: string): boolean => {
  */
 const terminate = (text: string): string => {
   const lineEnding = text.includes('\r\n') ? '\r\n' : '\n'
+  // Trailing blank lines go, indentation a block scalar left behind with them. Every run stripped
+  // contains a line break, so spaces inside the last field's value survive.
+  const trimmed = text.replace(/(?:[ \t]*(?:\r\n|\r|\n))+[ \t]*$/, '')
 
-  return `${text.replace(/[\r\n]+$/, '')}${lineEnding}${lineEnding}`
+  return `${trimmed}${lineEnding}${lineEnding}`
 }
 
 /** Turns one payload into an event, serializing anything that is not already text. */
@@ -87,8 +90,8 @@ const expand = (payload: unknown): SseEvent[] => (Array.isArray(payload) ? paylo
  * 1. A named example requested via `Prefer: example=<name>`.
  * 2. The singular `example` keyword.
  * 3. Every entry of the `examples` map, in declaration order — an event stream that documents a
- *    `summary` and a `row` example is documenting the two events it sends. Entries that are complete
- *    framing are the exception: those are alternative streams, so only the first is served.
+ *    `summary` and a `row` example is documenting the two events it sends. A map of nothing but
+ *    complete framing is the exception: those are alternative streams, so only the first is served.
  * 4. Nothing declared: a schema-generated payload, repeated so the stream has more than one event.
  *
  * `generate` is a callback so the schema is only turned into an example when no example is declared.
@@ -123,11 +126,12 @@ export const collectSseEvents = (
     if (values.length > 0) {
       const events = values.flatMap(expand)
 
-      // An example that is framing already describes a whole stream, so a map of them lists
-      // alternative streams rather than consecutive events. Sending them back to back would replay a
-      // terminal event such as `[DONE]`, so only the first is served — `Prefer: example=<name>`
-      // picks another one.
-      return events.some((event) => event.framed) ? expand(firstValue) : events
+      // An example that is framing already describes a whole stream, so a map of nothing but those
+      // lists alternative streams rather than consecutive events. Sending them back to back would
+      // replay a terminal event such as `[DONE]`, so only the first is served —
+      // `Prefer: example=<name>` picks another one. A map that mixes framing with payloads is still
+      // one sequence: there the framing is a single chunk of it, such as a documented `[DONE]`.
+      return events.every((event) => event.framed) ? expand(firstValue) : events
     }
   }
 

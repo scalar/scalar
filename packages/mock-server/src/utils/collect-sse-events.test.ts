@@ -70,6 +70,23 @@ describe('collect-sse-events', () => {
       expect(events).toStrictEqual([{ text: 'data: 1\n\ndata: [DONE]\n\n', framed: true }])
     })
 
+    it('keeps a map that mixes payloads and framing as one sequence', () => {
+      const events = collectSseEvents(
+        {
+          examples: {
+            row: { value: { count: 42 } },
+            done: { value: 'data: [DONE]\n\n' },
+          },
+        },
+        { generate: () => undefined },
+      )
+
+      expect(events).toStrictEqual([
+        { text: '{"count":42}', framed: false },
+        { text: 'data: [DONE]\n\n', framed: true },
+      ])
+    })
+
     it('picks another framed stream by name', () => {
       const events = collectSseEvents(
         {
@@ -190,6 +207,12 @@ describe('collect-sse-events', () => {
       ])
       expect(collectSseEvents({ example: 'data: 1\r\n\r\n' }, { generate: () => undefined })).toStrictEqual([
         { text: 'data: 1\r\n\r\n', framed: true },
+      ])
+      expect(collectSseEvents({ example: 'data: 1\n\n   ' }, { generate: () => undefined })).toStrictEqual([
+        { text: 'data: 1\n\n', framed: true },
+      ])
+      expect(collectSseEvents({ example: 'data: keep me   ' }, { generate: () => undefined })).toStrictEqual([
+        { text: 'data: keep me   \n\n', framed: true },
       ])
     })
 
