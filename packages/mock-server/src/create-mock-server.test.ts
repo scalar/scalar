@@ -1002,4 +1002,344 @@ describe('createMockServer', () => {
     expect(response.status).toBe(301)
     expect(response.headers.get('Location')).toBe('/new-location')
   })
+
+  describe('path keys with a query string', () => {
+    /** Build a JSON response that echoes a single marker string. */
+    const jsonResponse = (variant: string) => ({
+      '200': {
+        description: 'OK',
+        content: {
+          'application/json': {
+            example: { variant },
+          },
+        },
+      },
+    })
+
+    it('routes a path key with a query string separately from its plain sibling', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages': {
+            get: { responses: jsonResponse('plain') },
+          },
+          '/v1/messages?beta=true': {
+            get: { responses: jsonResponse('beta') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ variant: 'plain' })
+      expect(await (await server.request('/v1/messages?beta=true')).json()).toStrictEqual({ variant: 'beta' })
+      // A different value does not qualify for the variant, so the plain operation answers.
+      expect(await (await server.request('/v1/messages?beta=false')).json()).toStrictEqual({ variant: 'plain' })
+    })
+
+    it('routes a path key with a query string when the plain sibling comes first in the document', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages?beta=true': {
+            get: { responses: jsonResponse('beta') },
+          },
+          '/v1/messages': {
+            get: { responses: jsonResponse('plain') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/v1/messages?beta=true')).json()).toStrictEqual({ variant: 'beta' })
+      expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ variant: 'plain' })
+    })
+
+    it('answers without the query string when a route has no plain path key', async () => {
+      // A query string in a path key tells two operations apart rather than describing something a
+      // client has to send, so the operation still answers its documented URL.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages?beta=true': {
+            get: { responses: jsonResponse('beta') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/v1/messages?beta=true')).json()).toStrictEqual({ variant: 'beta' })
+      expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ variant: 'beta' })
+    })
+
+    it('answers with the least specific path key when a route has no plain path key', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages?beta=true': {
+            get: { responses: jsonResponse('beta') },
+          },
+          '/v1/messages?beta=true&version=2': {
+            get: { responses: jsonResponse('beta-v2') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/v1/messages?beta=true&version=2')).json()).toStrictEqual({
+        variant: 'beta-v2',
+      })
+      expect(await (await server.request('/v1/messages?beta=true')).json()).toStrictEqual({ variant: 'beta' })
+      expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ variant: 'beta' })
+    })
+
+    it('keeps the document order of path keys that do not share a route', async () => {
+      // Only keys sharing a route compete, so hoisting a query-bearing key must not let a templated
+      // path key overtake a static one declared before it.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/work/stats': {
+            get: { responses: jsonResponse('stats') },
+          },
+          '/v1/work/{id}?beta=true': {
+            get: { responses: jsonResponse('by-id') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/v1/work/stats')).json()).toStrictEqual({ variant: 'stats' })
+      expect(await (await server.request('/v1/work/stats?beta=true')).json()).toStrictEqual({ variant: 'stats' })
+      expect(await (await server.request('/v1/work/7?beta=true')).json()).toStrictEqual({ variant: 'by-id' })
+    })
+
+    it('keeps the document order when a query-bearing path key is declared first', async () => {
+      // The templated route is opened by the beta key, but the key that answers a request without a
+      // query string is declared after the static one — so the static one still wins.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/pets/{id}?beta=true': {
+            get: { responses: jsonResponse('by-id-beta') },
+          },
+          '/pets/mine': {
+            get: { responses: jsonResponse('mine') },
+          },
+          '/pets/{id}': {
+            get: { responses: jsonResponse('by-id') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/pets/mine')).json()).toStrictEqual({ variant: 'mine' })
+      expect(await (await server.request('/pets/7')).json()).toStrictEqual({ variant: 'by-id' })
+      expect(await (await server.request('/pets/7?beta=true')).json()).toStrictEqual({ variant: 'by-id-beta' })
+    })
+
+    it('falls back to the path key declared first when the query parameter counts tie', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages?a=1': {
+            get: { responses: jsonResponse('a') },
+          },
+          '/v1/messages?b=2': {
+            get: { responses: jsonResponse('b') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/v1/messages?a=1')).json()).toStrictEqual({ variant: 'a' })
+      expect(await (await server.request('/v1/messages?b=2')).json()).toStrictEqual({ variant: 'b' })
+      expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ variant: 'a' })
+    })
+
+    it('does not crash on a path key whose query parameter is named after an object member', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages?__proto__=1': {
+            get: { responses: jsonResponse('inherited') },
+          },
+          '/v1/messages': {
+            get: { responses: jsonResponse('plain') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ variant: 'plain' })
+    })
+
+    it('runs the handlers of a fallback path key once per request', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages?beta=true': {
+            get: { operationId: 'listBetaMessages', responses: jsonResponse('beta') },
+          },
+        },
+      }
+
+      const operationIds: Array<string | undefined> = []
+
+      const server = await createMockServer({
+        document,
+        onRequest: ({ operation }) => {
+          operationIds.push(operation.operationId)
+        },
+      })
+
+      // The fallback puts the same handlers on the route a second time, so a request that reaches it
+      // must not notify twice.
+      await server.request('/v1/messages')
+      await server.request('/v1/messages?beta=true')
+
+      expect(operationIds).toStrictEqual(['listBetaMessages', 'listBetaMessages'])
+    })
+
+    it('does not crash on a path key whose query parameter has no name', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages?=1': {
+            get: { responses: jsonResponse('nameless') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ variant: 'nameless' })
+    })
+
+    it('routes sibling path keys that all carry a query string', async () => {
+      // Two path keys whose routes overlap used to reach Hono with the `?` intact, where the router
+      // read it as a quantifier and threw while building the matcher on the very first request.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/a/{x}/b?q=1': {
+            get: { responses: jsonResponse('list') },
+          },
+          '/a/{x}/b/{y}?q=1': {
+            get: { responses: jsonResponse('item') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/a/1/b?q=1')).json()).toStrictEqual({ variant: 'list' })
+      expect(await (await server.request('/a/1/b/2?q=1')).json()).toStrictEqual({ variant: 'item' })
+      expect(await (await server.request('/a/1/b')).json()).toStrictEqual({ variant: 'list' })
+    })
+
+    it('keeps path parameters of a path key with a query string', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages/{id}?beta=true': {
+            get: {
+              parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+              responses: jsonResponse('beta'),
+            },
+          },
+        },
+      }
+
+      const parameters: Array<Record<string, string>> = []
+
+      const server = await createMockServer({
+        document,
+        onRequest: ({ context }) => {
+          parameters.push(context.req.param())
+        },
+      })
+
+      expect(await (await server.request('/v1/messages/123?beta=true')).json()).toStrictEqual({ variant: 'beta' })
+      expect(parameters).toStrictEqual([{ id: '123' }])
+    })
+
+    it('applies authentication of the path key that answers', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          securitySchemes: {
+            bearer: { type: 'http', scheme: 'bearer' },
+          },
+        },
+        paths: {
+          '/v1/messages': {
+            get: { responses: jsonResponse('plain') },
+          },
+          '/v1/messages?beta=true': {
+            get: { security: [{ bearer: [] }], responses: jsonResponse('beta') },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      // The authentication of the beta operation must not reach the plain one, or the other way round.
+      expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ variant: 'plain' })
+      expect((await server.request('/v1/messages?beta=true')).status).toBe(401)
+      expect(
+        await (await server.request('/v1/messages?beta=true', { headers: { Authorization: 'Bearer token' } })).json(),
+      ).toStrictEqual({ variant: 'beta' })
+    })
+
+    it('notifies onRequest once, with the operation that answers', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages': {
+            get: { operationId: 'listMessages', responses: jsonResponse('plain') },
+          },
+          '/v1/messages?beta=true': {
+            get: { operationId: 'listBetaMessages', responses: jsonResponse('beta') },
+          },
+        },
+      }
+
+      const operationIds: Array<string | undefined> = []
+
+      const server = await createMockServer({
+        document,
+        onRequest: ({ operation }) => {
+          operationIds.push(operation.operationId)
+        },
+      })
+
+      await server.request('/v1/messages?beta=true')
+      await server.request('/v1/messages')
+      await server.request('/v1/messages?beta=false')
+
+      expect(operationIds).toStrictEqual(['listBetaMessages', 'listMessages', 'listMessages'])
+    })
+  })
 })

@@ -44,6 +44,29 @@ describe('resolveChannels', () => {
     expect(room.operations.map((operation) => operation.action).sort()).toEqual(['receive', 'send'])
   })
 
+  it('drops a query string from the channel address when building the route', async () => {
+    const document = await processAsyncApiDocument({
+      asyncapi: '3.1.0',
+      info: { title: 'Chat', version: '1.0.0' },
+      servers: { production: { host: 'localhost:3000', protocol: 'ws' } },
+      channels: {
+        room: {
+          address: 'rooms/{roomId}?token=abc',
+          messages: { message: { payload: { type: 'string' } } },
+        },
+      },
+      operations: {
+        receiveMessage: { action: 'receive', channel: { $ref: '#/channels/room' } },
+      },
+    })
+
+    const room = resolveChannels(document)[0]!
+
+    // Hono matches on the pathname, so a query string in the address has to stay out of the route.
+    expect(room.address).toBe('rooms/{roomId}?token=abc')
+    expect(room.route).toBe('/rooms/:roomId')
+  })
+
   it('resolves $ref messages and operation message subsets', async () => {
     const document = await processAsyncApiDocument({
       asyncapi: '3.1.0',

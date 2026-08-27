@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { honoRouteFromPath } from './hono-route-from-path'
+import { honoRouteFromPath, parsePathKey } from './hono-route-from-path'
 
 describe('honoRouteFromPath', () => {
   it('returns correct route for a simple path', () => {
@@ -37,5 +37,71 @@ describe('honoRouteFromPath', () => {
 
   it('handles parameters with special naming patterns', () => {
     expect(honoRouteFromPath('/api/{api.version}/{user_id}')).toBe('/api/:api.version/:user_id')
+  })
+
+  it('drops the query string from a path key', () => {
+    expect(honoRouteFromPath('/v1/messages?beta=true')).toBe('/v1/messages')
+  })
+
+  describe('parsePathKey', () => {
+    it('returns no query parameters for a plain path key', () => {
+      expect(parsePathKey('/v1/messages')).toEqual({ route: '/v1/messages', query: [] })
+    })
+
+    it('splits a path key into a route and its query parameters', () => {
+      expect(parsePathKey('/v1/messages?beta=true')).toEqual({
+        route: '/v1/messages',
+        query: [{ name: 'beta', value: 'true' }],
+      })
+    })
+
+    it('returns every query parameter', () => {
+      expect(parsePathKey('/v1/messages/{id}?beta=true&version=2')).toEqual({
+        route: '/v1/messages/:id',
+        query: [
+          { name: 'beta', value: 'true' },
+          { name: 'version', value: '2' },
+        ],
+      })
+    })
+
+    it('keeps a repeated query parameter as two entries', () => {
+      expect(parsePathKey('/v1/messages?tag=a&tag=b')).toEqual({
+        route: '/v1/messages',
+        query: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      })
+    })
+
+    it('reads a query parameter without a value as an empty value', () => {
+      expect(parsePathKey('/v1/messages?beta')).toEqual({
+        route: '/v1/messages',
+        query: [{ name: 'beta', value: '' }],
+      })
+    })
+
+    it('drops a query parameter without a name', () => {
+      expect(parsePathKey('/v1/messages?=1')).toEqual({ route: '/v1/messages', query: [] })
+    })
+
+    it('decodes percent-encoded query parameters', () => {
+      expect(parsePathKey('/v1/messages?filter=a%20b')).toEqual({
+        route: '/v1/messages',
+        query: [{ name: 'filter', value: 'a b' }],
+      })
+    })
+
+    it('ignores an empty query string', () => {
+      expect(parsePathKey('/v1/messages?')).toEqual({ route: '/v1/messages', query: [] })
+    })
+
+    it('splits at the first question mark only', () => {
+      expect(parsePathKey('/v1/messages?filter=a?b')).toEqual({
+        route: '/v1/messages',
+        query: [{ name: 'filter', value: 'a?b' }],
+      })
+    })
   })
 })
