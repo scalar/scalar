@@ -189,6 +189,20 @@ The given OpenAPI document is automatically exposed:
 
 - `/openapi.json` and `/openapi.yaml`
 
+### Path keys with a query string
+
+Some documents describe a variant of an operation by putting a query string in the path key:
+
+```yaml
+paths:
+  /v1/messages: …
+  /v1/messages?beta=true: …
+```
+
+Both keys are routed. The variant answers only requests that actually send every query parameter it pins (`?beta=true` here), and the plain key answers everything else. A key that pins a name without a value (`?beta`) matches any value.
+
+Everything else in a path key is matched literally, so a path such as `/users:batchGet` or `/reports*` is served as written.
+
 ### Selecting responses
 
 By default the mock server picks a response (and its status code) for you and returns the first example it can find. You can override both with the standard [`Prefer` header](https://www.rfc-editor.org/rfc/rfc7240), just like [Stoplight Prism](https://github.com/stoplightio/prism).
