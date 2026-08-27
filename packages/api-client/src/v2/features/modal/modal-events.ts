@@ -46,7 +46,7 @@ export function initializeModalEvents({
   eventBus.on('ui:close:client-modal', () => modalState.hide())
   eventBus.on('ui:open:client-modal', (payload) => {
     // Every open re-establishes the selection (falling back to empty), so the modal no longer needs
-    // to reset it on close. Keep this assignment unconditional to preserve that invariant.
+    // to reset it on close.
     const nextRequestBodyCompositionSelection = (
       payload && 'requestBodyCompositionSelection' in payload && payload.requestBodyCompositionSelection
         ? payload.requestBodyCompositionSelection
@@ -59,6 +59,8 @@ export function initializeModalEvents({
       modalState.show()
       return
     }
+
+    const previousSelectedId = sidebarState.state.selectedItem.value
 
     // We route to the exact ID
     if ('id' in payload && payload.id) {
@@ -96,7 +98,13 @@ export function initializeModalEvents({
 
     // Apply the selection after routing so the request body compares it with the selection used
     // for this operation, rather than briefly resetting the operation that was previously open.
-    requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
+    // Reopening the entry already on screen routes nowhere, so a new selection would read as a
+    // manual branch switch and discard the edited body.
+    const isReopeningVisibleEntry = modalState.open && sidebarState.state.selectedItem.value === previousSelectedId
+
+    if (!isReopeningVisibleEntry) {
+      requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
+    }
 
     modalState.show()
   })

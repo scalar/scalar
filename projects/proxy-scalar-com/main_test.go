@@ -519,9 +519,9 @@ func TestProxyBehavior(t *testing.T) {
 	t.Run("Does not forward any cookies by default", func(t *testing.T) {
 		// Create a test server that checks for the Cookie header
 		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
-			// Check that Cookie header is empty
-			if cookie := r.Header.Get("Cookie"); cookie != "" {
-				t.Errorf("Expected Cookie header to be empty, got '%s'", cookie)
+			// Check that Cookie header is omitted completely rather than sent as empty value
+			if _, exists := r.Header["Cookie"]; exists {
+				t.Errorf("Expected Cookie header to be omitted, but was present: %v", r.Header["Cookie"])
 			}
 			w.Write([]byte("success"))
 		})
@@ -566,6 +566,26 @@ func TestProxyBehavior(t *testing.T) {
 		proxyServer.handleRequest(w, req)
 
 		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
+
+	t.Run("Omits Cookie header completely when X-Scalar-Cookie is empty string", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			if _, exists := r.Header["Cookie"]; exists {
+				t.Errorf("Expected Cookie header to be omitted, but got: %v", r.Header["Cookie"])
+			}
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		req.Header.Set("X-Scalar-Cookie", "")
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
 		if w.Code != http.StatusOK {
 			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
 		}

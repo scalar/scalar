@@ -79,6 +79,7 @@ export const createApiClientModal = ({
     method: 'default',
     example: 'default',
     documentSlug: workspaceStore.workspace['x-scalar-active-document'] || 'default',
+    isWebhook: false,
   }
 
   const parameters = reactive<DefaultEntities>({ ...defaultEntities })
@@ -94,6 +95,7 @@ export const createApiClientModal = ({
   const path = computed(() => resolvedParameters.value.path)
   const method = computed(() => resolvedParameters.value.method)
   const exampleName = computed(() => resolvedParameters.value.example)
+  const isWebhook = computed(() => resolvedParameters.value.isWebhook ?? false)
   /** The document from the workspace store. Modal is OpenAPI-only; AsyncAPI docs surface as null. */
   const document = computed(() => {
     const doc = workspaceStore.workspace.documents[documentSlug.value ?? '']
@@ -107,6 +109,7 @@ export const createApiClientModal = ({
     path: path,
     method: method,
     exampleName: exampleName,
+    isWebhook,
     route,
   })
 
@@ -116,6 +119,7 @@ export const createApiClientModal = ({
     document,
     eventBus,
     exampleName,
+    isWebhook,
     method,
     modalState,
     path,

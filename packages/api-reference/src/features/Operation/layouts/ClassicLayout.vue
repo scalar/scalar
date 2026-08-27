@@ -120,6 +120,12 @@ const requestBodyCompositionSelectionKey = computed(() =>
 
 provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
 
+/**
+ * Selected response content type per status code. Shared between the response list (which writes
+ * the selection) and the example response panel (which reads it) so the two stay in sync.
+ */
+const selectedResponseContentTypes = ref<Record<string, string>>({})
+
 const { copyToClipboard } = useClipboard()
 </script>
 <template>
@@ -187,7 +193,7 @@ const { copyToClipboard } = useClipboard()
         position="after" />
       <template v-if="!options.hideTestRequestButton">
         <TestRequestButton
-          v-if="active && !isWebhook"
+          v-if="active"
           :id
           :eventBus
           :exampleName="resolvedExampleKey"
@@ -248,6 +254,7 @@ const { copyToClipboard } = useClipboard()
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
+            v-model:selectedContentTypes="selectedResponseContentTypes"
             :document
             :eventBus
             :options
@@ -272,6 +279,7 @@ const { copyToClipboard } = useClipboard()
         class="operation-example-card"
         :eventBus
         :responses="operation.responses"
+        :selectedContentTypes="selectedResponseContentTypes"
         :selectedExample />
 
       <!-- New Example Request -->

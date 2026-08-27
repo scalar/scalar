@@ -65,6 +65,7 @@ const documentSlug = computed<string | undefined>(() => 'test-doc')
 const path = computed<string | undefined>(() => '/users')
 const method = computed<'get' | 'post' | undefined>(() => 'get')
 const exampleName = computed<string | undefined>(() => 'default')
+const isWebhook = computed(() => false)
 
 /**
  * Creates fresh per-test reactive wrappers around the shared store.
@@ -83,6 +84,7 @@ const createProps = () => {
     path,
     method,
     exampleName,
+    isWebhook,
     route: vi.fn(),
   })
 
@@ -102,6 +104,7 @@ const createProps = () => {
       options: createModalOptions(),
       plugins: [],
       exampleName: computed(() => exampleName.value),
+      isWebhook,
       requestBodyCompositionSelection,
       modalState,
       sidebarState,
@@ -211,6 +214,7 @@ describe('Modal', () => {
         options: createModalOptions(),
         plugins: [],
         exampleName: computed(() => undefined),
+        isWebhook,
         requestBodyCompositionSelection,
         modalState,
         sidebarState,
@@ -405,6 +409,7 @@ describe('Modal', () => {
         options: createModalOptions(),
         plugins: [],
         exampleName: rawExampleName,
+        isWebhook,
         requestBodyCompositionSelection: ref<Record<string, number>>({}),
         modalState,
         sidebarState: useModalSidebar({
