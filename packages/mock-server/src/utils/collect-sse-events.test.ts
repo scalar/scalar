@@ -171,6 +171,15 @@ describe('collect-sse-events', () => {
       expect(events).toStrictEqual([{ text: 'data: {"a":1}\n\ndata: [DONE]\n\n', framed: true }])
     })
 
+    it('passes framing that opens with a comment line through as framing', () => {
+      expect(collectSseEvents({ example: ': ping\n\ndata: 1\n\n' }, { generate: () => undefined })).toStrictEqual([
+        { text: ': ping\n\ndata: 1\n\n', framed: true },
+      ])
+      expect(collectSseEvents({ example: ': keep-alive\n\n' }, { generate: () => undefined })).toStrictEqual([
+        { text: ': keep-alive\n\n', framed: true },
+      ])
+    })
+
     it('treats prose that merely looks like a field as a data payload', () => {
       // A compliant client ignores a line without a colon, so passing this through verbatim would
       // dispatch nothing at all.

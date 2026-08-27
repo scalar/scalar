@@ -36,7 +36,17 @@ const isFramed = (text: string): boolean => {
   const lines = text.split(/\r\n|\r|\n/)
   const firstLine = lines.find((line) => line.trim() !== '')
 
-  return firstLine !== undefined && SSE_FIELD.test(firstLine) && lines.some((line) => line.startsWith('data:'))
+  if (firstLine === undefined) {
+    return false
+  }
+
+  // A line opening with `:` is an SSE comment — the keep-alive form nothing but a stream writes — so
+  // it is framing on its own, even when the rest of the example carries no event.
+  if (firstLine.startsWith(':')) {
+    return true
+  }
+
+  return SSE_FIELD.test(firstLine) && lines.some((line) => line.startsWith('data:'))
 }
 
 /**
