@@ -19,8 +19,10 @@ import {
 import { useLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
-const { tag, headerId, isCollapsed } = defineProps<{
+const { tag, headerId, isCollapsed, headingLevel } = defineProps<{
   tag: TraversedTag
+  /** Resolved by the parent, which owns this tag and the operations beside it. */
+  headingLevel: number
   headerId?: string
   isCollapsed?: boolean
   eventBus: WorkspaceEventBus | null
@@ -51,7 +53,7 @@ const hasChannels = computed(
         ">
         <SectionHeaderTag
           :id="headerId"
-          :level="2">
+          :level="headingLevel">
           {{ tag.title }}
           <ScreenReader v-if="isCollapsed">
             ({{ translate('navigation.collapsed') }})

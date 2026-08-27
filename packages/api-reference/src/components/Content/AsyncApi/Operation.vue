@@ -10,6 +10,7 @@ import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
 import { useIntersection } from '@/hooks/use-intersection'
 
@@ -82,6 +83,8 @@ const messages = computed(() =>
 const requiredSecurity = computed(() =>
   getAsyncApiRequiredSecurity(document, resolvedOperation.value),
 )
+
+const { level: headingLevel } = useDocumentOutline('operation')
 </script>
 
 <template>
@@ -103,7 +106,7 @@ const requiredSecurity = computed(() =>
         <SectionHeaderTag
           :id="headerId"
           class="operation-title"
-          :level="3">
+          :level="headingLevel">
           {{ headingText }}
         </SectionHeaderTag>
       </Anchor>

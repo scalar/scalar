@@ -9,6 +9,7 @@ import type {
 
 import { Anchor } from '@/components/Anchor'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 
 import { SchemaHeading, SchemaProperty } from '../../Schema'
 
@@ -28,6 +29,8 @@ const { eventBus, id, options, document } = defineProps<{
     | 'hideModels'
   >
 }>()
+
+const { level: headingLevel } = useDocumentOutline('model')
 </script>
 <template>
   <SectionAccordion
@@ -41,7 +44,7 @@ const { eventBus, id, options, document } = defineProps<{
         class="reference-models-anchor"
         :eventBus="eventBus"
         @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
-        <SectionHeaderTag :level="3">
+        <SectionHeaderTag :level="headingLevel">
           <SchemaHeading
             class="reference-models-label"
             :name="schema.title ?? name"
