@@ -2,14 +2,15 @@ import Preview from './Preview.mdx'
 
 # Cards
 
-Cards display content in a bordered box, optionally with a title, description, icon, and link. They're useful for visually grouping related information or creating navigation tiles.
+Cards display content in a bordered box, optionally with a title, icon, and link. They're useful for visually grouping related information or creating navigation tiles.
+
+To lay cards out side by side, wrap them in a [Grid](./grid.mdx), which arranges its children in columns.
 
 ## Properties
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `title` | `string` | — | Title shown at the top of the card. |
-| `description` | `string` | — | Short description shown below the title. |
 | `icon` | `string` | — | Icon shown alongside the title. Accepts a built-in [icon key](./icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](./icons.mdx#custom-icons). |
 | `iconPosition` | `'title'` `'left'` `'above'` | `title` | Where the icon is placed relative to the card content. |
 | `href` | `string` | — | When set, the entire card becomes a link. |
@@ -57,30 +58,30 @@ Cards display content in a bordered box, optionally with a title, description, i
 ```
 </CodeGroup>
 
-### Title, Icon, and Description
+### Title, Icon, and Body
 
 <Preview>
   <Card
     title="Getting Started"
-    description="Learn the basics in five minutes."
-    icon="phosphor/regular/rocket-launch"
-  />
+    icon="phosphor/regular/rocket-launch">
+    Learn the basics in five minutes.
+  </Card>
 </Preview>
 
 <CodeGroup>
 ```md Markdown
 <scalar-card
   title="Getting Started"
-  description="Learn the basics in five minutes."
   icon="phosphor/regular/rocket-launch">
+  Learn the basics in five minutes.
 </scalar-card>
 ```
 ```mdx MDX
 <Card
   title="Getting Started"
-  description="Learn the basics in five minutes."
-  icon="phosphor/regular/rocket-launch"
-/>
+  icon="phosphor/regular/rocket-launch">
+  Learn the basics in five minutes.
+</Card>
 ```
 </CodeGroup>
 
@@ -119,9 +120,9 @@ Cards display content in a bordered box, optionally with a title, description, i
 <Preview>
   <Card
     title="Read the Docs"
-    description="Full API reference and guides."
     icon="phosphor/regular/book-open"
     href="https://scalar.com">
+    Full API reference and guides.
   </Card>
 </Preview>
 
@@ -129,17 +130,17 @@ Cards display content in a bordered box, optionally with a title, description, i
 ```md Markdown
 <scalar-card
   title="Read the Docs"
-  description="Full API reference and guides."
   icon="phosphor/regular/book-open"
   href="https://scalar.com">
+  Full API reference and guides.
 </scalar-card>
 ```
 ```mdx MDX
 <Card
   title="Read the Docs"
-  description="Full API reference and guides."
   icon="phosphor/regular/book-open"
-  href="https://scalar.com"
-/>
+  href="https://scalar.com">
+  Full API reference and guides.
+</Card>
 ```
 </CodeGroup>
