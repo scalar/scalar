@@ -32,15 +32,21 @@ const escapeRegExpLiteral = (value: string): string =>
 /**
  * Build a regular expression that matches a path segment verbatim.
  *
- * Literal text is escaped and a template matches anything but a slash. A template also excludes the
- * character the literal behind it starts with, which keeps the match unambiguous: an OpenAPI
- * document is untrusted input, and a pattern made of several plain `[^/]+` groups backtracks
- * exponentially on a crafted request, which would block the event loop of the whole server.
+ * Literal text is escaped and a template matches anything but a slash. Every template except the
+ * last one also excludes the character the literal behind it starts with, so its match has exactly
+ * one possible end and the engine never has to search: an OpenAPI document is untrusted input, and a
+ * segment made of several plain `[^/]+` groups backtracks exponentially on a crafted request, which
+ * would block the event loop of the whole server. The last template stays greedy, so the common
+ * `{name}:cancel` shape still accepts a value that contains the delimiter.
  */
 const patternFromSegment = (segment: string): string => {
   // Splitting on a regular expression with a capturing group interleaves literals and parameter
   // names, so every odd entry is a template and the list always begins and ends with a literal.
   const parts = segment.split(PATH_KEY_TEMPLATE)
+
+  // The split always yields `2n + 1` entries for `n` templates, so the last template sits two
+  // entries from the end — and at `-1` when the segment carries no template at all.
+  const lastTemplate = parts.length - 2
 
   let pattern = ''
 
@@ -53,11 +59,13 @@ const patternFromSegment = (segment: string): string => {
     const followingLiteral = parts[index + 1] ?? ''
 
     // Templates with nothing between them cannot be told apart, so they match as a single group.
-    if (followingLiteral === '' && index + 2 < parts.length) {
+    if (followingLiteral === '' && index !== lastTemplate) {
       continue
     }
 
-    pattern += `[^/${escapeRegExpLiteral(followingLiteral.slice(0, 1))}]+`
+    const delimiter = index === lastTemplate ? '' : escapeRegExpLiteral(followingLiteral.slice(0, 1))
+
+    pattern += `[^/${delimiter}]+`
   }
 
   return pattern
@@ -95,9 +103,11 @@ export function honoRouteFromPath(path: string): string {
     // Hono splices the segment that follows a pattern into a lookahead without escaping it, unless
     // that segment is a parameter itself. So once one segment is a pattern, every segment behind it
     // has to be one too — otherwise a regular expression metacharacter further down the path makes
-    // the router throw on every request.
+    // the router throw on every request. An empty segment (a trailing slash, or `//`) is exempt:
+    // Hono skips the lookahead for it, and it has no literal text to turn into a pattern.
     const needsPattern: boolean =
-      HONO_ROUTING_CHARACTERS.test(routeText) || (previousIsPattern && !plainSegment.startsWith(':'))
+      HONO_ROUTING_CHARACTERS.test(routeText) ||
+      (previousIsPattern && plainSegment !== '' && !plainSegment.startsWith(':'))
 
     if (needsPattern) {
       route.push(`:${LITERAL_PARAMETER_PREFIX}${literalIndex++}{${patternFromSegment(segment)}}`)

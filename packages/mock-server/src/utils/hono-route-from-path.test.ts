@@ -88,6 +88,25 @@ describe('honoRouteFromPath', () => {
       expect(performance.now() - start).toBeLessThan(1_000)
     })
 
+    it('routes a path key that ends in a slash behind an escaped segment', async () => {
+      // An empty segment has no literal text to turn into a pattern. Escaping it anyway produced an
+      // empty pattern, which Hono cannot parse — it then threw for every route on the server.
+      const app = new Hono()
+      app.get(honoRouteFromPath('/api/users:search/'), (c) => c.text('matched'))
+      app.get(honoRouteFromPath('/healthz'), (c) => c.text('healthy'))
+
+      expect(await (await app.request('/api/users:search/')).text()).toBe('matched')
+      expect(await (await app.request('/healthz')).text()).toBe('healthy')
+    })
+
+    it('accepts a parameter value that contains the delimiter behind it', async () => {
+      const app = new Hono()
+      app.get(honoRouteFromPath('/v1/{name}:cancel'), (c) => c.text('matched'))
+
+      expect((await app.request('/v1/a:b:cancel')).status).toBe(200)
+      expect((await app.request('/v1/a:b')).status).toBe(404)
+    })
+
     it('matches an asterisk in a path key literally instead of as a wildcard', async () => {
       const app = new Hono()
       app.get(honoRouteFromPath('/reports*'), (c) => c.text('matched'))

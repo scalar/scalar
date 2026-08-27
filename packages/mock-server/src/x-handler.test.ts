@@ -1919,4 +1919,32 @@ describe('x-handler', () => {
 
     expect(await response.json()).toStrictEqual({ id: '1' })
   })
+
+  it('keeps a declared parameter that is named like a synthesized one', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/a/{__scalar_literal_0}': {
+          get: {
+            'x-handler': 'return req.params;',
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/a/hello')
+
+    expect(await response.json()).toStrictEqual({ __scalar_literal_0: 'hello' })
+  })
 })

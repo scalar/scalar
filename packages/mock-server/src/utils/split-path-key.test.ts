@@ -56,6 +56,13 @@ describe('splitPathKey', () => {
     })
   })
 
+  it('pins the name only when the value is a template', () => {
+    expect(splitPathKey('/pets/findByStatus?status={status}')).toEqual({
+      path: '/pets/findByStatus',
+      query: [{ name: 'status', value: undefined }],
+    })
+  })
+
   it('splits at the first question mark only', () => {
     expect(splitPathKey('/search?q=a?b')).toEqual({ path: '/search', query: [{ name: 'q', value: 'a?b' }] })
   })

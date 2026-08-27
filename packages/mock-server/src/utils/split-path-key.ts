@@ -5,6 +5,9 @@
  */
 export const PATH_KEY_TEMPLATE = /\{([^{}]+)\}/g
 
+/** Matches a query value that is nothing but a template, as in `?status={status}`. */
+const TEMPLATE_VALUE = /^\{[^{}]+\}$/
+
 /** A query parameter that an OpenAPI path key pins, for example `beta=true` in `/v1/messages?beta=true`. */
 export type PinnedQueryParameter = {
   /** Decoded name of the query parameter. */
@@ -44,7 +47,9 @@ const decodeQueryPart = (value: string): string => {
  * carries no query string.
  */
 const findQueryStart = (pathKey: string): number => {
-  const templates = [...pathKey.matchAll(PATH_KEY_TEMPLATE)].map((match) => ({
+  // A fresh instance, because `matchAll` reads the `lastIndex` of the regular expression it is
+  // given and `PATH_KEY_TEMPLATE` is shared with other modules.
+  const templates = [...pathKey.matchAll(new RegExp(PATH_KEY_TEMPLATE))].map((match) => ({
     start: match.index,
     end: match.index + match[0].length,
   }))
@@ -65,7 +70,7 @@ const findQueryStart = (pathKey: string): number => {
  * for example `/v1/messages?beta=true` next to `/v1/messages`. That is not a routable path, so the
  * query has to be peeled off and matched against the incoming request separately.
  */
-export function splitPathKey(pathKey: string): SplitPathKey {
+export const splitPathKey = (pathKey: string): SplitPathKey => {
   const queryStart = findQueryStart(pathKey)
 
   if (queryStart === -1) {
@@ -80,9 +85,18 @@ export function splitPathKey(pathKey: string): SplitPathKey {
       const separator = pair.indexOf('=')
 
       // `?beta` pins the name only, `?beta=true` pins the name and the value.
-      return separator === -1
-        ? { name: decodeQueryPart(pair), value: undefined }
-        : { name: decodeQueryPart(pair.slice(0, separator)), value: decodeQueryPart(pair.slice(separator + 1)) }
+      if (separator === -1) {
+        return { name: decodeQueryPart(pair), value: undefined }
+      }
+
+      const value = pair.slice(separator + 1)
+
+      return {
+        name: decodeQueryPart(pair.slice(0, separator)),
+        // A value that is nothing but a template (`?status={status}`) names the parameter rather
+        // than fixing it, so any value the request sends satisfies it.
+        value: TEMPLATE_VALUE.test(value) ? undefined : decodeQueryPart(value),
+      }
     })
     .filter(({ name }) => name !== '')
 
