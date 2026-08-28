@@ -42,6 +42,9 @@ export const SCOPES = {
   /** `__name__`, `__init__` — dunder / magic names. */
   'variable.special': 'vs',
 
+  /** `:name` in Ruby, an atom in Erlang, an HTTP method in a curl line. */
+  symbol: 'sy',
+
   // --- keywords -------------------------------------------------------------
   keyword: 'k',
   /** `if`, `for`, `return`, `await`, `yield`. */
