@@ -1934,4 +1934,96 @@ describe('createMockServer', () => {
       expect((await server.request('/a/1/b/2?q=1')).status).toBe(200)
     })
   })
+
+  describe('quiet', () => {
+    /**
+     * A document with a security scheme, so the server has authentication instructions to print.
+     *
+     * Built per test, because `createMockServer` bundles and upgrades the object it is handed.
+     */
+    const authenticatedDocument = () => ({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      security: [{ apiKey: [] }],
+      components: {
+        securitySchemes: {
+          apiKey: {
+            type: 'apiKey',
+            name: 'X-API-Key',
+            in: 'header',
+          },
+        },
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // The spies replace the global console, so restore them even when an assertion throws first.
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('prints the authentication instructions by default', async () => {
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+      await createMockServer({ document: authenticatedDocument() })
+
+      expect(consoleLogSpy).toHaveBeenCalledWith('Authentication:')
+    })
+
+    it('prints no authentication instructions when quiet is enabled', async () => {
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+      await createMockServer({ document: authenticatedDocument(), quiet: true })
+
+      expect(consoleLogSpy).not.toHaveBeenCalled()
+    })
+
+    it('warns about unsupported security schemes even when quiet is enabled', async () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+      await createMockServer({
+        document: {
+          ...authenticatedDocument(),
+          security: [{ mutualTls: [] }],
+          components: { securitySchemes: { mutualTls: { type: 'mutualTLS' } } },
+        },
+        quiet: true,
+      })
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Unsupported security scheme type: mutualTLS')
+    })
+
+    it('answers requests as usual when quiet is enabled', async () => {
+      vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+      const server = await createMockServer({ document: authenticatedDocument(), quiet: true })
+
+      const response = await server.request('/foobar', {
+        headers: { 'X-API-Key': 'super-secret' },
+      })
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({ foo: 'bar' })
+    })
+  })
 })

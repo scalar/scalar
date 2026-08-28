@@ -97,7 +97,7 @@ serve(
 
 ### Authentication
 
-You can define security schemes in your OpenAPI document and the mock server will validate the authentication:
+You can define security schemes in your OpenAPI document and the mock server will validate the authentication. On startup it prints instructions on how to authenticate, which you can turn off with [Quiet Startup](#quiet-startup):
 
 ```typescript
 import { serve } from '@hono/node-server'
@@ -390,6 +390,22 @@ Failures that are already handled elsewhere never reach this handler, so they ke
 - **`x-handler` errors** — an extension that throws responds with `{ "error": "Handler execution failed", "message": … }`.
 - **Operations with no response** — an operation whose `responses` are empty responds with `{ "error": "No response defined for this operation." }`.
 - **Errors that carry a response** — an error such as Hono's `HTTPException` keeps the status and body it chose, and is not logged.
+
+### Quiet Startup
+
+When the document declares security schemes, the mock server prints instructions on how to authenticate as it starts up. That is handy in a terminal, but it is just noise when the server runs inside a test suite or another program. Set `quiet: true` to skip it:
+
+```ts
+import { createMockServer } from '@scalar/mock-server'
+
+const app = await createMockServer({
+  document,
+  // Do not print the authentication instructions
+  quiet: true,
+})
+```
+
+Diagnostics are not affected, so real problems still surface: warnings and errors about security schemes the mock server cannot handle, request validator compilation errors, and `x-seed` errors are printed either way.
 
 ### Custom Request Handlers
 
