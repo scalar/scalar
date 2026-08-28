@@ -260,6 +260,7 @@ The mock server enforces your OpenAPI contract by default. Each request is valid
 - **Array parameters** are deserialized according to their `style` and `explode` before validation. Exploded `form` arrays read repeated query keys (`?ids=1&ids=2`), while `form` (non-exploded), `spaceDelimited`, and `pipeDelimited` query arrays, `simple` path and header arrays, `form` cookie arrays, and the `label` (`/.1.2.3`) and `matrix` (`/;ids=1;ids=2`) path styles are split on their delimiter.
 - **Object parameters** are deserialized too: `deepObject` (`?filter[min]=1&filter[max]=9`), exploded `form` (properties as top-level keys, `?r=100&g=200`), `form`/`simple`/`label`/`matrix` in both explode modes (for example `r,100,g,200`, `r=100,g=200`, or `;point=x,1,y,2`).
 - **JSON request bodies** are validated against `requestBody.content['application/json'].schema`, and `requestBody.required` is enforced.
+- **Recursive schemas** (a schema that references itself, directly or through another schema) are validated down to the point where the cycle is cut. Values at and below that recursion point are accepted as they are, and a `not`, `if`, `oneOf`, or `contains` that depends on the recursion is not enforced — nor are the keywords that only qualify them, such as `unevaluatedProperties`, `unevaluatedItems`, or `additionalProperties` — so validation stays on the forgiving side.
 
 When a request violates the contract, the server responds with `422 Unprocessable Entity` and a `application/problem+json` body listing every violation, instead of a mock response.
 
