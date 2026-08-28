@@ -583,3 +583,66 @@ class TestAddScalarReference:
         """The helper returns the app so calls can be chained"""
         app = FastAPI()
         assert add_scalar_reference(app) is app
+
+
+class TestPlainStringValues:
+    """Plain strings work anywhere an enum is accepted"""
+
+    def test_string_values_are_accepted(self):
+        """Passing string values behaves the same as passing enum members"""
+        response = get_scalar_api_reference(
+            openapi_url="/openapi.json",
+            title="Test API",
+            layout="classic",
+            theme="moon",
+            search_hot_key="s",
+            document_download_type="json",
+        )
+
+        html_content = response.body.decode()
+        assert '"layout": "classic"' in html_content
+        assert '"theme": "moon"' in html_content
+        assert '"searchHotKey": "s"' in html_content
+        assert '"documentDownloadType": "json"' in html_content
+
+    def test_default_string_values_are_omitted(self):
+        """Default values passed as strings are still left out of the config"""
+        response = get_scalar_api_reference(
+            openapi_url="/openapi.json",
+            title="Test API",
+            layout="modern",
+            theme="default",
+            search_hot_key="k",
+        )
+
+        html_content = response.body.decode()
+        config_start = html_content.find('Scalar.createApiReference("#app", {')
+        config_end = html_content.find('})', config_start)
+        config_section = html_content[config_start:config_end]
+
+        assert 'layout' not in config_section
+        assert 'theme' not in config_section
+        assert 'searchHotKey' not in config_section
+
+    def test_default_theme_string_still_injects_styles(self):
+        """The default theme styles are injected whether the value is an enum or a string"""
+        response = get_scalar_api_reference(
+            openapi_url="/openapi.json",
+            title="Test API",
+            theme="default",
+        )
+
+        html_content = response.body.decode()
+        # The bundled default theme CSS is present.
+        assert "--scalar-color-accent" in html_content
+
+    def test_string_and_enum_produce_identical_output(self):
+        """A string and its matching enum member yield the same HTML"""
+        from_string = get_scalar_api_reference(
+            openapi_url="/openapi.json", title="Test API", theme="kepler"
+        ).body.decode()
+        from_enum = get_scalar_api_reference(
+            openapi_url="/openapi.json", title="Test API", theme=Theme.KEPLER
+        ).body.decode()
+
+        assert from_string == from_enum
