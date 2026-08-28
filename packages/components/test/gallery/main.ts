@@ -18,8 +18,9 @@ import { type ThemeVariantId, applyThemeVariant, defaultThemeVariant } from '@sc
  *
  * Rather than keep a second set of stories in step with the first, the gallery renders the Storybook
  * CSF files the workbench already uses. That means reading the handful of CSF fields the stories
- * actually rely on — `render`, `args`, `component` and `parameters.layout` — and applying the same
- * body classes Storybook would, which is what keeps the committed snapshots comparable.
+ * actually rely on — `render`, `args`, `argTypes.mapping`, `component` and `parameters.layout` — and
+ * applying the same body classes Storybook would, which is what keeps the committed snapshots
+ * comparable.
  */
 
 /** The parts of a CSF module the gallery reads. Storybook's own types cover far more than we need. */
@@ -32,16 +33,21 @@ type Meta = {
   component?: Component
   render?: Render
   args?: Args
+  argTypes?: ArgTypes
   parameters?: Parameters
 }
 
 type Story = {
   render?: Render
   args?: Args
+  argTypes?: ArgTypes
   parameters?: Parameters
 }
 
 type Args = Record<string, unknown>
+
+/** Only the one field of Storybook's argTypes that changes what renders. */
+type ArgTypes = Record<string, { mapping?: Record<string, unknown> }>
 
 type Parameters = { layout?: Layout }
 
@@ -83,21 +89,55 @@ const loadStoryModule = (component: string): Promise<StoryModule> => {
   return entry[1]()
 }
 
+/** Strips a name down to the form Storybook compares story ids in: lowercase and alphanumeric. */
+const normalize = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]/g, '')
+
 /**
- * Resolves a story export from its display name.
+ * Resolves a story export from the name a test asked for.
  *
- * Storybook derives "With Actions" from the `WithActions` export, so the gallery reverses that. No
- * story in this package overrides `name`, so the mapping stays unambiguous.
+ * Storybook resolves stories through a slugged id rather than the export name, so the tests lean on
+ * that being forgiving: `'base'` finds `Base`, `'Label and Hotkey'` finds `LabelAndHotkey`, and
+ * `'resize'` finds `Resized`. Matching on the export name alone is stricter than what the committed
+ * snapshots were recorded against, so normalize first and fall back to a prefix match.
+ *
+ * An ambiguous prefix throws rather than picking one, so a wrong story fails loudly instead of
+ * quietly snapshotting the wrong component.
  */
 const resolveStory = (module: StoryModule, component: string, storyName: string): Story => {
-  const story = module[storyName.replace(/ /g, '')]
+  const exports = Object.entries(module).filter(([name]) => name !== 'default')
+  const wanted = normalize(storyName)
 
-  if (!story || story === module.default) {
+  const exact = exports.filter(([name]) => normalize(name) === wanted)
+  const candidates = exact.length > 0 ? exact : exports.filter(([name]) => normalize(name).startsWith(wanted))
+  const [match] = candidates
+
+  if (!match) {
     throw new Error(`No story "${storyName}" exported from ${component}.stories.ts`)
   }
 
-  return story
+  if (candidates.length > 1) {
+    throw new Error(
+      `Story "${storyName}" is ambiguous in ${component}.stories.ts: ${candidates.map(([name]) => name).join(', ')}`,
+    )
+  }
+
+  return match[1] as Story
 }
+
+/**
+ * Applies Storybook's `argTypes.mapping` to the resolved args.
+ *
+ * A story can take a short label as an arg and swap it for the real value behind it — `ScalarMarkdown`
+ * accepts `"Blockquotes"` and renders the sample document that label stands for. Skipping this step
+ * renders the label itself, which is what the whole markdown suite was doing.
+ */
+const applyArgTypeMappings = (args: Args, argTypes: ArgTypes): Args =>
+  Object.fromEntries(
+    Object.entries(args).map(([key, value]) => {
+      const mapping = argTypes[key]?.mapping
+      return [key, mapping && typeof value === 'string' && value in mapping ? mapping[value] : value]
+    }),
+  )
 
 window.mount = async ({ story: storyId, props }) => {
   const [component, storyName] = storyId.split('/')
@@ -110,7 +150,7 @@ window.mount = async ({ story: storyId, props }) => {
   const meta = module.default
   const story = resolveStory(module, component, storyName)
 
-  const args: Args = { ...meta.args, ...story.args, ...props }
+  const args = applyArgTypeMappings({ ...meta.args, ...story.args, ...props }, { ...meta.argTypes, ...story.argTypes })
 
   // Storybook sizes the preview body from the story's layout, and the snapshots are pinned to it
   const layout = story.parameters?.layout ?? meta.parameters?.layout ?? DEFAULT_LAYOUT
