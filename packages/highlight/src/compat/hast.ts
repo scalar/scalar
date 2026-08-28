@@ -1,6 +1,6 @@
 import type { ElementContent } from 'hast'
 
-import { tokenize } from '../index'
+import { tokenizeToArray } from '../core/tokenize'
 import { hljsClass } from './hljs'
 import { canonicalName, grammarFor } from './languages'
 
@@ -63,7 +63,7 @@ export const toHast = (code: string, lang: string, options: ToHastOptions = {}):
     buffer = ''
   }
 
-  for (const token of tokenize(code, grammar)) {
+  for (const token of tokenizeToArray(code, grammar)) {
     const next = token.scope === null ? null : hljsClass(token.scope)
     if (next !== className) {
       flush()
