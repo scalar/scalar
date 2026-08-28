@@ -39,7 +39,6 @@ Components from this library are consumed by `@scalar/api-reference` and `@scala
 ### E2E tests
 
 ```bash
-pnpm build:gallery   # Build the story host the tests render against (required first)
 pnpm test:e2e        # Run Playwright visual regression tests
 pnpm test:e2e:ci     # CI mode
 pnpm test:e2e:update # Update snapshots after intentional visual changes

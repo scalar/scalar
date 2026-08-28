@@ -4,7 +4,7 @@ Playwright snapshot tests render each component through a **gallery** page and c
 
 ## Overview
 
-1. **Gallery** — `./gallery` is a small Vite app that renders one story at a time into `#root`. Playwright starts **`pnpm preview:gallery`**, which serves the build from `pnpm build:gallery` on port **5101**. If `pnpm dev:gallery` is already running on that port, that server is reused (`reuseExistingServer`).
+1. **Gallery** — `./gallery` is a small page that renders one story at a time into `#root`. Playwright starts **`pnpm dev:gallery`** and points `baseURL` at `/test/gallery/index.html`; Vite serves the page from source, so there is nothing to build. If that server is already running on port **5101**, it is reused (`reuseExistingServer`).
 2. **Docker browser** — Outside CI, tests connect to Playwright inside **`scalarapi/playwright-runner`** (version pinned in `@scalar/helpers` — see [`playwright/docker`](../../helpers/src/playwright/README.md)). CI runs inside the same image, so only the gallery `webServer` runs there.
 3. **Regression detection** — `toHaveScreenshot` diffs against committed PNGs; CI fails when snapshots drift without an update.
 
@@ -23,16 +23,6 @@ test.describe('ScalarCard', () => {   //  component  ─┐
 The gallery resolves that against the CSF files the workbench already uses: `ScalarCard.stories.ts`, export `WithActions`. It reads `render`, `args`, `component` and `parameters.layout` from them, so **stories stay the single source of truth** — there is no second set to keep in step.
 
 A story that does not exist fails with a real error from `window.mount()` rather than a blank screenshot.
-
-## Prerequisites
-
-Build the gallery before the first run (or whenever stories change):
-
-```bash
-pnpm build:gallery
-```
-
-Using the **built** output matches CI and avoids dev-only flakiness in snapshots.
 
 ## Running tests
 
@@ -58,7 +48,7 @@ Debug with the Playwright UI:
 pnpm test:e2e --ui
 ```
 
-To poke at the gallery by hand, `pnpm dev:gallery` and call `window.mount({ story: 'ScalarCard/Base' })` from the console.
+To poke at the gallery by hand, run `pnpm dev:gallery`, open <http://localhost:5101/test/gallery/index.html> and call `window.mount({ story: 'ScalarCard/Base' })` from the console — that is exactly what the fixture does.
 
 ## Non-Linux systems
 
@@ -75,7 +65,7 @@ The components snapshot job runs **`pnpm test:e2e:ci`** inside `scalarapi/playwr
 When adding or changing components:
 
 1. Add `ComponentName.e2e.ts` beside the component (or extend an existing file).
-2. Run `pnpm build:gallery`, then `pnpm test:e2e` (or `:update`) and review generated PNGs under `snapshots/`.
+2. Run `pnpm test:e2e` (or `:update`) and review generated PNGs under `snapshots/`.
 3. Commit snapshot changes with the code.
 
 ### Basic snapshot test

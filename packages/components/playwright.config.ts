@@ -13,18 +13,21 @@ const isLinux = process.platform === 'linux' && !CI
  */
 const playwrightServer: WebServer = getDockerServer()
 
+/** The gallery page `mount()` navigates to. Vite serves it from source, so there is no build. */
+const GALLERY_PATH = 'test/gallery/index.html'
+
 /**
  * Gallery
  *
- * The story host for Playwright's `mount()` fixture, built by `pnpm build:gallery`.
+ * The story host for Playwright's `mount()` fixture, served straight from source by Vite.
  *
  * Storybook used to fill this role. It is still the workbench you browse with `pnpm dev`, but it is
  * no longer a test dependency, so the suite does not wait on a Storybook build to run.
  */
 const galleryServer: WebServer = {
   name: 'Gallery',
-  command: 'pnpm preview:gallery',
-  url: 'http://localhost:5101',
+  command: 'pnpm dev:gallery',
+  url: `http://localhost:5101/${GALLERY_PATH}`,
   reuseExistingServer: !CI,
 } as const
 
@@ -55,7 +58,7 @@ export default defineConfig({
   workers: '100%',
   use: {
     /** `mount()` navigates here and calls the gallery's `window.mount()` */
-    baseURL: CI || isLinux ? 'http://localhost:5101/' : 'http://host.docker.internal:5101/',
+    baseURL: `http://${CI || isLinux ? 'localhost' : 'host.docker.internal'}:5101/${GALLERY_PATH}`,
     /** Use a smaller viewport for components */
     viewport: { width: 640, height: 480 },
     /** Save a screenshot on failure */
