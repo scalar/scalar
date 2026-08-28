@@ -16,7 +16,7 @@
     "swagger",
     "cli"
   ],
-  "version": "0.12.13",
+  "version": "0.13.0",
   "engines": {
     "node": ">=22"
   },
@@ -64,8 +64,8 @@
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "ajv": "^8.18.0",
-    "ajv-formats": "^3.0.1",
+    "ajv": "catalog:*",
+    "ajv-formats": "catalog:*",
     "hono": "catalog:*",
     "yaml": "catalog:*"
   },

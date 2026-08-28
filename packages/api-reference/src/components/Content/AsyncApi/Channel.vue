@@ -18,6 +18,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
@@ -115,6 +116,8 @@ const operations = computed(() =>
     'asyncapi-operation',
   ),
 )
+
+const { level: headingLevel } = useDocumentOutline('channel')
 </script>
 
 <template>
@@ -133,7 +136,7 @@ const operations = computed(() =>
           @copyAnchorUrl="
             () => eventBus?.emit('copy-url:nav-item', { id: channel.id })
           ">
-          <SectionHeaderTag :level="2">
+          <SectionHeaderTag :level="headingLevel">
             {{ headingText }}
           </SectionHeaderTag>
         </Anchor>
@@ -182,7 +185,7 @@ const operations = computed(() =>
           ">
           <SectionHeaderTag
             :id="headerId"
-            :level="2">
+            :level="headingLevel">
             {{ headingText }}
           </SectionHeaderTag>
         </Anchor>

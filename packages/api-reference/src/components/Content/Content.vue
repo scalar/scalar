@@ -48,6 +48,7 @@ import {
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
+import { provideDocumentOutline } from '@/features/document-outline'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import {
   firstLazyLoadComplete,
@@ -243,6 +244,10 @@ const showAuthSelector = computed(
 onMounted(() => {
   scheduleInitialLoadComplete()
 })
+
+// Content renders the info block above the tags, operations and models, so it
+// owns the relationship between them and anchors the outline at the document.
+provideDocumentOutline('document')
 </script>
 <template>
   <SectionFlare />

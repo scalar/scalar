@@ -11,7 +11,7 @@ import type { ERRORS, OpenApiVersion } from '@/configuration'
  */
 type Merge<A, B> = A & Omit<B, keyof A>
 
-export type AnyObject = Record<string, any>
+export type { AnyObject } from '@scalar/types/utils'
 
 export type UnknownObject = Record<string, unknown>
 
@@ -22,7 +22,7 @@ export type AnyApiDefinitionFormat = string | UnknownObject | Filesystem
 
 export type StrictOpenApiDocument = OpenApiDocumentV2 | OpenApiDocumentV3 | OpenApiDocumentV3_1 | OpenApiDocumentV3_2
 
-export type OpenApiDocument = StrictOpenApiDocument
+type OpenApiDocument = StrictOpenApiDocument
 
 export type LoadResult = {
   filesystem: Filesystem
@@ -42,18 +42,6 @@ export type ValidateResult =
       valid: false
       specification?: UnknownObject
       version?: OpenApiVersion
-      errors: ErrorObject[]
-      schema?: UnknownObject
-    }
-
-export type ValidationOutcome =
-  | {
-      valid: true
-      errors?: ErrorObject[]
-      schema: StrictOpenApiDocument
-    }
-  | {
-      valid: false
       errors: ErrorObject[]
       schema?: UnknownObject
     }
@@ -81,7 +69,7 @@ export type DereferenceResult = {
 }
 
 export type ErrorObject = {
-  path?: string[]
+  path?: string | string[]
   message: string
   code?: keyof typeof ERRORS | string
 }

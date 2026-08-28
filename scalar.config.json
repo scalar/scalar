@@ -1425,6 +1425,17 @@
               }
             }
           },
+          "/svg-playground": {
+            "title": "SVG Playground",
+            "description": "Scratch page for iterating on landing page artwork.",
+            "filepath": "documentation/guides/svg-playground.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false
+            }
+          },
           "/brand": {
             "title": "Brand",
             "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
@@ -3916,6 +3927,53 @@
                     "title": "Changelog",
                     "description": "Changelog for @scalar/openapi-upgrader releases.",
                     "filepath": "packages/openapi-upgrader/CHANGELOG.md",
+                    "type": "page"
+                  }
+                }
+              },
+              "../../tools/asyncapi-upgrader": {
+                "title": "AsyncAPI Upgrader",
+                "description": "Automatically upgrade your AsyncAPI documents from 1.x and 2.x to the latest 3.x version with zero manual work.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/arrow-up-right",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "filepath": "documentation/guides/asyncapi-upgrader/getting-started.md",
+                    "type": "page",
+                    "description": "Migrate legacy AsyncAPI 1.x and 2.x documents to the modern 3.x format automatically with our free conversion tool.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/asyncapi-upgrader/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Migrate legacy AsyncAPI 1.x and 2.x documents to the modern 3.x format automatically with our free conversion tool."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with AsyncAPI Upgrader - Upgrade to AsyncAPI 3.x"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Migrate legacy AsyncAPI 1.x and 2.x documents to the modern 3.x format automatically with our free conversion tool."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "description": "Changelog for @scalar/asyncapi-upgrader releases.",
+                    "filepath": "packages/asyncapi-upgrader/CHANGELOG.md",
                     "type": "page"
                   }
                 }

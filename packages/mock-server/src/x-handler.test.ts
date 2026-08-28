@@ -1889,4 +1889,62 @@ describe('x-handler', () => {
       expect(deleteResponse.status).toBe(204) // Should be 204 from delete, not 200 from list
     })
   })
+
+  it('hides the parameters synthesized for routing from req.params', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        // The second segment cannot be routed as written, so it is registered as a parameter with a
+        // generated name. That name is an implementation detail and must not reach the handler.
+        '/{id}/items:batchGet': {
+          get: {
+            'x-handler': 'return req.params;',
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/1/items:batchGet')
+
+    expect(await response.json()).toStrictEqual({ id: '1' })
+  })
+
+  it('keeps a declared parameter named like a synthesized one when the route has none', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/a/{__scalar_literal_0}': {
+          get: {
+            'x-handler': 'return req.params;',
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/a/hello')
+
+    expect(await response.json()).toStrictEqual({ __scalar_literal_0: 'hello' })
+  })
 })

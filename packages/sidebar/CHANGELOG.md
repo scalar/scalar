@@ -1,5 +1,11 @@
 # @scalar/sidebar
 
+## 0.11.0
+
+### Minor Changes
+
+- feat: test OpenAPI webhooks from the API reference and API client
+
 ## 0.10.1
 
 ### Patch Changes

@@ -446,6 +446,36 @@ Point `path` at the route your changelog lives on. The feed is written to `rss.x
 | `path`        | `string` | Yes      | Route of your changelog, for example `/changelog`. Must be a plain site route with no `..` segments |
 | `title`       | `string` | No       | Title of the feed, shown in feed readers. Defaults to your site title plus `Changelog` |
 | `description` | `string` | No       | Description of the feed, shown in feed readers                                      |
+| `entries`     | `string` | No       | How items are found. `headings` (default) turns each dated heading into an item; `pages` turns each page under `path` with a `date` in its frontmatter into an item |
+
+### Multiple Feeds
+
+To publish more than one feed, set `rss` to a list. Each entry is a feed with its own `path`, and each is written to `rss.xml` under that path — so `/changelog` and `/blog` publish `/changelog/rss.xml` and `/blog/rss.xml` side by side:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "rss": [
+      {
+        "path": "/changelog",
+        "title": "Scalar Changelog",
+        "description": "Every Scalar release, as a feed"
+      },
+      {
+        "path": "/blog",
+        "title": "Scalar Blog"
+      }
+    ]
+  }
+}
+```
+
+Every feed takes the same properties as a single one, and each path must be unique. A single feed still works exactly as shown above — the list is only needed when you want more than one.
+
+When a page sits under more than one feed, its header shows a subscribe button for each, with the nearest feed first.
 
 ### Writing Entries
 
@@ -479,6 +509,39 @@ An index page with no dated headings contributes nothing of its own, which is wh
 
 Hidden pages are skipped. A page kept out of the sidebar and the sitemap stays out of the feed as well.
 
+### One Item per Page
+
+For a blog, where each post is its own page rather than a heading on a shared page, set `entries` to `pages`:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "rss": {
+      "path": "/blog",
+      "title": "Scalar Blog",
+      "entries": "pages"
+    }
+  }
+}
+```
+
+Now every page under `path` that carries a `date` in its frontmatter becomes one feed item, newest first:
+
+```markdown
+---
+date: 2026-07-24
+---
+
+# Our new dark mode
+
+A short introduction to the post.
+```
+
+The page title becomes the item title, its description becomes the item description, and the frontmatter `date` sets the publish date. Pages without a `date` — an index page, a draft — are left out, so nothing is syndicated by accident.
+
 ### Discovery
 
 Every page on your site advertises the feed in its `<head>`, so feed readers and browser extensions can find it from any URL:
@@ -487,7 +550,7 @@ Every page on your site advertises the feed in its `<head>`, so feed readers and
 <link rel="alternate" type="application/rss+xml" href="https://example.com/changelog/rss.xml">
 ```
 
-Pages at `path` and beneath it also show a subscribe button in the page header, next to Copy Page.
+Pages at `path` and beneath it also show a subscribe button in the page header, next to Copy Page — one per feed the page belongs to.
 
 ## Routing
 

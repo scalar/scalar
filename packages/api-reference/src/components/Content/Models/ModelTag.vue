@@ -10,6 +10,7 @@ import SectionContainer from '@/components/Section/SectionContainer.vue'
 import SectionContainerAccordion from '@/components/Section/SectionContainerAccordion.vue'
 import SectionHeaderTag from '@/components/Section/SectionHeaderTag.vue'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
+import { useDocumentOutline } from '@/features/document-outline'
 
 const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
   id: string
@@ -18,6 +19,8 @@ const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
   layout: 'classic' | 'modern'
   modelsSectionLabel?: ModelsSectionLabel
 }>()
+
+const { level: headingLevel } = useDocumentOutline('modelGroup')
 </script>
 <template>
   <!-- Modern Layout Model Container -->
@@ -27,7 +30,7 @@ const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
       :aria-label="modelsSectionLabel"
       @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">
       <SectionHeader>
-        <SectionHeaderTag :level="2">
+        <SectionHeaderTag :level="headingLevel">
           {{ modelsSectionLabel }}
         </SectionHeaderTag>
       </SectionHeader>
@@ -53,7 +56,11 @@ const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
       () => eventBus?.emit('toggle:nav-item', { id, open: isCollapsed })
     ">
     <template #title>
-      <SectionHeader :level="2">{{ modelsSectionLabel }}</SectionHeader>
+      <SectionHeader>
+        <SectionHeaderTag :level="headingLevel">
+          {{ modelsSectionLabel }}
+        </SectionHeaderTag>
+      </SectionHeader>
     </template>
     <slot />
   </SectionContainerAccordion>

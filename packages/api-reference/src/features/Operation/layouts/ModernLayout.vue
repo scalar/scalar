@@ -18,6 +18,7 @@ import { LinkList } from '@/components/LinkList'
 import OperationPath from '@/components/OperationPath.vue'
 import { Section, SectionContent, SectionHeaderTag } from '@/components/Section'
 import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
+import { useDocumentOutline } from '@/features/document-outline'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
 import { useLocalization } from '@/features/localization'
@@ -109,6 +110,8 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
  * the selection) and the example response panel (which reads it) so the two stay in sync.
  */
 const selectedResponseContentTypes = ref<Record<string, string>>({})
+
+const { level: headingLevel } = useDocumentOutline('operation')
 </script>
 
 <template>
@@ -163,7 +166,7 @@ const selectedResponseContentTypes = ref<Record<string, string>>({})
             @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
             <SectionHeaderTag
               :id="labelId"
-              :level="3">
+              :level="headingLevel">
               {{ operationTitle }}
             </SectionHeaderTag>
           </Anchor>
