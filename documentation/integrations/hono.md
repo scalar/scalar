@@ -43,6 +43,35 @@ export default app
 
 The Hono middleware takes our universal configuration object, [read more about configuration](../configuration.md) in the core package README.
 
+### Serve the reference and document together
+
+With the middleware above you serve the OpenAPI document on one route and point the reference at it on another. If you generate your document with [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi), `Scalar.serve` does both from a single mount, so you do not have to add a separate document route and keep its `url` in sync:
+
+```typescript
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { Scalar } from '@scalar/hono-api-reference'
+
+const app = new OpenAPIHono()
+
+// ... register your routes ...
+
+// Renders the reference at /scalar and serves the document at /scalar/openapi.json
+app.route(
+  '/scalar',
+  Scalar.serve({
+    document: () =>
+      app.getOpenAPI31Document({
+        openapi: '3.1.0',
+        info: { title: 'Example', version: 'v1' },
+      }),
+  }),
+)
+
+export default app
+```
+
+`document` can be the OpenAPI object itself or a function that returns it. The function receives the Hono `Context`, so you can read `c.env` or `c.req` and build the document per request. Pass any other [configuration option](../configuration.md) (such as `theme` or `pageTitle`) alongside `document`, and change where the JSON is served with `documentPath` (defaults to `/openapi.json`).
+
 ### Themes
 
 The middleware ships with a custom Hono theme that is applied by default, so there is nothing to opt into and no `hono` theme token to set. To use a different look, set `theme` to one of [the predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts) — `alternate`, `default`, `moon`, `purple`, `solarized`, `bluePlanet`, `deepSpace`, `saturn`, `kepler`, `mars`, or `laserwave` — or set it to `none` to drop the default Hono theme and start from a blank slate. All themes come with a light and dark color scheme.
