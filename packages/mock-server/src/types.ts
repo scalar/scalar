@@ -53,19 +53,18 @@ type BaseMockServerOptions = {
   validateRequest?: boolean
 
   /**
-   * Suppress the informational output the server prints while starting up, which is currently the
-   * authentication instructions for the security schemes of the document.
+   * Control the informational output the server prints while starting up, which is currently the
+   * authentication instructions for the security schemes of the document. Defaults to logging to
+   * the console.
    *
-   * Diagnostics are not affected: warnings and errors about security schemes the mock server cannot handle,
-   * request validator compilation errors, and `x-seed` errors are printed either way.
+   * Pass `false` to silence it — handy when the mock server runs inside a test harness or another
+   * program, where the instructions are noise — or a `(line) => void` sink to route the lines
+   * somewhere other than the console.
    *
-   * @default false
-   *
-   * The instructions are helpful in a terminal, but they are noise when the mock server runs inside
-   * a test harness or another program. Set this to `true` to keep them out of the output without
-   * having to replace the global console.
+   * Diagnostics are not affected: warnings and errors about security schemes the mock server cannot
+   * handle, request validator compilation errors, and `x-seed` errors are printed either way.
    */
-  quiet?: boolean
+  logger?: boolean | MockServerLogger
 }
 
 export type MockServerOptions = RequireAtLeastOne<BaseMockServerOptions, 'specification' | 'document'>

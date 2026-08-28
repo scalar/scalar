@@ -14,6 +14,7 @@ import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
 import { processOpenApiDocument } from '@/utils/process-openapi-document'
 import { requestMatchesPinnedQuery } from '@/utils/request-matches-pinned-query'
+import { resolveLogger } from '@/utils/resolve-logger'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
 import { splitPathKey } from '@/utils/split-path-key'
 import { validateRequest } from '@/utils/validate-request'
@@ -140,11 +141,11 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   /** Authentication methods defined in the OpenAPI document */
   setUpAuthenticationRoutes(app, schema)
 
-  // Only the instructions honor `quiet`; the util still prints warnings and errors about security
-  // schemes the mock server cannot handle, which a quiet startup should still surface.
+  // Only the instructions honor `logger` (on by default); the util still prints warnings and errors
+  // about security schemes the mock server cannot handle, which a silenced startup should surface.
   logAuthenticationInstructions(
     schema?.components?.securitySchemes || ({} as Record<string, OpenAPIV3_1.SecuritySchemeObject>),
-    configuration?.quiet ? () => undefined : undefined,
+    resolveLogger(configuration.logger, true),
   )
 
   /** Paths specified in the OpenAPI document */
