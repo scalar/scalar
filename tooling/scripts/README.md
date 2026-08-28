@@ -95,6 +95,32 @@ The command will:
 - Exit with code 0 when all ports are ready
 - Exit with code 1 if any port doesn't respond within 30 seconds
 
+### `bootstrap-package [packages...]`
+
+Onboard a brand-new public package to npm so the OIDC release can publish it.
+
+The release uses npm trusted publishing (OIDC) with no `NPM_TOKEN`. A brand-new package name cannot use OIDC on its first publish, because the trusted publisher cannot be configured until the package already exists on npm. This command performs that one-time bootstrap for each new package:
+
+- Publishes it once with `pnpm publish --access public --no-git-checks` and provenance disabled (`npm_config_provenance=false`).
+- Configures its GitHub trusted publisher with `npm trust`, so the OIDC release can publish every subsequent version.
+
+It is idempotent: packages already on npm are skipped, so it is safe to re-run. Requires the maintainer to be `npm login`'d, and both publishing and `npm trust` require 2FA (use the npmjs.com "Skip 2FA for 5 minutes" toggle to avoid repeated prompts).
+
+**Usage:**
+```bash
+# Bootstrap one or more named packages
+pnpm --filter @scalar-internal/build-scripts start bootstrap-package @scalar/your-new-package
+
+# Or via the shorthand
+pnpm script bootstrap-package @scalar/your-new-package
+
+# Auto-detect and bootstrap every public package not yet on npm
+pnpm script bootstrap-package
+
+# Preview without publishing or configuring anything
+pnpm script bootstrap-package --dry-run
+```
+
 ### `update-snapshots`
 
 Update Playwright test snapshot files.

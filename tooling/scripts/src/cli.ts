@@ -1,5 +1,6 @@
 import { Command } from 'commander'
 
+import { bootstrapPackage } from '@/commands/bootstrap-package'
 import { cat } from '@/commands/cat'
 import { generateBlog } from '@/commands/generate-blog'
 import { generateMonthlyContributors } from '@/commands/generate-monthly-contributors'
@@ -20,6 +21,7 @@ program
   .version(version)
 
 program.addCommand(packages)
+program.addCommand(bootstrapPackage)
 program.addCommand(wait)
 program.addCommand(updateTestSnapshots)
 program.addCommand(cat)

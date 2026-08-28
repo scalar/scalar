@@ -347,6 +347,18 @@ If a package version should bump, add a changeset:
 pnpm changeset
 ```
 
+### Publishing a brand-new public package
+
+The release publishes every public package with `pnpm -r publish` using npm trusted publishing (OIDC), so there is no `NPM_TOKEN`. Trusted publishing has a chicken-and-egg problem: a brand-new package name cannot use OIDC on its very first publish, because you cannot configure a trusted publisher until the package already exists on npm. If a new package reaches a release un-bootstrapped, `pnpm -r publish` aborts on it with `ENEEDAUTH` and takes the whole release down.
+
+When you add a new public package, run this once (as a maintainer who is `npm login`'d) so the OIDC release can publish it from then on:
+
+```bash
+pnpm script bootstrap-package @scalar/your-new-package
+```
+
+The command publishes the package a single time with provenance disabled and configures its GitHub trusted publisher. It is idempotent — packages already on npm are skipped — so you can also run it with no arguments to bootstrap every public package that is not yet on npm. Pass `--dry-run` to preview without publishing.
+
 ### After-change checklist
 
 After making **any** code changes, run lint, format, and type-check scoped to only the files and packages you touched. Do not run whole-repo checks.
