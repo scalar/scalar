@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.17.4
+
+### Patch Changes
+
+- [#10026](https://github.com/scalar/scalar/pull/10026): Fix autofilled input text rendering hollow and near-illegible in dark mode. The reset clipped WebKit's autofill background to the glyphs without re-asserting `-webkit-text-fill-color`, so the glyph interiors showed that clipped background instead of the theme colour.
+
 ## 0.17.3
 
 ### Patch Changes
