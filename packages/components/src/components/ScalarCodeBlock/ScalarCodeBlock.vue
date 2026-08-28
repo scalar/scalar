@@ -166,9 +166,17 @@ const { cx } = useBindCx()
 @reference '../../style.css';
 @import '@scalar/code-highlight/css/code.css';
 
-/** Disable font ligatures so code renders with literal characters */
+/**
+ * Let the code font form its ligatures.
+ *
+ * `--scalar-font-code` leads with JetBrains Mono, which turns `=>`, `!==` and
+ * `<=` into single glyphs. That is what the font is for, and it is what code
+ * blocks rendered before this rule existed. `normal` is the initial value, so
+ * this is really a note that the plain rendering is deliberate rather than an
+ * oversight.
+ */
 .scalar-code-block pre {
-  font-variant-ligatures: none;
+  font-variant-ligatures: normal;
 }
 
 /** Make the copy button label backdrop match the background */

@@ -95,7 +95,7 @@
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-mini);
   line-height: var(--shl-line-height-3);
-  font-variant-ligatures: none;
+  font-variant-ligatures: normal;
   tab-size: 4;
   border-radius: var(--scalar-radius-lg);
   overflow: auto;

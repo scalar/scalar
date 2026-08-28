@@ -144,9 +144,9 @@ export const SingleLine: Story = {
 }
 
 /**
- * Code with character sequences that ligature fonts (like JetBrains Mono) would
- * normally combine into a single glyph. Ligatures are disabled so each character
- * renders literally.
+ * Code with character sequences that ligature fonts combine into a single
+ * glyph. `--scalar-font-code` leads with JetBrains Mono, so `=>`, `!==`, `>=`
+ * and `<=` should render as one glyph each rather than as separate characters.
  */
 export const Ligatures: Story = {
   args: {
