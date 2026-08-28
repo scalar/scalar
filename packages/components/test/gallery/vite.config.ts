@@ -8,18 +8,14 @@ import svgLoader from 'vite-svg-loader'
 const packageRoot = resolve(import.meta.dirname, '../..')
 
 /**
- * Dev server for the component gallery that hosts Playwright's `mount()` fixture.
+ * Vite config for the component gallery that hosts Playwright's `mount()` fixture.
  *
- * Vite serves any HTML file under its root, so the gallery needs no build of its own: Playwright's
- * `baseURL` points straight at `/test/gallery/index.html` and Vite compiles it on demand. The root
- * is the package rather than this folder so that path resolves, and so Tailwind scans the same
- * sources it would in the library build.
- *
- * This is separate from the package's `vite.config.ts` because that one is a library build, and the
- * `vue` alias below would follow it into the published output.
+ * The plugins mirror the package's own `vite.config.ts` so a story renders the same here as it does
+ * in the library build, and the port sits next to Storybook's 5100 rather than replacing it —
+ * Storybook keeps its workbench role.
  */
 export default defineConfig({
-  root: packageRoot,
+  root: import.meta.dirname,
   resolve: {
     alias: {
       '@': resolve(packageRoot, './src'),
@@ -53,24 +49,17 @@ export default defineConfig({
       },
     }) as PluginOption,
   ],
-  optimizeDeps: {
-    /**
-     * Crawl the gallery and every story up front.
-     *
-     * Vite otherwise discovers dependencies as modules are imported, and re-optimizing mid-run
-     * triggers a full page reload that destroys the execution context `mount()` is evaluating in.
-     * Listing the stories is what makes that discovery happen once, at startup.
-     *
-     * The entries also have to be explicit because the default scan globs every HTML file under the
-     * root, which picks up `storybook-static/` and fails to parse it.
-     */
-    entries: ['test/gallery/index.html', 'src/**/*.stories.ts'],
+  build: {
+    outDir: resolve(packageRoot, './gallery-static'),
+    emptyOutDir: true,
   },
   server: {
-    // Sits next to Storybook's 5100 rather than replacing it — Storybook keeps its workbench role
     port: 5101,
     strictPort: true,
-    // The dockerized browser reaches the host through this name
+  },
+  preview: {
+    port: 5101,
+    strictPort: true,
     allowedHosts: ['host.docker.internal', '127.0.0.1', 'localhost'],
   },
 })
