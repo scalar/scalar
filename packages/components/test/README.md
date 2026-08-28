@@ -1,25 +1,35 @@
 # Scalar components — Playwright visual tests
 
-Playwright snapshot tests run against **Storybook**: each `*.e2e.ts` file opens stories in the browser and compares screenshots to images under a `snapshots/` folder next to that file (`snapshotPathTemplate` in `playwright.config.ts`).
+Playwright snapshot tests render each component through a **gallery** page and compare screenshots to images under a `snapshots/` folder next to the test file (`snapshotPathTemplate` in `playwright.config.ts`).
 
 ## Overview
 
-1. **Storybook** — Locally, Playwright starts **`pnpm preview`**, which serves the **static build** from `storybook-static` (Vite preview, port **5100**). If `pnpm dev` is already running on that port, that server is reused (`reuseExistingServer`).
-2. **Docker browser** — Outside CI, tests connect to Playwright inside **`scalarapi/playwright-runner`** (version pinned in `@scalar/helpers` — see [`playwright/docker`](../../helpers/src/playwright/README.md)). CI runs inside the same image, so only the Storybook `webServer` runs there.
+1. **Gallery** — `./gallery` is a small Vite app that renders one story at a time into `#root`. Playwright starts **`pnpm preview:gallery`**, which serves the build from `pnpm build:gallery` on port **5101**. If `pnpm dev:gallery` is already running on that port, that server is reused (`reuseExistingServer`).
+2. **Docker browser** — Outside CI, tests connect to Playwright inside **`scalarapi/playwright-runner`** (version pinned in `@scalar/helpers` — see [`playwright/docker`](../../helpers/src/playwright/README.md)). CI runs inside the same image, so only the gallery `webServer` runs there.
 3. **Regression detection** — `toHaveScreenshot` diffs against committed PNGs; CI fails when snapshots drift without an update.
 
-## Non-Linux systems
+> **Storybook is not involved.** It is still the workbench you browse with `pnpm dev`, and it still renders the same `*.stories.ts` files, but it is no longer a test dependency — the suite does not wait on a Storybook build.
 
-The runner uses **`--network=host`** so the container can reach Storybook on the host. Docker Desktop on macOS and Windows often does not support host networking; use a runtime that does (for example [OrbStack](https://orbstack.dev/)), or rely on CI for authoritative runs.
+## How a test finds its story
 
-If pulls look fine but the image is wrong or stale, pull explicitly — see the helpers README for the tag to use (it tracks the workspace `@playwright/test` version).
+Playwright's [`mount()`](https://playwright.dev/docs/api/class-fixtures#fixtures-mount) fixture navigates to the gallery and calls `window.mount({ story, props })`. The story id is `"<Component>/<Story Name>"`, which the helpers infer from your test titles:
+
+```ts
+test.describe('ScalarCard', () => {   //  component  ─┐
+  test('With Actions', takeSnapshot)  //  story      ─┴─→  "ScalarCard/With Actions"
+})
+```
+
+The gallery resolves that against the CSF files the workbench already uses: `ScalarCard.stories.ts`, export `WithActions`. It reads `render`, `args`, `component` and `parameters.layout` from them, so **stories stay the single source of truth** — there is no second set to keep in step.
+
+A story that does not exist fails with a real error from `window.mount()` rather than a blank screenshot.
 
 ## Prerequisites
 
-Build Storybook static assets before the first run (or whenever stories change):
+Build the gallery before the first run (or whenever stories change):
 
 ```bash
-pnpm build:storybook
+pnpm build:gallery
 ```
 
 Using the **built** output matches CI and avoids dev-only flakiness in snapshots.
@@ -29,11 +39,14 @@ Using the **built** output matches CI and avoids dev-only flakiness in snapshots
 From `packages/components`:
 
 ```bash
-# Run all Playwright tests (starts Docker runner + Storybook preview unless already up)
+# Run all Playwright tests (starts Docker runner + gallery unless already up)
 pnpm test:e2e
 
 # Limit to one file (pass-through args after the script name)
-pnpm test:e2e -- src/components/card/ScalarCard.e2e.ts
+pnpm test:e2e -- src/components/ScalarCard/ScalarCard.e2e.ts
+
+# Limit to one story by title
+pnpm test:e2e -g "With Actions"
 
 # Update snapshots
 pnpm test:e2e --update-snapshots
@@ -45,6 +58,14 @@ Debug with the Playwright UI:
 pnpm test:e2e --ui
 ```
 
+To poke at the gallery by hand, `pnpm dev:gallery` and call `window.mount({ story: 'ScalarCard/Base' })` from the console.
+
+## Non-Linux systems
+
+The runner uses **`--network=host`** so the container can reach the gallery on the host. Docker Desktop on macOS and Windows often does not support host networking; use a runtime that does (for example [OrbStack](https://orbstack.dev/)), or rely on CI for authoritative runs.
+
+If pulls look fine but the image is wrong or stale, pull explicitly — see the helpers README for the tag to use (it tracks the workspace `@playwright/test` version).
+
 ## CI
 
 The components snapshot job runs **`pnpm test:e2e:ci`** inside `scalarapi/playwright-runner`. Mismatched snapshots **fail** the build until you run `pnpm test:e2e:update` and commit the updated images.
@@ -54,7 +75,7 @@ The components snapshot job runs **`pnpm test:e2e:ci`** inside `scalarapi/playwr
 When adding or changing components:
 
 1. Add `ComponentName.e2e.ts` beside the component (or extend an existing file).
-2. Run `pnpm test:e2e` (or `:update`) and review generated PNGs under `snapshots/`.
+2. Run `pnpm build:gallery`, then `pnpm test:e2e` (or `:update`) and review generated PNGs under `snapshots/`.
 3. Commit snapshot changes with the code.
 
 ### Basic snapshot test
@@ -84,23 +105,26 @@ test.describe('ScalarDropdown', () =>
 )
 ```
 
+Prefer scoping queries to the component with the `mountedStory` fixture when a page-wide query would be ambiguous.
+
 ### Fixtures and `test.use`
 
 The helpers infer **component** from the nearest `test.describe` title and **story** from the `test` title when you do not set them explicitly. Override or tune behavior with [`test.use`](https://playwright.dev/docs/test-use-options#configuration-scopes).
 
 **Fixtures**
 
-- **`openStory`** — Navigates to the configured Storybook story (runs as a fixture dependency before your test body).
+- **`mountedStory`** — Locator for the mounted story's root (runs automatically before your test body).
 - **`snapshot(suffix?)`** — Captures a screenshot with a normalized name (optional suffix for multiple shots per story).
 
 **Common options** (`test/helpers.ts`)
 
-- **`component`**, **`story`** — Storybook ids; inferred from titles when omitted.
-- **`args`** — Story args encoded into the Storybook URL.
+- **`component`**, **`story`** — Story id parts; inferred from titles when omitted.
+- **`args`** — Passed to `mount()` as props and merged over the story's own args. Unlike the old Storybook URL args these are structured-cloned, so numbers, booleans and objects survive as themselves.
 - **`scale`** — Device scale factor for screenshots (default **2**).
 - **`background`** — Whether to render with a background (default **false**).
-- **`crop`** — Crop to `#storybook-root > *` instead of full page (default **false**).
+- **`crop`** — `'body'` (default), `'component'` to crop to the story root, or `'viewport'`.
 - **`device`** — One of the emulated device keys defined in the helpers (`Chrome`, `Firefox`, etc.).
 - **`colorModes`** — `['light']`, `['dark']`, or `['light', 'dark']` for theme-specific captures.
+- **`theme`** — A theme variant from `.storybook/themes.ts`, handed to the gallery before navigation.
 
-Implementation details live in `test/helpers.ts`.
+Implementation details live in `test/helpers.ts` and `test/gallery/main.ts`.
