@@ -36,7 +36,7 @@ docker run \
 
 ### 2. Document Mounting
 
-Mount OpenAPI documents directly into the container for automatic discovery:
+Mount OpenAPI and AsyncAPI documents directly into the container for automatic discovery:
 
 ```bash
 docker run \
@@ -46,8 +46,8 @@ docker run \
 ```
 
 The container automatically:
-- Scans for OpenAPI documents (`.json`, `.yaml`, `.yml` files)
-- Serves documents at `/openapi/{filename}`
+- Scans for OpenAPI and AsyncAPI documents (`.json`, `.yaml`, `.yml` files)
+- Serves documents at `/openapi/{filename}` (the path is historical and used for both document types)
 - Generates titles from directory structure
 
 **Directory structure example:**
@@ -79,7 +79,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      # Mount your OpenAPI documents directory
+      # Mount your OpenAPI and AsyncAPI documents directory
       - ./docs:/docs
     environment:
       # Optional: Add global configuration like theme

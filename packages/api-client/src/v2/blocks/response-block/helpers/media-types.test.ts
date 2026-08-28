@@ -32,6 +32,24 @@ describe('mediaTypes', () => {
       },
     },
     {
+      type: 'application/x-ndjson',
+      config: {
+        extension: '.ndjson',
+        raw: true,
+        language: 'json',
+        preview: 'ndjson',
+      },
+    },
+    {
+      type: 'application/ndjson',
+      config: {
+        extension: '.ndjson',
+        raw: true,
+        language: 'json',
+        preview: 'ndjson',
+      },
+    },
+    {
       type: 'image/jpeg',
       config: {
         extension: '.jpg',
@@ -55,6 +73,8 @@ describe('mediaTypes', () => {
 
   it('isTextMediaType', () => {
     expect(isTextMediaType('application/json')).toBe(true)
+    expect(isTextMediaType('application/x-ndjson')).toBe(true)
+    expect(isTextMediaType('application/ndjson')).toBe(true)
     expect(isTextMediaType('application/ld+json')).toBe(true)
     expect(isTextMediaType('application/fhir+json')).toBe(true)
     expect(isTextMediaType('text/plain')).toBe(true)

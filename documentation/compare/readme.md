@@ -38,11 +38,11 @@ Both products render an OpenAPI document into a documentation site with an inter
 
 **Scalar's docs can live inside your application.** Thirty-five framework integrations — Express, Fastify, Hono, NestJS, Next.js, Nuxt, Laravel, Django, Rails, Go, Rust, ASP.NET Core, Spring Boot, and more. You mount the reference inside the app you already run, at whatever route you choose. ReadMe has no framework middleware; your hub lives on a ReadMe-hosted domain (custom domains included, on every plan).
 
-**The site you are reading is the product.** scalar.com — this page, the pricing page, the guides, the API reference, and the blog — is built and hosted entirely on [Scalar Docs](/products/docs) from a single `scalar.config.json`. We do not maintain a separate marketing stack.
+**The site you are reading is the product.** scalar.com — this page, the pricing page, the guides, the API reference, and the blog — is built and hosted entirely on [Scalar Docs](../guides/docs/index.md) from a single `scalar.config.json`. We do not maintain a separate marketing stack.
 
 ## SDKs
 
-Scalar generates SDKs natively in TypeScript, Python, C#, Java, PHP, and Go from the same OpenAPI document that renders your reference, in the same run, so your docs and your client libraries cannot describe different APIs. Each language target is a published [$100/month add-on](/pricing).
+Scalar generates SDKs natively in TypeScript, Python, C#, Java, PHP, and Go from the same OpenAPI document that renders your reference, in the same run, so your docs and your client libraries cannot describe different APIs. Each language target is a published [$100/month add-on](../guides/pricing.md).
 
 ReadMe's SDK story is narrower. Their open-source [`api` package](https://api.readme.dev/docs/getting-started) generates a TypeScript or JavaScript client from an OpenAPI definition — but it is a CLI your API consumers run themselves, in one language family, not a managed pipeline that generates, versions, and publishes packages to registries on your behalf. Teams on ReadMe who want multi-language SDKs typically add a third-party generator such as [APIMatic](https://www.apimatic.io/integrations/readme), which brings back the separate-vendor problem: your documentation's code samples then depend on a company you did not choose.
 
@@ -52,11 +52,11 @@ Scalar ships a standalone, open-source API client — desktop and web, offline-f
 
 ## MCP servers and AI
 
-Both products ship this. ReadMe generates [an MCP server from your documentation](https://docs.readme.com/main/docs/readmes-mcp-server) with a toggle, on every plan, so AI coding assistants can list endpoints, inspect schemas, and call your API. Their Ask AI chat is a [$150/month add-on](https://readme.com/pricing). Scalar hosts MCP servers on the [Pro plan](/pricing), alongside `llms.txt` generation and docs chat, metered through Agent Scalar credits. If MCP hosting is on your checklist, neither product decides it for you.
+Both products ship this. ReadMe generates [an MCP server from your documentation](https://docs.readme.com/main/docs/readmes-mcp-server) with a toggle, on every plan, so AI coding assistants can list endpoints, inspect schemas, and call your API. Their Ask AI chat is a [$150/month add-on](https://readme.com/pricing). Scalar hosts MCP servers on the [Pro plan](../guides/pricing.md), alongside `llms.txt` generation and docs chat, metered through Agent Scalar credits. If MCP hosting is on your checklist, neither product decides it for you.
 
 ## Pricing
 
-Scalar: Free at $0, [Pro at $72/month](/pricing), SDK language targets at $100/month each, Enterprise custom.
+Scalar: Free at $0, [Pro at $72/month](../guides/pricing.md), SDK language targets at $100/month each, Enterprise custom.
 
 ReadMe: [Starter at $0, Pro at $250/month billed annually, Enterprise from $3,000/month](https://readme.com/pricing), with Ask AI as a $150/month add-on. Team collaboration, private docs, custom MDX, and CSS/HTML all start at Pro, so the realistic entry point for a team is $250/month. You may find older ReadMe pricing quoted around the web at $99/month; that reflects a previous pricing model, so check their current page.
 

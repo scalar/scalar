@@ -1,0 +1,71 @@
+name: Update Monthly Contributors in README
+
+on:
+  schedule:
+    # Run on the first day of every month at 06:00 UTC (for the previous month)
+    - cron: '0 6 1 * *'
+  # Allow running it by hand from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update-readme:
+    name: Update the monthly contributors image
+    if: ${{ github.repository_owner == 'scalar' }}
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    # Holds the release bot app credentials so the README PR is opened by the
+    # app rather than by GITHUB_TOKEN. Pull requests created with GITHUB_TOKEN
+    # do not trigger workflow events, so their CI checks stay pending forever.
+    environment: release-bot
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate the monthly contributors image
+        run: pnpm --filter @scalar-internal/build-scripts start generate-monthly-contributors
+        env:
+          # A token lifts the GitHub API rate limit while listing commits.
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          branch: chore/update-monthly-contributors
+          commit-message: 'docs: update monthly contributors'
+          title: 'docs: update monthly contributors'
+          body: Auto-generated image of last month's top contributors.
+          draft: true
+          add-paths: |
+            README.md
+            .github/assets/contributors/*.svg

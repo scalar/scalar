@@ -22,6 +22,7 @@ export const pt = {
     path: 'Caminho',
     propertyNames: 'nomes de propriedades',
     pattern: 'Padrão',
+    copyPattern: 'Copiar padrão',
     readOnly: 'somente leitura',
     required: 'obrigatório',
     hideValues: 'Ocultar valores',

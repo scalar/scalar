@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { diff } from '@/diff/diff'
+import { type Difference, diff } from '@/diff/diff'
 import { merge } from '@/diff/merge'
 
 const deepClone = <T extends object>(obj: T) => JSON.parse(JSON.stringify(obj)) as T
@@ -1105,6 +1105,213 @@ describe('mergeDiff', () => {
         },
       ],
       conflicts: [],
+    })
+  })
+
+  test('deleting different paths on both documents keeps every delete when the shared delete sits at different indices', () => {
+    const base = {
+      openapi: '3.0.0',
+      info: {
+        title: 'Sample API',
+        version: '1.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+          },
+        },
+        '/pets': {
+          get: {
+            summary: 'Get pets',
+          },
+        },
+        '/orders': {
+          get: {
+            summary: 'Get orders',
+          },
+        },
+      },
+    }
+
+    const doc1 = deepClone<DeepPartial<typeof base>>(base)
+    delete doc1.paths?.['/users']
+    delete doc1.paths?.['/pets']
+
+    const doc2 = deepClone<DeepPartial<typeof base>>(base)
+    delete doc2.paths?.['/pets']
+    delete doc2.paths?.['/orders']
+
+    // '/pets' is deleted by both documents, but it is the second entry of the first diff
+    // and the first entry of the second diff
+    expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
+      diffs: [
+        {
+          type: 'delete',
+          changes: base.paths['/users'],
+          path: ['paths', '/users'],
+        },
+        {
+          type: 'delete',
+          changes: base.paths['/pets'],
+          path: ['paths', '/pets'],
+        },
+        {
+          type: 'delete',
+          changes: base.paths['/orders'],
+          path: ['paths', '/orders'],
+        },
+      ],
+      conflicts: [],
+    })
+  })
+
+  test('a shallower delete in the second diff drops only the matching deeper entry of the first', () => {
+    const diff1: Difference<unknown>[] = [
+      { path: ['x'], changes: 'x', type: 'delete' },
+      { path: ['paths', '/users', 'get'], changes: 'get', type: 'delete' },
+    ]
+    const diff2: Difference<unknown>[] = [
+      { path: ['paths', '/users'], changes: 'users', type: 'delete' },
+      { path: ['y'], changes: 'y', type: 'delete' },
+    ]
+
+    // The deeper delete is dropped because deleting '/users' already removes it,
+    // and the unrelated deletes on both sides survive untouched
+    expect(merge(diff1, diff2)).toEqual({
+      diffs: [
+        { path: ['x'], changes: 'x', type: 'delete' },
+        { path: ['paths', '/users'], changes: 'users', type: 'delete' },
+        { path: ['y'], changes: 'y', type: 'delete' },
+      ],
+      conflicts: [],
+    })
+  })
+
+  test('a deeper delete in the second diff drops only its own entry', () => {
+    const diff1: Difference<unknown>[] = [
+      { path: ['x'], changes: 'x', type: 'delete' },
+      { path: ['paths', '/users'], changes: 'users', type: 'delete' },
+    ]
+    const diff2: Difference<unknown>[] = [
+      { path: ['paths', '/users', 'get'], changes: 'get', type: 'delete' },
+      { path: ['y'], changes: 'y', type: 'delete' },
+    ]
+
+    expect(merge(diff1, diff2)).toEqual({
+      diffs: [
+        { path: ['x'], changes: 'x', type: 'delete' },
+        { path: ['paths', '/users'], changes: 'users', type: 'delete' },
+        { path: ['y'], changes: 'y', type: 'delete' },
+      ],
+      conflicts: [],
+    })
+  })
+
+  test('an identical delete at different indices is kept once and drops nothing else', () => {
+    const diff1: Difference<unknown>[] = [
+      { path: ['x'], changes: 'x', type: 'delete' },
+      { path: ['a'], changes: 'a', type: 'delete' },
+    ]
+    const diff2: Difference<unknown>[] = [
+      { path: ['a'], changes: 'a', type: 'delete' },
+      { path: ['y'], changes: 'y', type: 'delete' },
+    ]
+
+    expect(merge(diff1, diff2)).toEqual({
+      diffs: [
+        { path: ['x'], changes: 'x', type: 'delete' },
+        { path: ['a'], changes: 'a', type: 'delete' },
+        { path: ['y'], changes: 'y', type: 'delete' },
+      ],
+      conflicts: [],
+    })
+  })
+
+  test('an array and a plain object holding the same values on the same path produce a conflict', () => {
+    // The two sides describe the same values in different containers, so a key-by-key comparison
+    // finds nothing to disagree about even though one document ends up with a list and the other
+    // with a map. Only a conflict lets the user pick the container they meant.
+    const diff1: Difference<unknown>[] = [{ path: ['servers'], changes: { 0: 'https://example.com' }, type: 'update' }]
+    const diff2: Difference<unknown>[] = [{ path: ['servers'], changes: ['https://example.com'], type: 'update' }]
+
+    expect(merge(diff1, diff2)).toEqual({
+      diffs: [],
+      conflicts: [
+        [
+          [{ path: ['servers'], changes: { 0: 'https://example.com' }, type: 'update' }],
+          [{ path: ['servers'], changes: ['https://example.com'], type: 'update' }],
+        ],
+      ],
+    })
+  })
+
+  test('two arrays on the same path still merge without a conflict', () => {
+    const diff1: Difference<unknown>[] = [{ path: ['servers'], changes: ['https://example.com'], type: 'update' }]
+    const diff2: Difference<unknown>[] = [
+      { path: ['servers'], changes: ['https://example.com', 'https://staging.example.com'], type: 'update' },
+    ]
+
+    expect(merge(diff1, diff2)).toEqual({
+      diffs: [
+        {
+          path: ['servers'],
+          changes: ['https://example.com', 'https://staging.example.com'],
+          type: 'update',
+        },
+      ],
+      conflicts: [],
+    })
+  })
+
+  // `merge` folds two compatible changes together with `mergeObjects`, which writes in place, and
+  // the changes a diff carries point straight into the documents it compared. Merging therefore
+  // writes into the document behind the second diff list. The behavior is pinned here so a future
+  // switch to cloning is a deliberate change rather than a silent one.
+  describe('mutates the second diff list while merging', () => {
+    test('merges the changes of the first list into the entries of the second one', () => {
+      const diff1: Difference<unknown>[] = [{ path: ['info'], changes: { title: 'Pets' }, type: 'add' }]
+      const changes = { version: '1.0.0' }
+      const diff2: Difference<unknown>[] = [{ path: ['info'], changes, type: 'add' }]
+
+      merge(diff1, diff2)
+
+      expect(changes).toEqual({ version: '1.0.0', title: 'Pets' })
+    })
+
+    test('writes into the document the second diff list was built from', () => {
+      const remote = { info: { version: '1.0.0' } }
+
+      merge(diff({}, { info: { title: 'Pets' } }), diff({}, remote))
+
+      expect(remote).toEqual({ info: { version: '1.0.0', title: 'Pets' } })
+    })
+  })
+
+  // TODO: a delete that is subsumed by a delete on the other side is discarded before we know
+  // whether the covering delete ends up in `conflicts`. When it does, the subsumed delete
+  // survives in neither `diffs` nor `conflicts`, so resolving the conflict toward the side that
+  // owns it brings the deleted value back. The gap is symmetric: the mirrored input loses the
+  // entry through the first list instead. Pinned here so a future fix is a deliberate change.
+  //
+  // The flaw predates the index fix above, which only changed how consistently it shows up.
+  // Before the fix this exact ordering happened to keep the subsumed delete, because skipping
+  // the wrong index left it in place, while the reversed ordering already lost it.
+  test('a delete subsumed by a delete that also conflicts is currently dropped', () => {
+    const diff1: Difference<unknown>[] = [{ path: ['a'], changes: { b: 1, a: 2 }, type: 'delete' }]
+    const diff2: Difference<unknown>[] = [
+      { path: ['a', 'b'], changes: 14, type: 'update' },
+      { path: ['a', 'a'], changes: 2, type: 'delete' },
+    ]
+
+    expect(merge(diff1, diff2)).toEqual({
+      diffs: [],
+      conflicts: [
+        [
+          [{ path: ['a'], changes: { b: 1, a: 2 }, type: 'delete' }],
+          [{ path: ['a', 'b'], changes: 14, type: 'update' }],
+        ],
+      ],
     })
   })
 })

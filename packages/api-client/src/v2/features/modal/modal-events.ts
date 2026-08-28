@@ -8,7 +8,9 @@ import { type Ref, ref } from 'vue'
 import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
-const EMPTY_REQUEST_BODY_COMPOSITION_SELECTION = {} as Record<string, number>
+// Frozen so this shared fallback cannot be mutated in place, which would leak a stale selection into
+// every future open that falls back to empty. Callers only ever reassign the ref, never mutate it.
+const EMPTY_REQUEST_BODY_COMPOSITION_SELECTION = Object.freeze({}) as Record<string, number>
 
 export function initializeModalEvents({
   eventBus,
@@ -43,19 +45,22 @@ export function initializeModalEvents({
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
   eventBus.on('ui:close:client-modal', () => modalState.hide())
   eventBus.on('ui:open:client-modal', (payload) => {
+    // Every open re-establishes the selection (falling back to empty), so the modal no longer needs
+    // to reset it on close.
     const nextRequestBodyCompositionSelection = (
       payload && 'requestBodyCompositionSelection' in payload && payload.requestBodyCompositionSelection
         ? payload.requestBodyCompositionSelection
         : EMPTY_REQUEST_BODY_COMPOSITION_SELECTION
     ) as Record<string, number>
 
-    requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
-
     // Just open the modal
     if (!payload) {
+      requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
       modalState.show()
       return
     }
+
+    const previousSelectedId = sidebarState.state.selectedItem.value
 
     // We route to the exact ID
     if ('id' in payload && payload.id) {
@@ -89,6 +94,16 @@ export function initializeModalEvents({
           example: payload.exampleName,
         })?.id ?? '',
       )
+    }
+
+    // Apply the selection after routing so the request body compares it with the selection used
+    // for this operation, rather than briefly resetting the operation that was previously open.
+    // Reopening the entry already on screen routes nowhere, so a new selection would read as a
+    // manual branch switch and discard the edited body.
+    const isReopeningVisibleEntry = modalState.open && sidebarState.state.selectedItem.value === previousSelectedId
+
+    if (!isReopeningVisibleEntry) {
+      requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
     }
 
     modalState.show()

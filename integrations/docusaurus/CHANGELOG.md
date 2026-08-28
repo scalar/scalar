@@ -1,5 +1,15 @@
 # @scalar/docusaurus
 
+## 0.8.37
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.8.36
+
+## 0.8.35
+
 ## 0.8.34
 
 ## 0.8.33

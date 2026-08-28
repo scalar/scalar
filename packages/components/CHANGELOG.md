@@ -1,5 +1,26 @@
 # @scalar/components
 
+## 0.28.1
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.28.0
+
+### Minor Changes
+
+- [#9922](https://github.com/scalar/scalar/pull/9922): Give sidebar groups whose label is a link their own expand and collapse button.
+
+  Group labels render as anchors so the navigation stays crawlable, which left the caret as a plain `<div>` inside the link. That gave each row a single focusable element: pressing Enter followed the link (expanding the group as a side effect) and nothing collapsed it again, `aria-expanded` sat on the link rather than on a control that can toggle, and the caret's screen reader text ran into the link's accessible name ("Authentication Close Group").
+  - `@scalar/components`: new `ScalarSidebarGroupToggleButton` and `ScalarSidebarGroupToggleSpacer`, which `ScalarSidebarGroup` now uses for its discrete toggle in place of an inline button. `ScalarSidebarGroup` no longer sets `aria-expanded` on the group label when `discrete` is set, because the toggle button is what owns the expanded state.
+  - `@scalar/sidebar`: a group renders a discrete toggle whenever `getHref` returns a URL for it, so tags, models and documents in the reference sidebar each get a toggle button of their own. The caret is now focusable and operable from the keyboard, `aria-expanded` moved from the label onto that button, and the button is named after the group it belongs to ("Open Group - Authentication") so a screen reader user can tell the toggles apart. Groups without an href are unchanged, so the client sidebar keeps its current behavior.
+
+### Patch Changes
+
+- [#9931](https://github.com/scalar/scalar/pull/9931): Keep the copy button off the end of one-line code blocks. On a single-line `ScalarCodeBlock` the copy button is centered over the only line there is, so the tail of a long snippet (an install command ending in a repository URL, for example) stayed underneath the button and its label even when scrolled all the way right. One-line blocks with a copy button now reserve trailing space on the line so it can scroll clear of the button.
+- [#9913](https://github.com/scalar/scalar/pull/9913): Add Julia (HTTP.jl) as a code example target. The new `julia/http` client generates HTTP.jl snippets, including headers, query parameters, cookies, basic auth, JSON bodies (as `Dict`s serialized with `JSON.json`), url-encoded bodies and `HTTP.Form` multipart uploads. Julia syntax highlighting and a Julia icon are included, so the client shows up in the code example picker like any other language.
+
 ## 0.27.11
 
 ### Patch Changes

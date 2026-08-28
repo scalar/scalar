@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/json-magic"
   },
-  "version": "0.12.20",
+  "version": "0.13.2",
   "engines": {
     "node": ">=22"
   },
@@ -61,6 +61,11 @@
       "types": "./dist/helpers/get-segments-from-path.d.ts",
       "default": "./dist/helpers/get-segments-from-path.js"
     },
+    "./helpers/get-value-by-path": {
+      "import": "./dist/helpers/get-value-by-path.js",
+      "types": "./dist/helpers/get-value-by-path.d.ts",
+      "default": "./dist/helpers/get-value-by-path.js"
+    },
     "./helpers/is-file-path": {
       "import": "./dist/helpers/is-file-path.js",
       "types": "./dist/helpers/is-file-path.d.ts",
@@ -71,10 +76,25 @@
       "types": "./dist/helpers/is-http-url.d.ts",
       "default": "./dist/helpers/is-http-url.js"
     },
+    "./helpers/is-json-object": {
+      "import": "./dist/helpers/is-json-object.js",
+      "types": "./dist/helpers/is-json-object.d.ts",
+      "default": "./dist/helpers/is-json-object.js"
+    },
+    "./helpers/is-yaml": {
+      "import": "./dist/helpers/is-yaml.js",
+      "types": "./dist/helpers/is-yaml.d.ts",
+      "default": "./dist/helpers/is-yaml.js"
+    },
     "./helpers/normalize": {
       "import": "./dist/helpers/normalize.js",
       "types": "./dist/helpers/normalize.d.ts",
       "default": "./dist/helpers/normalize.js"
+    },
+    "./helpers/set-value-at-path": {
+      "import": "./dist/helpers/set-value-at-path.js",
+      "types": "./dist/helpers/set-value-at-path.d.ts",
+      "default": "./dist/helpers/set-value-at-path.js"
     },
     "./helpers/unescape-json-pointer": {
       "import": "./dist/helpers/unescape-json-pointer.js",

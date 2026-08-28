@@ -1,5 +1,13 @@
 # @scalar/void-server
 
+## 2.5.7
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 2.5.6
+
 ## 2.5.5
 
 ## 2.5.4

@@ -22,6 +22,7 @@ export const fr = {
     path: 'Chemin',
     propertyNames: 'noms des propriétés',
     pattern: 'Motif',
+    copyPattern: 'Copier le motif',
     readOnly: 'lecture seule',
     required: 'obligatoire',
     hideValues: 'Masquer les valeurs',

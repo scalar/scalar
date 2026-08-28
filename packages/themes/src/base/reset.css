@@ -120,6 +120,7 @@
   /** Remove yellow/blue autofill indicator */
   input:-webkit-autofill {
     background-clip: text !important;
+    -webkit-text-fill-color: var(--scalar-color-1);
   }
 
   /** Add outline for focus visible */

@@ -112,7 +112,7 @@ pm.test("Response contains expected object", () => {
 
 ## Adding Scripts to OpenAPI Documents
 
-You can add post-response scripts directly to your OpenAPI description using the `x-post-response` extension. When the API Client imports the document, scripts are automatically attached to the corresponding operations.
+You can add post-response scripts directly to your OpenAPI document using the `x-post-response` extension. When the API Client imports the document, scripts are automatically attached to the corresponding operations.
 
 ```yaml
 openapi: 3.1.0

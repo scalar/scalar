@@ -40,9 +40,15 @@ import {
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import { AsyncApiTraversedEntry } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
+import { ContextBar } from '@/components/Content/ContextBar'
+import {
+  getInitialContextChain,
+  hasRenderableTagHierarchy,
+} from '@/components/Content/ContextBar/helpers'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
+import { provideDocumentOutline } from '@/features/document-outline'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import {
   firstLazyLoadComplete,
@@ -58,8 +64,14 @@ const {
   options,
   authStore,
   documentSlug,
+  contextChain = [],
 } = defineProps<{
   infoSectionId: string
+  /**
+   * Ancestor tags (root → section in view) for the sticky context bar. Empty
+   * unless the section currently in view is nested under a parent tag.
+   */
+  contextChain?: { id: string; title: string }[]
   /** Slug of the active document, used to scope plugin view ids for navigation and deep-linking */
   documentSlug: string
   /** The subset of the configuration object required for the content component */
@@ -99,6 +111,18 @@ const {
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
   generateClientOptions(mapHiddenClientsConfig(options.hiddenClients)),
+)
+
+/** Reserve the context-bar slot before scrolling reaches a nested tag. */
+const showContextBar = computed(() =>
+  hasRenderableTagHierarchy(items, options.layout),
+)
+
+/** Show useful context during the Introduction before scrolling selects a tag. */
+const contextBarChain = computed(() =>
+  contextChain.length >= 2
+    ? contextChain
+    : getInitialContextChain(items, options.layout),
 )
 
 /**
@@ -220,6 +244,10 @@ const showAuthSelector = computed(
 onMounted(() => {
   scheduleInitialLoadComplete()
 })
+
+// Content renders the info block above the tags, operations and models, so it
+// owns the relationship between them and anchors the outline at the document.
+provideDocumentOutline('document')
 </script>
 <template>
   <SectionFlare />
@@ -313,6 +341,16 @@ onMounted(() => {
         </ScalarErrorBoundary>
       </template>
     </InfoBlock>
+
+    <!--
+      Sticky breadcrumb showing where a nested tag sits in the hierarchy. Its
+      fixed slot is mounted before scrolling reaches the tags so changing the
+      active hierarchy does not shift the content below it.
+    -->
+    <ContextBar
+      v-if="showContextBar"
+      :chain="contextBarChain"
+      @navigate="(id) => eventBus.emit('scroll-to:nav-item', { id })" />
 
     <!-- Render traversed operations and webhooks -->
     <!-- Use recursive component for cleaner rendering -->

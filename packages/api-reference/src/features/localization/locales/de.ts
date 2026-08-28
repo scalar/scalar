@@ -22,6 +22,7 @@ export const de = {
     path: 'Pfad',
     propertyNames: 'Eigenschaftsnamen',
     pattern: 'Muster',
+    copyPattern: 'Muster kopieren',
     readOnly: 'nur lesbar',
     required: 'erforderlich',
     hideValues: 'Werte ausblenden',

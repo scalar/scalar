@@ -222,6 +222,39 @@ describe('RequestTableRow', () => {
     expect(wrapper.emitted('upsertRow')).toBeUndefined()
   })
 
+  it('does not emit when key input blurs with empty string but prop has a valid name', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-scenario-id', value: '200_success', isDisabled: false },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    await keyInput?.vm.$emit('blur', '')
+
+    // A blank blur from CodeInputLite initialisation must not blank the parameter name.
+    expect(wrapper.emitted('upsertRow')).toBeUndefined()
+  })
+
+  it('does not overwrite a valid local name when the data prop briefly becomes empty', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-scenario-id', value: '200_success', isDisabled: false },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    // Simulate the placeholder row being mapped onto this component instance.
+    await wrapper.setProps({ data: { name: '', value: '', isDisabled: true } })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    // The key input should still show the original name, not the empty placeholder.
+    expect(keyInput?.props('modelValue')).toBe('x-scenario-id')
+  })
+
   it('keeps the disabled state when an expanded row key is renamed on blur', async () => {
     const wrapper = mount(RequestTableRow, {
       props: {

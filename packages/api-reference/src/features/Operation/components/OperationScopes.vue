@@ -3,6 +3,7 @@ import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import {
+  getEffectiveScopes,
   getRequiredScopeGroups,
   type RequiredSecurity,
 } from '@/features/Operation/helpers/get-required-security'
@@ -28,7 +29,7 @@ const scopeGroups = computed(() => getRequiredScopeGroups(requiredSecurity))
  */
 const hasScopeFreeAlternative = computed(() =>
   requiredSecurity.requirements.some((group) =>
-    group.schemes.every((scheme) => scheme.scopes.length === 0),
+    group.schemes.every((scheme) => getEffectiveScopes(scheme).length === 0),
   ),
 )
 

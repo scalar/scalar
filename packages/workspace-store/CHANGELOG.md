@@ -1,5 +1,60 @@
 # @scalar/workspace-store
 
+## 0.58.1
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.58.0
+
+### Minor Changes
+
+- [#9406](https://github.com/scalar/scalar/pull/9406): feat: support OpenAPI 3.2 nested tags
+
+  The navigation tree now nests tags via the OpenAPI 3.2 `tag.parent` field, building an arbitrary-depth hierarchy. A parent tag with no operations of its own is treated as a section; a tag that has both operations and children renders as both. Native `parent` nesting takes precedence over `x-tagGroups`, which stays as the fallback for older documents. The `summary` field is used as the tag title (after `x-displayName`), and the new `parent`, `kind` and `summary` fields are recognized on the Tag Object (both in `@scalar/workspace-store` and `@scalar/schemas`). In the modern layout, operation-less parent tags now render their own summary and description header instead of being flattened like a legacy `x-tagGroups` wrapper.
+
+### Patch Changes
+
+- [#9872](https://github.com/scalar/scalar/pull/9872): Bump shared runtime dependencies: `js-base64` (`^3.7.8` -> `^3.9.2`) and `type-fest` (`^5.3.1` -> `^5.8.0`).
+- [#9896](https://github.com/scalar/scalar/pull/9896): Fix parameter name blanking in the Try It panel on first open.
+
+  Three related issues caused a parameter name (e.g. `x-scenario-id`) to appear
+  blank the first time the Try It panel was opened for a GET endpoint:
+  1. **`RequestTable` used `key: index`** — Vue reused the same `RequestTableRow`
+     component instance for the placeholder row `{ name: '' }` that `displayData`
+     appends, causing the component to receive an empty `data.name` prop and blank
+     its local `name` ref. Fixed by using a stable identity key derived from the
+     parameter name and value path.
+
+  2. **`RequestTableRow` watch and blur emitted empty names** — the `watch:name`
+     handler unconditionally synced the local ref to the incoming prop (including
+     `''`), and `handleKeyBlur` forwarded a blank name emitted by `CodeInputLite`
+     before it had rendered its initial value. Both now guard against overwriting
+     a valid name with an empty string.
+
+  3. **`upsertOperationParameter` mutated `param.name` unconditionally** — a
+     value-only update carrying `payload.name = ''` permanently blanked the
+     reactive parameter name in the store. The mutator now skips the name
+     assignment when the payload name is empty and the parameter already has one.
+
+- [#9913](https://github.com/scalar/scalar/pull/9913): Add Julia (HTTP.jl) as a code example target. The new `julia/http` client generates HTTP.jl snippets, including headers, query parameters, cookies, basic auth, JSON bodies (as `Dict`s serialized with `JSON.json`), url-encoded bodies and `HTTP.Form` multipart uploads. Julia syntax highlighting and a Julia icon are included, so the client shows up in the code example picker like any other language.
+- [#9930](https://github.com/scalar/scalar/pull/9930): Expose `getSchemaExampleFromBody` to generate a write-mode example from a request body's schema, ignoring any stored example.
+- [#9932](https://github.com/scalar/scalar/pull/9932): Keep AsyncAPI documents intact in the server workspace store. `createServerWorkspaceStore` ingested every document as OpenAPI, so an AsyncAPI document lost its `channels` and `operations`, had `asyncapi` replaced by an empty `openapi` string, and gained an empty `paths` object — leaving `x-scalar-navigation` with nothing but Introduction and Models. AsyncAPI documents now take their own ingestion path, mirroring the client store's: the AsyncAPI upgrader runs instead of the OpenAPI one, the document is coerced against the AsyncAPI schema rather than the OpenAPI one, `x-original-aas-version` is preserved, and navigation is built with `traverseAsyncApiDocument` so `asyncapi-channel` and `asyncapi-operation` entries reach the sidebar.
+- [#9934](https://github.com/scalar/scalar/pull/9934): Resolve local references when the server workspace store inspects a document. Navigation building and externalization both read through `getResolvedRef`, which needs the `$ref-value` the magic proxy supplies — without it a `$ref`'d path item read as a bare `{ $ref }`, so its operations reached neither the sidebar nor the generated chunks and vanished from the rendered document with no error. Split-file documents were affected too: bundling rewrites an external reference into a local pointer into `x-ext` rather than inlining it, and that bucket is not modelled by the OpenAPI schema, so coercion was dropping it and leaving every rewritten reference dangling. References are now followed through chains, since bundling a file that holds nothing but a `$ref` produces a bucket entry pointing at another bucket entry, and a reference whose target is not an object no longer spreads it key by key. Resolution stays lazy, local and synchronous, and resolved values are unwrapped before anything is stored, so the served document and its chunks keep their original `$ref`s. Note that `x-ext` and `x-ext-urls` now ship in the workspace payload: the generated chunks keep their `#/x-ext/…` pointers, so the client needs the buckets on the document root to resolve them.
+
+## 0.57.1
+
+## 0.57.0
+
+### Minor Changes
+
+- [#9868](https://github.com/scalar/scalar/pull/9868): Control OAuth2 flow tabs from your OpenAPI document. Add `x-order` to a flow to set the order of the tabs in the auth section (the first tab is selected by default, so the lowest `x-order` also becomes the default flow), and add `x-scalar-ignore` to a flow to hide its tab — useful for flows that cannot run in the browser, like Client Credentials, which usually fails on CORS. `x-scalar-ignore` on a whole security scheme now hides it from the auth selector too.
+
+### Patch Changes
+
+- [#9850](https://github.com/scalar/scalar/pull/9850): Add OpenAPI 3.2 schema definitions under `schemas/v3.2` (a copy of the v3.1 strict and loose schemas) with the new 3.2 fields: tag `summary`/`parent`/`kind`, response `summary` and optional `description`, server `name`, security-scheme `deprecated` and OAuth2 `oauth2MetadataUrl`, the OAuth device authorization flow, root `$self`, path item `query` and `additionalOperations`, parameter `in: querystring`, media type `itemSchema`/`prefixEncoding`/`itemEncoding`/`description`, nested encoding, example `dataValue`/`serializedValue`, components `mediaTypes`, discriminator `defaultMapping`, and XML `nodeType`. The workspace store still uses the v3.1 schemas; this only adds the v3.2 set as groundwork.
+
 ## 0.56.1
 
 ### Patch Changes

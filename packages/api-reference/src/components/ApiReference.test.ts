@@ -569,6 +569,72 @@ describe('Rendering', () => {
 
     expect(html).toContain('Test API')
   })
+
+  it('includes crawler navigation links for entries inside collapsed groups', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/planets': {
+          get: { summary: 'List planets', tags: ['planets'] },
+        },
+        '/moons': {
+          get: { summary: 'List moons', tags: ['moons'] },
+        },
+      },
+      components: {
+        schemas: {
+          Moon: { type: 'object' },
+        },
+      },
+    }
+
+    const app = createSSRApp({
+      render: () =>
+        h(ApiReference, {
+          configuration: {
+            content: document,
+          },
+        }),
+    })
+
+    const html = await renderToString(app)
+
+    // Only the first tag is expanded during SSR, so the links for the second tag and the
+    // models section have to come from the crawler navigation
+    expect(html).toContain('data-scalar-crawler-nav')
+    expect(html).toContain('href="#tag/moons/GET/moons"')
+    expect(html).toContain('href="#models/Moon"')
+  })
+
+  it('removes the crawler navigation after mounting', async () => {
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          content: {
+            openapi: '3.1.0',
+            info: {
+              title: 'Test API',
+              version: '1.0.0',
+            },
+            paths: {
+              '/planets': {
+                get: { summary: 'List planets', tags: ['planets'] },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('[data-scalar-crawler-nav]').exists()).toBe(false)
+  })
 })
 
 describe('proxy configuration', () => {
@@ -724,24 +790,26 @@ Welcome to the API.
     }
 
     const introductionRoot = wrapper.find(`[data-sidebar-id="${introduction.id}"]`)
-    // Discrete groups: main item button + separate absolute caret toggle.
+    // Discrete groups render two controls: the label, which is an anchor so
+    // the navigation stays crawlable, and a separate caret button.
     // Do not key off aria-current — it is only present when the item is selected.
-    const expandedButtons = introductionRoot.findAll('button[aria-expanded]')
-    const introductionButton = expandedButtons.find((btn) => !btn.classes().includes('absolute'))
-    const introductionToggle = expandedButtons.find((btn) => btn.classes().includes('absolute'))
+    const introductionButton = introductionRoot.find('a[href]')
+    const introductionToggle = introductionRoot.find('button[aria-expanded]')
 
-    expect(introductionButton).toBeDefined()
-    expect(introductionToggle).toBeDefined()
-    expect(introductionButton!.attributes('aria-expanded')).toBe('false')
-    expect(introductionToggle!.attributes('aria-expanded')).toBe('false')
+    expect(introductionButton.exists()).toBe(true)
+    expect(introductionToggle.exists()).toBe(true)
 
-    await introductionButton!.trigger('click')
-    expect(introductionButton!.attributes('aria-expanded')).toBe('true')
-    expect(introductionToggle!.attributes('aria-expanded')).toBe('true')
+    // The caret is the control that expands and collapses, so it is the only
+    // one that reports the expanded state. A link that also claimed to be a
+    // toggle would be announced as something it cannot do.
+    expect(introductionButton.attributes('aria-expanded')).toBeUndefined()
+    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
 
-    await introductionToggle!.trigger('click')
-    expect(introductionButton!.attributes('aria-expanded')).toBe('false')
-    expect(introductionToggle!.attributes('aria-expanded')).toBe('false')
+    await introductionButton.trigger('click')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('true')
+
+    await introductionToggle.trigger('click')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
   })
 })
 

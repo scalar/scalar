@@ -25,6 +25,7 @@ import RenderString from './RenderString.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
+import SchemaPropertyPattern from './SchemaPropertyPattern.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -126,14 +127,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
       })
     }
 
-    if (schema.pattern) {
-      properties.push({
-        key: 'pattern',
-        value: schema.pattern,
-        code: true,
-        truncate: true,
-      })
-    }
+    // pattern is rendered via SchemaPropertyPattern (hover dropdown), skip here
   }
 
   if ((isStringSchema(schema) || isNumberSchema(schema)) && schema.format) {
@@ -327,6 +321,32 @@ const exampleValue = computed(() => {
 
   return undefined
 })
+
+/**
+ * The regex `pattern` to surface via the hover dropdown. It lives on a string
+ * schema, or on the items of a primitive array (which is not rendered on its
+ * own, so its constraints are surfaced on the array heading — see
+ * https://github.com/scalar/scalar/issues/9690).
+ */
+const patternValue = computed(() => {
+  const schema = valueRef.value
+  if (!schema) {
+    return undefined
+  }
+
+  if (isStringSchema(schema) && schema.pattern) {
+    return schema.pattern
+  }
+
+  if (isArraySchema(schema) && schema.items) {
+    const items = resolve.schema(schema.items)
+    if (isStringSchema(items) && items.pattern) {
+      return items.pattern
+    }
+  }
+
+  return undefined
+})
 </script>
 <template>
   <div class="property-heading">
@@ -379,9 +399,6 @@ const exampleValue = computed(() => {
         :truncate="property.truncate">
         <ScreenReader v-if="property.key === 'format'">
           {{ translate('common.format') }}:
-        </ScreenReader>
-        <ScreenReader v-else-if="property.key === 'pattern'">
-          {{ translate('common.pattern') }}:
         </ScreenReader>
         <template
           v-if="property.prefix"
@@ -440,6 +457,14 @@ const exampleValue = computed(() => {
       {{ translate('common.required') }}
     </div>
     <SchemaPropertyDefault :value="props.value?.default" />
+    <!--
+      Pattern is a hover dropdown chip like Examples, not an inline constraint,
+      so it sits beside the example. This keeps the real constraints (length,
+      nullable, …) together in the dotted list. See #9966.
+    -->
+    <SchemaPropertyPattern
+      v-if="patternValue"
+      :pattern="patternValue" />
     <SchemaPropertyExamples
       v-if="props.withExamples"
       :example="exampleValue"

@@ -14,4 +14,5 @@ export type {
   ResolvedOperation,
   TransportContext,
 } from './transports/types'
+export type { MockServerLogger, MockServerOptions } from './types'
 export { isAsyncApiDocument } from './utils/process-asyncapi-document'

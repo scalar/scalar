@@ -8,8 +8,15 @@ import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
  * that arise when both diffs modify the same paths. It uses a trie data structure for
  * efficient path matching and conflict detection.
  *
+ * ⚠️ This function mutates the entries of `diff2`. When two changes on the same path can be folded
+ * together without a collision, the value from `diff1` is merged into the `changes` of the `diff2`
+ * entry, in place. Diffs built by `diff` carry live references into the documents they came from
+ * (see `diff`), so folding two changes together also writes into the document behind `diff2`.
+ * Callers that need the source documents to stay untouched have to deep clone them before diffing,
+ * or clone the changes afterwards.
+ *
  * @param diff1 - First list of differences
- * @param diff2 - Second list of differences
+ * @param diff2 - Second list of differences, whose entries are mutated, see the note above
  * @returns Object containing:
  *   - diffs: Combined list of non-conflicting differences
  *   - conflicts: Array of conflicting difference pairs that need manual resolution
@@ -71,11 +78,15 @@ export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
     trie.findMatch(diff.path, (value) => {
       if (diff.type === 'delete') {
         if (value.changes.type === 'delete') {
-          // Keep the highest depth delete operation and skip the other
+          // Keep the shallowest delete operation and skip the other, since deleting an
+          // ancestor already removes everything the deeper delete would have removed.
+          // On equal paths the first list keeps the entry and the second one is skipped.
+          // Note the two sets are indexed differently: `value.index` points into `diff1`,
+          // while `index` points into `diff2`.
           if (value.changes.path.length > diff.path.length) {
             skipDiff1.add(value.index)
           } else {
-            skipDiff2.add(value.index)
+            skipDiff2.add(index)
           }
         } else {
           // Take care of updates/add on the same path (we are sure they will be on the

@@ -22,4 +22,6 @@ Every guide starts from what you already have — an OpenAPI document, a config 
 <scalar-page-link filepath="documentation/migration/zuplo.md" title="Zuplo" description="Move your developer portal off Zuplo while leaving your API gateway exactly where it is">
 </scalar-page-link>
 
+Moving off Stainless specifically? [The Stainless wind-down write-up](../resources/stainless-wind-down.md) covers what changed, how `stainless.yml` maps onto other generators, and where OpenAPI Generator, Speakeasy, Fern, APIMatic, or liblab are the better answer.
+
 Still deciding? The [comparison guides](/resources/compare) go through how Scalar stacks up against the alternatives, feature by feature.

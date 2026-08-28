@@ -22,6 +22,7 @@ export const zhCn = {
     path: '路径',
     propertyNames: '属性名称',
     pattern: '模式',
+    copyPattern: '复制模式',
     readOnly: '只读',
     required: '必填',
     hideValues: '隐藏值',

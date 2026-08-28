@@ -1,5 +1,17 @@
 # @scalar/aspnetcore
 
+## 2.17.1
+
+## 2.17.0
+
+### Minor Changes
+
+- [#9928](https://github.com/scalar/scalar/pull/9928): Add async parameter overloads to MapScalarApiReference, so async services can be used to configure options.
+
+## 2.16.20
+
+## 2.16.19
+
 ## 2.16.18
 
 ## 2.16.17

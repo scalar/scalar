@@ -1,5 +1,53 @@
 # @scalar/api-client
 
+## 3.16.3
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 3.16.2
+
+### Patch Changes
+
+- [#9930](https://github.com/scalar/scalar/pull/9930): Reset edited structured request bodies when a different `oneOf` or `anyOf` schema is selected, including compositions without discriminators.
+- [#9872](https://github.com/scalar/scalar/pull/9872): Bump shared runtime dependencies: `js-base64` (`^3.7.8` -> `^3.9.2`) and `type-fest` (`^5.3.1` -> `^5.8.0`).
+- [#9896](https://github.com/scalar/scalar/pull/9896): Fix parameter name blanking in the Try It panel on first open.
+
+  Three related issues caused a parameter name (e.g. `x-scenario-id`) to appear
+  blank the first time the Try It panel was opened for a GET endpoint:
+  1. **`RequestTable` used `key: index`** — Vue reused the same `RequestTableRow`
+     component instance for the placeholder row `{ name: '' }` that `displayData`
+     appends, causing the component to receive an empty `data.name` prop and blank
+     its local `name` ref. Fixed by using a stable identity key derived from the
+     parameter name and value path.
+
+  2. **`RequestTableRow` watch and blur emitted empty names** — the `watch:name`
+     handler unconditionally synced the local ref to the incoming prop (including
+     `''`), and `handleKeyBlur` forwarded a blank name emitted by `CodeInputLite`
+     before it had rendered its initial value. Both now guard against overwriting
+     a valid name with an empty string.
+
+  3. **`upsertOperationParameter` mutated `param.name` unconditionally** — a
+     value-only update carrying `payload.name = ''` permanently blanked the
+     reactive parameter name in the store. The mutator now skips the name
+     assignment when the payload name is empty and the parameter already has one.
+
+- [#9867](https://github.com/scalar/scalar/pull/9867): Fix header parameters showing as empty rows in the API client when an earlier operation has a request body
+
+## 3.16.1
+
+## 3.16.0
+
+### Minor Changes
+
+- [#9868](https://github.com/scalar/scalar/pull/9868): Control OAuth2 flow tabs from your OpenAPI document. Add `x-order` to a flow to set the order of the tabs in the auth section (the first tab is selected by default, so the lowest `x-order` also becomes the default flow), and add `x-scalar-ignore` to a flow to hide its tab — useful for flows that cannot run in the browser, like Client Credentials, which usually fails on CORS. `x-scalar-ignore` on a whole security scheme now hides it from the auth selector too.
+
+### Patch Changes
+
+- [#9869](https://github.com/scalar/scalar/pull/9869): Show NDJSON responses instead of "Binary file". Responses with `application/x-ndjson` or `application/ndjson` are now rendered as text, with each JSON record pretty-printed in the preview.
+- [#9780](https://github.com/scalar/scalar/pull/9780): Make environment variables work in pre-request and post-response scripts. `pm.environment.get()` (and `pm.variables.get()`) now read the active environment, and `pm.environment.set()` / `pm.environment.unset()` persist back to it so values like a bearer token survive to the next request. Previously the script variable store was created empty per request and discarded afterwards, so scripted reads returned `undefined` and writes were lost even though `{{variable}}` placeholders resolved correctly.
+
 ## 3.15.0
 
 ### Minor Changes

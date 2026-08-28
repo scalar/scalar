@@ -18,9 +18,12 @@ await fastify.register(import('@scalar/fastify-api-reference'), {
 })
 ```
 
+> [!NOTE]
+> The plugin works with both Fastify v4 and v5. It ships as an ES module, so register it with a dynamic `import()` (as shown above) or a top-level `import` in an ESM project.
+
 ## Usage
 
-If you have a OpenAPI/Swagger document already, you can pass an URL to the plugin:
+If you have an OpenAPI/Swagger document already, you can pass a URL to the plugin:
 
 ```typescript
 // Render an API reference for a given OpenAPI/Swagger spec URL
@@ -33,7 +36,7 @@ fastify.register(import('@scalar/fastify-api-reference'), {
 })
 ```
 
-With [@fastify/swagger], we're picking it up automatically, so this would be enough:
+With [@fastify/swagger](https://github.com/fastify/fastify-swagger), we're picking it up automatically, so this would be enough:
 
 ```typescript
 await fastify.register(import('@scalar/fastify-api-reference'), {
@@ -42,6 +45,39 @@ await fastify.register(import('@scalar/fastify-api-reference'), {
 ```
 
 The fastify plugin takes our universal configuration object, [read more about configuration](../configuration.md) in the core package README.
+
+## Options
+
+The plugin accepts the following options:
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `routePrefix` | `string` | `/reference` | Path where the API reference is served. |
+| `configuration` | `object` | – | The universal Scalar [configuration object](../configuration.md) (`url`, `content`, `sources`, `title`, `theme`, `layout`, …). |
+| `openApiDocumentEndpoints` | `object` | `{ json: '/openapi.json', yaml: '/openapi.yaml' }` | Where the OpenAPI document is exposed, relative to `routePrefix`. |
+| `hooks` | `object` | – | Fastify `onRequest` and `preHandler` hooks applied to every route the plugin registers (useful for authentication). |
+| `logLevel` | `string` | – | Log level for the plugin's routes. Set to `silent` to silence them. |
+
+Scalar looks for the OpenAPI document in this order of precedence: `configuration.content`, then `configuration.url`, then [@fastify/swagger](https://github.com/fastify/fastify-swagger) if it is registered.
+
+## Exposing the OpenAPI document
+
+When you provide the document via `configuration.content` or [@fastify/swagger](https://github.com/fastify/fastify-swagger), the plugin re-exposes it (parsed by [`@scalar/openapi-parser`](https://github.com/scalar/scalar/tree/main/packages/openapi-parser)) under `routePrefix`, so other tooling can consume it:
+
+- `/reference/openapi.json`
+- `/reference/openapi.yaml`
+
+These endpoints are served with permissive CORS headers so external tools can fetch them. You can change the paths:
+
+```typescript
+await fastify.register(import('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+  openApiDocumentEndpoints: {
+    json: '/openapi.json',
+    yaml: '/openapi.yaml',
+  },
+})
+```
 
 ## Themes
 
@@ -66,6 +102,34 @@ fastify.register(import('@scalar/fastify-api-reference'), {
   logLevel: 'silent',
 })
 ```
+
+## Authentication
+
+Because the plugin registers standard Fastify routes, you can protect the API reference with any Fastify auth plugin through the `hooks` option. Here is an example using [@fastify/basic-auth](https://github.com/fastify/fastify-basic-auth):
+
+```typescript
+import FastifyBasicAuth from '@fastify/basic-auth'
+
+await fastify.register(FastifyBasicAuth, {
+  validate(username, password, request, reply, done) {
+    if (username === 'admin' && password === 'admin') {
+      done()
+    } else {
+      done(new Error('Access denied'))
+    }
+  },
+  authenticate: true,
+})
+
+await fastify.register(import('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+  hooks: {
+    onRequest: fastify.basicAuth,
+  },
+})
+```
+
+The `onRequest` and `preHandler` hooks are applied to every route the plugin registers — the HTML page, the bundled JavaScript, and the OpenAPI document endpoints.
 
 ## Guide
 
@@ -146,7 +210,7 @@ In order to use it, we need to install the official package first:
 npm install @fastify/swagger
 ```
 
-Okay, you've got this. To actually set up the package, there's a some boilerplate code required. **Replace the content** of our previous `index.js` with the following:
+Okay, you've got this. To actually set up the package, there's some boilerplate code required. **Replace the content** of our previous `index.js` with the following:
 
 ```javascript
 import FastifySwagger from '@fastify/swagger'

@@ -22,6 +22,7 @@ export const en = {
     path: 'Path',
     propertyNames: 'property names',
     pattern: 'Pattern',
+    copyPattern: 'Copy pattern',
     readOnly: 'read-only',
     required: 'required',
     hideValues: 'Hide values',

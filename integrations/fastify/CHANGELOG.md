@@ -1,5 +1,17 @@
 # @scalar/fastify-api-reference
 
+## 1.66.1
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 1.66.0
+
+## 1.65.1
+
+## 1.65.0
+
 ## 1.64.1
 
 ### Patch Changes

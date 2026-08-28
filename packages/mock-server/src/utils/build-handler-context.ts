@@ -8,6 +8,7 @@ import { accepts } from 'hono/accepts'
 
 import { store } from '../libs/store'
 import { normalizeResponseBody } from './normalize-response-body'
+import { pathParameters } from './path-parameters'
 import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper'
 
 /**
@@ -83,7 +84,7 @@ function getExampleFromResponse(
       ? normalizeResponseBody(
           getExampleFromSchema(responseSchema, {
             emptyString: 'string',
-            variables: c.req.param(),
+            variables: pathParameters(c),
             mode: 'read',
           }),
           responseSchema,
@@ -138,7 +139,7 @@ export async function buildHandlerContext(
       faker,
       req: {
         body,
-        params: c.req.param(),
+        params: pathParameters(c),
         query: Object.fromEntries(new URL(c.req.url).searchParams.entries()),
         headers: Object.fromEntries(Object.entries(c.req.header()).map(([key, value]) => [key, value ?? ''])),
       },

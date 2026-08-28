@@ -5,7 +5,7 @@ import {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { getExampleFromBody } from './get-request-body-example'
+import { getExampleFromBody, getSchemaExampleFromBody } from './get-request-body-example'
 
 describe('get-request-body-example', () => {
   it('returns existing example when found in content.examples', () => {
@@ -276,5 +276,55 @@ describe('get-request-body-example', () => {
         },
       },
     })
+  })
+})
+
+describe('getSchemaExampleFromBody', () => {
+  it('generates the selected composition branch, ignoring any stored example', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'application/json': {
+          schema: {
+            oneOf: [
+              { type: 'object', properties: { name: { type: 'string' } } },
+              { type: 'object', properties: { label: { type: 'string' } } },
+            ],
+          },
+          // A stored example would shadow the schema in getExampleFromBody, but this helper always
+          // regenerates from the schema.
+          example: JSON.stringify({ name: 'Edited' }),
+        },
+      },
+    })
+
+    expect(getSchemaExampleFromBody(requestBody, 'application/json', { 'requestBody.oneOf': 1 })).toEqual({
+      label: '',
+    })
+  })
+
+  it('returns null for a value-less branch such as `type: null`', () => {
+    // getExampleFromSchema returns `null` (not `undefined`) here, so callers must handle both to
+    // avoid rendering the literal text `null`.
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'application/json': {
+          schema: {
+            oneOf: [{ type: 'object', properties: { name: { type: 'string' } } }, { type: 'null' }],
+          },
+        },
+      },
+    })
+
+    expect(getSchemaExampleFromBody(requestBody, 'application/json', { 'requestBody.oneOf': 1 })).toBeNull()
+  })
+
+  it('returns undefined when the content type has no schema', () => {
+    const requestBody = {
+      content: {
+        'application/json': {},
+      },
+    } satisfies RequestBodyObject
+
+    expect(getSchemaExampleFromBody(requestBody, 'application/json')).toBeUndefined()
   })
 })

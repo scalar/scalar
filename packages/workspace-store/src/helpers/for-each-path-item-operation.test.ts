@@ -6,6 +6,8 @@ import {
   getResolvedPathItem,
   pathItemIsEmpty,
 } from '@/helpers/for-each-path-item-operation'
+import type { NodeInput } from '@/helpers/get-resolved-ref'
+import type { PathItemObject } from '@/schemas/v3.1/strict/path-item'
 
 describe('getResolvedPathItem', () => {
   it('includes parameters declared alongside a path $ref on the paths map', () => {
@@ -32,6 +34,93 @@ describe('getResolvedPathItem', () => {
     })
 
     expect(resolved?.parameters).toEqual([{ name: 'fromPath', in: 'header' }])
+  })
+
+  /**
+   * The shape bundling produces for a split file that holds nothing but a `$ref` to another file:
+   * the bucket entry the path item points at is a reference in its own right. `$ref-value` is typed
+   * as a resolved path item, which by definition cannot hold another one, so the hop is cast in.
+   */
+  const chainedPathItem = () =>
+    ({
+      '$ref': '#/x-ext/3bc5a94',
+      '$ref-value': {
+        '$ref': '#/x-ext/43932ba',
+        '$ref-value': { get: { summary: 'List all moons' } },
+      } as unknown as PathItemObject,
+    }) satisfies NodeInput<PathItemObject>
+
+  it('follows a reference whose target is itself a reference', () => {
+    const resolved = getResolvedPathItem(chainedPathItem())
+
+    expect(resolved?.get).toEqual({ summary: 'List all moons' })
+  })
+
+  it('keeps the outermost $ref when it follows a chain', () => {
+    // The reference the author wrote is the one worth keeping: it is what externalization skips and
+    // what `restoreOriginalRefs` maps back to the original URL. Asserted together with the resolved
+    // operation, because the outer `$ref` survives a single hop too — on its own it would pass
+    // without the chain ever being followed.
+    const resolved = getResolvedPathItem(chainedPathItem())
+
+    expect(resolved).toEqual({
+      '$ref': '#/x-ext/3bc5a94',
+      'get': { summary: 'List all moons' },
+    })
+  })
+
+  it('gives up on a reference cycle rather than following it forever', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    // A reference at itself. Resolving it produces another hop every time, so only a cap terminates.
+    const cycle: Record<string, unknown> = { $ref: '#/components/pathItems/Loop' }
+    cycle['$ref-value'] = cycle
+
+    const resolved = getResolvedPathItem(cycle)
+
+    // `$ref-value` is meant to be virtual, so the hop that was never followed must not be handed back
+    // on a path item the caller may go on to store or serialize.
+    expect(resolved).not.toHaveProperty('$ref-value')
+    expect(warn).toHaveBeenCalled()
+
+    warn.mockRestore()
+  })
+
+  it('does not mutate the path item it was handed', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    // A `$ref-value` with no `$ref` beside it never resolves to anything, so the walk runs all the
+    // way to the cap with the caller's own object still in hand. Resolving a path item is a read:
+    // callers reach it with `document.paths[somePath]`, and a document is free to name a path
+    // `__proto__`, which makes that lookup `Object.prototype`.
+    const pathItem = { '$ref-value': { get: { summary: 'List all moons' } } } as unknown as NodeInput<PathItemObject>
+
+    const resolved = getResolvedPathItem(pathItem)
+
+    expect(pathItem).toHaveProperty('$ref-value')
+    expect(resolved).not.toHaveProperty('$ref-value')
+
+    warn.mockRestore()
+  })
+
+  it('does not spread a reference whose target is not an object', () => {
+    // Spreading a string copies it character by character, so a pointer at a title used to resolve
+    // into `{ 0: 'G', 1: 'a', ... }` and every consumer downstream read those digits as properties.
+    const resolved = getResolvedPathItem({
+      '$ref': '#/info/title',
+      '$ref-value': 'Galaxy' as unknown as Record<string, never>,
+    })
+
+    expect(resolved).toEqual({ $ref: '#/info/title' })
+  })
+
+  it('does not spread a reference whose target is an array', () => {
+    const resolved = getResolvedPathItem({
+      '$ref': '#/components/pathItems/List',
+      '$ref-value': [{ get: { summary: 'List all moons' } }] as unknown as Record<string, never>,
+    })
+
+    expect(resolved).toEqual({ $ref: '#/components/pathItems/List' })
   })
 })
 
@@ -82,6 +171,39 @@ describe('forEachPathItemOperation', () => {
 })
 
 describe('deletePathItemOperation', () => {
+  it('removes the method through a chain of references', () => {
+    // `getResolvedPathItem` resolves through chains, so anything that writes has to reach as far as
+    // reading does — otherwise the delete silently no-ops and the operation keeps being served.
+    const pathItem = {
+      '$ref': '#/x-ext/3bc5a94',
+      '$ref-value': {
+        '$ref': '#/x-ext/43932ba',
+        '$ref-value': { get: { summary: 'List all moons' } },
+      } as unknown as PathItemObject,
+    } satisfies NodeInput<PathItemObject>
+
+    deletePathItemOperation(pathItem, 'get')
+
+    expect(getResolvedPathItem(pathItem)?.get).toBeUndefined()
+  })
+
+  it('removes a method overridden partway along a chain', () => {
+    // A sibling on an intermediate hop takes precedence over the target, so a copy left there keeps
+    // surfacing even once the deepest one is gone.
+    const pathItem = {
+      '$ref': '#/x-ext/3bc5a94',
+      '$ref-value': {
+        '$ref': '#/x-ext/43932ba',
+        'get': { summary: 'Overridden partway' },
+        '$ref-value': { get: { summary: 'List all moons' } },
+      } as unknown as PathItemObject,
+    } satisfies NodeInput<PathItemObject>
+
+    deletePathItemOperation(pathItem, 'get')
+
+    expect(getResolvedPathItem(pathItem)?.get).toBeUndefined()
+  })
+
   it('removes the method from an inline path item', () => {
     const pathItem = { get: { summary: 'Get users' }, post: { summary: 'Create user' } }
 

@@ -1,10 +1,15 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createAsyncApiMockServer } from './create-asyncapi-mock-server'
 import type { MockTransport } from './transports/types'
 import { isAsyncApiDocument } from './utils/process-asyncapi-document'
 
 describe('createAsyncApiMockServer', () => {
+  // Some tests spy on the global console, so restore it even when an assertion throws first.
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('serves SSE channels with a generated message', async () => {
     const { app } = await createAsyncApiMockServer({
       document: {
@@ -67,8 +72,8 @@ describe('createAsyncApiMockServer', () => {
     expect(claimed).toEqual(['hub'])
   })
 
-  it('logs channels that no transport can serve', async () => {
-    const logger = vi.fn()
+  it('warns about channels that no transport can serve, even with logging disabled', async () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     await createAsyncApiMockServer({
       document: {
@@ -78,10 +83,27 @@ describe('createAsyncApiMockServer', () => {
         channels: { events: { address: 'events', messages: { evt: { payload: { type: 'string' } } } } },
         operations: { onEvent: { action: 'receive', channel: { $ref: '#/channels/events' } } },
       },
-      logger,
+      logger: false,
     })
 
-    expect(logger).toHaveBeenCalledWith(expect.stringContaining('no transport for channel "events"'))
+    expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('no transport for channel "events"'))
+  })
+
+  it('logs transport registration to the console when logger is true', async () => {
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+    await createAsyncApiMockServer({
+      document: {
+        asyncapi: '3.1.0',
+        info: { title: 'Prices', version: '1.0.0' },
+        servers: { production: { host: 'localhost', protocol: 'sse' } },
+        channels: { prices: { address: 'prices', messages: { priceUpdate: { payload: { type: 'string' } } } } },
+        operations: { streamPrices: { action: 'receive', channel: { $ref: '#/channels/prices' } } },
+      },
+      logger: true,
+    })
+
+    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('channel "prices"'))
   })
 })
 

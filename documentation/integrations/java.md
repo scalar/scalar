@@ -6,7 +6,7 @@ The Scalar Java integration provides an easy way to render beautiful API Referen
 
 The Scalar Java integration consists of **3 separate modules**:
 
-- **`scalar-core`** - Framework-agnostic core module with no dependencies (except Jackson for JSON serialization). Can be used anywhere to display a API Reference.
+- **`scalar-core`** - Framework-agnostic core module with no dependencies (except Jackson for JSON serialization). Can be used anywhere to display an API Reference.
 - **`scalar-webmvc`** - Spring Boot WebMVC integration module
 - **`scalar-webflux`** - Spring Boot WebFlux integration module
 

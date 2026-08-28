@@ -16,7 +16,7 @@
     "lowlight",
     "highlightjs"
   ],
-  "version": "0.4.3",
+  "version": "0.4.5",
   "engines": {
     "node": ">=22"
   },
@@ -78,7 +78,7 @@
   "sideEffects": false,
   "dependencies": {
     "hast-util-to-text": "^4.0.2",
-    "highlight.js": "^11.11.1",
+    "highlight.js": "catalog:*",
     "lowlight": "^3.3.0",
     "rehype-external-links": "^3.0.0",
     "rehype-format": "^5.0.1",

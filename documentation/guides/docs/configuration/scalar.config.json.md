@@ -164,7 +164,7 @@ Here is a more complete example showing common configuration options:
   },
   "navigation": {
     "header": [
-      { "title": "Dashboard", "url": "https://dashboard.example.com" }
+      { "type": "link", "title": "Dashboard", "to": "https://dashboard.example.com" }
     ],
     "routes": {
       "/": {

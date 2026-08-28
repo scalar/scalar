@@ -1,5 +1,49 @@
 # @scalar/api-reference
 
+## 1.66.1
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 1.66.0
+
+### Minor Changes
+
+- [#9917](https://github.com/scalar/scalar/pull/9917): Expose every sidebar URL to crawlers in server-rendered HTML. The interactive sidebar keeps the children of collapsed groups out of the DOM, so links to operations and models inside collapsed tags were missing from server-rendered output unless `defaultOpenAllTags` was enabled. The server-rendered HTML now includes a hidden, flat list of plain anchors for every navigation entry, so crawlers can discover all deep links without executing JavaScript. The list is dropped right after hydration and never affects the interactive experience.
+- [#9918](https://github.com/scalar/scalar/pull/9918): Render sidebar navigation as anchor links instead of buttons.
+  - `@scalar/sidebar`: `ScalarSidebar` and `SidebarItem` accept a new `getHref` callback. When it returns a URL for an item, that item renders as a real link — this covers every entry except tag-group headings, which are section labels rather than navigation targets. Plain left clicks on the link still emit `selectItem` for in-app navigation (with the default navigation prevented), modified clicks are left to the browser so links can be opened in a new tab, and clicks on decorator content outside the link keep their native behavior. Items are built with the existing `button` slot on `ScalarSidebarItem` and `ScalarSidebarGroup`, so `@scalar/components` needs no new API to support this.
+  - `@scalar/api-reference`: the sidebar now passes `getHref` using the new SSR-safe `makeHrefFromId` helper, so the rendered sidebar contains real anchor tags whose paths match the URLs pushed to history (the hrefs are relative, so they do not carry the current query string). With path routing this makes the navigation crawlable and indexable by search engines; with hash routing and hash-base-path routing the fragment hrefs improve link semantics and open-in-new-tab behavior, but search engines do not treat fragments as separate URLs — configure `pathRouting` if URL discovery is the goal. Note that sidebar entries now follow standard link keyboard semantics (Enter activates them, Space scrolls the page), and links inside collapsed groups are only present in server-rendered HTML for groups that are expanded during SSR (for example via `defaultOpenAllTags`).
+  - `@scalar/helpers`: new `isPlainLeftClick` helper in `dom/is-plain-left-click` for deciding when a click should be hijacked for client-side navigation.
+
+### Patch Changes
+
+- [#9927](https://github.com/scalar/scalar/pull/9927): Show a composed schema's own description when it has no properties of its own. A schema that only carries `allOf` plus a top-level `description` dropped that description and rendered the first `allOf` member's description instead, which was visible when browsing the schema standalone in the Models section.
+- [#9936](https://github.com/scalar/scalar/pull/9936): Add bottom padding to the classic layout so the last section is no longer glued to the bottom edge of the screen
+- [#9406](https://github.com/scalar/scalar/pull/9406): feat: support OpenAPI 3.2 nested tags
+
+  The navigation tree now nests tags via the OpenAPI 3.2 `tag.parent` field, building an arbitrary-depth hierarchy. A parent tag with no operations of its own is treated as a section; a tag that has both operations and children renders as both. Native `parent` nesting takes precedence over `x-tagGroups`, which stays as the fallback for older documents. The `summary` field is used as the tag title (after `x-displayName`), and the new `parent`, `kind` and `summary` fields are recognized on the Tag Object (both in `@scalar/workspace-store` and `@scalar/schemas`). In the modern layout, operation-less parent tags now render their own summary and description header instead of being flattened like a legacy `x-tagGroups` wrapper.
+
+- [#9893](https://github.com/scalar/scalar/pull/9893): Show schema `pattern` as a hover dropdown in the API reference, similar to examples. Long regex patterns are now revealed on hover instead of being truncated inline.
+- [#9871](https://github.com/scalar/scalar/pull/9871): Add a short CDN URL for the ESM standalone build: `https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js`
+- [#9865](https://github.com/scalar/scalar/pull/9865): Ship source maps with the standalone browser build (`dist/browser`) so config errors are easier to debug
+
+## 1.65.1
+
+## 1.65.0
+
+### Minor Changes
+
+- [#9884](https://github.com/scalar/scalar/pull/9884): Export the AsyncAPI content components (AsyncApiChannel, AsyncApiOperation, AsyncApiMessage, AsyncApiTraversedEntry) from `@scalar/api-reference/components` so downstream renderers can render an individual channel/operation/message on its own page.
+
+### Patch Changes
+
+- [#9856](https://github.com/scalar/scalar/pull/9856): Render model names as plain text when there is no models section to link to. The names next to types and on the request body heading used to be links even when the whole models section was hidden via `hideModels`, or when the referenced model itself was hidden via `x-internal` / `x-scalar-ignore`. There was nothing to scroll to, so clicking them did nothing. They now render as plain text in both cases.
+- [#9858](https://github.com/scalar/scalar/pull/9858): Only render a clickable model name link when the `$ref` actually targets `#/components/schemas/`. Refs into other component buckets (parameters, responses, ...) or external files now show the name as plain text instead of a dead link that scrolls nowhere.
+- [#9857](https://github.com/scalar/scalar/pull/9857): Fix dead model-name links for schemas grouped under a tag via `x-tags`. The models index now collects model entries from the whole navigation tree, so clicking a model name that lives under a tag group scrolls to the model instead of doing nothing.
+- [#9859](https://github.com/scalar/scalar/pull/9859): Fix empty popup when hovering the "Generate MCP" button without an MCP config
+- [#9862](https://github.com/scalar/scalar/pull/9862): Use the webhook icon for webhooks in search results so they are easy to tell apart from operations
+
 ## 1.64.1
 
 ### Patch Changes

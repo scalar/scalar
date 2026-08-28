@@ -226,7 +226,7 @@ The third is method naming. Scalar strips the redundant resource noun and normal
 | `getPetById` | `client.pets.getPetById()` | `client.pet.retrieve()` |
 | `addPet` | `client.pets.addPet()` | `client.pet.create()` |
 
-Across a large API that consistency is the difference between guessing a method name and knowing it. For a fuller side-by-side against another generator, see [Scalar vs Fern](../../compare/fern.md).
+Across a large API that consistency is the difference between guessing a method name and knowing it. For fuller side-by-sides against other generators, see [Scalar vs Fern](../../compare/fern.md), [Scalar vs Speakeasy](../../compare/speakeasy.md), and [Scalar vs Stainless](../../compare/stainless.md).
 
 ## Everything a hand-written SDK does
 
@@ -243,6 +243,7 @@ Across a large API that consistency is the difference between guessing a method 
 - **Auto-paginating iterators** across ten pagination schemes: cursor, cursor id, cursor URL, offset, page number, `Link` header, header token, body link, compound cursor, and `hasMore`.
 - **Streaming responses** over server-sent events and newline-delimited JSON, with event metadata preserved.
 - **WebSockets** with separate Node and browser adapters.
+- **[AsyncAPI](asyncapi.md) channels** lowered into typed connect and streaming methods, with send and receive events discriminated by their event type. Experimental.
 - **File uploads** as multipart, URL-encoded, or raw binary.
 - **Multi-content-type operations** get a content-type selector instead of a guess.
 
@@ -285,7 +286,7 @@ Across a large API that consistency is the difference between guessing a method 
 <scalar-steps>
   <scalar-step id="step-openapi" title="Start from your OpenAPI document">
 
-Put your API description in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load.
+Put your API document in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load. [AsyncAPI](asyncapi.md) documents work too — experimentally — with each channel becoming a WebSocket connect method or an HTTP streaming method.
 
   </scalar-step>
 
@@ -389,7 +390,7 @@ The parity harness is the part we would want to see as a buyer. It clones produc
 
 Stainless is winding down its hosted SDK generator. Scalar reads your existing `stainless.yml` directly, so your resources, method names, pagination schemes, and per-language package names carry across and the call sites your users have already written keep working.
 
-Read the [Stainless migration guide](../../migration/stainless.md).
+Read the [Stainless migration guide](../../migration/stainless.md) for the practical steps, or [Scalar vs Stainless](../../compare/stainless.md) for the product comparison. If you have not settled on a replacement yet, [the wind-down write-up](../../resources/stainless-wind-down.md) covers the whole field, including where other generators are the better answer.
 
 ## Plans
 

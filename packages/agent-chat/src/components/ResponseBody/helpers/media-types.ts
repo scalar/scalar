@@ -27,6 +27,11 @@ const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     language: 'json',
   },
   'application/dns-json': { extension: '.json', raw: true, language: 'json' },
+  // Newline-delimited JSON is many JSON objects separated by newlines, not one
+  // JSON document, so we show it as raw text with JSON highlighting rather than
+  // pretty-printing it as a single object.
+  'application/x-ndjson': { extension: '.ndjson', raw: true, language: 'json' },
+  'application/ndjson': { extension: '.ndjson', raw: true, language: 'json' },
   'application/msword': { extension: '.doc' },
   'application/octet-stream': { extension: '.bin' },
   'application/ogg': { extension: '.ogx' },

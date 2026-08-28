@@ -1,5 +1,15 @@
 # @scalar/express-api-reference
 
+## 0.10.16
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.10.15
+
+## 0.10.14
+
 ## 0.10.13
 
 ## 0.10.12

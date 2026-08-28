@@ -1,6 +1,16 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
 
-import { diff } from '@/diff'
+import { apply, diff } from '@/diff'
+
+/** Property names the prototype pollution tests probe for on `Object.prototype` */
+const PROBE_KEYS = [
+  'pollutedByDiff',
+  'pollutedByNestedDiff',
+  'pollutedByConstructor',
+  'pollutedByPrototype',
+  'pollutedBesideSafeKeys',
+  'pollutedByRoundTrip',
+]
 
 describe('diff', () => {
   describe('Should correctly detect `add` type diff', () => {
@@ -280,6 +290,165 @@ describe('diff', () => {
 
       expect(diff(doc1, doc2)).toEqual([{ path: ['hobbies', '1'], changes: doc1.hobbies[1], type: 'delete' }])
     })
+
+    test('emits deletes from the end of the array first', () => {
+      const doc1 = { items: [1, 2, 3, 4] }
+      const doc2 = { items: [1] }
+
+      expect(diff(doc1, doc2)).toEqual([
+        { path: ['items', '3'], changes: 4, type: 'delete' },
+        { path: ['items', '2'], changes: 3, type: 'delete' },
+        { path: ['items', '1'], changes: 2, type: 'delete' },
+      ])
+    })
+
+    test('keeps additions in ascending index order', () => {
+      const doc1 = { items: [1] }
+      const doc2 = { items: [1, 2, 3] }
+
+      expect(diff(doc1, doc2)).toEqual([
+        { path: ['items', '1'], changes: 2, type: 'add' },
+        { path: ['items', '2'], changes: 3, type: 'add' },
+      ])
+    })
+
+    test('emits changes on arrays of the same length from the last index first', () => {
+      const doc1 = { items: [1, 2, 3] }
+      const doc2 = { items: [9, 8, 7] }
+
+      expect(diff(doc1, doc2)).toEqual([
+        { path: ['items', '2'], changes: 7, type: 'update' },
+        { path: ['items', '1'], changes: 8, type: 'update' },
+        { path: ['items', '0'], changes: 9, type: 'update' },
+      ])
+    })
+
+    test('removes multiple elements from the end of the array', () => {
+      const doc1 = { items: [1, 2, 3, 4] }
+      const doc2 = { items: [1] }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+
+    test('removes multiple elements from the middle of the array', () => {
+      const doc1 = { tags: ['a', 'b', 'c', 'd', 'e'] }
+      const doc2 = { tags: ['a', 'e'] }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+
+    test('removes every element of the array', () => {
+      const doc1 = { tags: ['a', 'b', 'c'] }
+      const doc2 = { tags: [] }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+
+    test('removes multiple objects from an array of objects', () => {
+      const doc1 = {
+        list: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
+      }
+      const doc2 = {
+        list: [{ id: 1 }],
+      }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+
+    test('removes elements from arrays nested inside objects inside arrays', () => {
+      const doc1 = {
+        paths: [
+          { path: '/a', tags: ['x', 'y', 'z'] },
+          { path: '/b', tags: ['1', '2', '3', '4'] },
+        ],
+      }
+      const doc2 = {
+        paths: [
+          { path: '/a', tags: ['x'] },
+          { path: '/b', tags: ['1', '2'] },
+        ],
+      }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+
+    test('keeps adding and removing elements in the same document consistent', () => {
+      const doc1 = {
+        servers: [{ url: 'a' }, { url: 'b' }, { url: 'c' }],
+        tags: ['one'],
+      }
+      const doc2 = {
+        servers: [{ url: 'a' }],
+        tags: ['one', 'two', 'three'],
+      }
+
+      expect(apply(structuredClone(doc1), diff(doc1, doc2))).toEqual(doc2)
+    })
+  })
+
+  describe('Should treat container type changes as a single update', () => {
+    test('detects an object changing into an array as a single update', () => {
+      const doc1 = { tags: {} }
+      const doc2 = { tags: ['x', 'y'] }
+
+      expect(diff(doc1, doc2)).toEqual([{ path: ['tags'], changes: doc2.tags, type: 'update' }])
+    })
+
+    test('detects an array changing into an object as a single update', () => {
+      const doc1 = { tags: ['x', 'y'] }
+      const doc2 = { tags: { note: 'hi' } }
+
+      expect(diff(doc1, doc2)).toEqual([{ path: ['tags'], changes: doc2.tags, type: 'update' }])
+    })
+
+    test('detects container type changes on nested properties', () => {
+      const doc1 = {
+        info: {
+          contact: { emails: { primary: 'a@example.com' } },
+        },
+      }
+
+      const doc2 = {
+        info: {
+          contact: { emails: ['a@example.com', 'b@example.com'] },
+        },
+      }
+
+      expect(diff(doc1, doc2)).toEqual([
+        {
+          path: ['info', 'contact', 'emails'],
+          changes: doc2.info.contact.emails,
+          type: 'update',
+        },
+      ])
+    })
+
+    test('applying the diff replaces the container instead of corrupting it', () => {
+      const doc1 = { tags: {} }
+      const doc2 = { tags: ['x', 'y'] }
+
+      const result = apply(structuredClone(doc1), diff(doc1, doc2))
+
+      expect(Array.isArray(result.tags)).toBe(true)
+      expect(result).toEqual(doc2)
+
+      const reverse = apply(structuredClone(doc2), diff(doc2, doc1))
+
+      expect(Array.isArray(reverse.tags)).toBe(false)
+      expect(reverse).toEqual(doc1)
+    })
+
+    test('consumers applying only add differences leave the existing container untouched', () => {
+      const doc1 = { tags: {} }
+      const doc2 = { tags: ['x', 'y'] }
+
+      // A type change is an update, so add-only consumers no longer write
+      // numeric string keys onto the existing object
+      const additions = diff(doc1, doc2).filter((d) => d.type === 'add')
+
+      expect(additions).toEqual([])
+      expect(apply(structuredClone(doc1), additions)).toEqual(doc1)
+    })
   })
 
   test('Should correctly detect multiple changes', () => {
@@ -325,5 +494,97 @@ describe('diff', () => {
       { path: ['hobbies', '2'], changes: doc2.hobbies[2], type: 'add' },
       { path: ['isStudent'], changes: doc1.isStudent, type: 'delete' },
     ])
+  })
+
+  describe('prototype pollution', () => {
+    // A regression writes the probe key onto `Object.prototype`, where it would leak into every
+    // later test in the worker and turn one failure into many. Clean it up so failures stay readable.
+    afterEach(() => {
+      for (const key of PROBE_KEYS) {
+        delete (Object.prototype as Record<string, unknown>)[key]
+      }
+    })
+
+    test('skips a `__proto__` key coming from a parsed document', () => {
+      // `JSON.parse` creates a real own `__proto__` property, unlike an object literal
+      const doc2 = JSON.parse('{"__proto__": {"pollutedByDiff": "yes"}}')
+
+      expect(diff({}, doc2)).toEqual([])
+      expect(({} as Record<string, unknown>).pollutedByDiff).toBeUndefined()
+    })
+
+    test('skips a `__proto__` key nested inside the document', () => {
+      const doc1 = { info: {} }
+      const doc2 = JSON.parse('{"info": {"__proto__": {"pollutedByNestedDiff": "yes"}}}')
+
+      expect(diff(doc1, doc2)).toEqual([])
+      expect(({} as Record<string, unknown>).pollutedByNestedDiff).toBeUndefined()
+    })
+
+    test('skips a `constructor` key', () => {
+      const doc2 = JSON.parse('{"constructor": {"prototype": {"pollutedByConstructor": "yes"}}}')
+
+      expect(diff({}, doc2)).toEqual([])
+      expect(({} as Record<string, unknown>).pollutedByConstructor).toBeUndefined()
+    })
+
+    test('skips a `prototype` key', () => {
+      const doc2 = JSON.parse('{"prototype": {"pollutedByPrototype": "yes"}}')
+
+      expect(diff({}, doc2)).toEqual([])
+      expect(({} as Record<string, unknown>).pollutedByPrototype).toBeUndefined()
+    })
+
+    test('keeps the safe keys of a document that also carries a `__proto__` key', () => {
+      const doc2 = JSON.parse('{"__proto__": {"pollutedBesideSafeKeys": "yes"}, "openapi": "3.1.1"}')
+
+      expect(diff({}, doc2)).toEqual([{ path: ['openapi'], changes: '3.1.1', type: 'add' }])
+      expect(({} as Record<string, unknown>).pollutedBesideSafeKeys).toBeUndefined()
+    })
+
+    test('never poisons the prototype through a full diff and apply round trip', () => {
+      const doc2 = JSON.parse('{"__proto__": {"pollutedByRoundTrip": "yes"}, "openapi": "3.1.1"}')
+
+      expect(apply({}, diff({}, doc2))).toEqual({ openapi: '3.1.1' })
+      expect(({} as Record<string, unknown>).pollutedByRoundTrip).toBeUndefined()
+    })
+  })
+
+  // The changes a diff carries are live references into the documents, never clones. The behavior
+  // is pinned here so a future switch to cloning is a deliberate change rather than a silent one.
+  describe('shares references with the source documents', () => {
+    test('an `add` carries the subtree of the target document', () => {
+      const doc2 = { info: { title: 'Pets' } }
+      const [change] = diff({}, doc2)
+
+      expect(change.changes).toBe(doc2.info)
+
+      // Writing into the change writes into the document it came from
+      change.changes.title = 'Rebased'
+      expect(doc2.info.title).toBe('Rebased')
+    })
+
+    test('an `update` carries the subtree of the target document', () => {
+      const doc2 = { info: { title: 'Pets' } }
+      const [change] = diff({ info: 'Pets' }, doc2)
+
+      expect(change).toEqual({ path: ['info'], changes: { title: 'Pets' }, type: 'update' })
+      expect(change.changes).toBe(doc2.info)
+    })
+
+    test('a `delete` carries the subtree of the source document', () => {
+      const doc1 = { info: { title: 'Pets' } }
+      const [change] = diff(doc1, {})
+
+      expect(change).toEqual({ path: ['info'], changes: { title: 'Pets' }, type: 'delete' })
+      expect(change.changes).toBe(doc1.info)
+    })
+
+    test('applying a diff leaves the result sharing structure with the target document', () => {
+      const doc2 = { info: { title: 'Pets' } }
+      const result = apply({}, diff({}, doc2))
+
+      expect(result.info).toBe(doc2.info)
+    })
   })
 })

@@ -22,6 +22,7 @@ export const es = {
     path: 'Ruta',
     propertyNames: 'nombres de propiedades',
     pattern: 'Patrón',
+    copyPattern: 'Copiar patrón',
     readOnly: 'solo lectura',
     required: 'obligatorio',
     hideValues: 'Ocultar valores',

@@ -17,7 +17,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.4.13",
+  "version": "0.4.16",
   "engines": {
     "node": ">=22"
   },
@@ -57,6 +57,6 @@
     "astro": "^4.0.0 || ^5.0.0 || ^6.0.0"
   },
   "peerDependencies": {
-    "astro": "^4.0.0 || ^5.0.0"
+    "astro": "^4.0.0 || ^5.0.0 || ^6.0.0"
   }
 }

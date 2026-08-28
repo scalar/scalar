@@ -1,5 +1,17 @@
 # @scalar/oas-utils
 
+## 0.19.14
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.19.13
+
+## 0.19.12
+
+## 0.19.11
+
 ## 0.19.10
 
 ### Patch Changes

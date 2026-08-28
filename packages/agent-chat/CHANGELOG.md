@@ -1,5 +1,27 @@
 # @scalar/agent-chat
 
+## 0.12.28
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.12.27
+
+### Patch Changes
+
+- [#9872](https://github.com/scalar/scalar/pull/9872): Bump shared runtime dependencies: `js-base64` (`^3.7.8` -> `^3.9.2`) and `type-fest` (`^5.3.1` -> `^5.8.0`).
+
+## 0.12.26
+
+## 0.12.25
+
+### Patch Changes
+
+- [#9878](https://github.com/scalar/scalar/pull/9878): Do not send the chat message while an IME composition is in progress. Pressing Enter to confirm Japanese, Chinese, or Korean input used to send the message too early and drop part of the text (macOS Chrome and Safari). Enter now sends only once composition has finished.
+- [#9870](https://github.com/scalar/scalar/pull/9870): Remove a stray debug console.log from the response body view.
+- [#9869](https://github.com/scalar/scalar/pull/9869): Show NDJSON responses instead of "Binary file". Responses with `application/x-ndjson` or `application/ndjson` are now rendered as text, with each JSON record pretty-printed in the preview.
+
 ## 0.12.24
 
 ## 0.12.23

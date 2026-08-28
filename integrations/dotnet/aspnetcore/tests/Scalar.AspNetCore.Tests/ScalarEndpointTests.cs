@@ -292,6 +292,35 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     }
 
     [Fact]
+    public async Task MapScalarApiReference_ShouldAwaitConfigureOptions_WhenAsyncOverloadUsed()
+    {
+        // Arrange
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints => endpoints.MapScalarApiReference(async o =>
+                {
+                    // Yield first so the title is only applied after the callback resumes. If the endpoint
+                    // did not await the async callback, the title would not be set before the HTML is rendered.
+                    await Task.Yield();
+                    o.Title = "Async Title";
+                }));
+            });
+        });
+        var client = localFactory.CreateClient();
+
+        // Act
+        var response = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain("<title>Async Title</title>");
+    }
+
+    [Fact]
     public async Task MapScalarApiReference_ShouldUseNonce_WhenRequested()
     {
         // Arrange

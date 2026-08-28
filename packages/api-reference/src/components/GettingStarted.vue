@@ -2,6 +2,7 @@
 import { ScalarButton } from '@scalar/components/button'
 import { themeLabels, type ThemeId } from '@scalar/themes'
 
+import { useDocumentOutline } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
 
 defineProps<{
@@ -36,6 +37,8 @@ async function fetchExampleSpecification() {
 
   emits('updateContent', await response.text())
 }
+
+const { level: headingLevel } = useDocumentOutline('document')
 </script>
 <template>
   <div class="custom-scroll start">
@@ -52,9 +55,11 @@ async function fetchExampleSpecification() {
             fill-rule="evenodd" />
         </svg>
       </div>
-      <h1 class="start-h1">
+      <component
+        :is="`h${headingLevel}`"
+        class="start-h1">
         {{ translate('gettingStarted.swaggerEditor') }}
-      </h1>
+      </component>
       <p class="start-p">
         {{ translate('gettingStarted.description') }}
       </p>

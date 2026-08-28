@@ -210,13 +210,13 @@ The whole point of defining a security scheme is that it makes using an API easi
 
 Our [API reference](https://galaxy.scalar.com/) supports API key, HTTP, and OAuth 2.0 security schemes. Based on your OpenAPI document and the security schemes applied to your operations, users can choose one of these and send requests with it.
 
-Behind the scenes, we handle the logic for applying the correct scheme for each operation, include the UI to gather the needed information, set up the correct auth method on users requests, handle state for the auth, and handle errors that come from invalid credentials or other auth failures.
+Behind the scenes, we handle the logic for applying the correct scheme for each operation, include the UI to gather the needed information, set up the correct auth method on users’ requests, handle state for the auth, and handle errors that come from invalid credentials or other auth failures.
 
 ### API client
 
 The [API client](https://client.scalar.com/) looks very similar. The big difference is that because your client state can be private to you, we can store it between sessions and collections. This also means you might have multiple collections as well as multiple active security schemes.
 
-To handle this, we store auth values at the collection-level, support operation-level overrides, and allow you to select the scheme on want on per-request. The selectors for schemes are also more interactive, allowing editing of API key name fields and scheme deletion.
+To handle this, we store auth values at the collection-level, support operation-level overrides, and allow you to select the scheme you want on per-request. The selectors for schemes are also more interactive, allowing editing of API key name fields and scheme deletion.
 
 Our API client also pre-fills as much information as possible. It auto detects security schemes, creates default value structures based on scheme types, pre-configs OAuth flows if provided, and more.
 
@@ -224,6 +224,6 @@ Our API client also pre-fills as much information as possible. It auto detects s
 
 As with many areas of Scalar, we continue to improve the connection between your OpenAPI doc, API reference, and API client. For example, we recently added the ability to sync authentication settings between the API reference and the API client. The API reference can pass auth settings to the client modal and the select security schemes become the default in the client.
 
-Security shouldn’t come at the cost of developer experience. The tools Scalar provides helps developers authenticate quickly and correctly. This helps them test endpoints, debug, and ultimately build better (and more secure) APIs.
+Security shouldn’t come at the cost of developer experience. The tools Scalar provides help developers authenticate quickly and correctly. This helps them test endpoints, debug, and ultimately build better (and more secure) APIs.
 
 **Mar 26, 2025**

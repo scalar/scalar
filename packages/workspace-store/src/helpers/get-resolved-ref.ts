@@ -1,3 +1,5 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+
 export type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value'?: Node }
 export type NodeInput<Node> = Node | RefNode<Node>
 
@@ -15,6 +17,16 @@ const defaultTransform = <Node>(node: RefNode<Node>) => {
  */
 export const mergeSiblingReferences = <Node>(node: RefNode<Node>): Node => {
   const { '$ref-value': value, ...rest } = node
+
+  // A reference can land on something that is not a record: a pointer that aims at a string
+  // (`$ref: '#/info/title'`), one that was never resolved, or one whose target is an array. Spreading
+  // any of those copies it index by index, so a reference to a title becomes `{ 0: 'G', 1: 'a', … }`
+  // and every consumer downstream treats those digits as real properties. There is nothing to merge
+  // siblings onto in that case, so only the siblings survive.
+  if (!isObject(value)) {
+    return rest as Node
+  }
+
   return { ...value, ...rest } as Node
 }
 

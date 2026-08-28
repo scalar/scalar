@@ -1,3 +1,5 @@
+import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
+
 import type { Difference } from '@/diff/diff'
 
 export class InvalidChangesDetectedError extends Error {
@@ -12,9 +14,25 @@ export class InvalidChangesDetectedError extends Error {
  * The function traverses the document structure following the paths specified in the differences
  * and applies the corresponding changes (add, update, or delete) at each location.
  *
- * @param document - The original document to apply changes to
+ * Paths that reach the prototype chain (`__proto__`, `constructor` or `prototype`) are rejected
+ * before anything is written, so a hostile changeset cannot poison `Object.prototype`.
+ *
+ * A change with an empty path asks to replace the document itself, which is not supported: the
+ * function writes through the parent container of each path and the root has no parent. `diff`
+ * emits such a change whenever the two documents differ at the root, which covers a different
+ * `typeof`, `null` against an object, and an array on one side against a plain object on the
+ * other. Those changesets have to be handled by the caller instead of being applied.
+ *
+ * ⚠️ `document` is mutated in place and the result shares structure with the document the diff was
+ * built from: every `add` and `update` writes the change into the document by reference, and those
+ * changes are live references into the target document `diff` compared (see `diff`). A later write
+ * into the result can therefore be seen through that document, and the other way around. Callers
+ * that need an isolated result have to deep clone the document and the changes first.
+ *
+ * @param document - The original document to apply changes to, mutated in place
  * @param diff - Array of differences to apply, each containing a path and change type
- * @returns The modified document with all changes applied
+ * @returns The modified document with all changes applied, structurally shared with the changes
+ * @throws {InvalidChangesDetectedError} When a path is unusable, empty or reaches the prototype chain
  *
  * @example
  * const original = {
@@ -71,6 +89,31 @@ export const apply = <T extends Record<string, unknown>>(
       throw new InvalidChangesDetectedError('Process aborted, check diff object')
     }
     applyChange(current[path[depth]], path, d, depth + 1)
+  }
+
+  // Reject the two kinds of unusable entry we can spot without walking the document - a root level
+  // change and a prototype reaching path - before any entry touches it. A path that does not exist
+  // is only found while traversing, so that one can still leave the document half updated.
+  for (const d of diff) {
+    // An empty path targets the document itself. We only ever write through the parent container of
+    // a path, so there is nothing to write into for the root, and the caller has to swap the
+    // document out on its own.
+    if (d.path.length === 0) {
+      throw new InvalidChangesDetectedError(
+        'Process aborted. Root-level replacement is not supported, the change targets the document itself instead of a property inside it',
+      )
+    }
+
+    // A path segment such as `__proto__` would make the traversal walk onto `Object.prototype` and
+    // write there, poisoning every object in the runtime. `diff` never emits these segments, so
+    // only a hand-crafted changeset reaches this guard.
+    const unsafeSegment = d.path.find(isPollutionKey)
+
+    if (unsafeSegment !== undefined) {
+      throw new InvalidChangesDetectedError(
+        `Process aborted. Path ${d.path.join('.')} contains the unsafe segment "${unsafeSegment}", which can modify the prototype chain`,
+      )
+    }
   }
 
   for (const d of diff) {

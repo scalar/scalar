@@ -19,6 +19,34 @@
   z-index: 123123123123 !important;
 }
 
+.docs-overview-card {
+  display: flex;
+  position: relative;
+}
+
+.docs-overview-card > .t-editor__card {
+  flex: 1;
+}
+
+.card-content__text.t-prose:empty {
+  display: none;
+}
+
+/* Preserve the stretched link without letting its prose wrapper create a flex gap. */
+.card-content__text.t-prose:has(> .card-stretched-link:only-child) {
+  display: contents;
+}
+
+.docs-overview-card:has(.card-stretched-link:hover) > .t-editor__card {
+  background-color: var(--scalar-background-2);
+}
+
+.starter-kit-animation {
+  display: block;
+  height: fit-content !important;
+  width: 100% !important;
+}
+
 /* Component Preview Styles */
 
 .scalar-component-preview {
@@ -121,22 +149,26 @@
 }
 
 .docs-global-footer .footer-content {
-  display: flex;
-  gap: 48px;
+  /* one grid for everything: the brand block is column one, and the four
+     link groups (promoted out of .footer-links by display: contents) fill
+     the rest -- so the brand keeps its top-left position exactly */
+  display: grid;
+  gap: 0;
+  /* dedicated 48px gutter track between the brand column and the links */
+  grid-template-columns: minmax(0, 1fr) 48px repeat(4, minmax(0, 1fr));
   margin: auto;
   max-width: calc(100% - 56px);
   padding-top: 48px;
   width: 100%;
 }
 
-.docs-global-footer .footer-content > * {
-  flex: 1;
+.docs-global-footer .footer-links {
+  display: contents;
 }
 
-.docs-global-footer .footer-links {
-  display: grid;
-  gap: 48px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+/* skip the gutter track so auto-placement fills columns 3-6 */
+.docs-global-footer .footer-link-group:first-child {
+  grid-column: 3;
 }
 
 .docs-global-footer .footer-content span,
@@ -226,12 +258,29 @@
 }
 
 @media screen and (max-width: 1000px) {
+  /* the one-grid desktop layout (gutter track + display: contents) does not
+     stack, so small viewports go back to the original flex column with the
+     links as their own grid */
   .docs-global-footer .footer-content {
+    display: flex;
     flex-direction: column;
+    gap: 48px;
   }
 
-  .docs-global-footer .footer-content > * {
-    flex: initial;
+  .docs-global-footer .footer-links {
+    display: grid;
+    gap: 32px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .docs-global-footer .footer-link-group:first-child {
+    grid-column: auto;
+  }
+}
+
+@media screen and (max-width: 860px) {
+  .docs-global-footer .footer-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

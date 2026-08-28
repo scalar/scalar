@@ -29,6 +29,8 @@ import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
+import ScalarSidebarGroupToggleButton from './ScalarSidebarGroupToggleButton.vue'
+import ScalarSidebarGroupToggleSpacer from './ScalarSidebarGroupToggleSpacer.vue'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import ScalarSidebarLoading from './ScalarSidebarLoading.vue'
 import type { ScalarSidebarGroupProps, ScalarSidebarGroupSlots } from './types'
@@ -95,7 +97,7 @@ const handleToggle = (event: MouseEvent) => {
         <ScalarSidebarButton
           is="button"
           :active
-          :aria-expanded="open"
+          :aria-expanded="discrete ? undefined : open"
           :disabled
           :icon
           :indent="level"
@@ -118,11 +120,7 @@ const handleToggle = (event: MouseEvent) => {
             <slot
               name="aside"
               :open />
-            <div
-              v-if="discrete"
-              class="size-4">
-              <!-- Placeholder for discrete group toggle -->
-            </div>
+            <ScalarSidebarGroupToggleSpacer v-if="discrete" />
             <slot
               v-else
               name="toggle"
@@ -134,16 +132,10 @@ const handleToggle = (event: MouseEvent) => {
           </template>
           <slot :open />
         </ScalarSidebarButton>
-        <button
+        <ScalarSidebarGroupToggleButton
           v-if="discrete"
-          :aria-expanded="open"
-          class="absolute top-[1lh] -translate-y-1/2 p-0.75 rounded right-1.25 text-sidebar-c-2"
-          :class="
-            selected
-              ? 'hover:bg-sidebar-b-1 hover:text-sidebar-c-1'
-              : 'hover:bg-sidebar-b-hover hover:text-sidebar-c-hover'
-          "
-          type="button"
+          :open
+          :selected
           @click="handleToggle">
           <slot
             name="toggle"
@@ -154,7 +146,7 @@ const handleToggle = (event: MouseEvent) => {
               </template>
             </ScalarSidebarGroupToggle>
           </slot>
-        </button>
+        </ScalarSidebarGroupToggleButton>
       </slot>
       <slot
         name="after"

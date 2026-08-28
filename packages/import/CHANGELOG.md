@@ -1,5 +1,13 @@
 # @scalar/import
 
+## 0.5.21
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.5.20
+
 ## 0.5.19
 
 ## 0.5.18

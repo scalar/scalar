@@ -26,11 +26,11 @@ The `logo` property defines your site's logo. You can provide a single URL for a
 
 Your logo renders on the first of these surfaces your site has:
 
-1. The **header**, if `navigation.header` has any items
+1. The **header**, if you declare `navigation.header` or set `layout.header` to `true`
 2. The **tabs**, if you have `navigation.tabs` but no header
 3. The **sidebar**, if you have neither
 
-To put your logo in the header, add at least one item to [`navigation.header`](navigation.md#header) — a single spacer is enough. If a page hides all three surfaces through its [layout options](navigation.md#layout-options), the logo does not render on that page.
+To force the logo to go in the header, set `layout.header` to `true`. If a page hides all three surfaces through its [layout options](navigation.md#layout-options), the logo does not render on that page.
 
 If you do not set a `logo`, your project title from `info.title` renders in the same place instead.
 
@@ -177,7 +177,7 @@ Respect the user's system preference while allowing them to override it:
 
 ## Layout
 
-The `layout` property controls global layout options that apply to all pages unless overridden at the page level.
+The `layout` property controls global layout options that apply to all pages unless overridden by a page's own [layout options](navigation.md#layout-options).
 
 ```json
 // scalar.config.json
@@ -204,7 +204,7 @@ The `layout` property controls global layout options that apply to all pages unl
 | Property      | Type      | Default  | Description                                    |
 | ------------- | --------- | -------- | ---------------------------------------------- |
 | `toc`         | `boolean` | `true`   | Whether to show the table of contents globally |
-| `header`      | `boolean` | `true`   | Whether to show the header globally            |
+| `header`      | `boolean` | —        | Whether to show the header globally. Falls back to whether or not [`navigation.header`](navigation.md#header) is declared |
 | `pageTitle`   | `boolean` | `true`   | Whether to show page titles globally           |
 | `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |
 | `search`      | `object`  | —        | Search bar configuration                       |
@@ -446,6 +446,36 @@ Point `path` at the route your changelog lives on. The feed is written to `rss.x
 | `path`        | `string` | Yes      | Route of your changelog, for example `/changelog`. Must be a plain site route with no `..` segments |
 | `title`       | `string` | No       | Title of the feed, shown in feed readers. Defaults to your site title plus `Changelog` |
 | `description` | `string` | No       | Description of the feed, shown in feed readers                                      |
+| `entries`     | `string` | No       | How items are found. `headings` (default) turns each dated heading into an item; `pages` turns each page under `path` with a `date` in its frontmatter into an item |
+
+### Multiple Feeds
+
+To publish more than one feed, set `rss` to a list. Each entry is a feed with its own `path`, and each is written to `rss.xml` under that path — so `/changelog` and `/blog` publish `/changelog/rss.xml` and `/blog/rss.xml` side by side:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "rss": [
+      {
+        "path": "/changelog",
+        "title": "Scalar Changelog",
+        "description": "Every Scalar release, as a feed"
+      },
+      {
+        "path": "/blog",
+        "title": "Scalar Blog"
+      }
+    ]
+  }
+}
+```
+
+Every feed takes the same properties as a single one, and each path must be unique. A single feed still works exactly as shown above — the list is only needed when you want more than one.
+
+When a page sits under more than one feed, its header shows a subscribe button for each, with the nearest feed first.
 
 ### Writing Entries
 
@@ -479,6 +509,39 @@ An index page with no dated headings contributes nothing of its own, which is wh
 
 Hidden pages are skipped. A page kept out of the sidebar and the sitemap stays out of the feed as well.
 
+### One Item per Page
+
+For a blog, where each post is its own page rather than a heading on a shared page, set `entries` to `pages`:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "rss": {
+      "path": "/blog",
+      "title": "Scalar Blog",
+      "entries": "pages"
+    }
+  }
+}
+```
+
+Now every page under `path` that carries a `date` in its frontmatter becomes one feed item, newest first:
+
+```markdown
+---
+date: 2026-07-24
+---
+
+# Our new dark mode
+
+A short introduction to the post.
+```
+
+The page title becomes the item title, its description becomes the item description, and the frontmatter `date` sets the publish date. Pages without a `date` — an index page, a draft — are left out, so nothing is syndicated by accident.
+
 ### Discovery
 
 Every page on your site advertises the feed in its `<head>`, so feed readers and browser extensions can find it from any URL:
@@ -487,7 +550,7 @@ Every page on your site advertises the feed in its `<head>`, so feed readers and
 <link rel="alternate" type="application/rss+xml" href="https://example.com/changelog/rss.xml">
 ```
 
-Pages at `path` and beneath it also show a subscribe button in the page header, next to Copy Page.
+Pages at `path` and beneath it also show a subscribe button in the page header, next to Copy Page — one per feed the page belongs to.
 
 ## Routing
 

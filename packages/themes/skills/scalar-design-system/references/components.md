@@ -34,7 +34,7 @@ Several subpaths export sub-components alongside the headline component; confirm
 | `@scalar/components/file-upload` | `ScalarFileUpload` |
 | `@scalar/components/floating` | `ScalarFloating`, `ScalarFloatingBackdrop` |
 | `@scalar/components/form` | `ScalarForm` (+ field/input/section/error parts) |
-| `@scalar/components/header` | `ScalarHeader`, `ScalarHeaderButton` |
+| `@scalar/components/header` | `ScalarHeader`, `ScalarHeaderColumn`, `ScalarHeaderButton` |
 | `@scalar/components/hotkey` | `ScalarHotkey`, `ScalarHotkeyTooltip` |
 | `@scalar/components/icon` | `ScalarIcon` (legacy — prefer `@scalar/icons`) |
 | `@scalar/components/listbox` | `ScalarListbox` |
@@ -64,7 +64,7 @@ Several subpaths export sub-components alongside the headline component; confirm
 - **Form inputs:** `ScalarTextInput` / `ScalarTextInputCopy`, `ScalarTextArea`, `ScalarCheckbox*`, `ScalarSearchInput`, `ScalarFileUpload`, `ScalarForm`.
 - **Selection / floating:** `ScalarCombobox` / `ScalarComboboxMultiselect`, `ScalarListbox`, `ScalarDropdown`, `ScalarPopover`, `ScalarTooltip` (all built on `ScalarFloating` + Floating UI).
 - **Overlays:** `ScalarModal`, `ScalarSavePrompt`, `ScalarFloatingBackdrop`.
-- **Layout & navigation:** `ScalarHeader` / `ScalarHeaderButton`, `ScalarSidebar`, `ScalarMenu`.
+- **Layout & navigation:** `ScalarHeader` / `ScalarHeaderColumn` / `ScalarHeaderButton`, `ScalarSidebar`, `ScalarMenu`. Compose `ScalarHeaderColumn` children inside `ScalarHeader`; it has no layout slots.
 - **Content:** `ScalarCard`, `ScalarCodeBlock`, `ScalarMarkdown`, `ScalarSearchResults`, `ScalarVirtualText`, `ScalarWrappingText`.
 - **Utilities:** `ScalarLoading`, `ScalarHotkey`, `ScalarCopy`, `ScalarColorModeToggle`, `ScalarThemeSwatches`, `ScalarTeleport`, `ScalarErrorBoundary`.
 

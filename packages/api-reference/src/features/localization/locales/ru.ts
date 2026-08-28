@@ -22,6 +22,7 @@ export const ru = {
     path: 'Путь',
     propertyNames: 'имена свойств',
     pattern: 'Шаблон',
+    copyPattern: 'Скопировать шаблон',
     readOnly: 'только чтение',
     required: 'обязательно',
     hideValues: 'Скрыть значения',

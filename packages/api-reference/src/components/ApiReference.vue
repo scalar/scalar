@@ -31,6 +31,7 @@ import {
   createSidebarState,
   ScalarSidebar,
   scrollSidebarToTop,
+  type Item,
 } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
@@ -84,6 +85,7 @@ import {
 } from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
+import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
 import {
@@ -92,10 +94,12 @@ import {
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
+import { buildModelsIndex } from '@/helpers/build-models-index'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import {
   getIdFromUrl,
+  makeHrefFromId,
   makeUrlFromId,
   matchesBasePath,
   redirectUrl,
@@ -342,6 +346,15 @@ const documentLang = computed(() =>
 
 /** Convenience break out var to determine which routing mode we are using */
 const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
+
+/**
+ * Builds the href for a sidebar item so the sidebar renders real anchor tags.
+ *
+ * Rendering anchors (instead of buttons) lets search engines crawl the
+ * navigation, and lets users open entries in a new tab.
+ */
+const getSidebarItemHref = (item: Item): string =>
+  makeHrefFromId(item.id, basePath.value, isMultiDocument.value)
 
 const themeStyle = computed(() =>
   getThemeStyles(mergedConfig.value.theme, {
@@ -717,6 +730,21 @@ const infoSectionId = computed(
     `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`,
 )
 
+/**
+ * Whether to render the crawler-only navigation links.
+ *
+ * The list is part of the server-rendered HTML so crawlers can discover the URL of every
+ * sidebar entry, including the ones inside collapsed groups that the interactive sidebar
+ * keeps out of the DOM. The flag must stay `true` through the client's hydration render —
+ * flipping it any earlier (for example in onBeforeMount) would make the client render a
+ * different tree than the server HTML and cause a hydration mismatch. Once the app is
+ * interactive the real sidebar takes over, so the list is dropped right after mount.
+ */
+const showCrawlerNav = ref(true)
+onMounted(() => {
+  showCrawlerNav.value = false
+})
+
 /** User for mobile navigation */
 const breadcrumb = ref('')
 
@@ -733,6 +761,40 @@ const setBreadcrumb = (id: string) => {
     breadcrumb.value = item.title
   }
 }
+
+/**
+ * Ancestor tags (root → section in view) for the sticky context bar. Walks up
+ * the reverse-indexed navigation tree from the selected entry, keeping only tag
+ * nodes that render a header of their own. Empty for top-level sections, so the
+ * reserved bar stays blank until a section is actually nested — deep OpenAPI 3.2
+ * `parent` hierarchies that cannot be conveyed by indentation alone.
+ */
+const contextChain = computed(() => {
+  const selectedId = sidebarState.selectedItem.value
+  if (!selectedId) {
+    return []
+  }
+
+  const crumbs: { id: string; title: string }[] = []
+  let node = sidebarState.getEntryById(selectedId)
+
+  while (node) {
+    if (node.type === 'tag') {
+      // Legacy `x-tagGroups` wrappers only render a header of their own in the classic layout.
+      // The modern layout flattens them, so a breadcrumb pointing at them there would reference
+      // an invisible section.
+      const rendersHeader =
+        node.isTagGroup !== true || mergedConfig.value.layout === 'classic'
+
+      if (rendersHeader) {
+        crumbs.unshift({ id: node.id, title: node.title })
+      }
+    }
+    node = node.parent
+  }
+
+  return crumbs
+})
 
 const scrollToLazyElement = (id: string) => {
   setBreadcrumb(id)
@@ -801,21 +863,13 @@ defineExpose({
 
 /**
  * Computes a mapping from model names to their sidebar entry IDs.
- * This is used for quick lookups and navigation within the sidebar.
+ *
+ * We collect model entries from the whole navigation tree, not just the top-level `models` group,
+ * so that schemas grouped under a tag via `x-tags` are still reachable by name.
+ *
+ * @see https://github.com/scalar/scalar/issues/9854
  */
-const modelsIndex = computed(() => {
-  return sidebarItems.value
-    .filter((item) => item.type === 'models')
-    .flatMap((item) => item.children ?? [])
-    .filter((item) => item.type === 'model')
-    .reduce(
-      (acc, item) => {
-        acc[item.name] = item.id
-        return acc
-      },
-      {} as Record<string, string>,
-    )
-})
+const modelsIndex = computed(() => buildModelsIndex(sidebarItems.value))
 
 eventBus.on('scroll-to:model-by-name', ({ name }) => {
   /** Find the model in the models index */
@@ -1614,6 +1668,7 @@ const showMCPButton = computed(() => {
             "
             class="t-doc__sidebar"
             :class="sidebarClasses"
+            :getHref="getSidebarItemHref"
             :isExpanded="sidebarState.isExpanded"
             :isSelected="sidebarState.isSelected"
             :items="sidebarItems"
@@ -1713,6 +1768,17 @@ const showMCPButton = computed(() => {
         </template>
       </MobileHeader>
 
+      <!-- Crawler-only navigation: exposes every sidebar URL in the server-rendered HTML -->
+      <!-- Passing the same `sidebarOptions` the interactive sidebar reads (see the
+           ScalarSidebar below) keeps both filtering the tree identically, so the crawler
+           list can never drift from what the sidebar would show. -->
+      <CrawlerNav
+        v-if="showCrawlerNav"
+        :basePath="basePath"
+        :isMultiDocument="isMultiDocument"
+        :items="sidebarItems"
+        :options="sidebarOptions" />
+
       <!-- Primary Content -->
       <main
         :aria-label="
@@ -1725,6 +1791,7 @@ const showMCPButton = computed(() => {
         <Content
           :authStore="clientStore.auth"
           :clientDocument="clientStore.workspace.activeDocument"
+          :contextChain
           :document="workspaceStore.workspace.activeDocument"
           :documentSlug="activeSlug"
           :environment
@@ -1916,6 +1983,10 @@ const showMCPButton = computed(() => {
 .references-classic .references-rendered {
   height: initial !important;
   max-height: initial !important;
+}
+/* Give the classic layout some breathing room at the end of the scroll */
+.references-classic .references-rendered {
+  padding-bottom: 80px;
 }
 
 @layer scalar-config {

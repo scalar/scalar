@@ -1,5 +1,25 @@
 # @scalar/types
 
+## 0.18.2
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.18.1
+
+### Patch Changes
+
+- [#9872](https://github.com/scalar/scalar/pull/9872): Bump shared runtime dependencies: `js-base64` (`^3.7.8` -> `^3.9.2`) and `type-fest` (`^5.3.1` -> `^5.8.0`).
+- [#9893](https://github.com/scalar/scalar/pull/9893): Show schema `pattern` as a hover dropdown in the API reference, similar to examples. Long regex patterns are now revealed on hover instead of being truncated inline.
+- [#9913](https://github.com/scalar/scalar/pull/9913): Add Julia (HTTP.jl) as a code example target. The new `julia/http` client generates HTTP.jl snippets, including headers, query parameters, cookies, basic auth, JSON bodies (as `Dict`s serialized with `JSON.json`), url-encoded bodies and `HTTP.Form` multipart uploads. Julia syntax highlighting and a Julia icon are included, so the client shows up in the code example picker like any other language.
+
+## 0.18.0
+
+### Minor Changes
+
+- [#9868](https://github.com/scalar/scalar/pull/9868): Control OAuth2 flow tabs from your OpenAPI document. Add `x-order` to a flow to set the order of the tabs in the auth section (the first tab is selected by default, so the lowest `x-order` also becomes the default flow), and add `x-scalar-ignore` to a flow to hide its tab — useful for flows that cannot run in the browser, like Client Credentials, which usually fails on CORS. `x-scalar-ignore` on a whole security scheme now hides it from the auth selector too.
+
 ## 0.17.1
 
 ### Patch Changes

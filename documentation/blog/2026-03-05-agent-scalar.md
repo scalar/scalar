@@ -3,7 +3,7 @@
 
 ![ASCII-style image of a headset](../assets/blog/agent-scalar.jpg)
 
-Make your AI Agents talk to APIs is easy and fun. It's just that bigger APIs are a worst-case workload for agents. Raw API definitions in the prompt overflows context so easily. I mean, we tried that. But all we got is hallucinated endpoints and unreliable responses.
+Making your AI Agents talk to APIs is easy and fun. It's just that bigger APIs are a worst-case workload for agents. Raw API definitions in the prompt overflows context so easily. I mean, we tried that. But all we got is hallucinated endpoints and unreliable responses.
 
 That's something MCP helps with. You just wrap your API as MCP tools, and you're good to go. That's what we thought. Actually, the repeated schemas come with a cost (tokens), too.
 
@@ -27,7 +27,7 @@ Agent keeps the tool surface fixed and super small. It fetches just-in-time deta
 
 ## The problem
 
-If you dump the full OpenAPI document into the prompt, you often blow past the model's context window before the model can do any work. That's exactly what happens with the, for example, the [Zoom Meetings API](https://developers.zoom.us/docs/api/meetings/).
+If you dump the full OpenAPI document into the prompt, you often blow past the model's context window before the model can do any work. That's exactly what happens with, for example, the [Zoom Meetings API](https://developers.zoom.us/docs/api/meetings/).
 
 Even when the API is smaller, like [Notions API](https://developers.notion.com/guides/get-started/getting-started), raw OpenAPI is so expensive: It works, sure, but you pay a steep token tax every run. MCP reduces cost a lot, but native MCP still carries schema tokens for every single endpoint.
 
@@ -49,7 +49,7 @@ We used [Zoom Meetings API](https://developers.zoom.us/docs/api/meetings/) (list
 
 Token counting was done with [tiktoken](https://github.com/openai/tiktoken).
 
-### Zoom Mettings
+### Zoom Meetings
 
 **Summary**
 

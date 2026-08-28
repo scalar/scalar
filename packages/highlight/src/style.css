@@ -1,0 +1,308 @@
+/*
+ * @scalar/highlight — token styles.
+ *
+ * There is no theme system here. Every color is derived from the `--scalar-*`
+ * custom properties that `@scalar/themes` already defines, so a code block
+ * follows whatever theme preset the app is running and switches with
+ * `.light-mode` / `.dark-mode` like everything else. Nothing is re-highlighted
+ * when the theme changes; only these variables resolve differently.
+ *
+ * ── Why the color-mix() ────────────────────────────────────────────────────
+ * The semantic palette is tuned for UI — badges, labels, large text — and
+ * several hues are too light for 13px code on a light background. Measured
+ * against `--scalar-background-2`, the default theme's light values give
+ * yellow 1.6:1, accent 2.8:1 and orange 2.9:1; WCAG AA wants 4.5:1.
+ *
+ * So each hue is pulled toward `--scalar-color-1`, the theme's own text color.
+ * That keeps the hue's identity (a custom theme's green still drives strings)
+ * while guaranteeing it moves toward whatever contrasts with that theme's
+ * background — dark text on light themes, light text on dark ones. The
+ * percentages below are the largest share of each hue that still clears 4.5:1
+ * on the default theme; `test/style.test.ts` recomputes them and fails if an
+ * edit drops a token below AA.
+ *
+ * Dark mode needs almost no correction, so it keeps the hues at full strength.
+ *
+ * `--scalar-hl-punctuation` is the one deliberate exception. Brackets, commas
+ * and semicolons are structural glyphs that are never read on their own, and
+ * lifting them to 4.5:1 would put them level with the code around them, which
+ * is the opposite of what they are for. They sit at roughly 3:1 — the AA bar
+ * for non-text — and the test asserts that floor rather than the 4.5 one.
+ *
+ * ── Overriding ─────────────────────────────────────────────────────────────
+ * Fourteen semantic slots cover every scope. To recolor strings everywhere:
+ *
+ *   .shl-code { --scalar-hl-string: rebeccapurple; }
+ */
+
+/* ── semantic slots ─────────────────────────────────────────────────────── */
+/* Defaults are the dark-mode values; they also apply when no mode class is
+   present, which is the common case for a dark-first app shell.
+ *
+ * `.light-mode` is in this list too, and it matters. `@scalar/themes` defines
+ * `--scalar-color-*` on the mode classes, not on `:root`, and a custom
+ * property resolves its `var()` against the element it is declared on. A slot
+ * declared only at `:root` therefore reads an undefined palette, becomes
+ * invalid, and leaves `color` to inherit plain text — which is what happened
+ * in light mode to every slot the block below does not override. Declaring
+ * them here on `.light-mode` as well resolves them against a real palette; the
+ * block below then overrides the ten that want a different mix in light. */
+:root,
+.dark-mode,
+.light-mode,
+.light-mode .dark-mode {
+  /* Grey tiers, dimmest first: punctuation < comment < muted < doc < text.
+     Both mixes pull toward --scalar-color-1, so the hierarchy holds on a light
+     theme (pulling darker) and a dark one (pulling lighter) alike. */
+  --scalar-hl-punctuation: var(--scalar-color-3);
+  --scalar-hl-comment: var(--scalar-color-2);
+  --scalar-hl-muted: color-mix(in oklab, var(--scalar-color-2) 70%, var(--scalar-color-1));
+  --scalar-hl-doc: color-mix(in oklab, var(--scalar-color-2) 50%, var(--scalar-color-1));
+
+  --scalar-hl-string: var(--scalar-color-green);
+  --scalar-hl-literal: var(--scalar-color-orange);
+  --scalar-hl-keyword: color-mix(in oklab, var(--scalar-color-red) 82%, var(--scalar-color-1));
+  --scalar-hl-declaration: var(--scalar-color-purple);
+  --scalar-hl-function: var(--scalar-color-blue);
+  --scalar-hl-builtin: var(--scalar-color-accent);
+  --scalar-hl-type: var(--scalar-color-yellow);
+  --scalar-hl-added: var(--scalar-color-green);
+  --scalar-hl-removed: color-mix(in oklab, var(--scalar-color-red) 82%, var(--scalar-color-1));
+  --scalar-hl-invalid: color-mix(in oklab, var(--scalar-color-red) 82%, var(--scalar-color-1));
+}
+
+.light-mode,
+.dark-mode .light-mode {
+  --scalar-hl-comment: color-mix(in oklab, var(--scalar-color-2) 96%, var(--scalar-color-1));
+  --scalar-hl-string: color-mix(in oklab, var(--scalar-color-green) 85%, var(--scalar-color-1));
+  --scalar-hl-literal: color-mix(in oklab, var(--scalar-color-orange) 72%, var(--scalar-color-1));
+  --scalar-hl-keyword: color-mix(in oklab, var(--scalar-color-red) 90%, var(--scalar-color-1));
+  --scalar-hl-function: color-mix(in oklab, var(--scalar-color-blue) 85%, var(--scalar-color-1));
+  --scalar-hl-builtin: color-mix(in oklab, var(--scalar-color-accent) 70%, var(--scalar-color-1));
+  --scalar-hl-type: color-mix(in oklab, var(--scalar-color-yellow) 52%, var(--scalar-color-1));
+  --scalar-hl-added: color-mix(in oklab, var(--scalar-color-green) 85%, var(--scalar-color-1));
+  --scalar-hl-removed: color-mix(in oklab, var(--scalar-color-red) 90%, var(--scalar-color-1));
+  --scalar-hl-invalid: color-mix(in oklab, var(--scalar-color-red) 90%, var(--scalar-color-1));
+}
+
+/* ── the block ──────────────────────────────────────────────────────────── */
+.shl-code {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+  font-family: var(--scalar-font-code);
+  font-size: var(--scalar-mini);
+  line-height: var(--shl-line-height-3);
+  font-variant-ligatures: none;
+  tab-size: 4;
+  border-radius: var(--scalar-radius-lg);
+  overflow: auto;
+  overscroll-behavior-x: contain;
+  direction: ltr;
+  text-align: left;
+  white-space: pre;
+  word-break: normal;
+  word-spacing: normal;
+  hyphens: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scalar-scrollbar-color) transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+.shl-code::-webkit-scrollbar {
+  height: 9px;
+  width: 9px;
+}
+.shl-code::-webkit-scrollbar-track {
+  background: transparent;
+}
+.shl-code::-webkit-scrollbar-thumb {
+  background: var(--scalar-scrollbar-color);
+  border-radius: var(--scalar-radius-full);
+}
+.shl-code::-webkit-scrollbar-thumb:hover {
+  background: var(--scalar-scrollbar-color-active);
+}
+.shl-code:focus-visible {
+  outline: 2px solid var(--scalar-color-accent);
+  outline-offset: 2px;
+}
+.shl-code ::selection {
+  background: var(--scalar-background-accent);
+}
+
+.shl-code > code {
+  display: block;
+  /* fit-content with a 100% floor lets a highlighted line's background span
+     the full scroll width instead of stopping at the viewport edge. */
+  width: fit-content;
+  min-width: 100%;
+  padding: 12px 16px;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+}
+
+/* ── lines and the gutter ───────────────────────────────────────────────── */
+.shl-code-lined > code {
+  padding-left: 0;
+  padding-right: 0;
+}
+.shl-code-lined .shl-line {
+  display: block;
+  padding: 0 16px;
+  /* Keeps a blank line the height of a text line. */
+  min-height: 1lh;
+}
+.shl-code-numbered > code {
+  counter-reset: shl-line;
+}
+.shl-code-numbered .shl-line::before {
+  counter-increment: shl-line;
+  content: counter(shl-line);
+  display: inline-block;
+  /*
+   * Sized for the widest number in the block, so the code starts at the same
+   * column on line 9 and line 10. `highlightBlock` sets `--shl-line-digits`;
+   * the fallback covers markup rendered before that existed, and the `max`
+   * keeps a narrow block from looking cramped.
+   */
+  min-width: max(2ch, calc(var(--shl-line-digits, 2) * 1ch));
+  margin-right: 1.25em;
+  text-align: right;
+  color: var(--scalar-color-3);
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.shl-code-lined .shl-line[data-hl] {
+  background: var(--scalar-background-3);
+  box-shadow: inset 2px 0 0 var(--scalar-color-accent);
+}
+
+.shl-code[data-lang]::after {
+  content: attr(data-lang);
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: var(--scalar-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--scalar-color-3);
+  pointer-events: none;
+}
+
+/* ── tokens ─────────────────────────────────────────────────────────────── */
+/* Plain identifiers and member access carry no class at all and inherit
+   --scalar-color-1, which keeps both the markup and the noise down. */
+.shl-code .shl-cm {
+  color: var(--scalar-hl-comment);
+  font-style: italic;
+}
+.shl-code .shl-cd {
+  color: var(--scalar-hl-doc);
+  font-style: italic;
+}
+
+.shl-code .shl-s,
+.shl-code .shl-rx {
+  color: var(--scalar-hl-string);
+}
+
+.shl-code .shl-se,
+.shl-code .shl-ss,
+.shl-code .shl-ip,
+.shl-code .shl-n,
+.shl-code .shl-bo,
+.shl-code .shl-c,
+.shl-code .shl-cb,
+.shl-code .shl-u {
+  color: var(--scalar-hl-literal);
+}
+
+.shl-code .shl-vb {
+  color: var(--scalar-hl-literal);
+  font-style: italic;
+}
+
+.shl-code .shl-k,
+.shl-code .shl-kc,
+.shl-code .shl-ko,
+.shl-code .shl-tg,
+.shl-code .shl-li {
+  color: var(--scalar-hl-keyword);
+}
+
+.shl-code .shl-kd,
+.shl-code .shl-ki,
+.shl-code .shl-dc {
+  color: var(--scalar-hl-declaration);
+}
+.shl-code .shl-vs {
+  color: var(--scalar-hl-declaration);
+  font-style: italic;
+}
+
+.shl-code .shl-f,
+.shl-code .shl-fc,
+.shl-code .shl-fm,
+.shl-code .shl-pr {
+  color: var(--scalar-hl-function);
+}
+.shl-code .shl-h {
+  color: var(--scalar-hl-function);
+  font-weight: var(--scalar-bold);
+}
+
+.shl-code .shl-fb,
+.shl-code .shl-o {
+  color: var(--scalar-hl-builtin);
+}
+.shl-code .shl-ln {
+  color: var(--scalar-hl-builtin);
+  text-decoration: underline;
+}
+
+.shl-code .shl-t,
+.shl-code .shl-tb,
+.shl-code .shl-cl,
+.shl-code .shl-ta,
+.shl-code .shl-sl {
+  color: var(--scalar-hl-type);
+}
+
+.shl-code .shl-ns,
+.shl-code .shl-pb {
+  color: var(--scalar-hl-muted);
+}
+.shl-code .shl-vp,
+.shl-code .shl-q {
+  color: var(--scalar-hl-muted);
+  font-style: italic;
+}
+
+.shl-code .shl-p,
+.shl-code .shl-pd {
+  color: var(--scalar-hl-punctuation);
+}
+
+.shl-code .shl-em {
+  font-style: italic;
+}
+.shl-code .shl-sg {
+  font-weight: var(--scalar-bold);
+}
+
+.shl-code .shl-dp {
+  color: var(--scalar-hl-added);
+}
+.shl-code .shl-dm {
+  color: var(--scalar-hl-removed);
+}
+.shl-code .shl-iv {
+  color: var(--scalar-hl-invalid);
+  text-decoration: underline wavy;
+}

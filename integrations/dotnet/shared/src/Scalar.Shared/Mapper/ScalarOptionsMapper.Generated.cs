@@ -37,6 +37,7 @@ internal static partial class ScalarOptionsMapper
         { ScalarTarget.Http, [ScalarClient.Http11] },
         { ScalarTarget.Java, [ScalarClient.AsyncHttp, ScalarClient.NetHttp, ScalarClient.OkHttp, ScalarClient.Unirest] },
         { ScalarTarget.JavaScript, [ScalarClient.Axios, ScalarClient.Fetch, ScalarClient.JQuery, ScalarClient.OFetch, ScalarClient.Xhr] },
+        { ScalarTarget.Julia, [ScalarClient.Http] },
         { ScalarTarget.Kotlin, [ScalarClient.OkHttp] },
         { ScalarTarget.Node, [ScalarClient.Axios, ScalarClient.Fetch, ScalarClient.OFetch, ScalarClient.Undici] },
         { ScalarTarget.ObjC, [ScalarClient.NSUrlSession, ScalarClient.Nsurlsession] },

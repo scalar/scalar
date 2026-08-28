@@ -7,6 +7,7 @@
     "**/*.css",
     // Referenced in scalar.config.json
     "documentation/assets/landing.js",
+    "documentation/assets/powered-by.js",
     "documentation/assets/fathom.js",
     "documentation/assets/posthog.js",
     "documentation/assets/apollo.js",
@@ -56,7 +57,13 @@
     // Public OpenAPI type namespaces are consumed by downstream packages, but knip cannot infer external type usage
     "packages/types/src/openapi/3.1/index.generated.ts": ["types"],
     // Public extension type namespaces are consumed via @scalar/types/extensions/* package exports
-    "packages/types/src/extensions/**/*.ts": ["types", "exports"]
+    "packages/types/src/extensions/**/*.ts": ["types", "exports"],
+    // The v3.2 schemas mirror v3.1 as a superset. These exports are used by their v3.1 counterparts
+    // (resolve.ts, navigation.ts, and the openapi-types codegen script) and become used once the
+    // store is wired to v3.2. Until then knip cannot see a consumer.
+    "packages/workspace-store/src/schemas/v3.2/openapi/reference.ts": ["exports"],
+    "packages/workspace-store/src/schemas/v3.2/strict/ref-definitions.ts": ["exports"],
+    "packages/workspace-store/src/schemas/v3.2/strict/schema.ts": ["types"]
   },
   "workspaces": {
     "packages/api-client": {
@@ -125,6 +132,8 @@
         "src/features/index.ts",
         "src/helpers/index.ts",
         "src/esm.ts",
+        // Short CDN entry point that re-exports the ESM standalone build
+        "esm.js",
         // Used by CI deploy-api-reference preview build
         "vite.previews.config.ts",
         // Not sure why test files are marked as unused here
@@ -135,6 +144,14 @@
     },
     "packages/api-reference-react": {
       "entry": ["src/index.ts", "playground/main.tsx"]
+    },
+    "packages/asyncapi-validator": {
+      "entry": [
+        "src/index.ts",
+        //
+        "playground/src/main.ts",
+        "playground/vite.config.ts"
+      ]
     },
     "packages/build-tooling": {
       "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
@@ -167,6 +184,19 @@
     },
     "packages/helpers": {
       "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
+    },
+    "packages/highlight": {
+      // Every published `exports` entry, plus the benchmark scripts
+      "entry": [
+        "src/index.ts",
+        "src/all.ts",
+        "src/lazy.ts",
+        "src/core/index.ts",
+        "src/compat/index.ts",
+        "src/langs/*.ts",
+        "!src/langs/*.test.ts",
+        "bench/*.ts"
+      ]
     },
     "packages/icons": {
       "ignoreFiles": ["src/library/.svglintrc.js"],
@@ -213,6 +243,14 @@
     },
     "packages/openapi-types": {
       "entry": ["src/index.ts", "src/helpers/index.ts"]
+    },
+    "packages/openapi-validator": {
+      "entry": [
+        "src/index.ts",
+        //
+        "playground/src/main.ts",
+        "playground/vite.config.ts"
+      ]
     },
     "packages/sidebar": {
       "entry": [
@@ -281,6 +319,8 @@
         "./src/schemas/extensions/security/index.ts",
         "./src/schemas/v3.1/strict/openapi-document.ts",
         "./src/schemas/v3.1/strict/type-guards.ts",
+        "./src/schemas/v3.2/strict/openapi-document.ts",
+        "./src/schemas/v3.2/strict/type-guards.ts",
         "./src/server.ts",
         "./src/resolve.ts"
       ]

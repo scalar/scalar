@@ -1,0 +1,63 @@
+{
+  "name": "@scalar/openapi-validator",
+  "description": "Validate OpenAPI documents against the OpenAPI Specification",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/openapi-validator"
+  },
+  "keywords": [
+    "openapi",
+    "scalar",
+    "swagger",
+    "validator",
+    "typescript"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "pnpm playground",
+    "playground": "cd playground && vite",
+    "test": "vitest --run",
+    "types:check": "tsgo --noEmit"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "@scalar/helpers": "workspace:*",
+    "@scalar/json-schema-validator": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "yaml": "catalog:*"
+  },
+  "devDependencies": {
+    "@scalar/themes": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*",
+    "@tailwindcss/vite": "catalog:*",
+    "@types/node": "catalog:*",
+    "@vitejs/plugin-vue": "catalog:*",
+    "tailwindcss": "catalog:*",
+    "vite": "catalog:*",
+    "vue": "catalog:*"
+  }
+}

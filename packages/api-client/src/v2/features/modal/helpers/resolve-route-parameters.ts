@@ -8,14 +8,23 @@ import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 
 /** Payload for routing and opening the API client modal. */
 export type RoutePayload = {
+  /** API path, or webhook name when `isWebhook` is true. */
   path: string
   method: HttpMethod
   example?: string
   documentSlug?: string
+  /** Resolve `path` from the OpenAPI webhooks map. */
+  isWebhook?: boolean
 }
 
 /** Raw input values that may contain "default" placeholders. */
-export type DefaultEntities = Record<keyof RoutePayload, string>
+export type DefaultEntities = {
+  path: string
+  method: string
+  example: string
+  documentSlug: string
+  isWebhook?: boolean
+}
 
 /** Context for resolving route parameters from the workspace store. */
 type ResolverContext = {
@@ -70,7 +79,7 @@ export const resolveDocumentSlug = (store: WorkspaceStore, slug: string | undefi
  * When "default" is specified, returns the first available path in the document.
  * This is useful for initial navigation when no specific path is requested.
  */
-export const resolvePath = (ctx: ResolverContext, path: string | undefined): string | undefined => {
+export const resolvePath = (ctx: ResolverContext, path: string | undefined, isWebhook = false): string | undefined => {
   const document = getDocument(ctx)
 
   if (!document) {
@@ -78,7 +87,7 @@ export const resolvePath = (ctx: ResolverContext, path: string | undefined): str
   }
 
   if (path === 'default') {
-    return Object.keys(document.paths ?? {})[0]
+    return Object.keys(isWebhook ? (document.webhooks ?? {}) : (document.paths ?? {}))[0]
   }
 
   return path
@@ -94,6 +103,7 @@ export const resolveMethod = (
   ctx: ResolverContext,
   path: string | undefined,
   method: string | undefined,
+  isWebhook = false,
 ): HttpMethod | undefined => {
   const document = getDocument(ctx)
 
@@ -102,7 +112,7 @@ export const resolveMethod = (
   }
 
   if (method === 'default') {
-    const pathItem = getResolvedPathItem(document.paths?.[path])
+    const pathItem = getResolvedPathItem(isWebhook ? document.webhooks?.[path] : document.paths?.[path])
     if (!pathItem) {
       return undefined
     }
@@ -153,19 +163,23 @@ export const resolveExampleName = (
 export const resolveRouteParameters = (store: WorkspaceStore, params: DefaultEntities): Partial<RoutePayload> => {
   const documentSlug = resolveDocumentSlug(store, params.documentSlug)
   const ctx: ResolverContext = { store, documentSlug }
+  const isWebhook = params.isWebhook ?? false
 
-  const path = resolvePath(ctx, params.path)
-  const method = resolveMethod(ctx, path, params.method)
+  const path = resolvePath(ctx, params.path, isWebhook)
+  const method = resolveMethod(ctx, path, params.method, isWebhook)
+  const routeType = isWebhook ? { isWebhook: true as const } : {}
 
   const traversedDocument = getDocument(ctx)?.['x-scalar-navigation']
 
   if (!traversedDocument) {
-    return { documentSlug, path, method, example: 'default' }
+    return { documentSlug, path, method, example: 'default', ...routeType }
   }
 
   const operations = getOperationEntries(traversedDocument)
-  const operation = operations.get(`${path}|${method}`)?.find((entry) => entry.type === 'operation')
+  const operation = operations
+    .get(`${path}|${method}`)
+    ?.find((entry) => entry.type === (isWebhook ? 'webhook' : 'operation'))
   const example = resolveExampleName(ctx, operation, params.example)
 
-  return { documentSlug, path, method, example }
+  return { documentSlug, path, method, example, ...routeType }
 }

@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import json
 from enum import Enum
+from html import escape as escape_html
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from typing_extensions import Annotated, Doc, Literal
 from fastapi.responses import HTMLResponse
-from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field
+
+if TYPE_CHECKING:
+    from fastapi import FastAPI
 
 
 class Layout(Enum):
@@ -212,9 +216,6 @@ scalar_theme = """
   --scalar-radius: 3px;
   --scalar-radius-lg: 6px;
   --scalar-radius-xl: 8px;
-}
-.scalar-card:nth-of-type(3) {
-  display: none;
 }"""
 
 
@@ -285,10 +286,11 @@ def get_scalar_api_reference(
         ),
     ] = "https://fastapi.tiangolo.com/img/favicon.png",
     layout: Annotated[
-        Layout,
+        Layout | str,
         Doc(
             """
             The layout to use for Scalar.
+            Accepts a Layout member or its plain string value (e.g. "classic").
             Default is "modern".
             """
         ),
@@ -313,10 +315,11 @@ def get_scalar_api_reference(
         ),
     ] = False,
     document_download_type: Annotated[
-        DocumentDownloadType,
+        DocumentDownloadType | str,
         Doc(
             """
             Sets the file type of the document to download, set to 'none' to hide the download button.
+            Accepts a DocumentDownloadType member or its plain string value (e.g. "json").
             Default is 'both'.
             """
         ),
@@ -349,7 +352,7 @@ def get_scalar_api_reference(
         ),
     ] = False,
     dark_mode: Annotated[
-        bool,
+        bool | None,
         Doc(
             """
             Whether dark mode is on or off initially (light mode).
@@ -358,7 +361,7 @@ def get_scalar_api_reference(
         ),
     ] = None,
     force_dark_mode_state: Annotated[
-        str | None,
+        Literal["dark", "light"] | None,
         Doc(
             """
             Force dark mode state to always be this state no matter what.
@@ -376,16 +379,17 @@ def get_scalar_api_reference(
         ),
     ] = False,
     search_hot_key: Annotated[
-        SearchHotKey,
+        SearchHotKey | str,
         Doc(
             """
             The hotkey to use for search.
+            Accepts a SearchHotKey member or a plain single-letter string (e.g. "s").
             Default is "k" (e.g. CMD+k).
             """
         ),
     ] = SearchHotKey.K,
     hidden_clients: Annotated[
-        bool | dict[str, bool | list[str]] | list[str],
+        bool | dict[str, bool | list[str]] | list[str] | None,
         Doc(
             """
             A dictionary with the keys being the target names and the values being a boolean to hide all clients of the target or a list clients.
@@ -394,7 +398,7 @@ def get_scalar_api_reference(
             Default is [] which means no clients are hidden.
             """
         ),
-    ] = [],
+    ] = None,
     base_server_url: Annotated[
         str,
         Doc(
@@ -405,7 +409,7 @@ def get_scalar_api_reference(
         ),
     ] = "",
     servers: Annotated[
-        list[dict[str, Any]],
+        list[dict[str, Any]] | None,
         Doc(
             """
             List of OpenAPI Server Objects. Each item must have a required 'url' (string) and may have
@@ -414,9 +418,9 @@ def get_scalar_api_reference(
             Default is [] which means no servers are provided.
             """
         ),
-    ] = [],
+    ] = None,
     plugin_urls: Annotated[
-        list[str],
+        list[str] | None,
         Doc(
             """
             URLs of ESM modules that provide additional API Reference plugins.
@@ -425,7 +429,7 @@ def get_scalar_api_reference(
             Default is [] which means no plugin URLs are provided.
             """
         ),
-    ] = [],
+    ] = None,
     default_open_all_tags: Annotated[
         bool,
         Doc(
@@ -473,14 +477,14 @@ def get_scalar_api_reference(
         ),
     ] = "alpha",
     authentication: Annotated[
-        dict,
+        dict | None,
         Doc(
             """
             A dictionary of additional authentication information.
             Default is {} which means no authentication information is provided.
             """
         ),
-    ] = {},
+    ] = None,
     hide_client_button: Annotated[
         bool,
         Doc(
@@ -527,10 +531,11 @@ def get_scalar_api_reference(
         ),
     ] = "fastapi",
     theme: Annotated[
-        Theme,
+        Theme | str,
         Doc(
             """
             The theme to use for Scalar.
+            Accepts a Theme member or its plain string value (e.g. "moon").
             Default is "default".
             """
         ),
@@ -568,15 +573,26 @@ def get_scalar_api_reference(
         ),
     ] = None,
     overrides: Annotated[
-        Dict[str, Any],
+        Dict[str, Any] | None,
         Doc(
             """
             A dictionary of additional configuration overrides to pass to Scalar.
             Default is {} which means no overrides are provided.
             """
         ),
-    ] = {},
+    ] = None,
 ) -> HTMLResponse:
+    # Accept either the enum members or their plain string values, so callers
+    # can pass, for example, theme="moon" instead of theme=Theme.MOON.
+    layout = layout.value if isinstance(layout, Enum) else layout
+    theme = theme.value if isinstance(theme, Enum) else theme
+    search_hot_key = search_hot_key.value if isinstance(search_hot_key, Enum) else search_hot_key
+    document_download_type = (
+        document_download_type.value
+        if isinstance(document_download_type, Enum)
+        else document_download_type
+    )
+
     # Build configuration object with only non-default values
     config = {}
 
@@ -603,8 +619,8 @@ def get_scalar_api_reference(
     if agent is not None:
         config["agent"] = agent.model_dump(exclude_none=True)
 
-    if layout != Layout.MODERN:
-        config["layout"] = layout.value
+    if layout != Layout.MODERN.value:
+        config["layout"] = layout
 
     if not show_sidebar:  # Default is True
         config["showSidebar"] = show_sidebar
@@ -614,8 +630,8 @@ def get_scalar_api_reference(
         hide_download_button
     ):  # Deprecated, but still supported for backwards compatibility
         config["hideDownloadButton"] = hide_download_button
-    elif document_download_type != DocumentDownloadType.BOTH:  # Default is BOTH
-        config["documentDownloadType"] = document_download_type.value
+    elif document_download_type != DocumentDownloadType.BOTH.value:  # Default is BOTH
+        config["documentDownloadType"] = document_download_type
 
     if hide_test_request_button:  # Default is False
         config["hideTestRequestButton"] = hide_test_request_button
@@ -635,8 +651,8 @@ def get_scalar_api_reference(
     if hide_dark_mode_toggle:  # Default is False
         config["hideDarkModeToggle"] = hide_dark_mode_toggle
 
-    if search_hot_key != SearchHotKey.K:  # Default is K
-        config["searchHotKey"] = search_hot_key.value
+    if search_hot_key != SearchHotKey.K.value:  # Default is K
+        config["searchHotKey"] = search_hot_key
 
     if hidden_clients:  # Default is []
         config["hiddenClients"] = hidden_clients
@@ -683,8 +699,8 @@ def get_scalar_api_reference(
     if integration:
         config["_integration"] = integration
 
-    if theme != Theme.DEFAULT:  # Default is DEFAULT
-        config["theme"] = theme.value
+    if theme != Theme.DEFAULT.value:  # Default is DEFAULT
+        config["theme"] = theme
 
     if show_developer_tools != "localhost":  # Default is 'localhost'
         config["showDeveloperTools"] = show_developer_tools
@@ -695,11 +711,17 @@ def get_scalar_api_reference(
     if overrides:  # Default is {}
         config.update(overrides)
 
+    # Escape the title so it cannot inject markup, and escape "</" in the
+    # serialized config so a document that contains "</script>" cannot break
+    # out of the inline <script> block below.
+    page_title = escape_html(title) if title else "Scalar"
+    config_json = json.dumps(config).replace("</", "<\\/")
+
     html = f"""
 <!doctype html>
 <html>
     <head>
-        {f"<title>{title if title else 'Scalar'}</title>"}
+        <title>{page_title}</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" href="{scalar_favicon_url}">
@@ -709,7 +731,7 @@ def get_scalar_api_reference(
                 padding: 0;
             }}
 
-            {scalar_theme if theme.value == Theme.DEFAULT.value else ""}
+            {scalar_theme if theme == Theme.DEFAULT.value else ""}
         </style>
     </head>
     <body>
@@ -720,9 +742,44 @@ def get_scalar_api_reference(
 
         <!-- Initialize the Scalar API Reference -->
         <script>
-            Scalar.createApiReference("#app", {json.dumps(config)})
+            Scalar.createApiReference("#app", {config_json})
         </script>
     </body>
     </html>
     """
     return HTMLResponse(html)
+
+
+def add_scalar_reference(
+    app: FastAPI,
+    *,
+    route: str = "/scalar",
+    include_in_schema: bool = False,
+    **kwargs: Any,
+) -> FastAPI:
+    """
+    Register a Scalar API Reference route on a FastAPI application.
+
+    This is the one-line way to add Scalar to a FastAPI app. It wires up the
+    route and fills in ``openapi_url`` and ``title`` from the app, so the common
+    case is simply::
+
+        from fastapi import FastAPI
+        from scalar_fastapi import add_scalar_reference
+
+        app = FastAPI()
+        add_scalar_reference(app)
+
+    Any keyword argument accepted by :func:`get_scalar_api_reference` can be
+    passed through, for example ``add_scalar_reference(app, theme=Theme.KEPLER)``
+    or a custom ``route="/docs/scalar"``.
+    """
+    # Fall back to the app's own values, but let callers override either one.
+    kwargs.setdefault("openapi_url", app.openapi_url)
+    kwargs.setdefault("title", app.title)
+
+    @app.get(route, include_in_schema=include_in_schema)
+    async def scalar_html() -> HTMLResponse:
+        return get_scalar_api_reference(**kwargs)
+
+    return app

@@ -1,5 +1,17 @@
 # @scalar/api-reference-react
 
+## 0.9.65
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.9.64
+
+## 0.9.63
+
+## 0.9.62
+
 ## 0.9.61
 
 ## 0.9.60

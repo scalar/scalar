@@ -78,7 +78,7 @@ api = NinjaAPI(
 )
 ```
 
-It's recommend to use `ScalarConfig` to have a fully typed configuration.
+It's recommended to use `ScalarConfig` to have a fully typed configuration.
 
 ## Configuration
 
@@ -104,13 +104,13 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 
 ### Display Options
 
-- `layout` (default `Layout.MODERN`) - Options: [Layout](#Layout)
+- `layout` (default `Layout.MODERN`) - Options: [Layout](#layout)
 - `show_sidebar` (default `True`)
 - `hide_models` (default `False`)
 - `hide_search` (default `False`) - Whether to show the sidebar search bar
 - `hide_test_request_button` (default `False`) - Whether to show the "Test Request" button
 - `hide_download_button` (default `False`) - **Deprecated**: Use `document_download_type` instead
-- `document_download_type` (default `DocumentDownloadType.BOTH`) - Sets the file type of the document to download. Options: [DocumentDownloadType](#DocumentDownloadType)
+- `document_download_type` (default `DocumentDownloadType.BOTH`) - Sets the file type of the document to download. Options: [DocumentDownloadType](#documentdownloadtype)
 
 ### Theme and Appearance
 
@@ -122,7 +122,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 
 ### Search and Navigation
 
-- `search_hot_key` (default `SearchHotKey.K`) - Options: [SearchHotKey](#SearchHotKey)
+- `search_hot_key` (default `SearchHotKey.K`) - Options: [SearchHotKey](#searchhotkey)
 - `default_open_all_tags` (default `False`)
 - `expand_all_model_sections` (default `False`) - Whether to expand all model sections by default
 - `expand_all_responses` (default `False`) - Whether to expand all response sections by default
@@ -146,7 +146,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 - `scalar_proxy_url` (default `None`)
 - `scalar_favicon_url` (default `"https://django-ninja.dev/img/favicon.png"`)
 - `integration` (default `None`)
-- `theme` (default `Theme.DEFAULT`) - Options: [Theme](#Theme)
+- `theme` (default `Theme.DEFAULT`) - Options: [Theme](#theme)
 - `agent` (default `None`) - Agent configuration (e.g. `AgentConfig(disabled=True)` to disable globally). Same shape as per-source agent: optional `key`, optional `disabled`.
 
 ### Agent

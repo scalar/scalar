@@ -1,5 +1,17 @@
 # @scalar/mock-server
 
+## 0.12.13
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.12.12
+
+## 0.12.11
+
+## 0.12.10
+
 ## 0.12.9
 
 ## 0.12.8

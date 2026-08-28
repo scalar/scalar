@@ -1,5 +1,21 @@
 # @scalar/blocks
 
+## 0.1.14
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.1.13
+
+### Patch Changes
+
+- [#9872](https://github.com/scalar/scalar/pull/9872): Bump shared runtime dependencies: `js-base64` (`^3.7.8` -> `^3.9.2`) and `type-fest` (`^5.3.1` -> `^5.8.0`).
+
+## 0.1.12
+
+## 0.1.11
+
 ## 0.1.10
 
 ## 0.1.9

@@ -55,7 +55,7 @@ scalar
 builder.Build().Run();
 ```
 
-That's it! 🎉 The Aspire dashboard will display a API Reference resource with unified documentation for all your services.
+That's it! 🎉 The Aspire dashboard will display an API Reference resource with unified documentation for all your services.
 
 ## Configuration
 

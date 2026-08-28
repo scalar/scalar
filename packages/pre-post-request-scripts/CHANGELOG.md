@@ -1,5 +1,17 @@
 # @scalar/scripts
 
+## 0.4.40
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.4.39
+
+## 0.4.38
+
+## 0.4.37
+
 ## 0.4.36
 
 ## 0.4.35

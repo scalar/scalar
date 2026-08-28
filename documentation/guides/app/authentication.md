@@ -1,6 +1,6 @@
 # Authentication
 
-Scalar reads security schemes from your OpenAPI description and lets you fill in credentials once, then reuses them for every request that needs them. Authentication can be set at the collection level or overridden on a single operation.
+Scalar reads security schemes from your OpenAPI document and lets you fill in credentials once, then reuses them for every request that needs them. Authentication can be set at the collection level or overridden on a single operation.
 
 All auth fields accept environment variables — reference them with `{{ variableName }}` to avoid hard-coding secrets. See [Environments](./environments.md).
 

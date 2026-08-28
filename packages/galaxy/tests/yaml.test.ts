@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import YAML from 'yaml'
 
 import galaxy from '../src/documents/3.1.yaml?raw'
+import galaxyThreeTwo from '../src/documents/3.2.yaml?raw'
 
 type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
 
@@ -28,6 +29,16 @@ const getDocument = (): OpenApiDocument => YAML.parse(galaxy) as OpenApiDocument
 describe('yaml', () => {
   it('has OpenAPI version', () => {
     expect(galaxy).toContain('openapi: 3.1.1')
+  })
+
+  it('ships a 3.2 document on version 3.2.0', () => {
+    expect(galaxyThreeTwo).toContain('openapi: 3.2.0')
+  })
+
+  it('keeps the 3.2 document identical to 3.1 apart from the OpenAPI version', () => {
+    // For now the 3.2 document is a version-only copy of 3.1. This guard fails the
+    // moment the two drift, so an accidental change to one document does not slip through.
+    expect(galaxyThreeTwo).toBe(galaxy.replace('openapi: 3.1.1', 'openapi: 3.2.0'))
   })
 
   it('uses the expected security requirements for all operations', () => {

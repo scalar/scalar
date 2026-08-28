@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+    <foreignObject width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="fixme">
+            <div class="markdown-body">
+              <div class="banner-bunny-bounce">
+                <div class="banner">
+                  <div class="banner-text banner-text-oner"></div>
+                  <div class="banner-bunny">
+                    <pre class="markdown-code visible">              ____
+|~~~ \       |     \         |
+| |   \______\ (..) /|_______:_ 
+|_|___        \_~~_/   ``````|/
+\_|__/--,   ,=========(_____/:  
+        '___\       /        |
+             \     |
+              \____|</pre>
+                    <pre class="markdown-code hidden">              ____
+|~~~ \       |     \         :
+| |   \______\ (..) /|_______|_ 
+|_|___        \_~~_/   ``````|/
+\_|__/--,   ,=========(_____/|  
+        '___\       /        :
+             \     |
+              \____|</pre>
+                  </div>
+                </div>
+              </div>
+              <div class="banner-bunny-bounce banner-bunny-bounce2">
+                <div class="banner">
+                  <div class="banner-text banner-text-twoer"></div>
+                  <div class="banner-bunny">
+                    <pre class="markdown-code visible">              ____
+|~~~ \       |     \         |
+| |   \______\ (..) /|_______:_ 
+|_|___        \_~~_/   ``````|/
+\_|__/--,   ,=========(_____/:  
+        '___\       /        |
+             \     |
+              \____|</pre>
+                    <pre class="markdown-code hidden">              ____
+|~~~ \       |     \         :
+| |   \______\ (..) /|_______|_ 
+|_|___        \_~~_/   ``````|/
+\_|__/--,   ,=========(_____/|  
+        '___\       /        :
+             \     |
+              \____|</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              .markdown-code {
+                font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+                white-space: pre;
+                font-size: 10px;
+              }
+              .markdown-body {
+                gap: 18px;
+                display: flex;
+                color: #e7e7e7;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+              }
+              .fixme { position: relative; }
+              .banner {
+                width: 700px;
+                height: 70px;
+                display: flex;
+                align-items: center;
+                transform: rotate(3deg);
+                top: 50px;
+                position: absolute;
+                animation: bannermove 10s infinite linear;
+              }
+              .banner-bunny-bounce2 { top: 100px; left: -100px; position: absolute; }
+              .banner-bunny-bounce2 .banner { animation: bannermove 9s infinite linear; }
+              .banner-text {
+                width: 100%;
+                background: #069061;
+                height: 38px;
+                line-height: 38px;
+                position: relative;
+                text-align: center;
+                color: white;
+                font-weight: bold;
+                font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+                margin-top: 12px;
+                margin-right: -3px;
+              }
+              .banner-text-oner { animation: bannerbgchange 50s steps(5) infinite; }
+              @keyframes bannerbgchange {
+                0%, 20% { background: #069061; }
+                20.1%, 40% { background: #dc1b19; }
+                40.1%, 60% { background: #edbe20; }
+                60.1%, 80% { background: #069061; }
+                80.1%, 100% { background: #5203d1; }
+              }
+              .banner-text-twoer { animation: bannerbgchangetwoer 45s steps(5) infinite; }
+              @keyframes bannerbgchangetwoer {
+                0%, 20% { background: #0082d0; }
+                20.1%, 40% { background: #fb892c; }
+                40.1%, 60% { background: black; }
+                60.1%, 80% { background: #0082d0; }
+                80.1%, 100% { background: #fb2c90; }
+              }
+              .banner-text-oner:before {
+                content: "#1 hanspagel - 45 commits 14,224 ++ 1,382 --";
+                animation: bannertextchange 50s infinite linear;
+              }
+              @keyframes bannertextchange {
+                0%, 20% { content: "#1 hanspagel - 45 commits 14,224 ++ 1,382 --"; }
+                20.1%, 40% { content: "#3 bielu - 9 commits 7,907 ++ 739 --"; }
+                40.1%, 60% { content: "#5 amritk - 5 commits 1,161 ++ 742 --"; }
+                60.1%, 80% { content: "#7 lazerg - 2 commits 368 ++ 18 --"; }
+                80.1%, 100% { content: "#9 bgrcs - 1 commits 1,480 ++ 148 --"; }
+              }
+              .banner-text-twoer:before {
+                content: "#2 marclave - 33 commits 4,853 ++ 1,349 --";
+                animation: bannertexttwochange 45s infinite linear;
+              }
+              @keyframes bannertexttwochange {
+                0%, 20% { content: "#2 marclave - 33 commits 4,853 ++ 1,349 --"; }
+                20.1%, 40% { content: "#4 hwkr - 8 commits 1,118 ++ 237 --"; }
+                40.1%, 60% { content: "#6 cameronrohani - 4 commits 935 ++ 850 --"; }
+                60.1%, 80% { content: "#8 guillaume-flambard - 2 commits 223 ++ 6 --"; }
+                80.1%, 100% { content: "#10 aqeelat - 1 commits 683 ++ 4 --"; }
+              }
+              .banner-bunny-bounce2 .banner-text { background: #0082d0; }
+              .banner-bunny { background: transparent; width: 190px; height: 80px; z-index: 10; position: relative; }
+              .visible { opacity: 0; animation: rabbitanimation2 .5s steps(1) infinite; }
+              .hidden { position: absolute; top: 0; opacity: 1; animation: rabbitanimation .5s steps(1) infinite; }
+              .banner-bunny-bounce { animation: bannerbunnybounce .5s steps(2) infinite; }
+              @keyframes bannerbunnybounce {
+                0% { transform: translate3d(0,3px,0); }
+                100% { transform: translate3d(0,0,0); }
+              }
+              @keyframes bannermove {
+                0% { transform: translate3d(-100%,0,0) rotate(3deg); }
+                100% { transform: translate3d(140%,0,0) rotate(3deg); }
+              }
+              @keyframes rabbitanimation2 { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+              @keyframes rabbitanimation { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+            </style>
+        </div>
+    </foreignObject>
+</svg>

@@ -9,19 +9,24 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 
 const { tag, isCollapsed } = defineProps<{
   tag: TraversedTag
   isCollapsed: boolean
   eventBus: WorkspaceEventBus | null
+  /** Whether this tag sits inside a parent tag's container (drops its own padding). */
+  nested?: boolean
 }>()
+
+const { level: headingLevel } = useDocumentOutline('tag')
 </script>
 
 <template>
   <SectionContainerAccordion
     :aria-label="tag.title"
     class="tag-section"
-    :class="{ 'tag-section-group': tag.isGroup }"
+    :class="{ 'tag-section-group': tag.isGroup, 'tag-section-nested': nested }"
     :modelValue="!isCollapsed"
     @update:modelValue="
       (value) => eventBus?.emit('toggle:nav-item', { id: tag.id, open: value })
@@ -34,7 +39,7 @@ const { tag, isCollapsed } = defineProps<{
           @copyAnchorUrl="
             () => eventBus?.emit('copy-url:nav-item', { id: tag.id })
           ">
-          <SectionHeaderTag :level="2">
+          <SectionHeaderTag :level="headingLevel">
             {{ tag.title }}
           </SectionHeaderTag>
         </Anchor>
@@ -83,5 +88,14 @@ const { tag, isCollapsed } = defineProps<{
 }
 .tag-section-group .tag-section:last-of-type {
   margin-bottom: 0;
+}
+
+/*
+ * A tag nested inside another tag's container would otherwise inherit a second
+ * layer of horizontal padding. Dropping it keeps every section flush left
+ * regardless of how deep the tag hierarchy goes.
+ */
+.tag-section.tag-section-nested {
+  padding-inline: 0;
 }
 </style>

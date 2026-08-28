@@ -32,15 +32,15 @@ app.get(
 )
 ```
 
-## OpenAPI Documents
+## API Documents
 
 There is just one thing that is really required to render at least something: The content.
 
-There are a bunch of ways to pass your OpenAPI document:
+There are a bunch of ways to pass your API document:
 
 ### URL
 
-Pass an absolute or relative URL to your OpenAPI document.
+Pass an absolute or relative URL to your API document.
 
 ```javascript
 Scalar.createApiReference('#app', {
@@ -50,13 +50,13 @@ Scalar.createApiReference('#app', {
 
 This can be JSON or YAML.
 
-It's the recommended way to pass your OpenAPI document. In most cases, the OpenAPI document can be cached by the browser and subsequent requests are pretty fast then, even if the document grows over time.
+It's the recommended way to pass your API document. In most cases, the document can be cached by the browser and subsequent requests are pretty fast then, even if the document grows over time.
 
 > No OpenAPI document? All backend frameworks have some kind of OpenAPI generator. Just search for "yourframework generate openapi document".
 
 ### Content
 
-> While this approach is convenient for quick setup, it may impact performance for large documents. For optimal performance with extensive OpenAPI specifications, consider using a URL to an external OpenAPI document instead.
+> While this approach is convenient for quick setup, it may impact performance for large documents. For optimal performance with large API documents, consider using a URL to an external document instead.
 
 You can just directly pass JSON/YAML content:
 
@@ -77,7 +77,7 @@ Scalar.createApiReference('#app', {
 
 ### Multiple Documents
 
-Add multiple OpenAPI documents to render all of them. We will need a slug and title to distinguish them in the UI and in the URL. You can just omit those attributes, and we will try our best to still distinguish them, though.
+Add multiple API documents to render all of them. We will need a slug and title to distinguish them in the UI and in the URL. You can just omit those attributes, and we will try our best to still distinguish them, though.
 
 ```javascript
 Scalar.createApiReference('#app', {
@@ -112,7 +112,7 @@ Scalar.createApiReference('#app', {
     // API #2
     {
       url: 'https://example.com/openapi.json',
-      // This will make it the default OpenAPI document:
+      // This will make it the default document:
       default: true,
     }
   ]
@@ -121,7 +121,7 @@ Scalar.createApiReference('#app', {
 
 ### Multiple Configurations
 
-Sometimes, you want to modify the configuration for your OpenAPI documents. And the good news is: You can.
+Sometimes, you want to modify the configuration for your API documents. And the good news is: You can.
 
 Pass an array of configurations to render multiple documents with specific configurations:
 
@@ -182,7 +182,7 @@ Scalar.createApiReference('#app', [
       // API #2
       {
         url: 'https://example.com/openapi.json',
-        // This will make it the default OpenAPI document:
+        // This will make it the default document:
         default: true,
       }
     ]
@@ -221,6 +221,8 @@ Agent adds an AI chat interface to your API reference. Users can ask questions a
 - Requires an [Agent key](guides/agent/key.md) for production deployments
 - Your OpenAPI document is uploaded on first message
 
+We do not currently support AsyncAPI for Agent. An [AsyncAPI](asyncapi.md) document still renders as an API reference, but Agent skips it, so it will not answer questions about your channels or messages. Need it? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
+
 Related: [How to get an Agent key](guides/agent/key.md)
 
 ```js
@@ -247,13 +249,11 @@ Scalar.createApiReference('#app', {
 })
 ```
 
-## Configuration Options
-
-### Properties
+## Properties
 
 Configuration properties to customize the behavior and appearance of your API reference.
 
-#### authentication
+### authentication
 
 **Type:** `AuthenticationConfiguration`
 
@@ -376,7 +376,7 @@ The `authentication` configuration accepts:
 - `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
 - `createAnySecurityScheme`: When `true`, shows generic "Add new authentication" options (API Key, HTTP Basic, OAuth2 flows, etc.) in the auth dropdown alongside the schemes defined in your OpenAPI document. Default: `false`.
 
-#### baseServerURL
+### baseServerURL
 
 **Type:** `string`
 
@@ -388,11 +388,11 @@ If you want to prefix all relative servers with a base URL, you can do so here.
 }
 ```
 
-#### content
+### content
 
 **Type:** `string | Record<string, any> | () => Record<string, any>`
 
-Directly pass an OpenAPI/Swagger document (JSON or YAML) as a string:
+Directly pass an API document (JSON or YAML) as a string:
 
 ```javascript
 {
@@ -422,7 +422,7 @@ Or as a callback returning the actual document:
 }
 ```
 
-#### customCss
+### customCss
 
 **Type:** `string`
 
@@ -436,7 +436,7 @@ In Vue or React you'd probably use other ways to add custom CSS.
 }
 ```
 
-#### darkMode
+### darkMode
 
 **Type:** `boolean`
 
@@ -450,7 +450,7 @@ Whether dark mode is on or off initially (light mode).
 }
 ```
 
-#### defaultHttpClient
+### defaultHttpClient
 
 **Type:** `HttpClientState`
 
@@ -469,7 +469,7 @@ You can explicitly set the default HTTP client, though:
 }
 ```
 
-#### defaultOpenFirstTag
+### defaultOpenFirstTag
 
 **Type:** `boolean`
 
@@ -483,7 +483,7 @@ Whether to open the first tag if the URL doesn't contain a specific target.
 }
 ```
 
-#### defaultOpenAllTags
+### defaultOpenAllTags
 
 **Type:** `boolean`
 
@@ -497,7 +497,7 @@ Whether to always start with all tags open, regardless of the URL.
 }
 ```
 
-#### documentDownloadType
+### documentDownloadType
 
 **Type:** `'json' | 'yaml' | 'both' | 'direct' | 'none'`
 
@@ -513,7 +513,7 @@ Sets the file type of the document to download, set to `'none'` to hide the down
 
 When `'direct'` is passed, it just outputs a regular link to the passed URL.
 
-#### expandAllModelSections
+### expandAllModelSections
 
 **Type:** `boolean`
 
@@ -527,7 +527,7 @@ By default the models are all closed in the model section at the bottom, this fl
 }
 ```
 
-#### expandAllResponses
+### expandAllResponses
 
 **Type:** `boolean`
 
@@ -542,7 +542,7 @@ By default response sections are closed in the operations. This flag will open t
 ```
 
 
-#### expandAllSchemaProperties
+### expandAllSchemaProperties
 
 **Type:** `boolean`
 
@@ -560,7 +560,7 @@ Warning: this can cause performance issues on big documents.
 }
 ```
 
-#### favicon
+### favicon
 
 **Type:** `string`
 
@@ -572,7 +572,7 @@ You can specify the path to a favicon to be used for the documentation.
 }
 ```
 
-#### forceDarkModeState
+### forceDarkModeState
 
 **Type:** `'dark' | 'light'`
 
@@ -584,7 +584,7 @@ Force dark mode to always be this state no matter what.
 }
 ```
 
-#### hideClientButton
+### hideClientButton
 
 **Type:** `boolean`
 
@@ -598,7 +598,7 @@ Whether to show the client button from the reference sidebar and modal.
 }
 ```
 
-#### hideDarkModeToggle
+### hideDarkModeToggle
 
 **Type:** `boolean`
 
@@ -612,7 +612,7 @@ Whether to show the dark mode toggle.
 }
 ```
 
-#### showOperationId
+### showOperationId
 
 **Type:** `boolean`
 
@@ -628,7 +628,7 @@ By default we don't render it in the UI. If it's helpful to show it to your user
 }
 ```
 
-#### hideModels
+### hideModels
 
 **Type:** `boolean`
 
@@ -642,7 +642,7 @@ Whether models (`components.schemas` or `definitions`) should be shown in the si
 }
 ```
 
-#### modelsSectionLabel
+### modelsSectionLabel
 
 **Type:** `'Models' | 'Schemas' | string`
 
@@ -656,7 +656,7 @@ Label for the `components.schemas` section in the sidebar, main content, and sea
 }
 ```
 
-#### localization
+### localization
 
 **Type:** `{ locale?: string, direction?: 'ltr' | 'rtl' | 'auto', translations?: object }`
 
@@ -672,7 +672,7 @@ to override individual labels.
 }
 ```
 
-#### hideSearch
+### hideSearch
 
 **Type:** `boolean`
 
@@ -686,7 +686,7 @@ Whether to show the sidebar search bar.
 }
 ```
 
-#### hideTestRequestButton
+### hideTestRequestButton
 
 **Type:** `boolean`
 
@@ -700,7 +700,7 @@ Whether to show the "Test Request" button. When `true`, the authentication panel
 }
 ```
 
-#### hiddenClients
+### hiddenClients
 
 **Type:** `array | true | object`
 
@@ -750,6 +750,8 @@ Here's a list of all clients that you can potentially hide:
     java: ['asynchttp', 'nethttp', 'okhttp', 'unirest'],
     // JavaScript
     js: ['axios', 'fetch', 'jquery', 'ofetch', 'xhr'],
+    // Julia
+    julia: ['http'],
     // Kotlin
     kotlin: ['okhttp'],
     // Node.js
@@ -807,7 +809,7 @@ and each **value** specifies the visibility behavior for the clients of that lan
 }
 ```
 
-#### layout
+### layout
 
 **Type:** `'modern' | 'classic'`
 
@@ -821,7 +823,7 @@ The layout style to use for the API reference.
 }
 ```
 
-#### metaData
+### metaData
 
 **Type:** `object`
 
@@ -841,7 +843,7 @@ You can pass information to the config object to configure meta information out 
 }
 ```
 
-#### mcp
+### mcp
 
 **Type:** `{ name: string; url: string; disabled?: boolean }` (optional)
 
@@ -874,7 +876,7 @@ To disable MCP explicitly:
 }
 ```
 
-#### operationTitleSource
+### operationTitleSource
 
 **Type:** `'summary' | 'path'`
 
@@ -888,7 +890,7 @@ Whether the sidebar display text and search should use the operation summary or 
 }
 ```
 
-#### orderRequiredPropertiesFirst
+### orderRequiredPropertiesFirst
 
 **Type:** `boolean`
 
@@ -902,7 +904,7 @@ Whether to order required properties first in schema objects. When enabled, requ
 }
 ```
 
-#### orderSchemaPropertiesBy
+### orderSchemaPropertiesBy
 
 **Type:** `'alpha' | 'preserve'`
 
@@ -920,7 +922,7 @@ Control how schema properties are ordered in model definitions. Can be set to:
 }
 ```
 
-#### pathRouting
+### pathRouting
 
 **Type:** `{ basePath: string }`
 
@@ -934,7 +936,7 @@ Configuration for path-based routing instead of hash-based routing. Your server 
 }
 ```
 
-#### persistAuth
+### persistAuth
 
 **Type:** `boolean`
 
@@ -951,7 +953,7 @@ Whether to persist authentication credentials in local storage. This allows the 
 > [!WARNING]
 > Persisting authentication information in the browser's local storage may present security risks in certain environments. Use this feature with caution based on your security requirements.
 
-#### telemetry
+### telemetry
 
 **Type:** `boolean`
 
@@ -969,7 +971,7 @@ If the analytics plugin is loaded and you still want to disable tracking, set `t
 }
 ```
 
-#### plugins
+### plugins
 
 **Type:** `ApiReferencePlugin[]`
 
@@ -983,7 +985,7 @@ Pass an array of custom plugins that you want. [Read more about plugins here.](p
 }
 ```
 
-#### pluginUrls
+### pluginUrls
 
 **Type:** `string[]`
 
@@ -997,7 +999,7 @@ Pass URLs of ESM modules that export a plugin as their default export. The modul
 }
 ```
 
-#### proxyUrl
+### proxyUrl
 
 **Type:** `string`
 
@@ -1021,7 +1023,7 @@ If you like to run your own, check out our [example proxy written in Go](https:/
 
 Please note: You may not use just any reverse proxy, but need to use a proxy that adheres to the Scalar Proxy API. See the example to learn more.
 
-#### oauth2RedirectUri
+### oauth2RedirectUri
 
 **Type:** `string`
 
@@ -1035,7 +1037,7 @@ This is useful for desktop wrappers like Electron where the page URL is often `f
 }
 ```
 
-#### searchHotKey
+### searchHotKey
 
 **Type:** `string`
 
@@ -1049,11 +1051,11 @@ Key used with CTRL/CMD to open the search modal.
 }
 ```
 
-#### servers
+### servers
 
 **Type:** `Server[]`
 
-Pass a list of servers to override the servers in your OpenAPI document.
+Pass a list of servers to override the servers in your API document.
 
 ```javascript
 {
@@ -1075,7 +1077,7 @@ Pass a list of servers to override the servers in your OpenAPI document.
 }
 ```
 
-#### showSidebar
+### showSidebar
 
 **Type:** `boolean`
 
@@ -1089,7 +1091,7 @@ Whether the sidebar should be shown.
 }
 ```
 
-#### showDeveloperTools
+### showDeveloperTools
 
 **Type:** `'always' | 'localhost' | 'never'`
 
@@ -1105,7 +1107,7 @@ To disable the toolbar set:
 }
 ```
 
-#### theme
+### theme
 
 **Type:** `string`
 
@@ -1121,11 +1123,11 @@ Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, 
 }
 ```
 
-#### url
+### url
 
 **Type:** `string`
 
-Pass the URL of an OpenAPI document (JSON or YAML).
+Pass the URL of an API document (JSON or YAML).
 
 ```javascript
 {
@@ -1133,7 +1135,7 @@ Pass the URL of an OpenAPI document (JSON or YAML).
 }
 ```
 
-#### withDefaultFonts
+### withDefaultFonts
 
 **Type:** `boolean`
 
@@ -1147,15 +1149,14 @@ By default we're using Inter and JetBrains Mono, served from our fonts CDN at `h
 }
 ```
 
-### Methods
-
+## Methods
 Custom functions to control specific behaviors and URL generation.
 
-#### customFetch
+### customFetch
 
 **Type:** `(input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>`
 
-Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) used both when loading the OpenAPI document and when sending "Test Request" calls from the API client. Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.
+Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) used both when loading the API document and when sending "Test Request" calls from the API client. Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.
 
 ```javascript
 {
@@ -1167,7 +1168,7 @@ Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_A
 
 > The previous `fetch` option is deprecated. It still works and is migrated automatically (with a console warning), but new code should use `customFetch`.
 
-#### generateHeadingSlug
+### generateHeadingSlug
 
 **Type:** `(heading: Heading) => string`
 
@@ -1187,7 +1188,7 @@ Customize how heading URLs are generated. This function receives the heading and
 }
 ```
 
-#### generateModelSlug
+### generateModelSlug
 
 **Type:** `(model: { name: string }) => string`
 
@@ -1207,7 +1208,7 @@ Customize how model URLs are generated. This function receives the model object 
 }
 ```
 
-#### generateOperationSlug
+### generateOperationSlug
 
 **Type:** `(operation: Operation) => string`
 
@@ -1228,7 +1229,7 @@ Customize how operation URLs are generated. This function receives the operation
 }
 ```
 
-#### generateTagSlug
+### generateTagSlug
 
 **Type:** `(tag: Tag) => string`
 
@@ -1248,7 +1249,7 @@ Customize how tag URLs are generated. This function receives the tag object and 
 }
 ```
 
-#### generateWebhookSlug
+### generateWebhookSlug
 
 **Type:** `(webhook: { name: string; method?: string }) => string`
 
@@ -1269,11 +1270,11 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 }
 ```
 
-#### setPageTitle
+### setPageTitle
 
 **Type:** `(input: { title: string; document: { title: string; slug: string } }) => string`
 
-Customize the browser tab title. The function is called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents — and receives the title of the section currently in view together with the active OpenAPI document.
+Customize the browser tab title. The function is called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents — and receives the title of the section currently in view together with the active API document.
 
 > Note: This must be passed through JavaScript, setting a data attribute will not work.
 
@@ -1284,7 +1285,7 @@ Customize the browser tab title. The function is called whenever the section in 
 }
 ```
 
-#### tagsSorter
+### tagsSorter
 
 **Type:** `'alpha' | (a: Tag, b: Tag) => number`
 
@@ -1296,7 +1297,7 @@ Sort tags alphanumerically (`'alpha'`):
 }
 ```
 
-#### operationsSorter
+### operationsSorter
 
 **Type:** `'alpha' | 'method' | ((a: OperationSortValue, b: OperationSortValue) => number)`
 
@@ -1329,7 +1330,7 @@ Or specify a custom function to sort the operations:
 
 > Note: `method` is the HTTP method of the operation, represented as a lowercase string.
 
-#### redirect
+### redirect
 
 **Type:** `(path: string) => string | null | undefined`
 
@@ -1354,11 +1355,10 @@ Function to handle redirects in the API reference. Receives either:
 }
 ```
 
-### Events
-
+## Events
 Callback functions that are triggered by user interactions and system events.
 
-#### onBeforeRequest
+### onBeforeRequest
 
 **Type:** `({ request: Request; requestBuilder: RequestFactory }) => void | Promise<void>`
 
@@ -1378,7 +1378,7 @@ Callback fired before the outbound request is sent from the embedded API client.
 }
 ```
 
-##### RequestFactory reference
+#### RequestFactory reference
 
 The `requestBuilder` object exposes the following fields:
 
@@ -1402,7 +1402,7 @@ The `requestBuilder` object exposes the following fields:
 | `disableSecurity` | `boolean` | `false` | When `true`, Scalar skips its built-in security handling entirely. Security headers, query parameters, and cookies from the `security` array are **not** applied automatically, giving you full control. |
 | `isElectron` | `boolean` | `false` | Indicates the request runs in an Electron (Node-like) context. |
 
-##### Examples
+#### Examples
 
 **Add a custom header**
 
@@ -1477,13 +1477,13 @@ By default, Scalar applies security schemes automatically (e.g. prefixing bearer
 
 > When `disableSecurity` is `true`, only the security-related headers, query parameters, and cookies are skipped. All other fields on the request (custom headers, path, body, non-security cookies, etc.) are unaffected.
 
-#### onDocumentSelect
+### onDocumentSelect
 
 **Type:** `() => Promise<void> | void`
 
 Triggered when multiple documents are configured and the users switches between them.
 
-#### onLoaded
+### onLoaded
 
 **Type:** `(slug: string) => Promise<void> | void`
 
@@ -1499,7 +1499,7 @@ Callback that triggers as soon as the references are lazy loaded.
 }
 ```
 
-#### onRequestBuilt
+### onRequestBuilt
 
 **Type:** `({ request: Request; requestBuilder: RequestFactory; envVariables: Record<string, string> }) => void | Promise<void>`
 
@@ -1525,7 +1525,7 @@ Use [`onBeforeRequest`](#onbeforerequest) instead when you need to mutate the re
 }
 ```
 
-#### onRequestSent
+### onRequestSent
 
 **Type:** `(request: string) => void`
 
@@ -1539,7 +1539,7 @@ Callback function that is triggered when a request is sent through the API clien
 }
 ```
 
-#### onServerChange
+### onServerChange
 
 **Type:** `(server: string) => void`
 
@@ -1553,7 +1553,7 @@ You can listen to changes with onServerChange that runs on server change.
 }
 ```
 
-#### onShowMore
+### onShowMore
 
 **Type:** `(tagId: string) => void | Promise<void>`
 
@@ -1567,7 +1567,7 @@ Callback function that is triggered when a user clicks the "Show more" button in
 }
 ```
 
-#### onSidebarClick
+### onSidebarClick
 
 **Type:** `(href: string) => void | Promise<void>`
 

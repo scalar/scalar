@@ -16,7 +16,7 @@
     "swagger",
     "petstore"
   ],
-  "version": "0.6.12",
+  "version": "0.6.13",
   "engines": {
     "node": ">=22"
   },
@@ -40,6 +40,8 @@
     },
     "./3.1.yaml": "./dist/3.1.yaml",
     "./3.1.json": "./dist/3.1.json",
+    "./3.2.yaml": "./dist/3.2.yaml",
+    "./3.2.json": "./dist/3.2.json",
     "./latest.yaml": "./dist/latest.yaml",
     "./latest.json": "./dist/latest.json",
     "./asyncapi/3.0.yaml": "./dist/asyncapi/3.0.yaml",

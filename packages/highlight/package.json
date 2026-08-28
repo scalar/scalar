@@ -1,0 +1,89 @@
+{
+  "name": "@scalar/highlight",
+  "description": "Scalar's code highlighter",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/highlight"
+  },
+  "keywords": [
+    "syntax-highlighting",
+    "highlight",
+    "code",
+    "performance"
+  ],
+  "version": "0.2.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "bench": "tsx bench/bench.ts",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && shx cp src/style.css dist/style.css",
+    "compat:report": "tsx bench/compat-report.ts",
+    "size": "tsx bench/size.ts",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "types:check": "tsgo --noEmit"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./all": {
+      "import": "./dist/all.js",
+      "types": "./dist/all.d.ts",
+      "default": "./dist/all.js"
+    },
+    "./compat": {
+      "import": "./dist/compat/index.js",
+      "types": "./dist/compat/index.d.ts",
+      "default": "./dist/compat/index.js"
+    },
+    "./core": {
+      "import": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts",
+      "default": "./dist/core/index.js"
+    },
+    "./langs/*": {
+      "import": "./dist/langs/*.js",
+      "types": "./dist/langs/*.d.ts",
+      "default": "./dist/langs/*.js"
+    },
+    "./lazy": {
+      "import": "./dist/lazy.js",
+      "types": "./dist/lazy.d.ts",
+      "default": "./dist/lazy.js"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css",
+      "default": "./dist/style.css"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": [
+    "dist/all.js",
+    "**/*.css"
+  ],
+  "dependencies": {
+    "@types/hast": "^3.0.4"
+  },
+  "devDependencies": {
+    "@scalar/code-highlight": "workspace:*",
+    "highlight.js": "catalog:*",
+    "rolldown": "catalog:*",
+    "vitest": "catalog:*"
+  }
+}

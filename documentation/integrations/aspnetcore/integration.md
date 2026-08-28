@@ -79,7 +79,7 @@ if (app.Environment.IsDevelopment())
 You're all set! 🎉 Navigate to `/scalar` to view your API Reference.
 
 > [!NOTE]
-> For multiple OpenAPI documents, see [Multiple OpenAPI Documents](#configuration-options__multiple-openapi-documents).
+> For multiple OpenAPI documents, see [Multiple OpenAPI Documents](#multiple-openapi-documents).
 
 ## MapScalarApiReference Overloads
 
@@ -131,6 +131,19 @@ app.MapScalarApiReference((options, httpContext) =>
 app.MapScalarApiReference("/docs", (options, httpContext) =>
 {
     options.WithTitle($"API for {httpContext.User.Identity?.Name}");
+});
+```
+
+## MapScalarApiReference Async Overloads
+
+The `MapScalarApiReference` method provides several overloads to allow for asynchronous code in the `configureOptions` parameter.
+
+### Basic Async Example
+
+```csharp
+app.MapScalarApiReference(async options =>
+{
+    options.HeaderContent = await File.ReadAllTextAsync("header.html");
 });
 ```
 
