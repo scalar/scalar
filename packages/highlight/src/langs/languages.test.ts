@@ -58,6 +58,7 @@ describe('every bundled language', () => {
       'cpp',
       'csharp',
       'css',
+      'curl',
       'dart',
       'diff',
       'dockerfile',
