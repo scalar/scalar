@@ -8,8 +8,8 @@ import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-p
 import { type ThemeId, presets } from '@scalar/themes'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { setPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
+import { setPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import {
   type XScalarEnvironments,
@@ -29,7 +29,7 @@ import type {
   RequestBodyObject,
   ServerObject,
   TagObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
 

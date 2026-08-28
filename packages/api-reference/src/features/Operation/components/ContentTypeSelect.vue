@@ -3,7 +3,7 @@ import { ScalarButton } from '@scalar/components/button'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { cva } from '@scalar/use-hooks/useBindCx'
-import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'

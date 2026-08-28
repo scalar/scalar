@@ -18,8 +18,8 @@ import type {
   OAuthFlowClientCredentials,
   OAuthFlowImplicit,
   OAuthFlowPassword,
-} from '@/schemas/v3.1/strict/oauth-flow'
-import type { ApiKeyObject, HttpObject, OAuth2Object, OpenIdConnectObject } from '@/schemas/v3.1/strict/security-scheme'
+} from '@/schemas/v3.2/strict/oauth-flow'
+import type { ApiKeyObject, HttpObject, OAuth2Object, OpenIdConnectObject } from '@/schemas/v3.2/strict/security-scheme'
 
 type OAuthFlowCommonSecret = XScalarSecretClientId &
   XScalarSecretToken &

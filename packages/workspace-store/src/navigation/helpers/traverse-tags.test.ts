@@ -3,7 +3,7 @@ import { assert, describe, expect, it } from 'vitest'
 
 import type { TagsMap } from '@/navigation/types'
 import type { IdGenerator, TraversedEntry, TraversedTag } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
 import { traverseTags } from './traverse-tags'
 

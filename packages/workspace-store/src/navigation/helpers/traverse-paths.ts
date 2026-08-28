@@ -8,7 +8,7 @@ import { traverseOperationExamples } from '@/navigation/helpers/traverse-example
 import type { OperationTitleSource, TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
-import type { OpenApiDocument, OperationObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, OperationObject } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getTag } from './get-tag'
 

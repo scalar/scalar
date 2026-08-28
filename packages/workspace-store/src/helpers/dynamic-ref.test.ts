@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { SchemaObject } from '../schemas/v3.1/strict/schema'
+import type { SchemaObject } from '../schemas/v3.2/strict/schema'
 import { collectDynamicAnchors, isDynamicRef, pushDynamicScope, resolveDynamicRef } from './dynamic-ref'
 
 /** Cast a plain object to a SchemaObject so tests can use the untyped 2020-12 keywords (`$defs`). */

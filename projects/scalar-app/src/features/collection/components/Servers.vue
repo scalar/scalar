@@ -11,7 +11,7 @@ import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
 import type { ServerMeta } from '@scalar/workspace-store/events'
 import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, watchEffect } from 'vue'
 
 import type { CollectionProps } from '@/features/app/helpers/routes'

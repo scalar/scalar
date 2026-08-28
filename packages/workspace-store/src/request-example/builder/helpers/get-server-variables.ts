@@ -1,6 +1,6 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 
-import type { ServerObject } from '@/schemas/v3.1/strict/server'
+import type { ServerObject } from '@/schemas/v3.2/strict/server'
 
 /**
  * Extracts the default values of variables defined in a ServerObject into a simple key-value map.

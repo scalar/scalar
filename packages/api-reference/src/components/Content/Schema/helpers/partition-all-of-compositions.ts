@@ -1,5 +1,5 @@
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
 import type { CompositionKeyword } from './schema-composition'

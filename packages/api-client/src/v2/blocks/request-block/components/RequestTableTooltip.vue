@@ -2,7 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconInfo, ScalarIconWarning } from '@scalar/icons'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'

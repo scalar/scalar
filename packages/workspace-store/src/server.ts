@@ -31,7 +31,7 @@ import {
   type OpenApiDocument,
   type OperationObject,
   type PathsObject,
-} from '@/schemas/v3.1/strict/openapi-document'
+} from '@/schemas/v3.2/strict/openapi-document'
 
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 

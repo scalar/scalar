@@ -12,7 +12,7 @@ import type {
   MediaTypeObject,
   RequestBodyObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Param, PostData } from 'har-format'
 
 import type { OperationToHarProps } from './operation-to-har'

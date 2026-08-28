@@ -15,9 +15,9 @@ import {
   upsertScope,
 } from '@/mutators/auth'
 import type { WorkspaceDocument } from '@/schemas'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
-import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
+import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
+import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.2/strict/security-scheme'
 
 function createDocument(initial?: Partial<OpenApiDocument>): OpenApiDocument {
   return {

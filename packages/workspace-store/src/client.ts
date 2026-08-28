@@ -42,13 +42,13 @@ import {
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
-import { generateSchema } from '@/schemas/v3.1/openapi'
-import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
+import { generateSchema } from '@/schemas/v3.2/openapi'
+import { recursiveRef } from '@/schemas/v3.2/openapi/reference'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenAPIExtensions,
   type OpenApiDocument,
-} from '@/schemas/v3.1/strict/openapi-document'
+} from '@/schemas/v3.2/strict/openapi-document'
 import type {
   DocumentMetaExtensions,
   Workspace,
