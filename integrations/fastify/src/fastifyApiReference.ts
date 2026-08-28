@@ -132,8 +132,11 @@ const fastifyApiReference = fp<
       return slug(spec?.specification?.info?.title ?? 'spec')
     }
 
-    // Only expose the endpoints if specSource is available
-    if (specSource) {
+    // Only expose the document endpoints when we can serve the document ourselves.
+    // For a `url` source the reference loads the user's URL directly in the browser, so a
+    // local re-exposure is meaningless — and normalizing the URL string here produced a
+    // broken response (a 500 for JSON, an empty body for YAML).
+    if (specSource && specSource.type !== 'url') {
       const openApiSpecUrlJson = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`
       fastify.route({
         method: 'GET',
