@@ -1,5 +1,12 @@
 # @scalar/fastify-api-reference
 
+## 1.67.0
+
+### Patch Changes
+
+- [#10020](https://github.com/scalar/scalar/pull/10020): Fix the OpenAPI document endpoints for `url` sources. When the specification was provided via `configuration.url`, the plugin still registered `${routePrefix}/openapi.json` and `${routePrefix}/openapi.yaml`, but they returned a broken response (a 500 for JSON, an empty body for YAML) because the URL string was normalized as if it were the document itself. The reference already loads the URL directly in the browser, so these endpoints are no longer registered for `url` sources — matching the existing behavior for `sources`.
+- [#10018](https://github.com/scalar/scalar/pull/10018): Declare support for Fastify v4, v5, and v6 via the plugin's `fastify` version range, so Fastify validates compatibility at registration and fails fast on an unsupported host. The test suite now runs against Fastify v5, and the plugin was verified against the Fastify v6 pre-release (it behaves identically). The runtime stays compatible with Fastify v4. Also lowers the minimum Node.js version to 20 to match Fastify v5.
+
 ## 1.66.1
 
 ### Patch Changes

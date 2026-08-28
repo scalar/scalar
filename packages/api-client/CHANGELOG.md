@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 3.17.0
+
+### Minor Changes
+
+- feat: test OpenAPI webhooks from the API reference and API client
+
+### Patch Changes
+
+- [#9983](https://github.com/scalar/scalar/pull/9983): Bump the `zod` catalog to `^4.4.3` so the standalone bundle ships a single `zod` instead of two (`4.3.5` from `@scalar/types` plus `4.4.3` from the `ai` / `@ai-sdk` peer). This makes `standalone.js` ~68KB raw / ~18KB gzip smaller.
+- [#10024](https://github.com/scalar/scalar/pull/10024): Fix "Test Request" discarding an edited request body when the operation it opens is already the one on screen. Reopening the entry the modal already shows does not route anywhere, so the request body kept its edited value while the composition selection was replaced with whatever the reference page had selected. The request body read that as a manual `oneOf`/`anyOf` branch switch and regenerated itself from the schema. An open modal now keeps the selection it is already showing, while opening a different entry still re-establishes it.
+
 ## 3.16.3
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.59.0
+
+### Minor Changes
+
+- feat: test OpenAPI webhooks from the API reference and API client
+
+### Patch Changes
+
+- [#9950](https://github.com/scalar/scalar/pull/9950): Shorten AsyncAPI navigation id segments: `asyncapi-channel` → `channel`, `asyncapi-message` → `message`, and `asyncapi-operation` → `operation`. This makes the generated navigation ids (and the URLs, anchors, and DOM ids derived from them) shorter and consistent, e.g. `.../channel/planetevents/operation/subscribe/message/planetcreated`.
+
 ## 0.58.1
 
 ### Patch Changes
