@@ -446,6 +446,7 @@ Point `path` at the route your changelog lives on. The feed is written to `rss.x
 | `path`        | `string` | Yes      | Route of your changelog, for example `/changelog`. Must be a plain site route with no `..` segments |
 | `title`       | `string` | No       | Title of the feed, shown in feed readers. Defaults to your site title plus `Changelog` |
 | `description` | `string` | No       | Description of the feed, shown in feed readers                                      |
+| `entries`     | `string` | No       | How items are found. `headings` (default) turns each dated heading into an item; `pages` turns each page under `path` with a `date` in its frontmatter into an item |
 
 ### Multiple Feeds
 
@@ -507,6 +508,39 @@ A changelog split across several pages works too. Every page at `path` or beneat
 An index page with no dated headings contributes nothing of its own, which is what you want when it only links to the products.
 
 Hidden pages are skipped. A page kept out of the sidebar and the sitemap stays out of the feed as well.
+
+### One Item per Page
+
+For a blog, where each post is its own page rather than a heading on a shared page, set `entries` to `pages`:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "rss": {
+      "path": "/blog",
+      "title": "Scalar Blog",
+      "entries": "pages"
+    }
+  }
+}
+```
+
+Now every page under `path` that carries a `date` in its frontmatter becomes one feed item, newest first:
+
+```markdown
+---
+date: 2026-07-24
+---
+
+# Our new dark mode
+
+A short introduction to the post.
+```
+
+The page title becomes the item title, its description becomes the item description, and the frontmatter `date` sets the publish date. Pages without a `date` — an index page, a draft — are left out, so nothing is syndicated by accident.
 
 ### Discovery
 
