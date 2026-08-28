@@ -1,0 +1,54 @@
+<svg width="135" height="155" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <g xmlns="http://www.w3.org/2000/svg" id="docsSticker"> <path d="M21.205 1.49306L91.8973 1.54509C102.735 1.55328 111.515 10.3457 111.507 21.1836L111.433 120.937C111.425 131.775 102.633 140.556 91.795 140.548L21.1026 140.496C10.2646 140.488 1.48509 131.695 1.49307 120.857L1.5665 21.1026C1.57471 10.2648 10.3671 1.4853 21.205 1.49306Z" class="blue" stroke="#DCDCDC" stroke-width="2.95538"/>
+    <text transform="translate(15.0137 118.313) rotate(0.696807)" fill="#DCDCDC" xml:space="preserve" style="white-space: pre; font-size: 2.83764px; font-weight: 500; letter-spacing: 0.01em;" textLength="70">
+        <tspan x="0" y="2.92363">Scalar embraces open standards and makes it easy for you</tspan>
+        <tspan x="0" y="6.70715">to embrace them too. Join the open-source community and</tspan>
+        <tspan x="0" y="10.4907">start building on open foundations.</tspan>
+    </text>
+    <text fill="white" xml:space="preserve" style="white-space: pre; font-size: 14.7547px; font-weight: 800; letter-spacing: -0.02em;">
+        <tspan x="17.7026" y="96.8185">Developer</tspan>
+    </text>
+    <text fill="white" xml:space="preserve" style="white-space: pre; font-size: 14.5535px; font-weight: 800; letter-spacing: -0.02em;">
+        <tspan x="43.7847" y="112.074">Portals</tspan>
+    </text>
+    <path d="M72.8066 39.6871H93.9291C94.7065 39.6871 95.3932 40.1934 95.6231 40.936L96.2662 43.0138C96.5865 44.0488 96.4881 45.1681 95.9921 46.1313L80.2207 76.7601C80.0172 77.1552 79.6093 77.4028 79.1649 77.401L53.4679 77.2965C52.6116 77.293 52.043 76.4087 52.3952 75.6282L57.9122 63.4009C58.0961 62.9935 58.494 62.7246 58.9406 62.706L84.801 61.6287C87.2893 60.7964 88.354 55.2389 86.4128 55.2389H64.3534C63.7416 55.2389 62.3357 53.0434 62.6181 51.7524C63.3299 48.5542 68.9418 40.7815 69.7183 37.4392C69.9771 36.3119 69.7712 33.9526 68.7594 33.9526H47.4138C46.9749 33.9526 46.5721 33.7094 46.3677 33.3209L46.008 32.6373C45.8166 32.2737 45.8279 31.8367 46.0376 31.4834L52.9743 19.7987C53.1873 19.4399 53.5736 19.22 53.9908 19.22H79.0538C79.5008 19.22 80.142 20.5504 80.195 21.2713C80.5362 25.8588 72.0301 34.0968 72.8007 39.6805L72.8066 39.6871Z" fill="white"/>
+    <path d="M38.3439 40.2808H58.9705C59.7519 40.2808 60.4412 40.7923 60.6676 41.5402L61.5178 44.3481C61.6881 44.9106 61.6428 45.5165 61.3907 46.0474L46.6419 77.1081C46.4472 77.5182 46.0349 77.7805 45.5811 77.7832L21.2447 77.9286C20.4486 77.9334 19.8754 77.1657 20.1063 76.4037L23.8236 64.1327C23.9692 63.652 24.4028 63.3158 24.9047 63.2944L50.0776 62.2225C52.5118 61.3902 53.5534 55.8327 51.6544 55.8327H30.0746C29.4761 55.8327 28.1007 53.6372 28.3769 52.3461C29.0733 49.1479 34.5632 41.3753 35.3228 38.0329C35.576 36.9057 35.3746 34.5464 34.3848 34.5464H13.526C13.0833 34.5464 12.6776 34.2989 12.475 33.9053L12.1228 33.2211C11.9383 32.8626 11.9491 32.4349 12.1516 32.0863L18.9371 20.4022C19.1487 20.0379 19.5381 19.8137 19.9594 19.8137H43.6032C44.1418 19.8137 44.6568 20.0551 44.9526 20.5052C45.2377 20.9392 45.5445 21.4862 45.5717 21.865C45.9055 26.4526 37.5843 34.6906 38.3382 40.2743L38.3439 40.2808Z" fill="white"/>
+    <text transform="translate(19.8882 12.2517) rotate(0.0421761)" fill="white" xml:space="preserve" style="white-space: pre; font-size: 3.54646px; font-weight: bold; letter-spacing: 0.09em;">
+        <tspan x="0" y="3.55496">WWW.SCALAR.COM</tspan>
+    </text>
+    <style>
+        text {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+        .blue {
+            fill: #0082d0;
+        }
+        @media (color-gamut: p3) {
+            .blue {
+                fill: color(display-p3 0 0.509804 0.815686 / 1);
+            }
+        }
+      </style>
+    </g>
+  </defs>
+  <foreignObject width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="sticker-container" style="left: 6px; top: 6px;">
+            <div class="sticker-main">
+                <div class="sticker-lighting">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="135" height="155"><use href="#docsSticker" x="0" y="0"/></svg>
+                </div>
+            </div>
+            <div class="shadow">
+                <div class="flap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="135" height="155"><use href="#docsSticker" x="0" y="0"/></svg>
+                </div>
+            </div>
+            <div class="flap">
+                <div class="flap-lighting">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="135" height="155"><use href="#docsSticker" x="0" y="0"/></svg>
+                </div>
+            </div>
+        </div>
+    </foreignObject>
+</svg>

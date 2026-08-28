@@ -1425,6 +1425,17 @@
               }
             }
           },
+          "/svg-playground": {
+            "title": "SVG Playground",
+            "description": "Scratch page for iterating on landing page artwork.",
+            "filepath": "documentation/guides/svg-playground.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false
+            }
+          },
           "/brand": {
             "title": "Brand",
             "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
