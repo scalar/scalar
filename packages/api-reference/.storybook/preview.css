@@ -1,0 +1,15 @@
+html {
+  font-family: var(--scalar-font);
+  font-size: var(--scalar-font-size-4);
+}
+
+body.sb-show-main,
+#storybook-docs .sbdocs-wrapper {
+  background: var(--scalar-background-1);
+}
+
+/* Give stories a little breathing room in the Storybook canvas. Snapshot tests crop to the
+ * component/body with a transparent background, so this only affects the manual Storybook view. */
+#storybook-root {
+  padding: 16px;
+}
