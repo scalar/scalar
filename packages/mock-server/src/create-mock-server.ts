@@ -69,8 +69,9 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   // which makes the failure readable in the response instead of something to go reproduce.
   app.onError((error, c) => {
     // The status and body such an error chose are deliberate, not an internal failure, so answer
-    // with them. Rebuilt through the context exactly as Hono's default handler does, so headers
-    // already staged on the response — those from the CORS middleware, most of all — still apply.
+    // with them. Unlike Hono's default handler, which returns the response directly, it is rebuilt
+    // through the context so headers already staged on the response — those from the CORS
+    // middleware, most of all — still apply.
     if (carriesResponse(error)) {
       const response = error.getResponse()
       return c.newResponse(response.body, response)
