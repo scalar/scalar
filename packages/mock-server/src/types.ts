@@ -15,6 +15,9 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyo
     [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
   }[Keys]
 
+/** A sink for the informational log lines the mock servers print while starting up. */
+export type MockServerLogger = (line: string) => void
+
 type BaseMockServerOptions = {
   /**
    * The OpenAPI document to use for mocking.
