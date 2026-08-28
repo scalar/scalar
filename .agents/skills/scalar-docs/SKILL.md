@@ -339,6 +339,15 @@ Publishes an RSS feed for your changelog so readers can subscribe. Written to `<
 | `title`       | `string` | No       | Feed title. Defaults to your site title plus `Changelog` |
 | `description` | `string` | No       | Feed description                                         |
 
+To publish several feeds, set `rss` to a list of these objects. Each needs its own unique `path` and is written to `<path>/rss.xml`:
+
+```json
+"rss": [
+  { "path": "/changelog", "title": "Scalar Changelog" },
+  { "path": "/blog", "title": "Scalar Blog" }
+]
+```
+
 Entries come from dated headings (`## 1.2.0 (2026-07-24)`) on the page at `path` or any page beneath it, merged newest-first. Only the top-most dated heading level starts entries; deeper headings (dated or not) fold into the release above them. Hidden pages are skipped. Every page advertises the feed with a `<link rel="alternate" type="application/rss+xml">` tag, and pages under `path` show a subscribe button in the page header.
 
 ### routing
