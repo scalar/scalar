@@ -20,11 +20,7 @@ const config: StorybookConfig = {
   // without touching this config.
   stories: ['../src/**/*.stories.ts'],
 
-  addons: [
-    getAbsolutePath('@storybook/addon-links'),
-    getAbsolutePath('@storybook/addon-docs'),
-    getAbsolutePath('@vueless/storybook-dark-mode'),
-  ],
+  addons: [getAbsolutePath('@storybook/addon-links'), getAbsolutePath('@storybook/addon-docs')],
 
   framework: {
     name: getAbsolutePath('@storybook/vue3-vite'),
