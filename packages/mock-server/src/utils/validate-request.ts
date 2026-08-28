@@ -16,6 +16,19 @@ import {
   isObjectSchema,
   resolveSerialization,
 } from './deserialize-parameter'
+import { replaceCircularMarkers } from './replace-circular-markers'
+
+/**
+ * Prepare a resolved schema for Ajv by replacing the `'[circular]'` markers a recursive schema leaves
+ * behind. Ajv refuses to compile a schema that still carries one, which makes the body — or the whole
+ * parameter location built around it — fail open.
+ *
+ * Only Ajv sees this copy. Everything that reads the *shape* of a schema keeps reading the resolved
+ * one, because the rewrite may drop a keyword (a `oneOf` the cycle ran through, say) that the shape
+ * still depends on.
+ */
+const asCompilableSchema = (resolved: unknown): Record<string, unknown> =>
+  replaceCircularMarkers(resolved) as Record<string, unknown>
 
 /** Where a validation violation was found in the request */
 type ViolationLocation = 'body' | 'query' | 'path' | 'header' | 'cookie'
@@ -128,7 +141,7 @@ const buildParameterSchema = (
     })
 
     if (resolvedSchema) {
-      properties[parameter.name] = resolvedSchema
+      properties[parameter.name] = asCompilableSchema(resolvedSchema)
     }
 
     if (parameter.required) {
@@ -226,7 +239,7 @@ const compileValidators = (
   let bodySchema: Record<string, unknown> | null = null
   try {
     const jsonSchema = getResolvedRef(requestBody?.content?.['application/json'])?.schema
-    bodySchema = jsonSchema ? (getResolvedRefDeep(jsonSchema) as Record<string, unknown>) : null
+    bodySchema = jsonSchema ? asCompilableSchema(getResolvedRefDeep(jsonSchema)) : null
   } catch (error) {
     console.error('Error resolving request body schema, skipping body validation:', error)
   }

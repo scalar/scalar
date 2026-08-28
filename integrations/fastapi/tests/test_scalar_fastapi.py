@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from fastapi.responses import HTMLResponse
 
 from scalar_fastapi import (
+    add_scalar_reference,
     get_scalar_api_reference,
     Layout,
     OpenAPISource,
@@ -478,8 +479,8 @@ class TestEdgeCases:
         assert '"url": ""' in html_content
         assert "<title>Scalar</title>" in html_content
 
-    def test_special_characters_in_title(self):
-        """Test with special characters in title"""
+    def test_special_characters_in_title_are_escaped(self):
+        """Special characters in the title are HTML-escaped to prevent injection"""
         title_with_special_chars = "API & Documentation <script>alert('xss')</script>"
         response = get_scalar_api_reference(
             openapi_url="/openapi.json",
@@ -487,8 +488,23 @@ class TestEdgeCases:
         )
 
         html_content = response.body.decode()
-        # The title should be properly escaped in the HTML
-        assert title_with_special_chars in html_content
+        # The raw script payload must not survive into the output ...
+        assert "<script>alert('xss')</script>" not in html_content
+        # ... it should be escaped instead.
+        assert "API &amp; Documentation" in html_content
+        assert "&lt;script&gt;" in html_content
+
+    def test_content_with_closing_script_tag_cannot_break_out(self):
+        """A document containing </script> must not break out of the inline script"""
+        response = get_scalar_api_reference(
+            content='{"openapi": "3.1.0", "info": {"title": "</script><script>alert(1)</script>"}}',
+        )
+
+        html_content = response.body.decode()
+        # The closing tag is neutralized as <\/script> inside the config ...
+        assert "<\\/script>" in html_content
+        # ... so the raw breakout sequence never appears.
+        assert "</script><script>alert(1)</script>" not in html_content
 
     def test_complex_json_in_configuration(self):
         """Test with complex JSON structures in configuration"""
@@ -518,3 +534,115 @@ class TestEdgeCases:
         # The complex JSON should be properly serialized
         assert "oauth2" in html_content
         assert "authorizationCode" in html_content
+
+
+class TestAddScalarReference:
+    """Test the one-line add_scalar_reference helper"""
+
+    def test_registers_route_and_serves_html(self):
+        """The helper mounts /scalar and fills in title and openapi_url from the app"""
+        app = FastAPI(title="My API")
+        add_scalar_reference(app)
+
+        client = TestClient(app)
+        response = client.get("/scalar")
+
+        assert response.status_code == 200
+        assert "text/html" in response.headers["content-type"]
+
+        html_content = response.text
+        assert "<title>My API</title>" in html_content
+        assert '"url": "/openapi.json"' in html_content
+
+    def test_custom_route_and_passthrough_kwargs(self):
+        """A custom route works and extra kwargs reach get_scalar_api_reference"""
+        app = FastAPI(title="My API")
+        add_scalar_reference(app, route="/docs/scalar", theme=Theme.KEPLER, title="Docs")
+
+        client = TestClient(app)
+
+        # The default route is not registered when a custom one is used.
+        assert client.get("/scalar").status_code == 404
+
+        response = client.get("/docs/scalar")
+        assert response.status_code == 200
+        assert '"theme": "kepler"' in response.text
+        assert "<title>Docs</title>" in response.text
+
+    def test_route_is_hidden_from_schema_by_default(self):
+        """The reference route does not clutter the OpenAPI schema"""
+        app = FastAPI()
+        add_scalar_reference(app)
+
+        client = TestClient(app)
+        schema = client.get("/openapi.json").json()
+
+        assert "/scalar" not in schema["paths"]
+
+    def test_returns_the_app_for_chaining(self):
+        """The helper returns the app so calls can be chained"""
+        app = FastAPI()
+        assert add_scalar_reference(app) is app
+
+
+class TestPlainStringValues:
+    """Plain strings work anywhere an enum is accepted"""
+
+    def test_string_values_are_accepted(self):
+        """Passing string values behaves the same as passing enum members"""
+        response = get_scalar_api_reference(
+            openapi_url="/openapi.json",
+            title="Test API",
+            layout="classic",
+            theme="moon",
+            search_hot_key="s",
+            document_download_type="json",
+        )
+
+        html_content = response.body.decode()
+        assert '"layout": "classic"' in html_content
+        assert '"theme": "moon"' in html_content
+        assert '"searchHotKey": "s"' in html_content
+        assert '"documentDownloadType": "json"' in html_content
+
+    def test_default_string_values_are_omitted(self):
+        """Default values passed as strings are still left out of the config"""
+        response = get_scalar_api_reference(
+            openapi_url="/openapi.json",
+            title="Test API",
+            layout="modern",
+            theme="default",
+            search_hot_key="k",
+        )
+
+        html_content = response.body.decode()
+        config_start = html_content.find('Scalar.createApiReference("#app", {')
+        config_end = html_content.find('})', config_start)
+        config_section = html_content[config_start:config_end]
+
+        assert 'layout' not in config_section
+        assert 'theme' not in config_section
+        assert 'searchHotKey' not in config_section
+
+    def test_default_theme_string_still_injects_styles(self):
+        """The default theme styles are injected whether the value is an enum or a string"""
+        response = get_scalar_api_reference(
+            openapi_url="/openapi.json",
+            title="Test API",
+            theme="default",
+        )
+
+        html_content = response.body.decode()
+        # The bundled default theme CSS is present.
+        assert "--scalar-color-accent" in html_content
+
+    def test_string_and_enum_produce_identical_output(self):
+        """A string and its matching enum member yield the same HTML"""
+        from_string = get_scalar_api_reference(
+            openapi_url="/openapi.json", title="Test API", theme="kepler"
+        ).body.decode()
+        from_enum = get_scalar_api_reference(
+            openapi_url="/openapi.json", title="Test API", theme=Theme.KEPLER
+        ).body.decode()
+
+        assert from_string == from_enum

@@ -189,6 +189,22 @@ The given OpenAPI document is automatically exposed:
 
 - `/openapi.json` and `/openapi.yaml`
 
+### Path keys with a query string
+
+Some documents describe a variant of an operation by putting a query string in the path key:
+
+```yaml
+paths:
+  /v1/messages: …
+  /v1/messages?beta=true: …
+```
+
+Both keys are routed. The variant answers only requests that actually send every query parameter it pins (`?beta=true` here), and the plain key answers everything else. A key that pins a name without a value (`?beta`) matches any value.
+
+Everything else in a path key is matched literally, so a path such as `/users:batchGet` or `/reports*` is served as written.
+
+A segment that mixes a path parameter with literal text of that kind (`/v1/jobs/{jobId}:cancel`) routes to the right operation, but `jobId` is not bound by name — a single path segment can only carry one parameter. Request validation reads it as missing, so a document that describes such a path has to run the mock server with `validateRequest: false`, which turns validation off for every operation in it.
+
 ### Selecting responses
 
 By default the mock server picks a response (and its status code) for you and returns the first example it can find. You can override both with the standard [`Prefer` header](https://www.rfc-editor.org/rfc/rfc7240), just like [Stoplight Prism](https://github.com/stoplightio/prism).
@@ -260,6 +276,7 @@ The mock server enforces your OpenAPI contract by default. Each request is valid
 - **Array parameters** are deserialized according to their `style` and `explode` before validation. Exploded `form` arrays read repeated query keys (`?ids=1&ids=2`), while `form` (non-exploded), `spaceDelimited`, and `pipeDelimited` query arrays, `simple` path and header arrays, `form` cookie arrays, and the `label` (`/.1.2.3`) and `matrix` (`/;ids=1;ids=2`) path styles are split on their delimiter.
 - **Object parameters** are deserialized too: `deepObject` (`?filter[min]=1&filter[max]=9`), exploded `form` (properties as top-level keys, `?r=100&g=200`), `form`/`simple`/`label`/`matrix` in both explode modes (for example `r,100,g,200`, `r=100,g=200`, or `;point=x,1,y,2`).
 - **JSON request bodies** are validated against `requestBody.content['application/json'].schema`, and `requestBody.required` is enforced.
+- **Recursive schemas** (a schema that references itself, directly or through another schema) are validated down to the point where the cycle is cut. Values at and below that recursion point are accepted as they are, and a `not`, `if`, `oneOf`, or `contains` that depends on the recursion is not enforced — nor are the keywords that only qualify them, such as `unevaluatedProperties`, `unevaluatedItems`, or `additionalProperties` — so validation stays on the forgiving side.
 
 When a request violates the contract, the server responds with `422 Unprocessable Entity` and a `application/problem+json` body listing every violation, instead of a mock response.
 
@@ -349,6 +366,30 @@ How the events are picked:
 - An array example is read as the event sequence too, one event per item.
 - An example that already spells out the wire format — `data:` and `event:` lines, or a `:` comment heartbeat — is written as its own framing, with only its terminating blank line normalized, instead of being wrapped in a second `data:` line. Examples like that describe a whole stream, so a map of them lists alternatives: the first one is served, and `Prefer: example=<name>` picks another.
 - When the response only has a schema, the generated payload is sent three times, so a client's read loop sees more than one event before the stream ends. A schema that already generates a sequence — an `array` with more than one item, or a string that spells the wire format out — is sent once, not repeated.
+
+### Error Responses
+
+When mocking a request fails in a way nothing else handles — a declared response header name that is not a valid HTTP header name, an example that cannot be serialized — the server responds with `500 Internal Server Error` and a JSON body naming the operation that failed:
+
+```json
+{
+  "error": "Internal Server Error",
+  "message": "Headers.set: \"X Invalid Name\" is an invalid header name.",
+  "operation": {
+    "method": "GET",
+    "path": "/pets/{petId}",
+    "operationId": "getPet"
+  }
+}
+```
+
+`operation` reports the HTTP method and the OpenAPI path key of the matched operation, plus its `operationId` when the document declares one. It is left out when the request did not match a mocked operation, for example on a route you added to the returned app yourself. Either way, the error is also logged to the console, so the stack trace stays available.
+
+Failures that are already handled elsewhere never reach this handler, so they keep their own shape and carry no `operation` key:
+
+- **`x-handler` errors** — an extension that throws responds with `{ "error": "Handler execution failed", "message": … }`.
+- **Operations with no response** — an operation whose `responses` are empty responds with `{ "error": "No response defined for this operation." }`.
+- **Errors that carry a response** — an error such as Hono's `HTTPException` keeps the status and body it chose, and is not logged.
 
 ### Quiet Startup
 

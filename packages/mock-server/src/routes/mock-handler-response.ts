@@ -9,6 +9,7 @@ import { buildHandlerContext } from '@/utils/build-handler-context'
 import { executeHandler } from '@/utils/execute-handler'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
+import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
 
 /**
@@ -69,7 +70,7 @@ function getExampleFromResponse(
       ? normalizeResponseBody(
           getExampleFromSchema(responseSchema, {
             emptyString: 'string',
-            variables: c.req.param(),
+            variables: pathParameters(c),
             mode: 'read',
           }),
           responseSchema,

@@ -15,9 +15,9 @@ catalogs:
   '*':
     '@ai-sdk/vue': 3.0.33
     '@astrojs/starlight': 0.37.7
-    '@fastify/basic-auth': ^5.1.1
-    '@fastify/http-proxy': ^9.5.0
-    '@fastify/swagger': ^8.10.1
+    '@fastify/basic-auth': ^6.3.0
+    '@fastify/http-proxy': ^11.6.0
+    '@fastify/swagger': ^9.8.1
     '@floating-ui/utils': 0.2.10
     '@floating-ui/vue': 1.1.9
     '@faker-js/faker': 10.4.0
@@ -58,6 +58,9 @@ catalogs:
     '@vueuse/integrations': 13.9.0
     'fastify-plugin': ^4.5.1
     ai: 6.0.33
+    ajv: ^8.20.0
+    ajv-draft-04: ^1.0.0
+    ajv-formats: ^3.0.1
     ansis: 4.1.0
     astro: 5.18.1
     commander: 13.1.0

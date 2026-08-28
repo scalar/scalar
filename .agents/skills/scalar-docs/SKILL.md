@@ -323,7 +323,7 @@ For `scripts` and `styles`: path relative to config root. For `links` (favicon):
 
 ### rss
 
-Publishes an RSS feed for your changelog so readers can subscribe. Written to `<path>/rss.xml` — a changelog at `/changelog` publishes its feed at `/changelog/rss.xml`.
+Publishes an RSS feed for your changelog or blog so readers can subscribe. Written to `<path>/rss.xml` — a changelog at `/changelog` publishes its feed at `/changelog/rss.xml`.
 
 ```json
 "rss": {
@@ -338,8 +338,20 @@ Publishes an RSS feed for your changelog so readers can subscribe. Written to `<
 | `path`        | `string` | Yes      | Changelog route, e.g. `/changelog`. No `..` segments     |
 | `title`       | `string` | No       | Feed title. Defaults to your site title plus `Changelog` |
 | `description` | `string` | No       | Feed description                                         |
+| `entries`     | `string` | No       | `headings` (default) or `pages` — see below              |
+
+To publish several feeds, set `rss` to a list of these objects. Each needs its own unique `path` and is written to `<path>/rss.xml`:
+
+```json
+"rss": [
+  { "path": "/changelog", "title": "Scalar Changelog" },
+  { "path": "/blog", "title": "Scalar Blog" }
+]
+```
 
 Entries come from dated headings (`## 1.2.0 (2026-07-24)`) on the page at `path` or any page beneath it, merged newest-first. Only the top-most dated heading level starts entries; deeper headings (dated or not) fold into the release above them. Hidden pages are skipped. Every page advertises the feed with a `<link rel="alternate" type="application/rss+xml">` tag, and pages under `path` show a subscribe button in the page header.
+
+Set `entries` to `pages` for a blog instead: every page under `path` with a `date` in its frontmatter (`date: 2026-07-24`) becomes one item, titled by the page. Pages without a `date` (an index, a draft) are skipped. Use the default `headings` for a changelog.
 
 ### routing
 
