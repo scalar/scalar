@@ -110,7 +110,7 @@ describe('ssr', () => {
       const script = generateBodyScript({ darkMode: true })
 
       expect(script).not.toContain('matchMedia')
-      expect(script).toContain('set(true)')
+      expect(script).toContain('set(true,1)')
     })
 
     it('handles array configurations', () => {
@@ -135,6 +135,25 @@ describe('ssr', () => {
       expect(script).toContain('localStorage')
       expect(script).toContain('matchMedia')
       expect(script).not.toContain('window.__pwned=2')
+    })
+
+    it('pins color-scheme on the document element when the mode is forced', () => {
+      expect(generateBodyScript({ forceDarkModeState: 'dark' })).toContain("style.colorScheme='dark'")
+      expect(generateBodyScript({ forceDarkModeState: 'light' })).toContain("style.colorScheme='light'")
+    })
+
+    it('pins color-scheme for a stored preference', () => {
+      const script = generateBodyScript({})
+
+      // The pin flag makes an explicit user choice override the stylesheet default.
+      expect(script).toContain("set(s==='dark',1)")
+    })
+
+    it('does not pin color-scheme on the system fallback', () => {
+      const script = generateBodyScript({})
+
+      // Freezing it to whatever matchMedia reported at load would stop the OS tracking live.
+      expect(script).toContain("matchMedia('(prefers-color-scheme:dark)').matches,0)")
     })
   })
 
@@ -382,6 +401,25 @@ describe('ssr', () => {
           css: '',
         }),
       ).rejects.toThrow('Cannot serialize function at "metaData.onLoaded" for SSR hydration.')
+    })
+
+    /** Read just the opening tag — the inlined stylesheet has `color-scheme` declarations too. */
+    const getHtmlTag = (html: string): string =>
+      html.slice(html.indexOf('<html'), html.indexOf('>', html.indexOf('<html')) + 1)
+
+    it('renders color-scheme onto <html> for a configured mode', async () => {
+      const forcedDark = await renderApiReference({ config: { forceDarkModeState: 'dark' } })
+      expect(getHtmlTag(forcedDark)).toContain('color-scheme: dark')
+
+      const configuredLight = await renderApiReference({ config: { darkMode: false } })
+      expect(getHtmlTag(configuredLight)).toContain('color-scheme: light')
+    })
+
+    it('omits color-scheme from <html> when no mode is configured', async () => {
+      // Unconfigured, the stylesheet stays in charge and the OS decides the first paint.
+      const html = await renderApiReference({ config: {} })
+
+      expect(getHtmlTag(html)).not.toContain('color-scheme')
     })
   })
 

@@ -74,7 +74,13 @@ export function useColorMode(
     set: (value) => setColorMode(value ? 'dark' : 'light'),
   })
 
-  /** Applies the appropriate color mode class to the body. */
+  /**
+   * Applies the color mode to the document.
+   *
+   * The class stays on `<body>`, where customer themes select against it. `color-scheme` goes on
+   * `<html>` as an inline style — what the stylesheet's `light-dark()` tokens resolve against, and
+   * a property rather than a class so nothing can be coupled to it.
+   */
   function applyBodyColorMode(): void {
     if (typeof document === 'undefined' || typeof window === 'undefined') {
       return
@@ -86,6 +92,16 @@ export function useColorMode(
 
     // An `overrideColorMode` of `system` reaches here unresolved, and has always rendered as light.
     applyColorMode(classMode === 'dark' ? 'dark' : 'light')
+
+    // The requested mode, not the resolved one: `system` clears the pin so the stylesheet's
+    // `color-scheme: light dark` takes over and the OS drives the theme natively.
+    const requestedMode = overrideColorMode ?? colorMode.value
+
+    if (requestedMode === 'system') {
+      document.documentElement.style.removeProperty('color-scheme')
+    } else {
+      document.documentElement.style.colorScheme = requestedMode
+    }
   }
 
   // Priority: overrideColorMode -> localStorage -> initialColorMode
