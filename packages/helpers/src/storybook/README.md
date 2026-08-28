@@ -26,6 +26,8 @@ The variant stories render under unless a story or a test asks for another one, 
 
 The toolbar controls every Scalar Storybook shares: a **Theme** picker and a **Color mode** picker.
 
+Color mode defaults to the operating system preference, resolved once when the preview loads, so Storybook opens in whichever mode the rest of the machine is already in. Snapshot tests never see that default — they set the mode classes themselves for every screenshot, light ones included, so baselines do not depend on the machine running them.
+
 ### `scalarGlobalTypes` / `scalarInitialGlobals`
 
 Drop these into a `Preview` object as `globalTypes` and `initialGlobals`. They are plain object literals rather than Storybook types, so this package does not have to depend on Storybook — each preview type checks them when it assigns them.

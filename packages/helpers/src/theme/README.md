@@ -10,6 +10,12 @@ Applies a color mode to an element by swapping the two mode classes. Both are to
 
 The caller is responsible for checking that a DOM exists. Reading the default argument touches `document`, so this throws under SSR rather than silently doing nothing.
 
+### `getSystemColorMode()`
+
+Reads the operating system preference via `prefers-color-scheme`, returning `'light' | 'dark'`.
+
+Without a `window` it reports light, matching what the server renders. A `window` *without* `matchMedia` reports dark instead — inconsistent, but the behaviour predates this helper and is preserved so `useColorMode` keeps resolving the way it always has. Only a stubbed test environment reaches that branch.
+
 ### `DarkLightMode`
 
 A **resolved** color mode, `'light' | 'dark'`. Deliberately narrower than the mode a user can pick, which also includes `'system'` — that one is a preference which has to be resolved against the operating system before anything can be rendered, so by the time a mode reaches the DOM it is always one of these two.
@@ -19,7 +25,7 @@ A **resolved** color mode, `'light' | 'dark'`. Deliberately narrower than the mo
 ### Import
 
 ```ts
-import { type DarkLightMode, applyColorMode } from '@scalar/helpers/theme/color-mode'
+import { type DarkLightMode, applyColorMode, getSystemColorMode } from '@scalar/helpers/theme/color-mode'
 ```
 
 ## `load-css-variables` (`./load-css-variables`)

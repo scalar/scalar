@@ -1,8 +1,18 @@
-import { type DarkLightMode, applyColorMode } from '../theme/color-mode'
+import { type DarkLightMode, applyColorMode, getSystemColorMode } from '../theme/color-mode'
 import { type ThemeVariantId, applyThemeVariant, defaultThemeVariant, themeVariants } from './themes'
 
-/** The color mode stories render under unless the toolbar asks for another one. */
-export const defaultColorMode: DarkLightMode = 'light'
+/**
+ * The color mode stories render under unless the toolbar asks for another one.
+ *
+ * This follows the operating system, so Storybook opens in whichever mode the rest of the machine
+ * is already in. It is resolved once when the preview loads rather than watched, since the toolbar
+ * is there to override it either way.
+ *
+ * Snapshot tests never see this. They set the mode classes themselves for every screenshot they
+ * take, light ones included, so the baselines do not depend on the preference of whatever machine
+ * is running them.
+ */
+export const defaultColorMode: DarkLightMode = getSystemColorMode()
 
 /**
  * The toolbar controls every Scalar Storybook shares.

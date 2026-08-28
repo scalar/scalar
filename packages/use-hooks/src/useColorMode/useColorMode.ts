@@ -1,4 +1,4 @@
-import { type DarkLightMode, applyColorMode } from '@scalar/helpers/theme/color-mode'
+import { type DarkLightMode, applyColorMode, getSystemColorMode } from '@scalar/helpers/theme/color-mode'
 import { literal, union, validate } from '@scalar/validation'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
@@ -59,14 +59,7 @@ export function useColorMode(
 
   /** Gets the system mode preference. */
   function getSystemModePreference(): DarkLightMode {
-    if (typeof window === 'undefined') {
-      return 'light'
-    }
-    if (typeof window?.matchMedia !== 'function') {
-      return 'dark'
-    }
-
-    return window?.matchMedia('(prefers-color-scheme: dark)')?.matches ? 'dark' : 'light'
+    return getSystemColorMode()
   }
 
   /** Writable computed ref for dark/light mode with system preference applied */

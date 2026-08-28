@@ -1,6 +1,10 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { applyColorMode } from './color-mode'
+import { applyColorMode, getSystemColorMode } from './color-mode'
+
+/** Stands in for `window.matchMedia`, which jsdom does not implement. */
+const mockMatchMedia = (prefersDark: boolean) =>
+  vi.fn().mockImplementation((query: string) => ({ matches: prefersDark && query === '(prefers-color-scheme: dark)' }))
 
 describe('color-mode', () => {
   beforeEach(() => {
@@ -56,6 +60,30 @@ describe('color-mode', () => {
       applyColorMode('dark')
 
       expect(document.body.className).toBe('dark-mode')
+    })
+  })
+
+  describe('getSystemColorMode', () => {
+    afterEach(() => {
+      vi.unstubAllGlobals()
+    })
+
+    it('reports dark when the system prefers dark', () => {
+      vi.stubGlobal('window', { ...window, matchMedia: mockMatchMedia(true) })
+
+      expect(getSystemColorMode()).toBe('dark')
+    })
+
+    it('reports light when the system prefers light', () => {
+      vi.stubGlobal('window', { ...window, matchMedia: mockMatchMedia(false) })
+
+      expect(getSystemColorMode()).toBe('light')
+    })
+
+    it('reports light without a window, matching what the server renders', () => {
+      vi.stubGlobal('window', undefined)
+
+      expect(getSystemColorMode()).toBe('light')
     })
   })
 })
