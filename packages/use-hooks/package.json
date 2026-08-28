@@ -47,6 +47,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/validation": "workspace:*",
     "@vueuse/core": "catalog:*",
