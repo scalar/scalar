@@ -126,3 +126,4 @@ Useful routes:
 - If seeded data is missing, check `x-seed` exists on schema keys and the collection was empty on startup.
 - If auth-protected routes return unauthorized responses, verify matching `securitySchemes` and request credentials.
 - If custom logic fails, inspect `x-handler` runtime errors (mock server returns `500` with handler error details).
+- For an unhandled `500` (one whose `error` is `Internal Server Error`), read its `operation` object — it names the method and OpenAPI path that failed, plus the `operationId` when the document declares one.

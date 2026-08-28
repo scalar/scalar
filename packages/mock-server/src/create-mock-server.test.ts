@@ -1,8 +1,73 @@
-import { describe, expect, it } from 'vitest'
+import { HTTPException } from 'hono/http-exception'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createMockServer } from './create-mock-server'
 
+/**
+ * A document with a single operation. Pass an `operationId` to have the document declare one; leave
+ * it off to cover the case where it does not.
+ */
+const documentWithOnePet = (operationId?: string): Record<string, unknown> => ({
+  openapi: '3.1.0',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {
+    '/pets/{petId}': {
+      get: {
+        ...(operationId ? { operationId } : {}),
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      },
+    },
+  },
+})
+
+/**
+ * A response header name that is not a valid HTTP token. Building the response throws while the
+ * mock handler runs, which is how a valid-looking document realistically produces a `500`: nothing
+ * validates the header name up front, so the failure only surfaces on the request.
+ */
+const documentWithBrokenResponseHeader: Record<string, unknown> = {
+  openapi: '3.1.0',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {
+    '/pets/{petId}': {
+      get: {
+        operationId: 'getPet',
+        responses: {
+          '200': {
+            description: 'OK',
+            headers: {
+              'X Invalid Name': {
+                schema: {
+                  type: 'string',
+                  example: 'nope',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+
 describe('createMockServer', () => {
+  // The error-handling tests below silence the log the server writes. Restoring through a hook
+  // rather than inline keeps a failing assertion from leaving `console.error` mocked for the rest
+  // of the file.
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('supports deprecated specification key', async () => {
     const specification = {
       openapi: '3.1.0',
@@ -1561,5 +1626,133 @@ describe('createMockServer', () => {
 
     expect(response.status).toBe(301)
     expect(response.headers.get('Location')).toBe('/new-location')
+  })
+
+  it('returns a structured JSON 500 naming the operation that failed', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const server = await createMockServer({
+      document: documentWithOnePet('getPet'),
+      onRequest: () => {
+        throw new Error('Boom')
+      },
+    })
+
+    const response = await server.request('/pets/1')
+
+    expect(response.status).toBe(500)
+    expect(response.headers.get('Content-Type')).toBe('application/json')
+    expect(await response.json()).toStrictEqual({
+      error: 'Internal Server Error',
+      message: 'Boom',
+      operation: {
+        method: 'GET',
+        path: '/pets/{petId}',
+        operationId: 'getPet',
+      },
+    })
+  })
+
+  it('omits the operationId when the operation does not declare one', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const server = await createMockServer({
+      document: documentWithOnePet(),
+      onRequest: () => {
+        throw new Error('Boom')
+      },
+    })
+
+    const response = await server.request('/pets/1')
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toStrictEqual({
+      error: 'Internal Server Error',
+      message: 'Boom',
+      operation: {
+        method: 'GET',
+        path: '/pets/{petId}',
+      },
+    })
+  })
+
+  it('logs the operation alongside the error', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const server = await createMockServer({
+      document: documentWithOnePet('getPet'),
+      onRequest: () => {
+        throw new Error('Boom')
+      },
+    })
+
+    await server.request('/pets/1')
+
+    expect(consoleErrorSpy.mock.calls[0]?.[0]).toBe('Error while mocking GET /pets/{petId}:')
+    expect(consoleErrorSpy.mock.calls[0]?.[1]).toStrictEqual(new Error('Boom'))
+  })
+
+  it('names the operation when building the mock response fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const server = await createMockServer({ document: documentWithBrokenResponseHeader })
+
+    const response = await server.request('/pets/1')
+    // The runtime words this failure, so it is the one field matched loosely, on the header name.
+    const { message, ...body } = (await response.json()) as { message: string }
+
+    expect(response.status).toBe(500)
+    expect(body).toStrictEqual({
+      error: 'Internal Server Error',
+      operation: {
+        method: 'GET',
+        path: '/pets/{petId}',
+        operationId: 'getPet',
+      },
+    })
+    expect(message).toContain('X Invalid Name')
+  })
+
+  it('omits the operation when the failing route is not a mocked operation', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const server = await createMockServer({
+      document: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
+    })
+
+    // Routes added to the returned app mock no operation, so there is nothing to name.
+    server.get('/custom', () => {
+      throw new Error('Boom')
+    })
+
+    const response = await server.request('/custom')
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toStrictEqual({
+      error: 'Internal Server Error',
+      message: 'Boom',
+    })
+    expect(consoleErrorSpy.mock.calls[0]?.[0]).toBe('Error handling GET /custom:')
+  })
+
+  it('keeps the status and body of an error that carries its own response', async () => {
+    const server = await createMockServer({
+      document: documentWithOnePet(),
+      onRequest: () => {
+        throw new HTTPException(418, { message: 'I am a teapot' })
+      },
+    })
+
+    const response = await server.request('/pets/1')
+
+    expect(response.status).toBe(418)
+    expect(await response.text()).toBe('I am a teapot')
   })
 })
