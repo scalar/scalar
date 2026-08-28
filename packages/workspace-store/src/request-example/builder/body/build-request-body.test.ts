@@ -601,6 +601,50 @@ describe('buildRequestBody', () => {
     expect(multipart.value.map((v) => v.key)).toEqual(['name'])
   })
 
+  it('keeps a property marked required inside an allOf member (issue #10045)', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+            // `name` is required via a composition member, not the top-level `required`.
+            allOf: [{ required: ['name'] }],
+          },
+        },
+      },
+    })
+
+    const result = buildRequestBody(requestBody, 'default')
+    assert(result?.mode === 'urlencoded')
+    // Composed schemas are left untouched so an effectively-required field is never dropped.
+    expect(result.value.map((v) => v.key)).toContain('name')
+  })
+
+  it('keeps an undeclared key named like an Object.prototype member (issue #10045)', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            required: ['name'],
+            properties: { name: { type: 'string' } },
+          },
+          examples: {
+            default: {
+              // `toString` is not declared in the schema, so it must be kept, not dropped.
+              value: { name: 'a', toString: 'keep-me' },
+            },
+          },
+        },
+      },
+    })
+
+    const result = buildRequestBody(requestBody, 'default')
+    assert(result?.mode === 'urlencoded')
+    expect(result.value.map((v) => v.key)).toContain('toString')
+  })
+
   it('returns File bodies for raw binary request examples', () => {
     const mockFile = new File(['binary content'], 'payload.bin', { type: 'application/octet-stream' })
     const requestBody = {

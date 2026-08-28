@@ -343,6 +343,50 @@ describe('getFormBodyRows', () => {
       expect(result[0]?.isDisabled).toBe(false)
     })
 
+    it('does not disable nested optional leaves, so the panel matches the send (issue #10045)', () => {
+      // The send side only drops top-level optional properties, so a nested optional leaf must
+      // stay enabled — otherwise the panel would show it unchecked while it is still transmitted.
+      const example: ExampleObject = {
+        value: { props: { name: '', note: '' } },
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['props'],
+        properties: {
+          props: {
+            type: 'object',
+            required: ['name'],
+            properties: {
+              name: { type: 'string' },
+              note: { type: 'string' },
+            },
+          },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+      const note = result.find((row) => row.name === 'props.note')
+      expect(note?.isRequired).toBe(false)
+      // Optional but nested → left enabled to stay consistent with the request.
+      expect(note?.isDisabled).toBe(false)
+    })
+
+    it('keeps an example-only key named like an Object.prototype member enabled (issue #10045)', () => {
+      const example: ExampleObject = {
+        value: { name: 'a', toString: 'b' },
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['name'],
+        properties: { name: { type: 'string' } },
+      }
+
+      const result = getFormBodyRows(example, 'application/x-www-form-urlencoded', formBodySchema)
+      const extra = result.find((row) => row.name === 'toString')
+      // Undeclared, so it is not auto-disabled by the schema default.
+      expect(extra?.isDisabled).toBe(false)
+    })
+
     it('expands nested object properties into dotted rows (widget #4834 example)', () => {
       const example: ExampleObject = {
         value: {

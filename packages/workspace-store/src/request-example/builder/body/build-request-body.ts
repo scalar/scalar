@@ -88,13 +88,17 @@ export const buildRequestBody = (
   const resolvedBodySchema = getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences) as
     | SchemaObject
     | undefined
-  const bodyProperties =
-    resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? resolvedBodySchema.properties : undefined
-  const requiredBodyProperties = new Set(
-    resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? (resolvedBodySchema.required ?? []) : [],
-  )
+  const objectBodySchema = resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? resolvedBodySchema : undefined
+  // Composition (allOf/oneOf/anyOf) can mark a property required inside a subschema we do not
+  // merge here, so skip dropping entirely for composed schemas rather than risk removing an
+  // effectively-required field.
+  const isComposed = Boolean(objectBodySchema?.allOf || objectBodySchema?.oneOf || objectBodySchema?.anyOf)
+  const bodyProperties = objectBodySchema && !isComposed ? objectBodySchema.properties : undefined
+  const requiredBodyProperties = new Set(objectBodySchema && !isComposed ? (objectBodySchema.required ?? []) : [])
+  // `Object.hasOwn` (not `in`) so an undeclared key named like an `Object.prototype` member
+  // (`toString`, `constructor`, …) is not misread as declared-and-optional and dropped.
   const isOptionalBodyProperty = (key: string) =>
-    Boolean(bodyProperties && key in bodyProperties && !requiredBodyProperties.has(key))
+    Boolean(bodyProperties && Object.hasOwn(bodyProperties, key) && !requiredBodyProperties.has(key))
 
   // Form data - array format (from UI editor)
   if (
