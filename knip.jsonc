@@ -145,6 +145,14 @@
     "packages/api-reference-react": {
       "entry": ["src/index.ts", "playground/main.tsx"]
     },
+    "packages/asyncapi-validator": {
+      "entry": [
+        "src/index.ts",
+        //
+        "playground/src/main.ts",
+        "playground/vite.config.ts"
+      ]
+    },
     "packages/build-tooling": {
       "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
     },
@@ -235,6 +243,14 @@
     },
     "packages/openapi-types": {
       "entry": ["src/index.ts", "src/helpers/index.ts"]
+    },
+    "packages/openapi-validator": {
+      "entry": [
+        "src/index.ts",
+        //
+        "playground/src/main.ts",
+        "playground/vite.config.ts"
+      ]
     },
     "packages/sidebar": {
       "entry": [
