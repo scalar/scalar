@@ -1935,7 +1935,7 @@ describe('createMockServer', () => {
     })
   })
 
-  describe('quiet', () => {
+  describe('logger', () => {
     /**
      * A document with a security scheme, so the server has authentication instructions to print.
      *
@@ -1990,15 +1990,23 @@ describe('createMockServer', () => {
       expect(consoleLogSpy).toHaveBeenCalledWith('Authentication:')
     })
 
-    it('prints no authentication instructions when quiet is enabled', async () => {
+    it('prints no authentication instructions when logging is disabled', async () => {
       const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
-      await createMockServer({ document: authenticatedDocument(), quiet: true })
+      await createMockServer({ document: authenticatedDocument(), logger: false })
 
       expect(consoleLogSpy).not.toHaveBeenCalled()
     })
 
-    it('warns about unsupported security schemes even when quiet is enabled', async () => {
+    it('routes the instructions through a custom logger', async () => {
+      const logger = vi.fn()
+
+      await createMockServer({ document: authenticatedDocument(), logger })
+
+      expect(logger).toHaveBeenCalledWith('Authentication:')
+    })
+
+    it('warns about unsupported security schemes even when logging is disabled', async () => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
       await createMockServer({
@@ -2007,16 +2015,14 @@ describe('createMockServer', () => {
           security: [{ mutualTls: [] }],
           components: { securitySchemes: { mutualTls: { type: 'mutualTLS' } } },
         },
-        quiet: true,
+        logger: false,
       })
 
       expect(consoleWarnSpy).toHaveBeenCalledWith('Unsupported security scheme type: mutualTLS')
     })
 
-    it('answers requests as usual when quiet is enabled', async () => {
-      vi.spyOn(console, 'log').mockImplementation(() => undefined)
-
-      const server = await createMockServer({ document: authenticatedDocument(), quiet: true })
+    it('answers requests as usual when logging is disabled', async () => {
+      const server = await createMockServer({ document: authenticatedDocument(), logger: false })
 
       const response = await server.request('/foobar', {
         headers: { 'X-API-Key': 'super-secret' },

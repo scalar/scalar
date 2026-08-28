@@ -54,7 +54,7 @@ Optional:
 
 - `onRequest({ context, operation })`: callback before each request is processed
 - `validateRequest`: set to `false` to always return a mock response instead of rejecting contract violations with `422` (default: `true`)
-- `quiet`: set to `true` to suppress the authentication instructions printed on startup (default: `false`)
+- `logger`: pass `false` to silence the authentication instructions printed on startup, or a `(line) => void` sink to redirect them (default: logs to the console)
 
 ## Built-in Behavior
 
