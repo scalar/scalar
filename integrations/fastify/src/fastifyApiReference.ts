@@ -180,8 +180,8 @@ const fastifyApiReference = fp<
     // We need this so the request to the JS file is relative.
 
     // With ignoreTrailingSlash: true, fastify responds to both routes anyway.
+    // Fastify v6 exposes this under `routerOptions`; v4 and v5 keep it at the top level.
     const ignoreTrailingSlash =
-      // @ts-expect-error We're still on Fastify 4, this is introduced in Fastify 5
       fastify.initialConfig?.routerOptions?.ignoreTrailingSlash === true ||
       fastify.initialConfig?.ignoreTrailingSlash === true
 
@@ -258,6 +258,9 @@ const fastifyApiReference = fp<
   },
   {
     name: '@scalar/fastify-api-reference',
+    // Declare the supported Fastify range so Fastify validates it at registration
+    // and fails fast on an incompatible host instead of breaking at runtime.
+    fastify: '4.x || 5.x || 6.x',
   },
 )
 

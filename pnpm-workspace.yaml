@@ -15,9 +15,9 @@ catalogs:
   '*':
     '@ai-sdk/vue': 3.0.33
     '@astrojs/starlight': 0.37.7
-    '@fastify/basic-auth': ^5.1.1
-    '@fastify/http-proxy': ^9.5.0
-    '@fastify/swagger': ^8.10.1
+    '@fastify/basic-auth': ^6.3.0
+    '@fastify/http-proxy': ^11.6.0
+    '@fastify/swagger': ^9.8.1
     '@floating-ui/utils': 0.2.10
     '@floating-ui/vue': 1.1.9
     '@faker-js/faker': 10.4.0
