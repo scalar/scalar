@@ -182,6 +182,64 @@ jobs:
           fi
           echo "npm $(npm --version)"
 
+      # Refuse to start a publish that would abort halfway through. npm trusted
+      # publishing (OIDC, no NPM_TOKEN — see the note above and PR #9941) has a
+      # chicken-and-egg problem: a trusted publisher cannot be configured until
+      # the package already exists on npm, so a brand-new public package has no
+      # way to authenticate on its very first publish. On 2026-08-28 three new
+      # packages from PR #9967 hit exactly this: `pnpm -r publish` reached the
+      # first not-yet-on-npm package early in topological order and died with
+      # ENEEDAUTH, aborting the whole run. Only ~12 leaf packages shipped;
+      # ~40 more (including @scalar/api-reference and @scalar/api-client) never
+      # published — a silent, partial, inconsistent release.
+      #
+      # So on a real release commit only (release-check.outputs.published), look
+      # for public workspace packages whose name does not yet exist on npm and
+      # fail fast BEFORE anything publishes, with the exact one-time bootstrap.
+      # This gate is skipped on the create/update-release-PR path and on
+      # ordinary pushes, where release-check is 'false' and nothing publishes.
+      - name: Preflight — new public packages must exist on npm
+        if: steps.release-check.outputs.published == 'true'
+        run: |
+          missing=()
+          # Public = not private. Every publishable package lives under
+          # packages/ or integrations/ (see the Build step's filter).
+          for file in packages/*/package.json integrations/*/package.json; do
+            [ -f "$file" ] || continue
+            if [ "$(jq -r '.private // false' "$file")" = "true" ]; then
+              continue
+            fi
+            name=$(jq -r '.name // ""' "$file")
+            [ -n "$name" ] || continue
+            # Not on npm when `npm view <name> version` returns nothing (404).
+            if [ -z "$(npm view "$name" version 2>/dev/null)" ]; then
+              echo "not on npm yet: $name ($file)"
+              missing+=("$name|$(dirname "$file")")
+            fi
+          done
+          if [ ${#missing[@]} -eq 0 ]; then
+            echo "All public packages already exist on npm — safe to publish."
+            exit 0
+          fi
+          echo "::error::${#missing[@]} public package(s) have never been published to npm. A trusted publisher cannot be configured until the package exists, so 'pnpm -r publish' would hit ENEEDAUTH and abort the whole release mid-way (see PR #9967 / run 33164977470). Bootstrap each package once, then re-run."
+          echo ""
+          echo "Publish each new package once from a maintainer machine (provenance"
+          echo "off — the repo .npmrc sets provenance=true, which fails locally"
+          echo "without OIDC), then register the trusted publisher. Use pnpm publish,"
+          echo "never plain 'npm publish': only pnpm rewrites workspace:* / catalog:*"
+          echo "deps into real version ranges in the published tarball."
+          echo ""
+          for entry in "${missing[@]}"; do
+            name="${entry%%|*}"
+            dir="${entry##*|}"
+            echo "  # $name"
+            echo "  (cd $dir && npm_config_provenance=false pnpm publish --access public --no-git-checks)"
+            # The OIDC subject is the CALLER workflow (main.yml), not release.yml.
+            echo "  npm trust github \"$name\" --repo scalar/scalar --file main.yml --env production-npm --allow-publish --yes"
+            echo ""
+          done
+          exit 1
+
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
