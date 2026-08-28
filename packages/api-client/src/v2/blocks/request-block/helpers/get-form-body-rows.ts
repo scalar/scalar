@@ -149,13 +149,13 @@ export const getFormBodyRows = (
   const mapRow = ({
     name,
     value,
-    isDisabled = false,
+    isDisabled,
   }: {
     name: string
     value: string | File
     isDisabled?: boolean
   }): TableRow => {
-    const row: TableRow = { name, value, isDisabled }
+    const row: TableRow = { name, value, isDisabled: isDisabled ?? false }
     if (!schemaWithProperties || !name) {
       return row
     }
@@ -166,6 +166,17 @@ export const getFormBodyRows = (
     row.schema = propSchema
     row.description = propSchema?.description
     row.isRequired = leaf?.isRequired ?? requiredSet?.has(name) ?? false
+
+    // Optional properties the schema declares default to disabled (unchecked), matching how
+    // optional parameters behave. An explicit `isDisabled` (from a stored form-row array) always
+    // wins, and example-only keys the schema does not declare stay enabled.
+    if (isDisabled === undefined) {
+      const isDeclared =
+        leaf !== undefined || (schemaWithProperties.properties ? name in schemaWithProperties.properties : false)
+      if (isDeclared) {
+        row.isDisabled = !row.isRequired
+      }
+    }
     return row
   }
 

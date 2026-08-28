@@ -533,7 +533,7 @@ describe('buildRequestBody', () => {
     expect(result.value[1].value).toBe('Test file')
   })
 
-  it('builds FormData for schema-generated multipart/form-data object examples', () => {
+  it('builds FormData for schema-generated multipart/form-data object examples, omitting optional properties', () => {
     const requestBody = coerceValue(RequestBodyObjectSchema, {
       content: {
         'multipart/form-data': {
@@ -560,18 +560,45 @@ describe('buildRequestBody', () => {
     expect(result?.mode).toBe('formdata')
     assert(result?.mode === 'formdata')
 
+    // Only the required `image` is sent; the optional `description` is left out by default,
+    // matching how optional parameters are dropped. See issue #10045.
     expect(result.value).toStrictEqual([
       {
         type: 'text',
         key: 'image',
         value: '@filename',
       },
-      {
-        type: 'text',
-        key: 'description',
-        value: 'An image upload',
-      },
     ])
+  })
+
+  it('omits optional form properties but keeps required ones (issue #10045)', () => {
+    const schema = {
+      type: 'object',
+      required: ['name'],
+      properties: {
+        name: { type: 'string' },
+        note: { type: 'string' },
+        mode: { type: 'string', enum: ['none', 'fast', 'slow'] },
+      },
+    }
+
+    const urlencoded = buildRequestBody(
+      coerceValue(RequestBodyObjectSchema, {
+        content: { 'application/x-www-form-urlencoded': { schema } },
+      }),
+      'default',
+    )
+    assert(urlencoded?.mode === 'urlencoded')
+    expect(urlencoded.value.map((v) => v.key)).toEqual(['name'])
+
+    const multipart = buildRequestBody(
+      coerceValue(RequestBodyObjectSchema, {
+        content: { 'multipart/form-data': { schema } },
+      }),
+      'default',
+    )
+    assert(multipart?.mode === 'formdata')
+    expect(multipart.value.map((v) => v.key)).toEqual(['name'])
   })
 
   it('returns File bodies for raw binary request examples', () => {

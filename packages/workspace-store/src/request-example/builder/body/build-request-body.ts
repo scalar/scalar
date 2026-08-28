@@ -5,6 +5,7 @@ import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { getExampleFromBody } from './get-request-body-example'
 import { getSelectedBodyContentType } from './get-selected-body-content-type'
@@ -78,6 +79,22 @@ export const buildRequestBody = (
   if (!example) {
     return null
   }
+
+  // Optional body properties default to "not sent", matching how optional parameters are
+  // dropped by `isParamDisabled`. We only know a property is optional when the body has an
+  // object schema that declares it outside `required`, so undeclared and required keys are
+  // always kept. This mirrors the unchecked-by-default checkbox in the Test Request panel.
+  // The array (edited) form path is unaffected: it carries its own per-row `isDisabled`.
+  const resolvedBodySchema = getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences) as
+    | SchemaObject
+    | undefined
+  const bodyProperties =
+    resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? resolvedBodySchema.properties : undefined
+  const requiredBodyProperties = new Set(
+    resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? (resolvedBodySchema.required ?? []) : [],
+  )
+  const isOptionalBodyProperty = (key: string) =>
+    Boolean(bodyProperties && key in bodyProperties && !requiredBodyProperties.has(key))
 
   // Form data - array format (from UI editor)
   if (
@@ -226,6 +243,10 @@ export const buildRequestBody = (
 
     // Convert object properties to form fields
     for (const [key, value] of Object.entries(example.value)) {
+      // Optional properties are left out unless the user enabled them (edited form path).
+      if (isOptionalBodyProperty(key)) {
+        continue
+      }
       if (key && value !== undefined && value !== null) {
         const partEncoding = requestBody.content[bodyContentType]?.encoding?.[key]
 
@@ -259,6 +280,11 @@ export const buildRequestBody = (
 
     for (const [key, value] of Object.entries(example.value)) {
       if (!key || value === undefined || value === null) {
+        continue
+      }
+
+      // Optional properties are left out unless the user enabled them (edited form path).
+      if (isOptionalBodyProperty(key)) {
         continue
       }
 

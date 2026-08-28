@@ -302,6 +302,47 @@ describe('getFormBodyRows', () => {
       expect(result[1].isRequired).toBe(true)
     })
 
+    it('disables optional properties by default and keeps required ones enabled (issue #10045)', () => {
+      const example: ExampleObject = { value: { name: '', note: '', mode: 'none' } }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          note: { type: 'string' },
+          mode: { type: 'string', enum: ['none', 'fast', 'slow'] },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'application/x-www-form-urlencoded', formBodySchema)
+      const byName = Object.fromEntries(result.map((row) => [row.name, row]))
+
+      // Required property stays enabled; optional properties default to disabled (unchecked).
+      expect(byName['name']?.isDisabled).toBe(false)
+      expect(byName['note']?.isDisabled).toBe(true)
+      expect(byName['mode']?.isDisabled).toBe(true)
+    })
+
+    it('keeps an explicit isDisabled from a stored form-row array (issue #10045)', () => {
+      // Once the user checks an optional box the value is stored as a row array with an
+      // explicit isDisabled, which must win over the schema-derived default.
+      const example: ExampleObject = {
+        value: [{ name: 'note', value: 'hi', isDisabled: false }],
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          note: { type: 'string' },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'application/x-www-form-urlencoded', formBodySchema)
+      expect(result[0]?.name).toBe('note')
+      expect(result[0]?.isDisabled).toBe(false)
+    })
+
     it('expands nested object properties into dotted rows (widget #4834 example)', () => {
       const example: ExampleObject = {
         value: {
