@@ -97,7 +97,7 @@ serve(
 
 ### Authentication
 
-You can define security schemes in your OpenAPI document and the mock server will validate the authentication. On startup it prints instructions on how to authenticate, which you can turn off with [Quiet Startup](#quiet-startup):
+You can define security schemes in your OpenAPI document and the mock server will validate the authentication. On startup it prints instructions on how to authenticate, which you can turn off — see [Silencing startup logging](#silencing-startup-logging):
 
 ```typescript
 import { serve } from '@hono/node-server'
@@ -391,9 +391,9 @@ Failures that are already handled elsewhere never reach this handler, so they ke
 - **Operations with no response** — an operation whose `responses` are empty responds with `{ "error": "No response defined for this operation." }`.
 - **Errors that carry a response** — an error such as Hono's `HTTPException` keeps the status and body it chose, and is not logged.
 
-### Quiet Startup
+### Silencing startup logging
 
-When the document declares security schemes, the mock server prints instructions on how to authenticate as it starts up. That is handy in a terminal, but it is just noise when the server runs inside a test suite or another program. Set `quiet: true` to skip it:
+When the document declares security schemes, the mock server prints instructions on how to authenticate as it starts up. That is handy in a terminal, but it is just noise when the server runs inside a test suite or another program. Pass `logger: false` to silence it:
 
 ```ts
 import { createMockServer } from '@scalar/mock-server'
@@ -401,11 +401,24 @@ import { createMockServer } from '@scalar/mock-server'
 const app = await createMockServer({
   document,
   // Do not print the authentication instructions
-  quiet: true,
+  logger: false,
+})
+```
+
+Pass a function instead to send the lines somewhere other than the console — a test logger, a file, a buffer:
+
+```ts
+const lines: string[] = []
+
+const app = await createMockServer({
+  document,
+  logger: (line) => lines.push(line),
 })
 ```
 
 Diagnostics are not affected, so real problems still surface: warnings and errors about security schemes the mock server cannot handle, request validator compilation errors, and `x-seed` errors are printed either way.
+
+`createAsyncApiMockServer` takes the same `logger` option for its transport lifecycle lines, but it is silent by default — pass `logger: true` to print them.
 
 ### Custom Request Handlers
 
