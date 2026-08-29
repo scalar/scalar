@@ -1000,23 +1000,26 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .hero-zoom-docs,
   .hero-clerk-docs {
     position: relative;
-    width: 90%;
+    /* Full width of the cell body, but the box keeps the SDK cards' code-panel
+       height -- 316px of content at their zoom -- so widening the mock cannot
+       push the mark off the line the SDK cards sit on. */
+    width: 100%;
+    height: calc(100cqw * 316 / 720);
     margin-inline: auto;
-    /* matches the codeblock's rendered radius (16px x its 0.708 zoom) */
-    border-radius: 11px;
-    overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-360%22 y=%22-360%22 width=%222320%22 height=%221720%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2230%22/%3E%3C/filter%3E%3C/defs%3E%3Crect x=%22-200%22 y=%22-200%22 width=%222000%22 height=%221080%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-360%22 y=%22-360%22 width=%222320%22 height=%221720%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2230%22/%3E%3C/filter%3E%3C/defs%3E%3Crect x=%22-200%22 y=%22-200%22 width=%222000%22 height=%221080%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
+    /* The mock is taller than that box and is deliberately let out of it: it
+       runs off the bottom of the card and the card's own rounded clip cuts it,
+       rather than fading out well short of the edge. */
+    overflow: visible;
   }
   .hero-zoom-docs img,
   .hero-clerk-docs img {
+    display: block;
     width: 100%;
     height: auto;
+    /* matches the codeblock's rendered radius (16px x its 0.708 zoom); the
+       bottom corners sit below the card edge */
+    border-radius: 11px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
   }
   /* SDK card: the same frosted browser shell the Zoom and Clerk mocks are
      baked into, with an editor pane inset in it. Chrome sizes follow the
@@ -1230,8 +1233,16 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   }
   .hero-cell {
     position: relative;
-    /* Desktop framing (554x390) held proportionally at every width */
-    aspect-ratio: 554 / 390;
+    /* Desktop framing (554x330) held proportionally at every width */
+    aspect-ratio: 554 / 330;
+    /* The mark and the panel it labels read as one block, centred in the card:
+       the two panel kinds are different heights, so a shared offset would sit
+       one of them low. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
     /* The card edge lives here rather than on the artwork, so the hover zoom
        breathes inside a fixed rounded frame instead of scaling the edge. */
     border-radius: 8px;
@@ -1241,11 +1252,10 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
        cell goes full-width in the single-column layout. */
   }
   .hero-cell-logo {
-    position: absolute;
-    top: 13.3%;
-    left: 0;
-    right: 0;
+    position: relative;
     z-index: 2;
+    flex: none;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1278,11 +1288,9 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     background-color: rgba(255, 255, 255, 0.32);
   }
   .hero-cell-body {
-    position: absolute;
-    top: 25.1%;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
     z-index: 1;
+    flex: none;
     width: 92%;
     container-type: inline-size;
   }
