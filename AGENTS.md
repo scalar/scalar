@@ -154,9 +154,10 @@ Before writing a new utility function, check `@scalar/helpers` (`packages/helper
 | `playwright` | Playwright/Docker test helpers |
 | `queue` | async queue |
 | `regex` | variable finding/replacing |
+| `storybook` | shared Storybook themes and toolbar globals |
 | `string` | capitalize, hash, truncate, camel-to-title |
 | `testing` | sleep, measure, console spies |
-| `theme` | CSS variable loading |
+| `theme` | color mode classes, CSS variable loading |
 | `types` | result, assertion, and safe-run helpers |
 | `url` | URL validation, merging, proxy helpers |
 

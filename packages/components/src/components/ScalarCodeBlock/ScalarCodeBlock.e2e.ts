@@ -1,10 +1,21 @@
 import { takeSnapshot, test } from '@test/helpers'
 
-const stories = ['Base', 'JSON String', 'Bordered', 'Ligatures']
+const stories = ['Base', 'JSON String', 'Bordered']
 
 test.describe('ScalarCodeBlock', () => {
-  test.use({ background: true })
+  // The ligature glyphs these snapshots guard cover a few hundred pixels, which the project wide
+  // ratio would wave through, so hold these tests to an absolute budget instead
+  test.use({ background: true, maxDiffPixels: 100 })
   stories.forEach((story) => test(story, takeSnapshot))
+
+  test('Ligatures', async ({ page, snapshot }) => {
+    // The component disables ligatures, so turn them back on to capture the glyphs it suppresses
+    await page.addStyleTag({
+      content: '.scalar-code-block pre { font-variant-ligatures: normal; }',
+    })
+
+    await snapshot()
+  })
 
   test('Single Line', async ({ page, snapshot }) => {
     await snapshot()

@@ -98,6 +98,11 @@
       "types": "./dist/regex/*.d.ts",
       "default": "./dist/regex/*.js"
     },
+    "./storybook/*": {
+      "import": "./dist/storybook/*.js",
+      "types": "./dist/storybook/*.d.ts",
+      "default": "./dist/storybook/*.js"
+    },
     "./string/*": {
       "import": "./dist/string/*.js",
       "types": "./dist/string/*.d.ts",

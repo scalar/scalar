@@ -8,35 +8,22 @@ import type { Preview } from '@storybook/vue3-vite'
 import '../src/style.css'
 import './preview.css'
 
-import { type ThemeVariantId, applyThemeVariant, defaultThemeVariant, themeVariants } from './themes'
+import { applyScalarGlobals, scalarGlobalTypes, scalarInitialGlobals } from '@scalar/helpers/storybook/globals'
 
 document.body.classList.add('scalar-app')
-document.body.classList.add('light-mode')
 
 const preview: Preview = {
-  globalTypes: {
-    theme: {
-      description: 'Scalar theme',
-      toolbar: {
-        title: 'Theme',
-        icon: 'paintbrush',
-        items: Object.entries(themeVariants).map(([value, { label }]) => ({ value, title: label })),
-        dynamicTitle: true,
-      },
-    },
-  },
+  globalTypes: scalarGlobalTypes,
 
   /**
    * Storybook drops any global that is not declared here, so this is what lets the visual tests
-   * select a theme with `?globals=theme:square` on the story URL.
+   * select a theme with `?globals=theme:laserwave` on the story URL.
    */
-  initialGlobals: {
-    theme: defaultThemeVariant,
-  },
+  initialGlobals: scalarInitialGlobals,
 
   decorators: [
     (story, context) => {
-      applyThemeVariant(context.globals.theme as ThemeVariantId)
+      applyScalarGlobals(context.globals)
       return story()
     },
   ],
@@ -44,12 +31,6 @@ const preview: Preview = {
   parameters: {
     backgrounds: {
       grid: { disable: true },
-    },
-    darkMode: {
-      classTarget: 'body',
-      stylePreview: true,
-      darkClass: 'dark-mode',
-      lightClass: 'light-mode',
     },
     theme: {},
   },

@@ -10,8 +10,7 @@ import {
   expect,
   devices as playwrightDevices,
 } from '@playwright/test'
-
-import { type ThemeVariantId, defaultThemeVariant } from '../.storybook/themes'
+import { type ThemeVariantId, defaultThemeVariant } from '@scalar/helpers/storybook/themes'
 
 export { expect }
 
@@ -57,6 +56,13 @@ export type ComponentTestOptions = {
   crop: 'component' | 'body' | 'viewport'
   /** Device scale factor used for screenshots. Defaults to 2. */
   scale: number
+  /**
+   * Maximum number of pixels that may differ before a snapshot fails.
+   *
+   * Overrides the project wide ratio, which scales with the viewport and is therefore too generous
+   * for tests where the difference under test covers only a few glyphs. Defaults to the ratio.
+   */
+  maxDiffPixels: number | undefined
   /** Device to emulate. Defaults to no device emulation. */
   device: Device | undefined
   /** Color mode to use for screenshots. Defaults to ['light']. */
@@ -169,6 +175,7 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   background: [false, { option: true }],
   crop: ['body', { option: true }],
   scale: [2, { option: true }],
+  maxDiffPixels: [undefined, { option: true }],
   device: [undefined, { option: true }],
   colorModes: [['light'], { option: true }],
   theme: [defaultThemeVariant, { option: true }],
@@ -217,7 +224,11 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   ],
 
   // Snapshot helper bound to current test settings
-  snapshot: async ({ page, background, crop, colorModes, theme, component: c, story: s }, use, testInfo) => {
+  snapshot: async (
+    { page, background, crop, colorModes, theme, maxDiffPixels, component: c, story: s },
+    use,
+    testInfo,
+  ) => {
     const takeSnapshot: SnapshotFn = async (suffix?: string): Promise<void> => {
       const { story } = componentDetailsFromContext(c, s, testInfo)
       const target = crop === 'viewport' ? page : page.locator(crop === 'component' ? '#storybook-root > *' : 'body')
@@ -229,6 +240,8 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
         await expect(target).toHaveScreenshot(filename, {
           omitBackground: !background,
           stylePath: background ? undefined : transparentCssPath,
+          // Spread so an unset option falls through to the project wide ratio
+          ...(maxDiffPixels === undefined ? {} : { maxDiffPixels }),
         })
       }
     }
