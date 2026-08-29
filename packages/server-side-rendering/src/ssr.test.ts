@@ -408,11 +408,12 @@ describe('ssr', () => {
       html.slice(html.indexOf('<html'), html.indexOf('>', html.indexOf('<html')) + 1)
 
     it('renders color-scheme onto <html> for a configured mode', async () => {
+      // Matched loosely because unhead normalizes the declaration it renders (`color-scheme:dark`).
       const forcedDark = await renderApiReference({ config: { forceDarkModeState: 'dark' } })
-      expect(getHtmlTag(forcedDark)).toContain('color-scheme: dark')
+      expect(getHtmlTag(forcedDark)).toMatch(/color-scheme:\s*dark/)
 
       const configuredLight = await renderApiReference({ config: { darkMode: false } })
-      expect(getHtmlTag(configuredLight)).toContain('color-scheme: light')
+      expect(getHtmlTag(configuredLight)).toMatch(/color-scheme:\s*light/)
     })
 
     it('omits color-scheme from <html> when no mode is configured', async () => {
