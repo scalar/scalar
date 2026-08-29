@@ -1234,7 +1234,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     aspect-ratio: 554 / 390;
     /* The card edge lives here rather than on the artwork, so the hover zoom
        breathes inside a fixed rounded frame instead of scaling the edge. */
-    border-radius: 16px;
+    border-radius: 8px;
     overflow: hidden;
     /* Panels are authored full size and scaled into the cell, so they stay in
        proportion at any cell width -- no px cap, or they stop growing once a
