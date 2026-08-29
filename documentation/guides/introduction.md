@@ -65,38 +65,9 @@
 <feFuncA type="linear" slope="0" intercept="1"/>
 </feComponentTransfer>
 </filter>
-<filter id="hero-art-edgemelt" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="24"/></filter>
-<filter id="hero-art-sharpblur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="36"/></filter>
-<mask id="hero-art-sharp" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000">
-<rect x="80" y="70" width="1440" height="860" rx="110" fill="white" filter="url(#hero-art-sharpblur)"/>
-</mask>
 </defs>
 <g clip-path="url(#hero-art-clip)">
-<g filter="url(#hero-art-edgemelt)">
-<rect x="-160" y="-160" width="1920" height="1320" fill="#212121"/>
-<g filter="url(#hero-art-soft)">
-<ellipse cx="150" cy="100" rx="520" ry="320" fill="#636363"/>
-<ellipse cx="1500" cy="120" rx="420" ry="240" fill="#636363"/>
-<ellipse cx="1550" cy="950" rx="440" ry="260" fill="#636363"/>
-<ellipse cx="700" cy="500" rx="500" ry="280" fill="#636363"/>
-</g>
-<g transform="rotate(-32 800 500)">
 <g>
-<ellipse cx="546" cy="247" rx="380" ry="110" fill="#636363"/>
-<ellipse cx="1235" cy="465" rx="420" ry="120" fill="#636363"/>
-<ellipse cx="789" cy="706" rx="360" ry="100" fill="#636363"/>
-<ellipse cx="185" cy="257" rx="300" ry="90" fill="#636363"/>
-<ellipse cx="516" cy="-102" rx="420" ry="110" fill="#636363" opacity="0.5"/>
-<ellipse cx="737" cy="260" rx="380" ry="80" fill="#636363" opacity="0.5"/>
-<ellipse cx="1001" cy="649" rx="460" ry="100" fill="#636363" opacity="0.58"/>
-<ellipse cx="1245" cy="1014" rx="380" ry="90" fill="#636363" opacity="0.5"/>
-<ellipse cx="397" cy="578" rx="420" ry="95" fill="#636363" opacity="0.5"/>
-<ellipse cx="954" cy="1103" rx="400" ry="80" fill="#636363" opacity="0.5"/>
-<ellipse cx="1637" cy="670" rx="300" ry="70" fill="#636363" opacity="0.5"/>
-</g>
-</g>
-</g>
-<g mask="url(#hero-art-sharp)">
 <rect x="-160" y="-160" width="1920" height="1320" fill="#212121"/>
 <g filter="url(#hero-art-soft)">
 <ellipse cx="150" cy="100" rx="520" ry="320" fill="#000"/>
@@ -242,12 +213,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 <feFuncA type="linear" slope="0" intercept="1"/>
 </feComponentTransfer>
 </filter>
-<filter id="hero-art-zoom-edgemelt" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="24"/></filter>
-<filter id="hero-art-zoom-sharpblur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="36"/></filter>
-<mask id="hero-art-zoom-sharp" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000"><rect x="80" y="70" width="1440" height="860" rx="110" fill="white" filter="url(#hero-art-zoom-sharpblur)"/></mask>
 </defs>
 <g clip-path="url(#hero-art-zoom-clip)">
-<g filter="url(#hero-art-zoom-edgemelt)"><g id="hero-art-zoom-scene">
+<g>
 <g filter="url(#hero-art-zoom-soft)">
 <rect x="-160" y="-160" width="1920" height="1320" fill="#16a8e0"/>
 <ellipse cx="120" cy="120" rx="560" ry="350" fill="#0a7fc4"/>
@@ -283,8 +251,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 <ellipse cx="170" cy="725" rx="240" ry="11" fill="#d8f1fb"/>
 </g>
 </g>
-</g></g>
-<use href="#hero-art-zoom-scene" mask="url(#hero-art-zoom-sharp)"/>
+</g>
 <rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-zoom-grain)" style="mix-blend-mode:soft-light;opacity:.2"/>
 </g>
 </svg>
@@ -313,12 +280,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 <feFuncA type="linear" slope="0" intercept="1"/>
 </feComponentTransfer>
 </filter>
-<filter id="hero-art-clerk-edgemelt" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="24"/></filter>
-<filter id="hero-art-clerk-sharpblur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="36"/></filter>
-<mask id="hero-art-clerk-sharp" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000"><rect x="80" y="70" width="1440" height="860" rx="110" fill="white" filter="url(#hero-art-clerk-sharpblur)"/></mask>
 </defs>
 <g clip-path="url(#hero-art-clerk-clip)">
-<g filter="url(#hero-art-clerk-edgemelt)"><g id="hero-art-clerk-scene">
+<g>
 <g filter="url(#hero-art-clerk-soft)">
 <rect x="-160" y="-160" width="1920" height="1320" fill="#453a8c"/>
 <ellipse cx="800" cy="-40" rx="900" ry="260" fill="#987aa8"/>
@@ -356,8 +320,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 <ellipse cx="983" cy="1034" rx="300" ry="12" fill="#8c7ec4"/>
 </g>
 </g>
-</g></g>
-<use href="#hero-art-clerk-scene" mask="url(#hero-art-clerk-sharp)"/>
+</g>
 <rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-clerk-grain)" style="mix-blend-mode:soft-light;opacity:.18"/>
 </g>
 </svg>
@@ -385,12 +348,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 <feFuncA type="linear" slope="0" intercept="1"/>
 </feComponentTransfer>
 </filter>
-<filter id="hero-art-warp-edgemelt" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="24"/></filter>
-<filter id="hero-art-warp-sharpblur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="36"/></filter>
-<mask id="hero-art-warp-sharp" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000"><rect x="80" y="70" width="1440" height="860" rx="110" fill="white" filter="url(#hero-art-warp-sharpblur)"/></mask>
 </defs>
 <g clip-path="url(#hero-art-warp-clip)">
-<g filter="url(#hero-art-warp-edgemelt)"><g id="hero-art-warp-scene">
+<g>
 <g filter="url(#hero-art-warp-soft)">
 <rect x="-160" y="-160" width="1920" height="1320" fill="#f0821c"/>
 <ellipse cx="700" cy="40" rx="700" ry="220" fill="#f5a029"/>
@@ -411,8 +371,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 <ellipse cx="1150" cy="700" rx="420" ry="40" fill="#f7a832" transform="rotate(-9 1150 700)"/>
 <ellipse cx="1050" cy="180" rx="380" ry="42" fill="#f8ad38" transform="rotate(-8 1050 180)"/>
 </g>
-</g></g>
-<use href="#hero-art-warp-scene" mask="url(#hero-art-warp-sharp)"/>
+</g>
 <rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-warp-grain)" style="mix-blend-mode:soft-light;opacity:.2"/>
 </g>
 </svg>
@@ -1022,13 +981,15 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     position: relative;
     margin-top: 64px;
     padding-top: 64px;
-    /* Up to 150px wider per side than the content column, shrinking when the
-       viewport cannot fit the full overhang, and always centred on the column. */
+    /* 76px wider per side than the content column, so the cards line up with
+       the product images below -- those sit at -76px (see
+       .product-reversed .product-image-transform). Shrinks when the viewport
+       cannot fit the overhang, and always centred on the column. */
     --hero-art-overhang: max(
       0px,
       min(
-        150px,
-        (100dvw - var(--scalar-sidebar-width) - 100%) / 2 - 20px
+        76px,
+        (100dvw - var(--scalar-sidebar-width) - 100%) / 2
       )
     );
     width: calc(100% + 2 * var(--hero-art-overhang));
@@ -1039,23 +1000,26 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .hero-zoom-docs,
   .hero-clerk-docs {
     position: relative;
-    width: 90%;
+    /* Full width of the cell body, but the box keeps the SDK cards' code-panel
+       height -- 316px of content at their zoom -- so widening the mock cannot
+       push the mark off the line the SDK cards sit on. */
+    width: 100%;
+    height: calc(100cqw * 316 / 720);
     margin-inline: auto;
-    /* matches the codeblock's rendered radius (16px x its 0.708 zoom) */
-    border-radius: 11px;
-    overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-360%22 y=%22-360%22 width=%222320%22 height=%221720%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2230%22/%3E%3C/filter%3E%3C/defs%3E%3Crect x=%22-200%22 y=%22-200%22 width=%222000%22 height=%221080%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-360%22 y=%22-360%22 width=%222320%22 height=%221720%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2230%22/%3E%3C/filter%3E%3C/defs%3E%3Crect x=%22-200%22 y=%22-200%22 width=%222000%22 height=%221080%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
+    /* The mock is taller than that box and is deliberately let out of it: it
+       runs off the bottom of the card and the card's own rounded clip cuts it,
+       rather than fading out well short of the edge. */
+    overflow: visible;
   }
   .hero-zoom-docs img,
   .hero-clerk-docs img {
+    display: block;
     width: 100%;
     height: auto;
+    /* matches the codeblock's rendered radius (16px x its 0.708 zoom); the
+       bottom corners sit below the card edge */
+    border-radius: 11px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
   }
   /* SDK card: the same frosted browser shell the Zoom and Clerk mocks are
      baked into, with an editor pane inset in it. Chrome sizes follow the
@@ -1269,18 +1233,29 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   }
   .hero-cell {
     position: relative;
-    /* Desktop framing (554x390) held proportionally at every width */
-    aspect-ratio: 554 / 390;
+    /* Desktop framing (554x330) held proportionally at every width */
+    aspect-ratio: 554 / 330;
+    /* The mark and the panel it labels read as one block, centred in the card:
+       the two panel kinds are different heights, so a shared offset would sit
+       one of them low. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    /* The card edge lives here rather than on the artwork, so the hover zoom
+       breathes inside a fixed rounded frame instead of scaling the edge. */
+    border-radius: 8px;
+    overflow: hidden;
     /* Panels are authored full size and scaled into the cell, so they stay in
        proportion at any cell width -- no px cap, or they stop growing once a
        cell goes full-width in the single-column layout. */
   }
   .hero-cell-logo {
-    position: absolute;
-    top: 13.3%;
-    left: 0;
-    right: 0;
+    position: relative;
     z-index: 2;
+    flex: none;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1313,11 +1288,9 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     background-color: rgba(255, 255, 255, 0.32);
   }
   .hero-cell-body {
-    position: absolute;
-    top: 25.1%;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
     z-index: 1;
+    flex: none;
     width: 92%;
     container-type: inline-size;
   }
@@ -1456,12 +1429,6 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
         var(--hero-fallback-tint) 30%,
         transparent 130%
       );
-      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-160%22 y=%22-160%22 width=%221920%22 height=%221320%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2220%22/%3E%3C/filter%3E%3C/defs%3E%3Cpath transform=%22translate(47.5 47.5) scale(1.06738 1.11728)%22 d=%22M 183 0 L 1227 0 L 1247.38 0.00 L 1265.18 0.04 L 1281.95 0.22 L 1297.94 0.65 L 1313.15 1.52 L 1327.54 3.07 L 1341.00 5.45 L 1353.41 8.86 L 1364.68 13.47 L 1374.67 19.39 L 1383.32 26.68 L 1390.61 35.33 L 1396.53 45.32 L 1401.14 56.59 L 1404.55 69.00 L 1406.93 82.46 L 1408.47 96.85 L 1409.35 112.06 L 1409.78 128.05 L 1409.96 144.82 L 1410.00 162.62 L 1410.00 183.00 L 1410 627 L 1410.00 627.00 L 1410.00 647.38 L 1409.96 665.18 L 1409.78 681.95 L 1409.35 697.94 L 1408.47 713.15 L 1406.93 727.54 L 1404.55 741.00 L 1401.14 753.41 L 1396.53 764.68 L 1390.61 774.67 L 1383.32 783.32 L 1374.67 790.61 L 1364.68 796.53 L 1353.41 801.14 L 1341.00 804.55 L 1327.54 806.93 L 1313.15 808.48 L 1297.94 809.35 L 1281.95 809.78 L 1265.18 809.96 L 1247.38 810.00 L 183 810 L 162.62 810.00 L 144.82 809.96 L 128.05 809.78 L 112.06 809.35 L 96.85 808.48 L 82.46 806.93 L 69.00 804.55 L 56.59 801.14 L 45.32 796.53 L 35.33 790.61 L 26.68 783.32 L 19.39 774.67 L 13.47 764.68 L 8.86 753.41 L 5.45 741.00 L 3.07 727.54 L 1.53 713.15 L 0.65 697.94 L 0.22 681.95 L 0.04 665.18 L 0.00 647.38 L 0.00 627.00 L 0 183 L 0.00 183.00 L 0.00 162.62 L 0.04 144.82 L 0.22 128.05 L 0.65 112.06 L 1.53 96.85 L 3.07 82.46 L 5.45 69.00 L 8.86 56.59 L 13.47 45.32 L 19.39 35.33 L 26.68 26.68 L 35.33 19.39 L 45.32 13.47 L 56.59 8.86 L 69.00 5.45 L 82.46 3.07 L 96.85 1.52 L 112.06 0.65 L 128.05 0.22 L 144.82 0.04 L 162.62 0.00 Z%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
-      mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-160%22 y=%22-160%22 width=%221920%22 height=%221320%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2220%22/%3E%3C/filter%3E%3C/defs%3E%3Cpath transform=%22translate(47.5 47.5) scale(1.06738 1.11728)%22 d=%22M 183 0 L 1227 0 L 1247.38 0.00 L 1265.18 0.04 L 1281.95 0.22 L 1297.94 0.65 L 1313.15 1.52 L 1327.54 3.07 L 1341.00 5.45 L 1353.41 8.86 L 1364.68 13.47 L 1374.67 19.39 L 1383.32 26.68 L 1390.61 35.33 L 1396.53 45.32 L 1401.14 56.59 L 1404.55 69.00 L 1406.93 82.46 L 1408.47 96.85 L 1409.35 112.06 L 1409.78 128.05 L 1409.96 144.82 L 1410.00 162.62 L 1410.00 183.00 L 1410 627 L 1410.00 627.00 L 1410.00 647.38 L 1409.96 665.18 L 1409.78 681.95 L 1409.35 697.94 L 1408.47 713.15 L 1406.93 727.54 L 1404.55 741.00 L 1401.14 753.41 L 1396.53 764.68 L 1390.61 774.67 L 1383.32 783.32 L 1374.67 790.61 L 1364.68 796.53 L 1353.41 801.14 L 1341.00 804.55 L 1327.54 806.93 L 1313.15 808.48 L 1297.94 809.35 L 1281.95 809.78 L 1265.18 809.96 L 1247.38 810.00 L 183 810 L 162.62 810.00 L 144.82 809.96 L 128.05 809.78 L 112.06 809.35 L 96.85 808.48 L 82.46 806.93 L 69.00 804.55 L 56.59 801.14 L 45.32 796.53 L 35.33 790.61 L 26.68 783.32 L 19.39 774.67 L 13.47 764.68 L 8.86 753.41 L 5.45 741.00 L 3.07 727.54 L 1.53 713.15 L 0.65 697.94 L 0.22 681.95 L 0.04 665.18 L 0.00 647.38 L 0.00 627.00 L 0 183 L 0.00 183.00 L 0.00 162.62 L 0.04 144.82 L 0.22 128.05 L 0.65 112.06 L 1.53 96.85 L 3.07 82.46 L 5.45 69.00 L 8.86 56.59 L 13.47 45.32 L 19.39 35.33 L 26.68 26.68 L 35.33 19.39 L 45.32 13.47 L 56.59 8.86 L 69.00 5.45 L 82.46 3.07 L 96.85 1.52 L 112.06 0.65 L 128.05 0.22 L 144.82 0.04 L 162.62 0.00 Z%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
-      -webkit-mask-size: 100% 100%;
-      mask-size: 100% 100%;
-      -webkit-mask-repeat: no-repeat;
-      mask-repeat: no-repeat;
     }
     /* the brand tint behind the logo row keeps the authored white text
        readable, so no ink flip; the code panel still goes solid dark for
@@ -1489,12 +1456,6 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
         var(--hero-fallback-tint) 30%,
         transparent 130%
       );
-      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-160%22 y=%22-160%22 width=%221920%22 height=%221320%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2220%22/%3E%3C/filter%3E%3C/defs%3E%3Cpath transform=%22translate(47.5 47.5) scale(1.06738 1.11728)%22 d=%22M 183 0 L 1227 0 L 1247.38 0.00 L 1265.18 0.04 L 1281.95 0.22 L 1297.94 0.65 L 1313.15 1.52 L 1327.54 3.07 L 1341.00 5.45 L 1353.41 8.86 L 1364.68 13.47 L 1374.67 19.39 L 1383.32 26.68 L 1390.61 35.33 L 1396.53 45.32 L 1401.14 56.59 L 1404.55 69.00 L 1406.93 82.46 L 1408.47 96.85 L 1409.35 112.06 L 1409.78 128.05 L 1409.96 144.82 L 1410.00 162.62 L 1410.00 183.00 L 1410 627 L 1410.00 627.00 L 1410.00 647.38 L 1409.96 665.18 L 1409.78 681.95 L 1409.35 697.94 L 1408.47 713.15 L 1406.93 727.54 L 1404.55 741.00 L 1401.14 753.41 L 1396.53 764.68 L 1390.61 774.67 L 1383.32 783.32 L 1374.67 790.61 L 1364.68 796.53 L 1353.41 801.14 L 1341.00 804.55 L 1327.54 806.93 L 1313.15 808.48 L 1297.94 809.35 L 1281.95 809.78 L 1265.18 809.96 L 1247.38 810.00 L 183 810 L 162.62 810.00 L 144.82 809.96 L 128.05 809.78 L 112.06 809.35 L 96.85 808.48 L 82.46 806.93 L 69.00 804.55 L 56.59 801.14 L 45.32 796.53 L 35.33 790.61 L 26.68 783.32 L 19.39 774.67 L 13.47 764.68 L 8.86 753.41 L 5.45 741.00 L 3.07 727.54 L 1.53 713.15 L 0.65 697.94 L 0.22 681.95 L 0.04 665.18 L 0.00 647.38 L 0.00 627.00 L 0 183 L 0.00 183.00 L 0.00 162.62 L 0.04 144.82 L 0.22 128.05 L 0.65 112.06 L 1.53 96.85 L 3.07 82.46 L 5.45 69.00 L 8.86 56.59 L 13.47 45.32 L 19.39 35.33 L 26.68 26.68 L 35.33 19.39 L 45.32 13.47 L 56.59 8.86 L 69.00 5.45 L 82.46 3.07 L 96.85 1.52 L 112.06 0.65 L 128.05 0.22 L 144.82 0.04 L 162.62 0.00 Z%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
-      mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-160%22 y=%22-160%22 width=%221920%22 height=%221320%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2220%22/%3E%3C/filter%3E%3C/defs%3E%3Cpath transform=%22translate(47.5 47.5) scale(1.06738 1.11728)%22 d=%22M 183 0 L 1227 0 L 1247.38 0.00 L 1265.18 0.04 L 1281.95 0.22 L 1297.94 0.65 L 1313.15 1.52 L 1327.54 3.07 L 1341.00 5.45 L 1353.41 8.86 L 1364.68 13.47 L 1374.67 19.39 L 1383.32 26.68 L 1390.61 35.33 L 1396.53 45.32 L 1401.14 56.59 L 1404.55 69.00 L 1406.93 82.46 L 1408.47 96.85 L 1409.35 112.06 L 1409.78 128.05 L 1409.96 144.82 L 1410.00 162.62 L 1410.00 183.00 L 1410 627 L 1410.00 627.00 L 1410.00 647.38 L 1409.96 665.18 L 1409.78 681.95 L 1409.35 697.94 L 1408.47 713.15 L 1406.93 727.54 L 1404.55 741.00 L 1401.14 753.41 L 1396.53 764.68 L 1390.61 774.67 L 1383.32 783.32 L 1374.67 790.61 L 1364.68 796.53 L 1353.41 801.14 L 1341.00 804.55 L 1327.54 806.93 L 1313.15 808.48 L 1297.94 809.35 L 1281.95 809.78 L 1265.18 809.96 L 1247.38 810.00 L 183 810 L 162.62 810.00 L 144.82 809.96 L 128.05 809.78 L 112.06 809.35 L 96.85 808.48 L 82.46 806.93 L 69.00 804.55 L 56.59 801.14 L 45.32 796.53 L 35.33 790.61 L 26.68 783.32 L 19.39 774.67 L 13.47 764.68 L 8.86 753.41 L 5.45 741.00 L 3.07 727.54 L 1.53 713.15 L 0.65 697.94 L 0.22 681.95 L 0.04 665.18 L 0.00 647.38 L 0.00 627.00 L 0 183 L 0.00 183.00 L 0.00 162.62 L 0.04 144.82 L 0.22 128.05 L 0.65 112.06 L 1.53 96.85 L 3.07 82.46 L 5.45 69.00 L 8.86 56.59 L 13.47 45.32 L 19.39 35.33 L 26.68 26.68 L 35.33 19.39 L 45.32 13.47 L 56.59 8.86 L 69.00 5.45 L 82.46 3.07 L 96.85 1.52 L 112.06 0.65 L 128.05 0.22 L 144.82 0.04 L 162.62 0.00 Z%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
-      -webkit-mask-size: 100% 100%;
-      mask-size: 100% 100%;
-      -webkit-mask-repeat: no-repeat;
-      mask-repeat: no-repeat;
     }
     /* the brand tint behind the logo row keeps the authored white text
        readable, so no ink flip; the code panel still goes solid dark for
@@ -1507,18 +1468,13 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     }
 
   }
-  /* One artwork per cell, cropped to fill it, melted edges intact */
+  /* One artwork per cell, cropped to fill it; the cell's rounded clip is the
+     card edge, so the artwork carries no mask of its own. */
   .hero-cell > svg {
     position: absolute;
     inset: 0;
     width: 100% !important;
     height: 100% !important;
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-160%22 y=%22-160%22 width=%221920%22 height=%221320%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2220%22/%3E%3C/filter%3E%3C/defs%3E%3Cpath transform=%22translate(47.5 47.5) scale(1.06738 1.11728)%22 d=%22M 183 0 L 1227 0 L 1247.38 0.00 L 1265.18 0.04 L 1281.95 0.22 L 1297.94 0.65 L 1313.15 1.52 L 1327.54 3.07 L 1341.00 5.45 L 1353.41 8.86 L 1364.68 13.47 L 1374.67 19.39 L 1383.32 26.68 L 1390.61 35.33 L 1396.53 45.32 L 1401.14 56.59 L 1404.55 69.00 L 1406.93 82.46 L 1408.47 96.85 L 1409.35 112.06 L 1409.78 128.05 L 1409.96 144.82 L 1410.00 162.62 L 1410.00 183.00 L 1410 627 L 1410.00 627.00 L 1410.00 647.38 L 1409.96 665.18 L 1409.78 681.95 L 1409.35 697.94 L 1408.47 713.15 L 1406.93 727.54 L 1404.55 741.00 L 1401.14 753.41 L 1396.53 764.68 L 1390.61 774.67 L 1383.32 783.32 L 1374.67 790.61 L 1364.68 796.53 L 1353.41 801.14 L 1341.00 804.55 L 1327.54 806.93 L 1313.15 808.48 L 1297.94 809.35 L 1281.95 809.78 L 1265.18 809.96 L 1247.38 810.00 L 183 810 L 162.62 810.00 L 144.82 809.96 L 128.05 809.78 L 112.06 809.35 L 96.85 808.48 L 82.46 806.93 L 69.00 804.55 L 56.59 801.14 L 45.32 796.53 L 35.33 790.61 L 26.68 783.32 L 19.39 774.67 L 13.47 764.68 L 8.86 753.41 L 5.45 741.00 L 3.07 727.54 L 1.53 713.15 L 0.65 697.94 L 0.22 681.95 L 0.04 665.18 L 0.00 647.38 L 0.00 627.00 L 0 183 L 0.00 183.00 L 0.00 162.62 L 0.04 144.82 L 0.22 128.05 L 0.65 112.06 L 1.53 96.85 L 3.07 82.46 L 5.45 69.00 L 8.86 56.59 L 13.47 45.32 L 19.39 35.33 L 26.68 26.68 L 35.33 19.39 L 45.32 13.47 L 56.59 8.86 L 69.00 5.45 L 82.46 3.07 L 96.85 1.52 L 112.06 0.65 L 128.05 0.22 L 144.82 0.04 L 162.62 0.00 Z%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 1000%22 preserveAspectRatio=%22none%22%3E%3Cdefs%3E%3Cfilter id=%22f%22 x=%22-160%22 y=%22-160%22 width=%221920%22 height=%221320%22 filterUnits=%22userSpaceOnUse%22%3E%3CfeGaussianBlur stdDeviation=%2220%22/%3E%3C/filter%3E%3C/defs%3E%3Cpath transform=%22translate(47.5 47.5) scale(1.06738 1.11728)%22 d=%22M 183 0 L 1227 0 L 1247.38 0.00 L 1265.18 0.04 L 1281.95 0.22 L 1297.94 0.65 L 1313.15 1.52 L 1327.54 3.07 L 1341.00 5.45 L 1353.41 8.86 L 1364.68 13.47 L 1374.67 19.39 L 1383.32 26.68 L 1390.61 35.33 L 1396.53 45.32 L 1401.14 56.59 L 1404.55 69.00 L 1406.93 82.46 L 1408.47 96.85 L 1409.35 112.06 L 1409.78 128.05 L 1409.96 144.82 L 1410.00 162.62 L 1410.00 183.00 L 1410 627 L 1410.00 627.00 L 1410.00 647.38 L 1409.96 665.18 L 1409.78 681.95 L 1409.35 697.94 L 1408.47 713.15 L 1406.93 727.54 L 1404.55 741.00 L 1401.14 753.41 L 1396.53 764.68 L 1390.61 774.67 L 1383.32 783.32 L 1374.67 790.61 L 1364.68 796.53 L 1353.41 801.14 L 1341.00 804.55 L 1327.54 806.93 L 1313.15 808.48 L 1297.94 809.35 L 1281.95 809.78 L 1265.18 809.96 L 1247.38 810.00 L 183 810 L 162.62 810.00 L 144.82 809.96 L 128.05 809.78 L 112.06 809.35 L 96.85 808.48 L 82.46 806.93 L 69.00 804.55 L 56.59 801.14 L 45.32 796.53 L 35.33 790.61 L 26.68 783.32 L 19.39 774.67 L 13.47 764.68 L 8.86 753.41 L 5.45 741.00 L 3.07 727.54 L 1.53 713.15 L 0.65 697.94 L 0.22 681.95 L 0.04 665.18 L 0.00 647.38 L 0.00 627.00 L 0 183 L 0.00 183.00 L 0.00 162.62 L 0.04 144.82 L 0.22 128.05 L 0.65 112.06 L 1.53 96.85 L 3.07 82.46 L 5.45 69.00 L 8.86 56.59 L 13.47 45.32 L 19.39 35.33 L 26.68 26.68 L 35.33 19.39 L 45.32 13.47 L 56.59 8.86 L 69.00 5.45 L 82.46 3.07 L 96.85 1.52 L 112.06 0.65 L 128.05 0.22 L 144.82 0.04 L 162.62 0.00 Z%22 fill=%22white%22 filter=%22url(%23f)%22/%3E%3C/svg%3E");
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
   }
   .founder-quote {
     padding: 80px 160px 260px 160px;
@@ -1593,6 +1549,15 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .product-action {
     display: inline-block;
     width: fit-content;
+  }
+  /* Every row's sticker sits on the same side as its product image. The API
+     Client row is image-left like the Docs row, so its sticker belongs on the
+     left too -- the shared sticker sheet parks sticker-8 on the right. */
+  .sticker-8 {
+    left: -100px;
+    right: initial;
+    top: initial;
+    bottom: 80px;
   }
   .icon-text svg {
     width: 18px;
