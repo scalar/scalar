@@ -82,9 +82,9 @@ scalar document lint ./openapi.yaml --rule https://registry.scalar.com/@your-tea
 ```
 
 > [!NOTE]
-> We do not currently support AsyncAPI for `validate` and `lint`. `validate` checks your document against the OpenAPI specification, and `lint` runs the `spectral:oas` ruleset, so pointing either one at an [AsyncAPI](../../asyncapi.md) document reports errors that do not apply to it. Publishing an AsyncAPI document to the registry works as normal.
+> `scalar document lint` also supports [AsyncAPI](../../asyncapi.md). It detects the document type and runs Spectral's `spectral:asyncapi` ruleset instead of `spectral:oas`, so linting an AsyncAPI document reports issues that actually apply to it. `scalar document validate` remains OpenAPI-only — pointed at an AsyncAPI document it stops with a clear message and suggests `lint` instead. Publishing an AsyncAPI document to the registry works as normal.
 >
-> Need it? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
+> Need AsyncAPI support for `validate` too? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
 
 ## Team Management
 If you're part of multiple teams, you can manage which team is active:
