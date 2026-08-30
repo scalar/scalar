@@ -431,8 +431,6 @@ jobs:
         uses: ./.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
-      - name: Build storybook
-        run: pnpm --filter components build:storybook
       - name: Run e2e tests (@scalar/components)
         run: pnpm --filter components test:e2e:ci
         # Only when the PR is from the same repository
