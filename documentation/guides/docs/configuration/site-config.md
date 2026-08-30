@@ -175,6 +175,35 @@ Respect the user's system preference while allowing them to override it:
 }
 ```
 
+## Ask AI
+
+The `agent` property controls the appearance of [Ask AI](ask-ai.md) on your documentation site: the Ask AI button, its placement in the sidebar, the position of the floating chat widget, and the suggested questions shown in the chat.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "agent": {
+      "position": "right",
+      "suggestions": ["How do I authenticate?", "What are the rate limits?"]
+    }
+  }
+}
+```
+
+### Properties
+
+| Property          | Type                          | Default    | Description                                                                                                    |
+| ----------------- | ----------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------- |
+| `enabled`         | `boolean`                     | —          | Whether the Ask AI button is shown on the site                                                                 |
+| `buttonText`      | `string`                      | `"Ask AI"` | Label shown on the Ask AI button                                                                               |
+| `sidebarPosition` | `"below-search" \| "default"` | —          | Placement of the Ask AI button in the sidebar. `"default"` renders it next to the search bar; `"below-search"` renders it on its own row beneath the search bar |
+| `position`        | `"center" \| "right"`         | `"center"` | Where the floating chat widget anchors at the bottom of the viewport                                           |
+| `suggestions`     | `string[]`                    | —          | Suggested questions shown as pills above the chat input when it is focused. Two or three short questions work best |
+| `mcp`             | `object`                      | —          | References an MCP server and installation by slug (`serverSlug`, `installationSlug`), resolved on publish      |
+
 ## Layout
 
 The `layout` property controls global layout options that apply to all pages unless overridden by a page's own [layout options](navigation.md#layout-options).
@@ -337,39 +366,60 @@ Meta tags can be provided as an array of objects or as a key-value object:
 
 ### Styles
 
-Include custom CSS files in your documentation:
+Include custom CSS files in your documentation. Each entry loads from either a local `path` or a remote `url`:
 
 ```json
 "styles": [
   {
     "path": "assets/custom-styles.css",
     "tagPosition": "head"
+  },
+  {
+    "url": "https://example.com/theme.css"
   }
 ]
 ```
 
-| Property      | Type                                  | Required | Description                   |
-| ------------- | ------------------------------------- | -------- | ----------------------------- |
-| `path`        | `string`                              | Yes      | Relative path to the CSS file |
-| `tagPosition` | `"head" \| "bodyOpen"` \| "bodyClose" | No       | Where to inject the style tag |
+| Property      | Type                                    | Required | Description                                  |
+| ------------- | --------------------------------------- | -------- | -------------------------------------------- |
+| `path`        | `string`                                | Yes\*    | Relative path to the CSS file                |
+| `url`         | `string`                                | Yes\*    | Remote URL to the CSS file                   |
+| `tagPosition` | `"head" \| "bodyOpen" \| "bodyClose"`   | No       | Where to inject the style tag                |
+
+\* Provide either `path` or `url`.
 
 ### Scripts
 
-Include custom JavaScript files:
+Include custom JavaScript files. Each entry loads from either a local `path` or a remote `url`:
 
 ```json
 "scripts": [
   {
     "path": "assets/analytics.js",
-    "tagPosition": "bodyEnd"
+    "tagPosition": "bodyClose"
   }
 ]
 ```
 
-| Property      | Type                                  | Required | Description                          |
-| ------------- | ------------------------------------- | -------- | ------------------------------------ |
-| `path`        | `string`                              | Yes      | Relative path to the JavaScript file |
-| `tagPosition` | `"head" \| "bodyOpen"` \| "bodyClose" | No       | Where to inject the style tag        |
+| Property      | Type                                    | Required | Description                                                                       |
+| ------------- | --------------------------------------- | -------- | --------------------------------------------------------------------------------- |
+| `path`        | `string`                                | Yes\*    | Relative path to the JavaScript file                                              |
+| `url`         | `string`                                | Yes\*    | Remote URL to the JavaScript file                                                 |
+| `tagPosition` | `"head" \| "bodyOpen" \| "bodyClose"`   | No       | Where to inject the script tag                                                    |
+| `async`       | `boolean`                               | No       | Load the script without blocking the parser, running it as soon as it arrives     |
+| `defer`       | `boolean`                               | No       | Load the script without blocking the parser, running it after parsing in document order |
+| `type`        | `string`                                | No       | The script type attribute, for example `"module"`                                 |
+
+\* Provide either `path` or `url`.
+
+By default a configured script loads synchronously in the `<head>` and blocks first render until it has downloaded and run. Set `async` or `defer` so non-critical scripts (analytics, consent banners, chat widgets) load without blocking:
+
+```json
+"scripts": [
+  { "path": "assets/analytics.js" },
+  { "url": "https://example.com/widget.js", "defer": true }
+]
+```
 
 ### Links
 
