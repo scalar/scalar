@@ -50,6 +50,10 @@ env:
   # published — every install fails to resolve. Drop the pin once upstream
   # publishes a working release.
   NETLIFY_CLI_VERSION: '27.1.2'
+  # netlify@27.1.2 pulls in esbuild, sharp and unix-dgram, which run build
+  # scripts. pnpm 12 turns unapproved build scripts into a hard error, so allow
+  # these explicitly when installing the Netlify CLI on the fly.
+  NETLIFY_ALLOW_BUILDS: '--allow-build=esbuild --allow-build=sharp --allow-build=unix-dgram'
 
 jobs:
   deploy-examples:
@@ -78,12 +82,9 @@ jobs:
       - name: Generate DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
 
-      - name: Install Netlify CLI
-        run: pnpm install -g netlify@${{ env.NETLIFY_CLI_VERSION }}
-
       - name: Deploy to Netlify
         run: |
-          netlify deploy --dir "./examples/web/dist" \
+          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./examples/web/dist" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_PREVIEW }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -153,15 +154,12 @@ jobs:
       - name: Generate DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
 
-      - name: Install Netlify CLI
-        run: pnpm install -g netlify@${{ env.NETLIFY_CLI_VERSION }}
-
       - name: Build storybook
         run: pnpm --filter components build:storybook
 
       - name: Deploy Storybook to Netlify (Preview)
         run: |
-          netlify deploy --dir "./packages/components/storybook-static" \
+          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/components/storybook-static" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \

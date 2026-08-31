@@ -27,6 +27,10 @@ env:
   # published — every install fails to resolve. Drop the pin once upstream
   # publishes a working release.
   NETLIFY_CLI_VERSION: '27.1.2'
+  # netlify@27.1.2 pulls in esbuild, sharp and unix-dgram, which run build
+  # scripts. pnpm 12 turns unapproved build scripts into a hard error, so allow
+  # these explicitly when installing the Netlify CLI on the fly.
+  NETLIFY_ALLOW_BUILDS: '--allow-build=esbuild --allow-build=sharp --allow-build=unix-dgram'
 
 jobs:
   # Initial build.
@@ -344,7 +348,7 @@ jobs:
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/api-reference/playwright-report" \
+          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/api-reference/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -392,7 +396,7 @@ jobs:
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./projects/scalar-app/playwright-report" \
+          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./projects/scalar-app/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -437,7 +441,7 @@ jobs:
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/components/playwright-report" \
+          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/components/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -483,7 +487,7 @@ jobs:
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/api-reference/playwright-report-cdn" \
+          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/api-reference/playwright-report-cdn" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
