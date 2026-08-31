@@ -73,6 +73,39 @@ describe('SchemaComposition', () => {
       const tab = wrapper.find('.composition-selector-label')
       expect(tab.text()).toBe('array string[]')
     })
+
+    it('uses the referenced model name for array composition options', () => {
+      const resourceObject = {
+        '$ref': '#/components/schemas/ResourceObject',
+        '$ref-value': {
+          title: 'ResourceObject',
+          type: 'object',
+        },
+      }
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              resourceObject,
+              {
+                type: 'array',
+                items: resourceObject,
+              },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      expect(listbox.props('options')).toEqual([
+        { id: '0', label: 'ResourceObject' },
+        { id: '1', label: 'ResourceObject[]' },
+      ])
+    })
   })
 
   describe('composition display', () => {

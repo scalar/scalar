@@ -11,6 +11,7 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, inject, ref, watch } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
@@ -83,6 +84,22 @@ const composition = computed(() =>
     .filter((it) => isDefined(it.value)),
 )
 
+const getCompositionOptionLabel = (schema: SchemaObject): string => {
+  const modelName = getModelNameFromSchema(schema)
+  if (modelName) {
+    return modelName.label
+  }
+
+  if (isArraySchema(schema) && schema.items) {
+    const itemName = getModelNameFromSchema(schema.items)
+    if (itemName) {
+      return `${itemName.label}[]`
+    }
+  }
+
+  return getSchemaType(schema) || translate('schema.schema')
+}
+
 /**
  * Generate listbox options for the composition selector.
  * Each option represents a schema in the composition with a human-readable label.
@@ -91,10 +108,7 @@ const composition = computed(() =>
 const listboxOptions = computed((): ScalarListboxOption[] =>
   composition.value.map((schema, index: number) => {
     const resolved = resolve.schema(schema.original!)
-    const label =
-      (getModelNameFromSchema(resolved)?.label ?? getSchemaType(resolved)) ||
-      translate('schema.schema')
-    return { id: String(index), label }
+    return { id: String(index), label: getCompositionOptionLabel(resolved) }
   }),
 )
 
