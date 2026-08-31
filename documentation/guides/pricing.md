@@ -53,7 +53,7 @@
     <li>Every plan can be billed monthly or yearly. Yearly billing gives you two months free: Pro is $125 per month billed yearly ($1,500 per year) and Business is $500 per month billed yearly ($6,000 per year).</li>
     <li>Max APIs: 3 on Free, 15 on Pro, 25 on Business, unlimited on Enterprise.</li>
     <li>SDK size is measured by the number of endpoints in your OpenAPI document. Free covers SDKs up to 25 endpoints; Pro includes 100 endpoints; Business includes 250 endpoints; Enterprise is custom.</li>
-    <li>Every plan includes 1 SDK. Additional SDKs are $150 per month each on Pro and $600 per month each on Business, with volume discounts as you add more. Enterprise SDK pricing is custom.</li>
+    <li>Every plan includes 1 SDK, where an SDK is one language target for one API — a TypeScript and a Python client for the same API are two SDKs. Additional SDKs are $150 per month each on Pro and $600 per month each on Business, with volume discounts as you add more. Enterprise SDK pricing is custom.</li>
     <li>Editor seats: 1 on Free, 5 on Pro, 10 on Business, custom on Enterprise.</li>
     <li>Agent Scalar includes 50 credits on Free, 500 credits on Pro, 2,000 credits on Business, and custom usage on Enterprise.</li>
     <li>One Agent Scalar credit covers 200 MCP tool calls, 2 Docs chat messages, or 50,000 tokens.</li>
@@ -286,7 +286,7 @@
         </thead>
           <tbody class="st_wrap_table pricing-table-group text-sm" data-table_id="0" role="rowgroup">
 <tr class="pricing-table-group-heading-row"><th class="pricing-table-group-heading flex gap-1.5 items-center" colspan="5" scope="rowgroup"><scalar-icon src="phosphor/bold/gauge" aria-hidden="true"></scalar-icon>Usage &amp; pricing</th></tr>
-<tr class="pricing-table-row pricing-table-group-desc-row"><td class="pricing-table-group-desc" colspan="5">Pricing scales with how many APIs you publish and the size of each SDK, measured by the number of endpoints in your OpenAPI document.</td></tr>
+<tr class="pricing-table-row pricing-table-group-desc-row"><td class="pricing-table-group-desc" colspan="5">Pricing scales with how many APIs you publish and the size of each SDK, measured by the number of endpoints in your OpenAPI document. One SDK is one language target for one API.</td></tr>
             <tr class="pricing-table-row">
 <th class="pricing-table-column" scope="row">Max APIs</th>
 <td class="pricing-table-column free-price">3</td>
