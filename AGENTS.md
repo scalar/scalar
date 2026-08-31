@@ -7,7 +7,7 @@ This file helps AI coding agents (Cursor, Claude Code, GitHub Copilot, etc.) wor
 Scalar is a Vue 3 + TypeScript monorepo for API documentation and testing.
 
 - It produces `@scalar/api-reference` (renders OpenAPI docs) and `@scalar/api-client` (API testing client)
-- It includes 40+ supporting packages and 15 framework integrations (Express, Fastify, Hono, NestJS, Next.js, Nuxt, etc.)
+- It includes 40+ supporting packages and 16 framework integrations (Express, Fastify, Hono, NestJS, Next.js, Nuxt, etc.)
 - It uses pnpm workspaces, Turbo for build orchestration, Vite for Vue packages, and `tsc` for pure TypeScript packages
 
 - **Frontend**: Vue 3, Composition API, TypeScript
@@ -81,7 +81,7 @@ pnpm script wait -p 5051 5052
 
 ### Workspace Layout
 
-- `packages/` - Core libraries (42 packages). Each is an npm package under `@scalar/`.
+- `packages/` - Core libraries (43 packages). Each is an npm package under `@scalar/`.
 - `integrations/` - Framework-specific wrappers (Express, Fastify, Next.js, Nuxt, etc.)
 - `projects/` - Deployable apps (`scalar-app`, `proxy-scalar-com`, `galaxy-scalar-com`). `scalar-app` builds both the Electron desktop app and client.scalar.com.
 - `examples/` - Usage examples for various frameworks
@@ -149,11 +149,16 @@ Before writing a new utility function, check `@scalar/helpers` (`packages/helper
 | `http` | HTTP methods, headers, status codes, MIME types |
 | `json` | JSON pointer helpers, pretty-print |
 | `markdown` | heading extraction |
+| `node` | Node-only path helpers |
 | `object` | deep equality, key helpers, path access, local storage |
+| `playwright` | Playwright/Docker test helpers |
 | `queue` | async queue |
 | `regex` | variable finding/replacing |
+| `storybook` | shared Storybook themes and toolbar globals |
 | `string` | capitalize, hash, truncate, camel-to-title |
 | `testing` | sleep, measure, console spies |
+| `theme` | color mode classes, CSS variable loading |
+| `types` | result, assertion, and safe-run helpers |
 | `url` | URL validation, merging, proxy helpers |
 
 If the helper you need already exists there, import it from `@scalar/helpers`. Only add a new helper to `@scalar/helpers` (or another package) if nothing suitable already exists.

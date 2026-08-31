@@ -948,6 +948,12 @@
             "title": "Blog",
             "icon": "phosphor/regular/newspaper",
             "to": "/resources/blog"
+          },
+          {
+            "type": "link",
+            "title": "Careers",
+            "icon": "phosphor/regular/briefcase",
+            "to": "/company#careers"
           }
         ]
       },
@@ -966,12 +972,12 @@
     "sidebar": [
       {
         "title": "Email",
-        "url": "mailto:support@scalar.com",
+        "to": "mailto:support@scalar.com",
         "icon": "phosphor/regular/envelope-simple-open"
       },
       {
         "title": "Demo",
-        "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
+        "to": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
         "icon": "phosphor/regular/user-rectangle",
         "newTab": true
       }
@@ -1425,6 +1431,17 @@
               }
             }
           },
+          "/svg-playground": {
+            "title": "SVG Playground",
+            "description": "Scratch page for iterating on landing page artwork.",
+            "filepath": "documentation/guides/svg-playground.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false
+            }
+          },
           "/brand": {
             "title": "Brand",
             "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
@@ -1812,6 +1829,30 @@
                             {
                               "name": "description",
                               "content": "AI-powered assistant that answers questions using your documentation content, with MCP integration for LLMs."
+                            },
+                            {
+                              "name": "robots",
+                              "content": "index, follow"
+                            }
+                          ]
+                        }
+                      },
+                      "llms-txt": {
+                        "title": "llms.txt",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/llms-txt.md",
+                        "description": "Every published Scalar Docs site automatically serves llms.txt and llms-full.txt so AI agents and LLMs can read your documentation.",
+                        "head": {
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/configuration/llms-txt"
+                            }
+                          ],
+                          "meta": [
+                            {
+                              "name": "description",
+                              "content": "Every published Scalar Docs site automatically serves llms.txt and llms-full.txt so AI agents and LLMs can read your documentation."
                             },
                             {
                               "name": "robots",
@@ -3892,6 +3933,53 @@
                     "title": "Changelog",
                     "description": "Changelog for @scalar/openapi-upgrader releases.",
                     "filepath": "packages/openapi-upgrader/CHANGELOG.md",
+                    "type": "page"
+                  }
+                }
+              },
+              "../../tools/asyncapi-upgrader": {
+                "title": "AsyncAPI Upgrader",
+                "description": "Automatically upgrade your AsyncAPI documents from 1.x and 2.x to the latest 3.x version with zero manual work.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/arrow-up-right",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "filepath": "documentation/guides/asyncapi-upgrader/getting-started.md",
+                    "type": "page",
+                    "description": "Migrate legacy AsyncAPI 1.x and 2.x documents to the modern 3.x format automatically with our free conversion tool.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/asyncapi-upgrader/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Migrate legacy AsyncAPI 1.x and 2.x documents to the modern 3.x format automatically with our free conversion tool."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with AsyncAPI Upgrader - Upgrade to AsyncAPI 3.x"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Migrate legacy AsyncAPI 1.x and 2.x documents to the modern 3.x format automatically with our free conversion tool."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "description": "Changelog for @scalar/asyncapi-upgrader releases.",
+                    "filepath": "packages/asyncapi-upgrader/CHANGELOG.md",
                     "type": "page"
                   }
                 }

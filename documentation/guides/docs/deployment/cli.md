@@ -121,3 +121,15 @@ scalar project publish --github
 Use `project publish` for ad-hoc or local-first workflows. Use `project publish --github` when the project is connected to GitHub and you want the deployment to reflect the remote repository.
 
 Your documentation will be available at `https://your-subdomain.apidocumentation.com`.
+
+## Rollback
+
+If a deployment introduced a problem, you can roll the live deployment back to a previously deployed build. List recent production deployments to find the build you want, then roll back to the previous build (or pass `--to <build-id>` to target a specific one).
+
+```bash
+# See recent production deployments
+scalar project deployments list --slug your-docs
+
+# Roll back to the previous build (or pass --to <build-id>)
+scalar project rollback --slug your-docs
+```

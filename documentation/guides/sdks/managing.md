@@ -66,4 +66,4 @@ You do not need a GitHub repository to use a generated SDK. From a version's det
 
 ## Settings
 
-From the SDK settings you can rename the SDK, edit its description and namespace, set its registry visibility to public or private, manage which groups can access a private SDK, and delete the SDK. Deleting an SDK removes its versions and registry entries; code already pushed to GitHub or published to a registry is not affected.
+From the SDK settings — the **General** card on the studio's **Advanced** tab — you can rename the SDK, edit its description and namespace, set its registry visibility to public or private, manage which groups can access a private SDK, and delete the SDK. Renaming changes the display name only; the package names, registry URLs, and slug stay the same. Deleting an SDK removes its versions and registry entries; code already pushed to GitHub or published to a registry is not affected.

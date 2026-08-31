@@ -1,5 +1,13 @@
 # @scalar/object-utils
 
+## 1.3.22
+
+## 1.3.21
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 1.3.20
 
 ## 1.3.19

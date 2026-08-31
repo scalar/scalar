@@ -35,4 +35,55 @@ test.describe('client modal', () => {
 
     await expect(page.getByRole('dialog').getByRole('button', { name: 'Show Sidebar' })).toBeFocused()
   })
+
+  test('opens a webhook with an editable request destination', async ({ page }) => {
+    const example = await serveExample({
+      content: {
+        openapi: '3.1.1',
+        info: {
+          title: 'Webhook API',
+          version: '1.0.0',
+        },
+        paths: {},
+        webhooks: {
+          'delivery.created': {
+            post: {
+              summary: 'Receive a delivery',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        deliveryId: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+              responses: {
+                '204': { description: 'Accepted' },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    await page.goto(example)
+    await page.getByRole('button', { name: 'Test Request' }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
+
+    const destination = dialog.locator('[aria-label="Path"]').getByRole('textbox')
+    await expect(destination).toBeEditable()
+    await destination.fill('https://hooks.example.com/deliveries')
+    await expect(destination).toHaveText('https://hooks.example.com/deliveries')
+
+    // Blurring must keep the full URL. A webhook destination is not split into a
+    // server plus a path, so the value must not collapse to a stray "/".
+    await destination.blur()
+    await expect(destination).toHaveText('https://hooks.example.com/deliveries')
+  })
 })

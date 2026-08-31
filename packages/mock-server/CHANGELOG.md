@@ -1,5 +1,57 @@
 # @scalar/mock-server
 
+## 0.13.0
+
+### Minor Changes
+
+- [#10051](https://github.com/scalar/scalar/pull/10051): feat: add a `logger` option to control startup logging
+
+  `createMockServer()` prints authentication instructions for the security schemes of the document when it starts. That is helpful in a terminal, but it is noise when the mock server runs inside a test harness or another program, which so far left callers replacing the global console.
+
+  Pass `logger: false` to silence those instructions, or a `(line: string) => void` sink to route them elsewhere:
+
+  ```ts
+  const app = await createMockServer({ document, logger: false })
+  ```
+
+  Diagnostics are not affected: warnings and errors about security schemes the mock server cannot handle, request validator compilation errors, and `x-seed` errors are printed either way.
+
+  `createAsyncApiMockServer()` already accepted a `logger` sink; it now takes the same `boolean | ((line: string) => void)` shape, so both factories are silenced and redirected the same way. It stays silent by default — pass `logger: true` to print its transport lifecycle lines.
+
+  The `MockServerLogger` type is now exported as well, so a custom sink can be typed outside of the package.
+
+- [#10037](https://github.com/scalar/scalar/pull/10037): Frame `text/event-stream` responses as Server-Sent Events instead of returning a single JSON body with an SSE content type. Each event is written as a `data:` line terminated by a blank line, then the stream closes.
+  - Named `examples` are read as the sequence of events the endpoint emits, in declaration order (`Prefer: example=<name>` still pins the stream to that one example).
+  - An array example is read as the event sequence too, one event per item.
+  - An example that already spells out SSE framing (`data:` and `event:` lines, or a `:` comment heartbeat) is written as its own framing, with only its terminating blank line normalized, instead of being wrapped in a second `data:` line. Such examples describe a whole stream, so a map of them is read as alternatives and the first one is served.
+  - With no example, the schema-generated payload is emitted three times so the stream has more than one event to iterate — unless the schema already generates a sequence (a multi-item array, or a string that spells the wire format out), which is sent once, not repeated.
+
+- [#10038](https://github.com/scalar/scalar/pull/10038): Answer unhandled errors with a structured JSON `500` naming the operation that failed, instead of the previous plain-text `Internal Server Error`. The body reports the error `message` along with the matched operation's `method`, OpenAPI `path`, and `operationId` (when the document declares one), and the error is still logged to the console. Errors that already carry their own response keep the status and body they chose.
+
+### Patch Changes
+
+- [#9967](https://github.com/scalar/scalar/pull/9967): Align the `ajv` and `ajv-formats` dependencies with the shared workspace catalog (`ajv@^8.20.0`).
+- [#10039](https://github.com/scalar/scalar/pull/10039): Fix request validation falling open for recursive schemas. Resolving a schema that references itself leaves a `'[circular]'` marker where the cycle was cut, which Ajv refused to compile, so the mock server logged an error and skipped validating the request body — or every parameter in that location. The recursion point now compiles as an always-valid schema, and a constraint that would flip that into a stricter one (`not`, `if`, `oneOf`, `contains`, and the keywords that only qualify them) is dropped, so the rest of the schema is enforced again without rejecting requests the document allows.
+- [#10035](https://github.com/scalar/scalar/pull/10035): Fix JSON responses for primitive string bodies. A response declaring `application/json` with a `type: string` schema (or a plain string example) was written to the wire verbatim, so clients received the bare characters `string` instead of `"string"` and could not parse the payload.
+
+  A string body is now JSON-encoded whenever the negotiated media type carries a single JSON document, which includes suffixed types such as `application/problem+json` and parameterized ones such as `application/json; charset=utf-8`. Two things keep their raw string: every other media type, where the characters are already the payload (`text/plain`, `text/event-stream`, XML, and the line-delimited JSON types), and a body that is already the value the schema describes — anything that parses when the schema declares a non-string type, or a JSON object or array when the schema says nothing, both of which are documents the author serialized by hand.
+
+  XML is now matched on the parsed media type subtype rather than by substring, so only a genuine XML type is serialized as an XML document. A media type that merely contains `xml` somewhere, such as one carrying it in a parameter, no longer is.
+
+- [#10044](https://github.com/scalar/scalar/pull/10044): fix: escape spec-derived path keys and route path keys that carry a query string
+
+  Path keys such as `/v1/messages?beta=true` used to be registered verbatim as routes, where the query string was read as routing syntax. On a parameterized path that made the router compile an invalid regular expression and every single request failed with an empty `500`. The query is now peeled off and matched against the incoming request, so `/v1/messages?beta=true` answers only requests that send `beta=true` and `/v1/messages` keeps answering the rest.
+
+  Characters that would otherwise be read as routing syntax (`:`, `*`, `|`, and braces outside a path parameter) are escaped, so a path key can no longer act as a pattern. Note that this also applies to `*`: a path key ending in `*` is now served as a literal path instead of matching everything below it.
+
+  One limitation is worth knowing: Hono allows a single parameter per path segment, so a segment that mixes a path parameter with escaped literal text (`/v1/jobs/{jobId}:cancel`) routes to the right operation but does not bind `jobId` by name. Request validation reads it as missing, so a document describing such a path needs the server-wide `validateRequest: false` for now.
+
+## 0.12.13
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.12.12
 
 ## 0.12.11

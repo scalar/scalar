@@ -1,5 +1,13 @@
 # @scalar/schemas
 
+## 0.8.4
+
+## 0.8.3
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.8.2
 
 ### Patch Changes

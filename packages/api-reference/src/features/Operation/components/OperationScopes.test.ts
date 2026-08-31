@@ -51,6 +51,19 @@ const scopedOrScopeFree: RequiredSecurity = {
   ],
 }
 
+/**
+ * One OAuth2 alternative with scopes, plus an HTTP bearer alternative that carries
+ * scope-shaped strings. Those strings are not OAuth scopes, so the bearer alternative is
+ * still scope-free and the OAuth scopes remain optional.
+ */
+const scopedOrScopeShapedNonOauth: RequiredSecurity = {
+  state: 'required',
+  requirements: [
+    { schemes: [{ name: 'oauth2', scheme: { type: 'oauth2', flows: {} }, scopes: ['read:items'] }] },
+    { schemes: [{ name: 'bearerToken', scheme: { type: 'http', scheme: 'bearer' }, scopes: ['some:custom:scope'] }] },
+  ],
+}
+
 describe('OperationScopes', () => {
   it('lists every required scope under the heading', () => {
     const wrapper = mount(OperationScopes, { props: { requiredSecurity: withScopes } })
@@ -80,6 +93,16 @@ describe('OperationScopes', () => {
     // scopes are not mandatory because the API key alternative satisfies auth without them.
     expect(wrapper.findAll('ul')).toHaveLength(1)
     expect(wrapper.text()).toContain('read:items')
+    expect(wrapper.text()).toContain('one of:')
+  })
+
+  it('still hints that scopes are optional when the other alternative only carries scope-shaped strings', () => {
+    const wrapper = mount(OperationScopes, { props: { requiredSecurity: scopedOrScopeShapedNonOauth } })
+    // The HTTP bearer alternative lists a scope-shaped string, but it is not an OAuth scope,
+    // so the bearer path counts as scope-free and the "one of" hint must still appear.
+    expect(wrapper.findAll('ul')).toHaveLength(1)
+    expect(wrapper.text()).toContain('read:items')
+    expect(wrapper.text()).not.toContain('some:custom:scope')
     expect(wrapper.text()).toContain('one of:')
   })
 

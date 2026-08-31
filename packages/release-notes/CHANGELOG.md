@@ -1,5 +1,17 @@
 # @scalar/release-notes
 
+## 0.1.8
+
+### Patch Changes
+
+- [#9983](https://github.com/scalar/scalar/pull/9983): Bump the `zod` catalog to `^4.4.3` so the standalone bundle ships a single `zod` instead of two (`4.3.5` from `@scalar/types` plus `4.4.3` from the `ai` / `@ai-sdk` peer). This makes `standalone.js` ~68KB raw / ~18KB gzip smaller.
+
+## 0.1.7
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.1.6
 
 ## 0.1.5

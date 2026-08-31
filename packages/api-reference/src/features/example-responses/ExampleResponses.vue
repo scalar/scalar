@@ -32,17 +32,23 @@ import { normalizeMimeTypeObject } from './helpers/normalize-mime-type-object'
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
  */
 
-const { responses, selectedExample, eventBus } = defineProps<{
-  responses: ResponsesObject
-  /**
-   * The document-wide selected example key. Honored only when the current response defines an
-   * example with the same key, so response example pickers stay in sync between operations without
-   * blanking out responses that do not share that key.
-   */
-  selectedExample?: string
-  /** Event bus, used to broadcast the selected example so other operations can follow */
-  eventBus?: WorkspaceEventBus
-}>()
+const { responses, selectedExample, eventBus, selectedContentTypes } =
+  defineProps<{
+    responses: ResponsesObject
+    /**
+     * The document-wide selected example key. Honored only when the current response defines an
+     * example with the same key, so response example pickers stay in sync between operations without
+     * blanking out responses that do not share that key.
+     */
+    selectedExample?: string
+    /** Event bus, used to broadcast the selected example so other operations can follow */
+    eventBus?: WorkspaceEventBus
+    /**
+     * Selected response content type per status code, mirrored from the response list on the left
+     * so the displayed example matches the chosen content type. Keyed by status code (e.g. "200").
+     */
+    selectedContentTypes?: Record<string, string>
+  }>()
 const { translate } = useLocalization()
 
 const id = useId()
@@ -90,14 +96,22 @@ const currentResponse = computed(() => {
   return getResolvedRef(responses?.[currentStatusCode])
 })
 
-const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
-  const normalizedContent = normalizeMimeTypeObject(
-    currentResponse.value?.content,
-  )
+const normalizedResponseContent = computed(() =>
+  normalizeMimeTypeObject(currentResponse.value?.content),
+)
 
-  /** All the keys of the normalized content */
-  const keys = objectKeys(normalizedContent ?? {})
-  return normalizedContent?.[keys[0] ?? '']
+const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
+  const content = normalizedResponseContent.value
+  if (!content) {
+    return undefined
+  }
+  const statusCode =
+    toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
+  const selected = selectedContentTypes?.[statusCode]
+  const keys = objectKeys(content)
+  return content[
+    selected && keys.includes(selected) ? selected : (keys[0] ?? '')
+  ]
 })
 
 const hasMultipleExamples = computed<boolean>(

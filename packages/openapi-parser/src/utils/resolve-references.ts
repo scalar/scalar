@@ -1,14 +1,8 @@
 import { isObject } from '@scalar/helpers/object/is-object'
+import type { AnyObject, UnknownObject } from '@scalar/types/utils'
 
 import { ERRORS } from '@/configuration'
-import type {
-  AnyObject,
-  ErrorObject,
-  Filesystem,
-  FilesystemEntry,
-  ThrowOnErrorOption,
-  UnknownObject,
-} from '@/types/index'
+import type { ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } from '@/types/index'
 
 import { getEntrypoint } from './get-entrypoint'
 import { getSegmentsFromPath } from './get-segments-from-path'

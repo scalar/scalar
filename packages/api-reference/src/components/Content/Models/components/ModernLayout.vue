@@ -7,6 +7,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 
 import { Schema, SchemaHeading } from '../../Schema'
 
@@ -25,6 +26,8 @@ const { schema, options, document } = defineProps<{
     expandAllSchemaProperties: boolean | undefined
   }
 }>()
+
+const { level: headingLevel } = useDocumentOutline('model')
 </script>
 <template>
   <CompactSection
@@ -37,7 +40,7 @@ const { schema, options, document } = defineProps<{
       (value) => eventBus?.emit('toggle:nav-item', { id, open: value })
     ">
     <template #heading>
-      <SectionHeaderTag :level="3">
+      <SectionHeaderTag :level="headingLevel">
         <SchemaHeading
           :name="schema.title ?? name"
           :value="schema" />

@@ -1,0 +1,63 @@
+{
+  "name": "@scalar/asyncapi-validator",
+  "description": "Validate AsyncAPI documents against the AsyncAPI Specification",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/asyncapi-validator"
+  },
+  "keywords": [
+    "asyncapi",
+    "scalar",
+    "validator",
+    "typescript"
+  ],
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "pnpm playground",
+    "playground": "cd playground && vite",
+    "test": "vitest --run",
+    "types:check": "tsgo --noEmit"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "@asyncapi/specs": "^6.11.1",
+    "@scalar/helpers": "workspace:*",
+    "@scalar/json-schema-validator": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "yaml": "catalog:*"
+  },
+  "devDependencies": {
+    "@scalar/themes": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*",
+    "@tailwindcss/vite": "catalog:*",
+    "@types/node": "catalog:*",
+    "@vitejs/plugin-vue": "catalog:*",
+    "tailwindcss": "catalog:*",
+    "vite": "catalog:*",
+    "vue": "catalog:*"
+  }
+}

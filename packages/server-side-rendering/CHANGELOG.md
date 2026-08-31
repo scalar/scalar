@@ -1,5 +1,13 @@
 # @scalar/server-side-rendering
 
+## 0.1.45
+
+## 0.1.44
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.1.43
 
 ## 0.1.42

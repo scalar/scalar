@@ -17,9 +17,9 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.66.0",
+  "version": "1.67.0",
   "engines": {
-    "node": ">=22"
+    "node": ">=20"
   },
   "scripts": {
     "build": "pnpm types:check && vite build",
@@ -73,7 +73,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@types/node": "catalog:*",
-    "fastify": "^4.0.0",
+    "fastify": "catalog:*",
     "typescript": "^5.8.3",
     "vite": "catalog:*",
     "vite-plugin-dts": "^4.3.0",

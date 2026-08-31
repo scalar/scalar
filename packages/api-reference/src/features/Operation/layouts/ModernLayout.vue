@@ -18,6 +18,7 @@ import { LinkList } from '@/components/LinkList'
 import OperationPath from '@/components/OperationPath.vue'
 import { Section, SectionContent, SectionHeaderTag } from '@/components/Section'
 import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
+import { useDocumentOutline } from '@/features/document-outline'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
 import { useLocalization } from '@/features/localization'
@@ -103,6 +104,14 @@ const requestBodyCompositionSelectionKey = computed(() =>
 )
 
 provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
+
+/**
+ * Selected response content type per status code. Shared between the response list (which writes
+ * the selection) and the example response panel (which reads it) so the two stay in sync.
+ */
+const selectedResponseContentTypes = ref<Record<string, string>>({})
+
+const { level: headingLevel } = useDocumentOutline('operation')
 </script>
 
 <template>
@@ -157,7 +166,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
             <SectionHeaderTag
               :id="labelId"
-              :level="3">
+              :level="headingLevel">
               {{ operationTitle }}
             </SectionHeaderTag>
           </Anchor>
@@ -204,6 +213,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             :parameters="operation.parameters"
             :requestBody="getResolvedRef(operation.requestBody)" />
           <OperationResponses
+            v-model:selectedContentTypes="selectedResponseContentTypes"
             :breadcrumb="[id]"
             :collapsableItems="!options.expandAllResponses"
             :document
@@ -256,9 +266,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
                   :deprecated="operation?.deprecated"
                   :path="path" />
               </template>
-              <template
-                v-if="!isWebhook"
-                #footer="{ exampleName }">
+              <template #footer="{ exampleName }">
                 <div class="flex">
                   <AskAgentButton />
                   <TestRequestButton
@@ -281,6 +289,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
               v-if="operation.responses"
               :eventBus
               :responses="operation.responses"
+              :selectedContentTypes="selectedResponseContentTypes"
               :selectedExample
               style="margin-top: 12px" />
           </ScalarErrorBoundary>

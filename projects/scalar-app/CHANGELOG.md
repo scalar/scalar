@@ -1,5 +1,13 @@
 # scalar-app
 
+## 1.1.26
+
+### Patch Changes
+
+- [#10025](https://github.com/scalar/scalar/pull/10025): Compose the app header from `ScalarHeaderColumn` children, fixing the header overflowing the viewport on mobile
+
+## 1.1.25
+
 ## 1.1.24
 
 ## 1.1.23

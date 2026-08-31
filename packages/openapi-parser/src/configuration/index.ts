@@ -1,24 +1,15 @@
-import Swagger20 from '@/schemas/v2.0/schema'
-import OpenApi30 from '@/schemas/v3.0/schema'
-import OpenApi31 from '@/schemas/v3.1/schema'
-import OpenApi32 from '@/schemas/v3.2/schema'
-
 /**
- * A list of the supported OpenAPI specifications
+ * The OpenAPI/Swagger versions supported by the parser.
+ *
+ * The JSON Schemas and schema validation now live in `@scalar/openapi-validator`.
+ * The parser only needs the list of versions for its own version detection.
  */
-export const OpenApiSpecifications = {
-  '2.0': Swagger20,
-  '3.0': OpenApi30,
-  '3.1': OpenApi31,
-  '3.2': OpenApi32,
-}
+export type OpenApiVersion = '2.0' | '3.0' | '3.1' | '3.2'
 
-export type OpenApiVersion = keyof typeof OpenApiSpecifications
-
-export const OpenApiVersions = Object.keys(OpenApiSpecifications) as OpenApiVersion[]
+export const OpenApiVersions: OpenApiVersion[] = ['2.0', '3.0', '3.1', '3.2']
 
 /**
- * List of error messages used in the Validator
+ * List of error messages used in the parser
  */
 export const ERRORS = {
   EMPTY_OR_INVALID: "Can't find JSON, YAML or filename in data.",

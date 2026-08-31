@@ -16,7 +16,7 @@
     "code",
     "performance"
   ],
-  "version": "0.2.0",
+  "version": "0.3.0",
   "engines": {
     "node": ">=22"
   },
@@ -77,6 +77,9 @@
     "dist/all.js",
     "**/*.css"
   ],
+  "dependencies": {
+    "@types/hast": "^3.0.4"
+  },
   "devDependencies": {
     "@scalar/code-highlight": "workspace:*",
     "highlight.js": "catalog:*",

@@ -10,6 +10,7 @@ import { Anchor } from '@/components/Anchor'
 import { Schema } from '@/components/Content/Schema'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import {
   getAsyncApiMessageHeadersSchema,
   getAsyncApiMessagePayloadSchema,
@@ -142,6 +143,8 @@ const onToggle = (open: boolean) => {
   isExpanded.value = open
   eventBus?.emit('toggle:nav-item', { id: message.id, open })
 }
+
+const { level: headingLevel } = useDocumentOutline('message')
 </script>
 
 <template>
@@ -162,7 +165,7 @@ const onToggle = (open: boolean) => {
             <SectionHeaderTag
               :id="headerId"
               class="message-title"
-              :level="4">
+              :level="headingLevel">
               {{ headingText }}
             </SectionHeaderTag>
             <AsyncApiLabels :protocols="protocolLabels" />

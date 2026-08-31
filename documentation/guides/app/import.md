@@ -6,7 +6,7 @@ The API Client supports several formats to get your API collections into the app
 
 ### OpenAPI 3.x
 
-The native format used internally by the API Client. OpenAPI descriptions can be auto-generated from your codebase or hand-written. Both JSON and YAML are supported.
+The native format used internally by the API Client. OpenAPI documents can be auto-generated from your codebase or hand-written. Both JSON and YAML are supported.
 
 This is the recommended format. All features of the API Client, including environments, authentication schemes, and server configuration, map directly to the OpenAPI specification.
 
@@ -27,6 +27,14 @@ curl -X POST https://api.example.com/users \
   -H "Content-Type: application/json" \
   -d '{"name": "Jane"}'
 ```
+
+### AsyncAPI
+
+We do not currently support AsyncAPI for the API Client. The client is built around OpenAPI operations — a request, a method, a response — while an [AsyncAPI](../../asyncapi.md) document describes channels and the messages that flow over them, so AsyncAPI documents are skipped rather than imported into a collection.
+
+You can still read one as an [API reference](../../asyncapi.md), which renders its channels, operations, and message payloads.
+
+Need it? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
 
 ## Sources
 

@@ -149,24 +149,26 @@
 }
 
 .docs-global-footer .footer-content {
-  display: flex;
-  gap: 48px;
+  /* one grid for everything: the brand block is column one, and the four
+     link groups (promoted out of .footer-links by display: contents) fill
+     the rest -- so the brand keeps its top-left position exactly */
+  display: grid;
+  gap: 0;
+  /* dedicated 48px gutter track between the brand column and the links */
+  grid-template-columns: minmax(0, 1fr) 48px repeat(4, minmax(0, 1fr));
   margin: auto;
   max-width: calc(100% - 56px);
   padding-top: 48px;
   width: 100%;
 }
 
-.docs-global-footer .footer-content > * {
-  flex: 1;
+.docs-global-footer .footer-links {
+  display: contents;
 }
 
-/* The link columns carry more content than the brand block, so give them the wider share. */
-.docs-global-footer .footer-links {
-  display: grid;
-  flex: 2;
-  gap: 32px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+/* skip the gutter track so auto-placement fills columns 3-6 */
+.docs-global-footer .footer-link-group:first-child {
+  grid-column: 3;
 }
 
 .docs-global-footer .footer-content span,
@@ -256,12 +258,23 @@
 }
 
 @media screen and (max-width: 1000px) {
+  /* the one-grid desktop layout (gutter track + display: contents) does not
+     stack, so small viewports go back to the original flex column with the
+     links as their own grid */
   .docs-global-footer .footer-content {
+    display: flex;
     flex-direction: column;
+    gap: 48px;
   }
 
-  .docs-global-footer .footer-content > * {
-    flex: initial;
+  .docs-global-footer .footer-links {
+    display: grid;
+    gap: 32px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .docs-global-footer .footer-link-group:first-child {
+    grid-column: auto;
   }
 }
 

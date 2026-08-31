@@ -11,13 +11,18 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ParameterListItem from './ParameterListItem.vue'
 
-const { responses } = defineProps<{
+const { responses, selectedContentTypes = {} } = defineProps<{
   responses: OperationObject['responses']
   breadcrumb?: string[]
   collapsableItems?: boolean
   eventBus: WorkspaceEventBus | null
   /** The document the operation belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
+  /**
+   * Selected response content type per status code, shared with the example response panel
+   * so the two stay in sync. Keyed by status code (e.g. "200"), valued by MIME type.
+   */
+  selectedContentTypes?: Record<string, string>
   options: Pick<
     OperationProps['options'],
     | 'hideModels'
@@ -25,6 +30,10 @@ const { responses } = defineProps<{
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
   >
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:selectedContentTypes', value: Record<string, string>): void
 }>()
 const { translate } = useLocalization()
 </script>
@@ -47,7 +56,14 @@ const { translate } = useLocalization()
         :eventBus
         :name="status"
         :options
-        :parameter="getResolvedRef(response)" />
+        :parameter="getResolvedRef(response)"
+        @update:selectedContentType="
+          (type) =>
+            emit('update:selectedContentTypes', {
+              ...selectedContentTypes,
+              [status]: type,
+            })
+        " />
     </ul>
   </div>
 </template>

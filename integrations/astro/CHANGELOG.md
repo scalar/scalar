@@ -1,5 +1,13 @@
 # @scalar/astro
 
+## 0.4.17
+
+## 0.4.16
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.4.15
 
 ### Patch Changes

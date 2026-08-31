@@ -297,4 +297,30 @@ describe('ClassicLayout', () => {
     // The button mirrors the snippet's resolved key (first example), not the missing document-wide one
     expect(testButton.props('exampleName')).toBe('first')
   })
+
+  it('shows the test request button for an active webhook', async () => {
+    const wrapper = mount(ClassicLayout, {
+      props: {
+        ...props,
+        id: 'delivery-created',
+        isWebhook: true,
+        path: 'delivery.created',
+        options: { ...props.options, hideTestRequestButton: false },
+      },
+      global: {
+        stubs: {
+          RouterLink: {
+            name: 'RouterLink',
+            template: '<a><slot /></a>',
+          },
+        },
+      },
+    })
+
+    await nextTick()
+
+    const testButton = wrapper.findComponent({ name: 'TestRequestButton' })
+    expect(testButton.exists()).toBe(true)
+    expect(testButton.props('path')).toBe('delivery.created')
+  })
 })

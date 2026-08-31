@@ -20,7 +20,7 @@ import {
   isModelLinkable,
   type ModelLinkOptions,
 } from './helpers/is-model-linkable'
-import { getModelNameFromSchema } from './helpers/schema-name'
+import { getModelNameWithArray } from './helpers/schema-name'
 import RenderString from './RenderString.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
@@ -234,19 +234,7 @@ const modelLink = computed(() => {
     return { schemaKey: props.modelName, label: props.modelName }
   }
 
-  const modelName = getModelNameFromSchema(props.value)
-  if (modelName) {
-    return { schemaKey: modelName.schemaKey, label: modelName.label }
-  }
-
-  if (isArraySchema(props.value) && props.value.items) {
-    const itemName = getModelNameFromSchema(props.value.items)
-    return itemName
-      ? { schemaKey: itemName.schemaKey, label: `${itemName.label}[]` }
-      : null
-  }
-
-  return null
+  return getModelNameWithArray(props.value)
 })
 
 /** Whether the model name links to the models section, or renders as plain text. */
@@ -408,11 +396,6 @@ const patternValue = computed(() => {
         {{ property.value }}
       </SchemaPropertyDetail>
 
-      <!-- Pattern: shown as hover dropdown to handle long regex -->
-      <SchemaPropertyPattern
-        v-if="patternValue"
-        :pattern="patternValue" />
-
       <!-- Enum indicator -->
       <SchemaPropertyDetail v-if="props.enum">
         {{ translate('common.enum') }}
@@ -462,6 +445,14 @@ const patternValue = computed(() => {
       {{ translate('common.required') }}
     </div>
     <SchemaPropertyDefault :value="props.value?.default" />
+    <!--
+      Pattern is a hover dropdown chip like Examples, not an inline constraint,
+      so it sits beside the example. This keeps the real constraints (length,
+      nullable, …) together in the dotted list. See #9966.
+    -->
+    <SchemaPropertyPattern
+      v-if="patternValue"
+      :pattern="patternValue" />
     <SchemaPropertyExamples
       v-if="props.withExamples"
       :example="exampleValue"

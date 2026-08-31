@@ -1,5 +1,13 @@
 # @scalar/postman-to-openapi
 
+## 0.7.18
+
+## 0.7.17
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.7.16
 
 ## 0.7.15

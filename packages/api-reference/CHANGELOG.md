@@ -1,5 +1,31 @@
 # @scalar/api-reference
 
+## 1.67.0
+
+### Minor Changes
+
+- [#10043](https://github.com/scalar/scalar/pull/10043): Resolve heading levels from a block's place in the page outline instead of hardcoding them, so a block rendered on its own starts at `h1`.
+
+  A block now assumes it is the top of the page: rendered alone, an operation's title is the `h1` and everything it contains follows beneath it. A component that renders several blocks alongside each other owns the relationship between them and anchors the outline — `Content` renders the info block above the tags and operations, so it declares `document` and the rest resolve against it. Composed into a full reference, every heading renders at the level it always has.
+
+  Also fixes two headings that never went through the heading components: the classic-layout operation title was a raw `h3`, and the classic-layout Models section label passed a `level` prop to a component that does not accept one, so it rendered no heading element at all.
+
+- feat: test OpenAPI webhooks from the API reference and API client
+
+### Patch Changes
+
+- [#9983](https://github.com/scalar/scalar/pull/9983): Bump the `zod` catalog to `^4.4.3` so the standalone bundle ships a single `zod` instead of two (`4.3.5` from `@scalar/types` plus `4.4.3` from the `ai` / `@ai-sdk` peer). This makes `standalone.js` ~68KB raw / ~18KB gzip smaller.
+- [#9965](https://github.com/scalar/scalar/pull/9965): Fix oneOf selector labels showing the shared allOf base name instead of the variant's own name. When a oneOf branch extended a common base through a single-`$ref` allOf (a common inheritance pattern), flattening that allOf for display left the base schema's own identity (`$ref`, `title`, or `name`) on the flattened variant, so the selector picked up the base's name for every branch instead of each branch's own name.
+- [#9973](https://github.com/scalar/scalar/pull/9973): Fix the "OAuth scopes" section rendering for any security scheme with a non-empty scope array, including `http` and `apiKey` schemes. Scopes are only meaningful for `oauth2` and `openIdConnect` schemes, so the section is now skipped when the resolved scheme is of a different type.
+- [#9289](https://github.com/scalar/scalar/pull/9289): fix response example panel to reflect selected content type from the response dropdown
+- [#9968](https://github.com/scalar/scalar/pull/9968): Move the schema `Pattern` hover chip next to the `Example` chip so it no longer collides with the preceding constraint (for example `max length: 26Pattern`). Real constraints like length and `nullable` now stay together in the dotted list.
+
+## 1.66.1
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 1.66.0
 
 ### Minor Changes

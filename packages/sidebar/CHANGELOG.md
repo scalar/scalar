@@ -1,5 +1,17 @@
 # @scalar/sidebar
 
+## 0.11.0
+
+### Minor Changes
+
+- feat: test OpenAPI webhooks from the API reference and API client
+
+## 0.10.1
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.10.0
 
 ### Minor Changes

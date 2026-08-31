@@ -12,6 +12,8 @@ export type AddressBarProps = {
   path: string
   /** Current request method */
   method: HttpMethodType
+  /** Whether the request target belongs to an OpenAPI webhook. */
+  isWebhook?: boolean
   /** Openapi document slug */
   documentSlug: string
   /** Currently selected example key for the current operation */
@@ -83,6 +85,7 @@ const {
   servers,
   environment,
   serverMeta,
+  isWebhook = false,
 } = defineProps<AddressBarProps>()
 
 const emit = defineEmits<{
@@ -90,6 +93,8 @@ const emit = defineEmits<{
   (e: 'execute'): void
   /** Select a request history item by index */
   (e: 'select:history:item', payload: { index: number }): void
+  /** Update the full destination URL used to deliver a webhook. */
+  (e: 'update:webhook-url', url: string): void
 }>()
 
 // ───────────────────────────────────────────────────────────────────
@@ -127,6 +132,22 @@ const style = computed(() => ({
 
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
+
+/**
+ * Placeholder for the path field.
+ *
+ * Webhooks have no server to prefix the path, so the field doubles as the full
+ * destination URL. Hint that a complete URL (including the host) is expected,
+ * rather than a bare path.
+ */
+const pathPlaceholder = computed(() => {
+  if (server) {
+    return ''
+  }
+  return isWebhook
+    ? 'Enter the full webhook URL, e.g. https://example.com/hook'
+    : 'Enter a URL'
+})
 
 /** Whether either dropdown (server or history) is open */
 const isDropdownOpen = computed(
@@ -256,6 +277,20 @@ const emitPathMethodUpdate = (
   targetPath: string,
   blurTargetSelector: string | null = null,
 ): void => {
+  if (isWebhook) {
+    // A webhook has no OpenAPI server, so the field holds the full destination
+    // URL. Keep exactly what the user entered — do not split it into an invisible
+    // server plus a leftover path, and do not force a leading slash. That split
+    // is what made a typed URL collapse to a stray "/" on blur.
+    const webhookUrl = targetPath.trim()
+    addressBarRef.value?.setCodeMirrorContent(webhookUrl)
+    emit('update:webhook-url', webhookUrl)
+    methodConflict.value = null
+    pathConflict.value = null
+    nextTick(() => refocusBlurTarget(blurTargetSelector))
+    return
+  }
+
   const extractedPath = extractAndSelectServer(targetPath)
   const normalizedPath = normalizePath(extractedPath)
 
@@ -355,8 +390,24 @@ const handlePathSubmit = (
 /** Unset the server when backspace is pressed on an empty path */
 const handlePathBackspace = (event: KeyboardEvent): void => {
   if ((event.target as HTMLElement)?.innerText === '\n') {
+    // A webhook has no server to unset; its full URL lives in the field itself.
+    if (isWebhook) {
+      return
+    }
     eventBus.emit('server:update:selected', { url: '', meta: serverMeta })
   }
+}
+
+const handleServerSelect = (
+  payload: ApiReferenceEvents['server:update:selected'],
+): void => {
+  eventBus.emit('server:update:selected', payload)
+}
+
+const handleServerVariable = (
+  payload: ApiReferenceEvents['server:update:variables'],
+): void => {
+  eventBus.emit('server:update:variables', payload)
 }
 
 /** Address bar copy is handled in OperationBlock (same URL as Send). */
@@ -450,7 +501,7 @@ defineExpose({
       -->
       <div class="hidden @3xl:flex">
         <HttpMethod
-          :isEditable="layout !== 'modal'"
+          :isEditable="layout !== 'modal' && !isWebhook"
           isSquare
           :method="methodConflict ?? method"
           teleport
@@ -462,19 +513,15 @@ defineExpose({
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
-          :layout="layout"
+          :layout="isWebhook ? 'modal' : layout"
           :meta="serverMeta"
           :server="server"
           :servers="servers"
           :target="id"
           @update:open="(value) => (isServerDropdownOpen = value)"
-          @update:selectedServer="
-            (payload) => eventBus.emit('server:update:selected', payload)
-          "
+          @update:selectedServer="handleServerSelect"
           @update:servers="navigateToServersPage"
-          @update:variable="
-            (payload) => eventBus.emit('server:update:variables', payload)
-          " />
+          @update:variable="handleServerVariable" />
 
         <!-- Path + URL + env vars -->
         <CodeInput
@@ -483,7 +530,7 @@ defineExpose({
           aria-label="Path"
           class="ml-1 min-w-fit pl-px outline-none"
           disableCloseBrackets
-          :disabled="layout === 'modal'"
+          :disabled="layout === 'modal' && !isWebhook"
           disableEnter
           disableTabIndent
           :emitOnBlur="false"
@@ -492,7 +539,7 @@ defineExpose({
           importCurl
           :layout="layout"
           :modelValue="path"
-          :placeholder="server ? '' : 'Enter a URL'"
+          :placeholder="pathPlaceholder"
           server
           @blur="handlePathBlur"
           @keydown.delete="handlePathBackspace"
@@ -561,7 +608,7 @@ defineExpose({
     <div
       class="mt-2 flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 @3xl:hidden">
       <HttpMethod
-        :isEditable="layout !== 'modal'"
+        :isEditable="layout !== 'modal' && !isWebhook"
         isSquare
         :method="methodConflict ?? method"
         teleport

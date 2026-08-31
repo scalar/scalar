@@ -40,6 +40,9 @@ function createDocumentWithChannel(channel: Record<string, unknown>): AsyncApiDo
 }
 
 describe('Channel', () => {
+  // These mount a Channel on its own, so it is the top of its page and its
+  // heading is an h1. Inside a full reference it resolves to h2 — see
+  // features/document-outline.
   it('renders the channel address as the heading and the description below', () => {
     const wrapper = mount(Channel, {
       props: {
@@ -51,7 +54,7 @@ describe('Channel', () => {
       },
     })
 
-    const heading = wrapper.find('h2')
+    const heading = wrapper.find('h1')
     expect(heading.text()).toContain('user/signedup')
     expect(wrapper.text()).toContain('Fired whenever a user signs up.')
   })
@@ -67,7 +70,7 @@ describe('Channel', () => {
       },
     })
 
-    const heading = wrapper.find('h2')
+    const heading = wrapper.find('h1')
     expect(heading.text()).toContain('user/signedup')
   })
 
@@ -85,8 +88,8 @@ describe('Channel', () => {
       },
     })
 
-    expect(wrapper.find('h2').text()).toContain('User signups')
-    expect(wrapper.find('h2').text()).not.toContain('user/signedup')
+    expect(wrapper.find('h1').text()).toContain('User signups')
+    expect(wrapper.find('h1').text()).not.toContain('user/signedup')
   })
 
   it('falls back to the channel key when neither title nor address is set', () => {
@@ -101,7 +104,7 @@ describe('Channel', () => {
       },
     })
 
-    expect(wrapper.find('h2').text()).toContain('userSignedUp')
+    expect(wrapper.find('h1').text()).toContain('userSignedUp')
   })
 
   it('renders an accordion wrapper for the classic layout', () => {

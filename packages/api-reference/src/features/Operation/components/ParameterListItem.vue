@@ -14,7 +14,7 @@ import type {
   ResponseObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
@@ -43,6 +43,10 @@ const { name, parameter, options, collapsableItems, breadcrumb, document } =
     >
   }>()
 
+const emit = defineEmits<{
+  (e: 'update:selectedContentType', value: string): void
+}>()
+
 /** Whether the markdown summary is being truncated */
 const truncated = ref(false)
 
@@ -68,6 +72,15 @@ const content = computed(() => {
 const selectedContentType = ref<string>(
   Object.keys(content.value || {})[0] ?? '',
 )
+
+/**
+ * Report the selected content type upward so the example response panel can mirror it.
+ * The parent decides whether the value is relevant (only response items are wired up),
+ * so this item does not need to know whether it represents a response or a parameter.
+ */
+watch(selectedContentType, (type) => {
+  emit('update:selectedContentType', type)
+})
 
 /** Response headers */
 const headers = computed<ResponseObject['headers'] | null>(() =>

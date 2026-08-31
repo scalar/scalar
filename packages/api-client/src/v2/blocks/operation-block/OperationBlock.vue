@@ -33,6 +33,8 @@ export type OperationBlockProps = {
   path: string
   /** Current request method */
   method: HttpMethodType
+  /** Whether `path` identifies an OpenAPI webhook. */
+  isWebhook?: boolean
   /** HTTP clients */
   httpClients: AvailableClients
   /** The history for the operation */
@@ -168,6 +170,7 @@ const {
   history = [],
   layout,
   method,
+  isWebhook = false,
   operation,
   path,
   plugins = [],
@@ -176,6 +179,7 @@ const {
   securitySchemes,
   selectedClient,
   server,
+  servers,
   environments,
   options,
   activeEnvironment,
@@ -196,6 +200,26 @@ const { copyToClipboard } = useClipboard()
 const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
 const requestPayload = ref<RequestPayload | null>(null)
+
+/**
+ * A webhook has no OpenAPI server, so its destination is the full URL the user
+ * enters at runtime. The field holds that whole URL (not a server-relative path),
+ * and the request is sent to it directly with no separate server base.
+ */
+const webhookUrl = ref('')
+
+watch(
+  [() => path, () => method, () => isWebhook],
+  () => {
+    webhookUrl.value = ''
+  },
+  { immediate: true },
+)
+
+const requestPath = computed(() => (isWebhook ? webhookUrl.value : path))
+const requestServer = computed<ServerObject | null>(() =>
+  isWebhook ? null : server,
+)
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
@@ -248,9 +272,9 @@ const copyAddressBarUrl = async (): Promise<void> => {
     globalCookies: [...workspaceCookies, ...documentCookies],
     method,
     operation,
-    path,
+    path: requestPath.value,
     proxyUrl,
-    server,
+    server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
     requestBodyCompositionSelection,
@@ -264,6 +288,11 @@ const copyAddressBarUrl = async (): Promise<void> => {
 /** Execute the current operation example */
 const handleExecute = async () => {
   eventBus.flushDebouncedEmits?.()
+
+  if (isWebhook && !requestPath.value.trim()) {
+    toast('Webhook URL required. Enter a destination first.', 'error')
+    return
+  }
 
   const pathValidation = validatePathParameters(
     operation.parameters ?? [],
@@ -283,9 +312,9 @@ const handleExecute = async () => {
     globalCookies,
     method,
     operation,
-    path,
+    path: requestPath.value,
     proxyUrl,
-    server,
+    server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
     requestBodyCompositionSelection,
@@ -333,7 +362,7 @@ const handleExecute = async () => {
       document,
       operation,
       variablesStore,
-      server,
+      server: requestServer.value,
       customFetch: toValue(options)?.customFetch,
     },
     'beforeRequest',
@@ -661,16 +690,18 @@ onBeforeUnmount(() => {
         :hideClientButton
         :history="operationHistory"
         :integration
+        :isWebhook
         :layout
         :method
-        :path
-        :server
+        :path="requestPath"
+        :server="requestServer"
         :serverMeta
         :servers
         :source
         @execute="handleExecute"
         @navigate:settings="handleNavigateSettings"
-        @select:history:item="handleSelectHistoryItem" />
+        @select:history:item="handleSelectHistoryItem"
+        @update:webhook-url="(value) => (webhookUrl = value)" />
     </div>
 
     <ViewLayout class="border-t">
@@ -680,6 +711,9 @@ onBeforeUnmount(() => {
           :authMeta
           :clientOptions
           :defaultHeaders
+          :defaultRequestBodyView="
+            document['x-scalar-default-request-body-view']
+          "
           :documentCookies
           :environment
           :eventBus
@@ -688,7 +722,7 @@ onBeforeUnmount(() => {
           :method
           :operation
           :options="toValue(options)"
-          :path
+          :path="requestPath"
           :plugins
           :proxyUrl
           :requestBodyCompositionSelection
@@ -697,7 +731,7 @@ onBeforeUnmount(() => {
           :selectedClient
           :selectedSecurity
           :selectedSecuritySchemes
-          :server
+          :server="requestServer"
           :workspaceCookies />
 
         <!-- Response Section -->

@@ -1,5 +1,11 @@
 # @scalar/validation
 
+## 0.6.3
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.6.2
 
 ### Patch Changes

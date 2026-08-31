@@ -1,5 +1,13 @@
 # @scalar/blocks
 
+## 0.1.15
+
+## 0.1.14
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.1.13
 
 ### Patch Changes

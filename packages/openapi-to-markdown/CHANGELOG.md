@@ -1,5 +1,13 @@
 # @scalar/openapi-to-markdown
 
+## 0.5.43
+
+## 0.5.42
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.5.41
 
 ## 0.5.40
