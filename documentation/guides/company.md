@@ -382,6 +382,27 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   </div>
 </section>
 
+<section class="company-careers" aria-label="Sales">
+  <div class="company-careers-heading" role="heading" aria-level="3">Sales</div>
+  <div class="company-careers-list">
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/830eca96-dc30-46bd-a0f1-951c0dcdd9ea">
+      <span class="company-career-role t-editor__anchor">Sales Development Representative</span>
+      <span class="company-career-location">San Francisco, CA</span>
+      <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
+    </a>
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/830eca96-dc30-46bd-a0f1-951c0dcdd9ea">
+      <span class="company-career-role t-editor__anchor">Sales Development Representative</span>
+      <span class="company-career-location">San Francisco, CA</span>
+      <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
+    </a>
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/274bf7b1-be2a-45e4-9910-eb9bbced8366">
+      <span class="company-career-role t-editor__anchor">Founding Solutions Engineer</span>
+      <span class="company-career-location">San Francisco, CA</span>
+      <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
+    </a>
+  </div>
+</section>
+
 <div class="company-sticker-filter-effect sticker-filter-effect" aria-hidden="true">
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
 </div>
