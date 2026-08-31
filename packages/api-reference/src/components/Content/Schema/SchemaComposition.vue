@@ -24,7 +24,7 @@ import { getSchemaType } from './helpers/get-schema-type'
 import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import { type CompositionKeyword } from './helpers/schema-composition'
 import { getCycleKey } from './helpers/schema-cycle'
-import { getModelNameFromSchema } from './helpers/schema-name'
+import { getModelNameWithArray } from './helpers/schema-name'
 import Schema from './Schema.vue'
 
 const props = withDefaults(
@@ -86,13 +86,14 @@ const composition = computed(() =>
 /**
  * Generate listbox options for the composition selector.
  * Each option represents a schema in the composition with a human-readable label.
- * Prefers schema title/name over structural type when present.
+ * Prefers schema title/name (including array item models, e.g. `Model[]`) over
+ * structural type when present.
  */
 const listboxOptions = computed((): ScalarListboxOption[] =>
   composition.value.map((schema, index: number) => {
     const resolved = resolve.schema(schema.original!)
     const label =
-      (getModelNameFromSchema(resolved)?.label ?? getSchemaType(resolved)) ||
+      (getModelNameWithArray(resolved)?.label ?? getSchemaType(resolved)) ||
       translate('schema.schema')
     return { id: String(index), label }
   }),
