@@ -18,7 +18,7 @@
  * while guaranteeing it moves toward whatever contrasts with that theme's
  * background — dark text on light themes, light text on dark ones. The
  * percentages below are the largest share of each hue that still clears 4.5:1
- * on the default theme; `src/style.test.ts` recomputes them and fails if an
+ * on the default theme; `test/style.test.ts` recomputes them and fails if an
  * edit drops a token below AA.
  *
  * Dark mode needs almost no correction, so it keeps the hues at full strength.
@@ -95,7 +95,7 @@
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-mini);
   line-height: var(--shl-line-height-3);
-  font-variant-ligatures: normal;
+  font-variant-ligatures: none;
   tab-size: 4;
   border-radius: var(--scalar-radius-lg);
   overflow: auto;
