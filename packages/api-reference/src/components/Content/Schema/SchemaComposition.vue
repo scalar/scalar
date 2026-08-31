@@ -11,7 +11,6 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, inject, ref, watch } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
@@ -25,7 +24,7 @@ import { getSchemaType } from './helpers/get-schema-type'
 import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import { type CompositionKeyword } from './helpers/schema-composition'
 import { getCycleKey } from './helpers/schema-cycle'
-import { getModelNameFromSchema } from './helpers/schema-name'
+import { getModelNameWithArray } from './helpers/schema-name'
 import Schema from './Schema.vue'
 
 const props = withDefaults(
@@ -84,31 +83,19 @@ const composition = computed(() =>
     .filter((it) => isDefined(it.value)),
 )
 
-const getCompositionOptionLabel = (schema: SchemaObject): string => {
-  const modelName = getModelNameFromSchema(schema)
-  if (modelName) {
-    return modelName.label
-  }
-
-  if (isArraySchema(schema) && schema.items) {
-    const itemName = getModelNameFromSchema(schema.items)
-    if (itemName) {
-      return `${itemName.label}[]`
-    }
-  }
-
-  return getSchemaType(schema) || translate('schema.schema')
-}
-
 /**
  * Generate listbox options for the composition selector.
  * Each option represents a schema in the composition with a human-readable label.
- * Prefers schema title/name over structural type when present.
+ * Prefers schema title/name (including array item models, e.g. `Model[]`) over
+ * structural type when present.
  */
 const listboxOptions = computed((): ScalarListboxOption[] =>
   composition.value.map((schema, index: number) => {
     const resolved = resolve.schema(schema.original!)
-    return { id: String(index), label: getCompositionOptionLabel(resolved) }
+    const label =
+      (getModelNameWithArray(resolved)?.label ?? getSchemaType(resolved)) ||
+      translate('schema.schema')
+    return { id: String(index), label }
   }),
 )
 
