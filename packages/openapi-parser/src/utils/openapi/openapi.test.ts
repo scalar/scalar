@@ -1,10 +1,10 @@
 import { join } from 'node:path'
 
+import type { AnyObject } from '@scalar/types/utils'
 import { describe, expect, it } from 'vitest'
 import { stringify } from 'yaml'
 
 import { readFiles } from '@/plugins/read-files/read-files'
-import type { AnyObject } from '@/types/index'
 
 import { openapi } from './openapi'
 
