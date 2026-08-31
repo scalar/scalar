@@ -374,6 +374,7 @@ We are the API company, giving you industry-best interfaces for your APIs so you
       <span class="company-career-location">Europe, North America, Remote</span>
       <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
     </a>
+    <!-- Product engineering candidates apply through the Fullstack Engineer posting, so this row intentionally shares its Ashby link. -->
     <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/aa017463-43c4-407c-b6c9-b59076f01d82">
       <span class="company-career-role t-editor__anchor">Senior / Staff Product Engineer</span>
       <span class="company-career-location">Europe, North America, Remote</span>
@@ -390,13 +391,13 @@ We are the API company, giving you industry-best interfaces for your APIs so you
       <span class="company-career-location">San Francisco, CA</span>
       <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
     </a>
-    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/830eca96-dc30-46bd-a0f1-951c0dcdd9ea">
-      <span class="company-career-role t-editor__anchor">Sales Development Representative</span>
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/274bf7b1-be2a-45e4-9910-eb9bbced8366">
+      <span class="company-career-role t-editor__anchor">Founding Solutions Engineer</span>
       <span class="company-career-location">San Francisco, CA</span>
       <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
     </a>
-    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/274bf7b1-be2a-45e4-9910-eb9bbced8366">
-      <span class="company-career-role t-editor__anchor">Founding Solutions Engineer</span>
+    <a class="company-career-row" target="_blank" href="https://jobs.ashbyhq.com/scalar/b1e4ce53-ab1c-486a-94a6-a639537a0344">
+      <span class="company-career-role t-editor__anchor">Founding Account Executive</span>
       <span class="company-career-location">San Francisco, CA</span>
       <scalar-icon class="relative" src="phosphor/bold/arrow-up-right"></scalar-icon>
     </a>
