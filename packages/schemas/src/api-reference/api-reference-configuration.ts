@@ -135,6 +135,9 @@ export const apiReferenceConfigurationSchema = intersection([
         typeComment: 'Determine the HTTP client that is selected by default',
       },
     ),
+    defaultRequestBodyView: optional(union([literal('form'), literal('raw')]), {
+      typeComment: 'Initial view for the request body editor with structured (JSON/YAML) bodies',
+    }),
     customCss: optional(string(), {
       typeComment: 'Custom CSS to be added to the page',
     }),

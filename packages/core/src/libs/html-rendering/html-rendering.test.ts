@@ -10,14 +10,17 @@ import { getConfiguration, getHtmlDocument, getScriptTags } from './html-renderi
 
 describe('html-rendering', () => {
   describe('getHtmlDocument', () => {
-    it('returns HTML document with default CDN and custom theme', () => {
+    it('returns HTML document with the default ESM build and custom theme', () => {
       const html = getHtmlDocument({ customCss: 'body { color: red }' })
       expect(html).toContain('<!doctype html>')
       expect(html).toContain('<title>Scalar API Reference</title>')
       expect(html).toContain('body { color: red }')
-      expect(html).toContain('https://cdn.jsdelivr.net/npm/@scalar/api-reference')
+      expect(html).toContain('<script type="module">')
+      expect(html).toContain(
+        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
+      )
       expect(html).toContain('<div id="app"></div>')
-      expect(html).toContain("Scalar.createApiReference('#app'")
+      expect(html).toContain("createApiReference('#app'")
     })
 
     it('handles custom page title correctly', () => {
@@ -94,6 +97,15 @@ describe('html-rendering', () => {
       })
       expect(html).toContain('"url": "https://api.example.com/spec"')
       expect(html).not.toContain('"content"')
+    })
+
+    it('loads the ESM module build when bundle is enabled', () => {
+      const html = getHtmlDocument({ bundle: true })
+      expect(html).toContain('<script type="module">')
+      expect(html).toContain(
+        "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
+      )
+      expect(html).not.toContain('Scalar.createApiReference')
     })
   })
 

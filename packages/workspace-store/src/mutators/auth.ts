@@ -453,13 +453,20 @@ export const updateSelectedScopes = (
   if (nextScopes === undefined) {
     return
   }
-  nextScheme[name] = nextScopes
+
+  // Replace the matched requirement with a fresh object instead of mutating it in place, so its
+  // identity changes on every scope update. The reference-side Authentication panel passes this
+  // object down as a prop and Vue diffs props by identity — an in-place mutation keeps the same
+  // reference and leaves the scope counter and checkboxes frozen after the first change. See #9589.
+  const updatedSelectedSchemes = nextSelectedSchemes.map((candidate) =>
+    candidate === nextScheme ? { ...nextScheme, [name]: nextScopes } : candidate,
+  )
 
   store?.auth.setAuthSelectedSchemas(
     meta.type === 'document'
       ? { type: 'document', documentName }
       : { type: 'operation', documentName, path: meta.path, method: meta.method },
-    { selectedIndex: target.selectedIndex, selectedSchemes: nextSelectedSchemes },
+    { selectedIndex: target.selectedIndex, selectedSchemes: updatedSelectedSchemes },
   )
 }
 

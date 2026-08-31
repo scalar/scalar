@@ -61,7 +61,9 @@ externalDocs:
   url: https://github.com/scalar/scalar
 servers:
   - url: https://galaxy.scalar.com
+    name: production
   - url: '{protocol}://void.scalar.com/{path}'
+    name: mirror
     description: Responds with your request data
     variables:
       protocol:
@@ -89,13 +91,32 @@ x-speakeasy-webhooks:
     algorithm: hmac-sha256
 tags:
   - name: Authentication
+    summary: Accounts and tokens
+    kind: nav
     description: Some endpoints are public, but some require authentication. We
       provide all the required endpoints to create an account and authorize
       yourself.
-  - name: Planets
-    description: Everything about planets
   - name: Celestial Bodies
+    summary: Everything in the void
+    kind: nav
     description: Celestial bodies are the planets and satellites in the Scalar Galaxy.
+  - name: Planets
+    summary: Worlds big and small
+    kind: nav
+    parent: Celestial Bodies
+    description: Everything about planets
+  - name: Streaming
+    summary: Real-time galaxy feeds
+    kind: nav
+    description: Server-sent events and sequential JSON streams of galaxy activity.
+  - name: Beta
+    summary: Experimental endpoints
+    kind: badge
+    description: Endpoints that are still experimental and may change without notice.
+  - name: Partners
+    summary: Partner-only operations
+    kind: audience
+    description: Operations intended for integration partners rather than the public API.
 paths:
   /planets:
     get:
@@ -128,7 +149,6 @@ paths:
             application/json:
               schema:
                 $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets'
-                # Bind the generic PaginatedResource template's item type to Planet via a $dynamicAnchor.
                 $defs:
                   itemType:
                     $dynamicAnchor: itemType
@@ -255,6 +275,88 @@ paths:
           pm.expect(jsonData).to.have.property("id");
           pm.expect(jsonData).to.have.property("name");
         });
+    query:
+      tags:
+        - Planets
+      summary: Query planets
+      description:
+        Search the planet catalog by sending a query payload with the HTTP QUERY
+        method (new in OpenAPI 3.2). QUERY is safe and idempotent like GET, but
+        accepts a request body so you can express richer filters than a URL query
+        string allows.
+      operationId: queryPlanets
+      security: []
+      requestBody:
+        description: The query to run against the planet catalog
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanetQuery'
+      responses:
+        '200':
+          description: Matching planets
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $id: 'https://galaxy.scalar.com/schemas/QueriedPlanets'
+                $defs:
+                  itemType:
+                    $dynamicAnchor: itemType
+                    $ref: '#/components/schemas/Planet'
+                $ref: '#/components/schemas/PaginatedResource'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      x-post-response: |
+        pm.test("Status code is 200", () => {
+          pm.response.to.have.status(200);
+        });
+
+        pm.test("Response has data array and meta", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("data");
+          pm.expect(jsonData.data).to.be.an("array");
+          pm.expect(jsonData).to.have.property("meta");
+        });
+  /planets/search:
+    get:
+      tags:
+        - Planets
+      summary: Search planets with a structured query string
+      description:
+        Filter planets using a single, structured query string. The `filter`
+        parameter sets `in` to `querystring` (new in OpenAPI 3.2), which describes
+        the entire query string as one value via a media type instead of listing
+        each query parameter individually.
+      operationId: searchPlanets
+      security: []
+      parameters:
+        - name: filter
+          in: querystring
+          description: The complete query string, encoded as JSON, describing the filter to apply.
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanetQuery'
+      responses:
+        '200':
+          description: Matching planets
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $id: 'https://galaxy.scalar.com/schemas/SearchedPlanets'
+                $defs:
+                  itemType:
+                    $dynamicAnchor: itemType
+                    $ref: '#/components/schemas/Planet'
+                $ref: '#/components/schemas/PaginatedResource'
   /planets/{planetId}:
     get:
       tags:
@@ -370,6 +472,39 @@ paths:
         pm.test("Status code is 204", () => {
           pm.response.to.have.status(204);
         });
+    additionalOperations:
+      COPY:
+        tags:
+          - Planets
+          - Partners
+        summary: Copy a planet
+        description:
+          Duplicate an existing planet using the WebDAV-style COPY method. This
+          demonstrates how OpenAPI 3.2 describes custom HTTP methods.
+        operationId: copyPlanet
+        parameters:
+          - $ref: '#/components/parameters/planetId'
+          - name: Destination
+            in: header
+            required: true
+            description: The location where the copied planet should be created
+            schema:
+              type: string
+              format: uri-reference
+              examples:
+                - /planets/999
+        responses:
+          '201':
+            description: Planet copied
+            headers:
+              Location:
+                $ref: '#/components/headers/Location'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Planet'
+          '404':
+            $ref: '#/components/responses/NotFound'
   /planets/{planetId}/image:
     post:
       tags:
@@ -416,6 +551,91 @@ paths:
           pm.expect(jsonData).to.have.property("message");
           pm.expect(jsonData).to.have.property("imageUrl");
         });
+  /planets/events:
+    get:
+      tags:
+        - Streaming
+        - Beta
+      summary: Stream planet events
+      description:
+        Subscribe to a live feed of planet changes. The response is an open stream
+        rather than a single document, so each media type uses `itemSchema` (new in
+        OpenAPI 3.2) to describe one event at a time. Server-Sent Events
+        (`text/event-stream`), JSON Lines (`application/jsonl`) and JSON Text
+        Sequences (`application/json-seq`) are all offered.
+      operationId: streamPlanetEvents
+      security: []
+      responses:
+        '200':
+          description: An open stream of planet events
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            text/event-stream:
+              itemSchema:
+                $ref: '#/components/schemas/PlanetEvent'
+            application/jsonl:
+              itemSchema:
+                $ref: '#/components/schemas/PlanetEvent'
+            application/json-seq:
+              itemSchema:
+                $ref: '#/components/schemas/PlanetEvent'
+  /planets/{planetId}/observations:
+    post:
+      tags:
+        - Planets
+        - Beta
+      summary: Upload a batch of observations
+      description:
+        Send a mixed multipart stream — a single metadata part followed by any
+        number of image parts. This shows the OpenAPI 3.2 positional multipart
+        encoding fields — `prefixEncoding` describes the leading, fixed parts and
+        `itemEncoding` applies to every repeated item that follows.
+      operationId: uploadObservations
+      parameters:
+        - $ref: '#/components/parameters/planetId'
+      requestBody:
+        required: true
+        content:
+          multipart/mixed:
+            schema:
+              type: array
+              prefixItems:
+                - $ref: '#/components/schemas/ObservationBatchMeta'
+              items:
+                type: string
+                format: binary
+                description: A captured image, one per remaining part
+            prefixEncoding:
+              - contentType: application/json
+            itemEncoding:
+              contentType: image/jpeg
+      responses:
+        '202':
+          description: Observations accepted for processing
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accepted:
+                    type: integer
+                    description: Number of observation parts accepted
+                    examples:
+                      - 12
+                  batchId:
+                    type: string
+                    format: uuid
+                    examples:
+                      - 8f47c132-9d1f-4f83-b5a4-91db5ee757ab
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /celestial-bodies:
     post:
       tags:
@@ -700,6 +920,7 @@ components:
       in: query
       name: api_key
       description: API key query parameter
+      deprecated: true
     apiKeyCookie:
       type: apiKey
       in: cookie
@@ -708,6 +929,7 @@ components:
     oAuth2:
       type: oauth2
       description: OAuth 2.0 authentication
+      oauth2MetadataUrl: https://galaxy.scalar.com/.well-known/oauth-authorization-server
       flows:
         authorizationCode:
           authorizationUrl: https://galaxy.scalar.com/oauth/authorize
@@ -722,14 +944,19 @@ components:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
-        # Legacy
+        deviceAuthorization:
+          deviceAuthorizationUrl: https://galaxy.scalar.com/oauth/device
+          tokenUrl: https://galaxy.scalar.com/oauth/token
+          scopes:
+            read:account: read your account information
+            write:planets: modify planets in your account
+            read:planets: read your planets
         implicit:
           authorizationUrl: https://galaxy.scalar.com/oauth/authorize
           scopes:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
-        # Legacy
         password:
           tokenUrl: https://galaxy.scalar.com/oauth/token
           scopes:
@@ -1006,6 +1233,8 @@ components:
           type: integer
           format: int64
           readOnly: true
+          xml:
+            nodeType: attribute
           examples:
             - 1
           x-variable: planetId
@@ -1019,6 +1248,8 @@ components:
           type:
             - string
             - 'null'
+          xml:
+            nodeType: cdata
           examples:
             - The red planet
             - A gas giant with a great red spot
@@ -1144,14 +1375,21 @@ components:
             - https://cdn.scalar.com/photos/mars.jpg
         satellites:
           type: array
+          xml:
+            nodeType: none
           items:
             $ref: '#/components/schemas/Satellite'
         creator:
           $ref: '#/components/schemas/User'
         tags:
           type: array
+          xml:
+            nodeType: element
+            name: tags
           items:
             type: string
+            xml:
+              name: tag
           examples:
             - - solar-system
               - rocky
@@ -1237,6 +1475,133 @@ components:
               description: Average distance from the planet in kilometers
               examples:
                 - 9376
+    PlanetQuery:
+      description:
+        A structured query for the planet catalog, sent either as the body of a
+        QUERY request or as a `querystring` parameter.
+      type: object
+      properties:
+        name:
+          type: string
+          description: Match planets whose name contains this text
+          examples:
+            - Mars
+        type:
+          type: array
+          description: Restrict results to these planet types
+          items:
+            type: string
+            enum:
+              - terrestrial
+              - gas_giant
+              - ice_giant
+              - dwarf
+              - super_earth
+          examples:
+            - - terrestrial
+              - super_earth
+        minHabitabilityIndex:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Only return planets at or above this habitability score
+          examples:
+            - 0.5
+        sort:
+          type: string
+          enum:
+            - name
+            - -name
+            - habitabilityIndex
+            - -habitabilityIndex
+          description: Sort field; prefix with `-` for descending order
+          examples:
+            - -habitabilityIndex
+    PlanetEvent:
+      description: A single event emitted on the planet stream. Each item in a
+        `text/event-stream`, `application/jsonl` or `application/json-seq` response
+        validates against this schema.
+      type: object
+      xml:
+        name: event
+      required:
+        - event
+        - planet
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the event
+          xml:
+            nodeType: attribute
+          examples:
+            - 123e4567-e89b-12d3-a456-426614174000
+        event:
+          type: string
+          enum:
+            - created
+            - updated
+            - deleted
+            - exploded
+          description: The kind of change that occurred
+          xml:
+            nodeType: attribute
+          examples:
+            - created
+        planet:
+          $ref: '#/components/schemas/Planet'
+        note:
+          $ref: '#/components/schemas/GalaxyMessage'
+        occurredAt:
+          type: string
+          format: date-time
+          examples:
+            - 2024-01-15T14:30:00Z
+    GalaxyMessage:
+      description:
+        A short, localized message. Demonstrates the OpenAPI 3.2 XML `nodeType`
+        values `attribute` and `text`, which serialize as
+        `<message lang="en">A new planet has appeared</message>`.
+      type: object
+      xml:
+        name: message
+      properties:
+        lang:
+          type: string
+          description: BCP 47 language tag
+          xml:
+            nodeType: attribute
+          examples:
+            - en
+        value:
+          type: string
+          description: The message text, serialized as the element's text content
+          xml:
+            nodeType: text
+          examples:
+            - A new planet has appeared
+    ObservationBatchMeta:
+      description: Metadata describing a batch of uploaded observations
+      type: object
+      required:
+        - observer
+      properties:
+        observer:
+          type: string
+          description: Who captured the observations
+          examples:
+            - Galileo Observatory
+        observedAt:
+          type: string
+          format: date-time
+          examples:
+            - 2024-01-15T14:30:00Z
+        count:
+          type: integer
+          description: Number of image parts that follow this metadata part
+          examples:
+            - 12
     PaginatedResource:
       description:
         A generic paginated resource. Specializing schemas bind the item type by declaring a

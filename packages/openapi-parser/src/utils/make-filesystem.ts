@@ -1,4 +1,7 @@
-import type { Filesystem, FilesystemEntry, UnknownObject } from '@/types/index'
+import type { UnknownObject } from '@scalar/types/utils'
+
+import type { Filesystem, FilesystemEntry } from '@/types/index'
+
 import { getListOfReferences } from './get-list-of-references'
 import { isFilesystem } from './is-filesystem'
 import { normalize } from './normalize'

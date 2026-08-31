@@ -2,6 +2,7 @@ import type { Document as OpenApiDocumentV2 } from '@scalar/openapi-types/2.0'
 import type { Document as OpenApiDocumentV3 } from '@scalar/openapi-types/3.0'
 import type { Document as OpenApiDocumentV3_1 } from '@scalar/openapi-types/3.1'
 import type { Document as OpenApiDocumentV3_2 } from '@scalar/openapi-types/3.2'
+import type { UnknownObject } from '@scalar/types/utils'
 
 import type { ERRORS, OpenApiVersion } from '@/configuration'
 
@@ -10,10 +11,6 @@ import type { ERRORS, OpenApiVersion } from '@/configuration'
  * Merge types with each other
  */
 type Merge<A, B> = A & Omit<B, keyof A>
-
-export type { AnyObject } from '@scalar/types/utils'
-
-export type UnknownObject = Record<string, unknown>
 
 /**
  * JSON, YAML or object representation of an OpenAPI API definition

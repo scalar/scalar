@@ -711,6 +711,9 @@ onBeforeUnmount(() => {
           :authMeta
           :clientOptions
           :defaultHeaders
+          :defaultRequestBodyView="
+            document['x-scalar-default-request-body-view']
+          "
           :documentCookies
           :environment
           :eventBus

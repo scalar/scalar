@@ -948,6 +948,12 @@
             "title": "Blog",
             "icon": "phosphor/regular/newspaper",
             "to": "/resources/blog"
+          },
+          {
+            "type": "link",
+            "title": "Careers",
+            "icon": "phosphor/regular/briefcase",
+            "to": "/company#careers"
           }
         ]
       },

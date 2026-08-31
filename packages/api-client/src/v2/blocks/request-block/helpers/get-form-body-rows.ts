@@ -149,13 +149,13 @@ export const getFormBodyRows = (
   const mapRow = ({
     name,
     value,
-    isDisabled = false,
+    isDisabled,
   }: {
     name: string
     value: string | File
     isDisabled?: boolean
   }): TableRow => {
-    const row: TableRow = { name, value, isDisabled }
+    const row: TableRow = { name, value, isDisabled: isDisabled ?? false }
     if (!schemaWithProperties || !name) {
       return row
     }
@@ -166,6 +166,20 @@ export const getFormBodyRows = (
     row.schema = propSchema
     row.description = propSchema?.description
     row.isRequired = leaf?.isRequired ?? requiredSet?.has(name) ?? false
+
+    // Top-level optional properties default to disabled (unchecked), matching how optional
+    // parameters behave. Scoped to top-level declared properties on purpose: the send side
+    // (`build-request-body`) only drops top-level optional keys, so auto-disabling a nested
+    // leaf (e.g. `props.name`) would leave it unchecked yet still transmitted. `Object.hasOwn`
+    // (not `in`) keeps example-only keys named like `Object.prototype` members enabled. An
+    // explicit `isDisabled` (from a stored form-row array) always wins.
+    if (
+      isDisabled === undefined &&
+      schemaWithProperties.properties &&
+      Object.hasOwn(schemaWithProperties.properties, name)
+    ) {
+      row.isDisabled = !row.isRequired
+    }
     return row
   }
 
