@@ -3,13 +3,7 @@ import { validate as validateDocument, validatePathParameters } from '@scalar/op
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { ERRORS, type OpenApiVersion } from '@/configuration'
-import type {
-  ErrorObject,
-  Filesystem,
-  StrictOpenApiDocument,
-  ThrowOnErrorOption,
-  ValidateResult,
-} from '@/types/index'
+import type { ErrorObject, Filesystem, StrictOpenApiDocument, ThrowOnErrorOption, ValidateResult } from '@/types/index'
 
 import { getEntrypoint } from './get-entrypoint'
 import { makeFilesystem } from './make-filesystem'
