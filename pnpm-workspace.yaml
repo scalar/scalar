@@ -114,26 +114,38 @@ catalogs:
     zod: ^4.4.3
     posthog-js: 1.407.5
     ws: 8.21.0
-ignoredBuiltDependencies:
-  - '@firebase/util'
-  - core-js
-  - core-js-pure
-  - dtrace-provider
-  - protobufjs
-  - sharp
-  - unrs-resolver
-  - vue-demi
-  - workerd
+# pnpm 12 replaces onlyBuiltDependencies/ignoredBuiltDependencies with a single
+# allowBuilds map: true runs the package's build scripts, false skips them.
+allowBuilds:
+  '@firebase/util': false
+  '@nestjs/core': true
+  '@parcel/watcher': false
+  '@swc/core': true
+  '@tailwindcss/oxide': true
+  core-js: false
+  core-js-pure: false
+  dtrace-provider: false
+  electron: true
+  esbuild: false
+  lefthook: true
+  protobufjs: false
+  sharp: false
+  unrs-resolver: false
+  vue-demi: false
+  workerd: false
+
+# pnpm 12 no longer reads the "pnpm" field in package.json; overrides live here now.
+overrides:
+  '@types/node': catalog:*
+  fast-uri@3.1.2: 3.0.1
+  lodash: 4.18.1
+  property-information: 7.1.0
+  undici: catalog:*
+  scalar-app>undici: 8.10.0
 
 # Do not lower this value; add popular packages to minimumReleaseAgeExclude or wait before updating.
 minimumReleaseAge: 7200 # 5 days
 
-onlyBuiltDependencies:
-  - '@nestjs/core'
-  - '@swc/core'
-  - '@tailwindcss/oxide'
-  - lefthook
-  - electron
 minimumReleaseAgeExclude:
   # Lets trust ourselves
   - '@scalar/*'
