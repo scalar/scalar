@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1259" height="1216" fill="none" viewBox="0 0 1259 1216" class="t-editor__icon">
+  <defs>
+    <g id="ZoomSticker">
+      <ellipse cx="615.6" cy="597.9" rx="615.6" ry="597.9" fill="#0B5CFF" />
+      <image href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMiAyMiI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjEyNSAxNS45YzAgMS4xNi0uOTI0IDIuMS0yLjA2MyAyLjFINC4xMjZDMS44NDcgMTggMCAxNi4xMiAwIDEzLjhWNi4xQzAgNC45NC45MjMgNCAyLjA2MyA0SDExYzIuMjc4IDAgNC4xMjUgMS44OCA0LjEyNSA0LjJ2Ny43ek0yMC4zNSA1LjI2bC0zLjAyNSAyLjMxYTIuMTEzIDIuMTEzIDAgMCAwLS44MjUgMS42OHYzLjVjMCAuNjYuMzA2IDEuMjgzLjgyNSAxLjY4bDMuMDI1IDIuMzFjLjY4LjUxOSAxLjY1LjAyNSAxLjY1LS44NFY2LjFjMC0uODY1LS45Ny0xLjM2LTEuNjUtLjg0eiIvPjwvc3ZnPg==" x="385" y="367" width="461" height="461" preserveAspectRatio="xMidYMid meet" />
+    </g>
+  </defs>
+  <foreignObject width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="sticker-container" style="left:4px;top:8px">
+      <div class="sticker-main">
+        <div class="sticker-lighting">
+          <svg xmlns="http://www.w3.org/2000/svg" width="1232" height="1196" viewBox="0 0 1232 1196">
+            <use href="#ZoomSticker" x="0" y="0"></use>
+          </svg>
+        </div>
+      </div>
+      <div class="shadow">
+        <div class="flap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="1232" height="1196" viewBox="0 0 1232 1196">
+            <use href="#ZoomSticker" x="0" y="0"></use>
+          </svg>
+        </div>
+      </div>
+      <div class="flap">
+        <div class="flap-lighting">
+          <svg xmlns="http://www.w3.org/2000/svg" width="1232" height="1196" viewBox="0 0 1232 1196">
+            <use href="#ZoomSticker" x="0" y="0"></use>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </foreignObject>
+</svg>

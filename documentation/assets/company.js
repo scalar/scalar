@@ -3,7 +3,7 @@
   const interactiveStickerSelector = `${stickerSelector} .company-team-sticker-interactive`
   const stickerClassPattern = /^sticker-\d+$/
   const stickerFilterLimit = 9
-  const stickerRootSelector = '.company-team-section, .company-investors-layout'
+  const stickerRootSelector = '.company-team-section, .company-investors-layout, .customer-sticker-grid'
   const isInteractiveDevice = window.matchMedia('(hover: hover) and (pointer: fine)').matches
   const isSafari = /^((?!chrome|android).)*safari/i.test(window.navigator.userAgent)
   const shouldUseStaticStickers = !isInteractiveDevice || isSafari
@@ -161,11 +161,44 @@
     })
   }
 
+  const loadLocalStickerSvg = async (container) => {
+    const src = container.dataset.companyStickerSrc
+
+    if (!src || container.dataset.companyStickerLoadState) {
+      return
+    }
+
+    container.dataset.companyStickerLoadState = 'loading'
+
+    try {
+      const response = await fetch(src)
+
+      if (!response.ok) {
+        throw new Error(`Failed to load sticker SVG: ${response.status}`)
+      }
+
+      container.innerHTML = await response.text()
+      container.dataset.companyStickerLoadState = 'loaded'
+      schedulePrepareCompanyStickers()
+    } catch (error) {
+      container.dataset.companyStickerLoadState = 'failed'
+      console.error(error)
+    }
+  }
+
+  const loadLocalStickerSvgs = () => {
+    document.querySelectorAll(`${interactiveStickerSelector}[data-company-sticker-src]`).forEach((container) => {
+      void loadLocalStickerSvg(container)
+    })
+  }
+
   const prepareCompanyStickers = () => {
     if (shouldUseStaticStickers) {
       blockInteractiveStickerLoads()
       return
     }
+
+    loadLocalStickerSvgs()
 
     document.querySelectorAll(stickerSelector).forEach((sticker, index) => {
       namespaceStickerSvgIds(sticker)
