@@ -47,7 +47,7 @@ If a target is [linked to a repository](publishing/github.md), the build pushes 
 </scalar-steps>
 
 > [!NOTE]
-> SDK generation is part of our paid plans at $100 per month per target. When you add a new target on a paid plan, the dashboard shows a cost confirmation before the first build.
+> Every plan includes one SDK target; additional targets start at $150 per month each. When you add a new target on a paid plan, the dashboard shows a cost confirmation before the first build.
 
 ## Versions
 
