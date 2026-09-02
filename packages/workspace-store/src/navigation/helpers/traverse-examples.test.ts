@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { OperationObject } from '@/schemas/v3.1/strict/openapi-document'
 
-import { traverseOperationExamples } from './traverse-examples'
+import { getUniqueExampleName, traverseOperationExamples } from './traverse-examples'
 
 describe('traverseOperationExamples', () => {
   it('returns empty array for empty operation object', () => {
@@ -573,5 +573,51 @@ describe('traverseOperationExamples', () => {
     expect(result[0]).toBe('first')
     expect(result[1]).toBe('second')
     expect(result[2]).toBe('third')
+  })
+})
+
+describe('getUniqueExampleName', () => {
+  it('returns the base name when nothing uses it yet', () => {
+    const operation: OperationObject = {
+      'x-draft-examples': ['Existing'],
+      responses: {},
+    }
+
+    expect(getUniqueExampleName(operation, 'Generated from schema')).toBe('Generated from schema')
+  })
+
+  it('adds a numeric suffix when the base name is taken', () => {
+    const operation: OperationObject = {
+      'x-draft-examples': ['Generated from schema'],
+      responses: {},
+    }
+
+    expect(getUniqueExampleName(operation, 'Generated from schema')).toBe('Generated from schema (2)')
+  })
+
+  it('skips suffixes that are already taken', () => {
+    const operation: OperationObject = {
+      'x-draft-examples': ['Generated from schema', 'Generated from schema (2)', 'Generated from schema (3)'],
+      responses: {},
+    }
+
+    expect(getUniqueExampleName(operation, 'Generated from schema')).toBe('Generated from schema (4)')
+  })
+
+  it('takes request body example keys into account', () => {
+    const operation: OperationObject = {
+      requestBody: {
+        content: {
+          'application/json': {
+            examples: {
+              'Generated from schema': { value: {} },
+            },
+          },
+        },
+      },
+      responses: {},
+    }
+
+    expect(getUniqueExampleName(operation, 'Generated from schema')).toBe('Generated from schema (2)')
   })
 })

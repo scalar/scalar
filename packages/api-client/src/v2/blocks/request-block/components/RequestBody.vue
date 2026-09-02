@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { ScalarIconMagicWand } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
@@ -80,6 +82,13 @@ const emits = defineEmits<{
       'payload' | 'contentType'
     >,
   ): void
+  /**
+   * Create a new example seeded with values generated from the request body schema.
+   *
+   * The block itself owns the document and operation identity needed to create an example, so we
+   * only report the content type the user is currently looking at.
+   */
+  (e: 'generate:example', payload: { contentType: string }): void
 }>()
 
 // Map a content type to a language for the code editor
@@ -313,6 +322,17 @@ watch(isFormViewAvailable, (ok) => {
     bodyView.value = 'raw'
   }
 })
+
+/**
+ * Whether we can offer to generate a fresh example from the schema.
+ *
+ * Only structured (JSON/YAML) bodies qualify: they have a schema to generate from and a text
+ * representation we can seed the new example with. Binary and form bodies have their own editors,
+ * so the button would have nothing meaningful to write.
+ */
+const canGenerateExample = computed(() =>
+  Boolean(structuredCodec.value && bodySchema.value),
+)
 </script>
 <template>
   <CollapsibleSection>
@@ -336,11 +356,27 @@ watch(isFormViewAvailable, (ok) => {
               size="md" />
           </ScalarButton>
         </ScalarListbox>
-        <RequestBodyViewToggle
-          v-if="showBodyViewToggle"
-          :disabled="!isFormViewAvailable"
-          :modelValue="bodyView"
-          @update:modelValue="(v) => (bodyView = v)" />
+        <div class="flex items-center gap-1">
+          <!--
+            Generates a new example from the schema so the auto-generated fields stay reachable
+            even once the document ships custom examples.
+          -->
+          <ScalarIconButton
+            v-if="canGenerateExample"
+            aria-label="Generate example from schema"
+            :icon="ScalarIconMagicWand"
+            label="Generate example from schema"
+            size="sm"
+            tooltip
+            @click.stop="
+              emits('generate:example', { contentType: selectedContentType })
+            " />
+          <RequestBodyViewToggle
+            v-if="showBodyViewToggle"
+            :disabled="!isFormViewAvailable"
+            :modelValue="bodyView"
+            @update:modelValue="(v) => (bodyView = v)" />
+        </div>
       </DataTableHeader>
       <DataTableRow>
         <!-- No Body -->
