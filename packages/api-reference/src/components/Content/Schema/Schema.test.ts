@@ -590,6 +590,89 @@ describe('Schema', () => {
       // inferred variant dropdown alone.
       expect(wrapper.text()).toContain('sharedAllOfProp')
     })
+
+    // https://github.com/scalar/scalar/issues/9861
+    // A property whose schema is a bare `discriminator.mapping` base (rendered
+    // through `SchemaProperty`, e.g. a request body's `data` field) must not
+    // render its base properties both as a plain object block AND inside the
+    // inferred oneOf variants (which `allOf` back to the base).
+    it('does not render base properties twice for a discriminator-mapping property', async () => {
+      const configSchema = {
+        type: 'object',
+        required: ['formatVersion'],
+        properties: {
+          formatVersion: { type: 'string' },
+        },
+        discriminator: {
+          propertyName: 'formatVersion',
+          mapping: {
+            '2.2': '#/components/schemas/Config_v2_2',
+            '2.3': '#/components/schemas/Config_v2_3',
+          },
+        },
+      }
+
+      const document = {
+        components: {
+          schemas: {
+            Config: configSchema,
+            Config_v2_2: {
+              allOf: [
+                { $ref: '#/components/schemas/Config', '$ref-value': configSchema },
+                { type: 'object', properties: { fieldA: { type: 'string' } } },
+              ],
+            },
+            Config_v2_3: {
+              allOf: [
+                { $ref: '#/components/schemas/Config', '$ref-value': configSchema },
+                { type: 'object', properties: { fieldB: { type: 'string' } } },
+              ],
+            },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              data: { $ref: '#/components/schemas/Config', '$ref-value': configSchema },
+            },
+          }),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      // The names of every rendered `formatVersion` property row (there should be
+      // exactly one, and it must live inside the variant selector's panel).
+      const formatVersionRows = () =>
+        wrapper.findAll('.property-name').filter((node) => node.text().trim() === 'formatVersion')
+
+      // Exactly one variant selector, inferred from the mapping.
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+
+      // `formatVersion` renders once, inside the selected variant — not a second
+      // time as a base object block outside the selector.
+      expect(formatVersionRows()).toHaveLength(1)
+      expect(formatVersionRows()[0]!.element.closest('.composition-panel')).not.toBeNull()
+      expect(wrapper.text()).toContain('fieldA')
+      expect(wrapper.text()).not.toContain('fieldB')
+
+      // Switching variants keeps the single, in-panel `formatVersion` — the base
+      // block never reappears alongside the other variant.
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      await listbox.vm.$emit('update:modelValue', { id: '1', label: 'Config_v2_3' })
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      expect(formatVersionRows()).toHaveLength(1)
+      expect(formatVersionRows()[0]!.element.closest('.composition-panel')).not.toBeNull()
+      expect(wrapper.text()).toContain('fieldB')
+      expect(wrapper.text()).not.toContain('fieldA')
+    })
   })
 
   describe('additionalProperties Vue prop', () => {

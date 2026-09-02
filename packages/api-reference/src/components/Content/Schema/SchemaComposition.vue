@@ -323,3 +323,57 @@ if (
     </template>
   </div>
 </template>
+
+<style scoped>
+/*
+ * Connect the selected variant to the selector above it. These rules live here,
+ * not in `SchemaProperty`, because a discriminator-inferred `oneOf` is rendered
+ * straight from `Schema.vue` (bypassing `SchemaProperty`), so styles scoped to
+ * `SchemaProperty` never reach it. See https://github.com/scalar/scalar/issues/9861
+ *
+ * Square the top of the panel's topmost card so it sits flush under the selector.
+ * A plain variant renders that card at level 1, but a variant that `allOf`s back
+ * to a discriminator base renders it deeper, so we target the panel's direct card
+ * rather than a specific level.
+ */
+.property-rule
+  :deep(
+    .composition-panel
+      > .schema-card
+      > .schema-properties.schema-properties-open
+  ) {
+  border-radius: 0 0 var(--scalar-radius-lg) var(--scalar-radius-lg);
+}
+
+/*
+ * Such an `allOf` variant renders its merged object in a nested card inside the
+ * panel, which keeps its own border/radius and reads as a detached box floating
+ * below the selector. Drop that nested card's border so the variant renders as
+ * flush content, like a plain object variant.
+ *
+ * The `:not(:has(> .property-heading > .property-name))` restricts this to a
+ * *bare* composition — a variant that is the composition itself, rendered with no
+ * property name — so a genuine nested composition *property* (which has a name)
+ * keeps its own frame. Keying off the absent name rather than the absent heading
+ * stays correct when the variant still renders a heading for its own annotations
+ * (a top-level `type`, `deprecated`, …), and rather than position it stays
+ * correct when the variant renders a description before the composition.
+ *
+ * This is a targeted style patch: the underlying cause is that an `allOf`-back
+ * variant renders one card deeper than a plain variant. Flattening that nesting
+ * upstream would remove the need for this rule, but is a larger change.
+ */
+.property-rule
+  :deep(
+    .composition-panel
+      > .schema-card
+      > .schema-properties.schema-properties-open
+      > ul
+      > li.property:not(:has(> .property-heading > .property-name))
+      > .property-rule
+      > .schema-card
+      > .schema-properties.schema-properties-open
+  ) {
+  border: none;
+}
+</style>
