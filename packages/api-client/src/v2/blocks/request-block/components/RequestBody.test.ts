@@ -1735,4 +1735,73 @@ describe('RequestBody', () => {
     expect(rawWrapper.find('[data-testid="code-input"]').exists()).toBe(true)
     expect(rawWrapper.find('[data-testid="structured-form"]').exists()).toBe(false)
   })
+  describe('generate example from schema', () => {
+    const stubs = {
+      CodeInput: {
+        template: '<div data-testid="code-input"></div>',
+        props: ['modelValue', 'language', 'environment'],
+        emits: ['update:modelValue'],
+      },
+    }
+
+    const findGenerateButton = (wrapper: ReturnType<typeof mount>) =>
+      wrapper.find('[aria-label="Generate example from schema"]')
+
+    it('emits the selected content type when clicked', async () => {
+      const requestBody: RequestBodyObject = {
+        content: {
+          'application/json': {
+            schema: { type: 'object', properties: { name: { type: 'string' } } },
+            examples: { custom: { value: { name: 'custom' } } },
+          },
+        },
+      }
+
+      const wrapper = mount(RequestBody, {
+        props: { ...defaultProps, exampleKey: 'custom', requestBody },
+        global: { stubs },
+      })
+
+      const button = findGenerateButton(wrapper)
+      expect(button.exists()).toBe(true)
+
+      await button.trigger('click')
+
+      expect(wrapper.emitted('generate:example')).toEqual([[{ contentType: 'application/json' }]])
+    })
+
+    it('hides the button when the content type has no schema', () => {
+      const requestBody: RequestBodyObject = {
+        content: {
+          'application/json': {
+            examples: { custom: { value: { name: 'custom' } } },
+          },
+        },
+      }
+
+      const wrapper = mount(RequestBody, {
+        props: { ...defaultProps, exampleKey: 'custom', requestBody },
+        global: { stubs },
+      })
+
+      expect(findGenerateButton(wrapper).exists()).toBe(false)
+    })
+
+    it('hides the button for non-structured bodies', () => {
+      const requestBody: RequestBodyObject = {
+        content: {
+          'application/octet-stream': {
+            schema: { type: 'string', format: 'binary' },
+          },
+        },
+      }
+
+      const wrapper = mount(RequestBody, {
+        props: { ...defaultProps, requestBody },
+        global: { stubs },
+      })
+
+      expect(findGenerateButton(wrapper).exists()).toBe(false)
+    })
+  })
 })

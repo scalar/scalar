@@ -15,10 +15,12 @@ import type {
 } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import { getUniqueExampleName } from '@scalar/workspace-store/navigation'
 import {
   filterGlobalCookie,
   getEnvironmentVariables,
   getResolvedUrl,
+  getSchemaExampleFromBody,
   type MergedSecuritySchemes,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
@@ -41,9 +43,13 @@ import { createParameterHandlers } from '@/v2/blocks/request-block/helpers/creat
 import { createParameterRows } from '@/v2/blocks/request-block/helpers/create-parameter-rows'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
 import { groupGlobalCookies } from '@/v2/blocks/request-block/helpers/group-global-cookies'
+import { getStructuredBodyCodec } from '@/v2/blocks/request-block/helpers/structured-body-codec'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import type { ClientLayout } from '@/v2/types/layout'
+
+/** Base name for examples created by the "generate example from schema" button */
+const GENERATED_EXAMPLE_NAME = 'Generated from schema'
 
 type Filter =
   | 'All'
@@ -62,6 +68,8 @@ export type RequestBlockProps = {
   exampleKey: string
   workspaceCookies: XScalarCookie[]
   documentCookies: XScalarCookie[]
+  /** Slug of the document the operation belongs to */
+  documentSlug: string
   layout: ClientLayout
   method: HttpMethod
   operation: OperationObject
@@ -90,6 +98,7 @@ const {
   exampleKey,
   workspaceCookies,
   documentCookies,
+  documentSlug,
   layout,
   method,
   operation,
@@ -530,6 +539,66 @@ const handleUpdateBodyFormValue = ({
   )
 }
 
+/**
+ * Create a new example seeded with values generated from the request body schema.
+ *
+ * Custom examples in the document otherwise hide the auto-generated fields entirely. Rather than
+ * only rendering the generated body, we write it into a fresh example so the user can edit it and
+ * so it survives an export of the document.
+ */
+const handleGenerateExample = ({
+  contentType,
+}: {
+  contentType: string
+}): void => {
+  const requestBody = getResolvedRef(operation.requestBody)
+  const codec = getStructuredBodyCodec(contentType)
+  if (!requestBody || !codec) {
+    return
+  }
+
+  const value = getSchemaExampleFromBody(
+    requestBody,
+    contentType,
+    requestBodyCompositionSelection,
+  )
+
+  // A schema that generates nothing writable would leave the user on an empty new example.
+  if (value === undefined || value === null) {
+    return
+  }
+
+  const exampleName = getUniqueExampleName(operation, GENERATED_EXAMPLE_NAME)
+  const exampleMeta = { path, method, exampleKey: exampleName }
+
+  eventBus.emit('operation:create:draft-example', {
+    documentName: documentSlug,
+    meta: { path, method },
+    exampleName,
+  })
+
+  // Carry over the content type the user was looking at, otherwise the new example opens on
+  // whichever content type happens to come first on the request body.
+  eventBus.emit('operation:update:requestBody:contentType', {
+    payload: { contentType },
+    meta: exampleMeta,
+  })
+
+  eventBus.emit('operation:update:requestBody:value', {
+    payload: codec.stringify(value),
+    contentType,
+    meta: exampleMeta,
+  })
+
+  eventBus.emit('ui:navigate', {
+    page: 'example',
+    documentSlug,
+    path,
+    method,
+    exampleName,
+  })
+}
+
 const labelRequestNameId = useId()
 
 const globalCookies = computed(() => [...workspaceCookies, ...documentCookies])
@@ -646,6 +715,7 @@ const updateOperationExtension = (
         :requestBody="getResolvedRef(operation.requestBody)"
         :requestBodyCompositionSelection
         title="Request Body"
+        @generate:example="handleGenerateExample"
         @update:contentType="handleUpdateContentType"
         @update:formValue="handleUpdateBodyFormValue"
         @update:value="handleUpdateBodyValue" />
