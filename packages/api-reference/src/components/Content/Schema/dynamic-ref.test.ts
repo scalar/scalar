@@ -1,3 +1,4 @@
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -81,5 +82,61 @@ describe('Schema $dynamicRef rendering', () => {
     }
     const text = mountSchema(template).text()
     expect(text).toContain('items')
+  })
+
+  // Full-store reproduction of https://github.com/scalar/scalar/issues/9883: the binding schema is a
+  // *named* component and the response references it by `$ref`, so Schema receives a bare `$ref` whose
+  // `$id`/`$defs` binding lives behind the ref. The dynamic scope must follow the ref to bind the item.
+  it('binds the array item type when the binding schema is referenced by name (#9883)', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'DynamicRef', version: '0.1.0' },
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'User page',
+                  content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedUserResponse' } } },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              required: ['id', 'email'],
+              properties: { id: { type: 'string' }, email: { type: 'string', format: 'email' } },
+            },
+            PaginatedTemplate: {
+              $id: 'https://example.com/schemas/PaginatedTemplate',
+              $defs: { itemType: { $dynamicAnchor: 'itemType', not: true } },
+              type: 'object',
+              required: ['items'],
+              properties: { items: { type: 'array', items: { $dynamicRef: '#itemType' } } },
+            },
+            PaginatedUserResponse: {
+              $id: 'https://example.com/schemas/PaginatedUserResponse',
+              $defs: { itemTypeAAA: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/User' } },
+              $ref: '#/components/schemas/PaginatedTemplate',
+            },
+          },
+        },
+      } as never,
+    })
+
+    const doc = store.workspace.documents['default'] as any
+    const schema = doc.paths['/users'].get.responses['200'].content['application/json'].schema
+
+    const text = mountSchema(schema).text()
+
+    // The `items: { $dynamicRef: '#itemType' }` slot renders the bound `User` shape (its properties).
+    expect(text).toContain('email')
+    expect(text).toContain('id')
   })
 })
