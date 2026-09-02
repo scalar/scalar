@@ -171,7 +171,7 @@
    * makes find-in-page skip the content, so an author reset written for plain
    * `hidden` would silently disable the feature wherever it is used.
    */
-  [hidden]:not([hidden='until-found']) {
+  [hidden]:not([hidden="until-found"]) {
     display: none;
   }
 }
