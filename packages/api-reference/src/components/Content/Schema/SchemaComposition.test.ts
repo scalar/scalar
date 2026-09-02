@@ -73,6 +73,75 @@ describe('SchemaComposition', () => {
       const tab = wrapper.find('.composition-selector-label')
       expect(tab.text()).toBe('array string[]')
     })
+
+    it('uses the referenced model name for array composition options', () => {
+      const resourceObject = {
+        '$ref': '#/components/schemas/ResourceObject',
+        '$ref-value': {
+          title: 'ResourceObject',
+          type: 'object',
+        },
+      }
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              resourceObject,
+              {
+                type: 'array',
+                items: resourceObject,
+              },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      expect(listbox.props('options')).toEqual([
+        { id: '0', label: 'ResourceObject' },
+        { id: '1', label: 'ResourceObject[]' },
+      ])
+    })
+
+    // Same as above, but the referenced schema has no `title`, so the label has
+    // to be derived from the `$ref` key alone — closer to the document in the
+    // original report (https://github.com/scalar/scalar/issues/10059).
+    it('derives the array item name from the $ref key when it has no title', () => {
+      const resourceObject = {
+        '$ref': '#/components/schemas/ResourceObject',
+        '$ref-value': {
+          type: 'object',
+          properties: { id: { type: 'string' } },
+        },
+      }
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              resourceObject,
+              {
+                type: 'array',
+                items: resourceObject,
+              },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      expect(listbox.props('options')).toEqual([
+        { id: '0', label: 'ResourceObject' },
+        { id: '1', label: 'ResourceObject[]' },
+      ])
+    })
   })
 
   describe('composition display', () => {

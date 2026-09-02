@@ -2,8 +2,21 @@ import type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration } from '@
 
 export type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration }
 
-/** Default CDN URL for the @scalar/api-reference standalone bundle. */
+/**
+ * Default CDN URL for the @scalar/api-reference UMD standalone bundle.
+ *
+ * This is the classic build that registers a global `window.Scalar` and is loaded through a plain
+ * `<script src="...">` tag. It is used when the UMD bundle is selected via `cdn` or `bundle: false`.
+ */
 export const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+
+/**
+ * Default CDN URL for the @scalar/api-reference ESM standalone build (added in #9871).
+ *
+ * This is the default: it is loaded as a `<script type="module">`, so the browser only downloads the
+ * lazy chunks the rendered page needs instead of the whole monolithic UMD bundle.
+ */
+export const DEFAULT_ESM_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'
 
 /**
  * Escape HTML special characters in user-provided strings.
@@ -99,6 +112,17 @@ export function renderApiReference(
      * `style="..."` attributes that a CSP nonce cannot authorize.
      */
     nonce?: string
+    /**
+     * Which build to load. The modern, code-split ESM build is the default.
+     *
+     * Pass a URL string to load a specific ESM build, or `false` to fall back to the classic UMD
+     * bundle. When set, `bundle` takes precedence over both `cdn` and the `nonce` fallback.
+     *
+     * When a `nonce` is set (a strict, nonce-based CSP) the UMD bundle is used by default, because the
+     * ESM build's `import`-loaded chunks cannot be nonced. Pass `bundle: true` to force the ESM build
+     * if your CSP uses `'strict-dynamic'`.
+     */
+    bundle?: string | boolean
   },
   customTheme = '',
 ): string {
@@ -106,7 +130,10 @@ export function renderApiReference(
   const title = escapeHtml(pageTitle ?? 'Scalar API Reference')
 
   const unwrapped = Array.isArray(givenConfig) ? givenConfig[0] : givenConfig
-  const { customCss, theme, ...rest } = (unwrapped ?? {}) as Record<string, unknown>
+  // `bundle` may also arrive inside the config object (integrations spread unknown options into it),
+  // so read it from there too and keep it out of the config that gets serialized to the client.
+  const { customCss, theme, bundle: configBundle, ...rest } = (unwrapped ?? {}) as Record<string, unknown>
+  const bundle = (options.bundle ?? configBundle) as string | boolean | undefined
 
   const configuration = getConfiguration({
     ...rest,
@@ -128,7 +155,7 @@ export function renderApiReference(
       content="width=device-width, initial-scale=1" />${cspNonceMeta}${getStyles(configuration as Record<string, unknown>, customTheme, nonce)}
   </head>
   <body>
-    <div id="app"></div>${getScriptTags(configuration, cdn, nonce)}
+    <div id="app"></div>${getScriptTags(configuration, cdn, nonce, bundle)}
   </body>
 </html>`
 }
@@ -185,15 +212,49 @@ export function serializeConfigToJs(configuration: Record<string, unknown>): str
 }
 
 /**
- * The script tags to load the @scalar/api-reference package from the CDN.
+ * The script tag(s) to load the @scalar/api-reference package from the CDN and initialize it.
  *
- * When a `nonce` is provided it is applied to both script tags so they are allowed under a strict
- * `script-src` Content Security Policy.
+ * By default this loads the modern, code-split ESM build as a `<script type="module">` that imports
+ * `createApiReference` directly (from `DEFAULT_ESM_CDN`), so the browser only downloads the lazy
+ * chunks the page needs rather than the whole monolithic UMD bundle before it can paint.
+ *
+ * The classic UMD bundle — loaded via `<script src>` and `Scalar.createApiReference`, exactly as
+ * before — is used instead when it is the safer choice or is explicitly requested: when a `nonce` is
+ * set (see below), when a `cdn` URL is given (for example to pin a version), or when `bundle: false`.
+ * Set `bundle` to `true` or a URL string to force the ESM build in those cases; `bundle` takes
+ * precedence over both `cdn` and the `nonce` fallback.
+ *
+ * A `nonce` signals a strict, nonce-based `script-src` CSP. The ESM build pulls its chunks with native
+ * `import`, which cannot carry a nonce, so those requests are blocked under such a policy unless it
+ * also has `'strict-dynamic'` (or allow-lists the CDN host). The single-file UMD bundle has no such
+ * follow-up requests, so it is the safe default when a `nonce` is present.
  */
-export function getScriptTags(configuration: Record<string, unknown>, cdn?: string, nonce?: string): string {
+export function getScriptTags(
+  configuration: Record<string, unknown>,
+  cdn?: string,
+  nonce?: string,
+  bundle?: string | boolean,
+): string {
   const configString = serializeConfigToJs(configuration)
 
   const nonceAttr = nonceAttribute(nonce)
+
+  // The ESM build is the default, but fall back to the single-file UMD bundle when it is the safe or
+  // requested choice: a `nonce` (strict nonce-based CSP, where the ESM build's `import`-loaded chunks
+  // cannot be nonced), a `cdn` URL, or `bundle: false`. An explicit `bundle` (true/URL) always wins.
+  const useUmd = bundle === false || (bundle === undefined && (cdn !== undefined || Boolean(nonce)))
+
+  if (!useUmd) {
+    const esmUrl = typeof bundle === 'string' ? bundle : DEFAULT_ESM_CDN
+
+    return `
+    <!-- Load the Scalar API Reference -->
+    <script type="module"${nonceAttr}>
+      import { createApiReference } from '${esmUrl}'
+
+      createApiReference('#app', ${configString})
+    </script>`
+  }
 
   return `
     <!-- Load the Script -->

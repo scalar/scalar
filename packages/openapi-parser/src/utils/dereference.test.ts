@@ -3,8 +3,8 @@ import type {
   MediaTypeObject as OpenApiMediaTypeObjectV3_2,
   ResponseObject as OpenApiResponseObjectV3_2,
 } from '@scalar/openapi-types/3.2'
+import type { AnyObject } from '@scalar/types/utils'
 import { describe, expect, it } from 'vitest'
-import type { AnyObject } from '@/types/index'
 
 import { dereference } from './dereference'
 

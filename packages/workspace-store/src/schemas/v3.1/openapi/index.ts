@@ -16,6 +16,7 @@ import {
 
 import { extensions } from '@/schemas/extensions'
 import { XInternal } from '@/schemas/extensions/document/x-internal'
+import { XScalarDefaultRequestBodyView } from '@/schemas/extensions/document/x-scalar-default-request-body-view'
 import { XScalarEnvironments } from '@/schemas/extensions/document/x-scalar-environments'
 import { XScalarIcon } from '@/schemas/extensions/document/x-scalar-icon'
 import { XScalarIgnore } from '@/schemas/extensions/document/x-scalar-ignore'
@@ -1182,6 +1183,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
       XScalarActiveEnvironment,
       XScalarWatchMode,
       XScalarRegistryMeta,
+      XScalarDefaultRequestBodyView,
       XPreRequest,
       XPostResponse,
     ],

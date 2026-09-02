@@ -1020,6 +1020,21 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
         )
       }
     }
+
+    // Seed the request body editor view from config, unless the document already sets it
+    // explicitly via the `x-scalar-default-request-body-view` extension.
+    if (
+      result === true &&
+      config.defaultRequestBodyView &&
+      isOpenApiDocument(document) &&
+      document['x-scalar-default-request-body-view'] === undefined
+    ) {
+      clientStore.updateDocument(
+        slug,
+        'x-scalar-default-request-body-view',
+        config.defaultRequestBodyView,
+      )
+    }
   })().finally(() => {
     documentLoadPromises.delete(slug)
   })

@@ -1,5 +1,5 @@
-import type { AnyObject } from '@/types'
 import SwaggerParser from '@apidevtools/swagger-parser'
+import type { AnyObject } from '@scalar/types/utils'
 
 export async function resolveOld(specification: AnyObject) {
   return await new Promise((resolve, reject) => {
