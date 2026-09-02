@@ -689,10 +689,11 @@ const onBeforeMatch = (): void => {
           :breadcrumb="shouldHaveLink ? childBreadcrumb : undefined"
           :eventBus="eventBus"
           :placement="isTreeLayout ? 'trailing' : 'leading'">
-          <!-- The ONLY node the gutter toggle's aria-labelledby points at -->
-          <span
-            :id="isTreeLayout ? treeNameId : undefined"
-            class="contents">
+          <!-- The ONLY node the gutter toggle's aria-labelledby points at.
+               A plain inline span, never `display: contents`: the name is what
+               a pointer aims at and what a test measures, and a box-less
+               wrapper is unhoverable and reports no bounding box. -->
+          <span :id="isTreeLayout ? treeNameId : undefined">
             <!-- Tree layout: the map-key keyword lives in the signature line
                  (see SchemaPropertyHeading), so the legacy chip chrome on the
                  name — dashed box, accent colour, the `regex` badge — is

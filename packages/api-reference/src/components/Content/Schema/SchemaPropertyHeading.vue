@@ -413,7 +413,11 @@ const detailMarginClass = computed((): string =>
         <!-- Tree layout: the type is a token run (`array of Planet`) and a $ref
              link IS the type, not an appended `· Account` -->
         <template v-if="props.typeSignature">
-          <ScreenReader>{{ translate('common.type') }}:</ScreenReader>
+          <!-- Written across lines on purpose: Vue drops whitespace-only text
+               between two elements, so a single-line label would read
+               `Type:string`. The legacy branch below is followed by an
+               interpolation, which keeps its space either way. -->
+          <ScreenReader> {{ translate('common.type') }}: </ScreenReader>
           <LinkButton
             v-if="props.eventBus && modelLink?.schemaKey && modelLinkable"
             @click="
