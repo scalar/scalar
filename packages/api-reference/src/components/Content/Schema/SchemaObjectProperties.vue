@@ -22,6 +22,8 @@ const { schema, discriminator, options, schemaContext, compositionPath } =
     compact?: boolean
     hideHeading?: boolean
     level?: number
+    /** Real nesting depth in the tree layout (see SchemaProperty) */
+    depth?: number
     hideModelNames?: boolean
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
@@ -202,6 +204,7 @@ const getAdditionalPropertiesValue = (
       :eventBus="eventBus"
       :hideHeading
       :hideModelNames
+      :depth
       :level
       :name="property"
       :options="options"
@@ -225,6 +228,7 @@ const getAdditionalPropertiesValue = (
       :eventBus="eventBus"
       :hideHeading
       :hideModelNames="hideModelNames"
+      :depth
       :level
       :name="key"
       :options="options"
@@ -249,6 +253,7 @@ const getAdditionalPropertiesValue = (
       :eventBus="eventBus"
       :hideHeading
       :hideModelNames
+      :depth
       :level
       :name="
         getAdditionalPropertiesName(

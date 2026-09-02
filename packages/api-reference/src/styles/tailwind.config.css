@@ -1,4 +1,10 @@
 /**
+ * Note on the `!` suffix used across the tree layout templates: utilities
+ * compile before SFC scoped styles here, so a utility loses every equal-
+ * specificity tie against a legacy scoped rule targeting the same class.
+ * The tree keeps legacy class names as styling hooks, so contested
+ * declarations carry `!` (e.g. `mt-1!`) to win that tie — nothing else does.
+ *
  * API Reference Tailwind Configuration
  *
  * This file can be imported into other projects using Tailwind to
@@ -30,6 +36,123 @@
  */
 @custom-variant narrow {
   @container narrow-references-container (max-width: 900px) {
+    @slot;
+  }
+}
+
+/**
+ * Visually hides content while leaving it available to assistive technology.
+ * A shared utility rather than a style scoped to ScreenReader.vue, so the
+ * schema tree and the response headers can label a row's child count from
+ * plain markup. `clip-path` replaces the deprecated `clip`; `white-space:
+ * nowrap` matters because some engines announce a wrapped 1x1 box one word per
+ * line, breaking the sentence apart.
+ */
+@utility screenreader-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/**
+ * Honour a request for reduced motion. Motion is collapsed to a near-zero
+ * duration rather than removed, because `transitionend` must still fire for
+ * components that sequence their own state on it. Scoped to the app root so an
+ * embedding page keeps control of its own motion; the visual baselines run
+ * under no-preference and are untouched. Written with Tailwind's own
+ * `motion-reduce` variant so this block and any `motion-reduce:` utility can
+ * never disagree on the query.
+ */
+.scalar-app {
+  @variant motion-reduce {
+    & *,
+    & *::before,
+    & *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/**
+ * Schema tree rail tokens. Declared at app scope, not on `.schema-tree`, because
+ * rails are also drawn by surfaces above any tree root (a response row's panel,
+ * the response-headers group); scoped to the root they fell back to the raw
+ * border colour. Each panel sets only its own `--schema-depth`. The depth fade
+ * is deliberately not a token: a custom property substitutes where it is
+ * declared, so see `schema-rail` below for the use-site formula.
+ */
+.scalar-app {
+  --schema-gutter: 16px;
+  --schema-row-pad: 6px;
+  --schema-depth: 0;
+  /* The theme's own border colour, so rails match every other hairline on the
+     page; the depth fade in `schema-rail` softens nested rails from this base. */
+  --schema-rail-base: var(--scalar-border-color);
+}
+
+/**
+ * Schema tree utilities: the depth-faded rail, the glyph puck and the rail's
+ * pointer strip, shared so every surface composes the same classes. Their custom
+ * properties live in the `.scalar-app` token block above (--schema-rail-base,
+ * --schema-depth) and on the tree root (--schema-glyph-*). The fade must stay a
+ * use-site formula: a custom property substitutes where it is declared, so a
+ * token would freeze at depth 0 and every rail would render the same grey.
+ */
+@utility schema-rail {
+  border-inline-start: var(--scalar-border-width) solid
+    color-mix(in srgb, var(--schema-rail-base), var(--scalar-background-1) min(calc(var(--schema-depth) * 8%), 40%));
+}
+
+/* The knockout puck a tree glyph sits in: opaque, so a rail reads as passing
+   behind it. 18px around a 16px icon, inside a larger hit target on purpose.
+   The border is always there, transparent at rest, so the hover ring never
+   shifts the icon. */
+@utility schema-glyph {
+  inline-size: 18px;
+  block-size: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  border: var(--scalar-border-width) solid transparent;
+  background: var(--schema-glyph-background, var(--scalar-background-1));
+  color: var(--schema-glyph-color, var(--scalar-color-2));
+}
+
+/* Tree-control hover variant: a glyph puck lights while the pointer is over
+   anything that toggles its row. That is the control carrying
+   `group/tree-control` (a row trigger, the gutter toggle, a reveal button);
+   for a gutter toggle it is also the row heading beside it, which toggles the
+   row on click too; and it is the open panel's rail, which closes the row. */
+@custom-variant tree-control-hover (
+  &:is(:where(.group\/tree-control):hover *),
+  :where(.property--tree:has(> .property-heading:hover)) > .property-toggle &,
+  :where(:has(> .schema-rail-panel > [data-rail-hit]:hover)) > :where(.property-toggle, .parameter-item-trigger, .callback-item-trigger, .schema-card-title) &
+);
+
+/* The rail's hit target: an 11px strip straddling the 1px line (6px outside,
+   5px inside). Pointer-only, so pair it with aria-hidden and data-rail-hit. */
+@utility rail-hit {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(-1 * var(--scalar-border-width) - 5px);
+  inline-size: 11px;
+  cursor: pointer;
+}
+
+/* Rail hover variant: matches a railed panel while the pointer is over its own
+   hit strip. Keyed on data-rail-hit, not a class, so every surface's strip
+   triggers it identically. */
+@custom-variant rail-hover {
+  &:has(> [data-rail-hit]:hover) {
     @slot;
   }
 }

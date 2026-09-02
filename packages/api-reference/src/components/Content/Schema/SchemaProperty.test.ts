@@ -5,6 +5,7 @@ import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-sto
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
@@ -479,6 +480,83 @@ describe('SchemaProperty', () => {
       const additionalName = wrapper.find('.property-name-additional-properties')
       expect(additionalName.exists()).toBe(true)
       expect(additionalName.text()).toBe('additionalProperty')
+    })
+
+    describe('tree layout map keys', () => {
+      const mountRow = (variant: 'additionalProperties' | 'patternProperties', name: string) =>
+        mount(SchemaProperty, {
+          props: {
+            variant,
+            name,
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+            options: { schemaLayout: 'tree' },
+          },
+        })
+
+      it('names the key kind in the signature line for additional properties', () => {
+        const wrapper = mountRow('additionalProperties', 'measurement')
+
+        // The keyword leads the detail list; the name itself reads as a name.
+        expect(wrapper.find('.property-key-kind').text()).toBe('additionalProperty')
+        expect(wrapper.find('.property-name-additional-properties').text()).toBe('measurement')
+      })
+
+      it('names the key kind in the signature line for pattern properties', () => {
+        const wrapper = mountRow('patternProperties', '^x-')
+
+        expect(wrapper.find('.property-key-kind').text()).toBe('patternProperty')
+        expect(wrapper.find('.property-name-pattern-properties').text()).toBe('^x-')
+      })
+
+      it('keeps the keyword out of the legacy layout', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            variant: 'additionalProperties',
+            name: 'measurement',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+            options: { schemaLayout: 'legacy' },
+          },
+        })
+
+        expect(wrapper.find('.property-key-kind').exists()).toBe(false)
+      })
+    })
+
+    describe('tree layout cycles', () => {
+      const mountCycle = (schemaLayout: 'tree' | 'legacy') =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'satellites',
+            cycleKey: '#/components/schemas/Satellite',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+            }),
+            options: { schemaLayout },
+          },
+          global: {
+            provide: {
+              [SCHEMA_ANCESTORS_SYMBOL as symbol]: new Set(['#/components/schemas/Satellite']),
+            },
+          },
+        })
+
+      it('marks a cut cycle in the signature line and names the schema it returns to', () => {
+        const wrapper = mountCycle('tree')
+        const detail = wrapper.find('.property-recursive')
+
+        expect(detail.text()).toBe('recursive')
+        expect(detail.attributes('title')).toBe('Recursive reference to Satellite')
+        // The row is a leaf: there is no panel to open
+        expect(wrapper.find('.property-children').exists()).toBe(false)
+      })
+
+      it('keeps the marker out of the legacy layout', () => {
+        expect(mountCycle('legacy').find('.property-recursive').exists()).toBe(false)
+      })
     })
 
     it('displays regular property names without variant styling', () => {

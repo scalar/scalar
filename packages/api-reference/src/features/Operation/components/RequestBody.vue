@@ -18,6 +18,8 @@ import {
   sortPropertyNames,
 } from '@/components/Content/Schema/helpers/sort-property-names'
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
+import { SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
@@ -33,9 +35,13 @@ const { requestBody, options, document } = defineProps<{
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     hideModels: boolean | undefined
     expandAllSchemaProperties: boolean | undefined
+    schemaLayout: 'legacy' | 'tree' | undefined
+    schemaKeyboardNav: boolean | undefined
   }
 }>()
 const { translate } = useLocalization()
+
+const { level: headingLevel } = useDocumentOutline('operationSection')
 
 /**
  * The maximum number of properties to show in the request body schema.
@@ -154,7 +160,9 @@ const shouldRenderRequestBody = computed(
     class="request-body"
     role="group">
     <div class="request-body-header">
-      <div class="request-body-title">
+      <SectionHeaderTag
+        class="request-body-title"
+        :level="headingLevel">
         <slot name="title" />
         <span
           v-if="modelLink"
@@ -172,7 +180,7 @@ const shouldRenderRequestBody = computed(
           </LinkButton>
           <template v-else>{{ modelLink.label }}</template>
         </span>
-      </div>
+      </SectionHeaderTag>
       <div class="flex items-center gap-2">
         <div
           v-if="requestBody.required"
@@ -206,6 +214,8 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          schemaLayout: options.schemaLayout,
+          schemaKeyboardNav: options.schemaKeyboardNav,
           hideModels: options.hideModels,
           document,
         }"
@@ -225,6 +235,8 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          schemaLayout: options.schemaLayout,
+          schemaKeyboardNav: options.schemaKeyboardNav,
           hideModels: options.hideModels,
           document,
         }"
@@ -249,6 +261,8 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          schemaLayout: options.schemaLayout,
+          schemaKeyboardNav: options.schemaKeyboardNav,
           hideModels: options.hideModels,
           document,
         }"

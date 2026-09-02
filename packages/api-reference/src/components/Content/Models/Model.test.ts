@@ -54,6 +54,8 @@ describe('Model', () => {
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
+    schemaLayout: 'legacy' as const,
+    schemaKeyboardNav: false,
   }
 
   const mockConfigModern = {
@@ -62,6 +64,8 @@ describe('Model', () => {
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
+    schemaLayout: 'legacy' as const,
+    schemaKeyboardNav: false,
   }
 
   describe('layout rendering', () => {

@@ -258,7 +258,12 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :requestBody="getResolvedRef(operation.requestBody)" />
         </div>
         <div class="operation-details-card-item">
+          <!-- Tree only: the classic card renders responses as static panels,
+               which is what the legacy layout still does here -->
           <OperationResponses
+            :collapsableItems="
+              options.schemaLayout === 'tree' && !options.expandAllResponses
+            "
             v-model:selectedContentTypes="selectedResponseContentTypes"
             :document
             :eventBus

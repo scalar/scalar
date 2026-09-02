@@ -546,9 +546,10 @@ By default response sections are closed in the operations. This flag will open t
 
 **Type:** `boolean`
 
-When true, nested child properties are expanded by default. The
-"Show/Hide Child Attributes" toggle stays available so users can collapse
-sections manually.
+When true, nested child properties are expanded by default. Each row keeps its
+own disclosure control, so readers can still collapse sections manually. (In
+`schemaLayout: 'legacy'` that control is the "Show/Hide Child Attributes"
+toggle; in the default tree layout it is the +/- control in the row's gutter.)
 
 Warning: this can cause performance issues on big documents.
 
@@ -1034,6 +1035,49 @@ This is useful for desktop wrappers like Electron where the page URL is often `f
 ```javascript
 {
   oauth2RedirectUri: 'myapp://oauth/callback'
+}
+```
+
+### schemaKeyboardNav
+
+**Type:** `boolean`
+
+Tree layout only. Enables arrow-key navigation over the schema disclosure
+toggles, following the APG tree pattern's bindings (arrows, Home, End). Off by
+default until screen-reader interaction questions are settled; the flat Tab
+order works regardless.
+
+**Default:** `false`
+
+```javascript
+{
+  schemaLayout: 'tree',
+  schemaKeyboardNav: true
+}
+```
+
+### schemaLayout
+
+**Type:** `'legacy' | 'tree'`
+
+Control how the schema tree is drawn. Can be set to:
+
+- `'tree'`: Draw a continuous rail per level, with a disclosure control in each property's gutter
+- `'legacy'`: Nest a bordered card per level, behind a "Show Child Attributes" toggle (scheduled for removal)
+
+The tree layout keeps every property description visible, gives each expandable
+property a real button with `aria-expanded`, and keeps collapsed content
+reachable with find-in-page in browsers that support `hidden="until-found"` —
+for panels the reader has opened at least once, which stay in the page instead
+of unmounting. A panel that has never been opened is not rendered at all, in
+any browser, so that its children cannot recurse forever on a self-referential
+schema. Safari has no `until-found` support and unmounts every closed panel.
+
+**Default:** `'tree'`
+
+```javascript
+{
+  schemaLayout: 'legacy'
 }
 ```
 

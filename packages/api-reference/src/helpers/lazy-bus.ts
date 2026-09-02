@@ -242,10 +242,14 @@ export function useLazyBus(id: string) {
  * parents) to the priority queue, then scrolls after Vue has flushed.
  */
 export const scrollToLazy = (
-  id: string,
+  requestedId: string,
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
 ) => {
+  // Deliberately no rewriting of legacy anchors (`…responses.headers.headers.X`):
+  // a rewrite can corrupt a valid anchor, and an unresolvable id falls back to
+  // scrolling its operation instead (see tryScroll's fallbackId).
+  const id = requestedId
   const item = getEntryById(id)
 
   /**
@@ -262,7 +266,7 @@ export const scrollToLazy = (
 
   // Disable intersection while we scroll to the element
   const unblock = blockIntersection()
-  const { rawId } = getSchemaParamsFromId(id)
+  const { rawId } = resolveNavigationId(id, getEntryById)
 
   // Publish the target so collapsible schema disclosures on the path can open
   // themselves. Schema properties are not in the navigation tree, so this is the
@@ -303,8 +307,51 @@ export const scrollToLazy = (
   addParents(rawId)
 
   void nextTick(() => {
-    tryScroll(id, Date.now() + SCROLL_RETRY_MS, unblock, unfreeze)
+    tryScroll(id, Date.now() + SCROLL_RETRY_MS, unblock, unfreeze, rawId)
   })
+}
+
+/**
+ * Find the navigation entry a schema-property anchor belongs to.
+ *
+ * `getSchemaParamsFromId` splits on operation markers (`.body.`, `.responses.`),
+ * so it lands on the operation for a plain property anchor. Three shapes need
+ * more than that split, and all three are handled by trimming dot segments from
+ * the right until the navigation tree recognises one:
+ *
+ * - model and AsyncAPI message anchors (`…/models/Planet.name`) carry no marker
+ *   at all, so the split returns the whole id
+ * - a callback anchor continues past the marker
+ *   (`…/post.callbacks.<name>.<url>.<method>.responses.200.id`), so the split
+ *   stops at a segment that is not a navigation entry
+ * - a callback url expression can hold a marker of its own
+ *   (`{$request.query.q}`), so the split can stop mid-expression
+ *
+ * Trying the full id first keeps a model whose own name contains a dot
+ * resolving, and the untrimmed `rawId` stays the fallback when nothing matches.
+ */
+const resolveNavigationId = (id: string, getEntryById: (id: string) => unknown): { rawId: string } => {
+  const { rawId } = getSchemaParamsFromId(id)
+
+  if (getEntryById(rawId)) {
+    return { rawId }
+  }
+
+  let candidate = rawId
+
+  while (true) {
+    const lastDot = candidate.lastIndexOf('.')
+
+    if (lastDot === -1) {
+      return { rawId }
+    }
+
+    candidate = candidate.slice(0, lastDot)
+
+    if (getEntryById(candidate)) {
+      return { rawId: candidate }
+    }
+  }
 }
 
 /**
@@ -314,15 +361,40 @@ export const scrollToLazy = (
  * @param id - The id of the element to scroll to
  * @param stopTime - The time to stop retrying in unix milliseconds
  */
-const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailure?: () => void): void => {
+const tryScroll = (
+  id: string,
+  stopTime: number,
+  onComplete: UnblockFn,
+  onFailure?: () => void,
+  fallbackId?: string,
+): void => {
   const element = document.getElementById(id)
   if (element) {
     element.scrollIntoView({ block: 'start' })
+    /**
+     * Focus the target as well as scrolling to it, so a deep link lands keyboard
+     * and screen-reader users on what they followed the link for rather than at
+     * the top of the document. `preventScroll` is load-bearing: `freeze`
+     * re-scrolls this element every frame while the lazy bus settles, and a
+     * focus-driven scroll would fight it. Only the current target is focused,
+     * because this loop retries for seconds while lazy content mounts and a
+     * superseded navigation must not yank a screen reader back to stale content.
+     */
+    if (element instanceof HTMLElement && scrollTargetId.value === id) {
+      element.focus({ preventScroll: true })
+    }
     clearScrollTarget(id)
     onComplete()
   } else if (Date.now() < stopTime) {
-    requestAnimationFrame(() => tryScroll(id, stopTime, onComplete, onFailure))
+    requestAnimationFrame(() => tryScroll(id, stopTime, onComplete, onFailure, fallbackId))
   } else {
+    // The exact element never appeared, so land on the section the anchor
+    // belongs to rather than leaving the reader with no feedback. This is what
+    // keeps a legacy anchor (an old response-header link) reaching its operation.
+    if (fallbackId && fallbackId !== id && scrollTargetId.value === id) {
+      document.getElementById(fallbackId)?.scrollIntoView({ block: 'start' })
+    }
+
     // If the scroll has expired we enable intersection again
     clearScrollTarget(id)
     onComplete()

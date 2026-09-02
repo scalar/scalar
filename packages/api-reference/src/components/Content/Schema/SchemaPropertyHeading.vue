@@ -26,6 +26,7 @@ import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
 import SchemaPropertyPattern from './SchemaPropertyPattern.vue'
+import SchemaTypeSignature from './SchemaTypeSignature.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -46,6 +47,27 @@ const props = withDefaults(
     /** Resolved propertyNames schema, used to surface key constraints like `format` for additional properties. */
     propertyNames?: SchemaObject
     eventBus?: WorkspaceEventBus | null
+    /**
+     * Tree layout: render the type as a token run instead of a single string.
+     *
+     * The tree layout is the only caller that sets this, so it doubles as this
+     * component's layout signal — see `detailMarginClass`, which spaces the
+     * detail list differently per layout.
+     */
+    typeSignature?: boolean
+    /**
+     * Tree layout: the row's name is a stand-in for keys the caller chooses
+     * (`additionalProperties`) or keys matching a regex (`patternProperties`),
+     * not a literal property. The heading says so in the signature line, where
+     * the tree already describes shapes, instead of styling the name itself.
+     */
+    keyKind?: 'additional' | 'pattern'
+    /**
+     * Tree layout: the name of the schema this row loops back to. A cut cycle
+     * is a leaf, so the signature line says why it does not expand; the model
+     * link beside it already names the schema the loop returns to.
+     */
+    recursiveTo?: string
   }>(),
   {
     isDiscriminator: false,
@@ -347,9 +369,32 @@ const patternValue = computed(() => {
 
   return undefined
 })
+
+/**
+ * Which details in the dotted list drop their right margin, which differs per layout.
+ *
+ * `typeSignature` is set by the tree layout alone, so it doubles as this component's
+ * layout signal.
+ *
+ * The tree wants `:has(+.property-detail)`: only a detail FOLLOWED BY another detail
+ * drops its margin, because the `·` separator supplies the gap there. The tree also
+ * renders spans the legacy layout never does — the collapsed preview and the trailing
+ * copy-link — and `:not(:last-of-type)` matches by element type, so it would strip the
+ * margin from the final detail and glue "Addressrequired" together on a collapsed row.
+ *
+ * The legacy layout keeps `:not(:last-of-type)`, the selector it has always had, so its
+ * spacing stays exactly as it renders today.
+ */
+const detailMarginClass = computed((): string =>
+  props.typeSignature
+    ? '[&>.property-detail:has(+.property-detail)]:mr-0'
+    : '[&>.property-detail:not(:last-of-type)]:mr-0',
+)
 </script>
 <template>
-  <div class="property-heading">
+  <div
+    class="property-heading"
+    :class="detailMarginClass">
     <div
       v-if="$slots.name"
       class="property-name"
@@ -362,25 +407,71 @@ const patternValue = computed(() => {
       {{ translate('common.discriminator') }}
     </div>
     <template v-if="props.value">
+      <!-- A map key reads `additionalProperty · string`: the keyword leads the
+           detail list in the accent colour, like a type word, so the name
+           above it can look like every other name. Tree only: the legacy
+           layout marks these on the name instead. -->
+      <SchemaPropertyDetail
+        v-if="props.keyKind && props.typeSignature"
+        class="property-key-kind">
+        <span class="font-code text-c-accent">{{
+          props.keyKind === 'pattern' ? 'patternProperty' : 'additionalProperty'
+        }}</span>
+      </SchemaPropertyDetail>
       <!-- Type information -->
       <SchemaPropertyDetail
         v-if="shouldShowType"
         truncate>
-        <ScreenReader>{{ translate('common.type') }}:</ScreenReader>
-        {{ displayType }}
-        <template v-if="modelLink">
-          ·
+        <!-- Tree layout: the type is a token run (`array of Planet`) and a $ref
+             link IS the type, not an appended `· Account` -->
+        <template v-if="props.typeSignature">
+          <ScreenReader>{{ translate('common.type') }}:</ScreenReader>
           <LinkButton
-            v-if="props.eventBus && modelLink.schemaKey && modelLinkable"
+            v-if="props.eventBus && modelLink?.schemaKey && modelLinkable"
             @click="
               props.eventBus.emit('scroll-to:model-by-name', {
                 name: modelLink.schemaKey,
               })
             ">
-            {{ modelLink.label }}
+            <SchemaTypeSignature
+              :hideModelNames="props.hideModelNames"
+              :modelName="modelLink.label"
+              :schema="props.value" />
           </LinkButton>
-          <template v-else>{{ modelLink.label }}</template>
+          <SchemaTypeSignature
+            v-else
+            :hideModelNames="props.hideModelNames"
+            :modelName="modelLink?.label"
+            :schema="props.value" />
         </template>
+        <template v-else>
+          <ScreenReader>{{ translate('common.type') }}:</ScreenReader>
+          {{ displayType }}
+          <template v-if="modelLink">
+            ·
+            <LinkButton
+              v-if="props.eventBus && modelLink.schemaKey && modelLinkable"
+              @click="
+                props.eventBus.emit('scroll-to:model-by-name', {
+                  name: modelLink.schemaKey,
+                })
+              ">
+              {{ modelLink.label }}
+            </LinkButton>
+            <template v-else>{{ modelLink.label }}</template>
+          </template>
+        </template>
+      </SchemaPropertyDetail>
+
+      <!-- A cycle reads `array of Satellite · recursive`, a modifier like
+           `nullable`; the full sentence rides the tooltip. Tree only. -->
+      <SchemaPropertyDetail
+        v-if="props.recursiveTo && props.typeSignature"
+        class="property-recursive"
+        :title="
+          translate('schema.recursiveReference', { name: props.recursiveTo })
+        ">
+        {{ translate('common.recursive') }}
       </SchemaPropertyDetail>
 
       <!-- Key constraints from propertyNames (e.g. "keys: string · uuid") -->
@@ -469,6 +560,11 @@ const patternValue = computed(() => {
       v-if="props.withExamples"
       :example="exampleValue"
       :examples="props.value?.examples" />
+    <!-- Tree layout: the collapsed preview rides the end of the heading line -->
+    <slot name="preview" />
+    <!-- Last so the tab order matches the visual order: the trailing copy-link
+         is painted at the row's right edge, after every control to its left -->
+    <slot name="trailing" />
   </div>
 </template>
 <style scoped>
@@ -490,10 +586,6 @@ const patternValue = computed(() => {
 }
 
 .property-heading:last-child {
-  margin-right: 0;
-}
-
-.property-heading > .property-detail:not(:last-of-type) {
   margin-right: 0;
 }
 

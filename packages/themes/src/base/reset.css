@@ -162,8 +162,16 @@
     vertical-align: middle; /* 2 */
   }
 
-  /** Make elements with the HTML hidden attribute stay hidden by default */
-  [hidden] {
+  /**
+   * Make elements with the HTML hidden attribute stay hidden by default.
+   *
+   * `hidden="until-found"` is deliberately excluded: that value asks the
+   * browser to keep the subtree hidden but still searchable, which it does
+   * with `content-visibility: hidden`. `display: none` overrides that and
+   * makes find-in-page skip the content, so an author reset written for plain
+   * `hidden` would silently disable the feature wherever it is used.
+   */
+  [hidden]:not([hidden='until-found']) {
     display: none;
   }
 }

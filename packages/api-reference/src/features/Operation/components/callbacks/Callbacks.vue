@@ -11,15 +11,20 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { useSchemaLayout } from '@/components/Content/Schema/helpers/use-schema-layout'
+import { SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import Callback from './Callback.vue'
 
-const { path, callbacks, options } = defineProps<{
+const { path, callbacks, options, breadcrumb } = defineProps<{
   path: string
   callbacks: CallbackObject
   eventBus: WorkspaceEventBus | null
+  /** Breadcrumb of the owning operation; extended per callback below */
+  breadcrumb?: string[]
   /** The document the callbacks belong to, used to resolve schema references for display */
   document?: OpenApiDocument
   options: Pick<
@@ -28,9 +33,15 @@ const { path, callbacks, options } = defineProps<{
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaLayout'
+    | 'schemaKeyboardNav'
   >
 }>()
 const { translate } = useLocalization()
+
+const { level: headingLevel } = useDocumentOutline('operationSection')
+
+const { isTreeLayout } = useSchemaLayout(() => options.schemaLayout)
 
 type CallbackType = {
   name: string
@@ -76,12 +87,22 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
     :aria-label="translate('operation.callbacks')"
     class="callbacks-list gap-3"
     role="group">
-    <div class="callbacks-title text-c-1 my-3 text-lg font-medium">
+    <!-- Tree: the heading carries the rule; the callback row pads itself, so no bottom margin -->
+    <SectionHeaderTag
+      class="callbacks-title text-c-1 mt-3 block! text-lg font-medium"
+      :class="isTreeLayout ? 'callbacks-title--tree mb-0' : 'mb-3'"
+      :level="headingLevel"
+      :rule="isTreeLayout">
       {{ translate('operation.callbacks') }}
-    </div>
+    </SectionHeaderTag>
+    <!-- The url is part of a callback's identity (one name can carry several
+         urls), so name + method alone would collide on one expansion key -->
     <Callback
       v-for="{ callback, method, name, url } in flattenedCallbacks"
       :key="`${name}-${url}-${method}`"
+      :breadcrumb="
+        breadcrumb ? [...breadcrumb, 'callbacks', name, url, method] : undefined
+      "
       :callback
       :document
       :eventBus

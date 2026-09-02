@@ -72,6 +72,8 @@ describe('Callbacks', () => {
           orderRequiredPropertiesFirst: false,
           orderSchemaPropertiesBy: 'alpha',
           expandAllSchemaProperties: false,
+          schemaLayout: 'legacy' as const,
+          schemaKeyboardNav: false,
         },
       },
     })

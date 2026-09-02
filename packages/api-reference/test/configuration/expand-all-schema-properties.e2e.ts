@@ -28,6 +28,22 @@ test.describe('expandAllSchemaProperties', () => {
 
     await page.goto(`${example}#models`)
 
+    // The tree layout (the default) names a collapsed row's children in an
+    // inline preview, so "collapsed" means the child ROW is not rendered — not
+    // that the name appears nowhere.
+    await expect(page.locator('.property-name', { hasText: 'craterCount' })).toHaveCount(0)
+    await expect(page.locator('.property-collapsed-preview')).toContainText('craterCount')
+  })
+
+  test('keeps nested child properties fully hidden in the legacy layout', async ({ page }) => {
+    const example = await serveExample({
+      expandAllModelSections: true,
+      schemaLayout: 'legacy',
+      content,
+    })
+
+    await page.goto(`${example}#models`)
+
     await expect(page.getByText('craterCount')).not.toBeVisible()
   })
 

@@ -8,7 +8,11 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
  */
 export type AsyncApiSchemaRenderOptions = Pick<
   ApiReferenceConfigurationRaw,
-  'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy' | 'expandAllSchemaProperties'
+  | 'orderRequiredPropertiesFirst'
+  | 'orderSchemaPropertiesBy'
+  | 'expandAllSchemaProperties'
+  | 'schemaLayout'
+  | 'schemaKeyboardNav'
 >
 
 /**
@@ -21,4 +25,6 @@ export const resolveSchemaRenderOptions = (
   orderRequiredPropertiesFirst: options?.orderRequiredPropertiesFirst ?? false,
   orderSchemaPropertiesBy: options?.orderSchemaPropertiesBy ?? 'preserve',
   expandAllSchemaProperties: options?.expandAllSchemaProperties ?? false,
+  schemaLayout: options?.schemaLayout ?? 'legacy',
+  schemaKeyboardNav: options?.schemaKeyboardNav ?? false,
 })

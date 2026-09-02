@@ -20,8 +20,15 @@
     <script type="module">
       import { sources } from './test/utils/sources.ts'
 
+      // Dev-only URL switches, so a layout or an opt-in flag can be exercised
+      // without editing this file: ?layout=legacy, ?kbd=1
+      const params = new URLSearchParams(location.search)
+      const layout = params.get('layout')
+
       Scalar.createApiReference('#app', {
         sources,
+        ...(layout ? { schemaLayout: layout } : {}),
+        ...(params.has('kbd') ? { schemaKeyboardNav: true } : {}),
         persistAuth: true,
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',

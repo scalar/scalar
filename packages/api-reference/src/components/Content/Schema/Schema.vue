@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -9,7 +8,7 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, inject, provide } from 'vue'
+import { computed, inject, provide, useId, useTemplateRef } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -26,7 +25,15 @@ import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
+import {
+  SCHEMA_TREE_ROOT_SYMBOL,
+  toNodeKey,
+  useSchemaExpansion,
+} from './helpers/schema-expansion'
+import { handleTreeKeydown } from './helpers/schema-keyboard-nav'
+import { useSchemaLayout } from './helpers/use-schema-layout'
 import SchemaComposition from './SchemaComposition.vue'
+import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
@@ -34,6 +41,7 @@ import SchemaProperty from './SchemaProperty.vue'
 const {
   schema,
   level = 0,
+  depth = 0,
   name,
   compact,
   noncollapsible = false,
@@ -51,6 +59,11 @@ const {
   schema?: SchemaObject
   /** Track how deep we've gone */
   level?: number
+  /**
+   * Real nesting depth in the tree layout. Not derived from `level`, whose
+   * stride differs per edge (object +2, composition +1, non-object root +0).
+   */
+  depth?: number
   /* Show as a heading */
   name?: string
   /** A tighter layout with less borders and without a heading */
@@ -187,9 +200,8 @@ const isOnScrollTargetPath = computed((): boolean => {
  * loops. We also open any disclosure on the path to the current scroll target so
  * deep links resolve even when the property is collapsed.
  *
- * Note: the Disclosure only reads this at mount, so it expands collapsed
- * properties on a fresh navigation (the schema mounts after the target is set),
- * not when the target changes for an already-mounted disclosure.
+ * This is only the last step of the store's resolution order: it applies when
+ * nobody has touched this node and no bulk action or baseline covers it.
  */
 const defaultOpen = computed(
   (): boolean =>
@@ -253,160 +265,309 @@ const inferredDiscriminatorComposition = computed(() =>
     : null,
 )
 
-// Prevent click action if noncollapsible
-const handleClick = (e: MouseEvent) => {
-  if (noncollapsible) {
-    e.stopPropagation()
+const { isTreeLayout } = useSchemaLayout(() => options.schemaLayout)
+
+/**
+ * Whether an enclosing Schema already established a tree root. `depth === 0`
+ * alone is not enough: a nested Schema can mount at depth 0 (an `allOf`
+ * member, or a caller that omits `depth`), and a second root would mount a
+ * second sticky strip and keydown root, firing every arrow key twice.
+ */
+const hasTreeRootAbove = inject(SCHEMA_TREE_ROOT_SYMBOL, false)
+
+/** Both flagged tree features live on the outermost tree root only */
+const isTreeRoot = computed(
+  (): boolean => isTreeLayout.value && depth === 0 && !hasTreeRootAbove,
+)
+
+// Descendants must know a root exists above them, whatever depth they mount at.
+provide(SCHEMA_TREE_ROOT_SYMBOL, true)
+
+/** Delegated arrow-key navigation, active only when the flag is on */
+const onTreeKeydown = (event: KeyboardEvent): void => {
+  if (isTreeRoot.value && options.schemaKeyboardNav) {
+    handleTreeKeydown(event)
   }
+}
+
+const expansion = useSchemaExpansion()
+
+/**
+ * Fallback identity for nodes mounted without a breadcrumb (models, AsyncAPI
+ * messages, the classic layouts). Until those surfaces pass real breadcrumbs,
+ * this keeps them from all resolving to the empty key and toggling as one node.
+ */
+const anonymousKey = useId()
+
+const nodeKey = computed(
+  (): string => toNodeKey(breadcrumb) || `~anonymous-${anonymousKey}`,
+)
+
+/**
+ * Whether this disclosure is open. Resolved from the store on every read, not
+ * latched at mount, so a second deep link into an already-rendered operation
+ * works and expansion survives the composition variant remount.
+ */
+const open = computed(
+  (): boolean =>
+    noncollapsible ||
+    expansion.isExpanded(nodeKey.value, {
+      cyclic: isCyclic.value,
+      defaultOpen: defaultOpen.value,
+    }),
+)
+
+/** The panel is always present for a schema that has no toggle of its own. */
+const isPanelStatic = computed((): boolean => !shouldShowToggle.value)
+
+/** Additional-property panels hide until opened; static panels always render */
+const panelRendered = computed(
+  (): boolean =>
+    (!additionalProperties || open.value) &&
+    (isPanelStatic.value || open.value),
+)
+
+const toggleId = useId()
+const panelId = useId()
+
+const panelRef = useTemplateRef<HTMLElement>('panel')
+const toggleRef = useTemplateRef<HTMLElement>('toggle')
+
+const toggle = (): void => {
+  if (noncollapsible) {
+    return
+  }
+
+  const next = !open.value
+
+  /**
+   * Collapsing a subtree that holds the focused element would drop focus to
+   * `<body>` as the panel unmounts, so move it to this row's toggle first.
+   */
+  if (!next) {
+    const active = document.activeElement
+
+    if (active && panelRef.value?.contains(active)) {
+      toggleRef.value?.focus()
+    }
+  }
+
+  expansion.setExpanded(nodeKey.value, next)
 }
 </script>
 <template>
-  <Disclosure
+  <!--
+    Not a Headless UI `<Disclosure>`: it has no controlled mode, and expansion
+    is driven from the store, so the button and the panel are owned directly.
+  -->
+  <div
     v-if="resolvedSchema && Object.keys(resolvedSchema).length"
-    v-slot="{ open }"
-    :defaultOpen="defaultOpen">
+    class="schema-card"
+    :class="[
+      `schema-card--level-${level}`,
+      { 'schema-card--compact': compact, 'schema-card--open': open },
+      { 'border-t': additionalProperties && open && !isTreeLayout },
+      /*
+       * No margin of its own: the row above already ends with its own 6px pad,
+       * so the reveal keeps the tree's row-to-row rhythm exactly.
+       */
+      { 'additional-card--tree': additionalProperties && isTreeLayout },
+      { 'schema-card--tree': isTreeLayout },
+      /*
+       * Tree-local tokens, namespaced --schema-* so no preset or user theme
+       * breaks. WCAG 1.4.11 wants 3:1 for the glyph; --scalar-color-3 measures
+       * 3.28:1 only before opacity, so the glyph reads color-2 (rail tokens:
+       * styles/tailwind.config.css). In a narrow container the indent tightens
+       * instead of truncating; the glyph centre still sits on the rail.
+       */
+      {
+        'schema-tree [--schema-glyph-background:var(--scalar-background-1)] [--schema-glyph-color:var(--scalar-color-2)] @max-[480px]/narrow-references-container:[--schema-gutter:10px]':
+          isTreeRoot,
+      },
+    ]"
+    @keydown="onTreeKeydown">
+    <!-- Schema description -->
+    <!-- Tree layout: without the card box the legacy level-0 divider (and its
+         negative-margin tuck) is a stray line, so the tree drops the whole treatment -->
     <div
-      class="schema-card"
-      :class="[
-        `schema-card--level-${level}`,
-        { 'schema-card--compact': compact, 'schema-card--open': open },
-        { 'border-t': additionalProperties && open },
-      ]">
-      <!-- Schema description -->
+      v-if="schemaDescription"
+      class="schema-card-description"
+      :class="{
+        '[.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:mb-0! [.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:border-b-0! [.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:pb-0!':
+          isTreeLayout,
+      }">
+      <ScalarMarkdown :value="schemaDescription" />
+    </div>
+    <div
+      v-if="isEmptySchemaObject(resolvedSchema)"
+      :class="isTreeLayout ? 'text-c-2 py-1.5' : 'pt-2'">
+      {{ translate('schema.emptyObject') }}
+    </div>
+    <!-- Tree layout: a rail per depth instead of a bordered box per level, so
+         the card chrome goes. 6px under a description keeps the 12px row
+         rhythm (legacy keeps 8px); at level 0 the divider is gone, so even that
+         6px would double up with the first row's own padding. -->
+    <div
+      class="schema-properties"
+      :class="{
+        'schema-properties-open': open,
+        'w-full! rounded-none! border-0! [.schema-card--level-0:nth-of-type(1)>.schema-card-description+&]:mt-0! [.schema-card-description+&]:mt-1.5!':
+          isTreeLayout,
+      }">
+      <!-- Toggle to collapse/expand long lists of properties -->
       <div
-        v-if="schemaDescription"
-        class="schema-card-description">
-        <ScalarMarkdown :value="schemaDescription" />
-      </div>
-      <div
-        v-if="isEmptySchemaObject(resolvedSchema)"
-        class="pt-2">
-        {{ translate('schema.emptyObject') }}
-      </div>
-      <div
+        v-if="additionalProperties"
+        v-show="!open"
         class="schema-properties"
-        :class="{
-          'schema-properties-open': open,
-        }">
-        <!-- Toggle to collapse/expand long lists of properties -->
-        <div
-          v-if="additionalProperties"
-          v-show="!open"
-          class="schema-properties">
-          <DisclosureButton
-            as="button"
-            class="schema-card-title schema-card-title--compact"
-            @click.capture="handleClick">
-            <ScalarIcon
-              class="schema-card-title-icon"
-              icon="Add"
-              size="sm" />
+        :class="{ 'w-full! rounded-none! border-0!': isTreeLayout }">
+        <!-- Tree layout: the reveal reads as one more row — mono label flush
+             with the sibling rows' text, a plus puck centred on the sibling
+             toggles' line — in place of the legacy card-title chrome.
+             `min-h-8` is the row's own 32px: the label then centres in the
+             same 20px slot a heading gets, so the first revealed property
+             lands exactly where the label was instead of 2.5px below it. -->
+        <button
+          :id="toggleId"
+          ref="toggle"
+          :aria-controls="panelRendered ? panelId : undefined"
+          :aria-expanded="open"
+          class="schema-card-title schema-card-title--compact group/tree-control"
+          :class="{
+            'additional-toggle--tree font-code text-c-1! relative flex h-auto min-h-8 items-center gap-0! px-0! py-[var(--schema-row-pad,6px)]! text-sm! font-bold!':
+              isTreeLayout,
+          }"
+          type="button"
+          @click="toggle">
+          <!-- Tree layout: the reveal is one more row of the tree, so its plus
+               is the same puck the row toggles draw, on the same gutter line -->
+          <SchemaGlyphPuck
+            v-if="isTreeLayout"
+            class="additional-toggle-glyph" />
+          <ScalarIcon
+            v-else
+            class="schema-card-title-icon"
+            icon="Add"
+            size="sm" />
+          <span class="additional-toggle-label">
             {{ translate('schema.showAdditionalProperties') }}
             <ScreenReader v-if="name">
               {{ translate('schema.forName', { name }) }}
             </ScreenReader>
-          </DisclosureButton>
-        </div>
+          </span>
+        </button>
+      </div>
 
-        <DisclosureButton
-          v-else-if="shouldShowToggle"
-          v-show="!hideHeading && !(noncollapsible && compact)"
-          :as="noncollapsible ? 'div' : 'button'"
-          class="schema-card-title"
-          :class="{ 'schema-card-title--compact': compact }"
-          :style="{
-            top: `calc(var(--refs-viewport-offset) +  calc(var(--schema-title-height) * ${level}))`,
-          }"
-          @click.capture="handleClick">
-          <template v-if="compact">
-            <ScalarIcon
-              class="schema-card-title-icon"
-              :class="{ 'schema-card-title-icon--open': open }"
-              icon="Add"
-              size="sm" />
-            <template v-if="open">
-              {{
-                translate('schema.hideChildAttributes', {
-                  name: childAttributesLabel,
-                })
-              }}
-            </template>
-            <template v-else>
-              {{
-                translate('schema.showChildAttributes', {
-                  name: childAttributesLabel,
-                })
-              }}
-            </template>
-            <ScreenReader v-if="name">
-              {{ translate('schema.forName', { name }) }}
-            </ScreenReader>
+      <!-- Still a `div` when noncollapsible, so the legacy markup is unchanged;
+           it has no role or tab stop, which the gutter control later fixes. -->
+      <component
+        :is="noncollapsible ? 'div' : 'button'"
+        v-else-if="shouldShowToggle"
+        v-show="!hideHeading && !(noncollapsible && compact)"
+        :id="noncollapsible ? undefined : toggleId"
+        ref="toggle"
+        :aria-controls="!noncollapsible && panelRendered ? panelId : undefined"
+        :aria-expanded="noncollapsible ? undefined : open"
+        class="schema-card-title"
+        :class="{ 'schema-card-title--compact': compact }"
+        :style="{
+          top: `calc(var(--refs-viewport-offset) +  calc(var(--schema-title-height) * ${level}))`,
+        }"
+        :type="noncollapsible ? undefined : 'button'"
+        @click="toggle">
+        <template v-if="compact">
+          <ScalarIcon
+            class="schema-card-title-icon"
+            :class="{ 'schema-card-title-icon--open': open }"
+            icon="Add"
+            size="sm" />
+          <template v-if="open">
+            {{
+              translate('schema.hideChildAttributes', {
+                name: childAttributesLabel,
+              })
+            }}
           </template>
           <template v-else>
-            <ScalarIcon
-              class="schema-card-title-icon"
-              :class="{ 'schema-card-title-icon--open': open }"
-              icon="Add"
-              size="sm" />
-            <SchemaHeading
-              :name="resolvedSchema?.title ?? name"
-              :value="resolvedSchema" />
+            {{
+              translate('schema.showChildAttributes', {
+                name: childAttributesLabel,
+              })
+            }}
           </template>
-        </DisclosureButton>
-        <DisclosurePanel
-          v-if="!additionalProperties || open"
-          as="ul"
-          :static="!shouldShowToggle">
-          <!-- Variant selector inferred from a discriminator mapping -->
-          <SchemaComposition
-            v-if="inferredDiscriminatorComposition"
-            :breadcrumb
-            :compact
-            composition="oneOf"
-            :compositionPath="compositionPath"
-            :discriminator="schema?.discriminator"
-            :eventBus="eventBus"
-            :hideHeading
-            :hideModelNames
-            :level="level"
-            :name="name"
-            :options
-            :schema="inferredDiscriminatorComposition"
-            :schemaContext="schemaContext" />
-          <!-- Object properties -->
-          <SchemaObjectProperties
-            v-else-if="isTypeObject(resolvedSchema)"
+          <ScreenReader v-if="name">
+            {{ translate('schema.forName', { name }) }}
+          </ScreenReader>
+        </template>
+        <template v-else>
+          <ScalarIcon
+            class="schema-card-title-icon"
+            :class="{ 'schema-card-title-icon--open': open }"
+            icon="Add"
+            size="sm" />
+          <SchemaHeading
+            :name="resolvedSchema?.title ?? name"
+            :value="resolvedSchema" />
+        </template>
+      </component>
+      <!-- The theme reset strips list-style, which makes Safari and VoiceOver
+           drop list semantics; an explicit role restores them. -->
+      <ul
+        v-if="panelRendered"
+        :id="panelId"
+        ref="panel"
+        role="list">
+        <!-- Variant selector inferred from a discriminator mapping -->
+        <SchemaComposition
+          v-if="inferredDiscriminatorComposition"
+          :breadcrumb
+          :compact
+          composition="oneOf"
+          :compositionPath="compositionPath"
+          :discriminator="schema?.discriminator"
+          :eventBus="eventBus"
+          :hideHeading
+          :depth="depth"
+          :hideModelNames
+          :level="level"
+          :name="name"
+          :options
+          :schema="inferredDiscriminatorComposition"
+          :schemaContext="schemaContext" />
+        <!-- Object properties -->
+        <SchemaObjectProperties
+          v-else-if="isTypeObject(resolvedSchema)"
+          :breadcrumb
+          :compact
+          :compositionPath="compositionPath"
+          :discriminator
+          :eventBus="eventBus"
+          :hideHeading
+          :depth="depth"
+          :hideModelNames
+          :level="level + 1"
+          :options
+          :schema="resolvedSchema"
+          :schemaContext="schemaContext" />
+        <!-- Not an object -->
+        <template v-else>
+          <SchemaProperty
+            v-if="resolvedSchema"
             :breadcrumb
             :compact
             :compositionPath="compositionPath"
             :discriminator
             :eventBus="eventBus"
             :hideHeading
+            :depth="depth"
             :hideModelNames
-            :level="level + 1"
+            :level
             :options
             :schema="resolvedSchema"
             :schemaContext="schemaContext" />
-          <!-- Not an object -->
-          <template v-else>
-            <SchemaProperty
-              v-if="resolvedSchema"
-              :breadcrumb
-              :compact
-              :compositionPath="compositionPath"
-              :discriminator
-              :eventBus="eventBus"
-              :hideHeading
-              :hideModelNames
-              :level
-              :options
-              :schema="resolvedSchema"
-              :schemaContext="schemaContext" />
-          </template>
-        </DisclosurePanel>
-      </div>
+        </template>
+      </ul>
     </div>
-  </Disclosure>
+  </div>
 </template>
 <style scoped>
 .error {
