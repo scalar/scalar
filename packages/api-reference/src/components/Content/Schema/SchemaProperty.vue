@@ -634,13 +634,19 @@ const onBeforeMatch = (): void => {
     ]">
     <!-- Tree layout: the disclosure control in this row's own gutter. See
          SchemaGutterToggle for the accessible-name wiring. -->
-    <!-- Absolutely positioned so the 24px hit box never sizes the heading row;
-         the offset centres the puck on the rail line, and z-1 beats the rail
-         strip so the puck wins the pointer. -->
+    <!-- Absolutely positioned so the hit box never sizes the heading row, and
+         z-1 beats the rail strip so the puck wins the pointer.
+
+         Vertically: the toggle is a grid item of row 1, so `top` is measured
+         from the heading's own grid area. 10px is half the heading's 20px
+         first-line slot, and the -50% translate centres a control of ANY size
+         on it — a fixed offset silently rides 2px high the moment the narrow
+         container shrinks the control. Anchored to the first line, not the
+         area's middle, so a wrapped name keeps its toggle beside line one. -->
     <SchemaGutterToggle
       v-if="isTreeRow"
       ref="treeToggle"
-      class="absolute start-[calc(0px_-_var(--schema-toggle-half,12px)_-_var(--schema-gutter,16px))] -top-0.5 z-[1] col-start-1 row-start-1 print:hidden"
+      class="absolute start-[calc(0px_-_var(--schema-toggle-half,12px)_-_var(--schema-gutter,16px))] top-2.5 z-[1] col-start-1 row-start-1 -translate-y-1/2 print:hidden"
       :countId="treeChildCountLabel ? treeCountId : undefined"
       :fallbackLabel="treeFallbackLabel"
       :nameId="name ? treeNameId : undefined"

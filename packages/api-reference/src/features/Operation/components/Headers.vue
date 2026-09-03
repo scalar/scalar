@@ -99,13 +99,15 @@ const countLabel = computed(() =>
 </script>
 <template>
   <!-- Tree layout: outdented one gutter so, inside a railed response panel,
-       the toggle straddles the rail and the label sits in the text column -->
+       the toggle straddles the rail and the label sits in the text column.
+       Vertically it centres on the label's own line (6px is this row's py-1.5,
+       `0.5lh` half the line box) so it holds at any control size. -->
   <div
     v-if="isTreeLayout"
     class="property property--tree headers-tree-group relative mt-1.5 py-1.5"
     @keydown="onGroupKeydown">
     <SchemaGutterToggle
-      class="absolute start-[calc(0px_-_var(--schema-toggle-half,12px)_-_var(--schema-gutter,16px))] top-[1.5px] z-[1]"
+      class="absolute start-[calc(0px_-_var(--schema-toggle-half,12px)_-_var(--schema-gutter,16px))] top-[calc(6px_+_0.5lh)] z-[1] -translate-y-1/2"
       :countId="countId"
       :fallbackLabel="translate('operation.headers')"
       :nameId="nameId"
