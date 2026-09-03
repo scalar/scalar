@@ -18,7 +18,7 @@ Scalar is a Vue 3 + TypeScript monorepo for API documentation and testing.
 ## Prerequisites
 
 - **Node.js**: v24 (see `.nvmrc`)
-- **Package manager**: pnpm (v10.16.1+)
+- **Package manager**: pnpm (v12.1.0+)
 
 ## First-Time Setup
 
@@ -484,7 +484,7 @@ Use consistent terminology:
 ### Environment
 
 - **Node.js v24** is managed via nvm. The update script handles installation automatically.
-- **pnpm v10.16.1** is activated via corepack. No global install needed.
+- **pnpm v12.1.0** is activated via corepack. No global install needed.
 - After `pnpm install`, you may see a warning about ignored esbuild build scripts. This is safe to ignore — Vite 8 uses Rolldown and the build succeeds without esbuild's platform binary.
 
 ### Running dev servers

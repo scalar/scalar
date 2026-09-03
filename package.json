@@ -4,19 +4,9 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "pnpm": "^10.16.1"
+    "pnpm": "^12.0.0"
   },
-  "packageManager": "pnpm@10.16.1",
-  "pnpm": {
-    "overrides": {
-      "@types/node": "catalog:*",
-      "fast-uri@3.1.2": "3.0.1",
-      "lodash": "4.18.1",
-      "property-information": "7.1.0",
-      "undici": "catalog:*",
-      "scalar-app>undici": "8.10.0"
-    }
-  },
+  "packageManager": "pnpm@12.1.0",
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
     "@changesets/cli": "^2.29.8",
