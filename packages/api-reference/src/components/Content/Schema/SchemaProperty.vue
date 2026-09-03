@@ -323,6 +323,62 @@ const arrayItemsCycleKey = computed(() => {
   return getCycleKey(value.items)
 })
 
+/**
+ * Props for a child `<Schema>`, derived once instead of at every call site.
+ *
+ * A row's children render in three places — an open tree panel, a nameless
+ * tree container, the legacy card — and each used to spell out both branches
+ * in full: six invocations of thirteen near-identical props. All but two
+ * belong to the row rather than the site, so they live here; the sites still
+ * pass `depth` (the panel steps it, the others do not) and collapsibility.
+ */
+const sharedChildProps = computed(() => ({
+  compact: props.compact,
+  eventBus: props.eventBus,
+  hideModelNames: props.hideModelNames,
+  level: props.level + 1,
+  name: props.name,
+  options: props.options,
+  schemaContext: props.schemaContext,
+}))
+
+/** The object branch: this row's own properties, under this row's anchor path. */
+const objectChildProps = computed(() =>
+  shouldRenderObjectProperties.value
+    ? {
+        ...sharedChildProps.value,
+        breadcrumb: childBreadcrumb.value,
+        compositionPath: currentCompositionPath.value,
+        cycleKey: props.cycleKey,
+        schema: objectSchemaForChildren.value,
+      }
+    : null,
+)
+
+/**
+ * The array branch: the items schema. Deliberately no breadcrumb — items are
+ * not a named property, so they extend no anchor path.
+ */
+const arrayChildProps = computed(() =>
+  shouldRenderArrayOfObjects.value && resolvedArrayItems.value
+    ? {
+        ...sharedChildProps.value,
+        compositionPath: arrayItemsCompositionPath.value,
+        cycleKey: arrayItemsCycleKey.value,
+        schema: resolve.schema(resolvedArrayItems.value),
+      }
+    : null,
+)
+
+/**
+ * What a tree site renders: the branches tried object-first, which is exactly
+ * the `v-if` / `v-else-if` pair it replaces. Only the legacy layout keeps the
+ * two apart, because only it can render both at once.
+ */
+const treeChildProps = computed(
+  () => objectChildProps.value ?? arrayChildProps.value,
+)
+
 /** Check if discriminator matches current property */
 const isDiscriminatorProperty = computed(() =>
   Boolean(props.name && props.discriminator?.propertyName === props.name),
@@ -818,35 +874,12 @@ const onBeforeMatch = (): void => {
         :hidden="isTreeOpen ? undefined : 'until-found'"
         @beforematch="onBeforeMatch"
         @close="toggleTree">
+        <!-- The panel is one level deeper than the row it belongs to -->
         <Schema
-          v-if="shouldRenderObjectProperties"
-          :breadcrumb="childBreadcrumb"
-          :compact="compact"
-          :compositionPath="currentCompositionPath"
-          :cycleKey="cycleKey"
+          v-if="treeChildProps"
+          v-bind="treeChildProps"
           :depth="depth + 1"
-          :eventBus="eventBus"
-          :hideModelNames
-          :level="level + 1"
-          :name="name"
-          noncollapsible
-          :options="options"
-          :schema="objectSchemaForChildren"
-          :schemaContext="schemaContext" />
-        <Schema
-          v-else-if="shouldRenderArrayOfObjects && resolvedArrayItems"
-          :compact="compact"
-          :compositionPath="arrayItemsCompositionPath"
-          :cycleKey="arrayItemsCycleKey"
-          :depth="depth + 1"
-          :eventBus="eventBus"
-          :hideModelNames
-          :level="level + 1"
-          :name="name"
-          noncollapsible
-          :options="options"
-          :schema="resolve.schema(resolvedArrayItems)"
-          :schemaContext="schemaContext" />
+          noncollapsible />
       </SchemaRailPanel>
 
       <!-- A container renders its children directly with no depth step. Not a
@@ -855,73 +888,32 @@ const onBeforeMatch = (): void => {
       <div
         v-if="isExpandable && !isCyclicProperty && !isTreeRow"
         class="children [.property-description+&]:mt-1.5!">
+        <!-- A container adds no rail, so its children keep this row's depth -->
         <Schema
-          v-if="shouldRenderObjectProperties"
-          :breadcrumb="childBreadcrumb"
-          :compact="compact"
-          :compositionPath="currentCompositionPath"
-          :cycleKey="cycleKey"
+          v-if="treeChildProps"
+          v-bind="treeChildProps"
           :depth="depth"
-          :eventBus="eventBus"
-          :hideModelNames
-          :level="level + 1"
-          :name="name"
-          noncollapsible
-          :options="options"
-          :schema="objectSchemaForChildren"
-          :schemaContext="schemaContext" />
-        <Schema
-          v-else-if="shouldRenderArrayOfObjects && resolvedArrayItems"
-          :compact="compact"
-          :compositionPath="arrayItemsCompositionPath"
-          :cycleKey="arrayItemsCycleKey"
-          :depth="depth"
-          :eventBus="eventBus"
-          :hideModelNames
-          :level="level + 1"
-          :name="name"
-          noncollapsible
-          :options="options"
-          :schema="resolve.schema(resolvedArrayItems)"
-          :schemaContext="schemaContext" />
+          noncollapsible />
       </div>
     </template>
 
-    <!-- Object -->
+    <!-- Object. Legacy sets no depth: that counter belongs to the tree. -->
     <div
-      v-if="!isTreeLayout && shouldRenderObjectProperties"
+      v-if="!isTreeLayout && objectChildProps"
       class="children">
       <Schema
-        :breadcrumb="childBreadcrumb"
-        :compact="compact"
-        :compositionPath="currentCompositionPath"
-        :cycleKey="cycleKey"
-        :eventBus="eventBus"
-        :hideModelNames
-        :level="level + 1"
-        :name="name"
-        :noncollapsible="noncollapsible"
-        :options="options"
-        :schema="objectSchemaForChildren"
-        :schemaContext="schemaContext" />
+        v-bind="objectChildProps"
+        :noncollapsible="noncollapsible" />
     </div>
 
-    <!-- Array of objects or nested arrays -->
+    <!-- Array of objects or nested arrays. A separate block, not an `else`:
+         see `arrayChildProps` for the schema that satisfies both. -->
     <div
-      v-if="!isTreeLayout && shouldRenderArrayOfObjects && resolvedArrayItems"
+      v-if="!isTreeLayout && arrayChildProps"
       class="children">
       <Schema
-        :compact="compact"
-        :compositionPath="arrayItemsCompositionPath"
-        :cycleKey="arrayItemsCycleKey"
-        :eventBus="eventBus"
-        :hideModelNames
-        :level="level + 1"
-        :name="name"
-        :noncollapsible="noncollapsible"
-        :options="options"
-        :schema="resolve.schema(resolvedArrayItems)"
-        :schemaContext="schemaContext" />
+        v-bind="arrayChildProps"
+        :noncollapsible="noncollapsible" />
     </div>
 
     <!-- Compositions -->
