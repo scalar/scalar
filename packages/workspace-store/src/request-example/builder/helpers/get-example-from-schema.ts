@@ -85,7 +85,11 @@ const guessFromFormat = (
 
   // Return format-specific example if we have one and are making up data
   if (makeUpRandomData && 'format' in schema && schema.format) {
-    return genericExampleValues[schema.format] ?? fallback
+    // Some generators emit version-specific UUID formats (for example FastAPI/Pydantic
+    // uses uuid1, uuid3, uuid4 and uuid5). Treat them all like a regular uuid.
+    const format = /^uuid[1-8]$/.test(schema.format) ? 'uuid' : schema.format
+
+    return genericExampleValues[format] ?? fallback
   }
 
   return fallback
