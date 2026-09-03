@@ -11,7 +11,7 @@ export type SchemaOptions = {
   hideReadOnly?: boolean
   /** Hide write-only properties */
   hideWriteOnly?: boolean
-  /** Order schema properties, defaults to 'alpha' */
+  /** Order schema properties, defaults to 'preserve' */
   orderSchemaPropertiesBy?: ApiReferenceConfiguration['orderSchemaPropertiesBy']
   /** Order required properties first */
   orderRequiredPropertiesFirst?: ApiReferenceConfiguration['orderRequiredPropertiesFirst']
