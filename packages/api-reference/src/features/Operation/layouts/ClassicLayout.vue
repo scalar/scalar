@@ -473,8 +473,21 @@ const { level: headingLevel } = useDocumentOutline('operation')
  *
  * The `:has()` guard keeps the legacy layout untouched: it draws no floating
  * controls and pads its own rows by 9px.
+ *
+ * `.parameter-item--tree` has to be in the guard even though a row of its own
+ * hangs nothing: the classic card renders responses as disclosures, and a
+ * CLOSED one unmounts its panel, taking every `.property--tree` with it. An
+ * operation with only responses would then reserve nothing while its status
+ * rows still drew their pucks 25px to the left — over the card's border — and
+ * the reserve would appear and disappear as rows were opened, shifting the
+ * whole card sideways on a click. The row marker is there whatever the
+ * disclosure is doing, so the reserve holds still.
  */
-.endpoint-content:has(.property--tree, .callback-list-item--tree) {
+.endpoint-content:has(
+  .property--tree,
+  .parameter-item--tree,
+  .callback-list-item--tree
+) {
   padding-inline-start: calc(
     var(--schema-gutter, 16px) + var(--schema-glyph-half, 9px) + 6px
   );

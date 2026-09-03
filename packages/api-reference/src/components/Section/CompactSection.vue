@@ -86,13 +86,37 @@ const labelId = useId()
 }
 .collapsible-section-header {
   color: var(--scalar-color-1);
+  /* Span the row so the toggle's overlay below can cover it. The heading text
+     does not move — it is flex-start — and the copy button is positioned
+     against the zero-width space after the text, not against this box. */
+  flex: 1;
+  min-width: 0;
+}
+
+/*
+ * Restore the full-row click target the row had when the trigger itself was
+ * the button.
+ *
+ * The toggle now sits inside the Anchor (a button may not contain the Anchor's
+ * copy button) and stays `inline` so the copy-link aligns to the last line of
+ * a wrapped heading — but an inline box spans only its own text, which shrank
+ * the target to the heading and lost the dead-space click on every section, in
+ * both layouts. The overlay stretches the hit area back across the row without
+ * changing that inline flow. The copy button paints later in DOM order, so it
+ * stays clickable above the overlay.
+ */
+.collapsible-section-toggle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
 }
 .collapsible-section .collapsible-section-trigger {
   display: flex;
   align-items: center;
-  /* No pointer cursor: this element is no longer the button (a button may not
-     contain the Anchor's copy button), so the row must not advertise a click
-     it cannot handle. The toggle grows its own hit box over this band. */
+  /* The row is no longer the button (a button may not contain the Anchor's
+     copy button), but the toggle's overlay covers it, so the row is still
+     clickable end to end and still shows the pointer. */
+  cursor: pointer;
   padding: 10px 0;
   font-size: var(--scalar-font-size-3);
   z-index: 1;

@@ -83,12 +83,19 @@ const initialVisibleCount = computed(() =>
 /**
  * Short flat enums render as wrapped chips in the tree layout: three lines
  * instead of a 40-row wall. Values with descriptions keep the rows instead.
+ *
+ * `!shouldUseLongListDisplay` is what bounds the COUNT. Chips have no reveal of
+ * their own — the "show all values" control is a row of the list below — so a
+ * long enum of short values (currency or country codes, hundreds of them)
+ * would otherwise render every value at once with no way to collapse it.
+ * Past the threshold the rows take over and bring their toggle with them.
  */
 const shouldRenderAsChips = computed(
   () =>
     layout === 'tree' &&
     !propertyNames &&
     enumValues.value.length > 0 &&
+    !shouldUseLongListDisplay.value &&
     enumValues.value.every(
       (entry) => String(entry).length <= CHIP_MAX_LENGTH,
     ) &&

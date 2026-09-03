@@ -524,6 +524,21 @@ describe('SchemaProperty', () => {
       })
     })
 
+    it('renders a propertyNames enum with the tree card, not the legacy one', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          name: 'measurement',
+          variant: 'additionalProperties',
+          propertyNamesEnum: ['alpha', 'beta'],
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: { schemaLayout: 'tree' },
+        },
+      })
+
+      expect(wrapper.find('.property-enum--tree').exists()).toBe(true)
+    })
+
     describe('tree layout cycles', () => {
       const mountCycle = (schemaLayout: 'tree' | 'legacy') =>
         mount(SchemaProperty, {
@@ -556,6 +571,169 @@ describe('SchemaProperty', () => {
 
       it('keeps the marker out of the legacy layout', () => {
         expect(mountCycle('legacy').find('.property-recursive').exists()).toBe(false)
+      })
+
+      it('reads the cycle key of the branch the panel renders', () => {
+        // `isArraySchema` accepts a type LIST, so this schema satisfies the
+        // object branch AND the array branch. The panel draws the object one,
+        // so the row has to test the object branch's key: reading the items'
+        // key instead misses the loop and expand-all walks it forever.
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'satellites',
+            cycleKey: '#/components/schemas/Satellite',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: ['array', 'object'],
+              items: { $ref: '#/components/schemas/Debris' },
+              properties: { name: { type: 'string' } },
+            }),
+            options: { schemaLayout: 'tree' },
+          },
+          global: {
+            provide: {
+              [SCHEMA_ANCESTORS_SYMBOL as symbol]: new Set(['#/components/schemas/Satellite']),
+            },
+          },
+        })
+
+        expect(wrapper.find('.property-recursive').text()).toBe('recursive')
+        expect(wrapper.find('.property-children').exists()).toBe(false)
+      })
+
+      it('cuts a cycle that returns through array items', () => {
+        // The row's own schema is not the cycle — its ITEMS are, which is the
+        // shape of every `children: Node[]` tree model.
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'satellites',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: { $ref: '#/components/schemas/Satellite' },
+            }),
+            options: { schemaLayout: 'tree' },
+          },
+          global: {
+            provide: {
+              [SCHEMA_ANCESTORS_SYMBOL as symbol]: new Set(['#/components/schemas/Satellite']),
+            },
+          },
+        })
+
+        const detail = wrapper.find('.property-recursive')
+
+        expect(detail.text()).toBe('recursive')
+        // The row names the schema the loop returns to, not itself.
+        expect(detail.attributes('title')).toBe('Recursive reference to Satellite')
+        expect(wrapper.find('.property-children').exists()).toBe(false)
+      })
+    })
+
+    describe('tree layout collapsed rows', () => {
+      /** A row that satisfies BOTH branches; the panel draws the object one. */
+      const mountDualTyped = () =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'hybrid',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: ['array', 'object'],
+              items: { type: 'object', properties: { gamma: { type: 'string' } } },
+              properties: { alpha: { type: 'string' }, beta: { type: 'string' } },
+            }),
+            options: { schemaLayout: 'tree' },
+          },
+        })
+
+      it('previews the property names the panel would render', () => {
+        const wrapper = mountDualTyped()
+
+        // Describing the array items instead would advertise rows that open to
+        // something else entirely.
+        expect(wrapper.find('.property-collapsed-preview').text()).toBe('{ alpha, beta }')
+      })
+
+      it('describes the toggle with the count of those same rows', () => {
+        const wrapper = mountDualTyped()
+
+        const countId = wrapper.find('.property-toggle').attributes('aria-describedby')
+
+        expect(countId).toBeTruthy()
+        expect(wrapper.find(`#${countId}`).text()).toBe('Properties: 2')
+      })
+
+      it('previews the first rows in panel order and elides the rest', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'wide',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                one: { type: 'string' },
+                two: { type: 'string' },
+                three: { type: 'string' },
+                four: { type: 'string' },
+                five: { type: 'string' },
+              },
+            }),
+            options: { schemaLayout: 'tree' },
+          },
+        })
+
+        // The same sorted list the panel renders, so the hint names the rows
+        // the reader will actually see first rather than document order.
+        expect(wrapper.find('.property-collapsed-preview').text()).toBe('{ five, four, one, +2 }')
+      })
+
+      it('counts and previews only the rows the filters leave behind', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'account',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                createdAt: { type: 'string', readOnly: true },
+                email: { type: 'string' },
+              },
+            }),
+            options: { schemaLayout: 'tree', hideReadOnly: true },
+          },
+        })
+
+        const countId = wrapper.find('.property-toggle').attributes('aria-describedby')
+
+        // Raw keys would promise a row the panel drops, so the toggle would
+        // announce a child that is not there when it opens.
+        expect(wrapper.find(`#${countId}`).text()).toBe('Properties: 1')
+        expect(wrapper.find('.property-collapsed-preview').text()).toBe('{ email }')
+      })
+
+      it('drops the preview once the row is open', async () => {
+        const wrapper = mountDualTyped()
+
+        await wrapper.find('.property-toggle').trigger('click')
+
+        // The rows themselves are on screen now; the hint would just repeat them.
+        expect(wrapper.find('.property-collapsed-preview').exists()).toBe(false)
+      })
+
+      it('keeps the preview out of the legacy layout', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'hybrid',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: { alpha: { type: 'string' } },
+            }),
+            options: { schemaLayout: 'legacy' },
+          },
+        })
+
+        expect(wrapper.find('.property-collapsed-preview').exists()).toBe(false)
       })
     })
 

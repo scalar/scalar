@@ -379,6 +379,19 @@ const treeChildProps = computed(
   () => objectChildProps.value ?? arrayChildProps.value,
 )
 
+/**
+ * Whether a tree row draws its ARRAY branch, which is the object branch's
+ * first-match complement rather than `shouldRenderArrayOfObjects` on its own.
+ * The two branches are not exclusive: `isArraySchema` accepts a type LIST, so
+ * a schema typed `['array', 'object']` carrying both `items` and `properties`
+ * satisfies both, and `treeChildProps` renders the object one. Everything a
+ * row says about its children — the cycle key, the count, the preview — has to
+ * describe the branch the panel actually draws.
+ */
+const rendersArrayBranch = computed(
+  (): boolean => !objectChildProps.value && !!arrayChildProps.value,
+)
+
 /** Check if discriminator matches current property */
 const isDiscriminatorProperty = computed(() =>
   Boolean(props.name && props.discriminator?.propertyName === props.name),
@@ -423,7 +436,7 @@ const isExpandable = computed(
 const ancestors = inject(SCHEMA_ANCESTORS_SYMBOL, undefined)
 
 const treeCycleKey = computed(() =>
-  shouldRenderArrayOfObjects.value ? arrayItemsCycleKey.value : props.cycleKey,
+  rendersArrayBranch.value ? arrayItemsCycleKey.value : props.cycleKey,
 )
 
 const isCyclicProperty = computed(
@@ -493,7 +506,8 @@ const isTreeOpen = computed(
  * Mount policy, three states. Never opened: not rendered, which is the render
  * guard that stops a `$ref` cycle from recursing. Open: rendered. Opened then
  * closed: kept under `hidden="until-found"` so find-in-page can reach it,
- * capped tree-wide so hundreds of closed rows do not pile up as hidden DOM.
+ * against a budget the whole reference shares, so hundreds of closed rows across
+ * every tree on the page do not pile up as hidden DOM.
  * Past the cap, and in Safari where `until-found` is inert, closed panels unmount.
  */
 const keepClosedPanelMounted = ref(false)
@@ -544,19 +558,27 @@ const treeToggleRef = useTemplateRef<{ $el: HTMLElement } | HTMLElement>(
 )
 
 /**
+ * The schema the panel hands to its child `Schema`, so the count and the
+ * preview describe the rows that render. Object-first, like `treeChildProps`.
+ */
+const treeChildSchema = computed(() =>
+  rendersArrayBranch.value
+    ? resolvedArrayItems.value
+    : objectSchemaForChildren.value,
+)
+
+/**
  * The filtered, ordered child property names, computed once per row because
  * `sortPropertyNames` (sort plus `$ref` resolution of every child) is the
  * hottest per-row cost and both the count label and the preview need it. Same
  * call the panel makes — full options, no discriminator — or the preview names
  * the wrong first rows and the count disagrees with the panel.
  */
-const sortedChildPropertyNames = computed((): string[] => {
-  const source = shouldRenderArrayOfObjects.value
-    ? resolvedArrayItems.value
-    : objectSchemaForChildren.value
-
-  return source ? sortPropertyNames(source, undefined, props.options) : []
-})
+const sortedChildPropertyNames = computed((): string[] =>
+  treeChildSchema.value
+    ? sortPropertyNames(treeChildSchema.value, undefined, props.options)
+    : [],
+)
 
 /**
  * The child count that rides the toggle's `aria-describedby`. A description
@@ -569,9 +591,7 @@ const treeChildCountLabel = computed((): string | null => {
 
   // Count the rows the panel will actually render: hideReadOnly / hideWriteOnly
   // filter the list, so raw keys would announce children that do not exist.
-  const source = shouldRenderArrayOfObjects.value
-    ? resolvedArrayItems.value
-    : objectSchemaForChildren.value
+  const source = treeChildSchema.value
   if (!source) {
     return null
   }
@@ -804,11 +824,7 @@ const onBeforeMatch = (): void => {
           aria-hidden="true"
           class="mr-0!"
           :propertyNames="sortedChildPropertyNames"
-          :schema="
-            shouldRenderArrayOfObjects
-              ? (resolvedArrayItems as SchemaObject)
-              : (objectSchemaForChildren as SchemaObject)
-          " />
+          :schema="treeChildSchema as SchemaObject" />
       </template>
       <template
         v-if="isTreeLayout && name && shouldHaveLink && childBreadcrumb"
@@ -831,9 +847,13 @@ const onBeforeMatch = (): void => {
         :value="displayDescription || propertyDescription || ''" />
     </div>
 
-    <!-- Enum for property names -->
+    <!-- Enum for property names. Takes the layout like the value enum below:
+         without it this defaults to `legacy` and renders the old markup inside
+         a tree row, on any additionalProperties/patternProperties schema whose
+         propertyNames carry an enum. -->
     <SchemaEnums
       v-if="propertyNamesEnum && propertyNamesEnum.length > 0"
+      :layout="isTreeLayout ? 'tree' : 'legacy'"
       propertyNames
       :value="{ enum: propertyNamesEnum } as SchemaObject" />
 
