@@ -97,13 +97,54 @@
   /* The theme's own border colour, so rails match every other hairline on the
      page; the depth fade in `schema-rail` softens nested rails from this base. */
   --schema-rail-base: var(--scalar-border-color);
+  /* Control sizes, and the HALF of each that positions it. A floating control
+     is centred on the rail by hanging it `half + gutter` to the left of the
+     text, so the halves must be tokens too: hard-coded offsets silently drift
+     off the rail the moment a size changes. */
+  --schema-glyph-size: 18px;
+  --schema-glyph-half: 9px;
+  --schema-glyph-icon: 16px;
+  --schema-toggle-size: 24px;
+  --schema-toggle-half: 12px;
+}
+
+/*
+ * Narrow container: tighten the indent and shrink the controls so a deep tree
+ * still fits, and so the outermost control clears the page edge instead of
+ * being clipped by it.
+ *
+ * The query matches `Section.vue`'s, which is what makes the numbers work: at
+ * this width a section pads its content by 24px, and the outermost control
+ * hangs `gutter + half` to the LEFT of that content, outside the padding. The
+ * wide tokens need 25px and were clipped by the viewport; these need 18px.
+ * Tying the two to one query is the point — a section that padded differently
+ * from what the controls assume is exactly how they end up cut off again.
+ *
+ * Applied to every direct child of the container rather than to `.schema-tree`,
+ * for two reasons. Response rows, callbacks and header groups draw rails of
+ * their own ABOVE any tree root — scoped to the root they kept the wide gutter
+ * and their glyphs landed on a different line from the schema rows below them.
+ * And a container query never matches the element declaring the container, so
+ * these cannot live in the `.scalar-app` block above: that element is an
+ * ancestor of the container (declared in Content.vue), not inside it.
+ */
+@container narrow-references-container (max-width: 900px) {
+  .narrow-references-container > * {
+    --schema-gutter: 10px;
+    --schema-glyph-size: 16px;
+    --schema-glyph-half: 8px;
+    --schema-glyph-icon: 14px;
+    --schema-toggle-size: 20px;
+    --schema-toggle-half: 10px;
+  }
 }
 
 /**
  * Schema tree utilities: the depth-faded rail, the glyph puck and the rail's
  * pointer strip, shared so every surface composes the same classes. Their custom
  * properties live in the `.scalar-app` token block above (--schema-rail-base,
- * --schema-depth) and on the tree root (--schema-glyph-*). The fade must stay a
+ * --schema-depth, the control sizes); only the glyph's own colours are set on
+ * the tree root (--schema-glyph-background, --schema-glyph-color). The fade must stay a
  * use-site formula: a custom property substitutes where it is declared, so a
  * token would freeze at depth 0 and every rail would render the same grey.
  */
@@ -113,12 +154,12 @@
 }
 
 /* The knockout puck a tree glyph sits in: opaque, so a rail reads as passing
-   behind it. 18px around a 16px icon, inside a larger hit target on purpose.
-   The border is always there, transparent at rest, so the hover ring never
-   shifts the icon. */
+   behind it. 18px around a 16px icon (16/14 in a narrow container), inside a
+   larger hit target on purpose. The border is always there, transparent at
+   rest, so the hover ring never shifts the icon. */
 @utility schema-glyph {
-  inline-size: 18px;
-  block-size: 18px;
+  inline-size: var(--schema-glyph-size, 18px);
+  block-size: var(--schema-glyph-size, 18px);
   display: grid;
   place-items: center;
   border-radius: 9999px;

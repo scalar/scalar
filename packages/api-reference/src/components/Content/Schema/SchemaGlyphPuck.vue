@@ -28,11 +28,11 @@ const {
 <template>
   <span
     aria-hidden="true"
-    class="schema-glyph tree-control-hover:bg-b-1 tree-control-hover:text-c-1 tree-control-hover:border-(--scalar-border-color) print:bg-transparent [&_svg]:size-4"
+    class="schema-glyph tree-control-hover:bg-b-1 tree-control-hover:text-c-1 tree-control-hover:border-(--scalar-border-color) print:bg-transparent [&_svg]:size-[var(--schema-glyph-icon,16px)]"
     :class="
       floating
         ? [
-            'absolute start-[calc(-9px_-_var(--schema-gutter,16px))] -translate-y-1/2',
+            'absolute start-[calc(0px_-_var(--schema-glyph-half,9px)_-_var(--schema-gutter,16px))] -translate-y-1/2',
             anchor === 'line' ? 'top-[0.5lh]' : 'top-1/2',
           ]
         : undefined

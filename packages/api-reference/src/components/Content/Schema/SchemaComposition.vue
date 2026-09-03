@@ -296,7 +296,9 @@ if (
           class="composition-selector composition-selector--tree group/tree-control font-code relative flex w-fit cursor-pointer items-center gap-1.5 py-1 text-sm"
           type="button">
           <SchemaGlyphPuck class="composition-selector-icon">
-            <ScalarIconCaretUpDown class="size-4" />
+            <!-- No size of its own: the puck sizes the icons it holds, so this
+                 one shrinks with the others in a narrow container -->
+            <ScalarIconCaretUpDown />
           </SchemaGlyphPuck>
           <!-- Keyword and choice read as one bold name, split by the same `·`
                the tree uses between details -->

@@ -640,7 +640,7 @@ const onBeforeMatch = (): void => {
     <SchemaGutterToggle
       v-if="isTreeRow"
       ref="treeToggle"
-      class="absolute start-[calc(-12px_-_var(--schema-gutter,16px))] -top-0.5 z-[1] col-start-1 row-start-1 print:hidden"
+      class="absolute start-[calc(0px_-_var(--schema-toggle-half,12px)_-_var(--schema-gutter,16px))] -top-0.5 z-[1] col-start-1 row-start-1 print:hidden"
       :countId="treeChildCountLabel ? treeCountId : undefined"
       :fallbackLabel="treeFallbackLabel"
       :nameId="name ? treeNameId : undefined"

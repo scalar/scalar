@@ -376,12 +376,14 @@ const toggle = (): void => {
       /*
        * Tree-local tokens, namespaced --schema-* so no preset or user theme
        * breaks. WCAG 1.4.11 wants 3:1 for the glyph; --scalar-color-3 measures
-       * 3.28:1 only before opacity, so the glyph reads color-2 (rail tokens:
-       * styles/tailwind.config.css). In a narrow container the indent tightens
-       * instead of truncating; the glyph centre still sits on the rail.
+       * 3.28:1 only before opacity, so the glyph reads color-2. The narrow
+       * container tightens the indent and the control sizes, but that lives at
+       * app scope (styles/tailwind.config.css) with the other rail tokens: the
+       * surfaces above a tree root draw rails too, and they must tighten with
+       * it or their glyphs land on a different line.
        */
       {
-        'schema-tree [--schema-glyph-background:var(--scalar-background-1)] [--schema-glyph-color:var(--scalar-color-2)] @max-[480px]/narrow-references-container:[--schema-gutter:10px]':
+        'schema-tree [--schema-glyph-background:var(--scalar-background-1)] [--schema-glyph-color:var(--scalar-color-2)]':
           isTreeRoot,
       },
     ]"

@@ -37,11 +37,11 @@ const emit = defineEmits<{
     :aria-expanded="open"
     :aria-label="nameId ? undefined : fallbackLabel"
     :aria-labelledby="nameId"
-    class="property-toggle group/tree-control flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-[999px] border-none bg-transparent p-0 text-[color:var(--schema-glyph-color,var(--scalar-color-2))]"
+    class="property-toggle group/tree-control flex size-[var(--schema-toggle-size,24px)] shrink-0 cursor-pointer items-center justify-center rounded-[999px] border-none bg-transparent p-0 text-[color:var(--schema-glyph-color,var(--scalar-color-2))]"
     data-schema-toggle
     type="button"
     @click="emit('toggle')">
-    <!-- Inline, not floating: the button is already the 24px box the puck centres in -->
+    <!-- Inline, not floating: the button is already the box the puck centres in -->
     <SchemaGlyphPuck
       class="property-glyph"
       :floating="false"

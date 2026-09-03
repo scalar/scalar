@@ -105,7 +105,7 @@ const countLabel = computed(() =>
     class="property property--tree headers-tree-group relative mt-1.5 py-1.5"
     @keydown="onGroupKeydown">
     <SchemaGutterToggle
-      class="absolute start-[calc(-12px_-_var(--schema-gutter,16px))] top-[1.5px] z-[1]"
+      class="absolute start-[calc(0px_-_var(--schema-toggle-half,12px)_-_var(--schema-gutter,16px))] top-[1.5px] z-[1]"
       :countId="countId"
       :fallbackLabel="translate('operation.headers')"
       :nameId="nameId"
