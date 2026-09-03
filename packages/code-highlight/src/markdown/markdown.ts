@@ -1,4 +1,5 @@
 import type { Element as HastElement, ElementContent as HastElementContent, Root as HastRoot } from 'hast'
+import { createLowlight } from 'lowlight'
 import type { Heading, Root as MdastRoot, RootContent as MdastRootContent, Node, PhrasingContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
@@ -32,23 +33,34 @@ export const isHeading = (node: Node): node is Heading => {
 }
 
 /**
+ * The transform for the render currently in flight.
+ *
+ * A `unified` processor is configured once, at `use()` time, but `transform`
+ * arrives per call — so it is handed over here instead. `processSync` runs to
+ * completion without yielding, so nothing can interleave; the save and restore
+ * in `htmlFromMarkdown` only matter if a `transform` were itself to render
+ * Markdown.
+ */
+let activeTransform: Options = {}
+
+/**
  * Plugin to transform nodes in a Markdown AST
  */
-const transformNodes =
-  (options?: Readonly<Options> | null | undefined, ..._ignored: any[]) =>
-  (tree: Node) => {
-    if (!options?.transform || !options?.type) {
-      return
-    }
+const transformNodes = () => (tree: Node) => {
+  const { transform, type } = activeTransform
 
-    visit(tree, options?.type, (node) => {
-      options?.transform ? options?.transform(node) : node
-
-      return SKIP
-    })
-
+  if (!transform || !type) {
     return
   }
+
+  visit(tree, type, (node) => {
+    transform(node)
+
+    return SKIP
+  })
+
+  return
+}
 
 const TAGS_WITH_INLINE_MARKDOWN = new Set(['dd', 'dt', 'li', 'p', 'summary', 'td', 'th'])
 const MAY_CONTAIN_INLINE_MARKDOWN = /[`*_\[~]/
@@ -127,32 +139,37 @@ const transformInlineMarkdownInRawHtml = () => (tree: HastRoot) => {
 }
 
 /**
- * Take a Markdown string and generate HTML from it
+ * One registry for every render.
+ *
+ * `rehypeHighlight` builds its own from `languages` when it is not given an
+ * instance, and it does that at plugin-init — so a per-call processor meant a
+ * fresh registry of every standard grammar on every single Markdown render.
  */
-export function htmlFromMarkdown(
-  markdown: string,
-  options?: {
-    removeTags?: string[]
-    allowTags?: string[]
-    transform?: (node: Node) => Node
-    transformType?: string
-  },
-) {
-  // Add permitted tags and remove stripped ones
-  const removeTags = options?.removeTags ?? []
-  const tagNames = [...(defaultSchema.tagNames ?? []), ...(options?.allowTags ?? [])].filter(
-    (t) => !removeTags.includes(t),
-  )
+const lowlight = createLowlight(standardLanguages)
 
-  const html = unified()
+/** Processors, keyed by the tag allowlist they were built with. */
+const processors = new Map<string, ReturnType<typeof buildProcessor>>()
+
+/**
+ * Rendered HTML, keyed by the Markdown and the tags it was rendered with.
+ *
+ * Only renders without a `transform` are cached. A `transform` is a closure
+ * that can read state the key cannot see — `ScalarMarkdown`'s heading transform
+ * reads `anchorPrefix` off props, so the same function and the same Markdown
+ * can legitimately produce different ids.
+ */
+const rendered = new Map<string, string>()
+
+/** Plenty for a page of descriptions, small enough to stay cheap. */
+const CACHE_LIMIT = 200
+
+const buildProcessor = (tagNames: string[]) =>
+  unified()
     // Parses markdown
     .use(remarkParse)
     // Support autolink literals, footnotes, strikethrough, tables and tasklists
     .use(remarkGfm)
-    .use(transformNodes, {
-      transform: options?.transform,
-      type: options?.transformType,
-    })
+    .use(transformNodes)
     // Allows any HTML tags
     .use(remarkRehype, { allowDangerousHtml: true })
     // Adds GitHub alerts
@@ -179,7 +196,7 @@ export function htmlFromMarkdown(
     })
     // Syntax highlighting
     .use(rehypeHighlight, {
-      languages: standardLanguages,
+      lowlight,
       // Enable auto detection
       detect: true,
       // Adds Scalar's custom scrollbar styling to highlighted code blocks
@@ -191,10 +208,73 @@ export function htmlFromMarkdown(
     .use(rehypeFormat)
     // Converts the HTML AST to a string
     .use(rehypeStringify)
-    // Run the pipeline
-    .processSync(markdown)
+    .freeze()
 
-  return html.toString()
+/** Insert into a bounded cache, evicting the oldest entry once it is full. */
+const remember = (cache: Map<string, string>, key: string, value: string) => {
+  if (cache.size >= CACHE_LIMIT) {
+    const oldest = cache.keys().next().value
+
+    if (oldest !== undefined) {
+      cache.delete(oldest)
+    }
+  }
+
+  cache.set(key, value)
+}
+
+/**
+ * Take a Markdown string and generate HTML from it
+ */
+export function htmlFromMarkdown(
+  markdown: string,
+  options?: {
+    removeTags?: string[]
+    allowTags?: string[]
+    transform?: (node: Node) => Node
+    transformType?: string
+  },
+) {
+  // Add permitted tags and remove stripped ones
+  const removeTags = options?.removeTags ?? []
+  const tagNames = [...(defaultSchema.tagNames ?? []), ...(options?.allowTags ?? [])].filter(
+    (t) => !removeTags.includes(t),
+  )
+
+  const tagKey = tagNames.join(',')
+  const cacheKey = options?.transform ? undefined : `${tagKey}\u0000${markdown}`
+
+  if (cacheKey !== undefined) {
+    const hit = rendered.get(cacheKey)
+
+    if (hit !== undefined) {
+      return hit
+    }
+  }
+
+  let processor = processors.get(tagKey)
+
+  if (!processor) {
+    processor = buildProcessor(tagNames)
+    processors.set(tagKey, processor)
+  }
+
+  const previousTransform = activeTransform
+  activeTransform = { transform: options?.transform, type: options?.transformType }
+
+  let html: string
+
+  try {
+    html = processor.processSync(markdown).toString()
+  } finally {
+    activeTransform = previousTransform
+  }
+
+  if (cacheKey !== undefined) {
+    remember(rendered, cacheKey, html)
+  }
+
+  return html
 }
 
 /**
