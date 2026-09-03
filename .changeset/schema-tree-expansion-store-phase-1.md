@@ -12,6 +12,6 @@ Following a deep link now moves focus to the target as well as scrolling to it, 
 
 Model properties gain anchors: the models layout now passes a breadcrumb, which it never did while the operation layout always has.
 
-Response header anchors no longer carry a doubled `headers.headers` path segment, and are now qualified by status code so each response's headers are addressable on their own. An anchor of the old shape carried no status code, so it cannot be translated; following one now scrolls to the operation it belongs to instead of failing silently.
+Response header anchors in the tree layout no longer carry a doubled `headers.headers` path segment, and are now qualified by status code so each response's headers are addressable on their own. The legacy layout keeps the ids it has always had, doubled segment included, because readers have bookmarked them. An anchor of the old shape carried no status code, so it cannot be translated; following one now scrolls to the operation it belongs to instead of failing silently.
 
 The store is created per `<ApiReference>` rather than module-global, so two references on one page do not share expansion. Markup, class names and layout are unchanged; the generated `id` and `aria-controls` values on schema disclosures differ, since they no longer come from Headless UI.

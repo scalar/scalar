@@ -1627,4 +1627,92 @@ describe('Schema', () => {
       expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
     })
   })
+
+  describe('tree root', () => {
+    it('establishes exactly one root over a nested card that also mounts at depth 0', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          level: 0,
+          noncollapsible: true,
+          options: { schemaLayout: 'tree' },
+          schema: coerceValue(SchemaObjectSchema, {
+            allOf: [
+              { type: 'object', properties: { name: { type: 'string' } } },
+              {
+                oneOf: [
+                  { type: 'object', title: 'A', properties: { a: { type: 'string' } } },
+                  { type: 'object', title: 'B', properties: { b: { type: 'string' } } },
+                ],
+              },
+            ],
+          }),
+        },
+      })
+
+      // An `allOf` member card mounts at depth 0 as well, so depth alone cannot
+      // identify the outermost tree. A second root would install a second
+      // keydown delegate and a second glyph-token scope over the same rows.
+      expect(wrapper.findAll('.schema-card').length).toBeGreaterThan(1)
+      expect(wrapper.findAll('.schema-tree').length).toBe(1)
+    })
+  })
+
+  describe('keyboard navigation', () => {
+    /** A tree with two sibling rows, each collapsible. */
+    const mountTree = (schemaKeyboardNav: boolean) => {
+      const wrapper = mount(Schema, {
+        attachTo: document.body,
+        props: {
+          breadcrumb: ['user'],
+          eventBus: null,
+          level: 0,
+          noncollapsible: true,
+          options: { schemaLayout: 'tree', schemaKeyboardNav },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              address: { type: 'object', properties: { city: { type: 'string' } } },
+              contact: { type: 'object', properties: { email: { type: 'string' } } },
+            },
+          }),
+        },
+      })
+
+      const toggles = wrapper.findAll('.property-toggle')
+
+      // jsdom reports no layout, so the visibility filter needs a stand-in.
+      for (const toggle of toggles) {
+        Object.defineProperty(toggle.element, 'offsetParent', { get: () => document.body })
+      }
+
+      return { wrapper, toggles }
+    }
+
+    it('moves focus between toggles when the flag is on', async () => {
+      const { wrapper, toggles } = mountTree(true)
+      const first = toggles[0]!
+
+      ;(first.element as HTMLElement).focus()
+      await first.trigger('keydown', { key: 'ArrowDown' })
+
+      expect(document.activeElement).toBe(toggles[1]!.element)
+
+      wrapper.unmount()
+    })
+
+    it('leaves arrow keys to the browser when the flag is off', async () => {
+      const { wrapper, toggles } = mountTree(false)
+      const first = toggles[0]!
+
+      ;(first.element as HTMLElement).focus()
+      await first.trigger('keydown', { key: 'ArrowDown' })
+
+      // Arrow keys scroll the page by default, and nothing announces the tree
+      // bindings, so taking them over is opt-in.
+      expect(document.activeElement).toBe(first.element)
+
+      wrapper.unmount()
+    })
+  })
 })

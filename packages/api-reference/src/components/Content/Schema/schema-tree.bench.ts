@@ -6,9 +6,8 @@ import { bench, describe } from 'vitest'
 import Schema from './Schema.vue'
 
 /**
- * Baseline measurements for the schema tree, taken against the current renderer
- * so the Rail & Gutter work has something to compare against rather than a
- * recollection of how fast it used to feel.
+ * Mount measurements for the schema tree, so a change to the renderer has a
+ * number to argue with rather than a recollection of how fast it used to feel.
  *
  * Every fixture mounts twice — once with the legacy renderer and once with
  * `schemaLayout: 'tree'` — so each group's summary prints the tree/legacy
@@ -146,10 +145,12 @@ describe('schema-tree', () => {
     const deep = asSchema(deepObject(5))
 
     /**
-     * `expandAllSchemaProperties` is read once at mount, so today this is the only
-     * way to price expanding a whole tree. Phase 1 moves expansion into a store and
-     * makes it a runtime action; when it does, the runtime `expandAll()` belongs
-     * beside this so the two can be compared directly rather than in the abstract.
+     * Expansion lives in a store now, so `expandAllSchemaProperties` is only the
+     * baseline a node falls back to when nothing else covers it. This prices the
+     * tree that baseline produces at mount, which is the shape a document ships
+     * with. Pricing the store's runtime `expandAll()` belongs beside this, so the
+     * cost of the option and the cost of the action can be compared directly
+     * rather than in the abstract.
      */
     bench('depth 5, expanded at mount', () => {
       mountSchema(deep, { expandAllSchemaProperties: true }).unmount()
@@ -173,11 +174,11 @@ describe('schema-tree', () => {
     const wide = asSchema(wideObject(60))
 
     /**
-     * Rendered row count is the number Phase 2 is most likely to regress, because
-     * the `until-found` mount policy keeps opened-then-closed subtrees in the DOM
-     * rather than unmounting them. Counting rows here, on top of the mount, keeps
-     * the two moving together: if a change renders many more rows, this gets
-     * slower even though the query itself is cheap.
+     * Rendered row count is the number the tree layout is most likely to regress,
+     * because its `until-found` mount policy keeps opened-then-closed subtrees in
+     * the DOM rather than unmounting them. Counting rows here, on top of the
+     * mount, keeps the two moving together: if a change renders many more rows,
+     * this gets slower even though the query itself is cheap.
      */
     bench('count rendered rows, depth 5 collapsed', () => {
       const wrapper = mountSchema(deep)

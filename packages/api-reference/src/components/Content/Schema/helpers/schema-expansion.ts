@@ -11,7 +11,7 @@ import {
   watch,
 } from 'vue'
 
-import { scrollTargetId } from '@/helpers/lazy-bus'
+import { isOnScrollTargetPath, scrollTargetId } from '@/helpers/lazy-bus'
 
 /**
  * What a node does when nobody has expressed an opinion about it: its own
@@ -53,7 +53,8 @@ type SchemaExpansionStore = {
   /** The standing baseline, exposed so a print hook can flip it and put it back. */
   baseline: Ref<ExpansionBaseline>
   /**
-   * Tree-wide budget for closed panels kept in the DOM as `hidden="until-found"`.
+   * The budget for closed panels kept in the DOM as `hidden="until-found"`. It
+   * lives on the store, so it is shared by every schema tree under one reference.
    * Kept panels stay searchable with find-in-page but grow the DOM, so a closing
    * row asks `acquire()` first and simply unmounts past the cap. Deliberately
    * not reactive: it only matters at the moment a panel closes.
@@ -86,7 +87,10 @@ const isUnder = (key: string, root: string): boolean => root === '' || key === r
  */
 export const toNodeKey = (breadcrumb: readonly string[] | undefined): string => breadcrumb?.join('.') ?? ''
 
-/** How many closed panels one tree keeps mounted as `hidden="until-found"`. */
+/**
+ * How many closed panels one store keeps mounted as `hidden="until-found"` —
+ * one `<ApiReference>`, not one tree, since every tree under it shares a store.
+ */
 const UNTIL_FOUND_CAP = 300
 
 /**
@@ -127,17 +131,6 @@ export const createSchemaExpansionStore = (): SchemaExpansionStore => {
 
       candidate = candidate.slice(0, cut)
     }
-  }
-
-  /** Whether a deep link currently points at this node or inside it. */
-  const isOnScrollTargetPath = (key: string): boolean => {
-    const target = scrollTargetId.value
-
-    if (!target || !key) {
-      return false
-    }
-
-    return target === key || target.startsWith(`${key}.`)
   }
 
   /**

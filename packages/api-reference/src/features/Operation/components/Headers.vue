@@ -137,22 +137,30 @@ const countLabel = computed(() =>
       closeOnRail
       :depth="2"
       @close="expansion.setExpanded(nodeKey, false)">
-      <template
-        v-for="(header, key) in headers"
-        :key="key">
-        <Header
-          :breadcrumb="headersBreadcrumb"
-          :document="document"
-          :eventBus="eventBus"
-          :expandAllSchemaProperties="expandAllSchemaProperties"
-          :header="getResolvedRef(header)"
-          :hideModels="hideModels"
-          :name="key"
-          :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
-          :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
-          :schemaKeyboardNav="schemaKeyboardNav"
-          :schemaLayout="schemaLayout" />
-      </template>
+      <!-- `Header` renders a `SchemaProperty`, whose root is an `li`, so the
+           rows need a list to belong to: an `li` outside one is exposed as a
+           plain generic and the group loses the "1 of 2" the schema rows get.
+           The explicit role is the same guard Schema.vue needs — the theme
+           reset strips `list-style`, which makes Safari and VoiceOver drop
+           list semantics. -->
+      <ul role="list">
+        <template
+          v-for="(header, key) in headers"
+          :key="key">
+          <Header
+            :breadcrumb="headersBreadcrumb"
+            :document="document"
+            :eventBus="eventBus"
+            :expandAllSchemaProperties="expandAllSchemaProperties"
+            :header="getResolvedRef(header)"
+            :hideModels="hideModels"
+            :name="key"
+            :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
+            :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
+            :schemaKeyboardNav="schemaKeyboardNav"
+            :schemaLayout="schemaLayout" />
+        </template>
+      </ul>
     </SchemaRailPanel>
   </div>
 

@@ -926,13 +926,27 @@ describe('SchemaPropertyHeading', () => {
     it('renders SchemaPropertyExamples when withExamples is true', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          value: coerceValue(SchemaObjectSchema, { type: 'string', example: 'hi' }),
           withExamples: true,
         },
       })
 
       const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
       expect(examplesElement.exists()).toBe(true)
+    })
+
+    it('mounts no SchemaPropertyExamples for a schema with no example', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          withExamples: true,
+        },
+      })
+
+      // The component renders nothing here anyway, but mounting it installs the
+      // popup's window-level listeners — one set per property row on the page.
+      const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
+      expect(examplesElement.exists()).toBe(false)
     })
 
     it('does not render SchemaPropertyExamples when withExamples is false', () => {

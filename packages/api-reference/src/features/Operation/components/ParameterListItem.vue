@@ -24,7 +24,7 @@ import SchemaGlyphPuck from '@/components/Content/Schema/SchemaGlyphPuck.vue'
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { scrollTargetId } from '@/helpers/lazy-bus'
+import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -304,14 +304,9 @@ const headerGroupProps = computed(() => ({
  * does, the disclosure opens on mount so a fresh navigation can render the target
  * and scroll it into view (mirrors how collapsible schema disclosures behave).
  */
-const isOnScrollTargetPath = computed<boolean>(() => {
-  const path = schemaBreadcrumb.value?.join('.')
-  if (!path) {
-    return false
-  }
-  const target = scrollTargetId.value
-  return target === path || target.startsWith(`${path}.`)
-})
+const isOnTargetPath = computed<boolean>(() =>
+  isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')),
+)
 
 /**
  * The anchor id for a collapsible item's own row. The schema renders without
@@ -334,7 +329,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
          rule instead (see ParameterList / OperationResponses). -->
     <Disclosure
       v-slot="{ open, close }"
-      :defaultOpen="isOnScrollTargetPath">
+      :defaultOpen="isOnTargetPath">
       <!-- The trigger spans the full row, so its focus ring must too: drawing
            it on the 12px caret leaves the actual control with no visible
            focus state. -->

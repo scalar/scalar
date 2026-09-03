@@ -68,7 +68,6 @@ const splitParameters = computed(() =>
   <!-- Path parameters-->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'path'] : undefined"
-    :collapsableItems="undefined"
     :document="document"
     :eventBus="eventBus"
     :options="options"
@@ -79,7 +78,6 @@ const splitParameters = computed(() =>
   <!-- Query parameters -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'query'] : undefined"
-    :collapsableItems="undefined"
     :document="document"
     :eventBus="eventBus"
     :options="options"
@@ -90,7 +88,6 @@ const splitParameters = computed(() =>
   <!-- Headers -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
-    :collapsableItems="undefined"
     :document="document"
     :eventBus="eventBus"
     :options="options"
@@ -101,7 +98,6 @@ const splitParameters = computed(() =>
   <!-- Cookies -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'cookies'] : undefined"
-    :collapsableItems="undefined"
     :document="document"
     :eventBus="eventBus"
     :options="options"

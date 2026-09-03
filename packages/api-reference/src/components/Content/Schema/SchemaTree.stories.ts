@@ -195,7 +195,9 @@ export const TreeNarrowReflow: Story = {
       },
     }),
   },
-  // Flat mode: indent collapses and the declaration line wraps below 480px.
+  // The container declares `narrow-references-container` and is narrower than
+  // the 900px query in styles/tailwind.config.css, so this story renders with
+  // the tightened gutter and the smaller controls that query switches on.
   render: (args) => ({
     components: { Schema },
     setup: () => ({ args }),

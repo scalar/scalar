@@ -333,6 +333,29 @@ const exampleValue = computed(() => {
 })
 
 /**
+ * Whether the examples chip has anything to render.
+ *
+ * `SchemaPropertyExamples` already renders nothing without an example, but it
+ * still mounts, and mounting is what installs its popup's window-level click
+ * and keydown listeners. `withExamples` defaults to true, so without this gate
+ * every property row on the page — including a plain `{ type: 'string' }` —
+ * pays for a popup it never opens. Mirrors the component's own two branches.
+ */
+const hasExampleContent = computed((): boolean => {
+  if (exampleValue.value !== undefined) {
+    return true
+  }
+
+  const examples = props.value?.examples
+
+  return (
+    !!examples &&
+    typeof examples === 'object' &&
+    Object.keys(examples).length > 0
+  )
+})
+
+/**
  * The regex `pattern` to surface via the hover dropdown. It lives on a string
  * schema, or on the items of a primitive array (which is not rendered on its
  * own, so its constraints are surfaced on the array heading — see
@@ -539,7 +562,13 @@ const detailMarginClass = computed((): string =>
       class="property-required">
       {{ translate('common.required') }}
     </div>
-    <SchemaPropertyDefault :value="props.value?.default" />
+    <!-- Gated here, not only inside the component: each popup instance installs
+         window-level click and keydown listeners for its dismissal, so mounting
+         one per row costs the page a listener per row it never shows anything
+         for. Same reason `SchemaPropertyPattern` below is gated. -->
+    <SchemaPropertyDefault
+      v-if="props.value?.default !== undefined"
+      :value="props.value?.default" />
     <!--
       Pattern is a hover dropdown chip like Examples, not an inline constraint,
       so it sits beside the example. This keeps the real constraints (length,
@@ -549,7 +578,7 @@ const detailMarginClass = computed((): string =>
       v-if="patternValue"
       :pattern="patternValue" />
     <SchemaPropertyExamples
-      v-if="props.withExamples"
+      v-if="props.withExamples && hasExampleContent"
       :example="exampleValue"
       :examples="props.value?.examples" />
     <!-- Tree layout: the collapsed preview rides the end of the heading line -->

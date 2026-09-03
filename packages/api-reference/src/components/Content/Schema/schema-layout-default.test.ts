@@ -16,10 +16,11 @@ import schemaPropertySource from './SchemaProperty.vue?raw'
  */
 
 /**
- * The release the legacy branch deletion is milestoned to. Named in the Phase 2
- * changeset policy: `depth` and legacy `level` coexist for exactly one minor
- * after the default flips. Update this only as a conscious rescheduling — that
- * is the entire point of the constant.
+ * The release the legacy branch deletion is milestoned to. Named in the default
+ * flip's changeset policy (`.changeset/schema-tree-default-flip-phase-4.md`):
+ * `depth` and legacy `level` coexist for exactly one minor after the default
+ * flips. Update this only as a conscious rescheduling — that is the entire
+ * point of the constant.
  */
 const LEGACY_DELETION_TARGET_RELEASE = '1.69.0'
 

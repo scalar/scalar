@@ -5,7 +5,8 @@ import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
  * The tree layout's disclosure control: a content-free button in the property's
  * gutter. Its accessible name is the property name via `aria-labelledby`, and the
  * child count rides `aria-describedby` so screen-reader verbosity settings apply.
- * The 24px hit box (WCAG 2.5.8) and 16px glyph puck are sized independently.
+ * The 24px hit box (WCAG 2.5.8) and the 18px glyph puck inside it are sized
+ * independently.
  */
 const { open, panelId, panelRendered, nameId, fallbackLabel, countId } =
   defineProps<{

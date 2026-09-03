@@ -36,6 +36,24 @@ export const firstLazyLoadComplete = ref(false)
 export const scrollTargetId = ref<string>('')
 
 /**
+ * Whether the live scroll target is `path` itself or something inside it.
+ *
+ * Shared rather than re-spelled per surface, because every caller has to agree
+ * on the same rule: a literal `.` separates segments, and the prefix must end
+ * on a segment boundary or `user` would claim a deep link to `username`.
+ * Returns false for an empty path, so a node with no breadcrumb never matches.
+ */
+export const isOnScrollTargetPath = (path: string | undefined): boolean => {
+  const target = scrollTargetId.value
+
+  if (!path || !target) {
+    return false
+  }
+
+  return target === path || target.startsWith(`${path}.`)
+}
+
+/**
  * Clears the scroll target once we are done with it, so a stale target cannot
  * re-open a disclosure the user later collapsed (or that remounts). Guarded by
  * the id so a newer navigation that started during the scroll retry is kept.
@@ -240,16 +258,17 @@ export function useLazyBus(id: string) {
 /**
  * Scroll to a possibly lazy-loaded element. Expands parents and adds target (and
  * parents) to the priority queue, then scrolls after Vue has flushed.
+ *
+ * The id is used exactly as given: legacy anchors (`…responses.headers.headers.X`)
+ * are deliberately never rewritten, because a rewrite can corrupt a valid anchor,
+ * and an unresolvable id already falls back to scrolling its operation instead
+ * (see tryScroll's fallbackId).
  */
 export const scrollToLazy = (
-  requestedId: string,
+  id: string,
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
 ) => {
-  // Deliberately no rewriting of legacy anchors (`…responses.headers.headers.X`):
-  // a rewrite can corrupt a valid anchor, and an unresolvable id falls back to
-  // scrolling its operation instead (see tryScroll's fallbackId).
-  const id = requestedId
   const item = getEntryById(id)
 
   /**

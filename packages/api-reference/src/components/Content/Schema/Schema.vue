@@ -13,7 +13,7 @@ import { computed, inject, provide, useId, useTemplateRef } from 'vue'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
-import { scrollTargetId } from '@/helpers/lazy-bus'
+import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
 
 import {
   resolveDynamicSchema,
@@ -184,14 +184,9 @@ const shouldShowToggle = computed((): boolean => !noncollapsible && level > 0)
  * disclosures is what makes deep links to collapsed (hidden) properties work
  * without forcing every schema open via `expandAllSchemaProperties`.
  */
-const isOnScrollTargetPath = computed((): boolean => {
-  if (!breadcrumb?.length) {
-    return false
-  }
-  const path = breadcrumb.join('.')
-  const target = scrollTargetId.value
-  return target === path || target.startsWith(`${path}.`)
-})
+const isOnTargetPath = computed((): boolean =>
+  isOnScrollTargetPath(toNodeKey(breadcrumb)),
+)
 
 /**
  * Whether the disclosure starts expanded. Non-collapsible schemas are always
@@ -205,7 +200,7 @@ const isOnScrollTargetPath = computed((): boolean => {
  */
 const defaultOpen = computed(
   (): boolean =>
-    noncollapsible || shouldForceExpand.value || isOnScrollTargetPath.value,
+    noncollapsible || shouldForceExpand.value || isOnTargetPath.value,
 )
 
 const childAttributesLabel = computed(
