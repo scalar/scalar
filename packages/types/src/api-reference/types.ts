@@ -490,6 +490,7 @@ export type ApiReferenceTranslations = {
     copyLinkTo: string
     copyToClipboard: string
     copyEndpointUrl: string
+    copyAsMarkdownForLlm: string
     showMore: string
   }
   agent: {
@@ -661,6 +662,8 @@ type ExtendedConfiguration = {
   hideDownloadButton?: boolean
   /** Whether to show the "Test Request" button */
   hideTestRequestButton: boolean
+  /** Whether to hide the "Copy as Markdown for LLM" button on operations */
+  hideCopyAsMarkdownButton: boolean
   /** Whether to show the sidebar search bar */
   hideSearch: boolean
   /** Whether to show the operationId */
