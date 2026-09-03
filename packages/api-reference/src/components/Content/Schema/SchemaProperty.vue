@@ -416,6 +416,7 @@ const isDiscriminatorProperty = computed(() =>
     </div>
 
     <!-- Compositions -->
+    <!-- Fall back to the inherited discriminator to label the property inside an allOf variant (#9674) -->
     <SchemaComposition
       v-for="compositionData in compositionsToRender"
       :key="compositionData.composition"

@@ -71,6 +71,18 @@ export const mergeAllOfSchemas = (
     }
   }
 
+  // Drop a `discriminator` inherited from an `allOf` member: a merged subtype is
+  // one concrete branch, not a choice-point, and keeping the base's mapping makes
+  // it look like the base again, recursing the selector inference (issue #9674).
+  // A discriminator the schema declares itself is kept.
+  const declaresOwnDiscriminator =
+    'discriminator' in baseSchema ||
+    Boolean(rootSchema && typeof rootSchema === 'object' && 'discriminator' in rootSchema)
+
+  if ('discriminator' in result && !declaresOwnDiscriminator) {
+    delete (result as Record<string, unknown>).discriminator
+  }
+
   return result
 }
 
