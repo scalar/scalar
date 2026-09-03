@@ -31,10 +31,16 @@ const copyLinkLabel = computed(() =>
 <template>
   <!-- A flex item of the heading, so it wraps with the text. Its layout box is
        the bare icon (the negative margins cancel the padding), so the 22px hit
-       area never changes the line height. pointer-coarse: a touch pointer has
-       no hover, so the button rests visible. -->
+       area never changes the line height.
+
+       pointer-coarse drops it entirely rather than leaving it transparent: a
+       touch pointer has no hover, so a still-laid-out button would be an
+       invisible tap target AND would keep pushing long signature lines onto a
+       second line just to show a control nobody can see. The legacy layout's
+       leading anchor already behaves this way, and a deep link stays reachable
+       there through the address bar. -->
   <button
-    class="copy-link-trailing text-c-3 hover:text-c-1 -my-1 ms-1.5 -me-1 flex shrink-0 cursor-pointer items-center justify-center self-center p-1 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
+    class="copy-link-trailing text-c-3 hover:text-c-1 -my-1 ms-1.5 -me-1 flex shrink-0 cursor-pointer items-center justify-center self-center p-1 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:hidden"
     type="button"
     @click="() => eventBus?.emit('copy-url:nav-item', { id: anchorId })">
     <ScalarIconHash
