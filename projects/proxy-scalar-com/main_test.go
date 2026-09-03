@@ -743,6 +743,60 @@ func TestProxyBehavior(t *testing.T) {
 	})
 }
 
+func TestServerTiming(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+
+	t.Run("Reports a ttfb phase via the Server-Timing header", func(t *testing.T) {
+		// A small delay guarantees a measurable time to first byte.
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			time.Sleep(20 * time.Millisecond)
+			w.Write([]byte("slow response"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Fatalf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+
+		serverTiming := w.Header().Get("Server-Timing")
+		if serverTiming == "" {
+			t.Fatal("Expected a Server-Timing header, got none")
+		}
+
+		if !strings.Contains(serverTiming, "ttfb;dur=") {
+			t.Errorf("Expected Server-Timing to include a ttfb phase, got '%s'", serverTiming)
+		}
+	})
+
+	t.Run("Marks reused connections", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("ok"))
+		})
+		defer targetServer.server.Close()
+
+		// The first request primes the connection pool for the shared transport.
+		firstReq := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		firstRes := httptest.NewRecorder()
+		proxyServer.handleRequest(firstRes, firstReq)
+
+		// Drain the body so the connection is returned to the pool for reuse.
+		io.ReadAll(firstRes.Result().Body)
+
+		secondReq := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		secondRes := httptest.NewRecorder()
+		proxyServer.handleRequest(secondRes, secondReq)
+
+		if serverTiming := secondRes.Header().Get("Server-Timing"); !strings.Contains(serverTiming, "reused") {
+			t.Errorf("Expected reused marker on the second request, got '%s'", serverTiming)
+		}
+	})
+}
+
 func readSSEEvent(reader *bufio.Reader) (string, error) {
 	lines := []string{}
 
