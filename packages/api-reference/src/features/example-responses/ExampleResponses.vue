@@ -15,7 +15,7 @@ import { getExample } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
   ResponsesObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -228,7 +228,11 @@ const showSchema = ref(false)
         :response="currentResponseContent" />
     </ScalarCardSection>
     <ScalarCardFooter
-      v-if="currentResponse?.description || hasMultipleExamples"
+      v-if="
+        currentResponse?.summary ||
+        currentResponse?.description ||
+        hasMultipleExamples
+      "
       class="response-card-footer">
       <ExamplePicker
         v-if="hasMultipleExamples"
@@ -237,6 +241,12 @@ const showSchema = ref(false)
         :modelValue="selectedExampleKey"
         @update:modelValue="selectExample" />
       <div class="response-description">
+        <!-- Short summary of the response (OpenAPI 3.2) -->
+        <div
+          v-if="currentResponse?.summary"
+          class="response-description-summary text-c-1">
+          {{ currentResponse.summary }}
+        </div>
         <ScalarMarkdown
           v-if="currentResponse?.description"
           class="response-description-markdown"

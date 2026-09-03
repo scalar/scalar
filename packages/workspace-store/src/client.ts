@@ -42,13 +42,17 @@ import {
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
-import { generateSchema } from '@/schemas/v3.1/openapi'
-import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
+// The rest of the store is typed against the 3.1 document (the upgrade target), so bridge the
+// 3.2-validated document back to the 3.1 type at the store boundary. The value shape is compatible;
+// only the 3.2 type widens a few unions (for example `parameter.in` gains `"querystring"`).
+import type { OpenApiDocument as OpenApiDocument31 } from '@/schemas/v3.1/strict/openapi-document'
+import { generateSchema } from '@/schemas/v3.2/openapi'
+import { recursiveRef } from '@/schemas/v3.2/openapi/reference'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenAPIExtensions,
   type OpenApiDocument,
-} from '@/schemas/v3.1/strict/openapi-document'
+} from '@/schemas/v3.2/strict/openapi-document'
 import type {
   DocumentMetaExtensions,
   Workspace,
@@ -1120,14 +1124,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const navigation = createNavigation(name, strictDocument as OpenApiDocument, navigationOptions)
+      const navigation = createNavigation(name, strictDocument as OpenApiDocument31, navigationOptions)
       strictDocument[extensions.document.navigation] = navigation
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     // We create a new proxy here in order to hide internal properties after validation and processing
     // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
-    workspace.documents[name] = createOverridesProxy(createMagicProxy(getRaw(strictDocument)) as OpenApiDocument, {
+    workspace.documents[name] = createOverridesProxy(createMagicProxy(getRaw(strictDocument)) as OpenApiDocument31, {
       overrides: unpackProxyObject(overrides[name]),
     })
   }
