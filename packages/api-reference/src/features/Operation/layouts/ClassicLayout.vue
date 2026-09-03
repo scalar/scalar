@@ -454,6 +454,41 @@ const { level: headingLevel } = useDocumentOutline('operation')
   min-width: 0;
 }
 
+/*
+ * Tree layout inside a classic card.
+ *
+ * A tree row hangs its +/- control one gutter to the LEFT of its own text. The
+ * modern layout absorbs that in the page margin, but a classic card draws its
+ * border exactly there, so the controls sat on top of the border and outside
+ * the box that is supposed to contain them. Every card that holds tree rows
+ * reserves `gutter + half` on the inline start — plus the same 6px of air the
+ * modern layout leaves at the page edge, so a control never kisses the border —
+ * and matches the legacy 9px on the end so a long signature never touches the
+ * border either.
+ *
+ * The reserve is spelled out at each use site rather than kept as a token: a
+ * custom property substitutes where it is DECLARED, so a token defined at app
+ * scope would freeze at the wide values and keep reserving 25px in a narrow
+ * container that only needs 18 (same reason `schema-rail`'s fade is inline).
+ *
+ * The `:has()` guard keeps the legacy layout untouched: it draws no floating
+ * controls and pads its own rows by 9px.
+ */
+.endpoint-content:has(.property--tree, .callback-list-item--tree) {
+  padding-inline-start: calc(
+    var(--schema-gutter, 16px) + var(--schema-glyph-half, 9px) + 6px
+  );
+}
+
+.operation-details-card-item :deep(.request-body-schema:has(.property--tree)),
+.operation-details-card-item
+  :deep(.callbacks-list:has(.callback-list-item--tree)) {
+  padding-inline-start: calc(
+    var(--schema-gutter, 16px) + var(--schema-glyph-half, 9px) + 6px
+  );
+  padding-inline-end: 9px;
+}
+
 .operation-details-card {
   display: flex;
   flex-direction: column;
