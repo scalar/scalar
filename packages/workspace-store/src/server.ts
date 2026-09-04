@@ -216,7 +216,10 @@ export function externalizeComponentReferences(
       const ref =
         meta.mode === 'ssr'
           ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}#`
-          : `./chunks/${meta.name}/components/${type}/${name}.json#`
+          : // Escape the type and name so the static reference matches the escaped filename written
+            // by generateWorkspaceChunks, and so a key like `../../evil` cannot point outside the
+            // chunks directory.
+            `./chunks/${meta.name}/components/${escapeJsonPointer(type)}/${escapeJsonPointer(name)}.json#`
 
       result[type][name] = { '$ref': ref, $global: true }
     })
@@ -640,11 +643,15 @@ export async function createServerWorkspaceStore(
         // Write the components chunks
         if (components) {
           for (const [type, component] of Object.entries(components as Record<string, Record<string, unknown>>)) {
-            const componentPath = `${basePath}/chunks/${name}/components/${type}`
+            // Escape the component type and key the same way operation paths are escaped. Component
+            // keys come from the OpenAPI document, so a key like `../../evil` would otherwise let a
+            // document write chunk files outside the assets directory. escapeJsonPointer turns every
+            // `/` into `~1`, collapsing the value into a single safe path segment.
+            const componentPath = `${basePath}/chunks/${name}/components/${escapeJsonPointer(type)}`
             await fs.mkdir(componentPath, { recursive: true })
 
             for (const [key, value] of Object.entries(component)) {
-              await fs.writeFile(`${componentPath}/${key}.json`, JSON.stringify(value))
+              await fs.writeFile(`${componentPath}/${escapeJsonPointer(key)}.json`, JSON.stringify(value))
             }
           }
         }
