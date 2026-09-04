@@ -44,6 +44,104 @@ func init() {
 	}
 }
 
+// isZeros reports whether every byte in b is zero.
+func isZeros(b []byte) bool {
+	for _, x := range b {
+		if x != 0 {
+			return false
+		}
+	}
+
+	return true
+}
+
+// embeddedIPv4s returns any IPv4 addresses hidden inside an IPv6 transition
+// address (6to4, NAT64, Teredo, or the deprecated IPv4-compatible format).
+//
+// These formats let an IPv6 literal encode an IPv4 destination, so an attacker
+// could otherwise reach a blocked IPv4 range through an IPv6 address that never
+// matches the IPv4 CIDRs. For example 2002:a9fe:a9fe:: is the 6to4 form of
+// 169.254.169.254 and 64:ff9b::a9fe:a9fe is the NAT64 form. We decode the
+// embedded IPv4 so it can be checked against the blocklist too.
+func embeddedIPv4s(ip net.IP) []net.IP {
+	ip16 := ip.To16()
+
+	// Only IPv6 addresses can embed an IPv4 one. IPv4 and IPv4-mapped IPv6
+	// (::ffff:x.x.x.x) are already normalized by the caller via To4().
+	if ip16 == nil || ip.To4() != nil {
+		return nil
+	}
+
+	var embedded []net.IP
+
+	// 6to4: 2002:V4ADDR::/16, IPv4 in bytes 2-5.
+	if ip16[0] == 0x20 && ip16[1] == 0x02 {
+		embedded = append(embedded, net.IPv4(ip16[2], ip16[3], ip16[4], ip16[5]))
+	}
+
+	// NAT64 well-known prefix 64:ff9b::/96, IPv4 in the last 4 bytes.
+	if ip16[0] == 0x00 && ip16[1] == 0x64 && ip16[2] == 0xff && ip16[3] == 0x9b {
+		embedded = append(embedded, net.IPv4(ip16[12], ip16[13], ip16[14], ip16[15]))
+	}
+
+	// Teredo 2001:0000::/32: server IPv4 in bytes 4-7, client IPv4 in the last
+	// 4 bytes obfuscated by XOR with all ones.
+	if ip16[0] == 0x20 && ip16[1] == 0x01 && ip16[2] == 0x00 && ip16[3] == 0x00 {
+		embedded = append(embedded, net.IPv4(ip16[4], ip16[5], ip16[6], ip16[7]))
+		embedded = append(embedded, net.IPv4(ip16[12]^0xff, ip16[13]^0xff, ip16[14]^0xff, ip16[15]^0xff))
+	}
+
+	// IPv4-compatible ::/96 (deprecated): first 12 bytes zero, IPv4 in the last
+	// 4. The all-zero and loopback addresses are covered by their own CIDRs.
+	if isZeros(ip16[0:12]) {
+		embedded = append(embedded, net.IPv4(ip16[12], ip16[13], ip16[14], ip16[15]))
+	}
+
+	return embedded
+}
+
+// ipIsBlocked reports whether an IP falls in a blocked range. It also decodes
+// any IPv4 address embedded in an IPv6 transition address and checks that too,
+// so those formats cannot be used to reach a blocked IPv4 range.
+func ipIsBlocked(ip net.IP) bool {
+	// Normalize IPv4-mapped IPv6 (e.g. ::ffff:169.254.169.254)
+	if v4 := ip.To4(); v4 != nil {
+		ip = v4
+	}
+
+	candidates := append([]net.IP{ip}, embeddedIPv4s(ip)...)
+
+	for _, candidate := range candidates {
+		for _, network := range blockedCIDRs {
+			if network.Contains(candidate) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// dialAddr formats an IP and port for dialing, wrapping IPv6 in brackets.
+func dialAddr(ip net.IP, port string) string {
+	if v4 := ip.To4(); v4 != nil {
+		return fmt.Sprintf("%s:%s", v4.String(), port)
+	}
+
+	return fmt.Sprintf("[%s]:%s", ip.String(), port)
+}
+
+// isCredentialHeader reports whether a header carries credentials that must not
+// be forwarded to a different host during a redirect.
+func isCredentialHeader(header string) bool {
+	switch strings.ToLower(header) {
+	case "authorization", "proxy-authorization", "cookie":
+		return true
+	default:
+		return false
+	}
+}
+
 // Check if a given hostname or IP resolves to any blocked CIDR
 func isBlockedHost(host string) bool {
 	// Strip port if present
@@ -55,18 +153,7 @@ func isBlockedHost(host string) bool {
 
 	// Try to parse literal IP first
 	if ip := net.ParseIP(h); ip != nil {
-		// Normalize IPv4-mapped IPv6 (e.g. ::ffff:169.254.169.254)
-		if v4 := ip.To4(); v4 != nil {
-			ip = v4
-		}
-
-		for _, network := range blockedCIDRs {
-			if network.Contains(ip) {
-				return true
-			}
-		}
-
-		return false
+		return ipIsBlocked(ip)
 	}
 
 	// Otherwise resolve via DNS
@@ -78,15 +165,8 @@ func isBlockedHost(host string) bool {
 	}
 
 	for _, ip := range ips {
-		// Normalize IPv4-mapped IPv6
-		if v4 := ip.To4(); v4 != nil {
-			ip = v4
-		}
-
-		for _, network := range blockedCIDRs {
-			if network.Contains(ip) {
-				return true
-			}
+		if ipIsBlocked(ip) {
+			return true
 		}
 	}
 
@@ -199,26 +279,11 @@ func NewProxyServer(bypassCidr bool) *ProxyServer {
 
 				// Try to parse literal IP first
 				if ip := net.ParseIP(host); ip != nil {
-					// Normalize IPv4-mapped IPv6
-					if v4 := ip.To4(); v4 != nil {
-						ip = v4
+					if ipIsBlocked(ip) {
+						return nil, fmt.Errorf("dial to blocked IP %s", ip.String())
 					}
 
-					for _, block := range blockedCIDRs {
-						if block.Contains(ip) {
-							return nil, fmt.Errorf("dial to blocked IP %s", ip.String())
-						}
-					}
-
-					// Format chosen with brackets if IPv6
-					var chosen string
-					if ip.To4() == nil {
-						chosen = fmt.Sprintf("[%s]:%s", ip.String(), port)
-					} else {
-						chosen = fmt.Sprintf("%s:%s", ip.String(), port)
-					}
-
-					return dialer.DialContext(ctx, network, chosen)
+					return dialer.DialContext(ctx, network, dialAddr(ip, port))
 				}
 
 				// Re-resolve hostname on every dial
@@ -230,34 +295,14 @@ func NewProxyServer(bypassCidr bool) *ProxyServer {
 
 				// Check all returned IPs against blocked ranges
 				for _, ip := range ips {
-					if v4 := ip.To4(); v4 != nil {
-						ip = v4
-					}
-
-					for _, block := range blockedCIDRs {
-						if block.Contains(ip) {
-							return nil, fmt.Errorf("dial to blocked IP %s", ip.String())
-						}
+					if ipIsBlocked(ip) {
+						return nil, fmt.Errorf("dial to blocked IP %s", ip.String())
 					}
 				}
 
 				// Pick the first allowed IP to dial
 				if len(ips) > 0 {
-					ip := ips[0]
-
-					if v4 := ip.To4(); v4 != nil {
-						ip = v4
-					}
-
-					// Format with brackets if IPv6
-					var chosen string
-					if ip.To4() == nil {
-						chosen = fmt.Sprintf("[%s]:%s", ip.String(), port)
-					} else {
-						chosen = fmt.Sprintf("%s:%s", ip.String(), port)
-					}
-
-					return dialer.DialContext(ctx, network, chosen)
+					return dialer.DialContext(ctx, network, dialAddr(ips[0], port))
 				}
 
 				return nil, fmt.Errorf("no IPs to dial for host %s", host)
@@ -369,8 +414,19 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			}
 
 			// Copy headers from the original request to maintain authentication
-			// and other important headers through redirect chains.
-			for key, values := range via[0].Header {
+			// and other important headers through redirect chains. When the
+			// redirect points at a different host, credential headers are
+			// dropped so a target that redirects to an attacker-controlled host
+			// cannot collect the user's Authorization, Cookie, or
+			// Proxy-Authorization headers.
+			original := via[0]
+			sameHost := strings.EqualFold(req.URL.Hostname(), original.URL.Hostname())
+
+			for key, values := range original.Header {
+				if !sameHost && isCredentialHeader(key) {
+					continue
+				}
+
 				req.Header[key] = values
 			}
 
