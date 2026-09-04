@@ -1,6 +1,6 @@
 # AsyncAPI
 
-AsyncAPI is the event-driven counterpart to OpenAPI. An OpenAPI document describes endpoints you call and the responses you get back; an [AsyncAPI](https://www.asyncapi.com/) document describes **channels** you connect to and the **messages** that flow over them — WebSocket streams, Kafka topics, MQTT subjects, server-sent events, and so on.
+AsyncAPI is the event-driven counterpart to OpenAPI. An OpenAPI document describes endpoints you call and the responses you get back; an [AsyncAPI](https://www.asyncapi.com/) document describes **channels** you connect to and the **messages** that flow over them — WebSocket streams, Kafka topics, MQTT subjects, server-sent events, and more.
 
 If your API pushes data instead of waiting to be asked for it, AsyncAPI is the format that describes it, and Scalar renders it as an API reference exactly like it renders OpenAPI.
 
