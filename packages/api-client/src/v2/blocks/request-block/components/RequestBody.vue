@@ -254,12 +254,19 @@ watch(
       requestBody !== previousRequestBody || exampleKey !== previousExampleKey
     const selectionChanged = selection !== previousSelection
 
+    // Going from no selection to a populated one is the modal applying the reference's selection as
+    // the panel opens, not the user switching branches. Resetting here would discard the body's named
+    // example on the very first open (issue #10075), so only a change between two populated selections
+    // counts as a real branch switch.
+    const hadNoPreviousSelection = previousSelection === '{}'
+
     // Only a genuine branch switch within the same operation should reset the edited body. An empty
     // selection means there is no composition to switch between (or the selection was cleared on an
     // operation change), so there is nothing to reset.
     if (
       operationChanged ||
       !selectionChanged ||
+      hadNoPreviousSelection ||
       Object.keys(requestBodyCompositionSelection ?? {}).length === 0
     ) {
       return
