@@ -1,5 +1,17 @@
 # @scalar/workspace-store
 
+## 0.60.0
+
+### Minor Changes
+
+- [#9937](https://github.com/scalar/scalar/pull/9937): Add a way to open the request body editor in the Form view by default. Set the `defaultRequestBodyView: 'form'` config option, or the `x-scalar-default-request-body-view` extension in your OpenAPI document (which also works per source). Defaults to `raw`, and falls back to `raw` when a body cannot be shown as a form.
+
+### Patch Changes
+
+- [#10046](https://github.com/scalar/scalar/pull/10046): Stop sending optional form-body properties by default. Optional `multipart/form-data` and `application/x-www-form-urlencoded` properties now start unchecked and are left out of the request unless you enable them, matching how optional parameters already behave. Required properties are unaffected.
+- [#9938](https://github.com/scalar/scalar/pull/9938): Fix OAuth2 scope selection freezing in the API reference auth panel. Selecting or deselecting scopes (including Select All and Deselect All) now updates the counter and checkboxes after the first change instead of getting stuck.
+- [#10077](https://github.com/scalar/scalar/pull/10077): Escape OpenAPI component keys when writing static workspace chunks so a document with a key like `../../evil` cannot write files outside the assets directory
+
 ## 0.59.0
 
 ### Minor Changes

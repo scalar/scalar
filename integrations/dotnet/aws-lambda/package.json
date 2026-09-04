@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/dotnet/aws-lambda"
   },
-  "version": "0.2.6",
+  "version": "0.2.7",
   "private": true,
   "engines": {
     "node": ">=22"

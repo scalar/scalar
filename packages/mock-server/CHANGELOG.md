@@ -1,5 +1,19 @@
 # @scalar/mock-server
 
+## 0.14.0
+
+### Minor Changes
+
+- [#10082](https://github.com/scalar/scalar/pull/10082): Run `x-handler` and `x-seed` code in a real sandbox
+
+  Handler and seed code used to run with the `Function` constructor, which gave it full access to the Node.js host (`process`, `require`, and more). It now runs inside a QuickJS WebAssembly sandbox with memory and time limits, so even untrusted code from a remote or `$ref`-loaded document cannot reach the host.
+
+  The `store`, `faker`, `req`, `res`, `schema`, and `seed` APIs work as before. The one exception is faker methods that take a callback (for example `faker.helpers.multiple(fn)`), which are no longer supported because functions cannot cross the sandbox boundary.
+
+### Patch Changes
+
+- [#10079](https://github.com/scalar/scalar/pull/10079): Harden the mock server against SSRF and local file disclosure through OpenAPI `$ref`s. External `$ref` resolution now refuses to fetch private, loopback, link-local, and metadata addresses, and confines local file reads to the document's directory. The `fetchUrls` and `readFiles` bundling plugins gain opt-in `blockPrivateNetworks` and `basePath` options, so other callers keep their current behavior unless they opt in.
+
 ## 0.13.0
 
 ### Minor Changes
