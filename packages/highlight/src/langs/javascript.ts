@@ -78,6 +78,14 @@ const javascript: Grammar = {
             '\\b(?:if|else|for|while|do|switch|case|default|break|continue|return|throw|try|catch|finally|await|yield)\\b',
           scope: 'keyword.control',
         },
+        // `const greet = () => {}` and `const greet = function () {}` name a
+        // function just as much as `function greet() {}` does, so the binding
+        // reads as one. Without this the name went unscoped, because the rules
+        // below only recognise a name that sits directly in front of a `(`.
+        {
+          match: `\\b(const|let|var)([ \\t]+)(${ID})(?=[ \\t]*=[ \\t]*(?:async[ \\t]+)?(?:\\(|function\\b|${ID}[ \\t]*=>))`,
+          scope: ['keyword.declaration', null, 'function'],
+        },
         {
           match:
             '\\b(?:function|class|const|let|var|interface|enum|namespace|module|declare|abstract|implements|extends|constructor|static|readonly|override|public|private|protected|async|get|set|type)\\b',
@@ -116,7 +124,14 @@ const javascript: Grammar = {
         // Requiring no space before the colon keeps `cond ? a : b` out.
         { match: `\\b${ID}(?=\\??:)`, scope: 'property' },
         { match: `\\b${ID}(?=\\s*=>)`, scope: 'variable.parameter' },
-        { match: `\\b${ID}(?=[ \\t]*[(<])`, scope: 'function.call' },
+        { match: `\\b${ID}(?=[ \\t]*\\()`, scope: 'function.call' },
+        // A generic call such as `useState<number>(0)`. The argument list has to
+        // close and be followed by `(`, so a comparison like `count <= max` and
+        // JSX text like `<button>hi</button>` are not mistaken for calls.
+        {
+          match: `\\b${ID}(?=[ \\t]*<[^<>()\\n]*>[ \\t]*\\()`,
+          scope: 'function.call',
+        },
 
         {
           // Bare `=` goes last so `=>`, `==`, `===` and the compound forms all

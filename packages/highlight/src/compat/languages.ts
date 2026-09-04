@@ -39,10 +39,7 @@ const GRAMMAR_FOR: Record<string, string> = {
   cs: 'csharp',
   csharp: 'csharp',
   css: 'css',
-  // A curl invocation is a shell command line, so the bash grammar is the
-  // honest answer. `code.css` still targets `.hljs.language-curl` by name —
-  // the class comes from what the caller asked for, not from the grammar.
-  curl: 'bash',
+  curl: 'curl',
   cxx: 'cpp',
   dart: 'dart',
   diff: 'diff',

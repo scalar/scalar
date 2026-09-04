@@ -6,6 +6,7 @@ import clojure from './langs/clojure'
 import cpp from './langs/cpp'
 import csharp from './langs/csharp'
 import css from './langs/css'
+import curl from './langs/curl'
 import dart from './langs/dart'
 import diff from './langs/diff'
 import dockerfile from './langs/dockerfile'
@@ -55,6 +56,7 @@ export const languages: Grammar[] = [
   cpp,
   csharp,
   css,
+  curl,
   dart,
   diff,
   dockerfile,
