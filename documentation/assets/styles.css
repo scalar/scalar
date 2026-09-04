@@ -11,6 +11,31 @@
   display: none;
 }
 
+/* Header */
+
+/* Divider between the header dropdowns and the auth links.
+
+   The dropdown wrapper is `display: contents`, so it generates no box of its
+   own, but its `::after` still does and lands in the header row as its own flex
+   item. The row gap then falls on both sides of the line, which centers it
+   between the dropdown and the link without hard coding any spacing.
+
+   `:has(~ a)` keeps a dropdown that ends the row from trailing a stray line.
+   The general sibling combinator is deliberate. An open dropdown mounts its
+   panel as the wrapper's next sibling, so `+ a` stops matching the moment the
+   menu opens, which drops the line and shifts the whole header sideways.
+
+   The line is decoration, so `pointer-events: none` stops a click on it from
+   registering on the wrapper, which is the dropdown's own root element. */
+.header .navigation > .contents:has(~ a)::after {
+  content: '';
+  align-self: center;
+  pointer-events: none;
+  width: var(--scalar-border-width);
+  height: 18px;
+  background: var(--scalar-border-color);
+}
+
 .w-1\/2 {
   width: 50%;
 }
