@@ -1,3 +1,7 @@
+---
+date: 2026-03-25
+---
+
 # Too Long; Didn't Read; Used MCP
 
 It's 2026, who even READS the documentation for your API. Just boot up an MCP based on your OpenAPI document (using Scalar), and share it with your users or your team (agents).

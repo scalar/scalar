@@ -1,3 +1,7 @@
+---
+date: 2026-04-11
+---
+
 # Scalar's 2025 Open Source Pledge
 
 What is Open Source Pledge?

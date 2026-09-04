@@ -1,3 +1,7 @@
+---
+date: 2025-03-12
+---
+
 # How we sped up our API docs 25x
 
 API docs have a unique structure compared to other types of documentation. They have many related pages which need to be easily accessible from each other. This can mean a lot of menu items.

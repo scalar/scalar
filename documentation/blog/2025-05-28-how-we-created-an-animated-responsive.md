@@ -1,3 +1,7 @@
+---
+date: 2025-05-28
+---
+
 # How we created an animated, responsive README
 
 For an open source project, your README is your landing page. Using it to stand out makes a big impact on convincing developers to explore and adopt your tool. It is a window into your app (and you want users to enter it).
