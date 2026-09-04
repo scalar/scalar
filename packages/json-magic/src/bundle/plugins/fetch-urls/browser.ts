@@ -24,7 +24,7 @@ const getHost = (url: string): string | null => {
 /**
  * Fetches and normalizes data from a remote URL in a browser environment.
  */
-export const fetchUrl = async (
+const fetchUrl = async (
   url: string,
   limiter: <T>(fn: () => Promise<T>) => Promise<T>,
   config?: FetchConfig,
