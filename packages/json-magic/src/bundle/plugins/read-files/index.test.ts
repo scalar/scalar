@@ -55,4 +55,25 @@ describe('readFile', () => {
       await fs.rm(outside, { recursive: true, force: true })
     }
   })
+
+  it('refuses a symlink inside the base path that points outside it', async () => {
+    const os = await import('node:os')
+    const path = await import('node:path')
+
+    const base = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-readfiles-'))
+    const outside = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-secret-'))
+
+    try {
+      await fs.writeFile(path.join(outside, 'secret.json'), JSON.stringify({ secret: true }))
+
+      // A symlink that lives inside the base directory but resolves to a file outside it.
+      const link = path.join(base, 'link.json')
+      await fs.symlink(path.join(outside, 'secret.json'), link)
+
+      expect((await readFile(link, base)).ok).toBe(false)
+    } finally {
+      await fs.rm(base, { recursive: true, force: true })
+      await fs.rm(outside, { recursive: true, force: true })
+    }
+  })
 })

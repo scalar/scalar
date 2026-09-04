@@ -82,9 +82,16 @@ export async function fetchUrl(
 
     const exec = config?.fetch ?? fetch
 
+    // Under the SSRF guard, do not follow redirects. Otherwise a public URL that passes the host
+    // check above could redirect to an internal target (for example the metadata endpoint) that
+    // the redirect would reach without being re-validated.
+    const redirect: RequestRedirect | undefined =
+      config?.blockPrivateNetworks && typeof window === 'undefined' ? 'error' : undefined
+
     const result = await limiter(() =>
       exec(url, {
         headers,
+        redirect,
       }),
     )
 

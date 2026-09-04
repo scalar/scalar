@@ -4,11 +4,28 @@ import type { LoaderPlugin, ResolveResult } from '@/bundle'
 import { isFilePath } from '@/helpers/is-file-path'
 import { normalize } from '@/helpers/normalize'
 
+type FsPromises = typeof import('node:fs/promises')
+
 /**
- * Reports whether a resolved file path escapes the allowed base directory.
+ * Resolves a path to its real location, following symlinks. Falls back to a lexical resolve when the
+ * path does not exist yet, so a missing file is still confined (the read fails afterwards anyway).
  */
-const isOutsideBasePath = (filePath: string, basePath: string): boolean => {
-  const relative = path.relative(path.resolve(basePath), path.resolve(filePath))
+const realpathOrResolve = async (fs: FsPromises, target: string): Promise<string> => {
+  try {
+    return await fs.realpath(path.resolve(target))
+  } catch {
+    return path.resolve(target)
+  }
+}
+
+/**
+ * Reports whether a file escapes the allowed base directory. Symlinks are dereferenced first, so a
+ * link inside the base directory cannot point at a file outside it.
+ */
+const isOutsideBasePath = async (fs: FsPromises, filePath: string, basePath: string): Promise<boolean> => {
+  const realBase = await realpathOrResolve(fs, basePath)
+  const realTarget = await realpathOrResolve(fs, filePath)
+  const relative = path.relative(realBase, realTarget)
 
   return relative === '..' || relative.startsWith('../') || path.isAbsolute(relative)
 }
@@ -35,9 +52,9 @@ export async function readFile(filePath: string, basePath?: string): Promise<Res
     throw 'Can not use readFiles plugin outside of a node environment'
   }
 
-  // Confine reads to basePath when provided, so a `$ref` like `../../../../etc/passwd` cannot read
-  // files outside the document's directory.
-  if (basePath !== undefined && isOutsideBasePath(filePath, basePath)) {
+  // Confine reads to basePath when provided, so a `$ref` like `../../../../etc/passwd` (or a symlink
+  // pointing outside the directory) cannot read files outside the document's directory.
+  if (basePath !== undefined && (await isOutsideBasePath(fs, filePath, basePath))) {
     console.warn(`[WARN] Refused to read a file outside the allowed directory: ${filePath}`)
     return {
       ok: false,
