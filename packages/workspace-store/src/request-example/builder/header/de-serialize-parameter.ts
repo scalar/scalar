@@ -92,13 +92,23 @@ export const deSerializeSchemaValue = (example: unknown, schema: ParameterWithSc
     const type = getStructuredType(schema)
 
     if (type) {
+      let parsed: unknown
+      let isValidJson = true
       try {
-        return JSON.parse(example)
+        parsed = JSON.parse(example)
       } catch {
-        // Arrays: users often type `foo,bar` instead of JSON — split to match default form+explode query style.
-        if (type === 'array') {
-          return example.split(/,\s?/).filter((v) => v !== '')
-        }
+        isValidJson = false
+      }
+
+      // A bare numeric string is valid JSON too (e.g. a 20-digit reference number), but parsing it
+      // would turn it into a precision-losing JS number instead of the array the schema expects.
+      if (isValidJson && (type !== 'array' || Array.isArray(parsed))) {
+        return parsed
+      }
+
+      // Arrays: users often type `foo,bar` instead of JSON — split to match default form+explode query style.
+      if (type === 'array') {
+        return example.split(/,\s?/).filter((v) => v !== '')
       }
     }
   }

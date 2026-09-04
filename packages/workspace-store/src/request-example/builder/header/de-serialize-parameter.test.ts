@@ -359,6 +359,22 @@ describe('de-serialize-parameter', () => {
       expect(result).toEqual(['single'])
     })
 
+    it('splits a numeric string too large for a safe JS number into an array instead of parsing it', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'Values',
+        in: 'query',
+        schema: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      }
+      const example = '40702810506710000185'
+
+      const result = deSerializeParameter(example, param)
+
+      expect(result).toEqual(['40702810506710000185'])
+    })
+
     it('still parses valid JSON arrays for array schema type', () => {
       const param: ParameterWithSchemaObject = {
         name: 'ids',
