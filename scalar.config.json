@@ -12,25 +12,32 @@
     "head": {
       "scripts": [
         {
-          "path": "documentation/assets/landing.js"
+          "path": "documentation/assets/landing.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/powered-by.js"
+          "path": "documentation/assets/powered-by.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/fathom.js"
+          "path": "documentation/assets/fathom.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/posthog.js"
+          "path": "documentation/assets/posthog.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/apollo.js"
+          "path": "documentation/assets/apollo.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/vector.js"
+          "path": "documentation/assets/vector.js",
+          "defer": true
         },
         {
-          "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js"
+          "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js",
+          "async": true
         }
       ],
       "styles": [
