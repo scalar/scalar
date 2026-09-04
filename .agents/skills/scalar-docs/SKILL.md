@@ -175,6 +175,8 @@ API reference from file, Registry, or URL:
 }
 ```
 
+All three sources are read at publish time. Only the Registry source republishes the site on its own when the document changes; `filepath` and `url` stay as they were until the next publish. Never point `url` at a Registry document — use `namespace` and `slug` so the reference keeps itself current.
+
 Display modes: `folder` (default), `flat`, `nested`.
 
 **Single page mode:** Set `singlePage: true` to render all operations on a single page instead of creating separate pages for each operation:

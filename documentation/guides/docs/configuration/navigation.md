@@ -390,6 +390,8 @@ Scalar supports three ways to generate API references:
 
 An API reference entry accepts `type: "openapi"` or `type: "asyncapi"`. Use whichever matches your document — the format is detected automatically.
 
+Whichever source you pick, the API document is read when your site is published, and the reference that gets rendered from it is part of that publish. Only the Registry updates your published site on its own — see [Keeping a reference up to date](#keeping-a-reference-up-to-date).
+
 ### 1. Files
 
 Reference an API document stored in your repository by specifying a relative path from your configuration root:
@@ -426,11 +428,13 @@ scalar registry publish ./openapi.yaml \
 }
 ```
 
-When someone updates that API document in the Registry, Scalar republishes any connected Docs project that references it. This keeps your API documentation up to date automatically.
+When someone updates that API document in the Registry, Scalar republishes every Docs project that references it, usually within a minute. This is the only source that reaches your published site without you publishing again.
+
+Leave `version` out to follow the latest version, or set it to pin the reference to one version.
 
 ### 3. URL
 
-Fetch an API document from a remote URL. The document is fetched on each page load, keeping your documentation in sync with your live API:
+Fetch an API document from a remote URL:
 
 ```json
 "/api": {
@@ -439,6 +443,20 @@ Fetch an API document from a remote URL. The document is fetched on each page lo
   "url": "https://example.com/openapi.json"
 }
 ```
+
+The document is fetched while your site is being published, not when a visitor loads the page. Your reference shows the document as it was at that moment and keeps showing it until you publish again, so later changes at that URL do not reach your site on their own.
+
+If the URL points at a document in the Scalar Registry, use `namespace` and `slug` instead. A Registry URL looks like it would stay current, but as a `url` it is a snapshot like any other, and it does not get the automatic republishing described above.
+
+### Keeping a reference up to date
+
+| Source               | When the document is read | Reaches your published site on its own |
+| -------------------- | ------------------------- | -------------------------------------- |
+| `filepath`           | At publish time           | No — publish again                     |
+| `namespace` + `slug` | At publish time           | Yes — a Registry update republishes it |
+| `url`                | At publish time           | No — publish again                     |
+
+If you want an API reference that keeps itself current, publish the document to the Registry and reference it by `namespace` and `slug`.
 
 ### AsyncAPI
 
@@ -461,10 +479,10 @@ The entry renders your channels, operations, and messages in the sidebar. See [A
 | `type`       | `"openapi" \| "asyncapi"`        | Yes      | Marks the entry as an API reference                              |
 | `title`      | `string`                         | No       | The display text in the navigation                               |
 | `filepath`   | `string`                         | No       | Relative path to the API document                                |
-| `url`        | `string`                         | No       | URL to fetch the API document from                               |
+| `url`        | `string`                         | No       | URL to fetch the API document from at publish time               |
 | `namespace`  | `string`                         | No       | Registry namespace (when using Registry)                         |
 | `slug`       | `string`                         | No       | Registry slug (when using Registry)                              |
-| `version`    | `string`                         | No       | Registry version (when using Registry)                           |
+| `version`    | `string`                         | No       | Registry version (when using Registry). Defaults to `latest`     |
 | `icon`       | `string`                         | No       | An icon to display next to the reference. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
 | `mode`       | `"flat" \| "nested" \| "folder"` | No       | How the API reference is displayed in the sidebar                |
 | `singlePage` | `boolean`                        | No       | Render all operations on a single page (defaults to `false`)     |
