@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.68.0
+
+### Minor Changes
+
+- [#9937](https://github.com/scalar/scalar/pull/9937): Add a way to open the request body editor in the Form view by default. Set the `defaultRequestBodyView: 'form'` config option, or the `x-scalar-default-request-body-view` extension in your OpenAPI document (which also works per source). Defaults to `raw`, and falls back to `raw` when a body cannot be shown as a form.
+
+### Patch Changes
+
+- [#10066](https://github.com/scalar/scalar/pull/10066): Show referenced model names for array branches in schema composition selectors.
+- [#10058](https://github.com/scalar/scalar/pull/10058): chore: upgrade to Storybook 10.5.10 and drop the third-party dark mode addon
+
 ## 1.67.0
 
 ### Minor Changes

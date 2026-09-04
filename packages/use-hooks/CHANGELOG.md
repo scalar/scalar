@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.4.11
+
+### Patch Changes
+
+- [#10058](https://github.com/scalar/scalar/pull/10058): feat(helpers): add applyColorMode and the DarkLightMode type, and use them from useColorMode
+
 ## 0.4.10
 
 ### Patch Changes

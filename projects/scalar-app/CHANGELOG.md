@@ -1,5 +1,7 @@
 # scalar-app
 
+## 1.1.27
+
 ## 1.1.26
 
 ### Patch Changes

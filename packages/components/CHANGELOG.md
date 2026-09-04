@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.29.1
+
+### Patch Changes
+
+- [#10058](https://github.com/scalar/scalar/pull/10058): chore: upgrade to Storybook 10.5.10 and drop the third-party dark mode addon
+
 ## 0.29.0
 
 ### Minor Changes
