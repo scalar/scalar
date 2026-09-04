@@ -83,6 +83,10 @@ func TestBasicEndpoints(t *testing.T) {
 		if len(w.Body.String()) == 0 {
 			t.Error("Expected non-empty YAML response")
 		}
+
+		if !strings.Contains(w.Body.String(), "version: __COMMIT_SHA__") {
+			t.Error("Expected OpenAPI document to contain the commit SHA placeholder")
+		}
 	})
 
 	t.Run("Root path with query params requires scalar_url", func(t *testing.T) {
