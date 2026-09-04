@@ -345,6 +345,59 @@ describe('RequestTableRow', () => {
     })
   })
 
+  it('enables an optional parameter disabled by default when its value is updated', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: {
+          name: 'date',
+          value: '',
+          isDisabled: true,
+          isDisabledByDefault: true,
+          originalParameter: {
+            name: 'date',
+            in: 'query',
+            required: false,
+          },
+        },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
+    await valueInput?.vm.$emit('update:modelValue', '2025-09-01')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toStrictEqual({
+      name: 'date',
+      value: '2025-09-01',
+      isDisabled: false,
+    })
+  })
+
+  it('keeps an explicitly disabled parameter disabled when its value is updated', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: {
+          name: 'x-scenario-id',
+          value: 'scenario_a',
+          isDisabled: true,
+          isDisabledByDefault: false,
+        },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
+    await valueInput?.vm.$emit('update:modelValue', 'scenario_b')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toStrictEqual({
+      name: 'x-scenario-id',
+      value: 'scenario_b',
+      isDisabled: true,
+    })
+  })
+
   it('preserves isDisabled=false when value input is updated', async () => {
     const wrapper = mount(RequestTableRow, {
       props: {

@@ -573,4 +573,49 @@ describe('createParameterRows', () => {
       },
     ])
   })
+
+  it('marks optional query, header, and cookie parameters disabled by default', () => {
+    const parameters: ParameterObject[] = [
+      { name: 'query', in: 'query', schema: { type: 'string' } },
+      { name: 'header', in: 'header', schema: { type: 'string' } },
+      { name: 'cookie', in: 'cookie', schema: { type: 'string' } },
+    ]
+
+    expect(
+      parameters.map((parameter) => {
+        const [row] = createParameterRows(parameter, 'default')
+
+        return {
+          name: row?.name,
+          isDisabled: row?.isDisabled,
+          isDisabledByDefault: row?.isDisabledByDefault,
+        }
+      }),
+    ).toStrictEqual([
+      { name: 'query', isDisabled: true, isDisabledByDefault: true },
+      { name: 'header', isDisabled: true, isDisabledByDefault: true },
+      { name: 'cookie', isDisabled: true, isDisabledByDefault: true },
+    ])
+  })
+
+  it('does not mark an explicitly disabled parameter as disabled by default', () => {
+    const parameter: ParameterObject = {
+      name: 'header',
+      in: 'header',
+      schema: { type: 'string' },
+      examples: {
+        default: {
+          value: 'scenario_a',
+          'x-disabled': true,
+        },
+      },
+    }
+
+    const [row] = createParameterRows(parameter, 'default')
+
+    expect({
+      isDisabled: row?.isDisabled,
+      isDisabledByDefault: row?.isDisabledByDefault,
+    }).toStrictEqual({ isDisabled: true, isDisabledByDefault: undefined })
+  })
 })
