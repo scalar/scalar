@@ -7,6 +7,12 @@ import { normalize } from '@/helpers/normalize'
 type FetchConfig = Partial<{
   headers: { headers: HeadersInit; domains: string[] }[]
   fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
+  /**
+   * When true, refuse to fetch URLs that resolve to a private, loopback, link-local, or otherwise
+   * internal address. Only enforced in Node, where DNS resolution is available. Off by default so
+   * existing callers keep working unchanged.
+   */
+  blockPrivateNetworks: boolean
 }>
 
 /**
@@ -16,6 +22,17 @@ type FetchConfig = Partial<{
 const getHost = (url: string): string | null => {
   try {
     return new URL(url).host
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Safely reads the hostname (without port) from a URL, for the private-address check.
+ */
+const getHostname = (url: string): string | null => {
+  try {
+    return new URL(url).hostname
   } catch {
     return null
   }
@@ -41,6 +58,23 @@ export async function fetchUrl(
   config?: FetchConfig,
 ): Promise<ResolveResult> {
   try {
+    // SSRF guard: optionally refuse to fetch internal or private targets before making the request.
+    // Only runs in Node, since the browser build has no DNS access and its own network isolation.
+    if (config?.blockPrivateNetworks && typeof window === 'undefined') {
+      const hostname = getHostname(url)
+
+      if (hostname) {
+        const { isBlockedHost } = await import('./is-blocked-host')
+
+        if (await isBlockedHost(hostname)) {
+          console.warn(`[WARN] Refused to fetch a private or internal address: ${url}`)
+          return {
+            ok: false,
+          }
+        }
+      }
+    }
+
     const host = getHost(url)
 
     // Get the headers that match the domain
