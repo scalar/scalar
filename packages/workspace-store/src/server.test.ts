@@ -473,6 +473,40 @@ describe('create-server-store', () => {
 
       await fs.rmdir(basePath, { recursive: true })
     })
+
+    it('escapes malicious component keys so chunks cannot escape the directory', async () => {
+      const dir = randomUUID()
+
+      const store = await createServerWorkspaceStore({
+        mode: 'static',
+        directory: dir,
+        documents: [
+          {
+            name: 'doc',
+            document: {
+              openapi: '3.1.0',
+              info: { title: 'Evil', version: '1.0.0' },
+              paths: {},
+              components: { schemas: { '../../../pwned': { type: 'string' } } },
+            },
+          },
+        ],
+      })
+
+      await store.generateWorkspaceChunks()
+
+      const basePath = `${cwd()}/${dir}`
+
+      // The slashes in the key are escaped, so it collapses into a single filename inside the
+      // schemas directory instead of walking up the tree.
+      const written = await fs.readdir(`${basePath}/chunks/doc/components/schemas`)
+      expect(written).toEqual(['..~1..~1..~1pwned.json'])
+
+      // Without escaping the write would have landed at `${basePath}/chunks/pwned.json`.
+      await expect(fs.access(`${basePath}/chunks/pwned.json`)).rejects.toThrow()
+
+      await fs.rm(basePath, { recursive: true, force: true })
+    })
   })
 
   describe('load document on the workspace', () => {
