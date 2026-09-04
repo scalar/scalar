@@ -940,25 +940,57 @@
             "type": "link",
             "title": "Compare",
             "icon": "phosphor/regular/scales",
-            "to": "/resources/compare"
+            "to": "/resources/compare",
+            "section": "Resources"
           },
           {
             "type": "link",
             "title": "Migration",
             "icon": "phosphor/regular/arrows-split",
-            "to": "/resources/migration"
+            "to": "/resources/migration",
+            "section": "Resources"
           },
           {
             "type": "link",
             "title": "Blog",
             "icon": "phosphor/regular/newspaper",
-            "to": "/resources/blog"
+            "to": "/resources/blog",
+            "section": "Resources"
+          },
+          {
+            "type": "link",
+            "title": "Changelog",
+            "icon": "phosphor/regular/clock-counter-clockwise",
+            "to": "/resources/changelog",
+            "section": "Resources"
+          },
+          {
+            "type": "link",
+            "title": "About",
+            "icon": "phosphor/regular/buildings",
+            "to": "/company",
+            "section": "Company"
           },
           {
             "type": "link",
             "title": "Careers",
             "icon": "phosphor/regular/briefcase",
-            "to": "/company#careers"
+            "to": "/company#careers",
+            "section": "Company"
+          },
+          {
+            "type": "link",
+            "title": "Support",
+            "icon": "phosphor/regular/lifebuoy",
+            "to": "mailto:support@scalar.com",
+            "section": "Company"
+          },
+          {
+            "type": "link",
+            "title": "Security",
+            "icon": "phosphor/regular/shield-check",
+            "to": "/security",
+            "section": "Company"
           }
         ]
       },
@@ -1783,6 +1815,12 @@
                         "type": "page",
                         "description": "Structure your documentation with navigation routes: pages, groups, tabs, links, and OpenAPI references.",
                         "filepath": "documentation/guides/docs/configuration/navigation.md"
+                      },
+                      "mega-menus": {
+                        "title": "Mega Menus",
+                        "type": "page",
+                        "description": "Lay out a header or tab dropdown in titled columns by adding section to its links.",
+                        "filepath": "documentation/guides/docs/configuration/mega-menus.md"
                       },
                       "versions": {
                         "title": "Versions",
