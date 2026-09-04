@@ -168,3 +168,44 @@ describe('fetchUrls', () => {
     expect(fetch).toHaveBeenCalledTimes(6)
   })
 })
+
+describe('fetchUrl blockPrivateNetworks', () => {
+  const noLimit = <T>(fn: () => Promise<T>) => fn()
+
+  it('refuses a private or metadata address without calling fetch', async () => {
+    const fetch = vi.fn(async () => new Response('{}', { status: 200 }))
+
+    const result = await fetchUrl('http://169.254.169.254/latest/meta-data/', noLimit, {
+      blockPrivateNetworks: true,
+      fetch,
+    })
+
+    expect(result.ok).toBe(false)
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('still fetches a public address', async () => {
+    const fetch = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }))
+
+    const result = await fetchUrl('http://93.184.216.34/', noLimit, {
+      blockPrivateNetworks: true,
+      fetch,
+    })
+
+    expect(fetch).toHaveBeenCalled()
+    expect(result.ok).toBe(true)
+  })
+
+  it('does not follow redirects under the guard', async () => {
+    let receivedInit: RequestInit | undefined
+    const fetch = vi.fn((_url: string | URL | Request, init?: RequestInit) => {
+      receivedInit = init
+      return Promise.resolve(new Response('{}', { status: 200 }))
+    })
+
+    await fetchUrl('http://93.184.216.34/', noLimit, { blockPrivateNetworks: true, fetch })
+
+    // A redirect would otherwise let a public URL bounce to an internal target.
+    expect(receivedInit?.redirect).toBe('error')
+  })
+})
