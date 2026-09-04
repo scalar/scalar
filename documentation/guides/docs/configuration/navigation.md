@@ -139,6 +139,8 @@ A group collects several links into a single dropdown.
 
 `children` accepts link items only. Each child takes the same properties as a [header link](#header-links).
 
+To lay a dropdown out in titled columns, give its children a `section`. See [Mega Menus](mega-menus.md).
+
 #### Version selector
 
 Places the [version](versions.md) dropdown at a specific position in the header.
