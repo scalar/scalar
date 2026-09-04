@@ -1,4 +1,5 @@
 import type { HandlerContext } from './build-handler-context'
+import { runInSandbox } from './sandbox'
 
 /**
  * Result of executing a handler, including the result and operation tracking.
@@ -8,28 +9,18 @@ type HandlerExecutionResult = {
 }
 
 /**
- * Execute handler code in a sandboxed environment.
- * The code has access only to the provided context (store, faker, req, res).
+ * Execute handler code inside the QuickJS sandbox.
+ *
+ * The handler can only reach the `store` and `faker` bridges and the injected
+ * `req`/`res` inputs. It cannot touch the host runtime, so even untrusted code
+ * from a remote or `$ref`-loaded document is safe to run.
  */
 export async function executeHandler(code: string, context: HandlerContext): Promise<HandlerExecutionResult> {
-  // Create a function that executes the handler code with the context
-  // Using Function constructor to create a sandboxed environment
-  // The code is wrapped in a function body that returns the result
-  const handlerFunction = new Function(
-    'store',
-    'faker',
-    'req',
-    'res',
-    `
-    ${code}
-  `,
-  )
-  const result = handlerFunction(context.store, context.faker, context.req, context.res)
-
-  // If the result is a Promise, await it
-  if (result instanceof Promise) {
-    return { result: await result }
-  }
+  const result = await runInSandbox({
+    code,
+    store: context.store,
+    jsonGlobals: { req: context.req, res: context.res },
+  })
 
   return { result }
 }

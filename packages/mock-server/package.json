@@ -67,6 +67,7 @@
     "ajv": "catalog:*",
     "ajv-formats": "catalog:*",
     "hono": "catalog:*",
+    "quickjs-emscripten": "catalog:*",
     "yaml": "catalog:*"
   },
   "devDependencies": {
