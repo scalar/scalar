@@ -28,7 +28,7 @@
    The line is decoration, so `pointer-events: none` stops a click on it from
    registering on the wrapper, which is the dropdown's own root element. */
 .header .navigation > .contents:has(~ a)::after {
-  content: '';
+  content: "";
   align-self: center;
   pointer-events: none;
   width: var(--scalar-border-width);
