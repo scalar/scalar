@@ -25,6 +25,14 @@ export const reduceNamesToObject = (names: string[], properties: Properties): Pr
   }, {} as Properties)
 
 /** Sort property names in an object schema */
+/**
+ * One collator for every sort, rather than a fresh locale lookup per comparison.
+ * `String.localeCompare` builds its collator on each call, which dominates the
+ * comparator on schemas with many properties; `Intl.Collator` is the same
+ * ordering with the setup hoisted out of the loop.
+ */
+const collator = new Intl.Collator(undefined)
+
 export const sortPropertyNames = (
   schema: SchemaObject,
   discriminator?: DiscriminatorObject,
@@ -39,76 +47,86 @@ export const sortPropertyNames = (
     return []
   }
 
-  const propertyNames = Object.keys(schema.properties)
   const requiredPropertiesSet = new Set(schema.required || [])
 
-  return propertyNames
-    .sort((a, b) => {
-      const aDiscriminator = a === discriminator?.propertyName
-      const bDiscriminator = b === discriminator?.propertyName
+  /*
+   * Filter BEFORE sorting, and only when something is actually hidden.
+   *
+   * The filter resolves every property through `resolve.schema` to read
+   * `readOnly`/`writeOnly`; with neither flag set that is a full resolve pass
+   * per schema whose result is always "keep". Skipping it there, and shrinking
+   * the array the comparator runs over when it does apply, leaves the ordering
+   * identical — the filter is order-preserving and independent of the compare.
+   */
+  const allNames = Object.keys(schema.properties)
+  const propertyNames =
+    hideReadOnly || hideWriteOnly
+      ? allNames.filter((property) => {
+          const resolved = schema.properties && resolve.schema(schema.properties[property])
 
-      const aRequired = requiredPropertiesSet.has(a)
-      const bRequired = requiredPropertiesSet.has(b)
+          if (hideReadOnly && resolved?.readOnly === true) {
+            return false
+          }
+          if (hideWriteOnly && resolved?.writeOnly === true) {
+            return false
+          }
+          return true
+        })
+      : allNames
 
-      // Discriminator comes first always
-      if (aDiscriminator && !bDiscriminator) {
+  return propertyNames.sort((a, b) => {
+    const aDiscriminator = a === discriminator?.propertyName
+    const bDiscriminator = b === discriminator?.propertyName
+
+    const aRequired = requiredPropertiesSet.has(a)
+    const bRequired = requiredPropertiesSet.has(b)
+
+    // Discriminator comes first always
+    if (aDiscriminator && !bDiscriminator) {
+      return -1
+    }
+    if (!aDiscriminator && bDiscriminator) {
+      return 1
+    }
+
+    // Sort by x-order specification extension when present
+    const aSchema = schema.properties?.[a]
+    const bSchema = schema.properties?.[b]
+    const aOrder =
+      aSchema && typeof aSchema === 'object' && 'x-order' in aSchema
+        ? (aSchema as Record<string, unknown>)['x-order']
+        : undefined
+    const bOrder =
+      bSchema && typeof bSchema === 'object' && 'x-order' in bSchema
+        ? (bSchema as Record<string, unknown>)['x-order']
+        : undefined
+
+    if (aOrder !== undefined && bOrder !== undefined) {
+      return Number(aOrder) - Number(bOrder)
+    }
+    if (aOrder !== undefined && bOrder === undefined) {
+      return -1
+    }
+    if (aOrder === undefined && bOrder !== undefined) {
+      return 1
+    }
+
+    // Order required properties first
+    if (orderRequiredPropertiesFirst) {
+      // If one is required and the other isn't, required comes first
+      if (aRequired && !bRequired) {
         return -1
       }
-      if (!aDiscriminator && bDiscriminator) {
+      if (!aRequired && bRequired) {
         return 1
       }
+    }
 
-      // Sort by x-order specification extension when present
-      const aSchema = schema.properties?.[a]
-      const bSchema = schema.properties?.[b]
-      const aOrder =
-        aSchema && typeof aSchema === 'object' && 'x-order' in aSchema
-          ? (aSchema as Record<string, unknown>)['x-order']
-          : undefined
-      const bOrder =
-        bSchema && typeof bSchema === 'object' && 'x-order' in bSchema
-          ? (bSchema as Record<string, unknown>)['x-order']
-          : undefined
+    // If both have the same required status, sort alphabetically
+    if (orderSchemaPropertiesBy === 'alpha') {
+      return collator.compare(a, b)
+    }
 
-      if (aOrder !== undefined && bOrder !== undefined) {
-        return Number(aOrder) - Number(bOrder)
-      }
-      if (aOrder !== undefined && bOrder === undefined) {
-        return -1
-      }
-      if (aOrder === undefined && bOrder !== undefined) {
-        return 1
-      }
-
-      // Order required properties first
-      if (orderRequiredPropertiesFirst) {
-        // If one is required and the other isn't, required comes first
-        if (aRequired && !bRequired) {
-          return -1
-        }
-        if (!aRequired && bRequired) {
-          return 1
-        }
-      }
-
-      // If both have the same required status, sort alphabetically
-      if (orderSchemaPropertiesBy === 'alpha') {
-        return a.localeCompare(b)
-      }
-
-      return 0
-    })
-    .filter((property) => {
-      const resolved = schema.properties && resolve.schema(schema.properties[property])
-
-      // If hideReadOnly is true, filter out properties that are readOnly
-      if (hideReadOnly && resolved?.readOnly === true) {
-        return false
-      }
-      // If hideWriteOnly is true, filter out properties that are writeOnly
-      if (hideWriteOnly && resolved?.writeOnly === true) {
-        return false
-      }
-      return true
-    })
+    return 0
+  })
 }

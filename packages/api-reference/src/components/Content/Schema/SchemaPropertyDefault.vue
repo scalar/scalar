@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components/icon'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { onClickOutside, onKeyStroke } from '@vueuse/core'
+import { ref, useId } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 
@@ -12,17 +14,111 @@ defineProps<{
 
 const { copyToClipboard } = useClipboard()
 const { translate } = useLocalization()
+
+/**
+ * Hover/`:focus-within` CSS alone left the popup unreachable by Enter, Escape
+ * or touch, so it is pinned open on click (as in SchemaPropertyPattern.vue).
+ */
+const rootRef = ref<HTMLElement | null>(null)
+const labelRef = ref<HTMLButtonElement | null>(null)
+const isOpen = ref(false)
+const popupId = useId()
+
+const toggle = (): void => {
+  isOpen.value = !isOpen.value
+}
+
+/**
+ * Focus opens the popup through the same state as the click, not a separate
+ * `:focus-within` rule: with both, a click's own `focusin` opened it first and
+ * `toggle()` closed it again, so `aria-expanded` disagreed with the screen.
+ */
+const onFocusIn = (): void => {
+  if (!openedByPointer && !restoringFocus) {
+    isOpen.value = true
+  }
+}
+
+/**
+ * `close()` refocuses the label, and `focus()` fires `focusin` synchronously,
+ * which would re-open the popup and make the first Escape look inert.
+ */
+let restoringFocus = false
+
+/** A pointer press focuses before it clicks; that focus must not open the popup */
+let openedByPointer = false
+
+/** Long enough to span a touch tap's delayed compatibility mouse events. */
+const POINTER_GUARD_MS = 500
+let pointerGuardTimer = 0
+
+const onPointerDown = (): void => {
+  /*
+   * A touch tap's compatibility mousedown (which moves focus) lands 50-150ms
+   * after touchend, past any one-frame guard, so the tap opened then closed.
+   */
+  openedByPointer = true
+  window.clearTimeout(pointerGuardTimer)
+  pointerGuardTimer = window.setTimeout(() => {
+    openedByPointer = false
+  }, POINTER_GUARD_MS)
+}
+
+const onFocusOut = (event: FocusEvent): void => {
+  const next = event.relatedTarget
+
+  if (!(next instanceof Node) || !rootRef.value?.contains(next)) {
+    isOpen.value = false
+  }
+}
+
+/**
+ * Closing hides the popup outright, so focus is handed back deliberately, or
+ * Escape from inside it drops focus to <body> and Tab resumes from the top.
+ */
+const close = (): void => {
+  const wasInside = rootRef.value?.contains(document.activeElement)
+
+  isOpen.value = false
+
+  if (wasInside) {
+    restoringFocus = true
+    labelRef.value?.focus()
+    restoringFocus = false
+  }
+}
+
+onClickOutside(rootRef, close)
+onKeyStroke('Escape', () => {
+  if (isOpen.value) {
+    close()
+  }
+})
 </script>
 <template>
   <template v-if="value !== undefined">
-    <div class="property-default">
+    <div
+      ref="rootRef"
+      class="property-default"
+      :class="{ 'is-open': isOpen }"
+      @focusin="onFocusIn"
+      @focusout="onFocusOut">
       <button
+        ref="labelRef"
+        :aria-controls="popupId"
+        :aria-expanded="isOpen"
         class="property-default-label"
-        type="button">
+        type="button"
+        @click="toggle"
+        @pointerdown="onPointerDown">
         <span>{{ translate('schema.default') }}</span>
       </button>
-      <div class="property-default-value-list">
+      <div
+        :id="popupId"
+        class="property-default-value-list"
+        :class="{ 'flex!': isOpen }">
         <button
+          :aria-label="`${translate('common.copyDefault')}: ${formatValue(value)}`"
           class="property-default-value group"
           type="button"
           @click="copyToClipboard(formatValue(value))">
@@ -30,6 +126,7 @@ const { translate } = useLocalization()
             {{ formatValue(value) }}
           </span>
           <ScalarIcon
+            aria-hidden="true"
             class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3"
             icon="Clipboard"
             size="xs" />
@@ -108,8 +205,7 @@ const { translate } = useLocalization()
   display: none;
   z-index: 2;
 }
-.property-default:hover .property-default-value-list,
-.property-default:focus-within .property-default-value-list {
+.property-default:hover .property-default-value-list {
   display: flex;
 }
 </style>

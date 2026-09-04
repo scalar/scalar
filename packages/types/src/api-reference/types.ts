@@ -379,8 +379,11 @@ export type ApiReferenceTranslations = {
     path: string
     pattern: string
     copyPattern: string
+    copyDefault: string
+    copyExample: string
     propertyNames: string
     readOnly: string
+    recursive: string
     required: string
     hideValues: string
     showAllValues: string
@@ -477,6 +480,8 @@ export type ApiReferenceTranslations = {
     allOf: string
     not: string
     unknownType: string
+    propertyCount: string
+    recursiveReference: string
   }
   download: {
     openapi: string
@@ -770,6 +775,14 @@ type ExtendedConfiguration = {
   operationsSorter?: 'alpha' | 'method' | ((a: any, b: any) => number)
   /** Order the schema properties by */
   orderSchemaPropertiesBy: 'alpha' | 'preserve'
+  /**
+   * How the schema tree is drawn. `legacy` nests a bordered card per level behind a
+   * Show Child Attributes pill; `tree` draws a continuous rail per level with a
+   * disclosure control in each property gutter.
+   */
+  schemaLayout: 'legacy' | 'tree'
+  /** Tree layout only: arrow-key navigation over the schema disclosure toggles */
+  schemaKeyboardNav: boolean
   /** Sort the schema properties by required ones first */
   orderRequiredPropertiesFirst: boolean
 }

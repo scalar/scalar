@@ -7,7 +7,15 @@ import { type InjectionKey, inject, provide } from 'vue'
  * whether or not a tag happens to wrap it, which is why levels cannot be
  * derived from nesting depth.
  */
-export type OutlineRole = 'document' | 'tag' | 'channel' | 'modelGroup' | 'operation' | 'model' | 'message'
+export type OutlineRole =
+  | 'document'
+  | 'tag'
+  | 'channel'
+  | 'modelGroup'
+  | 'operation'
+  | 'model'
+  | 'message'
+  | 'operationSection'
 
 /** Valid heading levels, matching the tags `h1` through `h6`. */
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
@@ -26,6 +34,8 @@ const OUTLINE: Record<OutlineRole, number> = {
   operation: 3,
   model: 3,
   message: 4,
+  /** A titled group inside an operation: Body, Responses, Query Parameters */
+  operationSection: 4,
 }
 
 /** The role at the top of the current page. */

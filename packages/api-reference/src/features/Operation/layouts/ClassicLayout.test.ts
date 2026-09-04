@@ -125,6 +125,8 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
   options: {
     expandAllResponses: false,
     expandAllSchemaProperties: false,
+    schemaLayout: 'legacy' as const,
+    schemaKeyboardNav: false,
     hideModels: false,
     hideTestRequestButton: true,
     layout: 'classic',
@@ -322,5 +324,27 @@ describe('ClassicLayout', () => {
     const testButton = wrapper.findComponent({ name: 'TestRequestButton' })
     expect(testButton.exists()).toBe(true)
     expect(testButton.props('path')).toBe('delivery.created')
+  })
+
+  describe('responses', () => {
+    const responsesFor = (schemaLayout: 'legacy' | 'tree') =>
+      mount(ClassicLayout, {
+        props: { ...props, options: { ...props.options, schemaLayout } },
+        global: {
+          stubs: {
+            RouterLink: { name: 'RouterLink', template: '<a><slot /></a>' },
+          },
+        },
+      }).findComponent({ name: 'OperationResponses' })
+
+    it('renders responses as static panels in the legacy layout', () => {
+      // The classic card has always shown every response expanded; only the
+      // tree grammar turns them into disclosures.
+      expect(responsesFor('legacy').props('collapsableItems')).toBe(false)
+    })
+
+    it('renders responses as disclosures in the tree layout', () => {
+      expect(responsesFor('tree').props('collapsableItems')).toBe(true)
+    })
   })
 })

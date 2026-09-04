@@ -13,6 +13,8 @@ describe('ParameterList', () => {
     orderRequiredPropertiesFirst: true,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
+    schemaLayout: 'legacy' as const,
+    schemaKeyboardNav: false,
   }
 
   const createParameter = (name: string, overrides?: Partial<ParameterObject>): ParameterObject => ({
@@ -96,6 +98,8 @@ describe('ParameterList', () => {
       orderRequiredPropertiesFirst: false,
       orderSchemaPropertiesBy: 'preserve' as const,
       expandAllSchemaProperties: false,
+      schemaLayout: 'legacy' as const,
+      schemaKeyboardNav: false,
     }
 
     const wrapper = mount(ParameterList, {

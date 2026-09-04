@@ -926,13 +926,27 @@ describe('SchemaPropertyHeading', () => {
     it('renders SchemaPropertyExamples when withExamples is true', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          value: coerceValue(SchemaObjectSchema, { type: 'string', example: 'hi' }),
           withExamples: true,
         },
       })
 
       const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
       expect(examplesElement.exists()).toBe(true)
+    })
+
+    it('mounts no SchemaPropertyExamples for a schema with no example', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          withExamples: true,
+        },
+      })
+
+      // The component renders nothing here anyway, but mounting it installs the
+      // popup's window-level listeners — one set per property row on the page.
+      const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
+      expect(examplesElement.exists()).toBe(false)
     })
 
     it('does not render SchemaPropertyExamples when withExamples is false', () => {
@@ -1115,6 +1129,39 @@ describe('SchemaPropertyHeading', () => {
       const detailsElement = wrapper.find('.property-heading')
       expect(detailsElement.text()).toContain('Default')
       expect(detailsElement.text()).toContain('42')
+    })
+  })
+
+  describe('detail spacing', () => {
+    // The two layouts strip the right margin from different details, so the utility that
+    // carries that rule follows the layout. `:last-of-type` matches by element type, which
+    // is why the tree cannot use it: the collapsed preview and the trailing copy-link are
+    // spans as well, and the last detail would lose the gap before them.
+    const marginUtilities = (typeSignature?: boolean): string[] =>
+      mount(SchemaPropertyHeading, {
+        props: {
+          typeSignature,
+          value: coerceValue(SchemaObjectSchema, {
+            type: 'string',
+            format: 'uuid',
+          }),
+        },
+      })
+        .find('.property-heading')
+        .classes()
+
+    it('keeps the legacy margin selector in the legacy layout', () => {
+      const classes = marginUtilities()
+
+      expect(classes).toContain('[&>.property-detail:not(:last-of-type)]:mr-0')
+      expect(classes).not.toContain('[&>.property-detail:has(+.property-detail)]:mr-0')
+    })
+
+    it('uses the adjacent-detail margin selector in the tree layout', () => {
+      const classes = marginUtilities(true)
+
+      expect(classes).toContain('[&>.property-detail:has(+.property-detail)]:mr-0')
+      expect(classes).not.toContain('[&>.property-detail:not(:last-of-type)]:mr-0')
     })
   })
 })

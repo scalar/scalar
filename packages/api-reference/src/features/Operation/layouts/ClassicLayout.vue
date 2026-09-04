@@ -258,7 +258,12 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :requestBody="getResolvedRef(operation.requestBody)" />
         </div>
         <div class="operation-details-card-item">
+          <!-- Tree only: the classic card renders responses as static panels,
+               which is what the legacy layout still does here -->
           <OperationResponses
+            :collapsableItems="
+              options.schemaLayout === 'tree' && !options.expandAllResponses
+            "
             v-model:selectedContentTypes="selectedResponseContentTypes"
             :document
             :eventBus
@@ -447,6 +452,54 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
 .endpoint-content > * {
   min-width: 0;
+}
+
+/*
+ * Tree layout inside a classic card.
+ *
+ * A tree row hangs its +/- control one gutter to the LEFT of its own text. The
+ * modern layout absorbs that in the page margin, but a classic card draws its
+ * border exactly there, so the controls sat on top of the border and outside
+ * the box that is supposed to contain them. Every card that holds tree rows
+ * reserves `gutter + half` on the inline start — plus the same 6px of air the
+ * modern layout leaves at the page edge, so a control never kisses the border —
+ * and matches the legacy 9px on the end so a long signature never touches the
+ * border either.
+ *
+ * The reserve is spelled out at each use site rather than kept as a token: a
+ * custom property substitutes where it is DECLARED, so a token defined at app
+ * scope would freeze at the wide values and keep reserving 25px in a narrow
+ * container that only needs 18 (same reason `schema-rail`'s fade is inline).
+ *
+ * The `:has()` guard keeps the legacy layout untouched: it draws no floating
+ * controls and pads its own rows by 9px.
+ *
+ * `.parameter-item--tree` has to be in the guard even though a row of its own
+ * hangs nothing: the classic card renders responses as disclosures, and a
+ * CLOSED one unmounts its panel, taking every `.property--tree` with it. An
+ * operation with only responses would then reserve nothing while its status
+ * rows still drew their pucks 25px to the left — over the card's border — and
+ * the reserve would appear and disappear as rows were opened, shifting the
+ * whole card sideways on a click. The row marker is there whatever the
+ * disclosure is doing, so the reserve holds still.
+ */
+.endpoint-content:has(
+  .property--tree,
+  .parameter-item--tree,
+  .callback-list-item--tree
+) {
+  padding-inline-start: calc(
+    var(--schema-gutter, 16px) + var(--schema-glyph-half, 9px) + 6px
+  );
+}
+
+.operation-details-card-item :deep(.request-body-schema:has(.property--tree)),
+.operation-details-card-item
+  :deep(.callbacks-list:has(.callback-list-item--tree)) {
+  padding-inline-start: calc(
+    var(--schema-gutter, 16px) + var(--schema-glyph-half, 9px) + 6px
+  );
+  padding-inline-end: 9px;
 }
 
 .operation-details-card {

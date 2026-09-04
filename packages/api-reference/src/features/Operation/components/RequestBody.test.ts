@@ -14,6 +14,8 @@ describe('RequestBody', () => {
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
+    schemaLayout: 'legacy' as const,
+    schemaKeyboardNav: false,
   }
 
   it('renders request body with schema properties', () => {
@@ -397,6 +399,8 @@ describe('RequestBody', () => {
         // Expand everything so a duplicate selector in the collapsed block would
         // also be rendered (and therefore caught) rather than hidden.
         options: { ...defaultRequestOptions, expandAllSchemaProperties: true },
+        schemaLayout: 'legacy' as const,
+        schemaKeyboardNav: false,
         document: document as never,
         requestBody: {
           content: {

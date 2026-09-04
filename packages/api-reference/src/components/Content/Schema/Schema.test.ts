@@ -2,8 +2,10 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 
 import { scrollTargetId } from '../../../helpers/lazy-bus'
+import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from './helpers/schema-expansion'
 import Schema from './Schema.vue'
 
 describe('Schema', () => {
@@ -1528,6 +1530,189 @@ describe('Schema', () => {
       expect(countOccurrences(text, 'factoredProperty')).toBe(1)
       expect(countOccurrences(text, 'fromAllOfA')).toBe(1)
       expect(countOccurrences(text, 'fromAllOfB')).toBe(1)
+    })
+  })
+  describe('expansion state', () => {
+    afterEach(() => {
+      scrollTargetId.value = ''
+    })
+
+    /** A collapsible node with a nested object beneath it. */
+    const nestedSchema = () =>
+      coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          address: {
+            type: 'object',
+            properties: { city: { type: 'string' } },
+          },
+        },
+      })
+
+    const mountNested = (options: Record<string, unknown> = {}) =>
+      mount(Schema, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['user'],
+          compact: true,
+          level: 1,
+          schema: nestedSchema(),
+          options: {},
+        },
+        ...options,
+      })
+
+    it('opens when a deep link arrives after the operation is already rendered', async () => {
+      const wrapper = mountNested()
+
+      expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('false')
+
+      // The mount-only `defaultOpen` read is why this silently did nothing before.
+      scrollTargetId.value = 'user.address'
+      await nextTick()
+
+      expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
+    })
+
+    it('keeps expansion across the remount a composition variant switch causes', async () => {
+      const store = createSchemaExpansionStore()
+      const withStore = {
+        global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
+      }
+
+      const first = mountNested(withStore)
+      await first.find('.schema-card-title').trigger('click')
+      expect(first.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
+      first.unmount()
+
+      // The variant picker remounts the panel via its `:key`; the state is held
+      // outside the component now, so it survives.
+      const second = mountNested(withStore)
+      expect(second.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
+    })
+
+    it('moves focus to the toggle when collapsing a subtree that holds it', async () => {
+      const wrapper = mountNested({ attachTo: document.body })
+
+      const outer = wrapper.findAll('.schema-card-title')[0]!
+      await outer.trigger('click')
+
+      const inner = wrapper.findAll('.schema-card-title')[1]!
+      const innerElement = inner.element as HTMLElement
+      innerElement.focus()
+      expect(document.activeElement).toBe(innerElement)
+
+      await outer.trigger('click')
+
+      // Without the rule, the panel unmounts under the focused element and focus
+      // falls to <body> with no way back.
+      expect(document.activeElement).toBe(outer.element)
+
+      wrapper.unmount()
+    })
+
+    it('reopens a node the reader collapsed when everything is expanded', async () => {
+      const store = createSchemaExpansionStore()
+      const wrapper = mountNested({
+        global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
+      })
+
+      await wrapper.find('.schema-card-title').trigger('click')
+      await wrapper.find('.schema-card-title').trigger('click')
+      expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('false')
+
+      store.expandAll()
+      await nextTick()
+
+      expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
+    })
+  })
+
+  describe('tree root', () => {
+    it('establishes exactly one root over a nested card that also mounts at depth 0', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          level: 0,
+          noncollapsible: true,
+          options: { schemaLayout: 'tree' },
+          schema: coerceValue(SchemaObjectSchema, {
+            allOf: [
+              { type: 'object', properties: { name: { type: 'string' } } },
+              {
+                oneOf: [
+                  { type: 'object', title: 'A', properties: { a: { type: 'string' } } },
+                  { type: 'object', title: 'B', properties: { b: { type: 'string' } } },
+                ],
+              },
+            ],
+          }),
+        },
+      })
+
+      // An `allOf` member card mounts at depth 0 as well, so depth alone cannot
+      // identify the outermost tree. A second root would install a second
+      // keydown delegate and a second glyph-token scope over the same rows.
+      expect(wrapper.findAll('.schema-card').length).toBeGreaterThan(1)
+      expect(wrapper.findAll('.schema-tree').length).toBe(1)
+    })
+  })
+
+  describe('keyboard navigation', () => {
+    /** A tree with two sibling rows, each collapsible. */
+    const mountTree = (schemaKeyboardNav: boolean) => {
+      const wrapper = mount(Schema, {
+        attachTo: document.body,
+        props: {
+          breadcrumb: ['user'],
+          eventBus: null,
+          level: 0,
+          noncollapsible: true,
+          options: { schemaLayout: 'tree', schemaKeyboardNav },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              address: { type: 'object', properties: { city: { type: 'string' } } },
+              contact: { type: 'object', properties: { email: { type: 'string' } } },
+            },
+          }),
+        },
+      })
+
+      const toggles = wrapper.findAll('.property-toggle')
+
+      // jsdom reports no layout, so the visibility filter needs a stand-in.
+      for (const toggle of toggles) {
+        Object.defineProperty(toggle.element, 'offsetParent', { get: () => document.body })
+      }
+
+      return { wrapper, toggles }
+    }
+
+    it('moves focus between toggles when the flag is on', async () => {
+      const { wrapper, toggles } = mountTree(true)
+      const first = toggles[0]!
+
+      ;(first.element as HTMLElement).focus()
+      await first.trigger('keydown', { key: 'ArrowDown' })
+
+      expect(document.activeElement).toBe(toggles[1]!.element)
+
+      wrapper.unmount()
+    })
+
+    it('leaves arrow keys to the browser when the flag is off', async () => {
+      const { wrapper, toggles } = mountTree(false)
+      const first = toggles[0]!
+
+      ;(first.element as HTMLElement).focus()
+      await first.trigger('keydown', { key: 'ArrowDown' })
+
+      // Arrow keys scroll the page by default, and nothing announces the tree
+      // bindings, so taking them over is opt-in.
+      expect(document.activeElement).toBe(first.element)
+
+      wrapper.unmount()
     })
   })
 })
