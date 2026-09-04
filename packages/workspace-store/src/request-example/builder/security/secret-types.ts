@@ -19,7 +19,13 @@ import type {
   OAuthFlowImplicit,
   OAuthFlowPassword,
 } from '@/schemas/v3.1/strict/oauth-flow'
-import type { ApiKeyObject, HttpObject, OAuth2Object, OpenIdConnectObject } from '@/schemas/v3.1/strict/security-scheme'
+import type {
+  ApiKeyObject,
+  HttpObject,
+  MutualTlsObject,
+  OAuth2Object,
+  OpenIdConnectObject,
+} from '@/schemas/v3.1/strict/security-scheme'
 
 type OAuthFlowCommonSecret = XScalarSecretClientId &
   XScalarSecretToken &
@@ -55,6 +61,8 @@ export type OAuthFlowsObjectSecret = {
 
 export type ApiKeyObjectSecret = ApiKeyObject & XScalarSecretToken
 export type HttpObjectSecret = HttpObject & XScalarSecretHTTP & XScalarSecretToken
+/** Mutual TLS: the client certificate is presented at the TLS layer, so there is no secret to enter. */
+export type MutualTlsObjectSecret = MutualTlsObject
 export type OAuth2ObjectSecret = Omit<OAuth2Object, 'flows'> & { flows: OAuthFlowsObjectSecret }
 export type OpenIdConnectObjectSecret = OpenIdConnectObject & { flows?: OAuthFlowsObjectSecret }
 
@@ -82,6 +90,7 @@ export type GssapiObjectSecret = AsyncApiBrokerScheme<'gssapi'> & XScalarSecretS
 export type SecuritySchemeObjectSecret =
   | ApiKeyObjectSecret
   | HttpObjectSecret
+  | MutualTlsObjectSecret
   | OpenIdConnectObjectSecret
   | OAuth2ObjectSecret
   | SaslObjectSecret

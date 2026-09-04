@@ -524,6 +524,14 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     { typeName: 'HttpSecuritySchemeObject' },
   )
 
+  const mutualTlsSecurityScheme = object(
+    {
+      ...securitySchemeBase.properties,
+      type: literal('mutualTLS'),
+    },
+    { typeName: 'MutualTlsSecuritySchemeObject' },
+  )
+
   const oauthFlowExtensionObjects = [
     XScalarSecurityQuery,
     XScalarSecurityBody,
@@ -645,7 +653,13 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   )
 
   const securityScheme = union(
-    [apiKeySecurityScheme, httpSecurityScheme, oauth2SecurityScheme, openIdConnectSecurityScheme],
+    [
+      apiKeySecurityScheme,
+      httpSecurityScheme,
+      mutualTlsSecurityScheme,
+      oauth2SecurityScheme,
+      openIdConnectSecurityScheme,
+    ],
     { typeName: 'SecuritySchemeObject' },
   )
 

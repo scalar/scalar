@@ -10,7 +10,7 @@ import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { isAsyncApiDocument } from '@/schemas'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -4382,6 +4382,37 @@ describe('create-workspace-store', () => {
         'title': 'Simple Chat WebSocket API',
         'type': 'document',
       })
+    })
+  })
+
+  describe('openapi security schemes', () => {
+    it('preserves a mutualTLS security scheme during ingestion', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'mtls',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Example', version: '1.0' },
+          paths: {
+            '/ping': { get: { security: [{ mutualTLS: [] }], responses: { '200': { description: 'OK' } } } },
+          },
+          components: {
+            securitySchemes: {
+              mutualTLS: { type: 'mutualTLS', description: 'some desc' },
+            },
+          },
+        },
+      })
+
+      const document = store.workspace.documents['mtls']
+      assert(document && isOpenApiDocument(document))
+
+      // Coercion used to downgrade the unknown type to the first union member (apiKey), which is
+      // why the UI rendered a Name/Value form. The type must survive so the auth UI can react to it.
+      const scheme = getResolvedRef(getResolvedRef(document.components)?.securitySchemes?.mutualTLS)
+      expect(scheme?.type).toBe('mutualTLS')
+      expect(scheme?.description).toBe('some desc')
     })
   })
 })
