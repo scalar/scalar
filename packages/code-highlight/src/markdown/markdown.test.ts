@@ -323,4 +323,42 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
       expect(htmlFromMarkdown(markdown)).toBe(throughPipeline(markdown))
     })
   })
+
+  /**
+   * The fast path interpolates the caller's string straight into `<p>...</p>`,
+   * with no escaping and no sanitizer. That is safe only because every
+   * character that carries meaning to the serializer or the parser keeps the
+   * string on the pipeline. These pin that boundary one character at a time, so
+   * relaxing the excluded class fails a test rather than opening a hole: each
+   * value differs between the two paths, so a fast path that swallowed it would
+   * hand back markup the pipeline escapes, drops or rewrites.
+   */
+  describe('fast path escaping', () => {
+    const dangerous = {
+      /** Markup: the serializer escapes it, the sanitizer drops the handler */
+      'angle bracket': '<img src=x onerror=alert(1)>',
+      'bare less-than': 'a < b',
+      /** `&` opens a character reference, so the serializer always escapes it */
+      ampersand: 'Tom & Jerry',
+      'character reference': '&lt;script&gt;',
+      /** A backtick pair is inline code, never literal text */
+      backtick: '`code`',
+      /** `\!` is an escapable punctuation, so the pipeline eats the backslash */
+      backslash: 'a\\!b',
+      /** A leading `#` plus a space is an ATX heading, not a paragraph */
+      'leading hash': '# heading',
+    }
+
+    it.each(Object.entries(dangerous))('renders a %s (%j) exactly as the pipeline does', (_name, markdown) => {
+      expect(htmlFromMarkdown(markdown)).toBe(throughPipeline(markdown))
+    })
+
+    it.each(Object.entries(dangerous))('never returns the raw interpolation for a %s (%j)', (_name, markdown) => {
+      expect(htmlFromMarkdown(markdown)).not.toBe(`\n<p>${markdown}</p>\n`)
+    })
+
+    it('never lets an inline event handler through', () => {
+      expect(htmlFromMarkdown('<img src=x onerror=alert(1)>')).not.toContain('onerror')
+    })
+  })
 })
