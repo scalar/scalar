@@ -605,11 +605,12 @@ const treeChildSchema = computed(() =>
 )
 
 /**
- * The filtered, ordered child property names, computed once per row because
- * `sortPropertyNames` (sort plus `$ref` resolution of every child) is the
- * hottest per-row cost and both the count label and the preview need it. Same
- * call the panel makes — full options, no discriminator — or the preview names
- * the wrong first rows and the count disagrees with the panel.
+ * The filtered, ordered child property names for the collapsed preview, and
+ * for the count only when a hide flag filters the list. `sortPropertyNames`
+ * (sort plus `$ref` resolution of every child) is the hottest per-row cost, so
+ * nothing reads this while the row is open. Same call the panel makes — full
+ * options, no discriminator — or the preview names the wrong first rows and
+ * the count disagrees with the panel.
  */
 const sortedChildPropertyNames = computed((): string[] =>
   treeChildSchema.value
@@ -635,7 +636,18 @@ const treeChildCountLabel = computed((): string | null => {
 
   // Three groups, not one: properties, patternProperties and additionalProperties,
   // or a map-only schema announces no children at all.
-  const named = sortedChildPropertyNames.value.length
+  //
+  // The count needs only a length. Without a hide flag the panel renders every
+  // key, so counting them mirrors the sort's own early return and spares an
+  // open row the sort entirely (the preview, its only other reader, exists
+  // while collapsed). A hide flag drops rows, so only then is the filtered
+  // length genuinely needed.
+  const named =
+    props.options.hideReadOnly || props.options.hideWriteOnly
+      ? sortedChildPropertyNames.value.length
+      : isTypeObject(source) && source.properties
+        ? Object.keys(source.properties).length
+        : 0
   const patterns =
     'patternProperties' in source && source.patternProperties
       ? Object.keys(source.patternProperties).length

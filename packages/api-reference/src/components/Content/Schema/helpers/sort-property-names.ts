@@ -24,7 +24,6 @@ export const reduceNamesToObject = (names: string[], properties: Properties): Pr
     return acc
   }, {} as Properties)
 
-/** Sort property names in an object schema */
 /**
  * One collator for every sort, rather than a fresh locale lookup per comparison.
  * `String.localeCompare` builds its collator on each call, which dominates the
@@ -33,6 +32,54 @@ export const reduceNamesToObject = (names: string[], properties: Properties): Pr
  */
 const collator = new Intl.Collator(undefined)
 
+/**
+ * Everything the comparator needs to know about one property, read once.
+ *
+ * The comparator used to fetch `schema.properties[name]` and probe it for
+ * `x-order` on every comparison. In the app the document is a stack of proxies
+ * (reactive, change detection, overrides, `$ref` magic), so each of those reads
+ * costs microseconds and a sort makes `n log n` of them: a 60-property object
+ * took milliseconds per sort. With the inputs hoisted the comparator only reads
+ * plain fields. It makes the same decisions in the same order on the same
+ * values, and `Array.prototype.sort` is stable, so the result is identical.
+ */
+type PropertyRecord = {
+  name: string
+  /** The `x-order` extension value, `undefined` when the property does not carry one */
+  order: unknown
+  required: boolean
+  discriminator: boolean
+}
+
+/**
+ * Sorted names, memoised per `properties` object.
+ *
+ * The tree layout sorts a row's children while the row is collapsed (for the
+ * preview) and again when it opens (for the panel), and every row that `$ref`s
+ * the same schema sorts the same `properties` object over again. That object's
+ * identity survives each copy on the render path (the display-time spreads keep
+ * the reference, and every proxy layer caches its child proxies per target), so
+ * it is a stable key, and a `WeakMap` lets the entries die with the document.
+ *
+ * An entry is valid only while `schema.required` is the same array: the
+ * composition path builds a fresh `properties` AND a fresh `required` when it
+ * merges variants, so a merged schema never hits a stale entry. Every option
+ * that affects the order is part of the inner key. Nothing else the sort reads
+ * changes while a document is rendered: api-reference never rewrites a schema
+ * subtree in place, it swaps whole documents.
+ */
+type SortCacheEntry = {
+  required: unknown
+  names: string[]
+}
+const sortCache = new WeakMap<object, Map<string, SortCacheEntry>>()
+
+/**
+ * Sort property names in an object schema.
+ *
+ * The returned array is shared with later calls for the same schema and
+ * options, so callers must treat it as read-only.
+ */
 export const sortPropertyNames = (
   schema: SchemaObject,
   discriminator?: DiscriminatorObject,
@@ -47,7 +94,27 @@ export const sortPropertyNames = (
     return []
   }
 
-  const requiredPropertiesSet = new Set(schema.required || [])
+  const properties = schema.properties
+  const required = schema.required
+  const discriminatorName = discriminator?.propertyName
+
+  // A `!` marks a present discriminator so an absent one can never collide with
+  // a property literally named like the placeholder.
+  const cacheKey = [
+    discriminatorName === undefined ? '' : `!${discriminatorName}`,
+    hideReadOnly,
+    hideWriteOnly,
+    orderSchemaPropertiesBy,
+    orderRequiredPropertiesFirst,
+  ].join('|')
+
+  const bucket = sortCache.get(properties)
+  const cached = bucket?.get(cacheKey)
+  if (cached && cached.required === required) {
+    return cached.names
+  }
+
+  const requiredPropertiesSet = new Set(required || [])
 
   /*
    * Filter BEFORE sorting, and only when something is actually hidden.
@@ -57,76 +124,86 @@ export const sortPropertyNames = (
    * per schema whose result is always "keep". Skipping it there, and shrinking
    * the array the comparator runs over when it does apply, leaves the ordering
    * identical — the filter is order-preserving and independent of the compare.
+   * It shares the single read of each property with the record below.
    */
-  const allNames = Object.keys(schema.properties)
-  const propertyNames =
-    hideReadOnly || hideWriteOnly
-      ? allNames.filter((property) => {
-          const resolved = schema.properties && resolve.schema(schema.properties[property])
+  const shouldFilter = hideReadOnly || hideWriteOnly
+  const records: PropertyRecord[] = []
 
-          if (hideReadOnly && resolved?.readOnly === true) {
-            return false
-          }
-          if (hideWriteOnly && resolved?.writeOnly === true) {
-            return false
-          }
-          return true
-        })
-      : allNames
+  for (const name of Object.keys(properties)) {
+    const propertySchema = properties[name]
 
-  return propertyNames.sort((a, b) => {
-    const aDiscriminator = a === discriminator?.propertyName
-    const bDiscriminator = b === discriminator?.propertyName
+    if (shouldFilter) {
+      const resolved = resolve.schema(propertySchema)
 
-    const aRequired = requiredPropertiesSet.has(a)
-    const bRequired = requiredPropertiesSet.has(b)
+      if (hideReadOnly && resolved?.readOnly === true) {
+        continue
+      }
+      if (hideWriteOnly && resolved?.writeOnly === true) {
+        continue
+      }
+    }
 
+    records.push({
+      name,
+      order:
+        propertySchema && typeof propertySchema === 'object' && 'x-order' in propertySchema
+          ? (propertySchema as Record<string, unknown>)['x-order']
+          : undefined,
+      required: requiredPropertiesSet.has(name),
+      discriminator: name === discriminatorName,
+    })
+  }
+
+  records.sort((a, b) => {
     // Discriminator comes first always
-    if (aDiscriminator && !bDiscriminator) {
+    if (a.discriminator && !b.discriminator) {
       return -1
     }
-    if (!aDiscriminator && bDiscriminator) {
+    if (!a.discriminator && b.discriminator) {
       return 1
     }
 
     // Sort by x-order specification extension when present
-    const aSchema = schema.properties?.[a]
-    const bSchema = schema.properties?.[b]
-    const aOrder =
-      aSchema && typeof aSchema === 'object' && 'x-order' in aSchema
-        ? (aSchema as Record<string, unknown>)['x-order']
-        : undefined
-    const bOrder =
-      bSchema && typeof bSchema === 'object' && 'x-order' in bSchema
-        ? (bSchema as Record<string, unknown>)['x-order']
-        : undefined
-
-    if (aOrder !== undefined && bOrder !== undefined) {
-      return Number(aOrder) - Number(bOrder)
+    if (a.order !== undefined && b.order !== undefined) {
+      return Number(a.order) - Number(b.order)
     }
-    if (aOrder !== undefined && bOrder === undefined) {
+    if (a.order !== undefined && b.order === undefined) {
       return -1
     }
-    if (aOrder === undefined && bOrder !== undefined) {
+    if (a.order === undefined && b.order !== undefined) {
       return 1
     }
 
     // Order required properties first
     if (orderRequiredPropertiesFirst) {
       // If one is required and the other isn't, required comes first
-      if (aRequired && !bRequired) {
+      if (a.required && !b.required) {
         return -1
       }
-      if (!aRequired && bRequired) {
+      if (!a.required && b.required) {
         return 1
       }
     }
 
     // If both have the same required status, sort alphabetically
     if (orderSchemaPropertiesBy === 'alpha') {
-      return collator.compare(a, b)
+      return collator.compare(a.name, b.name)
     }
 
     return 0
   })
+
+  const names = records.map((record) => record.name)
+
+  // A malformed document can carry a non-object `properties`; that cannot key
+  // a WeakMap, so it simply goes uncached.
+  if (typeof properties === 'object' && properties !== null) {
+    if (bucket) {
+      bucket.set(cacheKey, { required, names })
+    } else {
+      sortCache.set(properties, new Map([[cacheKey, { required, names }]]))
+    }
+  }
+
+  return names
 }
