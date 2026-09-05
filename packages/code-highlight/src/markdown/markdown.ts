@@ -1,4 +1,5 @@
 import type { Element as HastElement, ElementContent as HastElementContent, Root as HastRoot } from 'hast'
+import { createLowlight } from 'lowlight'
 import type { Heading, Root as MdastRoot, RootContent as MdastRootContent, Node, PhrasingContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
@@ -126,32 +127,41 @@ const transformInlineMarkdownInRawHtml = () => (tree: HastRoot) => {
   })
 }
 
-/**
- * Take a Markdown string and generate HTML from it
- */
-export function htmlFromMarkdown(
-  markdown: string,
-  options?: {
-    removeTags?: string[]
-    allowTags?: string[]
-    transform?: (node: Node) => Node
-    transformType?: string
-  },
-) {
-  // Add permitted tags and remove stripped ones
-  const removeTags = options?.removeTags ?? []
-  const tagNames = [...(defaultSchema.tagNames ?? []), ...(options?.allowTags ?? [])].filter(
-    (t) => !removeTags.includes(t),
-  )
+type HtmlFromMarkdownOptions = {
+  removeTags?: string[]
+  allowTags?: string[]
+  transform?: (node: Node) => Node
+  transformType?: string
+}
 
-  const html = unified()
+/**
+ * One lowlight instance shared by every markdown pipeline.
+ *
+ * Registering the standard grammars is the most expensive part of building a
+ * pipeline, and the registry is read-only once built (nothing here passes
+ * `aliases`, the only option that mutates a given instance), so it is created
+ * on first use and reused from then on.
+ */
+let sharedLowlight: ReturnType<typeof createLowlight> | undefined
+
+const getLowlight = (): ReturnType<typeof createLowlight> => {
+  sharedLowlight ??= createLowlight(standardLanguages)
+
+  return sharedLowlight
+}
+
+/**
+ * Build the markdown to HTML pipeline.
+ */
+const createProcessor = (tagNames: string[], transform: Options['transform'], transformType: string | undefined) =>
+  unified()
     // Parses markdown
     .use(remarkParse)
     // Support autolink literals, footnotes, strikethrough, tables and tasklists
     .use(remarkGfm)
     .use(transformNodes, {
-      transform: options?.transform,
-      type: options?.transformType,
+      transform,
+      type: transformType,
     })
     // Allows any HTML tags
     .use(remarkRehype, { allowDangerousHtml: true })
@@ -179,7 +189,8 @@ export function htmlFromMarkdown(
     })
     // Syntax highlighting
     .use(rehypeHighlight, {
-      languages: standardLanguages,
+      // Reuse the grammar registry instead of rebuilding it for every pipeline
+      lowlight: getLowlight(),
       // Enable auto detection
       detect: true,
       // Adds Scalar's custom scrollbar styling to highlighted code blocks
@@ -191,10 +202,43 @@ export function htmlFromMarkdown(
     .use(rehypeFormat)
     // Converts the HTML AST to a string
     .use(rehypeStringify)
-    // Run the pipeline
-    .processSync(markdown)
 
-  return html.toString()
+/**
+ * Frozen pipelines keyed by the options that shape them.
+ *
+ * Every plugin in the chain is stateless once attached, so a pipeline can be
+ * frozen and reused for every call that shares the same options. This matters
+ * because API references render one description per schema row, and building
+ * the pipeline used to cost far more than running it. Calls with a `transform`
+ * callback are not cached, because that closure belongs to the caller.
+ */
+const processorCache = new Map<string, ReturnType<typeof createProcessor>>()
+
+/**
+ * Take a Markdown string and generate HTML from it
+ */
+export function htmlFromMarkdown(markdown: string, options?: HtmlFromMarkdownOptions): string {
+  // Add permitted tags and remove stripped ones
+  const removeTags = options?.removeTags ?? []
+  const allowTags = options?.allowTags ?? []
+  const tagNames = [...(defaultSchema.tagNames ?? []), ...allowTags].filter((t) => !removeTags.includes(t))
+
+  if (options?.transform) {
+    return createProcessor(tagNames, options.transform, options.transformType).processSync(markdown).toString()
+  }
+
+  const key = [[...removeTags].sort().join(','), [...allowTags].sort().join(','), options?.transformType ?? ''].join(
+    '|',
+  )
+
+  let processor = processorCache.get(key)
+
+  if (!processor) {
+    processor = createProcessor(tagNames, undefined, options?.transformType).freeze()
+    processorCache.set(key, processor)
+  }
+
+  return processor.processSync(markdown).toString()
 }
 
 /**

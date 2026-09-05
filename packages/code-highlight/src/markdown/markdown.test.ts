@@ -48,6 +48,59 @@ describe('htmlFromMarkdown', () => {
     expect(html.trim()).toEqual('<h1 id="example-heading">Example Heading</h1>')
   })
 
+  it('returns the same HTML when the same string is rendered twice', () => {
+    const markdown = 'The `id` of the **customer** this charge is for, if one exists.'
+
+    const first = htmlFromMarkdown(markdown, { removeTags: ['img', 'picture'] })
+    const second = htmlFromMarkdown(markdown, { removeTags: ['img', 'picture'] })
+
+    expect(second).toEqual(first)
+    expect(first).toEqual(
+      '\n<p>The <code>id</code> of the <strong>customer</strong> this charge is for, if one exists.</p>\n',
+    )
+  })
+
+  it('keeps the output stable across mixed option sets', () => {
+    const removeImages = { removeTags: ['img', 'picture'] }
+    const images = '<img src="x.png" alt="x"> and <picture><img src="y.png"></picture>'
+
+    // Two different strings under the same options
+    expect(htmlFromMarkdown('Property number 12', removeImages)).toEqual('\n<p>Property number 12</p>\n')
+    expect(htmlFromMarkdown('A model.', removeImages)).toEqual('\n<p>A model.</p>\n')
+
+    // Then variants of allowTags and removeTags, interleaved with the first set
+    expect(htmlFromMarkdown(`# Example Heading<script>alert('foobar');</script>`, { allowTags: ['script'] })).toEqual(
+      `\n<h1>Example Heading\n  <script>alert('foobar');</script>\n</h1>\n`,
+    )
+    expect(htmlFromMarkdown('# <i>Example</i> <em>Heading</em>', { removeTags: ['i'] })).toEqual(
+      '\n<h1>Example <em>Heading</em></h1>\n',
+    )
+    expect(htmlFromMarkdown(images, removeImages)).toEqual('\n<p>and</p>\n')
+    expect(htmlFromMarkdown(images, { removeTags: [] })).toEqual(
+      '\n<p>\n  <img src="x.png" alt="x"> and \n  <picture>\n    <img src="y.png">\n  </picture>\n</p>\n',
+    )
+    expect(htmlFromMarkdown(images)).toEqual(
+      '\n<p>\n  <img src="x.png" alt="x"> and \n  <picture>\n    <img src="y.png">\n  </picture>\n</p>\n',
+    )
+
+    // And the first set again, unchanged
+    expect(htmlFromMarkdown('Property number 12', removeImages)).toEqual('\n<p>Property number 12</p>\n')
+    expect(htmlFromMarkdown(`# Example Heading<script>alert('foobar');</script>`, removeImages)).toEqual(
+      '\n<h1>Example Heading</h1>\n',
+    )
+  })
+
+  it('highlights fenced code blocks the same way on repeated calls', () => {
+    const markdown = '```sh\ncurl "https://api.tailscale.com/api/v2/tailnet/-/devices"\n```'
+
+    const first = htmlFromMarkdown(markdown)
+    const second = htmlFromMarkdown(markdown)
+
+    expect(second).toEqual(first)
+    expect(first).toContain('class="hljs language-sh custom-scroll"')
+    expect(first).toContain('<span class="hljs-string">')
+  })
+
   // HTML Sanitization Tests
   it('removes iframe tags to prevent embedding attacks', () => {
     const html = htmlFromMarkdown('<iframe src="https://malicious-site.com"></iframe>Some content')
