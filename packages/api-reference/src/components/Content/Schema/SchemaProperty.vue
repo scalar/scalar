@@ -52,6 +52,7 @@ import type { CompositionKeyword } from './helpers/schema-composition'
 import { shouldDisplayDescription } from './helpers/should-display-description'
 import { shouldDisplayHeading } from './helpers/should-display-heading'
 import { sortPropertyNames } from './helpers/sort-property-names'
+import { unwrapForRead } from './helpers/unwrap-for-read'
 import { useSchemaLayout } from './helpers/use-schema-layout'
 import Schema from './Schema.vue'
 import SchemaCollapsedPreview from './SchemaCollapsedPreview.vue'
@@ -125,9 +126,15 @@ const dynamicScope = useDynamicScope()
  *
  * A top-level `$dynamicRef` (e.g. a linked-list `next` node) is bound to its concrete type via the
  * dynamic scope first; for ordinary schemas this is a no-op.
+ *
+ * The value is unwrapped here as well as at the `Schema` root, because callers such as
+ * `ParameterListItem` and `Headers` hand a schema in below a root and would otherwise leave the
+ * whole subtree on the reactive and detect-changes proxies. See {@link unwrapForRead}.
  */
 const optimizedValue = computed(() =>
-  optimizeValueForDisplay(resolveDynamicSchema(props.schema, dynamicScope)),
+  optimizeValueForDisplay(
+    resolveDynamicSchema(unwrapForRead(props.schema), dynamicScope),
+  ),
 )
 
 const childBreadcrumb = computed<string[] | undefined>(() =>

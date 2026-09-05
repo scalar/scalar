@@ -1,8 +1,9 @@
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
-import { nextTick } from 'vue'
+import { isReactive, nextTick } from 'vue'
 
 import { scrollTargetId } from '../../../helpers/lazy-bus'
 import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from './helpers/schema-expansion'
@@ -1711,6 +1712,97 @@ describe('Schema', () => {
       // Arrow keys scroll the page by default, and nothing announces the tree
       // bindings, so taking them over is opt-in.
       expect(document.activeElement).toBe(first.element)
+
+      wrapper.unmount()
+    })
+  })
+  describe('proxied workspace documents', () => {
+    /** The `$ref` target, rendered inline once the reference resolves. */
+    const planetSchema = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        diameter: { type: 'integer' },
+      },
+    }
+
+    /** A document the store wraps in the production proxy stack (reactive -> detect changes -> overrides -> magic). */
+    const galaxyDocument = {
+      openapi: '3.1.0',
+      info: { title: 'Galaxy', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Planet: planetSchema,
+          Galaxy: {
+            type: 'object',
+            properties: {
+              label: { type: 'string' },
+              planet: { $ref: '#/components/schemas/Planet' },
+            },
+          },
+        },
+      },
+    }
+
+    /** The same schema as a plain object, with the reference already resolved the way the magic proxy resolves it. */
+    const plainGalaxySchema = {
+      type: 'object',
+      properties: {
+        label: { type: 'string' },
+        planet: { $ref: '#/components/schemas/Planet', '$ref-value': planetSchema },
+      },
+    } as unknown as SchemaObject
+
+    const mountGalaxy = (schema: SchemaObject | undefined, schemaLayout: 'legacy' | 'tree') =>
+      mount(Schema, {
+        props: {
+          eventBus: null,
+          noncollapsible: true,
+          options: { expandAllSchemaProperties: true, schemaLayout },
+          schema,
+        },
+      })
+
+    const getProxiedGalaxy = async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'default', document: structuredClone(galaxyDocument) })
+
+      // The workspace document type is a union that also covers AsyncAPI, so narrow it here.
+      const document = store.workspace.documents.default as
+        | { components?: { schemas?: Record<string, SchemaObject> } }
+        | undefined
+
+      return document?.components?.schemas?.Galaxy
+    }
+
+    it.each(['legacy', 'tree'] as const)(
+      'renders a proxied schema like a plain one in the %s layout',
+      async (layout) => {
+        const proxied = await getProxiedGalaxy()
+
+        // Guards the fixture itself: without the real proxy stack the comparison would be vacuous.
+        expect(isReactive(proxied)).toBe(true)
+
+        const proxiedWrapper = mountGalaxy(proxied, layout)
+        const plainWrapper = mountGalaxy(plainGalaxySchema, layout)
+
+        expect(proxiedWrapper.html()).toBe(plainWrapper.html())
+
+        proxiedWrapper.unmount()
+        plainWrapper.unmount()
+      },
+    )
+
+    it.each(['legacy', 'tree'] as const)('resolves a $ref through the proxy stack in the %s layout', async (layout) => {
+      const proxied = await getProxiedGalaxy()
+      const wrapper = mountGalaxy(proxied, layout)
+      const text = wrapper.text()
+
+      // The property names below come from the `$ref` target, so they only appear
+      // when `$ref-value` still resolves through the magic proxy.
+      expect(text).toContain('diameter')
+      expect(text).toContain('name')
 
       wrapper.unmount()
     })

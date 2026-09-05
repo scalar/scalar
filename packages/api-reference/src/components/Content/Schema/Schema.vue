@@ -31,6 +31,7 @@ import {
   useSchemaExpansion,
 } from './helpers/schema-expansion'
 import { handleTreeKeydown } from './helpers/schema-keyboard-nav'
+import { unwrapForRead } from './helpers/unwrap-for-read'
 import { useSchemaLayout } from './helpers/use-schema-layout'
 import SchemaComposition from './SchemaComposition.vue'
 import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
@@ -39,7 +40,7 @@ import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
 const {
-  schema,
+  schema: schemaProp,
   level = 0,
   depth = 0,
   name,
@@ -108,6 +109,19 @@ const { translate } = useLocalization()
 const dynamicScope = useDynamicScope()
 
 /**
+ * The schema subtree, read through the magic and overrides proxies only.
+ *
+ * Everything below this point walks the subtree read-only, so the Vue reactive and
+ * detect-changes layers are peeled off once here instead of being paid for on every nested
+ * property access. See {@link unwrapForRead} for why that is safe and why the other two
+ * layers stay. Reactivity on the prop itself is kept: the computed tracks the `schema` prop,
+ * so replacing or switching the document still re-renders.
+ */
+const schema = computed((): SchemaObject | undefined =>
+  unwrapForRead(schemaProp),
+)
+
+/**
  * The schema this node actually renders.
  *
  * Two normalizations happen here, both no-ops for ordinary schemas:
@@ -116,11 +130,13 @@ const dynamicScope = useDynamicScope()
  *   `$defs`, e.g. a `PaginatedResponse` binding) is merged so its inherited properties render.
  */
 const resolvedSchema = computed((): SchemaObject | undefined => {
-  if (!schema || typeof schema !== 'object') {
-    return schema
+  const value = schema.value
+
+  if (!value || typeof value !== 'object') {
+    return value
   }
 
-  const bound = resolveDynamicSchema(schema, dynamicScope)
+  const bound = resolveDynamicSchema(value, dynamicScope)
   return '$ref' in bound ? resolve.schema(bound) : bound
 })
 
@@ -134,8 +150,8 @@ const resolvedSchema = computed((): SchemaObject | undefined => {
  * coerces the node and drops the resolved `$ref-value` from entries inside `$defs`, which
  * `$dynamicAnchor` resolution relies on to dereference the bound type (e.g. `User`).
  */
-const scopeSchema = schema
-  ? resolveDynamicSchema(schema, dynamicScope)
+const scopeSchema = schema.value
+  ? resolveDynamicSchema(schema.value, dynamicScope)
   : undefined
 provide(
   SCHEMA_DYNAMIC_SCOPE_SYMBOL,
@@ -204,7 +220,7 @@ const defaultOpen = computed(
 )
 
 const childAttributesLabel = computed(
-  (): string => schema?.title ?? translate('schema.childAttributes'),
+  (): string => schema.value?.title ?? translate('schema.childAttributes'),
 )
 
 /** Gets the description to show for the schema */
@@ -215,13 +231,19 @@ const schemaDescription = computed(() => {
     return null
   }
 
+  const rawSchema = schema.value
+
   // For the request body we want to show the description of the merged allOf schema.
   // Merging keeps the base description (when set) and otherwise lets the last allOf
   // member win, matching how the merged composition is rendered below. The nested
   // merged Schema in `SchemaComposition` hides its own description in this case so
   // the text is not rendered twice.
-  if (schema?.allOf && schema.allOf.length > 0 && name === 'Request Body') {
-    return mergeAllOfSchemas(schema)?.description || null
+  if (
+    rawSchema?.allOf &&
+    rawSchema.allOf.length > 0 &&
+    name === 'Request Body'
+  ) {
+    return mergeAllOfSchemas(rawSchema)?.description || null
   }
 
   // Don't show description if there's no description or it's not a string
@@ -255,8 +277,8 @@ const schemaDescription = computed(() => {
  * Threaded discriminators skip inference to avoid recursive allOf variants.
  */
 const inferredDiscriminatorComposition = computed(() =>
-  schema && !discriminator && isTypeObject(schema)
-    ? inferDiscriminatorMappingComposition(schema, options.document)
+  schema.value && !discriminator && isTypeObject(schema.value)
+    ? inferDiscriminatorMappingComposition(schema.value, options.document)
     : null,
 )
 
