@@ -20,6 +20,12 @@
    item. The row gap then falls on both sides of the line, which centers it
    between the dropdown and the link without hard coding any spacing.
 
+   The selector matches any `nav` inside the header rather than one named nav
+   class. The published CLI renders the header nav as `.navigation`, while the
+   renderer deployed to scalar.com splits the row into start and end regions and
+   names both `.t-header__nav`. Keying on the class showed the line in a local
+   preview and never on the live site.
+
    `:has(~ a)` keeps a dropdown that ends the row from trailing a stray line.
    The general sibling combinator is deliberate. An open dropdown mounts its
    panel as the wrapper's next sibling, so `+ a` stops matching the moment the
@@ -27,7 +33,7 @@
 
    The line is decoration, so `pointer-events: none` stops a click on it from
    registering on the wrapper, which is the dropdown's own root element. */
-.header .navigation > .contents:has(~ a)::after {
+.header nav > .contents:has(~ a)::after {
   content: "";
   align-self: center;
   pointer-events: none;
