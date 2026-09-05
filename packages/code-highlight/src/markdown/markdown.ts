@@ -215,11 +215,47 @@ const createProcessor = (tagNames: string[], transform: Options['transform'], tr
 const processorCache = new Map<string, ReturnType<typeof createProcessor>>()
 
 /**
+ * Matches strings that CommonMark, GFM and this pipeline all render as a single plain paragraph.
+ *
+ * The point is to skip the whole markdown pipeline for the many short, plain
+ * descriptions an API reference renders (property summaries such as "Integer
+ * numbers."), where parsing, sanitising, highlighting and formatting cost far
+ * more than the one paragraph they produce.
+ *
+ * The whitelist is deliberately conservative: a single line, no leading or
+ * trailing whitespace, no run of two spaces, no character that markdown or the
+ * serializer treats specially, and no block marker at the start. Every
+ * CommonMark block construct needs a leading space, `#`, `>`, a bullet, an
+ * ordered marker, `<`, a fence, a thematic break or a second line; every inline
+ * construct needs `\`, a backtick, `*`, `_`, `[`, `]`, `<`, `&`, `~`, a hard
+ * break or a GFM autolink literal (`www.`, `:/`, `mailto:`, `xmpp:`, `@`).
+ * `rehype-stringify` escapes only `<` and `&` in text, and `rehype-format`
+ * only collapses whitespace runs and trims block edges, both of which are
+ * excluded here, so the fast path returns exactly what the pipeline returns.
+ *
+ * The `i` flag is load bearing: GFM matches the `www.`, `mailto:` and `xmpp:`
+ * autolink prefixes case-insensitively, so the lookahead has to as well.
+ * Unicode whitespace is written as escapes because a literal U+2028 or U+2029
+ * inside a regular expression literal is a syntax error.
+ */
+const PLAIN_PARAGRAPH =
+  /^(?![-+=]|\d{1,9}[.)](?:\s|$))(?!.*(?: {2}|:\/|www\.|mailto:|xmpp:))[^\s\\`*_\[\]<>&#~|@\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff](?:[^\\`*_\[\]<>&#~|@\t\n\v\f\r\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff]*[^\s\\`*_\[\]<>&#~|@\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff])?$/i
+
+/**
  * Take a Markdown string and generate HTML from it
  */
 export function htmlFromMarkdown(markdown: string, options?: HtmlFromMarkdownOptions): string {
   // Add permitted tags and remove stripped ones
   const removeTags = options?.removeTags ?? []
+
+  // Plain text needs none of the pipeline, and the caller can only observe the
+  // returned string. A `transform` callback still has to see the AST, and a
+  // caller that removes `p` expects the paragraph to be stripped, so both keep
+  // the full pipeline.
+  if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) {
+    return `\n<p>${markdown}</p>\n`
+  }
+
   const allowTags = options?.allowTags ?? []
   const tagNames = [...(defaultSchema.tagNames ?? []), ...allowTags].filter((t) => !removeTags.includes(t))
 

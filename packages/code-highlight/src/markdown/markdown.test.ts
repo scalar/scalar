@@ -250,4 +250,77 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
     expect(html.trim()).toContain('<strong>Bold</strong>')
     expect(html.trim()).toContain('<em>italic</em>')
   })
+
+  /**
+   * The plain-paragraph fast path skips the pipeline entirely, so every one of
+   * these has to come back exactly as the pipeline would have rendered it.
+   * Passing a `transform` callback forces the pipeline, which gives a reference
+   * output without duplicating the expected HTML in the test.
+   */
+  const throughPipeline = (markdown: string): string => htmlFromMarkdown(markdown, { transform: (node) => node })
+
+  describe('plain paragraphs', () => {
+    // Every TYPE_DESCRIPTIONS value from the API reference, plus other plain shapes seen in real documents
+    const plain = [
+      'Integer numbers.',
+      'Signed 32-bit integers (commonly used integer type).',
+      'Signed 64-bit integers (long type).',
+      'full-date notation as defined by RFC 3339, section 5.6, for example, 2017-07-21',
+      'the date-time notation as defined by RFC 3339, section 5.6, for example, 2017-07-21T17:32:28Z',
+      'a hint to UIs to mask the input',
+      'base64-encoded characters, for example, U3dhZ2dlciByb2Nrcw==',
+      'binary data, used to describe files',
+      'Property number 1',
+      'A model.',
+      '1.5 mg',
+      '50% off $5',
+      'c++',
+      'a/b/c',
+      'ISO 8601',
+      'v1.2.3',
+      'Preis in Euro, zum Beispiel 12,50 (café)',
+    ]
+
+    it.each(plain)('renders %j exactly as the pipeline does', (markdown) => {
+      expect(htmlFromMarkdown(markdown)).toBe(throughPipeline(markdown))
+    })
+
+    it('wraps plain text in a paragraph', () => {
+      expect(htmlFromMarkdown('Integer numbers.')).toBe('\n<p>Integer numbers.</p>\n')
+    })
+
+    it('still removes the paragraph when p is a removed tag', () => {
+      expect(htmlFromMarkdown('Integer numbers.', { removeTags: ['p'] })).toBe(
+        htmlFromMarkdown('Integer numbers.', { removeTags: ['p'], transform: (node) => node }),
+      )
+    })
+
+    // Shapes the fast path has to hand back to the pipeline
+    const notPlain = [
+      '#x',
+      'a > b',
+      'a_b_c',
+      'a|b',
+      'www.x',
+      'WWW.X',
+      'a  b',
+      ' a',
+      'a\\',
+      '1. a',
+      '- a',
+      'a\nb',
+      '',
+      'a & b',
+      'trail ',
+      'x@y.com',
+      'mailto:x@y.com',
+      'https://example.com/x',
+      // A non-breaking space is whitespace to the formatter, so it stays on the pipeline
+      'a\u00a0b',
+    ]
+
+    it.each(notPlain)('renders %j through the pipeline', (markdown) => {
+      expect(htmlFromMarkdown(markdown)).toBe(throughPipeline(markdown))
+    })
+  })
 })
