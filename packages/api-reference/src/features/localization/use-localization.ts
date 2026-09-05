@@ -7,7 +7,16 @@ import type {
   ApiReferenceTranslationKey,
   ApiReferenceTranslations,
 } from '@scalar/types/api-reference'
-import { type ComputedRef, type InjectionKey, type MaybeRefOrGetter, computed, inject, provide, toValue } from 'vue'
+import {
+  type ComputedRef,
+  type InjectionKey,
+  type MaybeRefOrGetter,
+  computed,
+  effectScope,
+  inject,
+  provide,
+  toValue,
+} from 'vue'
 
 import { DEFAULT_LOCALE, RTL_LOCALES, localeTranslations } from './translations'
 
@@ -126,5 +135,27 @@ export const provideLocalization = (localization: MaybeRefOrGetter<ApiReferenceL
   return context
 }
 
+/**
+ * The context handed to callers that sit outside a `provideLocalization` boundary (unit tests, stories, embedded
+ * blocks). It carries no state of its own, because `toValue(undefined)` always resolves to the default locale, so a
+ * single instance is safe to share between unrelated component trees.
+ */
+let fallbackContext: LocalizationContext | undefined
+
+/**
+ * Builds the shared fallback context on first use.
+ *
+ * The computeds live in a detached effect scope so that they are not registered with whichever component happened to
+ * ask for localization first. Without the detached scope that component's unmount would stop the computeds while other
+ * components still hold the same context.
+ */
+const getFallbackLocalizationContext = (): LocalizationContext =>
+  (fallbackContext ??= effectScope(true).run(() => createLocalizationContext(undefined))!)
+
+/**
+ * The default is passed as a factory (the third `inject` argument) so that it only runs when no provider is found.
+ * Passing it as a plain value would build four computeds and resolve the translation table for every caller, even
+ * though the provided context is the one that gets used.
+ */
 export const useLocalization = (): LocalizationContext =>
-  inject(LOCALIZATION_SYMBOL, createLocalizationContext(undefined))
+  inject(LOCALIZATION_SYMBOL, getFallbackLocalizationContext, true)
