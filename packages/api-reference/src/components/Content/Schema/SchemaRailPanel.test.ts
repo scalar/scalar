@@ -89,6 +89,68 @@ describe('SchemaRailPanel', () => {
     expect(bubbled).toBe(0)
   })
 
+  describe('rail hover marks', () => {
+    const mountRailed = () =>
+      mount(SchemaRailPanel, {
+        props: { depth: 1, closeOnRail: true },
+      })
+
+    it('adds nothing to the DOM at rest', () => {
+      const wrapper = mountRailed()
+
+      expect(wrapper.attributes('data-rail-hovered')).toBeUndefined()
+      expect(wrapper.element.parentElement?.hasAttribute('data-child-rail-hovered')).toBe(false)
+    })
+
+    it('marks the panel and its parent only while the strip is hovered', async () => {
+      const wrapper = mountRailed()
+      const strip = wrapper.find('[data-rail-hit]')
+
+      await strip.trigger('pointerenter')
+
+      expect(wrapper.attributes('data-rail-hovered')).toBe('')
+      expect(wrapper.element.parentElement?.hasAttribute('data-child-rail-hovered')).toBe(true)
+
+      await strip.trigger('pointerleave')
+
+      expect(wrapper.attributes('data-rail-hovered')).toBeUndefined()
+      expect(wrapper.element.parentElement?.hasAttribute('data-child-rail-hovered')).toBe(false)
+    })
+
+    it('clears the marks when the strip is clicked, and still closes', async () => {
+      let closed = 0
+      const wrapper = mount(SchemaRailPanel, {
+        props: { depth: 1, closeOnRail: true },
+        attrs: {
+          onClose: () => {
+            closed += 1
+          },
+        },
+      })
+      const strip = wrapper.find('[data-rail-hit]')
+
+      await strip.trigger('pointerenter')
+      await strip.trigger('click')
+
+      expect(closed).toBe(1)
+      expect(wrapper.attributes('data-rail-hovered')).toBeUndefined()
+      expect(wrapper.element.parentElement?.hasAttribute('data-child-rail-hovered')).toBe(false)
+    })
+
+    it('clears the parent mark when the panel unmounts mid-hover', async () => {
+      const wrapper = mountRailed()
+      const parent = wrapper.element.parentElement
+
+      await wrapper.find('[data-rail-hit]').trigger('pointerenter')
+
+      expect(parent?.hasAttribute('data-child-rail-hovered')).toBe(true)
+
+      wrapper.unmount()
+
+      expect(parent?.hasAttribute('data-child-rail-hovered')).toBe(false)
+    })
+  })
+
   it('renders a div by default', () => {
     const wrapper = mount(SchemaRailPanel, {
       props: { depth: 1 },

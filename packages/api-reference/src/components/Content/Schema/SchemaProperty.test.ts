@@ -737,6 +737,66 @@ describe('SchemaProperty', () => {
       })
     })
 
+    describe('tree layout hover marks', () => {
+      const mountRow = (schemaLayout: 'tree' | 'legacy') =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'account',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: { alpha: { type: 'string' } },
+            }),
+            options: { schemaLayout },
+          },
+        })
+
+      it('marks the row only while its heading is hovered', async () => {
+        const wrapper = mountRow('tree')
+        const heading = wrapper.find('.property-heading')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
+
+        await heading.trigger('pointerenter')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBe('')
+
+        await heading.trigger('pointerleave')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
+      })
+
+      it('never marks a legacy row', async () => {
+        const wrapper = mountRow('legacy')
+
+        await wrapper.find('.property-heading').trigger('pointerenter')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
+      })
+
+      it('drops the rail marks when the row closes without a strip click', async () => {
+        const wrapper = mountRow('tree')
+        const toggle = wrapper.find('.property-toggle')
+
+        await toggle.trigger('click')
+
+        const strip = wrapper.find('[data-rail-hit]')
+
+        expect(strip.exists()).toBe(true)
+
+        await strip.trigger('pointerenter')
+
+        expect(wrapper.attributes('data-child-rail-hovered')).toBe('')
+        expect(wrapper.find('.property-children').attributes('data-rail-hovered')).toBe('')
+
+        // A keyboard user closes from the toggle: the strip hides under the
+        // pointer without a pointerleave, so the row has to clear its own mark.
+        await toggle.trigger('click')
+
+        expect(wrapper.attributes('data-child-rail-hovered')).toBeUndefined()
+      })
+    })
+
     it('displays regular property names without variant styling', () => {
       const wrapper = mount(SchemaProperty, {
         props: {

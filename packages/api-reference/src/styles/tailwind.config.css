@@ -172,11 +172,16 @@
    anything that toggles its row. That is the control carrying
    `group/tree-control` (a row trigger, the gutter toggle, a reveal button);
    for a gutter toggle it is also the row heading beside it, which toggles the
-   row on click too; and it is the open panel's rail, which closes the row. */
+   row on click too; and it is the open panel's rail, which closes the row.
+   The heading and rail cases are data attributes that pointer events write
+   (SchemaProperty.vue, SchemaRailPanel.vue), not `:has(... :hover)`: a `:has()`
+   anchor on every expandable row made each element inserted under it restyle
+   the whole open subtree. The attributes exist only while hovering and say
+   exactly what `:hover` said. */
 @custom-variant tree-control-hover (
   &:is(:where(.group\/tree-control):hover *),
-  :where(.property--tree:has(> .property-heading:hover)) > .property-toggle &,
-  :where(:has(> .schema-rail-panel > [data-rail-hit]:hover)) > :where(.property-toggle, .parameter-item-trigger, .callback-item-trigger, .schema-card-title) &
+  :where(.property--tree[data-heading-hovered]) > .property-toggle &,
+  :where([data-child-rail-hovered]) > :where(.property-toggle, .parameter-item-trigger, .callback-item-trigger, .schema-card-title) &
 );
 
 /* The rail's hit target: an 11px strip straddling the 1px line (6px outside,
@@ -190,10 +195,12 @@
 }
 
 /* Rail hover variant: matches a railed panel while the pointer is over its own
-   hit strip. Keyed on data-rail-hit, not a class, so every surface's strip
-   triggers it identically. */
+   hit strip. The strip writes data-rail-hovered on the panel from its pointer
+   events (SchemaRailPanel.vue), so every surface's strip triggers it
+   identically, and no `:has(> [data-rail-hit]:hover)` anchor is needed (see
+   the tree-control variant above for why). */
 @custom-variant rail-hover {
-  &:has(> [data-rail-hit]:hover) {
+  &[data-rail-hovered] {
     @slot;
   }
 }

@@ -558,6 +558,43 @@ const treeToggleRef = useTemplateRef<{ $el: HTMLElement } | HTMLElement>(
 )
 
 /**
+ * Hovering the heading lights this row's puck, because the heading toggles the
+ * row on click too. The state is a `data-heading-hovered` attribute on the row,
+ * written by pointer events, rather than the former
+ * `.property--tree:has(> .property-heading:hover)` selector: a `:has()` anchor
+ * on every expandable row made each element inserted under it restyle the
+ * whole open subtree. The attribute exists only while hovering and says exactly
+ * what `:hover` said (see tailwind.config.css). Bound on tree rows only, so
+ * leaf and legacy rows carry no listener and their DOM is untouched.
+ */
+const treeHeadingHoverListeners = {
+  pointerenter: (event: Event): void => {
+    const row = (event.currentTarget as HTMLElement).parentElement
+    row?.setAttribute('data-heading-hovered', '')
+  },
+  pointerleave: (event: Event): void => {
+    const row = (event.currentTarget as HTMLElement).parentElement
+    row?.removeAttribute('data-heading-hovered')
+  },
+}
+
+/*
+ * A close that did not come from the rail strip (the toggle, or the keyboard)
+ * can leave the pointer resting on the strip, which then hides without a
+ * pointerleave: drop the marks the strip wrote (see SchemaRailPanel.vue), or
+ * the puck stays lit. Pre-flush, so the panel is still in the DOM here.
+ */
+watch(isTreeOpen, (open) => {
+  if (open) {
+    return
+  }
+
+  const panel = treePanelRef.value?.$el
+  panel?.removeAttribute('data-rail-hovered')
+  panel?.parentElement?.removeAttribute('data-child-rail-hovered')
+})
+
+/**
  * The schema the panel hands to its child `Schema`, so the count and the
  * preview describe the rows that render. Object-first, like `treeChildProps`.
  */
@@ -742,6 +779,7 @@ const onBeforeMatch = (): void => {
         'relative row-start-1 min-h-5 content-center [&>*:has(+.copy-link-trailing)]:me-0!':
           isTreeLayout,
       }"
+      v-on="isTreeRow ? treeHeadingHoverListeners : {}"
       @click="onHeadingClick"
       :enum="hasEnum"
       :eventBus="eventBus"
