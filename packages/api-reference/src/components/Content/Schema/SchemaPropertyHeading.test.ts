@@ -2,7 +2,7 @@ import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
@@ -1129,6 +1129,91 @@ describe('SchemaPropertyHeading', () => {
       const detailsElement = wrapper.find('.property-heading')
       expect(detailsElement.text()).toContain('Default')
       expect(detailsElement.text()).toContain('42')
+    })
+  })
+
+  describe('type signature', () => {
+    it('renders the tree type as a token run behind a screen-reader label', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          typeSignature: true,
+          value: coerceValue(SchemaObjectSchema, { type: ['string', 'null'] }),
+        },
+      })
+
+      const signature = wrapper.find('.property-type-signature')
+      expect(signature.exists()).toBe(true)
+      expect(signature.findAll('.property-type-token').map((token) => token.text())).toEqual(['string', '|', 'null'])
+      expect(signature.find('.property-type-token--punctuation').classes()).toContain('text-c-3')
+      expect(signature.find('.property-type-token--ident').classes()).toContain('font-code')
+      // The trailing space separates the label from the type for a screen reader.
+      expect(wrapper.find('.screenreader-only').element.textContent).toBe('Type: ')
+      expect(wrapper.find('.property-heading button').exists()).toBe(false)
+    })
+
+    it('renders the legacy type as a string behind a screen-reader label', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, { type: ['string', 'null'] }),
+        },
+      })
+
+      expect(wrapper.find('.property-type-signature').exists()).toBe(false)
+      expect(wrapper.find('.screenreader-only').element.textContent).toBe('Type:')
+      expect(wrapper.find('.property-heading').text()).toContain('Type: string | null')
+    })
+
+    it('links the tree type to the model and scrolls to it on click', async () => {
+      const eventBus = createWorkspaceEventBus()
+      const handler = vi.fn()
+      eventBus.on('scroll-to:model-by-name', handler)
+
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          typeSignature: true,
+          value: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          modelName: 'Planet',
+          eventBus,
+        },
+      })
+
+      const link = wrapper.find('.property-heading button')
+      expect(link.attributes('type')).toBe('button')
+      expect(link.find('.property-type-signature').text()).toBe('Planet')
+
+      await link.trigger('click')
+
+      expect(handler).toHaveBeenCalledWith({ name: 'Planet' })
+    })
+
+    it('renders the tree model name as plain tokens when it cannot link', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          typeSignature: true,
+          value: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          modelName: 'Planet',
+          modelLinkOptions: { hideModels: true },
+          eventBus: createWorkspaceEventBus(),
+        },
+      })
+
+      expect(wrapper.find('.property-heading button').exists()).toBe(false)
+      expect(wrapper.find('.property-type-signature').text()).toBe('Planet')
+    })
+
+    it('labels the format for a screen reader in both layouts', () => {
+      for (const typeSignature of [false, true]) {
+        const wrapper = mount(SchemaPropertyHeading, {
+          props: {
+            typeSignature,
+            value: coerceValue(SchemaObjectSchema, { type: 'string', format: 'uuid' }),
+          },
+        })
+
+        const labels = wrapper.findAll('.screenreader-only').map((label) => label.element.textContent)
+        expect(labels).toContain('Format: ')
+        expect(wrapper.find('.property-heading').text()).toContain('uuid')
+      }
     })
   })
 

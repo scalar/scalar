@@ -12,10 +12,10 @@ import { computed, toRef } from 'vue'
 
 import { Badge } from '@/components/Badge'
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
-import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
 
 import { getSchemaType } from './helpers/get-schema-type'
+import { getDisplayTypeSignatureTokens } from './helpers/get-type-signature-tokens'
 import {
   isModelLinkable,
   type ModelLinkOptions,
@@ -26,7 +26,6 @@ import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
 import SchemaPropertyPattern from './SchemaPropertyPattern.vue'
-import SchemaTypeSignature from './SchemaTypeSignature.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -264,6 +263,29 @@ const modelLinkable = computed(() =>
   isModelLinkable(modelLink.value?.schemaKey, props.modelLinkOptions ?? {}),
 )
 
+/**
+ * Tree layout: the type as a run of tokens rather than a single string —
+ * identifiers in the code face, English words like `array of` in the sans
+ * face, and a muted `|` so `string | null` reads as one type with an
+ * alternative.
+ *
+ * The token run and the screen-reader label are written straight into the
+ * template instead of being their own components: the tree mounts one per
+ * typed row, and a component instance costs more to create than the span it
+ * renders. On a flat object the type cells were the entire instance-count
+ * difference between the two layouts. The linked and the plain copy of the
+ * token markup below must stay identical. Empty for the legacy layout, which
+ * renders `displayType` instead.
+ */
+const signatureTokens = computed(() =>
+  props.typeSignature
+    ? getDisplayTypeSignatureTokens(props.value, {
+        hideModelNames: props.hideModelNames,
+        modelName: modelLink.value?.label,
+      })
+    : [],
+)
+
 /** Check if we should show the type information */
 const shouldShowType = computed(() => {
   if (!props.value || !('type' in props.value)) {
@@ -440,27 +462,64 @@ const detailMarginClass = computed((): string =>
                between two elements, so a single-line label would read
                `Type:string`. The legacy branch below is followed by an
                interpolation, which keeps its space either way. -->
-          <ScreenReader> {{ translate('common.type') }}: </ScreenReader>
-          <LinkButton
+          <span class="screenreader-only">
+            {{ translate('common.type') }}:
+          </span>
+          <button
             v-if="props.eventBus && modelLink?.schemaKey && modelLinkable"
+            class="text-c-3 hover:text-c-1 underline"
+            type="button"
             @click="
               props.eventBus.emit('scroll-to:model-by-name', {
                 name: modelLink.schemaKey,
               })
             ">
-            <SchemaTypeSignature
-              :hideModelNames="props.hideModelNames"
-              :modelName="modelLink.label"
-              :schema="props.value" />
-          </LinkButton>
-          <SchemaTypeSignature
-            v-else
-            :hideModelNames="props.hideModelNames"
-            :modelName="modelLink?.label"
-            :schema="props.value" />
+            <span
+              v-if="signatureTokens.length"
+              class="property-type-signature text-c-2 text-(length:--scalar-mini)">
+              <template
+                v-for="(token, index) in signatureTokens"
+                :key="index">
+                {{ index > 0 ? ' ' : ''
+                }}<span
+                  class="property-type-token"
+                  :class="[
+                    `property-type-token--${token.kind}`,
+                    token.kind === 'word' ? 'font-sans' : '',
+                    token.kind === 'ident' || token.kind === 'literal'
+                      ? 'font-code'
+                      : '',
+                    token.kind === 'punctuation' ? 'text-c-3' : '',
+                  ]"
+                  >{{ token.text }}</span
+                >
+              </template>
+            </span>
+          </button>
+          <span
+            v-else-if="signatureTokens.length"
+            class="property-type-signature text-c-2 text-(length:--scalar-mini)">
+            <template
+              v-for="(token, index) in signatureTokens"
+              :key="index">
+              {{ index > 0 ? ' ' : ''
+              }}<span
+                class="property-type-token"
+                :class="[
+                  `property-type-token--${token.kind}`,
+                  token.kind === 'word' ? 'font-sans' : '',
+                  token.kind === 'ident' || token.kind === 'literal'
+                    ? 'font-code'
+                    : '',
+                  token.kind === 'punctuation' ? 'text-c-3' : '',
+                ]"
+                >{{ token.text }}</span
+              >
+            </template>
+          </span>
         </template>
         <template v-else>
-          <ScreenReader>{{ translate('common.type') }}:</ScreenReader>
+          <span class="screenreader-only">{{ translate('common.type') }}:</span>
           {{ displayType }}
           <template v-if="modelLink">
             ·
@@ -503,9 +562,11 @@ const detailMarginClass = computed((): string =>
         :key="property.key"
         :code="property.code"
         :truncate="property.truncate">
-        <ScreenReader v-if="property.key === 'format'">
+        <span
+          v-if="property.key === 'format'"
+          class="screenreader-only">
           {{ translate('common.format') }}:
-        </ScreenReader>
+        </span>
         <template
           v-if="property.prefix"
           #prefix>

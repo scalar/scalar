@@ -172,6 +172,67 @@ export const getTypeSignatureTokens = (
   return []
 }
 
+/**
+ * The tokens the tree layout shows for a row: the raw signature, renamed to the
+ * caller's resolved model name where the two would disagree.
+ *
+ * A `$ref` renders as the raw component key while the heading link, the models
+ * section and the legacy layout show the target's `title`; the caller's name
+ * keeps them in agreement. Only a `$ref` may be renamed: an inline schema's
+ * single token is its real type (`integer`), not its `title`.
+ */
+export const getDisplayTypeSignatureTokens = (
+  valueOrRef: SchemaObject | ReferenceType<SchemaObject> | undefined,
+  options: { hideModelNames?: boolean; modelName?: string | null } = {},
+): TypeSignatureToken[] => {
+  const computedTokens = getTypeSignatureTokens(valueOrRef, { hideModelNames: options.hideModelNames })
+  const modelName = options.modelName
+
+  if (!modelName) {
+    return computedTokens
+  }
+
+  const isRef = (value: unknown): boolean => !!value && typeof value === 'object' && '$ref' in value
+
+  // Nothing to render, or a bare `object` that the name describes better.
+  if (computedTokens.length === 0 || (computedTokens.length === 1 && computedTokens[0]?.text === 'object')) {
+    return [ident(modelName)]
+  }
+
+  // A direct `$ref`: the single identifier IS the raw key.
+  if (
+    isRef(valueOrRef) &&
+    computedTokens.length === 1 &&
+    computedTokens[0]?.kind === 'ident' &&
+    computedTokens[0]?.text !== modelName
+  ) {
+    return [ident(modelName)]
+  }
+
+  /*
+   * An array of a `$ref` keeps its "array of" word and renames only the item.
+   * Only a caller name with a trailing `[]` describes the ITEM; the caller also
+   * reports the array's OWN name here (a `$ref` to `FilterList`, an inline
+   * `title` of `Planets`), and using that would claim each element is one.
+   */
+  const items = valueOrRef && typeof valueOrRef === 'object' && 'items' in valueOrRef ? valueOrRef.items : undefined
+
+  const arrayWord = computedTokens[0]
+  const itemToken = computedTokens[1]
+
+  if (isRef(items) && computedTokens.length === 2 && arrayWord?.kind === 'word' && itemToken?.kind === 'ident') {
+    if (modelName.endsWith('[]')) {
+      const itemName = modelName.slice(0, -2)
+
+      if (itemName && itemName !== itemToken.text) {
+        return [arrayWord, ident(itemName)]
+      }
+    }
+  }
+
+  return computedTokens
+}
+
 /** Guard against a pathological items chain; deeper than this reads as noise anyway. */
 const MAX_ARRAY_DEPTH = 8
 

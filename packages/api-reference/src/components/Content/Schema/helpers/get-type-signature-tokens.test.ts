@@ -2,7 +2,7 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { getTypeSignatureTokens } from './get-type-signature-tokens'
+import { getDisplayTypeSignatureTokens, getTypeSignatureTokens } from './get-type-signature-tokens'
 
 /** Render tokens to a plain string for compact assertions. */
 const text = (tokens: ReturnType<typeof getTypeSignatureTokens>): string => tokens.map((token) => token.text).join(' ')
@@ -81,5 +81,78 @@ describe('get-type-signature-tokens', () => {
 
   it('returns nothing for a missing schema', () => {
     expect(getTypeSignatureTokens(undefined)).toEqual([])
+  })
+})
+
+describe('getDisplayTypeSignatureTokens', () => {
+  const planetRef = { $ref: '#/components/schemas/planet', '$ref-value': { type: 'object' } } as never
+
+  it('passes the raw tokens through without a model name', () => {
+    const tokens = getDisplayTypeSignatureTokens(coerceValue(SchemaObjectSchema, { type: 'string' }))
+
+    expect(tokens).toEqual([{ kind: 'ident', text: 'string' }])
+  })
+
+  it('names an empty signature after the model', () => {
+    const tokens = getDisplayTypeSignatureTokens(coerceValue(SchemaObjectSchema, {}), { modelName: 'Planet' })
+
+    expect(tokens).toEqual([{ kind: 'ident', text: 'Planet' }])
+  })
+
+  it('names a bare object after the model', () => {
+    const tokens = getDisplayTypeSignatureTokens(coerceValue(SchemaObjectSchema, { type: 'object' }), {
+      modelName: 'Planet',
+    })
+
+    expect(tokens).toEqual([{ kind: 'ident', text: 'Planet' }])
+  })
+
+  it('renames a direct $ref to the model name', () => {
+    const tokens = getDisplayTypeSignatureTokens(planetRef, { modelName: 'Planet' })
+
+    expect(tokens).toEqual([{ kind: 'ident', text: 'Planet' }])
+  })
+
+  it('keeps the real type of an inline schema', () => {
+    const tokens = getDisplayTypeSignatureTokens(coerceValue(SchemaObjectSchema, { type: 'integer' }), {
+      modelName: 'Planet',
+    })
+
+    expect(text(tokens)).toBe('integer')
+  })
+
+  it('renames only the item of an array of $ref when the name describes the item', () => {
+    const tokens = getDisplayTypeSignatureTokens({ type: 'array', items: planetRef } as never, {
+      modelName: 'Planet[]',
+    })
+
+    expect(tokens).toEqual([
+      { kind: 'word', text: 'array of' },
+      { kind: 'ident', text: 'Planet' },
+    ])
+  })
+
+  it('keeps the item of an array of $ref when the name describes the array', () => {
+    const tokens = getDisplayTypeSignatureTokens({ type: 'array', items: planetRef } as never, {
+      modelName: 'FilterList',
+    })
+
+    expect(text(tokens)).toBe('array of planet')
+  })
+
+  it('keeps the item of an array of $ref when the names already agree', () => {
+    const tokens = getDisplayTypeSignatureTokens({ type: 'array', items: planetRef } as never, {
+      modelName: 'planet[]',
+    })
+
+    expect(text(tokens)).toBe('array of planet')
+  })
+
+  it('keeps a union signature as it is', () => {
+    const tokens = getDisplayTypeSignatureTokens(coerceValue(SchemaObjectSchema, { type: ['string', 'null'] }), {
+      modelName: 'Planet',
+    })
+
+    expect(text(tokens)).toBe('string | null')
   })
 })
