@@ -807,6 +807,21 @@ describe('sortPropertyNames', () => {
       expect(second).toBe(first)
     })
 
+    it('freezes the shared array so a caller cannot reorder it for everyone else', () => {
+      const schema = mixedSchema()
+      const names = sortPropertyNames(schema)
+
+      expect(Object.isFrozen(names)).toBe(true)
+      // Modules are strict, so an in-place sort throws here rather than
+      // silently rewriting the order every other consumer reads.
+      expect(() => (names as string[]).reverse()).toThrow()
+      expect(sortPropertyNames(schema)).toEqual(names)
+    })
+
+    it('freezes the empty answer as well', () => {
+      expect(Object.isFrozen(sortPropertyNames({ type: 'string' } as SchemaObject))).toBe(true)
+    })
+
     it('shares the entry between schemas that share a properties object', () => {
       const schema = mixedSchema()
       // The display path spreads the schema but keeps `properties` by reference

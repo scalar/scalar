@@ -740,6 +740,53 @@ describe('SchemaProperty', () => {
       })
     })
 
+    describe('tree layout child counts', () => {
+      /**
+       * The announced count and the rendered rows come from two different reads
+       * of the same schema: the count takes `Object.keys(properties).length`
+       * when no filter applies, the panel renders `sortPropertyNames`. They are
+       * pinned to each other here, so a change to either read that pulls them
+       * apart fails rather than announcing children that are not on screen.
+       *
+       * The children are all scalars, so the panel holds exactly one level of
+       * rows and every `.property` inside it is one of them.
+       */
+      const mountParent = (hideReadOnly: boolean) =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'account',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                createdAt: { type: 'string', readOnly: true },
+                email: { type: 'string' },
+                id: { type: 'string' },
+                nickname: { type: 'string' },
+                updatedAt: { type: 'string' },
+              },
+            }),
+            options: { schemaLayout: 'tree', hideReadOnly },
+          },
+        })
+
+      it.each([
+        ['keeping every child', false, 5],
+        ['hiding the read-only child', true, 4],
+      ])('announces the number of rows the open panel renders, %s', async (_case, hideReadOnly, expected) => {
+        const wrapper = mountParent(hideReadOnly)
+
+        await wrapper.find('.property-toggle').trigger('click')
+
+        const countId = wrapper.find('.property-toggle').attributes('aria-describedby')
+        const announced = wrapper.find(`#${countId}`).text()
+        const rendered = wrapper.find('.property-children').findAll('.property').length
+
+        expect(rendered).toBe(expected)
+        expect(announced).toBe(`Properties: ${rendered}`)
+      })
+    })
+
     describe('tree layout hover marks', () => {
       const mountRow = (schemaLayout: 'tree' | 'legacy') =>
         mount(SchemaProperty, {
@@ -775,6 +822,23 @@ describe('SchemaProperty', () => {
         await wrapper.find('.property-heading').trigger('pointerenter')
 
         expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
+      })
+
+      it('clears the mark when the row leaves the DOM under the pointer', async () => {
+        const wrapper = mountRow('tree')
+        // The row is this component's own element, so hold on to it: unmounting
+        // detaches the node but leaves whatever attributes it was carrying.
+        const row = wrapper.element as HTMLElement
+
+        await wrapper.find('.property-heading').trigger('pointerenter')
+
+        expect(row.getAttribute('data-heading-hovered')).toBe('')
+
+        // Unmounting hides the heading under the pointer, so no pointerleave
+        // ever follows and the row would stay marked.
+        wrapper.unmount()
+
+        expect(row.hasAttribute('data-heading-hovered')).toBe(false)
       })
 
       it('drops the rail marks when the row closes without a strip click', async () => {
@@ -1189,6 +1253,60 @@ describe('SchemaProperty', () => {
 
       expect(wrapper.text()).toContain('nestedField')
       expect(wrapper.findComponent(WithBreadcrumb).exists()).toBe(false)
+    })
+
+    /**
+     * The linked and unlinked branches carry two hand-copied versions of the
+     * same name span, so only a test can keep them in step. `trailing` puts the
+     * copy button in the heading rather than inside the anchor, which leaves the
+     * anchor holding nothing but the slot: unwrap it and the two branches have
+     * to produce byte-identical markup, template comments included.
+     */
+    describe('name span copies', () => {
+      const mountName = (variant: 'additionalProperties' | 'patternProperties' | undefined, linked: boolean) =>
+        mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            breadcrumb: linked ? ['body', 'BaseObject'] : undefined,
+            level: 1,
+            name: 'myField',
+            variant,
+            schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+            options: { schemaLayout: 'tree' },
+          },
+        })
+
+      /**
+       * The block the template duplicates: the leading comment plus the name
+       * span. Taking the span's own siblings rather than the slot's innerHTML
+       * leaves out the comments `WithBreadcrumb` renders around its slot, which
+       * belong to that component and not to the copies under test.
+       */
+      const nameMarkup = (wrapper: ReturnType<typeof mountName>): string => {
+        const span = wrapper.find('.property-name span').element
+        const lead = span.previousSibling
+        // nodeType 8 is a comment, which is a real DOM node in a dev build
+        const comment = lead?.nodeType === 8 ? `<!--${lead.textContent}-->` : ''
+
+        // `useId` counts per mount, so the generated ids are noise here.
+        return `${comment}${span.outerHTML}`.replace(/ id="[^"]*"/g, '')
+      }
+
+      it.each([
+        ['a plain name', undefined],
+        ['an additionalProperties name', 'additionalProperties'],
+        ['a patternProperties name', 'patternProperties'],
+      ] as const)('renders %s identically with and without a breadcrumb', (_case, variant) => {
+        const linked = mountName(variant, true)
+        const unlinked = mountName(variant, false)
+
+        // Guard the comparison: without the anchor both sides would trivially
+        // be the same branch.
+        expect(linked.findComponent(WithBreadcrumb).exists()).toBe(true)
+        expect(unlinked.findComponent(WithBreadcrumb).exists()).toBe(false)
+
+        expect(nameMarkup(linked)).toBe(nameMarkup(unlinked))
+      })
     })
   })
 

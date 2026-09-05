@@ -15,7 +15,7 @@ const {
 } = defineProps<{
   schema?: SchemaObject
   /** The names the panel will render, already filtered; defaults to the schema's keys */
-  propertyNames?: string[]
+  propertyNames?: readonly string[]
   /** How many property names to show before eliding the rest */
   limit?: number
 }>()

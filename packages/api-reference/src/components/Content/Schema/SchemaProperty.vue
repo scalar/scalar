@@ -1,3 +1,12 @@
+<script lang="ts">
+/**
+ * The `v-on` binding a non-tree row gets. Module scope, and frozen so it cannot
+ * be written through: an inline `{}` in the template is a fresh object on every
+ * render of every row, and this component renders once per property on the page.
+ */
+const NO_LISTENERS = Object.freeze({})
+</script>
+
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
@@ -15,6 +24,7 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-
 import {
   computed,
   inject,
+  onBeforeUnmount,
   onScopeDispose,
   ref,
   useId,
@@ -617,16 +627,42 @@ const treeToggleRef = useTemplateRef<{ $el: HTMLElement } | HTMLElement>(
  * what `:hover` said (see tailwind.config.css). Bound on tree rows only, so
  * leaf and legacy rows carry no listener and their DOM is untouched.
  */
+let headingHoveredRow: HTMLElement | null = null
+
+const clearHeadingHover = (): void => {
+  headingHoveredRow?.removeAttribute('data-heading-hovered')
+  headingHoveredRow = null
+}
+
 const treeHeadingHoverListeners = {
   pointerenter: (event: Event): void => {
+    clearHeadingHover()
+
     const row = (event.currentTarget as HTMLElement).parentElement
-    row?.setAttribute('data-heading-hovered', '')
+
+    if (!row) {
+      return
+    }
+
+    row.setAttribute('data-heading-hovered', '')
+    headingHoveredRow = row
   },
-  pointerleave: (event: Event): void => {
-    const row = (event.currentTarget as HTMLElement).parentElement
-    row?.removeAttribute('data-heading-hovered')
-  },
+  pointerleave: clearHeadingHover,
 }
+
+/*
+ * The listeners come off without a pointerleave whenever the row stops being a
+ * tree row under the pointer (a composition picker swaps the schema, so the
+ * heading or the disclosure goes), and the marked row is this component's own
+ * element, which outlives that change. Clear on both, or the puck stays lit.
+ */
+watch(isTreeRow, (treeRow) => {
+  if (!treeRow) {
+    clearHeadingHover()
+  }
+})
+
+onBeforeUnmount(clearHeadingHover)
 
 /*
  * A close that did not come from the rail strip (the toggle, or the keyboard)
@@ -662,7 +698,7 @@ const treeChildSchema = computed(() =>
  * options, no discriminator — or the preview names the wrong first rows and
  * the count disagrees with the panel.
  */
-const sortedChildPropertyNames = computed((): string[] =>
+const sortedChildPropertyNames = computed((): readonly string[] =>
   treeChildSchema.value
     ? sortPropertyNames(treeChildSchema.value, undefined, props.options)
     : [],
@@ -841,7 +877,7 @@ const onBeforeMatch = (): void => {
         'relative row-start-1 min-h-5 content-center [&>*:has(+.copy-link-trailing)]:me-0!':
           isTreeLayout,
       }"
-      v-on="isTreeRow ? treeHeadingHoverListeners : {}"
+      v-on="isTreeRow ? treeHeadingHoverListeners : NO_LISTENERS"
       @click="onHeadingClick"
       :enum="hasEnum"
       :eventBus="eventBus"

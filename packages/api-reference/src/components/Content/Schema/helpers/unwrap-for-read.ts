@@ -27,6 +27,24 @@ import { toRaw } from 'vue'
  * (`x-scalar-active-document`, `x-scalar-is-dirty`) are document-level keys no schema
  * component reads.
  *
+ * That invariant is the precondition, so here is what would break it. Anything that fills an
+ * existing schema node in place, rather than handing the tree a new object, becomes invisible
+ * to every component below a `Schema` root and the stale subtree stays on screen:
+ *
+ * - `store.resolve(path)` in `@scalar/workspace-store` (see `client.ts`) bundles lazily and
+ *   populates the node already at `path`. The API reference does not call it today. Wiring up
+ *   lazy `$ref` bundling means this unwrap has to go, or the resolved subtree has to arrive as
+ *   a new object the `Schema` prop can be swapped to.
+ * - `merge-all-of-schemas.ts` reaches one in-place write of its own: when a merged `items` was
+ *   itself taken from the document (`result.items = items`), a later pass `Object.assign`s onto
+ *   that document node. It is idempotent and runs while the same render is still computing, so
+ *   nothing re-reads it afterwards, but it is the shape to watch for.
+ *
+ * There is deliberately no runtime guard. Catching these writes would mean proxying the whole
+ * subtree again — the exact per-read cost this removes — and the writes above happen on nodes
+ * reached through `resolve.schema`, not through the value returned here, so a shallow proxy on
+ * the root would catch none of them.
+ *
  * Idempotent: a plain object (unit tests, stories, static documents) is returned unchanged.
  */
 export const unwrapForRead = <T>(value: T): T => unpackDetectChangesProxy(toRaw(value))

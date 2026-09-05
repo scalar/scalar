@@ -70,15 +70,20 @@ type PropertyRecord = {
  */
 type SortCacheEntry = {
   required: unknown
-  names: string[]
+  names: readonly string[]
 }
 const sortCache = new WeakMap<object, Map<string, SortCacheEntry>>()
+
+/** The one array every "nothing to sort" answer returns, frozen like the sorted ones. */
+const EMPTY_NAMES: readonly string[] = Object.freeze([])
 
 /**
  * Sort property names in an object schema.
  *
- * The returned array is shared with later calls for the same schema and
- * options, so callers must treat it as read-only.
+ * The returned array is shared with later calls for the same schema and options,
+ * so it is frozen: an in-place `sort` / `reverse` / `splice` by one caller would
+ * otherwise silently reorder every other consumer of the same schema. Callers
+ * that need a mutable list copy it first (`slice`).
  */
 export const sortPropertyNames = (
   schema: SchemaObject,
@@ -89,9 +94,9 @@ export const sortPropertyNames = (
     orderSchemaPropertiesBy = 'alpha',
     orderRequiredPropertiesFirst = true,
   }: Options = {},
-): string[] => {
+): readonly string[] => {
   if (!isTypeObject(schema) || !schema.properties) {
-    return []
+    return EMPTY_NAMES
   }
 
   const properties = schema.properties
@@ -193,7 +198,9 @@ export const sortPropertyNames = (
     return 0
   })
 
-  const names = records.map((record) => record.name)
+  // Frozen before it is shared, so a caller that sorts or splices it in place
+  // fails loudly here instead of corrupting every other reader of this schema.
+  const names = Object.freeze(records.map((record) => record.name))
 
   // A malformed document can carry a non-object `properties`; that cannot key
   // a WeakMap, so it simply goes uncached.
