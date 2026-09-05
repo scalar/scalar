@@ -5,6 +5,9 @@ import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-sto
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import { WithBreadcrumb } from '@/components/Anchor'
+import { SpecificationExtension } from '@/features/specification-extension'
+
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
@@ -1134,6 +1137,86 @@ describe('SchemaProperty', () => {
       })
 
       expect(wrapper.find('#body\\.BaseObject\\.nestedField').exists()).toBe(false)
+    })
+
+    it('wraps a linked name in the anchor and, in the legacy layout, a copy button', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 1,
+          name: 'myField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: { schemaLayout: 'legacy' },
+        },
+      })
+
+      const anchor = wrapper.find('div#body\\.BaseObject\\.myField')
+
+      expect(anchor.exists()).toBe(true)
+      expect(anchor.text()).toContain('myField')
+      expect(anchor.find('button').exists()).toBe(true)
+    })
+
+    it('renders an unlinked name as a bare span without the anchor wrapper', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          name: 'myField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      const heading = wrapper.find('.property-heading')
+
+      expect(heading.text()).toContain('myField')
+      expect(heading.find('div[id]').exists()).toBe(false)
+      expect(wrapper.findComponent(WithBreadcrumb).exists()).toBe(false)
+    })
+
+    it('does not mount the anchor wrapper for a level-3 property', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 3,
+          name: 'nestedField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('nestedField')
+      expect(wrapper.findComponent(WithBreadcrumb).exists()).toBe(false)
+    })
+  })
+
+  describe('specification extensions', () => {
+    it('mounts the extension renderer for a schema with an x- key', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          name: 'status',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string', 'x-foo': 'bar' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.findComponent(SpecificationExtension).exists()).toBe(true)
+    })
+
+    it('does not mount the extension renderer for a schema without x- keys', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          name: 'status',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string', description: 'Plain' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.findComponent(SpecificationExtension).exists()).toBe(false)
     })
   })
 

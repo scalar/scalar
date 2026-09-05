@@ -156,6 +156,23 @@ const arrayItemsCompositionPath = computed<string[]>(() => [
 const shouldHaveLink = computed(() => props.level <= 2)
 
 /**
+ * Whether the name gets a deep link (an anchor id and, in the legacy layout, a copy button).
+ *
+ * Mirrors the condition `WithBreadcrumb` renders its anchor under. Without a link that
+ * component only passes its slot through, yet every named row still paid to mount it
+ * (a localization inject and an unread label computed), and most rows have no link: any
+ * row deeper than level 2, and every row on surfaces that pass no breadcrumb at all
+ * (models, the classic layout, AsyncAPI). So the template mounts `WithBreadcrumb` only
+ * for linked rows and renders the same name span directly for the rest. Both branches
+ * carry an identical copy of the span, comments included: the template comments are
+ * DOM nodes in development builds, so the two copies must stay byte-for-byte in step.
+ */
+const hasBreadcrumbLink = computed(
+  (): boolean =>
+    shouldHaveLink.value && (childBreadcrumb.value?.length ?? 0) > 0,
+)
+
+/**
  * The array schema used for item inspection, with a `$dynamicRef` item bound to its concrete type.
  *
  * Returns the schema unchanged unless `items` is a `$dynamicRef` that resolves against the dynamic
@@ -281,6 +298,32 @@ const shouldDisplayHeadingComputed = computed(() =>
 const compositionsToRender = computed(() =>
   getCompositionsToRender(optimizedValue.value, props.options.document),
 )
+
+/**
+ * Whether the schema carries any `x-` key at all.
+ *
+ * `SpecificationExtension` renders nothing for a schema without extensions, but mounting
+ * it still costs a plugin-manager inject, two computeds and a key scan per row, and almost
+ * no row has an extension. This cheap scan gates the mount instead: it is a superset of the
+ * component's own condition, so a row with an `x-` key still mounts it and any extension a
+ * plugin registers still renders. `optimizedValue` is a plain shallow copy, so the loop
+ * reads no reactive proxy.
+ */
+const hasSpecificationExtensions = computed((): boolean => {
+  const value = optimizedValue.value
+
+  if (!value || typeof value !== 'object') {
+    return false
+  }
+
+  for (const key in value) {
+    if (key.startsWith('x-')) {
+      return true
+    }
+  }
+
+  return false
+})
 const getCompositionDiscriminator = (
   composition: CompositionKeyword,
 ): DiscriminatorObject | undefined =>
@@ -818,7 +861,8 @@ const onBeforeMatch = (): void => {
         v-if="name"
         #name>
         <WithBreadcrumb
-          :breadcrumb="shouldHaveLink ? childBreadcrumb : undefined"
+          v-if="hasBreadcrumbLink"
+          :breadcrumb="childBreadcrumb"
           :eventBus="eventBus"
           :placement="isTreeLayout ? 'trailing' : 'leading'">
           <!-- The ONLY node the gutter toggle's aria-labelledby points at.
@@ -857,6 +901,43 @@ const onBeforeMatch = (): void => {
               :text="name" />
           </span>
         </WithBreadcrumb>
+        <template v-else>
+          <!-- The ONLY node the gutter toggle's aria-labelledby points at.
+               A plain inline span, never `display: contents`: the name is what
+               a pointer aims at and what a test measures, and a box-less
+               wrapper is unhoverable and reports no bounding box. -->
+          <span :id="isTreeLayout ? treeNameId : undefined">
+            <!-- Tree layout: the map-key keyword lives in the signature line
+                 (see SchemaPropertyHeading), so the legacy chip chrome on the
+                 name — dashed box, accent colour, the `regex` badge — is
+                 switched off here and the name reads like any other. The
+                 class names stay as styling hooks. -->
+            <span
+              v-if="variant === 'patternProperties'"
+              class="property-name-pattern-properties"
+              :class="{
+                'text-c-1! border-0! p-0! before:hidden!': isTreeLayout,
+              }">
+              <ScalarWrappingText
+                preset="property"
+                :text="name" />
+            </span>
+            <span
+              v-else-if="variant === 'additionalProperties'"
+              class="property-name-additional-properties"
+              :class="{
+                'text-c-1! border-0! p-0! before:hidden!': isTreeLayout,
+              }">
+              <ScalarWrappingText
+                preset="property"
+                :text="name" />
+            </span>
+            <ScalarWrappingText
+              v-else
+              preset="property"
+              :text="name" />
+          </span>
+        </template>
       </template>
       <template
         v-if="optimizedValue?.example !== undefined"
@@ -1008,7 +1089,9 @@ const onBeforeMatch = (): void => {
       :options="options"
       :schema="compositionData.value"
       :schemaContext="schemaContext" />
-    <SpecificationExtension :value="optimizedValue" />
+    <SpecificationExtension
+      v-if="hasSpecificationExtensions"
+      :value="optimizedValue" />
   </component>
 </template>
 
