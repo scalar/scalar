@@ -51,6 +51,15 @@ const scopedOrScopeFree: RequiredSecurity = {
   ],
 }
 
+/** A single OAuth2 alternative requiring two scopes together, plus a scope-free API key alternative (OR) */
+const multipleScopedOrScopeFree: RequiredSecurity = {
+  state: 'required',
+  requirements: [
+    { schemes: [{ name: 'oauth2', scheme: { type: 'oauth2', flows: {} }, scopes: ['read:items', 'write:items'] }] },
+    { schemes: [{ name: 'apiKey', scheme: { type: 'apiKey', name: 'X-API-Key', in: 'header' }, scopes: [] }] },
+  ],
+}
+
 /**
  * One OAuth2 alternative with scopes, plus an HTTP bearer alternative that carries
  * scope-shaped strings. Those strings are not OAuth scopes, so the bearer alternative is
@@ -85,6 +94,7 @@ describe('OperationScopes', () => {
     expect(wrapper.findAll('li')).toHaveLength(2)
     expect(wrapper.text()).toContain('read:items')
     expect(wrapper.text()).toContain('admin')
+    expect(wrapper.text()).toContain('one of:')
   })
 
   it('does not hint "one of" when only a single scope is listed, even with a scope-free alternative', () => {
@@ -107,16 +117,14 @@ describe('OperationScopes', () => {
     expect(wrapper.text()).not.toContain('one of:')
   })
 
-  it('still hints "one of" when a scope-free alternative leaves more than one scope in the list', () => {
-    const multipleScopedOrScopeFree: RequiredSecurity = {
-      state: 'required',
-      requirements: [
-        { schemes: [{ name: 'oauth2', scheme: { type: 'oauth2', flows: {} }, scopes: ['read:items', 'write:items'] }] },
-        { schemes: [{ name: 'apiKey', scheme: { type: 'apiKey', name: 'X-API-Key', in: 'header' }, scopes: [] }] },
-      ],
-    }
+  it('does not hint "one of" for a single group of scopes required together, even with a scope-free alternative', () => {
     const wrapper = mount(OperationScopes, { props: { requiredSecurity: multipleScopedOrScopeFree } })
-    expect(wrapper.text()).toContain('one of:')
+    // Both scopes belong to the same OAuth2 alternative and are required together, not as a
+    // choice between them, so "one of" would misread them as alternatives to each other.
+    expect(wrapper.findAll('ul')).toHaveLength(1)
+    expect(wrapper.text()).toContain('read:items')
+    expect(wrapper.text()).toContain('write:items')
+    expect(wrapper.text()).not.toContain('one of:')
   })
 
   it('renders nothing when no scopes are required', () => {
