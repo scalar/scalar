@@ -1,8 +1,6 @@
-import type {
-  ParameterObject,
-  ParameterWithSchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
+
+import type { ParameterObject, ParameterWithSchemaObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { deSerializeParameter } from './de-serialize-parameter'
 
@@ -421,6 +419,38 @@ describe('de-serialize-parameter', () => {
           tags: ['admin', 'user'],
         },
       })
+    })
+
+    it('preserves precision for large numeric strings in array schema parameters', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'Values',
+        in: 'query',
+        schema: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      }
+      const example = '40702810506710000185'
+
+      const result = deSerializeParameter(example, param)
+
+      expect(result).toEqual(['40702810506710000185'])
+    })
+
+    it('preserves precision for multiple large numeric strings in array schema parameters', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'Values',
+        in: 'query',
+        schema: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      }
+      const example = '40702810506710000185, 40702810506710000186'
+
+      const result = deSerializeParameter(example, param)
+
+      expect(result).toEqual(['40702810506710000185', '40702810506710000186'])
     })
   })
 })

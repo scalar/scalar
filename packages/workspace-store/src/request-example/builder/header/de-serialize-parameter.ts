@@ -1,8 +1,5 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  ParameterObject,
-  ParameterWithSchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import type { ParameterObject, ParameterWithSchemaObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Coerces a parameter example from the UI (always a string from CodeInput) into a value
@@ -91,14 +88,26 @@ export const deSerializeSchemaValue = (example: unknown, schema: ParameterWithSc
   if (typeof example === 'string') {
     const type = getStructuredType(schema)
 
-    if (type) {
+    if (type === 'array') {
       try {
-        return JSON.parse(example)
-      } catch {
-        // Arrays: users often type `foo,bar` instead of JSON — split to match default form+explode query style.
-        if (type === 'array') {
-          return example.split(/,\s?/).filter((v) => v !== '')
+        const parsed = JSON.parse(example)
+        if (Array.isArray(parsed)) {
+          return parsed
         }
+      } catch {
+        // Fall through to comma splitting
+      }
+      return example.split(/,\s?/).filter((v) => v !== '')
+    }
+
+    if (type === 'object') {
+      try {
+        const parsed = JSON.parse(example)
+        if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+          return parsed
+        }
+      } catch {
+        // Return example as-is if invalid JSON
       }
     }
   }
