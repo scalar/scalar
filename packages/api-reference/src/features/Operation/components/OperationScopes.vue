@@ -33,15 +33,24 @@ const hasScopeFreeAlternative = computed(() =>
   ),
 )
 
+/** Total number of scopes rendered across every group. */
+const totalScopeCount = computed(() =>
+  scopeGroups.value.reduce((total, group) => total + group.length, 0),
+)
+
 /**
  * Show the "one of" hint whenever the listed scopes are just one of several auth
  * alternatives — either multiple scoped groups, or a single scoped group alongside a
  * scope-free alternative. Without it, a lone scope list would read as mandatory.
+ *
+ * The hint only makes sense when there is more than one scope to choose between, so a
+ * single required scope is just listed plainly, even alongside a scope-free alternative.
  */
 const showAlternativesHint = computed(
   () =>
-    scopeGroups.value.length > 1 ||
-    (scopeGroups.value.length > 0 && hasScopeFreeAlternative.value),
+    totalScopeCount.value > 1 &&
+    (scopeGroups.value.length > 1 ||
+      (scopeGroups.value.length > 0 && hasScopeFreeAlternative.value)),
 )
 </script>
 
