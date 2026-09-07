@@ -441,7 +441,9 @@
       "ignoreBinaries": ["mvn"]
     },
     "integrations/nestjs": {},
-    "integrations/nextjs": {},
+    "integrations/nextjs": {
+      "entry": ["src/index.ts", "index.ts", "playwright/fixture/app/**/route.ts", "playwright/fixture/next.config.mjs"]
+    },
     "integrations/nuxt": {
       "entry": [
         "src/module.ts",

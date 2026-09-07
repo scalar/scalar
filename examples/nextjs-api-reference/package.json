@@ -18,8 +18,8 @@
     "build": "next build",
     "dev": "next dev -p 5058",
     "docker:build": "docker build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./Dockerfile .",
-    "lint:check": "next lint",
-    "lint:fix": "next lint --fix",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
     "start": "next start",
     "types:check": "tsc --noEmit"
   },

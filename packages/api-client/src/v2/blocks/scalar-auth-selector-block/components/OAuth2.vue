@@ -169,7 +169,13 @@ const handleOauth2Update = (
 /** Updates the flow secrets */
 const handleOauth2SecretsUpdate = (
   payload: Omit<Partial<SecretsOAuthFlows[keyof SecretsOAuthFlows]>, 'type'>,
-): void =>
+): void => {
+  // This component only renders for oauth2/openIdConnect. Other scheme types (e.g. mutualTLS)
+  // carry no flow secrets, so there is nothing to persist and no matching secrets payload type.
+  if (scheme.type !== 'oauth2' && scheme.type !== 'openIdConnect') {
+    return
+  }
+
   eventBus.emit('auth:update:security-scheme-secrets', {
     payload: {
       type: scheme.type,
@@ -177,6 +183,7 @@ const handleOauth2SecretsUpdate = (
     },
     name,
   })
+}
 
 /** Clears the flow secrets */
 const clearOauth2Secrets = (): void => {
