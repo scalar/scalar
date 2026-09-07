@@ -1,36 +1,35 @@
 import { renderApiReference } from '@scalar/client-side-rendering'
 
 import { customTheme } from './custom-theme'
-import type { ApiReferenceConfiguration } from './types'
+import type { ApiReferenceConfiguration, ApiReferenceConfigurationFactory, ApiReferenceOptions } from './types'
 
-/**
- * The default configuration for the API Reference.
- */
-const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
-  _integration: 'nextjs',
+/** Render a fresh response so headers and request-specific configuration are never shared. */
+const renderResponse = (configuration: Partial<ApiReferenceConfiguration>, options: ApiReferenceOptions): Response => {
+  const { cdn, pageTitle, nonce, ...config } = { _integration: 'nextjs' as const, ...configuration }
+  const headers = new Headers(options.headers)
+  headers.set('Content-Type', 'text/html; charset=utf-8')
+
+  return new Response(renderApiReference({ config, pageTitle, cdn, nonce }, customTheme), { headers })
 }
 
-/**
- * Next.js adapter for an Api Reference
- *
- * {@link https://github.com/scalar/scalar/tree/main/documentation/configuration.md Configuration}
- *
- * @params config - the Api Reference config object
- * @params options - reserved for future use to add customization to the response
- */
-export const ApiReference = (givenConfiguration: Partial<ApiReferenceConfiguration>): (() => Response) => {
-  // Merge the defaults
-  const configuration: Partial<ApiReferenceConfiguration> = {
-    ...DEFAULT_CONFIGURATION,
-    ...givenConfiguration,
+/** Serve a standalone reference using static configuration. */
+export function ApiReference(
+  configuration: Partial<ApiReferenceConfiguration>,
+  options?: ApiReferenceOptions,
+): () => Response
+/** Resolve configuration for each request. Rejections propagate to Next.js error handling. */
+export function ApiReference(
+  configuration: ApiReferenceConfigurationFactory,
+  options?: ApiReferenceOptions,
+): (request: Request) => Promise<Response>
+export function ApiReference(
+  configuration: Partial<ApiReferenceConfiguration> | ApiReferenceConfigurationFactory,
+  options: ApiReferenceOptions = {},
+): (() => Response) | ((request: Request) => Promise<Response>) {
+  if (typeof configuration === 'function') {
+    return async (request: Request): Promise<Response> => renderResponse(await configuration(request), options)
   }
 
-  return () => {
-    const { cdn, pageTitle, nonce, ...config } = configuration
-    const referenceDocument = renderApiReference({ config, pageTitle, cdn, nonce }, customTheme)
-    return new Response(referenceDocument, {
-      status: 200,
-      headers: { 'Content-Type': 'text/html' },
-    })
-  }
+  const staticConfiguration = { ...configuration }
+  return (): Response => renderResponse(staticConfiguration, options)
 }
