@@ -158,18 +158,14 @@ const COMPOSITION_KEYWORDS = ['allOf', 'oneOf', 'anyOf', 'not'] as const
  *
  * Must agree with what `SchemaProperty` renders: a mismatch either leaves a
  * subtree permanently expanded (children, no control) or draws a control
- * over an empty panel. `seen` guards the `$ref` walk against self-referential
- * arrays (`Node.children: Node[]`), which are legal and would otherwise
- * overflow the stack.
+ * over an empty panel. Only the top-level schema is inspected — whether
+ * children exist, not how deep they go, decides collapsibility — so there is no
+ * `$ref` walk to recurse into and no cycle to guard against.
  */
-const hasChildElements = (
-  input: unknown,
-  seen = new Set<unknown>(),
-): boolean => {
-  if (!input || typeof input !== 'object' || seen.has(input)) {
+const hasChildElements = (input: unknown): boolean => {
+  if (!input || typeof input !== 'object') {
     return false
   }
-  seen.add(input)
 
   /* Judge the value the renderer draws: `optimizeValueForDisplay` erases
      single-member compositions and null unions, so the raw schema can report

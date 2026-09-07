@@ -163,10 +163,9 @@ const shouldRenderRequestBody = computed(
       <!--
         `flex!` restates the display this title has always had. The heading tag
         brings `.section-header-label` (`display: inline`, for the titles that
-        sit inside an Anchor), which ties with `.request-body-title` on
-        specificity — both are one class plus one scope attribute — so only the
-        order the two SFCs land in the bundle keeps the flex row. The other
-        group titles pin `block!` for the same reason.
+        sit inside an Anchor); the `!important` on `flex!` wins over it outright,
+        so the flex row holds regardless of source order or specificity. The
+        other group titles pin `block!` for the same reason.
       -->
       <SectionHeaderTag
         class="request-body-title flex!"

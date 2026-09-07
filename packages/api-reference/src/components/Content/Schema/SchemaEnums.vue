@@ -97,7 +97,10 @@ const shouldRenderAsChips = computed(
     enumValues.value.length > 0 &&
     !shouldUseLongListDisplay.value &&
     enumValues.value.every(
-      (entry) => String(entry).length <= CHIP_MAX_LENGTH,
+      // Measure the text the chip actually renders (value plus any varname), not
+      // the bare value, so a short value with a long x-enum-varname still wraps.
+      (entry, index) =>
+        formatEnumValueWithName(entry, index).length <= CHIP_MAX_LENGTH,
     ) &&
     !hasAnyDescription.value,
 )
@@ -186,7 +189,7 @@ const toggleExpanded = () => {
       role="list">
       <span
         v-for="(enumValue, index) in enumValues"
-        :key="String(enumValue)"
+        :key="index"
         class="property-enum-chip font-code text-c-2 rounded-(--scalar-radius-lg) border px-1.5 py-px text-(length:--scalar-mini)"
         role="listitem">
         {{ formatEnumValueWithName(enumValue, index) }}
@@ -198,7 +201,7 @@ const toggleExpanded = () => {
       role="list">
       <SchemaEnumPropertyItem
         v-for="(enumValue, index) in visibleEnumValues"
-        :key="String(enumValue)"
+        :key="index"
         :description="getEnumValueDescription(enumValue, index)"
         :label="formatEnumValueWithName(enumValue, index)"
         layout="tree" />
@@ -206,7 +209,7 @@ const toggleExpanded = () => {
       <template v-if="shouldUseLongListDisplay && isExpanded">
         <SchemaEnumPropertyItem
           v-for="(enumValue, index) in hiddenEnumValues"
-          :key="String(enumValue)"
+          :key="initialVisibleCount + index"
           :description="
             getEnumValueDescription(enumValue, initialVisibleCount + index)
           "
@@ -258,7 +261,7 @@ const toggleExpanded = () => {
       <!-- Visible enum values -->
       <SchemaEnumPropertyItem
         v-for="(enumValue, index) in visibleEnumValues"
-        :key="String(enumValue)"
+        :key="index"
         :description="getEnumValueDescription(enumValue, index)"
         :label="formatEnumValueWithName(enumValue, index)" />
 
@@ -266,7 +269,7 @@ const toggleExpanded = () => {
       <template v-if="shouldUseLongListDisplay && isExpanded">
         <SchemaEnumPropertyItem
           v-for="(enumValue, index) in hiddenEnumValues"
-          :key="String(enumValue)"
+          :key="initialVisibleCount + index"
           :description="
             getEnumValueDescription(enumValue, initialVisibleCount + index)
           "
