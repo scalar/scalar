@@ -111,6 +111,29 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl 'https://example.com/api?param1=value1&param2=value2'`)
   })
 
+  it('turns off globbing for bracket notation in a query parameter name', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com/api/users',
+      queryString: [
+        {
+          name: 'filter[user_id]',
+          value: 'me',
+        },
+      ],
+    })
+
+    expect(result).toBe(`curl 'https://example.com/api/users?filter[user_id]=me' \\
+  --globoff`)
+  })
+
+  it('leaves a path placeholder alone', () => {
+    const result = shellCurl.generate({
+      url: 'https://galaxy.scalar.com/planets/{planetId}',
+    })
+
+    expect(result).toBe(`curl 'https://galaxy.scalar.com/planets/{planetId}'`)
+  })
+
   it('has cookies', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
@@ -480,7 +503,8 @@ describe('shellCurl', () => {
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
-    expect(result).toBe(`curl 'https://example.com/path with spaces/[brackets]'`)
+    expect(result).toBe(`curl 'https://example.com/path with spaces/[brackets]' \\
+  --globoff`)
   })
 
   it('handles special characters in query parameters', () => {

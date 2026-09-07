@@ -54,6 +54,12 @@ export const shellCurl: Plugin = {
     const urlPart = isShellSafe ? url : `'${escapeSingleQuotes(url)}'`
     parts[0] = `curl ${urlPart}`
 
+    // curl reads `[]` in a URL as its own range syntax, no matter how the shell quotes them, so a literal
+    // bracket (`filter[id]=1`) only survives with globbing off
+    if (/[[\]]/.test(url)) {
+      parts.push('--globoff')
+    }
+
     // Method
     if (normalizedRequest.method !== 'GET') {
       parts.push(`--request ${normalizedRequest.method}`)
