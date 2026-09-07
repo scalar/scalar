@@ -18,8 +18,16 @@ npm install @scalar/nextjs-api-reference
 
 ## Compatibility
 
-This package is compatible with Next.js 15 and is untested on Next.js 14. If you want guaranteed Next.js 14 support
-please use version `0.4.106` of this package.
+The handler supports Next.js 15 and 16 with React 19 and Node.js 22 or newer.
+
+The compatibility workflow builds a real Next.js application and checks browser rendering and CSP nonces:
+
+| Next.js | React | Node.js CI matrix |
+| ------- | ----- | ----------------- |
+| 15.5.15 | 19    | 22, 24            |
+| 16.3.4  | 19    | 22, 24            |
+
+See [the compatibility workflow](https://github.com/scalar/scalar/actions/workflows/nextjs-compatibility.yml) for results. These checks cover the standalone handler; the React package has its own tests.
 
 ## Usage
 
@@ -108,13 +116,13 @@ To boot the reference, Scalar adds an inline `<script>` to the page. Under a str
 
 Instead, pass a `nonce`. Scalar stamps it onto the inline script and the CDN `<script>` tag, so you can keep a strict `script-src` with **no `unsafe-inline` and no `unsafe-eval`**.
 
-A nonce has to be generated fresh for every request, so generate it in `middleware.ts`, expose it to the route through a request header, and set the matching CSP response header:
+A nonce has to be generated fresh for every request, so generate it in `proxy.ts` on Next.js 16, expose it to the route through a request header, and set the matching CSP response header:
 
 ```typescript
-// middleware.ts
+// proxy.ts (Next.js 16)
 import { NextResponse, type NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // A fresh nonce per request.
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
 
@@ -144,6 +152,8 @@ export const config = {
   matcher: '/reference/:path*',
 }
 ```
+
+On Next.js 15, name the file `middleware.ts` and export `middleware` instead of `proxy`.
 
 Then read the nonce in the route handler and pass it to the configuration:
 
