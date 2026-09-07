@@ -3,6 +3,8 @@
   // Catalog entries from ignored workspaces are falsely reported as unused
   "exclude": ["catalog"],
   "ignoreFiles": [
+    // Standalone npm project, checked by the nextjs-starter workflow outside the workspace
+    "templates/nextjs-api-reference/**",
     // CSS files imported via @import or Vue components — knip cannot trace CSS imports
     "**/*.css",
     // Referenced in scalar.config.json

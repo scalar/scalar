@@ -12,7 +12,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "playwright test"
+    "test": "playwright test",
+    "lint:unused": "knip"
   },
   "dependencies": {
     "@scalar/api-reference-react": "0.9.66",
@@ -28,6 +29,7 @@
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.39.0",
     "eslint-config-next": "16.3.4",
+    "knip": "6.3.1",
     "typescript": "^5.9.0"
   }
 }

@@ -23,7 +23,7 @@ jobs:
         run: cp -R templates/nextjs-api-reference "$RUNNER_TEMP/nextjs-starter"
       - run: npm ci
         working-directory: ${{ runner.temp }}/nextjs-starter
-      - run: npm run lint && npm run build && npm run typecheck
+      - run: npm run lint && npm run lint:unused && npm run build && npm run typecheck
         working-directory: ${{ runner.temp }}/nextjs-starter
       - run: npx playwright install --with-deps chromium
         working-directory: ${{ runner.temp }}/nextjs-starter

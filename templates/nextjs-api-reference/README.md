@@ -36,6 +36,7 @@ The lockfile pins application dependencies. Update the standalone CDN version se
 
 ```bash
 npm run lint
+npm run lint:unused
 npm run build
 npm run typecheck
 npx playwright install chromium
