@@ -3231,6 +3231,12 @@
                         "description": "Add a Scalar API reference to your Micronaut application for interactive OpenAPI documentation.",
                         "type": "page"
                       },
+                      "nextjs-application-recipes": {
+                        "title": "Next.js application recipes",
+                        "filepath": "documentation/integrations/nextjs-application-recipes.md",
+                        "type": "page",
+                        "showInSidebar": false
+                      },
                       "nextjs": {
                         "title": "Next.js",
                         "filepath": "documentation/integrations/nextjs.md",
