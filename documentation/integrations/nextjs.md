@@ -297,3 +297,7 @@ Choose the recipe that matches your application's routing:
 - [oRPC procedures](./nextjs-recipes/orpc.md)
 
 Each recipe includes a working endpoint, the generated OpenAPI description, and Scalar at `/scalar`.
+
+## Application recipes
+
+See [authentication, preview deployments, base paths, and request-specific configuration](./nextjs-application-recipes.md).
