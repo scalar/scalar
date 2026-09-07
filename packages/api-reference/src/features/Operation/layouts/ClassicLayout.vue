@@ -505,6 +505,20 @@ const { level: headingLevel } = useDocumentOutline('operation')
   padding-inline-end: 9px;
 }
 
+/*
+ * The trailing copy-link is a hover-only affordance, and it is a flex item of
+ * the heading, so it competes for the line with the property name and its type.
+ * The classic card is roughly 90px narrower than the modern column, and there
+ * that 22px is enough to push a signature onto a second line — on a control
+ * that is transparent until hovered, so the row just reads as a blank line
+ * under the name. Rows stay deep-linkable: the anchor id is on the row itself,
+ * and only the click-to-copy button goes, exactly as it does for a coarse
+ * pointer (see CopyLinkButton.vue).
+ */
+.endpoint-content :deep(.copy-link-trailing) {
+  display: none;
+}
+
 .operation-details-card {
   display: flex;
   flex-direction: column;
