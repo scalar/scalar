@@ -2,7 +2,11 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { getDisplayTypeSignatureTokens, getTypeSignatureTokens } from './get-type-signature-tokens'
+import {
+  getDisplayTypeSignatureTokens,
+  getTypeSignatureTokens,
+  typeSignatureInlinesEnum,
+} from './get-type-signature-tokens'
 
 /** Render tokens to a plain string for compact assertions. */
 const text = (tokens: ReturnType<typeof getTypeSignatureTokens>): string => tokens.map((token) => token.text).join(' ')
@@ -70,6 +74,11 @@ describe('get-type-signature-tokens', () => {
 
     expect(text(tokens)).toBe('"cat"')
     expect(tokens[0]?.kind).toBe('literal')
+  })
+
+  it('renders an object or array const as JSON, not [object Object]', () => {
+    expect(text(getTypeSignatureTokens({ const: { tier: 'gold' } } as never))).toBe('{"tier":"gold"}')
+    expect(text(getTypeSignatureTokens({ const: [1, 2] } as never))).toBe('[1,2]')
   })
 
   it('hides model names when asked', () => {
@@ -154,5 +163,49 @@ describe('getDisplayTypeSignatureTokens', () => {
     })
 
     expect(text(tokens)).toBe('string | null')
+  })
+})
+
+describe('typeSignatureInlinesEnum', () => {
+  it('reports a short, unannotated enum as inlined', () => {
+    expect(typeSignatureInlinesEnum({ type: 'string', enum: ['a', 'b'] } as never)).toBe(true)
+  })
+
+  it('reports a long enum as not inlined', () => {
+    expect(typeSignatureInlinesEnum({ type: 'string', enum: ['a', 'b', 'c', 'd'] } as never)).toBe(false)
+  })
+
+  it('reports an annotated enum as not inlined, so its value list survives', () => {
+    expect(typeSignatureInlinesEnum({ type: 'string', enum: ['a', 'b'], 'x-enum-varnames': ['A', 'B'] } as never)).toBe(
+      false,
+    )
+  })
+
+  it('reports an enum with no type as inlined, matching the signature', () => {
+    const schema = { enum: ['a', 'b'] } as never
+
+    expect(typeSignatureInlinesEnum(schema)).toBe(true)
+    // The signature does inline it, so the value list must not render a second copy.
+    expect(text(getTypeSignatureTokens(schema))).toBe('"a" or "b"')
+  })
+
+  it('reports a schema carrying both a short enum and type array as inlined', () => {
+    const schema = { type: ['array', 'null'], enum: ['a', 'b'], items: { type: 'string' } } as never
+
+    expect(typeSignatureInlinesEnum(schema)).toBe(true)
+    expect(text(getTypeSignatureTokens(schema))).toBe('"a" or "b"')
+  })
+
+  it("reports an array with no own enum by its items' enum", () => {
+    expect(typeSignatureInlinesEnum({ type: 'array', items: { type: 'string', enum: ['a', 'b'] } } as never)).toBe(true)
+    expect(typeSignatureInlinesEnum({ type: 'array', items: { type: 'string' } } as never)).toBe(false)
+  })
+
+  it('reports a named $ref as not inlined, since it renders as the model name', () => {
+    expect(typeSignatureInlinesEnum({ $ref: '#/components/schemas/Planet' } as never)).toBe(false)
+  })
+
+  it('reports a plain type with no enum as not inlined', () => {
+    expect(typeSignatureInlinesEnum({ type: 'string' } as never)).toBe(false)
   })
 })

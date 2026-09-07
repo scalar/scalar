@@ -21,7 +21,15 @@ const INLINE_ENUM_LIMIT = 3
 const ENUM_ANNOTATION_KEYS = ['x-enumDescriptions', 'x-enum-descriptions', 'x-enum-varnames', 'x-enumNames'] as const
 
 /** Quote an enum or const value the way JSON would. */
-const formatLiteral = (value: unknown): string => (typeof value === 'string' ? `"${value}"` : String(value))
+const formatLiteral = (value: unknown): string => {
+  // Objects and arrays have no meaningful String() form (`[object Object]`), so
+  // serialize them the way JSON would; primitives keep their existing rendering.
+  if (value !== null && typeof value === 'object') {
+    return JSON.stringify(value)
+  }
+
+  return typeof value === 'string' ? `"${value}"` : String(value)
+}
 
 const word = (text: string): TypeSignatureToken => ({ kind: 'word', text })
 const ident = (text: string): TypeSignatureToken => ({ kind: 'ident', text })
@@ -68,8 +76,22 @@ export const typeSignatureInlinesEnum = (
     return false
   }
 
-  // A schema with no `type` renders no signature to carry the values. Items are
-  // exempt: the array signature's enum branch needs no `type` of its own.
+  // Bare literals cannot carry `x-enumDescriptions` or `x-enum-varnames`, so an
+  // annotated enum keeps its value list (SchemaEnums' chip branch does the same).
+  const annotated = ENUM_ANNOTATION_KEYS.some((key) => (value as Record<string, unknown>)[key])
+
+  // getTypeSignatureTokens checks the schema's own enum right after const —
+  // before any `type` handling — so a short, unannotated enum inlines whether or
+  // not the schema has a `type`, and even when the type is `array` (e.g. a
+  // schema carrying both `enum` and `type: array`). Mirror that order here, or
+  // the value list renders a second copy of the same values.
+  if (!annotated && Array.isArray(value.enum) && value.enum.length > 0 && value.enum.length <= INLINE_ENUM_LIMIT) {
+    return true
+  }
+
+  // Past the enum branch, a schema with no `type` renders no signature to carry
+  // the values. Items are exempt: the array signature's enum branch needs no
+  // `type` of its own.
   if (!isItems && !('type' in value)) {
     return false
   }
@@ -80,23 +102,16 @@ export const typeSignatureInlinesEnum = (
   // items, so it inlines the item enum exactly like a plain array.
   const isArrayType = type === 'array' || (Array.isArray(type) && type.includes('array'))
 
-  // getEnumValues resolves items the same way the signature does, so the items
-  // must be tested here or the values render twice.
+  // An array with no own enum inlines its ITEMS' enum, resolved the same way
+  // getEnumValues does, so the items must be tested here or the values render
+  // twice.
   const items = 'items' in value ? value.items : undefined
 
   if (isArrayType && items && typeof items === 'object') {
     return typeSignatureInlinesEnum(items as SchemaObject, options, true)
   }
 
-  // Bare literals cannot carry `x-enumDescriptions` or `x-enum-varnames`, so an
-  // annotated enum keeps its value list (SchemaEnums' chip branch does the same).
-  const annotated = ENUM_ANNOTATION_KEYS.some((key) => (value as Record<string, unknown>)[key])
-
-  if (annotated) {
-    return false
-  }
-
-  return Array.isArray(value.enum) && value.enum.length > 0 && value.enum.length <= INLINE_ENUM_LIMIT
+  return false
 }
 
 /**
