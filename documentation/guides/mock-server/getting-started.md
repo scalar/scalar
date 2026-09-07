@@ -95,6 +95,23 @@ serve(
 )
 ```
 
+### Local file references
+
+When `document` is a local file path, its references can read files within that file's directory.
+Objects, inline JSON or YAML, and remote URLs do not get access to the working directory by default.
+For an inline description that needs local files, grant access to a specific directory:
+
+```typescript
+const app = await createMockServer({
+  document,
+  fileReferences: { basePath: './api-descriptions' },
+})
+```
+
+Relative file references are resolved from this directory. References outside it, including symbolic
+links pointing outside it, are refused. Remote documents cannot read local files, even when a local
+description references them or `fileReferences` is configured.
+
 ### Authentication
 
 You can define security schemes in your OpenAPI document and the mock server will validate the authentication. On startup it prints instructions on how to authenticate, which you can turn off — see [Silencing startup logging](#silencing-startup-logging):

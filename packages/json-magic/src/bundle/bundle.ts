@@ -301,6 +301,9 @@ type Config = {
    */
   plugins: Plugin[]
 
+  /** Refuse filesystem references from remotely loaded documents, including after a local $id override. */
+  blockRemoteFileReferences?: boolean
+
   /**
    * Optional root object that serves as the base document when bundling a subpart.
    * This allows resolving references relative to the root document's location,
@@ -621,6 +624,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     depth = 0,
     currentPath: readonly string[] = [],
     parent: UnknownObject = null,
+    remoteSource = isHttpUrl(config.origin ?? '') || (typeof input === 'string' && isHttpUrl(input)),
   ) => {
     // If a maximum depth is set in the config, stop bundling when the current depth reaches or exceeds it
     if (config.depth !== undefined && depth > config.depth) {
@@ -675,7 +679,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // referenced by this local reference to ensure the partial bundle is complete.
           // This includes not just the direct reference but also all its dependencies,
           // creating a complete and self-contained partial bundle.
-          await bundler(targetValue.value, targetValue.context, isChunkParent, depth + 1, segments, parent)
+          await bundler(
+            targetValue.value,
+            targetValue.context,
+            isChunkParent,
+            depth + 1,
+            segments,
+            parent,
+            remoteSource,
+          )
         }
         await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
         return
@@ -686,6 +698,14 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
       const resolvedPath = resolveReferencePath(id ?? origin, prefix)
+
+      // Use where the document was loaded, not its mutable $id, and enforce before consulting the cache.
+      if (config.blockRemoteFileReferences && remoteSource && isFilePath(resolvedPath)) {
+        await executeHooks('onResolveStart', root)
+        await executeHooks('onResolveError', root)
+        await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
+        return
+      }
       const relativePath = toRelativePath(resolvedPath, defaultOrigin)
 
       // Generate a unique compressed path for the external document
@@ -727,11 +747,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(result.data, isChunk ? origin : resolvedPath, isChunk, depth + 1, [
-            config.externalDocumentsKey,
-            compressedPath,
-            documentRoot[config.externalDocumentsMappingsKey],
-          ])
+          await bundler(
+            result.data,
+            isChunk ? origin : resolvedPath,
+            isChunk,
+            depth + 1,
+            [config.externalDocumentsKey, compressedPath, documentRoot[config.externalDocumentsMappingsKey]],
+            null,
+            remoteSource || isHttpUrl(resolvedPath),
+          )
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
@@ -789,7 +813,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         continue
       }
 
-      await bundler(root[key], id ?? origin, isChunkParent, depth + 1, [...currentPath, key], root as UnknownObject)
+      await bundler(
+        root[key],
+        id ?? origin,
+        isChunkParent,
+        depth + 1,
+        [...currentPath, key],
+        root as UnknownObject,
+        remoteSource,
+      )
     }
 
     await executeHooks('onAfterNodeProcess', root as UnknownObject, context)

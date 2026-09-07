@@ -106,6 +106,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
   /** Dereferenced OpenAPI document */
   const schema = await processOpenApiDocument(configuration?.document ?? configuration?.specification, {
+    fileReferences: configuration.fileReferences,
     remoteFetchLimits: configuration.remoteFetchLimits,
   })
 

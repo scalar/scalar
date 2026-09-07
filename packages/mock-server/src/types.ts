@@ -38,6 +38,13 @@ type BaseMockServerOptions = {
   document?: string | Record<string, any>
 
   /**
+   * Permit local references within this directory for an inline or local API description.
+   * Local-file inputs default to their own directory. Inline and remote inputs cannot read files
+   * by default. Remotely loaded documents cannot reference local files, even with this option.
+   */
+  fileReferences?: { basePath: string }
+
+  /**
    * Callback function to be called before each request is processed.
    */
   onRequest?: (data: { context: Context; operation: OpenAPIV3_1.OperationObject }) => void
