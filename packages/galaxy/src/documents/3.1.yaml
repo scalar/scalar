@@ -155,7 +155,7 @@ paths:
               description: Return to the first page using the requested page size.
               parameters:
                 query.limit: '$request.query.limit'
-                query.offset: 0
+                query.offset: '0'
       x-post-response: |
         pm.test("Status code is 200", () => {
           pm.response.to.have.status(200);
