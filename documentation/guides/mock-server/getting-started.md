@@ -268,6 +268,35 @@ const document = {
 
 ## Advanced Features
 
+### Remote document limits
+
+The mock server limits remote document downloads, including the root URL and any URLs reached through external `$ref` values. These limits are shared across one document load, including concurrent downloads and references found in downloaded documents.
+
+| Option | Default | Applies to |
+| --- | --- | --- |
+| `timeoutMs` | `10_000` (10 seconds) | Total elapsed time from the first remote load, including DNS, queued requests, and response bodies |
+| `maxResponseBytes` | `5 * 1024 * 1024` (5 MiB) | Decompressed bytes in each response |
+| `maxTotalBytes` | `20 * 1024 * 1024` (20 MiB) | Decompressed bytes across all responses |
+| `maxRequests` | `100` | Total remote loads, including transitive references |
+
+Set `remoteFetchLimits` when larger API descriptions need more room. Omitted options keep their defaults; values must be positive integers.
+
+```ts
+import { createMockServer } from '@scalar/mock-server'
+
+const app = await createMockServer({
+  document: 'https://example.com/openapi.json',
+  remoteFetchLimits: {
+    timeoutMs: 30_000,
+    maxResponseBytes: 10 * 1024 * 1024,
+    maxTotalBytes: 40 * 1024 * 1024,
+    maxRequests: 200,
+  },
+})
+```
+
+Exceeding a limit cancels outstanding remote downloads. References that could not be loaded remain unresolved; if the root document cannot be loaded, the server cannot start. Increasing these limits does not allow access to private network addresses.
+
 ### Request Validation
 
 The mock server enforces your OpenAPI contract by default. Each request is validated against the matched operation before a mock response is generated:

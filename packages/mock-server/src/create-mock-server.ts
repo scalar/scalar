@@ -105,7 +105,9 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   })
 
   /** Dereferenced OpenAPI document */
-  const schema = await processOpenApiDocument(configuration?.document ?? configuration?.specification)
+  const schema = await processOpenApiDocument(configuration?.document ?? configuration?.specification, {
+    remoteFetchLimits: configuration.remoteFetchLimits,
+  })
 
   // Seed data from schemas with x-seed extension
   // This happens before routes are set up so data is available immediately

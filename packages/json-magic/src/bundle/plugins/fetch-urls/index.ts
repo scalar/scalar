@@ -4,6 +4,8 @@ import type { LoaderPlugin, ResolveResult } from '@/bundle'
 import { isHttpUrl } from '@/helpers/is-http-url'
 import { normalize } from '@/helpers/normalize'
 
+import { type FetchBudget, type RemoteFetchLimits, createFetchBudget, readBoundedBody, withAbort } from './fetch-budget'
+
 type FetchConfig = Partial<{
   headers: { headers: HeadersInit; domains: string[] }[]
   /** Custom transports cannot be combined with blockPrivateNetworks. */
@@ -14,6 +16,8 @@ type FetchConfig = Partial<{
    * existing callers keep working unchanged.
    */
   blockPrivateNetworks: boolean
+  /** Shared document limits; enabled by default with blockPrivateNetworks. Use a fresh plugin per bundle. */
+  limits: Partial<RemoteFetchLimits>
 }>
 
 /**
@@ -46,27 +50,35 @@ export async function fetchUrl(
   url: string,
   limiter: <T>(fn: () => Promise<T>) => Promise<T>,
   config?: FetchConfig,
+  budget?: FetchBudget,
 ): Promise<ResolveResult> {
   try {
     const host = getHost(url)
     const headers = config?.headers?.find((a) => a.domains.find((d) => d === host) !== undefined)?.headers
     const guarded = config?.blockPrivateNetworks && typeof window === 'undefined'
 
+    const activeBudget = budget ?? (guarded || config?.limits ? createFetchBudget(config?.limits) : undefined)
+    const signal = activeBudget?.start()
     const result = await limiter(async () => {
+      signal?.throwIfAborted()
       if (guarded) {
         // A custom fetch can ignore the pinned connection and resolve the host again.
         if (config?.fetch) {
           throw new Error('Custom fetch cannot be combined with private network blocking')
         }
         const { fetchPublicUrl } = await import('./fetch-public-url')
-        return fetchPublicUrl(url, headers)
+        return fetchPublicUrl(url, headers, activeBudget, signal)
       }
 
-      return (config?.fetch ?? fetch)(url, { headers })
+      const request = (config?.fetch ?? fetch)(url, { headers, ...(signal ? { signal } : {}) })
+      return signal ? withAbort(request, signal) : request
     })
 
     if (result.ok) {
-      const body = await result.text()
+      const body =
+        activeBudget && signal && !guarded
+          ? new TextDecoder().decode(await readBoundedBody(result.body, activeBudget, signal))
+          : await result.text()
 
       return {
         ok: true,
@@ -109,9 +121,11 @@ export function fetchUrls(config?: FetchConfig & Partial<{ limit: number | null 
   // If there is a limit specified we limit the number of concurrent calls
   const limiter = config?.limit ? createLimiter(config.limit) : <T>(fn: () => Promise<T>) => fn()
 
+  const budget = config?.blockPrivateNetworks || config?.limits ? createFetchBudget(config?.limits) : undefined
+
   return {
     type: 'loader',
     validate: isHttpUrl,
-    exec: (value) => fetchUrl(value, limiter, config),
+    exec: (value) => fetchUrl(value, limiter, config, budget),
   }
 }

@@ -2,7 +2,13 @@ import path from 'node:path'
 import { cwd } from 'node:process'
 
 import { bundle } from '@scalar/json-magic/bundle'
-import { fetchUrls, parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import {
+  type RemoteFetchLimits,
+  fetchUrls,
+  parseJson,
+  parseYaml,
+  readFiles,
+} from '@scalar/json-magic/bundle/plugins/node'
 import { isFilePath } from '@scalar/json-magic/helpers/is-file-path'
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
@@ -23,6 +29,7 @@ import { upgrade } from '@scalar/openapi-upgrader'
  */
 export async function processOpenApiDocument(
   document: string | Record<string, any> | undefined,
+  options: { remoteFetchLimits?: Partial<RemoteFetchLimits> } = {},
 ): Promise<OpenAPIV3_1.Document> {
   // Handle empty/undefined input gracefully
   if (!document || (typeof document === 'object' && Object.keys(document).length === 0)) {
@@ -48,7 +55,12 @@ export async function processOpenApiDocument(
     // Bundle external references with Node.js plugins
     // Include parseJson and parseYaml to handle string inputs
     bundled = await bundle(document, {
-      plugins: [parseJson(), parseYaml(), readFiles({ basePath }), fetchUrls({ blockPrivateNetworks: true })],
+      plugins: [
+        parseJson(),
+        parseYaml(),
+        readFiles({ basePath }),
+        fetchUrls({ blockPrivateNetworks: true, limits: options.remoteFetchLimits }),
+      ],
       treeShake: false,
     })
   } catch (error) {

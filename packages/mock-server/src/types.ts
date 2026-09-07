@@ -1,3 +1,4 @@
+import type { RemoteFetchLimits } from '@scalar/json-magic/bundle/plugins/node'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Context } from 'hono'
 
@@ -19,6 +20,9 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyo
 export type MockServerLogger = (line: string) => void
 
 type BaseMockServerOptions = {
+  /** Remote document limits: 10s total, 5 MiB per response, 20 MiB total, and 100 loads by default. */
+  remoteFetchLimits?: Partial<RemoteFetchLimits>
+
   /**
    * The OpenAPI document to use for mocking.
    * Can be a string (URL or file path) or an object.

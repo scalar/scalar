@@ -5,6 +5,7 @@ import type { LookupFunction } from 'node:net'
 import { Agent, Response as UndiciResponse, fetch } from 'undici'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createFetchBudget } from './fetch-budget'
 import { fetchPublicUrl } from './fetch-public-url'
 
 vi.mock('node:dns/promises', () => ({ lookup: vi.fn() }))
@@ -84,6 +85,15 @@ describe('fetch-public-url', () => {
     expect(await result.text()).toBe('')
     expect(readBody).not.toHaveBeenCalled()
     expect(vi.mocked(Agent).mock.instances[0].destroy).toHaveBeenCalledOnce()
+  })
+
+  it('stops waiting for DNS when the shared deadline expires', async () => {
+    lookupAll.mockReturnValueOnce(new Promise(() => undefined))
+    const budget = createFetchBudget({ timeoutMs: 20 })
+
+    await expect(fetchPublicUrl('https://api.example.com', undefined, budget, budget.start())).rejects.toThrow()
+    expect(fetch).not.toHaveBeenCalled()
+    expect(Agent).not.toHaveBeenCalled()
   })
 
   it('closes the connection when fetching fails', async () => {
