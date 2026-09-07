@@ -1,3 +1,4 @@
+import type { LookupAddress } from 'node:dns'
 import { lookup } from 'node:dns/promises'
 import { BlockList, isIP, isIPv4 } from 'node:net'
 
@@ -25,6 +26,7 @@ blockList.addSubnet('fe80::', 10, 'ipv6') // link-local
 blockList.addSubnet('fc00::', 7, 'ipv6') // unique local
 blockList.addSubnet('2002::', 16, 'ipv6') // 6to4
 blockList.addSubnet('64:ff9b::', 96, 'ipv6') // NAT64
+blockList.addSubnet('64:ff9b:1::', 48, 'ipv6') // local NAT64 translation prefixes
 blockList.addSubnet('2001::', 32, 'ipv6') // Teredo
 
 /**
@@ -78,19 +80,18 @@ const ipIsBlocked = (ip: string): boolean => {
  *
  * @param hostname - The hostname or IP (brackets around an IPv6 literal are tolerated).
  */
-export const isBlockedHost = async (hostname: string): Promise<boolean> => {
+export const isBlockedHost = async (hostname: string): Promise<boolean> => (await resolvePublicHost(hostname)) === null
+
+/** Resolves a host once and returns only validated public addresses, or null when blocked. */
+export const resolvePublicHost = async (hostname: string): Promise<LookupAddress[] | null> => {
   const host = hostname.replace(/^\[/, '').replace(/\]$/, '')
 
-  if (isIP(host)) {
-    return ipIsBlocked(host)
-  }
-
   try {
-    const addresses = await lookup(host, { all: true })
+    const family = isIP(host)
+    const addresses = family ? [{ address: host, family }] : await lookup(host, { all: true })
 
-    return addresses.some(({ address }) => ipIsBlocked(address))
+    return addresses.length === 0 || addresses.some(({ address }) => ipIsBlocked(address)) ? null : addresses
   } catch {
-    // Block when the host cannot be resolved
-    return true
+    return null
   }
 }
