@@ -82,4 +82,53 @@ describe('javascript', () => {
       expect(scopeOf('let items: Array<string> = []', 'items')).not.toBe('function.call')
     })
   })
+
+  describe('jsx', () => {
+    it('leaves element text unscoped', () => {
+      expect(runs('<button>Click me to open the Api Client</button>')).toContainEqual([
+        'Click me to open the Api Client',
+        null,
+      ])
+    })
+
+    it('scopes a closing tag', () => {
+      expect(runs('<button>hi</button>')).toEqual([
+        ['<', 'punctuation.bracket'],
+        ['button', 'tag'],
+        ['>', 'punctuation.bracket'],
+        ['hi', null],
+        ['</', 'punctuation.bracket'],
+        ['button', 'tag'],
+        ['>', 'punctuation.bracket'],
+      ])
+    })
+
+    it('scopes a fragment', () => {
+      expect(runs('<>hi</>')).toEqual([
+        ['<>', 'punctuation.bracket'],
+        ['hi', null],
+        ['</>', 'punctuation.bracket'],
+      ])
+    })
+
+    it('scopes a self-closing element', () => {
+      expect(scopeOf('<ApiClientReact />', 'ApiClientReact')).toBe('tag')
+    })
+
+    it('reads an interpolation in element text as an expression again', () => {
+      expect(scopeOf('<p>{format(count)}</p>', 'format')).toBe('function.call')
+      expect(scopeOf('<p>{format(count)}</p>', '{')).toBe('interpolation')
+    })
+
+    it('keeps nesting straight', () => {
+      // The inner `</span>` closes the span, so `tail` is still element text
+      // rather than an expression that ran on past the end of the markup.
+      expect(runs('<div><span>head</span>tail</div>')).toContainEqual(['tail', null])
+    })
+
+    it('leaves a capitalised word after an element unscoped', () => {
+      // Nothing here should still be inside the element once it has closed.
+      expect(scopeOf('const x = <b>hi</b>\nconst Total = 1', 'Total')).toBe('type')
+    })
+  })
 })
