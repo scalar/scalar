@@ -163,6 +163,26 @@ describe('sendRequest', () => {
     expect(globalFetchSpy).not.toHaveBeenCalled()
   })
 
+  it('falls back to the requested URL when customFetch returns a Response without a URL', async () => {
+    const requestInit: RequestInit = {}
+    const customFetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('{"ok":true}', { headers: { 'content-type': 'application/json' } }))
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [`${MOCK_URL}/things?limit=1`, requestInit],
+      customFetch,
+    })
+
+    expect(error).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(result.response.status).toBe(200)
+    expect(result.response.path).toBe('/things?limit=1')
+  })
+
   it('sends a basic request and returns response data', async () => {
     const requestInit: RequestInit = {}
     globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
