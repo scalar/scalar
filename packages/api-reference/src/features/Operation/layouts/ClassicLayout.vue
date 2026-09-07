@@ -251,6 +251,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
         <div class="operation-details-card-item">
           <OperationParameters
             v-model:selectedContentType="selectedRequestBodyContentType"
+            :breadcrumb="[id]"
             :document
             :eventBus
             :options
@@ -265,6 +266,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
               options.schemaLayout === 'tree' && !options.expandAllResponses
             "
             v-model:selectedContentTypes="selectedResponseContentTypes"
+            :breadcrumb="[id]"
             :document
             :eventBus
             :options
@@ -276,6 +278,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
           v-if="operation?.callbacks"
           class="operation-details-card-item">
           <Callbacks
+            :breadcrumb="[id]"
             :callbacks="operation.callbacks"
             :document
             :eventBus
