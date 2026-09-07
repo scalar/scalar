@@ -36,6 +36,8 @@ export type TableRow = {
   globalRoute?: ApiReferenceEvents['ui:navigate']
   /** Whether the parameter is disabled/inactive */
   isDisabled?: boolean
+  /** Whether an optional parameter is disabled because it has no explicit x-disabled value */
+  isDisabledByDefault?: boolean
   /** OpenAPI schema object with type, validation rules, examples, etc. */
   schema?: SchemaObject
   /** Whether the parameter is required */
@@ -177,6 +179,12 @@ const handleUpdateRow = (
   }
   if (payload.value !== undefined) {
     value.value = payload.value
+
+    // Optional parameters start unchecked, but entering a value expresses intent to send it.
+    // Explicit x-disabled values stay unchanged so a deliberate opt-out is preserved.
+    if (data.isDisabledByDefault) {
+      isDisabled.value = false
+    }
   }
 
   // Is disabled should only be updated when explicitly provided in the payload
