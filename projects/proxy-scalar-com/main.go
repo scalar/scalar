@@ -131,15 +131,26 @@ func dialAddr(ip net.IP, port string) string {
 	return fmt.Sprintf("[%s]:%s", ip.String(), port)
 }
 
-// isCredentialHeader reports whether a header carries credentials that must not
-// be forwarded to a different host during a redirect.
-func isCredentialHeader(header string) bool {
-	switch strings.ToLower(header) {
-	case "authorization", "proxy-authorization", "cookie":
-		return true
-	default:
-		return false
+// sameOrigin requires the same scheme, hostname, and effective port before
+// following a redirect. Arbitrary headers and request bodies can carry secrets,
+// so a list of known credential headers cannot safely authorize another origin.
+func sameOrigin(initial, destination *url.URL) bool {
+	effectivePort := func(u *url.URL) string {
+		if port := u.Port(); port != "" {
+			return port
+		}
+		switch strings.ToLower(u.Scheme) {
+		case "http":
+			return "80"
+		case "https":
+			return "443"
+		default:
+			return ""
+		}
 	}
+	return strings.EqualFold(initial.Scheme, destination.Scheme) &&
+		strings.EqualFold(initial.Hostname(), destination.Hostname()) &&
+		effectivePort(initial) == effectivePort(destination)
 }
 
 // Check if a given hostname or IP resolves to any blocked CIDR
@@ -413,21 +424,26 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 				return fmt.Errorf("redirect to blocked host: %s", req.URL.Host)
 			}
 
-			// Copy headers from the original request to maintain authentication
-			// and other important headers through redirect chains. When the
-			// redirect points at a different host, credential headers are
-			// dropped so a target that redirects to an attacker-controlled host
-			// cannot collect the user's Authorization, Cookie, or
-			// Proxy-Authorization headers.
-			original := via[0]
-			sameHost := strings.EqualFold(req.URL.Hostname(), original.URL.Hostname())
+			if len(via) >= 10 {
+				return fmt.Errorf("stopped after 10 redirects")
+			}
 
-			for key, values := range original.Header {
-				if !sameHost && isCredentialHeader(key) {
-					continue
+			// Returning the redirect response itself would let the browser
+			// follow its Location with custom credential headers. Reject it
+			// instead, before any request reaches the other origin.
+			if !sameOrigin(via[0].URL, req.URL) {
+				return fmt.Errorf("redirect to a different origin is not allowed")
+			}
+
+			// Go can strip credentials when only hostname casing changes.
+			// Restore missing credentials from the preceding trusted hop,
+			// preserving Go's cookie updates and method-specific body headers.
+			for _, header := range []string{"Authorization", "Proxy-Authorization", "Cookie", "Cookie2", "Www-Authenticate", "Proxy-Authenticate"} {
+				if _, present := req.Header[header]; !present {
+					if values, exists := via[len(via)-1].Header[header]; exists {
+						req.Header[header] = append([]string(nil), values...)
+					}
 				}
-
-				req.Header[key] = values
 			}
 
 			return nil
@@ -481,6 +497,18 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Close response body when done to prevent resource leaks
 	defer resp.Body.Close()
+
+	// A 307/308 with a non-replayable body is returned without CheckRedirect.
+	// Reject cross-origin Locations here too so the browser cannot replay the
+	// original request outside the proxy's origin policy.
+	if resp.StatusCode >= 300 && resp.StatusCode < 400 && resp.Header.Get("Location") != "" {
+		destination, err := resp.Location()
+		if err != nil || !sameOrigin(remote, destination) {
+			err := fmt.Errorf("redirect to a different origin is not allowed")
+			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+			return err
+		}
+	}
 
 	// Copy headers from final response, but skip CORS headers
 	for key, values := range resp.Header {
