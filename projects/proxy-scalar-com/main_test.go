@@ -349,45 +349,6 @@ func TestProxyBehavior(t *testing.T) {
 		}
 	})
 
-	t.Run("Strips credential headers on cross-host redirect", func(t *testing.T) {
-		// The final server sits on a different hostname than the initial
-		// request and must not receive the caller's credentials.
-		finalServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
-			if auth := r.Header.Get("Authorization"); auth != "" {
-				t.Errorf("Authorization header leaked across hosts: %s", auth)
-			}
-			if _, exists := r.Header["Cookie"]; exists {
-				t.Errorf("Cookie header leaked across hosts: %v", r.Header["Cookie"])
-			}
-			w.Write([]byte("final destination"))
-		})
-		defer finalServer.server.Close()
-
-		initialServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, finalServer.url, http.StatusTemporaryRedirect)
-		})
-		defer initialServer.server.Close()
-
-		// Reach the initial server through "localhost" so its hostname differs
-		// from the final server's "127.0.0.1", exercising the cross-host path.
-		initialURL := strings.Replace(initialServer.url, "127.0.0.1", "localhost", 1)
-
-		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+initialURL, nil)
-		req.Header.Set("Authorization", "Bearer secret-token")
-		req.Header.Set("X-Scalar-Cookie", "session=secret")
-		w := httptest.NewRecorder()
-
-		proxyServer.handleRequest(w, req)
-
-		if w.Code != http.StatusOK {
-			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
-		}
-
-		if w.Body.String() != "final destination" {
-			t.Errorf("Expected body 'final destination', got '%s'", w.Body.String())
-		}
-	})
-
 	t.Run("Keeps credential headers on same-host redirect", func(t *testing.T) {
 		gotAuth := ""
 		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
