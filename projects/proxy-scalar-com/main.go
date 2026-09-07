@@ -20,17 +20,20 @@ var blockedCIDRs []*net.IPNet
 func init() {
 	// Prevent unwanted traffic forwarding for the following
 	cidrs := []string{
-		"0.0.0.0/32",
-		"127.0.0.0/8",
-		"::1/128",
-		"::/128",
-		"169.254.0.0/16",
-		"fe80::/10",
-		"10.0.0.0/8",
-		"172.16.0.0/12",
-		"192.168.0.0/16",
-		"100.64.0.0/10",
-		"fc00::/7",
+		"0.0.0.0/8",      // "this-network" (RFC 1122), covers the old 0.0.0.0/32 host too
+		"127.0.0.0/8",    // Loopback (RFC 1122)
+		"::1/128",        // IPv6 loopback (RFC 4291)
+		"::/128",         // IPv6 unspecified (RFC 4291)
+		"169.254.0.0/16", // IPv4 link-local (RFC 3927)
+		"fe80::/10",      // IPv6 link-local (RFC 4291)
+		"10.0.0.0/8",     // Private (RFC 1918)
+		"172.16.0.0/12",  // Private (RFC 1918)
+		"192.168.0.0/16", // Private (RFC 1918)
+		"100.64.0.0/10",  // CGNAT (RFC 6598)
+		"fc00::/7",       // IPv6 unique local (RFC 4193)
+		"224.0.0.0/4",    // IPv4 multicast (RFC 5771)
+		"100::/64",       // IPv6 discard-only (RFC 6666)
+		"ff00::/8",       // IPv6 multicast (RFC 4291)
 	}
 
 	for _, cidr := range cidrs {

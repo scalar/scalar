@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -979,5 +981,61 @@ func TestBlockedTransitionAddresses(t *testing.T) {
 		if isBlockedHost(host) {
 			t.Errorf("Expected %s to be allowed", host)
 		}
+	}
+}
+
+func TestBlockedTeredoAddress(t *testing.T) {
+	// Teredo addresses hide the client IPv4 in the last four bytes, obfuscated by
+	// XOR with all ones. Here the client field decodes to the private 192.168.0.1
+	// (0xc0a80001 XOR 0xffffffff = 0x3f57fffe) while the server field is the
+	// public 8.8.8.8, so the address must still be blocked via the embedded
+	// client IPv4.
+	teredo := "2001:0:808:808:0:0:3f57:fffe"
+
+	if !isBlockedHost(teredo) {
+		t.Errorf("Expected Teredo address %s to be blocked", teredo)
+	}
+}
+
+func TestBlockedSpecialUseRanges(t *testing.T) {
+	// The special-use ranges added alongside the transition decoding must be
+	// blocked directly, both as literal hosts and via ipIsBlocked.
+	blocked := []string{
+		"0.1.2.3",   // "this-network" 0.0.0.0/8 (RFC 1122)
+		"224.0.0.1", // IPv4 multicast 224.0.0.0/4 (RFC 5771)
+		"100::1",    // IPv6 discard-only 100::/64 (RFC 6666)
+		"ff02::1",   // IPv6 multicast ff00::/8 (RFC 4291)
+	}
+
+	for _, host := range blocked {
+		if !isBlockedHost(host) {
+			t.Errorf("Expected %s to be blocked", host)
+		}
+
+		if ip := net.ParseIP(host); ip == nil || !ipIsBlocked(ip) {
+			t.Errorf("Expected ipIsBlocked to block %s", host)
+		}
+	}
+
+	// A public address stays allowed, guarding against over-blocking from the
+	// broad new ranges.
+	if isBlockedHost("8.8.8.8") {
+		t.Error("Expected 8.8.8.8 to be allowed")
+	}
+}
+
+func TestDialContextBlocksSpecialUseIP(t *testing.T) {
+	// The custom DialContext must refuse to connect to the newly blocked ranges
+	// even when a literal IP is dialed directly, so a hostname that resolves to
+	// one of these addresses cannot slip past the pre-dial validation.
+	transport := NewProxyServer(false).transport
+
+	_, err := transport.DialContext(context.Background(), "tcp", "224.0.0.1:80")
+	if err == nil {
+		t.Error("Expected DialContext to block multicast IP 224.0.0.1")
+	}
+
+	if err != nil && !strings.Contains(err.Error(), "blocked IP") {
+		t.Errorf("Expected a blocked IP error, got: %v", err)
 	}
 }
