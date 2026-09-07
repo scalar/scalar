@@ -2064,7 +2064,7 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3
       undici:
-        specifier: catalog:*
+        specifier: 7.24.4
         version: 7.24.4
       yaml:
         specifier: catalog:*
