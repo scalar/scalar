@@ -1,5 +1,3 @@
-import fs from 'node:fs/promises'
-import { isAbsolute, relative, resolve, sep } from 'node:path'
 import { cwd } from 'node:process'
 
 import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
@@ -16,6 +14,7 @@ import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { type Schema, coerce } from '@scalar/validation'
 
+import { createChunkWriter } from '@/helpers/create-chunk-writer'
 import { deepClone } from '@/helpers/deep-clone'
 import { encodeChunkName } from '@/helpers/encode-chunk-name'
 import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
@@ -636,28 +635,15 @@ export async function createServerWorkspaceStore(
 
       // Write the workspace document
       const basePath = `${cwd()}/${workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER}`
-      await fs.mkdir(basePath, { recursive: true })
-
-      // Write the workspace contents on the file system
-      await fs.writeFile(`${basePath}/${WORKSPACE_FILE_NAME}`, JSON.stringify(workspace))
-
-      const chunksPath = resolve(basePath, 'chunks')
-      const writeChunk = async (segments: string[], value: unknown): Promise<void> => {
-        const filename = resolve(chunksPath, ...segments)
-        const relativePath = relative(chunksPath, filename)
-        if (isAbsolute(relativePath) || relativePath === '..' || relativePath.startsWith(`..${sep}`)) {
-          throw new Error('Chunk path must stay inside the chunks directory')
-        }
-        await fs.mkdir(resolve(filename, '..'), { recursive: true })
-        await fs.writeFile(filename, JSON.stringify(value))
-      }
+      const writeChunk = await createChunkWriter(basePath)
+      await writeChunk([WORKSPACE_FILE_NAME], workspace)
 
       for (const [name, { components, operations }] of Object.entries(assets)) {
         if (components) {
           for (const [type, component] of Object.entries(components)) {
             for (const [key, value] of Object.entries(component)) {
               await writeChunk(
-                [encodeChunkName(name), 'components', encodeChunkName(type), `${encodeChunkName(key)}.json`],
+                ['chunks', encodeChunkName(name), 'components', encodeChunkName(type), `${encodeChunkName(key)}.json`],
                 value,
               )
             }
@@ -669,6 +655,7 @@ export async function createServerWorkspaceStore(
             for (const [method, operation] of Object.entries(methods)) {
               await writeChunk(
                 [
+                  'chunks',
                   encodeChunkName(name),
                   'operations',
                   encodeChunkName(unescapeJsonPointer(path)),
