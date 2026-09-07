@@ -260,3 +260,13 @@ export default function References() {
   )
 }
 ```
+
+## Generate your API description
+
+Choose the recipe that matches your application's routing:
+
+- [Next.js Route Handlers with Zod](./nextjs-recipes/route-handlers.md)
+- [Hono with Zod OpenAPI](./nextjs-recipes/hono.md)
+- [oRPC procedures](./nextjs-recipes/orpc.md)
+
+Each recipe includes a working endpoint, the generated OpenAPI description, and Scalar at `/scalar`.

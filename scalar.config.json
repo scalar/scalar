@@ -3267,6 +3267,24 @@
                         "description": "Add a Scalar API reference to your Nitro server for interactive OpenAPI documentation.",
                         "type": "page"
                       },
+                      "nextjs-recipes/route-handlers": {
+                        "title": "Next.js with Zod",
+                        "filepath": "documentation/integrations/nextjs-recipes/route-handlers.md",
+                        "type": "page",
+                        "showInSidebar": false
+                      },
+                      "nextjs-recipes/hono": {
+                        "title": "Next.js with Hono",
+                        "filepath": "documentation/integrations/nextjs-recipes/hono.md",
+                        "type": "page",
+                        "showInSidebar": false
+                      },
+                      "nextjs-recipes/orpc": {
+                        "title": "Next.js with oRPC",
+                        "filepath": "documentation/integrations/nextjs-recipes/orpc.md",
+                        "type": "page",
+                        "showInSidebar": false
+                      },
                       "nuxt": {
                         "title": "Nuxt",
                         "filepath": "documentation/integrations/nuxt.md",
