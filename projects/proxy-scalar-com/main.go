@@ -31,6 +31,8 @@ func init() {
 		"192.168.0.0/16",
 		"100.64.0.0/10",
 		"fc00::/7",
+		// Local NAT64 prefixes can encode private IPv4 at several offsets.
+		"64:ff9b:1::/48",
 	}
 
 	for _, cidr := range cidrs {
@@ -80,7 +82,7 @@ func embeddedIPv4s(ip net.IP) []net.IP {
 	}
 
 	// NAT64 well-known prefix 64:ff9b::/96, IPv4 in the last 4 bytes.
-	if ip16[0] == 0x00 && ip16[1] == 0x64 && ip16[2] == 0xff && ip16[3] == 0x9b {
+	if ip16[0] == 0x00 && ip16[1] == 0x64 && ip16[2] == 0xff && ip16[3] == 0x9b && isZeros(ip16[4:12]) {
 		embedded = append(embedded, net.IPv4(ip16[12], ip16[13], ip16[14], ip16[15]))
 	}
 
