@@ -3382,6 +3382,12 @@
                         "description": "Add a Scalar API reference to your Spry application for interactive OpenAPI documentation.",
                         "type": "page"
                       },
+                      "starlight": {
+                        "title": "Starlight",
+                        "filepath": "documentation/integrations/starlight.md",
+                        "description": "Add a Scalar API reference to your Astro Starlight docs for interactive OpenAPI documentation.",
+                        "type": "page"
+                      },
                       "sveltekit": {
                         "title": "SvelteKit",
                         "filepath": "documentation/integrations/sveltekit.md",
