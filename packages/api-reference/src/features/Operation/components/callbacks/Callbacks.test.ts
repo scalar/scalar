@@ -175,5 +175,19 @@ describe('Callbacks', () => {
       // row opens its twin.
       expect(triggers.map((trigger) => trigger.attributes('aria-expanded'))).toEqual(['true', 'false', 'false'])
     })
+
+    it('opens the callback body without a rail', async () => {
+      const wrapper = mountCallbacks('tree')
+
+      await wrapper.findAll('.callback-item-trigger')[0]!.trigger('click')
+
+      // What opens is the operation's own set of page-level sections, the same
+      // level the operation renders them at, and that level draws no rail. The
+      // schema rows inside still rail their own children.
+      const panel = wrapper.find('.callback-operation-panel')
+      expect(panel.exists()).toBe(true)
+      expect(panel.classes()).not.toContain('schema-rail-panel')
+      expect(panel.find('[data-rail-hit]').exists()).toBe(false)
+    })
   })
 })

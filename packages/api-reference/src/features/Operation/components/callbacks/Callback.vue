@@ -15,7 +15,6 @@ import {
 } from '@/components/Content/Schema/helpers/schema-expansion'
 import { useSchemaLayout } from '@/components/Content/Schema/helpers/use-schema-layout'
 import SchemaGlyphPuck from '@/components/Content/Schema/SchemaGlyphPuck.vue'
-import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
@@ -98,22 +97,23 @@ const toggle = (): void => {
       </span>
     </button>
 
-    <!-- Depth 1: the same depth an opened response panel declares, so pucks
-         inside land on this rail. Clicking the rail closes the callback. The
-         panel's 24px gap paces the sections at the page's own rhythm, so their
+    <!-- No rail, and no indent. What opens here is the operation's own set of
+         page-level sections (Parameters, Body, Responses), which is the same
+         level the operation itself renders them at, and that level never draws
+         a rail — the tree only starts one on the level below. The schema rows
+         inside each section still rail their own children, and their pucks
+         hang in the margin exactly as they do at the top of an operation.
+         The 24px gap paces the sections at the page's own rhythm, so their
          page-layout top margins (the section roots, the heading `mt-3`s) are
-         zeroed from here; they would double up inside the rail. The sections
-         (Parameters, Body, Responses) are page-level headings, so in here
-         their titles and the body description step down to the callback
-         row's own 13px, as legacy does; at that size the titles take the
-         property names' weight so they still read as headings. -->
-    <SchemaRailPanel
+         zeroed from here; they would double up in this context. The sections
+         are page-level headings, so in here their titles and the body
+         description step down to the callback row's own 13px, as legacy does;
+         at that size the titles take the property names' weight so they still
+         read as headings. -->
+    <div
       v-if="isOpen"
       :id="panelId"
-      class="callback-operation-panel mt-1.5 mb-0.5 flex flex-col gap-6 [&_.parameter-list-title--tree]:mt-0! [&_.parameter-list-title--tree]:text-(length:--scalar-font-size-4)! [&_.parameter-list-title--tree]:font-(--scalar-bold)! [&_.request-body]:mt-0! [&_.request-body-description]:mt-0! [&_.request-body-description]:text-(length:--scalar-font-size-4)! [&_.request-body-header]:mt-0! [&_.request-body-title]:text-(length:--scalar-font-size-4)! [&_.request-body-title]:font-(--scalar-bold)! [&_.responses-title--tree]:mt-0! [&_.responses-title--tree]:text-(length:--scalar-font-size-4)! [&_.responses-title--tree]:font-(--scalar-bold)! [&>*]:mt-0!"
-      closeOnRail
-      :depth="1"
-      @close="expansion.setExpanded(nodeKey, false)">
+      class="callback-operation-panel mt-1.5 mb-0.5 flex flex-col gap-6 [&_.parameter-list-title--tree]:mt-0! [&_.parameter-list-title--tree]:text-(length:--scalar-font-size-4)! [&_.parameter-list-title--tree]:font-(--scalar-bold)! [&_.request-body]:mt-0! [&_.request-body-description]:mt-0! [&_.request-body-description]:text-(length:--scalar-font-size-4)! [&_.request-body-header]:mt-0! [&_.request-body-title]:text-(length:--scalar-font-size-4)! [&_.request-body-title]:font-(--scalar-bold)! [&_.responses-title--tree]:mt-0! [&_.responses-title--tree]:text-(length:--scalar-font-size-4)! [&_.responses-title--tree]:font-(--scalar-bold)! [&>*]:mt-0!">
       <OperationParameters
         :breadcrumb="breadcrumb"
         :document="document"
@@ -131,7 +131,7 @@ const toggle = (): void => {
         :eventBus
         :options
         :responses="callback.responses" />
-    </SchemaRailPanel>
+    </div>
   </div>
 
   <!-- Legacy: the native details/summary, untouched -->
