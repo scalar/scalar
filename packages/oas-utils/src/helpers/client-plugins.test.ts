@@ -258,7 +258,6 @@ describe('executeHook', () => {
 
     expect(result.response.status).toBe(202)
     expect(await result.response.json()).toStrictEqual({ count: 2 })
-    expect(await first.json()).toStrictEqual({ count: 1 })
   })
 
   it('preserves streaming bodies when an observer precedes a stream replacement', async () => {
@@ -287,6 +286,73 @@ describe('executeHook', () => {
 
     expect(result.response.headers.get('x-intercepted')).toBe('yes')
     expect(await result.response.text()).toBe('data: original\n\n')
+  })
+
+  it.each(['forward', 'transform', 'partial read'] as const)(
+    'cancels the source after a %s hook when the displayed stream is cancelled',
+    async (mode) => {
+      let cancelled = false
+      const response = new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode('data: original\n\n'))
+          },
+          cancel() {
+            cancelled = true
+          },
+        }),
+      )
+      const result = await executeHook(
+        { ...beforePayload(createFactory()), request: new Request('https://example.com'), response },
+        'responseReceived',
+        [
+          {
+            hooks: {
+              responseReceived: async ({ response }) => {
+                if (!response.body) {
+                  throw new Error('Expected a response body')
+                }
+                if (mode === 'partial read') {
+                  const reader = response.body.getReader()
+                  await reader.read()
+                  reader.releaseLock()
+                  return
+                }
+                return new Response(
+                  mode === 'transform'
+                    ? response.body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>())
+                    : response.body,
+                )
+              },
+            },
+          },
+        ],
+      )
+
+      const reader = result.response.body!.getReader()
+      expect(new TextDecoder().decode((await reader.read()).value)).toBe('data: original\n\n')
+      await reader.cancel()
+      await expect.poll(() => cancelled).toBe(true)
+    },
+  )
+
+  it('cancels both discarded branches when replacing a stream with a separate response', async () => {
+    let cancelled = false
+    const response = new Response(
+      new ReadableStream({
+        cancel() {
+          cancelled = true
+        },
+      }),
+    )
+    const result = await executeHook(
+      { ...beforePayload(createFactory()), request: new Request('https://example.com'), response },
+      'responseReceived',
+      [{ hooks: { responseReceived: () => Response.json({ replaced: true }) } }],
+    )
+
+    expect(await result.response.json()).toStrictEqual({ replaced: true })
+    await expect.poll(() => cancelled).toBe(true)
   })
 
   it('propagates response hook errors', async () => {
