@@ -83,6 +83,10 @@ func TestBasicEndpoints(t *testing.T) {
 		if len(w.Body.String()) == 0 {
 			t.Error("Expected non-empty YAML response")
 		}
+
+		if !strings.Contains(w.Body.String(), "version: __COMMIT_SHA__") {
+			t.Error("Expected OpenAPI document to contain the commit SHA placeholder")
+		}
 	})
 
 	t.Run("Root path with query params requires scalar_url", func(t *testing.T) {
@@ -342,6 +346,33 @@ func TestProxyBehavior(t *testing.T) {
 		expectedBody := "final destination"
 		if w.Body.String() != expectedBody {
 			t.Errorf("Expected body '%s', got '%s'", expectedBody, w.Body.String())
+		}
+	})
+
+	t.Run("Keeps credential headers on same-host redirect", func(t *testing.T) {
+		gotAuth := ""
+		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/initial" {
+				http.Redirect(w, r, "/final", http.StatusTemporaryRedirect)
+				return
+			}
+			gotAuth = r.Header.Get("Authorization")
+			w.Write([]byte("final destination"))
+		})
+		defer server.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+server.url+"/initial", nil)
+		req.Header.Set("Authorization", "Bearer secret-token")
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+
+		if gotAuth != "Bearer secret-token" {
+			t.Errorf("Expected Authorization to be forwarded on same-host redirect, got '%s'", gotAuth)
 		}
 	})
 
@@ -877,4 +908,37 @@ func TestCidrPolicy(t *testing.T) {
 			t.Errorf("Expected status code %d, got %d", http.StatusForbidden, w.Code)
 		}
 	})
+}
+
+func TestBlockedTransitionAddresses(t *testing.T) {
+	// IPv6 transition addresses embed an IPv4 destination. When that IPv4 sits
+	// in a blocked range the whole address must be blocked, otherwise a
+	// hostname with an AAAA record pointing at such an address (or a direct dial
+	// after the brackets are stripped) would bypass the IPv4 blocklist.
+	blocked := []string{
+		"2002:a9fe:a9fe::",       // 6to4 -> 169.254.169.254
+		"2002:c0a8:0101::",       // 6to4 -> 192.168.1.1
+		"64:ff9b::a9fe:a9fe",     // NAT64 -> 169.254.169.254
+		"64:ff9b::c0a8:0101",     // NAT64 -> 192.168.1.1
+		"::a9fe:a9fe",            // IPv4-compatible -> 169.254.169.254
+		"::ffff:169.254.169.254", // IPv4-mapped -> 169.254.169.254
+	}
+
+	for _, host := range blocked {
+		if !isBlockedHost(host) {
+			t.Errorf("Expected %s to be blocked", host)
+		}
+	}
+
+	// Transition addresses that embed a public IPv4 stay allowed.
+	allowed := []string{
+		"2002:0808:0808::",   // 6to4 -> 8.8.8.8
+		"64:ff9b::0808:0808", // NAT64 -> 8.8.8.8
+	}
+
+	for _, host := range allowed {
+		if isBlockedHost(host) {
+			t.Errorf("Expected %s to be allowed", host)
+		}
+	}
 }

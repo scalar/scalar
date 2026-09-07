@@ -1,5 +1,9 @@
+import path from 'node:path'
+import { cwd } from 'node:process'
+
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls, parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { isFilePath } from '@scalar/json-magic/helpers/is-file-path'
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -35,11 +39,16 @@ export async function processOpenApiDocument(
 
   let bundled: Record<string, any>
 
+  // Confine local file `$ref`s to the document's own directory (or the working directory when the
+  // document is an object or inline string), and refuse to fetch private or internal addresses.
+  // Without these guards a `$ref` could read arbitrary local files or reach internal services.
+  const basePath = typeof document === 'string' && isFilePath(document) ? path.dirname(path.resolve(document)) : cwd()
+
   try {
     // Bundle external references with Node.js plugins
     // Include parseJson and parseYaml to handle string inputs
     bundled = await bundle(document, {
-      plugins: [parseJson(), parseYaml(), readFiles(), fetchUrls()],
+      plugins: [parseJson(), parseYaml(), readFiles({ basePath }), fetchUrls({ blockPrivateNetworks: true })],
       treeShake: false,
     })
   } catch (error) {

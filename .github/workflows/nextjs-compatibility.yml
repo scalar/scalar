@@ -1,0 +1,39 @@
+name: Next.js compatibility
+
+on:
+  pull_request:
+    paths:
+      - 'integrations/nextjs/**'
+      - 'packages/client-side-rendering/**'
+      - '.github/workflows/nextjs-compatibility.yml'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        next: ['15.5.15', '16.3.4']
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Select Next.js version
+        run: pnpm --filter @scalar/nextjs-api-reference add --save-dev --save-exact next@${{ matrix.next }}
+      - run: pnpm turbo --filter @scalar/nextjs-api-reference... build --output-logs errors-only
+      - run: pnpm exec next build playwright/fixture
+        working-directory: integrations/nextjs
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test
+        working-directory: integrations/nextjs

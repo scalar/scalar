@@ -91,6 +91,7 @@ const toTableRow = ({
   schema,
   isRequired,
   isDisabled,
+  isDisabledByDefault,
   sourceParameterValuePath,
 }: {
   parameter: ParameterObject
@@ -100,6 +101,7 @@ const toTableRow = ({
   schema: SchemaObject | undefined
   isRequired: boolean | undefined
   isDisabled: boolean
+  isDisabledByDefault?: boolean
   sourceParameterValuePath?: string[]
 }): TableRow => ({
   name,
@@ -108,6 +110,7 @@ const toTableRow = ({
   schema,
   isRequired,
   isDisabled,
+  ...(isDisabledByDefault ? { isDisabledByDefault: true } : {}),
   originalParameter: parameter,
   sourceParameterValuePath,
 })
@@ -134,6 +137,7 @@ const toSingleParameterRow = (
   schema: SchemaObject | undefined,
   value: unknown,
   isDisabled: boolean,
+  isDisabledByDefault: boolean,
 ): TableRow =>
   toTableRow({
     parameter,
@@ -143,6 +147,7 @@ const toSingleParameterRow = (
     schema,
     isRequired: parameter.required,
     isDisabled,
+    isDisabledByDefault,
   })
 
 /**
@@ -164,6 +169,7 @@ const getExpandedPropertyRows = ({
   namePrefix,
   mode,
   isDisabled,
+  isDisabledByDefault,
   hiddenValuePaths,
   renamedValuePaths,
   renameTargetPaths,
@@ -175,6 +181,7 @@ const getExpandedPropertyRows = ({
   namePrefix: string
   mode: ExpansionMode
   isDisabled: boolean
+  isDisabledByDefault: boolean
   hiddenValuePaths: ReadonlySet<string>
   renamedValuePaths: ReadonlyMap<string, string[]>
   renameTargetPaths: ReadonlySet<string>
@@ -220,6 +227,7 @@ const getExpandedPropertyRows = ({
           schema: undefined,
           isRequired: false,
           isDisabled,
+          isDisabledByDefault,
           sourceParameterValuePath: renamedTo,
         }),
       ]
@@ -246,6 +254,7 @@ const getExpandedPropertyRows = ({
         namePrefix: name,
         mode,
         isDisabled,
+        isDisabledByDefault,
         hiddenValuePaths,
         renamedValuePaths,
         renameTargetPaths,
@@ -268,6 +277,7 @@ const getExpandedPropertyRows = ({
         schema: resolvedPropertySchema,
         isRequired: requiredProperties.has(propertyName),
         isDisabled,
+        isDisabledByDefault,
         sourceParameterValuePath: path,
       }),
     ]
@@ -314,6 +324,7 @@ const getUnmappedValueRows = ({
   schemaRows,
   mode,
   isDisabled,
+  isDisabledByDefault,
   renamedValuePaths,
 }: {
   parameter: ParameterObject
@@ -321,6 +332,7 @@ const getUnmappedValueRows = ({
   schemaRows: TableRow[]
   mode: ExpansionMode
   isDisabled: boolean
+  isDisabledByDefault: boolean
   renamedValuePaths: ReadonlyMap<string, string[]>
 }): TableRow[] => {
   // Skip the renamed-away source paths too: the value move is debounced, so the old key lingers in
@@ -346,6 +358,7 @@ const getUnmappedValueRows = ({
         schema: undefined,
         isRequired: false,
         isDisabled,
+        isDisabledByDefault,
         sourceParameterValuePath: path,
       })
     })
@@ -369,12 +382,13 @@ export const createParameterRows = (
 ): TableRow[] => {
   const example = getExample(parameter, exampleKey, undefined)
   const isDisabled = isParamDisabled(parameter, example)
+  const isDisabledByDefault = isDisabled && example?.['x-disabled'] === undefined
   const schema = getParameterSchema(parameter)
   const mode = getExpansionMode(parameter, schema)
 
   // Non-expandable parameters: render as a single row.
   if (mode === null || !schema || !isObjectSchema(schema)) {
-    return [toSingleParameterRow(parameter, schema, example?.value, isDisabled)]
+    return [toSingleParameterRow(parameter, schema, example?.value, isDisabled, isDisabledByDefault)]
   }
 
   // Expand into per-property rows. The deserialized value is used so existing per-property values
@@ -383,7 +397,7 @@ export const createParameterRows = (
 
   // Fall back to a single row only when the schema has no properties to expand.
   if (!schema.properties) {
-    return [toSingleParameterRow(parameter, schema, example?.value, isDisabled)]
+    return [toSingleParameterRow(parameter, schema, example?.value, isDisabled, isDisabledByDefault)]
   }
 
   const hiddenValuePaths = new Set(options.hiddenValuePaths?.map(toPathKey) ?? [])
@@ -400,6 +414,7 @@ export const createParameterRows = (
     namePrefix: mode === 'deepObject' ? parameter.name : '',
     mode,
     isDisabled,
+    isDisabledByDefault,
     hiddenValuePaths,
     renamedValuePaths,
     renameTargetPaths,
@@ -413,6 +428,7 @@ export const createParameterRows = (
     schemaRows: rows,
     mode,
     isDisabled,
+    isDisabledByDefault,
     renamedValuePaths,
   })
 

@@ -130,6 +130,56 @@ describe('RequestBody', () => {
     ])
   })
 
+  it('keeps the named example when the selection is first established on open', async () => {
+    // On the first open of a composition body the modal applies the reference's selection, moving it
+    // from empty to populated. That is not a user branch switch, so the body must keep its named
+    // example instead of regenerating schema defaults (issue #10075).
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            anyOf: [
+              { type: 'object', properties: { source: { type: 'string', default: 'file' } } },
+              { type: 'object', properties: { source: { type: 'string', default: 'service' } } },
+            ],
+          },
+          examples: {
+            named: { value: { source: 'named-example-value' } },
+          },
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        exampleKey: 'named',
+        requestBody,
+        requestBodyCompositionSelection: {},
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.anyOf': 0 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+  })
+
   it('preserves edits when the selected discriminator branch is unchanged', async () => {
     const requestBody: RequestBodyObject = {
       content: {

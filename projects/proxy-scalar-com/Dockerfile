@@ -2,8 +2,12 @@
 FROM golang:1.26.2-alpine AS build
 WORKDIR /app
 
+ARG COMMIT_SHA=dev
+
 COPY ./main.go ./
 COPY ./public ./public
+
+RUN sed -i "s/__COMMIT_SHA__/${COMMIT_SHA}/" public/openapi.yaml
 
 RUN go build main.go
 

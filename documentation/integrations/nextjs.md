@@ -18,8 +18,16 @@ npm install @scalar/nextjs-api-reference
 
 ## Compatibility
 
-This package is compatible with Next.js 15 and is untested on Next.js 14. If you want guaranteed Next.js 14 support
-please use version `0.4.106` of this package.
+The handler supports Next.js 15 and 16 with React 19 and Node.js 22 or newer.
+
+The compatibility workflow builds a real Next.js application and checks browser rendering and CSP nonces:
+
+| Next.js | React | Node.js CI matrix |
+| ------- | ----- | ----------------- |
+| 15.5.15 | 19    | 22, 24            |
+| 16.3.4  | 19    | 22, 24            |
+
+See [the compatibility workflow](https://github.com/scalar/scalar/actions/workflows/nextjs-compatibility.yml) for results. These checks cover the standalone handler; the React package has its own tests.
 
 ## Usage
 
@@ -82,25 +90,42 @@ export default function References() {
 }
 ```
 
-### Specific CDN version
+### Pin the browser renderer
 
-By default, this integration will use the latest version of the `@scalar/api-reference`.
+The handler generates HTML that loads Scalar from a CDN. Pinning `@scalar/nextjs-api-reference` in your lockfile does not pin that browser renderer. The default CDN URL follows the latest release.
 
-You can also pin the CDN to a specific version by specifying it in the CDN string like `https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.28`
-
-You can find all available CDN versions [here](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files)
+For repeatable deployments, choose an exact published renderer version and update it deliberately. This example uses `1.67.0`:
 
 ```typescript
-// app/reference/route.ts
+// app/scalar/route.ts
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
-const config = {
+export const GET = ApiReference({
   url: '/openapi.json',
-  cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest',
-}
-
-export const GET = ApiReference(config)
+  cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.67.0',
+})
 ```
+
+`cdn` selects the classic UMD bundle. To pin the modern ESM entry point instead, use `bundle`:
+
+```typescript
+export const GET = ApiReference({
+  url: '/openapi.json',
+  bundle: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.67.0/esm.js',
+})
+```
+
+| Configuration                  | Browser renderer                                     |
+| ------------------------------ | ---------------------------------------------------- |
+| No `cdn`, `bundle`, or `nonce` | Latest ESM build with lazy-loaded chunks             |
+| `cdn: '…'`                     | UMD build from that URL                              |
+| `bundle: '…'`                  | ESM entry point from that URL                        |
+| `bundle: false`                | UMD build                                            |
+| `nonce` without `bundle`       | UMD build compatible with nonce-only script policies |
+
+An explicit `bundle` takes precedence over `cdn` and the nonce fallback. ESM imports cannot carry a nonce onto each downloaded chunk. Use the UMD default for nonce-only policies, or allow module loading through an appropriate CDN source policy or `strict-dynamic` before choosing ESM.
+
+After changing a pinned version, check rendering, search, and test requests in your application. For CSP deployments, check the browser console for blocked resources too. [Browse published renderer versions](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files).
 
 ### Content Security Policy (CSP)
 
@@ -108,13 +133,13 @@ To boot the reference, Scalar adds an inline `<script>` to the page. Under a str
 
 Instead, pass a `nonce`. Scalar stamps it onto the inline script and the CDN `<script>` tag, so you can keep a strict `script-src` with **no `unsafe-inline` and no `unsafe-eval`**.
 
-A nonce has to be generated fresh for every request, so generate it in `middleware.ts`, expose it to the route through a request header, and set the matching CSP response header:
+A nonce has to be generated fresh for every request, so generate it in `proxy.ts` on Next.js 16, expose it to the route through a request header, and set the matching CSP response header:
 
 ```typescript
-// middleware.ts
+// proxy.ts (Next.js 16)
 import { NextResponse, type NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // A fresh nonce per request.
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
 
@@ -144,6 +169,8 @@ export const config = {
   matcher: '/reference/:path*',
 }
 ```
+
+On Next.js 15, name the file `middleware.ts` and export `middleware` instead of `proxy`.
 
 Then read the nonce in the route handler and pass it to the configuration:
 
@@ -260,3 +287,13 @@ export default function References() {
   )
 }
 ```
+
+## Generate your API description
+
+Choose the recipe that matches your application's routing:
+
+- [Next.js Route Handlers with Zod](./nextjs-recipes/route-handlers.md)
+- [Hono with Zod OpenAPI](./nextjs-recipes/hono.md)
+- [oRPC procedures](./nextjs-recipes/orpc.md)
+
+Each recipe includes a working endpoint, the generated OpenAPI description, and Scalar at `/scalar`.
