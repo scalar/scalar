@@ -1,7 +1,61 @@
-import { join } from '@/utils/join/join'
 import { describe, expect, it } from 'vitest'
 
+import { join } from '@/utils/join/join'
+
 describe('join', () => {
+  it.each(['__proto__', 'constructor', 'prototype'])('ignores unsafe component type %s', async (key) => {
+    const input = JSON.parse(`{"components":{"${key}":{"scalarJoinMarker":{"type":"string"}}}}`)
+
+    const result = await join([input])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        components: undefined,
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+      },
+    })
+    expect(Object.hasOwn(Object.prototype, 'scalarJoinMarker')).toBe(false)
+    expect(Reflect.get({}, 'scalarJoinMarker')).toBeUndefined()
+  })
+
+  it('keeps inherited-looking component names as own data without false conflicts', async () => {
+    const result = await join([{ components: { schemas: { toString: { type: 'string' } } } }])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+        components: { schemas: { toString: { type: 'string' } } },
+      },
+    })
+  })
+
+  it.each(['__proto__', 'constructor', 'prototype'])('ignores unsafe component name %s', async (key) => {
+    const input = JSON.parse(`{"components":{"schemas":{"${key}":{"type":"string"},"Safe":{"type":"number"}}}}`)
+    const result = await join([input])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+        components: { schemas: { Safe: { type: 'number' } } },
+      },
+    })
+  })
+
   it('should handle joining info objects, prioritizing the first input document', async () => {
     const result = await join([
       {
