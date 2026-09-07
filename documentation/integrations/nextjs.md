@@ -1,8 +1,6 @@
 # API Reference for Next.js
 
-Next.js enables you to create high-quality web applications with the power of React components. And Scalar enables you to create high-quality API references. What a match, isn't it?
-
-This plugin provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger file with Next.js.
+Add interactive API documentation to your Next.js application from an OpenAPI description.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/scalar/scalar/assets/2039539/5837adad-a605-4edb-90ec-b929ff2b803b">
@@ -10,84 +8,60 @@ This plugin provides an easy way to render a beautiful API reference based on an
   <img alt="Screenshot of an API Reference" src="https://github.com/scalar/scalar/assets/2039539/4f58202d-f40f-47b3-aeaa-44681b424a45">
 </picture>
 
-## Installation
+## Choose how to render Scalar
+
+|                                  | Standalone reference           | Embedded page                               |
+| -------------------------------- | ------------------------------ | ------------------------------------------- |
+| Package                          | `@scalar/nextjs-api-reference` | `@scalar/api-reference-react`               |
+| File                             | `app/scalar/route.ts`          | `app/scalar/page.tsx`                       |
+| Application layout and providers | Separate HTML document         | Uses your application layout                |
+| Styling                          | Scalar configuration           | Application styles and Scalar configuration |
+| Metadata                         | `pageTitle`                    | Next.js Metadata API                        |
+
+Choose one approach for `/scalar`. Next.js does not allow `route.ts` and `page.tsx` at the same route. If your project uses `src/`, put these files under `src/app/`.
+
+Both approaches render the interactive reference in the browser. Returning HTML from the handler does not server-render the API content.
+
+## Standalone reference
 
 ```bash
 npm install @scalar/nextjs-api-reference
 ```
 
-## Compatibility
-
-The handler supports Next.js 15 and 16 with React 19 and Node.js 22 or newer.
-
-The compatibility workflow builds a real Next.js application and checks browser rendering and CSP nonces:
-
-| Next.js | React | Node.js CI matrix |
-| ------- | ----- | ----------------- |
-| 15.5.15 | 19    | 22, 24            |
-| 16.3.4  | 19    | 22, 24            |
-
-See [the compatibility workflow](https://github.com/scalar/scalar/actions/workflows/nextjs-compatibility.yml) for results. These checks cover the standalone handler; the React package has its own tests.
-
-## Usage
-
-If you have an OpenAPI/Swagger file already, you can pass a URL to the plugin in an API [Route](https://nextjs.org/docs/app/building-your-application/routing/route-handlers):
+Put your API description in `public/openapi.json`, then create:
 
 ```typescript
-// app/reference/route.ts
+// app/scalar/route.ts
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
-const config = {
+export const GET = ApiReference({
   url: '/openapi.json',
-}
-
-export const GET = ApiReference(config)
+  pageTitle: 'My API',
+})
 ```
 
-Or, if you just have a static OpenAPI spec, you can directly pass it as well:
+Open <http://localhost:3000/scalar>. The browser fetches `/openapi.json`; Scalar does not discover your application routes or generate the description.
+
+You can also import a JSON description and pass it as `content` instead of `url`:
 
 ```typescript
-const config = {
-  content: '{ "openapi": "3.1.1", … }',
-}
+// app/scalar/route.ts
+import { ApiReference } from '@scalar/nextjs-api-reference'
+
+import document from '../../openapi.json'
+
+export const GET = ApiReference({ content: document })
 ```
 
-The Next.js handler takes our universal configuration object, [read more about configuration](../configuration.md) in the core package README.
+In this example, the JSON file is `openapi.json` at the project root. Its contents are included in the response sent to the browser.
 
-## Themes
-
-By default, we're using a custom Next.js theme and it's beautiful. But you can choose [one of our other themes](../themes.md), too:
+The standalone reference has its own HTML document. Your `app/layout.tsx`, React providers, global CSS, and Next.js metadata do not apply to it. Use `pageTitle`, `theme`, and `customCss` from the [configuration](../configuration.md) to customize it. For example, choose [one of our themes](../themes.md):
 
 ```typescript
-const config = {
+export const GET = ApiReference({
+  url: '/openapi.json',
   theme: 'purple',
-}
-```
-
-## Pages router
-
-If you are using the pages router, you can import the React component
-
-```bash
-npm install @scalar/api-reference-react
-```
-
-```tsx
-'use client'
-
-import { ApiReferenceReact } from '@scalar/api-reference-react'
-
-import '@scalar/api-reference-react/style.css'
-
-export default function References() {
-  return (
-    <ApiReferenceReact
-      configuration={{
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-      }}
-    />
-  )
-}
+})
 ```
 
 ### Pin the browser renderer
@@ -166,7 +140,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/reference/:path*',
+  matcher: '/scalar/:path*',
 }
 ```
 
@@ -177,7 +151,7 @@ Only accept the nonce from trusted Proxy or middleware that overwrites the reque
 Then read the nonce in the route handler and pass it to the configuration:
 
 ```typescript
-// app/reference/route.ts
+// app/scalar/route.ts
 import { ApiReference } from '@scalar/nextjs-api-reference'
 import { headers } from 'next/headers'
 
@@ -196,99 +170,106 @@ The same `nonce` option is available in all of our HTML-rendering integrations (
 > [!NOTE]
 > **`style-src` still needs `'unsafe-inline'`.** The reference renders many inline `style="…"` attributes, and a CSP nonce can never authorize inline style attributes — only `<script>`, `<style>` and `<link>` elements. So `style-src` cannot be locked down to a nonce today. The `nonce` is still applied to Scalar's own style tags (and a matching `<meta property="csp-nonce">` is emitted), but `style-src 'unsafe-inline'` remains required. The important win is `script-src`, which you can keep fully strict.
 
-## Guide
-
-### Create a new Next.js project (optional)
-
-Sometimes, it's great to start on a blank slate and set up a new project:
+## Embedded App Router page
 
 ```bash
-npx create-next-app@latest my-awesome-app
+npm install @scalar/api-reference-react
 ```
 
-You'll get some questions, you can leave all the default answers – or pick what you prefer:
+Keep the page as a Server Component so it can export metadata:
 
-```plaintext
-? Would you like to use TypeScript? › No
-? Would you like to use ESLint? › No
-? Would you like to use Tailwind CSS? … No
-? Would you like to use `src/` directory? › No
-? Would you like to use App Router? (recommended) › Yes
-? Would you like to customize the default import alias (@/*)? … No
-```
+```tsx
+// app/scalar/page.tsx
+import type { Metadata } from 'next'
+import { Reference } from './reference'
 
-That should be it. Jump into the folder and start the development server:
-
-```bash
-cd my-awesome-app
-npm run dev
-```
-
-Great! Open <http://localhost:3000> and see the default Next.js homepage. :)
-
-### Render your OpenAPI reference with Scalar
-
-Ready to add your API reference? Cool, there are a few options to integrate your API reference. The recommended way is to use our Next.js integration for app routing:
-
-#### Recommended: App router
-
-Install the package:
-
-```bash
-npm add @scalar/nextjs-api-reference
-```
-
-… and add a new app route:
-
-```javascript
-// app/reference/route.js
-import { ApiReference } from '@scalar/nextjs-api-reference'
-
-const config = {
-  url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
+export const metadata: Metadata = {
+  title: 'My API',
+  description: 'Explore and test the My API endpoints.',
 }
 
-export const GET = ApiReference(config)
+export default function Page() {
+  return <Reference />
+}
 ```
 
-Open <http://localhost:3000/reference> and there it is: Your new API reference. :)
+Put browser configuration and callbacks in a Client Component:
 
-### Using with Tailwind CSS
+```tsx
+// app/scalar/reference.tsx
+'use client'
 
-If your Next.js project uses Tailwind CSS v4, you need to set the CSS layer order so that Tailwind's utility classes take priority over Scalar's styles. Add this to the top of your global CSS file (for example, `app/globals.css`):
-
-```css
-@layer scalar-base, scalar-theme, scalar-config, theme, base, components, utilities;
-@import "tailwindcss";
-```
-
-For full details, see [Embedding with CSS Frameworks](../themes.md#embedding-with-css-frameworks).
-
-#### Alternative: Pages router
-
-But you can also just use our React integration and add a page route:
-
-```bash
-npm add @scalar/api-reference-react
-```
-
-… and add a new page route:
-
-```javascript
 import { ApiReferenceReact } from '@scalar/api-reference-react'
-
 import '@scalar/api-reference-react/style.css'
 
-export default function References() {
+export function Reference() {
   return (
     <ApiReferenceReact
       configuration={{
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=yaml',
+        url: '/openapi.json',
+        withDefaultFonts: false,
       }}
     />
   )
 }
 ```
+
+This page inherits your layout, navigation, and providers. Disable Scalar's default fonts when using your application's fonts. See [themes](../themes.md) for font variables and matching your application's dark mode. Props passed from a Server Component to a Client Component must be serializable; define callbacks inside the Client Component.
+
+### Tailwind CSS
+
+For the embedded reference with Tailwind CSS v4, set the layer order at the top of your global CSS:
+
+```css
+@layer scalar-base, scalar-theme, scalar-config, theme, base, components, utilities;
+@import 'tailwindcss';
+```
+
+See [Embedding with CSS Frameworks](../themes.md#embedding-with-css-frameworks). Application CSS does not affect the standalone handler.
+
+## Pages Router
+
+Use `@scalar/api-reference-react` in `pages/scalar.tsx`. Import its global stylesheet in `pages/_app.tsx`:
+
+```tsx
+// pages/_app.tsx
+import type { AppProps } from 'next/app'
+import '@scalar/api-reference-react/style.css'
+
+export default function App({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />
+}
+```
+
+```tsx
+// pages/scalar.tsx
+import { ApiReferenceReact } from '@scalar/api-reference-react'
+import Head from 'next/head'
+
+export default function Page() {
+  return (
+    <>
+      <Head>
+        <title>My API</title>
+      </Head>
+      <ApiReferenceReact configuration={{ url: '/openapi.json' }} />
+    </>
+  )
+}
+```
+
+## Compatibility
+
+The handler supports Next.js 15 and 16 with React 19 and Node.js 22 or newer.
+
+The compatibility workflow builds a real Next.js application and checks browser rendering and CSP nonces:
+
+| Next.js | React | Node.js CI matrix |
+| ------- | ----- | ----------------- |
+| 15.5.15 | 19    | 22, 24            |
+| 16.3.4  | 19    | 22, 24            |
+
+See [the compatibility workflow](https://github.com/scalar/scalar/actions/workflows/nextjs-compatibility.yml) for results. These checks cover the standalone handler; the React package has its own tests.
 
 ## Generate your API description
 
