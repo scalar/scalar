@@ -257,6 +257,15 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Planet'
+          links:
+            GetPlanet:
+              $ref: '#/components/links/GetPlanet'
+            UpdatePlanet:
+              operationRef: '#/paths/~1planets~1%7BplanetId%7D/put'
+              description: Update the created planet using its ID and response body.
+              parameters:
+                planetId: '$response.body#/id'
+              requestBody: '$response.body'
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -388,6 +397,12 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Planet'
+          links:
+            DeletePlanet:
+              operationId: deletePlanet
+              description: Delete this planet using the ID from the request path.
+              parameters:
+                planetId: '$request.path.planetId'
         '404':
           $ref: '#/components/responses/NotFound'
       x-post-response: |
@@ -901,6 +916,12 @@ webhooks:
           pm.response.to.have.status(200);
         });
 components:
+  links:
+    GetPlanet:
+      operationId: getPlanet
+      description: Retrieve the created planet using the ID returned in the response.
+      parameters:
+        planetId: '$response.body#/id'
   securitySchemes:
     bearerAuth:
       type: http
