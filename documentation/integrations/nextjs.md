@@ -90,25 +90,42 @@ export default function References() {
 }
 ```
 
-### Specific CDN version
+### Pin the browser renderer
 
-By default, this integration will use the latest version of the `@scalar/api-reference`.
+The handler generates HTML that loads Scalar from a CDN. Pinning `@scalar/nextjs-api-reference` in your lockfile does not pin that browser renderer. The default CDN URL follows the latest release.
 
-You can also pin the CDN to a specific version by specifying it in the CDN string like `https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.28`
-
-You can find all available CDN versions [here](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files)
+For repeatable deployments, choose an exact published renderer version and update it deliberately. This example uses `1.67.0`:
 
 ```typescript
-// app/reference/route.ts
+// app/scalar/route.ts
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
-const config = {
+export const GET = ApiReference({
   url: '/openapi.json',
-  cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest',
-}
-
-export const GET = ApiReference(config)
+  cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.67.0',
+})
 ```
+
+`cdn` selects the classic UMD bundle. To pin the modern ESM entry point instead, use `bundle`:
+
+```typescript
+export const GET = ApiReference({
+  url: '/openapi.json',
+  bundle: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.67.0/esm.js',
+})
+```
+
+| Configuration                  | Browser renderer                                     |
+| ------------------------------ | ---------------------------------------------------- |
+| No `cdn`, `bundle`, or `nonce` | Latest ESM build with lazy-loaded chunks             |
+| `cdn: '…'`                     | UMD build from that URL                              |
+| `bundle: '…'`                  | ESM entry point from that URL                        |
+| `bundle: false`                | UMD build                                            |
+| `nonce` without `bundle`       | UMD build compatible with nonce-only script policies |
+
+An explicit `bundle` takes precedence over `cdn` and the nonce fallback. ESM imports cannot carry a nonce onto each downloaded chunk. Use the UMD default for nonce-only policies, or allow module loading through an appropriate CDN source policy or `strict-dynamic` before choosing ESM.
+
+After changing a pinned version, check rendering, search, and test requests in your application. For CSP deployments, check the browser console for blocked resources too. [Browse published renderer versions](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files).
 
 ### Content Security Policy (CSP)
 
