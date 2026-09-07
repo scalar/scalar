@@ -65,6 +65,15 @@ export default defineConfig({
     baseURL: CI || isLinux ? 'http://localhost:5173/' : 'http://host.docker.internal:5173/',
     /** Set a higher device scale factor for higher DPI screenshots */
     deviceScaleFactor: 2,
+    /**
+     * Render text the same way on every machine so screenshots do not flake when a job
+     * lands on a different CI host. Turning off font hinting and Skia runtime optimizations
+     * keeps text rasterization identical across CPUs, and pinning the color profile keeps
+     * colors stable.
+     */
+    launchOptions: {
+      args: ['--font-render-hinting=none', '--disable-skia-runtime-opts', '--force-color-profile=srgb'],
+    },
     /** Save a screenshot on failure */
     screenshot: { mode: 'only-on-failure' },
   },
