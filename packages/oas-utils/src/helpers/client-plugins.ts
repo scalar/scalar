@@ -282,12 +282,16 @@ export const executeHook = async <K extends keyof HookPayloadMap>(
       if (hook) {
         const clone = current.response.clone()
         const response = await hook({ ...current, response: clone })
-        // Do not leave an unread tee branch buffering an event stream for observer-only hooks.
-        // Cancellation waits for the other branch, so it must not block response processing.
-        if (!response && clone.body && !clone.bodyUsed && !clone.body.locked) {
-          void clone.body.cancel().catch(() => {})
+        const nextResponse = response ?? current.response
+        // Release discarded tee branches so they cannot buffer an open stream or prevent
+        // cancellation from reaching its source. A transformed stream owns its locked input.
+        // Do not await cancellation: it can wait for the retained branch to finish.
+        for (const body of [current.response.body, clone.body]) {
+          if (body && body !== nextResponse.body && !body.locked) {
+            void body.cancel().catch(() => {})
+          }
         }
-        current = { ...current, response: response ?? current.response }
+        current = { ...current, response: nextResponse }
       }
     }
     return current as HookPayloadMap[K]
