@@ -481,6 +481,7 @@ export type ApiReferenceTranslations = {
     not: string
     unknownType: string
     propertyCount: string
+    headerCount: string
     recursiveReference: string
   }
   download: {

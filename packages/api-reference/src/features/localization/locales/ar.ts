@@ -124,6 +124,7 @@ export const ar = {
     not: 'ليس',
     unknownType: 'نوع غير معروف',
     propertyCount: 'الخصائص: {count}',
+    headerCount: 'الترويسات: {count}',
     recursiveReference: 'مرجع تكراري إلى {name}',
   },
   download: {

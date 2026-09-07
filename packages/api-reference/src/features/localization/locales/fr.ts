@@ -125,6 +125,7 @@ export const fr = {
     not: 'Non',
     unknownType: 'type inconnu',
     propertyCount: 'Propriétés : {count}',
+    headerCount: 'En-têtes : {count}',
     recursiveReference: 'Référence récursive vers {name}',
   },
   download: {

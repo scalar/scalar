@@ -124,6 +124,7 @@ export const zhCn = {
     not: '非',
     unknownType: '未知类型',
     propertyCount: '属性：{count}',
+    headerCount: '标头：{count}',
     recursiveReference: '递归引用 {name}',
   },
   download: {

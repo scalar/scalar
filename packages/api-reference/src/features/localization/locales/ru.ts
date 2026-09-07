@@ -125,6 +125,7 @@ export const ru = {
     not: 'Не',
     unknownType: 'неизвестный тип',
     propertyCount: 'Свойства: {count}',
+    headerCount: 'Заголовки: {count}',
     recursiveReference: 'Рекурсивная ссылка на {name}',
   },
   download: {

@@ -125,6 +125,7 @@ export const pt = {
     not: 'Não',
     unknownType: 'tipo desconhecido',
     propertyCount: 'Propriedades: {count}',
+    headerCount: 'Cabeçalhos: {count}',
     recursiveReference: 'Referência recursiva a {name}',
   },
   download: {

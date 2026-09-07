@@ -124,6 +124,7 @@ export const es = {
     not: 'No',
     unknownType: 'tipo desconocido',
     propertyCount: 'Propiedades: {count}',
+    headerCount: 'Encabezados: {count}',
     recursiveReference: 'Referencia recursiva a {name}',
   },
   download: {

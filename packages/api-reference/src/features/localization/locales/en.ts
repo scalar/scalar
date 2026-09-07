@@ -124,6 +124,7 @@ export const en = {
     not: 'Not',
     unknownType: 'unknown type',
     propertyCount: 'Properties: {count}',
+    headerCount: 'Headers: {count}',
     recursiveReference: 'Recursive reference to {name}',
   },
   download: {

@@ -92,7 +92,7 @@ const nameId = useId()
 const countId = useId()
 
 const countLabel = computed(() =>
-  translate('schema.propertyCount', {
+  translate('schema.headerCount', {
     count: String(Object.keys(headers).length),
   }),
 )
