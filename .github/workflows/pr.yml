@@ -338,23 +338,8 @@ jobs:
         run: pnpm --filter api-reference build:storybook
       - name: Run storybook snapshot tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:storybook:ci
-      # TEMPORARY (revert with the regenerated baselines): this branch changes
-      # the schema renderer, and main's baselines were regenerated for the
-      # legacy one under the new deterministic font rendering. Emulated amd64
-      # on a developer Mac does not reproduce the CI runner's rasterisation, so
-      # the baselines have to be written by this job and carried back out.
       - name: Run e2e tests (@scalar/api-reference)
-        run: pnpm --filter api-reference test:e2e:ci --update-snapshots
-      - if: ${{ !cancelled() }}
-        name: Upload regenerated snapshots
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: regenerated-api-reference-snapshots
-          path: |
-            packages/api-reference/test/snapshots/**/*.png
-            packages/api-reference/test/features/**/*.png
-            packages/api-reference/src/components/Content/Schema/snapshots/**/*.png
-          retention-days: 1
+        run: pnpm --filter api-reference test:e2e:ci
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
