@@ -260,3 +260,7 @@ export default function References() {
   )
 }
 ```
+
+## Starter application
+
+The [standalone Next.js starter](https://github.com/scalar/scalar/tree/main/templates/nextjs-api-reference) includes a working API, a reference at `/scalar`, an embedded page, and a Vercel deployment link. It installs from npm without building the Scalar monorepo.

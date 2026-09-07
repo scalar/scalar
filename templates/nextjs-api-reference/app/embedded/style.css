@@ -1,0 +1,73 @@
+body {
+  margin: 0;
+}
+.orbit {
+  --scalar-font: Arial, Helvetica, sans-serif;
+  --scalar-font-code: ui-monospace, monospace;
+  --scalar-custom-header-height: 64px;
+  font-family: var(--scalar-font);
+  min-height: 100vh;
+  background: var(--scalar-background-1);
+  color: var(--scalar-color-1);
+}
+.orbit-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  min-height: 64px;
+  padding: 12px 24px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--scalar-background-1);
+  border-bottom: 1px solid var(--scalar-border-color);
+}
+.orbit-header a {
+  color: inherit;
+  text-decoration: none;
+}
+.orbit-brand {
+  font-weight: 600;
+  font-size: 20px;
+}
+.orbit-brand span {
+  margin-left: 16px;
+  font-size: 13px;
+  color: var(--scalar-color-2);
+  font-weight: 400;
+}
+.orbit-header nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 13px;
+}
+.orbit-header button {
+  font: inherit;
+  color: inherit;
+  background: var(--scalar-background-2);
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.orbit-header a:hover {
+  text-decoration: underline;
+}
+.orbit-header :focus-visible {
+  outline: 2px solid var(--scalar-color-accent);
+  outline-offset: 4px;
+}
+@media (max-width: 600px) {
+  .orbit-header {
+    padding: 12px;
+  }
+  .orbit-brand span {
+    display: none;
+  }
+  .orbit-header nav {
+    gap: 10px;
+  }
+}
