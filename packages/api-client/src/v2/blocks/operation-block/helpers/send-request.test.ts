@@ -939,6 +939,38 @@ describe('sendRequest', () => {
       expect(decode).toHaveBeenCalledTimes(1)
       expect(decode).toHaveBeenCalledWith(expect.any(ArrayBuffer), 'text/plain;charset=UTF-8')
     })
+
+    it('returns an error when a plugin decoder rejects', async () => {
+      const requestInit: RequestInit = {}
+      const mockResponse = addUrlToResponse(
+        new Response('test data', {
+          status: 200,
+          headers: new Headers(),
+        }),
+        MOCK_URL,
+      )
+      const plugin: ClientPlugin = {
+        responseBody: [
+          {
+            mimeTypes: ['text/plain'],
+            decode: () => Promise.reject(new Error('Decoder failed')),
+            language: 'plaintext',
+          },
+        ],
+      }
+
+      globalFetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, requestInit],
+        plugins: [plugin],
+      })
+
+      expect(result).toBe(null)
+      expect(error).not.toBe(null)
+      expect(error?.message).toContain('Decoder failed')
+    })
   })
 
   describe('path extraction', () => {
