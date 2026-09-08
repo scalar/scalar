@@ -3235,7 +3235,7 @@
                         "title": "Next.js",
                         "filepath": "documentation/integrations/nextjs.md",
                         "type": "page",
-                        "description": "Add beautiful API references to your Next.js application with automatic OpenAPI generation and React components.",
+                        "description": "Add interactive API documentation to Next.js with standalone handlers and embedded React components.",
                         "head": {
                           "links": [
                             {
@@ -3246,7 +3246,7 @@
                           "meta": [
                             {
                               "name": "description",
-                              "content": "Add beautiful API references to your Next.js application with automatic OpenAPI generation and React components."
+                              "content": "Add interactive API documentation to Next.js with standalone handlers and embedded React components."
                             },
                             {
                               "name": "robots",

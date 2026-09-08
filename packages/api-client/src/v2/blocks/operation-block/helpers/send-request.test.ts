@@ -163,6 +163,26 @@ describe('sendRequest', () => {
     expect(globalFetchSpy).not.toHaveBeenCalled()
   })
 
+  it('falls back to the requested URL when customFetch returns a Response without a URL', async () => {
+    const requestInit: RequestInit = {}
+    const customFetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('{"ok":true}', { headers: { 'content-type': 'application/json' } }))
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [`${MOCK_URL}/things?limit=1`, requestInit],
+      customFetch,
+    })
+
+    expect(error).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(result.response.status).toBe(200)
+    expect(result.response.path).toBe('/things?limit=1')
+  })
+
   it('sends a basic request and returns response data', async () => {
     const requestInit: RequestInit = {}
     globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
@@ -918,6 +938,38 @@ describe('sendRequest', () => {
       expect(result.response.data).toBe('decoded via plugin')
       expect(decode).toHaveBeenCalledTimes(1)
       expect(decode).toHaveBeenCalledWith(expect.any(ArrayBuffer), 'text/plain;charset=UTF-8')
+    })
+
+    it('returns an error when a plugin decoder rejects', async () => {
+      const requestInit: RequestInit = {}
+      const mockResponse = addUrlToResponse(
+        new Response('test data', {
+          status: 200,
+          headers: new Headers(),
+        }),
+        MOCK_URL,
+      )
+      const plugin: ClientPlugin = {
+        responseBody: [
+          {
+            mimeTypes: ['text/plain'],
+            decode: () => Promise.reject(new Error('Decoder failed')),
+            language: 'plaintext',
+          },
+        ],
+      }
+
+      globalFetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, requestInit],
+        plugins: [plugin],
+      })
+
+      expect(result).toBe(null)
+      expect(error).not.toBe(null)
+      expect(error?.message).toContain('Decoder failed')
     })
   })
 
