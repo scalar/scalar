@@ -340,6 +340,14 @@ jobs:
         run: pnpm --filter api-reference test:e2e:storybook:ci
       - name: Run e2e tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:ci
+      - if: ${{ !cancelled() }}
+        name: Upload Playwright report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-report-api-reference
+          path: ./packages/api-reference/playwright-report
+          retention-days: 7
+          if-no-files-found: ignore
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify

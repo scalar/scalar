@@ -55,8 +55,8 @@ export default defineConfig({
     toHaveScreenshot: {
       // Use device pixels for for higher DPI screenshots
       scale: 'device',
-      // Allow for 0.1% difference in pixels
-      maxDiffPixelRatio: 0.001,
+      maxDiffPixelRatio: 0,
+      maxDiffPixels: 0,
     },
     timeout: 15000,
   },
