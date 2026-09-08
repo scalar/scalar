@@ -336,18 +336,8 @@ jobs:
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build storybook (@scalar/api-reference)
         run: pnpm --filter api-reference build:storybook
-      # TEMPORARY (reverted with the regenerated baselines): the schema stories
-      # rendered the legacy layout, which this branch deletes, so their 15
-      # baselines have to be retaken by the CI renderer and carried back out.
       - name: Run storybook snapshot tests (@scalar/api-reference)
-        run: pnpm --filter api-reference test:e2e:storybook:ci --update-snapshots
-      - if: ${{ !cancelled() }}
-        name: Upload regenerated storybook snapshots
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: regenerated-schema-story-snapshots
-          path: packages/api-reference/src/components/Content/Schema/snapshots/*.png
-          retention-days: 1
+        run: pnpm --filter api-reference test:e2e:storybook:ci
       - name: Run e2e tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:ci
         # Only when the PR is from the same repository
