@@ -75,13 +75,13 @@ const releaseStandaloneStyles = (doc: Document): void => {
   }
 }
 
-/**
- * Reading the configuration from the data-attributes.
- */
 type DataAttributeConfiguration =
   | ApiReferenceConfigurationWithSource
   | Partial<ApiReferenceConfigurationWithMultipleSources>
 
+/**
+ * Reading the configuration from the data-attributes.
+ */
 export function getConfigurationFromDataAttributes(doc: Document): DataAttributeConfiguration {
   const specElement = doc.querySelector('[data-spec]')
   const specUrlElement = doc.querySelector('[data-spec-url]')
@@ -183,11 +183,17 @@ export function getConfigurationFromDataAttributes(doc: Document): DataAttribute
     // Stay quiet.
   } else {
     const configuration = getConfiguration()
+    const proxyUrl = getProxyUrl()
 
-    if (isConfigurationWithSources(configuration)) {
+    // A non-empty `sources` array means the user configured multiple documents. Preserve it as-is
+    // rather than passing it through the single-source schema, which would strip the property and
+    // leave the reference with no documents to render. An empty array carries no documents, so we
+    // fall through to the single-source parsing below (which can still pick up a data-url/content).
+    if (isConfigurationWithSources(configuration) && configuration.sources?.length) {
       return {
         _integration: 'html',
-        proxyUrl: getProxyUrl(),
+        // Only include `proxyUrl` when one is actually configured so we do not emit `proxyUrl: undefined`.
+        ...(proxyUrl ? { proxyUrl } : {}),
         ...configuration,
       }
     }
@@ -196,7 +202,7 @@ export function getConfigurationFromDataAttributes(doc: Document): DataAttribute
 
     return apiReferenceConfigurationWithSourceSchema({
       _integration: 'html',
-      proxyUrl: getProxyUrl(),
+      proxyUrl,
       ...configuration,
       ...urlOrContent,
     })
