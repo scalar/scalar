@@ -163,6 +163,15 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl 'https://galaxy.scalar.com/planets/{planetId}?limit=10'`)
   })
 
+  it('turns off globbing for braces already present in the URL query', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com/api?ids={1,2,3}',
+    })
+
+    expect(result).toBe(`curl 'https://example.com/api?ids={1,2,3}' \\
+  --globoff`)
+  })
+
   it('has cookies', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
