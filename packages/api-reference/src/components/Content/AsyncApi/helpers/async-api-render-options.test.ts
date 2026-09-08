@@ -8,7 +8,6 @@ describe('resolveSchemaRenderOptions', () => {
       orderRequiredPropertiesFirst: false,
       orderSchemaPropertiesBy: 'preserve',
       expandAllSchemaProperties: false,
-      schemaLayout: 'legacy',
       schemaKeyboardNav: false,
     })
   })
@@ -19,14 +18,12 @@ describe('resolveSchemaRenderOptions', () => {
         orderRequiredPropertiesFirst: true,
         orderSchemaPropertiesBy: 'alpha',
         expandAllSchemaProperties: true,
-        schemaLayout: 'tree',
         schemaKeyboardNav: true,
       }),
     ).toEqual({
       orderRequiredPropertiesFirst: true,
       orderSchemaPropertiesBy: 'alpha',
       expandAllSchemaProperties: true,
-      schemaLayout: 'tree',
       schemaKeyboardNav: true,
     })
   })

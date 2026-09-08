@@ -97,8 +97,6 @@ export const ru = {
     testRequest: 'Проверить запрос',
     webhook: 'Вебхук',
     selectedContentType: 'Выбранный тип содержимого',
-    hideHeaders: 'Скрыть заголовки',
-    showHeaders: 'Показать заголовки',
     callbacks: 'Обратные вызовы',
   },
   response: {
@@ -114,9 +112,6 @@ export const ru = {
     schema: 'Схема',
     emptyObject: 'Пустой объект',
     showAdditionalProperties: 'Показать дополнительные свойства',
-    childAttributes: 'Дочерние атрибуты',
-    hideChildAttributes: 'Скрыть {name}',
-    showChildAttributes: 'Показать {name}',
     forName: 'для {name}',
     showSchemaDetails: 'Показать детали схемы',
     oneOf: 'Один из',

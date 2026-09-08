@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components/icon'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -14,37 +12,28 @@ import {
   useSchemaExpansion,
 } from '@/components/Content/Schema/helpers/schema-expansion'
 import { handleTreeKeydown } from '@/components/Content/Schema/helpers/schema-keyboard-nav'
-import { useSchemaLayout } from '@/components/Content/Schema/helpers/use-schema-layout'
 import SchemaGutterToggle from '@/components/Content/Schema/SchemaGutterToggle.vue'
 import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
 import { useLocalization } from '@/features/localization'
 
 import Header from './Header.vue'
 
-const {
-  headers,
-  breadcrumb,
-  schemaLayout,
-  schemaKeyboardNav,
-  expandAllSchemaProperties,
-} = defineProps<{
-  headers: Record<string, HeaderObject>
-  breadcrumb?: string[]
-  eventBus: WorkspaceEventBus | null
-  /** The document the headers belong to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  orderRequiredPropertiesFirst: boolean | undefined
-  orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  expandAllSchemaProperties: boolean | undefined
-  schemaLayout: 'legacy' | 'tree' | undefined
-  /** Whether arrow-key navigation is enabled (tree layout) */
-  schemaKeyboardNav?: boolean | undefined
-  /** Whether the models section is hidden, so model names render as plain text instead of links */
-  hideModels: boolean | undefined
-}>()
+const { headers, breadcrumb, schemaKeyboardNav, expandAllSchemaProperties } =
+  defineProps<{
+    headers: Record<string, HeaderObject>
+    breadcrumb?: string[]
+    eventBus: WorkspaceEventBus | null
+    /** The document the headers belong to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    expandAllSchemaProperties: boolean | undefined
+    /** Whether arrow-key navigation is enabled */
+    schemaKeyboardNav?: boolean | undefined
+    /** Whether the models section is hidden, so model names render as plain text instead of links */
+    hideModels: boolean | undefined
+  }>()
 const { translate } = useLocalization()
-
-const { isTreeLayout } = useSchemaLayout(() => schemaLayout)
 
 /**
  * This group owns tree rows but sits beside the schema tree rather than inside
@@ -57,8 +46,8 @@ const onGroupKeydown = (event: KeyboardEvent): void => {
 }
 
 /**
- * Tree layout: headers become a child group keyed into the expansion store
- * like any other node, so expand-all and deep links reach them.
+ * Headers are a child group keyed into the expansion store like any other
+ * node, so expand-all and deep links reach them.
  */
 const expansion = useSchemaExpansion()
 const anonymousKey = useId()
@@ -78,13 +67,11 @@ const nodeKey = computed(
     `~anonymous-${anonymousKey}`,
 )
 
-const isOpen = computed(
-  (): boolean =>
-    isTreeLayout.value &&
-    expansion.isExpanded(nodeKey.value, {
-      defaultOpen: !!expandAllSchemaProperties,
-      anchorPath: toNodeKey(headersBreadcrumb.value),
-    }),
+const isOpen = computed((): boolean =>
+  expansion.isExpanded(nodeKey.value, {
+    defaultOpen: !!expandAllSchemaProperties,
+    anchorPath: toNodeKey(headersBreadcrumb.value),
+  }),
 )
 
 const panelId = useId()
@@ -98,12 +85,11 @@ const countLabel = computed(() =>
 )
 </script>
 <template>
-  <!-- Tree layout: outdented one gutter so, inside a railed response panel,
-       the toggle straddles the rail and the label sits in the text column.
-       Vertically it centres on the label's own line (6px is this row's py-1.5,
-       `0.5lh` half the line box) so it holds at any control size. -->
+  <!-- Outdented one gutter so, inside a railed response panel, the toggle
+       straddles the rail and the label sits in the text column. Vertically it
+       centres on the label's own line (6px is this row's py-1.5, `0.5lh` half
+       the line box) so it holds at any control size. -->
   <div
-    v-if="isTreeLayout"
     class="property property--tree headers-tree-group relative mt-1.5 py-1.5"
     @keydown="onGroupKeydown">
     <SchemaGutterToggle
@@ -157,119 +143,9 @@ const countLabel = computed(() =>
             :name="key"
             :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
             :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
-            :schemaKeyboardNav="schemaKeyboardNav"
-            :schemaLayout="schemaLayout" />
+            :schemaKeyboardNav="schemaKeyboardNav" />
         </template>
       </ul>
     </SchemaRailPanel>
   </div>
-
-  <!-- Legacy: the headers card, untouched -->
-  <Disclosure
-    v-else
-    v-slot="{ open }">
-    <div
-      class="headers-card headers-card--compact"
-      :class="[{ 'headers-card--open': open }]">
-      <div
-        class="headers-properties"
-        :class="{ 'headers-properties-open': open }">
-        <DisclosureButton
-          class="headers-card-title headers-card-title--compact"
-          :style="{
-            top: `calc(var(--refs-viewport-offset))`,
-          }">
-          <ScalarIcon
-            class="headers-card-title-icon"
-            :class="{ 'headers-card-title-icon--open': open }"
-            icon="Add"
-            size="sm" />
-          <template v-if="open">
-            {{ translate('operation.hideHeaders') }}
-          </template>
-          <template v-else>
-            {{ translate('operation.showHeaders') }}
-          </template>
-        </DisclosureButton>
-        <DisclosurePanel>
-          <template
-            v-for="(header, key) in headers"
-            :key="key">
-            <Header
-              :breadcrumb="headersBreadcrumb"
-              :document="document"
-              :eventBus="eventBus"
-              :expandAllSchemaProperties="expandAllSchemaProperties"
-              :header="getResolvedRef(header)"
-              :hideModels="hideModels"
-              :name="key"
-              :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
-              :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
-              :schemaKeyboardNav="schemaKeyboardNav"
-              :schemaLayout="schemaLayout" />
-          </template>
-        </DisclosurePanel>
-      </div>
-    </div>
-  </Disclosure>
 </template>
-<style scoped>
-/* Tree-group styling lives in SchemaRailPanel and template utilities. Below: the legacy card. */
-
-.headers-card {
-  z-index: 0;
-  margin-top: 12px;
-  margin-bottom: 6px;
-  position: relative;
-  font-size: var(--scalar-font-size-4);
-  color: var(--scalar-color-1);
-
-  align-self: flex-start;
-}
-.headers-card.headers-card--open {
-  align-self: initial;
-}
-.headers-card-title {
-  padding: 6px 10px;
-
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  color: var(--scalar-color-3);
-  font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-micro);
-
-  border-radius: 13.5px;
-}
-button.headers-card-title {
-  cursor: pointer;
-}
-button.headers-card-title:hover {
-  color: var(--scalar-color-1);
-}
-.headers-card-title-icon--open {
-  transform: rotate(45deg);
-}
-.headers-properties {
-  display: flex;
-  flex-direction: column;
-
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-
-  border-radius: 13.5px;
-  width: fit-content;
-}
-.headers-properties-open > .headers-card-title {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-}
-.headers-properties-open {
-  border-radius: var(--scalar-radius-lg);
-  width: 100%;
-}
-.headers-card .property:last-of-type {
-  padding-bottom: 10px;
-}
-</style>

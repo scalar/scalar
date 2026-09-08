@@ -96,8 +96,6 @@ export const ar = {
     testRequest: 'اختبار الطلب',
     webhook: 'خطاف ويب',
     selectedContentType: 'نوع المحتوى المحدد',
-    hideHeaders: 'إخفاء الرؤوس',
-    showHeaders: 'إظهار الرؤوس',
     callbacks: 'عمليات الاستدعاء',
   },
   response: {
@@ -113,9 +111,6 @@ export const ar = {
     schema: 'المخطط',
     emptyObject: 'كائن فارغ',
     showAdditionalProperties: 'إظهار الخصائص الإضافية',
-    childAttributes: 'السمات الفرعية',
-    hideChildAttributes: 'إخفاء {name}',
-    showChildAttributes: 'إظهار {name}',
     forName: 'لـ {name}',
     showSchemaDetails: 'إظهار تفاصيل المخطط',
     oneOf: 'واحد من',

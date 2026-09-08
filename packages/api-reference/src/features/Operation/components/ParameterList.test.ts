@@ -13,7 +13,6 @@ describe('ParameterList', () => {
     orderRequiredPropertiesFirst: true,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
-    schemaLayout: 'legacy' as const,
     schemaKeyboardNav: false,
   }
 
@@ -98,7 +97,6 @@ describe('ParameterList', () => {
       orderRequiredPropertiesFirst: false,
       orderSchemaPropertiesBy: 'preserve' as const,
       expandAllSchemaProperties: false,
-      schemaLayout: 'legacy' as const,
       schemaKeyboardNav: false,
     }
 

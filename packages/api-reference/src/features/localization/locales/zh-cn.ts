@@ -96,8 +96,6 @@ export const zhCn = {
     testRequest: '测试请求',
     webhook: 'Webhook',
     selectedContentType: '已选内容类型',
-    hideHeaders: '隐藏标头',
-    showHeaders: '显示标头',
     callbacks: '回调',
   },
   response: {
@@ -113,9 +111,6 @@ export const zhCn = {
     schema: '架构',
     emptyObject: '空对象',
     showAdditionalProperties: '显示附加属性',
-    childAttributes: '子属性',
-    hideChildAttributes: '隐藏 {name}',
-    showChildAttributes: '显示 {name}',
     forName: '对于 {name}',
     showSchemaDetails: '显示架构详情',
     oneOf: '其中一个',

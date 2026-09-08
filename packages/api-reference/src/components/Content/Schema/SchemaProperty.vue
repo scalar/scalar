@@ -1,8 +1,9 @@
 <script lang="ts">
 /**
- * The `v-on` binding a non-tree row gets. Module scope, and frozen so it cannot
- * be written through: an inline `{}` in the template is a fresh object on every
- * render of every row, and this component renders once per property on the page.
+ * The `v-on` binding a row without a disclosure gets. Module scope, and frozen
+ * so it cannot be written through: an inline `{}` in the template is a fresh
+ * object on every render of every row, and this component renders once per
+ * property on the page.
  */
 const NO_LISTENERS = Object.freeze({})
 </script>
@@ -63,7 +64,6 @@ import { shouldDisplayDescription } from './helpers/should-display-description'
 import { shouldDisplayHeading } from './helpers/should-display-heading'
 import { sortPropertyNames } from './helpers/sort-property-names'
 import { unwrapForRead } from './helpers/unwrap-for-read'
-import { useSchemaLayout } from './helpers/use-schema-layout'
 import Schema from './Schema.vue'
 import SchemaCollapsedPreview from './SchemaCollapsedPreview.vue'
 import SchemaComposition from './SchemaComposition.vue'
@@ -89,8 +89,8 @@ const props = withDefaults(
     noncollapsible?: boolean
     level?: number
     /**
-     * Real nesting depth in the tree layout. Its own counter because `level`
-     * advances by a different stride per edge (object +2, composition +1).
+     * Real nesting depth. Its own counter because `level` advances by a
+     * different stride per edge (object +2, composition +1).
      */
     depth?: number
     name?: string
@@ -173,7 +173,7 @@ const arrayItemsCompositionPath = computed<string[]>(() => [
 const shouldHaveLink = computed(() => props.level <= 2)
 
 /**
- * Whether the name gets a deep link (an anchor id and, in the legacy layout, a copy button).
+ * Whether the name gets a deep link (an anchor id and a trailing copy button).
  *
  * Mirrors the condition `WithBreadcrumb` renders its anchor under. Without a link that
  * component only passes its slot through, yet every named row still paid to mount it
@@ -386,11 +386,11 @@ const arrayItemsCycleKey = computed(() => {
 /**
  * Props for a child `<Schema>`, derived once instead of at every call site.
  *
- * A row's children render in three places — an open tree panel, a nameless
- * tree container, the legacy card — and each used to spell out both branches
- * in full: six invocations of thirteen near-identical props. All but two
- * belong to the row rather than the site, so they live here; the sites still
- * pass `depth` (the panel steps it, the others do not) and collapsibility.
+ * A row's children render in two places — an open panel and a nameless
+ * container — and each used to spell out both branches in full: four
+ * invocations of thirteen near-identical props. All but one belong to the row
+ * rather than the site, so they live here; the sites still pass `depth` (the
+ * panel steps it, the container does not).
  */
 const sharedChildProps = computed(() => ({
   compact: props.compact,
@@ -431,16 +431,16 @@ const arrayChildProps = computed(() =>
 )
 
 /**
- * What a tree site renders: the branches tried object-first, which is exactly
- * the `v-if` / `v-else-if` pair it replaces. Only the legacy layout keeps the
- * two apart, because only it can render both at once.
+ * What a site renders: the branches tried object-first. They are derived
+ * separately above because a schema can satisfy both, and the row has to know
+ * which one it draws — see `rendersArrayBranch`.
  */
 const treeChildProps = computed(
   () => objectChildProps.value ?? arrayChildProps.value,
 )
 
 /**
- * Whether a tree row draws its ARRAY branch, which is the object branch's
+ * Whether a row draws its ARRAY branch, which is the object branch's
  * first-match complement rather than `shouldRenderArrayOfObjects` on its own.
  * The two branches are not exclusive: `isArraySchema` accepts a type LIST, so
  * a schema typed `['array', 'object']` carrying both `items` and `properties`
@@ -458,9 +458,9 @@ const isDiscriminatorProperty = computed(() =>
 )
 
 // ---------------------------------------------------------------------------
-// Tree layout: the disclosure belongs to the property row itself — a gutter
-// control on this <li>, a rail down its children, and the child Schema
-// rendered flat (noncollapsible) inside the panel.
+// The disclosure belongs to the property row itself — a gutter control on
+// this <li>, a rail down its children, and the child Schema rendered flat
+// (noncollapsible) inside the panel.
 // ---------------------------------------------------------------------------
 
 /*
@@ -475,23 +475,21 @@ const isDiscriminatorProperty = computed(() =>
  * reserve a gutter column per row and cancel it elsewhere; each cancellation
  * is one refactor away from re-indenting the first level.
  *
- * Every tree style is a utility in the template. The semantic classes
+ * Every layout style is a utility in the template. The semantic classes
  * (`property--tree`, `property-children`, ...) stay as hooks for consumers.
  */
 
 const { translate } = useLocalization()
 
-const { isTreeLayout } = useSchemaLayout(() => props.options.schemaLayout)
-
-/** Whether this property has children the tree layout should put behind a toggle. */
+/** Whether this property has children to put behind a toggle. */
 const isExpandable = computed(
   (): boolean =>
     shouldRenderObjectProperties.value || shouldRenderArrayOfObjects.value,
 )
 
 /**
- * Whether this property loops back onto an ancestor schema. The tree layout
- * renders a cycle as a leaf row whose signature line says `recursive`.
+ * Whether this property loops back onto an ancestor schema. A cycle renders
+ * as a leaf row whose signature line says `recursive`.
  */
 const ancestors = inject(SCHEMA_ANCESTORS_SYMBOL, undefined)
 
@@ -546,7 +544,6 @@ const treeNodeKey = computed(
  */
 const isTreeRow = computed(
   (): boolean =>
-    isTreeLayout.value &&
     isExpandable.value &&
     !props.noncollapsible &&
     shouldDisplayHeadingComputed.value &&
@@ -625,7 +622,7 @@ const treeToggleRef = useTemplateRef<{ $el: HTMLElement } | HTMLElement>(
  * on every expandable row made each element inserted under it restyle the
  * whole open subtree. The attribute exists only while hovering and says exactly
  * what `:hover` said (see tailwind.config.css). Bound on tree rows only, so
- * leaf and legacy rows carry no listener and their DOM is untouched.
+ * leaf rows carry no listener and their DOM is untouched.
  */
 let headingHoveredRow: HTMLElement | null = null
 
@@ -770,8 +767,8 @@ const treeFallbackLabel = computed(
 const toggleTree = (): void => {
   const next = !isTreeOpen.value
 
-  // Same rule as the legacy toggle: collapsing a subtree that holds focus moves
-  // focus up to this row's control instead of dropping it to <body>.
+  // Collapsing a subtree that holds focus moves focus up to this row's control
+  // instead of dropping it to <body> as the panel hides.
   if (!next) {
     const active = document.activeElement
     const toggleElement =
@@ -828,23 +825,23 @@ const onBeforeMatch = (): void => {
       {
         'property--compact': compact,
         'property--deprecated': optimizedValue?.deprecated,
-        /*
-         * A single-column grid that never indents itself (see the indentation
-         * model in the script). The tree spaces rows from --schema-row-pad and
-         * separates them by rail, so the legacy padding and row border go.
-         */
-        'property--tree grid! grid-cols-[minmax(0,1fr)] border-b-0! px-0! py-[var(--schema-row-pad,6px)]!':
-          isTreeLayout,
+      },
+      /*
+       * A single-column grid that never indents itself (see the indentation
+       * model in the script). The tree spaces rows from --schema-row-pad and
+       * separates them by rail, so the base padding and row border go.
+       */
+      'property--tree grid! grid-cols-[minmax(0,1fr)] border-b-0! px-0! py-[var(--schema-row-pad,6px)]!',
+      {
         'property--tree-container':
-          isTreeLayout &&
           !isTreeRow &&
           !isCyclicProperty &&
           (isExpandable || !shouldDisplayHeadingComputed),
       },
-      isTreeLayout ? `property--depth-${depth}` : undefined,
+      `property--depth-${depth}`,
     ]">
-    <!-- Tree layout: the disclosure control in this row's own gutter. See
-         SchemaGutterToggle for the accessible-name wiring. -->
+    <!-- The disclosure control in this row's own gutter. See SchemaGutterToggle
+         for the accessible-name wiring. -->
     <!-- Absolutely positioned so the hit box never sizes the heading row, and
          z-1 beats the rail strip so the puck wins the pointer.
 
@@ -865,18 +862,17 @@ const onBeforeMatch = (): void => {
       :panelId="treePanelId"
       :panelRendered="isTreePanelRendered"
       @toggle="toggleTree" />
-    <!-- Tree layout: `row-start-1` shares the toggle's row. Whatever precedes
-         the trailing hash drops its own right margin, so the hash sits the
-         same distance after the text whether or not the row shows a preview
-         (the preview carries no margin of its own — see below). -->
+    <!-- `row-start-1` shares the toggle's row. Whatever precedes the trailing
+         hash drops its own right margin, so the hash sits the same distance
+         after the text whether or not the row shows a preview (the preview
+         carries no margin of its own — see below). -->
     <SchemaPropertyHeading
       v-if="shouldDisplayHeadingComputed"
       class="group"
-      :class="{
-        'cursor-pointer': isTreeRow,
-        'relative row-start-1 min-h-5 content-center [&>*:has(+.copy-link-trailing)]:me-0!':
-          isTreeLayout,
-      }"
+      :class="[
+        { 'cursor-pointer': isTreeRow },
+        'relative row-start-1 min-h-5 content-center [&>*:has(+.copy-link-trailing)]:me-0!',
+      ]"
       v-on="isTreeRow ? treeHeadingHoverListeners : NO_LISTENERS"
       @click="onHeadingClick"
       :enum="hasEnum"
@@ -891,7 +887,6 @@ const onBeforeMatch = (): void => {
       :propertyNames="propertyNamesSchema"
       :recursiveTo="isCyclicProperty ? cycleTargetName : undefined"
       :required
-      :typeSignature="isTreeLayout"
       :keyKind="
         variant === 'additionalProperties'
           ? 'additional'
@@ -905,35 +900,27 @@ const onBeforeMatch = (): void => {
         #name>
         <WithBreadcrumb
           v-if="hasBreadcrumbLink"
-          :breadcrumb="childBreadcrumb"
-          :eventBus="eventBus"
-          :placement="isTreeLayout ? 'trailing' : 'leading'">
+          :breadcrumb="childBreadcrumb">
           <!-- The ONLY node the gutter toggle's aria-labelledby points at.
                A plain inline span, never `display: contents`: the name is what
                a pointer aims at and what a test measures, and a box-less
                wrapper is unhoverable and reports no bounding box. -->
-          <span :id="isTreeLayout ? treeNameId : undefined">
-            <!-- Tree layout: the map-key keyword lives in the signature line
-                 (see SchemaPropertyHeading), so the legacy chip chrome on the
-                 name — dashed box, accent colour, the `regex` badge — is
-                 switched off here and the name reads like any other. The
-                 class names stay as styling hooks. -->
+          <span :id="treeNameId">
+            <!-- The map-key keyword lives in the signature line (see
+                 SchemaPropertyHeading), so the chip chrome on the name —
+                 dashed box, accent colour, the `regex` badge — is switched
+                 off here and the name reads like any other. The class names
+                 stay as styling hooks. -->
             <span
               v-if="variant === 'patternProperties'"
-              class="property-name-pattern-properties"
-              :class="{
-                'text-c-1! border-0! p-0! before:hidden!': isTreeLayout,
-              }">
+              class="property-name-pattern-properties text-c-1! border-0! p-0! before:hidden!">
               <ScalarWrappingText
                 preset="property"
                 :text="name" />
             </span>
             <span
               v-else-if="variant === 'additionalProperties'"
-              class="property-name-additional-properties"
-              :class="{
-                'text-c-1! border-0! p-0! before:hidden!': isTreeLayout,
-              }">
+              class="property-name-additional-properties text-c-1! border-0! p-0! before:hidden!">
               <ScalarWrappingText
                 preset="property"
                 :text="name" />
@@ -949,28 +936,22 @@ const onBeforeMatch = (): void => {
                A plain inline span, never `display: contents`: the name is what
                a pointer aims at and what a test measures, and a box-less
                wrapper is unhoverable and reports no bounding box. -->
-          <span :id="isTreeLayout ? treeNameId : undefined">
-            <!-- Tree layout: the map-key keyword lives in the signature line
-                 (see SchemaPropertyHeading), so the legacy chip chrome on the
-                 name — dashed box, accent colour, the `regex` badge — is
-                 switched off here and the name reads like any other. The
-                 class names stay as styling hooks. -->
+          <span :id="treeNameId">
+            <!-- The map-key keyword lives in the signature line (see
+                 SchemaPropertyHeading), so the chip chrome on the name —
+                 dashed box, accent colour, the `regex` badge — is switched
+                 off here and the name reads like any other. The class names
+                 stay as styling hooks. -->
             <span
               v-if="variant === 'patternProperties'"
-              class="property-name-pattern-properties"
-              :class="{
-                'text-c-1! border-0! p-0! before:hidden!': isTreeLayout,
-              }">
+              class="property-name-pattern-properties text-c-1! border-0! p-0! before:hidden!">
               <ScalarWrappingText
                 preset="property"
                 :text="name" />
             </span>
             <span
               v-else-if="variant === 'additionalProperties'"
-              class="property-name-additional-properties"
-              :class="{
-                'text-c-1! border-0! p-0! before:hidden!': isTreeLayout,
-              }">
+              class="property-name-additional-properties text-c-1! border-0! p-0! before:hidden!">
               <ScalarWrappingText
                 preset="property"
                 :text="name" />
@@ -1001,7 +982,7 @@ const onBeforeMatch = (): void => {
           :schema="treeChildSchema as SchemaObject" />
       </template>
       <template
-        v-if="isTreeLayout && name && shouldHaveLink && childBreadcrumb"
+        v-if="name && shouldHaveLink && childBreadcrumb"
         #trailing>
         <CopyLinkButton
           :anchorId="childBreadcrumb.join('.')"
@@ -1010,114 +991,87 @@ const onBeforeMatch = (): void => {
     </SchemaPropertyHeading>
 
     <!-- Description -->
-    <!-- Tree layout: the heading's 20px slot already leaves slack under the
-         name, so 4px lands the description at the legacy 6px's visual
-         distance; 6px above a composition keeps the row on the 12px rhythm. -->
+    <!-- The heading's 20px slot already leaves slack under the name, so 4px is
+         enough under it; 6px above a composition keeps the row on the 12px
+         rhythm. -->
     <div
       v-if="displayDescription || propertyDescription"
-      class="property-description"
-      :class="{ 'mt-1! has-[+.property-rule]:mb-1.5!': isTreeLayout }">
+      class="property-description mt-1! has-[+.property-rule]:mb-1.5!">
       <ScalarMarkdown
         :value="displayDescription || propertyDescription || ''" />
     </div>
 
-    <!-- Enum for property names. Takes the layout like the value enum below:
-         without it this defaults to `legacy` and renders the old markup inside
-         a tree row, on any additionalProperties/patternProperties schema whose
-         propertyNames carry an enum. -->
+    <!-- Enum for property names, on any additionalProperties/patternProperties
+         schema whose propertyNames carry an enum. -->
     <SchemaEnums
       v-if="propertyNamesEnum && propertyNamesEnum.length > 0"
-      :layout="isTreeLayout ? 'tree' : 'legacy'"
       propertyNames
       :value="{ enum: propertyNamesEnum } as SchemaObject" />
 
     <!-- Enum values -->
     <!-- The array items card rendered below already lists these same values. -->
-    <!-- Tree layout: skip the list when the signature already inlines the enum,
-         but only when it genuinely does (never for a $ref or an untyped schema),
-         or the values would be shown nowhere at all. -->
+    <!-- Skip the list when the signature already inlines the enum, but only
+         when it genuinely does (never for a $ref or an untyped schema), or the
+         values would be shown nowhere at all. -->
     <SchemaEnums
       v-if="
         enumValues.length > 0 &&
         !shouldRenderArrayOfObjects &&
-        !(isTreeLayout && signatureInlinesEnum)
+        !signatureInlinesEnum
       "
-      :layout="isTreeLayout ? 'tree' : 'legacy'"
       :value="optimizedValue" />
 
-    <!-- Tree layout: the child count description and the rail panel -->
-    <template v-if="isTreeLayout">
-      <span
-        v-if="isTreeRow && treeChildCountLabel"
-        :id="treeCountId"
-        class="screenreader-only"
-        >{{ treeChildCountLabel }}</span
-      >
+    <!-- The child count description and the rail panel -->
+    <span
+      v-if="isTreeRow && treeChildCountLabel"
+      :id="treeCountId"
+      class="screenreader-only"
+      >{{ treeChildCountLabel }}</span
+    >
 
-      <!-- closeOnRail: a pointer-only convenience like an editor's indent
-           guide; the gutter toggle stays the accessible control. -->
-      <!-- Nothing inside a panel may add trailing height below the last row,
-           so the descendant resets reach into the child Schema cards. -->
-      <SchemaRailPanel
-        v-if="isTreeRow && isTreePanelRendered"
-        :id="treePanelId"
-        ref="treePanel"
-        class="property-children mt-1.5 mb-0.5 [&_.schema-card]:mb-0! [&_.schema-card]:pb-0! [&_.schema-properties]:mb-0! [&_.schema-properties]:pb-0! [&_ul]:my-0! [&_ul]:py-0! [&[hidden=until-found]]:my-0 [&[hidden=until-found]]:border-s-0 [&[hidden]:not([hidden=until-found])]:hidden"
-        closeOnRail
+    <!-- closeOnRail: a pointer-only convenience like an editor's indent
+         guide; the gutter toggle stays the accessible control. -->
+    <!-- Nothing inside a panel may add trailing height below the last row,
+         so the descendant resets reach into the child Schema cards. -->
+    <SchemaRailPanel
+      v-if="isTreeRow && isTreePanelRendered"
+      :id="treePanelId"
+      ref="treePanel"
+      class="property-children mt-1.5 mb-0.5 [&_.schema-card]:mb-0! [&_.schema-card]:pb-0! [&_.schema-properties]:mb-0! [&_.schema-properties]:pb-0! [&_ul]:my-0! [&_ul]:py-0! [&[hidden=until-found]]:my-0 [&[hidden=until-found]]:border-s-0 [&[hidden]:not([hidden=until-found])]:hidden"
+      closeOnRail
+      :depth="depth + 1"
+      :hidden="isTreeOpen ? undefined : 'until-found'"
+      @beforematch="onBeforeMatch"
+      @close="toggleTree">
+      <!-- The panel is one level deeper than the row it belongs to -->
+      <Schema
+        v-if="treeChildProps"
+        v-bind="treeChildProps"
         :depth="depth + 1"
-        :hidden="isTreeOpen ? undefined : 'until-found'"
-        @beforematch="onBeforeMatch"
-        @close="toggleTree">
-        <!-- The panel is one level deeper than the row it belongs to -->
-        <Schema
-          v-if="treeChildProps"
-          v-bind="treeChildProps"
-          :depth="depth + 1"
-          noncollapsible />
-      </SchemaRailPanel>
+        noncollapsible />
+    </SchemaRailPanel>
 
-      <!-- A container renders its children directly with no depth step. Not a
-           v-else of the panel: a collapsed tree row must not fall through here.
-           6px under a description keeps the 12px rhythm (legacy: 9px). -->
-      <div
-        v-if="isExpandable && !isCyclicProperty && !isTreeRow"
-        class="children [.property-description+&]:mt-1.5!">
-        <!-- A container adds no rail, so its children keep this row's depth -->
-        <Schema
-          v-if="treeChildProps"
-          v-bind="treeChildProps"
-          :depth="depth"
-          noncollapsible />
-      </div>
-    </template>
-
-    <!-- Object. Legacy sets no depth: that counter belongs to the tree. -->
+    <!-- A container renders its children directly with no depth step. Not a
+         v-else of the panel: a collapsed tree row must not fall through here.
+         6px under a description keeps the 12px rhythm. -->
     <div
-      v-if="!isTreeLayout && objectChildProps"
-      class="children">
+      v-if="isExpandable && !isCyclicProperty && !isTreeRow"
+      class="children [.property-description+&]:mt-1.5!">
+      <!-- A container adds no rail, so its children keep this row's depth -->
       <Schema
-        v-bind="objectChildProps"
-        :noncollapsible="noncollapsible" />
-    </div>
-
-    <!-- Array of objects or nested arrays. A separate block, not an `else`:
-         see `arrayChildProps` for the schema that satisfies both. -->
-    <div
-      v-if="!isTreeLayout && arrayChildProps"
-      class="children">
-      <Schema
-        v-bind="arrayChildProps"
-        :noncollapsible="noncollapsible" />
+        v-if="treeChildProps"
+        v-bind="treeChildProps"
+        :depth="depth"
+        noncollapsible />
     </div>
 
     <!-- Compositions -->
-    <!-- Tree layout: this row's own breadcrumb, so sibling compositions do not
-         collide on anchors and expansion keys. The legacy layout keeps the
-         parent path, because changing it would move anchor ids already shared. -->
+    <!-- This row's own breadcrumb, so sibling compositions do not collide on
+         anchors and expansion keys. -->
     <SchemaComposition
       v-for="compositionData in compositionsToRender"
       :key="compositionData.composition"
-      :breadcrumb="isTreeLayout ? childBreadcrumb : breadcrumb"
+      :breadcrumb="childBreadcrumb"
       :compact="compact"
       :composition="compositionData.composition"
       :compositionPath="currentCompositionPath"
@@ -1146,41 +1100,6 @@ const onBeforeMatch = (): void => {
   padding: 10px;
   font-size: var(--scalar-small);
   position: relative;
-}
-
-/*
- * Legacy-layout paddings, excluded from `.property--tree` rather than deleted:
- * the tree spaces itself from --schema-row-pad, and the legacy layout still ships.
- */
-/* Legacy rule; the tree only excludes itself here. */
-/** Remove top padding for top level schema card */
-.property.property--level-0:not(.property--tree):has(
-    > .property-rule
-      > .schema-card
-      > .schema-properties.schema-properties-open
-      > ul
-      > li.property
-  ) {
-  padding-top: 0;
-}
-
-/* Legacy rule; the tree only excludes itself here. */
-.property--compact.property--level-0:not(.property--tree),
-.property--compact.property--level-1:not(.property--tree) {
-  padding: 10px 0;
-}
-
-/* Legacy rule; the tree only excludes itself here. */
-.composition-panel
-  .property.property.property.property--level-0:not(.property--tree) {
-  padding: 0px;
-}
-
-/* Legacy rule; the tree only excludes itself here. */
-.property--compact.property--level-0
-  .composition-panel
-  .property--compact.property--level-1:not(.property--tree) {
-  padding: 8px;
 }
 
 /*  if a property doesn't have a heading, remove the top padding */
@@ -1247,38 +1166,6 @@ const onBeforeMatch = (): void => {
   border-radius: var(--scalar-radius-lg);
   display: flex;
   flex-direction: column;
-}
-
-/* Legacy rule; the tree only excludes itself here. */
-.property--level-2:not(.property--tree) :deep(.relative > button) {
-  left: -2rem;
-}
-
-/* Legacy rule; the tree only excludes itself here. */
-/* The tree panel keeps the composition-panel marker class, so without the :not() this card chrome leaks into the tree. */
-.property-rule
-  :deep(
-    .composition-panel:not(.composition-panel--tree)
-      .schema-card--level-1
-      > .schema-properties.schema-properties-open
-  ) {
-  border-radius: 0 0 var(--scalar-radius-lg) var(--scalar-radius-lg);
-}
-
-/* Legacy rule; the tree only excludes itself here. */
-.property-rule
-  :deep(
-    .composition-panel:not(.composition-panel--tree)
-      > .schema-card
-      > .schema-card-description
-  ) {
-  padding: 10px;
-  border-left: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-right: var(--scalar-border-width) solid var(--scalar-border-color);
-
-  & + .schema-properties {
-    margin-top: 0;
-  }
 }
 
 .property-example {

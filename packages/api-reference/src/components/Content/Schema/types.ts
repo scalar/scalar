@@ -17,12 +17,7 @@ export type SchemaOptions = {
   orderRequiredPropertiesFirst?: ApiReferenceConfiguration['orderRequiredPropertiesFirst']
   /** Expand all nested schema properties by default while keeping the toggle available */
   expandAllSchemaProperties?: ApiReferenceConfiguration['expandAllSchemaProperties']
-  /**
-   * How the schema tree is drawn. Constant for the tree's lifetime; expansion
-   * state changes, so it deliberately lives elsewhere.
-   */
-  schemaLayout?: ApiReferenceConfiguration['schemaLayout']
-  /** Tree layout only: arrow-key navigation over the toggles */
+  /** Arrow-key navigation over the row toggles */
   schemaKeyboardNav?: ApiReferenceConfiguration['schemaKeyboardNav']
   /**
    * Whether the models section is hidden.

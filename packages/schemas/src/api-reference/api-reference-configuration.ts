@@ -271,11 +271,7 @@ export const apiReferenceConfigurationSchema = intersection([
     schemaKeyboardNav: boolean({
       default: false,
       typeComment:
-        'Tree layout only: arrow-key navigation over the schema disclosure toggles (APG tree bindings). Off until screen-reader interaction questions are settled',
-    }),
-    schemaLayout: union([literal('tree'), literal('legacy')], {
-      typeComment:
-        'How the schema tree is drawn. "tree" (the default) draws a continuous rail per level with a disclosure control in each property gutter. "legacy" nests a bordered card per level behind a Show Child Attributes pill; it is scheduled for removal - see the deletion tripwire in schema-layout-default.test.ts. NOTE: union() has no default - the first member wins, which is why this reorder IS the default flip',
+        'Arrow-key navigation over the schema disclosure toggles (APG tree bindings). Off until screen-reader interaction questions are settled',
     }),
     orderRequiredPropertiesFirst: boolean({
       default: true,

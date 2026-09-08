@@ -6,7 +6,7 @@ import { computed } from 'vue'
 import { useLocalization } from '@/features/localization'
 
 /**
- * The tree layout's deep-link affordance: the same hash the section headings
+ * A property row's deep-link affordance: the same hash the section headings
  * and the models list show, trailing the row's text in the flow of the heading
  * and revealed on hover or focus. It is a separate component so it can render
  * as the LAST child of the heading: inside `WithBreadcrumb`, which wraps the
@@ -36,9 +36,8 @@ const copyLinkLabel = computed(() =>
        pointer-coarse drops it entirely rather than leaving it transparent: a
        touch pointer has no hover, so a still-laid-out button would be an
        invisible tap target AND would keep pushing long signature lines onto a
-       second line just to show a control nobody can see. The legacy layout's
-       leading anchor already behaves this way, and a deep link stays reachable
-       there through the address bar. -->
+       second line just to show a control nobody can see. A deep link stays
+       reachable there through the address bar. -->
   <button
     class="copy-link-trailing text-c-3 hover:text-c-1 -my-1 ms-1.5 -me-1 flex shrink-0 cursor-pointer items-center justify-center self-center p-1 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:hidden"
     type="button"

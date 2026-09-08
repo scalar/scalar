@@ -29,8 +29,8 @@ const content = {
   },
 }
 
-test.describe('schemaLayout', () => {
-  test('defaults to the tree layout', async ({ page }) => {
+test.describe('schema tree', () => {
+  test('renders properties as tree rows with a gutter control', async ({ page }) => {
     const example = await serveExample({ expandAllModelSections: true, content })
 
     await page.goto(`${example}#models`)
@@ -40,26 +40,8 @@ test.describe('schemaLayout', () => {
     expect(await page.locator('.property-toggle').count()).toBeGreaterThan(0)
   })
 
-  test('renders the legacy layout when asked for it', async ({ page }) => {
-    const example = await serveExample({
-      expandAllModelSections: true,
-      schemaLayout: 'legacy',
-      content,
-    })
-
-    await page.goto(`${example}#models`)
-
-    await expect(page.locator('.property-name', { hasText: 'satellite' }).first()).toBeVisible()
-    expect(await page.locator('.property--tree').count()).toBe(0)
-    expect(await page.locator('.property-toggle').count()).toBe(0)
-  })
-
-  test('renders the gutter control in tree layout', async ({ page }) => {
-    const example = await serveExample({
-      expandAllModelSections: true,
-      schemaLayout: 'tree',
-      content,
-    })
+  test('names the gutter control after the property alone', async ({ page }) => {
+    const example = await serveExample({ expandAllModelSections: true, content })
 
     await page.goto(`${example}#models`)
 
@@ -74,11 +56,7 @@ test.describe('schemaLayout', () => {
   })
 
   test('meets the two geometry facts', async ({ page }) => {
-    const example = await serveExample({
-      expandAllModelSections: true,
-      schemaLayout: 'tree',
-      content,
-    })
+    const example = await serveExample({ expandAllModelSections: true, content })
 
     await page.goto(`${example}#models`)
 
@@ -116,11 +94,7 @@ test.describe('schemaLayout', () => {
   })
 
   test('keeps a closed panel reachable by find-in-page', async ({ page }) => {
-    const example = await serveExample({
-      expandAllModelSections: true,
-      schemaLayout: 'tree',
-      content,
-    })
+    const example = await serveExample({ expandAllModelSections: true, content })
 
     await page.goto(`${example}#models`)
 
@@ -142,11 +116,7 @@ test.describe('schemaLayout', () => {
   })
 
   test('expands a subtree opened through a collapsed row again after reload', async ({ page }) => {
-    const example = await serveExample({
-      expandAllModelSections: true,
-      schemaLayout: 'tree',
-      content,
-    })
+    const example = await serveExample({ expandAllModelSections: true, content })
 
     await page.goto(`${example}#models`)
 

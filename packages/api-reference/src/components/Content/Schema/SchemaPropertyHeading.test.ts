@@ -64,7 +64,7 @@ describe('SchemaPropertyHeading', () => {
     })
 
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array string[]')
+    expect(detailsElement.text()).toContain('array of string')
     expect(detailsElement.text()).toContain('uuid')
   })
 
@@ -203,24 +203,6 @@ describe('SchemaPropertyHeading', () => {
     })
   })
 
-  it('renders schema title', () => {
-    const wrapper = mount(SchemaPropertyHeading, {
-      props: {
-        value: coerceValue(SchemaObjectSchema, {
-          type: 'array',
-          items: { type: 'object', title: 'Model' },
-        }),
-        schemas: {
-          Model: { type: 'object', title: 'Model' },
-        },
-      },
-    })
-
-    const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array object[]')
-    expect(detailsElement.text()).toContain('Model[]')
-  })
-
   it('renders default value: null', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
@@ -265,13 +247,17 @@ describe('SchemaPropertyHeading', () => {
       props: {
         value: coerceValue(SchemaObjectSchema, {
           type: 'array',
-          items: { type: 'object', title: 'FooModel' },
+          items: {
+            '$ref': '#/components/schemas/FooModel',
+            '$ref-value': { type: 'object', title: 'FooModel' },
+          },
         }),
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array object[]')
-    expect(detailsElement.text()).toContain('FooModel[]')
+    // The referenced model IS the item type, so the signature reads as a sentence
+    expect(detailsElement.text()).toContain('array of FooModel')
+    expect(detailsElement.text()).not.toContain('[]')
   })
 
   it('formats object type with direct model reference', () => {
@@ -286,20 +272,6 @@ describe('SchemaPropertyHeading', () => {
     const detailsElement = wrapper.find('.property-heading')
     expect(detailsElement.text()).toContain('BarModel')
     expect(detailsElement.text()).not.toContain('[]')
-  })
-
-  it('formats array type with model reference correctly', () => {
-    const wrapper = mount(SchemaPropertyHeading, {
-      props: {
-        value: coerceValue(SchemaObjectSchema, {
-          type: 'array',
-          items: { type: 'object', title: 'BarModel' },
-        }),
-      },
-    })
-    const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array object[]')
-    expect(detailsElement.text()).toContain('BarModel[]')
   })
 
   it('displays plain type when no model name is present', () => {
@@ -338,20 +310,14 @@ describe('SchemaPropertyHeading', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: coerceValue(SchemaObjectSchema, {
-          type: 'array',
-          items: { type: 'string' },
+          title: 'Planet',
+          type: 'object',
         }),
         hideModelNames: true,
-        schemas: {
-          Planet: {
-            type: 'array',
-            items: { type: 'string' },
-          },
-        },
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('Type: array string[]')
+    expect(detailsElement.text()).toContain('Type: object')
     expect(detailsElement.text()).not.toContain('Planet')
   })
 
@@ -360,15 +326,14 @@ describe('SchemaPropertyHeading', () => {
       props: {
         value: coerceValue(SchemaObjectSchema, {
           title: 'Planet',
-          type: 'array',
-          items: { type: 'string' },
+          type: 'object',
         }),
         hideModelNames: false,
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('Type: array string[]')
-    expect(detailsElement.text()).toContain('Planet')
+    expect(detailsElement.text()).toContain('Type: Planet')
+    expect(detailsElement.text()).not.toContain('object')
   })
 
   it('renders the model name as plain text when the models section is hidden', () => {
@@ -1133,10 +1098,9 @@ describe('SchemaPropertyHeading', () => {
   })
 
   describe('type signature', () => {
-    it('renders the tree type as a token run behind a screen-reader label', () => {
+    it('renders the type as a token run behind a screen-reader label', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          typeSignature: true,
           value: coerceValue(SchemaObjectSchema, { type: ['string', 'null'] }),
         },
       })
@@ -1151,26 +1115,13 @@ describe('SchemaPropertyHeading', () => {
       expect(wrapper.find('.property-heading button').exists()).toBe(false)
     })
 
-    it('renders the legacy type as a string behind a screen-reader label', () => {
-      const wrapper = mount(SchemaPropertyHeading, {
-        props: {
-          value: coerceValue(SchemaObjectSchema, { type: ['string', 'null'] }),
-        },
-      })
-
-      expect(wrapper.find('.property-type-signature').exists()).toBe(false)
-      expect(wrapper.find('.screenreader-only').element.textContent).toBe('Type:')
-      expect(wrapper.find('.property-heading').text()).toContain('Type: string | null')
-    })
-
-    it('links the tree type to the model and scrolls to it on click', async () => {
+    it('links the type to the model and scrolls to it on click', async () => {
       const eventBus = createWorkspaceEventBus()
       const handler = vi.fn()
       eventBus.on('scroll-to:model-by-name', handler)
 
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          typeSignature: true,
           value: coerceValue(SchemaObjectSchema, { type: 'object' }),
           modelName: 'Planet',
           eventBus,
@@ -1186,10 +1137,9 @@ describe('SchemaPropertyHeading', () => {
       expect(handler).toHaveBeenCalledWith({ name: 'Planet' })
     })
 
-    it('renders the tree model name as plain tokens when it cannot link', () => {
+    it('renders the model name as plain tokens when it cannot link', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          typeSignature: true,
           value: coerceValue(SchemaObjectSchema, { type: 'object' }),
           modelName: 'Planet',
           modelLinkOptions: { hideModels: true },
@@ -1201,31 +1151,26 @@ describe('SchemaPropertyHeading', () => {
       expect(wrapper.find('.property-type-signature').text()).toBe('Planet')
     })
 
-    it('labels the format for a screen reader in both layouts', () => {
-      for (const typeSignature of [false, true]) {
-        const wrapper = mount(SchemaPropertyHeading, {
-          props: {
-            typeSignature,
-            value: coerceValue(SchemaObjectSchema, { type: 'string', format: 'uuid' }),
-          },
-        })
+    it('labels the format for a screen reader', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, { type: 'string', format: 'uuid' }),
+        },
+      })
 
-        const labels = wrapper.findAll('.screenreader-only').map((label) => label.element.textContent)
-        expect(labels).toContain('Format: ')
-        expect(wrapper.find('.property-heading').text()).toContain('uuid')
-      }
+      const labels = wrapper.findAll('.screenreader-only').map((label) => label.element.textContent)
+      expect(labels).toContain('Format: ')
+      expect(wrapper.find('.property-heading').text()).toContain('uuid')
     })
   })
 
   describe('detail spacing', () => {
-    // The two layouts strip the right margin from different details, so the utility that
-    // carries that rule follows the layout. `:last-of-type` matches by element type, which
-    // is why the tree cannot use it: the collapsed preview and the trailing copy-link are
-    // spans as well, and the last detail would lose the gap before them.
-    const marginUtilities = (typeSignature?: boolean): string[] =>
-      mount(SchemaPropertyHeading, {
+    // `:last-of-type` matches by element type, which is why the heading cannot use it: the
+    // collapsed preview and the trailing copy-link are spans as well, and the last detail
+    // would lose the gap before them.
+    it('drops the right margin only from a detail followed by another detail', () => {
+      const classes = mount(SchemaPropertyHeading, {
         props: {
-          typeSignature,
           value: coerceValue(SchemaObjectSchema, {
             type: 'string',
             format: 'uuid',
@@ -1234,16 +1179,6 @@ describe('SchemaPropertyHeading', () => {
       })
         .find('.property-heading')
         .classes()
-
-    it('keeps the legacy margin selector in the legacy layout', () => {
-      const classes = marginUtilities()
-
-      expect(classes).toContain('[&>.property-detail:not(:last-of-type)]:mr-0')
-      expect(classes).not.toContain('[&>.property-detail:has(+.property-detail)]:mr-0')
-    })
-
-    it('uses the adjacent-detail margin selector in the tree layout', () => {
-      const classes = marginUtilities(true)
 
       expect(classes).toContain('[&>.property-detail:has(+.property-detail)]:mr-0')
       expect(classes).not.toContain('[&>.property-detail:not(:last-of-type)]:mr-0')

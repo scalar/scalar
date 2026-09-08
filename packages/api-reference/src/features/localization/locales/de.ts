@@ -97,8 +97,6 @@ export const de = {
     testRequest: 'Request testen',
     webhook: 'Webhook',
     selectedContentType: 'Ausgewählter Inhaltstyp',
-    hideHeaders: 'Header ausblenden',
-    showHeaders: 'Header anzeigen',
     callbacks: 'Callbacks',
   },
   response: {
@@ -114,9 +112,6 @@ export const de = {
     schema: 'Schema',
     emptyObject: 'Leeres Objekt',
     showAdditionalProperties: 'Zusätzliche Eigenschaften anzeigen',
-    childAttributes: 'Untergeordnete Attribute',
-    hideChildAttributes: '{name} ausblenden',
-    showChildAttributes: '{name} anzeigen',
     forName: 'für {name}',
     showSchemaDetails: 'Schema-Details anzeigen',
     oneOf: 'Eines von',

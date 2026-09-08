@@ -97,8 +97,6 @@ export const fr = {
     testRequest: 'Tester la requête',
     webhook: 'Webhook',
     selectedContentType: 'Type de contenu sélectionné',
-    hideHeaders: 'Masquer les en-têtes',
-    showHeaders: 'Afficher les en-têtes',
     callbacks: 'Callbacks',
   },
   response: {
@@ -114,9 +112,6 @@ export const fr = {
     schema: 'Schéma',
     emptyObject: 'Objet vide',
     showAdditionalProperties: 'Afficher les propriétés supplémentaires',
-    childAttributes: 'Attributs enfants',
-    hideChildAttributes: 'Masquer {name}',
-    showChildAttributes: 'Afficher {name}',
     forName: 'pour {name}',
     showSchemaDetails: 'Afficher les détails du schéma',
     oneOf: 'Un parmi',

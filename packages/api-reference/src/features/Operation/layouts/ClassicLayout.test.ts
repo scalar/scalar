@@ -125,7 +125,6 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
   options: {
     expandAllResponses: false,
     expandAllSchemaProperties: false,
-    schemaLayout: 'legacy' as const,
     schemaKeyboardNav: false,
     hideModels: false,
     hideTestRequestButton: true,
@@ -327,9 +326,9 @@ describe('ClassicLayout', () => {
   })
 
   describe('responses', () => {
-    const responsesFor = (schemaLayout: 'legacy' | 'tree') =>
+    const responsesFor = (expandAllResponses: boolean) =>
       mount(ClassicLayout, {
-        props: { ...props, options: { ...props.options, schemaLayout } },
+        props: { ...props, options: { ...props.options, expandAllResponses } },
         global: {
           stubs: {
             RouterLink: { name: 'RouterLink', template: '<a><slot /></a>' },
@@ -337,14 +336,14 @@ describe('ClassicLayout', () => {
         },
       }).findComponent({ name: 'OperationResponses' })
 
-    it('renders responses as static panels in the legacy layout', () => {
-      // The classic card has always shown every response expanded; only the
-      // tree grammar turns them into disclosures.
-      expect(responsesFor('legacy').props('collapsableItems')).toBe(false)
+    it('renders responses as disclosures', () => {
+      expect(responsesFor(false).props('collapsableItems')).toBe(true)
     })
 
-    it('renders responses as disclosures in the tree layout', () => {
-      expect(responsesFor('tree').props('collapsableItems')).toBe(true)
+    it('renders responses as static panels when every response is expanded', () => {
+      // `expandAllResponses` is the reader's request to see everything at
+      // once, so no disclosure may hide a response behind a click.
+      expect(responsesFor(true).props('collapsableItems')).toBe(false)
     })
   })
 })

@@ -5,9 +5,8 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import Schema from './Schema.vue'
 
 /**
- * The tree layout (`schemaLayout: 'tree'`): a continuous rail per depth with a
- * disclosure control in each property's gutter, replacing the bordered card per
- * level and the Show Child Attributes pill.
+ * The schema tree: a continuous rail per depth with a disclosure control in
+ * each property's gutter.
  *
  * Story names are globally unique on purpose — every snapshot suite shares one
  * folder keyed by slug alone.
@@ -32,7 +31,7 @@ export const TreeDeepNesting: Story = {
     name: 'Account',
     eventBus: null,
     breadcrumb: ['account'],
-    options: { schemaLayout: 'tree', expandAllSchemaProperties: true },
+    options: { expandAllSchemaProperties: true },
     schema: coerceValue(SchemaObjectSchema, {
       type: 'object',
       properties: {
@@ -67,7 +66,7 @@ export const TreeCollapsedPreviews: Story = {
     name: 'Response',
     eventBus: null,
     breadcrumb: ['response'],
-    options: { schemaLayout: 'tree' },
+    options: {},
     schema: coerceValue(SchemaObjectSchema, {
       type: 'object',
       properties: {
@@ -106,7 +105,7 @@ export const TreeEnumChips: Story = {
     name: 'Filters',
     eventBus: null,
     breadcrumb: ['filters'],
-    options: { schemaLayout: 'tree' },
+    options: {},
     schema: coerceValue(SchemaObjectSchema, {
       type: 'object',
       properties: {
@@ -145,7 +144,7 @@ export const TreeRecursive: Story = {
     name: 'TreeNode',
     eventBus: null,
     breadcrumb: ['treeNode'],
-    options: { schemaLayout: 'tree', expandAllSchemaProperties: true },
+    options: { expandAllSchemaProperties: true },
     schema: coerceValue(SchemaObjectSchema, {
       'type': 'object',
       'properties': {
@@ -176,7 +175,7 @@ export const TreeNarrowReflow: Story = {
     name: 'Account',
     eventBus: null,
     breadcrumb: ['account'],
-    options: { schemaLayout: 'tree', expandAllSchemaProperties: true },
+    options: { expandAllSchemaProperties: true },
     schema: coerceValue(SchemaObjectSchema, {
       type: 'object',
       properties: {

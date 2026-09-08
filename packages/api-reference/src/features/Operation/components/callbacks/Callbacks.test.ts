@@ -77,7 +77,6 @@ describe('Callbacks', () => {
           orderRequiredPropertiesFirst: false,
           orderSchemaPropertiesBy: 'alpha',
           expandAllSchemaProperties: false,
-          schemaLayout: 'legacy' as const,
           schemaKeyboardNav: false,
         },
       },
@@ -112,7 +111,7 @@ describe('Callbacks', () => {
     })
   })
 
-  describe('tree layout', () => {
+  describe('callback rows', () => {
     /** One callback name over two urls, one of them with two methods. */
     const oneNameManyRows = {
       onData: {
@@ -126,7 +125,7 @@ describe('Callbacks', () => {
       },
     } as CallbackObject
 
-    const mountCallbacks = (schemaLayout: 'legacy' | 'tree') =>
+    const mountCallbacks = () =>
       mount(Callbacks, {
         props: {
           path: '/subscribe',
@@ -138,7 +137,6 @@ describe('Callbacks', () => {
             orderRequiredPropertiesFirst: false,
             orderSchemaPropertiesBy: 'alpha' as const,
             expandAllSchemaProperties: false,
-            schemaLayout,
             schemaKeyboardNav: false,
           },
         },
@@ -150,22 +148,14 @@ describe('Callbacks', () => {
         },
       })
 
-    it('keeps the native details element in the legacy layout', () => {
-      const wrapper = mountCallbacks('legacy')
-
-      expect(wrapper.findAll('details').length).toBe(3)
-      expect(wrapper.find('.callback-item-trigger').exists()).toBe(false)
-    })
-
     it('renders each callback as a disclosure row', () => {
-      const wrapper = mountCallbacks('tree')
+      const wrapper = mountCallbacks()
 
-      expect(wrapper.findAll('details').length).toBe(0)
       expect(wrapper.findAll('.callback-item-trigger').length).toBe(3)
     })
 
     it('gives every callback of one name its own expansion state', async () => {
-      const wrapper = mountCallbacks('tree')
+      const wrapper = mountCallbacks()
 
       const triggers = wrapper.findAll('.callback-item-trigger')
       await triggers[0]!.trigger('click')
@@ -177,7 +167,7 @@ describe('Callbacks', () => {
     })
 
     it('opens the callback body without a rail', async () => {
-      const wrapper = mountCallbacks('tree')
+      const wrapper = mountCallbacks()
 
       await wrapper.findAll('.callback-item-trigger')[0]!.trigger('click')
 

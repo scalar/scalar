@@ -4,7 +4,7 @@ import {
   type ScalarListboxOption,
 } from '@scalar/components/listbox'
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { ScalarIconCaretDown, ScalarIconCaretUpDown } from '@scalar/icons'
+import { ScalarIconCaretUpDown } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
@@ -25,7 +25,6 @@ import { partitionAllOfCompositions } from './helpers/partition-all-of-compositi
 import { type CompositionKeyword } from './helpers/schema-composition'
 import { getCycleKey } from './helpers/schema-cycle'
 import { getModelNameWithArray } from './helpers/schema-name'
-import { useSchemaLayout } from './helpers/use-schema-layout'
 import Schema from './Schema.vue'
 import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 import SchemaRailPanel from './SchemaRailPanel.vue'
@@ -42,7 +41,7 @@ const props = withDefaults(
     schema: SchemaObject
     /** Nesting level for proper indentation */
     level: number
-    /** Real nesting depth in the tree layout (see SchemaProperty) */
+    /** Real nesting depth (see SchemaProperty) */
     depth?: number
     /** Whether to use compact layout */
     compact?: boolean
@@ -192,8 +191,6 @@ const selectedCompositionCycleKey = computed(() =>
   ),
 )
 
-const { isTreeLayout } = useSchemaLayout(() => props.options.schemaLayout)
-
 /**
  * Controls whether the nested schema is displayed. When expanding all schema
  * properties we open it by default; the nested Schema handles cycle detection,
@@ -223,11 +220,8 @@ if (
 </script>
 
 <template>
-  <!-- Tree layout: 6px after a container's children keeps the 12px row rhythm
-       (legacy: 9px) -->
-  <div
-    class="property-rule"
-    :class="{ '[.children+&]:mt-1.5!': isTreeLayout }">
+  <!-- 6px after a container's children keeps the 12px row rhythm -->
+  <div class="property-rule [.children+&]:mt-1.5!">
     <!--
       allOf: render the members in source order — object chunks as fields, each
       oneOf/anyOf group as its own picker in place. Keeps every mutually-exclusive
@@ -276,10 +270,10 @@ if (
       </template>
     </template>
 
-    <!-- Tree layout: the picker sits on the rail behind a circled icon, like
-         the toggle pucks; the chosen variant hangs below in the same panel -->
+    <!-- The picker sits on the rail behind a circled icon, like the toggle
+         pucks; the chosen variant hangs below in the same panel -->
     <SchemaRailPanel
-      v-else-if="isTreeLayout"
+      v-else
       class="composition-panel composition-panel--tree mt-1 mb-0.5"
       :depth="depth + 1">
       <!-- No `resize`: it would pin the popup to this compact trigger's width.
@@ -355,66 +349,5 @@ if (
         :schema="selectedComposition"
         :schemaContext="schemaContext" />
     </SchemaRailPanel>
-
-    <template v-else>
-      <!-- Composition selector + selected branch (legacy card) -->
-      <ScalarListbox
-        v-model="selectedOption"
-        :options="listboxOptions"
-        resize>
-        <button
-          class="composition-selector bg-b-1.5 hover:bg-b-2 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border px-2.5 py-2.5 pr-3 text-left"
-          type="button">
-          <span class="text-c-2">{{
-            compositionLabel(props.composition)
-          }}</span>
-          <span
-            class="composition-selector-label text-c-1"
-            :class="{
-              'line-through': selectedComposition?.deprecated,
-            }">
-            {{ selectedOption?.label || translate('schema.schema') }}
-          </span>
-          <div
-            v-if="selectedComposition?.deprecated"
-            class="text-red">
-            {{ translate('common.deprecated') }}
-          </div>
-          <ScalarIconCaretDown />
-        </button>
-      </ScalarListbox>
-
-      <div class="composition-panel">
-        <!-- Button to toggle nested schema display -->
-        <button
-          v-if="!showNestedSchema && level > 2"
-          class="bg-b-1 hover:bg-b-2 text-c-1 flex w-full items-center justify-center gap-2 rounded-b-lg border border-t-0 px-2 py-2 text-sm font-medium transition-colors"
-          type="button"
-          @click="showNestedSchema = true">
-          {{ translate('schema.showSchemaDetails') }}
-          <ScalarIconCaretDown class="h-3 w-3" />
-        </button>
-
-        <!-- Render the selected schema if it has content to display -->
-        <Schema
-          v-else
-          :key="selectedOption?.id ?? '0'"
-          :breadcrumb="breadcrumb"
-          :compact="compact"
-          :compositionPath="compositionPath"
-          :cycleKey="selectedCompositionCycleKey"
-          :discriminator="discriminator"
-          :eventBus="eventBus"
-          :hideHeading="hideHeading"
-          :hideModelNames
-          :depth="depth"
-          :level="level + 1"
-          :name="name"
-          :noncollapsible="true"
-          :options="options"
-          :schema="selectedComposition"
-          :schemaContext="schemaContext" />
-      </div>
-    </template>
   </div>
 </template>

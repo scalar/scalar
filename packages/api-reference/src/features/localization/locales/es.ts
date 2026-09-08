@@ -96,8 +96,6 @@ export const es = {
     testRequest: 'Probar solicitud',
     webhook: 'Webhook',
     selectedContentType: 'Tipo de contenido seleccionado',
-    hideHeaders: 'Ocultar encabezados',
-    showHeaders: 'Mostrar encabezados',
     callbacks: 'Callbacks',
   },
   response: {
@@ -113,9 +111,6 @@ export const es = {
     schema: 'Esquema',
     emptyObject: 'Objeto vacío',
     showAdditionalProperties: 'Mostrar propiedades adicionales',
-    childAttributes: 'Atributos secundarios',
-    hideChildAttributes: 'Ocultar {name}',
-    showChildAttributes: 'Mostrar {name}',
     forName: 'para {name}',
     showSchemaDetails: 'Mostrar detalles del esquema',
     oneOf: 'Uno de',

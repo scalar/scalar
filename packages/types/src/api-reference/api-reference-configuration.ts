@@ -475,24 +475,10 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     .default('alpha')
     .catch('alpha'),
   /**
-   * Tree layout only: arrow-key navigation over the schema disclosure toggles.
+   * Arrow-key navigation over the schema disclosure toggles.
    * @default false
    */
   schemaKeyboardNav: z.boolean().optional().default(false).catch(false),
-  /**
-   * How the schema tree is drawn.
-   *
-   * `legacy` nests a bordered card per level behind a Show Child Attributes pill.
-   * `tree` draws a continuous rail per level with a disclosure control in each
-   * property gutter.
-   *
-   * @default 'tree'
-   */
-  schemaLayout: z
-    .union([z.literal('tree'), z.literal('legacy')])
-    .optional()
-    .default('tree')
-    .catch('tree'),
   /**
    * Sort the schema properties by required ones first
    * @default true

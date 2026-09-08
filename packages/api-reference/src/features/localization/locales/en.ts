@@ -96,8 +96,6 @@ export const en = {
     testRequest: 'Test Request',
     webhook: 'Webhook',
     selectedContentType: 'Selected Content Type',
-    hideHeaders: 'Hide Headers',
-    showHeaders: 'Show Headers',
     callbacks: 'Callbacks',
   },
   response: {
@@ -113,9 +111,6 @@ export const en = {
     schema: 'Schema',
     emptyObject: 'Empty object',
     showAdditionalProperties: 'Show additional properties',
-    childAttributes: 'Child Attributes',
-    hideChildAttributes: 'Hide {name}',
-    showChildAttributes: 'Show {name}',
     forName: 'for {name}',
     showSchemaDetails: 'Show Schema Details',
     oneOf: 'One of',
