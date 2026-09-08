@@ -172,6 +172,8 @@ export const config = {
 
 On Next.js 15, name the file `middleware.ts` and export `middleware` instead of `proxy`.
 
+Only accept the nonce from trusted Proxy or middleware that overwrites the request header. Use `Cache-Control: private, no-store` on nonce-bearing responses so each response gets a fresh nonce.
+
 Then read the nonce in the route handler and pass it to the configuration:
 
 ```typescript
@@ -297,3 +299,23 @@ Choose the recipe that matches your application's routing:
 - [oRPC procedures](./nextjs-recipes/orpc.md)
 
 Each recipe includes a working endpoint, the generated OpenAPI description, and Scalar at `/scalar`.
+
+## Production setup
+
+### Protect private documentation
+
+Apply your application's server-side session and permission checks to both `/scalar` and `/openapi.json`. Protecting the reference alone leaves the API description accessible. Serve private descriptions from an authenticated Route Handler instead of `public/`, and use `Cache-Control: private, no-store` on both responses.
+
+Scalar configuration is visible to the browser, so keep server credentials out of it. Your API endpoints still need their own authorization.
+
+### Preview deployments and base paths
+
+Use `url: '/openapi.json'` and `servers: [{ url: '/' }]` in your API description when the API runs in the same application. These URLs follow the current origin, so localhost and preview deployments use their own API.
+
+If Next.js has `basePath: '/platform'`, include that prefix explicitly in Scalar's configuration and the API description:
+
+- Reference URL: `/platform/scalar`
+- Scalar configuration: `url: '/platform/openapi.json'`
+- API description: `servers: [{ url: '/platform' }]`
+
+Keep operation paths such as `/api/planets` unchanged. Next.js does not add its base path to URLs inside Scalar configuration or an API description.
