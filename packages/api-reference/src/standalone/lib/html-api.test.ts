@@ -460,6 +460,23 @@ describe('getConfigurationFromDataAttributes', () => {
     })
   })
 
+  it('preserves multiple sources from the data-configuration attribute', () => {
+    global.document = createHtmlDocument(`
+      <html>
+        <body>
+          <script
+            id="api-reference"
+            data-configuration='{"sources":[{"url":"/public.json"},{"url":"/admin.json"}]}'></script>
+        </body>
+      </html>
+    `)
+
+    expect(getConfigurationFromDataAttributes(document)).toEqual({
+      _integration: 'html',
+      sources: [{ url: '/public.json' }, { url: '/admin.json' }],
+    })
+  })
+
   it('handles deprecated data-spec attribute with warning', () => {
     global.document = createHtmlDocument(`
       <html>

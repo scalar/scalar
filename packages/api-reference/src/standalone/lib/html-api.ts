@@ -1,9 +1,11 @@
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import type {
   AnyApiReferenceConfiguration,
+  ApiReferenceConfigurationWithMultipleSources,
   ApiReferenceConfigurationWithSource,
   CreateApiReference,
 } from '@scalar/types/api-reference'
+import { isConfigurationWithSources } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue/client'
 import { createApp, createSSRApp, h, reactive } from 'vue'
 
@@ -76,7 +78,11 @@ const releaseStandaloneStyles = (doc: Document): void => {
 /**
  * Reading the configuration from the data-attributes.
  */
-export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceConfigurationWithSource {
+type DataAttributeConfiguration =
+  | ApiReferenceConfigurationWithSource
+  | Partial<ApiReferenceConfigurationWithMultipleSources>
+
+export function getConfigurationFromDataAttributes(doc: Document): DataAttributeConfiguration {
   const specElement = doc.querySelector('[data-spec]')
   const specUrlElement = doc.querySelector('[data-spec-url]')
   const configurationScriptElement = doc.querySelector('#api-reference[data-configuration]')
@@ -176,12 +182,22 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
   if (!specUrlElement && !specElement && !getSpecScriptTag(doc)) {
     // Stay quiet.
   } else {
+    const configuration = getConfiguration()
+
+    if (isConfigurationWithSources(configuration)) {
+      return {
+        _integration: 'html',
+        proxyUrl: getProxyUrl(),
+        ...configuration,
+      }
+    }
+
     const urlOrContent = getContent() ? { content: getContent() } : { url: getUrl() }
 
     return apiReferenceConfigurationWithSourceSchema({
       _integration: 'html',
       proxyUrl: getProxyUrl(),
-      ...getConfiguration(),
+      ...configuration,
       ...urlOrContent,
     })
   }
@@ -193,7 +209,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
  * Mount the Scalar API Reference on a given document.
  * Read the HTML data-attributes for configuration.
  */
-export function findDataAttributes(doc: Document, configuration: ApiReferenceConfigurationWithSource) {
+export function findDataAttributes(doc: Document, configuration: DataAttributeConfiguration) {
   /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
   const specElement = doc.querySelector('[data-spec]')
   /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
