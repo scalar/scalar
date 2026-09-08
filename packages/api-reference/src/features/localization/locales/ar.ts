@@ -96,8 +96,6 @@ export const ar = {
     testRequest: 'اختبار الطلب',
     webhook: 'خطاف ويب',
     selectedContentType: 'نوع المحتوى المحدد',
-    hideHeaders: 'إخفاء الرؤوس',
-    showHeaders: 'إظهار الرؤوس',
     callbacks: 'عمليات الاستدعاء',
   },
   response: {

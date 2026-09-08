@@ -96,8 +96,6 @@ export const es = {
     testRequest: 'Probar solicitud',
     webhook: 'Webhook',
     selectedContentType: 'Tipo de contenido seleccionado',
-    hideHeaders: 'Ocultar encabezados',
-    showHeaders: 'Mostrar encabezados',
     callbacks: 'Callbacks',
   },
   response: {

@@ -97,8 +97,6 @@ export const ru = {
     testRequest: 'Проверить запрос',
     webhook: 'Вебхук',
     selectedContentType: 'Выбранный тип содержимого',
-    hideHeaders: 'Скрыть заголовки',
-    showHeaders: 'Показать заголовки',
     callbacks: 'Обратные вызовы',
   },
   response: {

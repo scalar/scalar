@@ -97,8 +97,6 @@ export const de = {
     testRequest: 'Request testen',
     webhook: 'Webhook',
     selectedContentType: 'Ausgewählter Inhaltstyp',
-    hideHeaders: 'Header ausblenden',
-    showHeaders: 'Header anzeigen',
     callbacks: 'Callbacks',
   },
   response: {

@@ -96,8 +96,6 @@ export const zhCn = {
     testRequest: '测试请求',
     webhook: 'Webhook',
     selectedContentType: '已选内容类型',
-    hideHeaders: '隐藏标头',
-    showHeaders: '显示标头',
     callbacks: '回调',
   },
   response: {

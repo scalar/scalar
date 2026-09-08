@@ -453,8 +453,6 @@ export type ApiReferenceTranslations = {
     testRequest: string
     webhook: string
     selectedContentType: string
-    hideHeaders: string
-    showHeaders: string
     callbacks: string
   }
   response: {
