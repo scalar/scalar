@@ -43,7 +43,8 @@ export const shellCurl: Plugin = {
       ? separator +
         normalizedRequest.queryString
           .map((param) => {
-            // Ensure both name and value are fully URI encoded
+            // Keep the name and value raw so the snippet still reads like the documented endpoint; curl's own
+            // glob parser is handled with `--globoff` below rather than by percent-encoding the URL
             return `${param.name}=${param.value}`
           })
           .join('&')
@@ -54,9 +55,14 @@ export const shellCurl: Plugin = {
     const urlPart = isShellSafe ? url : `'${escapeSingleQuotes(url)}'`
     parts[0] = `curl ${urlPart}`
 
-    // curl reads `[]` in a URL as its own range syntax, no matter how the shell quotes them, so a literal
-    // bracket (`filter[id]=1`) only survives with globbing off
-    if (/[[\]]/.test(url)) {
+    // curl reads `[]` (ranges) and `{}` (sets) in a URL as its own globbing syntax, no matter how the shell
+    // quotes them. Square brackets always break curl (`filter[id]=1` throws "bad range"), so disable globbing
+    // whenever they appear. Curly braces in the path are almost always placeholders like `/users/{id}` that you
+    // replace before running, so we leave those to avoid adding the flag to nearly every snippet — but braces in
+    // the query string are real glob sets (`?ids={1,2,3}` fans out into three requests), so disable it there.
+    const queryStart = url.indexOf('?')
+    const queryPart = queryStart === -1 ? '' : url.slice(queryStart)
+    if (/[[\]]/.test(url) || /[{}]/.test(queryPart)) {
       parts.push('--globoff')
     }
 

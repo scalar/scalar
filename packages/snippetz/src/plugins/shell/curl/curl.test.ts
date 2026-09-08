@@ -134,6 +134,35 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl 'https://galaxy.scalar.com/planets/{planetId}'`)
   })
 
+  it('turns off globbing for a curly-brace set in a query value', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com/api',
+      queryString: [
+        {
+          name: 'ids',
+          value: '{1,2,3}',
+        },
+      ],
+    })
+
+    expect(result).toBe(`curl 'https://example.com/api?ids={1,2,3}' \\
+  --globoff`)
+  })
+
+  it('leaves a path placeholder alone even with a query string', () => {
+    const result = shellCurl.generate({
+      url: 'https://galaxy.scalar.com/planets/{planetId}',
+      queryString: [
+        {
+          name: 'limit',
+          value: '10',
+        },
+      ],
+    })
+
+    expect(result).toBe(`curl 'https://galaxy.scalar.com/planets/{planetId}?limit=10'`)
+  })
+
   it('has cookies', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
