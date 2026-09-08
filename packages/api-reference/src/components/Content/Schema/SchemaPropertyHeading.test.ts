@@ -2,7 +2,7 @@ import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
@@ -926,13 +926,27 @@ describe('SchemaPropertyHeading', () => {
     it('renders SchemaPropertyExamples when withExamples is true', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          value: coerceValue(SchemaObjectSchema, { type: 'string', example: 'hi' }),
           withExamples: true,
         },
       })
 
       const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
       expect(examplesElement.exists()).toBe(true)
+    })
+
+    it('mounts no SchemaPropertyExamples for a schema with no example', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          withExamples: true,
+        },
+      })
+
+      // The component renders nothing here anyway, but mounting it installs the
+      // popup's window-level listeners — one set per property row on the page.
+      const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
+      expect(examplesElement.exists()).toBe(false)
     })
 
     it('does not render SchemaPropertyExamples when withExamples is false', () => {
@@ -1115,6 +1129,124 @@ describe('SchemaPropertyHeading', () => {
       const detailsElement = wrapper.find('.property-heading')
       expect(detailsElement.text()).toContain('Default')
       expect(detailsElement.text()).toContain('42')
+    })
+  })
+
+  describe('type signature', () => {
+    it('renders the tree type as a token run behind a screen-reader label', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          typeSignature: true,
+          value: coerceValue(SchemaObjectSchema, { type: ['string', 'null'] }),
+        },
+      })
+
+      const signature = wrapper.find('.property-type-signature')
+      expect(signature.exists()).toBe(true)
+      expect(signature.findAll('.property-type-token').map((token) => token.text())).toEqual(['string', '|', 'null'])
+      expect(signature.find('.property-type-token--punctuation').classes()).toContain('text-c-3')
+      expect(signature.find('.property-type-token--ident').classes()).toContain('font-code')
+      // The trailing space separates the label from the type for a screen reader.
+      expect(wrapper.find('.screenreader-only').element.textContent).toBe('Type: ')
+      expect(wrapper.find('.property-heading button').exists()).toBe(false)
+    })
+
+    it('renders the legacy type as a string behind a screen-reader label', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, { type: ['string', 'null'] }),
+        },
+      })
+
+      expect(wrapper.find('.property-type-signature').exists()).toBe(false)
+      expect(wrapper.find('.screenreader-only').element.textContent).toBe('Type:')
+      expect(wrapper.find('.property-heading').text()).toContain('Type: string | null')
+    })
+
+    it('links the tree type to the model and scrolls to it on click', async () => {
+      const eventBus = createWorkspaceEventBus()
+      const handler = vi.fn()
+      eventBus.on('scroll-to:model-by-name', handler)
+
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          typeSignature: true,
+          value: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          modelName: 'Planet',
+          eventBus,
+        },
+      })
+
+      const link = wrapper.find('.property-heading button')
+      expect(link.attributes('type')).toBe('button')
+      expect(link.find('.property-type-signature').text()).toBe('Planet')
+
+      await link.trigger('click')
+
+      expect(handler).toHaveBeenCalledWith({ name: 'Planet' })
+    })
+
+    it('renders the tree model name as plain tokens when it cannot link', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          typeSignature: true,
+          value: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          modelName: 'Planet',
+          modelLinkOptions: { hideModels: true },
+          eventBus: createWorkspaceEventBus(),
+        },
+      })
+
+      expect(wrapper.find('.property-heading button').exists()).toBe(false)
+      expect(wrapper.find('.property-type-signature').text()).toBe('Planet')
+    })
+
+    it('labels the format for a screen reader in both layouts', () => {
+      for (const typeSignature of [false, true]) {
+        const wrapper = mount(SchemaPropertyHeading, {
+          props: {
+            typeSignature,
+            value: coerceValue(SchemaObjectSchema, { type: 'string', format: 'uuid' }),
+          },
+        })
+
+        const labels = wrapper.findAll('.screenreader-only').map((label) => label.element.textContent)
+        expect(labels).toContain('Format: ')
+        expect(wrapper.find('.property-heading').text()).toContain('uuid')
+      }
+    })
+  })
+
+  describe('detail spacing', () => {
+    // The two layouts strip the right margin from different details, so the utility that
+    // carries that rule follows the layout. `:last-of-type` matches by element type, which
+    // is why the tree cannot use it: the collapsed preview and the trailing copy-link are
+    // spans as well, and the last detail would lose the gap before them.
+    const marginUtilities = (typeSignature?: boolean): string[] =>
+      mount(SchemaPropertyHeading, {
+        props: {
+          typeSignature,
+          value: coerceValue(SchemaObjectSchema, {
+            type: 'string',
+            format: 'uuid',
+          }),
+        },
+      })
+        .find('.property-heading')
+        .classes()
+
+    it('keeps the legacy margin selector in the legacy layout', () => {
+      const classes = marginUtilities()
+
+      expect(classes).toContain('[&>.property-detail:not(:last-of-type)]:mr-0')
+      expect(classes).not.toContain('[&>.property-detail:has(+.property-detail)]:mr-0')
+    })
+
+    it('uses the adjacent-detail margin selector in the tree layout', () => {
+      const classes = marginUtilities(true)
+
+      expect(classes).toContain('[&>.property-detail:has(+.property-detail)]:mr-0')
+      expect(classes).not.toContain('[&>.property-detail:not(:last-of-type)]:mr-0')
     })
   })
 })

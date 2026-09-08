@@ -48,6 +48,59 @@ describe('htmlFromMarkdown', () => {
     expect(html.trim()).toEqual('<h1 id="example-heading">Example Heading</h1>')
   })
 
+  it('returns the same HTML when the same string is rendered twice', () => {
+    const markdown = 'The `id` of the **customer** this charge is for, if one exists.'
+
+    const first = htmlFromMarkdown(markdown, { removeTags: ['img', 'picture'] })
+    const second = htmlFromMarkdown(markdown, { removeTags: ['img', 'picture'] })
+
+    expect(second).toEqual(first)
+    expect(first).toEqual(
+      '\n<p>The <code>id</code> of the <strong>customer</strong> this charge is for, if one exists.</p>\n',
+    )
+  })
+
+  it('keeps the output stable across mixed option sets', () => {
+    const removeImages = { removeTags: ['img', 'picture'] }
+    const images = '<img src="x.png" alt="x"> and <picture><img src="y.png"></picture>'
+
+    // Two different strings under the same options
+    expect(htmlFromMarkdown('Property number 12', removeImages)).toEqual('\n<p>Property number 12</p>\n')
+    expect(htmlFromMarkdown('A model.', removeImages)).toEqual('\n<p>A model.</p>\n')
+
+    // Then variants of allowTags and removeTags, interleaved with the first set
+    expect(htmlFromMarkdown(`# Example Heading<script>alert('foobar');</script>`, { allowTags: ['script'] })).toEqual(
+      `\n<h1>Example Heading\n  <script>alert('foobar');</script>\n</h1>\n`,
+    )
+    expect(htmlFromMarkdown('# <i>Example</i> <em>Heading</em>', { removeTags: ['i'] })).toEqual(
+      '\n<h1>Example <em>Heading</em></h1>\n',
+    )
+    expect(htmlFromMarkdown(images, removeImages)).toEqual('\n<p>and</p>\n')
+    expect(htmlFromMarkdown(images, { removeTags: [] })).toEqual(
+      '\n<p>\n  <img src="x.png" alt="x"> and \n  <picture>\n    <img src="y.png">\n  </picture>\n</p>\n',
+    )
+    expect(htmlFromMarkdown(images)).toEqual(
+      '\n<p>\n  <img src="x.png" alt="x"> and \n  <picture>\n    <img src="y.png">\n  </picture>\n</p>\n',
+    )
+
+    // And the first set again, unchanged
+    expect(htmlFromMarkdown('Property number 12', removeImages)).toEqual('\n<p>Property number 12</p>\n')
+    expect(htmlFromMarkdown(`# Example Heading<script>alert('foobar');</script>`, removeImages)).toEqual(
+      '\n<h1>Example Heading</h1>\n',
+    )
+  })
+
+  it('highlights fenced code blocks the same way on repeated calls', () => {
+    const markdown = '```sh\ncurl "https://api.tailscale.com/api/v2/tailnet/-/devices"\n```'
+
+    const first = htmlFromMarkdown(markdown)
+    const second = htmlFromMarkdown(markdown)
+
+    expect(second).toEqual(first)
+    expect(first).toContain('class="hljs language-sh custom-scroll"')
+    expect(first).toContain('<span class="hljs-string">')
+  })
+
   // HTML Sanitization Tests
   it('removes iframe tags to prevent embedding attacks', () => {
     const html = htmlFromMarkdown('<iframe src="https://malicious-site.com"></iframe>Some content')
@@ -196,5 +249,116 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
     expect(html.trim()).toContain('<blockquote>')
     expect(html.trim()).toContain('<strong>Bold</strong>')
     expect(html.trim()).toContain('<em>italic</em>')
+  })
+
+  /**
+   * The plain-paragraph fast path skips the pipeline entirely, so every one of
+   * these has to come back exactly as the pipeline would have rendered it.
+   * Passing a `transform` callback forces the pipeline, which gives a reference
+   * output without duplicating the expected HTML in the test.
+   */
+  const throughPipeline = (markdown: string): string => htmlFromMarkdown(markdown, { transform: (node) => node })
+
+  describe('plain paragraphs', () => {
+    // Every TYPE_DESCRIPTIONS value from the API reference, plus other plain shapes seen in real documents
+    const plain = [
+      'Integer numbers.',
+      'Signed 32-bit integers (commonly used integer type).',
+      'Signed 64-bit integers (long type).',
+      'full-date notation as defined by RFC 3339, section 5.6, for example, 2017-07-21',
+      'the date-time notation as defined by RFC 3339, section 5.6, for example, 2017-07-21T17:32:28Z',
+      'a hint to UIs to mask the input',
+      'base64-encoded characters, for example, U3dhZ2dlciByb2Nrcw==',
+      'binary data, used to describe files',
+      'Property number 1',
+      'A model.',
+      '1.5 mg',
+      '50% off $5',
+      'c++',
+      'a/b/c',
+      'ISO 8601',
+      'v1.2.3',
+      'Preis in Euro, zum Beispiel 12,50 (café)',
+    ]
+
+    it.each(plain)('renders %j exactly as the pipeline does', (markdown) => {
+      expect(htmlFromMarkdown(markdown)).toBe(throughPipeline(markdown))
+    })
+
+    it('wraps plain text in a paragraph', () => {
+      expect(htmlFromMarkdown('Integer numbers.')).toBe('\n<p>Integer numbers.</p>\n')
+    })
+
+    it('still removes the paragraph when p is a removed tag', () => {
+      expect(htmlFromMarkdown('Integer numbers.', { removeTags: ['p'] })).toBe(
+        htmlFromMarkdown('Integer numbers.', { removeTags: ['p'], transform: (node) => node }),
+      )
+    })
+
+    // Shapes the fast path has to hand back to the pipeline
+    const notPlain = [
+      '#x',
+      'a > b',
+      'a_b_c',
+      'a|b',
+      'www.x',
+      'WWW.X',
+      'a  b',
+      ' a',
+      'a\\',
+      '1. a',
+      '- a',
+      'a\nb',
+      '',
+      'a & b',
+      'trail ',
+      'x@y.com',
+      'mailto:x@y.com',
+      'https://example.com/x',
+      // A non-breaking space is whitespace to the formatter, so it stays on the pipeline
+      'a\u00a0b',
+    ]
+
+    it.each(notPlain)('renders %j through the pipeline', (markdown) => {
+      expect(htmlFromMarkdown(markdown)).toBe(throughPipeline(markdown))
+    })
+  })
+
+  /**
+   * The fast path interpolates the caller's string straight into `<p>...</p>`,
+   * with no escaping and no sanitizer. That is safe only because every
+   * character that carries meaning to the serializer or the parser keeps the
+   * string on the pipeline. These pin that boundary one character at a time, so
+   * relaxing the excluded class fails a test rather than opening a hole: each
+   * value differs between the two paths, so a fast path that swallowed it would
+   * hand back markup the pipeline escapes, drops or rewrites.
+   */
+  describe('fast path escaping', () => {
+    const dangerous = {
+      /** Markup: the serializer escapes it, the sanitizer drops the handler */
+      'angle bracket': '<img src=x onerror=alert(1)>',
+      'bare less-than': 'a < b',
+      /** `&` opens a character reference, so the serializer always escapes it */
+      ampersand: 'Tom & Jerry',
+      'character reference': '&lt;script&gt;',
+      /** A backtick pair is inline code, never literal text */
+      backtick: '`code`',
+      /** `\!` is an escapable punctuation, so the pipeline eats the backslash */
+      backslash: 'a\\!b',
+      /** A leading `#` plus a space is an ATX heading, not a paragraph */
+      'leading hash': '# heading',
+    }
+
+    it.each(Object.entries(dangerous))('renders a %s (%j) exactly as the pipeline does', (_name, markdown) => {
+      expect(htmlFromMarkdown(markdown)).toBe(throughPipeline(markdown))
+    })
+
+    it.each(Object.entries(dangerous))('never returns the raw interpolation for a %s (%j)', (_name, markdown) => {
+      expect(htmlFromMarkdown(markdown)).not.toBe(`\n<p>${markdown}</p>\n`)
+    })
+
+    it('never lets an inline event handler through', () => {
+      expect(htmlFromMarkdown('<img src=x onerror=alert(1)>')).not.toContain('onerror')
+    })
   })
 })

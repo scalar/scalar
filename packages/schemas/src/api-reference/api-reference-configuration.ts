@@ -257,7 +257,7 @@ export const apiReferenceConfigurationSchema = intersection([
     expandAllSchemaProperties: boolean({
       default: false,
       typeComment:
-        'Whether to expand all nested schema properties by default. The Show/Hide Child Attributes toggle remains available so nested sections can still be collapsed manually. Warning: this can cause performance issues on big documents',
+        'Whether to expand all nested schema properties by default. Each row keeps its own disclosure control, so nested sections can still be collapsed manually. Warning: this can cause performance issues on big documents',
     }),
     tagsSorter: optional(union([literal('alpha'), fn<(a: any, b: any) => number>()]), {
       typeComment: 'Function to sort tags',
@@ -267,6 +267,15 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     orderSchemaPropertiesBy: union([literal('alpha'), literal('preserve')], {
       typeComment: 'Order the schema properties by',
+    }),
+    schemaKeyboardNav: boolean({
+      default: false,
+      typeComment:
+        'Tree layout only: arrow-key navigation over the schema disclosure toggles (APG tree bindings). Off until screen-reader interaction questions are settled',
+    }),
+    schemaLayout: union([literal('tree'), literal('legacy')], {
+      typeComment:
+        'How the schema tree is drawn. "tree" (the default) draws a continuous rail per level with a disclosure control in each property gutter. "legacy" nests a bordered card per level behind a Show Child Attributes pill; it is scheduled for removal - see the deletion tripwire in schema-layout-default.test.ts. NOTE: union() has no default - the first member wins, which is why this reorder IS the default flip',
     }),
     orderRequiredPropertiesFirst: boolean({
       default: true,

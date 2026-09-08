@@ -5,11 +5,30 @@ import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 defineProps<{
   label: string
   description?: string
+  /** The schema layout this value renders inside */
+  layout?: 'legacy' | 'tree'
 }>()
 </script>
 
 <template>
-  <li class="property-enum-value">
+  <!-- Tree layout row. A fresh class name keeps the legacy decorators below off it -->
+  <li
+    v-if="layout === 'tree'"
+    class="property-enum-row flex flex-col gap-0.5 border-t px-3 py-2">
+    <span class="property-enum-row-label font-code text-c-1 text-sm">
+      <ScalarWrappingText
+        :text="label"
+        preset="property" />
+    </span>
+    <span
+      v-if="description"
+      class="property-enum-row-description text-c-2 text-(length:--scalar-small) [&_.markdown]:-mb-0.5">
+      <ScalarMarkdown :value="description" />
+    </span>
+  </li>
+  <li
+    v-else
+    class="property-enum-value">
     <div class="property-enum-value-content">
       <span class="property-enum-value-label">
         <ScalarWrappingText

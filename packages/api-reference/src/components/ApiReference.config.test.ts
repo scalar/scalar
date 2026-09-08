@@ -188,14 +188,14 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       .findAll('.property-name')
       .map((item) => item.text().split(' ')[0])
     expect(propertyNames).toStrictEqual([
-      'isAdminCopy',
-      'phoneCopy',
-      'addressCopy',
-      'ageCopy',
-      'createdAtCopy',
-      'emailCopy',
-      'nameCopy',
-      'updatedAtCopy',
+      'isAdmin',
+      'phone',
+      'address',
+      'age',
+      'createdAt',
+      'email',
+      'name',
+      'updatedAt',
     ])
 
     // hideTestRequestButton: undefined -> false
@@ -682,14 +682,14 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       .map((item) => item.text().split(' ')[0])
 
     expect(propertyNames).toStrictEqual([
-      'nameCopy',
-      'ageCopy',
-      'isAdminCopy',
-      'createdAtCopy',
-      'updatedAtCopy',
-      'addressCopy',
-      'phoneCopy',
-      'emailCopy',
+      'name',
+      'age',
+      'isAdmin',
+      'createdAt',
+      'updatedAt',
+      'address',
+      'phone',
+      'email',
     ])
 
     // expandAllModelSections: true

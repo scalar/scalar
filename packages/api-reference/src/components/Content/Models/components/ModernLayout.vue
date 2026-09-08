@@ -24,6 +24,7 @@ const { schema, options, document } = defineProps<{
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     hideModels: boolean | undefined
     expandAllSchemaProperties: boolean | undefined
+    schemaLayout: 'legacy' | 'tree' | undefined
   }
 }>()
 
@@ -48,6 +49,7 @@ const { level: headingLevel } = useDocumentOutline('model')
     </template>
     <ScalarErrorBoundary>
       <Schema
+        :breadcrumb="[id]"
         :eventBus
         :hideModelNames="options.hideModels"
         hideHeading

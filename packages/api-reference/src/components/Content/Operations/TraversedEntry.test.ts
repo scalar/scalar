@@ -26,6 +26,10 @@ vi.mock('@/helpers/lazy-bus', () => ({
   requestLazyRender: () => undefined,
   setLazyPlaceholderHeight: () => undefined,
   scrollTargetId: ref(''),
+  // Matches the empty `scrollTargetId` above: with no live target, nothing is
+  // on the path. Schema and ParameterListItem read this rather than comparing
+  // against `scrollTargetId` themselves, so the mock has to carry it.
+  isOnScrollTargetPath: () => false,
   useLazyBus: () => ({
     isReady: computed(() => true),
   }),

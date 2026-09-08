@@ -22,6 +22,8 @@ const { schema, discriminator, options, schemaContext, compositionPath } =
     compact?: boolean
     hideHeading?: boolean
     level?: number
+    /** Real nesting depth in the tree layout (see SchemaProperty) */
+    depth?: number
     hideModelNames?: boolean
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
@@ -151,6 +153,45 @@ const getPropertyDescription = (
     : undefined
 }
 
+type PropertyRow = {
+  name: string
+  cycleKey: unknown
+  description: string | undefined
+  required: boolean
+  schema: SchemaObject | undefined
+}
+
+/**
+ * Each child read once, in panel order.
+ *
+ * The template used to fetch `schema.properties[name]` three times per row
+ * (cycle key, description, schema) and walk the `required` array with
+ * `includes` for every row. Through the document's proxy stack those reads
+ * were the panel's largest per-row JS cost, and none of them can change while
+ * the panel is up. `false` for a name outside `required` lands on the same
+ * `required: false` default in SchemaProperty that `undefined` did.
+ */
+const rows = computed((): PropertyRow[] => {
+  if (!isTypeObject(schema) || !schema.properties) {
+    return []
+  }
+
+  const { properties } = schema
+  const requiredSet = new Set(schema.required ?? [])
+
+  return sortedProperties.value.map((name): PropertyRow => {
+    const property = properties[name]
+
+    return {
+      name,
+      cycleKey: getCycleKey(property),
+      description: getPropertyDescription(property),
+      required: requiredSet.has(name),
+      schema: getPropertySchema(property),
+    }
+  })
+})
+
 /**
  * Get the value for additional properties.
  *
@@ -190,23 +231,24 @@ const getAdditionalPropertiesValue = (
   <!-- Properties -->
   <template v-if="isTypeObject(schema) && schema.properties">
     <SchemaProperty
-      v-for="property in sortedProperties"
-      :key="property"
+      v-for="row in rows"
+      :key="row.name"
       :breadcrumb
       :compact
       :compositionPath="compositionPath"
-      :compositionPathSegment="property"
-      :cycleKey="getCycleKey(schema.properties[property])"
-      :description="getPropertyDescription(schema.properties[property])"
+      :compositionPathSegment="row.name"
+      :cycleKey="row.cycleKey"
+      :description="row.description"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
       :hideModelNames
+      :depth
       :level
-      :name="property"
+      :name="row.name"
       :options="options"
-      :required="schema.required?.includes(property)"
-      :schema="getPropertySchema(schema.properties[property])"
+      :required="row.required"
+      :schema="row.schema"
       :schemaContext="schemaContext" />
   </template>
 
@@ -225,6 +267,7 @@ const getAdditionalPropertiesValue = (
       :eventBus="eventBus"
       :hideHeading
       :hideModelNames="hideModelNames"
+      :depth
       :level
       :name="key"
       :options="options"
@@ -249,6 +292,7 @@ const getAdditionalPropertiesValue = (
       :eventBus="eventBus"
       :hideHeading
       :hideModelNames
+      :depth
       :level
       :name="
         getAdditionalPropertiesName(

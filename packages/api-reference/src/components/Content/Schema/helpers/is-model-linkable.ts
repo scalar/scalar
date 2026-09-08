@@ -2,6 +2,7 @@ import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/
 import { isHidden } from '@scalar/workspace-store/helpers/is-hidden'
 
 import type { SchemaOptions } from '../types'
+import { unwrapForRead } from './unwrap-for-read'
 
 /** The slice of schema options needed to decide whether a model name renders as a link. */
 export type ModelLinkOptions = Pick<SchemaOptions, 'hideModels' | 'document'>
@@ -24,7 +25,9 @@ export const isModelLinkable = (
     return false
   }
 
-  const schema = document?.components?.schemas?.[schemaKey]
+  // Walking down to a single component schema costs three proxied reads per row, so the
+  // document is taken off the reactive and detect-changes layers first. See `unwrapForRead`.
+  const schema = unwrapForRead(document)?.components?.schemas?.[schemaKey]
 
   return !isHidden(getResolvedRef(schema, mergeSiblingReferences))
 }

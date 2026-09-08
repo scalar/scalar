@@ -430,6 +430,47 @@ describe('SchemaEnumValues', () => {
       expect(wrapper.text()).toContain('Request failed')
     })
 
+    it('drops the chip list once a short enum is long enough to need the reveal', () => {
+      // Chips carry no reveal of their own, so past the threshold the rows have
+      // to take over or every value renders at once (currency codes, etc.)
+      const wrapper = mount(SchemaEnumValues, {
+        props: {
+          layout: 'tree',
+          value: coerceValue(SchemaObjectSchema, {
+            enum: Array.from({ length: 40 }, (_, index) => `c${index}`),
+          }),
+        },
+      })
+
+      expect(wrapper.find('.property-enum-chip-list').exists()).toBe(false)
+      expect(wrapper.find('.enum-toggle-button').exists()).toBe(true)
+    })
+
+    it('still renders a short enum as chips', () => {
+      const wrapper = mount(SchemaEnumValues, {
+        props: {
+          layout: 'tree',
+          value: coerceValue(SchemaObjectSchema, {
+            enum: ['usd', 'eur', 'gbp'],
+          }),
+        },
+      })
+
+      expect(wrapper.find('.property-enum-chip-list').exists()).toBe(true)
+    })
+
+    it('renders a property-names enum as the tree card when the layout is tree', () => {
+      const wrapper = mount(SchemaEnumValues, {
+        props: {
+          layout: 'tree',
+          propertyNames: true,
+          value: coerceValue(SchemaObjectSchema, { enum: ['alpha', 'beta'] }),
+        },
+      })
+
+      expect(wrapper.find('.property-enum--tree').exists()).toBe(true)
+    })
+
     it('handles empty string enum values', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {

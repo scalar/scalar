@@ -12,10 +12,10 @@ import { computed, toRef } from 'vue'
 
 import { Badge } from '@/components/Badge'
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
-import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
 
 import { getSchemaType } from './helpers/get-schema-type'
+import { getDisplayTypeSignatureTokens } from './helpers/get-type-signature-tokens'
 import {
   isModelLinkable,
   type ModelLinkOptions,
@@ -46,6 +46,27 @@ const props = withDefaults(
     /** Resolved propertyNames schema, used to surface key constraints like `format` for additional properties. */
     propertyNames?: SchemaObject
     eventBus?: WorkspaceEventBus | null
+    /**
+     * Tree layout: render the type as a token run instead of a single string.
+     *
+     * The tree layout is the only caller that sets this, so it doubles as this
+     * component's layout signal — see `detailMarginClass`, which spaces the
+     * detail list differently per layout.
+     */
+    typeSignature?: boolean
+    /**
+     * Tree layout: the row's name is a stand-in for keys the caller chooses
+     * (`additionalProperties`) or keys matching a regex (`patternProperties`),
+     * not a literal property. The heading says so in the signature line, where
+     * the tree already describes shapes, instead of styling the name itself.
+     */
+    keyKind?: 'additional' | 'pattern'
+    /**
+     * Tree layout: the name of the schema this row loops back to. A cut cycle
+     * is a leaf, so the signature line says why it does not expand; the model
+     * link beside it already names the schema the loop returns to.
+     */
+    recursiveTo?: string
   }>(),
   {
     isDiscriminator: false,
@@ -242,6 +263,29 @@ const modelLinkable = computed(() =>
   isModelLinkable(modelLink.value?.schemaKey, props.modelLinkOptions ?? {}),
 )
 
+/**
+ * Tree layout: the type as a run of tokens rather than a single string —
+ * identifiers in the code face, English words like `array of` in the sans
+ * face, and a muted `|` so `string | null` reads as one type with an
+ * alternative.
+ *
+ * The token run and the screen-reader label are written straight into the
+ * template instead of being their own components: the tree mounts one per
+ * typed row, and a component instance costs more to create than the span it
+ * renders. On a flat object the type cells were the entire instance-count
+ * difference between the two layouts. The linked and the plain copy of the
+ * token markup below must stay identical. Empty for the legacy layout, which
+ * renders `displayType` instead.
+ */
+const signatureTokens = computed(() =>
+  props.typeSignature
+    ? getDisplayTypeSignatureTokens(props.value, {
+        hideModelNames: props.hideModelNames,
+        modelName: modelLink.value?.label,
+      })
+    : [],
+)
+
 /** Check if we should show the type information */
 const shouldShowType = computed(() => {
   if (!props.value || !('type' in props.value)) {
@@ -311,6 +355,29 @@ const exampleValue = computed(() => {
 })
 
 /**
+ * Whether the examples chip has anything to render.
+ *
+ * `SchemaPropertyExamples` already renders nothing without an example, but it
+ * still mounts, and mounting is what installs its popup's window-level click
+ * and keydown listeners. `withExamples` defaults to true, so without this gate
+ * every property row on the page — including a plain `{ type: 'string' }` —
+ * pays for a popup it never opens. Mirrors the component's own two branches.
+ */
+const hasExampleContent = computed((): boolean => {
+  if (exampleValue.value !== undefined) {
+    return true
+  }
+
+  const examples = props.value?.examples
+
+  return (
+    !!examples &&
+    typeof examples === 'object' &&
+    Object.keys(examples).length > 0
+  )
+})
+
+/**
  * The regex `pattern` to surface via the hover dropdown. It lives on a string
  * schema, or on the items of a primitive array (which is not rendered on its
  * own, so its constraints are surfaced on the array heading — see
@@ -335,9 +402,32 @@ const patternValue = computed(() => {
 
   return undefined
 })
+
+/**
+ * Which details in the dotted list drop their right margin, which differs per layout.
+ *
+ * `typeSignature` is set by the tree layout alone, so it doubles as this component's
+ * layout signal.
+ *
+ * The tree wants `:has(+.property-detail)`: only a detail FOLLOWED BY another detail
+ * drops its margin, because the `·` separator supplies the gap there. The tree also
+ * renders spans the legacy layout never does — the collapsed preview and the trailing
+ * copy-link — and `:not(:last-of-type)` matches by element type, so it would strip the
+ * margin from the final detail and glue "Addressrequired" together on a collapsed row.
+ *
+ * The legacy layout keeps `:not(:last-of-type)`, the selector it has always had, so its
+ * spacing stays exactly as it renders today.
+ */
+const detailMarginClass = computed((): string =>
+  props.typeSignature
+    ? '[&>.property-detail:has(+.property-detail)]:mr-0'
+    : '[&>.property-detail:not(:last-of-type)]:mr-0',
+)
 </script>
 <template>
-  <div class="property-heading">
+  <div
+    class="property-heading"
+    :class="detailMarginClass">
     <div
       v-if="$slots.name"
       class="property-name"
@@ -350,25 +440,112 @@ const patternValue = computed(() => {
       {{ translate('common.discriminator') }}
     </div>
     <template v-if="props.value">
+      <!-- A map key reads `additionalProperty · string`: the keyword leads the
+           detail list in the accent colour, like a type word, so the name
+           above it can look like every other name. Tree only: the legacy
+           layout marks these on the name instead. -->
+      <SchemaPropertyDetail
+        v-if="props.keyKind && props.typeSignature"
+        class="property-key-kind">
+        <span class="font-code text-c-accent">{{
+          props.keyKind === 'pattern' ? 'patternProperty' : 'additionalProperty'
+        }}</span>
+      </SchemaPropertyDetail>
       <!-- Type information -->
       <SchemaPropertyDetail
         v-if="shouldShowType"
         truncate>
-        <ScreenReader>{{ translate('common.type') }}:</ScreenReader>
-        {{ displayType }}
-        <template v-if="modelLink">
-          ·
-          <LinkButton
-            v-if="props.eventBus && modelLink.schemaKey && modelLinkable"
+        <!-- Tree layout: the type is a token run (`array of Planet`) and a $ref
+             link IS the type, not an appended `· Account` -->
+        <template v-if="props.typeSignature">
+          <!-- Written across lines on purpose: Vue drops whitespace-only text
+               between two elements, so a single-line label would read
+               `Type:string`. The legacy branch below is followed by an
+               interpolation, which keeps its space either way. -->
+          <span class="screenreader-only">
+            {{ translate('common.type') }}:
+          </span>
+          <button
+            v-if="props.eventBus && modelLink?.schemaKey && modelLinkable"
+            class="text-c-3 hover:text-c-1 underline"
+            type="button"
             @click="
               props.eventBus.emit('scroll-to:model-by-name', {
                 name: modelLink.schemaKey,
               })
             ">
-            {{ modelLink.label }}
-          </LinkButton>
-          <template v-else>{{ modelLink.label }}</template>
+            <span
+              v-if="signatureTokens.length"
+              class="property-type-signature text-c-2 text-(length:--scalar-mini)">
+              <template
+                v-for="(token, index) in signatureTokens"
+                :key="index">
+                {{ index > 0 ? ' ' : ''
+                }}<span
+                  class="property-type-token"
+                  :class="[
+                    `property-type-token--${token.kind}`,
+                    token.kind === 'word' ? 'font-sans' : '',
+                    token.kind === 'ident' || token.kind === 'literal'
+                      ? 'font-code'
+                      : '',
+                    token.kind === 'punctuation' ? 'text-c-3' : '',
+                  ]"
+                  >{{ token.text }}</span
+                >
+              </template>
+            </span>
+          </button>
+          <span
+            v-else-if="signatureTokens.length"
+            class="property-type-signature text-c-2 text-(length:--scalar-mini)">
+            <template
+              v-for="(token, index) in signatureTokens"
+              :key="index">
+              {{ index > 0 ? ' ' : ''
+              }}<span
+                class="property-type-token"
+                :class="[
+                  `property-type-token--${token.kind}`,
+                  token.kind === 'word' ? 'font-sans' : '',
+                  token.kind === 'ident' || token.kind === 'literal'
+                    ? 'font-code'
+                    : '',
+                  token.kind === 'punctuation' ? 'text-c-3' : '',
+                ]"
+                >{{ token.text }}</span
+              >
+            </template>
+          </span>
         </template>
+        <template v-else>
+          <span class="screenreader-only">{{ translate('common.type') }}:</span>
+          {{ displayType }}
+          <template v-if="modelLink">
+            ·
+            <LinkButton
+              v-if="props.eventBus && modelLink.schemaKey && modelLinkable"
+              @click="
+                props.eventBus.emit('scroll-to:model-by-name', {
+                  name: modelLink.schemaKey,
+                })
+              ">
+              {{ modelLink.label }}
+            </LinkButton>
+            <template v-else>{{ modelLink.label }}</template>
+          </template>
+        </template>
+      </SchemaPropertyDetail>
+
+      <!-- A cycle reads `array of Satellite · recursive`, a modifier like
+           `nullable`; the full sentence rides the tooltip. Tree only. -->
+      <SchemaPropertyDetail
+        v-if="props.recursiveTo && props.typeSignature"
+        class="property-recursive"
+        :title="
+          translate('schema.recursiveReference', { name: props.recursiveTo })
+        ">
+        {{ translate('common.recursive') }}
       </SchemaPropertyDetail>
 
       <!-- Key constraints from propertyNames (e.g. "keys: string · uuid") -->
@@ -385,9 +562,11 @@ const patternValue = computed(() => {
         :key="property.key"
         :code="property.code"
         :truncate="property.truncate">
-        <ScreenReader v-if="property.key === 'format'">
+        <span
+          v-if="property.key === 'format'"
+          class="screenreader-only">
           {{ translate('common.format') }}:
-        </ScreenReader>
+        </span>
         <template
           v-if="property.prefix"
           #prefix>
@@ -444,7 +623,13 @@ const patternValue = computed(() => {
       class="property-required">
       {{ translate('common.required') }}
     </div>
-    <SchemaPropertyDefault :value="props.value?.default" />
+    <!-- Gated here, not only inside the component: each popup instance installs
+         window-level click and keydown listeners for its dismissal, so mounting
+         one per row costs the page a listener per row it never shows anything
+         for. Same reason `SchemaPropertyPattern` below is gated. -->
+    <SchemaPropertyDefault
+      v-if="props.value?.default !== undefined"
+      :value="props.value?.default" />
     <!--
       Pattern is a hover dropdown chip like Examples, not an inline constraint,
       so it sits beside the example. This keeps the real constraints (length,
@@ -454,9 +639,14 @@ const patternValue = computed(() => {
       v-if="patternValue"
       :pattern="patternValue" />
     <SchemaPropertyExamples
-      v-if="props.withExamples"
+      v-if="props.withExamples && hasExampleContent"
       :example="exampleValue"
       :examples="props.value?.examples" />
+    <!-- Tree layout: the collapsed preview rides the end of the heading line -->
+    <slot name="preview" />
+    <!-- Last so the tab order matches the visual order: the trailing copy-link
+         is painted at the row's right edge, after every control to its left -->
+    <slot name="trailing" />
   </div>
 </template>
 <style scoped>
@@ -478,10 +668,6 @@ const patternValue = computed(() => {
 }
 
 .property-heading:last-child {
-  margin-right: 0;
-}
-
-.property-heading > .property-detail:not(:last-of-type) {
   margin-right: 0;
 }
 

@@ -50,6 +50,8 @@ describe('AsyncApiTraversedEntry', () => {
           layout: 'modern',
           hideModels: false,
           expandAllSchemaProperties: false,
+          schemaLayout: 'legacy' as const,
+          schemaKeyboardNav: false,
           orderSchemaPropertiesBy: 'preserve',
           orderRequiredPropertiesFirst: true,
         },

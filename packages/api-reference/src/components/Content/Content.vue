@@ -88,6 +88,8 @@ const {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaLayout'
+    | 'schemaKeyboardNav'
     | 'persistAuth'
     | 'proxyUrl'
     | 'servers'

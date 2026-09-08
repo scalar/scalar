@@ -5,6 +5,10 @@ import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-sto
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import { WithBreadcrumb } from '@/components/Anchor'
+import { SpecificationExtension } from '@/features/specification-extension'
+
+import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
@@ -481,6 +485,385 @@ describe('SchemaProperty', () => {
       expect(additionalName.text()).toBe('additionalProperty')
     })
 
+    describe('tree layout map keys', () => {
+      const mountRow = (variant: 'additionalProperties' | 'patternProperties', name: string) =>
+        mount(SchemaProperty, {
+          props: {
+            variant,
+            name,
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+            options: { schemaLayout: 'tree' },
+          },
+        })
+
+      it('names the key kind in the signature line for additional properties', () => {
+        const wrapper = mountRow('additionalProperties', 'measurement')
+
+        // The keyword leads the detail list; the name itself reads as a name.
+        expect(wrapper.find('.property-key-kind').text()).toBe('additionalProperty')
+        expect(wrapper.find('.property-name-additional-properties').text()).toBe('measurement')
+      })
+
+      it('names the key kind in the signature line for pattern properties', () => {
+        const wrapper = mountRow('patternProperties', '^x-')
+
+        expect(wrapper.find('.property-key-kind').text()).toBe('patternProperty')
+        expect(wrapper.find('.property-name-pattern-properties').text()).toBe('^x-')
+      })
+
+      it('keeps the keyword out of the legacy layout', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            variant: 'additionalProperties',
+            name: 'measurement',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+            options: { schemaLayout: 'legacy' },
+          },
+        })
+
+        expect(wrapper.find('.property-key-kind').exists()).toBe(false)
+      })
+    })
+
+    it('renders a propertyNames enum with the tree card, not the legacy one', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          name: 'measurement',
+          variant: 'additionalProperties',
+          propertyNamesEnum: ['alpha', 'beta'],
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: { schemaLayout: 'tree' },
+        },
+      })
+
+      expect(wrapper.find('.property-enum--tree').exists()).toBe(true)
+    })
+
+    describe('tree layout cycles', () => {
+      const mountCycle = (schemaLayout: 'tree' | 'legacy') =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'satellites',
+            cycleKey: '#/components/schemas/Satellite',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+            }),
+            options: { schemaLayout },
+          },
+          global: {
+            provide: {
+              [SCHEMA_ANCESTORS_SYMBOL as symbol]: new Set(['#/components/schemas/Satellite']),
+            },
+          },
+        })
+
+      it('marks a cut cycle in the signature line and names the schema it returns to', () => {
+        const wrapper = mountCycle('tree')
+        const detail = wrapper.find('.property-recursive')
+
+        expect(detail.text()).toBe('recursive')
+        expect(detail.attributes('title')).toBe('Recursive reference to Satellite')
+        // The row is a leaf: there is no panel to open
+        expect(wrapper.find('.property-children').exists()).toBe(false)
+      })
+
+      it('keeps the marker out of the legacy layout', () => {
+        expect(mountCycle('legacy').find('.property-recursive').exists()).toBe(false)
+      })
+
+      it('reads the cycle key of the branch the panel renders', () => {
+        // `isArraySchema` accepts a type LIST, so this schema satisfies the
+        // object branch AND the array branch. The panel draws the object one,
+        // so the row has to test the object branch's key: reading the items'
+        // key instead misses the loop and expand-all walks it forever.
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'satellites',
+            cycleKey: '#/components/schemas/Satellite',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: ['array', 'object'],
+              items: { $ref: '#/components/schemas/Debris' },
+              properties: { name: { type: 'string' } },
+            }),
+            options: { schemaLayout: 'tree' },
+          },
+          global: {
+            provide: {
+              [SCHEMA_ANCESTORS_SYMBOL as symbol]: new Set(['#/components/schemas/Satellite']),
+            },
+          },
+        })
+
+        expect(wrapper.find('.property-recursive').text()).toBe('recursive')
+        expect(wrapper.find('.property-children').exists()).toBe(false)
+      })
+
+      it('cuts a cycle that returns through array items', () => {
+        // The row's own schema is not the cycle — its ITEMS are, which is the
+        // shape of every `children: Node[]` tree model.
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'satellites',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: { $ref: '#/components/schemas/Satellite' },
+            }),
+            options: { schemaLayout: 'tree' },
+          },
+          global: {
+            provide: {
+              [SCHEMA_ANCESTORS_SYMBOL as symbol]: new Set(['#/components/schemas/Satellite']),
+            },
+          },
+        })
+
+        const detail = wrapper.find('.property-recursive')
+
+        expect(detail.text()).toBe('recursive')
+        // The row names the schema the loop returns to, not itself.
+        expect(detail.attributes('title')).toBe('Recursive reference to Satellite')
+        expect(wrapper.find('.property-children').exists()).toBe(false)
+      })
+    })
+
+    describe('tree layout collapsed rows', () => {
+      /** A row that satisfies BOTH branches; the panel draws the object one. */
+      const mountDualTyped = () =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'hybrid',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: ['array', 'object'],
+              items: { type: 'object', properties: { gamma: { type: 'string' } } },
+              properties: { alpha: { type: 'string' }, beta: { type: 'string' } },
+            }),
+            options: { schemaLayout: 'tree' },
+          },
+        })
+
+      it('previews the property names the panel would render', () => {
+        const wrapper = mountDualTyped()
+
+        // Describing the array items instead would advertise rows that open to
+        // something else entirely.
+        expect(wrapper.find('.property-collapsed-preview').text()).toBe('{ alpha, beta }')
+      })
+
+      it('describes the toggle with the count of those same rows', () => {
+        const wrapper = mountDualTyped()
+
+        const countId = wrapper.find('.property-toggle').attributes('aria-describedby')
+
+        expect(countId).toBeTruthy()
+        expect(wrapper.find(`#${countId}`).text()).toBe('Properties: 2')
+      })
+
+      it('previews the first rows in panel order and elides the rest', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'wide',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                one: { type: 'string' },
+                two: { type: 'string' },
+                three: { type: 'string' },
+                four: { type: 'string' },
+                five: { type: 'string' },
+              },
+            }),
+            options: { schemaLayout: 'tree' },
+          },
+        })
+
+        // The same sorted list the panel renders, so the hint names the rows
+        // the reader will actually see first rather than document order.
+        expect(wrapper.find('.property-collapsed-preview').text()).toBe('{ five, four, one, +2 }')
+      })
+
+      it('counts and previews only the rows the filters leave behind', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'account',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                createdAt: { type: 'string', readOnly: true },
+                email: { type: 'string' },
+              },
+            }),
+            options: { schemaLayout: 'tree', hideReadOnly: true },
+          },
+        })
+
+        const countId = wrapper.find('.property-toggle').attributes('aria-describedby')
+
+        // Raw keys would promise a row the panel drops, so the toggle would
+        // announce a child that is not there when it opens.
+        expect(wrapper.find(`#${countId}`).text()).toBe('Properties: 1')
+        expect(wrapper.find('.property-collapsed-preview').text()).toBe('{ email }')
+      })
+
+      it('drops the preview once the row is open', async () => {
+        const wrapper = mountDualTyped()
+
+        await wrapper.find('.property-toggle').trigger('click')
+
+        // The rows themselves are on screen now; the hint would just repeat them.
+        expect(wrapper.find('.property-collapsed-preview').exists()).toBe(false)
+      })
+
+      it('keeps the preview out of the legacy layout', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'hybrid',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: { alpha: { type: 'string' } },
+            }),
+            options: { schemaLayout: 'legacy' },
+          },
+        })
+
+        expect(wrapper.find('.property-collapsed-preview').exists()).toBe(false)
+      })
+    })
+
+    describe('tree layout child counts', () => {
+      /**
+       * The announced count and the rendered rows come from two different reads
+       * of the same schema: the count takes `Object.keys(properties).length`
+       * when no filter applies, the panel renders `sortPropertyNames`. They are
+       * pinned to each other here, so a change to either read that pulls them
+       * apart fails rather than announcing children that are not on screen.
+       *
+       * The children are all scalars, so the panel holds exactly one level of
+       * rows and every `.property` inside it is one of them.
+       */
+      const mountParent = (hideReadOnly: boolean) =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'account',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                createdAt: { type: 'string', readOnly: true },
+                email: { type: 'string' },
+                id: { type: 'string' },
+                nickname: { type: 'string' },
+                updatedAt: { type: 'string' },
+              },
+            }),
+            options: { schemaLayout: 'tree', hideReadOnly },
+          },
+        })
+
+      it.each([
+        ['keeping every child', false, 5],
+        ['hiding the read-only child', true, 4],
+      ])('announces the number of rows the open panel renders, %s', async (_case, hideReadOnly, expected) => {
+        const wrapper = mountParent(hideReadOnly)
+
+        await wrapper.find('.property-toggle').trigger('click')
+
+        const countId = wrapper.find('.property-toggle').attributes('aria-describedby')
+        const announced = wrapper.find(`#${countId}`).text()
+        const rendered = wrapper.find('.property-children').findAll('.property').length
+
+        expect(rendered).toBe(expected)
+        expect(announced).toBe(`Properties: ${rendered}`)
+      })
+    })
+
+    describe('tree layout hover marks', () => {
+      const mountRow = (schemaLayout: 'tree' | 'legacy') =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'account',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: { alpha: { type: 'string' } },
+            }),
+            options: { schemaLayout },
+          },
+        })
+
+      it('marks the row only while its heading is hovered', async () => {
+        const wrapper = mountRow('tree')
+        const heading = wrapper.find('.property-heading')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
+
+        await heading.trigger('pointerenter')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBe('')
+
+        await heading.trigger('pointerleave')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
+      })
+
+      it('never marks a legacy row', async () => {
+        const wrapper = mountRow('legacy')
+
+        await wrapper.find('.property-heading').trigger('pointerenter')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
+      })
+
+      it('clears the mark when the row leaves the DOM under the pointer', async () => {
+        const wrapper = mountRow('tree')
+        // The row is this component's own element, so hold on to it: unmounting
+        // detaches the node but leaves whatever attributes it was carrying.
+        const row = wrapper.element as HTMLElement
+
+        await wrapper.find('.property-heading').trigger('pointerenter')
+
+        expect(row.getAttribute('data-heading-hovered')).toBe('')
+
+        // Unmounting hides the heading under the pointer, so no pointerleave
+        // ever follows and the row would stay marked.
+        wrapper.unmount()
+
+        expect(row.hasAttribute('data-heading-hovered')).toBe(false)
+      })
+
+      it('drops the rail marks when the row closes without a strip click', async () => {
+        const wrapper = mountRow('tree')
+        const toggle = wrapper.find('.property-toggle')
+
+        await toggle.trigger('click')
+
+        const strip = wrapper.find('[data-rail-hit]')
+
+        expect(strip.exists()).toBe(true)
+
+        await strip.trigger('pointerenter')
+
+        expect(wrapper.attributes('data-child-rail-hovered')).toBe('')
+        expect(wrapper.find('.property-children').attributes('data-rail-hovered')).toBe('')
+
+        // A keyboard user closes from the toggle: the strip hides under the
+        // pointer without a pointerleave, so the row has to clear its own mark.
+        await toggle.trigger('click')
+
+        expect(wrapper.attributes('data-child-rail-hovered')).toBeUndefined()
+      })
+    })
+
     it('displays regular property names without variant styling', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
@@ -818,6 +1201,140 @@ describe('SchemaProperty', () => {
       })
 
       expect(wrapper.find('#body\\.BaseObject\\.nestedField').exists()).toBe(false)
+    })
+
+    it('wraps a linked name in the anchor and, in the legacy layout, a copy button', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 1,
+          name: 'myField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: { schemaLayout: 'legacy' },
+        },
+      })
+
+      const anchor = wrapper.find('div#body\\.BaseObject\\.myField')
+
+      expect(anchor.exists()).toBe(true)
+      expect(anchor.text()).toContain('myField')
+      expect(anchor.find('button').exists()).toBe(true)
+    })
+
+    it('renders an unlinked name as a bare span without the anchor wrapper', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          name: 'myField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      const heading = wrapper.find('.property-heading')
+
+      expect(heading.text()).toContain('myField')
+      expect(heading.find('div[id]').exists()).toBe(false)
+      expect(wrapper.findComponent(WithBreadcrumb).exists()).toBe(false)
+    })
+
+    it('does not mount the anchor wrapper for a level-3 property', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 3,
+          name: 'nestedField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('nestedField')
+      expect(wrapper.findComponent(WithBreadcrumb).exists()).toBe(false)
+    })
+
+    /**
+     * The linked and unlinked branches carry two hand-copied versions of the
+     * same name span, so only a test can keep them in step. `trailing` puts the
+     * copy button in the heading rather than inside the anchor, which leaves the
+     * anchor holding nothing but the slot: unwrap it and the two branches have
+     * to produce byte-identical markup, template comments included.
+     */
+    describe('name span copies', () => {
+      const mountName = (variant: 'additionalProperties' | 'patternProperties' | undefined, linked: boolean) =>
+        mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            breadcrumb: linked ? ['body', 'BaseObject'] : undefined,
+            level: 1,
+            name: 'myField',
+            variant,
+            schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+            options: { schemaLayout: 'tree' },
+          },
+        })
+
+      /**
+       * The block the template duplicates: the leading comment plus the name
+       * span. Taking the span's own siblings rather than the slot's innerHTML
+       * leaves out the comments `WithBreadcrumb` renders around its slot, which
+       * belong to that component and not to the copies under test.
+       */
+      const nameMarkup = (wrapper: ReturnType<typeof mountName>): string => {
+        const span = wrapper.find('.property-name span').element
+        const lead = span.previousSibling
+        // nodeType 8 is a comment, which is a real DOM node in a dev build
+        const comment = lead?.nodeType === 8 ? `<!--${lead.textContent}-->` : ''
+
+        // `useId` counts per mount, so the generated ids are noise here.
+        return `${comment}${span.outerHTML}`.replace(/ id="[^"]*"/g, '')
+      }
+
+      it.each([
+        ['a plain name', undefined],
+        ['an additionalProperties name', 'additionalProperties'],
+        ['a patternProperties name', 'patternProperties'],
+      ] as const)('renders %s identically with and without a breadcrumb', (_case, variant) => {
+        const linked = mountName(variant, true)
+        const unlinked = mountName(variant, false)
+
+        // Guard the comparison: without the anchor both sides would trivially
+        // be the same branch.
+        expect(linked.findComponent(WithBreadcrumb).exists()).toBe(true)
+        expect(unlinked.findComponent(WithBreadcrumb).exists()).toBe(false)
+
+        expect(nameMarkup(linked)).toBe(nameMarkup(unlinked))
+      })
+    })
+  })
+
+  describe('specification extensions', () => {
+    it('mounts the extension renderer for a schema with an x- key', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          name: 'status',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string', 'x-foo': 'bar' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.findComponent(SpecificationExtension).exists()).toBe(true)
+    })
+
+    it('does not mount the extension renderer for a schema without x- keys', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          name: 'status',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string', description: 'Plain' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.findComponent(SpecificationExtension).exists()).toBe(false)
     })
   })
 
