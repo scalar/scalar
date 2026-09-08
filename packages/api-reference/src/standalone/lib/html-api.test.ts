@@ -460,6 +460,65 @@ describe('getConfigurationFromDataAttributes', () => {
     })
   })
 
+  it('preserves multiple sources from the data-configuration attribute', () => {
+    global.document = createHtmlDocument(`
+      <html>
+        <body>
+          <script
+            id="api-reference"
+            data-configuration='{"sources":[{"url":"/public.json"},{"url":"/admin.json"}]}'></script>
+        </body>
+      </html>
+    `)
+
+    // toStrictEqual guarantees we do not emit a stray `proxyUrl: undefined` when none is configured.
+    expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
+      _integration: 'html',
+      sources: [{ url: '/public.json' }, { url: '/admin.json' }],
+    })
+  })
+
+  it('preserves shared configuration and the proxy url alongside multiple sources', () => {
+    global.document = createHtmlDocument(`
+      <html>
+        <body>
+          <script
+            id="api-reference"
+            data-proxy-url="https://proxy.example.com"
+            data-configuration='{"theme":"purple","sources":[{"url":"/public.json"},{"url":"/admin.json"}]}'></script>
+        </body>
+      </html>
+    `)
+
+    expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
+      _integration: 'html',
+      proxyUrl: 'https://proxy.example.com',
+      theme: 'purple',
+      sources: [{ url: '/public.json' }, { url: '/admin.json' }],
+    })
+  })
+
+  it('falls back to single-source parsing when the sources array is empty', () => {
+    global.document = createHtmlDocument(`
+      <html>
+        <body>
+          <script
+            id="api-reference"
+            data-url="/openapi.json"
+            data-configuration='{"sources":[]}'></script>
+        </body>
+      </html>
+    `)
+
+    // An empty sources array carries no documents, so the data-url should still be picked up
+    // and the (unusable) sources key should be dropped by the single-source schema.
+    expect(getConfigurationFromDataAttributes(document)).toEqual({
+      ...baseConfig,
+      default: false,
+      url: '/openapi.json',
+    })
+  })
+
   it('handles deprecated data-spec attribute with warning', () => {
     global.document = createHtmlDocument(`
       <html>

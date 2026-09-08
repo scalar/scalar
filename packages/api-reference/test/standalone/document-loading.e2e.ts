@@ -39,4 +39,21 @@ test.describe
 
       shutdown()
     })
+
+    test('renders multiple documents from a data-configuration sources array', async ({ page }) => {
+      const { url, shutdown } = await serveHTMLExample(
+        join(import.meta.dirname, 'html', 'data-configuration-sources.html'),
+      )
+
+      // The first source is the default document.
+      await page.goto(url)
+      await expect(page.getByRole('heading', { name: 'Public API', level: 1 })).toBeVisible()
+
+      // Switching document via the `?api=<slug>` query parameter renders the second source. Before
+      // the fix the top-level `sources` array was stripped, so neither document rendered at all.
+      await page.goto(`${url}?api=admin`)
+      await expect(page.getByRole('heading', { name: 'Admin API', level: 1 })).toBeVisible()
+
+      shutdown()
+    })
   })

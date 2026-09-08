@@ -91,10 +91,11 @@ export const getRequiredSecurity = (
  * AsyncAPI path does on purpose, left unresolved) keeps its scopes — the type is unknown,
  * so we cannot rule them out.
  *
- * This is the single source of truth for "does this scheme contribute scopes?", shared by
- * every consumer so they never disagree about what counts as a scope.
+ * This is the single source of truth for "does this scheme contribute scopes?" within this
+ * module. `getRequiredScopeGroups` relies on it so scope collection never disagrees about
+ * what counts as a scope.
  */
-export const getEffectiveScopes = (scheme: RequiredSecurityScheme): string[] => {
+const getEffectiveScopes = (scheme: RequiredSecurityScheme): string[] => {
   if (scheme.scheme && scheme.scheme.type !== 'oauth2' && scheme.scheme.type !== 'openIdConnect') {
     return []
   }
