@@ -91,7 +91,7 @@ describe('sortPropertyNames', () => {
       expect(result).toEqual([])
     })
 
-    it('should sort properties alphabetically by default', () => {
+    it('preserves the original order by default', () => {
       const schema: SchemaObject = {
         type: 'object',
         properties: {
@@ -103,7 +103,7 @@ describe('sortPropertyNames', () => {
 
       const result = sortPropertyNames(schema)
 
-      expect(result).toEqual(['apple', 'banana', 'zebra'])
+      expect(result).toEqual(['zebra', 'apple', 'banana'])
     })
 
     it('should handle schema with properties but no type when it has object-like properties', () => {
@@ -117,7 +117,7 @@ describe('sortPropertyNames', () => {
 
       const result = sortPropertyNames(schema)
 
-      expect(result).toEqual(['age', 'name'])
+      expect(result).toEqual(['name', 'age'])
     })
   })
 
@@ -137,7 +137,7 @@ describe('sortPropertyNames', () => {
         orderRequiredPropertiesFirst: true,
       })
 
-      expect(result).toEqual(['banana', 'zebra', 'apple'])
+      expect(result).toEqual(['zebra', 'banana', 'apple'])
     })
 
     it('should not prioritize required properties when orderRequiredPropertiesFirst is false', () => {
@@ -155,7 +155,7 @@ describe('sortPropertyNames', () => {
         orderRequiredPropertiesFirst: false,
       })
 
-      expect(result).toEqual(['apple', 'banana', 'zebra'])
+      expect(result).toEqual(['zebra', 'apple', 'banana'])
     })
 
     it('should handle empty required array', () => {
@@ -170,7 +170,7 @@ describe('sortPropertyNames', () => {
 
       const result = sortPropertyNames(schema)
 
-      expect(result).toEqual(['apple', 'zebra'])
+      expect(result).toEqual(['zebra', 'apple'])
     })
 
     it('should handle missing required property', () => {
@@ -184,7 +184,7 @@ describe('sortPropertyNames', () => {
 
       const result = sortPropertyNames(schema)
 
-      expect(result).toEqual(['apple', 'zebra'])
+      expect(result).toEqual(['zebra', 'apple'])
     })
   })
 
@@ -204,7 +204,7 @@ describe('sortPropertyNames', () => {
 
       const result = sortPropertyNames(schema, discriminator)
 
-      expect(result).toEqual(['type', 'apple', 'zebra'])
+      expect(result).toEqual(['type', 'zebra', 'apple'])
     })
 
     it('should put discriminator property first even before required properties', () => {
@@ -225,7 +225,7 @@ describe('sortPropertyNames', () => {
         orderRequiredPropertiesFirst: true,
       })
 
-      expect(result).toEqual(['type', 'apple', 'zebra'])
+      expect(result).toEqual(['type', 'zebra', 'apple'])
     })
 
     it('should handle discriminator property that does not exist in properties', () => {
@@ -242,7 +242,7 @@ describe('sortPropertyNames', () => {
 
       const result = sortPropertyNames(schema, discriminator)
 
-      expect(result).toEqual(['apple', 'zebra'])
+      expect(result).toEqual(['zebra', 'apple'])
     })
   })
 
@@ -299,7 +299,7 @@ describe('sortPropertyNames', () => {
         hideReadOnly: true,
       })
 
-      expect(result).toEqual(['email', 'name'])
+      expect(result).toEqual(['name', 'email'])
     })
 
     it('should include readOnly properties when hideReadOnly is false', () => {
@@ -316,7 +316,7 @@ describe('sortPropertyNames', () => {
         hideReadOnly: false,
       })
 
-      expect(result).toEqual(['email', 'id', 'name'])
+      expect(result).toEqual(['name', 'id', 'email'])
     })
 
     it('should filter out writeOnly properties when hideWriteOnly is true', () => {
@@ -333,7 +333,7 @@ describe('sortPropertyNames', () => {
         hideWriteOnly: true,
       })
 
-      expect(result).toEqual(['email', 'name'])
+      expect(result).toEqual(['name', 'email'])
     })
 
     it('should include writeOnly properties when hideWriteOnly is false', () => {
@@ -350,7 +350,7 @@ describe('sortPropertyNames', () => {
         hideWriteOnly: false,
       })
 
-      expect(result).toEqual(['email', 'name', 'password'])
+      expect(result).toEqual(['name', 'password', 'email'])
     })
 
     it('should handle both hideReadOnly and hideWriteOnly together', () => {
@@ -369,10 +369,8 @@ describe('sortPropertyNames', () => {
         hideWriteOnly: true,
       })
 
-      // Note: The current implementation only applies the first filter that is true
-      // Since hideReadOnly is checked first, it will filter out readOnly properties
-      // but won't check for writeOnly properties
-      expect(result).toEqual(['email', 'name'])
+      // Both filters apply, so the readOnly and writeOnly properties are removed
+      expect(result).toEqual(['name', 'email'])
     })
 
     it('should handle properties with $ref that resolve to readOnly', () => {
@@ -391,7 +389,7 @@ describe('sortPropertyNames', () => {
         hideReadOnly: true,
       })
 
-      expect(result).toEqual(['email', 'name'])
+      expect(result).toEqual(['name', 'email'])
     })
   })
 
@@ -440,7 +438,7 @@ describe('sortPropertyNames', () => {
 
       const result = sortPropertyNames(schema)
 
-      expect(result).toEqual(['@symbol', 'another_prop', 'normalProp', 'special-prop'])
+      expect(result).toEqual(['special-prop', 'another_prop', 'normalProp', '@symbol'])
     })
 
     it('should handle empty properties object', () => {
@@ -465,7 +463,7 @@ describe('sortPropertyNames', () => {
 
       const result = sortPropertyNames(schema)
 
-      expect(result).toEqual(['age', 'name'])
+      expect(result).toEqual(['name', 'age'])
     })
 
     it('should handle case-insensitive alphabetical sorting', () => {
@@ -479,7 +477,9 @@ describe('sortPropertyNames', () => {
         },
       }
 
-      const result = sortPropertyNames(schema)
+      const result = sortPropertyNames(schema, undefined, {
+        orderSchemaPropertiesBy: 'alpha',
+      })
 
       // localeCompare should handle case-insensitive sorting
       expect(result).toEqual(['apple', 'Banana', 'charlie', 'Zebra'])
@@ -669,7 +669,7 @@ describe('sortPropertyNames', () => {
 
       const result = sortPropertyNames(schema)
 
-      expect(result).toEqual(['age', 'name', 'undefinedProp'])
+      expect(result).toEqual(['name', 'undefinedProp', 'age'])
     })
   })
 })
