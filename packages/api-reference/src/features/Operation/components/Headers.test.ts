@@ -34,10 +34,7 @@ const baseProps = {
   schemaKeyboardNav: false,
 }
 
-const mountHeaders = (
-  props: Partial<typeof baseProps> & { schemaLayout: 'legacy' | 'tree' },
-  store = createSchemaExpansionStore(),
-) =>
+const mountHeaders = (props: Partial<typeof baseProps> = {}, store = createSchemaExpansionStore()) =>
   mount(Headers, {
     props: { ...baseProps, ...props },
     global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
@@ -48,24 +45,16 @@ describe('Headers', () => {
     scrollTargetId.value = ''
   })
 
-  describe('layout', () => {
-    it('renders the legacy headers card in the legacy layout', () => {
-      const wrapper = mountHeaders({ schemaLayout: 'legacy' })
-
-      expect(wrapper.find('.headers-card').exists()).toBe(true)
-      expect(wrapper.find('.headers-tree-group').exists()).toBe(false)
-    })
-
-    it('renders a gutter-toggled group in the tree layout', () => {
-      const wrapper = mountHeaders({ schemaLayout: 'tree' })
+  describe('group', () => {
+    it('renders a gutter-toggled group that starts closed', () => {
+      const wrapper = mountHeaders()
 
       expect(wrapper.find('.headers-tree-group').exists()).toBe(true)
-      expect(wrapper.find('.headers-card').exists()).toBe(false)
       expect(wrapper.find('.property-toggle').attributes('aria-expanded')).toBe('false')
     })
 
     it('puts the rows in a list so each one belongs to something', () => {
-      const wrapper = mountHeaders({ schemaLayout: 'tree', expandAllSchemaProperties: true })
+      const wrapper = mountHeaders({ expandAllSchemaProperties: true })
 
       // Every header renders a `SchemaProperty`, whose root is an `li`. Outside
       // a list an `li` is exposed as a plain generic and the group loses the
@@ -82,7 +71,7 @@ describe('Headers', () => {
 
   describe('expansion key', () => {
     it('opens for a deep link written against the public anchor path', async () => {
-      const wrapper = mountHeaders({ schemaLayout: 'tree' })
+      const wrapper = mountHeaders()
 
       scrollTargetId.value = 'op.responses.200.headers.X-Rate-Limit'
       await nextTick()
@@ -94,7 +83,7 @@ describe('Headers', () => {
 
     it('stays closed when a body property of the same name opens', async () => {
       const store = createSchemaExpansionStore()
-      const wrapper = mountHeaders({ schemaLayout: 'tree' }, store)
+      const wrapper = mountHeaders({}, store)
 
       // A response body property literally named `headers` writes the plain key.
       store.setExpanded('op.responses.200.headers', true)
@@ -105,7 +94,7 @@ describe('Headers', () => {
 
     it('uses the same marked key a committed deep link writes', async () => {
       const store = createSchemaExpansionStore()
-      const wrapper = mountHeaders({ schemaLayout: 'tree' }, store)
+      const wrapper = mountHeaders({}, store)
 
       // `commitPath` derives `~headers` from the anchor path; the two spellings
       // have to agree or the group re-collapses once the target clears.

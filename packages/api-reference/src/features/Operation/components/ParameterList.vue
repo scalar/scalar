@@ -6,14 +6,13 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { useId } from 'vue'
 
-import { useSchemaLayout } from '@/components/Content/Schema/helpers/use-schema-layout'
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ParameterListItem from './ParameterListItem.vue'
 
-const { parameters, options } = defineProps<{
+const { parameters } = defineProps<{
   parameters: ParameterObject[]
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
@@ -26,7 +25,6 @@ const { parameters, options } = defineProps<{
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
-    | 'schemaLayout'
     | 'schemaKeyboardNav'
   >
 }>()
@@ -35,22 +33,19 @@ const { parameters, options } = defineProps<{
 const id = useId()
 
 const { level: headingLevel } = useDocumentOutline('operationSection')
-
-const { isTreeLayout } = useSchemaLayout(() => options.schemaLayout)
 </script>
 <template>
   <div
     v-if="parameters?.length"
     class="mt-6">
-    <!-- Tree: the heading carries the rule. A static row pads only 6px, so a
-         6px bottom margin lands the same 12px gap the responses heading gets
-         from its row's 10px trigger padding -->
+    <!-- The heading carries the rule. A static row pads only 6px, so a 6px
+         bottom margin lands the same 12px gap the responses heading gets from
+         its row's 10px trigger padding -->
     <SectionHeaderTag
       :id
-      class="text-c-1 mt-3 block! text-lg leading-[1.45] font-medium"
-      :class="isTreeLayout ? 'parameter-list-title--tree mb-1.5' : 'mb-3'"
+      class="text-c-1 parameter-list-title--tree mt-3 mb-1.5 block! text-lg leading-[1.45] font-medium"
       :level="headingLevel"
-      :rule="isTreeLayout">
+      rule>
       <slot name="title" />
     </SectionHeaderTag>
     <ul

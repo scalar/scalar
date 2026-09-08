@@ -29,7 +29,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const button = wrapper.find('.schema-card-title')
+        const button = wrapper.find('.property-toggle')
         await button.trigger('click')
         const schemas = wrapper.findAllComponents(Schema)
 
@@ -52,7 +52,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const button = wrapper.find('.schema-card-title')
+        const button = wrapper.find('.property-toggle')
         await button.trigger('click')
         const schemas = wrapper.findAllComponents(Schema)
 
@@ -79,7 +79,7 @@ describe('SchemaProperty', () => {
         expect(wrapper.text()).toContain('This object groups the available filters.')
         expect(wrapper.html().match(/This object groups the available filters\./g)).toHaveLength(1)
 
-        const button = wrapper.find('.schema-card-title')
+        const button = wrapper.find('.property-toggle')
         await button.trigger('click')
         await wrapper.vm.$nextTick()
 
@@ -97,7 +97,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const button = wrapper.find('.schema-card-title')
+        const button = wrapper.find('.property-toggle')
         const schemas = wrapper.findAllComponents(Schema)
 
         expect(button.exists()).toBe(false)
@@ -125,7 +125,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const button = wrapper.find('.schema-card-title')
+        const button = wrapper.find('.property-toggle')
         await button.trigger('click')
         const schemas = wrapper.findAllComponents(Schema)
 
@@ -169,14 +169,16 @@ describe('SchemaProperty', () => {
             },
           })
 
-          await compositionItems.find('.schema-card-title').trigger('click')
-          await plainItems.find('.schema-card-title').trigger('click')
+          await compositionItems.find('.property-toggle').trigger('click')
+          await plainItems.find('.property-toggle').trigger('click')
 
           // The composition variant must not introduce an additional level of Schema nesting.
           expect(compositionItems.findAllComponents(Schema)).toHaveLength(plainItems.findAllComponents(Schema).length)
 
-          // The element title must be shown exactly once (it was duplicated by the extra nesting).
-          expect(compositionItems.html().match(/foos array element/g)).toHaveLength(1)
+          // The member's property renders exactly once, as it does for plain items (the extra
+          // nesting used to render it under a second card).
+          expect(compositionItems.findAll('.property-name').map((name) => name.text())).toEqual(['foo'])
+          expect(plainItems.findAll('.property-name').map((name) => name.text())).toEqual(['bar'])
         },
       )
 
@@ -194,7 +196,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const button = wrapper.find('.schema-card-title')
+        const button = wrapper.find('.property-toggle')
         const schemas = wrapper.findAllComponents(Schema)
 
         expect(button.exists()).toBe(false)
@@ -214,7 +216,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const button = wrapper.find('.schema-card-title')
+        const button = wrapper.find('.property-toggle')
         const schemas = wrapper.findAllComponents(Schema)
 
         expect(button.exists()).toBe(false)
@@ -232,7 +234,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const button = wrapper.find('.schema-card-title')
+        const button = wrapper.find('.property-toggle')
         const schemas = wrapper.findAllComponents(Schema)
 
         expect(button.exists()).toBe(false)
@@ -250,7 +252,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const button = wrapper.find('.schema-card-title')
+        const button = wrapper.find('.property-toggle')
         const schemas = wrapper.findAllComponents(Schema)
 
         expect(button.exists()).toBe(false)
@@ -268,7 +270,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const button = wrapper.find('.schema-card-title')
+        const button = wrapper.find('.property-toggle')
         const schemas = wrapper.findAllComponents(Schema)
 
         expect(button.exists()).toBe(false)
@@ -279,39 +281,40 @@ describe('SchemaProperty', () => {
 
   describe('enum value display', () => {
     describe('enum count behavior', () => {
-      it('displays all enum values when count is 9 or fewer', () => {
+      it('displays all enum values when count is 12 or fewer', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'],
+              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'],
             }),
             options: {},
           },
         })
 
-        const enumValues = wrapper.findAll('.property-enum-value')
+        // Short flat values wrap as chips, all of them at once
+        const enumValues = wrapper.findAll('.property-enum-chip')
         const toggleButton = wrapper.find('.enum-toggle-button')
 
-        expect(enumValues).toHaveLength(9)
+        expect(enumValues).toHaveLength(12)
         expect(toggleButton.exists()).toBe(false)
       })
 
-      it('displays first 5 enum values with toggle button when count exceeds 9', () => {
+      it('displays first 8 enum values with toggle button when count exceeds 12', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
+              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm'],
             }),
             options: {},
           },
         })
 
-        const enumValues = wrapper.findAll('.property-enum-value')
+        const enumValues = wrapper.findAll('.property-enum-row')
         const toggleButton = wrapper.find('.enum-toggle-button')
 
-        expect(enumValues).toHaveLength(5)
+        expect(enumValues).toHaveLength(8)
         expect(toggleButton.exists()).toBe(true)
         expect(toggleButton.text()).toBe('Show all values')
       })
@@ -321,7 +324,7 @@ describe('SchemaProperty', () => {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
+              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm'],
             }),
             options: {},
           },
@@ -330,12 +333,12 @@ describe('SchemaProperty', () => {
         const toggleButton = wrapper.find('.enum-toggle-button')
         await toggleButton.trigger('click')
 
-        const enumValues = wrapper.findAll('.property-enum-value')
-        expect(enumValues).toHaveLength(10)
+        const enumValues = wrapper.findAll('.property-enum-row')
+        expect(enumValues).toHaveLength(13)
         expect(toggleButton.text()).toBe('Hide values')
       })
 
-      it('displays single enum value correctly', () => {
+      it('displays a single enum value as a const', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
@@ -346,8 +349,9 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const enumValues = wrapper.findAll('.property-enum-value')
-        expect(enumValues).toHaveLength(1)
+        // One value is a constant, so it reads in the heading instead of as a list
+        expect(wrapper.find('.property-const').text()).toContain('a')
+        expect(wrapper.find('.property-enum').exists()).toBe(false)
       })
     })
 
@@ -357,6 +361,7 @@ describe('SchemaProperty', () => {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
               items: {
                 enum: ['a', 'b', 'c'],
               },
@@ -365,8 +370,10 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const enumValues = wrapper.findAll('.property-enum-value')
-        expect(enumValues).toHaveLength(3)
+        // A short item enum is inlined in the array's signature line, like a plain enum
+        const literals = wrapper.findAll('.property-type-token--literal').map((token) => token.text())
+        expect(literals).toEqual(['"a"', '"b"', '"c"'])
+        expect(wrapper.find('.property-enum').exists()).toBe(false)
       })
 
       it('displays enum values with their descriptions', () => {
@@ -389,7 +396,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const enumList = wrapper.find('.property-enum .property-enum-values')
+        const enumList = wrapper.find('.property-enum .property-enum-values-card')
         const html = enumList.html()
 
         expect(html).toContain('Ice giant')
@@ -425,8 +432,8 @@ describe('SchemaProperty', () => {
           },
         })
 
-        expect(wrapper.findAll('.property-enum-values')).toHaveLength(1)
-        expect(wrapper.findAll('.property-enum-value')).toHaveLength(2)
+        expect(wrapper.findAll('.property-enum')).toHaveLength(1)
+        expect(wrapper.findAll('.property-enum-chip')).toHaveLength(2)
       })
 
       it('displays enum values within composition schemas', () => {
@@ -440,8 +447,10 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const enumValues = wrapper.findAll('.property-enum-value')
-        expect(enumValues).toHaveLength(3)
+        // A short typed enum is inlined in the signature line, so no separate list renders
+        const literals = wrapper.findAll('.property-type-token--literal').map((token) => token.text())
+        expect(literals).toEqual(['"a"', '"b"', '"c"'])
+        expect(wrapper.find('.property-enum').exists()).toBe(false)
       })
     })
   })
@@ -485,7 +494,7 @@ describe('SchemaProperty', () => {
       expect(additionalName.text()).toBe('additionalProperty')
     })
 
-    describe('tree layout map keys', () => {
+    describe('map keys', () => {
       const mountRow = (variant: 'additionalProperties' | 'patternProperties', name: string) =>
         mount(SchemaProperty, {
           props: {
@@ -493,7 +502,7 @@ describe('SchemaProperty', () => {
             name,
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
-            options: { schemaLayout: 'tree' },
+            options: {},
           },
         })
 
@@ -511,23 +520,9 @@ describe('SchemaProperty', () => {
         expect(wrapper.find('.property-key-kind').text()).toBe('patternProperty')
         expect(wrapper.find('.property-name-pattern-properties').text()).toBe('^x-')
       })
-
-      it('keeps the keyword out of the legacy layout', () => {
-        const wrapper = mount(SchemaProperty, {
-          props: {
-            variant: 'additionalProperties',
-            name: 'measurement',
-            eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
-            options: { schemaLayout: 'legacy' },
-          },
-        })
-
-        expect(wrapper.find('.property-key-kind').exists()).toBe(false)
-      })
     })
 
-    it('renders a propertyNames enum with the tree card, not the legacy one', () => {
+    it('renders a propertyNames enum as the enum card', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           name: 'measurement',
@@ -535,15 +530,15 @@ describe('SchemaProperty', () => {
           propertyNamesEnum: ['alpha', 'beta'],
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
-          options: { schemaLayout: 'tree' },
+          options: {},
         },
       })
 
       expect(wrapper.find('.property-enum--tree').exists()).toBe(true)
     })
 
-    describe('tree layout cycles', () => {
-      const mountCycle = (schemaLayout: 'tree' | 'legacy') =>
+    describe('cycles', () => {
+      const mountCycle = () =>
         mount(SchemaProperty, {
           props: {
             name: 'satellites',
@@ -553,7 +548,7 @@ describe('SchemaProperty', () => {
               type: 'object',
               properties: { name: { type: 'string' } },
             }),
-            options: { schemaLayout },
+            options: {},
           },
           global: {
             provide: {
@@ -563,17 +558,13 @@ describe('SchemaProperty', () => {
         })
 
       it('marks a cut cycle in the signature line and names the schema it returns to', () => {
-        const wrapper = mountCycle('tree')
+        const wrapper = mountCycle()
         const detail = wrapper.find('.property-recursive')
 
         expect(detail.text()).toBe('recursive')
         expect(detail.attributes('title')).toBe('Recursive reference to Satellite')
         // The row is a leaf: there is no panel to open
         expect(wrapper.find('.property-children').exists()).toBe(false)
-      })
-
-      it('keeps the marker out of the legacy layout', () => {
-        expect(mountCycle('legacy').find('.property-recursive').exists()).toBe(false)
       })
 
       it('reads the cycle key of the branch the panel renders', () => {
@@ -591,7 +582,7 @@ describe('SchemaProperty', () => {
               items: { $ref: '#/components/schemas/Debris' },
               properties: { name: { type: 'string' } },
             }),
-            options: { schemaLayout: 'tree' },
+            options: {},
           },
           global: {
             provide: {
@@ -615,7 +606,7 @@ describe('SchemaProperty', () => {
               type: 'array',
               items: { $ref: '#/components/schemas/Satellite' },
             }),
-            options: { schemaLayout: 'tree' },
+            options: {},
           },
           global: {
             provide: {
@@ -633,7 +624,7 @@ describe('SchemaProperty', () => {
       })
     })
 
-    describe('tree layout collapsed rows', () => {
+    describe('collapsed rows', () => {
       /** A row that satisfies BOTH branches; the panel draws the object one. */
       const mountDualTyped = () =>
         mount(SchemaProperty, {
@@ -645,7 +636,7 @@ describe('SchemaProperty', () => {
               items: { type: 'object', properties: { gamma: { type: 'string' } } },
               properties: { alpha: { type: 'string' }, beta: { type: 'string' } },
             }),
-            options: { schemaLayout: 'tree' },
+            options: {},
           },
         })
 
@@ -681,7 +672,7 @@ describe('SchemaProperty', () => {
                 five: { type: 'string' },
               },
             }),
-            options: { schemaLayout: 'tree' },
+            options: {},
           },
         })
 
@@ -702,7 +693,7 @@ describe('SchemaProperty', () => {
                 email: { type: 'string' },
               },
             }),
-            options: { schemaLayout: 'tree', hideReadOnly: true },
+            options: { hideReadOnly: true },
           },
         })
 
@@ -722,25 +713,9 @@ describe('SchemaProperty', () => {
         // The rows themselves are on screen now; the hint would just repeat them.
         expect(wrapper.find('.property-collapsed-preview').exists()).toBe(false)
       })
-
-      it('keeps the preview out of the legacy layout', () => {
-        const wrapper = mount(SchemaProperty, {
-          props: {
-            name: 'hybrid',
-            eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
-              type: 'object',
-              properties: { alpha: { type: 'string' } },
-            }),
-            options: { schemaLayout: 'legacy' },
-          },
-        })
-
-        expect(wrapper.find('.property-collapsed-preview').exists()).toBe(false)
-      })
     })
 
-    describe('tree layout child counts', () => {
+    describe('child counts', () => {
       /**
        * The announced count and the rendered rows come from two different reads
        * of the same schema: the count takes `Object.keys(properties).length`
@@ -766,7 +741,7 @@ describe('SchemaProperty', () => {
                 updatedAt: { type: 'string' },
               },
             }),
-            options: { schemaLayout: 'tree', hideReadOnly },
+            options: { hideReadOnly },
           },
         })
 
@@ -787,8 +762,8 @@ describe('SchemaProperty', () => {
       })
     })
 
-    describe('tree layout hover marks', () => {
-      const mountRow = (schemaLayout: 'tree' | 'legacy') =>
+    describe('hover marks', () => {
+      const mountRow = () =>
         mount(SchemaProperty, {
           props: {
             name: 'account',
@@ -797,12 +772,12 @@ describe('SchemaProperty', () => {
               type: 'object',
               properties: { alpha: { type: 'string' } },
             }),
-            options: { schemaLayout },
+            options: {},
           },
         })
 
       it('marks the row only while its heading is hovered', async () => {
-        const wrapper = mountRow('tree')
+        const wrapper = mountRow()
         const heading = wrapper.find('.property-heading')
 
         expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
@@ -816,16 +791,8 @@ describe('SchemaProperty', () => {
         expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
       })
 
-      it('never marks a legacy row', async () => {
-        const wrapper = mountRow('legacy')
-
-        await wrapper.find('.property-heading').trigger('pointerenter')
-
-        expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
-      })
-
       it('clears the mark when the row leaves the DOM under the pointer', async () => {
-        const wrapper = mountRow('tree')
+        const wrapper = mountRow()
         // The row is this component's own element, so hold on to it: unmounting
         // detaches the node but leaves whatever attributes it was carrying.
         const row = wrapper.element as HTMLElement
@@ -842,7 +809,7 @@ describe('SchemaProperty', () => {
       })
 
       it('drops the rail marks when the row closes without a strip click', async () => {
-        const wrapper = mountRow('tree')
+        const wrapper = mountRow()
         const toggle = wrapper.find('.property-toggle')
 
         await toggle.trigger('click')
@@ -912,7 +879,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        await wrapper.find('.schema-card-title').trigger('click')
+        await wrapper.find('.property-toggle').trigger('click')
 
         // The member is rendered directly, with its description shown exactly once.
         expect(wrapper.text()).toContain('test')
@@ -939,7 +906,7 @@ describe('SchemaProperty', () => {
           },
         })
 
-        const buttons = wrapper.findAll('button.schema-card-title')
+        const buttons = wrapper.findAll('.property-toggle')
         for (const button of buttons) {
           await button.trigger('click')
           await wrapper.vm.$nextTick()
@@ -1065,7 +1032,7 @@ describe('SchemaProperty', () => {
         })
 
         // Expand all schema cards to reveal nested content
-        const buttons = wrapper.findAll('button.schema-card-title')
+        const buttons = wrapper.findAll('.property-toggle')
         for (const button of buttons) {
           await button.trigger('click')
           await wrapper.vm.$nextTick()
@@ -1105,7 +1072,7 @@ describe('SchemaProperty', () => {
         },
       })
 
-      const expandButton = wrapper.find('.schema-card-title')
+      const expandButton = wrapper.find('.property-toggle')
       if (expandButton.exists()) {
         await expandButton.trigger('click')
         await wrapper.vm.$nextTick()
@@ -1203,7 +1170,7 @@ describe('SchemaProperty', () => {
       expect(wrapper.find('#body\\.BaseObject\\.nestedField').exists()).toBe(false)
     })
 
-    it('wraps a linked name in the anchor and, in the legacy layout, a copy button', () => {
+    it('wraps a linked name in the anchor and trails the heading with a copy button', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           eventBus: null,
@@ -1211,7 +1178,7 @@ describe('SchemaProperty', () => {
           level: 1,
           name: 'myField',
           schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
-          options: { schemaLayout: 'legacy' },
+          options: {},
         },
       })
 
@@ -1219,7 +1186,10 @@ describe('SchemaProperty', () => {
 
       expect(anchor.exists()).toBe(true)
       expect(anchor.text()).toContain('myField')
-      expect(anchor.find('button').exists()).toBe(true)
+      // The copy button is the heading's last child, not part of the anchor,
+      // so the tab order matches the visual order.
+      expect(anchor.find('button').exists()).toBe(false)
+      expect(wrapper.find('.property-heading > :last-child').classes()).toContain('copy-link-trailing')
     })
 
     it('renders an unlinked name as a bare span without the anchor wrapper', () => {
@@ -1272,7 +1242,7 @@ describe('SchemaProperty', () => {
             name: 'myField',
             variant,
             schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
-            options: { schemaLayout: 'tree' },
+            options: {},
           },
         })
 

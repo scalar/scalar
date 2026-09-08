@@ -1,9 +1,10 @@
 /**
- * Note on the `!` suffix used across the tree layout templates: utilities
+ * Note on the `!` suffix used across the schema tree templates: utilities
  * compile before SFC scoped styles here, so a utility loses every equal-
- * specificity tie against a legacy scoped rule targeting the same class.
- * The tree keeps legacy class names as styling hooks, so contested
- * declarations carry `!` (e.g. `mt-1!`) to win that tie — nothing else does.
+ * specificity tie against a scoped rule targeting the same class. The tree
+ * keeps its class names as styling hooks for scoped rules and `customCss`,
+ * so contested declarations carry `!` (e.g. `mt-1!`) to win that tie —
+ * nothing else does.
  *
  * API Reference Tailwind Configuration
  *

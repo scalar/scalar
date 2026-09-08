@@ -158,8 +158,7 @@ describe('SchemaComposition', () => {
         },
       })
 
-      const typeLabel = wrapper.find('span')
-      expect(typeLabel.text()).toBe('One of')
+      expect(wrapper.find('.composition-selector').text()).toContain('One of')
     })
 
     it('renders primitive type in composition panel', () => {
@@ -531,7 +530,7 @@ describe('SchemaComposition', () => {
     expect(oneOfSchema.oneOf[1].title).toBe('With Currency Pair')
   })
 
-  describe('tree layout', () => {
+  describe('variant picker', () => {
     it('renders the variant picker as a single pass-through element', () => {
       const errors: unknown[] = []
 
@@ -546,7 +545,7 @@ describe('SchemaComposition', () => {
             ],
           }),
           level: 0,
-          options: { schemaLayout: 'tree' },
+          options: {},
         },
         global: {
           config: {

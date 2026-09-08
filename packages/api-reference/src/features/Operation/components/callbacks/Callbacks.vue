@@ -11,7 +11,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { useSchemaLayout } from '@/components/Content/Schema/helpers/use-schema-layout'
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
@@ -19,7 +18,7 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import Callback from './Callback.vue'
 
-const { path, callbacks, options, breadcrumb } = defineProps<{
+const { path, callbacks, breadcrumb } = defineProps<{
   path: string
   callbacks: CallbackObject
   eventBus: WorkspaceEventBus | null
@@ -33,15 +32,12 @@ const { path, callbacks, options, breadcrumb } = defineProps<{
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
-    | 'schemaLayout'
     | 'schemaKeyboardNav'
   >
 }>()
 const { translate } = useLocalization()
 
 const { level: headingLevel } = useDocumentOutline('operationSection')
-
-const { isTreeLayout } = useSchemaLayout(() => options.schemaLayout)
 
 type CallbackType = {
   name: string
@@ -87,12 +83,11 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
     :aria-label="translate('operation.callbacks')"
     class="callbacks-list gap-3"
     role="group">
-    <!-- Tree: the heading carries the rule; the callback row pads itself, so no bottom margin -->
+    <!-- The heading carries the rule; the callback row pads itself, so no bottom margin -->
     <SectionHeaderTag
-      class="callbacks-title text-c-1 mt-3 block! text-lg font-medium"
-      :class="isTreeLayout ? 'callbacks-title--tree mb-0' : 'mb-3'"
+      class="callbacks-title text-c-1 callbacks-title--tree mt-3 mb-0 block! text-lg font-medium"
       :level="headingLevel"
-      :rule="isTreeLayout">
+      rule>
       {{ translate('operation.callbacks') }}
     </SectionHeaderTag>
     <!-- The url is part of a callback's identity (one name can carry several

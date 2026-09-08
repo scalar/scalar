@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/button'
-import { ScalarIconPlus } from '@scalar/icons'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
@@ -11,28 +9,20 @@ import { useLocalization } from '@/features/localization'
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
 import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 
-const {
-  value,
-  layout = 'legacy',
-  propertyNames = false,
-} = defineProps<{
+const { value, propertyNames = false } = defineProps<{
   /** The schema object containing enum values and metadata */
   value: SchemaObject | undefined
   /** Whether to display the enum for property names */
   propertyNames?: boolean
-  /** The schema layout this enum renders inside */
-  layout?: 'legacy' | 'tree'
 }>()
 const { translate } = useLocalization()
 
 /**
- * The tree layout uses 12/8; with the legacy 9/5 a 10-value enum hides half
- * its values. The legacy layout keeps its numbers so nothing existing changes.
+ * Past this many values the list collapses behind a reveal. 12/8 rather than a
+ * tighter pair: with 9/5 a 10-value enum hides half its values.
  */
-const ENUM_DISPLAY_THRESHOLD_LEGACY = 9
-const INITIAL_VISIBLE_COUNT_LEGACY = 5
-const ENUM_DISPLAY_THRESHOLD_TREE = 12
-const INITIAL_VISIBLE_COUNT_TREE = 8
+const ENUM_DISPLAY_THRESHOLD = 12
+const INITIAL_VISIBLE_COUNT = 8
 /** Values at or under this length can render as wrapped chips */
 const CHIP_MAX_LENGTH = 24
 const THIN_SPACE = '\u2009'
@@ -62,27 +52,19 @@ const enumValues = computed(() => enumSchema.value?.enum ?? [])
  * Determines if we should show the long enum list UI.
  * When there are many enum values, we initially show only a subset.
  */
-const displayThreshold = computed(() =>
-  layout === 'tree'
-    ? ENUM_DISPLAY_THRESHOLD_TREE
-    : ENUM_DISPLAY_THRESHOLD_LEGACY,
-)
-
 const shouldUseLongListDisplay = computed(
-  () => enumValues.value.length > displayThreshold.value,
+  () => enumValues.value.length > ENUM_DISPLAY_THRESHOLD,
 )
 
 const initialVisibleCount = computed(() =>
   shouldUseLongListDisplay.value
-    ? layout === 'tree'
-      ? INITIAL_VISIBLE_COUNT_TREE
-      : INITIAL_VISIBLE_COUNT_LEGACY
+    ? INITIAL_VISIBLE_COUNT
     : enumValues.value.length,
 )
 
 /**
- * Short flat enums render as wrapped chips in the tree layout: three lines
- * instead of a 40-row wall. Values with descriptions keep the rows instead.
+ * Short flat enums render as wrapped chips: three lines instead of a 40-row
+ * wall. Values with descriptions keep the rows instead.
  *
  * `!shouldUseLongListDisplay` is what bounds the COUNT. Chips have no reveal of
  * their own — the "show all values" control is a row of the list below — so a
@@ -92,7 +74,6 @@ const initialVisibleCount = computed(() =>
  */
 const shouldRenderAsChips = computed(
   () =>
-    layout === 'tree' &&
     !propertyNames &&
     enumValues.value.length > 0 &&
     !shouldUseLongListDisplay.value &&
@@ -172,10 +153,10 @@ const toggleExpanded = () => {
 
 <template>
   <div
-    v-if="enumValues.length > 0 && layout === 'tree'"
+    v-if="enumValues.length > 0"
     class="property-enum property-enum--tree mt-2 rounded-(--scalar-radius-lg) border">
-    <!-- Tree layout: a bordered card with a muted header row and one hairline
-         row per value; the chips and the long-list toggle are rows of it too -->
+    <!-- A bordered card with a muted header row and one hairline row per
+         value; the chips and the long-list toggle are rows of it too -->
     <div class="property-enum-header text-c-2 px-3 py-2 text-sm capitalize">
       {{
         propertyNames
@@ -203,8 +184,7 @@ const toggleExpanded = () => {
         v-for="(enumValue, index) in visibleEnumValues"
         :key="index"
         :description="getEnumValueDescription(enumValue, index)"
-        :label="formatEnumValueWithName(enumValue, index)"
-        layout="tree" />
+        :label="formatEnumValueWithName(enumValue, index)" />
 
       <template v-if="shouldUseLongListDisplay && isExpanded">
         <SchemaEnumPropertyItem
@@ -215,8 +195,7 @@ const toggleExpanded = () => {
           "
           :label="
             formatEnumValueWithName(enumValue, initialVisibleCount + index)
-          "
-          layout="tree" />
+          " />
       </template>
 
       <li
@@ -240,62 +219,6 @@ const toggleExpanded = () => {
       </li>
     </ul>
   </div>
-
-  <!-- Legacy: untouched -->
-  <div
-    v-else-if="enumValues.length > 0"
-    class="property-enum">
-    <div
-      v-if="propertyNames"
-      class="property-enum-property-names">
-      {{ translate('common.propertyNames') }}
-    </div>
-    <div
-      v-else
-      class="property-enum-property-names">
-      {{ translate('common.values') }}
-    </div>
-    <ul
-      class="property-enum-values"
-      role="list">
-      <!-- Visible enum values -->
-      <SchemaEnumPropertyItem
-        v-for="(enumValue, index) in visibleEnumValues"
-        :key="index"
-        :description="getEnumValueDescription(enumValue, index)"
-        :label="formatEnumValueWithName(enumValue, index)" />
-
-      <!-- Hidden enum values (when expanded) -->
-      <template v-if="shouldUseLongListDisplay && isExpanded">
-        <SchemaEnumPropertyItem
-          v-for="(enumValue, index) in hiddenEnumValues"
-          :key="initialVisibleCount + index"
-          :description="
-            getEnumValueDescription(enumValue, initialVisibleCount + index)
-          "
-          :label="
-            formatEnumValueWithName(enumValue, initialVisibleCount + index)
-          " />
-      </template>
-
-      <!-- Toggle button for long lists -->
-      <li v-if="shouldUseLongListDisplay">
-        <ScalarButton
-          class="enum-toggle-button my-2 flex h-fit gap-1 rounded-full border py-1.5 pr-2.5 pl-2 leading-none"
-          variant="ghost"
-          @click="toggleExpanded">
-          <ScalarIconPlus
-            :class="{ 'rotate-45': isExpanded }"
-            weight="bold" />
-          {{
-            isExpanded
-              ? translate('common.hideValues')
-              : translate('common.showAllValues')
-          }}
-        </ScalarButton>
-      </li>
-    </ul>
-  </div>
 </template>
 
 <style scoped>
@@ -314,22 +237,7 @@ const toggleExpanded = () => {
   padding-bottom: 10px;
 }
 
-.property-enum-values {
-  font-size: var(--scalar-font-size-3);
-  list-style: none;
-  margin-top: 8px;
-  padding-left: 2px;
-}
-
 .enum-toggle-button:hover {
   color: var(--scalar-color-1);
-}
-
-.property-enum-property-names {
-  font-size: var(--scalar-font-size-4);
-  color: var(--scalar-color-2);
-  display: inline-block;
-  padding: 0 2px;
-  margin-top: 8px;
 }
 </style>

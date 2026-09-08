@@ -2,7 +2,7 @@
 import { onBeforeUnmount, type Component } from 'vue'
 
 /**
- * The railed panel of the tree layout: an expanded row's children behind a rail
+ * The railed panel of the schema tree: an expanded row's children behind a rail
  * that fades with depth. See the indentation model in SchemaProperty.vue.
  *
  * `--schema-depth` must stay inline on the element itself: the `schema-rail`

@@ -259,12 +259,10 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :requestBody="getResolvedRef(operation.requestBody)" />
         </div>
         <div class="operation-details-card-item">
-          <!-- Tree only: the classic card renders responses as static panels,
-               which is what the legacy layout still does here -->
+          <!-- Responses are disclosures unless the configuration expands every
+               response, in which case they render as static panels -->
           <OperationResponses
-            :collapsableItems="
-              options.schemaLayout === 'tree' && !options.expandAllResponses
-            "
+            :collapsableItems="!options.expandAllResponses"
             v-model:selectedContentTypes="selectedResponseContentTypes"
             :breadcrumb="[id]"
             :document
@@ -458,7 +456,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
 }
 
 /*
- * Tree layout inside a classic card.
+ * The schema tree inside a classic card.
  *
  * A tree row hangs its +/- control one gutter to the LEFT of its own text. The
  * modern layout absorbs that in the page margin, but a classic card draws its
@@ -466,16 +464,17 @@ const { level: headingLevel } = useDocumentOutline('operation')
  * the box that is supposed to contain them. Every card that holds tree rows
  * reserves `gutter + half` on the inline start — plus the same 6px of air the
  * modern layout leaves at the page edge, so a control never kisses the border —
- * and matches the legacy 9px on the end so a long signature never touches the
- * border either.
+ * and matches the card's own 9px on the end so a long signature never touches
+ * the border either.
  *
  * The reserve is spelled out at each use site rather than kept as a token: a
  * custom property substitutes where it is DECLARED, so a token defined at app
  * scope would freeze at the wide values and keep reserving 25px in a narrow
  * container that only needs 18 (same reason `schema-rail`'s fade is inline).
  *
- * The `:has()` guard keeps the legacy layout untouched: it draws no floating
- * controls and pads its own rows by 9px.
+ * The `:has()` guard reserves the space only where a tree row can draw a
+ * control: a card holding nothing but a description and an example keeps the
+ * plain 9px.
  *
  * `.parameter-item--tree` has to be in the guard even though a row of its own
  * hangs nothing: the classic card renders responses as disclosures, and a
@@ -565,32 +564,6 @@ const { level: headingLevel } = useDocumentOutline('operation')
   line-height: 1.33;
   padding: 9px;
   margin: 0;
-}
-
-.operation-details-card :deep(.callback-list-item-title) {
-  padding-left: 28px;
-  padding-right: 12px;
-}
-
-.operation-details-card :deep(.callback-list-item-icon) {
-  left: 6px;
-}
-
-.operation-details-card :deep(.callback-operation-container) {
-  padding-inline: 9px;
-  padding-bottom: 9px;
-}
-
-.operation-details-card :deep(.callback-operation-container > .request-body),
-.operation-details-card :deep(.callback-operation-container > .parameter-list) {
-  border: none;
-}
-
-.operation-details-card
-  :deep(.callback-operation-container > .request-body > .request-body-header) {
-  padding: 0;
-  padding-bottom: 9px;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .operation-details-card :deep(.request-body-description) {

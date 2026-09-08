@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { pushDynamicScope } from '@scalar/workspace-store/helpers/dynamic-ref'
@@ -8,7 +7,7 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, inject, provide, useId, useTemplateRef } from 'vue'
+import { computed, inject, provide, useId } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -32,10 +31,8 @@ import {
 } from './helpers/schema-expansion'
 import { handleTreeKeydown } from './helpers/schema-keyboard-nav'
 import { unwrapForRead } from './helpers/unwrap-for-read'
-import { useSchemaLayout } from './helpers/use-schema-layout'
 import SchemaComposition from './SchemaComposition.vue'
 import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
-import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
@@ -61,8 +58,8 @@ const {
   /** Track how deep we've gone */
   level?: number
   /**
-   * Real nesting depth in the tree layout. Not derived from `level`, whose
-   * stride differs per edge (object +2, composition +1, non-object root +0).
+   * Real nesting depth. Not derived from `level`, whose stride differs per
+   * edge (object +2, composition +1, non-object root +0).
    */
   depth?: number
   /* Show as a heading */
@@ -187,12 +184,6 @@ const shouldForceExpand = computed(
 )
 
 /**
- * Determines whether to show the collapse/expand toggle button.
- * We hide the toggle for non-collapsible schemas and root-level schemas.
- */
-const shouldShowToggle = computed((): boolean => !noncollapsible && level > 0)
-
-/**
  * Whether this schema sits on the path to the current anchor/scroll target.
  *
  * Property anchors are dot-joined breadcrumbs, so every disclosure that wraps
@@ -217,10 +208,6 @@ const isOnTargetPath = computed((): boolean =>
 const defaultOpen = computed(
   (): boolean =>
     noncollapsible || shouldForceExpand.value || isOnTargetPath.value,
-)
-
-const childAttributesLabel = computed(
-  (): string => schema.value?.title ?? translate('schema.childAttributes'),
 )
 
 /** Gets the description to show for the schema */
@@ -282,8 +269,6 @@ const inferredDiscriminatorComposition = computed(() =>
     : null,
 )
 
-const { isTreeLayout } = useSchemaLayout(() => options.schemaLayout)
-
 /**
  * Whether an enclosing Schema already established a tree root. `depth === 0`
  * alone is not enough: a nested Schema can mount at depth 0 (an `allOf`
@@ -292,10 +277,8 @@ const { isTreeLayout } = useSchemaLayout(() => options.schemaLayout)
  */
 const hasTreeRootAbove = inject(SCHEMA_TREE_ROOT_SYMBOL, false)
 
-/** Both flagged tree features live on the outermost tree root only */
-const isTreeRoot = computed(
-  (): boolean => isTreeLayout.value && depth === 0 && !hasTreeRootAbove,
-)
+/** The root-only features (glyph tokens, keyboard navigation) live on the outermost tree root only */
+const isTreeRoot = computed((): boolean => depth === 0 && !hasTreeRootAbove)
 
 // Descendants must know a root exists above them, whatever depth they mount at.
 provide(SCHEMA_TREE_ROOT_SYMBOL, true)
@@ -334,42 +317,25 @@ const open = computed(
     }),
 )
 
-/** The panel is always present for a schema that has no toggle of its own. */
-const isPanelStatic = computed((): boolean => !shouldShowToggle.value)
-
-/** Additional-property panels hide until opened; static panels always render */
+/** Additional-property panels hide until opened; every other panel always renders */
 const panelRendered = computed(
-  (): boolean =>
-    (!additionalProperties || open.value) &&
-    (isPanelStatic.value || open.value),
+  (): boolean => !additionalProperties || open.value,
 )
 
 const toggleId = useId()
 const panelId = useId()
 
-const panelRef = useTemplateRef<HTMLElement>('panel')
-const toggleRef = useTemplateRef<HTMLElement>('toggle')
-
+/**
+ * The reveal is one-way: its button hides once the panel opens, so nothing
+ * here can collapse a subtree that holds focus. The rows inside handle that
+ * themselves (see `toggleTree` in SchemaProperty.vue).
+ */
 const toggle = (): void => {
   if (noncollapsible) {
     return
   }
 
-  const next = !open.value
-
-  /**
-   * Collapsing a subtree that holds the focused element would drop focus to
-   * `<body>` as the panel unmounts, so move it to this row's toggle first.
-   */
-  if (!next) {
-    const active = document.activeElement
-
-    if (active && panelRef.value?.contains(active)) {
-      toggleRef.value?.focus()
-    }
-  }
-
-  expansion.setExpanded(nodeKey.value, next)
+  expansion.setExpanded(nodeKey.value, !open.value)
 }
 </script>
 <template>
@@ -383,13 +349,12 @@ const toggle = (): void => {
     :class="[
       `schema-card--level-${level}`,
       { 'schema-card--compact': compact, 'schema-card--open': open },
-      { 'border-t': additionalProperties && open && !isTreeLayout },
       /*
        * No margin of its own: the row above already ends with its own 6px pad,
        * so the reveal keeps the tree's row-to-row rhythm exactly.
        */
-      { 'additional-card--tree': additionalProperties && isTreeLayout },
-      { 'schema-card--tree': isTreeLayout },
+      { 'additional-card--tree': additionalProperties },
+      'schema-card--tree',
       /*
        * Tree-local tokens, namespaced --schema-* so no preset or user theme
        * breaks. WCAG 1.4.11 wants 3:1 for the glyph; --scalar-color-3 measures
@@ -406,67 +371,48 @@ const toggle = (): void => {
     ]"
     @keydown="onTreeKeydown">
     <!-- Schema description -->
-    <!-- Tree layout: without the card box the legacy level-0 divider (and its
-         negative-margin tuck) is a stray line, so the tree drops the whole treatment -->
+    <!-- Without a card box the level-0 divider (and its negative-margin tuck)
+         would be a stray line, so the whole treatment is switched off -->
     <div
       v-if="schemaDescription"
-      class="schema-card-description"
-      :class="{
-        '[.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:mb-0! [.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:border-b-0! [.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:pb-0!':
-          isTreeLayout,
-      }">
+      class="schema-card-description [.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:mb-0! [.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:border-b-0! [.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:pb-0!">
       <ScalarMarkdown :value="schemaDescription" />
     </div>
     <div
       v-if="isEmptySchemaObject(resolvedSchema)"
-      :class="isTreeLayout ? 'text-c-2 py-1.5' : 'pt-2'">
+      class="text-c-2 py-1.5">
       {{ translate('schema.emptyObject') }}
     </div>
-    <!-- Tree layout: a rail per depth instead of a bordered box per level, so
-         the card chrome goes. 6px under a description keeps the 12px row
-         rhythm (legacy keeps 8px); at level 0 the divider is gone, so even that
-         6px would double up with the first row's own padding. -->
+    <!-- A rail per depth instead of a bordered box per level, so the card
+         chrome is switched off. 6px under a description keeps the 12px row
+         rhythm; at level 0 the divider is gone, so even that 6px would double
+         up with the first row's own padding. -->
     <div
       class="schema-properties"
-      :class="{
-        'schema-properties-open': open,
-        'w-full! rounded-none! border-0! [.schema-card--level-0:nth-of-type(1)>.schema-card-description+&]:mt-0! [.schema-card-description+&]:mt-1.5!':
-          isTreeLayout,
-      }">
+      :class="[
+        { 'schema-properties-open': open },
+        'w-full! rounded-none! border-0! [.schema-card--level-0:nth-of-type(1)>.schema-card-description+&]:mt-0! [.schema-card-description+&]:mt-1.5!',
+      ]">
       <!-- Toggle to collapse/expand long lists of properties -->
       <div
         v-if="additionalProperties"
         v-show="!open"
-        class="schema-properties"
-        :class="{ 'w-full! rounded-none! border-0!': isTreeLayout }">
-        <!-- Tree layout: the reveal reads as one more row — mono label flush
-             with the sibling rows' text, a plus puck centred on the sibling
-             toggles' line — in place of the legacy card-title chrome.
-             `min-h-8` is the row's own 32px: the label then centres in the
-             same 20px slot a heading gets, so the first revealed property
+        class="schema-properties w-full! rounded-none! border-0!">
+        <!-- The reveal reads as one more row — mono label flush with the
+             sibling rows' text, a plus puck centred on the sibling toggles'
+             line. `min-h-8` is the row's own 32px: the label then centres in
+             the same 20px slot a heading gets, so the first revealed property
              lands exactly where the label was instead of 2.5px below it. -->
         <button
           :id="toggleId"
-          ref="toggle"
           :aria-controls="panelRendered ? panelId : undefined"
           :aria-expanded="open"
-          class="schema-card-title schema-card-title--compact group/tree-control"
-          :class="{
-            'additional-toggle--tree font-code text-c-1! relative flex h-auto min-h-8 items-center gap-0! px-0! py-[var(--schema-row-pad,6px)]! text-sm! font-bold!':
-              isTreeLayout,
-          }"
+          class="schema-card-title schema-card-title--compact group/tree-control additional-toggle--tree font-code text-c-1! relative flex h-auto min-h-8 items-center gap-0! px-0! py-[var(--schema-row-pad,6px)]! text-sm! font-bold!"
           type="button"
           @click="toggle">
-          <!-- Tree layout: the reveal is one more row of the tree, so its plus
-               is the same puck the row toggles draw, on the same gutter line -->
-          <SchemaGlyphPuck
-            v-if="isTreeLayout"
-            class="additional-toggle-glyph" />
-          <ScalarIcon
-            v-else
-            class="schema-card-title-icon"
-            icon="Add"
-            size="sm" />
+          <!-- The reveal is one more row of the tree, so its plus is the same
+               puck the row toggles draw, on the same gutter line -->
+          <SchemaGlyphPuck class="additional-toggle-glyph" />
           <span class="additional-toggle-label">
             {{ translate('schema.showAdditionalProperties') }}
             <ScreenReader v-if="name">
@@ -476,64 +422,11 @@ const toggle = (): void => {
         </button>
       </div>
 
-      <!-- Still a `div` when noncollapsible, so the legacy markup is unchanged;
-           it has no role or tab stop, which the gutter control later fixes. -->
-      <component
-        :is="noncollapsible ? 'div' : 'button'"
-        v-else-if="shouldShowToggle"
-        v-show="!hideHeading && !(noncollapsible && compact)"
-        :id="noncollapsible ? undefined : toggleId"
-        ref="toggle"
-        :aria-controls="!noncollapsible && panelRendered ? panelId : undefined"
-        :aria-expanded="noncollapsible ? undefined : open"
-        class="schema-card-title"
-        :class="{ 'schema-card-title--compact': compact }"
-        :style="{
-          top: `calc(var(--refs-viewport-offset) +  calc(var(--schema-title-height) * ${level}))`,
-        }"
-        :type="noncollapsible ? undefined : 'button'"
-        @click="toggle">
-        <template v-if="compact">
-          <ScalarIcon
-            class="schema-card-title-icon"
-            :class="{ 'schema-card-title-icon--open': open }"
-            icon="Add"
-            size="sm" />
-          <template v-if="open">
-            {{
-              translate('schema.hideChildAttributes', {
-                name: childAttributesLabel,
-              })
-            }}
-          </template>
-          <template v-else>
-            {{
-              translate('schema.showChildAttributes', {
-                name: childAttributesLabel,
-              })
-            }}
-          </template>
-          <ScreenReader v-if="name">
-            {{ translate('schema.forName', { name }) }}
-          </ScreenReader>
-        </template>
-        <template v-else>
-          <ScalarIcon
-            class="schema-card-title-icon"
-            :class="{ 'schema-card-title-icon--open': open }"
-            icon="Add"
-            size="sm" />
-          <SchemaHeading
-            :name="resolvedSchema?.title ?? name"
-            :value="resolvedSchema" />
-        </template>
-      </component>
       <!-- The theme reset strips list-style, which makes Safari and VoiceOver
            drop list semantics; an explicit role restores them. -->
       <ul
         v-if="panelRendered"
         :id="panelId"
-        ref="panel"
         role="list">
         <!-- Variant selector inferred from a discriminator mapping -->
         <SchemaComposition
@@ -616,9 +509,6 @@ button.schema-card-title {
 button.schema-card-title:hover {
   color: var(--scalar-color-1);
 }
-.schema-card-title-icon--open {
-  transform: rotate(45deg);
-}
 .schema-properties-open > .schema-card-title {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
@@ -683,12 +573,6 @@ button.schema-card-title:hover {
   padding: 6px 10px 6px 8px;
   height: auto;
   border-bottom: none;
-}
-.schema-card-title--compact > .schema-card-title-icon {
-  margin: 0;
-}
-.schema-card-title--compact > .schema-card-title-icon--open {
-  transform: rotate(45deg);
 }
 .schema-properties-open > .schema-card-title--compact {
   position: static;

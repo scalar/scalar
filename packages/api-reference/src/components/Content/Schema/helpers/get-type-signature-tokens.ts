@@ -45,7 +45,7 @@ const joinTokens = (lists: TypeSignatureToken[][], separator: () => TypeSignatur
 
 /**
  * Whether the signature will actually render this schema's enum values inline.
- * The tree layout drops the separate value list for short enums on that
+ * SchemaProperty drops the separate value list for short enums on that
  * assumption, so it must be checked: a `$ref` renders as the model name before
  * reaching the enum branch, and a schema with no `type` renders no type detail,
  * so in both cases the values would otherwise be shown nowhere.
@@ -188,12 +188,12 @@ export const getTypeSignatureTokens = (
 }
 
 /**
- * The tokens the tree layout shows for a row: the raw signature, renamed to the
- * caller's resolved model name where the two would disagree.
+ * The tokens a row shows: the raw signature, renamed to the caller's resolved
+ * model name where the two would disagree.
  *
- * A `$ref` renders as the raw component key while the heading link, the models
- * section and the legacy layout show the target's `title`; the caller's name
- * keeps them in agreement. Only a `$ref` may be renamed: an inline schema's
+ * A `$ref` renders as the raw component key while the heading link and the
+ * models section show the target's `title`; the caller's name keeps them in
+ * agreement. Only a `$ref` may be renamed: an inline schema's
  * single token is its real type (`integer`), not its `title`.
  */
 export const getDisplayTypeSignatureTokens = (

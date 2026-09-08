@@ -12,7 +12,6 @@ describe('OperationParameters', () => {
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
-    schemaLayout: 'legacy' as const,
     schemaKeyboardNav: false,
   }
 

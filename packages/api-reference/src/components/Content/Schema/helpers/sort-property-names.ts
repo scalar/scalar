@@ -54,12 +54,12 @@ type PropertyRecord = {
 /**
  * Sorted names, memoised per `properties` object.
  *
- * The tree layout sorts a row's children while the row is collapsed (for the
- * preview) and again when it opens (for the panel), and every row that `$ref`s
- * the same schema sorts the same `properties` object over again. That object's
- * identity survives each copy on the render path (the display-time spreads keep
- * the reference, and every proxy layer caches its child proxies per target), so
- * it is a stable key, and a `WeakMap` lets the entries die with the document.
+ * A row sorts its children while it is collapsed (for the preview) and again
+ * when it opens (for the panel), and every row that `$ref`s the same schema
+ * sorts the same `properties` object over again. That object's identity
+ * survives each copy on the render path (the display-time spreads keep the
+ * reference, and every proxy layer caches its child proxies per target), so it
+ * is a stable key, and a `WeakMap` lets the entries die with the document.
  *
  * An entry is valid only while `schema.required` is the same array: the
  * composition path builds a fresh `properties` AND a fresh `required` when it

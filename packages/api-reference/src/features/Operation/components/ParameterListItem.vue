@@ -5,7 +5,6 @@ import {
   ScalarMarkdownSummary,
 } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
-import { ScalarIconCaretRight } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -19,7 +18,6 @@ import { computed, ref, watch } from 'vue'
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
 import { hasComplexArrayItems } from '@/components/Content/Schema/helpers/has-complex-array-items'
 import { optimizeValueForDisplay } from '@/components/Content/Schema/helpers/optimize-value-for-display'
-import { useSchemaLayout } from '@/components/Content/Schema/helpers/use-schema-layout'
 import SchemaGlyphPuck from '@/components/Content/Schema/SchemaGlyphPuck.vue'
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
@@ -52,7 +50,6 @@ const {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
-    | 'schemaLayout'
     | 'schemaKeyboardNav'
   >
 }>()
@@ -60,8 +57,6 @@ const {
 const emit = defineEmits<{
   (e: 'update:selectedContentType', value: string): void
 }>()
-
-const { isTreeLayout } = useSchemaLayout(() => options.schemaLayout)
 
 /** Whether the markdown summary is being truncated */
 const truncated = ref(false)
@@ -212,44 +207,37 @@ const hasChildElements = (input: unknown): boolean => {
 /**
  * Whether this item renders as a collapsible disclosure.
  *
- * Tree layout: a control may only hide child elements — media content,
- * response headers, or a schema with nested rows — never scalar detail, so a
- * scalar-only parameter renders statically. `truncated` stays as an overflow
- * escape hatch: it only turns true when a summary is cut off, and a summary
- * only renders on a disclosure. Legacy keeps its original predicate: any
- * schema makes the item collapsible.
+ * A control may only hide child elements — media content, response headers,
+ * or a schema with nested rows — never scalar detail, so a scalar-only
+ * parameter renders statically. `truncated` stays as an overflow escape
+ * hatch: it only turns true when a summary is cut off, and a summary only
+ * renders on a disclosure.
  */
 const shouldCollapse = computed<boolean>(() =>
-  isTreeLayout.value
-    ? Boolean(
-        content.value ||
-        headers.value ||
-        hasChildElements(value.value) ||
-        truncated.value,
-      )
-    : Boolean(
-        content.value || headers.value || schema.value || truncated.value,
-      ),
+  Boolean(
+    content.value ||
+    headers.value ||
+    hasChildElements(value.value) ||
+    truncated.value,
+  ),
 )
 
 /**
- * Tree-only: a collapsable-list item with nothing to collapse renders like a
+ * A collapsable-list item with nothing to collapse renders like a
  * non-collapsable one — no trigger, a static panel, and the schema showing
  * its own name and description.
  */
 const isStaticTreeItem = computed<boolean>(
-  (): boolean =>
-    Boolean(collapsableItems) && isTreeLayout.value && !shouldCollapse.value,
+  (): boolean => Boolean(collapsableItems) && !shouldCollapse.value,
 )
 
 /**
- * Tree layout: a collapsible row's panel becomes a railed panel with the
- * DisclosurePanel as its root, so the disclosure wiring is untouched. Legacy
- * and static tree items keep the plain DisclosurePanel.
+ * A collapsible row's panel becomes a railed panel with the DisclosurePanel
+ * as its root, so the disclosure wiring is untouched. Non-collapsable and
+ * static items keep the plain DisclosurePanel.
  */
 const isRailedPanel = computed<boolean>(
-  (): boolean =>
-    isTreeLayout.value && Boolean(collapsableItems) && shouldCollapse.value,
+  (): boolean => Boolean(collapsableItems) && shouldCollapse.value,
 )
 
 /**
@@ -268,32 +256,10 @@ const schemaBreadcrumb = computed<string[] | undefined>(() =>
  * `OperationResponses` hands every status the same `[...breadcrumb,
  * 'responses']`, so keying headers off that alone makes all responses share
  * one expansion node (opening 200's headers opens 404's too).
- *
- * Tree only. The qualifier changes the anchor id, and the legacy layout's ids
- * must stay where they were.
  */
 const headersBreadcrumb = computed<string[] | undefined>(() =>
-  isTreeLayout.value && breadcrumb && name ? [...breadcrumb, name] : breadcrumb,
+  breadcrumb && name ? [...breadcrumb, name] : breadcrumb,
 )
-
-/**
- * Everything the response headers group needs except the headers themselves.
- * The group renders in two places — before the schema in the legacy layout,
- * after it in the tree layout — and the two differ only in position, so the
- * bindings live here instead of being written out twice. `headers` stays on
- * each element, where the `v-if` has already narrowed it to a real value.
- */
-const headerGroupProps = computed(() => ({
-  breadcrumb: headersBreadcrumb.value,
-  document,
-  eventBus,
-  expandAllSchemaProperties: options.expandAllSchemaProperties,
-  hideModels: options.hideModels,
-  orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-  orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-  schemaKeyboardNav: options.schemaKeyboardNav,
-  schemaLayout: options.schemaLayout,
-}))
 
 /**
  * Whether a deep link points at a property inside this collapsed item. When it
@@ -319,10 +285,10 @@ const triggerAnchorId = computed<string | undefined>(() =>
 </script>
 <template>
   <li
-    class="parameter-item group/parameter-item"
-    :class="{ 'parameter-item--tree border-t-0!': isTreeLayout }">
-    <!-- Tree: no separators between rows; the section heading carries the one
-         rule instead (see ParameterList / OperationResponses). -->
+    class="parameter-item group/parameter-item parameter-item--tree border-t-0!">
+    <!-- No separators between rows (the row zeroes its own top border); the
+         section heading carries the one rule instead (see ParameterList /
+         OperationResponses). -->
     <Disclosure
       v-slot="{ open, close }"
       :defaultOpen="isOnTargetPath">
@@ -336,19 +302,14 @@ const triggerAnchorId = computed<string | undefined>(() =>
         class="parameter-item-trigger group/trigger group/tree-control scroll-mt-24 focus-visible:rounded-(--scalar-radius) focus-visible:outline-(length:--scalar-border-width) focus-visible:outline-offset-2 focus-visible:outline-(--scalar-color-accent)"
         :class="{ 'parameter-item-trigger-open': open }">
         <div class="parameter-item-name min-w-0">
-          <!-- Tree: the caret becomes the depth-0 gutter glyph so a response
-               row reads as part of the schema tree below it. Anchored to the
-               first line so the puck holds when the name wraps. -->
+          <!-- The puck is the depth-0 gutter glyph, so a response row reads as
+               part of the schema tree below it. Anchored to the first line so
+               it holds when the name wraps. -->
           <SchemaGlyphPuck
-            v-if="shouldCollapse && isTreeLayout"
+            v-if="shouldCollapse"
             anchor="line"
             class="parameter-item-glyph"
             :open="open" />
-          <ScalarIconCaretRight
-            v-else-if="shouldCollapse"
-            class="parameter-item-icon size-3 transition-transform duration-100"
-            :class="{ 'rotate-90': open }"
-            weight="bold" />
           <div>
             <ScalarWrappingText
               preset="property"
@@ -365,15 +326,16 @@ const triggerAnchorId = computed<string | undefined>(() =>
           v-else
           class="flex-1" />
       </component>
-      <!-- Railed in the tree: clicking the rail closes the row. The rail props
-           only exist on SchemaRailPanel, so they bind only when it renders.
-           The panel indents one gutter (restated here because the legacy
-           padding reset outranks SchemaRailPanel's own utility) and the
-           schema rows inside outdent by the same gutter, landing their pucks
-           on the rail. See the indentation model in SchemaProperty.vue.
-           No trailing-pad drop here: in this flat container every item is
-           its container's only row, so the pad must stay or the next title
-           crowds this item's description. -->
+      <!-- Railed when collapsible: clicking the rail closes the row. The rail
+           props only exist on SchemaRailPanel, so they bind only when it
+           renders. The panel indents one gutter (restated here because the
+           scoped `.parameter-item-container` padding reset outranks
+           SchemaRailPanel's own utility) and the schema rows inside outdent
+           by the same gutter, landing their pucks on the rail. See the
+           indentation model in SchemaProperty.vue. No trailing-pad drop here:
+           in this flat container every item is its container's only row, so
+           the pad must stay or the next title crowds this item's
+           description. -->
       <component
         :is="isRailedPanel ? SchemaRailPanel : DisclosurePanel"
         v-bind="
@@ -393,20 +355,13 @@ const triggerAnchorId = computed<string | undefined>(() =>
           'parameter-item-container--static-tree': isStaticTreeItem,
         }"
         :static="!collapsableItems || isStaticTreeItem">
-        <!-- Tree: the panel's own top margin already supplies the 6px gap to
-             the title, so the legacy description margin is zeroed. -->
+        <!-- The railed panel's own top margin already supplies the 6px gap to
+             the title, so the description's default margin is zeroed. -->
         <ScalarMarkdown
           v-if="collapsableItems && !isStaticTreeItem && parameter.description"
           class="parameter-item-description"
           :class="{ 'mt-0!': isRailedPanel }"
           :value="parameter.description" />
-        <!-- Headers -->
-        <!-- Status-qualified breadcrumb, or every response's header group
-             would toggle as one. Legacy position: before the schema. -->
-        <Headers
-          v-if="headers && !isTreeLayout"
-          v-bind="headerGroupProps"
-          :headers="headers" />
 
         <!-- Schema -->
         <SchemaProperty
@@ -426,7 +381,6 @@ const triggerAnchorId = computed<string | undefined>(() =>
             orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
             orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
             expandAllSchemaProperties: options.expandAllSchemaProperties,
-            schemaLayout: options.schemaLayout,
             schemaKeyboardNav: options.schemaKeyboardNav,
             hideModels: options.hideModels,
             document,
@@ -434,13 +388,22 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :required="'required' in parameter && parameter.required"
           :schema="value" />
 
-        <!-- Tree order: the body reads first, directly under the status row,
-             and Headers follows — opening Headers then appends its list at the
-             end instead of pushing the body's description away from the title. -->
+        <!-- Headers: the body reads first, directly under the status row, and
+             Headers follows — opening Headers then appends its list at the
+             end instead of pushing the body's description away from the
+             title. The breadcrumb is status-qualified, or every response's
+             header group would toggle as one. -->
         <Headers
-          v-if="headers && isTreeLayout"
-          v-bind="headerGroupProps"
-          :headers="headers" />
+          v-if="headers"
+          :breadcrumb="headersBreadcrumb"
+          :document="document"
+          :eventBus="eventBus"
+          :expandAllSchemaProperties="options.expandAllSchemaProperties"
+          :headers="headers"
+          :hideModels="options.hideModels"
+          :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
+          :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy"
+          :schemaKeyboardNav="options.schemaKeyboardNav" />
       </component>
       <div
         v-if="shouldCollapse && content"
@@ -467,16 +430,8 @@ const triggerAnchorId = computed<string | undefined>(() =>
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
-.parameter-item:last-of-type .parameter-schema {
-  padding-bottom: 0;
-}
-
 .parameter-item-container {
   padding: 0;
-}
-
-.parameter-item-headers {
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .parameter-item-name {
@@ -505,20 +460,6 @@ const triggerAnchorId = computed<string | undefined>(() =>
   font-size: var(--scalar-micro);
 }
 
-.parameter-item-required-optional {
-  color: var(--scalar-color-2);
-  font-weight: var(--scalar-semibold);
-  margin-right: 6px;
-  position: relative;
-}
-
-.parameter-item--required {
-  text-transform: uppercase;
-  font-size: var(--scalar-micro);
-  font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-orange);
-}
-
 .parameter-item-description {
   margin-top: 6px;
   font-size: var(--scalar-small);
@@ -532,11 +473,6 @@ const triggerAnchorId = computed<string | undefined>(() =>
   color: var(--scalar-color-2);
 }
 
-.parameter-schema {
-  padding-bottom: 9px;
-  margin-top: 3px;
-}
-
 .parameter-item-trigger {
   display: flex;
   align-items: baseline;
@@ -548,18 +484,5 @@ const triggerAnchorId = computed<string | undefined>(() =>
 
 .parameter-item-trigger-open {
   padding-bottom: 0;
-}
-
-.parameter-item-icon {
-  color: var(--scalar-color-3);
-  left: -19px;
-  top: 0.5lh;
-  translate: 0 -50%;
-  position: absolute;
-}
-
-.parameter-item-trigger:hover .parameter-item-icon,
-.parameter-item-trigger:focus-visible .parameter-item-icon {
-  color: var(--scalar-color-1);
 }
 </style>

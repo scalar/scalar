@@ -9,10 +9,6 @@ import Schema from './Schema.vue'
  * Mount measurements for the schema tree, so a change to the renderer has a
  * number to argue with rather than a recollection of how fast it used to feel.
  *
- * Every fixture mounts twice — once with the legacy renderer and once with
- * `schemaLayout: 'tree'` — so each group's summary prints the tree/legacy
- * ratio directly instead of leaving the comparison to a separate run.
- *
  * This half runs in jsdom, which performs no style recalculation, no layout and
  * no paint. So it measures the half that is real here — how long it takes to
  * build and mount the component tree, and how many rows that tree produces.
@@ -98,9 +94,6 @@ const mountSchema = (schema: SchemaObject, options: Record<string, unknown> = {}
     },
   })
 
-/** The tree layout under measurement; mountSchema defaults to legacy. */
-const TREE = { schemaLayout: 'tree' }
-
 describe('schema-tree', () => {
   describe('schema tree mount', () => {
     const deep = asSchema(deepObject(5))
@@ -112,32 +105,16 @@ describe('schema-tree', () => {
       mountSchema(deep).unmount()
     })
 
-    bench('depth 5, collapsed (tree)', () => {
-      mountSchema(deep, TREE).unmount()
-    })
-
     bench('60 flat properties', () => {
       mountSchema(wide).unmount()
-    })
-
-    bench('60 flat properties (tree)', () => {
-      mountSchema(wide, TREE).unmount()
     })
 
     bench('40-value enum', () => {
       mountSchema(enums).unmount()
     })
 
-    bench('40-value enum (tree)', () => {
-      mountSchema(enums, TREE).unmount()
-    })
-
     bench('allOf over oneOf over anyOf', () => {
       mountSchema(composed).unmount()
-    })
-
-    bench('allOf over oneOf over anyOf (tree)', () => {
-      mountSchema(composed, TREE).unmount()
     })
   })
 
@@ -156,16 +133,8 @@ describe('schema-tree', () => {
       mountSchema(deep, { expandAllSchemaProperties: true }).unmount()
     })
 
-    bench('depth 5, expanded at mount (tree)', () => {
-      mountSchema(deep, { ...TREE, expandAllSchemaProperties: true }).unmount()
-    })
-
     bench('depth 5, collapsed at mount', () => {
       mountSchema(deep, { expandAllSchemaProperties: false }).unmount()
-    })
-
-    bench('depth 5, collapsed at mount (tree)', () => {
-      mountSchema(deep, { ...TREE, expandAllSchemaProperties: false }).unmount()
     })
   })
 
@@ -174,7 +143,7 @@ describe('schema-tree', () => {
     const wide = asSchema(wideObject(60))
 
     /**
-     * Rendered row count is the number the tree layout is most likely to regress,
+     * Rendered row count is the number the tree is most likely to regress,
      * because its `until-found` mount policy keeps opened-then-closed subtrees in
      * the DOM rather than unmounting them. Counting rows here, on top of the
      * mount, keeps the two moving together: if a change renders many more rows,
@@ -186,20 +155,8 @@ describe('schema-tree', () => {
       wrapper.unmount()
     })
 
-    bench('count rendered rows, depth 5 collapsed (tree)', () => {
-      const wrapper = mountSchema(deep, TREE)
-      wrapper.element.querySelectorAll('.property').length
-      wrapper.unmount()
-    })
-
     bench('count rendered rows, 60 flat properties', () => {
       const wrapper = mountSchema(wide)
-      wrapper.element.querySelectorAll('.property').length
-      wrapper.unmount()
-    })
-
-    bench('count rendered rows, 60 flat properties (tree)', () => {
-      const wrapper = mountSchema(wide, TREE)
       wrapper.element.querySelectorAll('.property').length
       wrapper.unmount()
     })

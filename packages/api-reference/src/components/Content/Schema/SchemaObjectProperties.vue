@@ -22,7 +22,7 @@ const { schema, discriminator, options, schemaContext, compositionPath } =
     compact?: boolean
     hideHeading?: boolean
     level?: number
-    /** Real nesting depth in the tree layout (see SchemaProperty) */
+    /** Real nesting depth (see SchemaProperty) */
     depth?: number
     hideModelNames?: boolean
     breadcrumb?: string[]

@@ -1,5 +1,5 @@
 /**
- * Arrow-key navigation over the tree layout's disclosure toggles, behind
+ * Arrow-key navigation over the schema tree's disclosure toggles, behind
  * `schemaKeyboardNav`. One delegated keydown per tree root, only for a
  * `[data-schema-toggle]` target with no modifier held. The bindings follow the
  * APG tree pattern, but nothing announces them, so Tab order must stand alone.
