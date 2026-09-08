@@ -1096,16 +1096,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = withMeasurementSync('coerceValue', () =>
-        coerce(openapiSchema as Schema, deepClone(strictDocument)),
-      )
+      const cloneForCoerce = withMeasurementSync('deepCloneForCoerce', () => deepClone(strictDocument))
+      const coerced = withMeasurementSync('coerceValue', () => coerce(openapiSchema as Schema, cloneForCoerce))
       withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
-    const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
+    const isValid = withMeasurementSync('validate', () => Value.Check(OpenAPIDocumentSchemaStrict, strictDocument))
 
     if (!isValid) {
-      const validationErrors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, strictDocument))
+      const validationErrors = withMeasurementSync('validationErrors', () =>
+        Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, strictDocument)),
+      )
 
       console.warn('document validation errors: ')
       console.warn(
@@ -1120,16 +1121,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const navigation = createNavigation(name, strictDocument as OpenApiDocument, navigationOptions)
+      const navigation = withMeasurementSync('createNavigation', () =>
+        createNavigation(name, strictDocument as OpenApiDocument, navigationOptions),
+      )
       strictDocument[extensions.document.navigation] = navigation
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     // We create a new proxy here in order to hide internal properties after validation and processing
     // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
-    workspace.documents[name] = createOverridesProxy(createMagicProxy(getRaw(strictDocument)) as OpenApiDocument, {
-      overrides: unpackProxyObject(overrides[name]),
-    })
+    workspace.documents[name] = withMeasurementSync('createProxies', () =>
+      createOverridesProxy(createMagicProxy(getRaw(strictDocument)) as OpenApiDocument, {
+        overrides: unpackProxyObject(overrides[name]),
+      }),
+    )
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
