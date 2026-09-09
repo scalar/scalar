@@ -267,6 +267,22 @@ describe('getExampleFromSchema', () => {
     expect(result).toBe('hello@example.com')
   })
 
+  it('uses a uuid example for version-specific uuid formats', () => {
+    for (const format of ['uuid', 'uuid1', 'uuid3', 'uuid4', 'uuid5']) {
+      const result = getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'string',
+          format,
+        }),
+        {
+          emptyString: '…',
+        },
+      )
+
+      expect(result).toBe('123e4567-e89b-12d3-a456-426614174000')
+    }
+  })
+
   it('uses variables as an example value', () => {
     expect(
       getExampleFromSchema(

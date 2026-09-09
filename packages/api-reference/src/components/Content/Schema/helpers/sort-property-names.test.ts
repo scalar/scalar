@@ -672,4 +672,212 @@ describe('sortPropertyNames', () => {
       expect(result).toEqual(['age', 'name', 'undefinedProp'])
     })
   })
+
+  describe('comparator inputs read once per name', () => {
+    /*
+     * The expected arrays below were captured from the comparator that read
+     * `schema.properties[name]` on every comparison. A NaN `x-order` makes the
+     * comparator non-transitive, so the order of the middle names depends on the
+     * exact sequence of comparisons the sort makes: the hoisted version must
+     * reproduce it, not merely a valid ordering.
+     */
+    const mixed = (): SchemaObject => ({
+      type: 'object',
+      properties: {
+        zulu: { type: 'string' },
+        kind: { type: 'string' },
+        alpha: { type: 'string', 'x-order': 3 } as any,
+        bravo: { type: 'string', 'x-order': '1' } as any,
+        charlie: { type: 'string', 'x-order': 'not-a-number' } as any,
+        delta: { type: 'string' },
+        echo: { type: 'string', 'x-order': 2 } as any,
+        foxtrot: { $ref: '#/x', '$ref-value': { type: 'string' } } as any,
+        golf: { type: 'string' },
+        hotel: { type: 'string', 'x-order': undefined } as any,
+        india: { type: 'string' },
+        juliet: { type: 'string', 'x-order': 3 } as any,
+      },
+      required: ['zulu', 'delta', 'india', 'juliet', 'charlie'],
+    })
+
+    const hidden = (): SchemaObject => ({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        id: { type: 'string', readOnly: true },
+        createdAt: { $ref: '#/x', '$ref-value': { type: 'string', readOnly: true } } as any,
+        password: { type: 'string', writeOnly: true },
+        email: { type: 'string' },
+        token: { type: 'string', writeOnly: true, 'x-order': 1 } as any,
+      },
+      required: ['email', 'id'],
+    })
+
+    const unordered = (): SchemaObject => ({
+      type: 'object',
+      properties: {
+        zebra: { type: 'string' },
+        apple: { type: 'string' },
+        mango: { type: 'string' },
+        banana: { type: 'string' },
+        kiwi: { type: 'string', 'x-order': 5 } as any,
+      },
+      required: ['banana', 'zebra'],
+    })
+
+    it('keeps the order of a schema mixing a discriminator, x-order and required', () => {
+      expect(sortPropertyNames(mixed(), { propertyName: 'kind' }, { orderRequiredPropertiesFirst: true })).toEqual([
+        'kind',
+        'bravo',
+        'alpha',
+        'charlie',
+        'echo',
+        'juliet',
+        'delta',
+        'india',
+        'zulu',
+        'foxtrot',
+        'golf',
+        'hotel',
+      ])
+    })
+
+    it('keeps the order under each hide flag, resolving $ref properties', () => {
+      expect(sortPropertyNames(hidden(), undefined, { hideReadOnly: true })).toEqual([
+        'token',
+        'email',
+        'name',
+        'password',
+      ])
+      expect(sortPropertyNames(hidden(), undefined, { hideWriteOnly: true })).toEqual([
+        'email',
+        'id',
+        'createdAt',
+        'name',
+      ])
+      expect(sortPropertyNames(hidden(), undefined, { hideReadOnly: true, hideWriteOnly: true })).toEqual([
+        'email',
+        'name',
+      ])
+    })
+
+    it('keeps document order stable when not sorting alphabetically', () => {
+      expect(sortPropertyNames(unordered(), undefined, { orderSchemaPropertiesBy: 'original' as any })).toEqual([
+        'kiwi',
+        'zebra',
+        'banana',
+        'apple',
+        'mango',
+      ])
+      expect(
+        sortPropertyNames(unordered(), undefined, {
+          orderSchemaPropertiesBy: 'original' as any,
+          orderRequiredPropertiesFirst: false,
+        }),
+      ).toEqual(['kiwi', 'zebra', 'apple', 'mango', 'banana'])
+    })
+  })
+
+  describe('memoisation', () => {
+    /** Eleven properties: x-order on four, required on two, no NaN so the order is total */
+    const mixedSchema = (): SchemaObject => ({
+      type: 'object',
+      properties: {
+        zulu: { type: 'string' },
+        kind: { type: 'string' },
+        alpha: { type: 'string', 'x-order': 3 } as any,
+        bravo: { type: 'string', 'x-order': '1' } as any,
+        delta: { type: 'string' },
+        echo: { type: 'string', 'x-order': 2 } as any,
+        foxtrot: { $ref: '#/x', '$ref-value': { type: 'string' } } as any,
+        golf: { type: 'string' },
+        hotel: { type: 'string' },
+        india: { type: 'string' },
+        juliet: { type: 'string', 'x-order': 3 } as any,
+      },
+      required: ['zulu', 'delta'],
+    })
+
+    it('returns the same array for the same properties object and options', () => {
+      const schema = mixedSchema()
+
+      const first = sortPropertyNames(schema, { propertyName: 'kind' })
+      const second = sortPropertyNames(schema, { propertyName: 'kind' })
+
+      expect(second).toBe(first)
+    })
+
+    it('freezes the shared array so a caller cannot reorder it for everyone else', () => {
+      const schema = mixedSchema()
+      const names = sortPropertyNames(schema)
+
+      expect(Object.isFrozen(names)).toBe(true)
+      // Modules are strict, so an in-place sort throws here rather than
+      // silently rewriting the order every other consumer reads.
+      expect(() => (names as string[]).reverse()).toThrow()
+      expect(sortPropertyNames(schema)).toEqual(names)
+    })
+
+    it('freezes the empty answer as well', () => {
+      expect(Object.isFrozen(sortPropertyNames({ type: 'string' } as SchemaObject))).toBe(true)
+    })
+
+    it('shares the entry between schemas that share a properties object', () => {
+      const schema = mixedSchema()
+      // The display path spreads the schema but keeps `properties` by reference
+      const copy = { ...schema }
+
+      expect(sortPropertyNames(copy)).toBe(sortPropertyNames(schema))
+    })
+
+    it('recomputes when the options or the discriminator differ', () => {
+      const schema = mixedSchema()
+
+      const plain = sortPropertyNames(schema)
+      const withDiscriminator = sortPropertyNames(schema, { propertyName: 'kind' })
+      const unsorted = sortPropertyNames(schema, undefined, { orderRequiredPropertiesFirst: false })
+
+      expect(withDiscriminator).not.toBe(plain)
+      expect(withDiscriminator[0]).toBe('kind')
+      expect(plain[0]).toBe('bravo')
+      expect(unsorted).not.toBe(plain)
+      expect(unsorted).toEqual([
+        'bravo',
+        'echo',
+        'alpha',
+        'juliet',
+        'delta',
+        'foxtrot',
+        'golf',
+        'hotel',
+        'india',
+        'kind',
+        'zulu',
+      ])
+    })
+
+    it('recomputes when the schema carries a new required array', () => {
+      const schema = mixedSchema()
+      const before = sortPropertyNames(schema)
+
+      // The composition path builds a merged schema with fresh `required`
+      const merged = { ...schema, required: ['hotel'] } as SchemaObject
+      const after = sortPropertyNames(merged)
+
+      expect(after).not.toBe(before)
+      expect(after).toEqual([
+        'bravo',
+        'echo',
+        'alpha',
+        'juliet',
+        'hotel',
+        'delta',
+        'foxtrot',
+        'golf',
+        'india',
+        'kind',
+        'zulu',
+      ])
+    })
+  })
 })

@@ -17,6 +17,7 @@ export type OperationProps = {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaKeyboardNav'
     | 'showOperationId'
   >
   /** Document object */

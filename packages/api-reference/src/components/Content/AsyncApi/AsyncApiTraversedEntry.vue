@@ -38,6 +38,7 @@ const {
     ApiReferenceConfigurationRaw,
     | 'layout'
     | 'expandAllSchemaProperties'
+    | 'schemaKeyboardNav'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'hideModels'

@@ -1,5 +1,14 @@
 # @scalar/openapi-parser
 
+## 0.29.1
+
+### Patch Changes
+
+- [#10078](https://github.com/scalar/scalar/pull/10078): Guard mergeObjects (used by join) against prototype pollution, so a `__proto__`, `constructor`, or `prototype` key in an input document can no longer reach Object.prototype
+- [#9990](https://github.com/scalar/scalar/pull/9990): Fix `@scalar/types` leaking into the published type declarations. `@scalar/openapi-parser` referenced `@scalar/types` from its `.d.ts` files while only depending on it as a `devDependency`, so consumers hit `TS2307` (cannot find module). `@scalar/types` is now a regular dependency, and the package uses the shared `UnknownObject` and `AnyObject` utility types from `@scalar/types/utils` directly instead of defining its own local copies (`AnyObject` was added to `@scalar/types/utils` alongside the existing `UnknownObject`).
+
+  The generic `AnyObject` and `UnknownObject` types are no longer re-exported from `@scalar/openapi-parser`. Import them from `@scalar/types/utils` instead.
+
 ## 0.29.0
 
 ### Minor Changes

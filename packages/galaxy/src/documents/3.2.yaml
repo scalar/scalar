@@ -164,6 +164,18 @@ paths:
                     $dynamicAnchor: itemType
                     $ref: '#/components/schemas/Planet'
                 $ref: '#/components/schemas/PaginatedResource'
+          links:
+            GetFirstPlanet:
+              operationId: getPlanet
+              description: Retrieve the first planet when the response contains at least one planet.
+              parameters:
+                path.planetId: '$response.body#/data/0/id'
+            FirstPage:
+              operationId: getAllData
+              description: Return to the first page using the requested page size.
+              parameters:
+                query.limit: '$request.query.limit'
+                query.offset: '0'
       x-post-response: |
         pm.test("Status code is 200", () => {
           pm.response.to.have.status(200);
@@ -257,6 +269,15 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Planet'
+          links:
+            GetPlanet:
+              $ref: '#/components/links/GetPlanet'
+            UpdatePlanet:
+              operationRef: '#/paths/~1planets~1%7BplanetId%7D/put'
+              description: Update the created planet using its ID and response body.
+              parameters:
+                planetId: '$response.body#/id'
+              requestBody: '$response.body'
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -388,6 +409,12 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Planet'
+          links:
+            DeletePlanet:
+              operationId: deletePlanet
+              description: Delete this planet using the ID from the request path.
+              parameters:
+                planetId: '$request.path.planetId'
         '404':
           $ref: '#/components/responses/NotFound'
       x-post-response: |
@@ -432,6 +459,9 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Planet'
+          links:
+            GetPlanet:
+              $ref: '#/components/links/GetPlanet'
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -503,6 +533,9 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/Planet'
+            links:
+              GetPlanet:
+                $ref: '#/components/links/GetPlanet'
           '404':
             $ref: '#/components/responses/NotFound'
   /planets/{planetId}/image:
@@ -901,6 +934,12 @@ webhooks:
           pm.response.to.have.status(200);
         });
 components:
+  links:
+    GetPlanet:
+      operationId: getPlanet
+      description: Retrieve the planet using the ID returned in the response.
+      parameters:
+        planetId: '$response.body#/id'
   securitySchemes:
     bearerAuth:
       type: http

@@ -110,7 +110,8 @@ export const sendRequest = async ({
     // Extract response metadata early for reuse
     const contentType = response.headers.get('content-type')
     const responseHeaders = normalizeHeaders(response.headers, isUsingProxy)
-    const responseUrl = new URL(response.url)
+    // A Response built with the Response constructor has an empty url, so fall back to the requested one
+    const responseUrl = new URL(response.url || requestPayload[0])
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
     const method = (requestPayload[1].method ?? 'GET') as HttpMethod
@@ -134,7 +135,7 @@ export const sendRequest = async ({
       })
     }
 
-    return buildStandardResponse({
+    return await buildStandardResponse({
       response,
       requestPayload,
       timestamp,

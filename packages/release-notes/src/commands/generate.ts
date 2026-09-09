@@ -1,11 +1,6 @@
 import { Command } from 'commander'
 
-import {
-  type CliConfigOverrides,
-  createBuiltInProvider,
-  hasBuiltInProviderApiKey,
-  readReleaseNotesConfig,
-} from '../config/read-config'
+import { type CliConfigOverrides, hasBuiltInProviderApiKey, readReleaseNotesConfig } from '../config/read-config'
 import type { BuiltInProviderName, ReleaseNotesConfig, ReleaseNotesProduct } from '../config/types'
 import { getChangedPathsForReleaseFiltering } from '../core/detect-versioned-changelog-paths'
 import { runReleaseNotesGeneratorForProduct } from '../core/run-release-notes-generator'
@@ -29,6 +24,7 @@ type CommandOptions = {
   baseBranch?: string
   config?: string
   markdownOutput: boolean
+  pullRequestContext: boolean
 }
 
 const createAdHocProduct = (
@@ -64,6 +60,7 @@ const resolveCliOverrides = (options: CommandOptions): CliConfigOverrides => {
     apiKeyEnv: options.apiKeyEnv,
     repo: options.repo,
     baseBranch: options.baseBranch,
+    pullRequestContext: options.pullRequestContext,
   }
 }
 
@@ -95,11 +92,10 @@ export const createReleaseNotesGeneratorCommand = (baseConfig: ReleaseNotesConfi
     .option('--dry-run', 'Print the generated note instead of writing it', false)
     .option('--force', 'With --all, generate release notes for every configured product', false)
     .option('--no-markdown-output', 'Skip Markdown regeneration')
+    .option('--no-pull-request-context', 'Skip fetching pull request titles and descriptions for AI context')
     .action(async (options: CommandOptions) => {
       const cliOverrides = resolveCliOverrides(options)
       const config = await readReleaseNotesConfig(cliOverrides, baseConfig)
-
-      const builtInProvider = cliOverrides.provider ?? 'anthropic'
 
       // When relying on a built-in provider, skip gracefully if its API key is missing.
       // This keeps `pnpm release:version --all` from failing on forks, contributor
@@ -109,19 +105,12 @@ export const createReleaseNotesGeneratorCommand = (baseConfig: ReleaseNotesConfi
       // environment variable name. The env var name is harmless to log, but keeping
       // it out of the message avoids a false-positive clear-text-logging alert from
       // CodeQL, whose name-based heuristic flags anything derived from `apiKeyEnv`.
-      const usesBuiltInProvider = Boolean(cliOverrides.provider) || !config.provider
-      if (usesBuiltInProvider && !hasBuiltInProviderApiKey(builtInProvider, options.apiKeyEnv)) {
-        console.warn(`No API key set for the ${builtInProvider} provider; skipping release-notes generation.`)
+      if (config.builtInProviderName && !hasBuiltInProviderApiKey(config.builtInProviderName, config.apiKeyEnv)) {
+        console.warn(
+          `No API key set for the ${config.builtInProviderName} provider; skipping release-notes generation.`,
+        )
         return
       }
-
-      const provider =
-        config.provider ??
-        createBuiltInProvider({
-          provider: builtInProvider,
-          model: options.model,
-          apiKeyEnv: options.apiKeyEnv,
-        })
 
       const products = options.all
         ? config.products
@@ -143,10 +132,10 @@ export const createReleaseNotesGeneratorCommand = (baseConfig: ReleaseNotesConfi
       for (const product of products) {
         await runReleaseNotesGeneratorForProduct({
           product,
-          provider,
+          provider: config.provider,
           version: options.version,
           date: options.date,
-          model: options.model,
+          model: config.model,
           dryRun: options.dryRun,
           changedPaths,
           writeMarkdown: options.markdownOutput,

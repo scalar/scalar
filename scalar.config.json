@@ -12,25 +12,32 @@
     "head": {
       "scripts": [
         {
-          "path": "documentation/assets/landing.js"
+          "path": "documentation/assets/landing.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/powered-by.js"
+          "path": "documentation/assets/powered-by.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/fathom.js"
+          "path": "documentation/assets/fathom.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/posthog.js"
+          "path": "documentation/assets/posthog.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/apollo.js"
+          "path": "documentation/assets/apollo.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/vector.js"
+          "path": "documentation/assets/vector.js",
+          "defer": true
         },
         {
-          "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js"
+          "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js",
+          "async": true
         }
       ],
       "styles": [
@@ -925,6 +932,11 @@
         "to": "/products"
       },
       {
+        "type": "link",
+        "title": "Pricing",
+        "to": "/pricing"
+      },
+      {
         "type": "spacer"
       },
       {
@@ -935,25 +947,57 @@
             "type": "link",
             "title": "Compare",
             "icon": "phosphor/regular/scales",
-            "to": "/resources/compare"
+            "to": "/resources/compare",
+            "section": "Resources"
           },
           {
             "type": "link",
             "title": "Migration",
             "icon": "phosphor/regular/arrows-split",
-            "to": "/resources/migration"
+            "to": "/resources/migration",
+            "section": "Resources"
           },
           {
             "type": "link",
             "title": "Blog",
             "icon": "phosphor/regular/newspaper",
-            "to": "/resources/blog"
+            "to": "/resources/blog",
+            "section": "Resources"
+          },
+          {
+            "type": "link",
+            "title": "Changelog",
+            "icon": "phosphor/regular/clock-counter-clockwise",
+            "to": "/resources/changelog",
+            "section": "Resources"
+          },
+          {
+            "type": "link",
+            "title": "About",
+            "icon": "phosphor/regular/buildings",
+            "to": "/company",
+            "section": "Company"
           },
           {
             "type": "link",
             "title": "Careers",
             "icon": "phosphor/regular/briefcase",
-            "to": "/company#careers"
+            "to": "/company#careers",
+            "section": "Company"
+          },
+          {
+            "type": "link",
+            "title": "Support",
+            "icon": "phosphor/regular/lifebuoy",
+            "to": "mailto:support@scalar.com",
+            "section": "Company"
+          },
+          {
+            "type": "link",
+            "title": "Security",
+            "icon": "phosphor/regular/shield-check",
+            "to": "/security",
+            "section": "Company"
           }
         ]
       },
@@ -1056,9 +1100,11 @@
             "description": "Transparent pricing for developer documentation, SDKs, and API tools. Start free and scale as you grow.",
             "filepath": "documentation/guides/pricing.md",
             "type": "page",
+            "showInSidebar": false,
             "layout": {
               "toc": false,
-              "pageTitle": false
+              "pageTitle": false,
+              "sidebar": false
             },
             "head": {
               "title": "Scalar Pricing — Free & Paid Plans for API Docs & SDKs",
@@ -1776,6 +1822,12 @@
                         "type": "page",
                         "description": "Structure your documentation with navigation routes: pages, groups, tabs, links, and OpenAPI references.",
                         "filepath": "documentation/guides/docs/configuration/navigation.md"
+                      },
+                      "mega-menus": {
+                        "title": "Mega Menus",
+                        "type": "page",
+                        "description": "Lay out a header or tab dropdown in titled columns by adding section to its links.",
+                        "filepath": "documentation/guides/docs/configuration/mega-menus.md"
                       },
                       "versions": {
                         "title": "Versions",
@@ -3183,7 +3235,7 @@
                         "title": "Next.js",
                         "filepath": "documentation/integrations/nextjs.md",
                         "type": "page",
-                        "description": "Add beautiful API references to your Next.js application with automatic OpenAPI generation and React components.",
+                        "description": "Add interactive API documentation to Next.js with standalone handlers and embedded React components.",
                         "head": {
                           "links": [
                             {
@@ -3194,7 +3246,7 @@
                           "meta": [
                             {
                               "name": "description",
-                              "content": "Add beautiful API references to your Next.js application with automatic OpenAPI generation and React components."
+                              "content": "Add interactive API documentation to Next.js with standalone handlers and embedded React components."
                             },
                             {
                               "name": "robots",
@@ -3214,6 +3266,24 @@
                         "filepath": "documentation/integrations/nitro.md",
                         "description": "Add a Scalar API reference to your Nitro server for interactive OpenAPI documentation.",
                         "type": "page"
+                      },
+                      "nextjs-recipes/route-handlers": {
+                        "title": "Next.js with Zod",
+                        "filepath": "documentation/integrations/nextjs-recipes/route-handlers.md",
+                        "type": "page",
+                        "showInSidebar": false
+                      },
+                      "nextjs-recipes/hono": {
+                        "title": "Next.js with Hono",
+                        "filepath": "documentation/integrations/nextjs-recipes/hono.md",
+                        "type": "page",
+                        "showInSidebar": false
+                      },
+                      "nextjs-recipes/orpc": {
+                        "title": "Next.js with oRPC",
+                        "filepath": "documentation/integrations/nextjs-recipes/orpc.md",
+                        "type": "page",
+                        "showInSidebar": false
                       },
                       "nuxt": {
                         "title": "Nuxt",
@@ -3310,6 +3380,12 @@
                         "title": "Spry",
                         "filepath": "documentation/integrations/spry.md",
                         "description": "Add a Scalar API reference to your Spry application for interactive OpenAPI documentation.",
+                        "type": "page"
+                      },
+                      "starlight": {
+                        "title": "Starlight",
+                        "filepath": "documentation/integrations/starlight.md",
+                        "description": "Add a Scalar API reference to your Astro Starlight docs for interactive OpenAPI documentation.",
                         "type": "page"
                       },
                       "sveltekit": {

@@ -11,7 +11,7 @@ The short version: Mintlify is a hosted documentation platform, and a very good 
 | | Scalar | Mintlify |
 | --- | --- | --- |
 | Docs renderer | MIT, self-hostable on any plan | Closed; self-hosting is Enterprise |
-| Entry paid tier | $72/month | $450/month billed annually |
+| Entry paid tier | $150/month | $450/month billed annually |
 | Markdown and MDX | Yes | Yes |
 | Framework integrations | 35+ | None |
 | Standalone API client | Yes, open source | No |
@@ -82,7 +82,7 @@ Mintlify is not your only alternative, and the category has moved considerably i
 | Self-hosting | Any plan | Enterprise | Enterprise | Yes |
 | Framework integrations | 35+ | None | None | None |
 | Standalone API client | Yes | No | No | No |
-| Entry paid tier | $72/mo | $450/mo | $150/mo | Not available |
+| Entry paid tier | $150/mo | $450/mo | $150/mo | Not available |
 
 **Fern** was [acquired by Postman](https://buildwithfern.com/post/postman-acquires-fern) in January 2026. They say the product and roadmap are unchanged. Their SDK generators are genuinely Apache-2.0 and their protocol support is broader than ours — AsyncAPI, gRPC, and OpenRPC alongside OpenAPI. Their docs renderer is not public. We compare in more detail on our [Fern page](./fern.md).
 

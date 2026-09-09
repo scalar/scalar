@@ -16,8 +16,8 @@ The short version: both companies ship an MIT-licensed OpenAPI renderer. The dif
 | Framework integrations | 35 | HTML tag, React component, Docker, CLI |
 | SDK generation | Native, published pricing | [Experimental TypeScript client](https://github.com/Redocly/redocly-cli) in the CLI |
 | Standalone API client | Yes, open source | No |
-| Hosted MCP servers | Pro, $72/month | [Enterprise tier](https://redocly.com/pricing) |
-| Entry paid tier | $72/month flat | $10 per seat/month, 100-page limit |
+| Hosted MCP servers | Pro, $150/month | [Enterprise tier](https://redocly.com/pricing) |
+| Entry paid tier | $150/month flat, 5 seats included | $10 per seat/month, 100-page limit |
 
 ## Where Redocly is stronger
 
@@ -53,9 +53,9 @@ Scalar additionally ships 35 framework integrations — Express, Fastify, Hono, 
 
 Redocly is a documentation and governance company, and a good one. It does not offer a production SDK generator. Redocly CLI has an [experimental `generate-client` command](https://github.com/Redocly/redocly-cli) that emits a typed TypeScript client, clearly flagged as subject to change, with no other languages and no publishing workflow.
 
-Scalar generates SDKs in TypeScript, Python, Java, C#, PHP, and Go from the same OpenAPI document that renders your docs, with package publishing, automated GitHub workflows, and webhook support. Each language target is [$100/month](https://scalar.com/pricing), published on the pricing page.
+Scalar generates SDKs in TypeScript, Python, Java, C#, PHP, and Go from the same OpenAPI document that renders your docs, with package publishing, automated GitHub workflows, and webhook support. One language target is included with every plan, and additional targets start at [$150/month each](https://scalar.com/pricing), published on the pricing page.
 
-The same is true for MCP. Scalar hosts an MCP server generated from your OpenAPI document on the Pro plan at $72/month, so agents can call your API with the same source of truth your docs use. Redocly lists MCP servers on their [Enterprise tier](https://redocly.com/pricing) at $24 per seat/month.
+The same is true for MCP. Scalar hosts an MCP server generated from your OpenAPI document on the Pro plan at $150/month, so agents can call your API with the same source of truth your docs use. Redocly lists MCP servers on their [Enterprise tier](https://redocly.com/pricing) at $24 per seat/month.
 
 If all you need is a reference page, this section does not matter. If you want docs, SDKs, and an MCP server that cannot drift apart because they come from one document in one pipeline, it is the core of the comparison.
 
@@ -65,7 +65,7 @@ Both companies publish their pricing, which we respect — much of this category
 
 The models differ. [Redocly charges per seat](https://redocly.com/pricing): Pro is $10 per seat/month with one project and a 100-page limit; Enterprise is $24 per seat/month with 500 pages, SSO, RBAC, and MCP servers; Enterprise+ is custom, billed yearly, via sales. Revel and Reef are separate per-seat add-ons, and the full Realm bundle is $18 to $42 per seat/month on top.
 
-[Scalar Pro is $72/month flat](https://scalar.com/pricing), with editor seats and viewer seats included, custom domains, Git sync, Markdown and MDX, and hosted MCP servers. SDK languages are $100/month each. Enterprise adds SSO/SAML, RBAC, and full developer portals.
+[Scalar Pro is $150/month flat](https://scalar.com/pricing), with 5 editor seats and unlimited viewer seats included, custom domains, Git sync, Markdown and MDX, hosted MCP servers, and one SDK target. Additional SDK targets are $150/month each. Business at $600/month adds SSO, subpath hosting, 10 seats, and additional SDK targets at $600/month each; Enterprise adds SAML, RBAC, and full developer portals.
 
 To be honest about the math: a two-person team that only needs hosted reference docs is cheaper on Redocly Pro. The comparison shifts as the team grows, as page counts pass the tier limits, and as you add products — per-seat, per-product pricing compounds in a way a flat price does not. Run your own numbers for your own team size; both pricing pages give you enough to do it.
 

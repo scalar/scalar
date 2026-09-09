@@ -33,34 +33,23 @@ export const isHeading = (node: Node): node is Heading => {
 }
 
 /**
- * The transform for the render currently in flight.
- *
- * A `unified` processor is configured once, at `use()` time, but `transform`
- * arrives per call — so it is handed over here instead. `processSync` runs to
- * completion without yielding, so nothing can interleave; the save and restore
- * in `htmlFromMarkdown` only matter if a `transform` were itself to render
- * Markdown.
- */
-let activeTransform: Options = {}
-
-/**
  * Plugin to transform nodes in a Markdown AST
  */
-const transformNodes = () => (tree: Node) => {
-  const { transform, type } = activeTransform
+const transformNodes =
+  (options?: Readonly<Options> | null | undefined, ..._ignored: any[]) =>
+  (tree: Node) => {
+    if (!options?.transform || !options?.type) {
+      return
+    }
 
-  if (!transform || !type) {
+    visit(tree, options?.type, (node) => {
+      options?.transform ? options?.transform(node) : node
+
+      return SKIP
+    })
+
     return
   }
-
-  visit(tree, type, (node) => {
-    transform(node)
-
-    return SKIP
-  })
-
-  return
-}
 
 const TAGS_WITH_INLINE_MARKDOWN = new Set(['dd', 'dt', 'li', 'p', 'summary', 'td', 'th'])
 const MAY_CONTAIN_INLINE_MARKDOWN = /[`*_\[~]/
@@ -138,38 +127,42 @@ const transformInlineMarkdownInRawHtml = () => (tree: HastRoot) => {
   })
 }
 
-/**
- * One registry for every render.
- *
- * `rehypeHighlight` builds its own from `languages` when it is not given an
- * instance, and it does that at plugin-init — so a per-call processor meant a
- * fresh registry of every standard grammar on every single Markdown render.
- */
-const lowlight = createLowlight(standardLanguages)
-
-/** Processors, keyed by the tag allowlist they were built with. */
-const processors = new Map<string, ReturnType<typeof buildProcessor>>()
+type HtmlFromMarkdownOptions = {
+  removeTags?: string[]
+  allowTags?: string[]
+  transform?: (node: Node) => Node
+  transformType?: string
+}
 
 /**
- * Rendered HTML, keyed by the Markdown and the tags it was rendered with.
+ * One lowlight instance shared by every markdown pipeline.
  *
- * Only renders without a `transform` are cached. A `transform` is a closure
- * that can read state the key cannot see — `ScalarMarkdown`'s heading transform
- * reads `anchorPrefix` off props, so the same function and the same Markdown
- * can legitimately produce different ids.
+ * Registering the standard grammars is the most expensive part of building a
+ * pipeline, and the registry is read-only once built (nothing here passes
+ * `aliases`, the only option that mutates a given instance), so it is created
+ * on first use and reused from then on.
  */
-const rendered = new Map<string, string>()
+let sharedLowlight: ReturnType<typeof createLowlight> | undefined
 
-/** Plenty for a page of descriptions, small enough to stay cheap. */
-const CACHE_LIMIT = 200
+const getLowlight = (): ReturnType<typeof createLowlight> => {
+  sharedLowlight ??= createLowlight(standardLanguages)
 
-const buildProcessor = (tagNames: string[]) =>
+  return sharedLowlight
+}
+
+/**
+ * Build the markdown to HTML pipeline.
+ */
+const createProcessor = (tagNames: string[], transform: Options['transform'], transformType: string | undefined) =>
   unified()
     // Parses markdown
     .use(remarkParse)
     // Support autolink literals, footnotes, strikethrough, tables and tasklists
     .use(remarkGfm)
-    .use(transformNodes)
+    .use(transformNodes, {
+      transform,
+      type: transformType,
+    })
     // Allows any HTML tags
     .use(remarkRehype, { allowDangerousHtml: true })
     // Adds GitHub alerts
@@ -196,7 +189,8 @@ const buildProcessor = (tagNames: string[]) =>
     })
     // Syntax highlighting
     .use(rehypeHighlight, {
-      lowlight,
+      // Reuse the grammar registry instead of rebuilding it for every pipeline
+      lowlight: getLowlight(),
       // Enable auto detection
       detect: true,
       // Adds Scalar's custom scrollbar styling to highlighted code blocks
@@ -208,73 +202,79 @@ const buildProcessor = (tagNames: string[]) =>
     .use(rehypeFormat)
     // Converts the HTML AST to a string
     .use(rehypeStringify)
-    .freeze()
 
-/** Insert into a bounded cache, evicting the oldest entry once it is full. */
-const remember = (cache: Map<string, string>, key: string, value: string) => {
-  if (cache.size >= CACHE_LIMIT) {
-    const oldest = cache.keys().next().value
+/**
+ * Frozen pipelines keyed by the options that shape them.
+ *
+ * Every plugin in the chain is stateless once attached, so a pipeline can be
+ * frozen and reused for every call that shares the same options. This matters
+ * because API references render one description per schema row, and building
+ * the pipeline used to cost far more than running it. Calls with a `transform`
+ * callback are not cached, because that closure belongs to the caller.
+ */
+const processorCache = new Map<string, ReturnType<typeof createProcessor>>()
 
-    if (oldest !== undefined) {
-      cache.delete(oldest)
-    }
-  }
-
-  cache.set(key, value)
-}
+/**
+ * Matches strings that CommonMark, GFM and this pipeline all render as a single plain paragraph.
+ *
+ * The point is to skip the whole markdown pipeline for the many short, plain
+ * descriptions an API reference renders (property summaries such as "Integer
+ * numbers."), where parsing, sanitising, highlighting and formatting cost far
+ * more than the one paragraph they produce.
+ *
+ * The whitelist is deliberately conservative: a single line, no leading or
+ * trailing whitespace, no run of two spaces, no character that markdown or the
+ * serializer treats specially, and no block marker at the start. Every
+ * CommonMark block construct needs a leading space, `#`, `>`, a bullet, an
+ * ordered marker, `<`, a fence, a thematic break or a second line; every inline
+ * construct needs `\`, a backtick, `*`, `_`, `[`, `]`, `<`, `&`, `~`, a hard
+ * break or a GFM autolink literal (`www.`, `:/`, `mailto:`, `xmpp:`, `@`).
+ * `rehype-stringify` escapes only `<` and `&` in text, and `rehype-format`
+ * only collapses whitespace runs and trims block edges, both of which are
+ * excluded here, so the fast path returns exactly what the pipeline returns.
+ *
+ * The `i` flag is load bearing: GFM matches the `www.`, `mailto:` and `xmpp:`
+ * autolink prefixes case-insensitively, so the lookahead has to as well.
+ * Unicode whitespace is written as escapes because a literal U+2028 or U+2029
+ * inside a regular expression literal is a syntax error.
+ */
+const PLAIN_PARAGRAPH =
+  /^(?![-+=]|\d{1,9}[.)](?:\s|$))(?!.*(?: {2}|:\/|www\.|mailto:|xmpp:))[^\s\\`*_\[\]<>&#~|@\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff](?:[^\\`*_\[\]<>&#~|@\t\n\v\f\r\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff]*[^\s\\`*_\[\]<>&#~|@\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff])?$/i
 
 /**
  * Take a Markdown string and generate HTML from it
  */
-export function htmlFromMarkdown(
-  markdown: string,
-  options?: {
-    removeTags?: string[]
-    allowTags?: string[]
-    transform?: (node: Node) => Node
-    transformType?: string
-  },
-) {
+export function htmlFromMarkdown(markdown: string, options?: HtmlFromMarkdownOptions): string {
   // Add permitted tags and remove stripped ones
   const removeTags = options?.removeTags ?? []
-  const tagNames = [...(defaultSchema.tagNames ?? []), ...(options?.allowTags ?? [])].filter(
-    (t) => !removeTags.includes(t),
+
+  // Plain text needs none of the pipeline, and the caller can only observe the
+  // returned string. A `transform` callback still has to see the AST, and a
+  // caller that removes `p` expects the paragraph to be stripped, so both keep
+  // the full pipeline.
+  if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) {
+    return `\n<p>${markdown}</p>\n`
+  }
+
+  const allowTags = options?.allowTags ?? []
+  const tagNames = [...(defaultSchema.tagNames ?? []), ...allowTags].filter((t) => !removeTags.includes(t))
+
+  if (options?.transform) {
+    return createProcessor(tagNames, options.transform, options.transformType).processSync(markdown).toString()
+  }
+
+  const key = [[...removeTags].sort().join(','), [...allowTags].sort().join(','), options?.transformType ?? ''].join(
+    '|',
   )
 
-  const tagKey = tagNames.join(',')
-  const cacheKey = options?.transform ? undefined : `${tagKey}\u0000${markdown}`
-
-  if (cacheKey !== undefined) {
-    const hit = rendered.get(cacheKey)
-
-    if (hit !== undefined) {
-      return hit
-    }
-  }
-
-  let processor = processors.get(tagKey)
+  let processor = processorCache.get(key)
 
   if (!processor) {
-    processor = buildProcessor(tagNames)
-    processors.set(tagKey, processor)
+    processor = createProcessor(tagNames, undefined, options?.transformType).freeze()
+    processorCache.set(key, processor)
   }
 
-  const previousTransform = activeTransform
-  activeTransform = { transform: options?.transform, type: options?.transformType }
-
-  let html: string
-
-  try {
-    html = processor.processSync(markdown).toString()
-  } finally {
-    activeTransform = previousTransform
-  }
-
-  if (cacheKey !== undefined) {
-    remember(rendered, cacheKey, html)
-  }
-
-  return html
+  return processor.processSync(markdown).toString()
 }
 
 /**

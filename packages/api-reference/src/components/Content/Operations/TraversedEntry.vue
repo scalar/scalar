@@ -62,6 +62,7 @@ const {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaKeyboardNav'
     | 'showOperationId'
     | 'hideModels'
     | 'modelsSectionLabel'

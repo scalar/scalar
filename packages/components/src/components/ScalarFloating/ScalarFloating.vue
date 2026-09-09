@@ -24,7 +24,7 @@ import {
   size,
   useFloating,
 } from '@floating-ui/vue'
-import { type Ref, computed, ref } from 'vue'
+import { type Ref, computed, nextTick, ref } from 'vue'
 
 import { ScalarTeleport } from '../ScalarTeleport'
 import type { FloatingOptions } from './types'
@@ -98,9 +98,45 @@ const targetHeight = computed(() =>
     ? targetSize.height.value
     : undefined,
 )
+
+/**
+ * Starts Floating UI's `autoUpdate` one tick after both elements exist.
+ *
+ * `useFloating` attaches `autoUpdate` from a synchronous watch the moment the
+ * template refs resolve, and `autoUpdate` positions the element right away.
+ * Template refs resolve in the post-render phase of a flush, so that first
+ * `computePosition` reads layout while the same flush is still mounting other
+ * components: every floating element mounted together (for example the closed
+ * listboxes of a schema with many compositions) forces its own style recalc and
+ * layout on a tree that was dirtied again in between. Waiting for `nextTick`
+ * runs every first positioning back-to-back once the flush has settled, so the
+ * browser recalculates the tree once for all of them. The tick resolves before
+ * the next paint, so an element that mounts open is positioned in the same task.
+ */
+const deferredAutoUpdate: typeof autoUpdate = (
+  reference,
+  floating,
+  update,
+  options,
+) => {
+  let cleanup: (() => void) | undefined
+  let disposed = false
+
+  void nextTick(() => {
+    if (!disposed) {
+      cleanup = autoUpdate(reference, floating, update, options)
+    }
+  })
+
+  return () => {
+    disposed = true
+    cleanup?.()
+  }
+}
+
 const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
   placement: computed(() => placement ?? 'bottom'),
-  whileElementsMounted: autoUpdate,
+  whileElementsMounted: deferredAutoUpdate,
   middleware: computed(() => [
     offsetMiddleware(offset),
     flip({ padding: 48 }),

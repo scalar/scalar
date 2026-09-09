@@ -570,9 +570,9 @@ By default response sections are closed in the operations. This flag will open t
 
 **Type:** `boolean`
 
-When true, nested child properties are expanded by default. The
-"Show/Hide Child Attributes" toggle stays available so users can collapse
-sections manually.
+When true, nested child properties are expanded by default. Each row keeps its
+own disclosure control (the +/- control in the row's gutter), so readers can
+still collapse sections manually.
 
 Warning: this can cause performance issues on big documents.
 
@@ -1058,6 +1058,23 @@ This is useful for desktop wrappers like Electron where the page URL is often `f
 ```javascript
 {
   oauth2RedirectUri: 'myapp://oauth/callback'
+}
+```
+
+### schemaKeyboardNav
+
+**Type:** `boolean`
+
+Enables arrow-key navigation over the schema disclosure toggles, following the
+APG tree pattern's bindings (arrows, Home, End). Off by default until
+screen-reader interaction questions are settled; the flat Tab order works
+regardless.
+
+**Default:** `false`
+
+```javascript
+{
+  schemaKeyboardNav: true
 }
 ```
 

@@ -11,6 +11,36 @@
   </div>
 </div>
 
+<div class="logowall" role="list" aria-label="Companies building on Scalar">
+  <div class="logowall-item" role="listitem" aria-label="Thomson Reuters">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item" role="listitem" aria-label="Maersk">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item" role="listitem" aria-label="Lufthansa">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item" role="listitem" aria-label="PAR">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
+  </div>
+  <div class="logowall-item" role="listitem" aria-label="Bobcat">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item" role="listitem" aria-label="Clerk">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
+  </div>
+  <div class="logowall-item" role="listitem" aria-label="Tailscale">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tailscale.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item" role="listitem" aria-label="Supabase">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-supabase.svg"></scalar-icon>
+  </div>
+  <div class="logowall-item" role="listitem" aria-label="Fly.io">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
+  </div>
+</div>
+
 <a class="featured-story-card" href="/customers/partech" aria-label="Read the PAR customer story">
   <div class="featured-story-copy">
     <p class="featured-story-eyebrow">Featured Story</p>
@@ -125,6 +155,29 @@
   }
   .fill-current-bg {
     fill: var(--scalar-background-1);
+  }
+  /* Three columns keeps the nine logos in even rows, with no orphan on the last one. */
+  .logowall {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: center;
+    justify-items: center;
+    gap: 40px;
+    margin-top: 48px;
+  }
+  .logowall-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+  .logowall-item svg {
+    width: 100%;
+    height: auto;
+    max-height: 24px;
+  }
+  .ign-logo__fill {
+    fill: var(--scalar-color-1);
   }
   .featured-story-card {
     display: grid;
@@ -362,6 +415,12 @@
     }
     .featured-story-media {
       min-height: 220px;
+    }
+    .logowall {
+      gap: 28px 24px;
+    }
+    .logowall-item svg {
+      max-height: 20px;
     }
     .customer-docs-grid {
       grid-template-columns: 1fr;

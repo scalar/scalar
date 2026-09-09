@@ -158,8 +158,7 @@ describe('SchemaComposition', () => {
         },
       })
 
-      const typeLabel = wrapper.find('span')
-      expect(typeLabel.text()).toBe('One of')
+      expect(wrapper.find('.composition-selector').text()).toContain('One of')
     })
 
     it('renders primitive type in composition panel', () => {
@@ -529,5 +528,45 @@ describe('SchemaComposition', () => {
     expect(oneOfSchema.oneOf).toHaveLength(2)
     expect(oneOfSchema.oneOf[0].title).toBe('With Quote Id')
     expect(oneOfSchema.oneOf[1].title).toBe('With Currency Pair')
+  })
+
+  describe('variant picker', () => {
+    it('renders the variant picker as a single pass-through element', () => {
+      const errors: unknown[] = []
+
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              { type: 'object', properties: { foo: { type: 'string' } } },
+              { type: 'object', properties: { bar: { type: 'integer' } } },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+        global: {
+          config: {
+            errorHandler: (error) => {
+              errors.push(error)
+            },
+          },
+        },
+      })
+
+      // Headless UI renders its listbox button as a fragment and hands its
+      // props to the slot's single root node. A comment or a second node in
+      // that slot makes it throw instead, which took the whole reference down
+      // in dev builds (where template comments survive compilation). The
+      // pass-through attributes landing on the trigger proves the slot is
+      // exactly one element.
+      const trigger = wrapper.find('.composition-selector--tree')
+      expect(trigger.exists()).toBe(true)
+      expect(trigger.attributes('aria-haspopup')).toBeDefined()
+      expect(trigger.attributes('aria-expanded')).toBe('false')
+      expect(errors).toEqual([])
+    })
   })
 })

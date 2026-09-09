@@ -213,8 +213,8 @@ describe('SchemaEnumValues', () => {
         },
       })
 
-      // When x-enumDescriptions is an object, it uses the special description format
-      expect(wrapper.find('.property-enum-values').exists()).toBe(true)
+      // Described values render as rows, which have room for the description
+      expect(wrapper.find('.property-enum-values-card').exists()).toBe(true)
       expect(wrapper.text()).toContain('active')
       expect(wrapper.text()).toContain('inactive')
     })
@@ -229,9 +229,8 @@ describe('SchemaEnumValues', () => {
         },
       })
 
-      // Should use regular enum list format, not special description format
-      expect(wrapper.find('.property-list').exists()).toBe(false)
-      expect(wrapper.find('.property-enum-values').exists()).toBe(true)
+      // Array descriptions render as rows as well
+      expect(wrapper.find('.property-enum-values-card').exists()).toBe(true)
     })
 
     it('renders descriptions from array items', () => {
@@ -264,7 +263,7 @@ describe('SchemaEnumValues', () => {
       expect(wrapper.text()).toContain('2')
       expect(wrapper.text()).toContain('3')
       // Component should still render without errors
-      expect(wrapper.find('.property-enum-values').exists()).toBe(true)
+      expect(wrapper.find('.property-enum').exists()).toBe(true)
     })
   })
 
@@ -288,20 +287,18 @@ describe('SchemaEnumValues', () => {
       expect(wrapper.find('.enum-toggle-button').exists()).toBe(false)
     })
 
-    it('shows only first 5 values for more than 9 items initially', () => {
-      const tenValues = Array.from({ length: 10 }, (_, i) => `value${i + 1}`)
+    it('shows only the first 8 values for more than 12 items initially', () => {
+      const thirteenValues = Array.from({ length: 13 }, (_, i) => `value${i + 1}`)
       const wrapper = mount(SchemaEnumValues, {
         props: {
           value: coerceValue(SchemaObjectSchema, {
-            enum: tenValues,
+            enum: thirteenValues,
           }),
         },
       })
 
-      // First 5 values should be visible
-      for (let i = 1; i <= 5; i++) {
-        expect(wrapper.text()).toContain(`value${i}`)
-      }
+      // The first 8 values render as rows; the rest wait behind the reveal
+      expect(wrapper.findAll('.property-enum-row').map((row) => row.text())).toEqual(thirteenValues.slice(0, 8))
 
       // Show more button should exist
       expect(wrapper.find('.enum-toggle-button').exists()).toBe(true)
@@ -318,42 +315,43 @@ describe('SchemaEnumValues', () => {
         },
       })
 
-      // Initially only first 5 should be visible
+      // Initially only the first 8 should be visible
+      expect(wrapper.findAll('.property-enum-row')).toHaveLength(8)
       expect(wrapper.text()).toContain('value1')
-      expect(wrapper.text()).toContain('value5')
-      expect(wrapper.text()).not.toContain('value6')
+      expect(wrapper.text()).toContain('value8')
+      expect(wrapper.text()).not.toContain('value9')
       expect(wrapper.text()).not.toContain('value15')
 
       // Click show more
       await wrapper.find('.enum-toggle-button').trigger('click')
 
       // Now remaining values should be visible
-      expect(wrapper.text()).toContain('value6')
+      expect(wrapper.findAll('.property-enum-row')).toHaveLength(15)
+      expect(wrapper.text()).toContain('value9')
       expect(wrapper.text()).toContain('value15')
       expect(wrapper.text()).toContain('Hide values')
     })
 
-    it('handles exactly 10 values correctly', () => {
-      const tenValues = Array.from({ length: 10 }, (_, i) => `value${i + 1}`)
+    it('shows exactly 12 values without a reveal', () => {
+      const twelveValues = Array.from({ length: 12 }, (_, i) => `value${i + 1}`)
       const wrapper = mount(SchemaEnumValues, {
         props: {
           value: coerceValue(SchemaObjectSchema, {
-            enum: tenValues,
+            enum: twelveValues,
           }),
         },
       })
 
-      // Should show first 5 values with show more button
-      expect(wrapper.text()).toContain('value1')
-      expect(wrapper.text()).toContain('value5')
-      expect(wrapper.find('.enum-toggle-button').exists()).toBe(true)
+      // At the threshold every value is still on screen, as chips
+      expect(wrapper.findAll('.property-enum-chip')).toHaveLength(12)
+      expect(wrapper.find('.enum-toggle-button').exists()).toBe(false)
     })
 
     it('shows descriptions for hidden enum values when expanded', async () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
           value: coerceValue(SchemaObjectSchema, {
-            enum: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+            enum: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300],
             'x-enum-descriptions': [
               'First description',
               'Second description',
@@ -365,21 +363,24 @@ describe('SchemaEnumValues', () => {
               'Eighth description',
               'Ninth description',
               'Tenth description',
+              'Eleventh description',
+              'Twelfth description',
+              'Thirteenth description',
             ],
           }),
         },
       })
 
-      // Initially only first 5 descriptions should be visible
-      expect(wrapper.text()).toContain('Fifth description')
-      expect(wrapper.text()).not.toContain('Sixth description')
-      expect(wrapper.text()).not.toContain('Tenth description')
+      // Initially only the first 8 descriptions should be visible
+      expect(wrapper.text()).toContain('Eighth description')
+      expect(wrapper.text()).not.toContain('Ninth description')
+      expect(wrapper.text()).not.toContain('Thirteenth description')
 
       await wrapper.find('.enum-toggle-button').trigger('click')
 
       // Now hidden descriptions should be visible
-      expect(wrapper.text()).toContain('Sixth description')
-      expect(wrapper.text()).toContain('Tenth description')
+      expect(wrapper.text()).toContain('Ninth description')
+      expect(wrapper.text()).toContain('Thirteenth description')
     })
   })
 
@@ -430,6 +431,44 @@ describe('SchemaEnumValues', () => {
       expect(wrapper.text()).toContain('Request failed')
     })
 
+    it('drops the chip list once a short enum is long enough to need the reveal', () => {
+      // Chips carry no reveal of their own, so past the threshold the rows have
+      // to take over or every value renders at once (currency codes, etc.)
+      const wrapper = mount(SchemaEnumValues, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, {
+            enum: Array.from({ length: 40 }, (_, index) => `c${index}`),
+          }),
+        },
+      })
+
+      expect(wrapper.find('.property-enum-chip-list').exists()).toBe(false)
+      expect(wrapper.find('.enum-toggle-button').exists()).toBe(true)
+    })
+
+    it('still renders a short enum as chips', () => {
+      const wrapper = mount(SchemaEnumValues, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, {
+            enum: ['usd', 'eur', 'gbp'],
+          }),
+        },
+      })
+
+      expect(wrapper.find('.property-enum-chip-list').exists()).toBe(true)
+    })
+
+    it('renders a property-names enum as the enum card', () => {
+      const wrapper = mount(SchemaEnumValues, {
+        props: {
+          propertyNames: true,
+          value: coerceValue(SchemaObjectSchema, { enum: ['alpha', 'beta'] }),
+        },
+      })
+
+      expect(wrapper.find('.property-enum--tree').exists()).toBe(true)
+    })
+
     it('handles empty string enum values', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
@@ -441,7 +480,7 @@ describe('SchemaEnumValues', () => {
 
       // Should render without errors even with empty strings
       expect(wrapper.text()).toContain('nonempty')
-      expect(wrapper.find('.property-enum-values').exists()).toBe(true)
+      expect(wrapper.find('.property-enum').exists()).toBe(true)
     })
   })
 })
