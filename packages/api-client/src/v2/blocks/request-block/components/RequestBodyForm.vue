@@ -52,6 +52,9 @@ const handleUpdateFormValue = (rows: TableRow[]) => {
           ? getFormBodyValue(row)
           : (row.value as string | File),
       isDisabled: row.isDisabled ?? false,
+      ...(selectedContentType === 'multipart/form-data' && row.isArray
+        ? { isArray: true }
+        : {}),
     })),
   )
 }

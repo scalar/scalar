@@ -64,4 +64,16 @@ describe('serializeMultipartArray', () => {
       { key: 'files', value: second, contentType: 'text/plain' },
     ])
   })
+  it.each(['application/json', 'application/vnd.example+json; charset=utf-8'])(
+    'JSON-encodes string items for %s',
+    (contentType) => {
+      expect(serializeMultipartArray('tags', ['first', 'a"b', false, 0, null], { contentType })).toEqual([
+        { key: 'tags', value: '"first"', contentType },
+        { key: 'tags', value: JSON.stringify('a"b'), contentType },
+        { key: 'tags', value: 'false', contentType },
+        { key: 'tags', value: '0', contentType },
+        { key: 'tags', value: 'null', contentType },
+      ])
+    },
+  )
 })

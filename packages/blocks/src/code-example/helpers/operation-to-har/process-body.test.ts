@@ -2226,4 +2226,30 @@ describe('processBody', () => {
       ],
     })
   })
+  it('restores array rows declared beside a resolved root reference', () => {
+    expect(
+      processBody({
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              schema: {
+                $ref: '#/components/schemas/Body',
+                '$ref-value': { type: 'object' },
+                properties: { tags: { type: 'array', items: { type: 'string' } } },
+              },
+              examples: { default: { value: [{ name: 'tags', value: '["a","b"]' }] } },
+            },
+          },
+        },
+        example: 'default',
+        contentType: 'multipart/form-data',
+      }),
+    ).toEqual({
+      mimeType: 'multipart/form-data',
+      params: [
+        { name: 'tags', value: 'a' },
+        { name: 'tags', value: 'b' },
+      ],
+    })
+  })
 })

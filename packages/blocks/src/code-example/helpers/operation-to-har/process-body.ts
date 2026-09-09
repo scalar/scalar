@@ -1,5 +1,5 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
@@ -219,7 +219,7 @@ export const processBody = ({
           encoding,
           undefined,
           _contentType === 'multipart/form-data',
-          getResolvedRef(requestBody.content[_contentType]?.schema),
+          getResolvedRef(requestBody.content[_contentType]?.schema, mergeSiblingReferences),
         ),
       }
     }

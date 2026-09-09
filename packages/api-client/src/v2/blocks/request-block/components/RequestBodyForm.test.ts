@@ -431,7 +431,7 @@ describe('RequestBodyForm', () => {
     await nextTick()
     expect(wrapper.emitted('update:formValue')?.[0]).toEqual([
       [
-        { name: 'tags', value: ['a', 'b'], isDisabled: false },
+        { name: 'tags', value: ['a', 'b'], isDisabled: false, isArray: true },
         { name: 'other', value: 'new', isDisabled: false },
       ],
     ])
@@ -439,10 +439,26 @@ describe('RequestBodyForm', () => {
     await nextTick()
     expect(wrapper.emitted('update:formValue')?.[1]).toEqual([
       [
-        { name: 'tags', value: ['c', 'd'], isDisabled: false },
+        { name: 'tags', value: ['c', 'd'], isDisabled: false, isArray: true },
         { name: 'other', value: 'new', isDisabled: false },
       ],
     ])
     wrapper.unmount()
+  })
+  it('retains example-only array types after saving invalid JSON and reopening', async () => {
+    const wrapper = mountRequestBodyForm({ example: { value: { tags: ['a'] } } })
+    wrapper.findComponent(RequestTable).vm.$emit('upsertRow', 0, { value: '[invalid' })
+    await nextTick()
+    const saved = [{ name: 'tags', value: '[invalid', isDisabled: false, isArray: true }]
+    expect(wrapper.emitted('update:formValue')?.[0]).toEqual([saved])
+    wrapper.unmount()
+
+    const reopened = mountRequestBodyForm({ example: { value: saved } })
+    reopened.findComponent(RequestTable).vm.$emit('upsertRow', 0, { value: '["repaired"]' })
+    await nextTick()
+    expect(reopened.emitted('update:formValue')?.[0]).toEqual([
+      [{ name: 'tags', value: ['repaired'], isDisabled: false, isArray: true }],
+    ])
+    reopened.unmount()
   })
 })

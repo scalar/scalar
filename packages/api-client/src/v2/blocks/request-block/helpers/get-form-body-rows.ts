@@ -120,7 +120,7 @@ export const collectExampleRows = (
 
 /** Restore array values after text editing without parsing ordinary string fields. */
 export const getFormBodyValue = (row: TableRow): string | File | unknown[] | undefined => {
-  const value = coerceLeafValueToSchemaType(row.value, row.schema)
+  const value = coerceLeafValueToSchemaType(row.value, row.isArray ? { type: 'array' } : row.schema)
   return Array.isArray(value) ? value : (row.value ?? undefined)
 }
 
@@ -190,7 +190,7 @@ export const getFormBodyRows = (
     return row
   }
 
-  const mapValue = (name: string, value: unknown, isDisabled?: boolean): TableRow[] => {
+  const mapValue = (name: string, value: unknown, isDisabled?: boolean, isArray?: boolean): TableRow[] => {
     // Uploaded files must never pass through JSON.stringify, which discards their bytes.
     if (
       contentType === 'multipart/form-data' &&
@@ -205,9 +205,9 @@ export const getFormBodyRows = (
       value: value instanceof File ? value : value == null ? '' : stringifyValue(value),
       isDisabled,
     })
-    if (contentType === 'multipart/form-data' && Array.isArray(value) && !row.schema) {
+    if (contentType === 'multipart/form-data' && (Array.isArray(value) || isArray)) {
       // Example-only arrays also need their type to survive a form-table round trip.
-      row.schema = { type: 'array' }
+      row.isArray = true
     }
     return [row]
   }
@@ -224,7 +224,7 @@ export const getFormBodyRows = (
             isDisabled: Boolean(exampleValue.isDisabled),
           })
         }
-        return mapValue(name, exampleValue.value, Boolean(exampleValue.isDisabled))
+        return mapValue(name, exampleValue.value, Boolean(exampleValue.isDisabled), exampleValue.isArray === true)
       }
       return { name: '', value: exampleValue, isDisabled: false }
     })

@@ -1,3 +1,4 @@
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { EncodingObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -42,10 +43,12 @@ export const serializeMultipartArray = (
 
     const structured = typeof item === 'object' && item !== null
     const itemContentType = contentType ?? (!hasStyle && structured ? 'application/json' : undefined)
+    const subtype = itemContentType ? parseMimeType(itemContentType).subtype : undefined
+    const isJson = subtype === 'json' || subtype?.endsWith('+json')
     return [
       {
         key,
-        value: structured ? JSON.stringify(unpackProxyObject(item)) : String(item),
+        value: structured || isJson ? JSON.stringify(unpackProxyObject(item)) : String(item),
         ...(itemContentType ? { contentType: itemContentType } : {}),
       },
     ]

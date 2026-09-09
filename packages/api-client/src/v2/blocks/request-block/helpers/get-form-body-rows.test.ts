@@ -652,4 +652,15 @@ describe('getFormBodyRows', () => {
     ])
     expect(rows.map(getFormBodyValue)).toEqual([first, second])
   })
+  it.each([{}, { oneOf: [{ type: 'array' }, { type: 'string' }] }, { type: ['array', 'string'] }])(
+    'retains actual arrays with an unconstrained or union schema %j',
+    (schema) => {
+      const rows = getFormBodyRows({ value: { tags: ['a', 'b'] } }, 'multipart/form-data', {
+        type: 'object',
+        // OpenAPI permits schemas without a type, unlike the normalized internal type.
+        properties: { tags: schema as SchemaObject },
+      })
+      expect(rows.map(getFormBodyValue)).toEqual([['a', 'b']])
+    },
+  )
 })
