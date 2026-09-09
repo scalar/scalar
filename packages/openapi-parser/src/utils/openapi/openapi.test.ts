@@ -50,7 +50,7 @@ describe('pipeline', () => {
       .validate()
       .get()
 
-    expect(specification.openapi).toBe('3.1.0')
+    expect(specification).toHaveProperty('openapi', '3.1.0')
   })
 
   it('files', async () => {
@@ -86,7 +86,7 @@ describe('pipeline', () => {
       .upgrade()
       .get()
 
-    expect(specification.openapi).toBe('3.1.1')
+    expect(specification).toHaveProperty('openapi', '3.1.1')
   })
 
   it('details', async () => {

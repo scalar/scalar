@@ -6,11 +6,8 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import type { ERRORS, OpenApiVersion } from '@/configuration'
 
-// TODO: I'd expect merge to overwrite the other way around (overwrite A, keep B)
-/**
- * Merge types with each other
- */
-type Merge<A, B> = A & Omit<B, keyof A>
+/** Later commands overwrite earlier fields, matching the runtime object spread. */
+type Merge<A, B> = A extends unknown ? (B extends unknown ? Omit<A, keyof B> & B : never) : never
 
 /**
  * JSON, YAML or object representation of an OpenAPI API definition
@@ -44,8 +41,9 @@ export type ValidateResult =
     }
 
 export type UpgradeResult<T extends OpenApiDocument = OpenApiDocument> = {
-  specification: T
-  version: '3.1'
+  specification: T | null
+  /** The resulting version, absent when the input has no supported version. */
+  version?: '3.1' | '3.2'
 }
 
 export type FilterResult = {
@@ -134,33 +132,13 @@ type EmptyCommandChainResult = {
 }
 
 /**
- * Command chain magic
- *
- * This type recursively builds a merged type based on the sequence of tasks.
- *
- * How it works:
- * 1. It uses a conditional type with recursion to process the task array.
- * 2. For each iteration:
- *    a. It extracts the first task (First) and the rest of the tasks (Rest).
- *    b. It checks if First is a valid Task and Rest is a Task array.
- *    c. If valid, it merges the Command type for the First task with the
- *       result of recursively processing the Rest of the tasks.
- * 3. The recursion continues until the task array is empty.
- * 4. When empty, it returns NonNullable<unknown> (equivalent to {}).
- *
- * Example:
- * For tasks ['load', 'validate']:
- * 1st iteration: Merge<Commands['load'], CommandChain<['validate']>>
- * 2nd iteration: Merge<Commands['load'], Merge<Commands['validate'], NonNullable<unknown>>>
- * Result: LoadResult & ValidateResult
- *
- * This type enables the API to correctly infer the return type based on
- * the sequence of method calls in the fluent interface.
+ * Fold commands in execution order, preserving fields from earlier results unless a
+ * later command replaces them. Distributing Merge over unions preserves validation
+ * result narrowing. Defaults belong to the initial state, not the final merge.
  */
-export type CommandChain<T extends Task[]> = T extends [infer First, ...infer Rest]
-  ? First extends Task
-    ? Rest extends Task[]
-      ? Merge<Commands[First['name']]['result'], CommandChain<Rest>>
-      : never
-    : never
-  : EmptyCommandChainResult
+export type CommandChain<T extends Task[], Result = EmptyCommandChainResult> = T extends [
+  infer First extends Task,
+  ...infer Rest extends Task[],
+]
+  ? CommandChain<Rest, Merge<Result, Commands[First['name']]['result']>>
+  : Result

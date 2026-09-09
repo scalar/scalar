@@ -7,6 +7,7 @@ import type { AnyObject } from '@scalar/types/utils'
 import { describe, expect, it } from 'vitest'
 
 import { dereference } from './dereference'
+import { validate } from './validate'
 
 describe('dereference', () => {
   it('dereferences an OpenAPI 3.2.0 file', () => {
@@ -200,7 +201,7 @@ describe('dereference', () => {
     expect(result.version).toBe(undefined)
   })
 
-  it('dereferences a simple reference', () => {
+  it('dereferences and validates a response containing a schema reference', async () => {
     const openapi = {
       openapi: '3.1.0',
       info: {
@@ -212,7 +213,6 @@ describe('dereference', () => {
           get: {
             responses: {
               '200': {
-                // TODO: This is valid in @apidevtools/swagger, but not with our implementation
                 description: 'foobar',
                 content: {
                   'application/json': {
@@ -241,6 +241,11 @@ describe('dereference', () => {
     }
 
     const result = dereference(openapi)
+    const validation = await validate(openapi)
+
+    expect(validation.valid).toBe(true)
+    expect(validation.errors).toStrictEqual([])
+    expect(result.schema).toHaveProperty(['paths', '/test', 'get', 'responses', '200', 'description'], 'foobar')
 
     expect(result.errors).toStrictEqual([])
 
@@ -447,8 +452,8 @@ describe('dereference', () => {
 
     expect(result.errors).toStrictEqual([])
     expect(dereferencedSchemas).toHaveLength(2)
-    expect(dereferencedSchemas[0].resolved == dereferencedSchemas[1].resolved).toBe(true)
-    expect((result.schema as AnyObject).components.schemas.Test == dereferencedSchemas[0].resolved).toBe(true)
+    expect(dereferencedSchemas[0].resolved).toBe(dereferencedSchemas[1].resolved)
+    expect((result.schema as AnyObject).components.schemas.Test).toBe(dereferencedSchemas[0].resolved)
   })
 
   it('dereferences operations with query operations', () => {
