@@ -94,21 +94,23 @@ export const generateResponses = (node: Node | undefined, typeChecker: TypeCheck
   const statements = Array.from(generator)
 
   return statements.reduce<OpenAPIV3_1.ResponsesObject>((prev, statement) => {
+    // Concise arrow handlers yield their expression directly; block handlers yield return statements.
+    const expression = isReturnStatement(statement) ? statement.expression : statement
+
     // Check for a Response.json
     if (
-      isReturnStatement(statement) &&
-      statement.expression &&
-      isCallExpression(statement.expression) &&
-      statement.expression.expression &&
-      isPropertyAccessExpression(statement.expression.expression) &&
-      statement.expression.expression.name.escapedText === 'json' &&
-      statement.expression.expression.expression &&
-      isIdentifier(statement.expression.expression.expression) &&
+      expression &&
+      isCallExpression(expression) &&
+      expression.expression &&
+      isPropertyAccessExpression(expression.expression) &&
+      expression.expression.name.escapedText === 'json' &&
+      expression.expression.expression &&
+      isIdentifier(expression.expression.expression) &&
       // we will probably pass comparator in
-      (statement.expression.expression.expression.escapedText === 'Response' ||
-        statement.expression.expression.expression.escapedText === 'NextResponse')
+      (expression.expression.expression.escapedText === 'Response' ||
+        expression.expression.expression.escapedText === 'NextResponse')
     ) {
-      const [payload, options] = statement.expression.arguments
+      const [payload, options] = expression.arguments
 
       // Grab payload and options schemas
       const schema = getSchemaFromNode(payload!, typeChecker)
