@@ -52,16 +52,16 @@ export const getResolvedPathItem = (pathItem: NodeInput<PathItemObject> | undefi
       // this with `document.paths[somePath]`, and a document is free to name a path `__proto__` —
       // which makes that lookup `Object.prototype`. Mutating whatever arrives is not worth the risk
       // when dropping a key costs a destructure.
-      const { '$ref-value': _unfollowed, ...withoutUnfollowedRef } = resolved as Record<string, unknown>
+      const { '$ref-value': _unfollowed, ...withoutUnfollowedRef }: Record<string, unknown> = resolved
 
       console.warn(
-        `Stopped resolving "${(resolved as { $ref?: string }).$ref}" after ${MAX_REF_HOPS} hops.\n\nThis reference most likely points at itself, directly or through another reference.`,
+        `Stopped resolving "${resolved.$ref}" after ${MAX_REF_HOPS} hops.\n\nThis reference most likely points at itself, directly or through another reference.`,
       )
 
-      return withoutUnfollowedRef as PathItemObject
+      return withoutUnfollowedRef
     }
 
-    resolved = getResolvedRef(resolved as NodeInput<PathItemObject>, mergeSiblingReferences)
+    resolved = getResolvedRef(resolved, mergeSiblingReferences)
   }
 
   return resolved

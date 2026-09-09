@@ -9,12 +9,12 @@ export const getHeaderName = <T>(headers: Headers<T>, name: string): string | un
 /**
  * Given a headers object retrieve the contents of a header out of it via a case-insensitive key.
  */
-export const getHeader = <T>(headers: Headers<T>, name: string): T => {
+export const getHeader = <T>(headers: Headers<T>, name: string): T | undefined => {
   const headerName = getHeaderName(headers, name)
   if (!headerName) {
-    return undefined as T
+    return undefined
   }
-  return headers[headerName] as T
+  return headers[headerName]
 }
 /**
  * Determine if a given case-insensitive header exists within a header object.

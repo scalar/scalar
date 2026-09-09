@@ -43,7 +43,7 @@ export type AsyncApiServerEntry = {
   isWebSocket: boolean
 }
 
-const resolveServer = (server: NonNullable<AsyncApiDocument['servers']>[string]): AsyncApiServerObject =>
+const resolveServer = (server: NonNullable<AsyncApiDocument['servers']>[string]): AsyncApiServerObject | undefined =>
   getResolvedRef(server)
 
 const getServerNameFromRef = (ref: string): string | undefined => getNameFromRef(ref, ['servers'])
@@ -95,6 +95,7 @@ export const getAsyncApiServers = (
     .filter(([name]) => channelServerNames?.has(name) ?? true)
     .map(([name, serverRef]) => {
       const server = resolveServer(serverRef)
+      if (!server) return undefined
       const protocol = server.protocol.trim().toLowerCase()
       const isWebSocket = isWebSocketProtocol(protocol)
       const url = buildAsyncApiServerBaseUrl(server, environmentVariables)
@@ -123,7 +124,7 @@ export const getAsyncApiServers = (
 
       return entry
     })
-    .filter((entry) => (webSocketOnly ? entry.isWebSocket : true))
+    .filter((entry): entry is AsyncApiServerEntry => entry !== undefined && (!webSocketOnly || entry.isWebSocket))
 }
 
 /**

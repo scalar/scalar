@@ -29,12 +29,12 @@ export const toJsonCompatible = <T>(obj: T, options: RemoveCircularOptions = {})
   }
 
   const rootPath = prefix
-  cache.set(obj as object, rootPath)
+  cache.set(obj, rootPath)
 
-  const rootResult: unknown = Array.isArray(obj) ? new Array((obj as unknown[]).length) : {}
+  const rootResult: unknown = Array.isArray(obj) ? new Array(obj.length) : {}
 
   const queue = new Queue<{ node: object; result: unknown; path: string }>()
-  queue.enqueue({ node: obj as object, result: rootResult, path: rootPath })
+  queue.enqueue({ node: obj, result: rootResult, path: rootPath })
 
   while (!queue.isEmpty()) {
     const frame = queue.dequeue()
@@ -46,7 +46,7 @@ export const toJsonCompatible = <T>(obj: T, options: RemoveCircularOptions = {})
 
     // Handle arrays (preserve sparse arrays like Array#map does)
     if (Array.isArray(node)) {
-      const input = node as unknown[]
+      const input: unknown[] = node
       const out = result as unknown[]
 
       for (let index = 0; index < input.length; index++) {
@@ -62,17 +62,17 @@ export const toJsonCompatible = <T>(obj: T, options: RemoveCircularOptions = {})
           continue
         }
 
-        const existingPath = cache.get(item as object)
+        const existingPath = cache.get(item)
         if (existingPath !== undefined) {
           out[index] = toRef(existingPath)
           continue
         }
 
-        cache.set(item as object, itemPath)
+        cache.set(item, itemPath)
 
-        const childResult: unknown = Array.isArray(item) ? new Array((item as unknown[]).length) : {}
+        const childResult: unknown = Array.isArray(item) ? new Array(item.length) : {}
         out[index] = childResult
-        queue.enqueue({ node: item as object, result: childResult, path: itemPath })
+        queue.enqueue({ node: item, result: childResult, path: itemPath })
       }
 
       continue
@@ -80,7 +80,8 @@ export const toJsonCompatible = <T>(obj: T, options: RemoveCircularOptions = {})
 
     // Handle objects - create a new object with processed values
     const out = result as Record<string, unknown>
-    for (const [key, value] of Object.entries(node)) {
+    const entries: [string, unknown][] = Object.entries(node)
+    for (const [key, value] of entries) {
       const valuePath = `${path}/${escapeJsonPointer(key)}`
 
       if (typeof value !== 'object' || value === null) {
@@ -88,17 +89,17 @@ export const toJsonCompatible = <T>(obj: T, options: RemoveCircularOptions = {})
         continue
       }
 
-      const existingPath = cache.get(value as object)
+      const existingPath = cache.get(value)
       if (existingPath !== undefined) {
         out[key] = toRef(existingPath)
         continue
       }
 
-      cache.set(value as object, valuePath)
+      cache.set(value, valuePath)
 
-      const childResult: unknown = Array.isArray(value) ? new Array((value as unknown[]).length) : {}
+      const childResult: unknown = Array.isArray(value) ? new Array(value.length) : {}
       out[key] = childResult
-      queue.enqueue({ node: value as object, result: childResult, path: valuePath })
+      queue.enqueue({ node: value, result: childResult, path: valuePath })
     }
   }
 

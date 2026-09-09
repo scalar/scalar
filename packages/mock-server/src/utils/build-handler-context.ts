@@ -123,11 +123,7 @@ export async function buildHandlerContext(
   const res: Record<string, any> = {}
   if (operation?.responses) {
     for (const statusCode of Object.keys(operation.responses)) {
-      res[statusCode] = getExampleFromResponse(
-        c,
-        statusCode,
-        operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
-      )
+      res[statusCode] = getExampleFromResponse(c, statusCode, operation.responses)
     }
   }
 

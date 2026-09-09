@@ -14,12 +14,8 @@ const emit = defineEmits<{
   (e: 'operation:update:extension', payload: any): void
 }>()
 
-const preRequestScript = computed(
-  () => (operation?.['x-pre-request'] as string) ?? '',
-)
-const postResponseScript = computed(
-  () => (operation?.['x-post-response'] as string) ?? '',
-)
+const preRequestScript = computed(() => operation?.['x-pre-request'] ?? '')
+const postResponseScript = computed(() => operation?.['x-post-response'] ?? '')
 
 const hasAnyScript = computed(
   () =>

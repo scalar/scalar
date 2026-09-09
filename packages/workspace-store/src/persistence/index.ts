@@ -131,7 +131,7 @@ export const createWorkspaceStorePersistence = async () => {
    */
   const findByTeamSlugAndSlug = async (teamSlug: string, slug: string): Promise<WorkspaceRecord | undefined> => {
     const matches = await workspaceTable.getRange([teamSlug, slug], 'teamSlug_slug')
-    return matches[0] as WorkspaceRecord | undefined
+    return matches[0]
   }
 
   /**
@@ -252,7 +252,7 @@ export const createWorkspaceStorePersistence = async () => {
        * making it safe to cache and reference across slug renames.
        */
       getItem: async (workspaceUid: string): Promise<(WorkspaceStoreShape & WorkspaceRecord) | undefined> => {
-        const workspace = (await workspaceTable.getItem({ workspaceUid })) as WorkspaceRecord | undefined
+        const workspace = await workspaceTable.getItem({ workspaceUid })
         if (!workspace) {
           return undefined
         }
@@ -286,7 +286,7 @@ export const createWorkspaceStorePersistence = async () => {
        * including documents and metadata, use `getItem(workspaceUid)`.
        */
       getAll: async (): Promise<WorkspaceRecord[]> => {
-        return (await workspaceTable.getAll()) as WorkspaceRecord[]
+        return await workspaceTable.getAll()
       },
 
       /**
@@ -297,7 +297,7 @@ export const createWorkspaceStorePersistence = async () => {
        * canonical identifier and survives team-slug renames.
        */
       getAllByTeamUid: async (teamUid: string): Promise<WorkspaceRecord[]> => {
-        return (await workspaceTable.getRange([teamUid], 'teamUid')) as WorkspaceRecord[]
+        return await workspaceTable.getRange([teamUid], 'teamUid')
       },
 
       /**
@@ -307,7 +307,7 @@ export const createWorkspaceStorePersistence = async () => {
        * `getAllByTeamUid`.
        */
       getAllByTeamSlug: async (teamSlug: string): Promise<WorkspaceRecord[]> => {
-        return (await workspaceTable.getRange([teamSlug], 'teamSlug_slug')) as WorkspaceRecord[]
+        return await workspaceTable.getRange([teamSlug], 'teamSlug_slug')
       },
 
       /**
@@ -332,10 +332,7 @@ export const createWorkspaceStorePersistence = async () => {
         },
         value: WorkspaceStoreShape,
       ): Promise<WorkspaceRecord> => {
-        const workspace = (await workspaceTable.addItem(
-          { workspaceUid },
-          { teamUid, teamSlug, slug, name: value.name },
-        )) as WorkspaceRecord
+        const workspace = await workspaceTable.addItem({ workspaceUid }, { teamUid, teamSlug, slug, name: value.name })
 
         await metaTable.addItem({ workspaceUid }, { data: value.workspace.meta })
 
@@ -402,11 +399,11 @@ export const createWorkspaceStorePersistence = async () => {
        * record, or `undefined` when the workspace does not exist.
        */
       updateName: async (workspaceUid: string, name: string): Promise<WorkspaceRecord | undefined> => {
-        const workspace = (await workspaceTable.getItem({ workspaceUid })) as WorkspaceRecord | undefined
+        const workspace = await workspaceTable.getItem({ workspaceUid })
         if (!workspace) {
           return undefined
         }
-        return (await workspaceTable.addItem({ workspaceUid }, { ...workspace, name })) as WorkspaceRecord
+        return await workspaceTable.addItem({ workspaceUid }, { ...workspace, name })
       },
 
       /**
@@ -423,7 +420,7 @@ export const createWorkspaceStorePersistence = async () => {
         workspaceUid: string,
         slugs: { teamSlug?: string; slug?: string },
       ): Promise<WorkspaceRecord | undefined> => {
-        const workspace = (await workspaceTable.getItem({ workspaceUid })) as WorkspaceRecord | undefined
+        const workspace = await workspaceTable.getItem({ workspaceUid })
         if (!workspace) {
           return undefined
         }
@@ -438,14 +435,14 @@ export const createWorkspaceStorePersistence = async () => {
           }
         }
 
-        return (await workspaceTable.addItem(
+        return await workspaceTable.addItem(
           { workspaceUid },
           {
             ...workspace,
             teamSlug: nextTeamSlug,
             slug: nextSlug,
           },
-        )) as WorkspaceRecord
+        )
       },
 
       /** Checks if a workspace with the given UID exists. */

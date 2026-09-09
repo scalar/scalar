@@ -1,7 +1,7 @@
 import { type InjectionKey, type Ref, inject, provide, ref } from 'vue'
 
 /** The symbol for the dropdown context */
-const ACTIVE_SYMBOL = Symbol() as InjectionKey<Ref<string | undefined>>
+const ACTIVE_SYMBOL: InjectionKey<Ref<string | undefined>> = Symbol()
 
 /** Provides a ref for the currently active dropdown item */
 export function useDropdown() {

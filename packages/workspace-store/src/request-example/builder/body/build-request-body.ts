@@ -85,9 +85,10 @@ export const buildRequestBody = (
   // object schema that declares it outside `required`, so undeclared and required keys are
   // always kept. This mirrors the unchecked-by-default checkbox in the Test Request panel.
   // The array (edited) form path is unaffected: it carries its own per-row `isDisabled`.
-  const resolvedBodySchema = getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences) as
-    | SchemaObject
-    | undefined
+  const resolvedBodySchema: SchemaObject | undefined = getResolvedRef(
+    requestBody.content[bodyContentType]?.schema,
+    mergeSiblingReferences,
+  )
   const objectBodySchema = resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? resolvedBodySchema : undefined
   // Composition (allOf/oneOf/anyOf) can mark a property required inside a subschema we do not
   // merge here, so skip dropping entirely for composed schemas rather than risk removing an
@@ -132,9 +133,7 @@ export const buildRequestBody = (
     // into the same live object reference so interleaved flat rows keep their order.
     const multipartSchema =
       result.mode === 'formdata'
-        ? (getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences) as
-            | SchemaObject
-            | undefined)
+        ? getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences)
         : undefined
     const isDottedNestedRow = result.mode === 'formdata' ? buildDottedNestedRowPredicate(multipartSchema) : () => false
 

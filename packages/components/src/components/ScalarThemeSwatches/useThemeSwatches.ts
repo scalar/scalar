@@ -54,7 +54,7 @@ function parseRules(css?: string): ThemeCssVars {
     ...getVars('--scalar-color-[1-3]', css),
     ...getVars('--scalar-background-[1-3]', css),
     ...getVars('--scalar-color-accent', css),
-  } as ThemeCssVars
+  }
 }
 
 /**

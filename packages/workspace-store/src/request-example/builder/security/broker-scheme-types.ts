@@ -11,7 +11,7 @@ const SASL_SCHEME_TYPES = ['userPassword', 'plain', 'scramSha256', 'scramSha512'
 export type SaslSchemeType = (typeof SASL_SCHEME_TYPES)[number]
 
 export const isSaslSchemeType = (type: string | undefined): type is SaslSchemeType =>
-  Boolean(type) && (SASL_SCHEME_TYPES as readonly string[]).includes(type!)
+  SASL_SCHEME_TYPES.some((schemeType) => schemeType === type)
 
 /** Encryption broker schemes: a single key value. */
 const ENCRYPTION_SCHEME_TYPES = ['symmetricEncryption', 'asymmetricEncryption'] as const
@@ -19,4 +19,4 @@ const ENCRYPTION_SCHEME_TYPES = ['symmetricEncryption', 'asymmetricEncryption'] 
 export type EncryptionSchemeType = (typeof ENCRYPTION_SCHEME_TYPES)[number]
 
 export const isEncryptionSchemeType = (type: string | undefined): type is EncryptionSchemeType =>
-  Boolean(type) && (ENCRYPTION_SCHEME_TYPES as readonly string[]).includes(type!)
+  ENCRYPTION_SCHEME_TYPES.some((schemeType) => schemeType === type)

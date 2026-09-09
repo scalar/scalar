@@ -1320,7 +1320,7 @@ describe('updateAsyncApiServerVariables', () => {
 
     expect(result?.default).toBe('staging')
     const environment = getResolvedRef(document.servers?.production)?.variables?.environment
-    expect(environment ? getResolvedRef(environment).default : undefined).toBe('staging')
+    expect(environment ? getResolvedRef(environment)?.default : undefined).toBe('staging')
   })
 
   it('returns undefined when the variable is not found', () => {

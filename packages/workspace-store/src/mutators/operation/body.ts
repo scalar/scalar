@@ -26,7 +26,7 @@ const findOrCreateRequestBodyExample = (
     operation.requestBody = {
       content: {},
     }
-    requestBody = getResolvedRef(operation.requestBody)
+    requestBody = operation.requestBody
   }
 
   // Ensure that the example exists
@@ -70,7 +70,7 @@ export const updateOperationRequestBodyContentType = (
     operation.requestBody = {
       content: {},
     }
-    requestBody = getResolvedRef(operation.requestBody)
+    requestBody = operation.requestBody
   }
 
   if (!requestBody!['x-scalar-selected-content-type']) {

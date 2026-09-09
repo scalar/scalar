@@ -4,10 +4,8 @@ export type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value'?: Node 
 export type NodeInput<Node> = Node | RefNode<Node>
 
 const defaultTransform = <Node>(node: RefNode<Node>) => {
-  // `$ref-value` is populated by the bundler/proxy when the document is resolved. The schemas now
-  // type it as optional so unresolved `{ $ref }` objects pass through coercion untouched, but callers
-  // of `getResolvedRef` operate on resolved documents where the value is present.
-  return node['$ref-value'] as Node
+  // Unresolved references have no value; callers must account for that state.
+  return node['$ref-value']
 }
 
 /**
@@ -27,7 +25,7 @@ export const mergeSiblingReferences = <Node>(node: RefNode<Node>): Node => {
     return rest as Node
   }
 
-  return { ...value, ...rest } as Node
+  return { ...value, ...rest }
 }
 
 /**
@@ -35,14 +33,19 @@ export const mergeSiblingReferences = <Node>(node: RefNode<Node>): Node => {
  * If the node contains a $ref, applies the provided transform (default: returns '$ref-value').
  * Otherwise, returns the node as-is.
  */
-export const getResolvedRef = <Node>(
+export function getResolvedRef<Node, Result>(
   node: NodeInput<Node>,
-  transform: (node: RefNode<Node>) => Node = defaultTransform,
-) => {
+  transform: (node: RefNode<Node>) => Result,
+): Node | Result
+export function getResolvedRef<Node>(node: { $ref: string; '$ref-value': Node }): Node
+export function getResolvedRef<Node>(node: NodeInput<Node>): Node | undefined
+export function getResolvedRef<Node, Result>(
+  node: NodeInput<Node>,
+  transform: (node: RefNode<Node>) => Result | Node | undefined = defaultTransform,
+): Node | Result | undefined {
   if (typeof node === 'object' && node !== null && '$ref' in node) {
     return transform(node)
   }
-
   return node
 }
 

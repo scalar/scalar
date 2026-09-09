@@ -110,9 +110,7 @@ const toggle = (): void => {
         :document="document"
         :eventBus="eventBus"
         :options="options"
-        :parameters="
-          callback.parameters?.map((param) => getResolvedRef(param)) ?? []
-        "
+        :parameters="callback.parameters ?? []"
         :requestBody="getResolvedRef(callback.requestBody)" />
 
       <OperationResponses

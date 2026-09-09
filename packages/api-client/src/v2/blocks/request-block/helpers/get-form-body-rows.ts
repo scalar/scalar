@@ -80,7 +80,7 @@ export const collectExampleRows = (
   parentPath: string[] = [],
 ): { path: string[]; value: unknown }[] => {
   const rows: { path: string[]; value: unknown }[] = []
-  const exampleEntries = isObject(example) ? objectEntries(example as Record<string, unknown>) : []
+  const exampleEntries = isObject(example) ? objectEntries(example) : []
   const exampleByKey = new Map<string, unknown>(exampleEntries.map(([key, value]) => [String(key), value]))
   const declaredKeys = new Set<string>()
   const schemaProperties = schema && isObjectSchema(schema) ? (schema.properties ?? {}) : {}

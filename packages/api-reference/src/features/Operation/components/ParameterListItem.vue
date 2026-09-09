@@ -64,7 +64,7 @@ const truncated = ref(false)
 /** Responses and params may both have a schema */
 const schema = computed<SchemaObject | null>(() =>
   'schema' in parameter && parameter.schema
-    ? getResolvedRef(parameter.schema)
+    ? (getResolvedRef(parameter.schema) ?? null)
     : null,
 )
 

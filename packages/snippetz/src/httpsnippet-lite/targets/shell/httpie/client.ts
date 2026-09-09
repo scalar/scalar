@@ -83,10 +83,10 @@ export const httpie: Client = {
       })
     }
     // construct headers
-    Object.keys(allHeaders)
-      .sort()
-      .forEach((key) => {
-        push(`${key}:${shellQuote(allHeaders[key] as string)}`)
+    Object.entries(allHeaders)
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+      .forEach(([key, value]) => {
+        push(`${key}:${shellQuote(value)}`)
       })
     if (
       (postData === null || postData === void 0 ? void 0 : postData.mimeType) === 'application/x-www-form-urlencoded'

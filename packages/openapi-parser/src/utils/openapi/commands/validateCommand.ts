@@ -1,6 +1,7 @@
 import type { Queue, Task, ValidateResult } from '@/types/index'
 import type { DereferenceOptions } from '@/utils/dereference'
 import type { ValidateOptions } from '@/utils/validate'
+
 import { details } from '../actions/details'
 import { files } from '../actions/files'
 import { get } from '../actions/get'
@@ -35,7 +36,7 @@ export function validateCommand<T extends Task[]>(previousQueue: Queue<T>, optio
     },
   }
 
-  const queue = queueTask<[...T, typeof task]>(previousQueue, task as Task)
+  const queue = queueTask<[...T, typeof task]>(previousQueue, task)
 
   return {
     dereference: (dereferenceOptions?: DereferenceOptions) => dereferenceCommand(queue, dereferenceOptions),

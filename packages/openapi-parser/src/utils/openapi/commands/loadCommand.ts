@@ -2,6 +2,7 @@ import type { AnyApiDefinitionFormat, LoadResult, Queue, Task } from '@/types/in
 import type { DereferenceOptions } from '@/utils/dereference'
 import type { LoadOptions } from '@/utils/load/load'
 import type { ValidateOptions } from '@/utils/validate'
+
 import { details } from '../actions/details'
 import { files } from '../actions/files'
 import { get } from '../actions/get'
@@ -45,7 +46,7 @@ export function loadCommand<T extends Task[]>(
 
   const queue = {
     // Add the load task
-    ...queueTask<[...T, typeof task]>(previousQueue, task as Task),
+    ...queueTask<[...T, typeof task]>(previousQueue, task),
     // Add input to the queue
     input,
   }

@@ -677,7 +677,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // creating a complete and self-contained partial bundle.
           await bundler(targetValue.value, targetValue.context, isChunkParent, depth + 1, segments, parent)
         }
-        await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
+        await executeHooks('onAfterNodeProcess', root, context)
         return
       }
 
@@ -769,13 +769,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
         await executeHooks('onResolveSuccess', root)
 
-        await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
+        await executeHooks('onAfterNodeProcess', root, context)
         return
       }
 
       await executeHooks('onResolveError', root)
 
-      await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
+      await executeHooks('onAfterNodeProcess', root, context)
       return console.warn(
         `Failed to resolve external reference "${resolvedPath}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )

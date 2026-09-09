@@ -84,7 +84,7 @@ const messageBindingProtocols = computed(() => {
     return []
   }
   const resolved = getResolvedRef(bindings)
-  return Object.entries(resolved)
+  return Object.entries(resolved ?? {})
     .filter(([, value]) => value != null)
     .map(([protocol]) => protocol.toLowerCase())
 })

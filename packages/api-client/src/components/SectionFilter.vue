@@ -6,7 +6,8 @@ import SectionFilterButton from '@/components/SectionFilterButton.vue'
 
 const { filters = [], filterIds } = defineProps<{
   filters?: T[]
-  filterIds?: Record<T, string>
+  /** IDs for the currently available sections. */
+  filterIds?: Partial<Record<T, string>>
 }>()
 
 const model = defineModel<T>()

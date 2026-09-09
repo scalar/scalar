@@ -43,7 +43,7 @@ const collectMembers = (schema: SchemaObject, out: Member[], seenRefs: Set<strin
     then: _then,
     else: _else,
     ...rest
-  } = schema as SchemaObject & {
+  }: SchemaObject & {
     allOf?: unknown[]
     oneOf?: unknown[]
     anyOf?: unknown[]
@@ -51,10 +51,10 @@ const collectMembers = (schema: SchemaObject, out: Member[], seenRefs: Set<strin
     if?: unknown
     then?: unknown
     else?: unknown
-  }
+  } = schema
 
   if (Object.keys(rest).length > 0) {
-    out.push({ kind: 'object', schema: rest as SchemaObject })
+    out.push({ kind: 'object', schema: rest })
   }
 
   for (const keyword of CHOICE_KEYWORDS) {
@@ -67,7 +67,7 @@ const collectMembers = (schema: SchemaObject, out: Member[], seenRefs: Set<strin
   if (Array.isArray(allOf)) {
     for (const rawMember of allOf) {
       if (rawMember && typeof rawMember === 'object') {
-        const resolved = resolve.schema(rawMember) as SchemaObject & { $ref?: string }
+        const resolved: SchemaObject & { $ref?: string } = resolve.schema(rawMember)
         // Break `$ref` cycles reached through `allOf` (e.g. a member that
         // references an ancestor). Without this guard a recursive `allOf`
         // schema would recurse forever. `mergeAllOfSchemas` guards the same way.
@@ -113,7 +113,7 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
     then: _then,
     else: _else,
     ...rest
-  } = schema as SchemaObject & {
+  }: SchemaObject & {
     allOf?: unknown[]
     oneOf?: unknown[]
     anyOf?: unknown[]
@@ -121,7 +121,7 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
     if?: unknown
     then?: unknown
     else?: unknown
-  }
+  } = schema
 
   if (!Array.isArray(allOf)) {
     return { segments: [{ kind: 'object', schema: schema }] }
@@ -129,12 +129,12 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
 
   const members: Member[] = []
   if (Object.keys(rest).length > 0) {
-    members.push({ kind: 'object', schema: rest as SchemaObject })
+    members.push({ kind: 'object', schema: rest })
   }
   const seenRefs = new Set<string>()
   for (const rawMember of allOf) {
     if (rawMember && typeof rawMember === 'object') {
-      const resolved = resolve.schema(rawMember) as SchemaObject & { $ref?: string }
+      const resolved: SchemaObject & { $ref?: string } = resolve.schema(rawMember)
       const ref = resolved.$ref
       collectMembers(resolved, members, typeof ref === 'string' ? new Set(seenRefs).add(ref) : seenRefs)
     }

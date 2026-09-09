@@ -256,5 +256,5 @@ export const deleteAllOperationParameters = (
   }
 
   // Filter out parameters of the specified type
-  operation.parameters = operation.parameters?.filter((it) => getResolvedRef(it).in !== type) ?? []
+  operation.parameters = operation.parameters?.filter((it) => getResolvedRef(it)?.in !== type) ?? []
 }

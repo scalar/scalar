@@ -178,12 +178,7 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.Ope
     if (result === undefined || result === null) {
       // Try to pick up example response from OpenAPI spec if available
       const prefer = parsePreferHeader(c.req.header('Prefer'))
-      const exampleResponse = getExampleFromResponse(
-        c,
-        statusCode,
-        operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
-        prefer.example,
-      )
+      const exampleResponse = getExampleFromResponse(c, statusCode, operation.responses, prefer.example)
       if (exampleResponse !== null) {
         return c.json(exampleResponse)
       }

@@ -77,8 +77,8 @@ export const xhr: Client = {
     push('});')
     blank()
     push(`xhr.open('${method}', '${fullUrl}');`)
-    Object.keys(allHeaders).forEach((key) => {
-      push(`xhr.setRequestHeader('${key}', '${escapeForSingleQuotes(allHeaders[key] as string)}');`)
+    Object.entries(allHeaders).forEach(([key, value]) => {
+      push(`xhr.setRequestHeader('${key}', '${escapeForSingleQuotes(value)}');`)
     })
     blank()
     push('xhr.send(data);')

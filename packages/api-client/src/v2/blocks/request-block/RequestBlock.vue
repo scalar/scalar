@@ -210,7 +210,7 @@ const sections = computed(() =>
       ) ?? [],
     'in',
     ({ in: _in, ...row }) => {
-      return row as TableRow
+      return row
     },
   ),
 )
@@ -377,11 +377,11 @@ const filters = computed<Filter[]>(() => {
  * Map available filters to their pre-generated stable IDs.
  * Only includes IDs for filters that are currently available.
  */
-const filterIds = computed(
-  () =>
-    Object.fromEntries(
-      filters.value.map((section) => [section, sectionIds[section]]),
-    ) as Record<Filter, string>,
+const filterIds = computed(() =>
+  filters.value.reduce<Partial<Record<Filter, string>>>((ids, section) => {
+    ids[section] = sectionIds[section]
+    return ids
+  }, {}),
 )
 
 /**
@@ -444,7 +444,10 @@ watch(
 
 /** Handle operation summary updates */
 const handleSummaryUpdate = (event: Event): void => {
-  const summary = (event.target as HTMLInputElement).value
+  if (!(event.target instanceof HTMLInputElement)) {
+    return
+  }
+  const summary = event.target.value
   eventBus.emit('operation:update:meta', {
     meta: meta.value,
     payload: { summary: summary.trim() },

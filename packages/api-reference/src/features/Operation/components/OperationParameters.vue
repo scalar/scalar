@@ -42,24 +42,19 @@ type ParameterLocation = 'cookie' | 'header' | 'path' | 'query'
 
 /** Use a single loop to reduce parameters by type(in) */
 const splitParameters = computed(() =>
-  (parameters ?? []).reduce(
+  (parameters ?? []).reduce<Record<ParameterLocation, ParameterObject[]>>(
     (acc, p) => {
       const parameter = getResolvedRef(p)
       // Filter out ignored parameters
-      if (!isHidden(parameter)) {
+      if (parameter && !isHidden(parameter)) {
         const flattenedParameters = flattenDeepObjectQueryParameter(parameter)
         flattenedParameters.forEach((flattenedParameter) => {
-          acc[flattenedParameter.in as ParameterLocation].push(
-            flattenedParameter,
-          )
+          acc[flattenedParameter.in].push(flattenedParameter)
         })
       }
       return acc
     },
-    { cookie: [], header: [], path: [], query: [] } as Record<
-      'cookie' | 'header' | 'path' | 'query',
-      ParameterObject[]
-    >,
+    { cookie: [], header: [], path: [], query: [] },
   ),
 )
 </script>

@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
@@ -72,11 +73,11 @@ const jsToEdn = (value: unknown): string => {
     const body = value.reduce((accumulator: string, item) => `${accumulator} ${jsToEdn(item)}`, '').trim()
     return `[${padBlock(1, body)}]`
   }
-  if (typeof value === 'object') {
+  if (isObjectLike(value)) {
     // Simple vertical format, one key per line.
-    const body = Object.keys(value as Record<string, unknown>)
+    const body = Object.keys(value)
       .reduce((accumulator, key) => {
-        const rendered = padBlock(key.length + 2, jsToEdn((value as Record<string, unknown>)[key]))
+        const rendered = padBlock(key.length + 2, jsToEdn(value[key]))
         return `${accumulator}:${key} ${rendered}\n `
       }, '')
       .trim()
@@ -130,13 +131,10 @@ export const clojureCljhttp: Plugin = {
     }
 
     // Reduce headers into a plain object (last value wins for duplicates).
-    const headers = (request?.headers ?? []).reduce(
-      (accumulator, header) => {
-        accumulator[header.name] = header.value ?? ''
-        return accumulator
-      },
-      {} as Record<string, unknown>,
-    )
+    const headers = (request?.headers ?? []).reduce<Record<string, unknown>>((accumulator, header) => {
+      accumulator[header.name] = header.value ?? ''
+      return accumulator
+    }, {})
 
     // clj-http has no dedicated cookie option, so fold cookies into a single
     // Cookie header, mirroring what the request would send on the wire.
@@ -172,15 +170,12 @@ export const clojureCljhttp: Plugin = {
         break
       }
       case 'application/x-www-form-urlencoded': {
-        params['form-params'] = (postData.params ?? []).reduce(
-          (accumulator, param) => {
-            if (param.name && param.value !== undefined) {
-              accumulator[param.name] = param.value
-            }
-            return accumulator
-          },
-          {} as Record<string, string>,
-        )
+        params['form-params'] = (postData.params ?? []).reduce<Record<string, string>>((accumulator, param) => {
+          if (param.name && param.value !== undefined) {
+            accumulator[param.name] = param.value
+          }
+          return accumulator
+        }, {})
         deleteHeader(headers, 'content-type')
         break
       }

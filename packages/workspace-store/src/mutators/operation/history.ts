@@ -34,7 +34,7 @@ export const addResponseToHistory = async (
   // Get all the variables from the operation parameters
   const variables = operationParameters.reduce<Record<string, string>>((acc, param) => {
     const resolvedParam = getResolvedRef(param)
-    if (isContentTypeParameterObject(resolvedParam)) {
+    if (!resolvedParam || isContentTypeParameterObject(resolvedParam)) {
       return acc
     }
     if (resolvedParam.in === 'path') {

@@ -51,7 +51,7 @@ const resolveCliOverrides = (options: CommandOptions): CliConfigOverrides => {
   if (options.provider !== undefined && options.provider !== 'anthropic' && options.provider !== 'openai') {
     throw new Error(`Unsupported provider "${options.provider}". Use "anthropic" or "openai".`)
   }
-  const provider = options.provider as BuiltInProviderName | undefined
+  const provider: BuiltInProviderName | undefined = options.provider
 
   return {
     config: options.config,
@@ -80,7 +80,7 @@ export const createReleaseNotesGeneratorCommand = (baseConfig: ReleaseNotesConfi
       '-d, --dependency-changelog <path>',
       'Dependency CHANGELOG.md whose just-released section should be folded into the release note. Repeat for multiple dependencies.',
       (value: string, previous: string[] = []) => [...previous, value],
-      [] as string[],
+      [],
     )
     .option('--date <YYYY-MM-DD>', 'Release date (defaults to today in UTC)')
     .option('--provider <provider>', 'AI provider to use: anthropic or openai')

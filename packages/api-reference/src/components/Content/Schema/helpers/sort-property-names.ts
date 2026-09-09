@@ -16,13 +16,13 @@ type Options = Partial<
 
 /** Take a list of property names and reduce it back into an object */
 export const reduceNamesToObject = (names: string[], properties: Properties): Properties =>
-  names.reduce((acc, name) => {
+  names.reduce<Properties>((acc, name) => {
     const prop = properties?.[name]
     if (prop) {
       acc[name] = prop
     }
     return acc
-  }, {} as Properties)
+  }, {})
 
 /**
  * One collator for every sort, rather than a fresh locale lookup per comparison.
@@ -152,7 +152,7 @@ export const sortPropertyNames = (
       name,
       order:
         propertySchema && typeof propertySchema === 'object' && 'x-order' in propertySchema
-          ? (propertySchema as Record<string, unknown>)['x-order']
+          ? propertySchema['x-order']
           : undefined,
       required: requiredPropertiesSet.has(name),
       discriminator: name === discriminatorName,

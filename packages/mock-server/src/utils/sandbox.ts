@@ -225,7 +225,7 @@ function toError(dumped: unknown): Error {
   }
 
   if (dumped && typeof dumped === 'object' && 'message' in dumped) {
-    const error = new Error(String((dumped as { message: unknown }).message))
+    const error = new Error(String(dumped.message))
     const name = (dumped as { name?: unknown }).name
     if (typeof name === 'string') {
       error.name = name

@@ -163,9 +163,11 @@ const parseProviderJson = (payload: unknown): unknown => {
     const fenced = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
     const jsonText = (fenced?.[1] ?? text).trim()
     try {
-      return JSON.parse(jsonText) as unknown
+      return JSON.parse(jsonText)
     } catch (error) {
-      throw new Error(`AI provider returned invalid JSON: ${(error as Error).message}\nRaw text:\n${jsonText}`)
+      throw new Error(
+        `AI provider returned invalid JSON: ${error instanceof Error ? error.message : String(error)}\nRaw text:\n${jsonText}`,
+      )
     }
   }
   return payload
@@ -188,8 +190,8 @@ const validateProviderResponse = (
   } catch (error) {
     return {
       ok: false,
-      feedback: `Your previous response was not valid JSON (${(error as Error).message}). Respond with a single valid JSON object and nothing else.`,
-      fatalError: error as Error,
+      feedback: `Your previous response was not valid JSON (${error instanceof Error ? error.message : String(error)}). Respond with a single valid JSON object and nothing else.`,
+      fatalError: error instanceof Error ? error : new Error(String(error)),
     }
   }
 

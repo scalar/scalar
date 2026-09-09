@@ -33,8 +33,8 @@ export const isObjectEqual = (a: unknown, b: unknown): boolean => {
     return false
   }
 
-  const leftObject = a as Record<string, unknown>
-  const rightObject = b as Record<string, unknown>
+  const leftObject = a
+  const rightObject = b
 
   // Count only own enumerable keys so inherited properties do not affect equality.
   let leftCount = 0

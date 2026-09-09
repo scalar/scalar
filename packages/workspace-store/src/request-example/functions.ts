@@ -664,8 +664,7 @@ export type ContextFunctionEntry = {
 
 export type ContextFunctionName = keyof typeof contextFunctions
 
-export const getContextFunctionComment = (name: ContextFunctionName): string =>
-  (contextFunctions as Record<ContextFunctionName, ContextFunctionEntry>)[name].comment
+export const getContextFunctionComment = (name: ContextFunctionName): string => contextFunctions[name].comment
 
 /** Keys surfaced first in empty-query autocomplete (common request placeholders). */
 export const POPULAR_CONTEXT_FUNCTION_KEYS: readonly ContextFunctionName[] = [

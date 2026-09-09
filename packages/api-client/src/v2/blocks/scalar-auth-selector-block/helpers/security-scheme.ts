@@ -165,7 +165,11 @@ export const getSecuritySchemeOptions = (
    * We use names (not full IDs) because we want to exclude any scheme that is already
    * required, regardless of its specific scopes or hash.
    */
-  const { requiredFormatted, requiredSchemeNames, existingIds } = security.reduce(
+  const { requiredFormatted, requiredSchemeNames, existingIds } = security.reduce<{
+    requiredFormatted: SecuritySchemeOption[]
+    requiredSchemeNames: Set<string>
+    existingIds: Set<string>
+  }>(
     (acc, requirement) => {
       // If a required requirement is selected with scopes, use that selected value to
       // keep a single option entry and avoid a phantom duplicate.
@@ -181,7 +185,7 @@ export const getSecuritySchemeOptions = (
       return acc
     },
     {
-      requiredFormatted: [] as SecuritySchemeOption[],
+      requiredFormatted: [],
       requiredSchemeNames: new Set<string>(),
       existingIds: new Set<string>(),
     },

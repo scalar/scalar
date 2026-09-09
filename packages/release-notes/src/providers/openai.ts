@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import type { ReleaseNotesProvider } from '../config/types'
 
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
@@ -9,16 +11,18 @@ type OpenAIProviderOptions = {
   fetchImpl?: typeof fetch
 }
 
-type OpenAIResponse = {
-  choices?: Array<{
-    message?: {
-      content?: string | null
-    }
-  }>
-  error?: {
-    message?: string
-  }
-}
+const responseSchema = z.object({
+  choices: z
+    .array(
+      z.object({
+        message: z.object({ content: z.string().nullable().optional() }).optional(),
+      }),
+    )
+    .optional(),
+  error: z.object({ message: z.string().optional() }).optional(),
+})
+
+type OpenAIResponse = z.infer<typeof responseSchema>
 
 const extractText = (response: OpenAIResponse): string => {
   const text = response.choices?.[0]?.message?.content?.trim() ?? ''
@@ -68,7 +72,12 @@ export const createOpenAIProvider = (options: OpenAIProviderOptions = {}): Relea
         throw new Error(`OpenAI API call failed (${response.status}): ${detail}`)
       }
 
-      const payload = (await response.json()) as OpenAIResponse
+      const body: unknown = await response.json()
+      const parsed = responseSchema.safeParse(body)
+      if (!parsed.success) {
+        throw new Error('OpenAI API returned a malformed response', { cause: parsed.error })
+      }
+      const payload = parsed.data
       if (payload.error?.message) {
         throw new Error(`OpenAI API returned an error: ${payload.error.message}`)
       }

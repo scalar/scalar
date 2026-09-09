@@ -394,9 +394,8 @@ const createChannelEntry = ({
   // We skip channels that are stored as references, since the order should live on the target.
   const channelNode = document.channels?.[bucket.channelName]
   if (channelNode && !('$ref' in channelNode)) {
-    ;(channelNode as AsyncApiChannelObject & { 'x-scalar-order'?: string[] })['x-scalar-order'] = operations.map(
-      (child) => child.id,
-    )
+    const orderedChannel: AsyncApiChannelObject & { 'x-scalar-order'?: string[] } = channelNode
+    orderedChannel['x-scalar-order'] = operations.map((child) => child.id)
   }
 
   return {
