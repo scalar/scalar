@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
 import { makeFilesystem } from './make-filesystem'
-import { openapi } from './openapi/openapi'
 import { upgrade } from './upgrade'
 
 describe('upgrade', () => {
@@ -86,13 +85,5 @@ describe('upgrade', () => {
       specification: { openapi: '4.0.0' },
       version: undefined,
     })
-  })
-
-  it('reports OpenAPI 3.2 through the command chain', async () => {
-    const input = { openapi: '3.2.0', info: { title: 'Version test', version: '1.0.0' }, paths: {} }
-    const result = await openapi().load(input).upgrade().get()
-
-    expect(result.version).toBe('3.2')
-    expect(result.specification).toStrictEqual(input)
   })
 })

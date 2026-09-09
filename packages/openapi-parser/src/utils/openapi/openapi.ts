@@ -1,6 +1,5 @@
 import type { AnyApiDefinitionFormat, OpenApiOptions, Queue } from '@/types/index'
 import type { LoadOptions } from '@/utils/load/load'
-
 import { loadCommand } from './commands/loadCommand'
 
 /**
@@ -8,9 +7,7 @@ import { loadCommand } from './commands/loadCommand'
  *
  * @deprecated We are about to drop the pipeline syntax. Use the individual utilities instead.
  */
-export function openapi(globalOptions?: OpenApiOptions): {
-  load: (input: AnyApiDefinitionFormat, options?: LoadOptions) => ReturnType<typeof loadCommand<[]>>
-} {
+export function openapi(globalOptions?: OpenApiOptions) {
   // Create a new queue
   const queue = {
     input: null,
