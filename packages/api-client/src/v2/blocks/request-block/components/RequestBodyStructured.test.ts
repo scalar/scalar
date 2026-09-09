@@ -4,8 +4,11 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
+import { CodeInputLite } from '@/v2/components/code-input'
+
 import RequestBodyStructured from './RequestBodyStructured.vue'
 import RequestTable from './RequestTable.vue'
+import RequestTableRow from './RequestTableRow.vue'
 
 const defaultEnvironment: XScalarEnvironment = {
   color: 'blue',
@@ -117,4 +120,40 @@ describe('RequestBodyStructured', () => {
       ['age', '40'],
     ])
   })
+  it.each(['application/json', 'application/yaml'])(
+    'keeps body key focus and saves on blur or send for %s',
+    async (contentType) => {
+      const wrapper = mount(RequestBodyStructured, {
+        attachTo: document.body,
+        props: { parsedValue: { existing: 'value' }, contentType, environment: defaultEnvironment },
+      })
+      try {
+        for (const index of [0, 1]) {
+          const row = wrapper.findAllComponents(RequestTableRow)[index]!
+          const input = row.findAllComponents(CodeInputLite)[0]!
+          const editor = input.get('[contenteditable="true"]').element as HTMLElement
+          editor.focus()
+          const eventCount = wrapper.emitted('update:value')?.length ?? 0
+          let name = row.props('data').name
+          for (const character of 'note') {
+            name += character
+            input.vm.$emit('update:modelValue', name)
+            await nextTick()
+            expect(document.activeElement).toBe(editor)
+            expect(wrapper.emitted('update:value')?.length ?? 0).toBe(eventCount)
+          }
+          if (index === 0) {
+            input.vm.$emit('blur', name, new FocusEvent('blur'))
+          } else {
+            editor.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }))
+          }
+          await nextTick()
+          expect(wrapper.findComponent(RequestTable).props('data')[index]?.name).toBe(name)
+          expect(wrapper.emitted('update:value')?.length).toBe(eventCount + 1)
+        }
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
 })
