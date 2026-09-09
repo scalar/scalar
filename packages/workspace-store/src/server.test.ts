@@ -1121,6 +1121,19 @@ describe('create-server-store', () => {
 })
 
 describe('filter-http-methods-only', () => {
+  it('ignores Paths Object extensions even when they contain HTTP method names', () => {
+    const result = filterHttpMethodsOnly({
+      'x-metadata': { get: { description: 'Not an operation' } },
+      '/path': {
+        get: { description: 'List items' },
+        // @ts-expect-error Exercise an extension alongside a real operation.
+        'x-metadata': { post: { description: 'Not an operation either' } },
+      },
+    })
+
+    expect(result).toStrictEqual({ '/path': { get: { description: 'List items' } } })
+  })
+
   it('should only keep the http methods', () => {
     const result = filterHttpMethodsOnly({
       '/path': {

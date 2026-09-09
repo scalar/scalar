@@ -147,8 +147,12 @@ const preserveBundledExternals = (source: Record<string, unknown>, target: Recor
 export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record<string, OperationObject>> {
   const result: Record<string, Record<string, OperationObject>> = {}
 
-  // Todo: skip extension properties
   for (const [path, pathItemRef] of Object.entries(paths)) {
+    // Paths Object extensions can contain objects that resemble HTTP operations.
+    if (path.startsWith('x-')) {
+      continue
+    }
+
     const filteredMethods: Record<string, OperationObject> = {}
 
     forEachPathItemOperation(pathItemRef, (method, operation) => {
