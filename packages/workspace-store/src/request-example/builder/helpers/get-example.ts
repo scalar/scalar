@@ -13,7 +13,7 @@ const getExampleFromExamples = (
   exampleField: MediaTypeObject['example'],
   exampleName: string | undefined,
 ): ExampleObject | undefined => {
-  if (!examples && !exampleField) {
+  if (!examples && exampleField === undefined) {
     return undefined
   }
 
