@@ -21,6 +21,52 @@ describe('generate-release-note', () => {
     expect(prompt).toContain('Pull request context')
   })
 
+  it('omits the pull request input line when there is no pull request context', () => {
+    const prompt = buildSystemPrompt({ product, includePullRequestContext: false })
+
+    expect(prompt).not.toContain('Pull request context')
+    expect(prompt).toContain('Dependency CHANGELOG')
+  })
+
+  it('describes pull request context in the system prompt only when pull requests are supplied', async () => {
+    const systemPrompts: string[] = []
+    const provider = {
+      name: 'test',
+      generateJson: ({ systemPrompt }: { systemPrompt: string }) => {
+        systemPrompts.push(systemPrompt)
+        return Promise.resolve({ version: '1.2.3', title: 'Imports are easier' })
+      },
+    }
+    const options = {
+      packageName: '@example/client',
+      version: '1.2.3',
+      date: '2026-06-19',
+      changelogSection: '- Added an import flow',
+      releaseUrl: 'https://github.com/example/repo/blob/main/CHANGELOG.md#123',
+      product,
+      provider,
+    }
+
+    await generateReleaseNote(options)
+    await generateReleaseNote({
+      ...options,
+      pullRequests: new Map([[1, { number: 1, title: 'First', body: 'First body' }]]),
+    })
+
+    expect(systemPrompts[0]).not.toContain('Pull request context')
+    expect(systemPrompts[1]).toContain('Pull request context')
+  })
+
+  it('tells a custom system prompt whether pull request context is present', () => {
+    const systemPrompt = vi.fn(() => 'custom prompt')
+
+    buildSystemPrompt({ product, prompts: { systemPrompt }, includePullRequestContext: false })
+    buildSystemPrompt({ product, prompts: { systemPrompt } })
+
+    expect(systemPrompt).toHaveBeenNthCalledWith(1, { product, includePullRequestContext: false })
+    expect(systemPrompt).toHaveBeenNthCalledWith(2, { product, includePullRequestContext: true })
+  })
+
   it('renders dependency changelog context', () => {
     const block = buildDependencyChangelogContext([
       {
