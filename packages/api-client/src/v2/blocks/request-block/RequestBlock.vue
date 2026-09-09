@@ -197,6 +197,7 @@ const sections = computed(() =>
   groupBy(
     operation.parameters
       ?.map((param) => getResolvedRef(param))
+      .filter((param) => param !== undefined)
       .flatMap((param) =>
         createParameterRows(param, exampleKey, {
           hiddenValuePaths:
