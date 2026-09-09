@@ -1,8 +1,8 @@
-@import '@scalar/themes/style.css';
-@import '@scalar/themes/tailwind.css';
+@import "@scalar/themes/style.css";
+@import "@scalar/themes/tailwind.css";
 
 .scalar-app {
-  @import 'tailwindcss/utilities.css';
+  @import "tailwindcss/utilities.css";
 }
 
 body {
