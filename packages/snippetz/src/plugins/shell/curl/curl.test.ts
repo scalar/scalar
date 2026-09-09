@@ -824,5 +824,4 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl 'https://example.com/api?ids={1,2,3}' \\
   --globoff`)
   })
-
 })
