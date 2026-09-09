@@ -1,12 +1,14 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
-import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
+  coerceLeafValueToSchemaType,
   getExample,
   getExampleFromSchema,
+  resolveLeafSchema,
   serializeFormPropertyWithEncoding,
+  serializeMultipartArray,
 } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
@@ -30,9 +32,8 @@ type MultipartEncodingMap = MediaTypeObject['encoding']
  * Per OpenAPI 3.1.x Encoding Object, each property's serialization is governed
  * by an optional Encoding entry. When `style` / `explode` / `allowReserved` is
  * set, the value is serialized RFC6570-style and `contentType` is ignored.
- * When only `contentType` is set, the property becomes a single part with that
- * type. Otherwise spec defaults apply (object → `application/json` for multipart,
- * primitives → `text/plain`).
+ * Multipart arrays apply the encoding to each item and repeat the property name.
+ * Object items default to JSON, and uploaded files retain their filename references.
  *
  * @param obj - The form-data payload, either an object keyed by property name
  *   or a HAR-style `{ name, value, isDisabled }[]` array.
@@ -41,14 +42,15 @@ type MultipartEncodingMap = MediaTypeObject['encoding']
  * @param parentKey - When set, we are flattening a nested object inside another
  *   property; encoding is ignored and keys are joined with `.` (legacy default).
  * @param isMultipart - True for `multipart/form-data`. Gates the spec defaults
- *   for object/array properties that should become a single `application/json`
- *   part. Urlencoded bodies skip those branches and fall through to flattening.
+ *   for object properties and array items. Urlencoded bodies retain their existing
+ *   serialization and flattening behavior.
  */
 const objectToFormParams = (
   obj: object | { name: string; value: unknown; isDisabled: boolean }[],
   encoding?: MultipartEncodingMap,
   parentKey?: string,
   isMultipart = false,
+  schema?: SchemaObject,
 ): Param[] => {
   const params: Param[] = []
 
@@ -63,6 +65,21 @@ const objectToFormParams = (
     }
 
     const partEncoding = parentKey ? undefined : encoding?.[key]
+
+    if (isMultipart && !parentKey) {
+      const restored = Array.isArray(obj) ? coerceLeafValueToSchemaType(value, resolveLeafSchema(schema, [key])) : value
+      const arrayParts = serializeMultipartArray(key, Array.isArray(restored) ? restored : value, partEncoding)
+      if (arrayParts) {
+        for (const part of arrayParts) {
+          params.push({
+            name: part.key,
+            value: part.value instanceof File ? `@${part.value.name}` : part.value,
+            ...(part.contentType ? { contentType: part.contentType } : {}),
+          })
+        }
+        continue
+      }
+    }
     /**
      * Per OpenAPI 3.1.1: when style, explode, or allowReserved is explicitly set on the
      * encoding entry, contentType (implicit or explicit) is ignored and the value is
@@ -121,24 +138,6 @@ const objectToFormParams = (
        * Per OpenAPI 3.x: a top-level multipart property whose value is an object (and not a File)
        * defaults to a single part encoded as application/json, rather than being flattened
        * into multiple parts with dotted keys.
-       */
-      params.push({
-        name: key,
-        value: JSON.stringify(unpackProxyObject(value)),
-        contentType: 'application/json',
-      })
-    } else if (
-      Array.isArray(value) &&
-      isMultipart &&
-      !parentKey &&
-      !hasFormStyle &&
-      value.some((item) => isObjectLike(item) && !(item instanceof File))
-    ) {
-      /**
-       * Per OpenAPI 3.x: a top-level multipart array whose items are objects defaults to a single
-       * `application/json` part containing the whole array. Serializing each item into its own part
-       * would drop the enclosing array wrapper and emit a bare object (see issue #9688), so keep the
-       * array intact and stringify it as one value.
        */
       params.push({
         name: key,
@@ -215,7 +214,13 @@ export const processBody = ({
     if (isFormData && typeof exampleValue === 'object' && exampleValue !== null) {
       return {
         mimeType: harMimeType,
-        params: objectToFormParams(exampleValue, encoding, undefined, _contentType === 'multipart/form-data'),
+        params: objectToFormParams(
+          exampleValue,
+          encoding,
+          undefined,
+          _contentType === 'multipart/form-data',
+          getResolvedRef(requestBody.content[_contentType]?.schema),
+        ),
       }
     }
 

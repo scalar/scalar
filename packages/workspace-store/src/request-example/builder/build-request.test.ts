@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
+import { buildRequestBody } from './body/build-request-body'
 import { buildRequest, resolveExecutableRequestUrl } from './build-request'
 import { INVALID_REQUEST_FACTORY_URL, MISSING_REQUEST_SERVER_BASE } from './resolve-request-factory-url'
 
@@ -771,5 +772,54 @@ describe('resolveExecutableRequestUrl', () => {
       proxyUrl: '',
     })
     expect(resolveExecutableRequestUrl(factory, {})).toBe(unwrap(factory, { envVariables: {} }).requestPayload[0])
+  })
+  it('sends repeated multipart parts with JSON media types, file bytes, and environment substitution', async () => {
+    const body = buildRequestBody({
+      content: {
+        'multipart/form-data': {
+          encoding: { files: { contentType: 'text/plain' } },
+          examples: {
+            default: {
+              value: {
+                tags: ['a', 'b'],
+                objects: [{ name: '{{name}}' }, { name: 'second' }],
+                files: [new File(['one'], 'one.txt'), new File(['two'], 'two.txt')],
+              },
+            },
+          },
+        },
+      },
+    })
+    const [url, init] = unwrap(createFactory({ method: 'POST', body }), {
+      envVariables: { name: 'first' },
+    }).requestPayload
+    const form = await new Request(url, init).formData()
+    expect(form.getAll('tags')).toEqual(['a', 'b'])
+    expect(
+      await Promise.all(
+        form.getAll('objects').map(async (part) => {
+          if (typeof part === 'string') {
+            throw new Error('Expected a JSON multipart part')
+          }
+          return { type: part.type, text: await part.text() }
+        }),
+      ),
+    ).toEqual([
+      { type: 'application/json', text: '{"name":"first"}' },
+      { type: 'application/json', text: '{"name":"second"}' },
+    ])
+    expect(
+      await Promise.all(
+        form.getAll('files').map(async (part) => {
+          if (typeof part === 'string') {
+            throw new Error('Expected an uploaded file')
+          }
+          return { name: part.name, type: part.type, text: await part.text() }
+        }),
+      ),
+    ).toEqual([
+      { name: 'one.txt', type: 'text/plain', text: 'one' },
+      { name: 'two.txt', type: 'text/plain', text: 'two' },
+    ])
   })
 })

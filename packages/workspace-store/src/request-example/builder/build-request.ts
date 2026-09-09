@@ -175,7 +175,11 @@ const buildRequestInner = (
 
       request.body.value.forEach((item) => {
         if (item.type === 'text') {
-          form.append(replaceEnvVariables(item.key, replace), replaceEnvVariables(item.value, replace))
+          const value = replaceEnvVariables(item.value, replace)
+          form.append(
+            replaceEnvVariables(item.key, replace),
+            item.contentType ? new Blob([value], { type: item.contentType }) : value,
+          )
           return
         }
         form.append(replaceEnvVariables(item.key, replace), item.value)

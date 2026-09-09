@@ -789,7 +789,7 @@ describe('processBody', () => {
       })
     })
 
-    it('serializes an array of objects as a single JSON array part (issue #9688)', () => {
+    it('serializes an array of objects as one JSON part per item', () => {
       const content = {
         'multipart/form-data': {
           schema: coerceValue(SchemaObjectSchema, {
@@ -823,14 +823,14 @@ describe('processBody', () => {
           { name: 'asset_name', value: 'asset name' },
           {
             name: 'items',
-            value: JSON.stringify([{ item_id: 'item-abc', item_name: 'english audio', is_default: true }]),
+            value: JSON.stringify({ item_id: 'item-abc', item_name: 'english audio', is_default: true }),
             contentType: 'application/json',
           },
         ],
       })
     })
 
-    it('serializes an array of multiple objects as a single JSON array part (issue #9688)', () => {
+    it('serializes multiple objects as repeated JSON parts', () => {
       const content = {
         'multipart/form-data': {
           schema: coerceValue(SchemaObjectSchema, {
@@ -861,7 +861,12 @@ describe('processBody', () => {
         params: [
           {
             name: 'items',
-            value: JSON.stringify([{ id: 'a' }, { id: 'b' }]),
+            value: JSON.stringify({ id: 'a' }),
+            contentType: 'application/json',
+          },
+          {
+            name: 'items',
+            value: JSON.stringify({ id: 'b' }),
             contentType: 'application/json',
           },
         ],
@@ -1118,7 +1123,7 @@ describe('processBody', () => {
       })
     })
 
-    it('serializes style: form + explode: false on an array as a single comma-joined part', () => {
+    it('applies form explode false to each multipart array item', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
@@ -1147,11 +1152,15 @@ describe('processBody', () => {
 
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
-        params: [{ name: 'tags', value: 'a,b,c' }],
+        params: [
+          { name: 'tags', value: 'a' },
+          { name: 'tags', value: 'b' },
+          { name: 'tags', value: 'c' },
+        ],
       })
     })
 
-    it('serializes style: spaceDelimited on an array', () => {
+    it('keeps multipart array parts separate with spaceDelimited', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
@@ -1179,7 +1188,11 @@ describe('processBody', () => {
 
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
-        params: [{ name: 'tags', value: 'a b c' }],
+        params: [
+          { name: 'tags', value: 'a' },
+          { name: 'tags', value: 'b' },
+          { name: 'tags', value: 'c' },
+        ],
       })
     })
 
@@ -1217,7 +1230,7 @@ describe('processBody', () => {
       })
     })
 
-    it('serializes style: pipeDelimited on an array', () => {
+    it('keeps multipart array parts separate with pipeDelimited', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
@@ -1245,7 +1258,11 @@ describe('processBody', () => {
 
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
-        params: [{ name: 'tags', value: 'a|b|c' }],
+        params: [
+          { name: 'tags', value: 'a' },
+          { name: 'tags', value: 'b' },
+          { name: 'tags', value: 'c' },
+        ],
       })
     })
 
@@ -2176,6 +2193,37 @@ describe('processBody', () => {
           { name: 'test', value: 'me' },
         ],
       })
+    })
+  })
+  it('restores edited array JSON and applies the content type to each snippet part', () => {
+    expect(
+      processBody({
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              schema: { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } },
+              encoding: { items: { contentType: 'application/vnd.example+json' } },
+              examples: {
+                default: {
+                  value: [
+                    { name: 'items', value: '[{"id":1},{"id":2}]' },
+                    { name: 'items', value: '[{"id":3}]', isDisabled: true },
+                    { name: 'empty', value: [] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        example: 'default',
+        contentType: 'multipart/form-data',
+      }),
+    ).toEqual({
+      mimeType: 'multipart/form-data',
+      params: [
+        { name: 'items', value: '{"id":1}', contentType: 'application/vnd.example+json' },
+        { name: 'items', value: '{"id":2}', contentType: 'application/vnd.example+json' },
+      ],
     })
   })
 })

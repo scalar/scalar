@@ -424,4 +424,25 @@ describe('RequestBodyForm', () => {
       expect(newRow?.isDisabled).toBe(false)
     }
   })
+  it('emits typed arrays when another field changes or an array is edited', async () => {
+    const wrapper = mountRequestBodyForm({ example: { value: { tags: ['a', 'b'], other: 'old' } } })
+    const table = wrapper.findComponent(RequestTable)
+    table.vm.$emit('upsertRow', 1, { value: 'new' })
+    await nextTick()
+    expect(wrapper.emitted('update:formValue')?.[0]).toEqual([
+      [
+        { name: 'tags', value: ['a', 'b'], isDisabled: false },
+        { name: 'other', value: 'new', isDisabled: false },
+      ],
+    ])
+    table.vm.$emit('upsertRow', 0, { value: '["c","d"]' })
+    await nextTick()
+    expect(wrapper.emitted('update:formValue')?.[1]).toEqual([
+      [
+        { name: 'tags', value: ['c', 'd'], isDisabled: false },
+        { name: 'other', value: 'new', isDisabled: false },
+      ],
+    ])
+    wrapper.unmount()
+  })
 })

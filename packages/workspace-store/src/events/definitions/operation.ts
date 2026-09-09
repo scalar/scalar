@@ -284,7 +284,7 @@ export type OperationEvents = {
    */
   'operation:update:requestBody:formValue': {
     /** The new value for the request body example */
-    payload: { name: string; value: string | File; isDisabled: boolean }[]
+    payload: { name: string; value: string | File | unknown[] | undefined; isDisabled: boolean }[]
     /** The content type of the request body */
     contentType: string
     /** Identifies the target operation and example variant for the updated request body value */
