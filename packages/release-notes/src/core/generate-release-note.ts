@@ -38,7 +38,23 @@ export type GenerateReleaseNoteOptions = {
   signal?: AbortSignal
 }
 
-export const buildDefaultSystemPrompt = (product: ProductPromptContext): string => {
+export const buildDefaultSystemPrompt = (
+  product: ProductPromptContext,
+  options: { includePullRequestContext?: boolean } = {},
+): string => {
+  const inputs = [
+    'Inputs:',
+    '- The CHANGELOG section is the source of truth for what changed in the released package.',
+    '- "Dependency CHANGELOG" blocks may follow with sections from dependencies that ship inside this release. Treat their entries as user-facing changes that landed in the parent release.',
+  ]
+
+  // Only advertise the pull request block when the prompt actually carries one.
+  if (options.includePullRequestContext !== false) {
+    inputs.push(
+      '- A "Pull request context" block may follow with each PR\'s title and description. Use it to understand the why behind each entry, but do not invent details that are not supported by these inputs.',
+    )
+  }
+
   return [
     `You write release notes for ${product.displayName} - ${product.description}.`,
     'You are summarising a Changesets-style CHANGELOG section for users reading curated release notes.',
@@ -50,10 +66,7 @@ export const buildDefaultSystemPrompt = (product: ProductPromptContext): string 
     '- Talk about user-facing changes only. Skip refactors, dependency bumps, internal CI changes, and chores.',
     '- If every entry is a chore or dependency bump, return a single short note that says polish and bug fixes shipped.',
     '',
-    'Inputs:',
-    '- The CHANGELOG section is the source of truth for what changed in the released package.',
-    '- "Dependency CHANGELOG" blocks may follow with sections from dependencies that ship inside this release. Treat their entries as user-facing changes that landed in the parent release.',
-    '- A "Pull request context" block may follow with each PR\'s title and description. Use it to understand the why behind each entry, but do not invent details that are not supported by these inputs.',
+    ...inputs,
     '',
     'Output format:',
     '- You MUST respond with a single JSON object and nothing else. No markdown fences, no commentary.',
@@ -65,8 +78,17 @@ export const buildDefaultSystemPrompt = (product: ProductPromptContext): string 
   ].join('\n')
 }
 
-export const buildSystemPrompt = (options: { product: ProductPromptContext; prompts?: PromptOptions }): string => {
-  return options.prompts?.systemPrompt?.({ product: options.product }) ?? buildDefaultSystemPrompt(options.product)
+export const buildSystemPrompt = (options: {
+  product: ProductPromptContext
+  prompts?: PromptOptions
+  includePullRequestContext?: boolean
+}): string => {
+  const includePullRequestContext = options.includePullRequestContext !== false
+
+  return (
+    options.prompts?.systemPrompt?.({ product: options.product, includePullRequestContext }) ??
+    buildDefaultSystemPrompt(options.product, { includePullRequestContext })
+  )
 }
 
 export const buildPullRequestContext = (pullRequests: ReadonlyMap<number, PullRequestSummary> | undefined): string => {
@@ -209,7 +231,8 @@ export const generateReleaseNote = async (options: GenerateReleaseNoteOptions): 
     displayName: options.packageName,
     description: options.prompts?.productDescriptionFallback ?? 'an open-source package',
   }
-  const systemPrompt = buildSystemPrompt({ product, prompts: options.prompts })
+  const includePullRequestContext = (options.pullRequests?.size ?? 0) > 0
+  const systemPrompt = buildSystemPrompt({ product, prompts: options.prompts, includePullRequestContext })
   const baseUserPrompt = buildUserPrompt(options)
 
   let userPrompt = baseUserPrompt
