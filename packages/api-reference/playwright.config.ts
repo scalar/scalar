@@ -72,7 +72,11 @@ export default defineConfig({
      * colors stable.
      */
     launchOptions: {
-      args: ['--font-render-hinting=none', '--disable-skia-runtime-opts', '--force-color-profile=srgb'],
+      // DOC-6108 probe: PROBE_NO_FLAGS=1 strips the #10103 args so the same
+      // commit can render both ways in CI.
+      args: process.env.PROBE_NO_FLAGS
+        ? []
+        : ['--font-render-hinting=none', '--disable-skia-runtime-opts', '--force-color-profile=srgb'],
     },
     /** Save a screenshot on failure */
     screenshot: { mode: 'only-on-failure' },

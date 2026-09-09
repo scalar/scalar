@@ -1,0 +1,92 @@
+name: DOC-6108 cross-host probe
+
+# THROWAWAY. Renders the same 8 snapshots several times over, half with the
+# #10103 font flags and half without, so the resulting PNGs can be compared
+# across CI hosts. Deleted once the question is answered.
+
+on:
+  push:
+    branches: ['brynn/doc-6108-crosshost-probe']
+
+permissions:
+  contents: read
+
+env:
+  TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
+
+jobs:
+  build:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          packages: './packages/**'
+          archive-output: 'true'
+      - name: Upload build-output artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: build-output
+          path: build-output.tar.gz
+          retention-days: 1
+          compression-level: 0
+
+  render:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 20
+    container:
+      image: scalarapi/playwright-runner:1.62.1
+      options: --privileged
+      env:
+        BLACKSMITH_HOST_MACHINE_ID: ${{ env.BLACKSMITH_HOST_MACHINE_ID }}
+        VM_ID: ${{ env.VM_ID }}
+    strategy:
+      fail-fast: false
+      matrix:
+        flags: ['on', 'off']
+        replica: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+
+      # Whatever distinguishes one physical host from another. The CPU flags
+      # line matters most: --disable-skia-runtime-opts only has anything to do
+      # if Skia would otherwise dispatch differently on different silicon.
+      - name: Record host identity
+        run: |
+          mkdir -p probe-out
+          {
+            echo "flags=${{ matrix.flags }}"
+            echo "replica=${{ matrix.replica }}"
+            echo "blacksmith_host=${BLACKSMITH_HOST_MACHINE_ID:-unset}"
+            echo "vm_id=${VM_ID:-unset}"
+            echo "hostname=$(hostname)"
+            grep -m1 'model name' /proc/cpuinfo || true
+            grep -m1 'microcode' /proc/cpuinfo || true
+            echo "cpu_flags=$(grep -m1 '^flags' /proc/cpuinfo | cut -d: -f2- | tr ' ' '\n' | sort | tr '\n' ' ')"
+          } > probe-out/meta.txt
+          cat probe-out/meta.txt
+
+      - name: Render snapshots
+        env:
+          # 'off' strips the #10103 launch args; 'on' leaves them as main has them.
+          PROBE_NO_FLAGS: ${{ matrix.flags == 'off' && '1' || '' }}
+        run: |
+          pnpm --filter api-reference exec playwright test \
+            test/snapshots/models.e2e.ts --update-snapshots=all --workers=1
+
+      - name: Collect renders
+        run: cp packages/api-reference/test/snapshots/models.e2e.ts.snapshots/*.png probe-out/
+
+      - name: Upload renders
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: shots-${{ matrix.flags }}-${{ matrix.replica }}
+          path: probe-out
+          retention-days: 3
