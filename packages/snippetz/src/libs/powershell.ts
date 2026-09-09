@@ -2,8 +2,8 @@ import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 
 import { prepareRequest } from './prepare-request'
 
-/** Single-quoted PowerShell strings do not expand variables or backtick escapes. */
-const quote = (value: string): string => `'${value.replaceAll("'", "''")}'`
+/** Double every PowerShell single-quote delimiter, including smart apostrophes, to keep values literal. */
+const quote = (value: string): string => `'${value.replace(/['\u2018-\u201b]/g, (quote) => quote + quote)}'`
 
 /** Generate the common request arguments for PowerShell 7 HTTP cmdlets. */
 export const generatePowershell = (

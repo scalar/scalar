@@ -27,4 +27,22 @@ $response`)
       "$response = Invoke-WebRequest -Uri 'https://example.com' -CustomMethod 'PROPFIND'\n$response",
     )
   })
+  it.each([
+    ['‘', '‘‘'],
+    ['’', '’’'],
+    ['‚', '‚‚'],
+    ['‛', '‛‛'],
+  ])('keeps the %s apostrophe inside a literal header value', (quote, escaped) => {
+    expect(
+      generatePowershell('Invoke-RestMethod', {
+        url: 'https://example.com',
+        headers: [{ name: 'X-Name', value: `x${quote}; injected = (Write-Output 123); other=${quote}y` }],
+      }),
+    ).toBe(`$headers = @{
+  'X-Name' = 'x${escaped}; injected = (Write-Output 123); other=${escaped}y'
+}
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET' -Headers $headers
+$response`)
+  })
 })

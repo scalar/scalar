@@ -10,7 +10,8 @@ export const javaOkhttp: Plugin = {
   title: 'OkHttp',
   generate(request, configuration) {
     const { url, method, headers } = prepareRequest(request, configuration)
-    const postData = request?.postData
+    // OkHttp rejects every non-null body for GET and HEAD, including an empty one.
+    const postData = ['GET', 'HEAD'].includes(method) ? undefined : request?.postData
     const multipart = postData?.mimeType === 'multipart/form-data' && postData.params
     const form = postData?.mimeType === 'application/x-www-form-urlencoded' && postData.params
     const lines = ['OkHttpClient client = new OkHttpClient();', '']

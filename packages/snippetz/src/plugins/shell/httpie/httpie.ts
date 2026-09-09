@@ -25,7 +25,7 @@ export const shellHttpie: Plugin = {
       return command
     }
     if (rawBody !== undefined) {
-      return `${command} \\\n  --raw ${quote(rawBody)}`
+      return `${command} \\\n  --raw=${quote(rawBody)}`
     }
     const input = body.map((segment) => {
       if ('file' in segment) {
