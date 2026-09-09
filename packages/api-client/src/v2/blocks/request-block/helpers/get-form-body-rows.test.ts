@@ -323,6 +323,46 @@ describe('getFormBodyRows', () => {
       expect(byName['mode']?.isDisabled).toBe(true)
     })
 
+    it('marks auto-disabled optional properties as disabled by default so typing enables them (issue #10145)', () => {
+      // isDisabledByDefault lets RequestTableRow auto-enable a row when the user types a value,
+      // mirroring how optional parameters behave. Required rows are enabled, so it stays unset.
+      const example: ExampleObject = { value: { name: '', note: '' } }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          note: { type: 'string' },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'application/x-www-form-urlencoded', formBodySchema)
+      const byName = Object.fromEntries(result.map((row) => [row.name, row]))
+
+      expect(byName['note']?.isDisabledByDefault).toBe(true)
+      expect(byName['name']?.isDisabledByDefault).toBe(false)
+    })
+
+    it('does not mark a row from a stored form-row array as disabled by default (issue #10145)', () => {
+      // An explicit isDisabled means the user already decided, so the row is not disabled by
+      // default and must not auto-enable on typing.
+      const example: ExampleObject = {
+        value: [{ name: 'note', value: '', isDisabled: true }],
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          note: { type: 'string' },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'application/x-www-form-urlencoded', formBodySchema)
+      expect(result[0]?.isDisabled).toBe(true)
+      expect(result[0]?.isDisabledByDefault).toBeUndefined()
+    })
+
     it('keeps an explicit isDisabled from a stored form-row array (issue #10045)', () => {
       // Once the user checks an optional box the value is stored as a row array with an
       // explicit isDisabled, which must win over the schema-derived default.

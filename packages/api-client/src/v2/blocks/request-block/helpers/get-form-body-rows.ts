@@ -179,6 +179,10 @@ export const getFormBodyRows = (
       Object.hasOwn(schemaWithProperties.properties, name)
     ) {
       row.isDisabled = !row.isRequired
+      // Mark the row as disabled by default (no explicit `isDisabled` was stored) so typing a
+      // value auto-enables it in `RequestTableRow`, matching how optional parameters behave. An
+      // explicit `isDisabled` from a stored form-row array skips this branch and keeps winning.
+      row.isDisabledByDefault = row.isDisabled
     }
     return row
   }
