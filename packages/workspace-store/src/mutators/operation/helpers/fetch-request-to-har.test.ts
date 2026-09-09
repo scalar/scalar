@@ -1,5 +1,6 @@
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 
+import { encodeMultipartBody } from '@/request-example/builder/body/encode-multipart-body'
 import type { RequestPayload } from '@/request-example/builder/build-request'
 
 import { fetchRequestToHar } from './fetch-request-to-har'
@@ -569,5 +570,34 @@ describe('fetchRequestToHar', () => {
       expect(result.url).toBe('/api/scalar-proxy?scalar_url=https%3A%2F%2Fapi.example.com%2Fusers')
       expect(result.queryString).toEqual([{ name: 'scalar_url', value: 'https://api.example.com/users' }])
     }
+  })
+  it('captures encoded multipart fields and files without raw binary text', async () => {
+    const body = encodeMultipartBody([
+      { type: 'text', key: 'data', value: '{"id":1}', contentType: 'application/json' },
+      { type: 'text', key: 'data', value: '{"id":2}', contentType: 'application/json' },
+      { type: 'file', key: 'upload', value: new File([new Uint8Array([0, 255])], 'data.bin') },
+    ])
+    const requestPayload: [string, RequestInit] = [
+      'https://example.com',
+      {
+        method: 'POST',
+        body,
+        headers: { 'content-type': body.type },
+      },
+    ]
+    const har = await fetchRequestToHar({ requestPayload })
+    expect(har.postData).toEqual({
+      mimeType: 'multipart/form-data',
+      params: [
+        { name: 'data', value: '{"id":1}' },
+        { name: 'data', value: '{"id":2}' },
+        { name: 'upload', value: '@data.bin' },
+      ],
+    })
+    expect(har.bodySize).toBe(body.size)
+    const omitted = await fetchRequestToHar({ requestPayload, bodySizeLimit: body.size - 1 })
+    expect(omitted.postData).toEqual({ mimeType: 'multipart/form-data', text: '' })
+    expect(omitted.bodySize).toBe(-1)
+    expect(await fetchRequestToHar({ requestPayload })).toEqual(har)
   })
 })

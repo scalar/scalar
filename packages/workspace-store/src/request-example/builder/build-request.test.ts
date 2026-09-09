@@ -795,19 +795,10 @@ describe('resolveExecutableRequestUrl', () => {
     }).requestPayload
     const form = await new Request(url, init).formData()
     expect(form.getAll('tags')).toEqual(['a', 'b'])
-    expect(
-      await Promise.all(
-        form.getAll('objects').map(async (part) => {
-          if (typeof part === 'string') {
-            throw new Error('Expected a JSON multipart part')
-          }
-          return { type: part.type, text: await part.text() }
-        }),
-      ),
-    ).toEqual([
-      { type: 'application/json', text: '{"name":"first"}' },
-      { type: 'application/json', text: '{"name":"second"}' },
-    ])
+    expect(form.getAll('objects')).toEqual(['{"name":"first"}', '{"name":"second"}'])
+    const wire = await new Request(url, init).text()
+    expect(wire).toContain('name="objects"\r\nContent-Type: application/json\r\n')
+    expect(wire).not.toContain('filename="blob"')
     expect(
       await Promise.all(
         form.getAll('files').map(async (part) => {
@@ -821,5 +812,23 @@ describe('resolveExecutableRequestUrl', () => {
       { name: 'one.txt', type: 'text/plain', text: 'one' },
       { name: 'two.txt', type: 'text/plain', text: 'two' },
     ])
+  })
+  it('keeps typed multipart fields and their boundary when routing through a proxy', async () => {
+    const result = unwrap(
+      createFactory({
+        method: 'POST',
+        proxyUrl: 'https://proxy.scalar.com',
+        body: {
+          mode: 'formdata',
+          value: [{ type: 'text', key: '{{field}}', value: '{"name":"{{name}}"}', contentType: 'application/json' }],
+        },
+      }),
+      { envVariables: { field: 'metadata', name: 'Ada' } },
+    )
+    expect(result.isUsingProxy).toBe(true)
+    const [url, init] = result.requestPayload
+    const request = new Request(url, init)
+    expect(request.headers.get('content-type')).toBe((init.body as Blob).type)
+    expect(Array.from((await request.formData()).entries())).toEqual([['metadata', '{"name":"Ada"}']])
   })
 })

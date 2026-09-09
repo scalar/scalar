@@ -127,9 +127,8 @@ describe('buildRequestBody', () => {
 
     expect(result?.value?.[0]).toBeDefined()
     assert(result?.value?.[0])
-    expect(result.value[0].value).toBeInstanceOf(Blob)
-    assert(result.value[0].value instanceof Blob)
-    expect(result.value[0].value.type).toBe('application/json;charset=utf-8')
+    expect(result.value[0].type).toBe('text')
+    expect(result.value[0].contentType).toBe('application/json;charset=utf-8')
   })
 
   it('applies encoding.contentType overrides to multipart files', () => {

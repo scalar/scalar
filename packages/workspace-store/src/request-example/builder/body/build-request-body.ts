@@ -251,9 +251,9 @@ export const buildRequestBody = (
 
         if (result.mode === 'formdata' && partContentType) {
           return result.value.push({
-            type: 'blob',
+            type: 'text',
             key: name,
-            value: new Blob([serializedValue], { type: partContentType }),
+            value: serializedValue,
             contentType: partContentType,
           })
         }
@@ -370,9 +370,9 @@ export const buildRequestBody = (
 
       if (partContentType) {
         result.value.push({
-          type: 'blob',
+          type: 'text',
           key,
-          value: new Blob([serializedValue], { type: partContentType }),
+          value: serializedValue,
           contentType: partContentType,
         })
         continue
