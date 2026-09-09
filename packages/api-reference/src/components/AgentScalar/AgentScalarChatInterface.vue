@@ -18,6 +18,11 @@ const {
   workspaceStore: WorkspaceStore
   prefilledMessage?: Ref<string>
 }>()
+
+const emit = defineEmits<{
+  /** Bubbled up from the chat kit when the user presses Escape. */
+  (e: 'close'): void
+}>()
 </script>
 
 <template>
@@ -35,5 +40,6 @@ const {
     :platformProxyUrl="externalUrls.proxyUrl"
     :prefilledMessage="prefilledMessage"
     :registryDocuments="[]"
-    :registryUrl="externalUrls.registryUrl" />
+    :registryUrl="externalUrls.registryUrl"
+    @close="emit('close')" />
 </template>

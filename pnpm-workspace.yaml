@@ -13,7 +13,6 @@ packages:
 
 catalogs:
   '*':
-    '@ai-sdk/vue': 3.0.33
     '@astrojs/starlight': 0.37.7
     '@fastify/basic-auth': ^6.3.0
     '@fastify/http-proxy': ^11.6.0
@@ -57,7 +56,6 @@ catalogs:
     '@vueuse/core': 13.9.0
     '@vueuse/integrations': 13.9.0
     'fastify-plugin': ^4.5.1
-    ai: 6.0.33
     ajv: ^8.20.0
     ajv-draft-04: ^1.0.0
     ajv-formats: ^3.0.1
@@ -85,7 +83,6 @@ catalogs:
     monaco-yaml: 5.4.1
     nanoid: ^5.1.6
     next: ^15.5.14
-    neverpanic: 0.0.8
     picomatch: ^4.0.4
     postcss: ^8.4.38
     quickjs-emscripten: 0.32.0
@@ -99,7 +96,6 @@ catalogs:
     supertest: '7.2.2'
     tailwindcss: ^4.3.3
     type-fest: ^5.8.0
-    truncate-json: 3.0.1
     tsx: 4.19.4
     undici: 7.24.4
     vite-plugin-monaco-editor-esm: 2.0.2

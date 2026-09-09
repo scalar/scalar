@@ -13,6 +13,7 @@
 @import "@scalar/sidebar/vue-styles.css";
 @import "@scalar/api-client/vue-styles.css";
 @import "@scalar/blocks/vue-styles.css";
+@import "@scalar/chat/vue-styles.css";
 @import "@scalar/agent-chat/vue-styles.css";
 
 /* API Reference Tailwind Configuration */

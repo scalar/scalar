@@ -50,8 +50,7 @@
   .t-doc__header,
   .references-footer,
   .section-flare,
-  .agent-scalar,
-  .agent-scalar-overlay {
+  .agent-scalar-panel {
     display: none !important;
   }
 

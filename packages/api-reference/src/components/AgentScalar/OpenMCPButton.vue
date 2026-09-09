@@ -1,91 +1,34 @@
 <script setup lang="ts">
-import { useLoadingState } from '@scalar/components/loading'
-import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
 import { ScalarIconArrowUpRight } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { nextTick } from 'vue'
 
 import { useLocalization } from '@/features/localization'
-import { uploadTempDocument } from '@/helpers/upload-temp-document'
+
+import CursorLogo from './logos/CursorLogo.vue'
+import McpLogo from './logos/McpLogo.vue'
+import VsCodeLogo from './logos/VsCodeLogo.vue'
+import { useMcpActions, type McpLinkConfiguration } from './use-mcp-actions'
 
 const props = defineProps<{
-  config?: {
-    name?: string
-    url?: string
-  }
+  config?: McpLinkConfiguration
   externalUrls: ExternalUrls
   url?: string
   workspace: WorkspaceStore
 }>()
 
-const { copyToClipboard } = useClipboard()
 const { translate } = useLocalization()
-
-const { toast } = useToasts()
-
-const loader = useLoadingState()
-
-const hasConfig = props.config?.name || props.config?.url
-
-const encoded = btoa(JSON.stringify(props.config ?? {}))
-
-const name = encodeURIComponent(props.config?.name ?? '')
-const cursorLink = `cursor://anysphere.cursor-deeplink/mcp/install?name=${name}&config=${encoded}`
-const vscodeLink = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(props.config ?? {}))}`
 
 const docUrl = defineModel<string>('url')
 
-/** Generate and open the registration link */
-async function generateRegisterLink() {
-  if (loader.isLoading || !props.workspace) {
-    return
-  }
-
-  // If we have already have a document URL that is valid
-  if (docUrl.value && isValidUrl(docUrl.value)) {
-    openRegisterLink(docUrl.value)
-    return
-  }
-
-  loader.start()
-
-  const document = props.workspace.exportActiveDocument('json')
-
-  if (!document) {
-    toast(translate('developerTools.unableToExportDocument'), 'error')
-    await loader.invalidate()
-    return
-  }
-
-  try {
-    docUrl.value = await uploadTempDocument(document, props.externalUrls)
-    await loader.validate()
-    openRegisterLink(docUrl.value)
-
-    await nextTick()
-
-    await loader.clear()
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : translate('developerTools.unknownError')
-    toast(message, 'error')
-    await loader.invalidate()
-  }
-}
-
-/** Open the registration link in a new tab */
-function openRegisterLink(documentUrl: string) {
-  const url = new URL(`${props.externalUrls.dashboardUrl}/register`)
-  url.searchParams.set('url', documentUrl)
-  url.searchParams.set('createMcp', 'true')
-
-  window.open(url.toString(), '_blank')
-}
+const { hasConfig, cursorLink, vscodeLink, copyMcpUrl, generateRegisterLink } =
+  useMcpActions({
+    // A getter so the links stay reactive to a config change.
+    config: () => props.config,
+    externalUrls: props.externalUrls,
+    workspace: props.workspace,
+    docUrl,
+  })
 </script>
 
 <template>
@@ -109,16 +52,7 @@ function openRegisterLink(documentUrl: string) {
           }
         }
       ">
-      <svg
-        class="mcp-logo"
-        fill="currentColor"
-        height="800"
-        viewBox="0 0 32 32"
-        width="800"
-        xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M30.865 3.448 24.282.281a1.99 1.99 0 0 0-2.276.385L9.397 12.171 3.902 8.004a1.33 1.33 0 0 0-1.703.073L.439 9.681a1.33 1.33 0 0 0-.005 1.969L5.2 15.999.434 20.348a1.33 1.33 0 0 0 .005 1.969l1.76 1.604a1.33 1.33 0 0 0 1.703.073l5.495-4.172 12.615 11.51a1.98 1.98 0 0 0 2.271.385l6.589-3.172a1.99 1.99 0 0 0 1.13-1.802V5.248c0-.766-.443-1.469-1.135-1.802zm-6.86 19.818L14.432 16l9.573-7.266z" />
-      </svg>
+      <VsCodeLogo class="mcp-logo" />
       VS Code
       <ScalarIconArrowUpRight class="mcp-nav ml-auto size-4" />
     </component>
@@ -136,14 +70,7 @@ function openRegisterLink(documentUrl: string) {
           }
         }
       ">
-      <svg
-        class="mcp-logo"
-        viewBox="0 0 466.73 532.09"
-        xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M457.43 125.94 244.42 2.96a22.13 22.13 0 0 0-22.12 0L9.3 125.94C3.55 129.26 0 135.4 0 142.05v247.99c0 6.65 3.55 12.79 9.3 16.11l213.01 122.98a22.13 22.13 0 0 0 22.12 0l213.01-122.98c5.75-3.32 9.3-9.46 9.3-16.11V142.05c0-6.65-3.55-12.79-9.3-16.11zm-13.38 26.05L238.42 508.15c-1.39 2.4-5.06 1.42-5.06-1.36V273.58c0-4.66-2.49-8.97-6.53-11.31L24.87 145.67c-2.4-1.39-1.42-5.06 1.36-5.06h411.26c5.84 0 9.49 6.33 6.57 11.39h-.01Z"
-          style="fill: currentColor" />
-      </svg>
+      <CursorLogo class="mcp-logo" />
       Cursor
       <ScalarIconArrowUpRight class="mcp-nav ml-auto size-4" />
     </component>
@@ -152,29 +79,7 @@ function openRegisterLink(documentUrl: string) {
       v-if="!hasConfig"
       class="scalar-mcp-layer-link"
       @click="generateRegisterLink">
-      <svg
-        class="mcp-logo"
-        fill="none"
-        height="173"
-        viewBox="0 0 156 173"
-        width="156"
-        xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="m6 80.912 67.882-67.883c9.373-9.372 24.569-9.372 33.941 0s9.373 24.569 0 33.942L56.558 98.236"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-width="12" />
-        <path
-          d="m57.265 97.529 50.558-50.558c9.373-9.373 24.569-9.373 33.942 0l.353.353c9.373 9.373 9.373 24.569 0 33.941L80.725 142.66a8 8 0 0 0 0 11.313l12.606 12.607"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-width="12" />
-        <path
-          d="M90.853 30 40.648 80.205c-9.372 9.372-9.372 24.568 0 33.941 9.373 9.372 24.569 9.372 33.941 0l50.205-50.205"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-width="12" />
-      </svg>
+      <McpLogo class="mcp-logo" />
       {{ translate('mcp.generate') }}
       <ScalarIconArrowUpRight class="mcp-nav ml-auto size-4" />
     </div>
@@ -182,31 +87,9 @@ function openRegisterLink(documentUrl: string) {
     <div
       v-else
       class="scalar-mcp-layer-link"
-      @click="copyToClipboard(config?.url ?? '')">
+      @click="copyMcpUrl">
       {{ translate('mcp.connect') }}
-      <svg
-        class="mcp-logo ml-auto"
-        fill="none"
-        height="173"
-        viewBox="0 0 156 173"
-        width="156"
-        xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="m6 80.912 67.882-67.883c9.373-9.372 24.569-9.372 33.941 0s9.373 24.569 0 33.942L56.558 98.236"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-width="12" />
-        <path
-          d="m57.265 97.529 50.558-50.558c9.373-9.373 24.569-9.373 33.942 0l.353.353c9.373 9.373 9.373 24.569 0 33.941L80.725 142.66a8 8 0 0 0 0 11.313l12.606 12.607"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-width="12" />
-        <path
-          d="M90.853 30 40.648 80.205c-9.372 9.372-9.372 24.568 0 33.941 9.373 9.372 24.569 9.372 33.941 0l50.205-50.205"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-width="12" />
-      </svg>
+      <McpLogo class="mcp-logo ml-auto" />
     </div>
   </div>
 </template>
