@@ -131,8 +131,11 @@ const processRequestBody = async (body: BodyInit, contentType: string, bodySizeL
     if (body.size > bodySizeLimit) {
       return { text: '', size: -1 }
     }
-    const form = await new Response(body, { headers: { 'content-type': contentType } }).formData()
-    return { ...extractFormDataParams(form), size: body.size }
+    // Raw uploads can contain malformed multipart data. History must still record the response.
+    const form = await new Response(body, { headers: { 'content-type': contentType } })
+      .formData()
+      .catch(() => undefined)
+    return form ? { ...extractFormDataParams(form), size: body.size } : { text: '', size: -1 }
   }
 
   // Structured form payloads become a params array so HAR viewers can render them as key/value tables

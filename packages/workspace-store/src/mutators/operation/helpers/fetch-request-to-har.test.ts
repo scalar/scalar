@@ -600,4 +600,23 @@ describe('fetchRequestToHar', () => {
     expect(omitted.bodySize).toBe(-1)
     expect(await fetchRequestToHar({ requestPayload })).toEqual(har)
   })
+  it.each([new Blob(['malformed multipart']), new File(['malformed multipart'], 'raw.multipart')])(
+    'records requests with malformed raw multipart bodies without failing',
+    async (body) => {
+      const har = await fetchRequestToHar({
+        requestPayload: [
+          'https://example.com',
+          {
+            method: 'POST',
+            body,
+            headers: { 'content-type': 'multipart/form-data; boundary=missing' },
+          },
+        ],
+      })
+      expect(har.url).toBe('https://example.com')
+      expect(har.method).toBe('POST')
+      expect(har.postData).toEqual({ mimeType: 'multipart/form-data', text: '' })
+      expect(har.bodySize).toBe(-1)
+    },
+  )
 })
