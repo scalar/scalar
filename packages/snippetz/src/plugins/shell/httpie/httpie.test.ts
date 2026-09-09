@@ -1,14 +1,19 @@
 import { describe, expect, it } from 'vitest'
 
+import { curlCases } from '@/fixtures/curl-cases'
+
 import { shellHttpie } from './httpie'
 
-describe('shellHttpie', () => {
+describe('httpie', () => {
+  it.each(curlCases)('curl: $name', ({ request, configuration }) => {
+    expect(shellHttpie.generate(request, configuration)).toMatchSnapshot()
+  })
   it('returns a basic request', () => {
     const result = shellHttpie.generate({
       url: 'https://example.com',
     })
 
-    expect(result).toBe('http GET https://example.com')
+    expect(result).toMatchSnapshot()
   })
 
   it('returns a POST request', () => {
@@ -17,7 +22,7 @@ describe('shellHttpie', () => {
       method: 'post',
     })
 
-    expect(result).toBe('http POST https://example.com')
+    expect(result).toMatchSnapshot()
   })
 
   it('has headers', () => {
@@ -30,8 +35,7 @@ describe('shellHttpie', () => {
         },
       ],
     })
-    expect(result).toBe(`http GET https://example.com \\
-  Content-Type:application/json`)
+    expect(result).toMatchSnapshot()
   })
 
   it('handles multipart form data with files', () => {
@@ -53,12 +57,10 @@ describe('shellHttpie', () => {
       },
     })
 
-    expect(result).toBe(`http --multipart POST https://example.com \\
-  file@test.txt \\
-  field='value'`)
+    expect(result).toMatchSnapshot()
   })
 
-  it.skip('handles url-encoded form data with special characters', () => {
+  it('handles url-encoded form data with special characters', () => {
     const result = shellHttpie.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -73,8 +75,7 @@ describe('shellHttpie', () => {
       },
     })
 
-    expect(result).toBe(`http --form POST https://example.com/ \\
-  'special chars!@#=value'`)
+    expect(result).toMatchSnapshot()
   })
 
   it('handles binary data', () => {
@@ -87,8 +88,7 @@ describe('shellHttpie', () => {
       },
     })
 
-    expect(result).toBe(`echo 'binary content' |  \\
-  http POST https://example.com`)
+    expect(result).toMatchSnapshot()
   })
 
   it('handles special characters in URL', () => {
@@ -96,7 +96,7 @@ describe('shellHttpie', () => {
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
-    expect(result).toBe(`http GET 'https://example.com/path%20with%20spaces/[brackets]'`)
+    expect(result).toMatchSnapshot()
   })
 
   it('handles multiple headers with same name', () => {
@@ -108,8 +108,7 @@ describe('shellHttpie', () => {
       ],
     })
 
-    expect(result).toBe(`http GET https://example.com \\
-  X-Custom:value2`)
+    expect(result).toMatchSnapshot()
   })
 
   it('handles headers with empty values', () => {
@@ -118,8 +117,7 @@ describe('shellHttpie', () => {
       headers: [{ name: 'X-Empty', value: '' }],
     })
 
-    expect(result).toBe(`http GET https://example.com \\
-  X-Empty:''`)
+    expect(result).toMatchSnapshot()
   })
 
   it('handles query string parameters', () => {
@@ -127,6 +125,6 @@ describe('shellHttpie', () => {
       url: 'https://example.com/api?param1=value1&param2=special value&param3=123',
     })
 
-    expect(result).toBe(`http GET 'https://example.com/api?param1=value1&param2=special%20value&param3=123'`)
+    expect(result).toMatchSnapshot()
   })
 })

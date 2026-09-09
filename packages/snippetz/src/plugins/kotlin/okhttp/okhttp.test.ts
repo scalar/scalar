@@ -1,9 +1,15 @@
 import type { FormDataParam } from '@scalar/types/snippetz'
 import { describe, expect, it } from 'vitest'
 
+import { curlCases } from '@/fixtures/curl-cases'
+
 import { kotlinOkhttp } from './okhttp'
 
 describe('kotlinOkhttp', () => {
+  it.each(curlCases)('curl case: $name', ({ request, configuration }) => {
+    expect(kotlinOkhttp.generate(request, configuration)).toMatchSnapshot()
+  })
+
   it('returns a basic request', () => {
     const result = kotlinOkhttp.generate({
       url: 'https://example.com',
@@ -29,7 +35,7 @@ val response = client.newCall(request).execute()`)
 
 val request = Request.Builder()
   .url("https://example.com")
-  .post(null)
+  .post(RequestBody.create(null, ""))
   .build()
 
 val response = client.newCall(request).execute()`)
@@ -382,7 +388,7 @@ val response = client.newCall(request).execute()`)
     expect(result).toBe(`val client = OkHttpClient()
 
 val body = FormBody.Builder()
-  .addEncoded("special chars!@#", "value")
+  .add("special chars!@#", "value")
   .build()
 
 val request = Request.Builder()
@@ -455,7 +461,7 @@ val response = client.newCall(request).execute()`)
     expect(result).toBe(`val client = OkHttpClient()
 
 val body = FormBody.Builder()
-  .addEncoded("foo", "bar")
+  .add("foo", "bar")
   .build()
 
 val request = Request.Builder()
@@ -503,7 +509,7 @@ val response = client.newCall(request).execute()`)
     expect(result).toBe(`val client = OkHttpClient()
 
 val body = FormBody.Builder()
-  .addEncoded("", "bar")
+  .add("", "bar")
   .build()
 
 val request = Request.Builder()
@@ -558,6 +564,7 @@ val response = client.newCall(request).execute()`)
 val request = Request.Builder()
   .url("https://example.com")
   .get()
+  .addHeader("X-Custom", "value1")
   .addHeader("X-Custom", "value2")
   .build()
 

@@ -1,0 +1,530 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`jquery > 'adds basic auth credentials' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Authorization", "Basic dXNlcjpwYXNz");
+  },
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'doesn\\'t add empty cookies' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'doesn\\'t add empty headers' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'escapes single quotes in JSON body' 1`] = `
+"$.ajax({
+  url: "https://editor.scalar.com/test",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "application/json");
+  },
+  data: "\\"hell'o\\""
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles JSON body with special charac…' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "application/json");
+  },
+  data: "{\\"key\\":\\"\\\\\\"quotes\\\\\\" and \\\\\\\\backslashes\\\\\\\\\\",\\"nested\\":{\\"array\\":[\\"item1\\",null,null]}}"
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles URLs with dollar sign charact…' 1`] = `
+"$.ajax({
+  url: "https://example.com/path$with$dollars",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles URLs with dollar signs in pat…' 1`] = `
+"$.ajax({
+  url: "https://example.com/api$v1/prices?amount=%2450.00",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles URLs with dollar signs in que…' 1`] = `
+"$.ajax({
+  url: "https://example.com?price=%24100&currency=USD%24",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles binary data flag' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "application/octet-stream");
+  },
+  data: "binary content"
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles compressed response' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Accept-Encoding", "gzip, deflate");
+  },
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles cookies with special characte…' 1`] = `
+"// Run on the request origin to set these cookies in the browser.
+document.cookie = "special%3Bcookie=value%20with%20spaces; path=/";
+$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  xhrFields: { withCredentials: true },
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles empty URL' 1`] = `
+"$.ajax({
+  url: "",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles extremely long URLs' 1`] = `
+"$.ajax({
+  url: "https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles headers with empty values' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("X-Empty", "");
+  },
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles multipart form data content t…' 1`] = `
+"const body = new FormData();
+body.append("user", new Blob(["{\\"name\\":\\"scalar\\"}"], { type: "application/json;charset=utf-8" }));
+$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  data: body
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles multipart form data content t…' 2`] = `
+"const body = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+body.append("file", new File([files[0]], "test.txt", { type: "text/plain" }));
+$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  data: body
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles multipart form data with JSON…' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "multipart/form-data");
+  },
+  data: "{\\"foo\\":\\"bar\\"}"
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles multipart form data with empt…' 1`] = `
+"const body = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+body.append("file", new File([files[0]], "", { type: "application/octet-stream" }));
+$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  data: body
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles multipart form data with files' 1`] = `
+"const body = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+body.append("file", new File([files[0]], "test.txt", { type: "application/octet-stream" }));
+body.append("field", "value");
+$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  data: body
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles multipart form data with sing…' 1`] = `
+"const body = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+body.append("field'name", "value");
+body.append("file'name", new File([files[0]], "test.txt", { type: "application/octet-stream" }));
+$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  data: body
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles multiple headers with same na…' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("X-Custom", "value1");
+    xhr.setRequestHeader("X-Custom", "value2");
+  },
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles special characters in URL' 1`] = `
+"$.ajax({
+  url: "https://example.com/path with spaces/[brackets]",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles special characters in auth cr…' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Authorization", "Basic dXNlckBleGFtcGxlLmNvbTpwYXNzOndvcmQh");
+  },
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles special characters in query p…' 1`] = `
+"$.ajax({
+  url: "https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles undefined auth object' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles url-encoded form data with si…' 1`] = `
+"const body = new URLSearchParams();
+body.append("field'name", "value");
+$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  },
+  data: body.toString()
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'handles url-encoded form data with sp…' 1`] = `
+"const body = new URLSearchParams();
+body.append("special chars!@#", "value");
+$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  },
+  data: body.toString()
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'has JSON body' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "application/json");
+  },
+  data: "{\\"hello\\":\\"world\\"}"
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'has cookies' 1`] = `
+"// Run on the request origin to set these cookies in the browser.
+document.cookie = "foo=bar; path=/";
+document.cookie = "bar=foo; path=/";
+$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  xhrFields: { withCredentials: true },
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'has headers' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "application/json");
+  },
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'has query string' 1`] = `
+"$.ajax({
+  url: "https://example.com?foo=bar&bar=foo",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'joins query string parameters with & …' 1`] = `
+"$.ajax({
+  url: "https://example.com/api?existing=1&foo=bar",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'leaves non-JSON multipart values unto…' 1`] = `
+"const body = new FormData();
+body.append("props", new Blob(["not json"], { type: "application/json" }));
+$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  data: body
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'omits auth when not provided' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'omits auth when password is missing' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'omits auth when username is missing' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'prettifies JSON body' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "application/json");
+  },
+  data: "{\\"nested\\":{\\"array\\":[1,2,3],\\"object\\":{\\"foo\\":\\"bar\\"}},\\"simple\\":\\"value\\"}"
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'pretty-prints --data bodies whose mim…' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "application/vnd.api+json");
+  },
+  data: "{\\"a\\":1}"
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'pretty-prints --data bodies whose mim…' 2`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", "application/json;charset=utf-8");
+  },
+  data: "{\\"a\\":1}"
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'pretty-prints --form parts whose cont…' 1`] = `
+"const body = new FormData();
+body.append("props", new Blob(["{\\"a\\":1}"], { type: "application/vnd.custom+json" }));
+$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  data: body
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'pretty-prints JSON multipart parts al…' 1`] = `
+"const body = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+body.append("file", new File([files[0]], "filename", { type: "application/octet-stream" }));
+body.append("props", new Blob(["{\\"name\\":\\"\\",\\"description\\":\\"\\",\\"created_at\\":null}"], { type: "application/json" }));
+$.ajax({
+  url: "https://example.com/widget/v1/widgets",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  data: body
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'quotes a URL whose query string has n…' 1`] = `
+"$.ajax({
+  url: "https://example.com/api?param1=value1&param2=value2",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'returns a POST request' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "POST",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;
+
+exports[`jquery > 'returns a basic request' 1`] = `
+"$.ajax({
+  url: "https://example.com",
+  method: "GET",
+  processData: false,
+  contentType: false,
+  data: null
+}).done((response) => console.log(response));"
+`;

@@ -1,0 +1,542 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`restmethod > 'adds basic auth credentials' 1`] = `
+"$headers = @{
+  'Authorization' = 'Basic dXNlcjpwYXNz'
+}
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET' -Headers $headers
+$response"
+`;
+
+exports[`restmethod > 'doesn\\'t add empty cookies' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'doesn\\'t add empty headers' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'escapes single quotes in JSON body' 1`] = `
+"$headers = @{
+  'Content-Type' = 'application/json'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('"hell''o"')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://editor.scalar.com/test' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'handles JSON body with special charac…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'application/json'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"key":"\\"quotes\\" and \\\\backslashes\\\\","nested":{"array":["item1",null,null]}}')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'handles URLs with dollar sign charact…' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com/path$with$dollars' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'handles URLs with dollar signs in pat…' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com/api$v1/prices?amount=%2450.00' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'handles URLs with dollar signs in que…' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com?price=%24100&currency=USD%24' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'handles binary data flag' 1`] = `
+"$headers = @{
+  'Content-Type' = 'application/octet-stream'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('binary content')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'handles compressed response' 1`] = `
+"$headers = @{
+  'Accept-Encoding' = 'gzip, deflate'
+}
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET' -Headers $headers
+$response"
+`;
+
+exports[`restmethod > 'handles cookies with special characte…' 1`] = `
+"$headers = @{
+  'Cookie' = 'special%3Bcookie=value%20with%20spaces'
+}
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET' -Headers $headers
+$response"
+`;
+
+exports[`restmethod > 'handles empty URL' 1`] = `
+"$response = Invoke-RestMethod -Uri '' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'handles extremely long URLs' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'handles headers with empty values' 1`] = `
+"$headers = @{
+  'X-Empty' = ''
+}
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET' -Headers $headers
+$response"
+`;
+
+exports[`restmethod > 'handles multipart form data content t…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="user"
+Content-Type: application/json;charset=utf-8
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"name":"scalar"}')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--
+')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'handles multipart form data content t…' 2`] = `
+"$headers = @{
+  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="file"; filename="test.txt"
+Content-Type: text/plain
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.IO.File]::ReadAllBytes('test.txt')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--
+')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'handles multipart form data with JSON…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'multipart/form-data'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"foo":"bar"}')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'handles multipart form data with empt…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="file"; filename=""
+Content-Type: application/octet-stream
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.IO.File]::ReadAllBytes('')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--
+')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'handles multipart form data with files' 1`] = `
+"$headers = @{
+  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="file"; filename="test.txt"
+Content-Type: application/octet-stream
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.IO.File]::ReadAllBytes('test.txt')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="field"
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('value')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--
+')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'handles multipart form data with sing…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="field''name"
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('value')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="file''name"; filename="test.txt"
+Content-Type: application/octet-stream
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.IO.File]::ReadAllBytes('test.txt')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--
+')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'handles multiple headers with same na…' 1`] = `
+"$headers = @{
+  'X-Custom' = 'value1, value2'
+}
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET' -Headers $headers
+$response"
+`;
+
+exports[`restmethod > 'handles special characters in URL' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com/path%20with%20spaces/[brackets]' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'handles special characters in auth cr…' 1`] = `
+"$headers = @{
+  'Authorization' = 'Basic dXNlckBleGFtcGxlLmNvbTpwYXNzOndvcmQh'
+}
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET' -Headers $headers
+$response"
+`;
+
+exports[`restmethod > 'handles special characters in query p…' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'handles undefined auth object' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'handles url-encoded form data with si…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'application/x-www-form-urlencoded'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('field%27name=value')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'handles url-encoded form data with sp…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'application/x-www-form-urlencoded'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('special+chars%21%40%23=value')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'has JSON body' 1`] = `
+"$headers = @{
+  'Content-Type' = 'application/json'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"hello":"world"}')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'has cookies' 1`] = `
+"$headers = @{
+  'Cookie' = 'foo=bar; bar=foo'
+}
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET' -Headers $headers
+$response"
+`;
+
+exports[`restmethod > 'has headers' 1`] = `
+"$headers = @{
+  'Content-Type' = 'application/json'
+}
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET' -Headers $headers
+$response"
+`;
+
+exports[`restmethod > 'has query string' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com?foo=bar&bar=foo' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'joins query string parameters with & …' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com/api?existing=1&foo=bar' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'leaves non-JSON multipart values unto…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="props"
+Content-Type: application/json
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('not json')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--
+')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'omits auth when not provided' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'omits auth when password is missing' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'omits auth when username is missing' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'prettifies JSON body' 1`] = `
+"$headers = @{
+  'Content-Type' = 'application/json'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"nested":{"array":[1,2,3],"object":{"foo":"bar"}},"simple":"value"}')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'pretty-prints --data bodies whose mim…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'application/vnd.api+json'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"a":1}')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'pretty-prints --data bodies whose mim…' 2`] = `
+"$headers = @{
+  'Content-Type' = 'application/json;charset=utf-8'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"a":1}')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'pretty-prints --form parts whose cont…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="props"
+Content-Type: application/vnd.custom+json
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"a":1}')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--
+')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'pretty-prints JSON multipart parts al…' 1`] = `
+"$headers = @{
+  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+}
+
+$body = [System.IO.MemoryStream]::new()
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="file"; filename="filename"
+Content-Type: application/octet-stream
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.IO.File]::ReadAllBytes('filename')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary
+Content-Disposition: form-data; name="props"
+Content-Type: application/json
+
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"name":"","description":"","created_at":null}')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('
+')
+$body.Write($bytes, 0, $bytes.Length)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--
+')
+$body.Write($bytes, 0, $bytes.Length)
+
+$response = Invoke-RestMethod -Uri 'https://example.com/widget/v1/widgets' -Method 'POST' -Headers $headers -Body $body.ToArray()
+$body.Dispose()
+$response"
+`;
+
+exports[`restmethod > 'quotes a URL whose query string has n…' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com/api?param1=value1&param2=value2' -Method 'GET'
+$response"
+`;
+
+exports[`restmethod > 'returns a POST request' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST'
+$response"
+`;
+
+exports[`restmethod > 'returns a basic request' 1`] = `
+"$response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET'
+$response"
+`;

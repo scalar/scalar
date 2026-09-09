@@ -1,0 +1,529 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`asynchttp > 'adds basic auth credentials' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .addHeader("Authorization", "Basic dXNlcjpwYXNz")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'doesn\\'t add empty cookies' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'doesn\\'t add empty headers' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'escapes single quotes in JSON body' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("\\"hell'o\\"".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://editor.scalar.com/test")
+    .addHeader("Content-Type", "application/json")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles JSON body with special charac…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("{\\"key\\":\\"\\\\\\"quotes\\\\\\" and \\\\\\\\backslashes\\\\\\\\\\",\\"nested\\":{\\"array\\":[\\"item1\\",null,null]}}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "application/json")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles URLs with dollar sign charact…' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com/path$with$dollars")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles URLs with dollar signs in pat…' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com/api$v1/prices?amount=%2450.00")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles URLs with dollar signs in que…' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com?price=%24100&currency=USD%24")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles binary data flag' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("binary content".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "application/octet-stream")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles compressed response' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .addHeader("Accept-Encoding", "gzip, deflate")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles cookies with special characte…' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .addHeader("Cookie", "special%3Bcookie=value%20with%20spaces")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles empty URL' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles extremely long URLs' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles headers with empty values' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .addHeader("X-Empty", "")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles multipart form data content t…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"user\\"\\r\\nContent-Type: application/json;charset=utf-8\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("{\\"name\\":\\"scalar\\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles multipart form data content t…' 2`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\nContent-Type: text/plain\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("test.txt")));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles multipart form data with JSON…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("{\\"foo\\":\\"bar\\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "multipart/form-data")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles multipart form data with empt…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("")));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles multipart form data with files' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("test.txt")));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"field\\"\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("value".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles multipart form data with sing…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"field'name\\"\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("value".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file'name\\"; filename=\\"test.txt\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("test.txt")));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles multiple headers with same na…' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .addHeader("X-Custom", "value1")
+    .addHeader("X-Custom", "value2")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles special characters in URL' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com/path%20with%20spaces/[brackets]")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles special characters in auth cr…' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .addHeader("Authorization", "Basic dXNlckBleGFtcGxlLmNvbTpwYXNzOndvcmQh")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles special characters in query p…' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles undefined auth object' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles url-encoded form data with si…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("field%27name=value".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "application/x-www-form-urlencoded")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'handles url-encoded form data with sp…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("special+chars%21%40%23=value".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "application/x-www-form-urlencoded")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'has JSON body' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("{\\"hello\\":\\"world\\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "application/json")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'has cookies' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .addHeader("Cookie", "foo=bar; bar=foo")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'has headers' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .addHeader("Content-Type", "application/json")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'has query string' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com?foo=bar&bar=foo")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'joins query string parameters with & …' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com/api?existing=1&foo=bar")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'leaves non-JSON multipart values unto…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"props\\"\\r\\nContent-Type: application/json\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("not json".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'omits auth when not provided' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'omits auth when password is missing' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'omits auth when username is missing' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'prettifies JSON body' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("{\\"nested\\":{\\"array\\":[1,2,3],\\"object\\":{\\"foo\\":\\"bar\\"}},\\"simple\\":\\"value\\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "application/json")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'pretty-prints --data bodies whose mim…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("{\\"a\\":1}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "application/vnd.api+json")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'pretty-prints --data bodies whose mim…' 2`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("{\\"a\\":1}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "application/json;charset=utf-8")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'pretty-prints --form parts whose cont…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"props\\"\\r\\nContent-Type: application/vnd.custom+json\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("{\\"a\\":1}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'pretty-prints JSON multipart parts al…' 1`] = `
+"java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"filename\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("filename")));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"props\\"\\r\\nContent-Type: application/json\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("{\\"name\\":\\"\\",\\"description\\":\\"\\",\\"created_at\\":null}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com/widget/v1/widgets")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .setBody(body.toByteArray())
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'quotes a URL whose query string has n…' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com/api?param1=value1&param2=value2")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'returns a POST request' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("POST", "https://example.com")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;
+
+exports[`asynchttp > 'returns a basic request' 1`] = `
+"try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
+  Response response = client.prepare("GET", "https://example.com")
+    .execute()
+    .get();
+  System.out.println(response.getResponseBody());
+}"
+`;

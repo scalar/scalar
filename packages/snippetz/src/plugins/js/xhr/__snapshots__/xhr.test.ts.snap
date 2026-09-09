@@ -1,0 +1,366 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`xhr > 'adds basic auth credentials' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.setRequestHeader("Authorization", "Basic dXNlcjpwYXNz");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'doesn\\'t add empty cookies' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'doesn\\'t add empty headers' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'escapes single quotes in JSON body' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://editor.scalar.com/test");
+xhr.setRequestHeader("Content-Type", "application/json");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send("\\"hell'o\\"");"
+`;
+
+exports[`xhr > 'handles JSON body with special charac…' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.setRequestHeader("Content-Type", "application/json");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send("{\\"key\\":\\"\\\\\\"quotes\\\\\\" and \\\\\\\\backslashes\\\\\\\\\\",\\"nested\\":{\\"array\\":[\\"item1\\",null,null]}}");"
+`;
+
+exports[`xhr > 'handles URLs with dollar sign charact…' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com/path$with$dollars");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles URLs with dollar signs in pat…' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com/api$v1/prices?amount=%2450.00");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles URLs with dollar signs in que…' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com?price=%24100&currency=USD%24");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles binary data flag' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.setRequestHeader("Content-Type", "application/octet-stream");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send("binary content");"
+`;
+
+exports[`xhr > 'handles compressed response' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.setRequestHeader("Accept-Encoding", "gzip, deflate");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles cookies with special characte…' 1`] = `
+"// Run on the request origin to set these cookies in the browser.
+document.cookie = "special%3Bcookie=value%20with%20spaces; path=/";
+const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.withCredentials = true;
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles empty URL' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles extremely long URLs' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles headers with empty values' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.setRequestHeader("X-Empty", "");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles multipart form data content t…' 1`] = `
+"const body = new FormData();
+body.append("user", new Blob(["{\\"name\\":\\"scalar\\"}"], { type: "application/json;charset=utf-8" }));
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(body);"
+`;
+
+exports[`xhr > 'handles multipart form data content t…' 2`] = `
+"const body = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+body.append("file", new File([files[0]], "test.txt", { type: "text/plain" }));
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(body);"
+`;
+
+exports[`xhr > 'handles multipart form data with JSON…' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.setRequestHeader("Content-Type", "multipart/form-data");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send("{\\"foo\\":\\"bar\\"}");"
+`;
+
+exports[`xhr > 'handles multipart form data with empt…' 1`] = `
+"const body = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+body.append("file", new File([files[0]], "", { type: "application/octet-stream" }));
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(body);"
+`;
+
+exports[`xhr > 'handles multipart form data with files' 1`] = `
+"const body = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+body.append("file", new File([files[0]], "test.txt", { type: "application/octet-stream" }));
+body.append("field", "value");
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(body);"
+`;
+
+exports[`xhr > 'handles multipart form data with sing…' 1`] = `
+"const body = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+body.append("field'name", "value");
+body.append("file'name", new File([files[0]], "test.txt", { type: "application/octet-stream" }));
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(body);"
+`;
+
+exports[`xhr > 'handles multiple headers with same na…' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.setRequestHeader("X-Custom", "value1");
+xhr.setRequestHeader("X-Custom", "value2");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles special characters in URL' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com/path with spaces/[brackets]");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles special characters in auth cr…' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.setRequestHeader("Authorization", "Basic dXNlckBleGFtcGxlLmNvbTpwYXNzOndvcmQh");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles special characters in query p…' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles undefined auth object' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'handles url-encoded form data with si…' 1`] = `
+"const body = new URLSearchParams();
+body.append("field'name", "value");
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(body.toString());"
+`;
+
+exports[`xhr > 'handles url-encoded form data with sp…' 1`] = `
+"const body = new URLSearchParams();
+body.append("special chars!@#", "value");
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(body.toString());"
+`;
+
+exports[`xhr > 'has JSON body' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.setRequestHeader("Content-Type", "application/json");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send("{\\"hello\\":\\"world\\"}");"
+`;
+
+exports[`xhr > 'has cookies' 1`] = `
+"// Run on the request origin to set these cookies in the browser.
+document.cookie = "foo=bar; path=/";
+document.cookie = "bar=foo; path=/";
+const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.withCredentials = true;
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'has headers' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.setRequestHeader("Content-Type", "application/json");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'has query string' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com?foo=bar&bar=foo");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'joins query string parameters with & …' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com/api?existing=1&foo=bar");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'leaves non-JSON multipart values unto…' 1`] = `
+"const body = new FormData();
+body.append("props", new Blob(["not json"], { type: "application/json" }));
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(body);"
+`;
+
+exports[`xhr > 'omits auth when not provided' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'omits auth when password is missing' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'omits auth when username is missing' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'prettifies JSON body' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.setRequestHeader("Content-Type", "application/json");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send("{\\"nested\\":{\\"array\\":[1,2,3],\\"object\\":{\\"foo\\":\\"bar\\"}},\\"simple\\":\\"value\\"}");"
+`;
+
+exports[`xhr > 'pretty-prints --data bodies whose mim…' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.setRequestHeader("Content-Type", "application/vnd.api+json");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send("{\\"a\\":1}");"
+`;
+
+exports[`xhr > 'pretty-prints --data bodies whose mim…' 2`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.setRequestHeader("Content-Type", "application/json;charset=utf-8");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send("{\\"a\\":1}");"
+`;
+
+exports[`xhr > 'pretty-prints --form parts whose cont…' 1`] = `
+"const body = new FormData();
+body.append("props", new Blob(["{\\"a\\":1}"], { type: "application/vnd.custom+json" }));
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(body);"
+`;
+
+exports[`xhr > 'pretty-prints JSON multipart parts al…' 1`] = `
+"const body = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+body.append("file", new File([files[0]], "filename", { type: "application/octet-stream" }));
+body.append("props", new Blob(["{\\"name\\":\\"\\",\\"description\\":\\"\\",\\"created_at\\":null}"], { type: "application/json" }));
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com/widget/v1/widgets");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(body);"
+`;
+
+exports[`xhr > 'quotes a URL whose query string has n…' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com/api?param1=value1&param2=value2");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'returns a POST request' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("POST", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;
+
+exports[`xhr > 'returns a basic request' 1`] = `
+"const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://example.com");
+xhr.addEventListener("load", () => console.log(xhr.responseText));
+xhr.send(null);"
+`;

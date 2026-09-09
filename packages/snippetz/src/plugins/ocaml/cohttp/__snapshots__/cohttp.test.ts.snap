@@ -1,0 +1,713 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`cohttp > 'adds basic auth credentials' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Authorization", "Basic dXNlcjpwYXNz");
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'doesn\\'t add empty cookies' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'doesn\\'t add empty headers' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'escapes single quotes in JSON body' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://editor.scalar.com/test" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "application/json");
+    ] in
+    let part0 = "\\"hell'o\\"" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles JSON body with special charac…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "application/json");
+    ] in
+    let part0 = "{\\"key\\":\\"\\\\\\"quotes\\\\\\" and \\\\\\\\backslashes\\\\\\\\\\",\\"nested\\":{\\"array\\":[\\"item1\\",null,null]}}" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles URLs with dollar sign charact…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com/path$with$dollars" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles URLs with dollar signs in pat…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com/api$v1/prices?amount=%2450.00" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles URLs with dollar signs in que…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com?price=%24100&currency=USD%24" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles binary data flag' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "application/octet-stream");
+    ] in
+    let part0 = "binary content" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles compressed response' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Accept-Encoding", "gzip, deflate");
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles cookies with special characte…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Cookie", "special%3Bcookie=value%20with%20spaces");
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles empty URL' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles extremely long URLs' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles headers with empty values' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("X-Empty", "");
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles multipart form data content t…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+    ] in
+    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"user\\"\\013\\010Content-Type: application/json;charset=utf-8\\013\\010\\013\\010" in
+    let part1 = "{\\"name\\":\\"scalar\\"}" in
+    let part2 = "\\013\\010" in
+    let part3 = "--scalar-boundary--\\013\\010" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles multipart form data content t…' 2`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+    ] in
+    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\013\\010Content-Type: text/plain\\013\\010\\013\\010" in
+    Lwt_io.with_file ~mode:Lwt_io.Input "test.txt" Lwt_io.read >>= fun part1 ->
+    let part2 = "\\013\\010" in
+    let part3 = "--scalar-boundary--\\013\\010" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles multipart form data with JSON…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "multipart/form-data");
+    ] in
+    let part0 = "{\\"foo\\":\\"bar\\"}" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles multipart form data with empt…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+    ] in
+    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010" in
+    Lwt_io.with_file ~mode:Lwt_io.Input "" Lwt_io.read >>= fun part1 ->
+    let part2 = "\\013\\010" in
+    let part3 = "--scalar-boundary--\\013\\010" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles multipart form data with files' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+    ] in
+    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010" in
+    Lwt_io.with_file ~mode:Lwt_io.Input "test.txt" Lwt_io.read >>= fun part1 ->
+    let part2 = "\\013\\010" in
+    let part3 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"field\\"\\013\\010\\013\\010" in
+    let part4 = "value" in
+    let part5 = "\\013\\010" in
+    let part6 = "--scalar-boundary--\\013\\010" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3; part4; part5; part6]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles multipart form data with sing…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+    ] in
+    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"field'name\\"\\013\\010\\013\\010" in
+    let part1 = "value" in
+    let part2 = "\\013\\010" in
+    let part3 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"file'name\\"; filename=\\"test.txt\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010" in
+    Lwt_io.with_file ~mode:Lwt_io.Input "test.txt" Lwt_io.read >>= fun part4 ->
+    let part5 = "\\013\\010" in
+    let part6 = "--scalar-boundary--\\013\\010" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3; part4; part5; part6]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles multiple headers with same na…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("X-Custom", "value1");
+      ("X-Custom", "value2");
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles special characters in URL' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com/path%20with%20spaces/[brackets]" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles special characters in auth cr…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Authorization", "Basic dXNlckBleGFtcGxlLmNvbTpwYXNzOndvcmQh");
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles special characters in query p…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles undefined auth object' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles url-encoded form data with si…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "application/x-www-form-urlencoded");
+    ] in
+    let part0 = "field%27name=value" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'handles url-encoded form data with sp…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "application/x-www-form-urlencoded");
+    ] in
+    let part0 = "special+chars%21%40%23=value" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'has JSON body' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "application/json");
+    ] in
+    let part0 = "{\\"hello\\":\\"world\\"}" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'has cookies' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Cookie", "foo=bar; bar=foo");
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'has headers' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "application/json");
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'has query string' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com?foo=bar&bar=foo" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'joins query string parameters with & …' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com/api?existing=1&foo=bar" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'leaves non-JSON multipart values unto…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+    ] in
+    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"props\\"\\013\\010Content-Type: application/json\\013\\010\\013\\010" in
+    let part1 = "not json" in
+    let part2 = "\\013\\010" in
+    let part3 = "--scalar-boundary--\\013\\010" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'omits auth when not provided' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'omits auth when password is missing' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'omits auth when username is missing' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'prettifies JSON body' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "application/json");
+    ] in
+    let part0 = "{\\"nested\\":{\\"array\\":[1,2,3],\\"object\\":{\\"foo\\":\\"bar\\"}},\\"simple\\":\\"value\\"}" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'pretty-prints --data bodies whose mim…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "application/vnd.api+json");
+    ] in
+    let part0 = "{\\"a\\":1}" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'pretty-prints --data bodies whose mim…' 2`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "application/json;charset=utf-8");
+    ] in
+    let part0 = "{\\"a\\":1}" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'pretty-prints --form parts whose cont…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+    ] in
+    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"props\\"\\013\\010Content-Type: application/vnd.custom+json\\013\\010\\013\\010" in
+    let part1 = "{\\"a\\":1}" in
+    let part2 = "\\013\\010" in
+    let part3 = "--scalar-boundary--\\013\\010" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'pretty-prints JSON multipart parts al…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com/widget/v1/widgets" in
+    let headers = Cohttp.Header.of_list [
+      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+    ] in
+    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"filename\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010" in
+    Lwt_io.with_file ~mode:Lwt_io.Input "filename" Lwt_io.read >>= fun part1 ->
+    let part2 = "\\013\\010" in
+    let part3 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"props\\"\\013\\010Content-Type: application/json\\013\\010\\013\\010" in
+    let part4 = "{\\"name\\":\\"\\",\\"description\\":\\"\\",\\"created_at\\":null}" in
+    let part5 = "\\013\\010" in
+    let part6 = "--scalar-boundary--\\013\\010" in
+    let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3; part4; part5; part6]) in
+    Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'quotes a URL whose query string has n…' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com/api?param1=value1&param2=value2" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'returns a POST request' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "POST") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;
+
+exports[`cohttp > 'returns a basic request' 1`] = `
+"open Lwt.Infix
+
+let () =
+  Lwt_main.run (
+    let uri = Uri.of_string "https://example.com" in
+    let headers = Cohttp.Header.of_list [
+    ] in
+    Cohttp_lwt_unix.Client.call ~headers (Cohttp.Code.method_of_string "GET") uri
+    >>= fun (_response, body) ->
+    Cohttp_lwt.Body.to_string body >>= Lwt_io.printl
+  )"
+`;

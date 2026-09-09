@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src"],
-  "exclude": ["**/*.test.ts"],
+  "exclude": ["**/*.test.ts", "src/fixtures"],
   "compilerOptions": {
     "skipLibCheck": true,
     "declaration": true,
