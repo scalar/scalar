@@ -17,15 +17,9 @@ import type {
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   getEnvironmentVariables,
-  isEncryptionSchemeType,
-  isSaslSchemeType,
-  type EncryptionObjectSecret,
-  type GssapiObjectSecret,
   type MergedSecuritySchemes,
   type OAuthFlowsObjectSecret,
-  type SaslObjectSecret,
   type SecuritySchemeObjectSecret,
-  type X509ObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { getDocumentTypeLabel } from '@scalar/workspace-store/schemas/type-guards'
@@ -199,29 +193,6 @@ const apiKeyHasName = (scheme: { in?: string }): boolean =>
   scheme.in !== 'user' && scheme.in !== 'password'
 
 /**
- * SASL-style AsyncAPI broker schemes (`userPassword`, `plain`, `scramSha256`, `scramSha512`):
- * they all authenticate with a username + password pair, so they share one form.
- */
-const isSaslScheme = (
-  scheme: SecurityItem['scheme'],
-): scheme is SaslObjectSecret => isSaslSchemeType(scheme?.type)
-
-/** AsyncAPI encryption broker schemes: a single key value. */
-const isEncryptionScheme = (
-  scheme: SecurityItem['scheme'],
-): scheme is EncryptionObjectSecret => isEncryptionSchemeType(scheme?.type)
-
-/** AsyncAPI X509 broker scheme: a client certificate + private key pair (PEM). */
-const isX509Scheme = (
-  scheme: SecurityItem['scheme'],
-): scheme is X509ObjectSecret => scheme?.type === 'X509'
-
-/** AsyncAPI GSSAPI (Kerberos) broker scheme: the service name the client authenticates against. */
-const isGssapiScheme = (
-  scheme: SecurityItem['scheme'],
-): scheme is GssapiObjectSecret => scheme?.type === 'gssapi'
-
-/**
  * The scheme's type when it is one we do not render inputs for (a type outside both the OpenAPI
  * and AsyncAPI security scheme unions). Read through a helper so the fallback template branch,
  * where the scheme type is narrowed to `never` after the supported cases, can still surface the type.
@@ -255,20 +226,6 @@ const handleApiKeySecretsUpdate = (
 ): void =>
   eventBus.emit('auth:update:security-scheme-secrets', {
     payload: { type: 'apiKey', ...payload },
-    name,
-  })
-
-/**
- * AsyncAPI broker credentials (SASL, X509, encryption, GSSAPI) all persist through the same
- * event; only the secret key and scheme type differ, so they share one handler. The caller passes
- * a payload that already carries the narrowed scheme `type`.
- */
-const handleBrokerSecretsUpdate = (
-  payload: ApiReferenceEvents['auth:update:security-scheme-secrets']['payload'],
-  name: string,
-): void =>
-  eventBus.emit('auth:update:security-scheme-secrets', {
-    payload,
     name,
   })
 
@@ -624,124 +581,30 @@ const handleConfigAuthorize = (): void => {
       </template>
     </template>
 
-    <!-- SASL broker authentication (userPassword, plain, scramSha256, scramSha512) -->
-    <template v-else-if="isSaslScheme(scheme)">
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          class="text-c-2"
-          :containerClass="getStaticBorderClass()"
-          :environment
-          :modelValue="scheme['x-scalar-secret-username']"
-          placeholder="janedoe"
-          required
-          @update:modelValue="
-            (v) =>
-              handleBrokerSecretsUpdate(
-                { 'type': scheme.type, 'x-scalar-secret-username': v },
-                name,
-              )
-          ">
-          Username
-        </RequestAuthDataTableInput>
-      </DataTableRow>
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          :environment
-          :modelValue="scheme['x-scalar-secret-password']"
-          placeholder="********"
-          type="password"
-          @update:modelValue="
-            (v) =>
-              handleBrokerSecretsUpdate(
-                { 'type': scheme.type, 'x-scalar-secret-password': v },
-                name,
-              )
-          ">
-          Password
-        </RequestAuthDataTableInput>
-      </DataTableRow>
-    </template>
+    <!-- Browser WebSocket connections cannot apply these broker credentials. -->
+    <div
+      v-else-if="
+        scheme?.type === 'userPassword' ||
+        scheme?.type === 'plain' ||
+        scheme?.type === 'scramSha256' ||
+        scheme?.type === 'scramSha512' ||
+        scheme?.type === 'X509' ||
+        scheme?.type === 'symmetricEncryption' ||
+        scheme?.type === 'asymmetricEncryption' ||
+        scheme?.type === 'gssapi'
+      "
+      class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
+      Credentials for this AsyncAPI security scheme are not sent by the browser
+      client.
+    </div>
 
-    <!-- X509 client certificate authentication -->
-    <template v-else-if="isX509Scheme(scheme)">
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          :containerClass="getStaticBorderClass()"
-          :environment
-          :modelValue="scheme['x-scalar-secret-client-certificate']"
-          placeholder="-----BEGIN CERTIFICATE-----"
-          type="password"
-          @update:modelValue="
-            (v) =>
-              handleBrokerSecretsUpdate(
-                {
-                  'type': scheme.type,
-                  'x-scalar-secret-client-certificate': v,
-                },
-                name,
-              )
-          ">
-          Client Certificate
-        </RequestAuthDataTableInput>
-      </DataTableRow>
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          :environment
-          :modelValue="scheme['x-scalar-secret-private-key']"
-          placeholder="-----BEGIN PRIVATE KEY-----"
-          type="password"
-          @update:modelValue="
-            (v) =>
-              handleBrokerSecretsUpdate(
-                { 'type': scheme.type, 'x-scalar-secret-private-key': v },
-                name,
-              )
-          ">
-          Private Key
-        </RequestAuthDataTableInput>
-      </DataTableRow>
-    </template>
-
-    <!-- Symmetric / asymmetric encryption key -->
-    <template v-else-if="isEncryptionScheme(scheme)">
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          :containerClass="getStaticBorderClass()"
-          :environment
-          :modelValue="scheme['x-scalar-secret-token']"
-          placeholder="********"
-          type="password"
-          @update:modelValue="
-            (v) =>
-              handleBrokerSecretsUpdate(
-                { 'type': scheme.type, 'x-scalar-secret-token': v },
-                name,
-              )
-          ">
-          Key
-        </RequestAuthDataTableInput>
-      </DataTableRow>
-    </template>
-
-    <!-- GSSAPI (Kerberos) authentication -->
-    <template v-else-if="isGssapiScheme(scheme)">
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          :containerClass="getStaticBorderClass()"
-          :environment
-          :modelValue="scheme['x-scalar-secret-service-name']"
-          placeholder="kafka"
-          @update:modelValue="
-            (v) =>
-              handleBrokerSecretsUpdate(
-                { 'type': scheme.type, 'x-scalar-secret-service-name': v },
-                name,
-              )
-          ">
-          Service Name
-        </RequestAuthDataTableInput>
-      </DataTableRow>
-    </template>
+    <!-- Mutual TLS credentials are chosen during the browser-managed TLS handshake. -->
+    <div
+      v-else-if="scheme?.type === 'mutualTLS'"
+      class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
+      Mutual TLS authenticates with a client certificate presented during the
+      TLS handshake, so there is nothing to enter here.
+    </div>
 
     <!-- Scheme has a type we do not render inputs for -->
     <div

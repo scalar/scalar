@@ -1,8 +1,14 @@
-import { type VueWrapper, enableAutoUnmount, mount } from '@vue/test-utils'
+import { autoUpdate } from '@floating-ui/vue'
+import { type VueWrapper, enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import ScalarFloating from './ScalarFloating.vue'
+
+vi.mock('@floating-ui/vue', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@floating-ui/vue')>()
+  return { ...original, autoUpdate: vi.fn(original.autoUpdate) }
+})
 
 enableAutoUnmount(afterEach)
 
@@ -80,6 +86,46 @@ describe('ScalarFloating', () => {
       // Should fallback to the wrapper div (the first child div)
       const wrapperDiv = wrapper.find('div').element
       expect(wrapper.vm.targetRef).toBe(wrapperDiv)
+    })
+  })
+
+  describe('deferred positioning', () => {
+    const slots = {
+      default: '<button>Reference</button>',
+      floating: '<div class="floating">Floating Content</div>',
+    }
+
+    beforeEach(() => {
+      vi.mocked(autoUpdate).mockClear()
+    })
+
+    it('starts auto updating after the mount tick, not during it', async () => {
+      wrapper = mount(ScalarFloating, { slots })
+
+      expect(autoUpdate).not.toHaveBeenCalled()
+
+      await nextTick()
+
+      expect(autoUpdate).toHaveBeenCalledTimes(1)
+    })
+
+    it('positions the floating element once the tick has run', async () => {
+      wrapper = mount(ScalarFloating, { slots })
+
+      await flushPromises()
+
+      const floating = wrapper.find('.floating').element.parentElement
+      expect(floating?.style.position).toBe('absolute')
+      expect(floating?.style.transform).toMatch(/^translate\(/)
+    })
+
+    it('does not start auto updating when unmounted before the tick', async () => {
+      wrapper = mount(ScalarFloating, { slots })
+      wrapper.unmount()
+
+      await flushPromises()
+
+      expect(autoUpdate).not.toHaveBeenCalled()
     })
   })
 })

@@ -251,6 +251,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
         <div class="operation-details-card-item">
           <OperationParameters
             v-model:selectedContentType="selectedRequestBodyContentType"
+            :breadcrumb="[id]"
             :document
             :eventBus
             :options
@@ -258,8 +259,12 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :requestBody="getResolvedRef(operation.requestBody)" />
         </div>
         <div class="operation-details-card-item">
+          <!-- Responses are disclosures unless the configuration expands every
+               response, in which case they render as static panels -->
           <OperationResponses
+            :collapsableItems="!options.expandAllResponses"
             v-model:selectedContentTypes="selectedResponseContentTypes"
+            :breadcrumb="[id]"
             :document
             :eventBus
             :options
@@ -271,6 +276,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
           v-if="operation?.callbacks"
           class="operation-details-card-item">
           <Callbacks
+            :breadcrumb="[id]"
             :callbacks="operation.callbacks"
             :document
             :eventBus
@@ -449,6 +455,69 @@ const { level: headingLevel } = useDocumentOutline('operation')
   min-width: 0;
 }
 
+/*
+ * The schema tree inside a classic card.
+ *
+ * A tree row hangs its +/- control one gutter to the LEFT of its own text. The
+ * modern layout absorbs that in the page margin, but a classic card draws its
+ * border exactly there, so the controls sat on top of the border and outside
+ * the box that is supposed to contain them. Every card that holds tree rows
+ * reserves `gutter + half` on the inline start — plus the same 6px of air the
+ * modern layout leaves at the page edge, so a control never kisses the border —
+ * and matches the card's own 9px on the end so a long signature never touches
+ * the border either.
+ *
+ * The reserve is spelled out at each use site rather than kept as a token: a
+ * custom property substitutes where it is DECLARED, so a token defined at app
+ * scope would freeze at the wide values and keep reserving 25px in a narrow
+ * container that only needs 18 (same reason `schema-rail`'s fade is inline).
+ *
+ * The `:has()` guard reserves the space only where a tree row can draw a
+ * control: a card holding nothing but a description and an example keeps the
+ * plain 9px.
+ *
+ * `.parameter-item--tree` has to be in the guard even though a row of its own
+ * hangs nothing: the classic card renders responses as disclosures, and a
+ * CLOSED one unmounts its panel, taking every `.property--tree` with it. An
+ * operation with only responses would then reserve nothing while its status
+ * rows still drew their pucks 25px to the left — over the card's border — and
+ * the reserve would appear and disappear as rows were opened, shifting the
+ * whole card sideways on a click. The row marker is there whatever the
+ * disclosure is doing, so the reserve holds still.
+ */
+.endpoint-content:has(
+  .property--tree,
+  .parameter-item--tree,
+  .callback-list-item--tree
+) {
+  padding-inline-start: calc(
+    var(--schema-gutter, 16px) + var(--schema-glyph-half, 9px) + 6px
+  );
+}
+
+.operation-details-card-item :deep(.request-body-schema:has(.property--tree)),
+.operation-details-card-item
+  :deep(.callbacks-list:has(.callback-list-item--tree)) {
+  padding-inline-start: calc(
+    var(--schema-gutter, 16px) + var(--schema-glyph-half, 9px) + 6px
+  );
+  padding-inline-end: 9px;
+}
+
+/*
+ * The trailing copy-link is a hover-only affordance, and it is a flex item of
+ * the heading, so it competes for the line with the property name and its type.
+ * The classic card is roughly 90px narrower than the modern column, and there
+ * that 22px is enough to push a signature onto a second line — on a control
+ * that is transparent until hovered, so the row just reads as a blank line
+ * under the name. Rows stay deep-linkable: the anchor id is on the row itself,
+ * and only the click-to-copy button goes, exactly as it does for a coarse
+ * pointer (see CopyLinkButton.vue).
+ */
+.endpoint-content :deep(.copy-link-trailing) {
+  display: none;
+}
+
 .operation-details-card {
   display: flex;
   flex-direction: column;
@@ -495,32 +564,6 @@ const { level: headingLevel } = useDocumentOutline('operation')
   line-height: 1.33;
   padding: 9px;
   margin: 0;
-}
-
-.operation-details-card :deep(.callback-list-item-title) {
-  padding-left: 28px;
-  padding-right: 12px;
-}
-
-.operation-details-card :deep(.callback-list-item-icon) {
-  left: 6px;
-}
-
-.operation-details-card :deep(.callback-operation-container) {
-  padding-inline: 9px;
-  padding-bottom: 9px;
-}
-
-.operation-details-card :deep(.callback-operation-container > .request-body),
-.operation-details-card :deep(.callback-operation-container > .parameter-list) {
-  border: none;
-}
-
-.operation-details-card
-  :deep(.callback-operation-container > .request-body > .request-body-header) {
-  padding: 0;
-  padding-bottom: 9px;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .operation-details-card :deep(.request-body-description) {

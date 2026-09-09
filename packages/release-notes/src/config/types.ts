@@ -29,6 +29,11 @@ export type ProductPromptContext = {
 
 export type PromptContext = {
   product: ProductPromptContext
+  /**
+   * Whether a "Pull request context" block will be present in the user prompt. Mirrors what the
+   * default system prompt reacts to, so a custom prompt can describe the same inputs.
+   */
+  includePullRequestContext: boolean
 }
 
 export type PromptOptions = {
@@ -45,6 +50,12 @@ export type GithubOptions = {
   baseBranch?: string
   /** GitHub token for PR context fetching. */
   token?: string
+  /**
+   * Whether to fetch referenced pull requests and feed their titles and descriptions
+   * to the AI provider. Defaults to `true`. Set to `false` to skip the GitHub API
+   * calls entirely and generate from the CHANGELOG alone.
+   */
+  pullRequestContext?: boolean
 }
 
 /**
@@ -65,14 +76,52 @@ export type ReleaseNotesProvider = {
 
 export type BuiltInProviderName = 'anthropic' | 'openai'
 
+/** A built-in provider selected by name, or a custom pluggable provider. */
+export type ProviderOption = BuiltInProviderName | ReleaseNotesProvider
+
+/**
+ * User-facing release notes configuration, as written in a `release-notes.config.*` file.
+ */
 export type ReleaseNotesConfig = {
-  provider?: ReleaseNotesProvider
+  /**
+   * Either a built-in provider name (`'anthropic'` or `'openai'`) that is created with
+   * its defaults, or a custom provider object. Defaults to `'anthropic'`.
+   */
+  provider?: ProviderOption
+  /** Model id handed to the provider. Falls back to the provider's own default model. */
+  model?: string
+  /**
+   * Environment variable that holds the built-in provider API key. Defaults to
+   * `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`. Ignored by custom providers.
+   */
+  apiKeyEnv?: string
+  /** Release note targets. */
   products?: readonly ReleaseNotesProduct[]
+  /** GitHub settings for PR context and changelog links. */
   github?: GithubOptions
+  /** Prompt customisation hooks. */
   prompts?: PromptOptions
 }
 
-export type ResolvedReleaseNotesConfig = Required<Pick<ReleaseNotesConfig, 'github' | 'prompts'>> &
-  Omit<ReleaseNotesConfig, 'github' | 'prompts'> & {
-    products: readonly ReleaseNotesProduct[]
-  }
+/**
+ * Release notes configuration after file discovery, CLI overrides, and provider construction.
+ */
+export type ResolvedReleaseNotesConfig = {
+  /** The provider to call, already constructed. */
+  provider: ReleaseNotesProvider
+  /**
+   * Set when the provider came from a built-in name, so callers can check for its API key
+   * before running. `null` for custom providers.
+   */
+  builtInProviderName: BuiltInProviderName | null
+  /** Model id handed to the provider. Falls back to the provider's own default model. */
+  model?: string
+  /** Environment variable that holds the built-in provider API key. */
+  apiKeyEnv?: string
+  /** Release note targets. */
+  products: readonly ReleaseNotesProduct[]
+  /** GitHub settings for PR context and changelog links. */
+  github: GithubOptions
+  /** Prompt customisation hooks. */
+  prompts: PromptOptions
+}

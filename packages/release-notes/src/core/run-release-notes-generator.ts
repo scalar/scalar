@@ -156,10 +156,13 @@ export const runReleaseNotesGeneratorForProduct = async (
   })
   const changelogSection = section ?? ''
   const dependencyChangelogText = dependencyChangelogs.map((entry) => entry.changelogSection).join('\n')
-  const pullRequestNumbers = extractPullRequestNumbers(
-    [changelogSection, dependencyChangelogText].filter(Boolean).join('\n'),
-    options.github?.repo,
-  )
+  const includePullRequestContext = options.github?.pullRequestContext !== false
+  const pullRequestNumbers = includePullRequestContext
+    ? extractPullRequestNumbers(
+        [changelogSection, dependencyChangelogText].filter(Boolean).join('\n'),
+        options.github?.repo,
+      )
+    : []
   const pullRequests =
     pullRequestNumbers.length && options.github?.repo
       ? await fetchPullRequests({

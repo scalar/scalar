@@ -4,7 +4,7 @@ import {
   type ScalarListboxOption,
 } from '@scalar/components/listbox'
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { ScalarIconCaretDown } from '@scalar/icons'
+import { ScalarIconCaretUpDown } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
@@ -26,6 +26,8 @@ import { type CompositionKeyword } from './helpers/schema-composition'
 import { getCycleKey } from './helpers/schema-cycle'
 import { getModelNameWithArray } from './helpers/schema-name'
 import Schema from './Schema.vue'
+import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
+import SchemaRailPanel from './SchemaRailPanel.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -39,6 +41,8 @@ const props = withDefaults(
     schema: SchemaObject
     /** Nesting level for proper indentation */
     level: number
+    /** Real nesting depth (see SchemaProperty) */
+    depth?: number
     /** Whether to use compact layout */
     compact?: boolean
     /** Whether to hide the heading */
@@ -57,6 +61,7 @@ const props = withDefaults(
     compositionPath?: string[]
   }>(),
   {
+    depth: 0,
     compact: false,
     hideHeading: false,
   },
@@ -215,7 +220,8 @@ if (
 </script>
 
 <template>
-  <div class="property-rule">
+  <!-- 6px after a container's children keeps the 12px row rhythm -->
+  <div class="property-rule [.children+&]:mt-1.5!">
     <!--
       allOf: render the members in source order — object chunks as fields, each
       oneOf/anyOf group as its own picker in place. Keeps every mutually-exclusive
@@ -237,6 +243,7 @@ if (
           :hideDescription="isRequestBodyRootComposition"
           :hideHeading="hideHeading"
           :hideModelNames
+          :depth="depth"
           :level="level + 1"
           :name="name"
           :noncollapsible="true"
@@ -255,6 +262,7 @@ if (
           :eventBus="eventBus"
           :hideHeading="hideHeading"
           :hideModelNames
+          :depth="depth"
           :level="level"
           :options="options"
           :schema="segment.value"
@@ -262,20 +270,42 @@ if (
       </template>
     </template>
 
-    <template v-else>
-      <!-- Composition selector + selected branch -->
+    <!-- The picker sits on the rail behind a circled icon, like the toggle
+         pucks; the chosen variant hangs below in the same panel -->
+    <SchemaRailPanel
+      v-else
+      class="composition-panel composition-panel--tree mt-1 mb-0.5"
+      :depth="depth + 1">
+      <!-- No `resize`: it would pin the popup to this compact trigger's width.
+           The listbox slot must hold exactly ONE node: Headless UI renders its
+           button as a fragment and passes props through to the slot root, so
+           even an HTML comment in here breaks the picker. The puck is the
+           picker's whole affordance: an up/down caret on the rail, like the
+           plus on a row, so no trailing caret. -->
       <ScalarListbox
         v-model="selectedOption"
-        :options="listboxOptions"
-        resize>
+        class="w-fit min-w-40"
+        :options="listboxOptions">
         <button
-          class="composition-selector bg-b-1.5 hover:bg-b-2 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border px-2.5 py-2.5 pr-3 text-left"
+          class="composition-selector composition-selector--tree group/tree-control font-code relative flex w-fit cursor-pointer items-center gap-1.5 py-1 text-sm"
           type="button">
-          <span class="text-c-2">{{
+          <SchemaGlyphPuck class="composition-selector-icon">
+            <!-- No size of its own: the puck sizes the icons it holds, so this
+                 one shrinks with the others in a narrow container -->
+            <ScalarIconCaretUpDown />
+          </SchemaGlyphPuck>
+          <!-- Keyword and choice read as one bold name, split by the same `·`
+               the tree uses between details -->
+          <span class="text-c-1 [font-weight:var(--scalar-bold)]">{{
             compositionLabel(props.composition)
           }}</span>
           <span
-            class="composition-selector-label text-c-1"
+            aria-hidden="true"
+            class="text-c-3"
+            >·</span
+          >
+          <span
+            class="composition-selector-label text-c-1 [font-weight:var(--scalar-bold)]"
             :class="{
               'line-through': selectedComposition?.deprecated,
             }">
@@ -286,40 +316,38 @@ if (
             class="text-red">
             {{ translate('common.deprecated') }}
           </div>
-          <ScalarIconCaretDown />
         </button>
       </ScalarListbox>
 
-      <div class="composition-panel">
-        <!-- Button to toggle nested schema display -->
-        <button
-          v-if="!showNestedSchema && level > 2"
-          class="bg-b-1 hover:bg-b-2 text-c-1 flex w-full items-center justify-center gap-2 rounded-b-lg border border-t-0 px-2 py-2 text-sm font-medium transition-colors"
-          type="button"
-          @click="showNestedSchema = true">
-          {{ translate('schema.showSchemaDetails') }}
-          <ScalarIconCaretDown class="h-3 w-3" />
-        </button>
+      <!-- The reveal is one more row of the tree: a plus puck on the rail -->
+      <button
+        v-if="!showNestedSchema && level > 2"
+        class="composition-details-toggle group/tree-control font-code text-c-1 relative flex w-fit cursor-pointer items-center py-1.5 text-sm font-normal"
+        type="button"
+        @click="showNestedSchema = true">
+        <SchemaGlyphPuck />
+        {{ translate('schema.showSchemaDetails') }}
+      </button>
 
-        <!-- Render the selected schema if it has content to display -->
-        <Schema
-          v-else
-          :key="selectedOption?.id ?? '0'"
-          :breadcrumb="breadcrumb"
-          :compact="compact"
-          :compositionPath="compositionPath"
-          :cycleKey="selectedCompositionCycleKey"
-          :discriminator="discriminator"
-          :eventBus="eventBus"
-          :hideHeading="hideHeading"
-          :hideModelNames
-          :level="level + 1"
-          :name="name"
-          :noncollapsible="true"
-          :options="options"
-          :schema="selectedComposition"
-          :schemaContext="schemaContext" />
-      </div>
-    </template>
+      <!-- Render the selected schema if it has content to display -->
+      <Schema
+        v-else
+        :key="selectedOption?.id ?? '0'"
+        :breadcrumb="breadcrumb"
+        :compact="compact"
+        :compositionPath="compositionPath"
+        :cycleKey="selectedCompositionCycleKey"
+        :discriminator="discriminator"
+        :eventBus="eventBus"
+        :hideHeading="hideHeading"
+        :hideModelNames
+        :depth="depth + 1"
+        :level="level + 1"
+        :name="name"
+        :noncollapsible="true"
+        :options="options"
+        :schema="selectedComposition"
+        :schemaContext="schemaContext" />
+    </SchemaRailPanel>
   </div>
 </template>

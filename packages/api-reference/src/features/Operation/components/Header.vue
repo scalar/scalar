@@ -16,10 +16,12 @@ const {
   orderSchemaPropertiesBy,
   orderRequiredPropertiesFirst,
   expandAllSchemaProperties,
+  schemaKeyboardNav,
   hideModels,
 } = defineProps<{
   header: HeaderObject
   name: string
+  /** The anchor path of the headers group; `Headers.vue` has already appended the `headers` segment */
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
   /** The document the header belongs to, used to resolve schema references for display */
@@ -27,6 +29,8 @@ const {
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   orderRequiredPropertiesFirst: boolean | undefined
   expandAllSchemaProperties: boolean | undefined
+  /** Whether arrow-key navigation is enabled */
+  schemaKeyboardNav: boolean | undefined
   /** Whether the models section is hidden, so model names render as plain text instead of links */
   hideModels: boolean | undefined
 }>()
@@ -34,7 +38,7 @@ const {
 <template>
   <SchemaProperty
     v-if="'schema' in header && header.schema"
-    :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
+    :breadcrumb="breadcrumb"
     :description="header.description"
     :eventBus="eventBus"
     :name="name"
@@ -42,6 +46,7 @@ const {
       orderRequiredPropertiesFirst: orderRequiredPropertiesFirst,
       orderSchemaPropertiesBy: orderSchemaPropertiesBy,
       expandAllSchemaProperties: expandAllSchemaProperties,
+      schemaKeyboardNav: schemaKeyboardNav,
       hideModels: hideModels,
       document,
     }"

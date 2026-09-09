@@ -125,6 +125,7 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
   options: {
     expandAllResponses: false,
     expandAllSchemaProperties: false,
+    schemaKeyboardNav: false,
     hideModels: false,
     hideTestRequestButton: true,
     layout: 'classic',
@@ -322,5 +323,27 @@ describe('ClassicLayout', () => {
     const testButton = wrapper.findComponent({ name: 'TestRequestButton' })
     expect(testButton.exists()).toBe(true)
     expect(testButton.props('path')).toBe('delivery.created')
+  })
+
+  describe('responses', () => {
+    const responsesFor = (expandAllResponses: boolean) =>
+      mount(ClassicLayout, {
+        props: { ...props, options: { ...props.options, expandAllResponses } },
+        global: {
+          stubs: {
+            RouterLink: { name: 'RouterLink', template: '<a><slot /></a>' },
+          },
+        },
+      }).findComponent({ name: 'OperationResponses' })
+
+    it('renders responses as disclosures', () => {
+      expect(responsesFor(false).props('collapsableItems')).toBe(true)
+    })
+
+    it('renders responses as static panels when every response is expanded', () => {
+      // `expandAllResponses` is the reader's request to see everything at
+      // once, so no disclosure may hide a response behind a click.
+      expect(responsesFor(true).props('collapsableItems')).toBe(false)
+    })
   })
 })

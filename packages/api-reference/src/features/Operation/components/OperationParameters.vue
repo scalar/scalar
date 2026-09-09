@@ -30,6 +30,7 @@ const { parameters = [], requestBody } = defineProps<{
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaKeyboardNav'
   >
 }>()
 const { translate } = useLocalization()

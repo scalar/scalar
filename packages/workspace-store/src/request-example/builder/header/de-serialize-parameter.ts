@@ -93,12 +93,24 @@ export const deSerializeSchemaValue = (example: unknown, schema: ParameterWithSc
 
     if (type) {
       try {
-        return JSON.parse(example)
-      } catch {
-        // Arrays: users often type `foo,bar` instead of JSON — split to match default form+explode query style.
-        if (type === 'array') {
-          return example.split(/,\s?/).filter((v) => v !== '')
+        const parsed = JSON.parse(example)
+        if (type !== 'array' || Array.isArray(parsed)) {
+          return parsed
         }
+
+        // A bare numeric string is valid JSON too (e.g. a 20-digit reference number), but parsing it
+        // would turn it into a precision-losing JS number instead of the array the schema expects. A
+        // quoted string is a deliberate escape hatch, so keep it as a single-item array.
+        if (typeof parsed === 'string') {
+          return [parsed]
+        }
+      } catch {
+        // Not JSON at all: fall through to the comma-split handling below.
+      }
+
+      // Arrays: users often type `foo,bar` instead of JSON — split to match default form+explode query style.
+      if (type === 'array') {
+        return example.split(/,\s?/).filter((v) => v !== '')
       }
     }
   }

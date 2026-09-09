@@ -88,6 +88,7 @@ catalogs:
     neverpanic: 0.0.8
     picomatch: ^4.0.4
     postcss: ^8.4.38
+    quickjs-emscripten: 0.32.0
     radix-vue: ^1.9.17
     react-dom: ^19.2.3
     react: ^19.2.3

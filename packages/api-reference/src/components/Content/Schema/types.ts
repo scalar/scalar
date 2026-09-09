@@ -17,6 +17,8 @@ export type SchemaOptions = {
   orderRequiredPropertiesFirst?: ApiReferenceConfiguration['orderRequiredPropertiesFirst']
   /** Expand all nested schema properties by default while keeping the toggle available */
   expandAllSchemaProperties?: ApiReferenceConfiguration['expandAllSchemaProperties']
+  /** Arrow-key navigation over the row toggles */
+  schemaKeyboardNav?: ApiReferenceConfiguration['schemaKeyboardNav']
   /**
    * Whether the models section is hidden.
    *

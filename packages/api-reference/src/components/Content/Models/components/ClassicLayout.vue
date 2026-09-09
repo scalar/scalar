@@ -26,6 +26,7 @@ const { eventBus, id, options, document } = defineProps<{
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaKeyboardNav'
     | 'hideModels'
   >
 }>()
@@ -59,6 +60,7 @@ const { level: headingLevel } = useDocumentOutline('model')
       <SchemaProperty
         v-for="[property, value] in Object.entries(schema.properties ?? {})"
         :key="property"
+        :breadcrumb="[id]"
         :eventBus="eventBus"
         :hideModelNames="options.hideModels"
         :name="property"
@@ -68,6 +70,7 @@ const { level: headingLevel } = useDocumentOutline('model')
     </div>
     <div v-else>
       <SchemaProperty
+        :breadcrumb="[id]"
         :eventBus="eventBus"
         :hideModelNames="options.hideModels"
         :options="{ ...options, document }"
