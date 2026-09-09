@@ -17,5 +17,5 @@ test.describe('SchemaComposition', () => {
   // Scalar page background (white in light mode) so baselines render opaque instead of transparent.
   test.use({ crop: 'component' })
 
-  ;['One Of', 'Any Of', 'All Of'].forEach((story) => test(story, takeSnapshot))
+  ;['One Of', 'One Of All Of Variant', 'Any Of', 'All Of'].forEach((story) => test(story, takeSnapshot))
 })
