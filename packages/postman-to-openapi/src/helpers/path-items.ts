@@ -275,7 +275,7 @@ export function processItem(
   if (!paths[path]) {
     paths[path] = {}
   }
-  const pathItem = paths[path] as OpenAPIV3_1.PathItemObject
+  const pathItem: OpenAPIV3_1.PathItemObject = paths[path]
   pathItem[method] = operationObject
 
   if (preserveCollapsedVariants) {
@@ -395,7 +395,7 @@ function parseParametersFromDescription(description: string): {
   const parsedTable = parseMdTable(tableMarkdown)
   const parametersFromTable = Object.values(parsedTable)
     .map((paramData) => {
-      const row = paramData as ParameterRow
+      const row: ParameterRow = paramData
       if (row.object !== 'query' && row.object !== 'header' && row.object !== 'path') {
         return undefined
       }

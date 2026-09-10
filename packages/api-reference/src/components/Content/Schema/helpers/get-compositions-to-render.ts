@@ -75,7 +75,7 @@ export const inferDiscriminatorMappingComposition = (
 
   return {
     ...resolve.schema(value),
-    oneOf: refs as NonNullable<SchemaObject['oneOf']>,
+    oneOf: refs,
   }
 }
 

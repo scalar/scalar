@@ -80,7 +80,10 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   const hasRootProperties = Object.keys(rootProperties).length > 0
 
   // Check for null schemas and filter them out in one pass
-  const { filteredSchemas, hasNullSchema } = schemas.reduce(
+  const { filteredSchemas, hasNullSchema } = schemas.reduce<{
+    filteredSchemas: SchemaObject[]
+    hasNullSchema: boolean
+  }>(
     (acc, _schema) => {
       const schema = resolve.schema(_schema)
 
@@ -91,7 +94,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
       }
       return acc
     },
-    { filteredSchemas: [] as SchemaObject[], hasNullSchema: false },
+    { filteredSchemas: [], hasNullSchema: false },
   )
 
   // Determine if nullable should be set

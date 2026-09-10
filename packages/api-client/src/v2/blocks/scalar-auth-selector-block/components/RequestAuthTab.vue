@@ -503,7 +503,7 @@ const handleConfigAuthorize = (): void => {
         <RequestAuthDataTableInput
           :containerClass="getStaticBorderClass()"
           :environment
-          :modelValue="scheme.name"
+          :modelValue="scheme.name ?? ''"
           placeholder="api-key"
           @update:modelValue="
             (v) => handleApiKeySecuritySchemeUpdate({ name: v }, name)

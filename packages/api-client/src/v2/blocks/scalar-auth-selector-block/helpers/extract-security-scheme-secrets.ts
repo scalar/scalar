@@ -12,7 +12,6 @@ import type {
   OAuthFlowImplicitSecret,
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
-  OpenIdConnectObjectSecret,
   SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
@@ -107,7 +106,7 @@ const extractOAuthFlowSecrets = (
 } => {
   const selectedScopes = new Set<string>()
 
-  const extractedFlows = objectEntries(flows ?? {}).reduce((acc, [key, flow]) => {
+  const extractedFlows = objectEntries(flows ?? {}).reduce<OAuthFlowsObjectSecret>((acc, [key, flow]) => {
     if (!isObject(flow)) {
       return acc
     }
@@ -198,7 +197,7 @@ const extractOAuthFlowSecrets = (
     }
 
     return acc
-  }, {} as OAuthFlowsObjectSecret)
+  }, {})
 
   return { flows: extractedFlows, selectedScopes: Array.from(selectedScopes) }
 }
@@ -265,7 +264,7 @@ export const extractSecuritySchemeSecrets = (
     return {
       ...scheme,
       ...(objectEntries(extracted.flows).length ? { flows: extracted.flows } : {}),
-    } as OpenIdConnectObjectSecret
+    }
   }
 
   return scheme as SecuritySchemeObjectSecret

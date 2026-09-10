@@ -23,11 +23,11 @@ const preprocessParameters = (
 ) => {
   parameters.forEach((param) => {
     const resolvedParam = getResolvedRef(param)
-    if (isContentTypeParameterObject(resolvedParam)) {
+    if (!resolvedParam || isContentTypeParameterObject(resolvedParam)) {
       return
     }
 
-    setParameterDisabled(getResolvedRef(param), exampleKey, true)
+    setParameterDisabled(resolvedParam, exampleKey, true)
 
     if (resolvedParam.in === 'path') {
       resolvedParam.examples ||= {}
@@ -139,6 +139,7 @@ export const harToOperation = ({
 
     // Resolve the request body in case it is a reference
     const requestBody = getResolvedRef(baseOperation.requestBody)
+    if (!requestBody) return baseOperation
 
     // Ensure the content type exists in the requestBody
     if (!requestBody.content[mimeType]) {
@@ -198,7 +199,8 @@ const setParameterDisabled = (param: ParameterObject, exampleKey: string, disabl
     return
   }
 
-  getResolvedRef(param.examples[exampleKey])['x-disabled'] = disabled
+  const example = getResolvedRef(param.examples[exampleKey])
+  if (example) example['x-disabled'] = disabled
 }
 
 /**
@@ -213,7 +215,7 @@ const findOrCreateParameter = (
   // Try to find existing parameter using getResolvedRef to handle references
   for (const param of parameters) {
     const resolved = getResolvedRef(param)
-    if (isContentTypeParameterObject(resolved)) {
+    if (!resolved || isContentTypeParameterObject(resolved)) {
       continue
     }
 

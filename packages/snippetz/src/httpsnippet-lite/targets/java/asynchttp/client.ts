@@ -28,8 +28,8 @@ export const asynchttp: Client = {
     push('AsyncHttpClient client = new DefaultAsyncHttpClient();')
     push(`client.prepare("${method.toUpperCase()}", "${fullUrl}")`)
     // Add headers, including the cookies
-    Object.keys(allHeaders).forEach((key) => {
-      push(`.setHeader("${key}", "${escapeForDoubleQuotes(allHeaders[key] as string)}")`, 1)
+    Object.entries(allHeaders).forEach(([key, value]) => {
+      push(`.setHeader("${key}", "${escapeForDoubleQuotes(value)}")`, 1)
     })
     if (postData === null || postData === void 0 ? void 0 : postData.text) {
       push(`.setBody(${JSON.stringify(postData!.text)})`, 1)

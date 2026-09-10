@@ -20,14 +20,14 @@ export const generatePowershellConvert = (command: string): Converter<Record<str
     }
     const commandOptions = []
     // Add headers, including the cookies
-    const headers = Object.keys(headersObj)
+    const headers = Object.entries(headersObj)
     // construct headers
     if (headers.length) {
       push('$headers=@{}')
-      headers.forEach((key) => {
+      headers.forEach(([key, value]) => {
         if (key !== 'connection') {
           // Not allowed
-          push(`$headers.Add("${key}", "${escapeString(headersObj[key] as string, { escapeChar: '`' })}")`)
+          push(`$headers.Add("${key}", "${escapeString(value, { escapeChar: '`' })}")`)
         }
       })
       commandOptions.push('-Headers $headers')
@@ -45,12 +45,15 @@ export const generatePowershellConvert = (command: string): Converter<Record<str
       commandOptions.push('-WebSession $session')
     }
     if (postData === null || postData === void 0 ? void 0 : postData.text) {
-      commandOptions.push(
-        `-ContentType '${escapeString(getHeader(allHeaders, 'content-type') as string, {
-          delimiter: "'",
-          escapeChar: '`',
-        })}'`,
-      )
+      const contentType = getHeader(allHeaders, 'content-type')
+      if (contentType !== undefined) {
+        commandOptions.push(
+          `-ContentType '${escapeString(contentType, {
+            delimiter: "'",
+            escapeChar: '`',
+          })}'`,
+        )
+      }
       commandOptions.push(`-Body '${postData!.text}'`)
     }
     push(`$response = ${command} -Uri '${fullUrl}' -Method ${method} ${commandOptions.join(' ')}`)

@@ -73,13 +73,13 @@ onMounted(() => {
  * Shift+Enter is ignored to allow multi-line input if needed.
  */
 const handleEnter = (event: KeyboardEvent): void => {
-  if (event.shiftKey || !event.target) {
+  if (event.shiftKey || !(event.target instanceof HTMLTextAreaElement)) {
     return
   }
 
   event.preventDefault()
 
-  const target = event.target as HTMLTextAreaElement
+  const target = event.target
   const submitEvent = new Event('submit', { cancelable: true })
   target.form?.dispatchEvent(submitEvent)
 }

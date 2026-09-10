@@ -32,8 +32,8 @@ export const unirest: Client = {
       push(`HttpResponse<String> response = Unirest.${method.toLowerCase()}("${fullUrl}")`)
     }
     // Add headers, including the cookies
-    Object.keys(allHeaders).forEach((key) => {
-      push(`.header("${key}", "${escapeForDoubleQuotes(allHeaders[key] as string)}")`, 1)
+    Object.entries(allHeaders).forEach(([key, value]) => {
+      push(`.header("${key}", "${escapeForDoubleQuotes(value)}")`, 1)
     })
     if (postData === null || postData === void 0 ? void 0 : postData.text) {
       push(`.body(${JSON.stringify(postData!.text)})`, 1)

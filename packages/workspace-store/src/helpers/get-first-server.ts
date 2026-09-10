@@ -16,7 +16,7 @@ export const getFirstServer = (...availableServers: (ServerObject[] | ServerObje
 
     // Handle single server object
     if (!Array.isArray(serverSource)) {
-      const resolvedServer = getResolvedRef(serverSource) as ServerObject
+      const resolvedServer = getResolvedRef(serverSource)
       if (resolvedServer?.url) {
         return resolvedServer
       }
@@ -25,7 +25,7 @@ export const getFirstServer = (...availableServers: (ServerObject[] | ServerObje
 
     // Handle array of servers, pick the first one with a URL
     for (const server of serverSource) {
-      const resolvedServer = getResolvedRef(server) as ServerObject
+      const resolvedServer = getResolvedRef(server)
       if (resolvedServer?.url) {
         return resolvedServer
       }

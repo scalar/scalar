@@ -10,7 +10,7 @@ import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
 // Frozen so this shared fallback cannot be mutated in place, which would leak a stale selection into
 // every future open that falls back to empty. Callers only ever reassign the ref, never mutate it.
-const EMPTY_REQUEST_BODY_COMPOSITION_SELECTION = Object.freeze({}) as Record<string, number>
+const EMPTY_REQUEST_BODY_COMPOSITION_SELECTION: Record<string, number> = Object.freeze({})
 
 export function initializeModalEvents({
   eventBus,
@@ -47,11 +47,10 @@ export function initializeModalEvents({
   eventBus.on('ui:open:client-modal', (payload) => {
     // Every open re-establishes the selection (falling back to empty), so the modal no longer needs
     // to reset it on close.
-    const nextRequestBodyCompositionSelection = (
+    const nextRequestBodyCompositionSelection: Record<string, number> =
       payload && 'requestBodyCompositionSelection' in payload && payload.requestBodyCompositionSelection
         ? payload.requestBodyCompositionSelection
         : EMPTY_REQUEST_BODY_COMPOSITION_SELECTION
-    ) as Record<string, number>
 
     // Just open the modal
     if (!payload) {

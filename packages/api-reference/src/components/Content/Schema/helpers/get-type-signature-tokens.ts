@@ -78,7 +78,7 @@ export const typeSignatureInlinesEnum = (
 
   // Bare literals cannot carry `x-enumDescriptions` or `x-enum-varnames`, so an
   // annotated enum keeps its value list (SchemaEnums' chip branch does the same).
-  const annotated = ENUM_ANNOTATION_KEYS.some((key) => (value as Record<string, unknown>)[key])
+  const annotated = ENUM_ANNOTATION_KEYS.some((key) => value[key])
 
   // getTypeSignatureTokens checks the schema's own enum right after const —
   // before any `type` handling — so a short, unannotated enum inlines whether or
@@ -96,7 +96,7 @@ export const typeSignatureInlinesEnum = (
     return false
   }
 
-  const type = (value as { type?: unknown }).type
+  const type = 'type' in value ? value.type : undefined
 
   // `type: ['array', 'null']` takes the union branch, which still recurses into
   // items, so it inlines the item enum exactly like a plain array.
@@ -156,7 +156,7 @@ export const getTypeSignatureTokens = (
     Array.isArray(value.enum) &&
     value.enum.length > 0 &&
     value.enum.length <= INLINE_ENUM_LIMIT &&
-    !ENUM_ANNOTATION_KEYS.some((key) => (value as Record<string, unknown>)[key])
+    !ENUM_ANNOTATION_KEYS.some((key) => value[key])
   ) {
     return joinTokens(
       value.enum.map((entry) => [literal(formatLiteral(entry))]),

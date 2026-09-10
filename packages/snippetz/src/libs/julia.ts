@@ -1,3 +1,5 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
+
 /**
  * Escapes a string for use in a Julia double-quoted string literal.
  *
@@ -105,11 +107,9 @@ export const formatValue = (value: unknown, level: number): string => {
     )
   }
 
-  if (typeof value === 'object') {
+  if (isObjectLike(value)) {
     return formatCollection(
-      Object.entries(value as Record<string, unknown>).map(
-        ([key, item]) => `${wrapInDoubleQuotes(key)} => ${formatValue(item, level + 1)}`,
-      ),
+      Object.entries(value).map(([key, item]) => `${wrapInDoubleQuotes(key)} => ${formatValue(item, level + 1)}`),
       'Dict(',
       ')',
       level,

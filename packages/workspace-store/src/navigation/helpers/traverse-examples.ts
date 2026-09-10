@@ -14,7 +14,7 @@ export const traverseOperationExamples = (operation: OperationObject) => {
   if (operation.requestBody) {
     const requestBody = getResolvedRef(operation.requestBody)
 
-    Object.values(requestBody.content ?? {}).forEach((mediaType) => {
+    Object.values(requestBody?.content ?? {}).forEach((mediaType) => {
       Object.keys(mediaType.examples ?? {}).forEach((key) => {
         examples.add(key)
       })

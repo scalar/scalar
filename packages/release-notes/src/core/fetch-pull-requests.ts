@@ -91,7 +91,7 @@ export const fetchPullRequests = async (options: FetchOptions): Promise<Map<numb
       }
       summaries.set(number, { number, title, body })
     } catch (error) {
-      console.warn(`Skipping PR #${number}: ${(error as Error).message}`)
+      console.warn(`Skipping PR #${number}: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 

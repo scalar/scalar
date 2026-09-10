@@ -22,7 +22,6 @@ import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { extensions } from '@/schemas/extensions'
-import type { TraversedDocument } from '@/schemas/navigation'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
@@ -247,7 +246,7 @@ export function externalizePathReferences(
       return
     }
 
-    const pathItemRecord = pathItem as Record<string, unknown>
+    const pathItemRecord: Record<string, unknown> = pathItem
 
     result[path] = {}
 
@@ -426,7 +425,7 @@ export async function createServerWorkspaceStore(
    */
   const workspace: ServerWorkspace = {
     ...workspaceProps.meta,
-    documents: {} as Record<string, OpenApiDocument & { [extensions.document.navigation]: TraversedDocument }>,
+    documents: {},
   }
 
   /**
@@ -435,10 +434,10 @@ export async function createServerWorkspaceStore(
    * The keys are document names and values contain the components and operations
    * for that document.
    */
-  const assets = {} as Record<
+  const assets: Record<
     string,
     { components?: ComponentsObject; operations?: Record<string, Record<string, OperationObject>> }
-  >
+  > = {}
 
   /**
    * Adds an AsyncAPI document to the workspace.
@@ -471,7 +470,7 @@ export async function createServerWorkspaceStore(
     // leaves `info` missing on a partial document (which the traversal reads unguarded) and passes
     // shapes like `channels: null` straight through to the browser. Merged rather than assigned, so
     // nothing the schema does not model is dropped.
-    mergeObjects(asyncApiDocument, coerce(asyncApiObjectSchema as Schema, deepClone(asyncApiDocument)))
+    mergeObjects(asyncApiDocument, coerce<Schema>(asyncApiObjectSchema, deepClone(asyncApiDocument)))
 
     // Nothing is externalized, so the document owns no chunks. The empty entry keeps `get()` and
     // chunk generation well defined for the document name.
@@ -642,7 +641,7 @@ export async function createServerWorkspaceStore(
       for (const [name, { components, operations }] of Object.entries(assets)) {
         // Write the components chunks
         if (components) {
-          for (const [type, component] of Object.entries(components as Record<string, Record<string, unknown>>)) {
+          for (const [type, component] of Object.entries(components)) {
             // Escape the component type and key the same way operation paths are escaped. Component
             // keys come from the OpenAPI document, so a key like `../../evil` would otherwise let a
             // document write chunk files outside the assets directory. escapeJsonPointer turns every

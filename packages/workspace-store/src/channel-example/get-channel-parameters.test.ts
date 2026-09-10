@@ -4,6 +4,15 @@ import { describe, expect, it } from 'vitest'
 import { getChannelParameters } from '@/channel-example/get-channel-parameters'
 
 describe('getChannelParameters', () => {
+  it('leaves a missing reference undefined and still exposes its path placeholder', () => {
+    const result = getChannelParameters({
+      address: 'chat/{roomId}',
+      parameters: { roomId: { $ref: '#/components/parameters/missing' } },
+    })
+    expect(result.definitions).toEqual({})
+    expect(result.path).toEqual({ roomId: '' })
+  })
+
   it('collects unique path parameter names from the channel address', () => {
     const channel = {
       address: 'chat/{roomId}/users/{userId}/{roomId}',

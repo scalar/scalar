@@ -357,7 +357,8 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
  * blur that precedes the click, so we still replay Send and other buttons.
  */
 const handlePathBlur = (newPath: string, event: FocusEvent): void => {
-  const relatedTarget = event.relatedTarget as Element | null
+  const relatedTarget =
+    event.relatedTarget instanceof Element ? event.relatedTarget : null
   const blurTargetSelector =
     tabbedOut.value ||
     ('sourceCapabilities' in event && event.sourceCapabilities === null)
@@ -389,7 +390,7 @@ const handlePathSubmit = (
 
 /** Unset the server when backspace is pressed on an empty path */
 const handlePathBackspace = (event: KeyboardEvent): void => {
-  if ((event.target as HTMLElement)?.innerText === '\n') {
+  if (event.target instanceof HTMLElement && event.target.innerText === '\n') {
     // A webhook has no server to unset; its full URL lives in the field itself.
     if (isWebhook) {
       return

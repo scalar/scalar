@@ -17,7 +17,7 @@ const isParameterWithSchema = (parameter: ParameterObject): parameter is Paramet
 const resolveSchema = (schema: unknown): SchemaObject | undefined => {
   const resolvedSchema = getResolvedRef(schema as SchemaObject | { '$ref': string; '$ref-value': SchemaObject })
 
-  return resolvedSchema as SchemaObject | undefined
+  return resolvedSchema
 }
 
 const toFlattenedDeepObjectParameter = (

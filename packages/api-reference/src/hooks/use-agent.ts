@@ -17,7 +17,7 @@ type UseAgentReturn = {
   toggleAgent: () => void
 }
 
-export const AGENT_CONTEXT_SYMBOL = Symbol() as InjectionKey<UseAgentReturn>
+export const AGENT_CONTEXT_SYMBOL: InjectionKey<UseAgentReturn> = Symbol()
 
 /**
  * Module-level ref so useAgentContext() can resolve context even when inject fails

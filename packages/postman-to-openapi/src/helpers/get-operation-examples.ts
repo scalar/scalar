@@ -47,7 +47,7 @@ export const getOperationExamples = (path: OpenAPIV3_1.PathItemObject) => {
       continue
     }
 
-    const op = operation as OpenAPIV3_1.OperationObject
+    const op: OpenAPIV3_1.OperationObject = operation
 
     if ('parameters' in op) {
       op.parameters?.forEach((parameter) => {

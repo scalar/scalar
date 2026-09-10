@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { z } from 'zod'
 
 import { releaseNotesFileSchema } from '../types'
@@ -17,10 +18,10 @@ export type ReleaseNotesJsonSchemaMetadata = {
 }
 
 export const buildReleaseNotesJsonSchema = (options: ReleaseNotesJsonSchemaMetadata = {}): Record<string, unknown> => {
-  const schema = z.toJSONSchema(releaseNotesFileSchema, {
+  const schema: Record<string, unknown> = z.toJSONSchema(releaseNotesFileSchema, {
     target: 'draft-2020-12',
     unrepresentable: 'any',
-  }) as Record<string, unknown>
+  })
 
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -46,7 +47,7 @@ export const writeReleaseNotesJsonSchema = async (options: WriteSchemaOptions): 
   try {
     previous = await readFile(options.path, 'utf-8')
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+    if (!isObjectLike(error) || error.code !== 'ENOENT') {
       throw error
     }
   }

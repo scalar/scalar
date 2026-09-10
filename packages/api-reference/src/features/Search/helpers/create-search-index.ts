@@ -173,8 +173,8 @@ function addEntryToIndex(
   // Operation
   if (entry.type === 'operation') {
     const pathItem = getResolvedPathItem(openApiDocument?.paths?.[entry.path])
-    const operation = (getResolvedRef(getPathItemOperation(openApiDocument?.paths?.[entry.path], entry.method)) ??
-      {}) as OperationObject
+    const operation: OperationObject =
+      getResolvedRef(getPathItemOperation(openApiDocument?.paths?.[entry.path], entry.method)) ?? {}
     const operationWithPathParams = {
       ...operation,
       parameters: combineParams(pathItem?.parameters, operation.parameters),

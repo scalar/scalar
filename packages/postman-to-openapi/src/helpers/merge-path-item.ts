@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
@@ -29,7 +30,7 @@ export const mergePathItem = (
   pathItem: OpenAPIV3_1.PathItemObject,
   mergeOperation: boolean = false,
 ): void => {
-  const targetPath = (paths[normalizedPathKey] ?? {}) as OpenAPIV3_1.PathItemObject
+  const targetPath: OpenAPIV3_1.PathItemObject = paths[normalizedPathKey] ?? {}
 
   for (const [key, value] of Object.entries(pathItem) as [
     keyof OpenAPIV3_1.PathItemObject,
@@ -80,16 +81,15 @@ const updateExtensionKey = (
   }
 
   const map = operation[extensionKey]
-  if (!map || typeof map !== 'object' || Array.isArray(map)) {
+  if (!isObjectLike(map) || Array.isArray(map)) {
     return
   }
 
-  const castedMap = map as Record<string, unknown>
-  const value = castedMap[oldKey]
+  const value = map[oldKey]
   if (value === undefined) {
     return
   }
 
-  delete castedMap[oldKey]
-  castedMap[newKey] = value
+  delete map[oldKey]
+  map[newKey] = value
 }

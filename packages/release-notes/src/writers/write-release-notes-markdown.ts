@@ -1,11 +1,8 @@
 import { mkdir, stat, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 
-import {
-  type ReleaseNoteEntry,
-  buildReleaseNotesPreamble,
-  serializeReleaseNotes,
-} from '@scalar/helpers/markdown/release-notes'
+import { buildReleaseNotesPreamble, serializeReleaseNotes } from '@scalar/helpers/markdown/release-notes'
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 
 import type { ReleaseNote } from '../types'
 
@@ -23,7 +20,7 @@ type WriteMarkdownResult = {
 export const writeReleaseNotesMarkdown = async (options: WriteMarkdownOptions): Promise<WriteMarkdownResult> => {
   const created = !(await pathExists(options.path))
   const preamble = options.preamble ?? buildReleaseNotesPreamble()
-  const next = serializeReleaseNotes(options.entries as readonly ReleaseNoteEntry[], { preamble })
+  const next = serializeReleaseNotes(options.entries, { preamble })
 
   await mkdir(dirname(options.path), { recursive: true })
   await writeFile(options.path, next, 'utf-8')
@@ -36,7 +33,7 @@ const pathExists = async (path: string): Promise<boolean> => {
     await stat(path)
     return true
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+    if (isObjectLike(error) && error.code === 'ENOENT') {
       return false
     }
     throw error

@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 /**
  * Helpers for turning string-encoded request parameters back into the structured values that JSON
  * Schema validation expects, following the OpenAPI `style`/`explode` serialization rules.
@@ -47,7 +48,7 @@ const matchesComposedSchema = (
     const subSchemas = schema[keyword]
     if (Array.isArray(subSchemas)) {
       for (const subSchema of subSchemas) {
-        if (subSchema && typeof subSchema === 'object' && predicate(subSchema as Record<string, unknown>)) {
+        if (isObjectLike(subSchema) && predicate(subSchema)) {
           return true
         }
       }
@@ -108,8 +109,8 @@ export const getObjectPropertyNames = (schema: Record<string, unknown> | undefin
     const subSchemas = schema[keyword]
     if (Array.isArray(subSchemas)) {
       for (const subSchema of subSchemas) {
-        if (subSchema && typeof subSchema === 'object') {
-          for (const name of getObjectPropertyNames(subSchema as Record<string, unknown>)) {
+        if (isObjectLike(subSchema)) {
+          for (const name of getObjectPropertyNames(subSchema)) {
             names.add(name)
           }
         }

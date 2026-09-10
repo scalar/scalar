@@ -4,7 +4,9 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   OpenApiDocument,
   OperationObject,
+  ResponseObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed } from 'vue'
 
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
@@ -40,11 +42,22 @@ const emit = defineEmits<{
 }>()
 const { translate } = useLocalization()
 
+const resolvedResponses = computed(() =>
+  Object.fromEntries(
+    Object.entries(responses ?? {}).flatMap(
+      ([status, response]): [string, ResponseObject][] => {
+        const resolved = getResolvedRef(response)
+        return resolved ? [[status, resolved]] : []
+      },
+    ),
+  ),
+)
+
 const { level: headingLevel } = useDocumentOutline('operationSection')
 </script>
 <template>
   <div
-    v-if="Object.keys(responses ?? {}).length"
+    v-if="Object.keys(resolvedResponses).length"
     class="mt-6">
     <!-- The heading carries the rule; the row below brings its own 10px
          trigger padding, so a bottom margin would double the gap -->
@@ -59,7 +72,7 @@ const { level: headingLevel } = useDocumentOutline('operationSection')
       class="responses-list--tree mb-3 list-none p-0 text-sm"
       role="list">
       <ParameterListItem
-        v-for="(response, status) in responses"
+        v-for="(response, status) in resolvedResponses"
         :key="status"
         :breadcrumb="breadcrumb ? [...breadcrumb, 'responses'] : undefined"
         :collapsableItems
@@ -67,7 +80,7 @@ const { level: headingLevel } = useDocumentOutline('operationSection')
         :eventBus
         :name="status"
         :options
-        :parameter="getResolvedRef(response)"
+        :parameter="response"
         @update:selectedContentType="
           (type) =>
             emit('update:selectedContentTypes', {

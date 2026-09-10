@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { UnknownObject } from '@scalar/types/utils'
 
 /**
@@ -25,8 +26,8 @@ export function traverse(
       continue
     }
 
-    if (typeof value === 'object' && value !== null) {
-      result[key] = traverse(value as UnknownObject, transform, currentPath)
+    if (isObjectLike(value)) {
+      result[key] = traverse(value, transform, currentPath)
 
       continue
     }

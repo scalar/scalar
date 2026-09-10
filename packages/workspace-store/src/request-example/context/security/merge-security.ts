@@ -1,4 +1,6 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { Type } from '@scalar/typebox'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { AsyncApiComponentsObject, AsyncApiSecuritySchemeObject } from '@scalar/types/asyncapi/3.1'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
@@ -12,6 +14,7 @@ import {
   SecuritySchemeObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { isEncryptionSchemeType, isSaslSchemeType } from '@/request-example/builder/security/broker-scheme-types'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 
 import { extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
@@ -21,7 +24,7 @@ export type MergedSecuritySchemes = Record<string, SecuritySchemeObjectSecret>
 
 const hasAvailableScopes = (flow: unknown): flow is Record<string, unknown> => {
   const resolved = getResolvedRef(flow)
-  return Boolean(resolved) && typeof resolved === 'object' && 'availableScopes' in (resolved as object)
+  return resolved !== null && typeof resolved === 'object' && 'availableScopes' in resolved
 }
 
 /**
@@ -50,7 +53,9 @@ const normalizeAsyncApiOAuthFlows = (flows: unknown): unknown => {
       }
 
       // Prefer an OpenAPI-native `scopes` map if one is somehow already present, so we never drop it.
-      const { availableScopes, scopes: existingScopes, ...rest } = getResolvedRef(flowValue) as Record<string, unknown>
+      const resolved = getResolvedRef(flowValue)
+      if (!isObjectLike(resolved)) return [flowKey, flowValue]
+      const { availableScopes, scopes: existingScopes, ...rest } = resolved
       return [flowKey, { ...rest, scopes: existingScopes ?? availableScopes ?? {} }]
     }),
   )
@@ -65,21 +70,24 @@ const normalizeAsyncApiOAuthFlows = (flows: unknown): unknown => {
  * rename to OpenAPI's `scopes`. Everything else is returned unchanged — including AsyncAPI's own
  * `apiKey` (`in: user | password`, no name), which has no OpenAPI counterpart and is value-only.
  */
-const normalizeAsyncApiSecurityScheme = (
-  scheme: SecuritySchemeObject | AsyncApiSecuritySchemeObject,
-): SecuritySchemeObject | AsyncApiSecuritySchemeObject => {
+const normalizeAsyncApiSecurityScheme = (scheme: unknown): unknown => {
   if (!(scheme && typeof scheme === 'object' && 'type' in scheme)) {
     return scheme
   }
 
+  // HTTP authentication scheme names are case-insensitive, but the strict schema uses lowercase literals.
+  if (scheme.type === 'http' && 'scheme' in scheme && typeof scheme.scheme === 'string') {
+    return { ...scheme, scheme: scheme.scheme.toLowerCase() }
+  }
+
   if (scheme.type === 'httpApiKey') {
-    return { ...scheme, type: 'apiKey' } as SecuritySchemeObject
+    return { ...scheme, type: 'apiKey' }
   }
 
   if (scheme.type === 'oauth2' && 'flows' in scheme && scheme.flows) {
     const normalizedFlows = normalizeAsyncApiOAuthFlows(scheme.flows)
     if (normalizedFlows !== scheme.flows) {
-      return { ...scheme, flows: normalizedFlows } as SecuritySchemeObject
+      return { ...scheme, flows: normalizedFlows }
     }
   }
 
@@ -91,8 +99,8 @@ const normalizeAsyncApiSecurityScheme = (
  *
  * AsyncAPI keeps its security schemes in the same `components.securitySchemes` slot and shares the
  * `http`/`apiKey`/`oauth2`/`openIdConnect` shapes with OpenAPI, so we accept either spec's schemes
- * here. Every value is coerced into the OpenAPI `SecuritySchemeObject` shape below, so broker-specific
- * AsyncAPI types still flow through and degrade gracefully downstream.
+ * here. HTTP schemes are coerced into the OpenAPI shape, while broker credentials retain their
+ * AsyncAPI type and location.
  */
 export const mergeSecurity = (
   documentSecuritySchemes:
@@ -104,37 +112,62 @@ export const mergeSecurity = (
   oauth2RedirectUri?: string,
 ): MergedSecuritySchemes => {
   /** Resolve any refs in the document security schemes */
-  const resolvedDocumentSecuritySchemes = objectEntries(documentSecuritySchemes).reduce(
-    (acc, [key, value]) => {
-      const resolved = deepClone(getResolvedRef(value))
-      if (resolved) {
-        acc[key] = resolved
-      }
-      return acc
-    },
-    {} as Record<string, SecuritySchemeObject | AsyncApiSecuritySchemeObject>,
-  )
+  const resolvedDocumentSecuritySchemes = objectEntries(documentSecuritySchemes).reduce<
+    Record<string, SecuritySchemeObject | AsyncApiSecuritySchemeObject>
+  >((acc, [key, value]) => {
+    const resolved = deepClone(getResolvedRef(value))
+    if (resolved) {
+      acc[key] = resolved
+    }
+    return acc
+  }, {})
 
   /** Merge the config security schemes into the document security schemes */
-  const mergedSchemes =
-    mergeObjects<Record<string, SecuritySchemeObject | AsyncApiSecuritySchemeObject>>(
-      resolvedDocumentSecuritySchemes,
-      configSecuritySchemes,
-    ) ?? {}
+  const mergedSchemes = mergeObjects(resolvedDocumentSecuritySchemes, configSecuritySchemes)
 
   /** Convert the config secrets to the new secret extensions */
-  return objectEntries(mergedSchemes).reduce((acc, [name, value]) => {
+  return objectEntries(mergedSchemes).reduce<MergedSecuritySchemes>((acc, [name, value]) => {
     // Fold AsyncAPI-only types (e.g. `httpApiKey`) onto their OpenAPI equivalents before coercing,
     // so the downstream apiKey/http/oauth2 machinery recognises them instead of rejecting the type.
     const scheme = normalizeAsyncApiSecurityScheme(value)
-    // We coerce in case the scheme is missing any key fields like type
+    // Broker schemes have no OpenAPI equivalent. Validate their shared fields separately so
+    // coercion cannot turn a broker credential into an HTTP authentication scheme.
+    const type = isObjectLike(scheme) && typeof scheme.type === 'string' ? scheme.type : undefined
+    if (isSaslSchemeType(type) || isEncryptionSchemeType(type) || type === 'X509' || type === 'gssapi') {
+      const broker = coerceValue(
+        Type.Object({
+          description: Type.Optional(Type.String()),
+          username: Type.Optional(Type.String()),
+          password: Type.Optional(Type.String()),
+          token: Type.Optional(Type.String()),
+        }),
+        scheme,
+      )
+      acc[name] = extractSecuritySchemeSecrets({ ...broker, type }, authStore, name, documentName, oauth2RedirectUri)
+      return acc
+    }
+    if (isObjectLike(scheme) && scheme.type === 'apiKey' && (scheme.in === 'user' || scheme.in === 'password')) {
+      const broker = coerceValue(
+        Type.Object({
+          description: Type.Optional(Type.String()),
+          name: Type.Optional(Type.String()),
+          value: Type.Optional(Type.String()),
+        }),
+        scheme,
+      )
+      acc[name] = extractSecuritySchemeSecrets(
+        { ...broker, type: 'apiKey', in: scheme.in },
+        authStore,
+        name,
+        documentName,
+        oauth2RedirectUri,
+      )
+      return acc
+    }
+    // We coerce in case the scheme is missing any key fields like type.
     const coerced = coerceValue(SecuritySchemeObjectSchema, scheme)
-    // We then overwrite it back with the original value to keep any other fields like description, etc.
-    // `coerced` has already laundered the value into the OpenAPI shape (including any AsyncAPI scheme),
-    // so we narrow here to restore the extra fields without re-widening the type.
-    const merged = { ...coerced, ...(scheme as SecuritySchemeObject) }
-
+    const merged = { ...(isObjectLike(scheme) ? scheme : {}), ...coerced }
     acc[name] = extractSecuritySchemeSecrets(merged, authStore, name, documentName, oauth2RedirectUri)
     return acc
-  }, {} as MergedSecuritySchemes)
+  }, {})
 }

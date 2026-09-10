@@ -1,6 +1,5 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
-
-import type { UnknownObject } from '@/helpers/general'
 
 /**
  * Deep merges two objects, combining their properties recursively.
@@ -31,7 +30,7 @@ import type { UnknownObject } from '@/helpers/general'
  * const target = { age: 30 }
  * mergeObjects(target, obj) // Safely merges without infinite recursion
  */
-export const mergeObjects = <R = unknown>(
+export const mergeObjects = (
   a: Record<string, unknown>,
   b: Record<string, unknown>,
   /**
@@ -40,7 +39,7 @@ export const mergeObjects = <R = unknown>(
    */
   replaceArrays = false,
   cache: Set<unknown> = new Set(),
-): R => {
+): Record<string, unknown> => {
   for (const key in b) {
     if (!(key in a)) {
       a[key] = b[key]
@@ -51,15 +50,9 @@ export const mergeObjects = <R = unknown>(
       /** Replace whole array instead of replacing each index */
       const shouldReplaceArrays = replaceArrays && (Array.isArray(aValue) || Array.isArray(bValue))
 
-      if (
-        typeof aValue === 'object' &&
-        aValue !== null &&
-        typeof bValue === 'object' &&
-        bValue !== null &&
-        !shouldReplaceArrays
-      ) {
-        const rawA = getRaw(aValue as UnknownObject)
-        const rawB = getRaw(bValue as UnknownObject)
+      if (isObjectLike(aValue) && isObjectLike(bValue) && !shouldReplaceArrays) {
+        const rawA = getRaw(aValue)
+        const rawB = getRaw(bValue)
 
         // Check for circular references before recursive merge
         if (cache.has(rawA) || cache.has(rawB)) {
@@ -71,7 +64,7 @@ export const mergeObjects = <R = unknown>(
         cache.add(rawA)
         cache.add(rawB)
 
-        mergeObjects(aValue as Record<string, unknown>, bValue as Record<string, unknown>, replaceArrays, cache)
+        mergeObjects(aValue, bValue, replaceArrays, cache)
       } else {
         try {
           a[key] = bValue // Overwrite with b's value if not an object
@@ -83,5 +76,5 @@ export const mergeObjects = <R = unknown>(
     }
   }
 
-  return a as R
+  return a
 }

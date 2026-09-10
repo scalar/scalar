@@ -49,7 +49,7 @@ export const generateClientOptions = (allowedClients: AvailableClients = AVAILAB
     .clients()
     .flatMap((group) => {
       const options = group.clients.flatMap((plugin) => {
-        const id = `${group.key}/${plugin.client}` as AvailableClients[number]
+        const id: AvailableClients[number] = `${group.key}/${plugin.client}`
 
         // If the client is not allowed, skip it
         if (!allowedClientsSet.has(id)) {

@@ -122,7 +122,7 @@ const getEnumValueDescription = (
   }
 
   if (typeof descriptions === 'object' && descriptions !== null) {
-    return (descriptions as Record<string, string>)[String(enumValue)]
+    return descriptions[String(enumValue)]
   }
 
   return undefined

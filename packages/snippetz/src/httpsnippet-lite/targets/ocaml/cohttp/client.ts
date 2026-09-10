@@ -31,15 +31,16 @@ export const cohttp: Client = {
     blank()
     push(`let uri = Uri.of_string "${fullUrl}" in`)
     // Add headers, including the cookies
-    const headers = Object.keys(allHeaders)
-    if (headers.length === 1) {
+    const headers = Object.entries(allHeaders)
+    const firstHeader = headers[0]
+    if (headers.length === 1 && firstHeader) {
       push(
-        `let headers = Header.add (Header.init ()) "${headers[0]}" "${escapeForDoubleQuotes(allHeaders[headers[0]!] as string)}" in`,
+        `let headers = Header.add (Header.init ()) "${firstHeader[0]}" "${escapeForDoubleQuotes(firstHeader[1])}" in`,
       )
     } else if (headers.length > 1) {
       push('let headers = Header.add_list (Header.init ()) [')
-      headers.forEach((key) => {
-        push(`("${key}", "${escapeForDoubleQuotes(allHeaders[key] as string)}");`, 1)
+      headers.forEach(([key, value]) => {
+        push(`("${key}", "${escapeForDoubleQuotes(value)}");`, 1)
       })
       push('] in')
     }

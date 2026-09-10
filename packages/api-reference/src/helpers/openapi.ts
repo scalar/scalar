@@ -84,7 +84,7 @@ function forEachRequestBodyProperty(
 
   const visited = new Set<SchemaObject>()
   Object.values(content).forEach((media) => {
-    const resolvedMedia = getResolvedRef(media) as MediaTypeObject | undefined
+    const resolvedMedia: MediaTypeObject | undefined = getResolvedRef(media)
     const schema = getResolvedRef(resolvedMedia?.schema)
     collectSchemaProperties(schema, { visit, visited, maxPropertyDepth: 2 })
   })
@@ -265,10 +265,10 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenApiD
   }
 
   if (!partialSpecification) {
-    return emptySpecification as OpenApiDocument
+    return emptySpecification
   }
 
   deepMerge(partialSpecification, emptySpecification)
 
-  return emptySpecification as OpenApiDocument
+  return emptySpecification
 }

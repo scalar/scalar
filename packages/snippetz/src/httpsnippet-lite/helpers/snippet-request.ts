@@ -25,10 +25,10 @@ type RequestExtras = {
   }
   fullUrl: string
   queryObj: ReducedHelperObject
-  headersObj: ReducedHelperObject
+  headersObj: Record<string, string>
   uriObj: ExtendedURL
   cookiesObj: ReducedHelperObject
-  allHeaders: ReducedHelperObject
+  allHeaders: Record<string, string>
 }
 
 export type SnippetRequest = HarRequest & RequestExtras

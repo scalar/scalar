@@ -35,6 +35,17 @@ const { headers, breadcrumb, schemaKeyboardNav, expandAllSchemaProperties } =
   }>()
 const { translate } = useLocalization()
 
+const resolvedHeaders = computed(() =>
+  Object.fromEntries(
+    Object.entries(headers).flatMap(
+      ([name, header]): [string, HeaderObject][] => {
+        const resolved = getResolvedRef(header)
+        return resolved ? [[name, resolved]] : []
+      },
+    ),
+  ),
+)
+
 /**
  * This group owns tree rows but sits beside the schema tree rather than inside
  * it, so arrow-key navigation only reaches its toggles when it delegates too.
@@ -80,7 +91,7 @@ const countId = useId()
 
 const countLabel = computed(() =>
   translate('schema.headerCount', {
-    count: String(Object.keys(headers).length),
+    count: String(Object.keys(resolvedHeaders.value).length),
   }),
 )
 </script>
@@ -131,14 +142,14 @@ const countLabel = computed(() =>
            list semantics. -->
       <ul role="list">
         <template
-          v-for="(header, key) in headers"
+          v-for="(header, key) in resolvedHeaders"
           :key="key">
           <Header
             :breadcrumb="headersBreadcrumb"
             :document="document"
             :eventBus="eventBus"
             :expandAllSchemaProperties="expandAllSchemaProperties"
-            :header="getResolvedRef(header)"
+            :header="header"
             :hideModels="hideModels"
             :name="key"
             :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"

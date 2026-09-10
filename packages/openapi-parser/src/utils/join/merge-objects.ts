@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
 
 /**
@@ -34,8 +35,8 @@ export const mergeObjects = <R>(a: Record<string, unknown>, b: Record<string, un
       const aValue = a[key]
       const bValue = b[key]
 
-      if (typeof aValue === 'object' && aValue !== null && typeof bValue === 'object' && bValue !== null) {
-        mergeObjects(aValue as Record<string, unknown>, bValue as Record<string, unknown>)
+      if (isObjectLike(aValue) && isObjectLike(bValue)) {
+        mergeObjects(aValue, bValue)
       } else {
         a[key] = bValue // Overwrite with b's value if not an object
       }

@@ -238,7 +238,7 @@ const shouldRenderObjectProperties = computed(() => {
   // show. Unlike `allOf`, these compositions do not merge sibling properties.
   // Render them unless the schema is an explicit non-object (scalar or array)
   // type. See https://github.com/scalar/scalar/issues/8593
-  const type = (value as { type?: unknown }).type
+  const type = 'type' in value ? value.type : undefined
   const isExplicitNonObject = typeof type === 'string' && type !== 'object'
 
   return isTypeObject(value) || !isExplicitNonObject
@@ -295,15 +295,15 @@ const objectSchemaForChildren = computed(() => {
     not: _not,
     discriminator: _discriminator,
     ...objectSchema
-  } = value as Record<string, unknown>
+  } = value
 
   if (displayDescription.value && 'description' in objectSchema) {
     const { description: _description, ...schemaWithoutDescription } =
       objectSchema
-    return schemaWithoutDescription as SchemaObject
+    return schemaWithoutDescription
   }
 
-  return objectSchema as SchemaObject
+  return objectSchema
 })
 
 /** Determine if property heading should be displayed */
@@ -635,7 +635,10 @@ const treeHeadingHoverListeners = {
   pointerenter: (event: Event): void => {
     clearHeadingHover()
 
-    const row = (event.currentTarget as HTMLElement).parentElement
+    const row =
+      event.currentTarget instanceof HTMLElement
+        ? event.currentTarget.parentElement
+        : null
 
     if (!row) {
       return

@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { HarRequest, Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 
 import { reduceQueryParams } from '@/libs/http'
@@ -37,8 +38,8 @@ const formatRValue = (value: unknown, indent: string): string => {
     const items = value.map((v) => `${indent}  ${formatRValue(v, indent + '  ')}`).join(',\n')
     return `list(\n${items}\n${indent})`
   }
-  if (typeof value === 'object') {
-    const entries = Object.entries(value as Record<string, unknown>)
+  if (isObjectLike(value)) {
+    const entries = Object.entries(value)
     if (entries.length === 0) {
       return 'list()'
     }

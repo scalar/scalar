@@ -1,4 +1,5 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import type { AsyncApiComponentsObject } from '@scalar/types/asyncapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -9,12 +10,31 @@ import {
 import { describe, expect, it } from 'vitest'
 import { computed, reactive } from 'vue'
 
+import { buildRequestSecurity } from '@/request-example/builder/security/build-request-security'
+
 import { mergeSecurity } from './merge-security'
 
 describe('mergeSecurity', () => {
   const workspaceStore = createWorkspaceStore()
   const authStore = workspaceStore.auth
   const documentSlug = 'test-document'
+
+  it.each(['Bearer', 'BEARER', 'bEaReR'])('retains bearer credentials for HTTP scheme %s', (scheme) => {
+    const auth = createWorkspaceStore().auth
+    auth.setAuthSecrets(documentSlug, 'mixedCaseBearer', {
+      type: 'http',
+      'x-scalar-secret-token': 'test-token',
+    })
+    const schemes = {
+      mixedCaseBearer: { type: 'http', scheme },
+    } satisfies AsyncApiComponentsObject['securitySchemes']
+
+    const result = mergeSecurity(schemes, {}, auth, documentSlug)
+
+    expect(buildRequestSecurity(Object.values(result))).toStrictEqual([
+      { in: 'header', name: 'Authorization', value: 'test-token', format: 'bearer' },
+    ])
+  })
 
   it('returns empty object when both parameters are undefined', () => {
     const result = mergeSecurity(undefined, undefined, authStore, documentSlug)
@@ -206,26 +226,42 @@ describe('mergeSecurity', () => {
     })
   })
 
-  it('keeps an AsyncAPI apiKey (in: user) as a value-only apiKey', () => {
+  it.each(['user', 'password'] as const)('keeps an AsyncAPI apiKey (in: %s) as a value-only apiKey', (location) => {
     // AsyncAPI's own `apiKey` places the key in the broker user/password slot and has no name, so it
     // has no OpenAPI equivalent — it stays `apiKey` with its broker `in` and still captures a value.
     const securitySchemes = {
       brokerKey: {
         type: 'apiKey',
-        in: 'user',
+        in: location,
         description: 'Broker API key',
       },
-    } as unknown as ComponentsObject['securitySchemes']
+    } satisfies AsyncApiComponentsObject['securitySchemes']
 
     const result = mergeSecurity(securitySchemes, {}, authStore, documentSlug)
 
     expect(result.brokerKey).toMatchObject({
       type: 'apiKey',
-      in: 'user',
+      in: location,
       description: 'Broker API key',
       'x-scalar-secret-token': '',
     })
   })
+
+  it.each(['userPassword', 'plain', 'scramSha256', 'scramSha512'] as const)(
+    'preserves the %s broker scheme when merging authentication',
+    (type) => {
+      const schemes = {
+        broker: { type, description: 'Broker credentials' },
+      } satisfies AsyncApiComponentsObject['securitySchemes']
+      const result = mergeSecurity(schemes, {}, authStore, documentSlug)
+      expect(result.broker).toMatchObject({
+        type,
+        description: 'Broker credentials',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
+      })
+    },
+  )
 
   it('renames AsyncAPI OAuth2 `availableScopes` onto OpenAPI `scopes`', () => {
     // AsyncAPI OAuth2 flows carry the scope map under `availableScopes`; the auth UI reads

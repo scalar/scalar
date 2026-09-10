@@ -26,8 +26,8 @@ export const nethttp: Client = {
     const { push, join } = new CodeBuilder({ indent: opts.indent })
     push('HttpRequest request = HttpRequest.newBuilder()')
     push(`.uri(URI.create("${fullUrl}"))`, 2)
-    Object.keys(allHeaders).forEach((key) => {
-      push(`.header("${key}", "${escapeForDoubleQuotes(allHeaders[key] as string)}")`, 2)
+    Object.entries(allHeaders).forEach(([key, value]) => {
+      push(`.header("${key}", "${escapeForDoubleQuotes(value)}")`, 2)
     })
     if (postData === null || postData === void 0 ? void 0 : postData.text) {
       push(

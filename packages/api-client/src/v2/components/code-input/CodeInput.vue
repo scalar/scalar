@@ -158,8 +158,9 @@ const emit = defineEmits<{
 // ---------------------------------------------------------------------------
 // Component identity and focus state
 
-const attrs = useAttrs() as { id?: string }
-const componentId = attrs.id || `id-${nanoid()}`
+const attrs = useAttrs()
+const componentId =
+  (typeof attrs.id === 'string' && attrs.id) || `id-${nanoid()}`
 const isFocused = ref(false)
 
 // ---------------------------------------------------------------------------

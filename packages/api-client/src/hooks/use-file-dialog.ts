@@ -21,7 +21,10 @@ export function useFileDialog({ multiple, accept, onChange, onError }: UseFileDi
     input.type = 'file'
 
     input.onchange = (event: Event) => {
-      const result = event.target as HTMLInputElement
+      if (!(event.target instanceof HTMLInputElement)) {
+        return
+      }
+      const result = event.target
       files.value = result.files
       onChange?.(files.value)
     }

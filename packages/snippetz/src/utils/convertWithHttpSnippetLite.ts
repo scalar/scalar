@@ -33,22 +33,22 @@ export function convertWithHttpSnippetLite(
     postData: request?.postData,
   }
 
-  const allHeaders = (harRequest?.headers ?? []).reduce(
+  const allHeaders = (harRequest?.headers ?? []).reduce<Record<string, string>>(
     (acc, header) => ({
       ...acc,
       [header.name]: header.value,
     }),
-    {} as Record<string, string>,
+    {},
   )
 
   const queryObj = reduceQueryParams(harRequest.queryString)
 
-  const cookiesObj = (harRequest.cookies ?? []).reduce(
+  const cookiesObj = (harRequest.cookies ?? []).reduce<Record<string, string>>(
     (acc, cookie) => ({
       ...acc,
       [cookie.name]: cookie.value,
     }),
-    {} as Record<string, string>,
+    {},
   )
 
   const parsedUrl = new URL(harRequest.url)
@@ -78,7 +78,7 @@ export function convertWithHttpSnippetLite(
     toJSON: () => parsedUrl.toJSON(),
   }
 
-  const convertRequest = {
+  const convertRequest: SnippetRequest = {
     url: harRequest.url,
     uriObj,
     method: harRequest.method?.toLocaleUpperCase() ?? 'GET',
@@ -95,22 +95,19 @@ export function convertWithHttpSnippetLite(
           text: harRequest.postData.text ?? '',
           params: harRequest.postData.params ?? [],
           paramsObj:
-            harRequest.postData.params?.reduce(
-              (acc, param) => {
-                if (param.name && param.value !== undefined) {
-                  acc[param.name] = param.value
-                }
-                return acc
-              },
-              {} as Record<string, string>,
-            ) ?? {},
+            harRequest.postData.params?.reduce<Record<string, string>>((acc, param) => {
+              if (param.name && param.value !== undefined) {
+                acc[param.name] = param.value
+              }
+              return acc
+            }, {}) ?? {},
         }
       : undefined,
     allHeaders: allHeaders ?? {},
     fullUrl: harRequest.url,
     queryObj: queryObj ?? {},
     cookiesObj: cookiesObj ?? {},
-  } as SnippetRequest
+  }
 
   // If the request is a JSON request, parse the text as JSON
   if (convertRequest.postData?.mimeType === 'application/json' && convertRequest.postData!.text) {

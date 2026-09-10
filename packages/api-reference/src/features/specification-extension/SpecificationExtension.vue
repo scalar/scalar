@@ -19,9 +19,9 @@ const { getSpecificationExtensions } = usePluginManager()
 function getCustomExtensionNames(
   value: Record<string, any> | undefined,
 ): `x-${string}`[] {
-  return Object.keys(value ?? {}).filter((item) =>
+  return Object.keys(value ?? {}).filter((item): item is `x-${string}` =>
     item.startsWith('x-'),
-  ) as `x-${string}`[]
+  )
 }
 
 /**

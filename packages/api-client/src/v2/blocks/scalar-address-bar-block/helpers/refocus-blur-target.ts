@@ -30,6 +30,6 @@ export const refocusBlurTarget = (selector: string | null): void => {
     (element instanceof HTMLElement && element.getAttribute('contenteditable') === 'true')
 
   if (isEditable) {
-    ;(element as HTMLElement).focus()
+    element.focus()
   }
 }

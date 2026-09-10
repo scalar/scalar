@@ -156,7 +156,7 @@ export const mergeOperations = (
   if (contentMediaTypeMap.size > 0) {
     operation.requestBody = {
       ...operation.requestBody,
-      content: Object.fromEntries(contentMediaTypeMap) as OpenAPIV3_1.RequestBodyObject['content'],
+      content: Object.fromEntries(contentMediaTypeMap),
     }
   }
 

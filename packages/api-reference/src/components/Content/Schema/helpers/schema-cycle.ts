@@ -31,7 +31,7 @@ export const SCHEMA_ANCESTORS_SYMBOL: InjectionKey<ReadonlySet<unknown>> = Symbo
  */
 export const getCycleKey = (raw: unknown): unknown => {
   if (raw && typeof raw === 'object') {
-    if ('$ref' in raw && typeof (raw as { $ref?: unknown }).$ref === 'string') {
+    if ('$ref' in raw && typeof raw.$ref === 'string') {
       return (raw as { $ref: string }).$ref
     }
     return raw

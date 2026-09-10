@@ -76,5 +76,5 @@ export async function processOpenApiDocument(
 
   // Wrap the document in a magic proxy so internal references resolve lazily via `$ref-value`.
   // External references were already pulled inline by `bundle` above, so only local `$ref`s remain.
-  return createMagicProxy(upgraded) as OpenAPIV3_1.Document
+  return createMagicProxy(upgraded)
 }

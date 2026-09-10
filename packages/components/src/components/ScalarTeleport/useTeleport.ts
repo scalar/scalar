@@ -3,7 +3,7 @@ import { type InjectionKey, inject, provide, useId } from 'vue'
 /**
  * The teleport target
  */
-export const TELEPORT_SYMBOL = Symbol() as InjectionKey<string>
+export const TELEPORT_SYMBOL: InjectionKey<string> = Symbol()
 
 /**
  * Get the nearest teleport target id from `useProvideTeleport`

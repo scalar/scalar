@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ParameterObject,
@@ -47,7 +48,7 @@ const structuredSchemaTypes = new Set(['array', 'object'])
  */
 const getStructuredType = (schema: unknown): 'array' | 'object' | undefined => {
   const resolved = getResolvedRef(schema)
-  if (!resolved || typeof resolved !== 'object') {
+  if (!isObjectLike(resolved)) {
     return undefined
   }
 
@@ -61,7 +62,7 @@ const getStructuredType = (schema: unknown): 'array' | 'object' | undefined => {
   }
 
   for (const key of ['anyOf', 'oneOf', 'allOf'] as const) {
-    const subSchemas = (resolved as Record<string, unknown>)[key]
+    const subSchemas = resolved[key]
     if (Array.isArray(subSchemas)) {
       for (const subSchema of subSchemas) {
         const type = getStructuredType(subSchema)

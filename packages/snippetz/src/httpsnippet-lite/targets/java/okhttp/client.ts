@@ -75,8 +75,8 @@ export const okhttp: Client = {
       push(`.${method.toLowerCase()}()`, 1)
     }
     // Add headers, including the cookies
-    Object.keys(allHeaders).forEach((key) => {
-      push(`.addHeader("${key}", "${escapeForDoubleQuotes(allHeaders[key] as string)}")`, 1)
+    Object.entries(allHeaders).forEach(([key, value]) => {
+      push(`.addHeader("${key}", "${escapeForDoubleQuotes(value)}")`, 1)
     })
     push('.build();', 1)
     blank()
