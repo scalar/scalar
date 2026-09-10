@@ -10,6 +10,76 @@ import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from './helpers/s
 import Schema from './Schema.vue'
 
 describe('Schema', () => {
+  it.each([false, true])(
+    'keeps inherited alert variants separate with expandAllSchemaProperties=%s',
+    async (expandAllSchemaProperties) => {
+      // The base lists variants which inherit it through allOf (discussion #1202).
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'alerts',
+        document: {
+          openapi: '3.0.3',
+          info: { title: 'Alerts', version: '1.0' },
+          paths: {},
+          components: {
+            schemas: {
+              AlertRule: {
+                type: 'object',
+                properties: { type: { type: 'string', enum: ['ANOMALY', 'MANUAL'] } },
+                discriminator: { propertyName: 'type' },
+                oneOf: [{ $ref: '#/components/schemas/AnomalyRule' }, { $ref: '#/components/schemas/ManualRule' }],
+              },
+              AnomalyRule: {
+                type: 'object',
+                allOf: [
+                  { $ref: '#/components/schemas/AlertRule' },
+                  { type: 'object', properties: { sensitivity: { type: 'number' } } },
+                ],
+              },
+              ManualRule: {
+                type: 'object',
+                allOf: [
+                  { $ref: '#/components/schemas/AlertRule' },
+                  { type: 'object', properties: { thresholds: { type: 'array', items: { type: 'number' } } } },
+                ],
+              },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.alerts as { components: { schemas: Record<string, SchemaObject> } }
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          noncollapsible: true,
+          options: { expandAllSchemaProperties },
+          schema: document.components.schemas.AlertRule,
+        },
+      })
+
+      const picker = wrapper.findComponent({ name: 'ScalarListbox' })
+      expect(picker.props('options')).toEqual([
+        { id: '0', label: 'AnomalyRule' },
+        { id: '1', label: 'ManualRule' },
+      ])
+      expect(wrapper.findAllComponents({ name: 'ScalarListbox' }).length).toBe(1)
+      expect(wrapper.text()).toContain('sensitivity')
+      expect(wrapper.text()).not.toContain('thresholds')
+
+      await picker.vm.$emit('update:modelValue', { id: '1', label: 'ManualRule' })
+      await nextTick()
+      expect(wrapper.findAllComponents({ name: 'ScalarListbox' }).length).toBe(1)
+      expect(wrapper.text()).toContain('thresholds')
+      expect(wrapper.text()).not.toContain('sensitivity')
+
+      await picker.vm.$emit('update:modelValue', { id: '0', label: 'AnomalyRule' })
+      await nextTick()
+      expect(wrapper.text()).toContain('sensitivity')
+      expect(wrapper.text()).not.toContain('thresholds')
+      wrapper.unmount()
+    },
+  )
+
   describe('shouldShowDescription computed property', () => {
     it('shows the base description of the first allOf schema', () => {
       const wrapper = mount(Schema, {
