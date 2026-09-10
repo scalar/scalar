@@ -40,6 +40,8 @@ export type TableRow = {
   isDisabledByDefault?: boolean
   /** OpenAPI schema object with type, validation rules, examples, etc. */
   schema?: SchemaObject
+  /** Preserve array values even while their JSON text is temporarily invalid. */
+  isArray?: boolean
   /** Whether the parameter is required */
   isRequired?: boolean
   /**

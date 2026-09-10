@@ -76,8 +76,8 @@ const displayData = computed(() => {
  * parameter or the appended placeholder row. Parameter rows are keyed by their parameter identity —
  * the name plus the value path for expanded object parameters. The parts are combined through
  * JSON.stringify so the name/path boundary is unambiguous (for example `ab` + `['c']` never
- * collides with `a` + `['bc']`). Rows without a parameter (like the placeholder) fall back to their
- * name, and finally the index, which is only reached for transient empty rows.
+ * collides with `a` + `['bc']`). Form rows use the name and its occurrence so repeated
+ * multipart fields remain distinct while unrelated rows can move without losing their identity.
  */
 const getRowKey = (row: TableRow, index: number): string => {
   if (row.originalParameter) {
@@ -87,7 +87,12 @@ const getRowKey = (row: TableRow, index: number): string => {
     ])
   }
 
-  return row.name || String(index)
+  const occurrence = displayData.value
+    .slice(0, index)
+    .filter(
+      (other) => !other.originalParameter && other.name === row.name,
+    ).length
+  return `row:${JSON.stringify([row.name, occurrence])}`
 }
 </script>
 <template>

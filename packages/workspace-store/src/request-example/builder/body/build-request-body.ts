@@ -11,6 +11,7 @@ import { getExampleFromBody } from './get-request-body-example'
 import { getSelectedBodyContentType } from './get-selected-body-content-type'
 import { buildDottedNestedRowPredicate, coerceLeafValueToSchemaType, resolveLeafSchema } from './schema-value-coercion'
 import { serializeFormPropertyWithEncoding } from './serialize-form-property'
+import { type MultipartArrayPart, serializeMultipartArray } from './serialize-multipart-array'
 
 type FormData = {
   mode: 'formdata'
@@ -19,6 +20,7 @@ type FormData = {
         type: 'text'
         key: string
         value: string
+        contentType?: string
       }
     | {
         type: 'file'
@@ -33,6 +35,28 @@ type FormData = {
         contentType?: string
       }
   )[]
+}
+
+/** Preserve per-item media types while keeping uploaded file bytes and names intact. */
+const toMultipartPart = (part: MultipartArrayPart): FormData['value'][number] => {
+  if (part.value instanceof File) {
+    const file = part.value
+    return {
+      type: 'file',
+      key: part.key,
+      value:
+        part.contentType && part.contentType !== file.type
+          ? new File([file], file.name, { type: part.contentType, lastModified: file.lastModified })
+          : file,
+      contentType: part.contentType,
+    }
+  }
+  return {
+    type: 'text',
+    key: part.key,
+    value: part.value,
+    ...(part.contentType ? { contentType: part.contentType } : {}),
+  }
 }
 
 type UrlEncoded = {
@@ -172,6 +196,17 @@ export const buildRequestBody = (
       }
       const partEncoding = requestBody.content[bodyContentType]?.encoding?.[name]
 
+      if (result.mode === 'formdata') {
+        // Older saved form rows store JSON text. Only restore arrays declared by the schema.
+        const schema = resolveLeafSchema(multipartSchema, [name])
+        const restored = coerceLeafValueToSchemaType(value, schema)
+        const arrayParts = serializeMultipartArray(name, Array.isArray(restored) ? restored : value, partEncoding)
+        if (arrayParts) {
+          result.value.push(...arrayParts.map(toMultipartPart))
+          return
+        }
+      }
+
       // When the encoding sets style/explode, serialize objects/arrays RFC6570-style
       // (bracket or exploded notation) instead of JSON, so the wire request matches the
       // generated code snippet.
@@ -215,9 +250,9 @@ export const buildRequestBody = (
 
         if (result.mode === 'formdata' && partContentType) {
           return result.value.push({
-            type: 'blob',
+            type: 'text',
             key: name,
-            value: new Blob([serializedValue], { type: partContentType }),
+            value: serializedValue,
             contentType: partContentType,
           })
         }
@@ -292,6 +327,11 @@ export const buildRequestBody = (
       }
 
       const partEncoding = requestBody.content[bodyContentType]?.encoding?.[key]
+      const arrayParts = serializeMultipartArray(key, value, partEncoding)
+      if (arrayParts) {
+        result.value.push(...arrayParts.map(toMultipartPart))
+        continue
+      }
 
       // Encoding style/explode turns objects into bracket or exploded notation instead of
       // the default single JSON part.
@@ -329,9 +369,9 @@ export const buildRequestBody = (
 
       if (partContentType) {
         result.value.push({
-          type: 'blob',
+          type: 'text',
           key,
-          value: new Blob([serializedValue], { type: partContentType }),
+          value: serializedValue,
           contentType: partContentType,
         })
         continue

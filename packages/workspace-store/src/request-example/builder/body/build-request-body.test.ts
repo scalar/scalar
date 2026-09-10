@@ -127,9 +127,8 @@ describe('buildRequestBody', () => {
 
     expect(result?.value?.[0]).toBeDefined()
     assert(result?.value?.[0])
-    expect(result.value[0].value).toBeInstanceOf(Blob)
-    assert(result.value[0].value instanceof Blob)
-    expect(result.value[0].value.type).toBe('application/json;charset=utf-8')
+    expect(result.value[0].type).toBe('text')
+    expect(result.value[0].contentType).toBe('application/json;charset=utf-8')
   })
 
   it('applies encoding.contentType overrides to multipart files', () => {
@@ -1274,5 +1273,49 @@ describe('buildRequestBody', () => {
       { type: 'text', key: 'user.email', value: 'foo@bar.com' },
       { type: 'text', key: 'caption', value: 'profile' },
     ])
+  })
+  it.each(['object', 'rows'] as const)('builds per-item multipart array parts from %s examples', (format) => {
+    const values = { tags: ['a', 'b'], objects: [{ id: 1 }, { id: 2 }], empty: [] }
+    const value = format === 'object' ? values : Object.entries(values).map(([name, value]) => ({ name, value }))
+    expect(buildRequestBody({ content: { 'multipart/form-data': { examples: { default: { value } } } } })).toEqual({
+      mode: 'formdata',
+      value: [
+        { type: 'text', key: 'tags', value: 'a' },
+        { type: 'text', key: 'tags', value: 'b' },
+        { type: 'text', key: 'objects', value: '{"id":1}', contentType: 'application/json' },
+        { type: 'text', key: 'objects', value: '{"id":2}', contentType: 'application/json' },
+      ],
+    })
+  })
+
+  it('restores saved array rows using the schema while leaving string fields and disabled rows alone', () => {
+    expect(
+      buildRequestBody({
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              properties: { tags: { type: 'array', items: { type: 'string' } }, literal: { type: 'string' } },
+            },
+            examples: {
+              default: {
+                value: [
+                  { name: 'tags', value: '["a","b"]' },
+                  { name: 'literal', value: '["a","b"]' },
+                  { name: 'tags', value: '["hidden"]', isDisabled: true },
+                ],
+              },
+            },
+          },
+        },
+      }),
+    ).toEqual({
+      mode: 'formdata',
+      value: [
+        { type: 'text', key: 'tags', value: 'a' },
+        { type: 'text', key: 'tags', value: 'b' },
+        { type: 'text', key: 'literal', value: '["a","b"]' },
+      ],
+    })
   })
 })

@@ -1,7 +1,7 @@
 import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, describe, expect, it } from 'vitest'
 
-import { getFormBodyRows } from './get-form-body-rows'
+import { getFormBodyRows, getFormBodyValue } from './get-form-body-rows'
 
 describe('getFormBodyRows', () => {
   it('returns empty array when example is null, undefined, or missing value', () => {
@@ -624,4 +624,43 @@ describe('getFormBodyRows', () => {
       expect(result[0].isRequired).toBe(false)
     })
   })
+  it('retains example-only arrays through repeated form-table round trips', () => {
+    const original = { value: { tags: ['a', 'b'], items: [{ id: 1 }, { id: 2 }], empty: [] } }
+    const first = getFormBodyRows(original, 'multipart/form-data')
+    const stored = first.map((row) => ({ name: row.name, value: getFormBodyValue(row), isDisabled: false }))
+    expect(stored).toEqual([
+      { name: 'tags', value: ['a', 'b'], isDisabled: false },
+      { name: 'items', value: [{ id: 1 }, { id: 2 }], isDisabled: false },
+      { name: 'empty', value: [], isDisabled: false },
+    ])
+    expect(getFormBodyRows({ value: stored }, 'multipart/form-data')).toEqual(first)
+  })
+
+  it('preserves invalid array text and literal JSON string fields', () => {
+    expect(getFormBodyValue({ name: 'items', value: '[invalid', schema: { type: 'array' } })).toBe('[invalid')
+    expect(getFormBodyValue({ name: 'literal', value: '["a"]', schema: { type: 'string' } })).toBe('["a"]')
+    expect(getFormBodyValue({ name: 'literal', value: '["a"]' })).toBe('["a"]')
+  })
+
+  it('renders an array of files as repeated rows retaining the actual files', () => {
+    const first = new File(['one'], 'one.txt')
+    const second = new File(['two'], 'two.txt')
+    const rows = getFormBodyRows({ value: { files: [first, second] } }, 'multipart/form-data')
+    expect(rows).toEqual([
+      { name: 'files', value: first, isDisabled: false },
+      { name: 'files', value: second, isDisabled: false },
+    ])
+    expect(rows.map(getFormBodyValue)).toEqual([first, second])
+  })
+  it.each([{}, { oneOf: [{ type: 'array' }, { type: 'string' }] }, { type: ['array', 'string'] }])(
+    'retains actual arrays with an unconstrained or union schema %j',
+    (schema) => {
+      const rows = getFormBodyRows({ value: { tags: ['a', 'b'] } }, 'multipart/form-data', {
+        type: 'object',
+        // OpenAPI permits schemas without a type, unlike the normalized internal type.
+        properties: { tags: schema as SchemaObject },
+      })
+      expect(rows.map(getFormBodyValue)).toEqual([['a', 'b']])
+    },
+  )
 })

@@ -54,6 +54,7 @@ export {
   serializeFormPropertyWithEncoding,
   serializeFormStyle,
   serializeFormStyleForCookies,
+  serializeMultipartArray,
   serializePipeDelimitedStyle,
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,

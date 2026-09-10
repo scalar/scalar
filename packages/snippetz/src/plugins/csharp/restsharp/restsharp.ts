@@ -22,7 +22,7 @@ const isJsonContentType = (value: string | undefined): boolean => {
  * PascalCase members (`Method.Get`, `Method.Post`, ...), so we title-case the
  * method name to cover both the well-known verbs and any custom ones.
  */
-const getMethod = (method: string): string => {
+const getRestSharpMethod = (method: string): string => {
   const titleCased = method.charAt(0).toUpperCase() + method.slice(1).toLowerCase()
   return `Method.${titleCased}`
 }
@@ -84,7 +84,7 @@ export const csharpRestsharp: Plugin = {
 
     // Client and request
     lines.push(`var client = new RestClient("${escapeCSharpString(url)}");`)
-    lines.push(`var request = new RestRequest("", ${getMethod(normalizedRequest.method)});`)
+    lines.push(`var request = new RestRequest("", ${getRestSharpMethod(normalizedRequest.method)});`)
 
     // Basic Auth (added as an Authorization header so the client stays request-scoped)
     const { username, password } = configuration?.auth ?? {}
