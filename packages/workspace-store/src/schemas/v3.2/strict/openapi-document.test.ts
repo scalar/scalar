@@ -7,6 +7,17 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, type OpenApiDocument } from './openapi-document'
 
 describe('openapi-document', () => {
+  it.each(['form', 'raw'] as const)('preserves the %s default request body view', (view) => {
+    const document: OpenApiDocument = {
+      openapi: '3.2.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      'x-scalar-default-request-body-view': view,
+      'x-scalar-original-document-hash': '',
+    }
+
+    expect(coerceValue(OpenAPIDocumentSchema, document)).toEqual(document)
+  })
+
   describe('strict type checking', () => {
     it('performs deep type checking on all nested properties', () => {
       type SchemaType = RequiredDeep<Static<typeof OpenAPIDocumentSchema>>

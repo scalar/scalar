@@ -42,14 +42,14 @@ describe('OperationParameters', () => {
   })
 
   describe('query parameters', () => {
-    it('renders query parameters', () => {
+    it.each(['query', 'querystring'] as const)('renders %s parameters', (location) => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: defaultSchemaOptions,
           parameters: [
             {
-              in: 'query',
+              in: location,
               name: 'search',
               schema: coerceValue(SchemaObjectSchema, {
                 type: 'string',
