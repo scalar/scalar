@@ -3,6 +3,10 @@ import { type TSchema, Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
 import {
+  type XScalarDefaultRequestBodyView,
+  XScalarDefaultRequestBodyViewSchema,
+} from '@/schemas/extensions/document/x-scalar-default-request-body-view'
+import {
   type XScalarEnvironments,
   xScalarEnvironmentsSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
@@ -106,6 +110,7 @@ export const OpenApiExtensionsSchema = compose(
   XScalarActiveEnvironmentSchema,
   XScalarWatchModeSchema,
   XScalarRegistryMetaSchema,
+  XScalarDefaultRequestBodyViewSchema,
   XPreRequestSchema,
   XPostResponseSchema,
 )
@@ -126,6 +131,7 @@ export type OpenAPIExtensions = Partial<{
   XScalarIsDirty &
   XScalarWatchMode &
   XScalarRegistryMeta &
+  XScalarDefaultRequestBodyView &
   XPreRequest &
   XPostResponse
 

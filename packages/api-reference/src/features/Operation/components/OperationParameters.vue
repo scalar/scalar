@@ -49,7 +49,11 @@ const splitParameters = computed(() =>
       if (parameter && !isHidden(parameter)) {
         const flattenedParameters = flattenDeepObjectQueryParameter(parameter)
         flattenedParameters.forEach((flattenedParameter) => {
-          acc[flattenedParameter.in].push(flattenedParameter)
+          const location =
+            flattenedParameter.in === 'querystring'
+              ? 'query'
+              : flattenedParameter.in
+          acc[location].push(flattenedParameter)
         })
       }
       return acc
