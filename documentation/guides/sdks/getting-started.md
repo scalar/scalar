@@ -46,3 +46,4 @@ Once created, you will be redirected to the SDK overview page. From there you ca
 - [Configure](configuration.md) each SDK or CLI
 - [Publish to a package registry](publishing/overview.md)
 - [Add custom code](custom-code.md) that survives regeneration
+- [Read the diagnostics](diagnostics.md) each build reports about your API description

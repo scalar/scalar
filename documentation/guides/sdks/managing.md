@@ -37,6 +37,8 @@ Click **Build**, or **Save and Build** after editing the configuration. Scalar g
 
 Each target shows a live status: **pending** while it generates, **generated** on success, or **failed**. Open the logs to see the output or the error for a target.
 
+Every build analyzes your OpenAPI document and configuration before it generates anything, and the [diagnostics](diagnostics.md) report is part of that output. A build that trips your diagnostics gate fails without writing files.
+
   </scalar-step>
 
   <scalar-step id="build-sync" title="Builds sync to GitHub">

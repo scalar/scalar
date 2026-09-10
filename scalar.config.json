@@ -2673,6 +2673,30 @@
                     "title": "Custom Code",
                     "description": "Customize generated SDKs and keep your changes across regenerations with a three-way merge."
                   },
+                  "diagnostics": {
+                    "filepath": "documentation/guides/sdks/diagnostics.md",
+                    "type": "page",
+                    "title": "Diagnostics",
+                    "description": "How Scalar analyzes your OpenAPI document and SDK configuration on every build, what each rule checks for, and how to grade or suppress findings.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/diagnostics"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "How Scalar analyzes your OpenAPI document and SDK configuration on every build, what each rule checks for, and how to grade or suppress findings."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "asyncapi": {
                     "filepath": "documentation/guides/sdks/asyncapi.md",
                     "type": "page",
