@@ -202,7 +202,8 @@ const focusTab = (index: number) => {
   void nextTick(() => {
     tabsRef.value
       ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
-      [index]?.focus()
+      .item(index)
+      ?.focus()
   })
 }
 
@@ -393,6 +394,14 @@ onBeforeUnmount(() => {
   border-top: none;
   border-bottom-left-radius: var(--scalar-radius-xl);
   border-bottom-right-radius: var(--scalar-radius-xl);
+}
+.selected-client :deep(.markdown pre code) {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 .client-libraries-heading {
   font-size: var(--scalar-small);
