@@ -22,8 +22,8 @@ defineEmits<{
     @onDragEnd="(...args) => $emit('onDragEnd', ...args)">
     <div>
       <div
-        class="sidebar-item"
-        :style="{ 'padding-left': parentIds.length * 8 + 'px' }">
+        class="sidebar-item text-c-1 hover:bg-b-2 rounded px-3 py-2 text-base"
+        :style="{ 'padding-left': 12 + parentIds.length * 20 + 'px' }">
         {{ items[id]?.name }}
       </div>
       <SidebarItem
@@ -39,7 +39,6 @@ defineEmits<{
 
 <style scoped>
 .sidebar-item {
-  padding: 8px;
   cursor: move;
 }
 </style>
