@@ -6,7 +6,7 @@
 
 import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { isObject } from '@scalar/helpers/object/is-object'
-import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
+import { type LifecyclePlugin, resolveReferencePath } from '@scalar/json-magic/bundle'
 
 import { isLocalRef } from '@/helpers/general'
 import {
@@ -59,18 +59,22 @@ export const externalValueResolver = (): LifecyclePlugin => {
         return
       }
 
-      const loader = context.loaders.find((it) => it.validate(externalValue))
+      // `externalValue` may be relative (for example `/examples/pet.json`). Resolve it against the
+      // origin of the document it lives in so it becomes an absolute URL a loader can fetch.
+      const resolvedValue = resolveReferencePath(context.origin, externalValue)
+
+      const loader = context.loaders.find((it) => it.validate(resolvedValue))
 
       // We can not process the external value
       if (!loader) {
         return
       }
 
-      if (!cache.has(externalValue)) {
-        cache.set(externalValue, loader.exec(externalValue))
+      if (!cache.has(resolvedValue)) {
+        cache.set(resolvedValue, loader.exec(resolvedValue))
       }
 
-      const result = await cache.get(externalValue)
+      const result = await cache.get(resolvedValue)
 
       // If fetch is successful, assign the data to the node's 'value' property
       if (result?.ok) {

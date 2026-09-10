@@ -259,6 +259,8 @@ export type LoaderPlugin = {
  *
  * - `path`: The JSON pointer path (as an array of strings) from the document root to the current node.
  * - `resolutionCache`: A cache for storing promises of resolved references.
+ * - `origin`: The origin (URL or file path) of the document this node lives in. Lifecycle plugins can
+ *   use it to resolve relative references (for example an example's `externalValue`) into absolute URLs.
  */
 type NodeProcessContext = {
   path: readonly string[]
@@ -266,6 +268,7 @@ type NodeProcessContext = {
   parentNode: UnknownObject | null
   rootNode: UnknownObject
   loaders: LoaderPlugin[]
+  origin: string
 }
 
 /**
@@ -639,17 +642,20 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // Mark this node as processed before continuing
     processedNodes.add(root)
 
+    // A node with its own `$id` establishes a new base for resolving relative references within it.
+    // Fall back to the origin inherited from the parent document otherwise.
+    const id = getId(root)
+
     const context = {
       path: currentPath,
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
       loaders: loaderPlugins,
+      origin: id ?? origin,
     }
 
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
-
-    const id = getId(root)
 
     if (hasRef(root)) {
       const ref = root['$ref']
