@@ -46,6 +46,47 @@ export const OneOf: Story = {
   },
 }
 
+/**
+ * A `oneOf` whose selected variant `allOf`s back to a shared base — the shape a
+ * `discriminator.mapping` infers, and the one a request body most often carries.
+ * The merged variant renders one level deeper than a plain object variant, so
+ * the snapshot guards that its first field still sits flush under the selector
+ * rather than detached below it. See https://github.com/scalar/scalar/issues/9861
+ */
+export const OneOfAllOfVariant: Story = {
+  args: {
+    name: 'Config',
+    composition: 'oneOf',
+    options: { expandAllSchemaProperties: true },
+    schema: coerceValue(SchemaObjectSchema, {
+      oneOf: [
+        {
+          title: 'Config_v2_2',
+          allOf: [
+            {
+              type: 'object',
+              required: ['formatVersion'],
+              properties: { formatVersion: { type: 'string' }, name: { type: 'string' } },
+            },
+            { type: 'object', properties: { fieldA: { type: 'string' } } },
+          ],
+        },
+        {
+          title: 'Config_v2_3',
+          allOf: [
+            {
+              type: 'object',
+              required: ['formatVersion'],
+              properties: { formatVersion: { type: 'string' }, name: { type: 'string' } },
+            },
+            { type: 'object', properties: { fieldB: { type: 'string' } } },
+          ],
+        },
+      ],
+    }),
+  },
+}
+
 export const AnyOf: Story = {
   args: {
     name: 'Contact',

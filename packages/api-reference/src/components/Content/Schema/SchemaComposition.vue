@@ -351,3 +351,35 @@ if (
     </SchemaRailPanel>
   </div>
 </template>
+
+<style scoped>
+/*
+ * A `oneOf`/`anyOf` whose chosen variant `allOf`s back to a shared base — most
+ * commonly a discriminator-inferred `oneOf` sitting directly on the request body
+ * — renders the merged variant one level deeper than a plain object variant:
+ * `Schema.vue` cannot flatten the `allOf`, so it hands the merged object to
+ * `SchemaProperty`, which wraps it in a headless passthrough row
+ * (`.property--tree-container`). That wrapper carries a row's own
+ * `--schema-row-pad`, opening a gap between the selector and the first field
+ * that a plain `oneOf` does not have, so the variant reads as detached from its
+ * picker. Drop that leading row pad for the panel's own variant card so the
+ * field sits flush under the selector, matching a plain `oneOf`. Only the top
+ * pad goes: the wrapper's trailing pad is what closes the card under the last
+ * field, exactly as a plain variant's last row does.
+ *
+ * The rule lives here rather than in `SchemaProperty` because a body-level
+ * discriminator `oneOf` is rendered straight from `Schema.vue` and never passes
+ * through `SchemaProperty`, so a rule scoped there would never reach it.
+ * See https://github.com/scalar/scalar/issues/9861
+ */
+.property-rule
+  :deep(
+    .composition-panel
+      > .schema-card
+      > .schema-properties
+      > ul
+      > li.property.property--tree-container
+  ) {
+  padding-top: 0 !important;
+}
+</style>
