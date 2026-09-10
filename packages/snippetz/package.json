@@ -240,11 +240,6 @@
       "import": "./dist/plugins/swift/nsurlsession/index.js",
       "types": "./dist/plugins/swift/nsurlsession/index.d.ts",
       "default": "./dist/plugins/swift/nsurlsession/index.js"
-    },
-    "./utils": {
-      "import": "./dist/utils/index.js",
-      "types": "./dist/utils/index.d.ts",
-      "default": "./dist/utils/index.js"
     }
   },
   "files": [
@@ -254,11 +249,9 @@
   "dependencies": {
     "@scalar/helpers": "workspace:*",
     "@scalar/types": "workspace:*",
-    "js-base64": "catalog:*",
-    "stringify-object": "^6.0.0"
+    "js-base64": "catalog:*"
   },
   "devDependencies": {
-    "@types/stringify-object": "^4.0.5",
     "vite": "catalog:*"
   }
 }
