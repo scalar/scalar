@@ -22,8 +22,7 @@ export interface Props {
  * The default configuration for the API Reference.
  */
 const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
-  // TODO :Add the integration name to the configuration once the first release went out to allow the value
-  // _integration: 'astro',
+  _integration: 'astro',
 }
 
 const { configuration, renderMode = 'static' } = Astro.props
