@@ -9,9 +9,6 @@ export async function getBody(c: Context) {
   // (Multipart) form data
   if (contentType?.includes('application/x-www-form-urlencoded') || contentType?.includes('multipart/form-data')) {
     try {
-      // TODO: This is just for debugging purposes, remove it later
-      // const body = await c.req.raw.body
-      // It should actually be this:
       const body = transformFormData(
         await c.req.parseBody({
           dot: true,

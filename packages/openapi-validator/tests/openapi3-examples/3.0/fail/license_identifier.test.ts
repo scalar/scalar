@@ -7,11 +7,7 @@ describe('license_identifier', () => {
   it('returns an error', async () => {
     const result = await validate(license_identifier)
 
-    // TODO: Swagger Editor
-    //
-    // Structural error at info.license
-    // should NOT have additional properties
-    // additionalProperty: identifier
+    // License identifiers are not supported by this OpenAPI 3.0 document.
     expect(result.errors?.[0]?.message).toBe('Property identifier is not expected to be here')
     expect(result.valid).toBe(false)
   })
