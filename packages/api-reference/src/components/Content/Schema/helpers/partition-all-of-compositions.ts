@@ -22,7 +22,7 @@ const CHOICE_KEYWORDS: ChoiceKeyword[] = ['oneOf', 'anyOf']
 
 type Member =
   | { kind: 'object'; schema: SchemaObject }
-  | { kind: 'choice'; composition: ChoiceKeyword; value: SchemaObject }
+  | { kind: 'choice'; composition: ChoiceKeyword; value: SchemaObject; inheritedSelection: boolean }
 
 /**
  * Flattens a member's own (non-composition) properties and every `oneOf`/`anyOf`
@@ -59,8 +59,22 @@ const collectMembers = (schema: SchemaObject, out: Member[], seenRefs: Set<strin
 
   for (const keyword of CHOICE_KEYWORDS) {
     const value = keyword === 'oneOf' ? oneOf : anyOf
+    // A variant inherits its base fields through allOf, but the base's choice
+    // containing that variant has already been selected. Rendering it again
+    // would re-enter the variant and expose fields from the other branches.
+    const selectsAncestor =
+      Array.isArray(value) &&
+      value.some((branch) => {
+        const ref = branch && typeof branch === 'object' && '$ref' in branch ? branch.$ref : undefined
+        return typeof ref === 'string' && seenRefs.has(ref)
+      })
     if (Array.isArray(value) && value.length > 0) {
-      out.push({ kind: 'choice', composition: keyword, value: { [keyword]: value } as unknown as SchemaObject })
+      out.push({
+        kind: 'choice',
+        composition: keyword,
+        value: { [keyword]: value } as unknown as SchemaObject,
+        inheritedSelection: selectsAncestor,
+      })
     }
   }
 
@@ -131,7 +145,8 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
   if (Object.keys(rest).length > 0) {
     members.push({ kind: 'object', schema: rest as SchemaObject })
   }
-  const seenRefs = new Set<string>()
+  const schemaRef = '$ref' in schema ? schema.$ref : undefined
+  const seenRefs = new Set<string>(typeof schemaRef === 'string' ? [schemaRef] : [])
   for (const rawMember of allOf) {
     if (rawMember && typeof rawMember === 'object') {
       const resolved = resolve.schema(rawMember) as SchemaObject & { $ref?: string }
@@ -158,6 +173,9 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
   for (const member of members) {
     if (member.kind === 'object') {
       objectRun.push(member.schema)
+    } else if (member.inheritedSelection) {
+      // Hidden inherited choices still occupy an ordinal in the request example.
+      choiceIndex++
     } else {
       flushObjectRun()
       // `choiceIndex` is the ordinal used to build the composition-selection key
