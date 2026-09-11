@@ -118,6 +118,7 @@ const handleFileUpload = (index: number) => {
   <template v-if="selectedContentType === 'multipart/form-data'">
     <RequestTable
       :data="localFormBodyRows"
+      deferKeyUpdates
       :environment="environment"
       showUploadButton
       @deleteRow="handleDeleteRow"
@@ -130,6 +131,7 @@ const handleFileUpload = (index: number) => {
   <template v-else>
     <RequestTable
       :data="localFormBodyRows"
+      deferKeyUpdates
       :environment="environment"
       @deleteRow="handleDeleteRow"
       @upsertRow="handleUpsertRow" />
