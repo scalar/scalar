@@ -23,7 +23,10 @@ import {
  * This module therefore must NOT import `postman-sandbox`; it only serializes inputs, talks to the
  * iframe over `postMessage`, and applies the results back to the live store/request.
  */
-export const toPostmanResponse = async (response: Response): Promise<PostmanResponseDefinition> => {
+export const toPostmanResponse = async (
+  response: Response,
+  responseDuration?: number,
+): Promise<PostmanResponseDefinition> => {
   // Read as ArrayBuffer (not text) so binary payloads — gzipped JSON, images, PDFs, protobuf —
   // survive the trip through `postMessage` byte-for-byte. Round-tripping through `response.text()`
   // + `TextEncoder` corrupts any sequence that is not valid UTF-8 because the decoder replaces
@@ -32,6 +35,7 @@ export const toPostmanResponse = async (response: Response): Promise<PostmanResp
   const responseBytes = Array.from(new Uint8Array(buffer))
 
   return {
+    ...(responseDuration === undefined ? {} : { responseTime: responseDuration }),
     code: response.status,
     status: response.statusText || String(response.status),
     header: Array.from(response.headers.entries()).map(([key, value]) => ({ key, value })),
@@ -309,7 +313,7 @@ let nextExecutionId = 0
 export const executeInPostmanSandbox = async ({
   script,
   type,
-  context: { requestBuilder, response, variablesStore, scriptConsole },
+  context: { requestBuilder, response, responseDuration, variablesStore, scriptConsole },
   onTestResultsUpdate,
 }: {
   script: string
@@ -318,6 +322,8 @@ export const executeInPostmanSandbox = async ({
     /** Postman Collection request for `pm.request` (not the browser Fetch API Request). */
     requestBuilder?: RequestFactory
     response?: Response
+    /** Request duration in milliseconds. */
+    responseDuration?: number
     variablesStore?: VariablesStore
     scriptConsole: ConsoleContext
   }
@@ -326,7 +332,7 @@ export const executeInPostmanSandbox = async ({
   // Serialize everything that crosses the iframe boundary on the host, so the iframe only deals with
   // plain, structured-cloneable data. The response body is read here (it requires the live Response).
   const requestDefinition = requestBuilder ? createPostmanRequestFromFactory(requestBuilder).toJSON() : undefined
-  const responseDefinition = response ? await toPostmanResponse(response) : undefined
+  const responseDefinition = response ? await toPostmanResponse(response, responseDuration) : undefined
   const scopes = variablesStore ? getVariableScopesFromStore(variablesStore) : undefined
 
   const request: SandboxExecuteRequest = {

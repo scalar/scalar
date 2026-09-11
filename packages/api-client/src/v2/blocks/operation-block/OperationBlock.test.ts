@@ -1151,6 +1151,8 @@ describe('OperationBlock', () => {
 
     const { response } = getResponseBlockProps(wrapper)
     expect(response).toStrictEqual(mockResponse)
+    const responseHookCall = vi.mocked(executeHook).mock.calls.find((call) => call[1] === 'responseReceived')
+    expect(responseHookCall?.[0]).toHaveProperty('responseDuration', 150)
     expect(response?.status).toBe(200)
     expect(response && 'data' in response ? response.data : undefined).toBe('{"users": []}')
   })
