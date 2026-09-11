@@ -8,7 +8,7 @@ pnpm --filter @scalar/openapi-to-markdown evaluate
 
 The harness converts seven fixed OpenAPI documents through the public Markdown renderer. It checks feature details, Markdown formatting, reference overrides, clean output, and repeatability. Each check has equal weight. The initial renderer passes 27 of 37 checks.
 
-Baseline checks fail the test if existing behavior is lost. Missing features remain visible in the report without failing the baseline. To require every check to pass:
+The package test configuration now requires every check to pass. The harness PR records the original baseline separately from known gaps. You can also enable strict checks explicitly:
 
 ```sh
 MARKDOWN_EVALUATION_STRICT=1 pnpm --filter @scalar/openapi-to-markdown evaluate

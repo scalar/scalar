@@ -955,4 +955,32 @@ paths:
       })
     }
   })
+  it('preserves an optional request body description without inventing an operation ID', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Optional body', version: '1' },
+      paths: {
+        '/pets': {
+          post: {
+            requestBody: { required: false, description: 'Optional pet data.', content: {} },
+            responses: { '204': { description: 'Saved' } },
+          },
+        },
+      },
+    })
+    expect(result).toContain('Optional pet data.')
+    expect(result).toMatch(/Required:.*`false`/)
+    expect(result).not.toContain('Operation ID:')
+  })
+  it('renders a primitive component description once with its Markdown formatting', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Components', version: '1' },
+      components: { schemas: { Status: { type: 'string', description: 'A **unique status**.', enum: ['ready'] } } },
+    })
+    expect(result.match(/unique status/g)).toStrictEqual(['unique status'])
+    expect(result).toContain('**unique status**')
+    expect(result).toContain('"ready"')
+    expect(result).not.toContain('Example:')
+  })
 })

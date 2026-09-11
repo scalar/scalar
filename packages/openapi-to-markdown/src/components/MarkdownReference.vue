@@ -29,6 +29,8 @@ type SchemaView = {
   type?: string | string[]
 }
 type RequestBodyView = {
+  description?: string
+  required?: boolean
   content?: Record<string, { schema?: unknown }>
 }
 type ParameterView = {
@@ -327,6 +329,11 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
             <li>
               <strong>Path:</strong>&nbsp;<code>{{ entry.path }}</code>
             </li>
+            <li v-if="entry.operation.operationId">
+              <strong>Operation ID:</strong>&nbsp;<code>{{
+                entry.operation.operationId
+              }}</code>
+            </li>
             <template v-if="entry.operation.tags">
               <li>
                 <strong>Tags:</strong>&nbsp;{{
@@ -417,9 +424,17 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
             </section>
           </template>
 
-          <template v-if="entry.requestBody?.content">
+          <template v-if="entry.requestBody">
             <section>
               <h4>Request Body</h4>
+              <p v-if="typeof entry.requestBody.required === 'boolean'">
+                <strong>Required:</strong>&nbsp;<code>{{
+                  entry.requestBody.required
+                }}</code>
+              </p>
+              <ScalarMarkdown
+                v-if="entry.requestBody.description"
+                :value="entry.requestBody.description" />
               <template
                 v-for="(bodyContent, mediaType) in entry.requestBody.content"
                 :key="mediaType">
@@ -565,10 +580,10 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
             <ScalarMarkdown :value="getSchemaView(entry.schema).description" />
           </template>
           <Schema
-            v-if="getSchemaView(entry.schema).type === 'object'"
-            :schema="entry.schema" />
-          <p><strong>Example:</strong></p>
+            :schema="entry.schema"
+            hideDescription />
           <template v-if="getSchemaView(entry.schema).type === 'object'">
+            <p><strong>Example:</strong></p>
             <XmlOrJson :modelValue="getExampleFromSchema(entry.schema)" />
           </template>
         </section>
