@@ -24,7 +24,8 @@
     "build": "vite build && vue-tsc -p tsconfig.build.json",
     "dev": "tsx watch playground/index.ts",
     "test": "vitest --run",
-    "types:check": "vue-tsc --noEmit"
+    "types:check": "vue-tsc --noEmit",
+    "evaluate": "vitest run evaluation/evaluate.test.ts"
   },
   "type": "module",
   "main": "dist/index.js",
