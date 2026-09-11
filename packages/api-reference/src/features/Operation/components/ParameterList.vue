@@ -6,6 +6,8 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { useId } from 'vue'
 
+import { SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ParameterListItem from './ParameterListItem.vue'
@@ -23,24 +25,33 @@ const { parameters } = defineProps<{
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaKeyboardNav'
   >
 }>()
 
 /** Accessible id for the heading */
 const id = useId()
+
+const { level: headingLevel } = useDocumentOutline('operationSection')
 </script>
 <template>
   <div
     v-if="parameters?.length"
     class="mt-6">
-    <div
+    <!-- The heading carries the rule. A static row pads only 6px, so a 6px
+         bottom margin lands the same 12px gap the responses heading gets from
+         its row's 10px trigger padding -->
+    <SectionHeaderTag
       :id
-      class="text-c-1 mt-3 mb-3 text-lg leading-[1.45] font-medium">
+      class="text-c-1 parameter-list-title--tree mt-3 mb-1.5 block! text-lg leading-[1.45] font-medium"
+      :level="headingLevel"
+      rule>
       <slot name="title" />
-    </div>
+    </SectionHeaderTag>
     <ul
       :aria-labelledby="id"
-      class="mb-3 list-none p-0 text-sm">
+      class="mb-3 list-none p-0 text-sm"
+      role="list">
       <ParameterListItem
         v-for="item in parameters"
         :key="item.name"

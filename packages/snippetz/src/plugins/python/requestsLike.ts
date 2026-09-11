@@ -53,15 +53,12 @@ export function requestsLikeGenerate(
 
   // Add headers if present
   if (normalizedRequest.headers?.length) {
-    options.headers = normalizedRequest.headers.reduce(
-      (acc, header) => {
-        if (!(header.name in acc)) {
-          acc[header.name] = header.value
-        }
-        return acc
-      },
-      {} as Record<string, string>,
-    )
+    options.headers = normalizedRequest.headers.reduce<Record<string, string>>((acc, header) => {
+      if (!(header.name in acc)) {
+        acc[header.name] = header.value
+      }
+      return acc
+    }, {})
   }
 
   // Add query parameters if present

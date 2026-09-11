@@ -231,6 +231,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
           <ScalarErrorBoundary>
             <Callbacks
               v-if="operation.callbacks"
+              :breadcrumb="[id]"
               :callbacks="operation.callbacks"
               class="mt-6"
               :document

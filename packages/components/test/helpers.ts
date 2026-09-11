@@ -1,164 +1,48 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
 import {
   type BrowserContext,
   type BrowserContextOptions,
-  type Page,
-  type TestInfo,
+  type Locator,
   test as base,
   expect,
   devices as playwrightDevices,
 } from '@playwright/test'
 
-import { type ThemeVariantId, defaultThemeVariant } from '../.storybook/themes'
+import { defaultThemeVariant } from '@scalar/helpers/storybook/themes'
+import {
+  type ComponentTestOptions,
+  type SnapshotFn,
+  componentDetailsFromContext,
+  devices,
+  setColorMode,
+  snapshotFilename,
+  transparentCssPath,
+} from './shared'
 
 export { expect }
 
-/**
- * Themes to snapshot components under, beyond the default.
- *
- * `rounded-none` and `rounded-full` sit at either end of the radius scale. Laserwave is a real
- * preset, so it also proves the decorator applies a theme's colours, not only a token override, and
- * it is the one preset that ships its own radii.
- */
-export const themes = ['rounded-none', 'rounded-full', 'laserwave'] as const satisfies ThemeVariantId[]
+export type { Device } from './shared'
 
-export type Device = keyof typeof devices
+/**
+ * Visual test helpers.
+ *
+ * Stories are rendered by the gallery in `./gallery` through Playwright's built-in `mount()`
+ * fixture. Storybook remains the browsable workbench, but it is no longer in the test path, so the
+ * suite no longer depends on its preview URL shape, its error markup or its root element.
+ *
+ * @see ./gallery/main.ts for the other half of the contract.
+ */
 
 export type TestBody = Parameters<typeof test>[2]
 
-export type SnapshotFn = (suffix?: string) => Promise<void>
-
-export type StoryTestArgs = Record<string, string | number | boolean | null | undefined>
-
-export type ComponentTestOptions = {
-  /**
-   * The component to test.
-   *
-   * Falls back to the title of the test.describe block if not provided.
-   */
-  component: string | undefined
-  /**
-   * The story to test.
-   *
-   * Falls back to the title of the test block if not provided.
-   */
-  story: string | undefined
-  /**
-   * The args to pass to the story.
-   *
-   * Falls back to the args of the test block if not provided.
-   */
-  args: StoryTestArgs | undefined
-  /** Whether to render with a background. Defaults to false. */
-  background: boolean
-  /** Whether to crop the snapshot to the component root, body, or viewport. Defaults to 'body'. */
-  crop: 'component' | 'body' | 'viewport'
-  /** Device scale factor used for screenshots. Defaults to 2. */
-  scale: number
-  /** Device to emulate. Defaults to no device emulation. */
-  device: Device | undefined
-  /** Color mode to use for screenshots. Defaults to ['light']. */
-  colorModes: ['light'] | ['dark'] | ['light', 'dark']
-  /**
-   * Theme to render the story under. Defaults to 'default'.
-   *
-   * The theme is chosen when the story loads rather than between snapshots, so a test can interact
-   * with a component and hold that state across every snapshot it takes. To cover several themes,
-   * wrap the test in a describe block per theme.
-   */
-  theme: ThemeVariantId
-}
-
 type ComponentTestFixtures = {
-  /** Helper to open a specific Storybook story by component and story name. */
-  openStory: void
+  /**
+   * The mounted story, as a locator pointing at the gallery's root element.
+   *
+   * Mounting is automatic so a test body can go straight to interacting or snapshotting.
+   */
+  mountedStory: Locator
   /** Helper to take a snapshot with a normalized filename and optional suffix. */
   snapshot: SnapshotFn
-}
-
-/**
- * A simplified list of playwright devices to be made available to tests
- *
- * @see https://playwright.dev/docs/emulation#devices
- */
-const devices = {
-  'Chrome': 'Desktop Chrome',
-  'Firefox': 'Desktop Firefox',
-  'Safari': 'Desktop Safari',
-  'Edge': 'Desktop Edge',
-} as const satisfies Record<string, keyof typeof playwrightDevices>
-
-function toSlug(input: string): string {
-  return input.replace(/ /g, '-').toLowerCase()
-}
-
-const currentDir = path.dirname(fileURLToPath(import.meta.url))
-const transparentCssPath = path.resolve(currentDir, './transparent.css')
-
-const componentDetailsFromContext = (
-  component: string | undefined,
-  story: string | undefined,
-  testInfo: TestInfo,
-): { component: string; story: string } => {
-  // Extract the title of the test.describe block and the test block
-  const [describeTitle, testTitle] = testInfo.titlePath.slice(-2)
-
-  const componentName = component ?? describeTitle
-  const storyName = story ?? testTitle
-
-  if (!componentName || !storyName) {
-    throw new Error(
-      'Could not determine component and story from test context, make sure to set a test title and a title for the test.describe block',
-    )
-  }
-
-  return { component: componentName, story: storyName }
-}
-
-/**
- * Encodes a single story arg to Storybook URL format
- */
-const encodeStoryArg = (value: StoryTestArgs[string]): string => {
-  if (value === null || value === undefined || typeof value === 'boolean') {
-    return `!${encodeURIComponent(String(value))}`
-  }
-  return encodeURIComponent(String(value))
-}
-
-/**
- * Serializes args to Storybook URL format
- *
- * See: https://storybook.js.org/docs/writing-stories/args#setting-args-through-the-url
- */
-const encodeStoryArgs = (args?: StoryTestArgs): string => {
-  if (!args || Object.keys(args).length === 0) {
-    return ''
-  }
-
-  return Object.entries(args)
-    .map(([k, v]) => `${k}:${encodeStoryArg(v)}`)
-    .join(';')
-}
-
-/**
- * Sets the color mode for the page using a class
- */
-const setColorMode = async (page: Page, colorMode: 'light' | 'dark') => {
-  const body = await page.locator('body').elementHandle()
-
-  if (colorMode === 'dark') {
-    await body?.evaluate((el) => {
-      el.classList.add('dark-mode')
-      el.classList.remove('light-mode')
-    })
-  } else {
-    await body?.evaluate((el) => {
-      el.classList.add('light-mode')
-      el.classList.remove('dark-mode')
-    })
-  }
 }
 
 export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
@@ -169,6 +53,7 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   background: [false, { option: true }],
   crop: ['body', { option: true }],
   scale: [2, { option: true }],
+  maxDiffPixels: [undefined, { option: true }],
   device: [undefined, { option: true }],
   colorModes: [['light'], { option: true }],
   theme: [defaultThemeVariant, { option: true }],
@@ -191,44 +76,52 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
     await context.close()
   },
 
-  // Utility to open a storybook story
-  openStory: [
-    async ({ page, component: c, story: s, args, theme }, use, testInfo) => {
+  /**
+   * Hands the theme to the gallery.
+   *
+   * `mount()` navigates to the bare base URL, so there is no query string to carry a theme. An init
+   * script runs before any page script on every navigation, which puts the theme in place early
+   * enough for the gallery to apply it on the first paint rather than as a flash after the story
+   * renders.
+   */
+  page: async ({ page, theme }, use) => {
+    await page.addInitScript((value) => {
+      window.__scalarTheme = value
+    }, theme)
+
+    await use(page)
+  },
+
+  // Render the story before the test body runs
+  mountedStory: [
+    async ({ mount, component: c, story: s, args }, use, testInfo) => {
       const { component, story } = componentDetailsFromContext(c, s, testInfo)
 
-      const params = [
-        ['viewMode', 'story'],
-        ['id', `components-${toSlug(component)}--${toSlug(story)}`],
-        ['args', encodeStoryArgs(args)],
-        // Read by the theme decorator in .storybook/preview.ts
-        ['globals', `theme:${theme}`],
-      ]
-
-      await page.goto(`iframe.html?${params.map(([k, v]) => `${k}=${v}`).join('&')}`, {
-        waitUntil: 'networkidle',
-      })
-
-      const error = await page.locator('.sb-errordisplay #error-message').textContent()
-      expect(error, `${error}`).toBeFalsy()
-
-      await use()
+      await use(await mount(`${component}/${story}`, args))
     },
     { auto: true },
   ],
 
   // Snapshot helper bound to current test settings
-  snapshot: async ({ page, background, crop, colorModes, theme, component: c, story: s }, use, testInfo) => {
+  snapshot: async (
+    { page, mountedStory, background, crop, colorModes, theme, maxDiffPixels, component: c, story: s },
+    use,
+    testInfo,
+  ) => {
     const takeSnapshot: SnapshotFn = async (suffix?: string): Promise<void> => {
       const { story } = componentDetailsFromContext(c, s, testInfo)
-      const target = crop === 'viewport' ? page : page.locator(crop === 'component' ? '#storybook-root > *' : 'body')
-      const themeSuffix = theme === defaultThemeVariant ? '' : `-${toSlug(theme)}`
+
+      // The mount locator is the gallery root, so its child is the component itself
+      const target =
+        crop === 'viewport' ? page : crop === 'component' ? mountedStory.locator('> *') : page.locator('body')
+
       for (const colorMode of colorModes) {
-        const colorModeSuffix = colorMode === 'light' ? '' : `-${colorMode}`
-        const filename = `${toSlug(story)}${suffix ? `-${toSlug(suffix)}` : ''}${themeSuffix}${colorModeSuffix}.png`
         await setColorMode(page, colorMode)
-        await expect(target).toHaveScreenshot(filename, {
+        await expect(target).toHaveScreenshot(snapshotFilename({ story, suffix, theme, colorMode }), {
           omitBackground: !background,
           stylePath: background ? undefined : transparentCssPath,
+          // Spread so an unset option falls through to the project wide ratio
+          ...(maxDiffPixels === undefined ? {} : { maxDiffPixels }),
         })
       }
     }
@@ -238,6 +131,6 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
 })
 
 /**
- * Helper to just take a snapshot of a storybook story
+ * Helper to just take a snapshot of a story
  */
 export const takeSnapshot: TestBody = async ({ snapshot }) => await snapshot()

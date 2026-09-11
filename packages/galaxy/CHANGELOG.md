@@ -1,5 +1,17 @@
 # @scalar/galaxy
 
+## 0.7.0
+
+### Minor Changes
+
+- [#10014](https://github.com/scalar/scalar/pull/10014): Flesh out the OpenAPI 3.2 example document with the features new to 3.2: named servers, hierarchical tags (`parent`/`kind`/`summary`), the `query` HTTP method, `additionalOperations`, the `querystring` parameter location, sequential/streaming media types via `itemSchema`, positional multipart encoding (`prefixEncoding`/`itemEncoding`), the OAuth 2.0 device authorization flow, `oauth2MetadataUrl`, a deprecated security scheme, and XML `nodeType`.
+
+## 0.6.14
+
+### Patch Changes
+
+- [#9980](https://github.com/scalar/scalar/pull/9980): Add an OpenAPI 3.2 example document, available as `@scalar/galaxy/3.2.yaml` and `@scalar/galaxy/3.2.json`. It is a copy of the 3.1 document on version `3.2.0`. The `latest` document still points at 3.1.
+
 ## 0.6.13
 
 ### Patch Changes

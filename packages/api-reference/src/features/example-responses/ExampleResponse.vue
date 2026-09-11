@@ -1,52 +1,28 @@
 <script lang="ts" setup>
-import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
-import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
-  SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 
-const { example, response } = defineProps<{
+import { getExampleContent } from './helpers/get-example-content'
+
+const { example, response, content } = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject | undefined
+  /** Reuse the card's formatted value so generation and copying cannot diverge. */
+  content?: string
 }>()
 const { translate } = useLocalization()
 
-/** Get content from the appropriate source */
-const getContent = () => {
-  if (example !== undefined) {
-    return getResolvedRefDeep(example)?.value ?? ''
-  }
-
-  if (response?.schema) {
-    return getExampleFromSchema(
-      // Should be safe to deep resolve the schema here because we don't have to do any sibling resolution for example generation
-      getResolvedRefDeep(response.schema) as SchemaObject,
-      {
-        emptyString: 'string',
-        mode: 'read',
-      },
-    )
-  }
-
-  return undefined
-}
-
-/** Pre-pretty printed content string, avoids multiple pretty prints*/
-const prettyPrintedContent = computed(() => {
-  const content = getContent()
-  if (content === undefined) {
-    return undefined
-  }
-  return prettyPrintJson(content)
-})
+/** Preformatted content is shared with the response card clipboard action. */
+const prettyPrintedContent = computed(
+  () => content ?? getExampleContent(response, example),
+)
 
 const VIRTUALIZATION_THRESHOLD = 20_000
 

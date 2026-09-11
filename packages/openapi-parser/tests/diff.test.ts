@@ -1,9 +1,9 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
+import type { AnyObject } from '@scalar/types/utils'
 import { diff } from 'just-diff'
 import { expect, test } from 'vitest'
 
 import { load, normalize } from '../src/index'
-import type { AnyObject } from '../src/types'
 import { dereference } from '../src/utils/dereference'
 
 const expectedErrors = {

@@ -1,5 +1,24 @@
 # @scalar/openapi-parser
 
+## 0.29.1
+
+### Patch Changes
+
+- [#10078](https://github.com/scalar/scalar/pull/10078): Guard mergeObjects (used by join) against prototype pollution, so a `__proto__`, `constructor`, or `prototype` key in an input document can no longer reach Object.prototype
+- [#9990](https://github.com/scalar/scalar/pull/9990): Fix `@scalar/types` leaking into the published type declarations. `@scalar/openapi-parser` referenced `@scalar/types` from its `.d.ts` files while only depending on it as a `devDependency`, so consumers hit `TS2307` (cannot find module). `@scalar/types` is now a regular dependency, and the package uses the shared `UnknownObject` and `AnyObject` utility types from `@scalar/types/utils` directly instead of defining its own local copies (`AnyObject` was added to `@scalar/types/utils` alongside the existing `UnknownObject`).
+
+  The generic `AnyObject` and `UnknownObject` types are no longer re-exported from `@scalar/openapi-parser`. Import them from `@scalar/types/utils` instead.
+
+## 0.29.0
+
+### Minor Changes
+
+- [#9967](https://github.com/scalar/scalar/pull/9967): Add a new `@scalar/openapi-validator` package that validates OpenAPI documents on its own. `@scalar/openapi-parser` now uses it under the hood.
+
+  Two type-level changes in `@scalar/openapi-parser` are worth noting:
+  - `ErrorObject.path` is now `string | string[]` instead of `string[]`. Schema errors carry a JSON Pointer string, semantic errors carry path segments — both shapes were already produced at runtime, the type just says so now. Narrow with `Array.isArray` before treating it as a list.
+  - The unused `ValidationOutcome` type and the internal `OpenApiDocument` alias are no longer exported.
+
 ## 0.28.16
 
 ### Patch Changes

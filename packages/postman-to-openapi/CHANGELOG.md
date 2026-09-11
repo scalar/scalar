@@ -1,5 +1,9 @@
 # @scalar/postman-to-openapi
 
+## 0.7.19
+
+## 0.7.18
+
 ## 0.7.17
 
 ### Patch Changes

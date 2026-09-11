@@ -41,14 +41,14 @@ export function safeRun<T>(fn: () => T | Promise<T>): Result<T> | Promise<Result
     const out = fn()
     if (out instanceof Promise) {
       return out.then(
-        (data) => ok(data as T),
+        (data) => ok(data),
         (error: unknown) => {
           console.error(error)
           return err(formatCaughtError(error))
         },
       )
     }
-    return ok(out as T)
+    return ok(out)
   } catch (error) {
     console.error(error)
     return err(formatCaughtError(error))

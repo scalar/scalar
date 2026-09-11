@@ -85,6 +85,7 @@ import {
 } from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
+import { provideSchemaExpansion } from '@/components/Content/Schema/helpers/schema-expansion'
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
@@ -179,6 +180,14 @@ const isSidebarOpen = ref(false)
  * @see https://github.com/tailwindlabs/headlessui/issues/2979
  */
 provideUseId(() => useId())
+
+/**
+ * Which schema properties are open, for this reference only.
+ *
+ * Deliberately per-instance rather than module-global: `createApiReference` can
+ * be called twice on one page, and two references must not share expansion.
+ */
+provideSchemaExpansion()
 
 // ---------------------------------------------------------------------------
 /**
@@ -1010,6 +1019,21 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
           servers[0]!.url,
         )
       }
+    }
+
+    // Seed the request body editor view from config, unless the document already sets it
+    // explicitly via the `x-scalar-default-request-body-view` extension.
+    if (
+      result === true &&
+      config.defaultRequestBodyView &&
+      isOpenApiDocument(document) &&
+      document['x-scalar-default-request-body-view'] === undefined
+    ) {
+      clientStore.updateDocument(
+        slug,
+        'x-scalar-default-request-body-view',
+        config.defaultRequestBodyView,
+      )
     }
   })().finally(() => {
     documentLoadPromises.delete(slug)

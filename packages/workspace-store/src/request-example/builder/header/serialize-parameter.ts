@@ -1,3 +1,5 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
+
 /**
  * Shared parameter serialization utilities for OpenAPI style values.
  * Used by both build-request-parameters and process-parameters.
@@ -21,7 +23,7 @@ export const serializeContentValue = (value: unknown, contentType: string): stri
   }
 
   // Handle JSON content types
-  if (contentType.includes('json') || (typeof value === 'object' && value !== null && !Array.isArray(value))) {
+  if (contentType.includes('json') || (isObjectLike(value) && !Array.isArray(value))) {
     return JSON.stringify(value)
   }
 
@@ -50,8 +52,8 @@ export const serializeSimpleStyle = (value: unknown, explode: boolean): unknown 
   }
 
   // Handle objects
-  if (typeof value === 'object' && value !== null) {
-    const entries = Object.entries(value as Record<string, unknown>)
+  if (isObjectLike(value)) {
+    const entries = Object.entries(value)
 
     if (explode) {
       // Simple explode object: R=100,G=200,B=150
@@ -95,16 +97,16 @@ export const serializeFormStyle = (
   }
 
   // Handle objects with explode
-  if (typeof value === 'object' && value !== null && explode) {
-    return Object.entries(value as Record<string, unknown>).map(([k, v]) => ({
+  if (isObjectLike(value) && explode) {
+    return Object.entries(value).map(([k, v]) => ({
       key: k,
       value: v,
     }))
   }
 
   // Handle objects without explode
-  if (typeof value === 'object' && value !== null) {
-    return Object.entries(value as Record<string, unknown>)
+  if (isObjectLike(value)) {
+    return Object.entries(value)
       .map(([k, v]) => `${k},${v}`)
       .join(',')
   }
@@ -143,22 +145,22 @@ export const serializeFormStyleForCookies = (
   }
 
   // Handle objects with explode
-  if (typeof value === 'object' && value !== null && explode) {
-    return Object.entries(value as Record<string, unknown>).map(([k, v]) => ({
+  if (isObjectLike(value) && explode) {
+    return Object.entries(value).map(([k, v]) => ({
       key: k,
       value: v,
     }))
   }
 
   // Handle objects without explode - recursively flatten nested objects
-  if (typeof value === 'object' && value !== null) {
+  if (isObjectLike(value)) {
     const flattenObject = (obj: Record<string, unknown>): string[] => {
       const result: string[] = []
 
       for (const [key, val] of Object.entries(obj)) {
         // Recursively flatten nested objects
-        if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
-          result.push(key, ...flattenObject(val as Record<string, unknown>))
+        if (isObjectLike(val) && !Array.isArray(val)) {
+          result.push(key, ...flattenObject(val))
         }
         // Handle primitive values
         else {
@@ -169,7 +171,7 @@ export const serializeFormStyleForCookies = (
       return result
     }
 
-    return flattenObject(value as Record<string, unknown>).join(',')
+    return flattenObject(value).join(',')
   }
 
   // Handle primitives - return as-is to preserve type
@@ -190,8 +192,8 @@ export const serializeSpaceDelimitedStyle = (value: unknown): string => {
   }
 
   // Handle objects
-  if (typeof value === 'object' && value !== null) {
-    return Object.entries(value as Record<string, unknown>)
+  if (isObjectLike(value)) {
+    return Object.entries(value)
       .map(([k, v]) => `${k} ${v}`)
       .join(' ')
   }
@@ -214,10 +216,8 @@ export const serializePipeDelimitedStyle = (value: unknown): string => {
   }
 
   // Handle objects
-  if (typeof value === 'object' && value !== null) {
-    return Object.entries(value as Record<string, unknown>)
-      .flat()
-      .join('|')
+  if (isObjectLike(value)) {
+    return Object.entries(value).flat().join('|')
   }
 
   // Handle primitives (shouldn't happen for pipeDelimited)
@@ -247,8 +247,8 @@ export const serializeDeepObjectStyle = (paramName: string, value: unknown): Arr
       for (const item of val) {
         append(`${fullKey}[]`, item)
       }
-    } else if (typeof val === 'object' && val !== null) {
-      flatten(val as Record<string, unknown>, fullKey)
+    } else if (isObjectLike(val)) {
+      flatten(val, fullKey)
     } else {
       result.push({ key: fullKey, value: String(val) })
     }
@@ -263,8 +263,8 @@ export const serializeDeepObjectStyle = (paramName: string, value: unknown): Arr
     }
   }
 
-  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-    flatten(value as Record<string, unknown>, paramName)
+  if (isObjectLike(value) && !Array.isArray(value)) {
+    flatten(value, paramName)
   }
 
   return result

@@ -157,6 +157,35 @@ describe('externalValueResolver', () => {
       },
     })
   })
+
+  it('resolves relative external values against the document origin', async () => {
+    server.get('/examples/pet.json', () => {
+      return { name: 'Kitty' }
+    })
+
+    await server.listen({ port: 0 })
+    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
+
+    const input = {
+      a: {
+        externalValue: '/examples/pet.json',
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [externalValueResolver(), fetchUrls()],
+      // The document was loaded from this URL, so relative paths resolve against it.
+      origin: `${url}/openapi.json`,
+    })
+
+    expect(input).toEqual({
+      a: {
+        externalValue: '/examples/pet.json',
+        value: { name: 'Kitty' },
+      },
+    })
+  })
 })
 
 describe('refsEverywhere', () => {

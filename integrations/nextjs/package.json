@@ -18,7 +18,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.11.16",
+  "version": "0.11.18",
   "engines": {
     "node": ">=22"
   },
@@ -53,7 +53,11 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://scalar.com/products/api-references/integrations/nextjs"
+    "documentation": "https://scalar.com/products/api-references/integrations/nextjs",
+    "extraContent": {
+      "headline": "Quickstart",
+      "content": "```bash\nnpm install @scalar/nextjs-api-reference\n```\n\nPut your OpenAPI description in `public/openapi.json` and create:\n\n```typescript\n// app/scalar/route.ts\nimport { ApiReference } from '@scalar/nextjs-api-reference'\n\nexport const GET = ApiReference({ url: '/openapi.json' })\n```\n\nOpen `/scalar`. To embed Scalar in your application layout, follow the [App Router page guide](https://scalar.com/products/api-references/integrations/nextjs)."
+    }
   },
   "dependencies": {
     "@scalar/client-side-rendering": "workspace:*"

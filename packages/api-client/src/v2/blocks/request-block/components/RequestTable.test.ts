@@ -257,4 +257,38 @@ describe('RequestTable', () => {
 
     expect(findScenario()?.element).toBe(elementBefore)
   })
+  it('replaces and reorders repeated file fields without retaining stale rows', async () => {
+    const first = new File(['one'], 'one.txt')
+    const second = new File(['two'], 'two.txt')
+    const third = new File(['three'], 'three.txt')
+    const fourth = new File(['four'], 'four.txt')
+    const wrapper = mount(RequestTable, {
+      props: {
+        data: [
+          { name: 'files', value: first },
+          { name: 'files', value: second },
+          { name: 'other', value: 'old' },
+        ],
+        environment,
+        showAddRowPlaceholder: false,
+        showUploadButton: true,
+      },
+    })
+    const updated = [
+      { name: 'other', value: 'new' },
+      { name: 'files', value: third },
+      { name: 'files', value: fourth },
+    ]
+    await wrapper.setProps({ data: updated })
+    expect(wrapper.findAll('[title$=".txt"]').map((file) => file.attributes('title'))).toEqual([
+      'three.txt',
+      'four.txt',
+    ])
+    expect(wrapper.findAllComponents({ name: 'RequestTableRow' }).map((row) => row.props('data'))).toEqual(updated)
+    await wrapper.setProps({ data: updated.slice(0, 2) })
+    expect(wrapper.findAllComponents({ name: 'RequestTableRow' }).map((row) => row.props('data'))).toEqual(
+      updated.slice(0, 2),
+    )
+    wrapper.unmount()
+  })
 })

@@ -4,8 +4,12 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   OpenApiDocument,
   OperationObject,
+  ResponseObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed } from 'vue'
 
+import { SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
@@ -29,6 +33,7 @@ const { responses, selectedContentTypes = {} } = defineProps<{
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaKeyboardNav'
   >
 }>()
 
@@ -36,19 +41,38 @@ const emit = defineEmits<{
   (e: 'update:selectedContentTypes', value: Record<string, string>): void
 }>()
 const { translate } = useLocalization()
+
+const resolvedResponses = computed(() =>
+  Object.fromEntries(
+    Object.entries(responses ?? {}).flatMap(
+      ([status, response]): [string, ResponseObject][] => {
+        const resolved = getResolvedRef(response)
+        return resolved ? [[status, resolved]] : []
+      },
+    ),
+  ),
+)
+
+const { level: headingLevel } = useDocumentOutline('operationSection')
 </script>
 <template>
   <div
-    v-if="Object.keys(responses ?? {}).length"
+    v-if="Object.keys(resolvedResponses).length"
     class="mt-6">
-    <div class="text-c-1 mt-3 mb-3 leading-[1.45] font-medium">
+    <!-- The heading carries the rule; the row below brings its own 10px
+         trigger padding, so a bottom margin would double the gap -->
+    <SectionHeaderTag
+      class="text-c-1 responses-title--tree mt-3 mb-0 block! leading-[1.45] font-medium"
+      :level="headingLevel"
+      rule>
       {{ translate('operation.responses') }}
-    </div>
+    </SectionHeaderTag>
     <ul
       :aria-label="translate('operation.responses')"
-      class="mb-3 list-none p-0 text-sm">
+      class="responses-list--tree mb-3 list-none p-0 text-sm"
+      role="list">
       <ParameterListItem
-        v-for="(response, status) in responses"
+        v-for="(response, status) in resolvedResponses"
         :key="status"
         :breadcrumb="breadcrumb ? [...breadcrumb, 'responses'] : undefined"
         :collapsableItems
@@ -56,7 +80,7 @@ const { translate } = useLocalization()
         :eventBus
         :name="status"
         :options
-        :parameter="getResolvedRef(response)"
+        :parameter="response"
         @update:selectedContentType="
           (type) =>
             emit('update:selectedContentTypes', {

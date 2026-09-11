@@ -1,5 +1,19 @@
 # @scalar/helpers
 
+## 0.11.3
+
+### Patch Changes
+
+- [#10058](https://github.com/scalar/scalar/pull/10058): feat(helpers): add applyColorMode and the DarkLightMode type, and use them from useColorMode
+
+## 0.11.2
+
+### Patch Changes
+
+- [#9978](https://github.com/scalar/scalar/pull/9978): chore: bump the default Playwright runner image to 1.62.1
+
+  `getDockerServer` now defaults to the Chromium-only `scalarapi/playwright-runner:1.62.1` image, matching the `@playwright/test` version used across the workspace so the client and container speak the same protocol.
+
 ## 0.11.1
 
 ### Patch Changes

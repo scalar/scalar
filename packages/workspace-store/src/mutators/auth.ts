@@ -32,11 +32,11 @@ const getAuthDocumentName = (document: WorkspaceDocument | null): string | undef
  */
 const getDocumentSecuritySchemes = (document: WorkspaceDocument | null): Record<string, unknown> => {
   if (isOpenApiDocument(document)) {
-    return (document.components?.securitySchemes ?? {}) as Record<string, unknown>
+    return document.components?.securitySchemes ?? {}
   }
   if (isAsyncApiDocument(document)) {
     const components = document.components ? getResolvedRef(document.components) : undefined
-    return (components?.securitySchemes ?? {}) as Record<string, unknown>
+    return components?.securitySchemes ?? {}
   }
   return {}
 }
@@ -126,7 +126,7 @@ export const updateSelectedSecuritySchemes = async (
       }),
     )
 
-    createdSchemes.push(...(createdSecurityRequirements.filter(Boolean) as SecurityRequirementObject[]))
+    createdSchemes.push(...createdSecurityRequirements.filter((requirement) => requirement !== undefined))
   }
 
   const target = getTarget()
@@ -219,7 +219,7 @@ export const updateSecurityScheme = (
   // AsyncAPI's `httpApiKey` is presented as `apiKey` in the UI, so treat that as an equivalent
   // update. Handle HTTP (basic, bearer, etc.) and the shared types the same way. The stored type is
   // read as a string because AsyncAPI broker types are outside the OpenAPI `SecuritySchemeObject` union.
-  const storedType = target.type as string
+  const storedType: string = target.type
   const isEquivalentType = storedType === payload.type || (storedType === 'httpApiKey' && payload.type === 'apiKey')
   if (isEquivalentType) {
     // Preserve the document's original spec type — never let the UI's normalized type overwrite it.
@@ -248,10 +248,10 @@ const updateSecuritySchemeSecrets = (
   }
 
   const auth = store?.auth.getAuthSecrets(documentName, name)
-  const result = mergeObjects(
-    unpackProxyObject(auth, { depth: 1 }) ?? {},
-    payload,
-  ) as AuthEvents['auth:update:security-scheme-secrets']['payload']
+  const result: AuthEvents['auth:update:security-scheme-secrets']['payload'] = auth
+    ? unpackProxyObject(auth, { depth: 1 })
+    : { ...payload }
+  mergeObjects(result, payload)
   store?.auth.setAuthSecrets(documentName, name, result)
 }
 
@@ -453,13 +453,20 @@ export const updateSelectedScopes = (
   if (nextScopes === undefined) {
     return
   }
-  nextScheme[name] = nextScopes
+
+  // Replace the matched requirement with a fresh object instead of mutating it in place, so its
+  // identity changes on every scope update. The reference-side Authentication panel passes this
+  // object down as a prop and Vue diffs props by identity — an in-place mutation keeps the same
+  // reference and leaves the scope counter and checkboxes frozen after the first change. See #9589.
+  const updatedSelectedSchemes = nextSelectedSchemes.map((candidate) =>
+    candidate === nextScheme ? { ...nextScheme, [name]: nextScopes } : candidate,
+  )
 
   store?.auth.setAuthSelectedSchemas(
     meta.type === 'document'
       ? { type: 'document', documentName }
       : { type: 'operation', documentName, path: meta.path, method: meta.method },
-    { selectedIndex: target.selectedIndex, selectedSchemes: nextSelectedSchemes },
+    { selectedIndex: target.selectedIndex, selectedSchemes: updatedSelectedSchemes },
   )
 }
 
@@ -719,6 +726,7 @@ export const deleteSecurityScheme = (
     forEachPathItemOperation(pathItemRef, (method, operationRef) => {
       // Get mutable reference for the operation (could resolve $ref proxies)
       const resolvedOperation = getResolvedRef(operationRef)
+      if (!resolvedOperation) return
 
       // Remove from operation-level security array
       if ('security' in resolvedOperation && resolvedOperation['security']) {

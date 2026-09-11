@@ -84,7 +84,7 @@ const messageBindingProtocols = computed(() => {
     return []
   }
   const resolved = getResolvedRef(bindings)
-  return Object.entries(resolved)
+  return Object.entries(resolved ?? {})
     .filter(([, value]) => value != null)
     .map(([protocol]) => protocol.toLowerCase())
 })
@@ -184,6 +184,7 @@ const { level: headingLevel } = useDocumentOutline('message')
         class="message-schema">
         <div class="message-schema-title">Headers</div>
         <Schema
+          :breadcrumb="[message.id, 'headers']"
           compact
           :eventBus="eventBus"
           name="Headers"
@@ -197,6 +198,7 @@ const { level: headingLevel } = useDocumentOutline('message')
         class="message-schema">
         <div class="message-schema-title">Payload</div>
         <Schema
+          :breadcrumb="[message.id, 'payload']"
           compact
           :eventBus="eventBus"
           name="Payload"

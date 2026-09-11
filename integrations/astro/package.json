@@ -17,13 +17,14 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.4.16",
+  "version": "0.4.18",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "dev": "cd playground && pnpm dev",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "types:check": "astro check"
   },
   "type": "module",
   "exports": {
@@ -54,6 +55,7 @@
     "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
     "astro": "^4.0.0 || ^5.0.0 || ^6.0.0"
   },
   "peerDependencies": {

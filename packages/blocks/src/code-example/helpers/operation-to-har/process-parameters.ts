@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   deSerializeParameter,
@@ -24,7 +25,7 @@ type ProcessedParameters = {
 
 /** Ensures we don't have any references in the parameters */
 const deReferenceParams = (params: OperationObject['parameters']): ParameterObject[] =>
-  (params ?? []).map((param) => getResolvedRef(param))
+  (params ?? []).map((param) => getResolvedRef(param)).filter((param) => param !== undefined)
 
 /** Whether the parameter allows reserved characters (from param or schema). */
 const isAllowReserved = (param: ParameterObject): boolean => {
@@ -108,7 +109,8 @@ const getParameterValue = (
   }
 
   const options = param.in === 'path' ? { emptyString: `{${param.name}}` } : {}
-  return getExampleFromSchema(getResolvedRef(param.schema), options)
+  const schema = getResolvedRef(param.schema)
+  return schema ? getExampleFromSchema(schema, options) : undefined
 }
 
 /**
@@ -287,13 +289,13 @@ const processPathParameters = (
       if (explode) {
         // Matrix explode array: ;color=blue;color=black;color=brown
         if (Array.isArray(paramValue)) {
-          const values = (paramValue as unknown[]).map((v) => `${param.name}=${v}`).join(';')
+          const values = paramValue.map((v: unknown) => `${param.name}=${v}`).join(';')
           return url.replace(`{;${param.name}}`, `;${values}`)
         }
 
         // Matrix explode object: ;R=100;G=200;B=150
-        if (typeof paramValue === 'object' && paramValue !== null) {
-          const values = Object.entries(paramValue as Record<string, unknown>)
+        if (isObjectLike(paramValue)) {
+          const values = Object.entries(paramValue)
             .map(([k, v]) => `${k}=${v}`)
             .join(';')
           return url.replace(`{;${param.name}}`, `;${values}`)
@@ -305,12 +307,12 @@ const processPathParameters = (
 
       // Matrix no explode array: ;color=blue,black,brown
       if (Array.isArray(paramValue)) {
-        return url.replace(`{;${param.name}}`, `;${param.name}=${(paramValue as unknown[]).join(',')}`)
+        return url.replace(`{;${param.name}}`, `;${param.name}=${paramValue.join(',')}`)
       }
 
       // Matrix no explode object: ;color=R,100,G,200,B,150
-      if (typeof paramValue === 'object' && paramValue !== null) {
-        const values = Object.entries(paramValue as Record<string, unknown>)
+      if (isObjectLike(paramValue)) {
+        const values = Object.entries(paramValue)
           .map(([k, v]) => `${k},${v}`)
           .join(',')
         return url.replace(`{;${param.name}}`, `;${param.name}=${values}`)
@@ -323,12 +325,12 @@ const processPathParameters = (
       if (explode) {
         // Label explode array: .blue.black.brown
         if (Array.isArray(paramValue)) {
-          return url.replace(`{.${param.name}}`, `.${(paramValue as unknown[]).join('.')}`)
+          return url.replace(`{.${param.name}}`, `.${paramValue.join('.')}`)
         }
 
         // Label explode object: .R=100.G=200.B=150
-        if (typeof paramValue === 'object' && paramValue !== null) {
-          const values = Object.entries(paramValue as Record<string, unknown>)
+        if (isObjectLike(paramValue)) {
+          const values = Object.entries(paramValue)
             .map(([k, v]) => `${k}=${v}`)
             .join('.')
 
@@ -341,12 +343,12 @@ const processPathParameters = (
 
       // Label no explode array: .blue,black,brown
       if (Array.isArray(paramValue)) {
-        return url.replace(`{.${param.name}}`, `.${(paramValue as unknown[]).join(',')}`)
+        return url.replace(`{.${param.name}}`, `.${paramValue.join(',')}`)
       }
 
       // Label no explode object: .R,100,G,200,B,150
-      if (typeof paramValue === 'object' && paramValue !== null) {
-        const values = Object.entries(paramValue as Record<string, unknown>)
+      if (isObjectLike(paramValue)) {
+        const values = Object.entries(paramValue)
           .map(([k, v]) => `${k},${v}`)
           .join(',')
 

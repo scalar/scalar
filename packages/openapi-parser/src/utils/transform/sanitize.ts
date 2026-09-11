@@ -1,4 +1,4 @@
-import type { AnyObject, UnknownObject } from '@/types/index'
+import type { AnyObject, UnknownObject } from '@scalar/types/utils'
 
 import { addInfoObject } from './utils/addInfoObject'
 import { addLatestOpenApiVersion } from './utils/addLatestOpenApiVersion'

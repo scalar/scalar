@@ -13,6 +13,13 @@ const createPathParam = (name: string, value: unknown) =>
   }) as ParameterObject
 
 describe('validatePathParameters', () => {
+  it('skips unresolved references while validating the remaining parameters', () => {
+    expect(
+      // @ts-expect-error A raw reference can arrive before its required $ref-value is populated.
+      validatePathParameters([{ $ref: '#/components/parameters/missing' }, createPathParam('userId', '')]),
+    ).toEqual({ ok: false, invalidParams: ['userId'] })
+  })
+
   it('returns ok: true when all path params have values', () => {
     const params = [createPathParam('userId', '123')]
     expect(validatePathParameters(params)).toEqual({ ok: true })

@@ -128,6 +128,18 @@ describe('api-reference-configuration', () => {
       })
     })
 
+    it('validates defaultRequestBodyView enum values', () => {
+      const validViews = ['form', 'raw']
+      validViews.forEach((defaultRequestBodyView) => {
+        expect(apiReferenceConfigurationSchema.parse({ defaultRequestBodyView })).toMatchObject({
+          defaultRequestBodyView,
+        })
+      })
+
+      // It is optional, so an omitted value stays undefined (the raw view is the default behaviour).
+      expect(apiReferenceConfigurationSchema.parse({}).defaultRequestBodyView).toBeUndefined()
+    })
+
     it('validates content and url configuration', () => {
       const validConfigs = [
         { url: 'https://example.com/openapi.json' },

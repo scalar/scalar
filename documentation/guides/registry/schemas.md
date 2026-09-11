@@ -96,6 +96,16 @@ The registry path follows this format:
 registry.scalar.com/@your-team/schemas/your-schema-name@version
 ```
 
+### Pin to a specific sha
+
+Anywhere a version can go, you can put a sha instead — either the document's content sha or the git commit it came from:
+
+```
+registry.scalar.com/@your-team/schemas/your-schema-name@03e959a
+```
+
+The sha can be a prefix (6 to 64 hex characters) and is matched like git: a prefix that matches more than one document returns a 404 rather than guessing. Versions always win, so a value that matches an existing version keeps resolving to that version. A full 64-character content sha on a public document is immutable, so it is served with a long-lived cache. Sha addressing works the same way for APIs (`/@your-team/apis/…@<sha>`).
+
 ## Reference Schemas in Your APIs
 
 Once you've published a schema, you can reference it in your OpenAPI documents using `$ref`. This allows you to reuse the same JSON Schema definition across multiple APIs.

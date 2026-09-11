@@ -5,11 +5,13 @@ import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { getExampleFromBody } from './get-request-body-example'
 import { getSelectedBodyContentType } from './get-selected-body-content-type'
 import { buildDottedNestedRowPredicate, coerceLeafValueToSchemaType, resolveLeafSchema } from './schema-value-coercion'
 import { serializeFormPropertyWithEncoding } from './serialize-form-property'
+import { type MultipartArrayPart, serializeMultipartArray } from './serialize-multipart-array'
 
 type FormData = {
   mode: 'formdata'
@@ -18,6 +20,7 @@ type FormData = {
         type: 'text'
         key: string
         value: string
+        contentType?: string
       }
     | {
         type: 'file'
@@ -32,6 +35,28 @@ type FormData = {
         contentType?: string
       }
   )[]
+}
+
+/** Preserve per-item media types while keeping uploaded file bytes and names intact. */
+const toMultipartPart = (part: MultipartArrayPart): FormData['value'][number] => {
+  if (part.value instanceof File) {
+    const file = part.value
+    return {
+      type: 'file',
+      key: part.key,
+      value:
+        part.contentType && part.contentType !== file.type
+          ? new File([file], file.name, { type: part.contentType, lastModified: file.lastModified })
+          : file,
+      contentType: part.contentType,
+    }
+  }
+  return {
+    type: 'text',
+    key: part.key,
+    value: part.value,
+    ...(part.contentType ? { contentType: part.contentType } : {}),
+  }
 }
 
 type UrlEncoded = {
@@ -79,6 +104,27 @@ export const buildRequestBody = (
     return null
   }
 
+  // Optional body properties default to "not sent", matching how optional parameters are
+  // dropped by `isParamDisabled`. We only know a property is optional when the body has an
+  // object schema that declares it outside `required`, so undeclared and required keys are
+  // always kept. This mirrors the unchecked-by-default checkbox in the Test Request panel.
+  // The array (edited) form path is unaffected: it carries its own per-row `isDisabled`.
+  const resolvedBodySchema: SchemaObject | undefined = getResolvedRef(
+    requestBody.content[bodyContentType]?.schema,
+    mergeSiblingReferences,
+  )
+  const objectBodySchema = resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? resolvedBodySchema : undefined
+  // Composition (allOf/oneOf/anyOf) can mark a property required inside a subschema we do not
+  // merge here, so skip dropping entirely for composed schemas rather than risk removing an
+  // effectively-required field.
+  const isComposed = Boolean(objectBodySchema?.allOf || objectBodySchema?.oneOf || objectBodySchema?.anyOf)
+  const bodyProperties = objectBodySchema && !isComposed ? objectBodySchema.properties : undefined
+  const requiredBodyProperties = new Set(objectBodySchema && !isComposed ? (objectBodySchema.required ?? []) : [])
+  // `Object.hasOwn` (not `in`) so an undeclared key named like an `Object.prototype` member
+  // (`toString`, `constructor`, …) is not misread as declared-and-optional and dropped.
+  const isOptionalBodyProperty = (key: string) =>
+    Boolean(bodyProperties && Object.hasOwn(bodyProperties, key) && !requiredBodyProperties.has(key))
+
   // Form data - array format (from UI editor)
   if (
     (bodyContentType === 'multipart/form-data' || bodyContentType === 'application/x-www-form-urlencoded') &&
@@ -111,9 +157,7 @@ export const buildRequestBody = (
     // into the same live object reference so interleaved flat rows keep their order.
     const multipartSchema =
       result.mode === 'formdata'
-        ? (getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences) as
-            | SchemaObject
-            | undefined)
+        ? getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences)
         : undefined
     const isDottedNestedRow = result.mode === 'formdata' ? buildDottedNestedRowPredicate(multipartSchema) : () => false
 
@@ -151,6 +195,17 @@ export const buildRequestBody = (
         return
       }
       const partEncoding = requestBody.content[bodyContentType]?.encoding?.[name]
+
+      if (result.mode === 'formdata') {
+        // Older saved form rows store JSON text. Only restore arrays declared by the schema.
+        const schema = resolveLeafSchema(multipartSchema, [name])
+        const restored = coerceLeafValueToSchemaType(value, schema)
+        const arrayParts = serializeMultipartArray(name, Array.isArray(restored) ? restored : value, partEncoding)
+        if (arrayParts) {
+          result.value.push(...arrayParts.map(toMultipartPart))
+          return
+        }
+      }
 
       // When the encoding sets style/explode, serialize objects/arrays RFC6570-style
       // (bracket or exploded notation) instead of JSON, so the wire request matches the
@@ -195,9 +250,9 @@ export const buildRequestBody = (
 
         if (result.mode === 'formdata' && partContentType) {
           return result.value.push({
-            type: 'blob',
+            type: 'text',
             key: name,
-            value: new Blob([serializedValue], { type: partContentType }),
+            value: serializedValue,
             contentType: partContentType,
           })
         }
@@ -226,6 +281,10 @@ export const buildRequestBody = (
 
     // Convert object properties to form fields
     for (const [key, value] of Object.entries(example.value)) {
+      // Optional properties are left out unless the user enabled them (edited form path).
+      if (isOptionalBodyProperty(key)) {
+        continue
+      }
       if (key && value !== undefined && value !== null) {
         const partEncoding = requestBody.content[bodyContentType]?.encoding?.[key]
 
@@ -262,7 +321,17 @@ export const buildRequestBody = (
         continue
       }
 
+      // Optional properties are left out unless the user enabled them (edited form path).
+      if (isOptionalBodyProperty(key)) {
+        continue
+      }
+
       const partEncoding = requestBody.content[bodyContentType]?.encoding?.[key]
+      const arrayParts = serializeMultipartArray(key, value, partEncoding)
+      if (arrayParts) {
+        result.value.push(...arrayParts.map(toMultipartPart))
+        continue
+      }
 
       // Encoding style/explode turns objects into bracket or exploded notation instead of
       // the default single JSON part.
@@ -300,9 +369,9 @@ export const buildRequestBody = (
 
       if (partContentType) {
         result.value.push({
-          type: 'blob',
+          type: 'text',
           key,
-          value: new Blob([serializedValue], { type: partContentType }),
+          value: serializedValue,
           contentType: partContentType,
         })
         continue

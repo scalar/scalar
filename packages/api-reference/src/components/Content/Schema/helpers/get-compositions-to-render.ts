@@ -6,6 +6,7 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-
 import { getRefName } from './get-ref-name'
 import { type CompositionKeyword, compositions } from './schema-composition'
 import { shouldRenderArrayItemComposition } from './should-render-array-item-composition'
+import { unwrapForRead } from './unwrap-for-read'
 
 type CompositionToRender = {
   composition: CompositionKeyword
@@ -28,13 +29,29 @@ const normalizeDiscriminatorMappingRef = (value: string) =>
  */
 export const inferDiscriminatorMappingComposition = (
   value: SchemaObject,
-  document?: DocumentSchemaLookup,
+  documentProp?: DocumentSchemaLookup,
 ): SchemaObject | null => {
-  if (value.oneOf || value.anyOf || !document?.components?.schemas) {
+  if (value.oneOf || value.anyOf) {
     return null
   }
 
-  const refs = Object.values(value.discriminator?.mapping ?? {})
+  // A schema without a mapping can never infer anything, so it is checked before the document is
+  // touched at all: the document read below is by far the more expensive of the two.
+  const mapping = value.discriminator?.mapping
+
+  if (!mapping) {
+    return null
+  }
+
+  // Reading `components.schemas` per row through the reactive and detect-changes layers is the
+  // dominant cost of this helper, so the document is unwrapped once here. See `unwrapForRead`.
+  const document = unwrapForRead(documentProp)
+
+  if (!document?.components?.schemas) {
+    return null
+  }
+
+  const refs = Object.values(mapping)
     .filter((mappingValue): mappingValue is string => typeof mappingValue === 'string')
     .map((mappingValue) => {
       const ref = normalizeDiscriminatorMappingRef(mappingValue)
@@ -58,7 +75,7 @@ export const inferDiscriminatorMappingComposition = (
 
   return {
     ...resolve.schema(value),
-    oneOf: refs as NonNullable<SchemaObject['oneOf']>,
+    oneOf: refs,
   }
 }
 
@@ -71,12 +88,19 @@ export const inferDiscriminatorMappingComposition = (
 export const getCompositionsToRender = (
   value: SchemaObject | undefined,
   document?: DocumentSchemaLookup,
+  /**
+   * The `oneOf` inferred from a bare `discriminator.mapping`, when the caller has
+   * already computed it. `SchemaProperty` needs the same value to decide whether
+   * to suppress the duplicate base object block, so it passes it here to avoid
+   * inferring twice. Omit it and it is inferred from `value`.
+   */
+  inferredDiscriminatorComposition: SchemaObject | null = value
+    ? inferDiscriminatorMappingComposition(value, document)
+    : null,
 ): CompositionToRender[] => {
   if (!value) {
     return []
   }
-
-  const inferredDiscriminatorComposition = inferDiscriminatorMappingComposition(value, document)
 
   return compositions
     .map((composition) => {

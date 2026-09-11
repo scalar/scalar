@@ -8,8 +8,8 @@ import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-p
 import { type ThemeId, presets } from '@scalar/themes'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { setPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
+import { setPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import {
   type XScalarEnvironments,
@@ -707,7 +707,7 @@ const mergeExamplesIntoRequestBody = (
   const groupedByContentType = new Map<string, Record<string, { value: unknown }>>()
 
   /** We track the selected content type for each example */
-  const selectedContentTypes = {} as Record<string, string>
+  const selectedContentTypes: Record<string, string> = {}
 
   const usedExampleNames = new Set<string>()
 
@@ -910,22 +910,19 @@ const transformCollectionToDocument = (
               ...acc,
               [securityScheme.nameKey]: {
                 ...publicSecurityScheme,
-                flows: objectEntries(securityScheme.flows).reduce(
-                  (acc, [key, flow]) => {
-                    if (!flow) {
-                      return acc
-                    }
-
-                    // Store any selected scopes from the config
-                    if ('selectedScopes' in flow && Array.isArray(flow.selectedScopes)) {
-                      flow.selectedScopes?.forEach((scope) => selectedScopes.add(scope))
-                    }
-
-                    acc[key] = removeSecretFields(flow) as Oauth2Flow
+                flows: objectEntries(securityScheme.flows).reduce<Record<string, Oauth2Flow>>((acc, [key, flow]) => {
+                  if (!flow) {
                     return acc
-                  },
-                  {} as Record<string, Oauth2Flow>,
-                ),
+                  }
+
+                  // Store any selected scopes from the config
+                  if ('selectedScopes' in flow && Array.isArray(flow.selectedScopes)) {
+                    flow.selectedScopes?.forEach((scope) => selectedScopes.add(scope))
+                  }
+
+                  acc[key] = removeSecretFields(flow) as Oauth2Flow
+                  return acc
+                }, {}),
                 'x-default-scopes': Array.from(selectedScopes),
               },
             }
@@ -988,7 +985,7 @@ const transformCollectionToDocument = (
             ...acc,
             [securityScheme.nameKey]: {
               type: securityScheme.type,
-              ...objectEntries(securityScheme.flows).reduce(
+              ...objectEntries(securityScheme.flows).reduce<Record<string, Record<string, string>>>(
                 (acc, [key, flow]) => {
                   if (!flow) {
                     return acc
@@ -997,7 +994,7 @@ const transformCollectionToDocument = (
                   acc[key] = extractConfigSecrets(flow)
                   return acc
                 },
-                {} as Record<string, Record<string, string>>,
+                {},
               ),
             },
           }

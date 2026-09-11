@@ -51,6 +51,8 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
+    "@scalar/themes": "workspace:*",
+    "@tailwindcss/vite": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "catalog:*",
     "vue": "catalog:*"

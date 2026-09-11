@@ -167,6 +167,16 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
       clientKey: z.custom<ClientId<TargetId>>(),
     })
     .optional(),
+  /**
+   * Initial view for the request body editor with structured (JSON/YAML) bodies.
+   *
+   * Use `form` to open the schema-driven form view by default, or `raw` for the code editor.
+   * When a body cannot be shown as a form, Scalar falls back to `raw`. A document can override
+   * this per source with the `x-scalar-default-request-body-view` extension.
+   *
+   * @default 'raw'
+   */
+  defaultRequestBodyView: z.enum(['form', 'raw']).optional(),
   /** Custom CSS to be added to the page */
   customCss: z.string().optional(),
   /** onServerChange is fired on selected server change */
@@ -420,9 +430,9 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   expandAllResponses: z.boolean().optional().default(false).catch(false),
   /**
-   * Whether to expand all nested schema properties by default. The
-   * Show/Hide Child Attributes toggle remains available so nested sections can
-   * still be collapsed manually.
+   * Whether to expand all nested schema properties by default. Each row keeps
+   * its own disclosure control, so nested sections can still be collapsed
+   * manually.
    *
    * Warning: this can cause performance issues on big documents
    * @default false
@@ -464,6 +474,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     .optional()
     .default('alpha')
     .catch('alpha'),
+  /**
+   * Arrow-key navigation over the schema disclosure toggles.
+   * @default false
+   */
+  schemaKeyboardNav: z.boolean().optional().default(false).catch(false),
   /**
    * Sort the schema properties by required ones first
    * @default true

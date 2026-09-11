@@ -1,5 +1,29 @@
 # scalar-fastapi
 
+## 1.9.0
+
+### Minor Changes
+
+- [#10030](https://github.com/scalar/scalar/pull/10030): feat(fastapi): accept plain strings for enum options
+
+  `layout`, `theme`, `search_hot_key`, and `document_download_type` now accept a plain string (for example `theme="moon"`) in addition to their enum members, so every option can be configured the same way. The enums are still exported and keep working unchanged. `force_dark_mode_state` is also tightened from `str` to `Literal["dark", "light"]`.
+
+- [#10028](https://github.com/scalar/scalar/pull/10028): feat(fastapi): add one-line `add_scalar_reference(app)` setup and fix small bugs
+
+  `add_scalar_reference(app)` registers the reference route for you and reads `title` and `openapi_url` straight from the FastAPI app, so the common case is a single line. Any `get_scalar_api_reference` option (theme, custom `route`, etc.) can still be passed through.
+
+  Also fixes a few papercuts in `get_scalar_api_reference`: the page title is now HTML-escaped, a document containing `</script>` can no longer break out of the inline script, the `dark_mode` type hint matches its `None` default, and the mutable default arguments were replaced with `None`.
+
+### Patch Changes
+
+- [#10027](https://github.com/scalar/scalar/pull/10027): chore(fastapi): move to pyproject.toml and declare dependencies
+
+  Replaces the legacy `setup.py`/`setup.cfg` with a modern `pyproject.toml` (hatchling). The package now declares its runtime dependencies (`fastapi`, `pydantic`, `typing_extensions`), a supported Python version (`>=3.9`), and richer PyPI metadata (project URLs and classifiers). The version stays in sync with the monorepo through the existing Changesets flow.
+
+- [#10031](https://github.com/scalar/scalar/pull/10031): fix(fastapi): stop the default theme from hiding an introduction card
+
+  The bundled default theme included `.scalar-card:nth-of-type(3) { display: none }`, which hid whichever introduction card (server, authentication, client, …) happened to render third. Because that depends on the document and the Scalar version, it hid content unpredictably. The rule has been removed so all cards render.
+
 ## 1.8.2
 
 ### Patch Changes

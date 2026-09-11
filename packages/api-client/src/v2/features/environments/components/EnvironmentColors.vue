@@ -36,7 +36,7 @@ const DEFAULT_GRADIENT =
 
 /** Check if the active color is one of the preset options. */
 const isPresetColor = computed(() =>
-  colorOptions.includes(activeColor as (typeof colorOptions)[number]),
+  colorOptions.some((color) => color === activeColor),
 )
 
 /** Check if a custom color is being used (not in the preset list). */

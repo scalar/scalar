@@ -1,5 +1,6 @@
+import { describe, expect, it } from 'vitest'
+
 import { mergeObjects } from '@/utils/join/merge-objects'
-import { expect, it, describe } from 'vitest'
 
 describe('mergeObjects', () => {
   it('should merge objects that does not have any conflicting keys', () => {
@@ -132,5 +133,25 @@ describe('mergeObjects', () => {
       },
       b: 2,
     })
+  })
+
+  it('does not pollute Object.prototype through a malicious __proto__ key', () => {
+    // JSON.parse keeps `__proto__` as an own enumerable key (unlike an object literal), which is the
+    // exact vector a crafted document would use.
+    const malicious = JSON.parse('{ "__proto__": { "polluted": "yes" } }')
+
+    mergeObjects({}, malicious)
+
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    expect(Object.prototype).not.toHaveProperty('polluted')
+  })
+
+  it('does not pollute through a constructor key', () => {
+    const malicious = JSON.parse('{ "constructor": { "prototype": { "polluted": "yes" } } }')
+
+    mergeObjects({}, malicious)
+
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    expect(Object.prototype).not.toHaveProperty('polluted')
   })
 })

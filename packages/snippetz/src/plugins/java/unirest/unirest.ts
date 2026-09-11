@@ -1,17 +1,22 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { unirest } from '@/httpsnippet-lite/targets/java/unirest/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import { javaBody, quoteJava } from '@/libs/java'
+import { prepareRequest } from '@/libs/prepare-request'
 
-/**
- * java/unirest
- */
+/** Generates a Unirest request including arbitrary methods and byte-preserving bodies. */
 export const javaUnirest: Plugin = {
   target: 'java',
   client: 'unirest',
   title: 'Unirest',
-  generate(request) {
-    // TODO: Write an own converter
-    return convertWithHttpSnippetLite(unirest, request)
+  generate(request, configuration) {
+    const { url, method, headers, body } = prepareRequest(request, configuration)
+    return [
+      ...javaBody(body),
+      `HttpResponse<String> response = Unirest.request(${quoteJava(method)}, ${quoteJava(url)})`,
+      ...headers.map(({ name, value }) => `  .header(${quoteJava(name)}, ${quoteJava(value)})`),
+      ...(body ? ['  .body(body.toByteArray())'] : []),
+      '  .asString();',
+      'System.out.println(response.getBody());',
+    ].join('\n')
   },
 }

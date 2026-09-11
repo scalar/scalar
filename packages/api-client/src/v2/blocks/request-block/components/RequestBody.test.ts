@@ -130,6 +130,56 @@ describe('RequestBody', () => {
     ])
   })
 
+  it('keeps the named example when the selection is first established on open', async () => {
+    // On the first open of a composition body the modal applies the reference's selection, moving it
+    // from empty to populated. That is not a user branch switch, so the body must keep its named
+    // example instead of regenerating schema defaults (issue #10075).
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            anyOf: [
+              { type: 'object', properties: { source: { type: 'string', default: 'file' } } },
+              { type: 'object', properties: { source: { type: 'string', default: 'service' } } },
+            ],
+          },
+          examples: {
+            named: { value: { source: 'named-example-value' } },
+          },
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        exampleKey: 'named',
+        requestBody,
+        requestBodyCompositionSelection: {},
+      },
+      global: {
+        stubs: {
+          ScalarButton: true,
+          ScalarIcon: true,
+          ScalarListbox: true,
+          CollapsibleSection: { template: '<div><slot /></div>' },
+          DataTable: { template: '<div><slot /></div>' },
+          DataTableHeader: { template: '<div><slot /></div>' },
+          DataTableRow: { template: '<div><slot /></div>' },
+          CodeInput: true,
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      requestBodyCompositionSelection: { 'requestBody.anyOf': 0 },
+    })
+    await nextTick()
+
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+  })
+
   it('preserves edits when the selected discriminator branch is unchanged', async () => {
     const requestBody: RequestBodyObject = {
       content: {
@@ -1691,5 +1741,48 @@ describe('RequestBody', () => {
 
     // The trigger label should show the actual content type, not "None".
     expect(wrapper.find('[data-testid="trigger"]').text()).toContain('text/csv')
+  })
+
+  it('opens the form view when defaultView is form for a JSON object body', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          },
+          example: { name: 'test' },
+        },
+      },
+    }
+
+    const stubs = {
+      RequestBodyStructured: {
+        template: '<div data-testid="structured-form"></div>',
+      },
+      CodeInput: {
+        template: '<div data-testid="code-input"></div>',
+        props: ['modelValue', 'language', 'environment'],
+        emits: ['update:modelValue'],
+      },
+    }
+
+    // With defaultView 'form' the schema-driven form view is shown up front.
+    const formWrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody, defaultView: 'form' },
+      global: { stubs },
+    })
+    await nextTick()
+    expect(formWrapper.find('[data-testid="structured-form"]').exists()).toBe(true)
+    expect(formWrapper.find('[data-testid="code-input"]').exists()).toBe(false)
+
+    // Without the prop it keeps the existing raw editor default.
+    const rawWrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody },
+      global: { stubs },
+    })
+    await nextTick()
+    expect(rawWrapper.find('[data-testid="code-input"]').exists()).toBe(true)
+    expect(rawWrapper.find('[data-testid="structured-form"]').exists()).toBe(false)
   })
 })

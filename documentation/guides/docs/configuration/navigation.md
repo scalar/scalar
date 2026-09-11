@@ -139,6 +139,8 @@ A group collects several links into a single dropdown.
 
 `children` accepts link items only. Each child takes the same properties as a [header link](#header-links).
 
+To lay a dropdown out in titled columns, give its children a `section`. See [Mega Menus](mega-menus.md).
+
 #### Version selector
 
 Places the [version](versions.md) dropdown at a specific position in the header.
@@ -430,7 +432,7 @@ When someone updates that API document in the Registry, Scalar republishes any c
 
 ### 3. URL
 
-Fetch an API document from a remote URL. The document is fetched on each page load, keeping your documentation in sync with your live API:
+Point an API reference at a document hosted somewhere else:
 
 ```json
 "/api": {
@@ -439,6 +441,15 @@ Fetch an API document from a remote URL. The document is fetched on each page lo
   "url": "https://example.com/openapi.json"
 }
 ```
+
+Scalar fetches the URL while your documentation is being built and writes the document into the deployed site. It is not fetched again when a reader opens the page, so a change to the remote document shows up on your next deployment — push a commit, or start a new deployment from the [Scalar Dashboard](https://dashboard.scalar.com/).
+
+If you want the reference to follow your API without a deployment, publish the document to the [Registry](../../registry/index.md) and reference it by namespace and slug instead. Updating it there republishes every Docs project that points at it.
+
+Some things worth knowing before you use a URL:
+
+- **The URL has to be publicly reachable.** The build sends a plain `GET` with no authentication headers, from Scalar's build infrastructure rather than from your reader's browser, so a document behind a login, a VPN, or an IP allowlist will not load. Anything you put in the URL — a query-string token included — is stored in your `scalar.config.json`, so treat it as readable by anyone who can read the repository.
+- **The document should be self-contained.** `$ref`s pointing at absolute `https://` URLs are followed and bundled in, but relative ones such as `./schemas/pet.yaml` are not — there is no local directory to resolve them against. They are left as written, and the parts of the reference that depend on them render empty.
 
 ### AsyncAPI
 
@@ -461,7 +472,7 @@ The entry renders your channels, operations, and messages in the sidebar. See [A
 | `type`       | `"openapi" \| "asyncapi"`        | Yes      | Marks the entry as an API reference                              |
 | `title`      | `string`                         | No       | The display text in the navigation                               |
 | `filepath`   | `string`                         | No       | Relative path to the API document                                |
-| `url`        | `string`                         | No       | URL to fetch the API document from                               |
+| `url`        | `string`                         | No       | URL the API document is fetched from at build time               |
 | `namespace`  | `string`                         | No       | Registry namespace (when using Registry)                         |
 | `slug`       | `string`                         | No       | Registry slug (when using Registry)                              |
 | `version`    | `string`                         | No       | Registry version (when using Registry)                           |

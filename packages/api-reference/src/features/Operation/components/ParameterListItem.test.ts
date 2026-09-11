@@ -12,6 +12,7 @@ const baseOptions = {
   orderRequiredPropertiesFirst: false,
   orderSchemaPropertiesBy: 'alpha' as const,
   expandAllSchemaProperties: false,
+  schemaKeyboardNav: false,
 }
 
 describe('ParameterListItem', () => {
@@ -26,6 +27,7 @@ describe('ParameterListItem', () => {
           orderRequiredPropertiesFirst: false,
           orderSchemaPropertiesBy: 'alpha',
           expandAllSchemaProperties: false,
+          schemaKeyboardNav: false,
         },
         parameter: {
           in: 'query',
@@ -73,5 +75,39 @@ describe('ParameterListItem', () => {
     // The response description and the schema description are both shown.
     expect(text).toContain('OK')
     expect(text).toContain('Description for CSV response.')
+  })
+
+  describe('response header anchors', () => {
+    const responseWithHeader = coerceValue(ResponseObjectSchema, {
+      description: 'OK',
+      headers: {
+        'X-Rate-Limit': { schema: { type: 'integer' } },
+      },
+    })
+
+    /** Anchor ids rendered with the headers group open via expand-all. */
+    const headerAnchorIds = (): string[] => {
+      const wrapper = mount(ParameterListItem, {
+        props: {
+          breadcrumb: ['tag/pets/GET/pets', 'responses'],
+          collapsableItems: false,
+          eventBus: null,
+          name: '200',
+          options: { ...baseOptions, expandAllSchemaProperties: true },
+          parameter: responseWithHeader,
+        },
+      })
+
+      return wrapper
+        .findAll('[id]')
+        .map((element) => element.attributes('id') ?? '')
+        .filter((id) => id.includes('X-Rate-Limit'))
+    }
+
+    it('qualifies the anchor id by status code', () => {
+      // Every status shares one `responses` breadcrumb, so without the status
+      // the header groups of 200 and 404 collide on one expansion node.
+      expect(headerAnchorIds()).toEqual(['tag/pets/GET/pets.responses.200.headers.X-Rate-Limit'])
+    })
   })
 })

@@ -1,7 +1,7 @@
+import type { AnyObject } from '@scalar/types/utils'
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src/index'
-import type { AnyObject } from '../../../../src/types'
 import schemaProperties from './schemaProperties.yaml?raw'
 
 describe('schemaProperties', () => {

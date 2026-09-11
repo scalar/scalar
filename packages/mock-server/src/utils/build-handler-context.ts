@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
@@ -16,7 +15,6 @@ import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper
  */
 export type HandlerContext = {
   store: ReturnType<typeof createStoreWrapper>['wrappedStore']
-  faker: typeof faker
   req: {
     body: any
     params: Record<string, string>
@@ -125,18 +123,13 @@ export async function buildHandlerContext(
   const res: Record<string, any> = {}
   if (operation?.responses) {
     for (const statusCode of Object.keys(operation.responses)) {
-      res[statusCode] = getExampleFromResponse(
-        c,
-        statusCode,
-        operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
-      )
+      res[statusCode] = getExampleFromResponse(c, statusCode, operation.responses)
     }
   }
 
   return {
     context: {
       store: wrappedStore,
-      faker,
       req: {
         body,
         params: pathParameters(c),

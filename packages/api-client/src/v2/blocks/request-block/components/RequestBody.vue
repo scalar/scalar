@@ -42,6 +42,7 @@ const {
   environment,
   requestBodyCompositionSelection,
   title,
+  defaultView = 'raw',
 } = defineProps<{
   /** Request body */
   requestBody?: RequestBodyObject
@@ -53,6 +54,12 @@ const {
   environment: XScalarEnvironment
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
+  /**
+   * Initial view for structured (JSON/YAML) bodies. Comes from the
+   * `x-scalar-default-request-body-view` document extension and falls back to `raw`
+   * whenever the body cannot be shown as a form.
+   */
+  defaultView?: 'form' | 'raw'
 }>()
 
 const emits = defineEmits<{
@@ -247,12 +254,19 @@ watch(
       requestBody !== previousRequestBody || exampleKey !== previousExampleKey
     const selectionChanged = selection !== previousSelection
 
+    // Going from no selection to a populated one is the modal applying the reference's selection as
+    // the panel opens, not the user switching branches. Resetting here would discard the body's named
+    // example on the very first open (issue #10075), so only a change between two populated selections
+    // counts as a real branch switch.
+    const hadNoPreviousSelection = previousSelection === '{}'
+
     // Only a genuine branch switch within the same operation should reset the edited body. An empty
     // selection means there is no composition to switch between (or the selection was cleared on an
     // operation change), so there is nothing to reset.
     if (
       operationChanged ||
       !selectionChanged ||
+      hadNoPreviousSelection ||
       Object.keys(requestBodyCompositionSelection ?? {}).length === 0
     ) {
       return
@@ -296,8 +310,8 @@ const showBodyViewToggle = computed(
       Boolean(bodySchema.value && isObjectSchema(bodySchema.value))),
 )
 
-/** Selected body view, raw by default so existing behavior is unchanged */
-const bodyView = ref<'form' | 'raw'>('raw')
+/** Selected body view, seeded from the document default (raw unless configured) */
+const bodyView = ref<'form' | 'raw'>(defaultView)
 
 // Fall back to raw when the form view stops being available (e.g. the content type
 // changed to a non-structured one, or an external edit made the body unparseable).

@@ -1,4 +1,7 @@
-import type { Filesystem, FilesystemEntry, UnknownObject } from '@/types/index'
+import type { UnknownObject } from '@scalar/types/utils'
+
+import type { Filesystem, FilesystemEntry } from '@/types/index'
+
 import { getListOfReferences } from './get-list-of-references'
 import { isFilesystem } from './is-filesystem'
 import { normalize } from './normalize'
@@ -9,14 +12,14 @@ export function makeFilesystem(
 ): Filesystem {
   // Keep as is
   if (isFilesystem(value)) {
-    return value as Filesystem
+    return value
   }
 
   // Make an object
   const specification = normalize(value)
 
   if (Array.isArray(specification)) {
-    return specification as Filesystem
+    return specification
   }
 
   // Create fake filesystem

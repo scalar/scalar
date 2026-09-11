@@ -48,6 +48,7 @@ const { level: headingLevel } = useDocumentOutline('model')
     </template>
     <ScalarErrorBoundary>
       <Schema
+        :breadcrumb="[id]"
         :eventBus
         :hideModelNames="options.hideModels"
         hideHeading

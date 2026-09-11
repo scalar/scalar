@@ -112,7 +112,7 @@ Worth knowing about even though it is not a product. [`stainlu/stainful`](https:
 
 Our answer, stated plainly so you can discount it appropriately.
 
-Scalar generates TypeScript, Python, CLI, Go, Rust, Java, Kotlin, Swift, Ruby, PHP, C#, C++, and Dart. It is $100 per month per target, published, and the SDK lives in your repository under your package name — Scalar opens pull requests against it and never cuts tags on your behalf.
+Scalar generates TypeScript, Python, CLI, Go, Rust, Java, Kotlin, Swift, Ruby, PHP, C#, C++, and Dart. One target is included with every plan and additional targets start at $150 per month each, published, and the SDK lives in your repository under your package name — Scalar opens pull requests against it and never cuts tags on your behalf.
 
 Scalar also builds [MCP servers from the same OpenAPI document](../guides/agent/mcp.md), with per-endpoint tool selection, stored authentication, and OAuth for people outside your team. **We host these rather than generating a server you deploy yourself**, which is the opposite trade to Speakeasy's: theirs is code you own and run, ours is an endpoint you configure and we operate. If running it yourself is the requirement, that is a point for them.
 

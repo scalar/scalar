@@ -53,9 +53,9 @@ function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)
 }
 
 /**
- * Optimize the value by removing nulls from compositions and merging root properties.
- *
- * TODO: figure out what this does
+ * Normalize compositions for display without changing the source schema. Null branches
+ * become nullable state, single branches are flattened, and shared properties and
+ * required fields are merged into variants so the renderer keeps their full context.
  */
 export function optimizeValueForDisplay(value: SchemaObject | undefined): SchemaObject | undefined {
   if (!value || typeof value !== 'object') {
@@ -80,7 +80,10 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   const hasRootProperties = Object.keys(rootProperties).length > 0
 
   // Check for null schemas and filter them out in one pass
-  const { filteredSchemas, hasNullSchema } = schemas.reduce(
+  const { filteredSchemas, hasNullSchema } = schemas.reduce<{
+    filteredSchemas: SchemaObject[]
+    hasNullSchema: boolean
+  }>(
     (acc, _schema) => {
       const schema = resolve.schema(_schema)
 
@@ -91,7 +94,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
       }
       return acc
     },
-    { filteredSchemas: [] as SchemaObject[], hasNullSchema: false },
+    { filteredSchemas: [], hasNullSchema: false },
   )
 
   // Determine if nullable should be set

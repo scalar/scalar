@@ -125,7 +125,9 @@ body.sb-show-main,
   display: none;
 }
 
-#storybook-root .placeholder {
+/* Both story roots: `#storybook-root` in the workbench, `#root` in the Playwright gallery */
+#storybook-root .placeholder,
+#root .placeholder {
   display: flex;
   align-items: center;
   justify-content: center;

@@ -73,6 +73,75 @@ describe('SchemaComposition', () => {
       const tab = wrapper.find('.composition-selector-label')
       expect(tab.text()).toBe('array string[]')
     })
+
+    it('uses the referenced model name for array composition options', () => {
+      const resourceObject = {
+        '$ref': '#/components/schemas/ResourceObject',
+        '$ref-value': {
+          title: 'ResourceObject',
+          type: 'object',
+        },
+      }
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              resourceObject,
+              {
+                type: 'array',
+                items: resourceObject,
+              },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      expect(listbox.props('options')).toEqual([
+        { id: '0', label: 'ResourceObject' },
+        { id: '1', label: 'ResourceObject[]' },
+      ])
+    })
+
+    // Same as above, but the referenced schema has no `title`, so the label has
+    // to be derived from the `$ref` key alone — closer to the document in the
+    // original report (https://github.com/scalar/scalar/issues/10059).
+    it('derives the array item name from the $ref key when it has no title', () => {
+      const resourceObject = {
+        '$ref': '#/components/schemas/ResourceObject',
+        '$ref-value': {
+          type: 'object',
+          properties: { id: { type: 'string' } },
+        },
+      }
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              resourceObject,
+              {
+                type: 'array',
+                items: resourceObject,
+              },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      expect(listbox.props('options')).toEqual([
+        { id: '0', label: 'ResourceObject' },
+        { id: '1', label: 'ResourceObject[]' },
+      ])
+    })
   })
 
   describe('composition display', () => {
@@ -89,8 +158,7 @@ describe('SchemaComposition', () => {
         },
       })
 
-      const typeLabel = wrapper.find('span')
-      expect(typeLabel.text()).toBe('One of')
+      expect(wrapper.find('.composition-selector').text()).toContain('One of')
     })
 
     it('renders primitive type in composition panel', () => {
@@ -460,5 +528,45 @@ describe('SchemaComposition', () => {
     expect(oneOfSchema.oneOf).toHaveLength(2)
     expect(oneOfSchema.oneOf[0].title).toBe('With Quote Id')
     expect(oneOfSchema.oneOf[1].title).toBe('With Currency Pair')
+  })
+
+  describe('variant picker', () => {
+    it('renders the variant picker as a single pass-through element', () => {
+      const errors: unknown[] = []
+
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              { type: 'object', properties: { foo: { type: 'string' } } },
+              { type: 'object', properties: { bar: { type: 'integer' } } },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+        global: {
+          config: {
+            errorHandler: (error) => {
+              errors.push(error)
+            },
+          },
+        },
+      })
+
+      // Headless UI renders its listbox button as a fragment and hands its
+      // props to the slot's single root node. A comment or a second node in
+      // that slot makes it throw instead, which took the whole reference down
+      // in dev builds (where template comments survive compilation). The
+      // pass-through attributes landing on the trigger proves the slot is
+      // exactly one element.
+      const trigger = wrapper.find('.composition-selector--tree')
+      expect(trigger.exists()).toBe(true)
+      expect(trigger.attributes('aria-haspopup')).toBeDefined()
+      expect(trigger.attributes('aria-expanded')).toBe('false')
+      expect(errors).toEqual([])
+    })
   })
 })

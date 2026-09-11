@@ -1,65 +1,75 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { useModal } from '@scalar/components/modal'
+import { DOMWrapper, enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it } from 'vitest'
 
-import DeleteRequestAuthModal from '@/v2/blocks/scalar-auth-selector-block/components/DeleteRequestAuthModal.vue'
+import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 
-describe.todo('DeleteRequestAuthModal', () => {
-  const getState = (open: boolean) => ({
-    hide: () => {
-      return
-    },
-    show: () => {
-      return
-    },
-    open,
-  })
+describe('DeleteRequestAuthModal', () => {
+  enableAutoUnmount(afterEach)
 
-  it('renders modal content with label', () => {
-    const label = 'Test Label'
+  const mountModal = (label: string) => {
+    const state = useModal()
     const wrapper = mount(DeleteRequestAuthModal, {
       attachTo: document.body,
-      props: {
-        state: getState(true),
-        label,
-      },
+      props: { state, label },
     })
+    return { state, wrapper }
+  }
 
-    expect(wrapper.text()).toContain('This cannot be undone')
-    expect(wrapper.text()).toContain(label)
+  // Headless UI teleports the dialog outside the mounted component.
+  const getDialog = (): ReturnType<DOMWrapper<Element>['get']> => new DOMWrapper(document.body).get('[role="dialog"]')
+
+  it('renders the security scheme label and warning after opening', async () => {
+    const { state } = mountModal('Test Label')
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+
+    state.show()
+    await flushPromises()
+
+    const dialog = getDialog()
+    expect(dialog.get('h2').text()).toBe('Delete Security Scheme')
+    expect(dialog.get('p').text()).toBe(
+      "This cannot be undone. You're about to delete the Test Label security scheme from the collection.",
+    )
+    expect(dialog.get('button[type="submit"]').text()).toBe('Delete Test Label')
   })
 
-  it('emits close when clicking Cancel', async () => {
-    const wrapper = mount(DeleteRequestAuthModal, {
-      attachTo: document.body,
-      props: {
-        state: getState(true),
-        label: 'Alpha',
-      },
-    })
+  it('emits close without deleting when cancelling', async () => {
+    const { state, wrapper } = mountModal('Alpha')
+    state.show()
+    await flushPromises()
 
-    const buttons = wrapper.findAll('button')
-    const cancelButton = buttons.find((b) => b.text() === 'Cancel')
-    expect(cancelButton, 'Cancel button should exist').toBeTruthy()
+    const cancel = getDialog().get('button[type="button"]')
+    expect(cancel.text()).toBe('Cancel')
+    await cancel.trigger('click')
 
-    await cancelButton!.trigger('click')
-    expect(wrapper.emitted('close')?.length).toBe(1)
+    expect(wrapper.emitted('close')).toStrictEqual([[]])
+    expect(wrapper.emitted('delete')).toBeUndefined()
   })
 
-  it('emits delete when confirming', async () => {
-    const label = 'Beta'
-    const wrapper = mount(DeleteRequestAuthModal, {
-      attachTo: document.body,
-      props: {
-        state: getState(true),
-        label,
-      },
-    })
+  it('emits delete without cancellation when confirming', async () => {
+    const { state, wrapper } = mountModal('Beta')
+    state.show()
+    await flushPromises()
 
-    const buttons = wrapper.findAll('button')
-    const deleteButton = buttons.find((b) => b.text() === `Delete ${label}`)
-    expect(deleteButton, 'Delete button should exist').toBeTruthy()
+    const confirm = getDialog().get('button[type="submit"]')
+    expect(confirm.text()).toBe('Delete Beta')
+    await confirm.trigger('click')
 
-    await deleteButton!.trigger('click')
-    expect(wrapper.emitted('delete')?.length).toBe(1)
+    expect(wrapper.emitted('delete')).toStrictEqual([[]])
+    expect(wrapper.emitted('close')).toBeUndefined()
+  })
+
+  it('hides the dialog without deleting when its state is closed', async () => {
+    const { state, wrapper } = mountModal('Beta')
+    state.show()
+    await flushPromises()
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull()
+
+    state.hide()
+    await flushPromises()
+
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(wrapper.emitted('delete')).toBeUndefined()
   })
 })

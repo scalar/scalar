@@ -379,8 +379,11 @@ export type ApiReferenceTranslations = {
     path: string
     pattern: string
     copyPattern: string
+    copyDefault: string
+    copyExample: string
     propertyNames: string
     readOnly: string
+    recursive: string
     required: string
     hideValues: string
     showAllValues: string
@@ -450,8 +453,6 @@ export type ApiReferenceTranslations = {
     testRequest: string
     webhook: string
     selectedContentType: string
-    hideHeaders: string
-    showHeaders: string
     callbacks: string
   }
   response: {
@@ -467,9 +468,6 @@ export type ApiReferenceTranslations = {
     schema: string
     emptyObject: string
     showAdditionalProperties: string
-    childAttributes: string
-    hideChildAttributes: string
-    showChildAttributes: string
     forName: string
     showSchemaDetails: string
     oneOf: string
@@ -477,6 +475,9 @@ export type ApiReferenceTranslations = {
     allOf: string
     not: string
     unknownType: string
+    propertyCount: string
+    headerCount: string
+    recursiveReference: string
   }
   download: {
     openapi: string
@@ -693,6 +694,16 @@ type ExtendedConfiguration = {
     targetKey: TargetId
     clientKey: ClientId<TargetId>
   }
+  /**
+   * Initial view for the request body editor with structured (JSON/YAML) bodies.
+   *
+   * Use `form` to open the schema-driven form view by default, or `raw` for the code editor.
+   * When a body cannot be shown as a form, Scalar falls back to `raw`. A document can override
+   * this per source with the `x-scalar-default-request-body-view` extension.
+   *
+   * @default 'raw'
+   */
+  defaultRequestBodyView?: 'form' | 'raw'
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onServerChange is fired on selected server change */
@@ -763,6 +774,8 @@ type ExtendedConfiguration = {
   operationsSorter?: 'alpha' | 'method' | ((a: any, b: any) => number)
   /** Order the schema properties by */
   orderSchemaPropertiesBy: 'alpha' | 'preserve'
+  /** Arrow-key navigation over the schema disclosure toggles */
+  schemaKeyboardNav: boolean
   /** Sort the schema properties by required ones first */
   orderRequiredPropertiesFirst: boolean
 }

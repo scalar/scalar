@@ -71,6 +71,18 @@ export const mergeAllOfSchemas = (
     }
   }
 
+  // Drop a `discriminator` inherited from an `allOf` member: a merged subtype is
+  // one concrete branch, not a choice-point, and keeping the base's mapping makes
+  // it look like the base again, recursing the selector inference (issue #9674).
+  // A discriminator the schema declares itself is kept.
+  const declaresOwnDiscriminator =
+    'discriminator' in baseSchema ||
+    Boolean(rootSchema && typeof rootSchema === 'object' && 'discriminator' in rootSchema)
+
+  if ('discriminator' in result && !declaresOwnDiscriminator) {
+    delete (result as Record<string, unknown>).discriminator
+  }
+
   return result
 }
 
@@ -96,6 +108,7 @@ const mergeSchemaIntoResult = (
 
   // Loop through all schema properties and handle them appropriately
   for (const key of schemaKeys) {
+    const propertyName: string = key
     const value = getResolvedRef(schema[key]) as any
 
     if (value === undefined) {
@@ -103,7 +116,7 @@ const mergeSchemaIntoResult = (
     }
 
     // Required
-    if ((key as string) === 'required') {
+    if (propertyName === 'required') {
       // Merge required fields with deduplication
       if (Array.isArray(value) && value.length > 0) {
         // @ts-expect-error
@@ -117,7 +130,7 @@ const mergeSchemaIntoResult = (
       }
     }
     // Properties
-    else if ((key as string) === 'properties') {
+    else if (propertyName === 'properties') {
       // Merge properties recursively
       if (value && typeof value === 'object') {
         // @ts-expect-error
@@ -131,7 +144,7 @@ const mergeSchemaIntoResult = (
       }
     }
     // Items
-    else if ((key as string) === 'items') {
+    else if (propertyName === 'items') {
       // Handle items (for both arrays and objects with items)
       const items = resolve.schema(value)
       if (items) {
@@ -197,7 +210,7 @@ const mergeSchemaIntoResult = (
     // Annotation keywords (see LAST_WINS_KEYS) always take the latest value so a later
     // allOf member can override an earlier one.
     else {
-      if (override || LAST_WINS_KEYS.has(key as string) || result[key] === undefined) {
+      if (override || LAST_WINS_KEYS.has(propertyName) || result[key] === undefined) {
         result[key] = value
       }
     }
@@ -266,7 +279,7 @@ const mergePropertiesIntoResult = (
     // schema instead of recursing into it again. This mirrors the guard in
     // `mergeItems` and covers schemas that point back at themselves through a
     // plain object property (e.g. a tree node whose `parent` $refs the node).
-    const schemaRef = (schema as { $ref?: string }).$ref
+    const schemaRef = schema.$ref
     if (typeof schemaRef === 'string' && seenRefs.has(schemaRef)) {
       result[key] = existing
       continue
@@ -398,5 +411,5 @@ const mergeItemsInner = (
     mergePropertiesIntoResult(merged.properties, incoming.properties, seenRefs)
   }
 
-  return merged as SchemaObject
+  return merged
 }

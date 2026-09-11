@@ -27,6 +27,7 @@ import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, useId } from 'vue'
 
 import { useLocalization } from '@/features/localization'
@@ -49,17 +50,22 @@ const serverVariables = computed(() => {
   }
 
   return Object.fromEntries(
-    Object.entries(variables).map(([name, variable]) => {
-      const resolved = getResolvedRef(variable)
-      return [
-        name,
-        {
-          default: resolved.default ?? '',
-          enum: resolved.enum,
-          description: resolved.description,
-        },
-      ]
-    }),
+    Object.entries(variables).flatMap(
+      ([name, variable]): [string, ServerVariableObject][] => {
+        const resolved = getResolvedRef(variable)
+        if (!resolved) return []
+        return [
+          [
+            name,
+            {
+              default: resolved.default ?? '',
+              enum: resolved.enum,
+              description: resolved.description,
+            },
+          ],
+        ]
+      },
+    ),
   )
 })
 

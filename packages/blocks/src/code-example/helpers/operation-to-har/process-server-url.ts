@@ -16,14 +16,14 @@ export const processServerUrl = (server: ServerObject | null, path: string): str
     const variables = Object.entries(server.variables)
 
     // Extract default values from server variables
-    const defaultValues = variables.reduce(
+    const defaultValues = variables.reduce<Record<string, string | number>>(
       (defaults, [variableName, variableConfig]) => {
         if (variableConfig.default !== undefined) {
           defaults[variableName] = variableConfig.default
         }
         return defaults
       },
-      {} as Record<string, string | number>,
+      {},
     )
 
     // Replace variables in the server URL with their default values

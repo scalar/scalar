@@ -1,9 +1,23 @@
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 
-import { type Dereference, getResolvedRef } from './get-resolved-ref'
+import { type Dereference, type RefNode, getResolvedRef } from './get-resolved-ref'
 
 describe('get-resolved-ref', () => {
+  it('keeps unresolved references optional in the return type', () => {
+    const reference: RefNode<{ name: string }> = { $ref: '#/missing' }
+    const result = getResolvedRef(reference)
+    expectTypeOf(result).toEqualTypeOf<{ name: string } | undefined>()
+    expect(result).toBeUndefined()
+  })
+
+  it('preserves the result type of a custom reference transform', () => {
+    const reference: RefNode<{ name: string }> = { $ref: '#/missing' }
+    const result = getResolvedRef(reference, () => null)
+    expectTypeOf(result).toEqualTypeOf<{ name: string } | null>()
+    expect(result).toBeNull()
+  })
+
   describe.todo('multiple ref depth', () => {
     it('should resolved deeply nested $refs #1', () => {
       const input = createMagicProxy({

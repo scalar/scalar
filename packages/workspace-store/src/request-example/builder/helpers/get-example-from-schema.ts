@@ -85,7 +85,11 @@ const guessFromFormat = (
 
   // Return format-specific example if we have one and are making up data
   if (makeUpRandomData && 'format' in schema && schema.format) {
-    return genericExampleValues[schema.format] ?? fallback
+    // Some generators emit version-specific UUID formats (for example FastAPI/Pydantic
+    // uses uuid1, uuid3, uuid4 and uuid5). Treat them all like a regular uuid.
+    const format = /^uuid[1-8]$/.test(schema.format) ? 'uuid' : schema.format
+
+    return genericExampleValues[format] ?? fallback
   }
 
   return fallback
@@ -101,7 +105,7 @@ const resultCache = new WeakMap<object, Map<string, unknown>>()
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
 
 /** Normalize schema identity for cache and cycle tracking */
-const getSchemaCacheTarget = (schema: SchemaObject): object => unpackProxyObject(schema, { depth: 1 }) as object
+const getSchemaCacheTarget = (schema: SchemaObject): object => unpackProxyObject(schema, { depth: 1 })
 
 /**
  * Retrieves the set of required property names from a schema.
@@ -223,7 +227,7 @@ const mergeExamples = (baseValue: unknown, newValue: unknown): unknown => {
     return [...baseValue, ...newValue]
   }
   if (baseValue && typeof baseValue === 'object' && newValue && typeof newValue === 'object') {
-    return { ...(baseValue as Record<string, unknown>), ...(newValue as Record<string, unknown>) }
+    return { ...baseValue, ...newValue }
   }
   return newValue
 }
@@ -380,7 +384,7 @@ const getCompositionSelectionIndex = (
  */
 const getXOrder = (property: unknown): number | undefined => {
   if (property && typeof property === 'object' && 'x-order' in property) {
-    const order = Number((property as Record<string, unknown>)['x-order'])
+    const order = Number(property['x-order'])
     return Number.isNaN(order) ? undefined : order
   }
   return undefined
@@ -481,18 +485,16 @@ const handleObjectSchema = (
       (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
 
     // Check for explicit x-additionalPropertiesName first
-    const hasCustomName =
-      typeof additional === 'object' &&
-      'x-additionalPropertiesName' in additional &&
-      typeof additional['x-additionalPropertiesName'] === 'string' &&
-      additional['x-additionalPropertiesName'].trim().length > 0
+    const customName =
+      typeof additional === 'object' && 'x-additionalPropertiesName' in additional
+        ? additional['x-additionalPropertiesName']
+        : undefined
+    const hasCustomName = typeof customName === 'string' && customName.trim().length > 0
 
     // Use propertyNames enum values as example keys when no custom name is set
     const propertyNamesEnum = hasCustomName ? undefined : getPropertyNamesEnumValues(schema)
 
-    const additionalName = hasCustomName
-      ? (additional as unknown as Record<string, string>)['x-additionalPropertiesName']!.trim()
-      : DEFAULT_ADDITIONAL_PROPERTIES_NAME
+    const additionalName = hasCustomName ? customName.trim() : DEFAULT_ADDITIONAL_PROPERTIES_NAME
 
     const additionalValue = isAnyType
       ? 'anything'
@@ -551,7 +553,7 @@ const handleObjectSchema = (
       merged = mergeExamples(merged, ex)
     }
     if (merged && typeof merged === 'object') {
-      Object.assign(response, merged as Record<string, unknown>)
+      Object.assign(response, merged)
     }
   }
 
@@ -596,12 +598,7 @@ const handleArraySchema = (
   const wrapItems = !!(options?.xml && 'xml' in schema && schema.xml?.wrapped && itemsXmlTagName)
 
   if (schema.example !== undefined) {
-    return cache(
-      schema,
-      wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example,
-      cacheKey,
-      skipCache,
-    )
+    return cache(schema, wrapItems ? { [itemsXmlTagName]: schema.example } : schema.example, cacheKey, skipCache)
   }
 
   if (items && typeof items === 'object') {
@@ -618,7 +615,7 @@ const handleArraySchema = (
           seen: itemsSeen,
           dynamicScope: childScope,
         })
-        return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged], cacheKey, skipCache)
+        return cache(schema, wrapItems ? [{ [itemsXmlTagName]: merged }] : [merged], cacheKey, skipCache)
       }
 
       const examples = allOf
@@ -632,12 +629,7 @@ const handleArraySchema = (
           }),
         )
         .filter(isDefined)
-      return cache(
-        schema,
-        wrapItems ? (examples as unknown[]).map((e) => ({ [itemsXmlTagName as string]: e })) : examples,
-        cacheKey,
-        skipCache,
-      )
+      return cache(schema, wrapItems ? examples.map((e) => ({ [itemsXmlTagName]: e })) : examples, cacheKey, skipCache)
     }
 
     const compositionKeyword = items.oneOf ? 'oneOf' : items.anyOf ? 'anyOf' : undefined
@@ -653,7 +645,7 @@ const handleArraySchema = (
         seen: itemsSeen,
         dynamicScope: childScope,
       })
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey, skipCache)
+      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
     }
   }
 
@@ -663,13 +655,13 @@ const handleArraySchema = (
     items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
 
   if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
-    const ex = getExampleFromSchema(items as SchemaObject, options, {
+    const ex = getExampleFromSchema(items, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,
       seen: itemsSeen,
       dynamicScope: childScope,
     })
-    return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey, skipCache)
+    return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
   }
 
   return cache(schema, [], cacheKey, skipCache)

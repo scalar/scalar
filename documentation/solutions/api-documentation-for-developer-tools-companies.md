@@ -16,7 +16,7 @@ This page is written by Scalar. Every product claim on it is backed by our own d
 | Try-it-out | Open-source API client built into the reference |
 | Docs renderer license | MIT, self-hostable on any plan |
 | Framework integrations | 35 (Express, Fastify, Hono, NestJS, Next.js, FastAPI, and more) |
-| Pricing | Free tier; Pro $72/month; $100/month per SDK target — [published](../guides/pricing.md) |
+| Pricing | Free tier; Pro $150/month with one SDK target included; additional targets $150/month — [published](../guides/pricing.md) |
 
 ## The problem, specifically
 

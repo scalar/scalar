@@ -19,7 +19,7 @@ const getSecuritySchemeNameFromRef = (ref: string): string | undefined =>
 
 /** Strips requirement-only `scopes` so inline entries can match component scheme definitions. */
 const getSecuritySchemeDefinition = (entry: AsyncApiSecurityEntry): AsyncApiSecuritySchemeObject | undefined => {
-  const resolved = getResolvedRef(entry) as AsyncApiSecuritySchemeObject | undefined
+  const resolved: AsyncApiSecuritySchemeObject | undefined = getResolvedRef(entry)
   if (resolved == null) {
     return undefined
   }

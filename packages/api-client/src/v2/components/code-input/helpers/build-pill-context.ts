@@ -1,8 +1,4 @@
-import {
-  type ContextFunctionName,
-  getContextFunctionComment,
-  isContextFunctionName,
-} from '@scalar/workspace-store/request-example'
+import { getContextFunctionComment, isContextFunctionName } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 
 import type { PillContext } from '../pill-context'
@@ -20,7 +16,7 @@ export const buildPillContext = (variableName: string, environment: XScalarEnvir
     return {
       type: 'contextFunction',
       identifier: variableName,
-      details: getContextFunctionComment(variableName as ContextFunctionName),
+      details: getContextFunctionComment(variableName),
     }
   }
   const value = lookupVariableValue(environment, variableName)

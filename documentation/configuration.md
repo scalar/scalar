@@ -497,6 +497,30 @@ Whether to always start with all tags open, regardless of the URL.
 }
 ```
 
+### defaultRequestBodyView
+
+**Type:** `'form' | 'raw'`
+
+Which view the request body editor opens in for structured (JSON/YAML) bodies. Use `form` to start in the schema-driven form view, or `raw` for the code editor. When a body cannot be shown as a form, Scalar falls back to `raw`.
+
+**Default:** `'raw'`
+
+```javascript
+{
+  defaultRequestBodyView: 'form'
+}
+```
+
+You can also set this per document with the `x-scalar-default-request-body-view` extension in your OpenAPI document, which takes precedence over this option:
+
+```yaml
+openapi: 3.1.0
+x-scalar-default-request-body-view: form
+info:
+  title: Example
+  version: 1.0.0
+```
+
 ### documentDownloadType
 
 **Type:** `'json' | 'yaml' | 'both' | 'direct' | 'none'`
@@ -546,9 +570,9 @@ By default response sections are closed in the operations. This flag will open t
 
 **Type:** `boolean`
 
-When true, nested child properties are expanded by default. The
-"Show/Hide Child Attributes" toggle stays available so users can collapse
-sections manually.
+When true, nested child properties are expanded by default. Each row keeps its
+own disclosure control (the +/- control in the row's gutter), so readers can
+still collapse sections manually.
 
 Warning: this can cause performance issues on big documents.
 
@@ -1034,6 +1058,23 @@ This is useful for desktop wrappers like Electron where the page URL is often `f
 ```javascript
 {
   oauth2RedirectUri: 'myapp://oauth/callback'
+}
+```
+
+### schemaKeyboardNav
+
+**Type:** `boolean`
+
+Enables arrow-key navigation over the schema disclosure toggles, following the
+APG tree pattern's bindings (arrows, Home, End). Off by default until
+screen-reader interaction questions are settled; the flat Tab order works
+regardless.
+
+**Default:** `false`
+
+```javascript
+{
+  schemaKeyboardNav: true
 }
 ```
 

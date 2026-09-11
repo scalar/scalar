@@ -48,10 +48,10 @@ export const buildRequestParameters = (
   allowReservedQueryParameters: Set<string>
   urlParams: URLSearchParams
 } => {
-  const result = {
-    cookies: [] as XScalarCookie[],
-    headers: {} as Record<string, string>,
-    pathVariables: {} as Record<string, string>,
+  const result: ReturnType<typeof buildRequestParameters> = {
+    cookies: [],
+    headers: {},
+    pathVariables: {},
     allowReservedQueryParameters: new Set<string>(),
     urlParams: new URLSearchParams(),
   }
@@ -64,6 +64,7 @@ export const buildRequestParameters = (
   // Second pass: process all parameters
   for (const referencedParam of parameters) {
     const param = getResolvedRef(referencedParam)
+    if (!param) continue
     const example = getExample(param, exampleName, undefined)
 
     // Skip disabled examples

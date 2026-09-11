@@ -1,5 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { coerceLeafValueToSchemaType } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
@@ -80,7 +81,7 @@ export const collectExampleRows = (
   parentPath: string[] = [],
 ): { path: string[]; value: unknown }[] => {
   const rows: { path: string[]; value: unknown }[] = []
-  const exampleEntries = isObject(example) ? objectEntries(example as Record<string, unknown>) : []
+  const exampleEntries = isObject(example) ? objectEntries(example) : []
   const exampleByKey = new Map<string, unknown>(exampleEntries.map(([key, value]) => [String(key), value]))
   const declaredKeys = new Set<string>()
   const schemaProperties = schema && isObjectSchema(schema) ? (schema.properties ?? {}) : {}
@@ -117,6 +118,12 @@ export const collectExampleRows = (
   return rows
 }
 
+/** Restore array values after text editing without parsing ordinary string fields. */
+export const getFormBodyValue = (row: TableRow): string | File | unknown[] | undefined => {
+  const value = coerceLeafValueToSchemaType(row.value, row.isArray ? { type: 'array' } : row.schema)
+  return Array.isArray(value) ? value : (row.value ?? undefined)
+}
+
 /** Build the table rows for the form data, optionally enriched with schema (e.g. enum) per property */
 export const getFormBodyRows = (
   example: ExampleObject | undefined | null,
@@ -149,13 +156,13 @@ export const getFormBodyRows = (
   const mapRow = ({
     name,
     value,
-    isDisabled = false,
+    isDisabled,
   }: {
     name: string
     value: string | File
     isDisabled?: boolean
   }): TableRow => {
-    const row: TableRow = { name, value, isDisabled }
+    const row: TableRow = { name, value, isDisabled: isDisabled ?? false }
     if (!schemaWithProperties || !name) {
       return row
     }
@@ -166,17 +173,62 @@ export const getFormBodyRows = (
     row.schema = propSchema
     row.description = propSchema?.description
     row.isRequired = leaf?.isRequired ?? requiredSet?.has(name) ?? false
+
+    // Top-level optional properties default to disabled (unchecked), matching how optional
+    // parameters behave. Scoped to top-level declared properties on purpose: the send side
+    // (`build-request-body`) only drops top-level optional keys, so auto-disabling a nested
+    // leaf (e.g. `props.name`) would leave it unchecked yet still transmitted. `Object.hasOwn`
+    // (not `in`) keeps example-only keys named like `Object.prototype` members enabled. An
+    // explicit `isDisabled` (from a stored form-row array) always wins.
+    if (
+      isDisabled === undefined &&
+      schemaWithProperties.properties &&
+      Object.hasOwn(schemaWithProperties.properties, name)
+    ) {
+      row.isDisabled = !row.isRequired
+      // Mark the row as disabled by default (no explicit `isDisabled` was stored) so typing a
+      // value auto-enables it in `RequestTableRow`, matching how optional parameters behave. An
+      // explicit `isDisabled` from a stored form-row array skips this branch and keeps winning.
+      row.isDisabledByDefault = row.isDisabled
+    }
     return row
+  }
+
+  const mapValue = (name: string, value: unknown, isDisabled?: boolean, isArray?: boolean): TableRow[] => {
+    // Uploaded files must never pass through JSON.stringify, which discards their bytes.
+    if (
+      contentType === 'multipart/form-data' &&
+      Array.isArray(value) &&
+      value.length > 0 &&
+      value.every((item) => item instanceof File)
+    ) {
+      return value.map((file) => mapRow({ name, value: file, isDisabled }))
+    }
+    const row = mapRow({
+      name,
+      value: value instanceof File ? value : value == null ? '' : stringifyValue(value),
+      isDisabled,
+    })
+    if (contentType === 'multipart/form-data' && (Array.isArray(value) || isArray)) {
+      // Example-only arrays also need their type to survive a form-table round trip.
+      row.isArray = true
+    }
+    return [row]
   }
 
   // We have form data stored as an array
   if (Array.isArray(example.value)) {
-    return example.value.map((exampleValue) => {
+    return example.value.flatMap((exampleValue) => {
       if (isObject(exampleValue)) {
         const name = String(exampleValue.name)
-        const value = exampleValue.value instanceof File ? exampleValue.value : String(exampleValue.value)
-        const isDisabled = Boolean(exampleValue.isDisabled)
-        return mapRow({ name, value, isDisabled })
+        if (contentType !== 'multipart/form-data') {
+          return mapRow({
+            name,
+            value: exampleValue.value instanceof File ? exampleValue.value : String(exampleValue.value),
+            isDisabled: Boolean(exampleValue.isDisabled),
+          })
+        }
+        return mapValue(name, exampleValue.value, Boolean(exampleValue.isDisabled), exampleValue.isArray === true)
       }
       return { name: '', value: exampleValue, isDisabled: false }
     })
@@ -192,19 +244,17 @@ export const getFormBodyRows = (
   // or undeclared keys inside a nested object) are still visible and editable instead of
   // being silently dropped to whatever the schema happens to declare.
   if (contentType === 'multipart/form-data' && schemaWithProperties && typeof example.value === 'object') {
-    return collectExampleRows(example.value, schemaWithProperties).map(({ path, value }) => {
-      // Missing values and explicit `null` (e.g. for a nullable schema) render as empty
-      // inputs so the user can type a value rather than seeing the string "null".
-      const rendered =
-        value instanceof File ? value : value === undefined || value === null ? '' : stringifyValue(value)
-      return mapRow({ name: path.join('.'), value: rendered })
-    })
+    return collectExampleRows(example.value, schemaWithProperties).flatMap(({ path, value }) =>
+      mapValue(path.join('.'), value),
+    )
   }
 
   // We got an object try to convert it to an array of rows
   if (typeof example.value === 'object' && example.value) {
-    return objectEntries(example.value).map(([key, value]) =>
-      mapRow({ name: String(key), value: stringifyValue(value) }),
+    return objectEntries(example.value).flatMap(([key, value]) =>
+      contentType === 'multipart/form-data'
+        ? mapValue(String(key), value)
+        : mapRow({ name: String(key), value: stringifyValue(value) }),
     )
   }
 

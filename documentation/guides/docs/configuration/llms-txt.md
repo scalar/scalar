@@ -2,6 +2,8 @@
 
 Every published Scalar Docs site automatically serves `/llms.txt` and `/llms-full.txt` so AI agents and LLMs can read your documentation. These files follow the [llms.txt convention](https://llmstxt.org) and are generated for you. You do not configure or author them.
 
+Hidden pages are left out of both files, matching your sidebar and sitemap.
+
 ## llms.txt
 
 `llms.txt` is a structured index of your site. It starts with an H1 for your site title and a short summary as a blockquote, followed by `##` sections that mirror your navigation groups. Each section is a bullet list of links to the pages, pointing at their `.md` URLs, with the page description where one is available.

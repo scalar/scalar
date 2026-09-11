@@ -1078,6 +1078,70 @@ describe('updateSelectedScopes', () => {
     assert(selected)
     expect(selected.selectedSchemes[0]).toEqual({ OAuth: ['read', 'write'] })
   })
+
+  it('replaces the selected requirement object on a single-scope toggle instead of mutating it in place (issue #9589)', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createDocument({}) })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read'] }] },
+    )
+
+    const readRequirement = () => {
+      const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+      assert(selected)
+      return selected.selectedSchemes[0]
+    }
+
+    const before = readRequirement()
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scope: 'write',
+      selected: true,
+      meta: { type: 'document' },
+    })
+
+    const after = readRequirement()
+
+    // The requirement must be a new object, not the same one mutated in place. The reference-side
+    // Authentication panel passes this object down as a prop, and Vue diffs props by identity — so
+    // reusing the identity leaves the scope counter and checkboxes frozen after the first change.
+    expect(after).not.toBe(before)
+    expect(after).toEqual({ OAuth: ['read', 'write'] })
+  })
+
+  it('replaces the selected requirement object on a bulk update instead of mutating it in place (Select All, issue #9589)', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document: createDocument({}) })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read'] }] },
+    )
+
+    const readRequirement = () => {
+      const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+      assert(selected)
+      return selected.selectedSchemes[0]
+    }
+
+    const before = readRequirement()
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scopes: ['read', 'write'],
+      meta: { type: 'document' },
+    })
+
+    const after = readRequirement()
+
+    expect(after).not.toBe(before)
+    expect(after).toEqual({ OAuth: ['read', 'write'] })
+  })
 })
 
 describe('deleteSecurityScheme', () => {

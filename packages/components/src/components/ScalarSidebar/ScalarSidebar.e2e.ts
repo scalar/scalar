@@ -1,4 +1,5 @@
-import { test, themes } from '@test/helpers'
+import { test } from '@test/helpers'
+import { themes } from '@test/shared'
 
 test.describe('ScalarSidebar', () => {
   test('Base', async ({ page, snapshot }) => {

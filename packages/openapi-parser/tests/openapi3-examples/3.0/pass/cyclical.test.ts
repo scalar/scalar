@@ -1,7 +1,8 @@
+import type { AnyObject } from '@scalar/types/utils'
+import { describe, expect, it } from 'vitest'
+
 import { getListOfReferences } from '@/utils/get-list-of-references'
 import { validate } from '@/utils/validate'
-import { describe, expect, it } from 'vitest'
-import type { AnyObject } from '@/types/index'
 
 describe('cyclical', () => {
   it('resolves circular references', async () => {

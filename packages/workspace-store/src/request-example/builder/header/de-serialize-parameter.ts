@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ParameterObject,
@@ -47,7 +48,7 @@ const structuredSchemaTypes = new Set(['array', 'object'])
  */
 const getStructuredType = (schema: unknown): 'array' | 'object' | undefined => {
   const resolved = getResolvedRef(schema)
-  if (!resolved || typeof resolved !== 'object') {
+  if (!isObjectLike(resolved)) {
     return undefined
   }
 
@@ -61,7 +62,7 @@ const getStructuredType = (schema: unknown): 'array' | 'object' | undefined => {
   }
 
   for (const key of ['anyOf', 'oneOf', 'allOf'] as const) {
-    const subSchemas = (resolved as Record<string, unknown>)[key]
+    const subSchemas = resolved[key]
     if (Array.isArray(subSchemas)) {
       for (const subSchema of subSchemas) {
         const type = getStructuredType(subSchema)
@@ -93,12 +94,24 @@ export const deSerializeSchemaValue = (example: unknown, schema: ParameterWithSc
 
     if (type) {
       try {
-        return JSON.parse(example)
-      } catch {
-        // Arrays: users often type `foo,bar` instead of JSON — split to match default form+explode query style.
-        if (type === 'array') {
-          return example.split(/,\s?/).filter((v) => v !== '')
+        const parsed = JSON.parse(example)
+        if (type !== 'array' || Array.isArray(parsed)) {
+          return parsed
         }
+
+        // A bare numeric string is valid JSON too (e.g. a 20-digit reference number), but parsing it
+        // would turn it into a precision-losing JS number instead of the array the schema expects. A
+        // quoted string is a deliberate escape hatch, so keep it as a single-item array.
+        if (typeof parsed === 'string') {
+          return [parsed]
+        }
+      } catch {
+        // Not JSON at all: fall through to the comma-split handling below.
+      }
+
+      // Arrays: users often type `foo,bar` instead of JSON — split to match default form+explode query style.
+      if (type === 'array') {
+        return example.split(/,\s?/).filter((v) => v !== '')
       }
     }
   }

@@ -54,6 +54,8 @@ https://<your-domain>/mcp
 
 You can configure Ask AI in the [Scalar Dashboard](https://dashboard.scalar.com). Navigate to your Docs project and open the settings to enable or disable the feature, or to adjust its behavior.
 
+Appearance options — the button, its sidebar placement, the floating widget position, and suggested questions — can also be set via `siteConfig.agent` in `scalar.config.json`. See [site config](site-config.md#ask-ai) for the full list of properties.
+
 ## Usage tracking
 
 Track how users interact with Ask AI in the [Scalar Dashboard](https://dashboard.scalar.com). The dashboard shows the number of conversations, common questions, and usage trends over time.

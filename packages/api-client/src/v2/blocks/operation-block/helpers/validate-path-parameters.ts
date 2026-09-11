@@ -29,7 +29,7 @@ export const validatePathParameters = (
 
   for (const referencedParam of parameters) {
     const param = getResolvedRef(referencedParam)
-    if (param.in !== 'path') {
+    if (!param || param.in !== 'path') {
       continue
     }
 

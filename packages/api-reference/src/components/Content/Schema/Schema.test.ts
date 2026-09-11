@@ -1,12 +1,85 @@
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
+import { isReactive, nextTick } from 'vue'
 
 import { scrollTargetId } from '../../../helpers/lazy-bus'
+import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from './helpers/schema-expansion'
 import Schema from './Schema.vue'
 
 describe('Schema', () => {
+  it.each([false, true])(
+    'keeps inherited alert variants separate with expandAllSchemaProperties=%s',
+    async (expandAllSchemaProperties) => {
+      // The base lists variants which inherit it through allOf (discussion #1202).
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'alerts',
+        document: {
+          openapi: '3.0.3',
+          info: { title: 'Alerts', version: '1.0' },
+          paths: {},
+          components: {
+            schemas: {
+              AlertRule: {
+                type: 'object',
+                properties: { type: { type: 'string', enum: ['ANOMALY', 'MANUAL'] } },
+                discriminator: { propertyName: 'type' },
+                oneOf: [{ $ref: '#/components/schemas/AnomalyRule' }, { $ref: '#/components/schemas/ManualRule' }],
+              },
+              AnomalyRule: {
+                type: 'object',
+                allOf: [
+                  { $ref: '#/components/schemas/AlertRule' },
+                  { type: 'object', properties: { sensitivity: { type: 'number' } } },
+                ],
+              },
+              ManualRule: {
+                type: 'object',
+                allOf: [
+                  { $ref: '#/components/schemas/AlertRule' },
+                  { type: 'object', properties: { thresholds: { type: 'array', items: { type: 'number' } } } },
+                ],
+              },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.alerts as { components: { schemas: Record<string, SchemaObject> } }
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          noncollapsible: true,
+          options: { expandAllSchemaProperties },
+          schema: document.components.schemas.AlertRule,
+        },
+      })
+
+      const picker = wrapper.findComponent({ name: 'ScalarListbox' })
+      expect(picker.props('options')).toEqual([
+        { id: '0', label: 'AnomalyRule' },
+        { id: '1', label: 'ManualRule' },
+      ])
+      expect(wrapper.findAllComponents({ name: 'ScalarListbox' }).length).toBe(1)
+      expect(wrapper.text()).toContain('sensitivity')
+      expect(wrapper.text()).not.toContain('thresholds')
+
+      await picker.vm.$emit('update:modelValue', { id: '1', label: 'ManualRule' })
+      await nextTick()
+      expect(wrapper.findAllComponents({ name: 'ScalarListbox' }).length).toBe(1)
+      expect(wrapper.text()).toContain('thresholds')
+      expect(wrapper.text()).not.toContain('sensitivity')
+
+      await picker.vm.$emit('update:modelValue', { id: '0', label: 'AnomalyRule' })
+      await nextTick()
+      expect(wrapper.text()).toContain('sensitivity')
+      expect(wrapper.text()).not.toContain('thresholds')
+      wrapper.unmount()
+    },
+  )
+
   describe('shouldShowDescription computed property', () => {
     it('shows the base description of the first allOf schema', () => {
       const wrapper = mount(Schema, {
@@ -590,6 +663,89 @@ describe('Schema', () => {
       // inferred variant dropdown alone.
       expect(wrapper.text()).toContain('sharedAllOfProp')
     })
+
+    // https://github.com/scalar/scalar/issues/9861
+    // A property whose schema is a bare `discriminator.mapping` base (rendered
+    // through `SchemaProperty`, e.g. a request body's `data` field) must not
+    // render its base properties both as a plain object block AND inside the
+    // inferred oneOf variants (which `allOf` back to the base).
+    it('does not render base properties twice for a discriminator-mapping property', async () => {
+      const configSchema = {
+        type: 'object',
+        required: ['formatVersion'],
+        properties: {
+          formatVersion: { type: 'string' },
+        },
+        discriminator: {
+          propertyName: 'formatVersion',
+          mapping: {
+            '2.2': '#/components/schemas/Config_v2_2',
+            '2.3': '#/components/schemas/Config_v2_3',
+          },
+        },
+      }
+
+      const document = {
+        components: {
+          schemas: {
+            Config: configSchema,
+            Config_v2_2: {
+              allOf: [
+                { $ref: '#/components/schemas/Config', '$ref-value': configSchema },
+                { type: 'object', properties: { fieldA: { type: 'string' } } },
+              ],
+            },
+            Config_v2_3: {
+              allOf: [
+                { $ref: '#/components/schemas/Config', '$ref-value': configSchema },
+                { type: 'object', properties: { fieldB: { type: 'string' } } },
+              ],
+            },
+          },
+        },
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              data: { $ref: '#/components/schemas/Config', '$ref-value': configSchema },
+            },
+          }),
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      // The names of every rendered `formatVersion` property row (there should be
+      // exactly one, and it must live inside the variant selector's panel).
+      const formatVersionRows = () =>
+        wrapper.findAll('.property-name').filter((node) => node.text().trim() === 'formatVersion')
+
+      // Exactly one variant selector, inferred from the mapping.
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+
+      // `formatVersion` renders once, inside the selected variant — not a second
+      // time as a base object block outside the selector.
+      expect(formatVersionRows()).toHaveLength(1)
+      expect(formatVersionRows()[0]!.element.closest('.composition-panel')).not.toBeNull()
+      expect(wrapper.text()).toContain('fieldA')
+      expect(wrapper.text()).not.toContain('fieldB')
+
+      // Switching variants keeps the single, in-panel `formatVersion` — the base
+      // block never reappears alongside the other variant.
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      await listbox.vm.$emit('update:modelValue', { id: '1', label: 'Config_v2_3' })
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      expect(formatVersionRows()).toHaveLength(1)
+      expect(formatVersionRows()[0]!.element.closest('.composition-panel')).not.toBeNull()
+      expect(wrapper.text()).toContain('fieldB')
+      expect(wrapper.text()).not.toContain('fieldA')
+    })
   })
 
   describe('additionalProperties Vue prop', () => {
@@ -653,7 +809,7 @@ describe('Schema', () => {
       expect(toggleButton.text()).toContain('for User')
     })
 
-    it('adds border-t class when additionalProperties is true and disclosure is open', async () => {
+    it('marks the card as a reveal row when additionalProperties is true', async () => {
       const wrapper = mount(Schema, {
         props: {
           eventBus: null,
@@ -668,15 +824,13 @@ describe('Schema', () => {
         },
       })
 
-      // Initially closed, no border-t class
-      expect(wrapper.find('.schema-card').classes()).not.toContain('border-t')
+      // The reveal reads as one more row of the tree, closed or open
+      expect(wrapper.find('.schema-card').classes()).toContain('additional-card--tree')
 
-      // Open the disclosure
       const toggleButton = wrapper.find('.schema-card-title--compact')
       await toggleButton.trigger('click')
 
-      // Now should have border-t class
-      expect(wrapper.find('.schema-card').classes()).toContain('border-t')
+      expect(wrapper.find('.schema-card').classes()).toContain('additional-card--tree')
     })
 
     it('renders additional properties schema when disclosure is opened', async () => {
@@ -761,7 +915,7 @@ describe('Schema', () => {
       expect(wrapper.find('.schema-card').exists()).toBe(true)
     })
 
-    it('shows Add icon in toggle button', () => {
+    it('draws the reveal puck in the toggle button', () => {
       const wrapper = mount(Schema, {
         props: {
           eventBus: null,
@@ -777,10 +931,8 @@ describe('Schema', () => {
         },
       })
 
-      const icon = wrapper.find('.schema-card-title-icon')
-      expect(icon.exists()).toBe(true)
-      // Check that the icon element exists and has the correct class
-      expect(icon.classes()).toContain('schema-card-title-icon')
+      // The same puck the row toggles draw, so the reveal sits on the gutter line
+      expect(wrapper.find('.schema-card-title .additional-toggle-glyph').exists()).toBe(true)
     })
 
     it('renders additional properties with noncollapsible prop set to true', async () => {
@@ -967,7 +1119,7 @@ describe('Schema', () => {
         .find((prop) => prop.props('name') === 'profile')
       expect(profileProperty).toBeDefined()
 
-      const toggleButton = profileProperty!.find('.schema-card-title')
+      const toggleButton = profileProperty!.find('.property-toggle')
       expect(toggleButton.exists()).toBe(true)
       await toggleButton.trigger('click')
 
@@ -1031,7 +1183,7 @@ describe('Schema', () => {
         .find((prop) => prop.props('name') === 'profile')
       expect(profileProperty).toBeDefined()
 
-      const toggleButton = profileProperty!.find('.schema-card-title')
+      const toggleButton = profileProperty!.find('.property-toggle')
       expect(toggleButton.exists()).toBe(true)
       await toggleButton.trigger('click')
 
@@ -1068,12 +1220,12 @@ describe('Schema', () => {
         },
       })
 
-      // Expand the schemas
+      // Expand the rows, outer array first
       expect(wrapper.find('.schema-card').exists()).toBe(true)
-      const buttons = wrapper.findAll('button.schema-card-title')
+      const buttons = wrapper.findAll('.property-toggle')
       expect(buttons.length).toBe(1)
       await buttons[0]?.trigger('click')
-      const moreButtons = wrapper.findAll('button.schema-card-title')
+      const moreButtons = wrapper.findAll('.property-toggle')
       expect(moreButtons.length).toBe(2)
       await moreButtons[1]?.trigger('click')
 
@@ -1125,12 +1277,12 @@ describe('Schema', () => {
 
       expect(arrayProperty).toBeDefined()
 
-      // Expand the schemas
+      // Expand the rows, outer array first
       expect(wrapper.find('.schema-card').exists()).toBe(true)
-      const buttons = wrapper.findAll('button.schema-card-title')
+      const buttons = wrapper.findAll('.property-toggle')
       expect(buttons.length).toBe(1)
       await buttons[0]?.trigger('click')
-      const moreButtons = wrapper.findAll('button.schema-card-title')
+      const moreButtons = wrapper.findAll('.property-toggle')
       expect(moreButtons.length).toBe(2)
       await moreButtons[1]?.trigger('click')
 
@@ -1356,7 +1508,7 @@ describe('Schema', () => {
     it('stays collapsed when no anchor target points at a child property', () => {
       const wrapper = mount(Schema, {
         props: {
-          // This disclosure wraps the children of `foo` (breadcrumb root.foo).
+          // This reveal wraps the overflow children of `foo` (breadcrumb root.foo).
           schema: {
             type: 'object',
             properties: {
@@ -1364,13 +1516,13 @@ describe('Schema', () => {
             },
           },
           breadcrumb: ['root', 'foo'],
-          level: 1,
+          additionalProperties: true,
           eventBus: null,
           options: {},
         },
       })
 
-      // The disclosure is collapsed by default, so the child is not rendered.
+      // The reveal is collapsed by default, so the child is not rendered.
       expect(wrapper.text()).not.toContain('bar')
     })
 
@@ -1380,7 +1532,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
-          // This disclosure wraps the children of `foo` (breadcrumb root.foo).
+          // This reveal wraps the overflow children of `foo` (breadcrumb root.foo).
           schema: {
             type: 'object',
             properties: {
@@ -1388,13 +1540,13 @@ describe('Schema', () => {
             },
           },
           breadcrumb: ['root', 'foo'],
-          level: 1,
+          additionalProperties: true,
           eventBus: null,
           options: {},
         },
       })
 
-      // The disclosure on the path to the target opens itself so the target renders.
+      // The reveal on the path to the target opens itself so the target renders.
       expect(wrapper.text()).toContain('bar')
     })
 
@@ -1427,7 +1579,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
-          // This disclosure wraps the children of `foo` (breadcrumb root.foo).
+          // This reveal wraps the overflow children of `foo` (breadcrumb root.foo).
           schema: {
             type: 'object',
             properties: {
@@ -1435,7 +1587,7 @@ describe('Schema', () => {
             },
           },
           breadcrumb: ['root', 'foo'],
-          level: 1,
+          additionalProperties: true,
           eventBus: null,
           options: {},
         },
@@ -1528,6 +1680,298 @@ describe('Schema', () => {
       expect(countOccurrences(text, 'factoredProperty')).toBe(1)
       expect(countOccurrences(text, 'fromAllOfA')).toBe(1)
       expect(countOccurrences(text, 'fromAllOfB')).toBe(1)
+    })
+  })
+  describe('expansion state', () => {
+    afterEach(() => {
+      scrollTargetId.value = ''
+    })
+
+    /** An object with a nested object beneath it, so a deep link has somewhere to point. */
+    const nestedSchema = () =>
+      coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          address: {
+            type: 'object',
+            properties: { city: { type: 'string' } },
+          },
+        },
+      })
+
+    /** The additional-properties reveal is the one disclosure Schema.vue owns itself. */
+    const mountReveal = (options: Record<string, unknown> = {}) =>
+      mount(Schema, {
+        props: {
+          eventBus: null,
+          additionalProperties: true,
+          breadcrumb: ['user'],
+          schema: nestedSchema(),
+          options: {},
+        },
+        ...options,
+      })
+
+    it('opens when a deep link arrives after the operation is already rendered', async () => {
+      const wrapper = mountReveal()
+
+      expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('false')
+
+      // The mount-only `defaultOpen` read is why this silently did nothing before.
+      scrollTargetId.value = 'user.address'
+      await nextTick()
+
+      expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
+    })
+
+    it('keeps expansion across the remount a composition variant switch causes', async () => {
+      const store = createSchemaExpansionStore()
+      const withStore = {
+        global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
+      }
+
+      const first = mountReveal(withStore)
+      await first.find('.schema-card-title').trigger('click')
+      expect(first.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
+      first.unmount()
+
+      // The variant picker remounts the panel via its `:key`; the state is held
+      // outside the component now, so it survives.
+      const second = mountReveal(withStore)
+      expect(second.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
+    })
+
+    it('moves focus to the row toggle when collapsing a subtree that holds it', async () => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          noncollapsible: true,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              address: {
+                type: 'object',
+                properties: {
+                  geo: { type: 'object', properties: { lat: { type: 'number' } } },
+                },
+              },
+            },
+          }),
+          options: {},
+        },
+        attachTo: document.body,
+      })
+
+      const outer = wrapper.find('.property-toggle')
+      await outer.trigger('click')
+
+      // The nested row's gutter toggle, inside the panel the outer row just opened
+      const innerElement = wrapper.findAll('.property-toggle')[1]?.element as HTMLElement
+      innerElement.focus()
+      expect(document.activeElement).toBe(innerElement)
+
+      await outer.trigger('click')
+
+      // Without the rule, the panel hides under the focused element and focus
+      // falls to <body> with no way back.
+      expect(document.activeElement).toBe(outer.element)
+
+      wrapper.unmount()
+    })
+
+    it('follows a bulk collapse and expand from the store', async () => {
+      const store = createSchemaExpansionStore()
+      const wrapper = mountReveal({
+        global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
+      })
+
+      await wrapper.find('.schema-card-title').trigger('click')
+      expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
+
+      // Bulk actions land on the store, and the open state is read from it live.
+      store.collapseAll()
+      await nextTick()
+      expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('false')
+
+      store.expandAll()
+      await nextTick()
+      expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
+    })
+  })
+
+  describe('tree root', () => {
+    it('establishes exactly one root over a nested card that also mounts at depth 0', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          level: 0,
+          noncollapsible: true,
+          options: {},
+          schema: coerceValue(SchemaObjectSchema, {
+            allOf: [
+              { type: 'object', properties: { name: { type: 'string' } } },
+              {
+                oneOf: [
+                  { type: 'object', title: 'A', properties: { a: { type: 'string' } } },
+                  { type: 'object', title: 'B', properties: { b: { type: 'string' } } },
+                ],
+              },
+            ],
+          }),
+        },
+      })
+
+      // An `allOf` member card mounts at depth 0 as well, so depth alone cannot
+      // identify the outermost tree. A second root would install a second
+      // keydown delegate and a second glyph-token scope over the same rows.
+      expect(wrapper.findAll('.schema-card').length).toBeGreaterThan(1)
+      expect(wrapper.findAll('.schema-tree').length).toBe(1)
+    })
+  })
+
+  describe('keyboard navigation', () => {
+    /** A tree with two sibling rows, each collapsible. */
+    const mountTree = (schemaKeyboardNav: boolean) => {
+      const wrapper = mount(Schema, {
+        attachTo: document.body,
+        props: {
+          breadcrumb: ['user'],
+          eventBus: null,
+          level: 0,
+          noncollapsible: true,
+          options: { schemaKeyboardNav },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              address: { type: 'object', properties: { city: { type: 'string' } } },
+              contact: { type: 'object', properties: { email: { type: 'string' } } },
+            },
+          }),
+        },
+      })
+
+      const toggles = wrapper.findAll('.property-toggle')
+
+      // jsdom reports no layout, so the visibility filter needs a stand-in.
+      for (const toggle of toggles) {
+        Object.defineProperty(toggle.element, 'offsetParent', { get: () => document.body })
+      }
+
+      return { wrapper, toggles }
+    }
+
+    it('moves focus between toggles when the flag is on', async () => {
+      const { wrapper, toggles } = mountTree(true)
+      const first = toggles[0]!
+
+      ;(first.element as HTMLElement).focus()
+      await first.trigger('keydown', { key: 'ArrowDown' })
+
+      expect(document.activeElement).toBe(toggles[1]!.element)
+
+      wrapper.unmount()
+    })
+
+    it('leaves arrow keys to the browser when the flag is off', async () => {
+      const { wrapper, toggles } = mountTree(false)
+      const first = toggles[0]!
+
+      ;(first.element as HTMLElement).focus()
+      await first.trigger('keydown', { key: 'ArrowDown' })
+
+      // Arrow keys scroll the page by default, and nothing announces the tree
+      // bindings, so taking them over is opt-in.
+      expect(document.activeElement).toBe(first.element)
+
+      wrapper.unmount()
+    })
+  })
+  describe('proxied workspace documents', () => {
+    /** The `$ref` target, rendered inline once the reference resolves. */
+    const planetSchema = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        diameter: { type: 'integer' },
+      },
+    }
+
+    /** A document the store wraps in the production proxy stack (reactive -> detect changes -> overrides -> magic). */
+    const galaxyDocument = {
+      openapi: '3.1.0',
+      info: { title: 'Galaxy', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Planet: planetSchema,
+          Galaxy: {
+            type: 'object',
+            properties: {
+              label: { type: 'string' },
+              planet: { $ref: '#/components/schemas/Planet' },
+            },
+          },
+        },
+      },
+    }
+
+    /** The same schema as a plain object, with the reference already resolved the way the magic proxy resolves it. */
+    const plainGalaxySchema = {
+      type: 'object',
+      properties: {
+        label: { type: 'string' },
+        planet: { $ref: '#/components/schemas/Planet', '$ref-value': planetSchema },
+      },
+    } as unknown as SchemaObject
+
+    const mountGalaxy = (schema: SchemaObject | undefined) =>
+      mount(Schema, {
+        props: {
+          eventBus: null,
+          noncollapsible: true,
+          options: { expandAllSchemaProperties: true },
+          schema,
+        },
+      })
+
+    const getProxiedGalaxy = async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'default', document: structuredClone(galaxyDocument) })
+
+      // The workspace document type is a union that also covers AsyncAPI, so narrow it here.
+      const document = store.workspace.documents.default as
+        | { components?: { schemas?: Record<string, SchemaObject> } }
+        | undefined
+
+      return document?.components?.schemas?.Galaxy
+    }
+
+    it('renders a proxied schema like a plain one', async () => {
+      const proxied = await getProxiedGalaxy()
+
+      // Guards the fixture itself: without the real proxy stack the comparison would be vacuous.
+      expect(isReactive(proxied)).toBe(true)
+
+      const proxiedWrapper = mountGalaxy(proxied)
+      const plainWrapper = mountGalaxy(plainGalaxySchema)
+
+      expect(proxiedWrapper.html()).toBe(plainWrapper.html())
+
+      proxiedWrapper.unmount()
+      plainWrapper.unmount()
+    })
+
+    it('resolves a $ref through the proxy stack', async () => {
+      const proxied = await getProxiedGalaxy()
+      const wrapper = mountGalaxy(proxied)
+      const text = wrapper.text()
+
+      // The property names below come from the `$ref` target, so they only appear
+      // when `$ref-value` still resolves through the magic proxy.
+      expect(text).toContain('diameter')
+      expect(text).toContain('name')
+
+      wrapper.unmount()
     })
   })
 })

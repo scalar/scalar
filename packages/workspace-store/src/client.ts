@@ -615,7 +615,7 @@ const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T):
   type BundlerKeys = 'x-ext' | 'x-ext-urls'
   // Top level keys that need to be excluded from the original document
   // Nested keys are removed during the previous step of the bundler process
-  const EXCLUDE_KEYS = [
+  const EXCLUDE_KEYS: string[] = [
     // Bundler metadata fields added temporarily during document processing
     'x-ext',
     'x-ext-urls',
@@ -626,7 +626,7 @@ const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T):
     'x-scalar-original-document-hash',
     'x-scalar-original-source-url',
     'x-scalar-registry-meta',
-  ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[] as string[]
+  ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[]
 
   // Remove top-level properties that should only exist temporarily or for internal usage
   // These properties are used for internal purposes and are not needed in the final bundled document
@@ -795,7 +795,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * Every change to the workspace state (documents, configs, metadata, etc.) can be detected here,
    * allowing for change tracking.
    */
-  const { originalDocuments, intermediateDocuments, overrides } = createDetectChangesProxy(
+  const { originalDocuments, intermediateDocuments, overrides } = createDetectChangesProxy<
+    Pick<InMemoryWorkspace, 'originalDocuments' | 'intermediateDocuments' | 'overrides'>
+  >(
     {
       /**
        * Holds the original, unmodified documents as they were initially loaded into the workspace.
@@ -804,7 +806,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
        * subsequent mutations in the workspace do not affect the originals.
        * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
        */
-      originalDocuments: {} as Record<string, UnknownObject>,
+      originalDocuments: {},
       /**
        * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
        *
@@ -817,7 +819,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
        *   - The latest locally saved version (`intermediateDocuments`)
        *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
        */
-      intermediateDocuments: {} as Record<string, UnknownObject>,
+      intermediateDocuments: {},
       /**
        * Stores per-document overrides for OpenAPI documents.
        * This object is used to override specific fields of a document
@@ -827,7 +829,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
        * The key is the document name, and the value is a deep partial
        * OpenAPI document representing the overridden fields.
        */
-      overrides: {} as InMemoryWorkspace['overrides'],
+      overrides: {},
     },
     {
       hooks: {
@@ -1045,7 +1047,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
       const coerced = withMeasurementSync('coerceValue', () =>
-        coerce(asyncApiObjectSchema as Schema, deepClone(getRaw(asyncApiDocument))),
+        coerce<Schema>(asyncApiObjectSchema, deepClone(getRaw(asyncApiDocument))),
       )
       withMeasurementSync('mergeObjects', () => mergeObjects(asyncApiDocument, coerced))
 
@@ -1096,9 +1098,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = withMeasurementSync('coerceValue', () =>
-        coerce(openapiSchema as Schema, deepClone(strictDocument)),
-      )
+      const coerced = withMeasurementSync('coerceValue', () => coerce<Schema>(openapiSchema, deepClone(strictDocument)))
       withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
@@ -1652,8 +1652,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // (build-time generated specs typically declare no servers). When the
           // merged result already carries servers — whether from upstream or
           // preserved local edits — those stay authoritative.
-          const mergedServers = (mergedDocument as Record<string, unknown>).servers
-          const activeServers = (activeDocumentRaw as Record<string, unknown>).servers
+          const mergedServers = mergedDocument.servers
+          const activeServers = activeDocumentRaw.servers
           const mergedHasServers = Array.isArray(mergedServers) && mergedServers.length > 0
           const activeHasServers = Array.isArray(activeServers) && activeServers.length > 0
           const preservedServers =

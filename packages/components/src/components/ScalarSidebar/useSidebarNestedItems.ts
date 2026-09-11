@@ -5,7 +5,7 @@ type SidebarNestedItemOpenGetter = () => boolean
 /**
  * Tracks the open state of the nearest nested child items
  */
-const SIDEBAR_NESTED_ITEMS_SYMBOL = Symbol() as InjectionKey<Set<SidebarNestedItemOpenGetter>>
+const SIDEBAR_NESTED_ITEMS_SYMBOL: InjectionKey<Set<SidebarNestedItemOpenGetter>> = Symbol()
 
 /**
  * Get the open / closed model for the nearest nested child items

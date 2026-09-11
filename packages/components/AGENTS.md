@@ -44,6 +44,10 @@ pnpm test:e2e:ci     # CI mode
 pnpm test:e2e:update # Update snapshots after intentional visual changes
 ```
 
+Tests render stories through Playwright's `mount()` fixture against the gallery in `test/gallery`,
+not through Storybook. Storybook remains the workbench, but it is not a test dependency. See
+[`test/README.md`](./test/README.md).
+
 ## Scaffolding a New Component
 
 Follow these steps to add a new component to the library. Replace `ScalarExample` / `Example` with your actual component name throughout.
@@ -227,7 +231,7 @@ Conventions:
 
 ### 9. Write visual snapshot tests (`ScalarExample.e2e.ts`) — optional but recommended
 
-Use the extended `test` from `@test/helpers` which provides `snapshot()` and Storybook integration.
+Use the extended `test` from `@test/helpers`, which mounts the story and provides `snapshot()`.
 
 ```ts
 import { test } from '@test/helpers'

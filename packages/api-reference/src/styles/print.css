@@ -61,16 +61,14 @@
   /*
    * Sticky boxes resolve against the page box when printing, so each of these
    * is pinned at a stale --refs-viewport-offset instead of flowing with its
-   * siblings. The callback title additionally carries a z-index, which is what
-   * makes it paint over the content that follows rather than beside it.
+   * siblings.
    */
   .scalar-app .sticky,
   .scalar-app .examples,
   .scalar-app .operation-example-card,
   .scalar-app .endpoints-card,
   .scalar-app .channels-card,
-  .scalar-app .sticky-cards,
-  .scalar-app .callback-list-item-title {
+  .scalar-app .sticky-cards {
     position: static !important;
     top: auto !important;
     z-index: auto !important;

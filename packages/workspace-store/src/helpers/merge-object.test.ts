@@ -1,8 +1,14 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 
 import { mergeObjects } from '@/helpers/merge-object'
 
 describe('mergeObjects', () => {
+  it('requires narrowing merged values before using them', () => {
+    const result = mergeObjects({ value: 'text' }, { value: 42 })
+    expectTypeOf(result).toEqualTypeOf<Record<string, unknown>>()
+    expect(result.value).toBe(42)
+  })
+
   it('should merge objects that does not have any conflicting keys', () => {
     const a = {
       a: 'Hello',

@@ -1,17 +1,13 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { restmethod } from '@/httpsnippet-lite/targets/powershell/restmethod/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import { generatePowershell } from '@/libs/powershell'
 
-/**
- * powershell/restmethod
- */
+/** Generates a PowerShell 7 request using Invoke-RestMethod. */
 export const powershellRestmethod: Plugin = {
   target: 'powershell',
   client: 'restmethod',
   title: 'Invoke-RestMethod',
-  generate(request) {
-    // TODO: Write an own converter
-    return convertWithHttpSnippetLite(restmethod, request)
+  generate(request, configuration) {
+    return generatePowershell('Invoke-RestMethod', request, configuration)
   },
 }

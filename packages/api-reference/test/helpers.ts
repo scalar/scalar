@@ -7,8 +7,7 @@ import {
   expect,
   devices as playwrightDevices,
 } from '@playwright/test'
-
-import { type ThemeVariantId, defaultThemeVariant } from '../.storybook/themes'
+import { type ThemeVariantId, defaultThemeVariant } from '@scalar/helpers/storybook/themes'
 
 export { expect }
 

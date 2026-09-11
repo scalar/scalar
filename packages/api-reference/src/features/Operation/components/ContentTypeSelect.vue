@@ -74,10 +74,15 @@ const contentTypeSelect = cva({
         weight="bold" />
     </ScalarButton>
   </ScalarListbox>
+  <!-- A focusable bare `div` announces as nothing in particular, so this
+       read-only readout of the single content type gets a role and the same
+       name as the dropdown branch -->
   <div
     v-else
+    :aria-label="translate('operation.selectedContentType')"
     class="selected-content-type"
     :class="contentTypeSelect({ dropdown: false })"
+    role="group"
     v-bind="$attrs"
     tabindex="0">
     <span>{{ selectedContentType }}</span>
