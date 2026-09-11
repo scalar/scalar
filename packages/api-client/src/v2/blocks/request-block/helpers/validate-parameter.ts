@@ -45,6 +45,12 @@ export const validateParameter = (
         message: 'Please enter a valid date and time in RFC 3339 format (e.g., 2024-03-20T13:45:30Z)',
       }
     }
+    if (schema.format === 'time' && !/^\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/.test(value ?? '')) {
+      return {
+        ok: false,
+        message: 'Please enter a valid time in HH:MM:SS format (e.g., 13:45:30)',
+      }
+    }
     if (schema.format === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value ?? '')) {
       return { ok: false, message: 'Please enter a valid email address (e.g., user@example.com)' }
     }
