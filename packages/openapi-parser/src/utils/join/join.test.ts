@@ -3,6 +3,44 @@ import { describe, expect, it } from 'vitest'
 import { join } from '@/utils/join/join'
 
 describe('join', () => {
+  it.each([null, undefined, false, 0, ''])('replaces lower-precedence falsy path items (%s)', async (value) => {
+    for (const field of ['paths', 'webhooks']) {
+      const result = await join([{ [field]: { '/a': { get: {} } } }, { [field]: { '/a': value } }])
+
+      expect(result).toStrictEqual({
+        ok: true,
+        document: {
+          info: {},
+          paths: {},
+          components: undefined,
+          servers: undefined,
+          tags: undefined,
+          webhooks: undefined,
+          [field]: { '/a': { get: {} } },
+        },
+      })
+    }
+  })
+
+  it.each([null, undefined, false, 0, ''])('replaces lower-precedence falsy components (%s)', async (value) => {
+    const result = await join([
+      { components: { schemas: { Example: { type: 'string' } } } },
+      { components: { schemas: { Example: value } } },
+    ])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        components: { schemas: { Example: { type: 'string' } } },
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+      },
+    })
+  })
+
   it.each(['__proto__', 'constructor', 'prototype'])('ignores unsafe component type %s', async (key) => {
     const input = JSON.parse(`{"components":{"${key}":{"scalarJoinMarker":{"type":"string"}}}}`)
 

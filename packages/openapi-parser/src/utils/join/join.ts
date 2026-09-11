@@ -76,7 +76,7 @@ const mergePaths = (inputs: PathsObject[]) => {
         continue
       }
 
-      if (!Object.hasOwn(result, path)) {
+      if (!Object.hasOwn(result, path) || !result[path]) {
         // If the path does not exist, add it directly
         result[path] = pathItem
         continue
@@ -173,7 +173,7 @@ const mergeComponents = (inputs: ComponentsObject[]) => {
           result[key] = {}
         }
 
-        if (Object.hasOwn(result[key], name)) {
+        if (Object.hasOwn(result[key], name) && result[key][name]) {
           // If the component already exists, record a conflict
           conflicts.push({ componentType: key, name })
         } else {
