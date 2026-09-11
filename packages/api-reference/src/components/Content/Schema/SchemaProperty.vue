@@ -136,9 +136,7 @@ const props = withDefaults(
  * whole subtree on the reactive and detect-changes proxies. See {@link unwrapForRead}.
  */
 const optimizedValue = computed(() =>
-  optimizeValueForDisplay(
-    resolveDynamicSchema(unwrapForRead(props.schema)),
-  ),
+  optimizeValueForDisplay(resolveDynamicSchema(unwrapForRead(props.schema))),
 )
 
 const childBreadcrumb = computed<string[] | undefined>(() =>
