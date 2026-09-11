@@ -4,9 +4,14 @@ import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.1/
 
 const MAX_DEPTH = 10
 
-const { schema, depth = 0 } = defineProps<{
+const {
+  schema,
+  depth = 0,
+  hideDescription = false,
+} = defineProps<{
   schema: MaybeRefSchemaObject
   depth?: number
+  hideDescription?: boolean
 }>()
 
 type ResolvedSchema = NonNullable<
@@ -158,11 +163,43 @@ const getResolvedSchemaProperties = (value: MaybeRefSchemaObject | undefined) =>
 const getResolvedSchemaItems = (value: MaybeRefSchemaObject | undefined) =>
   getSchemaItems(resolveNestedSchema(value))
 
+const hasComposition = (value: MaybeRefSchemaObject | undefined): boolean => {
+  const resolved = resolveNestedSchema(value)
+  return Boolean(
+    getSchemaArray(resolved, 'allOf') ||
+    getSchemaArray(resolved, 'anyOf') ||
+    getSchemaArray(resolved, 'oneOf') ||
+    getSchemaNot(resolved),
+  )
+}
+
+const getConstraints = (
+  value: MaybeRefSchemaObject | undefined,
+): { name: string; value: string | number }[] => {
+  const resolved = asObject(resolveNestedSchema(value))
+  return [
+    'minimum',
+    'maximum',
+    'exclusiveMinimum',
+    'exclusiveMaximum',
+    'multipleOf',
+    'minLength',
+    'maxLength',
+    'pattern',
+  ].flatMap((name) => {
+    const constraint = resolved?.[name]
+    return typeof constraint === 'number' || typeof constraint === 'string'
+      ? [{ name, value: constraint }]
+      : []
+  })
+}
+
 const formatSchemaType = (value: MaybeRefSchemaObject | undefined): string => {
   const schemaType = getResolvedSchemaType(value)
   return Array.isArray(schemaType)
     ? schemaType.join(' | ')
-    : schemaType || 'object'
+    : schemaType ||
+        (Object.keys(getResolvedSchemaProperties(value)).length ? 'object' : '')
 }
 
 const formatEnumValues = (value: unknown[] | undefined): string =>
@@ -189,6 +226,13 @@ const sortProperties = (
     <p><em>[Circular Reference]</em></p>
   </section>
   <section v-else-if="resolvedSchema">
+    <ul v-if="getConstraints(schema).length">
+      <li
+        v-for="constraint in getConstraints(schema)"
+        :key="constraint.name">
+        {{ constraint.name }}: <code>{{ constraint.value }}</code>
+      </li>
+    </ul>
     <!-- Composition keywords -->
     <template v-if="getSchemaArray(resolvedSchema, 'allOf')">
       <section>
@@ -297,6 +341,13 @@ const sortProperties = (
                     }}</code></span
                   >
                 </template>
+                <template v-if="!hasComposition(propSchema)">
+                  <span
+                    v-for="constraint in getConstraints(propSchema)"
+                    :key="constraint.name">
+                    , {{ constraint.name }}: <code>{{ constraint.value }}</code>
+                  </span>
+                </template>
                 <template v-if="getResolvedSchemaDescription(propSchema)">
                   <span> — {{ getResolvedSchemaDescription(propSchema) }}</span>
                 </template>
@@ -304,7 +355,8 @@ const sortProperties = (
               <Schema
                 v-if="
                   getResolvedSchemaType(propSchema) === 'object' ||
-                  Object.keys(getResolvedSchemaProperties(propSchema)).length
+                  Object.keys(getResolvedSchemaProperties(propSchema)).length ||
+                  hasComposition(propSchema)
                 "
                 :schema="propSchema"
                 :depth="depth + 1" />
@@ -387,7 +439,8 @@ const sortProperties = (
               }}</code></span
             >
           </template>
-          <template v-if="getSchemaDescription(resolvedSchema)">
+          <template
+            v-if="!hideDescription && getSchemaDescription(resolvedSchema)">
             <span> — {{ getSchemaDescription(resolvedSchema) }}</span>
           </template>
         </p>

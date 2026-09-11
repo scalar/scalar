@@ -3,5 +3,5 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [vue()],
-  test: { include: ['src/**/*.test.ts', 'evaluation/**/*.test.ts'] },
+  test: { env: { MARKDOWN_EVALUATION_STRICT: '1' }, include: ['src/**/*.test.ts', 'evaluation/**/*.test.ts'] },
 })

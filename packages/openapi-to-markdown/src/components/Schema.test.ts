@@ -2,6 +2,7 @@
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
 import Schema from './Schema.vue'
 
 const schema = (value: Record<string, unknown>) => value as SchemaObject
@@ -176,5 +177,55 @@ describe('Schema', () => {
     expect(wrapper.text()).toContain('Array of:')
     expect(wrapper.text()).toContain('id')
     expect(wrapper.text()).toContain('name')
+  })
+  it.each(['allOf', 'anyOf', 'oneOf'] as const)('renders %s inside an object property', (keyword) => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: schema({
+          type: 'object',
+          properties: {
+            choice: {
+              [keyword]: [
+                { type: 'string', format: 'uuid' },
+                { type: 'integer', format: 'int64' },
+              ],
+            },
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('uuid')
+    expect(wrapper.text()).toContain('int64')
+  })
+
+  it('renders not inside an object property', () => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: schema({ type: 'object', properties: { choice: { not: { type: 'string', enum: ['forbidden'] } } } }),
+      },
+    })
+    expect(wrapper.text()).toContain('Not:')
+    expect(wrapper.text()).toContain('"forbidden"')
+  })
+
+  it('preserves zero bounds and constraints on object properties', () => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: schema({
+          type: 'object',
+          properties: {
+            count: { type: 'integer', minimum: 0, maximum: 10, multipleOf: 2 },
+            name: { type: 'string', minLength: 0, maxLength: 20, pattern: '^[a-z]+$' },
+          },
+        }),
+      },
+    })
+    const text = wrapper.text().replace(/\s+/g, ' ')
+    expect(text).toContain('minimum: 0')
+    expect(text).toContain('maximum: 10')
+    expect(text).toContain('multipleOf: 2')
+    expect(text).toContain('minLength: 0')
+    expect(text).toContain('maxLength: 20')
+    expect(text).toContain('pattern: ^[a-z]+$')
   })
 })
