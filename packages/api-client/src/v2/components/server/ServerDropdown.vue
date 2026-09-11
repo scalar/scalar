@@ -29,7 +29,7 @@ import type {
   ApiReferenceEvents,
   ServerMeta,
 } from '@scalar/workspace-store/events'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
@@ -57,7 +57,8 @@ const emit = defineEmits<{
 const requestServerOptions = computed(() =>
   servers.map((s) => ({
     id: s.url,
-    label: s.url ?? 'Unknown server',
+    // Prefer the server name (OpenAPI 3.2) as a friendly label, falling back to the URL
+    label: s.name ? `${s.name} (${s.url})` : (s.url ?? 'Unknown server'),
   })),
 )
 

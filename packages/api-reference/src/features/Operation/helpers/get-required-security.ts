@@ -2,7 +2,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { isNonOptionalSecurityRequirement } from '@scalar/workspace-store/helpers/is-non-optional-security-requirement'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.2/strict/security-scheme'
 
 export type RequiredSecurityState = 'required' | 'optional' | 'none'
 
