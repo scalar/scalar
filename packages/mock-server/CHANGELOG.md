@@ -1,5 +1,16 @@
 # @scalar/mock-server
 
+## 0.14.1
+
+### Patch Changes
+
+- [#10164](https://github.com/scalar/scalar/pull/10164): Serve deprecated response schemas from the mock instead of answering a declared JSON response with an empty body, and generate a deprecated AsyncAPI message payload instead of sending `null`. `getExampleFromSchema` takes a new `includeDeprecated` option for callers that must produce a value satisfying the schema. A declared response header that generates no value is now skipped rather than clearing a header of the same name the mock already set, such as the CORS headers.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
 ## 0.14.0
 
 ### Minor Changes

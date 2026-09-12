@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.5.10
+
+### Patch Changes
+
+- [#10136](https://github.com/scalar/scalar/pull/10136): Restore modal and single-file reference tests, update layout selectors, and remove stale comments. Named-resource resolution remains unsupported and is tested explicitly.
+
 ## 2.5.9
 
 ## 2.5.8

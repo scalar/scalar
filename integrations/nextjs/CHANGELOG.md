@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.11.19
+
+### Patch Changes
+
+- [#10105](https://github.com/scalar/scalar/pull/10105): Add production browser compatibility coverage for Next.js 15 and 16.
+
 ## 0.11.18
 
 ## 0.11.17

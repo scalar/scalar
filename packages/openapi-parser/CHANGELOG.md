@@ -1,5 +1,17 @@
 # @scalar/openapi-parser
 
+## 0.29.2
+
+### Patch Changes
+
+- [#10141](https://github.com/scalar/scalar/pull/10141): Report the actual document version after upgrading, including preserved OpenAPI 3.2 documents. Return no version for empty or unsupported input.
+- [#10136](https://github.com/scalar/scalar/pull/10136): Restore modal and single-file reference tests, update layout selectors, and remove stale comments. Named-resource resolution remains unsupported and is tested explicitly.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
 ## 0.29.1
 
 ### Patch Changes

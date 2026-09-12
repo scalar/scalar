@@ -1,5 +1,25 @@
 # @scalar/components
 
+## 0.29.2
+
+### Patch Changes
+
+- [#10133](https://github.com/scalar/scalar/pull/10133): Restore the empty Astro logo.
+- [#10074](https://github.com/scalar/scalar/pull/10074): perf(components): defer ScalarFloating's first positioning to the next tick
+
+  `useFloating`'s `autoUpdate` ran `computePosition` inside the mount flush, so every floating element forced a style and layout pass while it was mounting, whether or not it was open. A page that mounts ten closed dropdowns paid ten forced passes before anything appeared.
+
+  `whileElementsMounted` now starts `autoUpdate` from `nextTick`, chained on the current flush so it still runs before paint, with a disposed flag so an element unmounted within that tick never starts one. On a large API reference document this takes layout events per interaction from eleven to two, and the layout objects walked from 278,715 to 49,539.
+
+  This affects every consumer of `ScalarFloating`, including the dropdown, listbox, popover, combobox, menu and tooltip components. The full component end-to-end suite (203 tests, 219 screenshots) shows no snapshot change, and `ScalarFloating`'s own suite covers all twelve placements, resizing and the constrained max-size case.
+
+- [#10138](https://github.com/scalar/scalar/pull/10138): Test sidebar content and accessible attribute forwarding.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
 ## 0.29.1
 
 ### Patch Changes

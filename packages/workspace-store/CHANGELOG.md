@@ -1,5 +1,28 @@
 # @scalar/workspace-store
 
+## 0.60.1
+
+### Patch Changes
+
+- [#9817](https://github.com/scalar/scalar/pull/9817): Resolve relative `externalValue` URLs on example objects against the document origin, so external request and response examples load even when referenced with a relative path
+- [#10068](https://github.com/scalar/scalar/pull/10068): Generate a proper UUID example for version-specific uuid formats (uuid1, uuid3, uuid4, uuid5), so documents from FastAPI/Pydantic get a UUID example instead of an empty one.
+- [#10165](https://github.com/scalar/scalar/pull/10165): Truncate deeply nested examples with an empty value of the declared type — `{}`, `[]`, or a placeholder of the declared primitive — instead of the `[Max Depth Exceeded]` string, so a truncated example no longer contradicts the type its schema declares. A value the schema states outright through `example`, `examples`, `default`, `const` or `enum` wins at that depth, including through a composition wrapper; a property excluded by `mode` is omitted there rather than replaced by a placeholder; and a composition nothing can describe, or a negative constraint, answers with `null`. Only schemas that describe no shape at all keep the sentinel. A schema shared between a deep chain and a shallower position is also no longer served the truncated example.
+- [#10164](https://github.com/scalar/scalar/pull/10164): Serve deprecated response schemas from the mock instead of answering a declared JSON response with an empty body, and generate a deprecated AsyncAPI message payload instead of sending `null`. `getExampleFromSchema` takes a new `includeDeprecated` option for callers that must produce a value satisfying the schema. A declared response header that generates no value is now skipped rather than clearing a header of the same name the mock already set, such as the CORS headers.
+- [#10081](https://github.com/scalar/scalar/pull/10081): Keep the `mutualTLS` security scheme type instead of turning it into an apiKey form, and show read-only authentication guidance for mutual TLS and unsupported browser broker credentials.
+- [#10137](https://github.com/scalar/scalar/pull/10137): Skip Paths Object extension keys so they cannot be mistaken for API paths. Add a regression test with an operation-shaped extension.
+- [#10131](https://github.com/scalar/scalar/pull/10131): Copy the example shown in the response card, including named, generated, referenced, and falsy values.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+- [#10142](https://github.com/scalar/scalar/pull/10142): Send multipart array properties as separate parts with the same field name, applying encoding to each item. Preserve JSON item content types, uploaded files, and array values after form edits, and generate matching code snippets.
+
+  Send JSON form fields without an upload filename and preserve fields and files in request history.
+
+  Rename the RestSharp snippet's internal `getMethod` helper so it no longer clashes with the `getMethod` that Nitro bundles into server builds (the new multipart imports shifted chunking and surfaced the collision).
+
 ## 0.60.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @scalar/helpers
 
+## 0.11.4
+
+### Patch Changes
+
+- [#10150](https://github.com/scalar/scalar/pull/10150): Run the dockerized Playwright browser server with `--unsafe` so it honours the launch options the test runner sends it, letting snapshots taken locally match the ones CI produces
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
 ## 0.11.3
 
 ### Patch Changes
