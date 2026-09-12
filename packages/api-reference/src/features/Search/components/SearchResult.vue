@@ -62,7 +62,7 @@ const entryLabels = computed((): { [x in EntryType]: string } => ({
             result.item.entry.type === 'operation' &&
             result.item.entry.isDeprecated
           ">
-          ({{ translate('common.deprecated') }})&nbsp;
+          ({{ translate('schema.deprecated') }})&nbsp;
         </template>
       </span>
       {{ result.item.title }}
