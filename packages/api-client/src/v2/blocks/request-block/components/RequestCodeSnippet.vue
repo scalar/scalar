@@ -107,7 +107,7 @@ const hasClients = computed(() =>
 
 <template>
   <CollapsibleSection
-    v-show="hasClients"
+    v-if="hasClients"
     class="group/preview w-full border-t"
     :defaultOpen="false">
     <template #title>Code Snippet</template>
