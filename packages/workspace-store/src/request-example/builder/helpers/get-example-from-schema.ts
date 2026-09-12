@@ -760,6 +760,9 @@ const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined)
 /** Stand-in for a truncated schema whose shape cannot be read off the document. */
 const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
 
+/** How long a chain of composition wrappers may be unwrapped before the stack becomes the concern. */
+const MAX_COMPOSITION_DEPTH = MAX_LEVELS_DEEP * 5
+
 /** Read a schema's declared types as a list, so `type: 'object'` and `type: ['object']` behave alike. */
 const getDeclaredTypes = (schema: SchemaObject): readonly SchemaPrimitiveType[] => {
   if (!('type' in schema) || !schema.type) {
@@ -806,23 +809,6 @@ const getSelectedVariant = (
 }
 
 /**
- * Build the value that stands in for a schema the recursion depth cap cut off.
- *
- * The stand-in is still read as an example of the schema it replaced, so a plain string makes the
- * example contradict its own type: a mock server answering a `type: object` field with
- * `[Max Depth Exceeded]` hands a strict SDK decoder a body it cannot parse. Describe the declared
- * type instead, dispatching in the order the walk does, so a truncated value differs from a full render
- * in having no children. A schema that describes no shape at all keeps the sentinel, which is then the
- * only signal that truncation happened.
- *
- * One deliberate departure from the walk: a container spelled as a single-member list (`type:
- * ['object']`) is read here as the container it declares, where the walk's strict comparison misses it
- * and falls back to `null`.
- *
- * The value is empty rather than complete: satisfying `required` or `minItems` means descending
- * again, which is exactly what the cap exists to prevent.
- */
-/**
  * Describe a composed schema by the member the walk itself would have rendered.
  * Returns `undefined` when no member describes a shape.
  */
@@ -830,7 +816,7 @@ const describeComposition = (
   schema: SchemaObject,
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
-  seen: WeakSet<object>,
+  seen: Set<object>,
 ): unknown => {
   const variant = getSelectedVariant(schema, options, schemaPath)
   if (variant) {
@@ -860,11 +846,28 @@ const describeComposition = (
   return merged
 }
 
+/**
+ * Build the value that stands in for a schema the recursion depth cap cut off.
+ *
+ * The stand-in is still read as an example of the schema it replaced, so a plain string makes the
+ * example contradict its own type: a mock server answering a `type: object` field with
+ * `[Max Depth Exceeded]` hands a strict SDK decoder a body it cannot parse. Describe the declared
+ * type instead, dispatching in the order the walk does, so a truncated value differs from a full render
+ * in having no children. A schema that describes no shape at all keeps the sentinel, which is then the
+ * only signal that truncation happened.
+ *
+ * One deliberate departure from the walk: a container spelled as a single-member list (`type:
+ * ['object']`) is read here as the container it declares, where the walk's strict comparison misses it
+ * and falls back to `null`.
+ *
+ * The value is empty rather than complete: satisfying `required` or `minItems` means descending
+ * again, which is exactly what the cap exists to prevent.
+ */
 const getMaxDepthValue = (
   schema: SchemaObject,
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
-  seen: WeakSet<object> = new WeakSet(),
+  seen: Set<object> = new Set(),
 ): unknown => {
   const container = getEmptyContainer(schema)
   if (container !== undefined) {
@@ -882,11 +885,12 @@ const getMaxDepthValue = (
   }
 
   // A wrapper such as `allOf: [$ref]` declares no type of its own, so describe its members instead.
-  // Unwrapping runs outside the walk's own cycle guard, so it carries one: the schema graph is finite,
-  // so refusing to re-enter a wrapper already on the path terminates without capping how long a
-  // legitimate inheritance chain may be.
+  // Unwrapping runs outside the walk's own cycle guard, so it carries one: refusing to re-enter a
+  // wrapper already on the path terminates a self-reference without capping how long a legitimate
+  // inheritance chain may be. `seen` holds exactly the path, so its size bounds the stack against a
+  // pathological chain, the way `schemaAllowsValue` bounds its own recursion.
   const target = getSchemaCacheTarget(schema)
-  if (!seen.has(target)) {
+  if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH) {
     seen.add(target)
     const composed = describeComposition(schema, options, schemaPath, seen)
     seen.delete(target)
@@ -894,6 +898,9 @@ const getMaxDepthValue = (
     if (composed !== undefined) {
       return composed
     }
+  } else {
+    // A description declined is never the value a full render would have produced.
+    truncated = true
   }
 
   const unionPrimitive = getUnionPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
