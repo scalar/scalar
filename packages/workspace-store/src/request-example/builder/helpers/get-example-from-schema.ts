@@ -716,99 +716,6 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
   return undefined
 }
 
-/** Stand-in for a truncated schema that declares no shape to be faithful to. */
-const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
-
-/**
- * Return the empty container a schema declares, or `undefined` when it declares neither.
- * Uses the same predicates as the object and array branches of the walk, so a truncated container
- * keeps the shape it would have rendered one level higher.
- */
-const getEmptyContainer = (schema: SchemaObject): Record<string, never> | never[] | undefined => {
-  if ('properties' in schema || ('type' in schema && schema.type === 'object')) {
-    return {}
-  }
-  if ('items' in schema || ('type' in schema && schema.type === 'array')) {
-    return []
-  }
-  return undefined
-}
-
-/**
- * Look one level into a composed schema for the container its members declare.
- *
- * A wrapper such as `allOf: [$ref]` carries no type of its own, so the shape lives in the members.
- * Which member is read matters less than it looks: the cap renders no fields, so every object variant
- * collapses to the same `{}`. Mirror the walk anyway — the first non-`null` `oneOf`/`anyOf` variant is
- * the one it picks by default, and `allOf` merges every member, where a single object member is enough
- * to make the merged value an object.
- */
-const getComposedEmptyContainer = (schema: SchemaObject): Record<string, never> | never[] | undefined => {
-  const variants = schema.oneOf ?? schema.anyOf
-  if (Array.isArray(variants) && variants.length > 0) {
-    const candidate = variants
-      .map((variant) => resolve.schema(variant))
-      .find((variant) => variant && (!('type' in variant) || variant.type !== 'null'))
-
-    return candidate ? getEmptyContainer(candidate) : undefined
-  }
-
-  if (Array.isArray(schema.allOf)) {
-    for (const member of schema.allOf) {
-      const resolved = resolve.schema(member)
-      const container = resolved ? getEmptyContainer(resolved) : undefined
-      if (container !== undefined) {
-        return container
-      }
-    }
-  }
-
-  return undefined
-}
-
-/**
- * Build the value that stands in for a schema the recursion depth cap cut off.
- *
- * The cap fires part-way down a document, so whatever it returns is still read as an example of the
- * schema it replaced. A plain string there makes the example contradict its own declared type: a mock
- * server answering a `type: object` field with `[Max Depth Exceeded]` hands a strict consumer, such as
- * a generated SDK decoding that response, a body it cannot parse. Return the emptiest value of the
- * declared type instead. Schemas that declare no type at all keep the readable sentinel, because there
- * is no shape to honour and the string is the only signal that truncation happened.
- */
-const getMaxDepthValue = (
-  schema: SchemaObject,
-  makeUpRandomData: boolean,
-  emptyString: string | undefined,
-): unknown => {
-  const container = getEmptyContainer(schema)
-  if (container !== undefined) {
-    return container
-  }
-
-  // The one primitive neither helper below covers.
-  if ('type' in schema && schema.type === 'null') {
-    return null
-  }
-
-  const primitive = getPrimitiveValue(schema, makeUpRandomData, emptyString)
-  if (primitive !== undefined) {
-    return primitive
-  }
-
-  const unionPrimitive = getUnionPrimitiveValue(schema, makeUpRandomData, emptyString)
-  if (unionPrimitive !== undefined) {
-    return unionPrimitive
-  }
-
-  const composedContainer = getComposedEmptyContainer(schema)
-  if (composedContainer !== undefined) {
-    return composedContainer
-  }
-
-  return MAX_DEPTH_EXCEEDED
-}
-
 type GetExampleFromSchemaOptions = {
   /** Fallback string for empty string values. */
   emptyString?: string
@@ -836,6 +743,127 @@ const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined)
       ? Object.entries(options.compositionSelection).sort(([a], [b]) => a.localeCompare(b))
       : undefined,
   })
+
+/** Stand-in for a truncated schema whose shape cannot be read off the document. */
+const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
+
+/**
+ * How many composition wrappers to unwrap while describing a truncated schema.
+ * Bounded so a self-referencing `allOf` terminates instead of looping.
+ */
+const MAX_COMPOSITION_HOPS = 5
+
+/** Read a schema's declared types as a list, so `type: 'object'` and `type: ['object']` behave alike. */
+const getDeclaredTypes = (schema: SchemaObject): readonly SchemaPrimitiveType[] => {
+  if (!('type' in schema) || !schema.type) {
+    return []
+  }
+  return Array.isArray(schema.type) ? schema.type : [schema.type]
+}
+
+/** Return the empty container a schema declares, or `undefined` when it declares neither. */
+const getEmptyContainer = (schema: SchemaObject): Record<string, never> | never[] | undefined => {
+  const types = getDeclaredTypes(schema)
+
+  if ('properties' in schema || types.includes('object')) {
+    return {}
+  }
+  if ('items' in schema || types.includes('array')) {
+    return []
+  }
+  return undefined
+}
+
+/** Pick the `oneOf`/`anyOf` variant the walk itself would have rendered, honoring an explicit selection. */
+const getSelectedVariant = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+): SchemaObject | undefined => {
+  const compositionKeyword = schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : undefined
+  const variants = compositionKeyword ? schema[compositionKeyword] : undefined
+  if (!compositionKeyword || !Array.isArray(variants) || variants.length === 0) {
+    return undefined
+  }
+
+  const index = getCompositionSelectionIndex(schemaPath, compositionKeyword, options, variants.length)
+  const candidate =
+    index !== undefined
+      ? variants[index]
+      : variants.find((variant) => {
+          const resolved = resolve.schema(variant)
+          return resolved && (!('type' in resolved) || resolved.type !== 'null')
+        })
+
+  return candidate ? resolve.schema(candidate) : undefined
+}
+
+/**
+ * Build the value that stands in for a schema the recursion depth cap cut off.
+ *
+ * The stand-in is still read as an example of the schema it replaced, so a plain string makes the
+ * example contradict its own type: a mock server answering a `type: object` field with
+ * `[Max Depth Exceeded]` hands a strict SDK decoder a body it cannot parse. Describe the declared
+ * type instead, dispatching in the order the walk does, so a truncated value differs from a full
+ * render only in having no children. A schema that declares no shape keeps the sentinel, which is
+ * then the only signal that truncation happened.
+ *
+ * The value is empty rather than complete: satisfying `required` or `minItems` means descending
+ * again, which is exactly what the cap exists to prevent.
+ */
+const getMaxDepthValue = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  hops: number = MAX_COMPOSITION_HOPS,
+): unknown => {
+  const container = getEmptyContainer(schema)
+  if (container !== undefined) {
+    return container
+  }
+
+  const makeUpRandomData = !!options?.emptyString
+  const primitive = getPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  if (primitive !== undefined) {
+    return primitive
+  }
+
+  // A wrapper such as `allOf: [$ref]` declares no type of its own, so describe its members instead.
+  if (hops > 0) {
+    const variant = getSelectedVariant(schema, options, schemaPath)
+    if (variant) {
+      return getMaxDepthValue(variant, options, schemaPath, hops - 1)
+    }
+
+    if (Array.isArray(schema.allOf) && schema.allOf.length > 0) {
+      // `allOf` merges every member, so merge their truncated values the same way. Members that
+      // describe nothing contribute nothing rather than clobbering the ones that do.
+      let merged: unknown = undefined
+      for (const member of schema.allOf) {
+        const resolved = resolve.schema(member)
+        const value = resolved ? getMaxDepthValue(resolved, options, schemaPath, hops - 1) : undefined
+        if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
+          merged = mergeExamples(merged, value)
+        }
+      }
+      if (merged !== undefined) {
+        return merged
+      }
+    }
+  }
+
+  const unionPrimitive = getUnionPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  if (unionPrimitive !== undefined) {
+    return unionPrimitive
+  }
+
+  // A schema that declares `null` has exactly one valid value, which is what the walk falls back to.
+  if (getDeclaredTypes(schema).includes('null')) {
+    return null
+  }
+
+  return MAX_DEPTH_EXCEEDED
+}
 
 /**
  * Generate an example value from a given OpenAPI SchemaObject.
@@ -926,14 +954,6 @@ export const getExampleFromSchema = (
   // Determine if we should generate realistic example data
   const makeUpRandomData = !!options?.emptyString
 
-  // Prevent infinite recursion in circular references
-  if (level > MAX_LEVELS_DEEP) {
-    seen.delete(targetValue)
-
-    // Deliberately not cached: the value depends on `level`, which the cache key does not carry.
-    return getMaxDepthValue(_schema, makeUpRandomData, options?.emptyString)
-  }
-
   // Early exits for schemas that should not be included (deprecated, readOnly, writeOnly, omitEmptyAndOptionalProperties)
   if (shouldOmitProperty(_schema, parentSchema, name, options)) {
     seen.delete(targetValue)
@@ -978,6 +998,16 @@ export const getExampleFromSchema = (
   if (Array.isArray(_schema.enum) && _schema.enum.length > 0) {
     seen.delete(targetValue)
     return cache(_schema, _schema.enum[0], cacheKey, skipCache)
+  }
+
+  // Stop descending once the walk is too deep to keep going, which also breaks circular references.
+  // Everything above still applied, so an explicit example, `const` or `enum` wins here as it would at
+  // any other level; only the children are given up on.
+  if (level > MAX_LEVELS_DEEP) {
+    seen.delete(targetValue)
+
+    // Deliberately not cached: the value holds only at this level, and the cache key carries none.
+    return getMaxDepthValue(_schema, options, schemaPath)
   }
 
   // Handle object types - check for properties to identify objects
