@@ -83,6 +83,10 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment: 'Whether to show the "Test Request" button',
     }),
+    hideCopyAsMarkdownButton: boolean({
+      default: false,
+      typeComment: 'Whether to hide the "Copy as Markdown for LLM" button on operations',
+    }),
     hideSearch: boolean({
       default: false,
       typeComment: 'Whether to show the sidebar search bar',

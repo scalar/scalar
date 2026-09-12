@@ -23,6 +23,7 @@ import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
 import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
+import CopyAsMarkdownButton from '@/features/Operation/components/CopyAsMarkdownButton.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
@@ -155,6 +156,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
           <XBadges
             :badges="operation['x-badges']"
             position="after" />
+          <CopyAsMarkdownButton
+            v-if="!options.hideCopyAsMarkdownButton"
+            :method
+            :operation
+            :path />
         </div>
       </div>
       <div class="operation-layout">
