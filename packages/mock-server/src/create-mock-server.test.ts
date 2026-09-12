@@ -1824,9 +1824,12 @@ describe('createMockServer', () => {
 
       expect(response.status).toBe(200)
       expect(response.headers.get('Content-Type')).toBe('application/json')
-      // Asserted as text rather than parsed JSON: the bug under test is a zero-byte body, and
-      // `.json()` would throw on it instead of reporting what came back.
-      expect(await response.text()).toBe('{"id":"string"}')
+
+      // Read as text first so a zero-byte body — the bug under test — reports as an empty string
+      // rather than a parse error, then compare parsed so the assertion does not pin key order.
+      const text = await response.text()
+      expect(text).not.toBe('')
+      expect(JSON.parse(text)).toStrictEqual({ id: 'string' })
     })
 
     it('includes a required deprecated property in the generated body', async () => {
@@ -1927,10 +1930,11 @@ describe('createMockServer', () => {
 
       const server = await createMockServer({ document })
 
-      const response = await server.request('/things', { headers: { Origin: 'https://example.com' } })
+      const response = await server.request('/things')
 
       expect(response.status).toBe(200)
-      // Set by `cors()`, and deleted rather than skipped when the generated value is passed through.
+      // The wildcard `cors()` sets by default, not an echoed request origin. Passing the generated
+      // value straight through deletes this instead of leaving it alone.
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
     })
   })

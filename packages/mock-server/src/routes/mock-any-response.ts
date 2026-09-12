@@ -53,15 +53,17 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   Object.keys(headers).forEach((header) => {
     const headerObject = getResolvedRef(headers[header])
     // `includeDeprecated` keeps a header whose schema is annotated `deprecated` from generating
-    // nothing. Only that option is passed, so this site stays off `generateResponseExample`: its
-    // `emptyString` switches on format-based generation, which would turn a header declaring
-    // `format: 'date-time'` into a fabricated timestamp instead of the empty string it emits today.
+    // nothing. Only that option is passed, so this site stays off `generateResponseExample`, whose
+    // other two options would each change what a document's declared headers emit today:
+    // `emptyString` turns a bare `type: 'string'` header into the literal `string` and switches on
+    // format-based generation (a `format: 'date-time'` header would emit a fabricated timestamp),
+    // and `mode: 'read'` would drop a `writeOnly` header entirely.
     const value = headerObject?.schema
       ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema), { includeDeprecated: true }) as string)
       : null
     // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
-    // thing to set the declared headers, so what a delete can actually remove is a header an earlier
-    // middleware set — `cors()` sets `Access-Control-Allow-Origin` before the handler runs.
+    // thing to set the declared headers, so in practice a delete removes a header set earlier by
+    // middleware — `cors()` sets `Access-Control-Allow-Origin` before the handler runs.
     if (value != null) {
       c.header(header, value)
     }

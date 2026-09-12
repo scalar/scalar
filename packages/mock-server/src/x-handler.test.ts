@@ -1149,6 +1149,58 @@ describe('x-handler', () => {
     })
   })
 
+  // `generateResponseExample` takes the `x-variable` values as an ordinary optional argument, so
+  // dropping it at a call site is not a type error. These pin the substitution at the two sites an
+  // `x-handler` reaches, which the deprecated cases above cannot see.
+  describe('x-variable substitution in generated responses', () => {
+    /** A document whose response schema reads the path parameter through `x-variable`. */
+    const documentWithVariableResponse = (handler: string) => ({
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items/{id}': {
+          get: {
+            'x-handler': handler,
+            'responses': {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: { id: { 'type': 'string', 'example': 'unsubstituted', 'x-variable': 'id' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    it('substitutes path parameters in the fallback body', async () => {
+      const server = await createMockServer({ document: documentWithVariableResponse('return undefined;') })
+
+      const response = await server.request('/items/42')
+
+      expect(await response.text()).toBe('{"id":"42"}')
+    })
+
+    it('substitutes path parameters in res[statusCode]', async () => {
+      const server = await createMockServer({
+        document: documentWithVariableResponse("return { fromRes: res['200'] };"),
+      })
+
+      const response = await server.request('/items/42')
+
+      expect(await response.text()).toBe('{"fromRes":{"id":"42"}}')
+    })
+  })
+
   describe('res object with example responses', () => {
     it('handler can access explicit example via res[statusCode]', async () => {
       const document = {

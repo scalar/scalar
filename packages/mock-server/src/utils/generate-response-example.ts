@@ -12,10 +12,10 @@ type ExampleSchema = Parameters<typeof getExampleFromSchema>[0]
  * response with zero bytes and dropped required properties. Owning the option set in one place keeps
  * a newly added response path from quietly missing that.
  *
- * Not for response headers. `emptyString` switches on format-based value generation
- * (`makeUpRandomData`), so a header declaring `format: 'date-time'` would start emitting a
- * fabricated timestamp where it emits an empty string today. Headers set `includeDeprecated` on
- * their own call instead.
+ * Not for response headers. Each of the other options here would change what an already-declared
+ * header emits: `emptyString` yields the literal `string` for a bare `type: 'string'` and switches on
+ * format-based generation, and `mode: 'read'` drops a `writeOnly` header. Headers set
+ * `includeDeprecated` on their own call instead.
  *
  * @param schema - The resolved schema to generate a value for.
  * @param variables - Values for `x-variable` substitution, usually a request's path parameters.
