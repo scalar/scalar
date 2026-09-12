@@ -760,12 +760,6 @@ const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined)
 /** Stand-in for a truncated schema whose shape cannot be read off the document. */
 const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
 
-/**
- * How many composition wrappers to unwrap while describing a truncated schema.
- * Bounded so a self-referencing `allOf` terminates instead of looping.
- */
-const MAX_COMPOSITION_HOPS = 5
-
 /** Read a schema's declared types as a list, so `type: 'object'` and `type: ['object']` behave alike. */
 const getDeclaredTypes = (schema: SchemaObject): readonly SchemaPrimitiveType[] => {
   if (!('type' in schema) || !schema.type) {
@@ -817,28 +811,70 @@ const getSelectedVariant = (
  * The stand-in is still read as an example of the schema it replaced, so a plain string makes the
  * example contradict its own type: a mock server answering a `type: object` field with
  * `[Max Depth Exceeded]` hands a strict SDK decoder a body it cannot parse. Describe the declared
- * type instead, dispatching in the order the walk does, so a truncated value differs from a full
- * render only in having no children. A schema that describes no shape at all keeps the sentinel, which
- * is then the only signal that truncation happened.
+ * type instead, dispatching in the order the walk does, so a truncated value differs from a full render
+ * in having no children. A schema that describes no shape at all keeps the sentinel, which is then the
+ * only signal that truncation happened.
  *
- * One deliberate improvement on the walk: a container spelled as a single-member list (`type:
+ * One deliberate departure from the walk: a container spelled as a single-member list (`type:
  * ['object']`) is read here as the container it declares, where the walk's strict comparison misses it
  * and falls back to `null`.
  *
  * The value is empty rather than complete: satisfying `required` or `minItems` means descending
  * again, which is exactly what the cap exists to prevent.
  */
+/**
+ * Describe a composed schema by the member the walk itself would have rendered.
+ * Returns `undefined` when no member describes a shape.
+ */
+const describeComposition = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  seen: WeakSet<object>,
+): unknown => {
+  const variant = getSelectedVariant(schema, options, schemaPath)
+  if (variant) {
+    return getMaxDepthValue(variant, options, schemaPath, seen)
+  }
+
+  if (!Array.isArray(schema.allOf) || schema.allOf.length === 0) {
+    return undefined
+  }
+
+  // `allOf` merges every member, so merge their truncated values the same way. Members that describe
+  // nothing contribute nothing rather than clobbering the ones that do.
+  let merged: unknown = undefined
+  let choiceIndex = 0
+  for (const member of schema.allOf) {
+    const resolved = resolve.schema(member)
+    // Each direct choice member gets its own ordinal in the path, the same way the walk keys them, so
+    // an explicit selection on an `allOf`-wrapped `oneOf` still resolves here.
+    const isChoiceMember = !!resolved && (Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf))
+    const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
+    const value = resolved ? getMaxDepthValue(resolved, options, memberSchemaPath, seen) : undefined
+    if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
+      merged = mergeExamples(merged, value)
+    }
+  }
+
+  return merged
+}
+
 const getMaxDepthValue = (
   schema: SchemaObject,
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
-  hops: number = MAX_COMPOSITION_HOPS,
+  seen: WeakSet<object> = new WeakSet(),
 ): unknown => {
   const container = getEmptyContainer(schema)
   if (container !== undefined) {
+    // Children were dropped here, so anything assembled around this value is level-bound too.
+    truncated = true
     return container
   }
 
+  // A schema with no children renders the same at every level, so nothing is lost and the cache stays
+  // usable for the rest of the call.
   const makeUpRandomData = !!options?.emptyString
   const primitive = getPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
   if (primitive !== undefined) {
@@ -846,31 +882,17 @@ const getMaxDepthValue = (
   }
 
   // A wrapper such as `allOf: [$ref]` declares no type of its own, so describe its members instead.
-  if (hops > 0) {
-    const variant = getSelectedVariant(schema, options, schemaPath)
-    if (variant) {
-      return getMaxDepthValue(variant, options, schemaPath, hops - 1)
-    }
+  // Unwrapping runs outside the walk's own cycle guard, so it carries one: the schema graph is finite,
+  // so refusing to re-enter a wrapper already on the path terminates without capping how long a
+  // legitimate inheritance chain may be.
+  const target = getSchemaCacheTarget(schema)
+  if (!seen.has(target)) {
+    seen.add(target)
+    const composed = describeComposition(schema, options, schemaPath, seen)
+    seen.delete(target)
 
-    if (Array.isArray(schema.allOf) && schema.allOf.length > 0) {
-      // `allOf` merges every member, so merge their truncated values the same way. Members that
-      // describe nothing contribute nothing rather than clobbering the ones that do.
-      let merged: unknown = undefined
-      let choiceIndex = 0
-      for (const member of schema.allOf) {
-        const resolved = resolve.schema(member)
-        // Each direct choice member gets its own ordinal in the path, the same way the walk keys them,
-        // so an explicit selection on an `allOf`-wrapped `oneOf` still resolves here.
-        const isChoiceMember = !!resolved && (Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf))
-        const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
-        const value = resolved ? getMaxDepthValue(resolved, options, memberSchemaPath, hops - 1) : undefined
-        if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
-          merged = mergeExamples(merged, value)
-        }
-      }
-      if (merged !== undefined) {
-        return merged
-      }
+    if (composed !== undefined) {
+      return composed
     }
   }
 
@@ -884,13 +906,13 @@ const getMaxDepthValue = (
     return null
   }
 
-  // A composition none of the above could describe — every variant is `null`, a `$ref` does not
-  // resolve, or the hops ran out — still declares a composition, and the walk answers that with `null`
-  // rather than with a value of no particular type.
-  if (isComposed(schema)) {
+  // A composition or a negative constraint none of the above could describe still says something about
+  // the value, and the walk answers both with `null` rather than a value of no particular type.
+  if (isComposed(schema) || 'not' in schema) {
     return null
   }
 
+  truncated = true
   return MAX_DEPTH_EXCEEDED
 }
 
@@ -1039,7 +1061,6 @@ export const getExampleFromSchema = (
   // any other level; only the children are given up on.
   if (level > MAX_LEVELS_DEEP) {
     seen.delete(targetValue)
-    truncated = true
 
     // Deliberately not cached: the value holds only at this level, and the cache key carries none.
     return getMaxDepthValue(_schema, options, schemaPath)

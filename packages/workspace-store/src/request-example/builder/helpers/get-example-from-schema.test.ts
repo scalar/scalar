@@ -2029,18 +2029,24 @@ describe('getExampleFromSchema', () => {
 
     it('truncates a composition nothing can describe with null', () => {
       // The walk answers an unrenderable composition with null, and null is the one value a `oneOf` of
-      // nulls actually permits.
+      // nulls actually permits. A negative constraint says nothing a sentinel string could satisfy.
       expect(truncate({ oneOf: [{ type: 'null' }] })).toBe(null)
-      // More wrappers than the unwrapping is willing to follow, so it gives up the same way.
-      const deeplyWrapped = new Array(8)
+      expect(truncate({ not: { type: 'string' } })).toBe(null)
+    })
+
+    it('unwraps a composition however deeply it is nested', () => {
+      // Inheritance chains in generated documents run many wrappers deep, and stopping early would put
+      // a value of the wrong kind exactly where this fix exists to prevent one.
+      const deeplyWrapped = new Array(12)
         .fill(null)
         .reduce<unknown>((inner) => ({ allOf: [inner] }), { type: 'object', properties: {} })
-      expect(truncate(deeplyWrapped)).toBe(null)
+
+      expect(truncate(deeplyWrapped)).toStrictEqual({})
     })
 
     it('terminates on a composition that references itself', () => {
-      // Unwrapping runs outside the walk's cycle guard, so its own hop budget is the only thing
-      // standing between a self-referencing wrapper and a hang.
+      // Unwrapping runs outside the walk's cycle guard, so its own guard is the only thing standing
+      // between a self-referencing wrapper and a hang.
       const cyclic: Record<string, unknown> = {}
       cyclic.allOf = [cyclic]
 
