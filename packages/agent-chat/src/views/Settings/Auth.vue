@@ -12,7 +12,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type {
   OpenApiDocument,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { useFocusWithin } from '@vueuse/core'
 import { computed, shallowRef, watch } from 'vue'
 

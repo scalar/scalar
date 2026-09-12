@@ -18,7 +18,7 @@ import type {
 import type {
   OpenApiDocument,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import Model from '@/components/Content/Models/Model.vue'
 import ModelTag from '@/components/Content/Models/ModelTag.vue'

@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 import { createTag, deleteTag, editTag } from './tag'
 

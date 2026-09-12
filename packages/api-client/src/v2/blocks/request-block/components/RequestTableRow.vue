@@ -10,7 +10,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type {
   ParameterObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'

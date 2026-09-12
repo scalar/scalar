@@ -9,7 +9,7 @@ import type {
   OpenApiDocument,
   OperationObject,
   SecurityRequirementObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** Builds a quick cache key from the sorted object keys */
 const getKey = (requirement: SecurityRequirementObject) => Object.keys(requirement).sort().join(',')

@@ -1,7 +1,7 @@
 import { type SecurityScheme, securitySchemeSchema } from '@scalar/types/entities'
 import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 import 'fake-indexeddb/auto'
 

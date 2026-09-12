@@ -139,7 +139,7 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type {
   OperationObject,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   computed,
   onBeforeMount,

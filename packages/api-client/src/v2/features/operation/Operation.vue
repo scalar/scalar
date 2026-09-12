@@ -48,7 +48,7 @@ import {
   getRequestExampleContext,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'

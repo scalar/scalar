@@ -7,7 +7,7 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { type ServerObject, ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
+import { type ServerObject, ServerObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
 /**

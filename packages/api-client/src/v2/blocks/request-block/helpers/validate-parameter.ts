@@ -1,4 +1,4 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
  * Checks if the value of a example parameter is the expected type or format

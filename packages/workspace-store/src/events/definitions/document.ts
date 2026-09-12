@@ -1,6 +1,6 @@
 import type { PartialDeep } from 'type-fest'
 
-import type { InfoObject } from '@/schemas/v3.1/strict/info'
+import type { InfoObject } from '@/schemas/v3.2/strict/info'
 
 /** Event definitions for the openapi document */
 export type DocumentEvents = {

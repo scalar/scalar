@@ -6,7 +6,7 @@ import { isHidden } from '@/helpers/is-hidden'
 import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { ParentTag, TraversedWebhook } from '@/schemas/navigation'
-import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getTag } from './get-tag'
 

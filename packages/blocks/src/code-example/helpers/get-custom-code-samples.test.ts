@@ -1,5 +1,5 @@
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getCustomCodeSamples } from './get-custom-code-samples'

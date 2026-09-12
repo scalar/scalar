@@ -29,7 +29,7 @@ import type {
   RequestBodyObject,
   ServerObject,
   TagObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
 

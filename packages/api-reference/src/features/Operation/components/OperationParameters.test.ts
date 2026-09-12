@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
@@ -42,14 +42,14 @@ describe('OperationParameters', () => {
   })
 
   describe('query parameters', () => {
-    it('renders query parameters', () => {
+    it.each(['query', 'querystring'] as const)('renders %s parameters', (location) => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: defaultSchemaOptions,
           parameters: [
             {
-              in: 'query',
+              in: location,
               name: 'search',
               schema: coerceValue(SchemaObjectSchema, {
                 type: 'string',

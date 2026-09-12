@@ -17,7 +17,7 @@ import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/gene
 import { type XScalarActiveProxy, XScalarActiveProxySchema } from '@/schemas/extensions/workspace/x-scalar-active-proxy'
 import { type XScalarTabs, XScalarTabsSchema } from '@/schemas/extensions/workspace/x-scalar-tabs'
 
-import type { OpenAPIExtensions, OpenApiDocument } from './v3.1/strict/openapi-document'
+import type { OpenAPIExtensions, OpenApiDocument } from './v3.2/strict/openapi-document'
 
 export type WorkspaceDocumentMeta = Omit<
   OpenAPIExtensions,

@@ -7,7 +7,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   OperationObject,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, onMounted, ref } from 'vue'
 
 import { CodeExample, generateClientOptions } from '../../src/code-example'

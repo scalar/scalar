@@ -3,7 +3,7 @@ import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 import type { MergedSecuritySchemes } from '@/request-example/context/security/merge-security'
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
+import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
 
 /**
  * Get the selected security schemes from security requirements.

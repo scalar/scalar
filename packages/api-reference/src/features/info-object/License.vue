@@ -2,7 +2,7 @@
 import { sanitizeUrl } from '@scalar/helpers/url/is-safe-url'
 import { ScalarIconGavel } from '@scalar/icons'
 import type { AsyncApiLicenseObject } from '@scalar/types/asyncapi/3.1'
-import type { LicenseObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { LicenseObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 const { value } = defineProps<{

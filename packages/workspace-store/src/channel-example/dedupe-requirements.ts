@@ -1,4 +1,4 @@
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
+import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
 
 /**
  * Remove duplicate security requirements, comparing by their JSON shape.
