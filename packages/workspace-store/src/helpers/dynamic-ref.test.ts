@@ -73,6 +73,32 @@ describe('dynamic-ref', () => {
       pushDynamicScope(scope, schema({ $id: 'urn:b' }))
       expect(scope).toHaveLength(1)
     })
+
+    it('follows a bare $ref to a named binding resource so its anchor enters the scope', () => {
+      // A response that references the binding schema by name (`$ref: PaginatedUserResponse`) hides the
+      // resource's `$id`/`$defs` behind the ref. The scope must still grow with the resolved resource so
+      // a `$dynamicRef` inside the referenced template can bind. See https://github.com/scalar/scalar/issues/9883.
+      const resource = schema({
+        $id: 'https://example.com/schemas/PaginatedUserResponse',
+        $defs: { itemTypeAAA: { $dynamicAnchor: 'itemType', type: 'object' } },
+      })
+      const bareRef = schema({ $ref: '#/components/schemas/PaginatedUserResponse', '$ref-value': resource })
+
+      const scope = pushDynamicScope([], bareRef)
+      expect(scope).toHaveLength(1)
+      expect(resolveDynamicRef('#itemType', scope)).toMatchObject({ type: 'object' })
+    })
+
+    it('leaves the scope unchanged for a bare $ref to a schema without an anchor', () => {
+      const bareRef = schema({ $ref: '#/x', '$ref-value': { type: 'string' } })
+      expect(pushDynamicScope([], bareRef)).toEqual([])
+    })
+
+    it('leaves the scope unchanged for an unresolved $ref without throwing', () => {
+      // An unresolved `$ref` dereferences to `undefined`; the scope must be left untouched, not crash.
+      const unresolved = schema({ $ref: '#/missing' })
+      expect(pushDynamicScope([], unresolved)).toEqual([])
+    })
   })
 
   describe('resolveDynamicRef', () => {
