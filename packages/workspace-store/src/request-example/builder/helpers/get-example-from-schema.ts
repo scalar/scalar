@@ -854,7 +854,7 @@ export const getExampleFromSchema = (
   // Determine if we should generate realistic example data
   const makeUpRandomData = !!options?.emptyString
 
-  // Early exits for schemas that should not be included (deprecated, readOnly, writeOnly, omitEmptyAndOptionalProperties)
+  // Early exits for schemas that should not be included (deprecated unless opted in, readOnly, writeOnly, omitEmptyAndOptionalProperties)
   if (shouldOmitProperty(_schema, parentSchema, name, options)) {
     seen.delete(targetValue)
     return undefined

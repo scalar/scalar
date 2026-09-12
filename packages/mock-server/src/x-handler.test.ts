@@ -1164,7 +1164,7 @@ describe('x-handler', () => {
         '/items/{id}': {
           get: {
             'x-handler': handler,
-            'responses': {
+            responses: {
               '200': {
                 description: 'OK',
                 content: {
