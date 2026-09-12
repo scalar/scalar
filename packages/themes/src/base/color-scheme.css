@@ -1,0 +1,19 @@
+/**
+ * Resolves the color mode at first paint, before the mode class exists.
+ *
+ * Theme tokens are scoped to `.dark-mode` / `.light-mode` on `<body>`, so until JavaScript adds
+ * that class there is nothing to resolve and the page paints white. `light-dark()` resolves
+ * against the computed `color-scheme`, which — unlike `prefers-color-scheme` — JavaScript can
+ * still override, so an explicit mode wins later without a second theming system.
+ *
+ * These are the default theme's values, not the active preset's. They only cover the window
+ * before hydration, where the alternative is white; the class layer wins by proximity afterwards.
+ */
+:root {
+  color-scheme: light dark;
+
+  --scalar-background-1: light-dark(#fff, #0f0f0f);
+  --scalar-background-2: light-dark(#f6f6f6, #1a1a1a);
+  --scalar-color-1: light-dark(#1b1b1b, #e7e7e7);
+  --scalar-border-color: light-dark(#dfdfdf, #2d2d2d);
+}

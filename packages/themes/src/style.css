@@ -3,6 +3,7 @@
 /* Import core stylesheets  */
 @import "./base/reset.css";
 @import "./base/scrollbars.css";
+@import "./base/color-scheme.css" layer(scalar-base);
 
 /* Import a copy of the base variables and default theme */
 @import "./base/variables.css" layer(scalar-base);
