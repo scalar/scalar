@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/button'
-import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarToggleInput } from '@scalar/components/toggle'
 import {
   presets,
@@ -9,14 +7,14 @@ import {
   type Theme,
   type ThemeId,
 } from '@scalar/themes'
-import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
 
 import IntegrationLogo from '@/features/settings/components/IntegrationLogo.vue'
 
 import Appearance from './components/Appearance.vue'
 import Section from './components/Section.vue'
-import { getThemeColors } from './helpers/get-theme-colors'
+import SettingsOption from './components/SettingsOption.vue'
+import { getThemeSwatches } from './helpers/get-theme-swatches'
 
 type ColorMode = 'system' | 'light' | 'dark'
 
@@ -61,15 +59,12 @@ const THEME_IDS: Exclude<ThemeId, IntegrationThemeId>[] = [
 const INTEGRATION_THEME_IDS: IntegrationThemeId[] = ['elysiajs', 'fastify']
 
 const defaultThemes = THEME_IDS.map((themeId) => {
-  if (themeId === 'none') {
-    return {
-      slug: themeId,
-      name: 'None',
-      description: 'No theme',
-      theme: '',
-    }
-  }
-  return presets[themeId]
+  const theme =
+    themeId === 'none'
+      ? { slug: themeId, name: 'None', description: 'No theme', theme: '' }
+      : presets[themeId]
+
+  return { ...theme, swatches: getThemeSwatches(theme.slug) }
 })
 
 const integrationThemes = INTEGRATION_THEME_IDS.map((themeId) => ({
@@ -82,16 +77,6 @@ const integrationThemes = INTEGRATION_THEME_IDS.map((themeId) => ({
 const customThemeSlugs = computed(
   () => new Set(customThemes.map((theme) => theme.slug)),
 )
-
-const buttonStyles = cva({
-  base: 'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border',
-  variants: {
-    active: {
-      true: 'bg-primary text-c-1 hover:bg-inherit',
-      false: 'bg-b-1 hover:bg-b-2',
-    },
-  },
-})
 
 /**
  * Determines if the "None" theme should be selected.
@@ -118,12 +103,6 @@ const isThemeActive = (themeSlug: string): boolean => {
     (isNoneTheme(themeSlug) && isNoneThemeSelected.value)
   )
 }
-
-const checkmarkClasses = (isActive: boolean) =>
-  cx(
-    'flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1',
-    isActive && 'bg-c-accent text-b-1 border-transparent',
-  )
 </script>
 <template>
   <div class="flex flex-col gap-10">
@@ -150,37 +129,17 @@ const checkmarkClasses = (isActive: boolean) =>
       </template>
 
       <div class="flex flex-col gap-2">
-        <ScalarButton
-          :class="
-            cx(
-              buttonStyles({
-                active: activeProxyUrl === DEFAULT_PROXY_URL,
-              }),
-            )
-          "
+        <SettingsOption
+          :selected="activeProxyUrl === DEFAULT_PROXY_URL"
           @click="emit('update:proxyUrl', DEFAULT_PROXY_URL)">
-          <div :class="checkmarkClasses(activeProxyUrl === DEFAULT_PROXY_URL)">
-            <ScalarIcon
-              v-if="activeProxyUrl === DEFAULT_PROXY_URL"
-              icon="Checkmark"
-              size="xs"
-              thickness="3.5" />
-          </div>
           Use proxy.scalar.com (default)
-        </ScalarButton>
+        </SettingsOption>
 
-        <ScalarButton
-          :class="cx(buttonStyles({ active: !activeProxyUrl }))"
+        <SettingsOption
+          :selected="!activeProxyUrl"
           @click="emit('update:proxyUrl', null)">
-          <div :class="checkmarkClasses(!activeProxyUrl)">
-            <ScalarIcon
-              v-if="!activeProxyUrl"
-              icon="Checkmark"
-              size="xs"
-              thickness="3.5" />
-          </div>
           Skip the proxy
-        </ScalarButton>
+        </SettingsOption>
       </div>
     </Section>
 
@@ -192,44 +151,28 @@ const checkmarkClasses = (isActive: boolean) =>
       </template>
 
       <div class="grid grid-cols-2 gap-2">
-        <ScalarButton
+        <SettingsOption
           v-for="theme in defaultThemes"
           :key="theme.slug"
-          :class="cx(buttonStyles({ active: isThemeActive(theme.slug) }))"
+          :selected="isThemeActive(theme.slug)"
           @click="
             emit(
               'update:themeSlug',
               isNoneTheme(theme.slug) ? undefined : theme.slug,
             )
           ">
-          <div class="flex items-center gap-2">
-            <div :class="checkmarkClasses(isThemeActive(theme.slug))">
-              <ScalarIcon
-                v-if="isThemeActive(theme.slug)"
-                icon="Checkmark"
-                size="xs"
-                thickness="3.5" />
-            </div>
-            {{ theme.name }}
-          </div>
-          <div class="flex items-center gap-1">
-            <span
-              class="border-c-3 -mr-3 inline-block h-5 w-5 rounded-full"
-              :style="{
-                backgroundColor: getThemeColors(theme.slug).light,
-              }" />
-            <span
-              class="border-c-3 -mr-3 inline-block h-5 w-5 rounded-full"
-              :style="{
-                backgroundColor: getThemeColors(theme.slug).dark,
-              }" />
-            <span
-              class="border-c-3 inline-block h-5 w-5 rounded-full"
-              :style="{
-                backgroundColor: getThemeColors(theme.slug).accent,
-              }" />
-          </div>
-        </ScalarButton>
+          {{ theme.name }}
+
+          <template #trailing>
+            <span class="flex items-center">
+              <span
+                v-for="swatch in theme.swatches"
+                :key="swatch.label"
+                class="border-c-3 -mr-3 inline-block size-5 rounded-full border last:mr-0"
+                :style="{ backgroundColor: swatch.color }" />
+            </span>
+          </template>
+        </SettingsOption>
       </div>
     </Section>
 
@@ -242,27 +185,19 @@ const checkmarkClasses = (isActive: boolean) =>
       </template>
 
       <div class="grid grid-cols-2 gap-2">
-        <ScalarButton
+        <SettingsOption
           v-for="theme in integrationThemes"
           :key="theme.slug"
-          :class="cx(buttonStyles({ active: activeThemeSlug === theme.slug }))"
+          :selected="activeThemeSlug === theme.slug"
           @click="emit('update:themeSlug', theme.slug)">
-          <div class="flex items-center gap-2">
-            <div :class="checkmarkClasses(activeThemeSlug === theme.slug)">
-              <ScalarIcon
-                v-if="activeThemeSlug === theme.slug"
-                icon="Checkmark"
-                size="xs"
-                thickness="3.5" />
-            </div>
-            {{ theme.name }}
-          </div>
-          <div class="flex items-center gap-1">
-            <div class="size-7 rounded-xl">
+          {{ theme.name }}
+
+          <template #trailing>
+            <span class="block size-7 rounded-xl">
               <IntegrationLogo :integration="theme.slug" />
-            </div>
-          </div>
-        </ScalarButton>
+            </span>
+          </template>
+        </SettingsOption>
       </div>
     </Section>
 
@@ -274,22 +209,13 @@ const checkmarkClasses = (isActive: boolean) =>
       </template>
 
       <div class="grid grid-cols-2 gap-2">
-        <ScalarButton
+        <SettingsOption
           v-for="theme in customThemes"
           :key="theme.slug"
-          :class="cx(buttonStyles({ active: activeThemeSlug === theme.slug }))"
+          :selected="activeThemeSlug === theme.slug"
           @click="emit('update:themeSlug', theme.slug)">
-          <div class="flex items-center gap-2">
-            <div :class="checkmarkClasses(activeThemeSlug === theme.slug)">
-              <ScalarIcon
-                v-if="activeThemeSlug === theme.slug"
-                icon="Checkmark"
-                size="xs"
-                thickness="3.5" />
-            </div>
-            {{ theme.name }}
-          </div>
-        </ScalarButton>
+          {{ theme.name }}
+        </SettingsOption>
       </div>
     </Section>
 
