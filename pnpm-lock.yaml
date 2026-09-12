@@ -1857,6 +1857,9 @@ importers:
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@scalar/highlight':
+        specifier: workspace:*
+        version: link:../highlight
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons

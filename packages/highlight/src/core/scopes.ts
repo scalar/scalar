@@ -6,7 +6,7 @@
  * without knowing anything about them.
  *
  * Each scope maps to a short CSS class so the rendered HTML stays small
- * (`<span class="ch-kd">def</span>`). Themes never mention these codes — they
+ * (`<span class="shl-kd">def</span>`). Themes never mention these codes — they
  * are written against the readable scope names and the codes are applied here.
  *
  * Scopes are hierarchical: `function.builtin` falls back to `function` when a
@@ -41,6 +41,9 @@ export const SCOPES = {
   'variable.member': 'vm',
   /** `__name__`, `__init__` — dunder / magic names. */
   'variable.special': 'vs',
+
+  /** `:name` in Ruby, an atom in Erlang, an HTTP method in a curl line. */
+  symbol: 'sy',
 
   // --- keywords -------------------------------------------------------------
   keyword: 'k',

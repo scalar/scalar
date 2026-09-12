@@ -36,6 +36,7 @@ const HLJS_CLASSES: Record<string, string | null> = {
   'variable.parameter': 'hljs-params',
   'variable.member': 'hljs-property',
   'variable.special': 'hljs-variable',
+  symbol: 'hljs-symbol',
 
   // --- keywords -------------------------------------------------------------
   keyword: 'hljs-keyword',

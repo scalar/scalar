@@ -232,6 +232,16 @@ func (s *Store[V]) Get(ctx context.Context, key string) (V, error) {
 }
 `,
 
+  curl: `curl https://galaxy.scalar.com/planets \\
+  --request POST \\
+  --header 'Content-Type: application/json' \\
+  --header "Authorization: Bearer ${D}(cat ./token)" \\
+  --data '{"name": "Mars", "distance": 227.9}' \\
+  --silent --show-error --fail \\
+  -o planet.json
+
+curl -X DELETE https://galaxy.scalar.com/planets/42 -H "Accept: application/json"`,
+
   bash: `#!/usr/bin/env bash
 set -euo pipefail
 

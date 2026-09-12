@@ -58,6 +58,7 @@ describe('every bundled language', () => {
       'cpp',
       'csharp',
       'css',
+      'curl',
       'dart',
       'diff',
       'dockerfile',
@@ -204,10 +205,18 @@ describe('every bundled language', () => {
  * from someone else's document — so a rule that scans to the end of the line
  * and then fails, retried at every column, is a denial of service rather than a
  * slow render. Each seed below was quadratic at some point; the check is on the
- * growth ratio rather than absolute time, so it does not turn into a flaky
- * benchmark on a loaded machine.
+ * growth ratio rather than absolute time, so the threshold is a property of the
+ * grammar rather than of the hardware.
+ *
+ * A ratio alone does not keep this off the flaky list, which is what skipping
+ * the suite in #9941 demonstrated: divide two sub-millisecond readings and
+ * timer granularity shows up as a multiple. Three things keep it honest now —
+ * every reading runs for `MIN_SAMPLE_MS` before the clock is consulted, the
+ * two thresholds that carried under 3x of headroom were widened to the far
+ * side of the noise, and the ratio tests retry, since a rule that really
+ * rescans is slow on every attempt while a preempted run is not.
  */
-describe.skip('cost stays linear in line length', () => {
+describe('cost stays linear in line length', () => {
   /** One seed per rule that was quadratic once, plus untouched controls. */
   const seeds: [string, string][] = [
     ['markdown', '['], // link label
@@ -233,19 +242,43 @@ describe.skip('cost stays linear in line length', () => {
   const SMALL = 4000
   const BIG = 16000
 
-  /** Nanoseconds per character, best of two runs to shed scheduler noise. */
+  /**
+   * How long one reading has to run before the clock is worth believing.
+   *
+   * These measurements used to time a single tokenization, and most of these
+   * payloads finish in well under a millisecond — `ini`'s baseline sample
+   * takes 0.16 ms. Dividing two intervals that short turns timer granularity
+   * and one scheduler preemption into a multiple rather than a rounding
+   * error, which is how a `mojo` reading whose healthy value is 5.6 arrived
+   * in CI at 24.2 and got this whole suite skipped.
+   *
+   * Repeating the work until the clock has advanced a useful distance costs a
+   * few seconds across the suite and pulls the spread between repeated
+   * readings of the same entry from roughly 2x down to under 1.3x.
+   */
+  const MIN_SAMPLE_MS = 25
+
+  /**
+   * Nanoseconds per character, averaged over at least `MIN_SAMPLE_MS` of work.
+   *
+   * Averaging rather than taking the best of the repeats: the repeats inside
+   * one window cannot be separated, and the callers below already take a
+   * best-of across windows, which is where stalls get shed.
+   */
   const nsPerChar = (lang: string, code: string): number => {
-    let best = Number.POSITIVE_INFINITY
-    for (let run = 0; run < 2; run++) {
-      const start = performance.now()
+    const start = performance.now()
+    let iterations = 0
+    let elapsed = 0
+    do {
       tokenize(code, lang)
-      best = Math.min(best, performance.now() - start)
-    }
-    return (best * 1e6) / code.length
+      iterations++
+      elapsed = performance.now() - start
+    } while (elapsed < MIN_SAMPLE_MS)
+    return (elapsed * 1e6) / (iterations * code.length)
   }
 
   for (const [lang, seed] of seeds) {
-    it(`${lang}: a line of ${JSON.stringify(seed)}`, () => {
+    it(`${lang}: a line of ${JSON.stringify(seed)}`, { retry: 2 }, () => {
       const small = seed.repeat(Math.ceil(SMALL / seed.length))
       const big = seed.repeat(Math.ceil(BIG / seed.length))
       tokenize(small, lang) // compile the grammar outside the measurement
@@ -337,9 +370,12 @@ describe.skip('cost stays linear in line length', () => {
    * cancels the engine out. The entries above keep their wall clock because
    * those languages have no sample in the shared corpus to divide by.
    *
-   * Each bound is set from the cost measured once the rule was fixed, with
-   * roughly 2-3x of headroom — not a single multiple, because the fixed costs
-   * differ by four orders of magnitude. `perl`'s payload is a string-literal
+   * Each bound is set from the cost measured once the rule was fixed, with at
+   * least 4x of headroom — not a single multiple, because the fixed costs
+   * differ by four orders of magnitude. Two of them used to carry closer to
+   * 2x, which was not enough: `ini` measures 0.24 against a bound of 1, and
+   * `mojo`'s colon run measures 5.6-7.1 against 40, the noisiest entry here
+   * and the one whose old bound of 15 this suite was skipped over. `perl`'s payload is a string-literal
    * interior its grammar barely touches, so it sits near zero against a
    * sample that is the slowest in the corpus; a shared bound there would
    * notice nothing. Reintroducing each original defect measures, against
@@ -355,10 +391,10 @@ describe.skip('cost stays linear in line length', () => {
    */
   const ratioBudgets: [string, string, string, number][] = [
     ['perl', `"%${'0'.repeat(20_000)}"`, 'one format specifier with a long flag run', 0.5],
-    ['ini', `${' '.repeat(400)}text here\n`.repeat(60), 'indented lines that never reach a separator', 0.5],
+    ['ini', `${' '.repeat(400)}text here\n`.repeat(60), 'indented lines that never reach a separator', 1],
     ['matlab', `properties ${' '.repeat(40_000)}x`, 'a block keyword and a long run of trailing spaces', 3],
     ['mojo', `fn f(${'a'.repeat(16_000)}`, 'an unterminated parameter list holding one long name', 3],
-    ['mojo', `var s = f"{${':'.repeat(64_000)}`, 'an unterminated interpolation holding a run of colons', 15],
+    ['mojo', `var s = f"{${':'.repeat(64_000)}`, 'an unterminated interpolation holding a run of colons', 40],
     ['nginx', 'a'.repeat(200_000), 'one bare word the length of a small file', 0.3],
     ['haskell', 'A'.repeat(40_000), 'one unbroken run of capitals', 3],
     ['lua', `function ${'a'.repeat(50_000)}.`, 'a definition name that never resolves', 1.5],
@@ -375,20 +411,15 @@ describe.skip('cost stays linear in line length', () => {
   const costRatio = (lang: string, code: string, baseline: string): number => {
     let bestCode = Number.POSITIVE_INFINITY
     let bestBaseline = Number.POSITIVE_INFINITY
-    for (let run = 0; run < 5; run++) {
-      let start = performance.now()
-      tokenize(code, lang)
-      bestCode = Math.min(bestCode, (performance.now() - start) / code.length)
-
-      start = performance.now()
-      tokenize(baseline, lang)
-      bestBaseline = Math.min(bestBaseline, (performance.now() - start) / baseline.length)
+    for (let run = 0; run < 3; run++) {
+      bestCode = Math.min(bestCode, nsPerChar(lang, code))
+      bestBaseline = Math.min(bestBaseline, nsPerChar(lang, baseline))
     }
     return bestCode / bestBaseline
   }
 
   for (const [lang, code, what, limit] of ratioBudgets) {
-    it(`${lang}: ${what}`, () => {
+    it(`${lang}: ${what}`, { retry: 2 }, () => {
       const baseline = samples[lang]
       if (!baseline) throw new Error(`${lang} has no sample in test/samples.ts to measure against`)
 
