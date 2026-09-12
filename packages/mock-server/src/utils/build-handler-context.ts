@@ -79,7 +79,7 @@ function getExampleFromResponse(
   return acceptedResponse.example !== undefined
     ? normalizeResponseBody(acceptedResponse.example, responseSchema)
     : responseSchema
-      ? normalizeResponseBody(generateResponseExample(responseSchema, c), responseSchema)
+      ? normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
       : null
 }
 

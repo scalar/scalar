@@ -1115,7 +1115,11 @@ describe('x-handler', () => {
         paths: {
           '/legacy': {
             get: {
-              'x-handler': "return res['200'];",
+              // Wrapped in an object on purpose. Returning `res['200']` bare would send an
+              // unpopulated value down the `result === undefined` path in `mockHandlerResponse`,
+              // which generates the body again from the same response — so the assertion would pass
+              // even with this call site unfixed. Wrapping keeps the failure visible as `{}`.
+              'x-handler': "return { fromRes: res['200'] };",
               responses: {
                 '200': {
                   description: 'OK',
@@ -1141,7 +1145,7 @@ describe('x-handler', () => {
       const response = await server.request('/legacy')
 
       expect(response.status).toBe(200)
-      expect(await response.text()).toBe('{"id":"string"}')
+      expect(await response.text()).toBe('{"fromRes":{"id":"string"}}')
     })
   })
 

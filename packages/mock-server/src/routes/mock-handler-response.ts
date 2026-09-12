@@ -9,6 +9,7 @@ import { executeHandler } from '@/utils/execute-handler'
 import { generateResponseExample } from '@/utils/generate-response-example'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
+import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
 
 /**
@@ -66,7 +67,7 @@ function getExampleFromResponse(
   return selectedExample
     ? normalizeResponseBody(selectedExample.value, responseSchema)
     : responseSchema
-      ? normalizeResponseBody(generateResponseExample(responseSchema, c), responseSchema)
+      ? normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
       : null
 }
 

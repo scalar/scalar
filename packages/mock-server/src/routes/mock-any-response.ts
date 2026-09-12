@@ -12,6 +12,7 @@ import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 import { generateResponseExample } from '@/utils/generate-response-example'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
+import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
 import { serializeResponseBody } from '@/utils/serialize-response-body'
 
@@ -52,13 +53,15 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   Object.keys(headers).forEach((header) => {
     const headerObject = getResolvedRef(headers[header])
     // `includeDeprecated` keeps a header whose schema is annotated `deprecated` from generating
-    // nothing. Only that option is passed: `emptyString`/`variables` would change header values a
-    // document already declares, so this site deliberately stays off `generateResponseExample`.
+    // nothing. Only that option is passed, so this site stays off `generateResponseExample`: its
+    // `emptyString` switches on format-based generation, which would turn a header declaring
+    // `format: 'date-time'` into a fabricated timestamp instead of the empty string it emits today.
     const value = headerObject?.schema
       ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema), { includeDeprecated: true }) as string)
       : null
-    // Loose check on purpose: Hono *deletes* a header when handed `undefined`, so a generated value
-    // that comes back `undefined` has to be treated like the absent case rather than set.
+    // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
+    // thing to set the declared headers, so what a delete can actually remove is a header an earlier
+    // middleware set — `cors()` sets `Access-Control-Allow-Origin` before the handler runs.
     if (value != null) {
       c.header(header, value)
     }
@@ -94,7 +97,8 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   const responseSchema = acceptedResponse?.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined
 
   /** Generates the response body from the schema, or returns `undefined` when there is no schema. */
-  const generateFromSchema = (): unknown => (responseSchema ? generateResponseExample(responseSchema, c) : undefined)
+  const generateFromSchema = (): unknown =>
+    responseSchema ? generateResponseExample(responseSchema, pathParameters(c)) : undefined
 
   // Server-Sent Events are a framed, multi-event wire format, so they cannot go out as one buffered
   // body: a client reading the stream expects `data:` lines terminated by a blank line. Everything

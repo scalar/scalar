@@ -1862,12 +1862,17 @@ describe('createMockServer', () => {
       const response = await server.request('/models')
 
       expect(response.status).toBe(200)
-      expect(await response.text()).toBe('{"name":"string","legacyName":"string"}')
+
+      // Read as text first so a zero-byte body — the bug under test — reports as an empty string
+      // rather than a parse error, then compare parsed so the assertion does not pin key order.
+      const text = await response.text()
+      expect(text).not.toBe('')
+      expect(JSON.parse(text)).toStrictEqual({ name: 'string', legacyName: 'string' })
     })
 
     it('sets a response header whose schema is deprecated', async () => {
-      // Hono *deletes* a header when handed `undefined`, so a header schema that generated nothing
-      // did not merely come out empty — it removed a header the document declares.
+      // A header value is generated from its schema like any other, so the annotation suppressed it
+      // there too and the declared header went out missing rather than merely empty.
       const document = {
         openapi: '3.1.0',
         info: { title: 'Header API', version: '1.0.0' },
@@ -1894,6 +1899,39 @@ describe('createMockServer', () => {
 
       expect(response.status).toBe(200)
       expect(response.headers.get('X-Legacy-Id')).toBe('legacy-1')
+    })
+
+    it('leaves other headers alone when a header schema generates nothing', async () => {
+      // A header value that comes back `undefined` has to be skipped, not handed to `c.header()`:
+      // Hono treats `undefined` as a delete, and the header loop runs before `Content-Type` is set
+      // and after the CORS middleware, so the casualty is a header something else already set.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Header API', version: '1.0.0' },
+        paths: {
+          '/things': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  // An unresolvable `$ref` resolves to `undefined`, so nothing is generated for it —
+                  // independent of the deprecation gate, which is what isolates the guard below.
+                  headers: { 'Access-Control-Allow-Origin': { schema: { $ref: '#/components/schemas/Missing' } } },
+                  content: { 'application/json': { example: { ok: true } } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/things', { headers: { Origin: 'https://example.com' } })
+
+      expect(response.status).toBe(200)
+      // Set by `cors()`, and deleted rather than skipped when the generated value is passed through.
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
     })
   })
 

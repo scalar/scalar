@@ -1,7 +1,7 @@
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 
 import type { MockMessage, ResolvedChannel, ResolvedMessage } from '@/transports/types'
+import { generateResponseExample } from '@/utils/generate-response-example'
 
 /** Encode a generated value to a wire string. Strings pass through; everything else is JSON. */
 function encode(value: unknown): string {
@@ -15,7 +15,7 @@ function encode(value: unknown): string {
 /**
  * Generate an encoded mock frame for a channel message — the AsyncAPI analogue of the REST
  * mocker's response generation. Prefers a defined example, otherwise generates a value from the
- * message payload schema with the same `getExampleFromSchema` the HTTP mocker uses.
+ * message payload schema through the same `generateResponseExample` the HTTP mocker uses.
  *
  * @param channel - The resolved channel to mock a message for.
  * @param messageId - Which message to emit; defaults to the channel's first message.
@@ -35,14 +35,11 @@ export function generateMessage(channel: ResolvedChannel, messageId?: string): M
     // Prefer an explicit example, mirroring response-example selection in the REST mocker.
     value = message.examples[0]
   } else if (message.payload) {
-    // `includeDeprecated` keeps a payload annotated `deprecated` from generating an empty frame —
-    // the same invariant `generateResponseExample` owns for HTTP bodies. This call site cannot reuse
-    // that helper: there is no Hono context here, and it deliberately passes no `variables`.
-    value = getExampleFromSchema(getResolvedRefDeep(message.payload) as Parameters<typeof getExampleFromSchema>[0], {
-      emptyString: 'string',
-      mode: 'read',
-      includeDeprecated: true,
-    })
+    // No `variables`: a channel message is not generated per request, so there are no path
+    // parameters to substitute.
+    value = generateResponseExample(
+      getResolvedRefDeep(message.payload) as Parameters<typeof generateResponseExample>[0],
+    )
   }
 
   return {
