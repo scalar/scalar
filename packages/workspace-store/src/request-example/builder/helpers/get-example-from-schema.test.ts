@@ -1914,8 +1914,9 @@ describe('getExampleFromSchema', () => {
   })
 
   describe('maximum depth', () => {
-    // The walk gives up below ten levels, so a leaf one hop further down is the first schema it
-    // truncates. Both depths are spelled out here rather than in every case below.
+    // Levels 0 through 10 render, so a leaf nested eleven deep is the first schema the walk truncates.
+    // These mirror `MAX_LEVELS_DEEP` in the module, which is private: moving the cap without moving
+    // these is meant to fail the boundary case below rather than pass quietly.
     const RENDERED_DEPTH = 10
     const TRUNCATED_DEPTH = 11
 
@@ -1936,6 +1937,8 @@ describe('getExampleFromSchema', () => {
       return current
     }
 
+    // Only the leaf is coerced, never the chain: coercion deep-clones, and some cases below depend on
+    // the chain sharing object identity the way a dereferenced document does.
     /** Generate the example for `leaf` placed at the first depth the walk truncates. */
     const truncate = (leaf: unknown, options?: Parameters<typeof getExampleFromSchema>[1]): unknown =>
       deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, coerceValue(SchemaObjectSchema, leaf)), options))
@@ -1993,6 +1996,19 @@ describe('getExampleFromSchema', () => {
       expect(truncate({ type: 'string', enum: ['active', 'archived'] })).toBe('active')
       expect(truncate({ type: 'string', const: 'v2' })).toBe('v2')
       expect(truncate({ type: 'object', example: { id: 'abc' } })).toStrictEqual({ id: 'abc' })
+      expect(truncate({ type: 'object', examples: [{ id: 'first' }] })).toStrictEqual({ id: 'first' })
+      expect(truncate({ type: 'string', default: 'fallback' })).toBe('fallback')
+    })
+
+    it('omits a truncated property the mode excludes', () => {
+      // Omission is decided above the cap too, so a property the caller asked to leave out stays out
+      // rather than coming back as a stand-in: its parent loses the key entirely.
+      expect(truncate({ type: 'string', readOnly: true }, { mode: 'write' })).toStrictEqual({})
+      expect(truncate({ type: 'string' }, { mode: 'write' })).toBe('')
+    })
+
+    it('truncates a multi-type union with a value of its first type', () => {
+      expect(truncate({ type: ['integer', 'string'] })).toBe(1)
     })
 
     it('truncates a composition wrapper with the container its members declare', () => {
@@ -2005,7 +2021,48 @@ describe('getExampleFromSchema', () => {
     })
 
     it('skips composition members that describe nothing', () => {
+      // Order matters: a member that describes nothing must not clobber one that does, whichever side
+      // of the merge it lands on.
       expect(truncate({ allOf: [{ description: 'no shape' }, { type: 'object', properties: {} }] })).toStrictEqual({})
+      expect(truncate({ allOf: [{ type: 'object', properties: {} }, { description: 'no shape' }] })).toStrictEqual({})
+    })
+
+    it('truncates a composition nothing can describe with null', () => {
+      // The walk answers an unrenderable composition with null, and null is the one value a `oneOf` of
+      // nulls actually permits.
+      expect(truncate({ oneOf: [{ type: 'null' }] })).toBe(null)
+      // More wrappers than the unwrapping is willing to follow, so it gives up the same way.
+      const deeplyWrapped = new Array(8)
+        .fill(null)
+        .reduce<unknown>((inner) => ({ allOf: [inner] }), { type: 'object', properties: {} })
+      expect(truncate(deeplyWrapped)).toBe(null)
+    })
+
+    it('terminates on a composition that references itself', () => {
+      // Unwrapping runs outside the walk's cycle guard, so its own hop budget is the only thing
+      // standing between a self-referencing wrapper and a hang.
+      const cyclic: Record<string, unknown> = {}
+      cyclic.allOf = [cyclic]
+
+      expect(truncate(cyclic)).toBe(null)
+    })
+
+    it('follows an explicit selection through an allOf-wrapped composition', () => {
+      // The pickers key a wrapped choice by its ordinal within the allOf, so truncation has to build
+      // the same key or it silently renders the wrong variant.
+      const leaf = {
+        allOf: [
+          {
+            oneOf: [
+              { type: 'object', properties: { id: { type: 'string' } } },
+              { type: 'array', items: { type: 'string' } },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.0.oneOf`]: 1 } })).toStrictEqual([])
     })
 
     it('truncates a composition of scalars with a scalar', () => {
@@ -2055,18 +2112,22 @@ describe('getExampleFromSchema', () => {
     })
 
     it('does not let a truncated value stand in for a shallower use of the same schema', () => {
-      // Results are cached by schema identity under a key that carries no level, so a schema that
-      // truncated deep in one chain must still render in full wherever it is reached shallowly.
-      const money = coerceValue(SchemaObjectSchema, {
-        allOf: [{ type: 'object', properties: { amount: { type: 'integer' }, currency: { type: 'string' } } }],
-      })
-      const wrap = (depth: number, leaf: SchemaObject): SchemaObject =>
-        depth === 0 ? leaf : coerceValue(SchemaObjectSchema, { allOf: [wrap(depth - 1, leaf)] })
+      // Results are cached by schema identity under a key that carries no level, and an `allOf` member
+      // climbs a level without growing the schema path. So a schema rendered just above the cap in one
+      // chain shares its key with the same schema used at the top of the document, and without care the
+      // shallow use is served the truncated result. `$ref` resolution hands back one shared node, which
+      // is what the reused object here stands for — `coerceValue` would clone it and hide the problem.
+      const shared = {
+        type: 'object',
+        properties: { inner: { type: 'object', properties: { id: { type: 'string' } } } },
+      }
+      const wrap = (depth: number, leaf: unknown): unknown => (depth === 0 ? leaf : wrap(depth - 1, { allOf: [leaf] }))
 
-      // `money` itself sits at the last rendered level, so it is the node that both truncates its
-      // member and gets cached under a key identical to the one a top-level use would look up.
-      expect(getExampleFromSchema(wrap(RENDERED_DEPTH, money))).toStrictEqual({})
-      expect(getExampleFromSchema(money)).toStrictEqual({ amount: 1, currency: '' })
+      // The wrapped copy renders one level above the cap, so its own child truncates; the second member
+      // is the very same object, reached at the top.
+      const root = { allOf: [wrap(RENDERED_DEPTH - 1, shared), shared] } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(root)).toStrictEqual({ inner: { id: '' } })
     })
   })
 

@@ -101,6 +101,19 @@ const guessFromFormat = (
  */
 const resultCache = new WeakMap<object, Map<string, unknown>>()
 
+/**
+ * Set once the depth cap has truncated something in the current top-level call.
+ *
+ * A truncated value only holds at the level it was produced at, but `resultCache` keys carry no level,
+ * so a value assembled around one must not be stored. Composition reaches that case: an `allOf` member
+ * climbs a level without growing `schemaPath`, so a schema rendered just above the cap in one chain
+ * shares its key with the same schema used at the top of a document, and the shallow use is served the
+ * truncated result. Widening the key would cost the cache its hits everywhere, so storing simply stops
+ * for the rest of the call instead. The walk is synchronous, so resetting at level 0 scopes this to one
+ * top-level call.
+ */
+let truncated = false
+
 /** Cache required property names per parent schema for O(1) membership checks */
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
 
@@ -143,7 +156,7 @@ const getRequiredNames = (parentSchema: SchemaObject | undefined): ReadonlySet<s
  * identity would leak one scope's result into another.
  */
 const cache = (schema: SchemaObject, result: unknown, cacheKey: string, skip = false) => {
-  if (skip || typeof result !== 'object' || result === null) {
+  if (skip || truncated || typeof result !== 'object' || result === null) {
     return result
   }
   const rawSchema = getSchemaCacheTarget(schema)
@@ -805,8 +818,12 @@ const getSelectedVariant = (
  * example contradict its own type: a mock server answering a `type: object` field with
  * `[Max Depth Exceeded]` hands a strict SDK decoder a body it cannot parse. Describe the declared
  * type instead, dispatching in the order the walk does, so a truncated value differs from a full
- * render only in having no children. A schema that declares no shape keeps the sentinel, which is
- * then the only signal that truncation happened.
+ * render only in having no children. A schema that describes no shape at all keeps the sentinel, which
+ * is then the only signal that truncation happened.
+ *
+ * One deliberate improvement on the walk: a container spelled as a single-member list (`type:
+ * ['object']`) is read here as the container it declares, where the walk's strict comparison misses it
+ * and falls back to `null`.
  *
  * The value is empty rather than complete: satisfying `required` or `minItems` means descending
  * again, which is exactly what the cap exists to prevent.
@@ -839,9 +856,14 @@ const getMaxDepthValue = (
       // `allOf` merges every member, so merge their truncated values the same way. Members that
       // describe nothing contribute nothing rather than clobbering the ones that do.
       let merged: unknown = undefined
+      let choiceIndex = 0
       for (const member of schema.allOf) {
         const resolved = resolve.schema(member)
-        const value = resolved ? getMaxDepthValue(resolved, options, schemaPath, hops - 1) : undefined
+        // Each direct choice member gets its own ordinal in the path, the same way the walk keys them,
+        // so an explicit selection on an `allOf`-wrapped `oneOf` still resolves here.
+        const isChoiceMember = !!resolved && (Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf))
+        const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
+        const value = resolved ? getMaxDepthValue(resolved, options, memberSchemaPath, hops - 1) : undefined
         if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
           merged = mergeExamples(merged, value)
         }
@@ -859,6 +881,13 @@ const getMaxDepthValue = (
 
   // A schema that declares `null` has exactly one valid value, which is what the walk falls back to.
   if (getDeclaredTypes(schema).includes('null')) {
+    return null
+  }
+
+  // A composition none of the above could describe — every variant is `null`, a `$ref` does not
+  // resolve, or the hops ran out — still declares a composition, and the walk answers that with `null`
+  // rather than with a value of no particular type.
+  if (isComposed(schema)) {
     return null
   }
 
@@ -901,6 +930,11 @@ export const getExampleFromSchema = (
     dynamicScope: DynamicScope
   }> = {},
 ): unknown => {
+  // A truncation only taints the call it happened in, so every top-level call starts clean.
+  if (level === 0) {
+    truncated = false
+  }
+
   // Resolve any $ref references to get the actual schema
   const _schema = resolve.schema(schema)
   if (!isDefined(_schema)) {
@@ -1005,6 +1039,7 @@ export const getExampleFromSchema = (
   // any other level; only the children are given up on.
   if (level > MAX_LEVELS_DEEP) {
     seen.delete(targetValue)
+    truncated = true
 
     // Deliberately not cached: the value holds only at this level, and the cache key carries none.
     return getMaxDepthValue(_schema, options, schemaPath)
