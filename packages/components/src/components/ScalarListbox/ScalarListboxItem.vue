@@ -23,6 +23,11 @@ defineProps<{
   multiselect?: boolean
 }>()
 
+defineSlots<{
+  /** Trailing content rendered at the end of the option (e.g. a badge) */
+  suffix(props: { option: Option }): unknown
+}>()
+
 const variants = cva({
   base: [
     // Layout
@@ -55,6 +60,9 @@ const variants = cva({
         :class="option.color ? option.color : 'text-c-1'">
         {{ option.label }}
       </span>
+      <slot
+        name="suffix"
+        :option="option" />
     </li>
   </ListboxOption>
 </template>
