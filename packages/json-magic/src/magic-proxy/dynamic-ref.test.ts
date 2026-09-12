@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
-import type { SchemaObject } from '../schemas/v3.1/strict/schema'
-import { collectDynamicAnchors, isDynamicRef, pushDynamicScope, resolveDynamicRef } from './dynamic-ref'
+import {
+  collectDynamicAnchors,
+  containsDynamicRef,
+  isDynamicRef,
+  pushDynamicScope,
+  resolveDynamicRef,
+} from '@/magic-proxy/dynamic-ref'
 
-/** Cast a plain object to a SchemaObject so tests can use the untyped 2020-12 keywords (`$defs`). */
-const schema = (value: Record<string, unknown>) => value as unknown as SchemaObject
+/** Cast a plain object so tests can use the untyped 2020-12 keywords (`$defs`, `$dynamicAnchor`). */
+const schema = (value: Record<string, unknown>) => value
 
 describe('dynamic-ref', () => {
   describe('isDynamicRef', () => {
@@ -89,8 +94,35 @@ describe('dynamic-ref', () => {
       expect(() => collectDynamicAnchors(root)).not.toThrow()
     })
 
+    it('collects an anchor nested under an unevaluatedProperties applicator', () => {
+      const anchors = collectDynamicAnchors(
+        schema({
+          $id: 'urn:wrapper',
+          type: 'object',
+          unevaluatedProperties: { $dynamicAnchor: 'extra', type: 'string' },
+        }),
+      )
+      expect(anchors.get('extra')).toMatchObject({ type: 'string' })
+    })
+
     it('returns an empty map when there are no dynamic anchors', () => {
       expect(collectDynamicAnchors(schema({ type: 'object' })).size).toBe(0)
+    })
+  })
+
+  describe('containsDynamicRef', () => {
+    it('detects a $dynamicRef nested anywhere', () => {
+      expect(containsDynamicRef({ properties: { a: { items: { $dynamicRef: '#node' } } } })).toBe(true)
+    })
+
+    it('returns false for documents without a $dynamicRef', () => {
+      expect(containsDynamicRef({ properties: { a: { $ref: '#/x', $dynamicAnchor: 'node' } } })).toBe(false)
+    })
+
+    it('does not loop on a self-referential document', () => {
+      const root: Record<string, unknown> = { type: 'object' }
+      root.self = root
+      expect(() => containsDynamicRef(root)).not.toThrow()
     })
   })
 
