@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.7.1
+
+### Patch Changes
+
+- [#10109](https://github.com/scalar/scalar/pull/10109): Add OpenAPI Link Object examples to the 3.1 and 3.2 documents.
+
 ## 0.7.0
 
 ### Minor Changes

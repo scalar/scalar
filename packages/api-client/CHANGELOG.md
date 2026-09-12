@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 3.18.1
+
+### Patch Changes
+
+- [#10123](https://github.com/scalar/scalar/pull/10123): Fall back to the requested URL when a custom fetch returns a response without one. Errors raised while reading the response body are now returned as an error result instead of escaping the request helper.
+- [#10086](https://github.com/scalar/scalar/pull/10086): Enable optional query parameters when their value is entered.
+- [#10080](https://github.com/scalar/scalar/pull/10080): Fix the Test Request body showing schema defaults instead of the example on first open. This happened for the first operation when its body used oneOf/anyOf and had a named example.
+- [#10081](https://github.com/scalar/scalar/pull/10081): Keep the `mutualTLS` security scheme type instead of turning it into an apiKey form, and show read-only authentication guidance for mutual TLS and unsupported browser broker credentials.
+- [#10148](https://github.com/scalar/scalar/pull/10148): Typing a value into an unchecked optional form body row now enables that row, so the value is sent with the request. This matches how optional query parameters already behave.
+- [#10136](https://github.com/scalar/scalar/pull/10136): Restore modal and single-file reference tests, update layout selectors, and remove stale comments. Named-resource resolution remains unsupported and is tested explicitly.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+- [#10142](https://github.com/scalar/scalar/pull/10142): Send multipart array properties as separate parts with the same field name, applying encoding to each item. Preserve JSON item content types, uploaded files, and array values after form edits, and generate matching code snippets.
+
+  Send JSON form fields without an upload filename and preserve fields and files in request history.
+
+  Rename the RestSharp snippet's internal `getMethod` helper so it no longer clashes with the `getMethod` that Nitro bundles into server builds (the new multipart imports shifted chunking and surfaced the collision).
+
 ## 3.18.0
 
 ### Minor Changes

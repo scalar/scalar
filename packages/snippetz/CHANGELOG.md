@@ -1,5 +1,24 @@
 # @scalar/snippetz
 
+## 0.9.31
+
+### Patch Changes
+
+- [#10120](https://github.com/scalar/scalar/pull/10120): Add `--globoff` to generated curl commands whose URL contains square brackets, or curly braces in the query string, so snippets for bracket-notation query parameters such as `filter[user_id]=me` and glob-set values such as `ids={1,2,3}` can be pasted into a shell and run as they are. Curly braces in the path, which are almost always placeholders like `/users/{id}`, are left untouched.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+- [#10142](https://github.com/scalar/scalar/pull/10142): Send multipart array properties as separate parts with the same field name, applying encoding to each item. Preserve JSON item content types, uploaded files, and array values after form edits, and generate matching code snippets.
+
+  Send JSON form fields without an upload filename and preserve fields and files in request history.
+
+  Rename the RestSharp snippet's internal `getMethod` helper so it no longer clashes with the `getMethod` that Nitro bundles into server builds (the new multipart imports shifted chunking and surfaced the collision).
+
+- [#10128](https://github.com/scalar/scalar/pull/10128): Replace legacy HTTP snippet generators with native snippetz plugins.
+
 ## 0.9.30
 
 ## 0.9.29

@@ -1,5 +1,48 @@
 # @scalar/types
 
+## 0.20.0
+
+### Minor Changes
+
+- [#10126](https://github.com/scalar/scalar/pull/10126): refactor(api-reference): remove the legacy schema layout and the `schemaLayout` option
+
+  The legacy schema layout — a bordered card per nesting level behind a "Show Child Attributes" pill — is deleted, together with the `schemaLayout` configuration option that selected it. The tree layout is the only schema renderer.
+
+  The `schemaLayout` option never shipped in a release, so there is no `schemaLayout` value to remove from your configuration. Five translation keys the deleted markup owned are removed from `ApiReferenceTranslations`, and therefore from the `ApiReferenceTranslationKey` union: `schema.childAttributes`, `schema.hideChildAttributes`, `schema.showChildAttributes`, `operation.hideHeaders` and `operation.showHeaders`. They labelled the "Show Child Attributes" pill and the headers disclosure toggle, neither of which renders any more. If you override any of them in `localization.translations`, delete those entries — TypeScript will otherwise report an unknown-property error on the object literal.
+
+  The class names the tree already carried (`.schema-card`, `.property`, `.property--level-N` and their family) are unchanged, so `customCss` keeps working.
+
+- [#10074](https://github.com/scalar/scalar/pull/10074): feat(api-reference)!: the tree layout is the schema renderer
+
+  The tree layout is the schema renderer, so every visual baseline that renders a schema changes with this release and is regenerated per suite.
+
+- [#10074](https://github.com/scalar/scalar/pull/10074): feat(api-reference): the tree schema layout
+
+  The tree layout replaces the bordered card per nesting level and the "Show Child Attributes" pill with the visual grammar of a tree: a continuous rail per depth that hangs from the parent property's text column, and a discrete disclosure control in each expandable property's own gutter. The control is a real button whose accessible name is the property name alone and whose child count rides `aria-describedby`; property descriptions stay visible instead of being swallowed into a button label. Types render as token runs — `array of Planet` instead of `array Planet[]`, with a `$ref` link as the type itself — collapsed objects show a preview of what they hold, short enums render inline in the type position or wrap as chips instead of a row per value, and a `$ref` cycle says `recursive` in its own signature line instead of offering a toggle that descends forever. Rails fade with depth, capped so the deepest ones never wash out into the page. In a narrow container — the same `max-width: 900px` query the sections already use — the indent tightens and the controls shrink, so a deep tree still fits and the outermost control clears the page edge instead of being clipped by it. Collapsed subtrees that were opened once stay reachable with find-in-page via `hidden="until-found"` where the engine supports it, against a budget shared by every tree in the reference, with Safari falling back to unmounting exactly as before.
+
+  Printing temporarily expands the whole tree and restores the reader's expansion state afterwards.
+
+- [#10074](https://github.com/scalar/scalar/pull/10074): feat(api-reference): one disclosure grammar across every surface in the tree layout
+
+  The tree layout now reaches the surfaces the schema renderer never covered. Response headers fold into the tree as a child group named Headers, keyed into the expansion store so expand-all and deep links finally reach them — and the headers card's long-standing CSS syntax error is fixed along the way. Callbacks trade their native `details`/`summary` for the gutter control, and gain breadcrumbs, so a property inside a callback body is addressable for the first time. AsyncAPI message headers and payloads gain breadcrumbs the same way. Parameter rows keep rendering their type, required marker and description inline: a disclosure may hide child elements, never child information, and the classic layout starts passing `collapsableItems` — previously omitted, which silently made `expandAllResponses` a no-op there. Model properties in the classic layout gain anchors.
+
+  Group titles — Body, Responses, Query Parameters, Callbacks — become real headings through the document outline (`operationSection`, level 4), never hardcoded tags.
+
+  One flagged feature ships with this: `schemaKeyboardNav` (default off) adds APG-tree arrow-key navigation over the gutter toggles.
+
+### Patch Changes
+
+- [#10081](https://github.com/scalar/scalar/pull/10081): Keep the `mutualTLS` security scheme type instead of turning it into an apiKey form, and show read-only authentication guidance for mutual TLS and unsupported browser broker credentials.
+- [#10074](https://github.com/scalar/scalar/pull/10074): fix(api-reference): accessibility pass over the schema tree and parameter rows
+
+  Restores list semantics on the four lists the theme reset strips, which Safari and VoiceOver otherwise drop entirely. Gives the parameter row trigger a real focus indicator instead of drawing one on its 12px caret. Makes the Default and Examples popovers dismissible with Escape and openable by click or tap, with `aria-expanded` on their triggers — previously they revealed on hover and focus through CSS alone, so Enter did nothing and touch could not reach them at all. Names the copy buttons that previously announced as their bare value, adding `common.copyDefault` and `common.copyExample` across all eight locales. Gives the single content type readout a role, and honours `prefers-reduced-motion`.
+
+  The collapsible section trigger no longer nests the copy-link button inside the toggle button. Nested buttons are invalid, and the parser hoisted the inner one out, so the copy-link sat outside the control it appeared to belong to. The toggle moved inside the anchor instead, where it has to stay inline so the copy-link keeps aligning to the last line of a wrapped heading; it stretches its own hit area back across the full row, so the click target is the whole section row exactly as before.
+
+  `ScreenReader` moves off the deprecated `clip` property to `clip-path` and adds `white-space: nowrap`, so multi-word announcements are no longer split at wrapped word boundaries. Its visually-hidden style is now a shared `.screenreader-only` class rather than a scoped one, so other components can hide text without wrapping it in the component.
+
+  No visual change: every fix above is either invisible, or applies only to focus, hover, or an explicit reduced-motion preference.
+
 ## 0.19.0
 
 ### Minor Changes

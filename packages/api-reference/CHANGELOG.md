@@ -1,5 +1,91 @@
 # @scalar/api-reference
 
+## 1.69.0
+
+### Minor Changes
+
+- [#10126](https://github.com/scalar/scalar/pull/10126): refactor(api-reference): remove the legacy schema layout and the `schemaLayout` option
+
+  The legacy schema layout — a bordered card per nesting level behind a "Show Child Attributes" pill — is deleted, together with the `schemaLayout` configuration option that selected it. The tree layout is the only schema renderer.
+
+  The `schemaLayout` option never shipped in a release, so there is no `schemaLayout` value to remove from your configuration. Five translation keys the deleted markup owned are removed from `ApiReferenceTranslations`, and therefore from the `ApiReferenceTranslationKey` union: `schema.childAttributes`, `schema.hideChildAttributes`, `schema.showChildAttributes`, `operation.hideHeaders` and `operation.showHeaders`. They labelled the "Show Child Attributes" pill and the headers disclosure toggle, neither of which renders any more. If you override any of them in `localization.translations`, delete those entries — TypeScript will otherwise report an unknown-property error on the object literal.
+
+  The class names the tree already carried (`.schema-card`, `.property`, `.property--level-N` and their family) are unchanged, so `customCss` keeps working.
+
+- [#10074](https://github.com/scalar/scalar/pull/10074): feat(api-reference)!: the tree layout is the schema renderer
+
+  The tree layout is the schema renderer, so every visual baseline that renders a schema changes with this release and is regenerated per suite.
+
+- [#10074](https://github.com/scalar/scalar/pull/10074): feat(api-reference): lift schema expansion into a store so deep links and expand-all work at runtime
+
+  Expansion state used to live inside Headless UI's `<Disclosure>`, which reads `defaultOpen` once at mount and offers no controlled mode. That single fact is why a second deep link into an already-rendered operation silently did nothing, why a runtime expand-all could not exist, and why switching a `oneOf` variant threw away everything the reader had opened.
+
+  The schema tree now owns its own disclosure and resolves each node against a per-reference store: an explicit choice by the reader wins, then the nearest expand-all or collapse-all, then the standing baseline, then a live deep link, then whatever the node would have done on its own. Bulk actions clear the overrides beneath their own root first, so "Expand all" no longer skips every node the reader has touched. Cyclic nodes opt out of bulk expansion and the baseline, which is what stops a self-referential schema expanding forever.
+
+  Following a deep link now moves focus to the target as well as scrolling to it, and writes the path it opened into the store, so the expansion is permanent and collapsible rather than evaporating when the scroll target clears. Collapsing a subtree that contains the focused element moves focus up to that row's toggle instead of dropping it to the document body.
+
+  Model properties gain anchors: the models layout now passes a breadcrumb, which it never did while the operation layout always has.
+
+  Response header anchors no longer carry a doubled `headers.headers` path segment, and are now qualified by status code so each response's headers are addressable on their own. An anchor of the old shape carried no status code, so it cannot be translated; following one now scrolls to the operation it belongs to instead of failing silently.
+
+  The store is created per `<ApiReference>` rather than module-global, so two references on one page do not share expansion. Markup, class names and layout are unchanged; the generated `id` and `aria-controls` values on schema disclosures differ, since they no longer come from Headless UI.
+
+- [#10074](https://github.com/scalar/scalar/pull/10074): feat(api-reference): the tree schema layout
+
+  The tree layout replaces the bordered card per nesting level and the "Show Child Attributes" pill with the visual grammar of a tree: a continuous rail per depth that hangs from the parent property's text column, and a discrete disclosure control in each expandable property's own gutter. The control is a real button whose accessible name is the property name alone and whose child count rides `aria-describedby`; property descriptions stay visible instead of being swallowed into a button label. Types render as token runs — `array of Planet` instead of `array Planet[]`, with a `$ref` link as the type itself — collapsed objects show a preview of what they hold, short enums render inline in the type position or wrap as chips instead of a row per value, and a `$ref` cycle says `recursive` in its own signature line instead of offering a toggle that descends forever. Rails fade with depth, capped so the deepest ones never wash out into the page. In a narrow container — the same `max-width: 900px` query the sections already use — the indent tightens and the controls shrink, so a deep tree still fits and the outermost control clears the page edge instead of being clipped by it. Collapsed subtrees that were opened once stay reachable with find-in-page via `hidden="until-found"` where the engine supports it, against a budget shared by every tree in the reference, with Safari falling back to unmounting exactly as before.
+
+  Printing temporarily expands the whole tree and restores the reader's expansion state afterwards.
+
+- [#10074](https://github.com/scalar/scalar/pull/10074): feat(api-reference): one disclosure grammar across every surface in the tree layout
+
+  The tree layout now reaches the surfaces the schema renderer never covered. Response headers fold into the tree as a child group named Headers, keyed into the expansion store so expand-all and deep links finally reach them — and the headers card's long-standing CSS syntax error is fixed along the way. Callbacks trade their native `details`/`summary` for the gutter control, and gain breadcrumbs, so a property inside a callback body is addressable for the first time. AsyncAPI message headers and payloads gain breadcrumbs the same way. Parameter rows keep rendering their type, required marker and description inline: a disclosure may hide child elements, never child information, and the classic layout starts passing `collapsableItems` — previously omitted, which silently made `expandAllResponses` a no-op there. Model properties in the classic layout gain anchors.
+
+  Group titles — Body, Responses, Query Parameters, Callbacks — become real headings through the document outline (`operationSection`, level 4), never hardcoded tags.
+
+  One flagged feature ships with this: `schemaKeyboardNav` (default off) adds APG-tree arrow-key navigation over the gutter toggles.
+
+### Patch Changes
+
+- [#10157](https://github.com/scalar/scalar/pull/10157): Match SDK installation code blocks to the default client library rendering
+- [#10125](https://github.com/scalar/scalar/pull/10125): Preserve multiple sources supplied through the standalone data-configuration attribute
+- [#10143](https://github.com/scalar/scalar/pull/10143): Stop rendering a discriminator base property twice. When a property's schema is a bare `discriminator.mapping` base (an object with `properties` and a `discriminator` but no explicit `oneOf`/`anyOf`), the inferred variant selector already shows those properties inside each variant, because the variants `allOf` back to the base. The base object block is no longer rendered alongside the selector, so properties like the discriminator field are shown once instead of twice.
+- [#10146](https://github.com/scalar/scalar/pull/10146): Render a body-level discriminator `oneOf` flush under its selector. When a `oneOf`/`anyOf` variant `allOf`s back to a shared base — the shape a `discriminator.mapping` infers, and the one a request body most often carries — the merged variant renders one level deeper than a plain object variant and picked up an extra row of padding, so its first field sat detached below the selector instead of flush under it like a plain `oneOf`.
+- [#10096](https://github.com/scalar/scalar/pull/10096): Only show the "one of" hint above required OAuth scopes when there is more than one alternative scope group to choose between. A single group of required scopes is now listed plainly, even when a scope-free alternative (like an API key) also satisfies auth, since those scopes are required together rather than being a choice.
+- [#9677](https://github.com/scalar/scalar/pull/9677): fix: render the variant selector for discriminator-only schemas used as array items without infinite recursion
+
+  A polymorphic base that declares only a `discriminator.mapping` (no explicit `oneOf`) and whose subtypes inherit through `allOf: [$ref base, …]` now renders its "One of" variant selector consistently, whether the base is used directly as an object property or as array `items`. Previously the merged subtype re-surfaced the base's discriminator, which made it look like the base again and drove the selector inference into infinite recursion.
+
+- [#10154](https://github.com/scalar/scalar/pull/10154): Fix recursive variant selectors for schemas whose `oneOf` or `anyOf` variants inherit their base through `allOf`. Keep inherited fields and independent choices without showing sibling variant fields or overflowing the stack when all schema properties are expanded.
+- [#10131](https://github.com/scalar/scalar/pull/10131): Copy the example shown in the response card, including named, generated, referenced, and falsy values.
+- [#10074](https://github.com/scalar/scalar/pull/10074): perf(api-reference): make the schema renderer cheaper to mount and expand
+
+  A profiling pass over the schema renderer, measured against a controlled mount benchmark and a real browser on a large OpenAPI document. Rendered output is unchanged: the previous schema layout is byte-identical across 332 comparisons on 78 real operations, and the tree layout differs only by a scoped-style attribute that no rule selects.
+
+  The tree's hover affordances no longer anchor on `:has(:hover)`. Those selectors made every row inserted into an open tree invalidate style across the surrounding subtree, so expanding one schema restyled 9,592 elements. The same states are now written as data attributes from `pointerenter` and `pointerleave`, derived from the same DOM adjacency, which takes that to 142 elements and cuts style recalculation on a pointer sweep across an open tree by roughly 85%.
+
+  Rows also do less work: the type signature renders inline instead of through a child component, `SpecificationExtension` and `WithBreadcrumb` are no longer mounted on rows where they render nothing, property names are sorted from a single read per name and memoised per `properties` object, a collapsed row counts its children from the key list, and an open row no longer sorts twice. The localization fallback resolves lazily rather than allocating per component instance.
+
+  Two changes affect the public `Schema` and `SchemaProperty` exports:
+  - Schema subtrees are read through the magic and overrides proxies only, so Vue no longer tracks reads below a `Schema` root. Documents are added and replaced whole, so this is invisible in normal use, but a consumer that mutates a schema object in place will no longer trigger a re-render. Lazy `$ref` bundling through the store's `resolve` API is incompatible for the same reason.
+  - `sortPropertyNames` returns a frozen, shared array. A consumer that sorted the result in place will now throw instead of silently reordering a list other readers depend on.
+
+- [#10074](https://github.com/scalar/scalar/pull/10074): fix(api-reference): accessibility pass over the schema tree and parameter rows
+
+  Restores list semantics on the four lists the theme reset strips, which Safari and VoiceOver otherwise drop entirely. Gives the parameter row trigger a real focus indicator instead of drawing one on its 12px caret. Makes the Default and Examples popovers dismissible with Escape and openable by click or tap, with `aria-expanded` on their triggers — previously they revealed on hover and focus through CSS alone, so Enter did nothing and touch could not reach them at all. Names the copy buttons that previously announced as their bare value, adding `common.copyDefault` and `common.copyExample` across all eight locales. Gives the single content type readout a role, and honours `prefers-reduced-motion`.
+
+  The collapsible section trigger no longer nests the copy-link button inside the toggle button. Nested buttons are invalid, and the parser hoisted the inner one out, so the copy-link sat outside the control it appeared to belong to. The toggle moved inside the anchor instead, where it has to stay inline so the copy-link keeps aligning to the last line of a wrapped heading; it stretches its own hit area back across the full row, so the click target is the whole section row exactly as before.
+
+  `ScreenReader` moves off the deprecated `clip` property to `clip-path` and adds `white-space: nowrap`, so multi-word announcements are no longer split at wrapped word boundaries. Its visually-hidden style is now a shared `.screenreader-only` class rather than a scoped one, so other components can hide text without wrapping it in the component.
+
+  No visual change: every fix above is either invisible, or applies only to focus, hover, or an explicit reduced-motion preference.
+
+- [#10136](https://github.com/scalar/scalar/pull/10136): Restore modal and single-file reference tests, update layout selectors, and remove stale comments. Named-resource resolution remains unsupported and is tested explicitly.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
 ## 1.68.0
 
 ### Minor Changes
