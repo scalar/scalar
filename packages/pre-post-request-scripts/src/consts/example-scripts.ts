@@ -2,7 +2,8 @@ type ExampleScript = {
   title: string
   script: string
   mockResponse: {
-    body?: any
+    body?: unknown
+    duration?: number
     status?: number
     headers?: Record<string, string>
     text?: () => string
@@ -20,17 +21,17 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
       body: { success: true },
     },
   },
-  // TODO: We didn't add the proper response duration yet.
-  //   {
-  //     title: 'Check response time',
-  //     script: `pm.test("Response time is acceptable", () => {
-  //   pm.expect(pm.response.responseTime).to.be.below(200)
-  // })`,
-  //     mockResponse: {
-  //       status: 200,
-  //       body: { success: true },
-  //     },
-  //   },
+  {
+    title: 'Check response time',
+    script: `pm.test("Response time is acceptable", () => {
+  pm.expect(pm.response.responseTime).to.be.below(200)
+})`,
+    mockResponse: {
+      status: 200,
+      body: { success: true },
+      duration: 150,
+    },
+  },
   {
     title: 'Check JSON response',
     script: `pm.test("Response is valid JSON", () => {

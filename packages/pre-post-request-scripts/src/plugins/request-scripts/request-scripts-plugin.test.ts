@@ -326,6 +326,34 @@ describe('request-scripts-plugin', () => {
     expect(titles).toStrictEqual(['pre-request test', 'post-response test 1', 'post-response test 2'])
   })
 
+  it.each([0, 125.5])('exposes a response duration of %s milliseconds to scripts', async (responseDuration) => {
+    const plugin = requestScriptsPlugin()
+    const requestBuilder = createRequestBuilder()
+
+    await plugin.hooks?.responseReceived?.({
+      requestBuilder,
+      request: new Request('https://example.com/api/example'),
+      response: new Response('{}'),
+      responseDuration,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {},
+        'x-scalar-original-document-hash': '',
+      },
+      operation: {
+        'x-post-response': `pm.test("Response duration", () => {
+          pm.expect(pm.response.responseTime).to.equal(${responseDuration})
+        })`,
+      },
+    })
+
+    const results = plugin.components?.response?.additionalProps?.results as Ref<TestResult[]>
+    expect(results.value.map(({ title, passed, error, status }) => ({ title, passed, error, status }))).toStrictEqual([
+      { title: 'Response duration', passed: true, error: undefined, status: 'passed' },
+    ])
+  })
+
   it('preserves pre-request results when post-response script runs', async () => {
     const plugin = requestScriptsPlugin()
     const variablesStore = createVariablesStore()

@@ -34,6 +34,7 @@ describe('example scripts', () => {
     await executePostResponseScript(script, {
       requestBuilder: createRequestBuilder(),
       response,
+      responseDuration: mockResponse.duration,
       onTestResultsUpdate: (results) => {
         Object.assign(testResults, results)
       },

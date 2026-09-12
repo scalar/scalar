@@ -20,6 +20,8 @@ export type PostmanRequestDefinition = unknown
 
 /** Plain response shape consumed by `pm.response` inside the sandbox. */
 export type PostmanResponseDefinition = {
+  /** Request duration in milliseconds, exposed as pm.response.responseTime. */
+  responseTime?: number
   code: number
   status: string
   header: { key: string; value: string }[]

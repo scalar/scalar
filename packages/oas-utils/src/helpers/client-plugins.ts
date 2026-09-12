@@ -76,6 +76,8 @@ type ClientPluginHooks = {
    */
   responseReceived: (payload: {
     response: Response
+    /** Request duration in milliseconds, when supplied by the client. */
+    responseDuration?: number
     /** Request builder object that was used to build the request. Mutating this object will not affect the request object. */
     requestBuilder: RequestFactory
     /** Request rebuilt from the sent request payload, not the same instance sent to the server. */
