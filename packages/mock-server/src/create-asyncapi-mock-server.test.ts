@@ -48,6 +48,42 @@ describe('createAsyncApiMockServer', () => {
     expect(body).toContain('symbol')
   })
 
+  it('serves a generated message for a deprecated payload schema', async () => {
+    // `deprecated` marks a payload as discouraged, not as absent, so omitting it sent the channel's
+    // declared payload as `data: null` — `encode` falls back to `null` for a generated `undefined`.
+    const { app } = await createAsyncApiMockServer({
+      document: {
+        asyncapi: '3.1.0',
+        info: { title: 'Legacy Prices', version: '1.0.0' },
+        servers: { production: { host: 'localhost', protocol: 'sse' } },
+        channels: {
+          prices: {
+            address: 'prices',
+            messages: {
+              priceUpdate: {
+                contentType: 'application/json',
+                payload: {
+                  deprecated: true,
+                  type: 'object',
+                  required: ['symbol'],
+                  properties: { symbol: { type: 'string' } },
+                },
+              },
+            },
+          },
+        },
+        operations: {
+          streamPrices: { action: 'receive', channel: { $ref: '#/channels/prices' } },
+        },
+      },
+    })
+
+    const response = await app.request('/prices')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toContain('data: {"symbol":"string"}')
+  })
+
   it('lets custom transports claim channels (extension point)', async () => {
     const claimed: string[] = []
     const signalr: MockTransport = {

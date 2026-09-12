@@ -1,7 +1,7 @@
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 
 import type { MockMessage, ResolvedChannel, ResolvedMessage } from '@/transports/types'
+import { type ExampleSchema, generateResponseExample } from '@/utils/generate-response-example'
 
 /** Encode a generated value to a wire string. Strings pass through; everything else is JSON. */
 function encode(value: unknown): string {
@@ -15,7 +15,7 @@ function encode(value: unknown): string {
 /**
  * Generate an encoded mock frame for a channel message — the AsyncAPI analogue of the REST
  * mocker's response generation. Prefers a defined example, otherwise generates a value from the
- * message payload schema with the same `getExampleFromSchema` the HTTP mocker uses.
+ * message payload schema through the same `generateResponseExample` the HTTP mocker uses.
  *
  * @param channel - The resolved channel to mock a message for.
  * @param messageId - Which message to emit; defaults to the channel's first message.
@@ -35,10 +35,9 @@ export function generateMessage(channel: ResolvedChannel, messageId?: string): M
     // Prefer an explicit example, mirroring response-example selection in the REST mocker.
     value = message.examples[0]
   } else if (message.payload) {
-    value = getExampleFromSchema(getResolvedRefDeep(message.payload) as Parameters<typeof getExampleFromSchema>[0], {
-      emptyString: 'string',
-      mode: 'read',
-    })
+    // No `variables`: `generateMessage` is never handed the Hono context, so a channel route's path
+    // parameters are not in scope for `x-variable` substitution. It does run per request.
+    value = generateResponseExample(getResolvedRefDeep(message.payload) as ExampleSchema)
   }
 
   return {

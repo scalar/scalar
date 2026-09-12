@@ -1864,6 +1864,112 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it('keeps deprecated properties with includeDeprecated', () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              example: 'test',
+            },
+            oldField: {
+              type: 'string',
+              example: 'still on the wire',
+              deprecated: true,
+            },
+          },
+        }),
+        { includeDeprecated: true },
+      ),
+    ).toStrictEqual({
+      name: 'test',
+      oldField: 'still on the wire',
+    })
+  })
+
+  it('omits a deprecated root schema entirely', () => {
+    // The annotation is tested on every schema including the root, so a wholly deprecated response
+    // schema generates nothing at all — which is what answered a declared JSON body with zero bytes.
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          deprecated: true,
+          type: 'object',
+          required: ['id'],
+          properties: { id: { type: 'string' } },
+        }),
+      ),
+    ).toBeUndefined()
+  })
+
+  it('generates a value for a deprecated root schema with includeDeprecated', () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          deprecated: true,
+          type: 'object',
+          required: ['id'],
+          properties: { id: { type: 'string' } },
+        }),
+        { includeDeprecated: true },
+      ),
+    ).toStrictEqual({ id: '' })
+  })
+
+  it('omits a required deprecated property, violating the schema', () => {
+    // `required` does not rescue the property: without the flag the generated object breaks the very
+    // contract it was generated from, which is why a mock response needs the opt-in.
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          required: ['name', 'legacyName'],
+          properties: {
+            name: { type: 'string' },
+            legacyName: { type: 'string', deprecated: true },
+          },
+        }),
+      ),
+    ).toStrictEqual({ name: '' })
+  })
+
+  it('keeps a required deprecated property with includeDeprecated', () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          required: ['name', 'legacyName'],
+          properties: {
+            name: { type: 'string' },
+            legacyName: { type: 'string', deprecated: true },
+          },
+        }),
+        { includeDeprecated: true },
+      ),
+    ).toStrictEqual({ name: '', legacyName: '' })
+  })
+
+  it('does not leak a cached example between includeDeprecated and the default', () => {
+    // `resultCache` is a module global keyed by schema identity plus the serialized options, and its
+    // lookup runs before the annotation is tested. If the flag were missing from that key, whichever
+    // caller ran first would decide the answer for the other one.
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'test' },
+        oldField: { type: 'string', example: 'legacy', deprecated: true },
+      },
+    })
+
+    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toStrictEqual({
+      name: 'test',
+      oldField: 'legacy',
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ name: 'test' })
+  })
+
   it('expands objects and arrays in arrays (without a type)', () => {
     expect(
       getExampleFromSchema(

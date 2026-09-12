@@ -1061,6 +1061,146 @@ describe('x-handler', () => {
     expect(data.custom).not.toBe('example-value')
   })
 
+  // `deprecated` marks a field as discouraged, not as absent, so the two places an `x-handler`
+  // response is generated from a schema have to keep it — otherwise a declared body came back empty.
+  describe('deprecated response schemas', () => {
+    it('falls back to a generated body when the response schema is deprecated', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/legacy': {
+            get: {
+              // Returning nothing sends the mock to the declared response for the body.
+              'x-handler': 'return undefined;',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        deprecated: true,
+                        type: 'object',
+                        required: ['id'],
+                        properties: { id: { type: 'string' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/legacy')
+
+      expect(response.status).toBe(200)
+      // Asserted as text: the bug under test is a zero-byte body, which `.json()` would throw on.
+      expect(await response.text()).toBe('{"id":"string"}')
+    })
+
+    it('exposes a generated body for a deprecated schema through res[statusCode]', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/legacy': {
+            get: {
+              // Wrapped in an object on purpose. Returning `res['200']` bare would send an
+              // unpopulated value down the `result === undefined` path in `mockHandlerResponse`,
+              // which generates the body again from the same response — so the assertion would pass
+              // even with this call site unfixed. Wrapping keeps the failure visible as `{}`.
+              'x-handler': "return { fromRes: res['200'] };",
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        deprecated: true,
+                        type: 'object',
+                        required: ['id'],
+                        properties: { id: { type: 'string' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/legacy')
+
+      expect(response.status).toBe(200)
+      expect(await response.text()).toBe('{"fromRes":{"id":"string"}}')
+    })
+  })
+
+  // `generateResponseExample` takes the `x-variable` values as an ordinary optional argument, so
+  // dropping it at a call site is not a type error. These pin the substitution at the two sites an
+  // `x-handler` reaches, which the deprecated cases above cannot see.
+  describe('x-variable substitution in generated responses', () => {
+    /** A document whose response schema reads the path parameter through `x-variable`. */
+    const documentWithVariableResponse = (handler: string) => ({
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/items/{id}': {
+          get: {
+            'x-handler': handler,
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: { id: { 'type': 'string', 'example': 'unsubstituted', 'x-variable': 'id' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    it('substitutes path parameters in the fallback body', async () => {
+      const server = await createMockServer({ document: documentWithVariableResponse('return undefined;') })
+
+      const response = await server.request('/items/42')
+
+      expect(await response.text()).toBe('{"id":"42"}')
+    })
+
+    it('substitutes path parameters in res[statusCode]', async () => {
+      const server = await createMockServer({
+        document: documentWithVariableResponse("return { fromRes: res['200'] };"),
+      })
+
+      const response = await server.request('/items/42')
+
+      expect(await response.text()).toBe('{"fromRes":{"id":"42"}}')
+    })
+  })
+
   describe('res object with example responses', () => {
     it('handler can access explicit example via res[statusCode]', async () => {
       const document = {
