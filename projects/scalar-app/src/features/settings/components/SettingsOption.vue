@@ -40,7 +40,7 @@ const optionStyles = cva({
   base: 'border-border w-full justify-between gap-2 border pl-2 text-left shadow-none transition-colors',
   variants: {
     selected: {
-      true: 'border-c-accent bg-c-accent/5 text-c-1 hover:bg-c-accent/10 active:bg-c-accent/10',
+      true: 'bg-b-2 text-c-1 hover:bg-b-2 active:bg-b-2',
       false: 'bg-b-1 text-c-1 hover:bg-b-2 active:bg-b-2',
     },
   },
