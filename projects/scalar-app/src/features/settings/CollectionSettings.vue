@@ -14,7 +14,7 @@ import IntegrationLogo from '@/features/settings/components/IntegrationLogo.vue'
 import Appearance from './components/Appearance.vue'
 import Section from './components/Section.vue'
 import SettingsOption from './components/SettingsOption.vue'
-import { getThemeSwatches } from './helpers/get-theme-swatches'
+import { getThemeColors } from './helpers/get-theme-colors'
 
 type ColorMode = 'system' | 'light' | 'dark'
 
@@ -59,12 +59,15 @@ const THEME_IDS: Exclude<ThemeId, IntegrationThemeId>[] = [
 const INTEGRATION_THEME_IDS: IntegrationThemeId[] = ['elysiajs', 'fastify']
 
 const defaultThemes = THEME_IDS.map((themeId) => {
-  const theme =
-    themeId === 'none'
-      ? { slug: themeId, name: 'None', description: 'No theme', theme: '' }
-      : presets[themeId]
-
-  return { ...theme, swatches: getThemeSwatches(theme.slug) }
+  if (themeId === 'none') {
+    return {
+      slug: themeId,
+      name: 'None',
+      description: 'No theme',
+      theme: '',
+    }
+  }
+  return presets[themeId]
 })
 
 const integrationThemes = INTEGRATION_THEME_IDS.map((themeId) => ({
@@ -166,10 +169,18 @@ const isThemeActive = (themeSlug: string): boolean => {
           <template #trailing>
             <span class="flex items-center">
               <span
-                v-for="swatch in theme.swatches"
-                :key="swatch.label"
-                class="border-c-3 -mr-3 inline-block size-5 rounded-full border last:mr-0"
-                :style="{ backgroundColor: swatch.color }" />
+                class="border-c-3 -mr-3 inline-block size-5 rounded-full border"
+                :style="{
+                  backgroundColor: getThemeColors(theme.slug).light,
+                }" />
+              <span
+                class="border-c-3 -mr-3 inline-block size-5 rounded-full border"
+                :style="{ backgroundColor: getThemeColors(theme.slug).dark }" />
+              <span
+                class="border-c-3 inline-block size-5 rounded-full border"
+                :style="{
+                  backgroundColor: getThemeColors(theme.slug).accent,
+                }" />
             </span>
           </template>
         </SettingsOption>

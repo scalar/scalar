@@ -2,8 +2,8 @@
 /**
  * A selectable option row for the workspace settings sections.
  *
- * Renders a radio style checkmark in front of the label and an optional
- * trailing slot for things like theme swatches or framework logos.
+ * Renders a radio in front of the label and an optional trailing slot for
+ * things like theme swatches or framework logos.
  *
  * @example
  * <SettingsOption
@@ -16,12 +16,19 @@ export default {}
 </script>
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
-import { ScalarIconCheck } from '@scalar/icons'
+import { ScalarCheckbox } from '@scalar/components/checkbox-input'
 import { cva } from '@scalar/use-hooks/useBindCx'
 
 const { selected = false } = defineProps<{
   /** Whether this option is the currently selected one */
   selected?: boolean
+}>()
+
+defineSlots<{
+  /** The label of the option */
+  default: () => unknown
+  /** Rendered at the end of the row, for example theme swatches or a logo */
+  trailing?: () => unknown
 }>()
 
 /**
@@ -38,17 +45,6 @@ const optionStyles = cva({
     },
   },
 })
-
-/** Styles for the radio style checkmark in front of the label */
-const indicatorStyles = cva({
-  base: 'flex size-5 shrink-0 items-center justify-center rounded-full border-[1.5px] transition-colors',
-  variants: {
-    selected: {
-      true: 'bg-c-accent text-b-1 border-transparent',
-      false: 'border-c-3',
-    },
-  },
-})
 </script>
 <template>
   <ScalarButton
@@ -56,12 +52,10 @@ const indicatorStyles = cva({
     :class="optionStyles({ selected })"
     variant="ghost">
     <span class="flex min-w-0 items-center gap-2">
-      <span :class="indicatorStyles({ selected })">
-        <ScalarIconCheck
-          v-if="selected"
-          class="size-3"
-          weight="bold" />
-      </span>
+      <ScalarCheckbox
+        class="shrink-0"
+        :selected
+        type="radio" />
       <slot />
     </span>
 

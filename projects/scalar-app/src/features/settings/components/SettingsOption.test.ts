@@ -51,12 +51,16 @@ describe('SettingsOption', () => {
    * The solid button variant paints a dark background while the button is pressed, which
    * used to make the option label unreadable mid click. Guard against it coming back.
    */
-  it('does not use the solid button variant', () => {
+  it.each([true, false])('never paints the dark button background when selected is %s', (selected) => {
     const wrapper = mount(SettingsOption, {
-      props: { selected: true },
+      props: { selected },
       slots: { default: 'Skip the proxy' },
     })
 
-    expect(wrapper.get('button').classes()).not.toContain('scalar-button-solid')
+    const classes = wrapper.get('button').classes()
+
+    expect(classes).not.toContain('bg-b-btn')
+    expect(classes).not.toContain('active:bg-b-btn')
+    expect(classes).not.toContain('hover:bg-h-btn')
   })
 })
