@@ -2011,6 +2011,30 @@ describe('getExampleFromSchema', () => {
       expect(truncate({ type: ['integer', 'string'] })).toBe(1)
     })
 
+    it('prefers a value declared inside a composition wrapper', () => {
+      // `allOf: [$ref]` around an enum is the ordinary way a generated document attaches a description
+      // to a shared type, and answering it with an empty string breaks the enum it wraps.
+      expect(truncate({ oneOf: [{ type: 'string', enum: ['active', 'archived'] }] })).toBe('active')
+      expect(truncate({ allOf: [{ type: 'string', const: 'v2' }] })).toBe('v2')
+      expect(truncate({ allOf: [{ type: 'object', example: { id: 'abc' } }] })).toStrictEqual({ id: 'abc' })
+    })
+
+    it('truncates a nullable container with the container it names', () => {
+      expect(truncate({ type: ['object', 'null'] })).toStrictEqual({})
+      expect(truncate({ type: ['array', 'null'] })).toStrictEqual([])
+    })
+
+    it('gives up on a composition chain far longer than any document nests', () => {
+      // The guard set doubles as the path length, so an absurd chain stops rather than growing the
+      // stack. Sixty wrappers is past that bound; twelve, above, is not.
+      const absurd = new Array(60).fill(null).reduce<unknown>((inner) => ({ allOf: [inner] }), {
+        type: 'object',
+        properties: {},
+      })
+
+      expect(truncate(absurd)).toBe(null)
+    })
+
     it('truncates a composition wrapper with the container its members declare', () => {
       expect(truncate({ allOf: [{ type: 'object', properties: { id: { type: 'string' } } }] })).toStrictEqual({})
       expect(truncate({ anyOf: [{ type: 'array', items: { type: 'string' } }] })).toStrictEqual([])
@@ -2134,6 +2158,16 @@ describe('getExampleFromSchema', () => {
       const root = { allOf: [wrap(RENDERED_DEPTH - 1, shared), shared] } as unknown as SchemaObject
 
       expect(getExampleFromSchema(root)).toStrictEqual({ inner: { id: '' } })
+    })
+
+    it('does not let a truncated scalar stand in for a shallower use of the same schema', () => {
+      // The same hazard with a scalar leaf, which reaches the cap through a different branch than the
+      // container case above and so needs its own guard against the cache.
+      const shared = { type: 'object', properties: { inner: { allOf: [{ type: 'string', const: 'v2' }] } } }
+      const wrap = (depth: number, leaf: unknown): unknown => (depth === 0 ? leaf : wrap(depth - 1, { allOf: [leaf] }))
+      const root = { allOf: [wrap(RENDERED_DEPTH - 1, shared), shared] } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(root)).toStrictEqual({ inner: 'v2' })
     })
   })
 

@@ -809,6 +809,35 @@ const getSelectedVariant = (
 }
 
 /**
+ * Return the value a schema states outright, in the order the walk prefers them.
+ *
+ * The walk applies this before the cap, so a truncated schema has already had its turn — but a
+ * composition member reached from below the cap has not, and answering an `allOf`-wrapped enum with an
+ * empty string hands back a value that very schema forbids.
+ */
+const getDeclaredValue = (schema: SchemaObject): unknown => {
+  if (Array.isArray(schema.examples) && schema.examples.length > 0) {
+    return schema.examples[0]
+  }
+  if (schema.example !== undefined) {
+    return schema.example
+  }
+  if (schema.default !== undefined) {
+    const normalizedDefault = normalizeSchemaDefault(schema)
+    if (normalizedDefault !== INVALID_DEFAULT) {
+      return normalizedDefault
+    }
+  }
+  if (schema.const !== undefined) {
+    return schema.const
+  }
+  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
+    return schema.enum[0]
+  }
+  return undefined
+}
+
+/**
  * Describe a composed schema by the member the walk itself would have rendered.
  * Returns `undefined` when no member describes a shape.
  */
@@ -856,9 +885,9 @@ const describeComposition = (
  * in having no children. A schema that describes no shape at all keeps the sentinel, which is then the
  * only signal that truncation happened.
  *
- * One deliberate departure from the walk: a container spelled as a single-member list (`type:
- * ['object']`) is read here as the container it declares, where the walk's strict comparison misses it
- * and falls back to `null`.
+ * Two deliberate departures from the walk, both answering with the declared container where the walk
+ * answers `null`: a container spelled as a list (`type: ['object']`, or `['object', 'null']`) is read
+ * here as the container it names, where the walk's strict comparison misses it.
  *
  * The value is empty rather than complete: satisfying `required` or `minItems` means descending
  * again, which is exactly what the cap exists to prevent.
@@ -869,6 +898,12 @@ const getMaxDepthValue = (
   schemaPath: string[],
   seen: Set<object> = new Set(),
 ): unknown => {
+  // A stated value beats any stand-in, and matches what a full render would have produced.
+  const declared = getDeclaredValue(schema)
+  if (declared !== undefined) {
+    return declared
+  }
+
   const container = getEmptyContainer(schema)
   if (container !== undefined) {
     // Children were dropped here, so anything assembled around this value is level-bound too.
