@@ -1783,6 +1783,120 @@ describe('createMockServer', () => {
     expect((await server.request('/v1/jobs/42', { method: 'POST' })).status).toBe(404)
   })
 
+  // `deprecated` marks a field as discouraged, not as absent from the wire, so a mocked response has
+  // to keep it: without these the mock answered a declared `application/json` response with zero
+  // bytes, and a generated client that decodes the declared body raised on it.
+  describe('deprecated response schemas', () => {
+    it('serves a generated body for a response whose whole schema is deprecated', async () => {
+      // Regression: an API deprecated end to end (cohere's finetuning endpoints) came back `200`
+      // with an empty body, because the annotation is tested on the root schema too.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Finetuning API', version: '1.0.0' },
+        paths: {
+          '/finetuning': {
+            post: {
+              responses: {
+                '200': {
+                  description: 'Created',
+                  // Reached through a `$ref`, the way the failing responses reach theirs.
+                  content: { 'application/json': { schema: { $ref: '#/components/schemas/FinetunedModel' } } },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            FinetunedModel: {
+              deprecated: true,
+              type: 'object',
+              required: ['id'],
+              properties: { id: { type: 'string' } },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/finetuning', { method: 'POST' })
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Content-Type')).toBe('application/json')
+      // Asserted as text rather than parsed JSON: the bug under test is a zero-byte body, and
+      // `.json()` would throw on it instead of reporting what came back.
+      expect(await response.text()).toBe('{"id":"string"}')
+    })
+
+    it('includes a required deprecated property in the generated body', async () => {
+      // A deprecated server still returns the field, so dropping a required one made the generated
+      // body violate the very schema it was generated from.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Model API', version: '1.0.0' },
+        paths: {
+          '/models': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Model',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        required: ['name', 'legacyName'],
+                        properties: { name: { type: 'string' }, legacyName: { type: 'string', deprecated: true } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/models')
+
+      expect(response.status).toBe(200)
+      expect(await response.text()).toBe('{"name":"string","legacyName":"string"}')
+    })
+
+    it('sets a response header whose schema is deprecated', async () => {
+      // Hono *deletes* a header when handed `undefined`, so a header schema that generated nothing
+      // did not merely come out empty — it removed a header the document declares.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Header API', version: '1.0.0' },
+        paths: {
+          '/things': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  headers: {
+                    'X-Legacy-Id': { schema: { type: 'string', deprecated: true, example: 'legacy-1' } },
+                  },
+                  content: { 'application/json': { example: { ok: true } } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/things')
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('X-Legacy-Id')).toBe('legacy-1')
+    })
+  })
+
   describe('path keys with a query string', () => {
     /** Build a document with a plain path key and a variant that pins `beta=true`. */
     const documentWithBetaVariant = (paths: string[]) => ({

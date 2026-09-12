@@ -35,9 +35,13 @@ export function generateMessage(channel: ResolvedChannel, messageId?: string): M
     // Prefer an explicit example, mirroring response-example selection in the REST mocker.
     value = message.examples[0]
   } else if (message.payload) {
+    // `includeDeprecated` keeps a payload annotated `deprecated` from generating an empty frame —
+    // the same invariant `generateResponseExample` owns for HTTP bodies. This call site cannot reuse
+    // that helper: there is no Hono context here, and it deliberately passes no `variables`.
     value = getExampleFromSchema(getResolvedRefDeep(message.payload) as Parameters<typeof getExampleFromSchema>[0], {
       emptyString: 'string',
       mode: 'read',
+      includeDeprecated: true,
     })
   }
 

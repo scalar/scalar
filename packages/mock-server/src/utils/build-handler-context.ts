@@ -1,11 +1,11 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 
 import { store } from '../libs/store'
+import { generateResponseExample } from './generate-response-example'
 import { normalizeResponseBody } from './normalize-response-body'
 import { pathParameters } from './path-parameters'
 import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper'
@@ -79,14 +79,7 @@ function getExampleFromResponse(
   return acceptedResponse.example !== undefined
     ? normalizeResponseBody(acceptedResponse.example, responseSchema)
     : responseSchema
-      ? normalizeResponseBody(
-          getExampleFromSchema(responseSchema, {
-            emptyString: 'string',
-            variables: pathParameters(c),
-            mode: 'read',
-          }),
-          responseSchema,
-        )
+      ? normalizeResponseBody(generateResponseExample(responseSchema, c), responseSchema)
       : null
 }
 

@@ -9,9 +9,9 @@ import type { StatusCode } from 'hono/utils/http-status'
 
 import { collectSseEvents, isEventStreamContentType } from '@/utils/collect-sse-events'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
+import { generateResponseExample } from '@/utils/generate-response-example'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
-import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
 import { serializeResponseBody } from '@/utils/serialize-response-body'
 
@@ -51,10 +51,15 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   const headers = selectedResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
     const headerObject = getResolvedRef(headers[header])
+    // `includeDeprecated` keeps a header whose schema is annotated `deprecated` from generating
+    // nothing. Only that option is passed: `emptyString`/`variables` would change header values a
+    // document already declares, so this site deliberately stays off `generateResponseExample`.
     const value = headerObject?.schema
-      ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema)) as string)
+      ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema), { includeDeprecated: true }) as string)
       : null
-    if (value !== null) {
+    // Loose check on purpose: Hono *deletes* a header when handed `undefined`, so a generated value
+    // that comes back `undefined` has to be treated like the absent case rather than set.
+    if (value != null) {
       c.header(header, value)
     }
   })
@@ -89,14 +94,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   const responseSchema = acceptedResponse?.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined
 
   /** Generates the response body from the schema, or returns `undefined` when there is no schema. */
-  const generateFromSchema = (): unknown =>
-    responseSchema
-      ? getExampleFromSchema(responseSchema, {
-          emptyString: 'string',
-          variables: pathParameters(c),
-          mode: 'read',
-        })
-      : undefined
+  const generateFromSchema = (): unknown => (responseSchema ? generateResponseExample(responseSchema, c) : undefined)
 
   // Server-Sent Events are a framed, multi-event wire format, so they cannot go out as one buffered
   // body: a client reading the stream expects `data:` lines terminated by a blank line. Everything
