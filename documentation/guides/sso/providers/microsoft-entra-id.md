@@ -74,9 +74,15 @@ Copy the IdP details from Microsoft Entra ID into Scalar:
 
 ![](../../../assets/sso/microsoft-entra-id/scalar-service-provider-details.png)
 
-## 7. Enable Token Encryption
+## 7. Set the Signing Option
 
-Scalar requires token encryption for SAML assertions. Download the encryption certificate from the Scalar and import it into Microsoft Entra ID under **Token encryption**:
+In the **SAML Certificates** card, click **Edit** and set **Signing Option** to **Sign SAML response and assertion**. Leave **Signing Algorithm** at SHA-256 and save.
+
+> Microsoft Entra ID defaults to **Sign SAML assertion**. Once token encryption is enabled in the next step, that default causes Scalar to reject the sign-in with "Invalid SAML signature state". Scalar needs the SAML response to be signed as well as the assertion.
+
+## 8. Enable Token Encryption
+
+Scalar requires token encryption for SAML assertions. Without it, sign-in attempts are sent back to the Scalar login page. Download the encryption certificate from Scalar and import it into Microsoft Entra ID under **Token encryption**:
 
 ### Import the Encryption Certificate
 
@@ -93,3 +99,9 @@ Scalar requires token encryption for SAML assertions. Download the encryption ce
 ## Done!
 
 Your organization is now ready to use Scalar SSO with Microsoft Entra ID! If you run into any issues, double-check your settings - or just [reach out to our support team](mailto:support@scalar.com), we're here to help!
+
+## Troubleshooting
+
+* **"Invalid SAML signature state" after signing in with Microsoft** - the **Signing Option** in the SAML Certificates card is still set to **Sign SAML assertion**. Change it to **Sign SAML response and assertion** (step 7).
+* **Sent back to the Scalar login page without an error** - token encryption is not enabled for the application, or the wrong certificate was imported. Re-check step 8.
+* **Users cannot be matched to their Scalar account** - the **Unique User Identifier (Name ID)** claim under **Attributes & Claims** must be the user's email address (`user.mail` or `user.userprincipalname`).
