@@ -28,7 +28,11 @@ export const toPostmanResponse = async (response: Response): Promise<PostmanResp
   // survive the trip through `postMessage` byte-for-byte. Round-tripping through `response.text()`
   // + `TextEncoder` corrupts any sequence that is not valid UTF-8 because the decoder replaces
   // invalid units with U+FFFD before we ever encode them back to bytes.
-  const buffer = await response.arrayBuffer()
+  // Event streams may never finish. Keep post-response scripts limited to their metadata,
+  // as before hooks moved ahead of response processing, so scripts cannot block the viewer.
+  const buffer = response.headers.get('content-type')?.startsWith('text/event-stream')
+    ? new ArrayBuffer(0)
+    : await response.arrayBuffer()
   const responseBytes = Array.from(new Uint8Array(buffer))
 
   return {

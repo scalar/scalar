@@ -717,6 +717,8 @@ type ExtendedConfiguration = {
   onRequestBuilt?:
     | ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>)
     | undefined
+  /** Fired before response processing. Return a Response to replace it, or nothing to keep it. */
+  onResponseReceived?: (input: { response: Response; request: Request }) => Response | void | Promise<Response | void>
   /** onShowMore is fired when the user clicks the "Show more" button on the references */
   onShowMore?: (tagId: string) => void | Promise<void>
   /** onSidebarClick is fired when the user clicks on a sidebar item */
@@ -848,6 +850,12 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
     requestBuilder: any
     envVariables: Record<string, string>
   }) => void | Promise<void> | undefined
+  /**
+   * Fired before response processing. Return a Response to replace the body, status, or headers
+   * used by the client, or return nothing to keep the current response. Receives a clone so
+   * reading the body does not consume the client response. Avoid reading unbounded streams.
+   */
+  onResponseReceived?: (input: { response: Response; request: Request }) => Response | void | Promise<Response | void>
   /**
    * Fired after the outbound fetch `Request` has been built, right before it is sent. The `request` is the exact
    * object handed to fetch: mutating its headers modifies the outgoing request, and hashing its body produces a

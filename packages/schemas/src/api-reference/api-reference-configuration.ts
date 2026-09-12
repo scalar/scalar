@@ -176,6 +176,12 @@ export const apiReferenceConfigurationSchema = intersection([
           'Fired right before the outbound request is sent; callback receives the exact fetch Request that goes over the wire. Experimental API.',
       },
     ),
+    onResponseReceived: optional(
+      fn<(input: { response: Response; request: Request }) => Response | void | Promise<Response | void>>(),
+      {
+        typeComment: 'Fired before response processing. Return a Response to replace it, or nothing to keep it.',
+      },
+    ),
     onShowMore: optional(fn<(tagId: string) => Promise<void> | void>(), {
       typeComment: 'onShowMore is fired when the user clicks the "Show more" button on the references',
     }),
