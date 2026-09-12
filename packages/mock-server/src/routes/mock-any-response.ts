@@ -52,12 +52,8 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   const headers = selectedResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
     const headerObject = getResolvedRef(headers[header])
-    // `includeDeprecated` keeps a header whose schema is annotated `deprecated` from generating
-    // nothing. Only that option is passed, so this site stays off `generateResponseExample`, whose
-    // other two options would each change what a document's declared headers emit today:
-    // `emptyString` turns a bare `type: 'string'` header into the literal `string` and switches on
-    // format-based generation (a `format: 'date-time'` header would emit a fabricated timestamp),
-    // and `mode: 'read'` would drop a `writeOnly` header entirely.
+    // Headers need `includeDeprecated` but none of `generateResponseExample`'s other options — see
+    // the note on that helper for why passing them would change what declared headers emit.
     const value = headerObject?.schema
       ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema), { includeDeprecated: true }) as string)
       : null

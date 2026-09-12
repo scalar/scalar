@@ -1,7 +1,7 @@
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 
 import type { MockMessage, ResolvedChannel, ResolvedMessage } from '@/transports/types'
-import { generateResponseExample } from '@/utils/generate-response-example'
+import { type ExampleSchema, generateResponseExample } from '@/utils/generate-response-example'
 
 /** Encode a generated value to a wire string. Strings pass through; everything else is JSON. */
 function encode(value: unknown): string {
@@ -35,11 +35,9 @@ export function generateMessage(channel: ResolvedChannel, messageId?: string): M
     // Prefer an explicit example, mirroring response-example selection in the REST mocker.
     value = message.examples[0]
   } else if (message.payload) {
-    // No `variables`: a channel message is not generated per request, so there are no path
-    // parameters to substitute.
-    value = generateResponseExample(
-      getResolvedRefDeep(message.payload) as Parameters<typeof generateResponseExample>[0],
-    )
+    // No `variables`: `generateMessage` is never handed the Hono context, so a channel route's path
+    // parameters are not in scope for `x-variable` substitution. It does run per request.
+    value = generateResponseExample(getResolvedRefDeep(message.payload) as ExampleSchema)
   }
 
   return {

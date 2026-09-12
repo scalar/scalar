@@ -1825,11 +1825,9 @@ describe('createMockServer', () => {
       expect(response.status).toBe(200)
       expect(response.headers.get('Content-Type')).toBe('application/json')
 
-      // Read as text first so a zero-byte body — the bug under test — reports as an empty string
-      // rather than a parse error, then compare parsed so the assertion does not pin key order.
-      const text = await response.text()
-      expect(text).not.toBe('')
-      expect(JSON.parse(text)).toStrictEqual({ id: 'string' })
+      // Asserted as text, not parsed JSON: the bug under test is a zero-byte body, which shows up
+      // here as a clean diff against `''` where `.json()` would throw before reporting anything.
+      expect(await response.text()).toBe('{"id":"string"}')
     })
 
     it('includes a required deprecated property in the generated body', async () => {
@@ -1866,11 +1864,7 @@ describe('createMockServer', () => {
 
       expect(response.status).toBe(200)
 
-      // Read as text first so a zero-byte body — the bug under test — reports as an empty string
-      // rather than a parse error, then compare parsed so the assertion does not pin key order.
-      const text = await response.text()
-      expect(text).not.toBe('')
-      expect(JSON.parse(text)).toStrictEqual({ name: 'string', legacyName: 'string' })
+      expect(await response.text()).toBe('{"name":"string","legacyName":"string"}')
     })
 
     it('sets a response header whose schema is deprecated', async () => {
@@ -1903,11 +1897,13 @@ describe('createMockServer', () => {
       expect(response.status).toBe(200)
       expect(response.headers.get('X-Legacy-Id')).toBe('legacy-1')
     })
+  })
 
-    it('leaves other headers alone when a header schema generates nothing', async () => {
-      // A header value that comes back `undefined` has to be skipped, not handed to `c.header()`:
-      // Hono treats `undefined` as a delete, and the header loop runs before `Content-Type` is set
-      // and after the CORS middleware, so the casualty is a header something else already set.
+  describe('response headers', () => {
+    it('does not delete an already-set header when a declared header schema generates nothing', async () => {
+      // Hono treats `undefined` as a delete, so a header value that generates nothing has to be
+      // skipped rather than passed to `c.header()`. This loop is the first thing to set the declared
+      // headers, so what a delete actually removes is a header set earlier by middleware.
       const document = {
         openapi: '3.1.0',
         info: { title: 'Header API', version: '1.0.0' },
@@ -1917,8 +1913,9 @@ describe('createMockServer', () => {
               responses: {
                 '200': {
                   description: 'OK',
-                  // An unresolvable `$ref` resolves to `undefined`, so nothing is generated for it —
-                  // independent of the deprecation gate, which is what isolates the guard below.
+                  // An unresolvable `$ref` resolves to `undefined`, so nothing is generated for it.
+                  // Note an empty schema would not do: that generates `null`, which the guard has
+                  // always skipped, so it could not tell the two guards apart.
                   headers: { 'Access-Control-Allow-Origin': { schema: { $ref: '#/components/schemas/Missing' } } },
                   content: { 'application/json': { example: { ok: true } } },
                 },
@@ -1933,8 +1930,7 @@ describe('createMockServer', () => {
       const response = await server.request('/things')
 
       expect(response.status).toBe(200)
-      // The wildcard `cors()` sets by default, not an echoed request origin. Passing the generated
-      // value straight through deletes this instead of leaving it alone.
+      // The wildcard `cors()` sets by default, not an echoed request origin.
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
     })
   })

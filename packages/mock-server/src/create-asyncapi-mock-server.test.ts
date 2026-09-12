@@ -49,8 +49,8 @@ describe('createAsyncApiMockServer', () => {
   })
 
   it('serves a generated message for a deprecated payload schema', async () => {
-    // `deprecated` marks a payload as discouraged, not as absent, so omitting it emitted an empty
-    // frame for a channel that declares a payload.
+    // `deprecated` marks a payload as discouraged, not as absent, so omitting it sent the channel's
+    // declared payload as `data: null` — `encode` falls back to `null` for a generated `undefined`.
     const { app } = await createAsyncApiMockServer({
       document: {
         asyncapi: '3.1.0',

@@ -174,7 +174,7 @@ const shouldOmitProperty = (
     | Pick<GetExampleFromSchemaOptions, 'omitEmptyAndOptionalProperties' | 'mode' | 'includeDeprecated'>
     | undefined,
 ): boolean => {
-  // Early exits for schemas that should not be included (deprecated, readOnly, writeOnly)
+  // Early exits for schemas that should not be included (deprecated unless opted in, readOnly, writeOnly)
   if (
     (schema.deprecated && options?.includeDeprecated !== true) ||
     (options?.mode === 'write' && schema.readOnly) ||
