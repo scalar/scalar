@@ -2019,6 +2019,264 @@ describe('getExampleFromSchema', () => {
     ])
   })
 
+  describe('maximum depth', () => {
+    // Levels 0 through 10 render, so a leaf nested eleven deep is the first schema the walk truncates.
+    // These mirror `MAX_LEVELS_DEEP` in the module, which is private: moving the cap without moving
+    // these is meant to fail the boundary case below rather than pass quietly.
+    const RENDERED_DEPTH = 10
+    const TRUNCATED_DEPTH = 11
+
+    /** Nest `depth` object schemas inside each other, chained through a `next` property. */
+    const nestObjects = (depth: number, leaf: SchemaObject): SchemaObject =>
+      depth === 0 ? leaf : { type: 'object', properties: { next: nestObjects(depth - 1, leaf) } }
+
+    /** Nest `depth` array schemas inside each other, chained through `items`. */
+    const nestArrays = (depth: number, leaf: SchemaObject): SchemaObject =>
+      depth === 0 ? leaf : { type: 'array', items: nestArrays(depth - 1, leaf) }
+
+    /** Follow a generated `next` chain down to the value the walk left at the bottom. */
+    const deepestNext = (example: unknown): unknown => {
+      let current = example
+      while (current !== null && typeof current === 'object' && 'next' in current) {
+        current = (current as { next: unknown }).next
+      }
+      return current
+    }
+
+    // Only the leaf is coerced, never the chain: coercion deep-clones, and some cases below depend on
+    // the chain sharing object identity the way a dereferenced document does.
+    /** Generate the example for `leaf` placed at the first depth the walk truncates. */
+    const truncate = (leaf: unknown, options?: Parameters<typeof getExampleFromSchema>[1]): unknown =>
+      deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, coerceValue(SchemaObjectSchema, leaf)), options))
+
+    /** Generate the example for `leaf` placed at the deepest level the walk still renders in full. */
+    const render = (leaf: unknown): unknown =>
+      deepestNext(getExampleFromSchema(nestObjects(RENDERED_DEPTH, coerceValue(SchemaObjectSchema, leaf))))
+
+    it('renders the deepest level it reaches and truncates the next one', () => {
+      // `const` pins the child so the two sides differ only by the boundary, not by their own depth.
+      const leaf = { type: 'object', properties: { id: { type: 'string', const: 'kept' } } }
+
+      expect(render(leaf)).toStrictEqual({ id: 'kept' })
+      expect(truncate(leaf)).toStrictEqual({})
+    })
+
+    it('truncates an object schema with an empty object', () => {
+      expect(truncate({ type: 'object', properties: { id: { type: 'string' } } })).toStrictEqual({})
+    })
+
+    it('truncates an array schema with an empty array', () => {
+      expect(truncate({ type: 'array', items: { type: 'string' } })).toStrictEqual([])
+    })
+
+    it('truncates a schema that implies its container without declaring a type', () => {
+      expect(truncate({ properties: { id: { type: 'string' } } })).toStrictEqual({})
+      expect(truncate({ items: { type: 'string' } })).toStrictEqual([])
+    })
+
+    it('truncates a single-element type array like the bare type', () => {
+      // `type: ['object']` is a legal spelling of `type: 'object'` and has to behave the same way.
+      expect(truncate({ type: ['object'] })).toStrictEqual({})
+      expect(truncate({ type: ['array'] })).toStrictEqual([])
+    })
+
+    it('truncates scalar schemas with a value of that type', () => {
+      expect(truncate({ type: 'number' })).toBe(1)
+      expect(truncate({ type: 'integer', minimum: 7 })).toBe(7)
+      expect(truncate({ type: 'boolean' })).toBe(true)
+      expect(truncate({ type: 'string' })).toBe('')
+      expect(truncate({ type: 'null' })).toBe(null)
+    })
+
+    it('truncates a nullable union with null', () => {
+      expect(truncate({ type: ['string', 'null'] })).toBe(null)
+    })
+
+    it('honors the emptyString option while truncating', () => {
+      expect(truncate({ type: 'string' }, { emptyString: 'placeholder' })).toBe('placeholder')
+    })
+
+    it('prefers a declared value over a stand-in while truncating', () => {
+      // The cap sits below the example precedence block, so a schema that says what it holds is taken
+      // at its word rather than answered with an empty value it forbids.
+      expect(truncate({ type: 'string', enum: ['active', 'archived'] })).toBe('active')
+      expect(truncate({ type: 'string', const: 'v2' })).toBe('v2')
+      expect(truncate({ type: 'object', example: { id: 'abc' } })).toStrictEqual({ id: 'abc' })
+      expect(truncate({ type: 'object', examples: [{ id: 'first' }] })).toStrictEqual({ id: 'first' })
+      expect(truncate({ type: 'string', default: 'fallback' })).toBe('fallback')
+    })
+
+    it('omits a truncated property the mode excludes', () => {
+      // Omission is decided above the cap too, so a property the caller asked to leave out stays out
+      // rather than coming back as a stand-in: its parent loses the key entirely.
+      expect(truncate({ type: 'string', readOnly: true }, { mode: 'write' })).toStrictEqual({})
+      expect(truncate({ type: 'string' }, { mode: 'write' })).toBe('')
+    })
+
+    it('truncates a multi-type union with a value of its first type', () => {
+      expect(truncate({ type: ['integer', 'string'] })).toBe(1)
+    })
+
+    it('prefers a value declared inside a composition wrapper', () => {
+      // `allOf: [$ref]` around an enum is the ordinary way a generated document attaches a description
+      // to a shared type, and answering it with an empty string breaks the enum it wraps.
+      expect(truncate({ oneOf: [{ type: 'string', enum: ['active', 'archived'] }] })).toBe('active')
+      expect(truncate({ allOf: [{ type: 'string', const: 'v2' }] })).toBe('v2')
+      expect(truncate({ allOf: [{ type: 'object', example: { id: 'abc' } }] })).toStrictEqual({ id: 'abc' })
+    })
+
+    it('truncates a nullable container with the container it names', () => {
+      expect(truncate({ type: ['object', 'null'] })).toStrictEqual({})
+      expect(truncate({ type: ['array', 'null'] })).toStrictEqual([])
+    })
+
+    it('gives up on a composition chain far longer than any document nests', () => {
+      // The guard set doubles as the path length, so an absurd chain stops rather than growing the
+      // stack. Sixty wrappers is past that bound; twelve, above, is not.
+      const absurd = new Array(60).fill(null).reduce<unknown>((inner) => ({ allOf: [inner] }), {
+        type: 'object',
+        properties: {},
+      })
+
+      expect(truncate(absurd)).toBe(null)
+    })
+
+    it('truncates a composition wrapper with the container its members declare', () => {
+      expect(truncate({ allOf: [{ type: 'object', properties: { id: { type: 'string' } } }] })).toStrictEqual({})
+      expect(truncate({ anyOf: [{ type: 'array', items: { type: 'string' } }] })).toStrictEqual([])
+      // A wrapper around a wrapper: unwrapping has to keep going rather than stop at the first hop.
+      expect(
+        truncate({ oneOf: [{ allOf: [{ type: 'object', properties: { id: { type: 'string' } } }] }] }),
+      ).toStrictEqual({})
+    })
+
+    it('skips composition members that describe nothing', () => {
+      // Order matters: a member that describes nothing must not clobber one that does, whichever side
+      // of the merge it lands on.
+      expect(truncate({ allOf: [{ description: 'no shape' }, { type: 'object', properties: {} }] })).toStrictEqual({})
+      expect(truncate({ allOf: [{ type: 'object', properties: {} }, { description: 'no shape' }] })).toStrictEqual({})
+    })
+
+    it('truncates a composition nothing can describe with null', () => {
+      // The walk answers an unrenderable composition with null, and null is the one value a `oneOf` of
+      // nulls actually permits. A negative constraint says nothing a sentinel string could satisfy.
+      expect(truncate({ oneOf: [{ type: 'null' }] })).toBe(null)
+      expect(truncate({ not: { type: 'string' } })).toBe(null)
+    })
+
+    it('unwraps a composition however deeply it is nested', () => {
+      // Inheritance chains in generated documents run many wrappers deep, and stopping early would put
+      // a value of the wrong kind exactly where this fix exists to prevent one.
+      const deeplyWrapped = new Array(12)
+        .fill(null)
+        .reduce<unknown>((inner) => ({ allOf: [inner] }), { type: 'object', properties: {} })
+
+      expect(truncate(deeplyWrapped)).toStrictEqual({})
+    })
+
+    it('terminates on a composition that references itself', () => {
+      // Unwrapping runs outside the walk's cycle guard, so its own guard is the only thing standing
+      // between a self-referencing wrapper and a hang.
+      const cyclic: Record<string, unknown> = {}
+      cyclic.allOf = [cyclic]
+
+      expect(truncate(cyclic)).toBe(null)
+    })
+
+    it('follows an explicit selection through an allOf-wrapped composition', () => {
+      // The pickers key a wrapped choice by its ordinal within the allOf, so truncation has to build
+      // the same key or it silently renders the wrong variant.
+      const leaf = {
+        allOf: [
+          {
+            oneOf: [
+              { type: 'object', properties: { id: { type: 'string' } } },
+              { type: 'array', items: { type: 'string' } },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.0.oneOf`]: 1 } })).toStrictEqual([])
+    })
+
+    it('truncates a composition of scalars with a scalar', () => {
+      expect(truncate({ oneOf: [{ type: 'integer' }, { type: 'boolean' }] })).toBe(1)
+    })
+
+    it('follows an explicit composition selection while truncating', () => {
+      // The picker chose the array variant, so the truncated value has to be an array too — otherwise
+      // the rendered example changes kind purely because of how deep it sits.
+      const leaf = {
+        oneOf: [
+          { type: 'object', properties: { id: { type: 'string' } } },
+          { type: 'array', items: { type: 'string' } },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.oneOf`]: 1 } })).toStrictEqual([])
+    })
+
+    it('keeps the sentinel when the schema declares no shape', () => {
+      expect(truncate({ description: 'anything goes' })).toBe('[Max Depth Exceeded]')
+    })
+
+    it('leaves no sentinel in a chain that alternates objects and arrays', () => {
+      // Whichever container the cap lands on has to be replaced by one of the same kind, so a mixed
+      // chain comes back clean wherever the cut falls.
+      const alternating = (depth: number): SchemaObject =>
+        depth === 0
+          ? { type: 'string' }
+          : depth % 2 === 0
+            ? { type: 'object', properties: { next: alternating(depth - 1) } }
+            : { type: 'array', items: alternating(depth - 1) }
+
+      expect(JSON.stringify(getExampleFromSchema(alternating(30)))).not.toContain('Max Depth Exceeded')
+    })
+
+    it('truncates every level of a chain deeper than the cap', () => {
+      // Nesting far past the boundary still ends in exactly one stand-in, at the first truncated level.
+      const example = getExampleFromSchema(nestArrays(30, { type: 'string' }))
+
+      let expected: unknown = []
+      for (let depth = 0; depth < TRUNCATED_DEPTH; depth++) {
+        expected = [expected]
+      }
+      expect(example).toStrictEqual(expected)
+    })
+
+    it('does not let a truncated value stand in for a shallower use of the same schema', () => {
+      // Results are cached by schema identity under a key that carries no level, and an `allOf` member
+      // climbs a level without growing the schema path. So a schema rendered just above the cap in one
+      // chain shares its key with the same schema used at the top of the document, and without care the
+      // shallow use is served the truncated result. `$ref` resolution hands back one shared node, which
+      // is what the reused object here stands for — `coerceValue` would clone it and hide the problem.
+      const shared = {
+        type: 'object',
+        properties: { inner: { type: 'object', properties: { id: { type: 'string' } } } },
+      }
+      const wrap = (depth: number, leaf: unknown): unknown => (depth === 0 ? leaf : wrap(depth - 1, { allOf: [leaf] }))
+
+      // The wrapped copy renders one level above the cap, so its own child truncates; the second member
+      // is the very same object, reached at the top.
+      const root = { allOf: [wrap(RENDERED_DEPTH - 1, shared), shared] } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(root)).toStrictEqual({ inner: { id: '' } })
+    })
+
+    it('does not let a truncated scalar stand in for a shallower use of the same schema', () => {
+      // The same hazard with a scalar leaf, which reaches the cap through a different branch than the
+      // container case above and so needs its own guard against the cache.
+      const shared = { type: 'object', properties: { inner: { allOf: [{ type: 'string', const: 'v2' }] } } }
+      const wrap = (depth: number, leaf: unknown): unknown => (depth === 0 ? leaf : wrap(depth - 1, { allOf: [leaf] }))
+      const root = { allOf: [wrap(RENDERED_DEPTH - 1, shared), shared] } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(root)).toStrictEqual({ inner: 'v2' })
+    })
+  })
+
   describe('caching', () => {
     it('returns different results when different options are passed', () => {
       const schema = coerceValue(SchemaObjectSchema, {
