@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 
-import { ApiReference } from '@scalar/api-reference'
+import { SsrTakeover } from '@scalar/api-reference'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useServerSeoMeta } from '@unhead/vue'
 import { createHead, renderSSRHead } from '@unhead/vue/server'
@@ -135,7 +135,7 @@ async function renderApiReferenceApp(options: {
         useServerSeoMeta(metaData as Parameters<typeof useServerSeoMeta>[0])
       }
 
-      return () => h(ApiReference, { configuration: normalizedConfiguration })
+      return () => h(SsrTakeover, { configuration: normalizedConfiguration })
     },
   })
   const head = createHeadInstance(options.pageTitle)
