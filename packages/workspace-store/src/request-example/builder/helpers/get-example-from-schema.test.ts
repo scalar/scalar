@@ -1913,6 +1913,109 @@ describe('getExampleFromSchema', () => {
     ])
   })
 
+  describe('maximum depth', () => {
+    /** Nest `depth` object schemas inside each other, chained through a `next` property. */
+    const nestObjects = (depth: number, leaf: SchemaObject): SchemaObject =>
+      depth === 0 ? leaf : { type: 'object', properties: { next: nestObjects(depth - 1, leaf) } }
+
+    /** Nest `depth` array schemas inside each other, chained through `items`. */
+    const nestArrays = (depth: number, leaf: SchemaObject): SchemaObject =>
+      depth === 0 ? leaf : { type: 'array', items: nestArrays(depth - 1, leaf) }
+
+    /** Follow a generated `next` chain down to the value the depth cap left at the bottom. */
+    const deepestNext = (example: unknown): unknown => {
+      let current = example
+      while (current !== null && typeof current === 'object' && 'next' in current) {
+        current = (current as { next: unknown }).next
+      }
+      return current
+    }
+
+    /** Follow a generated array chain down to the value the depth cap left at the bottom. */
+    const deepestItem = (example: unknown): unknown => {
+      let current = example
+      while (Array.isArray(current) && current.length > 0) {
+        current = current[0]
+      }
+      return current
+    }
+
+    it('truncates a deeply nested object schema with an empty object', () => {
+      // The chain is far deeper than the cap, so the bottom of the example is whatever the cap
+      // produced rather than a rendered leaf. An object schema has to keep an object there.
+      const example = getExampleFromSchema(nestObjects(30, { type: 'object', properties: { id: { type: 'string' } } }))
+
+      expect(deepestNext(example)).toStrictEqual({})
+      expect(JSON.stringify(example)).not.toContain('Max Depth Exceeded')
+    })
+
+    it('truncates a deeply nested array schema with an empty array', () => {
+      const example = getExampleFromSchema(nestArrays(30, { type: 'string' }))
+
+      expect(deepestItem(example)).toStrictEqual([])
+      expect(JSON.stringify(example)).not.toContain('Max Depth Exceeded')
+    })
+
+    it('truncates a chain that alternates objects and arrays in kind', () => {
+      // Whichever container the cap happens to land on has to be replaced by one of the same kind,
+      // so a mixed chain leaves no sentinel behind wherever the cut falls.
+      const alternating = (depth: number): SchemaObject =>
+        depth === 0
+          ? { type: 'string' }
+          : depth % 2 === 0
+            ? { type: 'object', properties: { next: alternating(depth - 1) } }
+            : { type: 'array', items: alternating(depth - 1) }
+
+      expect(JSON.stringify(getExampleFromSchema(alternating(30)))).not.toContain('Max Depth Exceeded')
+    })
+
+    // The remaining cases pin schemas that only the cap can reach: a chain has to be built out of
+    // containers, so a scalar or an untyped schema never lands on the truncated node itself. Passing
+    // `level` puts them there directly instead of hardcoding the cap.
+    it('truncates a number schema with a number', () => {
+      expect(getExampleFromSchema({ type: 'number' }, undefined, { level: 999 })).toBe(1)
+    })
+
+    it('truncates a boolean schema with a boolean', () => {
+      expect(getExampleFromSchema({ type: 'boolean' }, undefined, { level: 999 })).toBe(true)
+    })
+
+    it('truncates a nullable union schema with null', () => {
+      expect(getExampleFromSchema({ type: ['object', 'null'] }, undefined, { level: 999 })).toBe(null)
+    })
+
+    it('truncates an allOf wrapper around an object with an empty object', () => {
+      // The common spelling of a nested model: a wrapper with no type of its own.
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, { allOf: [{ type: 'object', properties: { id: { type: 'string' } } }] }),
+          undefined,
+          { level: 999 },
+        ),
+      ).toStrictEqual({})
+    })
+
+    it('truncates a oneOf of objects with an empty object', () => {
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            oneOf: [{ type: 'object', properties: { id: { type: 'string' } } }, { type: 'null' }],
+          }),
+          undefined,
+          { level: 999 },
+        ),
+      ).toStrictEqual({})
+    })
+
+    it('keeps the sentinel when the schema declares no type to be faithful to', () => {
+      expect(
+        getExampleFromSchema(coerceValue(SchemaObjectSchema, { description: 'anything goes' }), undefined, {
+          level: 999,
+        }),
+      ).toBe('[Max Depth Exceeded]')
+    })
+  })
+
   describe('caching', () => {
     it('returns different results when different options are passed', () => {
       const schema = coerceValue(SchemaObjectSchema, {
