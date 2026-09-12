@@ -1,3 +1,7 @@
+---
+date: 2025-04-28
+---
+
 # How Cloudinary’s API docs create a great developer experience
 
 The first line on Cloudinary’s homepage is “Image and Video API Platform.” **API** is front and center as the primary way users interact with their app.
