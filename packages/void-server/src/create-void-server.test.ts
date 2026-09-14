@@ -24,6 +24,52 @@ const extractStoredEntry = (bytes: Uint8Array): { content: string; fileName: str
 }
 
 describe('createVoidServer', () => {
+  it('allows QUERY requests in CORS preflight', async () => {
+    const server = createVoidServer({ logger: false })
+    const response = await server.request('/planets', {
+      method: 'OPTIONS',
+      headers: {
+        'Origin': 'https://example.com',
+        'Access-Control-Request-Method': 'QUERY',
+        'Access-Control-Request-Headers': 'content-type',
+      },
+    })
+
+    expect(response.status).toBe(204)
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+    expect(response.headers.get('Access-Control-Allow-Methods')?.split(',')).toStrictEqual([
+      'GET',
+      'HEAD',
+      'PUT',
+      'POST',
+      'DELETE',
+      'PATCH',
+      'QUERY',
+    ])
+    expect(response.headers.get('Access-Control-Allow-Headers')).toBe('content-type')
+  })
+
+  it('echoes the QUERY method and JSON request body', async () => {
+    const server = createVoidServer({ logger: false })
+    const body = { name: 'Earth', habitable: true }
+    const response = await server.request('/planets', {
+      method: 'QUERY',
+      headers: { 'Content-Type': 'application/json', 'Origin': 'https://example.com' },
+      body: JSON.stringify(body),
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+    expect(await response.json()).toStrictEqual({
+      method: 'QUERY',
+      path: '/planets',
+      headers: { 'content-type': 'application/json', 'origin': 'https://example.com' },
+      cookies: {},
+      query: {},
+      body,
+    })
+  })
+
   it('can disable request logging', async () => {
     const server = await createVoidServer({ logger: false })
 

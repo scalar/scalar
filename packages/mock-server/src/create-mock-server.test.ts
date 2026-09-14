@@ -1406,18 +1406,21 @@ describe('createMockServer', () => {
     let response = await server.request('/foobar', {
       method: 'OPTIONS',
       headers: {
-        origin: 'https://example.com',
+        'Origin': 'https://example.com',
+        'Access-Control-Request-Method': 'QUERY',
+        'Access-Control-Request-Headers': 'content-type',
       },
     })
 
     expect(response.status).toBe(204)
+    expect(response.headers.get('Access-Control-Allow-Headers')).toBe('content-type')
 
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
 
     const allowMethodsHeader = response.headers.get('Access-Control-Allow-Methods')
     expect(allowMethodsHeader).toBeTypeOf('string')
     expect(allowMethodsHeader?.split(',').sort()).toStrictEqual(
-      ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'].sort(),
+      ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH', 'QUERY'].sort(),
     )
 
     // Get request
