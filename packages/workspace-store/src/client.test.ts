@@ -105,6 +105,39 @@ const REGISTRY_META = {
 } as const
 
 describe('create-workspace-store', () => {
+  it('preserves and resolves streaming item schemas when importing OpenAPI 3.2', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'stream',
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        components: { schemas: { Event: { type: 'object', properties: { id: { type: 'integer' } } } } },
+        paths: {
+          '/events': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Events',
+                  content: {
+                    'application/jsonl': { itemSchema: { $ref: '#/components/schemas/Event' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const pathItem = getResolvedRef(getOpenApiDocument(store, 'stream')?.paths?.['/events'])
+    const operation = getResolvedRef(pathItem?.get)
+    const response = getResolvedRef(operation?.responses?.['200'])
+    expect(getResolvedRef(response?.content?.['application/jsonl']?.itemSchema)).toStrictEqual({
+      type: 'object',
+      properties: { id: { type: 'integer' } },
+    })
+  })
+
   let server: FastifyInstance
   const port = 9988
   const url = `http://localhost:${port}`

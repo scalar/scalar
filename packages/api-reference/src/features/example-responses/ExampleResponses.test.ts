@@ -19,6 +19,32 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).toContain('Deletion completed')
   })
 
+  it('displays and copies the same framed streaming example', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Stream',
+            content: {
+              'application/jsonl': {
+                itemSchema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{"id":7}\n')
+    await wrapper.get('.code-copy').trigger('click')
+    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('{"id":7}\n')
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    expect(wrapper.text()).toContain('Stream item')
+    expect(wrapper.getComponent({ name: 'ExampleSchema' }).props('schema')).toStrictEqual({
+      type: 'object',
+      properties: { id: { type: 'integer', const: 7 } },
+    })
+  })
+
   it('renders a single example correctly', () => {
     const wrapper = mount(ExampleResponses, {
       props: {

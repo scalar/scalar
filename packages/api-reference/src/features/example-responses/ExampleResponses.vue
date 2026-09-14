@@ -97,19 +97,17 @@ const normalizedResponseContent = computed(() =>
   normalizeMimeTypeObject(currentResponse.value?.content),
 )
 
-const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
-  const content = normalizedResponseContent.value
-  if (!content) {
-    return undefined
-  }
+const currentContentType = computed(() => {
   const statusCode =
     toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
   const selected = selectedContentTypes?.[statusCode]
-  const keys = objectKeys(content)
-  return content[
-    selected && keys.includes(selected) ? selected : (keys[0] ?? '')
-  ]
+  const keys = objectKeys(normalizedResponseContent.value ?? {})
+  return selected && keys.includes(selected) ? selected : (keys[0] ?? '')
 })
+
+const currentResponseContent = computed<MediaTypeObject | undefined>(
+  () => normalizedResponseContent.value?.[currentContentType.value],
+)
 
 const hasMultipleExamples = computed<boolean>(
   () =>
@@ -171,7 +169,11 @@ const changeTab = (index: number) => {
 }
 
 const exampleContent = computed(() =>
-  getExampleContent(currentResponseContent.value, currentExample.value),
+  getExampleContent(
+    currentResponseContent.value,
+    currentExample.value,
+    currentContentType.value,
+  ),
 )
 
 const copyExample = (): void => {
@@ -209,7 +211,9 @@ const showSchema = ref(false)
             width="12px" />
         </button>
         <label
-          v-if="currentResponseContent?.schema"
+          v-if="
+            currentResponseContent?.schema ?? currentResponseContent?.itemSchema
+          "
           class="scalar-card-checkbox">
           {{ translate('response.showSchema') }}
           <input
@@ -223,16 +227,29 @@ const showSchema = ref(false)
     </ExampleResponseTabList>
     <ScalarCardSection class="grid flex-1">
       <!-- Schema -->
-      <ExampleSchema
-        v-if="currentResponseContent?.schema && showSchema"
-        :id="id"
-        :schema="currentResponseContent?.schema" />
+      <template
+        v-if="
+          showSchema &&
+          (currentResponseContent?.schema ?? currentResponseContent?.itemSchema)
+        ">
+        <ExampleSchema
+          v-if="currentResponseContent?.schema"
+          :id="id"
+          :schema="currentResponseContent.schema" />
+        <template v-if="currentResponseContent?.itemSchema">
+          <p class="text-c-2 px-3 pt-2 text-sm">Stream item</p>
+          <ExampleSchema
+            :id="currentResponseContent.schema ? `${id}-item` : id"
+            :schema="currentResponseContent.itemSchema" />
+        </template>
+      </template>
 
       <!-- Example -->
       <ExampleResponse
         v-else
         :id="id"
         :content="exampleContent"
+        :contentType="currentContentType"
         :example="currentExample"
         :response="currentResponseContent" />
     </ScalarCardSection>

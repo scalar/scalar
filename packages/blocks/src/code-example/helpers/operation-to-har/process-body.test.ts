@@ -5,6 +5,21 @@ import { describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it('includes a framed streaming body in generated code samples', () => {
+    expect(
+      processBody({
+        requestBody: {
+          content: {
+            'application/jsonl': {
+              itemSchema: { type: 'object', properties: { message: { type: 'string', const: 'Hello' } } },
+            },
+          },
+        },
+        contentType: 'application/jsonl',
+      }),
+    ).toStrictEqual({ mimeType: 'application/jsonl', text: '{"message":"Hello"}\n' })
+  })
+
   it('extracts example from simple object schema', () => {
     const content = {
       'application/json': {

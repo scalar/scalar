@@ -693,6 +693,18 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl 'https://example.com/api$v1/prices?amount=%2450.00'`)
   })
 
+  it.each(['application/jsonl', 'application/x-ndjson; charset=utf-8'])(
+    'preserves stream framing for %s',
+    (mimeType) => {
+      const result = shellCurl.generate({
+        url: 'https://example.com',
+        postData: { mimeType, text: '{"message":"Hello stream"}\n' },
+      })
+
+      expect(result).toContain('--data-binary \'{"message":"Hello stream"}\n\'')
+    },
+  )
+
   it('pretty-prints --data bodies whose mimeType uses a +json suffix', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
