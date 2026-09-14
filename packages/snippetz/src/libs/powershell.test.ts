@@ -22,9 +22,9 @@ $response = Invoke-RestMethod -Uri 'https://example.com' -Method 'GET' -Headers 
 $response`)
   })
 
-  it('supports extension methods using CustomMethod', () => {
-    expect(generatePowershell('Invoke-WebRequest', { url: 'https://example.com', method: 'propfind' })).toBe(
-      "$response = Invoke-WebRequest -Uri 'https://example.com' -CustomMethod 'PROPFIND'\n$response",
+  it.each(['propfind', 'PROPFIND', 'customMethod'])('preserves extension method %s using CustomMethod', (method) => {
+    expect(generatePowershell('Invoke-WebRequest', { url: 'https://example.com', method })).toBe(
+      `$response = Invoke-WebRequest -Uri 'https://example.com' -CustomMethod '${method}'\n$response`,
     )
   })
   it.each([
