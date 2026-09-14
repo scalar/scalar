@@ -1,6 +1,7 @@
 import { cwd } from 'node:process'
 
 import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
@@ -64,8 +65,6 @@ type CreateServerWorkspaceStoreProps =
       baseUrl: string
       mode: 'ssr'
     } & CreateServerWorkspaceStoreBase)
-
-const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
 
 /**
  * Wraps a document so local `$ref`s resolve while the store inspects it.
@@ -157,7 +156,7 @@ export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record
     const filteredMethods: Record<string, OperationObject> = {}
 
     forEachPathItemOperation(pathItemRef, (method, operation) => {
-      if (httpMethods.has(method.toLowerCase())) {
+      if (isHttpMethod(method)) {
         // Unwrapped because the caller hands us a resolved document. A magic proxy enumerates a
         // virtual `$ref-value`, so storing one would inline every referenced component beside its
         // `$ref` when the chunk is written — and a self-referential schema would never finish
@@ -256,7 +255,7 @@ export function externalizePathReferences(
     const escapedPath = escapeJsonPointer(path)
 
     keyOf(pathItemRecord).forEach((type) => {
-      if (httpMethods.has(type)) {
+      if (isHttpMethod(type)) {
         const ref =
           meta.mode === 'ssr'
             ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${type}#`
