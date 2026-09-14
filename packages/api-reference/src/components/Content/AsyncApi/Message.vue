@@ -28,6 +28,7 @@ import {
   resolveAsyncApiChannel,
   resolveAsyncApiMessage,
 } from './helpers/resolve-async-api-nodes'
+import MessageExamples from './MessageExamples.vue'
 
 /** Subset of the configuration the shared `Schema` renderer needs. */
 type SchemaRenderOptions = AsyncApiSchemaRenderOptions
@@ -173,38 +174,47 @@ const { level: headingLevel } = useDocumentOutline('message')
         </Anchor>
       </template>
 
-      <ScalarMarkdown
-        v-if="description"
-        class="message-description"
-        :value="description"
-        withImages />
+      <div class="message-layout">
+        <div
+          v-if="description || headersSchema || payloadSchema"
+          class="message-details min-w-0">
+          <ScalarMarkdown
+            v-if="description"
+            class="message-description"
+            :value="description"
+            withImages />
 
-      <div
-        v-if="headersSchema"
-        class="message-schema">
-        <div class="message-schema-title">Headers</div>
-        <Schema
-          :breadcrumb="[message.id, 'headers']"
-          compact
-          :eventBus="eventBus"
-          name="Headers"
-          noncollapsible
-          :options="schemaOptions"
-          :schema="headersSchema" />
-      </div>
+          <div
+            v-if="headersSchema"
+            class="message-schema">
+            <div class="message-schema-title">Headers</div>
+            <Schema
+              :breadcrumb="[message.id, 'headers']"
+              compact
+              :eventBus="eventBus"
+              name="Headers"
+              noncollapsible
+              :options="schemaOptions"
+              :schema="headersSchema" />
+          </div>
 
-      <div
-        v-if="payloadSchema"
-        class="message-schema">
-        <div class="message-schema-title">Payload</div>
-        <Schema
-          :breadcrumb="[message.id, 'payload']"
-          compact
-          :eventBus="eventBus"
-          name="Payload"
-          noncollapsible
-          :options="schemaOptions"
-          :schema="payloadSchema" />
+          <div
+            v-if="payloadSchema"
+            class="message-schema">
+            <div class="message-schema-title">Payload</div>
+            <Schema
+              :breadcrumb="[message.id, 'payload']"
+              compact
+              :eventBus="eventBus"
+              name="Payload"
+              noncollapsible
+              :options="schemaOptions"
+              :schema="payloadSchema" />
+          </div>
+        </div>
+        <MessageExamples
+          class="message-examples"
+          :examples="resolvedMessage?.examples" />
       </div>
     </SectionAccordion>
   </div>
@@ -251,5 +261,18 @@ const { level: headingLevel } = useDocumentOutline('message')
   padding-bottom: 8px;
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   margin-bottom: 8px;
+}
+.message-layout {
+  display: grid;
+  gap: 16px;
+}
+/* Keep examples beside the schema when the reference has room, including embedded layouts. */
+@container narrow-references-container (min-width: 900px) {
+  .message-layout:has(> .message-details):has(> .message-examples) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+  }
 }
 </style>
