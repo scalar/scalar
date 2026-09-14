@@ -211,7 +211,7 @@ const shouldRenderRequestBody = computed(
         requestBody.content?.[selectedContentType]?.itemSchema &&
         !requestBody.content?.[selectedContentType]?.schema
       "
-      class="text-c-2 text-sm">
+      class="text-c-2 pt-2 text-sm">
       Stream item
     </p>
 
