@@ -1,3 +1,4 @@
+import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
 import { bundle } from '@scalar/json-magic/bundle'
 import type {
   ComponentsObject,
@@ -71,7 +72,11 @@ const mergePaths = (inputs: PathsObject[]) => {
     }
 
     for (const [path, pathItem] of Object.entries(paths)) {
-      if (!result[path]) {
+      if (isPollutionKey(path)) {
+        continue
+      }
+
+      if (!Object.hasOwn(result, path) || !result[path]) {
         // If the path does not exist, add it directly
         result[path] = pathItem
         continue
@@ -155,12 +160,20 @@ const mergeComponents = (inputs: ComponentsObject[]) => {
 
     // Merge each component type (schemas, responses, parameters, etc.)
     for (const [key, value] of Object.entries(components)) {
+      if (isPollutionKey(key)) {
+        continue
+      }
+
       for (const [name, component] of Object.entries(value)) {
-        if (!result[key]) {
+        if (isPollutionKey(name)) {
+          continue
+        }
+
+        if (!Object.hasOwn(result, key)) {
           result[key] = {}
         }
 
-        if (result[key][name]) {
+        if (Object.hasOwn(result[key], name) && result[key][name]) {
           // If the component already exists, record a conflict
           conflicts.push({ componentType: key, name })
         } else {
@@ -228,7 +241,16 @@ const prefixComponents = async (inputs: OpenApiDocumentV3_1[], prefixes: string[
               const prefix = prefixes[index]
 
               Object.keys(node).forEach((key) => {
+                if (isPollutionKey(key)) {
+                  delete node[key]
+                  return
+                }
+
                 const newKey = `${prefix ?? ''}${key}`
+                if (isPollutionKey(newKey)) {
+                  delete node[key]
+                  return
+                }
                 const childNode = node[key]
                 delete node[key]
                 node[newKey] = childNode
