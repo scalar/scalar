@@ -15,11 +15,14 @@ import {
 const {
   data,
   hasCheckboxDisabled,
+  deferKeyUpdates,
   showUploadButton,
   showAddRowPlaceholder = true,
   environment,
 } = defineProps<{
   data: TableRow[]
+  /** Save key edits on blur so changing a body name does not replace the focused row. */
+  deferKeyUpdates?: boolean
   /** Hide the enabled column */
   hasCheckboxDisabled?: boolean
   invalidParams?: Set<string>
@@ -109,6 +112,7 @@ const getRowKey = (row: TableRow, index: number): string => {
       v-for="(row, index) in displayData"
       :key="getRowKey(row, index)"
       :data="row"
+      :deferKeyUpdates="deferKeyUpdates"
       :environment="environment"
       :hasCheckboxDisabled="hasCheckboxDisabled"
       :invalidParams="invalidParams"

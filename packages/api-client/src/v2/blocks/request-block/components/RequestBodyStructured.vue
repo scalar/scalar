@@ -100,6 +100,7 @@ const handleDeleteRow = (index: number) => {
 <template>
   <RequestTable
     :data="localRows"
+    deferKeyUpdates
     :environment="environment"
     label="Body"
     @deleteRow="handleDeleteRow"
