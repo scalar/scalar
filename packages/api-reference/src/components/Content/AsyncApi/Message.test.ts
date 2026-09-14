@@ -37,6 +37,19 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 const expanded = { [MESSAGE_ID]: true }
 
 describe('Message', () => {
+  it('shows message-level examples when expanded', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({ examples: [{ payload: { id: 'event-123' } }] }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+    })
+    expect(wrapper.text()).toContain('Examples')
+    expect(wrapper.get('pre').text()).toBe('{\n  "id": "event-123"\n}')
+  })
+
   it('renders the message title in the collapsed header', () => {
     const wrapper = mount(Message, {
       props: {

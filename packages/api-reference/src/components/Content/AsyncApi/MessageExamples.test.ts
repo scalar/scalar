@@ -1,0 +1,88 @@
+import { ExamplePicker } from '@scalar/blocks/code-example'
+import { ScalarCopy } from '@scalar/components/copy'
+import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
+
+import MessageExamples from './MessageExamples.vue'
+
+describe('MessageExamples', () => {
+  it('shows a named example and its summary', () => {
+    const wrapper = mount(MessageExamples, {
+      props: { examples: [{ name: 'Created', summary: 'A new event', payload: { id: 1 } }] },
+    })
+    expect(wrapper.text()).toContain('Created')
+    expect(wrapper.text()).toContain('A new event')
+    expect(wrapper.get('pre').text()).toBe('{\n  "id": 1\n}')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe('{\n  "id": 1\n}')
+    expect(wrapper.findComponent(ExamplePicker).exists()).toBe(false)
+  })
+
+  it('keeps duplicate names and unnamed examples selectable with matching copy content', async () => {
+    const wrapper = mount(MessageExamples, {
+      props: {
+        examples: [
+          { name: 'Example 3', payload: 'first' },
+          { name: 'Example 3', payload: 'second' },
+          { payload: 'third' },
+        ],
+      },
+    })
+    const picker = wrapper.getComponent(ExamplePicker)
+    expect(picker.props('examples')).toStrictEqual({
+      '0': { summary: 'Example 3' },
+      '1': { summary: 'Example 3' },
+      '2': { summary: 'Example 3' },
+    })
+    for (const [key, expected] of [
+      ['0', 'first'],
+      ['1', 'second'],
+      ['2', 'third'],
+    ]) {
+      picker.vm.$emit('update:modelValue', key)
+      await nextTick()
+      expect(wrapper.get('pre').text()).toBe(expected)
+      expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(expected)
+    }
+  })
+
+  it('selects the first remaining example when the selected entry disappears', async () => {
+    const wrapper = mount(MessageExamples, { props: { examples: [{ payload: 'first' }, { payload: 'second' }] } })
+    wrapper.getComponent(ExamplePicker).vm.$emit('update:modelValue', '1')
+    await nextTick()
+    await wrapper.setProps({ examples: [{ payload: 'replacement' }] })
+    expect(wrapper.get('pre').text()).toBe('replacement')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe('replacement')
+    await wrapper.setProps({ examples: [] })
+    expect(wrapper.text()).toBe('')
+  })
+
+  it('resolves example references and skips unresolved entries', () => {
+    const wrapper = mount(MessageExamples, {
+      props: { examples: [{ $ref: '#/missing' }, { $ref: '#/example', '$ref-value': { payload: false } }] },
+    })
+    expect(wrapper.get('pre').text()).toBe('false')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe('false')
+  })
+
+  it.each([null, false, 0, ''])('renders and copies a %j payload', (payload) => {
+    const wrapper = mount(MessageExamples, { props: { examples: [{ payload }] } })
+    const expected = String(payload)
+    expect(wrapper.get('pre').text()).toBe(expected)
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(expected)
+  })
+
+  it('does not render an empty examples panel', () => {
+    const wrapper = mount(MessageExamples, { props: { examples: [{ name: 'No content' }] } })
+    expect(wrapper.text()).toBe('')
+    expect(wrapper.findComponent(ScalarCopy).exists()).toBe(false)
+  })
+
+  it('virtualizes large examples without changing the copied content', () => {
+    const payload = 'x'.repeat(20_001)
+    const wrapper = mount(MessageExamples, { props: { examples: [{ payload }] } })
+    expect(wrapper.getComponent(ScalarVirtualCodeBlock).props('content')).toBe(payload)
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(payload)
+  })
+})
