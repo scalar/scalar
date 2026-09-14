@@ -483,44 +483,44 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
 
 <div class="logowall">
   <div class="logowall-item">
-    <scalar-icon src="../assets/remote/logo-tr.svg"></scalar-icon>
+    <scalar-icon class="logowall-logo" src="../assets/remote/logo-tr.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="../assets/remote/logo-maersk.svg"></scalar-icon>
+    <scalar-icon class="logowall-logo" src="../assets/remote/logo-maersk.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="../assets/remote/logo-tailscale.svg"></scalar-icon>
+    <scalar-icon class="logowall-logo" src="../assets/remote/logo-tailscale.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="../assets/remote/logo-supabase.svg"></scalar-icon>
+    <scalar-icon class="logowall-logo" src="../assets/remote/logo-supabase.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="../assets/remote/logo-flyio.svg"></scalar-icon>
+    <scalar-icon class="logowall-logo" src="../assets/remote/logo-flyio.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="../assets/remote/logo-clerk.svg"></scalar-icon>
+    <scalar-icon class="logowall-logo" src="../assets/remote/logo-clerk.svg"></scalar-icon>
   </div>
 </div>
 
 <div class="logowall logowall-secondary">
-  <div class="logowall-item"><scalar-icon src="../assets/logos/profound.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/zoom.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/warp.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/ibm.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/intel.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/metabase.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/nvidia.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/siemens.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/target.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/tesla.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/gem.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/partech.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/polymarket.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/hetzner.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/eli-lilly.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/qualcomm.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/airwallex.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon src="../assets/logos/steel.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/profound.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/zoom.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/warp.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/ibm.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/intel.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/metabase.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/nvidia.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/siemens.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/target.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/tesla.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/gem.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/partech.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/polymarket.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/hetzner.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/eli-lilly.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/qualcomm.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/airwallex.svg"></scalar-icon></div>
+  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/steel.svg"></scalar-icon></div>
 </div>
 
 <div class="quotes">
@@ -1591,7 +1591,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .logowall.logowall-secondary .logowall-item {
     justify-content: center;
   }
-  .logowall.logowall-secondary .logowall-item svg {
+  .logowall.logowall-secondary .logowall-item .logowall-logo {
     width: auto;
     height: 24px;
     max-height: 24px;
@@ -1604,10 +1604,18 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     position: relative;
     z-index: 10;
   }
-  .logowall-item svg {
+  /* Targeted by class, not by `svg`. A local `src` inlines as <svg> on the
+     published page but renders as an <img> in the docs editor, so an element
+     selector only ever sizes one of the two surfaces. The class lands on the
+     graphic either way. `object-fit` is the other half of that: <svg> defaults
+     to preserveAspectRatio="xMidYMid meet", <img> to `fill`, so without this an
+     <img> stretches to whatever box the max-height clamp leaves behind.
+     `object-fit` is inert on inline <svg>, so one declaration serves both. */
+  .logowall-item .logowall-logo {
     width: 100%;
     height: auto;
     max-height: 24px;
+    object-fit: contain;
   }
   .ign-logo__fill {
     fill: var(--scalar-color-1);
@@ -1852,7 +1860,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     .logowall-item {
       justify-content: start;
     }
-    .logowall-item svg {
+    .logowall-item .logowall-logo {
       max-width: 100%;
       height: 100%;
       max-height: 20px;
