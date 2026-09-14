@@ -7,6 +7,7 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 import { createResponseStreamParser } from '../helpers/response-stream'
 
@@ -14,6 +15,8 @@ const { reader, contentType = 'text/event-stream' } = defineProps<{
   reader: ReadableStreamDefaultReader<Uint8Array>
   contentType?: string
 }>()
+
+const { translate } = useLocalization()
 
 const loader = useLoadingState()
 const textContent = ref('')
@@ -132,7 +135,7 @@ onBeforeUnmount(() => {
     <template #title>
       <div class="flex w-full items-center justify-between">
         <div>
-          Body
+          {{ translate('apiClient.responseBodyStreaming.body') }}
           <span class="text-c-2 ml-2 text-xs">
             {{ formatBytes(receivedBytes) }} received
           </span>
@@ -143,7 +146,9 @@ onBeforeUnmount(() => {
           <ScalarLoading
             :loadingState="loader"
             size="xs" />
-          <span class="text-c-2"> Listening… </span>
+          <span class="text-c-2">{{
+            translate('apiClient.responseBodyStreaming.listening')
+          }}</span>
         </div>
       </div>
     </template>
@@ -153,7 +158,7 @@ onBeforeUnmount(() => {
         size="sm"
         variant="ghost"
         @click="stopStreaming">
-        Cancel
+        {{ translate('apiClient.responseBodyStreaming.cancel') }}
       </ScalarButton>
       <ScalarButton
         v-if="textContent"

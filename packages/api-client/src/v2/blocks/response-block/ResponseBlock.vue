@@ -19,6 +19,7 @@ import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/Respon
 import ResponseMetaInformation from '@/v2/blocks/response-block/components/ResponseMetaInformation.vue'
 import { textMediaTypes } from '@/v2/blocks/response-block/helpers/media-types'
 import { parseSetCookie } from '@/v2/blocks/response-block/helpers/parse-set-cookie'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 const { layout, totalPerformedRequests, response, requestPayload } =
@@ -40,6 +41,8 @@ const { layout, totalPerformedRequests, response, requestPayload } =
     /** Workspace event bus */
     eventBus: WorkspaceEventBus
   }>()
+
+const { translate } = useLocalization()
 
 // Headers
 const responseHeaders = computed(() => {
@@ -136,18 +139,29 @@ defineExpose({
   activeFilter,
   filters,
 })
+
+const filterLabels = computed(() => ({
+  All: translate('apiClient.sectionFilter.all'),
+  Auth: translate('apiClient.sectionFilter.auth'),
+  Variables: translate('apiClient.sectionFilter.variables'),
+  Cookies: translate('apiClient.sectionFilter.cookies'),
+  Headers: translate('apiClient.sectionFilter.headers'),
+  Query: translate('apiClient.sectionFilter.query'),
+  Body: translate('apiClient.sectionFilter.body'),
+}))
 </script>
 <template>
-  <ViewLayoutSection aria-label="Response">
+  <ViewLayoutSection
+    :aria-label="translate('apiClient.responseBlock.response')">
     <template #title>
       <div class="flex h-8 flex-1 items-center">
         <div
           aria-live="polite"
           class="flex items-center"
           :class="{ 'animate-response-heading': response }">
-          <span class="response-heading pointer-events-none absolute">
-            Response
-          </span>
+          <span class="response-heading pointer-events-none absolute">{{
+            translate('apiClient.responseBlock.response')
+          }}</span>
           <ResponseMetaInformation
             v-if="response"
             class="animate-response-children"
@@ -157,7 +171,8 @@ defineExpose({
         <SectionFilter
           v-model="activeFilter"
           :filterIds="filterIds"
-          :filters="filters" />
+          :filters="filters"
+          :labels="filterLabels" />
       </div>
     </template>
     <div
@@ -197,7 +212,9 @@ defineExpose({
           class="response-section-content-headers"
           :headers="requestHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'">
-          <template #title>Request Headers</template>
+          <template #title>
+            {{ translate('apiClient.responseBlock.requestHeaders') }}
+          </template>
         </HeadersComponent>
         <!-- Response headers section -->
         <HeadersComponent
@@ -206,7 +223,9 @@ defineExpose({
           class="response-section-content-headers"
           :headers="responseHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'">
-          <template #title>Response Headers</template>
+          <template #title>
+            {{ translate('apiClient.responseBlock.responseHeaders') }}
+          </template>
         </HeadersComponent>
 
         <!-- Inject response section plugin components -->
@@ -249,7 +268,7 @@ defineExpose({
             layout="client"
             :plugins="plugins"
             :role="activeFilter === 'All' ? 'none' : 'tabpanel'"
-            title="Body" />
+            :title="translate('apiClient.responseBlock.body')" />
         </template>
       </template>
       <ResponseLoadingOverlay :eventBus="eventBus" />

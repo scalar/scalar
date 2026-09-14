@@ -6,6 +6,7 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/stric
 import { nanoid } from 'nanoid'
 import { computed, ref, watch } from 'vue'
 
+import { useLocalization } from '@/v2/features/localization'
 import { useDocumentSearch } from '@/v2/features/search/hooks/use-document-search'
 
 import SearchResult from './SearchResult.vue'
@@ -21,6 +22,8 @@ const emit = defineEmits<{
   /** Emitted when the user picks a result, passing the navigation id. */
   (e: 'select', id: string): void
 }>()
+
+const { translate } = useLocalization()
 
 /** Base id for the search form. */
 const id = nanoid()
@@ -83,7 +86,7 @@ const activeDescendantId = computed(() => {
 
 <template>
   <ScalarModal
-    aria-label="Document Search"
+    :aria-label="translate('apiClient.documentSearchModal.documentSearch')"
     :state="modalState"
     variant="search">
     <div
@@ -103,7 +106,9 @@ const activeDescendantId = computed(() => {
     </div>
     <ScalarSearchResultList
       :id="listboxId"
-      aria-label="Document Search Results"
+      :aria-label="
+        translate('apiClient.documentSearchModal.documentSearchResults')
+      "
       class="custom-scroll px-1 pb-1"
       :noResults="!results.length">
       <template #query>
@@ -123,13 +128,12 @@ const activeDescendantId = computed(() => {
       <span
         aria-hidden="true"
         class="contents">
-        <span>↑↓ Navigate</span>
-        <span>⏎ Select</span>
+        <span>{{ translate('apiClient.documentSearchModal.navigate') }}</span>
+        <span>{{ translate('apiClient.documentSearchModal.select') }}</span>
       </span>
-      <span class="sr-only">
-        Press up arrow / down arrow to navigate, enter to select, type to filter
-        results
-      </span>
+      <span class="sr-only">{{
+        translate('apiClient.documentSearchModal.keyboardInstructions')
+      }}</span>
     </div>
   </ScalarModal>
 </template>

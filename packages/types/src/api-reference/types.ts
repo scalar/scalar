@@ -1,6 +1,7 @@
 import type { PartialDeep } from 'type-fest'
 
 import type { AvailableClient, ClientId, TargetId } from '../snippetz'
+import type { ApiClientTranslations } from './api-client-translations'
 import type { PluginAuthState } from './api-reference-plugin'
 
 /** Some common properties used in all security schemes */
@@ -363,8 +364,12 @@ export type ApiReferenceTextDirection = 'ltr' | 'rtl'
 /** Text direction configuration. `auto` derives the direction from the locale. */
 export type ApiReferenceTextDirectionPreference = ApiReferenceTextDirection | 'auto'
 
+export type { ApiClientTranslations } from './api-client-translations'
+
 /** User-facing UI copy for API Reference shell labels. */
 export type ApiReferenceTranslations = {
+  /** Optional API Client strings. The client supplies its own English fallback. */
+  apiClient?: ApiClientTranslations
   common: {
     description: string
     httpMethod: string

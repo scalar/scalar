@@ -56,6 +56,7 @@ import {
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
+import { provideLocalization } from '@/v2/features/localization'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
@@ -75,6 +76,10 @@ const {
 } = defineProps<
   Omit<ModalProps, 'options'> & { options: ApiClientOptionsRef }
 >()
+
+const { translate, locale, direction } = provideLocalization(
+  () => options.value.localization,
+)
 
 const activeWorkspace: ScalarListboxOption = {
   label: 'default',
@@ -154,7 +159,10 @@ defineExpose({
 </script>
 
 <template>
-  <ModalClientContainer :modalState>
+  <ModalClientContainer
+    :dir="direction"
+    :lang="locale"
+    :modalState>
     <!-- Toasts -->
     <ScalarToasts />
 
@@ -200,7 +208,9 @@ defineExpose({
     <div
       v-else
       class="flex h-full w-full items-center justify-center">
-      <span class="text-c-3">No document selected</span>
+      <span class="text-c-3">{{
+        translate('apiClient.modal.noDocumentSelected')
+      }}</span>
     </div>
   </ModalClientContainer>
 </template>

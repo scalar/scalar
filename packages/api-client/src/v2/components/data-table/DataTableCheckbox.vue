@@ -2,6 +2,8 @@
 import { ScalarIcon } from '@scalar/components/icon'
 import { cva } from '@scalar/use-hooks/useBindCx'
 
+import { useLocalization } from '@/v2/features/localization'
+
 import DataTableCell from './DataTableCell.vue'
 
 withDefaults(
@@ -13,13 +15,14 @@ withDefaults(
   }>(),
   {
     align: 'center',
-    ariaLabel: 'Toggle',
   },
 )
 
 defineEmits<{
   (e: 'update:modelValue', v: boolean): void
 }>()
+
+const { translate } = useLocalization()
 
 const variants = cva({
   base: 'w-8 h-8 flex items-center justify-center text-b-2 peer-checked:text-c-1 pointer-events-none absolute',
@@ -34,7 +37,7 @@ const variants = cva({
 <template>
   <DataTableCell class="group/cell relative flex min-w-8">
     <input
-      :aria-label="ariaLabel"
+      :aria-label="ariaLabel ?? translate('apiClient.dataTableCheckbox.toggle')"
       :checked="modelValue"
       class="peer absolute inset-0 size-full cursor-pointer opacity-0 disabled:cursor-default"
       :disabled="Boolean(disabled)"

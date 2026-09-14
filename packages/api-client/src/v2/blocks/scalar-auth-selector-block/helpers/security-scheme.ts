@@ -1,4 +1,6 @@
+import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { generateHash } from '@scalar/helpers/string/generate-hash'
+import type { ApiClientTranslations } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { isHidden } from '@scalar/workspace-store/helpers/is-hidden'
 import type { MergedSecuritySchemes, OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
@@ -10,6 +12,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { authOptions } from '@/v2/blocks/scalar-auth-selector-block/helpers/auth-options'
+import { en } from '@/v2/features/localization/translations'
 
 /**
  * Minimal shape read by `isHidden`. Some scheme union members (AsyncAPI broker schemes) do not
@@ -155,6 +158,7 @@ export const getSecuritySchemeOptions = (
   selectedSchemes: SecurityRequirementObject[],
   /** Allows adding authentication which is not in the document */
   canAddNewAuth = false,
+  labels: Pick<ApiClientTranslations, 'authSelector' | 'authOptions'> = en,
 ): SecuritySchemeOption[] | SecuritySchemeGroup[] => {
   const selectedByRequirement = new Map(
     selectedSchemes.map((selectedScheme) => [requirementSignature(selectedScheme), selectedScheme]),
@@ -220,8 +224,8 @@ export const getSecuritySchemeOptions = (
   }
 
   const options = [
-    { label: 'Required authentication', options: requiredFormatted },
-    { label: 'Available authentication', options: availableFormatted },
+    { label: labels.authSelector.requiredGroup, options: requiredFormatted },
+    { label: labels.authSelector.availableGroup, options: availableFormatted },
   ]
 
   // We don't return the groups if we don't have any required schemes
@@ -231,10 +235,10 @@ export const getSecuritySchemeOptions = (
 
   // Add new authentication options (unless explicitly hidden)
   options.push({
-    label: 'Add new authentication',
-    options: Object.entries(authOptions).map(([key, value]) => ({
+    label: labels.authSelector.addGroup,
+    options: objectEntries(authOptions).map(([key, value]) => ({
       id: key,
-      label: value.label,
+      label: labels.authOptions[key],
       value: { [key]: [] },
       payload: value.payload,
       isDeletable: false,

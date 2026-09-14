@@ -9,6 +9,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import { computed } from 'vue'
 
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 import RequestTable from './RequestTable.vue'
 import type { TableRow, TableRowUpsertPayload } from './RequestTableRow.vue'
@@ -47,6 +48,8 @@ const emit = defineEmits<{
   (e: 'selectPreset', index: number, value: string): void
 }>()
 
+const { translate } = useLocalization()
+
 const showTooltip = computed(() => rows.length > 1)
 
 /** Needed for type guard */
@@ -71,15 +74,19 @@ const handleUpserRow = (index: number, payload: TableRowUpsertPayload) => {
         class="text-c-2 request-meta-buttons flex whitespace-nowrap opacity-0 group-hover/params:opacity-100 has-[:focus-visible]:opacity-100">
         <ScalarTooltip
           v-if="showTooltip"
-          content="Clear optional parameters"
+          :content="
+            translate('apiClient.requestParams.clearOptionalParameters')
+          "
           placement="left">
           <ScalarButton
+            :aria-label="
+              translate('apiClient.requestParams.clearAll', { title })
+            "
             class="pr-0.75 pl-1 transition-none"
             size="sm"
             variant="ghost"
             @click.stop="emit('deleteAll')">
-            Clear
-            <span class="sr-only">All {{ title }}</span>
+            {{ translate('apiClient.requestParams.clear') }}
           </ScalarButton>
         </ScalarTooltip>
       </div>

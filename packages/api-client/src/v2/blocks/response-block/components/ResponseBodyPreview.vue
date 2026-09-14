@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 
 import { type MediaPreview } from '@/v2/blocks/response-block/helpers/media-types'
 import { prettifyNdjson } from '@/v2/blocks/response-block/helpers/prettify-ndjson'
+import { useLocalization } from '@/v2/features/localization'
 
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
 import ResponseBodyRaw from './ResponseBodyRaw.vue'
@@ -21,6 +22,8 @@ const {
   /** Decoded body; used when `mode` is `json` for pretty-printed preview (no JSON.parse round-trip). */
   content?: unknown
 }>()
+
+const { translate } = useLocalization()
 
 const jsonPreviewContent = computed((): string => {
   const value = content
@@ -129,8 +132,8 @@ watch(
       v-if="mode === 'image'"
       class="h-full max-w-full"
       :class="{ rounded: alpha }"
-      :src="safeSrc"
       referrerpolicy="no-referrer"
+      :src="safeSrc"
       @error="error = true" />
     <video
       v-else-if="mode === 'video'"
@@ -171,11 +174,13 @@ watch(
     <iframe
       v-else
       class="aspect-[4/3] w-full border-0"
-      :src="safeSrc"
+      referrerpolicy="no-referrer"
       :sandbox="isPdf ? undefined : ''"
-      referrerpolicy="no-referrer" />
+      :src="safeSrc" />
   </div>
-  <ResponseBodyInfo v-else>Preview unavailable</ResponseBodyInfo>
+  <ResponseBodyInfo v-else>
+    {{ translate('apiClient.responseBodyPreview.previewUnavailable') }}
+  </ResponseBodyInfo>
 </template>
 <style scoped>
 .light-mode .bg-preview {

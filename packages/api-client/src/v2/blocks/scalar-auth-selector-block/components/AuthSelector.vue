@@ -37,6 +37,7 @@ import {
   type SecuritySchemeOption,
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
@@ -83,6 +84,8 @@ const {
   documentType?: 'openapi' | 'asyncapi'
 }>()
 
+const { translate, translations } = useLocalization()
+
 const titleId = useId()
 const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
 const isDisclosureOpen = ref(false)
@@ -108,7 +111,9 @@ const authIndicator = computed<{ icon: Icon; text: string } | null>(() => {
 
   return {
     icon: isOptional ? 'Unlock' : 'Lock',
-    text: isOptional ? 'Optional' : 'Required',
+    text: isOptional
+      ? translate('apiClient.authSelector.optional')
+      : translate('apiClient.authSelector.required'),
   }
 })
 
@@ -119,6 +124,7 @@ const availableSchemeOptions = computed(() =>
     securitySchemes ?? {},
     selectedSecurity?.selectedSchemes ?? [],
     createAnySecurityScheme,
+    translations.value.apiClient,
   ),
 )
 
@@ -238,7 +244,7 @@ defineExpose({
         <span
           v-if="authIndicator"
           class="text-c-3 hover:bg-b-3 hover:text-c-1 -my-0.5 -mr-1 cursor-pointer rounded px-1 py-0.5 leading-[normal] font-normal"
-          :class="{ 'text-c-1': authIndicator.text === 'Required' }"
+          :class="{ 'text-c-1': authIndicator.icon === 'Lock' }"
           data-testid="auth-indicator"
           @click="handleAuthIndicatorClick">
           {{ authIndicator.text }}
@@ -264,20 +270,21 @@ defineExpose({
           variant="ghost">
           <!-- Single auth scheme selected -->
           <template v-if="activeSchemeOptions.length === 1">
-            <span class="sr-only">Selected Auth Type:</span>
-            {{ activeSchemeOptions[0]?.label }}
+            {{
+              translate('apiClient.authSelector.selectedType', {
+                type: activeSchemeOptions[0]?.label ?? '',
+              })
+            }}
           </template>
 
           <!-- Multiple auth schemes selected -->
           <template v-else-if="activeSchemeOptions.length > 1">
-            Multiple
-            <span class="sr-only">Auth Types Selected</span>
+            {{ translate('apiClient.authSelector.multipleTypes') }}
           </template>
 
           <!-- No auth schemes selected -->
           <template v-else>
-            <span class="sr-only">Select</span>
-            Auth Type
+            {{ translate('apiClient.authSelector.selectType') }}
           </template>
 
           <ScalarIconCaretDown
@@ -296,7 +303,11 @@ defineExpose({
             v-if="option.isDeletable && canDeleteSchemes"
             class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100"
             :icon="ScalarIconTrash"
-            :label="`Delete ${option.label}`"
+            :label="
+              translate('apiClient.authSelector.deleteScheme', {
+                name: option.label,
+              })
+            "
             size="xs"
             @click.stop="handleDeleteRequest(option)" />
         </template>

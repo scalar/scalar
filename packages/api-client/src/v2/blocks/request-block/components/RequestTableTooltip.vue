@@ -6,12 +6,15 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 import { computed } from 'vue'
 
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
+import { useLocalization } from '@/v2/features/localization'
 
 const { schema, value, description } = defineProps<{
   schema?: SchemaObject
   value: string | File | null
   description?: string
 }>()
+
+const { translate } = useLocalization()
 
 const invalidParameterMessage = computed(() => validateParameter(schema, value))
 const isInvalid = computed(() => invalidParameterMessage.value.ok === false)
@@ -22,7 +25,11 @@ const isInvalid = computed(() => invalidParameterMessage.value.ok === false)
     placement="left"
     teleport>
     <button
-      :aria-label="isInvalid ? 'Input is invalid' : 'More Information'"
+      :aria-label="
+        isInvalid
+          ? translate('apiClient.requestTableTooltip.invalid')
+          : translate('apiClient.requestTableTooltip.moreInformation')
+      "
       class="text-c-2 hover:text-c-1 hover:bg-b-2 rounded p-1"
       :role="isInvalid ? 'alert' : 'none'"
       type="button">
@@ -54,9 +61,18 @@ const isInvalid = computed(() => invalidParameterMessage.value.ok === false)
           class="schema text-c-2 truncate *:not-first:before:content-['_·_']">
           <span v-if="'type' in schema">{{ schema.type }}</span>
           <span v-if="'format' in schema">{{ schema.format }}</span>
-          <span v-if="'minimum' in schema">min: {{ schema.minimum }}</span>
-          <span v-if="'maximum' in schema">max: {{ schema.maximum }}</span>
-          <span v-if="'default' in schema">default: {{ schema.default }}</span>
+          <span v-if="'minimum' in schema"
+            >{{ translate('apiClient.requestTableTooltip.min') }}
+            {{ schema.minimum }}</span
+          >
+          <span v-if="'maximum' in schema"
+            >{{ translate('apiClient.requestTableTooltip.max') }}
+            {{ schema.maximum }}</span
+          >
+          <span v-if="'default' in schema"
+            >{{ translate('apiClient.requestTableTooltip.default') }}
+            {{ schema.default }}</span
+          >
         </div>
         <ScalarMarkdown
           v-if="description && !isInvalid"

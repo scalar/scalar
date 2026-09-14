@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useLocalization } from '@/v2/features/localization'
+
+const { translate } = useLocalization()
+
 const isSidebarOpen = defineModel<boolean>({
   required: true,
 })
@@ -9,7 +13,11 @@ const isSidebarOpen = defineModel<boolean>({
     class="scalar-sidebar-toggle text-c-3 hover:bg-b-2 active:text-c-1 rounded p-2"
     type="button"
     @click="isSidebarOpen = !isSidebarOpen">
-    <span class="sr-only">{{ isSidebarOpen ? 'Hide' : 'Show' }} sidebar</span>
+    <span class="sr-only">{{
+      isSidebarOpen
+        ? translate('apiClient.sidebarToggle.hide')
+        : translate('apiClient.sidebarToggle.show')
+    }}</span>
     <svg
       class="size-4"
       fill="none"

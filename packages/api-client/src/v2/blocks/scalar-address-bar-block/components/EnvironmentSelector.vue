@@ -8,6 +8,8 @@ import {
 import { ScalarIcon } from '@scalar/components/icon'
 import { computed } from 'vue'
 
+import { useLocalization } from '@/v2/features/localization'
+
 const { environments = [], activeEnvironment } = defineProps<{
   /** List of available environments */
   environments?: string[]
@@ -21,6 +23,8 @@ const emit = defineEmits<{
   /** Emitted when user wants to add a new environment */
   (e: 'add:environment'): void
 }>()
+
+const { translate } = useLocalization()
 
 /** Whether an environment is currently active */
 const hasActiveEnvironment = computed(() => !!activeEnvironment)
@@ -45,16 +49,18 @@ const hasMissingActiveEnvironment = computed(
 /** Display text for the button */
 const displayText = computed(() => {
   if (hasMissingActiveEnvironment.value) {
-    return `${activeEnvironment} (Unavailable)`
+    return translate('apiClient.environmentSelector.unavailable', {
+      name: activeEnvironment ?? '',
+    })
   }
 
   if (hasActiveEnvironment.value) {
     return activeEnvironment
   }
   if (!hasEnvironments.value) {
-    return 'Add Environment'
+    return translate('apiClient.environmentSelector.add')
   }
-  return 'Select Environment'
+  return translate('apiClient.environmentSelector.select')
 })
 
 /** Button styling based on state */
@@ -87,7 +93,11 @@ const handleSelectEnvironment = (environmentName: string) => {
 
     <ScalarDropdown>
       <ScalarButton
-        :aria-label="`Current environment: ${displayText}`"
+        :aria-label="
+          translate('apiClient.environmentSelector.current', {
+            name: displayText ?? '',
+          })
+        "
         class="line-clamp-1 h-full w-fit justify-start border px-2 py-1 font-normal transition-colors"
         :class="buttonClass"
         size="sm"
@@ -136,7 +146,9 @@ const handleSelectEnvironment = (environmentName: string) => {
               icon="Checkmark"
               thickness="3" />
           </div>
-          <span class="text-c-2">No Environment</span>
+          <span class="text-c-2">{{
+            translate('apiClient.environmentSelector.noEnvironment')
+          }}</span>
         </ScalarDropdownItem>
 
         <ScalarDropdownDivider v-if="hasActiveEnvironment && hasEnvironments" />
@@ -178,9 +190,11 @@ const handleSelectEnvironment = (environmentName: string) => {
             <span class="block truncate">
               {{ activeEnvironment }}
             </span>
-            <span class="text-c-3 block truncate text-xs">
-              Not available in this context
-            </span>
+            <span class="text-c-3 block truncate text-xs">{{
+              translate(
+                'apiClient.environmentSelector.notAvailableInThisContext',
+              )
+            }}</span>
           </div>
         </ScalarDropdownItem>
 
@@ -205,8 +219,7 @@ const handleSelectEnvironment = (environmentName: string) => {
           v-if="!hasEnvironments && !hasActiveEnvironment"
           class="text-c-3 px-2 py-1.5 text-xs">
           <p class="mb-1">
-            Environments let you manage variables like API keys and base URLs
-            across different contexts.
+            {{ translate('apiClient.environmentSelector.environmentHint') }}
           </p>
         </div>
       </template>

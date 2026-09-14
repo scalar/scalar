@@ -39,6 +39,7 @@ import {
 
 import DataTableInputSelect from '@/v2/components/data-table/DataTableInputSelect.vue'
 import EnvironmentVariableDropdown from '@/v2/features/environments/components/EnvironmentVariablesDropdown.vue'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import type { CodeInputModelValue } from './CodeInput.vue'
@@ -47,6 +48,36 @@ import { lookupVariableValue } from './helpers/lookup-variable-value'
 import { pillSignature } from './helpers/pill-signature'
 import { serializeValue } from './helpers/serialize-value'
 import PillTooltipHost from './PillTooltipHost.vue'
+
+const {
+  modelValue,
+  environment,
+  disabled = false,
+  readOnly = false,
+  error = false,
+  layout = 'desktop',
+  placeholder,
+  required = false,
+  emitOnBlur = true,
+  alwaysEmitChange = false,
+  withVariables = true,
+  withFakeData = false,
+  linethrough = false,
+  type,
+  enum: enumProp,
+  examples,
+  default: defaultProp,
+  nullable = false,
+} = defineProps<Props>()
+
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+  'submit': [value: string, event: KeyboardEvent | FocusEvent]
+  'blur': [value: string, event: FocusEvent]
+  'navigate': [route: { page: 'document'; path: 'environment' }]
+}>()
+
+const { translate } = useLocalization()
 
 type Props = {
   modelValue: CodeInputModelValue
@@ -85,34 +116,6 @@ type Props = {
   /** Whether the boolean select includes a `null` option */
   nullable?: boolean
 }
-
-const {
-  modelValue,
-  environment,
-  disabled = false,
-  readOnly = false,
-  error = false,
-  layout = 'desktop',
-  placeholder,
-  required = false,
-  emitOnBlur = true,
-  alwaysEmitChange = false,
-  withVariables = true,
-  withFakeData = false,
-  linethrough = false,
-  type,
-  enum: enumProp,
-  examples,
-  default: defaultProp,
-  nullable = false,
-} = defineProps<Props>()
-
-const emit = defineEmits<{
-  'update:modelValue': [value: string]
-  'submit': [value: string, event: KeyboardEvent | FocusEvent]
-  'blur': [value: string, event: FocusEvent]
-  'navigate': [route: { page: 'document'; path: 'environment' }]
-}>()
 
 const attrs = useAttrs()
 const ariaLabel = computed(() =>
@@ -171,9 +174,9 @@ const isComposing = ref(false)
  * Whether the serialized value should count as empty for placeholder display.
  *
  * `contenteditable` can leave behind invisible residue after some delete
- * sequences — most commonly a non-breaking space (` `) — which makes a
+ * sequences — most commonly a non-breaking space (`\u00a0`) — which makes a
  * visually empty field report a non-zero length and silently drop its
- * placeholder. Trimming covers that case; ` ` counts as whitespace, so a
+ * placeholder. Trimming covers that case; `\u00a0` counts as whitespace, so a
  * field that only holds editor residue is treated as empty. This affects the
  * placeholder flag only, never the value emitted via `serializeEditor`.
  */
@@ -235,7 +238,11 @@ const mountPillTooltips = (): void => {
   for (const pillEl of pills) {
     const variableName = pillEl.dataset.variable ?? ''
     const context = buildPillContext(variableName, environment)
-    const app = createApp(PillTooltipHost, { context, target: pillEl })
+    const app = createApp(PillTooltipHost, {
+      context,
+      target: pillEl,
+      translate,
+    })
     // PillTooltipHost is renderless; useTooltip attaches to `target` directly.
     app.mount(document.createElement('div'))
     pillTooltipApps.push(app)
@@ -963,7 +970,7 @@ defineExpose({
   <div
     v-if="required"
     class="required centered-y text-xxs text-c-3 group-[.error]:text-red bg-b-1 pointer-events-none absolute right-0 mr-0.5 pt-px pr-2 opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 peer-has-[.code-input-lite__editor:focus]:opacity-0">
-    Required
+    {{ translate('apiClient.codeInputLite.required') }}
   </div>
 
   <EnvironmentVariableDropdown
