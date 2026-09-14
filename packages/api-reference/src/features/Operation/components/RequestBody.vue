@@ -63,7 +63,9 @@ if (requestBody?.content) {
 
 /** Raw schema (possibly with $ref) for the selected content type */
 const rawSchema = computed(
-  () => requestBody?.content?.[selectedContentType.value]?.schema,
+  () =>
+    requestBody?.content?.[selectedContentType.value]?.schema ??
+    requestBody?.content?.[selectedContentType.value]?.itemSchema,
 )
 
 const schema = computed(() => getResolvedRef(rawSchema.value))
@@ -203,6 +205,30 @@ const shouldRenderRequestBody = computed(
         <ScalarMarkdown :value="requestBody.description" />
       </div>
     </div>
+
+    <p
+      v-if="
+        requestBody.content?.[selectedContentType]?.itemSchema &&
+        !requestBody.content?.[selectedContentType]?.schema
+      "
+      class="text-c-2 text-sm">
+      Stream item
+    </p>
+
+    <Schema
+      v-if="
+        requestBody.content?.[selectedContentType]?.schema &&
+        requestBody.content?.[selectedContentType]?.itemSchema
+      "
+      compact
+      :eventBus="eventBus"
+      name="Stream item"
+      noncollapsible
+      :options="{ ...options, hideReadOnly: true, document }"
+      :schema="
+        getResolvedRef(requestBody.content[selectedContentType]?.itemSchema)
+      "
+      schemaContext="requestBody" />
 
     <!-- For over 12 properties we want to show 12 and collapse the rest -->
     <div

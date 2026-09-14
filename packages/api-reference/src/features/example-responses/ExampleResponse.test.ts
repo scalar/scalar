@@ -11,6 +11,17 @@ import { describe, expect, it } from 'vitest'
 import ExampleResponse from './ExampleResponse.vue'
 
 describe('ExampleResponse', () => {
+  it('renders a framed stream item example', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        response: { itemSchema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } } },
+        example: undefined,
+        contentType: 'application/jsonl',
+      },
+    })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{"id":7}\n')
+  })
+
   describe('basic rendering', () => {
     it('renders example when provided', () => {
       const example: ExampleObject = {
