@@ -178,4 +178,157 @@ describe('Schema', () => {
     expect(wrapper.text()).toContain('id')
     expect(wrapper.text()).toContain('name')
   })
+  it.each(['allOf', 'anyOf', 'oneOf'] as const)('renders %s inside an object property', (keyword) => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: schema({
+          type: 'object',
+          properties: {
+            choice: {
+              [keyword]: [
+                { type: 'string', format: 'uuid' },
+                { type: 'integer', format: 'int64' },
+              ],
+            },
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('uuid')
+    expect(wrapper.text()).toContain('int64')
+  })
+
+  it('renders not inside an object property', () => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: schema({ type: 'object', properties: { choice: { not: { type: 'string', enum: ['forbidden'] } } } }),
+      },
+    })
+    expect(wrapper.text()).toContain('Not:')
+    expect(wrapper.text()).toContain('"forbidden"')
+  })
+
+  it('preserves zero bounds and constraints on object properties', () => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: schema({
+          type: 'object',
+          properties: {
+            count: { type: 'integer', minimum: 0, maximum: 10, multipleOf: 2 },
+            name: { type: 'string', minLength: 0, maxLength: 20, pattern: '^[a-z]+$' },
+          },
+        }),
+      },
+    })
+    const text = wrapper.text().replace(/\s+/g, ' ')
+    expect(text).toContain('minimum: 0')
+    expect(text).toContain('maximum: 10')
+    expect(text).toContain('multipleOf: 2')
+    expect(text).toContain('minLength: 0')
+    expect(text).toContain('maxLength: 20')
+    expect(text).toContain('pattern: ^[a-z]+$')
+  })
+  it('retains sibling properties alongside multiple composition keywords', () => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: schema({
+          type: 'object',
+          properties: { sibling: { type: 'string' } },
+          allOf: [{ properties: { inherited: { type: 'integer' } } }],
+          oneOf: [{ properties: { first: { type: 'boolean' } } }, { properties: { second: { type: 'number' } } }],
+        }),
+      },
+    })
+    for (const expected of ['sibling', 'inherited', 'first', 'second', 'All of:', 'One of:']) {
+      expect(wrapper.text()).toContain(expected)
+    }
+  })
+
+  it('renders access annotations, additional properties, constants, and discriminator mappings', () => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: schema({
+          type: 'object',
+          additionalProperties: { type: 'integer' },
+          discriminator: { propertyName: 'kind', mapping: { cat: '#/components/schemas/Cat' } },
+          properties: {
+            id: { type: 'string', readOnly: true },
+            secret: { type: 'string', writeOnly: true },
+            kind: { const: 'cat' },
+          },
+        }),
+      },
+    })
+    const text = wrapper.text().replace(/\s+/g, ' ')
+    for (const expected of [
+      'readOnly',
+      'writeOnly',
+      'Additional properties:',
+      'integer',
+      'Discriminator:',
+      'kind',
+      '#/components/schemas/Cat',
+      'const: "cat"',
+    ]) {
+      expect(text).toContain(expected)
+    }
+  })
+
+  it.each([true, false])('renders a boolean schema %s without coercing it to an object', (value) => {
+    expect(mount(Schema, { props: { schema: value } }).text()).toBe(
+      value ? 'any (true schema)' : 'never (false schema)',
+    )
+  })
+
+  it('renders false schemas inside composition and array items', () => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: schema({
+          type: 'array',
+          items: false,
+          not: false,
+          allOf: [true, false],
+        }),
+      },
+    })
+    const text = wrapper.text()
+    expect(text).toContain('Array of:')
+    expect(text).toContain('Not:')
+    expect(text.match(/never \(false schema\)/g)?.length).toBe(3)
+  })
+
+  it('identifies actual ancestor cycles without truncating deep nonrecursive schemas', () => {
+    const recursive: Record<string, unknown> = { type: 'object' }
+    recursive.properties = { child: { $ref: '#/Node', '$ref-value': recursive } }
+    expect(mount(Schema, { props: { schema: schema(recursive) } }).text()).toContain('[Circular Reference]')
+    const deep = Array.from({ length: 24 }).reduce<Record<string, unknown>>(
+      (child, _, index) => ({ type: 'object', properties: { [`level${index}`]: child } }),
+      { type: 'string', description: 'Deep leaf' },
+    )
+    const text = mount(Schema, { props: { schema: schema(deep) } }).text()
+    expect(text).toContain('Deep leaf')
+    expect(text).not.toContain('Circular')
+  })
+
+  it('renders a shared reference in both branches without reporting a cycle', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string' } } }
+    const wrapper = mount(Schema, {
+      props: {
+        schema: schema({
+          type: 'object',
+          properties: {
+            first: { $ref: '#/Shared', '$ref-value': shared },
+            second: { $ref: '#/Shared', '$ref-value': shared },
+          },
+        }),
+      },
+    })
+    expect(wrapper.text().match(/name/g)?.length).toBe(2)
+    expect(wrapper.text()).not.toContain('Circular')
+  })
+
+  it('labels the depth guard separately from a circular reference', () => {
+    const wrapper = mount(Schema, { props: { schema: schema({ type: 'string' }), depth: 64 } })
+    expect(wrapper.text()).toBe('[Maximum schema depth reached]')
+  })
 })

@@ -1,23 +1,51 @@
 <script setup lang="ts">
-import { resolve } from '@scalar/workspace-store/resolve'
+import {
+  getResolvedRef,
+  mergeSiblingReferences,
+} from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/schema'
 
-const MAX_DEPTH = 10
-
-const { schema, depth = 0 } = defineProps<{
-  schema: MaybeRefSchemaObject
+const {
+  schema,
+  depth = 0,
+  hideDescription = false,
+  ancestors = [],
+} = defineProps<{
+  schema: MarkdownSchema
   depth?: number
+  hideDescription?: boolean
+  ancestors?: readonly unknown[]
 }>()
 
-type ResolvedSchema = NonNullable<
-  ReturnType<typeof resolve.schema<MaybeRefSchemaObject>>
->
+// A depth guard bounds pathological inputs without mislabeling them as cycles.
+const MAX_DEPTH = 64
 
-const resolvedSchema = resolve.schema(schema)
+type MarkdownSchema = MaybeRefSchemaObject | boolean
+
+type ResolvedSchema = Record<string, unknown> | boolean
 
 const resolveNestedSchema = (
-  value: MaybeRefSchemaObject | undefined,
-): ResolvedSchema | undefined => resolve.schema(value)
+  value: MarkdownSchema | undefined,
+): ResolvedSchema | undefined => {
+  const resolved = getResolvedRef<unknown>(value)
+  if (typeof resolved === 'boolean') return resolved
+  if (resolved && typeof resolved === 'object') {
+    return getResolvedRef(
+      value as MaybeRefSchemaObject,
+      mergeSiblingReferences,
+    ) as Record<string, unknown>
+  }
+  return undefined
+}
+
+// Use original resolved identities: merging siblings creates fresh objects.
+const identity = getResolvedRef<unknown>(schema)
+const circular =
+  typeof identity === 'object' &&
+  identity !== null &&
+  ancestors.includes(identity)
+const childAncestors = [...ancestors, identity]
+const resolvedSchema = resolveNestedSchema(schema)
 
 const asObject = (value: unknown): Record<string, unknown> | undefined =>
   value !== null && typeof value === 'object'
@@ -43,41 +71,47 @@ const getSchemaType = (
 const getSchemaArray = (
   value: ResolvedSchema | undefined,
   key: 'allOf' | 'anyOf' | 'oneOf',
-): MaybeRefSchemaObject[] | undefined => {
+): MarkdownSchema[] | undefined => {
   const collection = asObject(value)?.[key]
   if (!Array.isArray(collection)) {
     return undefined
   }
   return collection.filter(
-    (entry): entry is MaybeRefSchemaObject =>
-      entry !== null && typeof entry === 'object',
+    (entry): entry is MarkdownSchema =>
+      typeof entry === 'boolean' ||
+      (entry !== null && typeof entry === 'object'),
   )
 }
 
 const getSchemaNot = (
   value: ResolvedSchema | undefined,
-): MaybeRefSchemaObject | undefined => {
+): MarkdownSchema | undefined => {
   const notSchema = asObject(value)?.not
-  return notSchema !== null && typeof notSchema === 'object'
-    ? (notSchema as MaybeRefSchemaObject)
+  return typeof notSchema === 'boolean' ||
+    (notSchema !== null && typeof notSchema === 'object')
+    ? (notSchema as MarkdownSchema)
     : undefined
 }
 
 const getSchemaProperties = (
   value: ResolvedSchema | undefined,
-): Record<string, MaybeRefSchemaObject> => {
+): Record<string, MarkdownSchema> => {
   const properties = asObject(value)?.properties
   if (!properties || typeof properties !== 'object') {
     return {}
   }
-  return Object.entries(properties).reduce<
-    Record<string, MaybeRefSchemaObject>
-  >((acc, [name, prop]) => {
-    if (prop !== null && typeof prop === 'object') {
-      acc[name] = prop as MaybeRefSchemaObject
-    }
-    return acc
-  }, {})
+  return Object.entries(properties).reduce<Record<string, MarkdownSchema>>(
+    (acc, [name, prop]) => {
+      if (
+        typeof prop === 'boolean' ||
+        (prop !== null && typeof prop === 'object')
+      ) {
+        acc[name] = prop as MarkdownSchema
+      }
+      return acc
+    },
+    {},
+  )
 }
 
 const getSchemaRequired = (value: ResolvedSchema | undefined): string[] => {
@@ -90,10 +124,11 @@ const getSchemaRequired = (value: ResolvedSchema | undefined): string[] => {
 
 const getSchemaItems = (
   value: ResolvedSchema | undefined,
-): MaybeRefSchemaObject | undefined => {
+): MarkdownSchema | undefined => {
   const items = asObject(value)?.items
-  return items !== null && typeof items === 'object'
-    ? (items as MaybeRefSchemaObject)
+  return typeof items === 'boolean' ||
+    (items !== null && typeof items === 'object')
+    ? (items as MarkdownSchema)
     : undefined
 }
 
@@ -113,6 +148,9 @@ const getSchemaEnum = (
 
 const getSchemaDefault = (value: ResolvedSchema | undefined): unknown =>
   asObject(value)?.default
+
+const getSchemaConst = (value: ResolvedSchema | undefined): unknown =>
+  asObject(value)?.const
 
 const getSchemaDescription = (
   value: ResolvedSchema | undefined,
@@ -142,27 +180,93 @@ const getSchemaUniqueItems = (
     ? (asObject(value)?.uniqueItems as boolean)
     : undefined
 
-const getResolvedSchemaType = (value: MaybeRefSchemaObject | undefined) =>
+const getResolvedSchemaType = (value: MarkdownSchema | undefined) =>
   getSchemaType(resolveNestedSchema(value))
-const getResolvedSchemaFormat = (value: MaybeRefSchemaObject | undefined) =>
+const getResolvedSchemaFormat = (value: MarkdownSchema | undefined) =>
   getSchemaFormat(resolveNestedSchema(value))
-const getResolvedSchemaEnum = (value: MaybeRefSchemaObject | undefined) =>
+const getResolvedSchemaEnum = (value: MarkdownSchema | undefined) =>
   getSchemaEnum(resolveNestedSchema(value))
-const getResolvedSchemaDefault = (value: MaybeRefSchemaObject | undefined) =>
+const getResolvedSchemaDefault = (value: MarkdownSchema | undefined) =>
   getSchemaDefault(resolveNestedSchema(value))
-const getResolvedSchemaDescription = (
-  value: MaybeRefSchemaObject | undefined,
-) => getSchemaDescription(resolveNestedSchema(value))
-const getResolvedSchemaProperties = (value: MaybeRefSchemaObject | undefined) =>
+const getResolvedSchemaConst = (value: MarkdownSchema | undefined): unknown =>
+  getSchemaConst(resolveNestedSchema(value))
+const getResolvedSchemaDescription = (value: MarkdownSchema | undefined) =>
+  getSchemaDescription(resolveNestedSchema(value))
+const getResolvedSchemaProperties = (value: MarkdownSchema | undefined) =>
   getSchemaProperties(resolveNestedSchema(value))
-const getResolvedSchemaItems = (value: MaybeRefSchemaObject | undefined) =>
+const getResolvedSchemaItems = (value: MarkdownSchema | undefined) =>
   getSchemaItems(resolveNestedSchema(value))
 
-const formatSchemaType = (value: MaybeRefSchemaObject | undefined): string => {
+const hasComposition = (value: MarkdownSchema | undefined): boolean => {
+  const resolved = resolveNestedSchema(value)
+  return Boolean(
+    getSchemaArray(resolved, 'allOf') ||
+    getSchemaArray(resolved, 'anyOf') ||
+    getSchemaArray(resolved, 'oneOf') ||
+    getSchemaNot(resolved) !== undefined,
+  )
+}
+
+const getConstraints = (
+  value: MarkdownSchema | undefined,
+): { name: string; value: string | number }[] => {
+  const resolved = asObject(resolveNestedSchema(value))
+  return [
+    'minimum',
+    'maximum',
+    'exclusiveMinimum',
+    'exclusiveMaximum',
+    'multipleOf',
+    'minLength',
+    'maxLength',
+    'pattern',
+  ].flatMap((name) => {
+    const constraint = resolved?.[name]
+    return typeof constraint === 'number' || typeof constraint === 'string'
+      ? [{ name, value: constraint }]
+      : []
+  })
+}
+
+const getAccess = (value: MarkdownSchema): string => {
+  const resolved = asObject(resolveNestedSchema(value))
+  return [
+    resolved?.readOnly === true ? 'readOnly' : '',
+    resolved?.writeOnly === true ? 'writeOnly' : '',
+  ]
+    .filter(Boolean)
+    .join(', ')
+}
+
+const getAdditionalProperties = (
+  value: ResolvedSchema | undefined,
+): MarkdownSchema | undefined => {
+  const additional = asObject(value)?.additionalProperties
+  return typeof additional === 'boolean' ||
+    (additional !== null && typeof additional === 'object')
+    ? (additional as MarkdownSchema)
+    : undefined
+}
+
+const discriminator = asObject(asObject(resolvedSchema)?.discriminator)
+const discriminatorMappings = asObject(discriminator?.mapping)
+
+const formatSchemaType = (value: MarkdownSchema | undefined): string => {
+  const resolved = resolveNestedSchema(value)
+  if (resolved === true) return 'any (true schema)'
+  if (resolved === false) return 'never (false schema)'
   const schemaType = getResolvedSchemaType(value)
+  if (
+    !schemaType &&
+    resolved &&
+    typeof resolved === 'object' &&
+    Object.keys(resolved).length === 0
+  )
+    return 'any'
   return Array.isArray(schemaType)
     ? schemaType.join(' | ')
-    : schemaType || 'object'
+    : schemaType ||
+        (Object.keys(getResolvedSchemaProperties(value)).length ? 'object' : '')
 }
 
 const formatEnumValues = (value: unknown[] | undefined): string =>
@@ -170,7 +274,7 @@ const formatEnumValues = (value: unknown[] | undefined): string =>
 
 // Sort properties to show required fields first, then optional, then metadata
 const sortProperties = (
-  properties: Record<string, MaybeRefSchemaObject>,
+  properties: Record<string, MarkdownSchema>,
   required?: string[],
 ) => {
   const sorted = Object.entries(properties).sort(([a], [b]) => {
@@ -185,10 +289,56 @@ const sortProperties = (
 </script>
 
 <template>
-  <section v-if="depth >= MAX_DEPTH">
+  <section v-if="circular">
     <p><em>[Circular Reference]</em></p>
   </section>
+  <section v-else-if="depth >= MAX_DEPTH">
+    <p><em>[Maximum schema depth reached]</em></p>
+  </section>
+  <section v-else-if="typeof resolvedSchema === 'boolean'">
+    <p>
+      <code>{{ formatSchemaType(schema) }}</code>
+    </p>
+  </section>
   <section v-else-if="resolvedSchema">
+    <section v-if="getAdditionalProperties(resolvedSchema) !== undefined">
+      <p>
+        <strong>Additional properties:</strong
+        ><template
+          v-if="typeof getAdditionalProperties(resolvedSchema) === 'boolean'">
+          <code>{{ getAdditionalProperties(resolvedSchema) }}</code>
+        </template>
+      </p>
+      <Schema
+        v-if="typeof getAdditionalProperties(resolvedSchema) === 'object'"
+        :ancestors="childAncestors"
+        :depth="depth + 1"
+        :schema="getAdditionalProperties(resolvedSchema)!" />
+    </section>
+    <section v-if="discriminator">
+      <p>
+        <strong>Discriminator:</strong>
+        <code>{{ discriminator.propertyName }}</code>
+      </p>
+      <ul v-if="discriminatorMappings">
+        <li
+          v-for="(target, name) in discriminatorMappings"
+          :key="name">
+          <code>{{ name }}</code
+          >: <code>{{ target }}</code>
+        </li>
+      </ul>
+    </section>
+    <ul v-if="getConstraints(schema).length">
+      <li
+        v-for="constraint in getConstraints(schema)"
+        :key="constraint.name">
+        {{ constraint.name }}: <code>{{ constraint.value }}</code>
+      </li>
+    </ul>
+    <p v-if="getAccess(schema)">
+      <strong>Access:</strong> {{ getAccess(schema) }}
+    </p>
     <!-- Composition keywords -->
     <template v-if="getSchemaArray(resolvedSchema, 'allOf')">
       <section>
@@ -199,13 +349,14 @@ const sortProperties = (
           v-for="(subSchema, index) in getSchemaArray(resolvedSchema, 'allOf')"
           :key="index">
           <Schema
-            :schema="subSchema"
-            :depth="depth + 1" />
+            :ancestors="childAncestors"
+            :depth="depth + 1"
+            :schema="subSchema" />
         </section>
       </section>
     </template>
 
-    <template v-else-if="getSchemaArray(resolvedSchema, 'anyOf')">
+    <template v-if="getSchemaArray(resolvedSchema, 'anyOf')">
       <section>
         <header>
           <strong>Any of:</strong>
@@ -214,13 +365,14 @@ const sortProperties = (
           v-for="(subSchema, index) in getSchemaArray(resolvedSchema, 'anyOf')"
           :key="index">
           <Schema
-            :schema="subSchema"
-            :depth="depth + 1" />
+            :ancestors="childAncestors"
+            :depth="depth + 1"
+            :schema="subSchema" />
         </section>
       </section>
     </template>
 
-    <template v-else-if="getSchemaArray(resolvedSchema, 'oneOf')">
+    <template v-if="getSchemaArray(resolvedSchema, 'oneOf')">
       <section>
         <header>
           <strong>One of:</strong>
@@ -229,28 +381,30 @@ const sortProperties = (
           v-for="(subSchema, index) in getSchemaArray(resolvedSchema, 'oneOf')"
           :key="index">
           <Schema
-            :schema="subSchema"
-            :depth="depth + 1" />
+            :ancestors="childAncestors"
+            :depth="depth + 1"
+            :schema="subSchema" />
         </section>
       </section>
     </template>
 
-    <template v-else-if="getSchemaNot(resolvedSchema)">
+    <template v-if="getSchemaNot(resolvedSchema) !== undefined">
       <section>
         <header>
           <strong>Not:</strong>
         </header>
         <section>
           <Schema
-            :schema="getSchemaNot(resolvedSchema)!"
-            :depth="depth + 1" />
+            :ancestors="childAncestors"
+            :depth="depth + 1"
+            :schema="getSchemaNot(resolvedSchema)!" />
         </section>
       </section>
     </template>
 
     <!-- Object type -->
     <template
-      v-else-if="
+      v-if="
         getSchemaType(resolvedSchema) === 'object' ||
         Object.keys(getSchemaProperties(resolvedSchema)).length
       ">
@@ -265,6 +419,13 @@ const sortProperties = (
             <li>
               <strong>
                 <code>{{ propName }}</code>
+                <span v-if="getAccess(propSchema)">
+                  ({{ getAccess(propSchema) }})</span
+                >
+                <span
+                  v-if="typeof resolveNestedSchema(propSchema) === 'boolean'">
+                  ({{ formatSchemaType(propSchema) }})</span
+                >
                 <span
                   v-if="getSchemaRequired(resolvedSchema).includes(propName)">
                   (required)
@@ -288,6 +449,12 @@ const sortProperties = (
                     }}</code>
                   </span>
                 </template>
+                <span v-if="getResolvedSchemaConst(propSchema) !== undefined"
+                  >, const:
+                  <code>{{
+                    JSON.stringify(getResolvedSchemaConst(propSchema))
+                  }}</code></span
+                >
                 <template
                   v-if="getResolvedSchemaDefault(propSchema) !== undefined">
                   <span
@@ -297,6 +464,13 @@ const sortProperties = (
                     }}</code></span
                   >
                 </template>
+                <template v-if="!hasComposition(propSchema)">
+                  <span
+                    v-for="constraint in getConstraints(propSchema)"
+                    :key="constraint.name">
+                    , {{ constraint.name }}: <code>{{ constraint.value }}</code>
+                  </span>
+                </template>
                 <template v-if="getResolvedSchemaDescription(propSchema)">
                   <span> — {{ getResolvedSchemaDescription(propSchema) }}</span>
                 </template>
@@ -304,22 +478,27 @@ const sortProperties = (
               <Schema
                 v-if="
                   getResolvedSchemaType(propSchema) === 'object' ||
-                  Object.keys(getResolvedSchemaProperties(propSchema)).length
+                  Object.keys(getResolvedSchemaProperties(propSchema)).length ||
+                  hasComposition(propSchema) ||
+                  getAdditionalProperties(resolveNestedSchema(propSchema)) !==
+                    undefined
                 "
-                :schema="propSchema"
-                :depth="depth + 1" />
+                :ancestors="childAncestors"
+                :depth="depth + 1"
+                :schema="propSchema" />
               <template
                 v-if="
                   getResolvedSchemaType(propSchema) === 'array' &&
-                  getResolvedSchemaItems(propSchema)
+                  getResolvedSchemaItems(propSchema) !== undefined
                 ">
                 <section>
                   <header>
                     <strong>Items:</strong>
                   </header>
                   <Schema
-                    :schema="getResolvedSchemaItems(propSchema)!"
-                    :depth="depth + 1" />
+                    :ancestors="childAncestors"
+                    :depth="depth + 1"
+                    :schema="getResolvedSchemaItems(propSchema)!" />
                 </section>
               </template>
             </li>
@@ -332,7 +511,7 @@ const sortProperties = (
     <template
       v-else-if="
         getSchemaType(resolvedSchema) === 'array' &&
-        getSchemaItems(resolvedSchema)
+        getSchemaItems(resolvedSchema) !== undefined
       ">
       <section>
         <header>
@@ -340,8 +519,9 @@ const sortProperties = (
         </header>
         <section>
           <Schema
-            :schema="getSchemaItems(resolvedSchema)!"
-            :depth="depth + 1" />
+            :ancestors="childAncestors"
+            :depth="depth + 1"
+            :schema="getSchemaItems(resolvedSchema)!" />
         </section>
         <ul
           v-if="
@@ -363,7 +543,8 @@ const sortProperties = (
     </template>
 
     <!-- Primitive types -->
-    <template v-else>
+    <template
+      v-else-if="!hasComposition(schema) || getSchemaType(resolvedSchema)">
       <section>
         <p>
           <code>{{ getSchemaType(resolvedSchema) }}</code>
@@ -379,6 +560,12 @@ const sortProperties = (
               <code>{{ formatEnumValues(getSchemaEnum(resolvedSchema)) }}</code>
             </span>
           </template>
+          <span v-if="getSchemaConst(resolvedSchema) !== undefined"
+            >, const:
+            <code>{{
+              JSON.stringify(getSchemaConst(resolvedSchema))
+            }}</code></span
+          >
           <template v-if="getSchemaDefault(resolvedSchema) !== undefined">
             <span
               >, default:
@@ -387,7 +574,8 @@ const sortProperties = (
               }}</code></span
             >
           </template>
-          <template v-if="getSchemaDescription(resolvedSchema)">
+          <template
+            v-if="!hideDescription && getSchemaDescription(resolvedSchema)">
             <span> — {{ getSchemaDescription(resolvedSchema) }}</span>
           </template>
         </p>
