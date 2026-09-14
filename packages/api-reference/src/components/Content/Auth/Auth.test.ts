@@ -52,7 +52,29 @@ const mountAuth = (securitySchemes: MergedSecuritySchemes, document = asyncApiDo
     },
   })
 
-describe('Auth (AsyncAPI document)', () => {
+describe('Auth', () => {
+  it('renders OAuth2 metadata discovery for an OpenAPI 3.2 document', () => {
+    const document = {
+      openapi: '3.2.1',
+      info: { title: 'OAuth metadata', version: '1.0' },
+      'x-scalar-navigation': { name: 'oauth-metadata' },
+      security: [{ oauth: [] }],
+    } as WorkspaceDocument
+    const wrapper = mountAuth(
+      {
+        oauth: {
+          type: 'oauth2',
+          flows: {},
+          oauth2MetadataUrl: 'https://example.com/metadata',
+        },
+      },
+      document,
+    )
+    expect(wrapper.text()).toContain('Metadata URL')
+    expect(wrapper.text()).toContain('Fetch Configuration')
+    wrapper.unmount()
+  })
+
   it('renders the auth selector for an AsyncAPI document with security schemes', () => {
     const wrapper = mountAuth({
       bearerAuth: { type: 'http', scheme: 'bearer' },
