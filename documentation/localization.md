@@ -9,8 +9,8 @@ examples, developer tools, and action buttons.
 
 ## Built-in locales
 
-Translations ship for the following locales. English (`en`) is always used as the fallback for any
-key you do not override.
+API Reference and API Client ship translations for the following locales. Missing keys fall back to
+English (`en`).
 
 * `en` — English
 * `ru` — Russian
@@ -77,3 +77,55 @@ change.
   },
 }
 ```
+
+
+## API Client
+
+The embedded API Client accepts overrides under `localization.translations.apiClient`. Pass them to
+API Reference alongside your reference translations; they also apply to the client opened by **Test
+Request**. Updates to the reference configuration update the client labels, locale, and direction.
+
+The API Client supports the same built-in locales listed above. Setting `localization: { locale: 'de' }`
+translates both the reference and its embedded client without custom strings. Overrides merge on top
+of the selected language, and regional locale values use the same fallback rules.
+
+```javascript
+{
+  localization: {
+    locale: 'de',
+    translations: {
+      operation: { testRequest: 'Anfrage testen' },
+      apiClient: {
+        addressBar: {
+          send: 'Senden',
+          sendRequest: '{method}-Anfrage an {url} senden',
+        },
+        requestBlock: {
+          authentication: 'Authentifizierung',
+          headers: 'Kopfzeilen',
+          queryParameters: 'Abfrageparameter',
+          requestBody: 'Anfragetext',
+        },
+        responseBlock: { response: 'Antwort' },
+        responseEmpty: { sendRequest: 'Anfrage senden' },
+        sectionFilter: { all: 'Alle', headers: 'Kopfzeilen', body: 'Inhalt' },
+      },
+    },
+  },
+}
+```
+
+Use the same `localization` object in `createApiClientModal({ options: { localization }, ... })` or the
+standalone `Operation` component's `options` prop. `modal.updateOptions({ localization })` updates an
+existing modal. Custom Vue hosts can call `provideLocalization` from
+`@scalar/api-client/features/localization` in their setup function to localize client components in
+that subtree.
+
+`ApiClientTranslations`, exported from `@scalar/types/api-reference`, lists the available keys.
+The English dictionary is in
+[`packages/api-client/src/v2/features/localization/translations.ts`](../packages/api-client/src/v2/features/localization/translations.ts).
+The other built-in dictionaries are in
+[`packages/api-client/src/v2/features/localization/locales`](../packages/api-client/src/v2/features/localization/locales).
+Preserve placeholders such as `{method}`, `{url}`, and `{name}` in translated messages. Translation
+values render as text. Request URLs, HTTP methods, MIME types, credentials, and content from your API
+description remain unchanged.

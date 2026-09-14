@@ -7,6 +7,8 @@ import {
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { computed } from 'vue'
 
+import { useLocalization } from '@/v2/features/localization'
+
 const props = defineProps<{
   enum: string[]
   value: string
@@ -16,6 +18,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'change', v: string): void
 }>()
+
+const { translate } = useLocalization()
 
 const options = computed<ScalarListboxOption[]>(() =>
   props.enum.map((s) => ({ id: s, label: s })),
@@ -37,14 +41,14 @@ const selected = computed<ScalarListboxOption | undefined>({
       <span :class="{ 'text-c-1': value }">
         <span
           v-if="value"
-          class="sr-only">
-          Selected:
-        </span>
+          class="sr-only"
+          >{{ translate('apiClient.serverVariablesSelect.selected') }}</span
+        >
         {{ value || 'Select value' }}
       </span>
       <ScalarIconCaretDown
-        weight="bold"
-        class="mt-0.25 size-3 transition-transform duration-100 group-aria-expanded/button:rotate-180" />
+        class="mt-0.25 size-3 transition-transform duration-100 group-aria-expanded/button:rotate-180"
+        weight="bold" />
     </ScalarButton>
   </ScalarListbox>
 </template>

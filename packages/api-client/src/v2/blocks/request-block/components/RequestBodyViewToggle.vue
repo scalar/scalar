@@ -1,12 +1,17 @@
 <script lang="ts" setup>
+import { useLocalization } from '@/v2/features/localization'
+
 defineProps<{
   modelValue: 'form' | 'raw'
   /** Disable switching to the form view (e.g. while the raw body is not parseable) */
   disabled?: boolean
 }>()
+
 defineEmits<{
   (e: 'update:modelValue', v: 'form' | 'raw'): void
 }>()
+
+const { translate } = useLocalization()
 </script>
 <template>
   <div
@@ -22,17 +27,21 @@ defineEmits<{
             }
       "
       :disabled="disabled"
-      :title="disabled ? 'Fix the body to switch to the form view' : undefined"
+      :title="
+        disabled
+          ? translate('apiClient.requestBodyViewToggle.fixBody')
+          : undefined
+      "
       type="button"
       @click.stop="$emit('update:modelValue', 'form')">
-      Form
+      {{ translate('apiClient.requestBodyViewToggle.form') }}
     </button>
     <button
       class="hover:bg-b-3 rounded px-1"
       :class="{ 'bg-b-3 text-c-1 cursor-default': modelValue === 'raw' }"
       type="button"
       @click.stop="$emit('update:modelValue', 'raw')">
-      Raw
+      {{ translate('apiClient.requestBodyViewToggle.raw') }}
     </button>
   </div>
 </template>

@@ -4,10 +4,14 @@ import { ScalarLoading, useLoadingState } from '@scalar/components/loading'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
+import { useLocalization } from '@/v2/features/localization'
+
 const { eventBus } = defineProps<{
   /** Workspace event bus */
   eventBus: WorkspaceEventBus
 }>()
+
+const { translate } = useLocalization()
 
 const loader = useLoadingState()
 const timeout = ref<ReturnType<typeof setTimeout>>()
@@ -49,7 +53,7 @@ onBeforeUnmount(() => {
       <ScalarButton
         variant="ghost"
         @click="eventBus.emit('operation:cancel:request')">
-        Cancel
+        {{ translate('apiClient.responseLoadingOverlay.cancel') }}
       </ScalarButton>
     </div>
   </Transition>

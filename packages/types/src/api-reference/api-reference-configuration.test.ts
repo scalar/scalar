@@ -7,6 +7,17 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it('preserves API Client translations in reference configuration', () => {
+    const localization = {
+      locale: 'de',
+      translations: {
+        operation: { testRequest: 'Anfrage testen' },
+        apiClient: { addressBar: { send: 'Senden' } },
+      },
+    }
+    expect(apiReferenceConfigurationSchema.parse({ localization }).localization).toStrictEqual(localization)
+  })
+
   describe('schema', () => {
     it('validates a minimal configuration', () => {
       const minimalConfig = {}

@@ -15,6 +15,7 @@ export type ApiClientOptions = Partial<
     | 'hideClientButton'
     | 'hiddenClients'
     | 'oauth2RedirectUri'
+    | 'localization'
     | 'proxyUrl'
     | 'servers'
   >

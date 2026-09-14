@@ -3,7 +3,7 @@ import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.2/
 type AuthOption = { label: string; payload: SecuritySchemeObject }
 
 /** Predefined authentication options */
-export const authOptions: Record<string, AuthOption> = {
+export const authOptions = {
   apiKeyCookie: {
     label: 'API Key in Cookies',
     payload: {
@@ -96,4 +96,4 @@ export const authOptions: Record<string, AuthOption> = {
       },
     },
   },
-}
+} satisfies Record<string, AuthOption>

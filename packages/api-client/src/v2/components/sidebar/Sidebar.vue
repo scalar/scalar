@@ -15,6 +15,7 @@ import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
+import { useLocalization } from '@/v2/features/localization'
 import { useSearchIndex } from '@/v2/features/search'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -53,6 +54,8 @@ const emit = defineEmits<{
   /** Emitted when the user wants to open the settings */
   (e: 'navigate:to:settings'): void
 }>()
+
+const { translate } = useLocalization()
 
 const slots = defineSlots<{
   /** Slot to add the workspace button */
@@ -151,7 +154,7 @@ const handleSelectItem = (id: string) => {
               <ScalarIconButton
                 class="hover:bg-b-2 active:text-c-1 size-8 rounded p-2"
                 :icon="ScalarIconMagnifyingGlass"
-                label="Search"
+                :label="translate('apiClient.sidebar.search')"
                 size="sm"
                 @click="isSearchVisible = !isSearchVisible" />
             </div>

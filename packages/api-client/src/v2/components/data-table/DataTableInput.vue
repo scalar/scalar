@@ -6,6 +6,7 @@ import { computed, ref, useTemplateRef } from 'vue'
 
 import type { VueClassProp } from '@/types/vue'
 import { CodeInputLite } from '@/v2/components/code-input'
+import { useLocalization } from '@/v2/features/localization'
 
 import DataTableCell from './DataTableCell.vue'
 import DataTableInputSelect from './DataTableInputSelect.vue'
@@ -41,6 +42,8 @@ const emit = defineEmits<{
   (e: 'inputBlur'): void
   (e: 'selectVariable', value: string): void
 }>()
+
+const { translate } = useLocalization()
 
 defineOptions({ inheritAttrs: false })
 
@@ -131,7 +134,7 @@ const handleLabelClick = () => {
       v-if="modelValue"
       class="-ml-.25 h-6 w-6 self-center p-1.25"
       :icon="ScalarIconX"
-      label="Clear Value"
+      :label="translate('apiClient.dataTableInput.clearValue')"
       @click="emit('update:modelValue', '')" />
     <!-- Toggle Visibility -->
     <ScalarIconButton
@@ -139,7 +142,11 @@ const handleLabelClick = () => {
       class="-ml-.5 mr-1.25 h-6 w-6 self-center p-1.25"
       data-testid="data-table-password-toggle"
       :icon="mask ? ScalarIconEye : ScalarIconEyeSlash"
-      :label="mask ? 'Show Password' : 'Hide Password'"
+      :label="
+        mask
+          ? translate('apiClient.dataTableInput.showPassword')
+          : translate('apiClient.dataTableInput.hidePassword')
+      "
       @click="mask = !mask" />
   </DataTableCell>
 </template>
@@ -156,9 +163,6 @@ const handleLabelClick = () => {
 }
 :deep(.scalar-pill:not(:first-of-type)) {
   margin-left: 0.5px;
-}
-.required::after {
-  content: 'Required';
 }
 /* Tailwind placeholder is busted */
 input::placeholder {

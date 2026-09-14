@@ -9,6 +9,7 @@ export type { HtmlRenderingConfiguration } from './html-rendering-configuration'
 export type {
   AnyApiReferenceConfiguration,
   ApiClientConfiguration,
+  ApiClientTranslations,
   ApiReferenceBuiltInLocale,
   ApiReferenceConfiguration,
   ApiReferenceConfigurationRaw,

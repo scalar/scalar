@@ -22,8 +22,39 @@ import {
   DataTableInputSelect,
   DataTableRow,
 } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 import RequestTableTooltip from './RequestTableTooltip.vue'
+
+const {
+  data,
+  environment,
+  hasCheckboxDisabled,
+  deferKeyUpdates,
+  invalidParams,
+  showUploadButton,
+} = defineProps<{
+  data: TableRow
+  /** Keep key edits local until blur when the row identity depends on its name. */
+  deferKeyUpdates?: boolean
+  hasCheckboxDisabled?: boolean
+  invalidParams?: Set<string>
+  label?: string
+  environment: XScalarEnvironment
+  showUploadButton?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'upsertRow', payload: TableRowUpsertPayload): void
+  (e: 'deleteRow'): void
+  (e: 'uploadFile'): void
+  (e: 'removeFile'): void
+  (e: 'navigate', route: NonNullable<TableRow['globalRoute']>): void
+  /** Select a value for a grouped global cookie preset. */
+  (e: 'selectPreset', value: string): void
+}>()
+
+const { translate } = useLocalization()
 
 export type TableRow = {
   /** The parameter or field name/key */
@@ -69,34 +100,6 @@ export type TableRowUpsertPayload = {
   isDisabled: boolean
   shouldRenameExpandedRow?: boolean
 }
-
-const {
-  data,
-  environment,
-  hasCheckboxDisabled,
-  deferKeyUpdates,
-  invalidParams,
-  showUploadButton,
-} = defineProps<{
-  data: TableRow
-  /** Keep key edits local until blur when the row identity depends on its name. */
-  deferKeyUpdates?: boolean
-  hasCheckboxDisabled?: boolean
-  invalidParams?: Set<string>
-  label?: string
-  environment: XScalarEnvironment
-  showUploadButton?: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: 'upsertRow', payload: TableRowUpsertPayload): void
-  (e: 'deleteRow'): void
-  (e: 'uploadFile'): void
-  (e: 'removeFile'): void
-  (e: 'navigate', route: NonNullable<TableRow['globalRoute']>): void
-  /** Select a value for a grouped global cookie preset. */
-  (e: 'selectPreset', value: string): void
-}>()
 
 /**
  * Track local state for the row
@@ -262,7 +265,11 @@ const handleKeydown = (event: KeyboardEvent): void => {
       error: validationResult.ok === false && invalidParams?.has(data.name),
     }">
     <DataTableCheckbox
-      :ariaLabel="`Include ${data.name || 'row'} in request`"
+      :ariaLabel="
+        translate('apiClient.requestTableRow.include', {
+          name: data.name || translate('apiClient.requestTableRow.row'),
+        })
+      "
       class="!border-r"
       :disabled="hasCheckboxDisabled ?? false"
       :modelValue="!isDisabled"
@@ -271,11 +278,13 @@ const handleKeydown = (event: KeyboardEvent): void => {
     <!-- Name -->
     <DataTableCell>
       <CodeInputLite
-        :aria-label="`${label} Key`"
+        :aria-label="
+          translate('apiClient.requestTableRow.keyLabel', { name: label ?? '' })
+        "
         :disabled="data.isReadonly"
         :environment="environment"
         :modelValue="name"
-        placeholder="Key"
+        :placeholder="translate('apiClient.requestTableRow.key')"
         :required="Boolean(data.isRequired)"
         @blur="(v) => handleKeyBlur(v)"
         @keydown.capture="handleKeydown"
@@ -294,7 +303,11 @@ const handleKeydown = (event: KeyboardEvent): void => {
         @update:modelValue="(v) => emit('selectPreset', v)" />
       <CodeInputLite
         v-else
-        :aria-label="`${label} Value`"
+        :aria-label="
+          translate('apiClient.requestTableRow.valueLabel', {
+            name: label ?? '',
+          })
+        "
         class="pr-6 group-hover:pr-10 group-has-[.code-input-lite__editor:focus]:pr-10"
         :default="defaultValue"
         :disabled="data.isReadonly"
@@ -305,7 +318,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
         "
         :linethrough="data.isOverridden"
         :modelValue="displayValue"
-        placeholder="Value"
+        :placeholder="translate('apiClient.requestTableRow.value')"
         :type="typeValue"
         withFakeData
         @navigate="(route) => emit('navigate', route)"
@@ -317,7 +330,11 @@ const handleKeydown = (event: KeyboardEvent): void => {
               !data.isRequired &&
               data.isReadonly !== true
             "
-            :aria-label="`Delete ${data.name || 'row'}`"
+            :aria-label="
+              translate('apiClient.requestTableRow.deleteRow', {
+                name: data.name || translate('apiClient.requestTableRow.row'),
+              })
+            "
             class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.code-input-lite__editor:focus]:flex"
             size="sm"
             variant="ghost"
@@ -329,7 +346,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
             v-if="data.globalRoute !== undefined"
             class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 h-fit"
             :icon="ScalarIconGlobe"
-            label="Global cookies are shared across the whole workspace. Click to navigate."
+            :label="translate('apiClient.requestTableRow.globalCookieHint')"
             size="xs"
             tooltip="top"
             variant="ghost"
@@ -337,7 +354,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
 
           <RequestTableTooltip
             v-if="data.isReadonly"
-            description="This is a readonly property and you can not modify it! If you want to change it you have to override it or disable it using the checkbox"
+            :description="translate('apiClient.requestTableRow.readOnlyHint')"
             :value="null" />
           <RequestTableTooltip
             v-else-if="data.schema"
@@ -365,7 +382,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
           class="bg-b-2 mt-1 block rounded p-0.5 text-center text-xs font-medium md:pointer-events-none md:absolute md:inset-x-1 md:top-1/2 md:mt-0 md:-translate-y-1/2 md:opacity-0 md:group-hover/upload:pointer-events-auto md:group-hover/upload:opacity-100"
           type="button"
           @click="emit('removeFile')">
-          Delete
+          {{ translate('apiClient.requestTableRow.delete') }}
         </button>
       </template>
       <template v-else>
@@ -375,7 +392,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
             size="sm"
             variant="outlined"
             @click="emit('uploadFile')">
-            <span>Select File</span>
+            <span>{{ translate('apiClient.requestTableRow.selectFile') }}</span>
             <ScalarIcon
               class="ml-1"
               icon="Upload"
