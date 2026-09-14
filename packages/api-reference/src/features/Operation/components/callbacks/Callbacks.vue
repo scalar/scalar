@@ -59,11 +59,15 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
 
       // Loop over the method level
       forEachPathItemOperation(methods, (callbackMethod, callback) => {
+        const resolvedCallback = getResolvedRef(callback)
+        if (!resolvedCallback) {
+          return
+        }
         _callbacks.push({
           name,
           url,
           method: callbackMethod,
-          callback: getResolvedRef(callback),
+          callback: resolvedCallback,
         })
       })
     })
