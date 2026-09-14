@@ -11,6 +11,7 @@ import {
   DataTableHeader,
   DataTableRow,
 } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 const {
   data,
@@ -51,6 +52,8 @@ const emit = defineEmits<{
   /** Select a value for a grouped global cookie preset at the given row index. */
   (e: 'selectPreset', index: number, value: string): void
 }>()
+
+const { translate } = useLocalization()
 
 const columns = computed(() => {
   if (showUploadButton) {
@@ -103,9 +106,18 @@ const getRowKey = (row: TableRow, index: number): string => {
     class="group/table flex-1"
     :columns="columns">
     <DataTableRow class="sr-only !block">
-      <DataTableHeader>{{ label }} Enabled</DataTableHeader>
-      <DataTableHeader>{{ label }} Key</DataTableHeader>
-      <DataTableHeader>{{ label }} Value</DataTableHeader>
+      <DataTableHeader>
+        {{ label }}
+        {{ translate('apiClient.requestTable.enabled') }}
+      </DataTableHeader>
+      <DataTableHeader>
+        {{ label }}
+        {{ translate('apiClient.requestTable.key') }}
+      </DataTableHeader>
+      <DataTableHeader>
+        {{ label }}
+        {{ translate('apiClient.requestTable.value') }}
+      </DataTableHeader>
     </DataTableRow>
 
     <RequestTableRow

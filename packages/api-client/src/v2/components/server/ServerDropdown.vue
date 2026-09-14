@@ -33,6 +33,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 import { computed } from 'vue'
 
 import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
@@ -54,10 +55,12 @@ const emit = defineEmits<{
   (e: 'update:open', value: boolean): void
 }>()
 
+const { translate } = useLocalization()
+
 const requestServerOptions = computed(() =>
   servers.map((s) => ({
     id: s.url,
-    label: s.url ?? 'Unknown server',
+    label: s.url ?? translate('apiClient.serverDropdown.unknownServer'),
   })),
 )
 
@@ -81,11 +84,15 @@ const serverUrlWithoutTrailingSlash = computed(() => {
       class="hover:bg-b-2 font-code text-c-2 h-auto gap-0.75 rounded border px-1.5 text-base whitespace-nowrap @3xl:ml-0.75"
       variant="ghost">
       <template v-if="server">
-        <span class="sr-only">Server:</span>
+        <span class="sr-only">{{
+          translate('apiClient.serverDropdown.server')
+        }}</span>
         {{ serverUrlWithoutTrailingSlash }}
       </template>
       <template v-else>
-        <span class="sr-only">Add Server</span>
+        <span class="sr-only">{{
+          translate('apiClient.serverDropdown.addServer')
+        }}</span>
         <ScalarIconPlus class="size-3" />
       </template>
     </ScalarButton>
@@ -117,7 +124,9 @@ const serverUrlWithoutTrailingSlash = computed(() => {
             <div class="flex items-center justify-center">
               <ScalarIconPencilSimple class="size-4" />
             </div>
-            <span>Update Servers</span>
+            <span>{{
+              translate('apiClient.serverDropdown.updateServers')
+            }}</span>
           </button>
         </template>
       </div>

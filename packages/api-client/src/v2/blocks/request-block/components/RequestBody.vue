@@ -35,6 +35,7 @@ import {
   DataTableRow,
 } from '@/v2/components/data-table'
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 const {
   requestBody,
@@ -82,6 +83,8 @@ const emits = defineEmits<{
   ): void
 }>()
 
+const { translate } = useLocalization()
+
 // Map a content type to a language for the code editor
 const contentTypeToLanguageMap = {
   'application/json': 'json',
@@ -111,11 +114,25 @@ const contentTypeLabel = (raw: string): string => parseMimeType(raw).essence
  * The OpenAPI-defined extras are appended at the bottom so the well-known options stay on top, and
  * users can always pick the exact content type the operation actually accepts.
  */
+/** MIME values remain stable while their human-readable labels follow the locale. */
+const localizedContentTypes = computed(() => ({
+  ...CONTENT_TYPES,
+  'multipart/form-data': translate('apiClient.requestBody.multipartForm'),
+  'application/x-www-form-urlencoded': translate(
+    'apiClient.requestBody.formUrlEncoded',
+  ),
+  'application/octet-stream': translate('apiClient.requestBody.binaryFile'),
+  'other': translate('apiClient.requestBody.other'),
+  'none': translate('apiClient.requestBody.none'),
+}))
+
 const contentTypeOptions = computed<{ id: string; label: string }[]>(() => {
-  const builtIn = objectEntries(CONTENT_TYPES).map(([id, label]) => ({
-    id,
-    label,
-  }))
+  const builtIn = objectEntries(localizedContentTypes.value).map(
+    ([id, label]) => ({
+      id,
+      label,
+    }),
+  )
 
   const extras = Object.keys(requestBody?.content ?? {})
     .filter((type) => {
@@ -141,7 +158,8 @@ const selectedContentTypeModel = computed<{ id: string; label: string }>({
 
     const essence = contentTypeLabel(selectedContentType.value)
     const friendly =
-      CONTENT_TYPES[essence as keyof typeof CONTENT_TYPES] ?? essence
+      localizedContentTypes.value[essence as keyof typeof CONTENT_TYPES] ??
+      essence
 
     return {
       id: selectedContentType.value,
@@ -354,7 +372,7 @@ watch(isFormViewAvailable, (ok) => {
         <template v-if="selectedContentType === 'none'">
           <div
             class="text-c-3 flex min-h-10 w-full items-center justify-center border-t p-2 text-sm">
-            <span>No Body</span>
+            <span>{{ translate('apiClient.requestBody.noBody') }}</span>
           </div>
         </template>
 
@@ -381,7 +399,7 @@ watch(isFormViewAvailable, (ok) => {
                     contentType: selectedContentType,
                   })
                 ">
-                Delete
+                {{ translate('apiClient.requestBody.delete') }}
               </ScalarButton>
             </template>
             <template v-else>
@@ -398,7 +416,7 @@ watch(isFormViewAvailable, (ok) => {
                       }),
                     )
                 ">
-                <span>Select File</span>
+                <span>{{ translate('apiClient.requestBody.selectFile') }}</span>
                 <ScalarIcon
                   class="ml-1"
                   icon="Upload"

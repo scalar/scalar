@@ -56,9 +56,49 @@ import { computed, ref, toRef, useAttrs, watch, type Ref } from 'vue'
 
 import DataTableInputSelect from '@/v2/components/data-table/DataTableInputSelect.vue'
 import EnvironmentVariableDropdown from '@/v2/features/environments/components/EnvironmentVariablesDropdown.vue'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { backspaceCommand, pillPlugin } from './code-variable-widget'
+
+const {
+  modelValue,
+  environment,
+  type,
+  disabled = false,
+  error = false,
+  layout = 'desktop',
+  enum: enumProp,
+  examples,
+  default: defaultProp,
+  nullable = false,
+  placeholder,
+  required,
+  colorPicker = false,
+  lineNumbers = false,
+  lint = false,
+  lineWrapping = false,
+  language,
+  extensions = [],
+  disableTabIndent = false,
+  disableEnter = false,
+  disableCloseBrackets = false,
+  emitOnBlur = true,
+  alwaysEmitChange = false,
+  withVariables = true,
+  withFakeData = false,
+  handleFieldChange,
+  handleFieldSubmit,
+} = defineProps<Props>()
+
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+  'submit': [value: string, event: KeyboardEvent | FocusEvent]
+  'navigate': [route: { page: 'document'; path: 'environment' }]
+  'blur': [value: string, event: FocusEvent]
+}>()
+
+const { translate } = useLocalization()
 
 type Props = {
   modelValue: CodeInputModelValue
@@ -117,43 +157,6 @@ type Props = {
   /** Put a linethrough on the input text */
   linethrough?: boolean
 }
-
-const {
-  modelValue,
-  environment,
-  type,
-  disabled = false,
-  error = false,
-  layout = 'desktop',
-  enum: enumProp,
-  examples,
-  default: defaultProp,
-  nullable = false,
-  placeholder,
-  required,
-  colorPicker = false,
-  lineNumbers = false,
-  lint = false,
-  lineWrapping = false,
-  language,
-  extensions = [],
-  disableTabIndent = false,
-  disableEnter = false,
-  disableCloseBrackets = false,
-  emitOnBlur = true,
-  alwaysEmitChange = false,
-  withVariables = true,
-  withFakeData = false,
-  handleFieldChange,
-  handleFieldSubmit,
-} = defineProps<Props>()
-
-const emit = defineEmits<{
-  'update:modelValue': [value: string]
-  'submit': [value: string, event: KeyboardEvent | FocusEvent]
-  'navigate': [route: { page: 'document'; path: 'environment' }]
-  'blur': [value: string, event: FocusEvent]
-}>()
 
 // ---------------------------------------------------------------------------
 // Component identity and focus state
@@ -280,6 +283,7 @@ const pillPluginExtension = computed(() =>
     environment,
     isContextFunctionName,
     isReadOnly: layout === 'modal',
+    translate,
   }),
 )
 
@@ -499,9 +503,9 @@ defineExpose({
       v-if="!disableTabIndent"
       class="z-context text-c-2 absolute right-1.5 bottom-1 hidden font-sans group-has-[:focus-visible]/input:block"
       role="alert">
-      Press
-      <kbd class="-mx-0.25 rounded border px-0.5 font-mono">Esc</kbd> then
-      <kbd class="-mx-0.25 rounded border px-0.5 font-mono">Tab</kbd> to exit
+      {{
+        translate('apiClient.codeInput.exitHint', { escape: 'Esc', tab: 'Tab' })
+      }}
     </div>
   </div>
 
@@ -523,7 +527,7 @@ defineExpose({
   <div
     v-if="required"
     class="required centered-y text-xxs text-c-3 group-[.error]:text-red bg-b-1 pointer-events-none absolute right-0 mr-0.5 pt-px pr-2 opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 group-[.alert]:bg-transparent group-[.alert]:shadow-none group-[.error]:bg-transparent group-[.error]:shadow-none peer-has-[.cm-focused]:opacity-0">
-    Required
+    {{ translate('apiClient.codeInput.required') }}
   </div>
 
   <!-- Environment variable autocomplete dropdown -->

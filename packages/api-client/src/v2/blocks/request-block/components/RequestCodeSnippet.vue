@@ -19,6 +19,7 @@ import { computed, ref, watch } from 'vue'
 
 import { DataTable, DataTableRow } from '@/v2/components/data-table'
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 const {
   clientOptions,
@@ -34,6 +35,8 @@ const {
   globalCookies,
   integration,
 } = defineProps<CodeExampleProps & { eventBus: WorkspaceEventBus }>()
+
+const { translate } = useLocalization()
 
 /** Grab any custom code samples from the operation */
 const customCodeSamples = computed(() => getCustomCodeSamples(operation))
@@ -110,7 +113,9 @@ const hasClients = computed(() =>
     v-if="hasClients"
     class="group/preview w-full border-t"
     :defaultOpen="false">
-    <template #title>Code Snippet</template>
+    <template #title>
+      {{ translate('apiClient.requestCodeSnippet.codeSnippet') }}
+    </template>
 
     <!-- Client selector -->
     <template #actions>
