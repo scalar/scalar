@@ -22,6 +22,7 @@ import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-eac
 import { keyOf } from '@/helpers/general'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
+import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { extensions } from '@/schemas/extensions'
@@ -540,7 +541,7 @@ export async function createServerWorkspaceStore(
     }
 
     const upgradedDocument = upgrade(document, '3.1')
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgradedDocument)
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, normalizeBooleanSchemas(deepClone(upgradedDocument)))
     preserveBundledExternals(upgradedDocument, documentV3)
 
     // Everything that inspects the document reads through this; everything that stores a piece of it
