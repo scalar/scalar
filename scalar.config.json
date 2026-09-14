@@ -2507,6 +2507,12 @@
                         "title": "Package Registries",
                         "description": "Set up trusted publishing or secrets for npm, PyPI, Maven Central, and every supported registry."
                       },
+                      "private-registries": {
+                        "filepath": "documentation/guides/sdks/publishing/private-registries.md",
+                        "type": "page",
+                        "title": "Private Registries",
+                        "description": "Publish to Artifactory, AWS CodeArtifact, or any internal registry with a copy-paste workflow your repository owns."
+                      },
                       "typescript": {
                         "filepath": "documentation/guides/sdks/publishing/typescript.md",
                         "type": "page",
