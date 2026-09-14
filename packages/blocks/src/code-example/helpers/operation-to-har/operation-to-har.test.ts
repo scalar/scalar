@@ -8,6 +8,26 @@ import { describe, expect, it } from 'vitest'
 import { operationToHar } from './operation-to-har'
 
 describe('operationToHar', () => {
+  it('appends query authentication to whole-query content without a second question mark', () => {
+    const result = operationToHar({
+      operation: {
+        parameters: [
+          {
+            name: 'search',
+            in: 'querystring',
+            required: true,
+            content: { 'application/x-www-form-urlencoded': { example: { filter: 'a + b' } } },
+          },
+        ],
+      },
+      method: 'get',
+      path: '/search',
+      securitySchemes: [{ type: 'apiKey', in: 'query', name: 'key', 'x-scalar-secret-token': 'secret' }],
+    })
+    expect(result.url).toBe('/search?filter=a+%2B+b&key=secret')
+    expect(result.queryString).toStrictEqual([])
+  })
+
   describe('basic functionality', () => {
     it('should convert a basic operation to HAR format', () => {
       const operation: OperationObject = {

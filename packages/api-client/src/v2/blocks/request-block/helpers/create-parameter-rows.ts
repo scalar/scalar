@@ -1,6 +1,10 @@
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import {
+  getQuerystringParameter,
+  serializeQuerystringParameter,
+} from '@scalar/workspace-store/helpers/querystring-parameter'
 import { deSerializeParameter, getExample, isParamDisabled } from '@scalar/workspace-store/request-example'
 import type {
   ParameterObject,
@@ -384,6 +388,19 @@ export const createParameterRows = (
   const isDisabled = isParamDisabled(parameter, example)
   const isDisabledByDefault = isDisabled && example?.['x-disabled'] === undefined
   const schema = getParameterSchema(parameter)
+  if (parameter.in === 'querystring') {
+    const querystring = getQuerystringParameter(parameter, exampleKey, { includeDisabled: true })
+    return [
+      toSingleParameterRow(
+        parameter,
+        // The editor accepts URI-ready text; decoded schema suggestions are not valid wire values.
+        undefined,
+        querystring ? serializeQuerystringParameter(querystring) : '',
+        isDisabled,
+        isDisabledByDefault,
+      ),
+    ]
+  }
   const mode = getExpansionMode(parameter, schema)
 
   // Non-expandable parameters: render as a single row.

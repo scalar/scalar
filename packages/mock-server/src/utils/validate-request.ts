@@ -1,4 +1,4 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import type { ErrorObject, ValidateFunction } from 'ajv'
@@ -16,6 +16,7 @@ import {
   isObjectSchema,
   resolveSerialization,
 } from './deserialize-parameter'
+import { findQuerystringParameter, getQuerystringJsonSchema, parseQuerystringParameter } from './querystring-parameter'
 import { replaceCircularMarkers } from './replace-circular-markers'
 
 /**
@@ -67,6 +68,9 @@ type CompiledValidators = {
   queryParameters: ParameterDescriptor[]
   headerParameters: ParameterDescriptor[]
   cookieParameters: ParameterDescriptor[]
+  querystringJson: ValidateFunction | null
+  querystring: ValidateFunction | null
+  querystringParameter: OpenAPIV3_2.ParameterObject | undefined
   body: ValidateFunction | null
   /** Whether the request body is required by the operation */
   bodyRequired: boolean
@@ -199,7 +203,7 @@ const compileSchema = (
   schema: Record<string, unknown> | null,
   label: string,
 ): ValidateFunction | null => {
-  if (!schema) {
+  if (schema === null) {
     return null
   }
 
@@ -234,6 +238,10 @@ const compileValidators = (
   const headerParameters = buildParameterSchema(parameters, 'header')
   const cookieParameters = buildParameterSchema(parameters, 'cookie')
 
+  const querystringParameter = findQuerystringParameter(operation, pathItemParameters)
+  const [querystringContentType, querystringMedia] = Object.entries(querystringParameter?.content ?? {})[0] ?? []
+  const querystringSchema = querystringMedia?.schema
+
   const requestBody = getResolvedRef(operation.requestBody)
   // Build the body schema defensively; resolving a malformed `$ref` should not crash setup.
   let bodySchema: Record<string, unknown> | null = null
@@ -245,6 +253,19 @@ const compileValidators = (
   }
 
   return {
+    querystringParameter,
+    querystringJson: compileSchema(
+      bodyAjv,
+      getQuerystringJsonSchema(querystringParameter),
+      'querystring JSON properties',
+    ),
+    querystring: compileSchema(
+      querystringContentType?.split(';')[0]?.trim().toLowerCase() === 'application/x-www-form-urlencoded'
+        ? parameterAjv
+        : bodyAjv,
+      querystringSchema === undefined ? null : asCompilableSchema(getResolvedRefDeep(querystringSchema)),
+      'querystring parameter',
+    ),
     path: compileSchema(parameterAjv, pathParameters?.schema ?? null, 'path parameter'),
     query: compileSchema(parameterAjv, queryParameters?.schema ?? null, 'query parameter'),
     header: compileSchema(parameterAjv, headerParameters?.schema ?? null, 'header parameter'),
@@ -433,6 +454,23 @@ export const validateRequest = (
       const data = gather(descriptors, getValue, getValues, getMap)
       if (!validator(data)) {
         violations.push(...mapErrors(validator.errors, location))
+      }
+    }
+
+    if (validators.querystringParameter) {
+      try {
+        const value = parseQuerystringParameter(c.req.url, validators.querystringParameter)
+        if (value === undefined) {
+          if (validators.querystringParameter.required) {
+            violations.push({ location: 'query', path: '', message: 'Query string is required' })
+          }
+        } else if (validators.querystringJson && !validators.querystringJson(value)) {
+          violations.push(...mapErrors(validators.querystringJson.errors, 'query'))
+        } else if (validators.querystring && !validators.querystring(value)) {
+          violations.push(...mapErrors(validators.querystring.errors, 'query'))
+        }
+      } catch {
+        violations.push({ location: 'query', path: '', message: 'Query string could not be decoded' })
       }
     }
 

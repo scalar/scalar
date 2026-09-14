@@ -1,6 +1,7 @@
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { type NodeInput, getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getQuerystringParameter, serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import type { DisableParametersConfig } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
@@ -60,6 +61,8 @@ export const upsertOperationParameter = (
 ) => {
   // We are editing an existing parameter
   if (originalParameter) {
+    const querystring = getQuerystringParameter(originalParameter, meta.exampleKey, { includeDisabled: true })
+    const preserveQuerystringValue = querystring && payload.value === serializeQuerystringParameter(querystring)
     // To support content-type parameters in the API client, we just assume an
     // examples property can be set.
     const param = originalParameter as typeof originalParameter & {
@@ -82,7 +85,26 @@ export const upsertOperationParameter = (
     const example = getResolvedRef(param.examples[meta.exampleKey])!
 
     // Update the example value and disabled state
-    example.value = payload.value
+    if (param.in === 'querystring') {
+      // The whole-query editor displays the URI-ready value, including percent encoding.
+      delete example.value
+      delete example.dataValue
+      delete example.externalValue
+      delete example.serializedValue
+      // Toggling an unchanged preview must preserve data and environment placeholders
+      // so future environment changes still happen before serialization.
+      if (preserveQuerystringValue && !querystring.uriEncoded) {
+        if (querystring.serialized) {
+          example.value = querystring.value
+        } else {
+          example.dataValue = querystring.value
+        }
+      } else {
+        example.serializedValue = String(payload.value)
+      }
+    } else {
+      example.value = payload.value
+    }
     example['x-disabled'] = payload.isDisabled
     return
   }
@@ -256,5 +278,8 @@ export const deleteAllOperationParameters = (
   }
 
   // Filter out parameters of the specified type
-  operation.parameters = operation.parameters?.filter((it) => getResolvedRef(it)?.in !== type) ?? []
+  operation.parameters =
+    operation.parameters?.filter(
+      (it) => getResolvedRef(it)?.in !== type && !(type === 'query' && getResolvedRef(it)?.in === 'querystring'),
+    ) ?? []
 }
