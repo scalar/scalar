@@ -5,6 +5,8 @@ import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { toValue } from 'vue'
 
+import { ServerSelector } from '@/blocks/scalar-server-selector-block'
+
 import ApiReference from './ApiReference.vue'
 
 enableAutoUnmount(afterEach)
@@ -149,6 +151,43 @@ const createBasicDocument = (title = 'Test API') => ({
 })
 
 describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
+  it.each([undefined, [{ url: 'https://{env}.other.example.com', variables: { env: { default: 'original' } } }]])(
+    'shares edited configuration variables between the reference and modal with document servers %j',
+    async (documentServers) => {
+      const spy = vi.spyOn(apiClientModalModule, 'createApiClientModal')
+      const servers = [{ url: 'https://{env}.example.com', variables: { env: { default: 'prod' } } }]
+      const content = { ...createBasicDocument(), servers: documentServers }
+      const wrapper = mountComponent({ props: { configuration: { content: JSON.stringify(content), servers } } })
+      await flushPromises()
+
+      const selector = wrapper.findComponent(ServerSelector)
+      await selector.get('input').setValue('staging')
+      await flushPromises()
+
+      expect(selector.props('selectedServer')?.variables?.env?.default).toBe('staging')
+      const modalOptions = toValue(spy.mock.calls.at(-1)?.[0].options)
+      expect(modalOptions?.servers?.[0]?.variables?.env?.default).toBe('staging')
+      expect(servers[0]?.variables.env.default).toBe('prod')
+      expect(content.servers).toStrictEqual(documentServers)
+
+      await wrapper.setProps({ configuration: { content: JSON.stringify(content), servers, hideModels: true } })
+      await flushPromises()
+      expect(selector.props('selectedServer')?.variables?.env?.default).toBe('staging')
+
+      await wrapper.setProps({
+        configuration: {
+          content: JSON.stringify(content),
+          servers: [{ ...servers[0], variables: { env: { default: 'dev' } } }],
+        },
+      })
+      await flushPromises()
+      expect(selector.props('selectedServer')?.variables?.env?.default).toBe('dev')
+      expect(toValue(spy.mock.calls.at(-1)?.[0].options)?.servers?.[0]?.variables?.env?.default).toBe('dev')
+      wrapper.unmount()
+      spy.mockRestore()
+    },
+  )
+
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
     await flushPromises()

@@ -30,6 +30,36 @@ const createMinimalDocument = (overrides: Partial<OpenApiDocument> = {}): OpenAp
 })
 
 describe('getRequestExampleContext', () => {
+  it('targets document variables when configured servers override operation servers', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const configuredServers = [{ url: 'https://{env}.example.com', variables: { env: { default: 'prod' } } }]
+    await workspaceStore.addDocument({
+      name: 'test',
+      document: createMinimalDocument({
+        servers: configuredServers,
+        paths: { '/pets': { get: { servers: [{ url: 'https://operation.example.com' }], responses: {} } } },
+      }),
+    })
+    const result = getRequestExampleContext(
+      workspaceStore,
+      'test',
+      { path: '/pets', method: 'get', exampleName: 'default' },
+      { servers: configuredServers },
+    )
+    assert(result.ok)
+    expect(result.data.servers.meta).toStrictEqual({ type: 'document' })
+    expect(result.data.servers.selected).toStrictEqual(configuredServers[0])
+
+    const withoutOverride = getRequestExampleContext(
+      workspaceStore,
+      'test',
+      { path: '/pets', method: 'get', exampleName: 'default' },
+      {},
+    )
+    assert(withoutOverride.ok)
+    expect(withoutOverride.data.servers.meta).toStrictEqual({ type: 'operation', path: '/pets', method: 'get' })
+  })
+
   it('merges options.authentication securitySchemes into security.schemes', async () => {
     const workspaceStore = createWorkspaceStore()
     await workspaceStore.addDocument({
