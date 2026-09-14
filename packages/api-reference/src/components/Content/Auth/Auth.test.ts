@@ -57,9 +57,14 @@ describe('Auth', () => {
     const document = {
       openapi: '3.2.1',
       info: { title: 'OAuth metadata', version: '1.0' },
-      'x-scalar-navigation': { name: 'oauth-metadata' },
+      'x-scalar-navigation': {
+        name: 'oauth-metadata',
+        id: 'oauth-metadata',
+        title: 'OAuth metadata',
+        type: 'document',
+      },
       security: [{ oauth: [] }],
-    } as WorkspaceDocument
+    } satisfies WorkspaceDocument
     const wrapper = mountAuth(
       {
         oauth: {
