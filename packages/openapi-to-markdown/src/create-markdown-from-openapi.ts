@@ -4,6 +4,7 @@ import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { minify } from 'html-minifier-terser'
 import rehypeParse from 'rehype-parse'
@@ -30,8 +31,19 @@ export type OperationSelector =
   | {
       pointer: string
     }
-export type OpenApiRenderOptions = {
-  operation?: OperationSelector
+/** Select one reference page, or omit selectors for the whole document. */
+export type OpenApiRenderOptions =
+  | {
+      [Key in keyof PageSelectors]: Partial<Record<Exclude<keyof PageSelectors, Key>, never>> & Pick<PageSelectors, Key>
+    }[keyof PageSelectors]
+  | Partial<Record<keyof PageSelectors, never>>
+
+type PageSelectors = {
+  operation: OperationSelector
+  tag: string
+  model: string
+  webhook: { name: string; method: HttpMethod | Uppercase<HttpMethod> }
+  introduction: true
 }
 type WorkspaceInput =
   | {
@@ -89,6 +101,9 @@ const normalizeHttpMethod = (method: string): HttpMethod | null => {
 }
 
 const normalizeJsonPointer = (pointer: string): string => {
+  if (/~(?![01])/.test(pointer)) {
+    throw new Error(`Invalid JSON pointer escape in "${pointer}"`)
+  }
   if (pointer.startsWith('#/')) {
     return pointer.slice(1)
   }
@@ -232,6 +247,187 @@ const filterDocumentByOperation = (document: OpenApiDocument, selector: Operatio
   }
 }
 
+/** Scope after resolving references and migrating older documents. */
+const selectDocument = (document: OpenApiDocument, options: OpenApiRenderOptions = {}): OpenApiDocument => {
+  if (!isObject(options)) {
+    throw new Error('Render options must be an object')
+  }
+  const keys = Object.keys(options).filter((key) => options[key as keyof OpenApiRenderOptions] !== undefined)
+  if (!keys.length) {
+    return document
+  }
+  if (keys.length !== 1 || !['operation', 'tag', 'model', 'webhook', 'introduction'].includes(keys[0]!)) {
+    throw new Error('Specify exactly one of operation, tag, model, webhook, or introduction')
+  }
+  if (options.introduction !== undefined && options.introduction !== true) {
+    throw new Error('Introduction selector must be true')
+  }
+  for (const key of ['tag', 'model'] as const) {
+    if (options[key] !== undefined && (typeof options[key] !== 'string' || !options[key].length)) {
+      throw new Error(`${key} selector must be a non-empty string`)
+    }
+  }
+  if (options.operation !== undefined) {
+    const selector = options.operation
+    if (
+      !isObject(selector) ||
+      !(
+        (Object.keys(selector).length === 1 &&
+          ('operationId' in selector
+            ? typeof selector.operationId === 'string' && selector.operationId.length
+            : 'pointer' in selector && typeof selector.pointer === 'string' && selector.pointer.length)) ||
+        (Object.keys(selector).length === 2 &&
+          'path' in selector &&
+          typeof selector.path === 'string' &&
+          'method' in selector &&
+          typeof selector.method === 'string')
+      )
+    ) {
+      throw new Error('Invalid operation selector. Use { path, method }, { operationId }, or { pointer }')
+    }
+  }
+  const selected: OpenApiDocument = { ...document, paths: {}, webhooks: {}, tags: [] }
+  const modelRoots: unknown[] = []
+  if (options.operation) {
+    selected.paths = filterDocumentByOperation(document, options.operation).paths
+  }
+  if (options.tag !== undefined) {
+    const metadata = document.tags?.filter((tag) => tag.name === options.tag) ?? []
+    if (metadata.length > 1) {
+      throw new Error(`Multiple tags found for "${options.tag}"`)
+    }
+    selected.tags = metadata.length ? metadata : [{ name: options.tag }]
+    for (const [path, item] of getPathEntries(document)) {
+      const methods = HTTP_METHODS.filter((method) => getPathItemOperation(item, method)?.tags?.includes(options.tag!))
+      if (methods.length) {
+        selected.paths![path] = Object.fromEntries(
+          Object.entries(item).filter(([key]) => !HTTP_METHOD_SET.has(key) || methods.includes(key as HttpMethod)),
+        )
+      }
+    }
+    if (!metadata.length && !Object.keys(selected.paths ?? {}).length) {
+      throw new Error(`Tag "${options.tag}" was not found`)
+    }
+  }
+  if (options.model !== undefined) {
+    const schema = document.components?.schemas?.[options.model]
+    if (schema === undefined || !Object.hasOwn(document.components?.schemas ?? {}, options.model)) {
+      throw new Error(`Model "${options.model}" was not found`)
+    }
+    modelRoots.push(schema)
+  }
+  if (options.webhook !== undefined) {
+    const selector = options.webhook
+    if (
+      !isObject(selector) ||
+      typeof selector.name !== 'string' ||
+      !selector.name ||
+      typeof selector.method !== 'string' ||
+      Object.keys(selector).length !== 2
+    ) {
+      throw new Error('Invalid webhook selector. Use { name, method }')
+    }
+    const method = normalizeHttpMethod(selector.method)
+    if (!method) {
+      throw new Error(`Invalid HTTP method "${selector.method}"`)
+    }
+    const item = getResolvedPathItem(document.webhooks?.[selector.name])
+    if (!item || !getPathItemOperation(item, method)) {
+      throw new Error(`Webhook "${selector.name}" with method "${method.toUpperCase()}" was not found`)
+    }
+    selected.webhooks = { [selector.name]: filterPathItemToSingleOperation(item, method) }
+  }
+  const securityNames = new Set<string>()
+  const tagNames = new Set<string>()
+  for (const items of [selected.paths, selected.webhooks]) {
+    for (const [path, itemRef] of Object.entries(items ?? {})) {
+      const item = getResolvedPathItem(itemRef)!
+      const scoped = { ...item, parameters: undefined, servers: undefined }
+      for (const method of HTTP_METHODS) {
+        const operation = getPathItemOperation(item, method)
+        if (!operation) {
+          continue
+        }
+        const parameters = new Map<string, NonNullable<typeof operation.parameters>[number]>()
+        for (const ref of [...(item.parameters ?? []), ...(operation.parameters ?? [])]) {
+          const parameter = getResolvedRef(ref)
+          if (parameter) {
+            parameters.set(`${parameter.in}:${parameter.name}`, ref)
+          }
+        }
+        const security = operation.security ?? document.security ?? []
+        for (const requirement of security) {
+          for (const name of Object.keys(requirement)) {
+            securityNames.add(name)
+          }
+        }
+        for (const name of operation.tags ?? []) {
+          tagNames.add(name)
+        }
+        scoped[method] = {
+          ...operation,
+          parameters: [...parameters.values()],
+          servers: operation.servers ?? item.servers ?? document.servers,
+          security,
+          tags: options.tag !== undefined ? [options.tag] : operation.tags,
+        }
+      }
+      items![path] = scoped
+    }
+  }
+  if (options.operation || options.webhook) {
+    selected.tags = document.tags?.filter((tag) => tagNames.has(tag.name)) ?? []
+  }
+  if (options.introduction) {
+    for (const requirement of document.security ?? []) {
+      for (const name of Object.keys(requirement)) {
+        securityNames.add(name)
+      }
+    }
+  } else {
+    selected.servers = []
+    selected.security = undefined
+  }
+  const schemas = document.components?.schemas ?? {}
+  const needed = new Set<string>(options.model !== undefined ? [options.model] : [])
+  const visited = new WeakSet<object>()
+  const references = new Set<string>()
+  const visit = (value: unknown): void => {
+    if (!value || typeof value !== 'object' || visited.has(value)) {
+      return
+    }
+    visited.add(value)
+    if ('$ref' in value && typeof value.$ref === 'string') {
+      const ref = value.$ref
+      if (!references.has(ref)) {
+        references.add(ref)
+        if (ref.startsWith('#/components/schemas/')) {
+          const name = parseJsonPointer(ref)[2]!
+          if (Object.hasOwn(schemas, name)) {
+            needed.add(name)
+            visit(schemas[name])
+          }
+        }
+        visit(getResolvedRef(value as never))
+      }
+    }
+    for (const [key, child] of Object.entries(value)) {
+      if (key !== '$ref-value') {
+        visit(child)
+      }
+    }
+  }
+  visit([selected.paths, selected.webhooks, ...modelRoots])
+  selected.components = {
+    ...document.components,
+    schemas: Object.fromEntries(Object.entries(schemas).filter(([name]) => needed.has(name))),
+    securitySchemes: Object.fromEntries(
+      Object.entries(document.components?.securitySchemes ?? {}).filter(([name]) => securityNames.has(name)),
+    ),
+  }
+  return selected
+}
+
 export async function createHtmlFromOpenApi(input: AnyDocument, options?: OpenApiRenderOptions) {
   const workspaceStore = createWorkspaceStore({
     fileLoader: readFiles(),
@@ -253,10 +449,7 @@ export async function createHtmlFromOpenApi(input: AnyDocument, options?: OpenAp
     throw new Error('OpenAPI document could not be resolved')
   }
 
-  const renderedContent =
-    options?.operation && isObject(content)
-      ? filterDocumentByOperation(content as OpenApiDocument, options.operation)
-      : content
+  const renderedContent = selectDocument(content as OpenApiDocument, options)
 
   // Create and configure a server-side rendered Vue app
   const app = createSSRApp(MarkdownReference, {
