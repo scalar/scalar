@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import type {
   ExampleObject,
   MediaTypeObject,
@@ -44,14 +45,14 @@ const shouldVirtualize = computed(() => {
   <ScalarCodeBlock
     v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
     class="bg-b-2"
-    lang="json"
+    :lang="isXmlMediaType(contentType) ? 'xml' : 'json'"
     :prettyPrintedContent="prettyPrintedContent" />
 
   <ScalarVirtualCodeBlock
     v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
     class="bg-b-2"
     :content="prettyPrintedContent"
-    lang="json" />
+    :lang="isXmlMediaType(contentType) ? 'xml' : 'json'" />
 
   <div
     v-else
