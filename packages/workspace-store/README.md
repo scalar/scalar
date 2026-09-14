@@ -95,6 +95,12 @@ const chunk = store.get('#/document-name/components/schemas/Person')
 
 Create a new store in static mode
 
+Static generation treats the real path of the configured output directory as its trusted root,
+so an intentionally symlinked output directory is supported. Existing symbolic links below that
+root, including chunk files and `scalar-workspace.json`, are rejected. Keep the output directory
+and its ancestors under trusted control throughout generation: filesystem checks do not protect
+against an untrusted process concurrently replacing files or directories.
+
 ```ts
 // Create the store
 const store = await createServerWorkspaceStore({
