@@ -1,11 +1,10 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type ComputedRef, type Ref, computed, ref } from 'vue'
 
 /** One selectable row: operation example (path + method + exampleKey) with stable id */
 export type SelectedItem = {
   id: string
   path: string
-  method: HttpMethod
+  method: string
   exampleKey: string
   label: string
 }
@@ -21,9 +20,9 @@ type UseRunnerSelectionReturn = {
   /** Whether any items are selected */
   hasSelection: ComputedRef<boolean>
   /** Check if a specific operation example is selected */
-  isSelected: (path: string, method: HttpMethod, exampleKey: string) => boolean
+  isSelected: (path: string, method: string, exampleKey: string) => boolean
   /** Toggle selection of an operation example */
-  toggle: (path: string, method: HttpMethod, exampleKey: string, label: string) => void
+  toggle: (path: string, method: string, exampleKey: string, label: string) => void
   /** Clear all selections */
   clearAll: () => void
   /** Remove a specific item from the selection */
@@ -53,11 +52,11 @@ export function useRunnerSelection({ isLocked }: UseRunnerSelectionOptions): Use
 
   const hasSelection = computed(() => selectedOrder.value.length > 0)
 
-  const isSelected = (path: string, method: HttpMethod, exampleKey: string): boolean => {
+  const isSelected = (path: string, method: string, exampleKey: string): boolean => {
     return selectedOrder.value.some((s) => s.path === path && s.method === method && s.exampleKey === exampleKey)
   }
 
-  const toggle = (path: string, method: HttpMethod, exampleKey: string, label: string): void => {
+  const toggle = (path: string, method: string, exampleKey: string, label: string): void => {
     if (isLocked()) {
       return
     }

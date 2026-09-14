@@ -1,6 +1,5 @@
 import { Operation } from '@scalar/api-client/features/operation'
 import type { ApiClientOptions, ClientLayout } from '@scalar/api-client/types'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { mergeSearchParams } from '@scalar/helpers/url/merge-urls'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { Theme } from '@scalar/themes'
@@ -39,7 +38,7 @@ export type RouteProps = {
   /** The API path currently selected (e.g. "/users/{id}") */
   path?: string
   /** The HTTP method for the currently selected API path (e.g. GET, POST) */
-  method?: HttpMethod
+  method?: string
   /** The name of the currently selected example (for examples within an endpoint) */
   exampleName?: string
   /** The currently active environment */

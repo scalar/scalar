@@ -2,7 +2,6 @@ import type { ClientLayout } from '@scalar/api-client/types'
 import type { ScalarListboxOption } from '@scalar/components/listbox'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { slugify } from '@scalar/helpers/string/slugify'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
@@ -39,12 +38,7 @@ import { getPlaceholderWorkspaceId, parsePlaceholderWorkspaceId } from './helper
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-export type GetEntryByLocation = (location: {
-  document: string
-  path?: string
-  method?: HttpMethod
-  example?: string
-}) =>
+export type GetEntryByLocation = (location: { document: string; path?: string; method?: string; example?: string }) =>
   | (TraversedEntry & {
       parent?: TraversedEntry | undefined
     })
@@ -206,7 +200,7 @@ export type AppState = {
     /** The API path currently selected (e.g. "/users/{id}") */
     path: Ref<string | undefined>
     /** The HTTP method for the currently selected API path (e.g. GET, POST) */
-    method: Ref<HttpMethod | undefined>
+    method: Ref<string | undefined>
     /** The name of the currently selected example (for examples within an endpoint) */
     exampleName: Ref<string | undefined>
   }
@@ -282,7 +276,7 @@ export const createAppState = async ({
   const routeTeamSlug = ref<string | undefined>(undefined)
   const workspaceSlug = ref<string | undefined>(undefined)
   const documentSlug = ref<string | undefined>(undefined)
-  const method = ref<HttpMethod | undefined>(undefined)
+  const method = ref<string | undefined>(undefined)
   const path = ref<string | undefined>(undefined)
   const exampleName = ref<string | undefined>(undefined)
 
@@ -950,7 +944,7 @@ export const createAppState = async ({
   }: {
     document: string
     path?: string
-    method?: HttpMethod
+    method?: string
     example?: string
   }) => {
     return JSON.stringify([document, path, method, example].filter(isDefined))
