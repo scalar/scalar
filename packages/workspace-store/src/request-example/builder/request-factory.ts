@@ -218,6 +218,7 @@ export const requestFactory = ({
   defaultHeaders,
   isElectron,
   selectedSecuritySchemes,
+  openapiVersion,
   requestBodyCompositionSelection,
 }: RequestExampleMeta & {
   /** The operation object */
@@ -237,6 +238,8 @@ export const requestFactory = ({
   /** The selected security schemes for the current operation */
   selectedSecuritySchemes: SecuritySchemeObjectSecret[]
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  /** Originating OpenAPI version, used for XML mapping rules. */
+  openapiVersion?: string
   requestBodyCompositionSelection?: Record<string, number>
 }): {
   request: RequestFactory
@@ -258,7 +261,7 @@ export const requestFactory = ({
 
   // If the method can have a body, build the request body, otherwise set it to null
   const body = canMethodHaveBody(method)
-    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection)
+    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection, openapiVersion)
     : null
 
   // Delete the Content-Type header so the browser will set it automatically based on the request body

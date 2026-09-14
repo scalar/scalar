@@ -18,11 +18,13 @@ const {
   response,
   content,
   contentType = 'application/json',
+  openapiVersion,
 } = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject | undefined
   /** Reuse the card's formatted value so generation and copying cannot diverge. */
   content?: string
+  openapiVersion?: string
   contentType?: string
 }>()
 const { translate } = useLocalization()
@@ -31,7 +33,7 @@ const resolvedExample = computed(() => getResolvedRef(example))
 
 /** Preformatted content is shared with the response card clipboard action. */
 const prettyPrintedContent = computed(
-  () => content ?? getExampleContent(response, example, { contentType }),
+  () => content ?? getExampleContent(response, example, { contentType, openapiVersion }),
 )
 
 const VIRTUALIZATION_THRESHOLD = 20_000

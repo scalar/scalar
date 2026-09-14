@@ -86,6 +86,10 @@ const displayData = computed(() => {
  * multipart fields remain distinct while unrelated rows can move without losing their identity.
  */
 const getRowKey = (row: TableRow, index: number): string => {
+  // Body edits retain their row when blur commits a rename after focus moves into the value.
+  if (deferKeyUpdates) {
+    return `body:${index}`
+  }
   if (row.originalParameter) {
     return JSON.stringify([
       row.originalParameter.name,

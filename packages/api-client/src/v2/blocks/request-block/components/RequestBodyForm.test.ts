@@ -536,4 +536,49 @@ describe('RequestBodyForm', () => {
       }
     },
   )
+  it('saves a deliberately cleared body key', async () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { existing: 'value' } },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    const input = wrapper.findComponent(RequestTableRow).findAllComponents(CodeInputLite)[0]!
+    input.vm.$emit('update:modelValue', '')
+    await nextTick()
+    input.vm.$emit('blur', '')
+    await nextTick()
+    expect(wrapper.emitted('update:formValue')?.at(-1)).toStrictEqual([
+      [{ name: '', value: 'value', isDisabled: false }],
+    ])
+    wrapper.unmount()
+  })
+
+  it('retains value focus after committing existing and new body keys', async () => {
+    const wrapper = mount(RequestBodyForm, {
+      attachTo: document.body,
+      props: {
+        example: { value: { existing: 'value' } },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    try {
+      for (const index of [0, 1]) {
+        const row = wrapper.findAllComponents(RequestTableRow)[index]!
+        const inputs = row.findAllComponents(CodeInputLite)
+        const valueEditor = inputs[1]!.get('[contenteditable="true"]').element as HTMLElement
+        inputs[0]!.vm.$emit('update:modelValue', `renamed${index}`)
+        await nextTick()
+        inputs[0]!.vm.$emit('blur', `renamed${index}`)
+        valueEditor.focus()
+        await nextTick()
+        expect(document.activeElement).toBe(valueEditor)
+        expect(valueEditor.isConnected).toBe(true)
+      }
+    } finally {
+      wrapper.unmount()
+    }
+  })
 })

@@ -640,10 +640,10 @@ Test description`
 
       \`\`\`xml
       <?xml version="1.0" encoding="UTF-8"?>
-      <0>
+      <root>
         <id></id>
         <name></name>
-      </0>
+      </root>
       \`\`\`
       "
     `)

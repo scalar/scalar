@@ -1,5 +1,6 @@
-import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
@@ -8,6 +9,7 @@ import {
   buildRequestBody,
   coerceLeafValueToSchemaType,
   getExample,
+  getExampleFromBody,
   getExampleFromSchema,
   needsMultipartEncoding,
   resolveLeafSchema,
@@ -24,7 +26,10 @@ import type { Param, PostData } from 'har-format'
 
 import type { OperationToHarProps } from './operation-to-har'
 
-type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example' | 'requestBodyCompositionSelection'> & {
+type ProcessBodyProps = Pick<
+  OperationToHarProps,
+  'contentType' | 'example' | 'requestBodyCompositionSelection' | 'openapiVersion'
+> & {
   requestBody: RequestBodyObject
 }
 
@@ -192,6 +197,7 @@ export const processBody = ({
   requestBody,
   contentType,
   example,
+  openapiVersion,
   requestBodyCompositionSelection,
 }: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
@@ -229,7 +235,16 @@ export const processBody = ({
   const isFormData = _contentType === 'multipart/form-data' || _contentType === 'application/x-www-form-urlencoded'
 
   // Check if this is an XML content type
-  const isXml = _contentType === 'application/xml'
+  if (isXmlMediaType(_contentType)) {
+    const xmlExample = getExampleFromBody(
+      requestBody,
+      _contentType,
+      example ?? '',
+      requestBodyCompositionSelection,
+      openapiVersion,
+    )
+    return xmlExample ? { mimeType: harMimeType, text: xmlExample.value as string } : undefined
+  }
 
   // Get the example value
   const selected = getExampleValue(getExample(requestBody, example, contentType))
@@ -253,13 +268,6 @@ export const processBody = ({
           _contentType === 'multipart/form-data',
           getResolvedRef(requestBody.content[_contentType]?.schema, mergeSiblingReferences),
         ),
-      }
-    }
-
-    if (isXml && typeof exampleValue === 'object' && exampleValue !== null) {
-      return {
-        mimeType: harMimeType,
-        text: json2xml(exampleValue),
       }
     }
 
@@ -289,7 +297,6 @@ export const processBody = ({
       {
         compositionSelection: requestBodyCompositionSelection,
         mode: 'write',
-        xml: isXml,
       },
       {
         schemaPath: ['requestBody'],
@@ -301,13 +308,6 @@ export const processBody = ({
         return {
           mimeType: harMimeType,
           params: objectToFormParams(extractedExample, encoding, undefined, _contentType === 'multipart/form-data'),
-        }
-      }
-
-      if (isXml && typeof extractedExample === 'object' && extractedExample !== null) {
-        return {
-          mimeType: harMimeType,
-          text: json2xml(extractedExample),
         }
       }
 

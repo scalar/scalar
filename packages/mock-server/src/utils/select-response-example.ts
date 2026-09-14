@@ -1,5 +1,17 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/example'
+
+/** Keep serialized/data examples distinguishable until the media serializer runs. */
+const exampleValue = (example: ExampleObject | undefined): (ExampleObject & { value: unknown }) | undefined => {
+  if (example?.serializedValue !== undefined) {
+    return { serializedValue: example.serializedValue, value: example.serializedValue }
+  }
+  if (example?.dataValue !== undefined) {
+    return { dataValue: example.dataValue, value: example.dataValue }
+  }
+  return example?.value !== undefined ? { value: example.value } : undefined
+}
 
 /**
  * Pick the example body for a response media type.
@@ -23,7 +35,7 @@ export const selectResponseExample = <
 >(
   mediaType: T | undefined,
   exampleName?: string,
-): { value: unknown } | undefined => {
+): (ExampleObject & { value: unknown }) | undefined => {
   if (!mediaType) {
     return undefined
   }
@@ -32,10 +44,9 @@ export const selectResponseExample = <
 
   // 1. A named example requested via `Prefer: example=<name>`
   if (exampleName && examples && exampleName in examples) {
-    const value = getResolvedRef(examples[exampleName])?.value
-
-    if (value !== undefined) {
-      return { value }
+    const selected = exampleValue(getResolvedRef(examples[exampleName]))
+    if (selected) {
+      return selected
     }
   }
 
@@ -49,10 +60,9 @@ export const selectResponseExample = <
     const firstKey = Object.keys(examples)[0]
 
     if (firstKey !== undefined) {
-      const value = getResolvedRef(examples[firstKey])?.value
-
-      if (value !== undefined) {
-        return { value }
+      const selected = exampleValue(getResolvedRef(examples[firstKey]))
+      if (selected) {
+        return selected
       }
     }
   }

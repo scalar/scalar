@@ -105,6 +105,8 @@ export type CodeExampleProps = {
    * When the request body schema uses oneOf/anyOf, use these selected variants
    * for the example snippet (e.g. from the schema dropdowns in the API reference).
    */
+  /** Originating OpenAPI version, used for XML mapping rules. */
+  openapiVersion?: string
   requestBodyCompositionSelection?: Record<string, number>
 }
 
@@ -190,6 +192,7 @@ const {
   isWebhook,
   generateLabel,
   globalCookies,
+  openapiVersion,
   requestBodyCompositionSelection,
 } = defineProps<CodeExampleProps>()
 
@@ -347,6 +350,7 @@ const webhookHar = computed(() => {
       method,
       path,
       example: localExampleKey.value,
+      openapiVersion,
       requestBodyCompositionSelection,
       // Only required parameters are shown in code examples; optional parameters
       // are omitted unless explicitly enabled via `x-disabled: false`.
@@ -379,6 +383,7 @@ const generatedCode = computed<string | null>(() => {
     securitySchemes,
     example: localExampleKey.value,
     globalCookies,
+    openapiVersion,
     requestBodyCompositionSelection,
   })
 })

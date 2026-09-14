@@ -53,6 +53,8 @@ export type OperationToHarProps = {
    * Selected oneOf/anyOf variants for nested request body example generation
    * (e.g. from the schema dropdowns in the API reference).
    */
+  /** Originating OpenAPI version, used for XML mapping rules. */
+  openapiVersion?: string
   requestBodyCompositionSelection?: Record<string, number>
   /**
    * Whether to disable parameters by default.
@@ -93,6 +95,7 @@ export const operationToHar = ({
   example,
   securitySchemes,
   globalCookies,
+  openapiVersion,
   requestBodyCompositionSelection,
   defaultDisabledParameters = false,
 }: OperationToHarProps): HarRequest => {
@@ -167,6 +170,7 @@ export const operationToHar = ({
       requestBody: body,
       contentType,
       example,
+      openapiVersion,
       requestBodyCompositionSelection,
     })
 
