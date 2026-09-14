@@ -126,7 +126,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (schema.minLength) {
       properties.push({
         key: 'min-length',
-        prefix: `${translate('common.minLength')}: `,
+        prefix: `${translate('schema.minLength')}: `,
         value: schema.minLength,
       })
     }
@@ -134,7 +134,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (schema.maxLength) {
       properties.push({
         key: 'max-length',
-        prefix: `${translate('common.maxLength')}: `,
+        prefix: `${translate('schema.maxLength')}: `,
         value: schema.maxLength,
       })
     }
@@ -154,7 +154,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.exclusiveMinimum)) {
       properties.push({
         key: 'exclusive-minimum',
-        prefix: `${translate('common.greaterThan')}: `,
+        prefix: `${translate('schema.greaterThan')}: `,
         value: schema.exclusiveMinimum,
       })
     }
@@ -162,7 +162,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.minimum)) {
       properties.push({
         key: 'minimum',
-        prefix: `${translate('common.min')}: `,
+        prefix: `${translate('schema.min')}: `,
         value: schema.minimum,
       })
     }
@@ -170,7 +170,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.exclusiveMaximum)) {
       properties.push({
         key: 'exclusive-maximum',
-        prefix: `${translate('common.lessThan')}: `,
+        prefix: `${translate('schema.lessThan')}: `,
         value: schema.exclusiveMaximum,
       })
     }
@@ -178,7 +178,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.maximum)) {
       properties.push({
         key: 'maximum',
-        prefix: `${translate('common.max')}: `,
+        prefix: `${translate('schema.max')}: `,
         value: schema.maximum,
       })
     }
@@ -186,7 +186,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.multipleOf)) {
       properties.push({
         key: 'multiple-of',
-        prefix: `${translate('common.multipleOf')}: `,
+        prefix: `${translate('schema.multipleOf')}: `,
         value: schema.multipleOf,
       })
     }
@@ -216,7 +216,7 @@ const validationProperties = computed(() => {
     if (schema.uniqueItems) {
       properties.push({
         key: 'unique-items',
-        value: `${translate('common.unique')}!`,
+        value: `${translate('schema.unique')}!`,
       })
     }
   }
@@ -400,7 +400,7 @@ const patternValue = computed(() => {
     <div
       v-if="props.isDiscriminator"
       class="property-discriminator">
-      {{ translate('common.discriminator') }}
+      {{ translate('schema.discriminator') }}
     </div>
     <template v-if="props.value">
       <!-- A map key reads `additionalProperty · string`: the keyword leads the
@@ -422,7 +422,7 @@ const patternValue = computed(() => {
         <!-- Written across lines on purpose: Vue drops whitespace-only text
              between two elements, so a single-line label would read
              `Type:string`. -->
-        <span class="screenreader-only"> {{ translate('common.type') }}: </span>
+        <span class="screenreader-only"> {{ translate('schema.type') }}: </span>
         <button
           v-if="props.eventBus && modelLink?.schemaKey && modelLinkable"
           class="text-c-3 hover:text-c-1 underline"
@@ -485,14 +485,14 @@ const patternValue = computed(() => {
         :title="
           translate('schema.recursiveReference', { name: props.recursiveTo })
         ">
-        {{ translate('common.recursive') }}
+        {{ translate('schema.recursive') }}
       </SchemaPropertyDetail>
 
       <!-- Key constraints from propertyNames (e.g. "keys: string · uuid") -->
       <SchemaPropertyDetail
         v-if="propertyNamesDetail"
         truncate>
-        <template #prefix>{{ translate('common.keys') }}:</template>
+        <template #prefix>{{ translate('schema.keys') }}:</template>
         {{ propertyNamesDetail }}
       </SchemaPropertyDetail>
 
@@ -505,7 +505,7 @@ const patternValue = computed(() => {
         <span
           v-if="property.key === 'format'"
           class="screenreader-only">
-          {{ translate('common.format') }}:
+          {{ translate('schema.format') }}:
         </span>
         <template
           v-if="property.prefix"
@@ -517,7 +517,7 @@ const patternValue = computed(() => {
 
       <!-- Enum indicator -->
       <SchemaPropertyDetail v-if="props.enum">
-        {{ translate('common.enum') }}
+        {{ translate('schema.enum') }}
       </SchemaPropertyDetail>
     </template>
     <div
@@ -526,42 +526,42 @@ const patternValue = computed(() => {
       <template v-if="props.value?.['x-additionalPropertiesName']">
         {{ props.value['x-additionalPropertiesName'] }}
       </template>
-      <template v-else>{{ translate('common.additionalProperties') }}</template>
+      <template v-else>{{ translate('schema.additionalProperties') }}</template>
     </div>
     <div
       v-if="props.value?.deprecated"
       class="property-deprecated">
-      <Badge>{{ translate('common.deprecated') }}</Badge>
+      <Badge>{{ translate('schema.deprecated') }}</Badge>
     </div>
     <!-- Don't use `isDefined` here, we want to show `const` when the value is `null` -->
     <div
       v-if="constValue !== undefined"
       class="property-const">
       <SchemaPropertyDetail truncate>
-        <template #prefix>{{ translate('common.const') }}: </template>
+        <template #prefix>{{ translate('schema.const') }}: </template>
         <RenderString :value="constValue" />
       </SchemaPropertyDetail>
     </div>
     <template v-else>
       <!-- Shows only when a composition is used (so props.value?.type is undefined) -->
       <SchemaPropertyDetail v-if="(props.value as any)?.nullable === true">
-        {{ translate('common.nullable') }}
+        {{ translate('schema.nullable') }}
       </SchemaPropertyDetail>
     </template>
     <div
       v-if="props.value?.writeOnly"
       class="property-write-only">
-      {{ translate('common.writeOnly') }}
+      {{ translate('schema.writeOnly') }}
     </div>
     <div
       v-else-if="props.value?.readOnly"
       class="property-read-only">
-      {{ translate('common.readOnly') }}
+      {{ translate('schema.readOnly') }}
     </div>
     <div
       v-if="props.required"
       class="property-required">
-      {{ translate('common.required') }}
+      {{ translate('schema.required') }}
     </div>
     <!-- Gated here, not only inside the component: each popup instance installs
          window-level click and keydown listeners for its dismissal, so mounting

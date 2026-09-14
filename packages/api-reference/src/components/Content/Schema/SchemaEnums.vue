@@ -160,8 +160,8 @@ const toggleExpanded = () => {
     <div class="property-enum-header text-c-2 px-3 py-2 text-sm capitalize">
       {{
         propertyNames
-          ? translate('common.propertyNames')
-          : translate('common.values')
+          ? translate('schema.propertyNames')
+          : translate('schema.values')
       }}
     </div>
     <div
@@ -212,8 +212,8 @@ const toggleExpanded = () => {
             :open="isExpanded" />
           {{
             isExpanded
-              ? translate('common.hideValues')
-              : translate('common.showAllValues')
+              ? translate('schema.hideValues')
+              : translate('schema.showAllValues')
           }}
         </button>
       </li>
