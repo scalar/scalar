@@ -1,5 +1,4 @@
-import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
-import { type TLiteral, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 
 import { compose } from '@/schemas/compose'
@@ -86,7 +85,7 @@ export const TraversedOperationSchemaDefinition = compose(
   Type.Object({
     type: Type.Literal('operation'),
     ref: Type.String(),
-    method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
+    method: Type.String(),
     path: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
@@ -98,7 +97,7 @@ export const TraversedOperationSchemaDefinition = compose(
 export type TraversedOperation = BaseSchema & {
   type: 'operation'
   ref: string
-  method: HttpMethod
+  method: string
   path: string
   isDeprecated?: boolean
   children?: TraversedEntry[]
@@ -198,7 +197,7 @@ export const TraversedWebhookSchemaDefinition = compose(
   Type.Object({
     type: Type.Literal('webhook'),
     ref: Type.String(),
-    method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
+    method: Type.String(),
     name: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
   }),
@@ -210,7 +209,7 @@ export const TraversedWebhookSchemaDefinition = compose(
 export type TraversedWebhook = BaseSchema & {
   type: 'webhook'
   ref: string
-  method: HttpMethod
+  method: string
   name: string
   isDeprecated?: boolean
 }

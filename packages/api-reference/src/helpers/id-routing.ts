@@ -1,3 +1,4 @@
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { slugify } from '@scalar/helpers/string/slugify'
 
 /**
@@ -471,7 +472,7 @@ export type WebhookRedirectSource = {
  * - two webhooks collapse to the same legacy slug (the old bookmark is genuinely ambiguous).
  */
 const buildWebhookRedirects = (webhooks: WebhookRedirectSource[]): IdRedirect[] => {
-  const key = (method: string, slug: string) => `${method.toUpperCase()}/${slug}`
+  const key = (method: string, slug: string) => `${isHttpMethod(method) ? method.toUpperCase() : method}/${slug}`
 
   // Index current slugs so a legacy redirect never clobbers a real, current URL, and count legacy
   // slugs so we can drop the ones two webhooks share.
@@ -493,7 +494,7 @@ const buildWebhookRedirects = (webhooks: WebhookRedirectSource[]): IdRedirect[] 
 
   const redirects: IdRedirect[] = []
   for (const { name, method, id } of webhooks) {
-    const upperMethod = method.toUpperCase()
+    const upperMethod = isHttpMethod(method) ? method.toUpperCase() : method
     const currentSlug = id.slice(id.lastIndexOf('/') + 1)
     const legacySlug = slugify(name)
     const legacyKey = key(method, legacySlug)

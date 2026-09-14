@@ -1,5 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { normalizeMethod } from '@/libs/http'
 import { objectToString } from '@/libs/php'
 
 /**
@@ -17,7 +18,7 @@ export const phpCurl: Plugin = {
     }
 
     // Normalization
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Build PHP cURL code parts
     const parts: string[] = []

@@ -1,5 +1,4 @@
 import { isElectron } from '@scalar/helpers/general/is-electron'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type SecuritySchemeObjectSecret,
@@ -22,7 +21,7 @@ export type OperationToHarProps = {
   /** OpenAPI Operation object */
   operation: OperationObject
   /** HTTP method of the operation */
-  method: HttpMethod
+  method: string
   /** Path of the operation */
   path: string
   /**

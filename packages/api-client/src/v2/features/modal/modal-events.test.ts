@@ -1,5 +1,4 @@
 import { useModal } from '@scalar/components/modal'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { flushPromises } from '@vue/test-utils'
@@ -57,11 +56,11 @@ const createTestSetup = async () => {
   store.update('x-scalar-active-document', 'test-doc')
 
   const path = ref<string | undefined>(undefined)
-  const method = ref<HttpMethod | undefined>(undefined)
+  const method = ref<string | undefined>(undefined)
   const exampleName = ref<string | undefined>(undefined)
   const isWebhook = ref(false)
 
-  const route = vi.fn((payload: { path?: string; method?: HttpMethod; example?: string; isWebhook?: boolean }) => {
+  const route = vi.fn((payload: { path?: string; method?: string; example?: string; isWebhook?: boolean }) => {
     path.value = payload.path
     method.value = payload.method
     exampleName.value = payload.example
@@ -97,7 +96,7 @@ const createTestSetup = async () => {
     store,
   })
 
-  const getEntryId = (location: { path?: string; method?: HttpMethod; isWebhook?: boolean }) =>
+  const getEntryId = (location: { path?: string; method?: string; isWebhook?: boolean }) =>
     sidebarState.getEntryByLocation({ document: 'test-doc', method: 'post', ...location })?.id ?? ''
 
   const openClientModal = async (payload: Record<string, unknown>) => {

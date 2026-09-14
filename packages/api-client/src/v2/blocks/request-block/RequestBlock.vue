@@ -2,7 +2,6 @@
 import type { ClientOptionGroup } from '@scalar/blocks/code-example'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
@@ -71,7 +70,7 @@ export type RequestBlockProps = {
   /** Slug of the document the operation belongs to */
   documentSlug: string
   layout: ClientLayout
-  method: HttpMethod
+  method: string
   operation: OperationObject
   path: string
   plugins: ClientPlugin[]
