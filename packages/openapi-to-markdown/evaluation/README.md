@@ -1,25 +1,29 @@
 # Markdown evaluation
 
-Run from the repository root after installing dependencies and building packages:
+Run after installing dependencies and building upstream packages:
 
 ```sh
 pnpm --filter @scalar/openapi-to-markdown evaluate
 ```
 
-The harness converts seven fixed OpenAPI documents through the public Markdown renderer. It checks feature details, Markdown formatting, reference overrides, clean output, and repeatability. Each check has equal weight. The initial renderer passes 27 of 37 checks.
+Corpus version `2.0.0` retains all original baseline checks and adds authentication, servers, webhook and callback content, request/response details, schema fidelity, page isolation, references/recursion, equivalent Swagger 2.0 and OpenAPI 3.x inputs, and a 150-operation document. Complete documents and render options pass unchanged to the public renderer. External references use checked-in local files and require no network access.
 
-Baseline checks fail the test if existing behavior is lost. Missing features remain visible in the report without failing the baseline. To require every check to pass:
+Required checks protect established behavior; diagnostic checks expose missing features. Promote a diagnostic check by setting `baseline: true` after verifying its output. Every check has equal weight, including render outcome, clean output, and determinism. Scores are also broken down by feature group. A rendering exception is recorded per fixture and does not prevent subsequent fixtures from running. Expected exceptions must match their message; unexpected success fails.
+
+Only operation selection exists in the current public API. The four other page types are recorded as unsupported capability failures with required inclusion/exclusion expectations. They are not rendered as whole documents. When the public API gains a selector, replace `unsupportedPage` with its actual render options and strengthen the page's content checks. These failures are diagnostic until then; strict mode includes them.
 
 ```sh
 MARKDOWN_EVALUATION_STRICT=1 pnpm --filter @scalar/openapi-to-markdown evaluate
+MARKDOWN_EVALUATION_OUTPUT=/tmp/markdown-current pnpm --filter @scalar/openapi-to-markdown evaluate
+MARKDOWN_EVALUATION_PREVIOUS=/tmp/markdown-current/report.json \
+  MARKDOWN_EVALUATION_OUTPUT=/tmp/markdown-next \
+  pnpm --filter @scalar/openapi-to-markdown evaluate
 ```
 
-Save a JSON report and each rendered Markdown document for inspection:
+Reports contain per-check results, rendering errors, feature totals, and newly passing/regressed check identities when a previous report is provided. Comparisons reject different corpus versions or changed check identities. Bump `corpusVersion` whenever changing inputs, assertions, required status, or scoring semantics. Do not compare aggregate percentages across corpus versions.
 
-```sh
-MARKDOWN_EVALUATION_OUTPUT=/tmp/markdown-baseline pnpm --filter @scalar/openapi-to-markdown evaluate
-```
+Assertions can select a path of exact Markdown headings. Each heading must identify one section within its parent; missing or ambiguous headings fail even negative checks. Peer sections are excluded, and headings inside fenced code are ignored. Regex checks support `absent`, exact occurrence `count`, and `excludeExamples` to keep schema assertions from matching generated JSON; JSON checks parse the selected fenced example and compare complete values, including types and extra properties. The optional `example` index selects a later JSON block.
 
-Compare `passed`, `total`, and individual check results between runs. Keep the corpus fixed during an improvement series. Inspect the Markdown files too: a matching phrase does not prove the whole document is correct. Tests also run as part of the package test suite. The package Vitest configuration loads Vue so tests exercise the source renderer.
+Per-fixture `durationMs` and `heapDeltaBytes` cover both sequential renders used for determinism; `outputBytes` is the UTF-8 size of the first output. Heap deltas can be negative due to garbage collection and are not peak memory. These measurements are diagnostic, with no timing or memory thresholds. They provide an initial comparison point for a future prepare-once/render-many API, not a controlled benchmark.
 
-This is a small deterministic regression corpus, not a measure of all OpenAPI support or an LLM quality judgment. It does not yet cover authentication, callbacks, external references, XML, every JSON Schema keyword, or all OpenAPI versions. Add fixtures for those separately and record a new baseline before comparing scores.
+This corpus measures concrete output requirements, not overall OpenAPI compliance or LLM quality. Inspect rendered Markdown alongside scores. Unsupported features remain visible without changing production rendering behavior.

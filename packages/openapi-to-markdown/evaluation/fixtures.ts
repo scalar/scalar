@@ -1,5 +1,7 @@
+import type { Fixture } from './harness'
+
 /** A fixed corpus of observable output requirements, independent of renderer internals. */
-export const fixtures = [
+export const baselineFixtures: Fixture[] = [
   {
     name: 'operation-metadata',
     document: {
@@ -161,4 +163,8 @@ export const fixtures = [
       { name: 'code preserved', pattern: /```json\n\{"ok": true\}\n```/, baseline: true },
     ],
   },
-] as const
+].map((fixture) => ({
+  ...fixture,
+  group: 'legacy-baseline',
+  document: { openapi: '3.1.1', info: { title: 'Evaluation API', version: '1' }, ...fixture.document },
+}))

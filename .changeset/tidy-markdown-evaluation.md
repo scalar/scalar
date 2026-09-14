@@ -1,5 +1,5 @@
 ---
-'@scalar/openapi-to-markdown': patch
+"@scalar/openapi-to-markdown": patch
 ---
 
-Add a repeatable evaluation harness for Markdown output quality and feature coverage.
+Expand the Markdown evaluation corpus with section-aware assertions, complete versioned inputs, selection isolation checks, feature scores, and rendering diagnostics.

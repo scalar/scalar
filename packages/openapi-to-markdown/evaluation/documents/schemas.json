@@ -1,0 +1,4 @@
+{
+  "Alias": { "$ref": "#/External" },
+  "External": { "type": "object", "properties": { "externalLeafSentinel": { "type": "string" } } }
+}
