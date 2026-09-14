@@ -23,6 +23,22 @@ describe('parameter styles', () => {
     example?: string | undefined
   }) => processParameters({ ...args, defaultDisabled: true })
 
+  it('keeps a whole JSON query in the snippet URL without a name or equals sign', () => {
+    const result = runProcessParameters({
+      harRequest: createHarRequest('https://example.com/search?old=true'),
+      parameters: [
+        {
+          name: 'json',
+          in: 'querystring',
+          required: true,
+          content: { 'application/json': { example: { flag: true } } },
+        },
+      ],
+    })
+    expect(result.url).toBe('https://example.com/search?%7B%22flag%22%3Atrue%7D')
+    expect(result.queryString).toStrictEqual([])
+  })
+
   describe('matrix style', () => {
     it('should handle matrix style with explode=false and single value', () => {
       const result = runProcessParameters({
@@ -1684,47 +1700,31 @@ describe('parameter styles', () => {
     })
   })
 
-  // The OpenAPI 3.2 `querystring` location is serialized like a regular query parameter so its
-  // value still lands in the query string instead of being silently dropped.
-  describe('querystring parameters', () => {
-    it('serializes a scalar querystring parameter into the query string', () => {
-      const result = runProcessParameters({
-        harRequest: createHarRequest('/api/users'),
-        parameters: [
-          {
-            name: 'q',
-            in: 'querystring',
-            required: true,
-            schema: coerceValue(SchemaObjectSchema, { type: 'string', example: 'hello' }),
-          },
-        ],
-      })
-
-      expect(result.queryString).toEqual([{ name: 'q', value: 'hello' }])
+  it('serializes whole text queries without a parameter name', () => {
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/api/users'),
+      parameters: [
+        { name: 'q', in: 'querystring', required: true, content: { 'text/plain': { example: 'hello world' } } },
+      ],
     })
+    expect(result.url).toBe('/api/users?hello%20world')
+    expect(result.queryString).toEqual([])
+  })
 
-    it('expands an object querystring parameter into individual query params', () => {
-      const result = runProcessParameters({
-        harRequest: createHarRequest('/api/users'),
-        parameters: [
-          {
-            name: 'filter',
-            in: 'querystring',
-            required: true,
-            schema: coerceValue(SchemaObjectSchema, {
-              type: 'object',
-              example: { page: '1', limit: '10' },
-            }),
-          },
-        ],
-      })
-
-      // Form style defaults to explode: true, so the object expands into individual query params
-      expect(result.queryString).toEqual([
-        { name: 'page', value: '1' },
-        { name: 'limit', value: '10' },
-      ])
+  it('serializes a whole form query directly into the URL', () => {
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/api/users'),
+      parameters: [
+        {
+          name: 'filter',
+          in: 'querystring',
+          required: true,
+          content: { 'application/x-www-form-urlencoded': { example: { page: 1, limit: 10 } } },
+        },
+      ],
     })
+    expect(result.url).toBe('/api/users?page=1&limit=10')
+    expect(result.queryString).toEqual([])
   })
 
   describe('content-based parameters', () => {

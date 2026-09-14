@@ -803,35 +803,16 @@ describe('buildRequestParameters', () => {
     })
   })
 
-  // The OpenAPI 3.2 `querystring` location is handled like a regular query parameter so its
-  // value still lands in the query string instead of being silently dropped.
-  describe('querystring parameters', () => {
-    it('builds a scalar querystring parameter into the query string', () => {
-      const params = [
-        createParameter({ name: 'q', in: 'querystring', value: 'hello' }, { default: { value: 'hello' } }),
-      ]
-
-      const result = buildRequestParameters(params)
-
-      expect(result.urlParams.get('q')).toBe('hello')
-    })
-
-    it('expands an object querystring parameter into individual query params', () => {
-      const params = [
-        {
-          name: 'filter',
-          in: 'querystring',
-          required: true,
-          examples: { default: { value: { page: '1', limit: '10' } } },
-        },
-      ] satisfies ParameterObject[]
-
-      const result = buildRequestParameters(params)
-
-      // Form style defaults to explode: true, so the object expands into individual query params
-      expect(result.urlParams.get('page')).toBe('1')
-      expect(result.urlParams.get('limit')).toBe('10')
-    })
+  it('leaves whole-query content to the request factory instead of adding a named query', () => {
+    const params: ParameterObject[] = [
+      {
+        name: 'filter',
+        in: 'querystring',
+        required: true,
+        content: { 'application/json': { example: { page: 1, limit: 10 } } },
+      },
+    ]
+    expect(buildRequestParameters(params).urlParams.toString()).toBe('')
   })
 
   describe('cookie parameters', () => {

@@ -116,11 +116,7 @@ export const buildRequestParameters = (
         break
       }
 
-      // The 3.2 `querystring` location represents the whole query string. Handle it like a
-      // regular query parameter so schema-based values still expand into the query string
-      // instead of being silently dropped.
-      case 'query':
-      case 'querystring': {
+      case 'query': {
         processQueryParameter(
           param,
           paramName,

@@ -38,8 +38,6 @@ const { translate } = useLocalization()
 /** Thread the selected request body content type up to the layout */
 const selectedContentType = defineModel<string>('selectedContentType')
 
-type ParameterLocation = 'cookie' | 'header' | 'path' | 'query'
-
 /** Use a single loop to reduce parameters by type(in) */
 const splitParameters = computed(() =>
   (parameters ?? []).reduce<Record<ParameterLocation, ParameterObject[]>>(

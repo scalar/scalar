@@ -4,6 +4,7 @@ import { safeRun } from '@scalar/helpers/types/safe-run'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { mergeSearchParams, mergeUrls } from '@scalar/helpers/url/merge-urls'
 
+import { serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
 /**
@@ -90,7 +91,15 @@ export const resolveRequestFactoryUrl = (
     securityQueryParams.append(key, value)
   }
 
-  url.search = mergeSearchParams(url.searchParams, operationQueryParams, securityQueryParams).toString()
+  if (request.querystring) {
+    // A whole-query value replaces the server/path query and must never pass through
+    // URLSearchParams, which would add '=' and change existing percent encodings.
+    const query = serializeQuerystringParameter(request.querystring, variables)
+    const extra = mergeSearchParams(operationQueryParams, securityQueryParams).toString()
+    url.search = [query, extra].filter(Boolean).join('&')
+  } else {
+    url.search = mergeSearchParams(url.searchParams, operationQueryParams, securityQueryParams).toString()
+  }
 
   return ok(url.toString())
 }
