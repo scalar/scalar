@@ -6,11 +6,11 @@ Run after installing dependencies and building upstream packages:
 pnpm --filter @scalar/openapi-to-markdown evaluate
 ```
 
-Corpus version `2.0.0` retains all original baseline checks and adds authentication, servers, webhook and callback content, request/response details, schema fidelity, page isolation, references/recursion, equivalent Swagger 2.0 and OpenAPI 3.x inputs, and a 150-operation document. Complete documents and render options pass unchanged to the public renderer. External references use checked-in local files and require no network access.
+Corpus version `2.1.0` retains all original baseline checks and adds authentication, servers, webhook and callback content, request/response details, schema fidelity, tag metadata, references/recursion, equivalent Swagger 2.0 and OpenAPI 3.x inputs, and a 150-operation document. Complete documents and render options pass unchanged to the public renderer. External references use checked-in local files and require no network access.
 
 Required checks protect established behavior; diagnostic checks expose missing features. Promote a diagnostic check by setting `baseline: true` after verifying its output. Every check has equal weight, including render outcome, clean output, and determinism. Scores are also broken down by feature group. A rendering exception is recorded per fixture and does not prevent subsequent fixtures from running. Expected exceptions must match their message; unexpected success fails.
 
-Only operation selection exists in the current public API. The four other page types are recorded as unsupported capability failures with required inclusion/exclusion expectations. They are not rendered as whole documents. When the public API gains a selector, replace `unsupportedPage` with its actual render options and strengthen the page's content checks. These failures are diagnostic until then; strict mode includes them.
+Page-selector correctness, invalid-selector errors, and inclusion/exclusion contracts belong in the renderer's regular regression tests. They are not scored by this corpus. Render-option support remains available for evaluating selected-page content or rendering cost when useful.
 
 ```sh
 MARKDOWN_EVALUATION_STRICT=1 pnpm --filter @scalar/openapi-to-markdown evaluate

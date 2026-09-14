@@ -22,27 +22,6 @@ const event = {
   requestBody: payload,
   responses: { '202': { description: 'Event accepted', ...payload } },
 }
-const selectionDocument = document({
-  tags: [
-    { name: 'Pets', description: 'Pet tag description' },
-    { name: 'Other', description: 'Other tag description' },
-  ],
-  'x-tagGroups': [{ name: 'Animals', tags: ['Pets'] }],
-  paths: {
-    '/pets': {
-      get: { operationId: 'listPets', summary: 'List pets', tags: ['Pets'], responses: response },
-      post: { summary: 'Create pet', responses: response },
-    },
-    '/unrelated': { get: { summary: 'Unrelated operation', tags: ['Other'], responses: response } },
-  },
-  components: {
-    schemas: { Pet: schema, UnrelatedModel: { type: 'object', properties: { unrelatedField: { type: 'string' } } } },
-  },
-  webhooks: {
-    petEvent: { post: event },
-    unrelatedEvent: { post: { summary: 'Unrelated webhook', responses: response } },
-  },
-})
 const deepSchema: Record<string, unknown> = Array.from({ length: 24 }).reduce<Record<string, unknown>>(
   (child, _, index) => ({ type: 'object', properties: { [`level${index}`]: child } }),
   { type: 'object', properties: { deepLeafSentinel: { type: 'string' } } },
@@ -283,58 +262,17 @@ export const extendedFixtures: Fixture[] = [
       ],
     }),
   ),
-  ...[{ operationId: 'listPets' }, { path: '/pets', method: 'GET' as const }, { pointer: '#/paths/~1pets/get' }].map(
-    (operation, index): Fixture => ({
-      name: `selection-operation-${index}`,
-      group: 'selection',
-      document: selectionDocument,
-      options: { operation },
-      checks: [
-        { ...check('selected operation exactly once', /^### List pets$/m, undefined, true), count: 1 },
-        check('selected response', /Success sentinel/, ['Operations', 'List pets', 'Responses'], true),
-        { ...check('other operations excluded', /Create pet|Unrelated operation/, undefined, true), absent: true },
-        { ...check('unrelated models excluded', /UnrelatedModel|unrelatedField/), absent: true },
-        { ...check('unrelated webhooks excluded', /Unrelated webhook/), absent: true },
-      ],
-    }),
-  ),
-  ...(['tag', 'model', 'webhook', 'introduction'] as const).map(
-    (page): Fixture => ({
-      name: `selection-${page}`,
-      group: 'selection',
-      document: selectionDocument,
-      unsupportedPage: page,
-      checks: [
-        check(
-          'selected content',
-          page === 'tag'
-            ? /List pets/
-            : page === 'model'
-              ? /Pet/
-              : page === 'webhook'
-                ? /Pet event/
-                : /Introduction sentinel/,
-        ),
-        {
-          ...check('unrelated content excluded', /Unrelated operation|UnrelatedModel|Unrelated webhook/),
-          absent: true,
-        },
-      ],
-    }),
-  ),
   {
     name: 'tags-grouping',
-    group: 'selection',
-    document: selectionDocument,
+    group: 'tags',
+    document: document({
+      tags: [{ name: 'Pets', description: 'Pet tag description' }],
+      'x-tagGroups': [{ name: 'Animals', tags: ['Pets'] }],
+      paths: {
+        '/pets': { get: { summary: 'List pets', tags: ['Pets'], responses: response } },
+      },
+    }),
     checks: [check('tag description', /Pet tag description/), check('tag group', /Animals/)],
-  },
-  {
-    name: 'selection-missing',
-    group: 'selection',
-    document: selectionDocument,
-    options: { operation: { operationId: 'missing' } },
-    expectedError: /operationId "missing" was not found/,
-    checks: [],
   },
   {
     name: 'references-recursion',

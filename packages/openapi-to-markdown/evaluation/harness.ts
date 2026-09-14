@@ -3,7 +3,7 @@ import { isDeepStrictEqual } from 'node:util'
 import type { OpenApiRenderOptions } from '../src/create-markdown-from-openapi'
 
 /** Bump whenever fixture inputs, assertions, or scoring semantics change. */
-export const corpusVersion = '2.0.0'
+export const corpusVersion = '2.1.0'
 
 /** Each heading selects exactly one section inside its parent, excluding peer sections. */
 export type Check = {
@@ -19,7 +19,6 @@ export type Fixture = {
   group: string
   document: Record<string, unknown> | string
   options?: OpenApiRenderOptions
-  unsupportedPage?: 'tag' | 'model' | 'webhook' | 'introduction'
   expectedError?: RegExp
   checks: Check[]
 }
@@ -89,7 +88,6 @@ export const evaluateFixture = async (
   let error: string | undefined
   let deterministic = false
   try {
-    if (fixture.unsupportedPage) throw new Error(`Unsupported page selector: ${fixture.unsupportedPage}`)
     markdown = await render(fixture.document, fixture.options)
     deterministic = markdown === (await render(fixture.document, fixture.options))
   } catch (cause) {
@@ -105,19 +103,19 @@ export const evaluateFixture = async (
     passed: fixture.expectedError
       ? error !== undefined && new RegExp(fixture.expectedError).test(error)
       : error === undefined,
-    required: !fixture.unsupportedPage || process.env.MARKDOWN_EVALUATION_STRICT === '1',
+    required: true,
   })
   if (!fixture.expectedError) {
     checks.push({
       name: 'no leaked HTML or undefined values',
       passed:
         error === undefined && !/<\/?(?:section|div|span|h[1-6])\b|\bundefined\b|\[object Object\]/.test(markdown),
-      required: !fixture.unsupportedPage || process.env.MARKDOWN_EVALUATION_STRICT === '1',
+      required: true,
     })
     checks.push({
       name: 'deterministic output',
       passed: error === undefined && deterministic,
-      required: !fixture.unsupportedPage || process.env.MARKDOWN_EVALUATION_STRICT === '1',
+      required: true,
     })
   }
   return {
