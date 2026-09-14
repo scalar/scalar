@@ -2380,13 +2380,13 @@ importers:
 
   packages/openapi-upgrader:
     dependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
     devDependencies:
-      '@scalar/helpers':
-        specifier: workspace:*
-        version: link:../helpers
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
