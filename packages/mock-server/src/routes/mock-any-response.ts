@@ -1,7 +1,9 @@
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
+import { getExampleFromSchema, getXmlBodyExample } from '@scalar/workspace-store/request-example'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import { streamSSE } from 'hono/streaming'
@@ -19,7 +21,7 @@ import { serializeResponseBody } from '@/utils/serialize-response-body'
 /**
  * Mock any response
  */
-export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObject) {
+export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObject, openapiVersion?: string) {
   // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
   // for requests rejected before reaching this handler.
 
@@ -127,15 +129,32 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   // a value from the schema. `Prefer: example=<name>` picks a named example.
   const selectedExample = selectResponseExample(acceptedResponse, prefer.example)
 
+  c.status(statusCode)
+
+  if (isXmlMediaType(acceptedContentType)) {
+    const result = getXmlBodyExample(acceptedResponse?.schema as SchemaObject | undefined, selectedExample, {
+      openapiVersion,
+      emptyString: 'string',
+      variables: pathParameters(c),
+      mode: 'read',
+    })
+    return result.xml === undefined ? c.body(null) : c.body(result.xml)
+  }
+
+  const provenance =
+    selectedExample?.serializedValue !== undefined
+      ? 'serialized'
+      : selectedExample?.dataValue !== undefined
+        ? 'data'
+        : undefined
   const body = selectedExample
-    ? normalizeResponseBody(selectedExample.value, responseSchema)
+    ? provenance
+      ? selectedExample.value
+      : normalizeResponseBody(selectedExample.value, responseSchema)
     : responseSchema
       ? normalizeResponseBody(generateFromSchema(), responseSchema)
       : null
-
-  c.status(statusCode)
-
-  const serializedBody = serializeResponseBody(body, acceptedContentType, responseSchema)
+  const serializedBody = serializeResponseBody(body, acceptedContentType, responseSchema, provenance)
 
   // `JSON.stringify` returns `undefined` for an `undefined` body, which is an empty response.
   if (serializedBody === undefined) {

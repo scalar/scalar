@@ -29,23 +29,29 @@ import { getExampleContent } from './helpers/get-example-content'
 import { hasResponseContent } from './helpers/has-response-content'
 import { normalizeMimeTypeObject } from './helpers/normalize-mime-type-object'
 
-const { responses, selectedExample, eventBus, selectedContentTypes } =
-  defineProps<{
-    responses: ResponsesObject
-    /**
-     * The document-wide selected example key. Honored only when the current response defines an
-     * example with the same key, so response example pickers stay in sync between operations without
-     * blanking out responses that do not share that key.
-     */
-    selectedExample?: string
-    /** Event bus, used to broadcast the selected example so other operations can follow */
-    eventBus?: WorkspaceEventBus
-    /**
-     * Selected response content type per status code, mirrored from the response list on the left
-     * so the displayed example matches the chosen content type. Keyed by status code (e.g. "200").
-     */
-    selectedContentTypes?: Record<string, string>
-  }>()
+const {
+  responses,
+  selectedExample,
+  eventBus,
+  selectedContentTypes,
+  openapiVersion,
+} = defineProps<{
+  openapiVersion?: string
+  responses: ResponsesObject
+  /**
+   * The document-wide selected example key. Honored only when the current response defines an
+   * example with the same key, so response example pickers stay in sync between operations without
+   * blanking out responses that do not share that key.
+   */
+  selectedExample?: string
+  /** Event bus, used to broadcast the selected example so other operations can follow */
+  eventBus?: WorkspaceEventBus
+  /**
+   * Selected response content type per status code, mirrored from the response list on the left
+   * so the displayed example matches the chosen content type. Keyed by status code (e.g. "200").
+   */
+  selectedContentTypes?: Record<string, string>
+}>()
 const { translate } = useLocalization()
 
 const id = useId()
@@ -97,7 +103,7 @@ const normalizedResponseContent = computed(() =>
   normalizeMimeTypeObject(currentResponse.value?.content),
 )
 
-const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
+const currentContentType = computed(() => {
   const content = normalizedResponseContent.value
   if (!content) {
     return undefined
@@ -106,10 +112,12 @@ const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
     toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
   const selected = selectedContentTypes?.[statusCode]
   const keys = objectKeys(content)
-  return content[
-    selected && keys.includes(selected) ? selected : (keys[0] ?? '')
-  ]
+  return selected && keys.includes(selected) ? selected : keys[0]
 })
+
+const currentResponseContent = computed<MediaTypeObject | undefined>(
+  () => normalizedResponseContent.value?.[currentContentType.value ?? ''],
+)
 
 const hasMultipleExamples = computed<boolean>(
   () =>
@@ -161,7 +169,11 @@ const currentExample = computed(() => {
   }
 
   // Otherwise, we use getExample with an undefined exampleKey to handle fallbacks
-  return getExample(currentResponseContent.value, undefined, undefined)
+  return getExample(
+    { content: { response: currentResponseContent.value } },
+    undefined,
+    'response',
+  )
 })
 
 const changeTab = (index: number) => {
@@ -171,7 +183,12 @@ const changeTab = (index: number) => {
 }
 
 const exampleContent = computed(() =>
-  getExampleContent(currentResponseContent.value, currentExample.value),
+  getExampleContent(
+    currentResponseContent.value,
+    currentExample.value,
+    currentContentType.value,
+    openapiVersion,
+  ),
 )
 
 const copyExample = (): void => {
@@ -233,7 +250,9 @@ const showSchema = ref(false)
         v-else
         :id="id"
         :content="exampleContent"
+        :contentType="currentContentType"
         :example="currentExample"
+        :openapiVersion
         :response="currentResponseContent" />
     </ScalarCardSection>
     <ScalarCardFooter

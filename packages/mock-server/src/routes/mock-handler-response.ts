@@ -1,5 +1,8 @@
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -11,10 +14,11 @@ import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
 import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
+import { serializeResponseBody } from '@/utils/serialize-response-body'
 
 /**
  * Get example response from OpenAPI spec for a given status code.
- * Returns the example value if found, or null if not available.
+ * Returns a serialized payload if found, or null if not available.
  *
  * Honors `Prefer: example=<name>` to pick a named example from the
  * `examples` map; otherwise it falls back to the singular `example`, the
@@ -25,7 +29,8 @@ function getExampleFromResponse(
   statusCode: StatusCode,
   responses: OpenAPIV3_1.ResponsesObject | undefined,
   exampleName?: string,
-): any {
+  openapiVersion?: string,
+): string | null {
   if (!responses) {
     return null
   }
@@ -63,12 +68,36 @@ function getExampleFromResponse(
 
   // Extract example (named, singular, or first) or generate from schema
   const selectedExample = selectResponseExample(acceptedResponse, exampleName)
+  if (isXmlMediaType(acceptedContentType)) {
+    c.header('Content-Type', acceptedContentType)
+    return (
+      getXmlBodyExample(acceptedResponse.schema as SchemaObject | undefined, selectedExample, {
+        openapiVersion,
+        emptyString: 'string',
+        variables: pathParameters(c),
+        mode: 'read',
+      }).xml ?? null
+    )
+  }
 
-  return selectedExample
+  const provenance =
+    selectedExample?.serializedValue !== undefined
+      ? 'serialized'
+      : selectedExample?.dataValue !== undefined
+        ? 'data'
+        : undefined
+  if (selectedExample && provenance) {
+    c.header('Content-Type', acceptedContentType)
+    return serializeResponseBody(selectedExample.value, acceptedContentType, responseSchema, provenance) ?? null
+  }
+
+  const value = selectedExample
     ? normalizeResponseBody(selectedExample.value, responseSchema)
     : responseSchema
       ? normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
       : null
+  // Legacy examples retain the handler fallback's JSON encoding policy.
+  return JSON.stringify(value) ?? null
 }
 
 /**
@@ -133,7 +162,7 @@ function determineStatusCode(tracking: {
  * Mock response using x-handler code.
  * Executes the handler and returns its result as the response.
  */
-export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.OperationObject) {
+export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.OperationObject, openapiVersion?: string) {
   // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
   // for requests rejected before reaching this handler.
 
@@ -171,9 +200,18 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.Ope
     if (result === undefined || result === null) {
       // Try to pick up example response from OpenAPI spec if available
       const prefer = parsePreferHeader(c.req.header('Prefer'))
-      const exampleResponse = getExampleFromResponse(c, statusCode, operation.responses, prefer.example)
+      const exampleResponse = getExampleFromResponse(
+        c,
+        statusCode,
+        operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
+        prefer.example,
+        openapiVersion,
+      )
       if (exampleResponse !== null) {
-        return c.json(exampleResponse)
+        return c.body(exampleResponse)
+      }
+      if (isXmlMediaType(c.res.headers.get('Content-Type') ?? undefined)) {
+        return c.body(null)
       }
       return c.json(null)
     }

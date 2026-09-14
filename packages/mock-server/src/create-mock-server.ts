@@ -243,9 +243,9 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
       // Route to appropriate handler
       if (hasHandler) {
-        handlers.push(async (c) => await mockHandlerResponse(c, operation))
+        handlers.push(async (c) => await mockHandlerResponse(c, operation, schema.openapi))
       } else {
-        handlers.push(async (c) => await mockAnyResponse(c, operation))
+        handlers.push(async (c) => await mockAnyResponse(c, operation, schema.openapi))
       }
 
       if (query.length === 0) {

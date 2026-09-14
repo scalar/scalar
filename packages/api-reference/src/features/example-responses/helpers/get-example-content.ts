@@ -1,6 +1,7 @@
 import { getResolvedRefDeep } from '@scalar/blocks/code-example'
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
+import { getExampleFromSchema, getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
@@ -11,7 +12,16 @@ import type {
 export const getExampleContent = (
   response: MediaTypeObject | undefined,
   example: ExampleObject | undefined,
+  contentType?: string,
+  openapiVersion?: string,
 ): string | undefined => {
+  if (isXmlMediaType(contentType)) {
+    return getXmlBodyExample(response?.schema as SchemaObject | undefined, example, {
+      mode: 'read',
+      emptyString: 'string',
+      openapiVersion,
+    }).xml
+  }
   if (example !== undefined) {
     return prettyPrintJson(getResolvedRefDeep(example)?.value ?? '')
   }

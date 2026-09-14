@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import {
   forEachPathItemOperation,
   getResolvedPathItem,
 } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
+import {
+  getExample,
+  getExampleFromSchema,
+} from '@scalar/workspace-store/request-example'
 import type {
+  MediaTypeObject,
   OpenApiDocument,
   OperationObject,
   ParameterObject,
@@ -29,7 +34,7 @@ type SchemaView = {
   type?: string | string[]
 }
 type RequestBodyView = {
-  content?: Record<string, { schema?: unknown }>
+  content?: Record<string, MediaTypeObject>
 }
 type ParameterView = {
   name: string
@@ -42,11 +47,11 @@ type ParameterView = {
   style?: string
   explode?: boolean
   schema?: unknown
-  content?: Record<string, { schema?: unknown }>
+  content?: Record<string, MediaTypeObject>
 }
 type ResponseView = {
   description?: string
-  content?: Record<string, { schema?: unknown }>
+  content?: Record<string, MediaTypeObject>
 }
 
 type OperationEntry = {
@@ -92,6 +97,14 @@ const resolveRefAs = <TResolved extends object>(
 
 const resolveOperation = (operation: unknown): OperationObject | null =>
   resolveRefAs<OperationObject>(operation)
+
+/** Only media-level examples are serialized payloads; schema examples remain data. */
+const getMediaExample = (media: MediaTypeObject) =>
+  getExample(
+    { content: { 'application/xml': media } },
+    undefined,
+    'application/xml',
+  )
 
 const resolveSchema = (schema: unknown): SchemaObject | null =>
   resolveRefAs<SchemaObject>(schema)
@@ -428,12 +441,18 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                   <Schema :schema="resolveSchema(bodyContent.schema)!" />
                   <p><strong>Example:</strong></p>
                   <XmlOrJson
+                    :example="getMediaExample(bodyContent)"
+                    mode="write"
                     :modelValue="
-                      getExampleFromSchema(resolveSchema(bodyContent.schema)!, {
-                        xml: mediaType?.toString().includes('xml'),
-                      })
+                      isXmlMediaType(String(mediaType))
+                        ? undefined
+                        : getExampleFromSchema(
+                            resolveSchema(bodyContent.schema)!,
+                          )
                     "
-                    :xml="mediaType?.toString().includes('xml')" />
+                    :openapiVersion="content.openapi"
+                    :schema="bodyContent.schema"
+                    :xml="isXmlMediaType(String(mediaType))" />
                 </template>
               </template>
             </section>
@@ -467,15 +486,18 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                             :schema="resolveSchema(responseContent.schema)!" />
                           <p><strong>Example:</strong></p>
                           <XmlOrJson
+                            :example="getMediaExample(responseContent)"
+                            mode="read"
                             :modelValue="
-                              getExampleFromSchema(
-                                resolveSchema(responseContent.schema)!,
-                                {
-                                  xml: mediaType?.toString().includes('xml'),
-                                },
-                              )
+                              isXmlMediaType(String(mediaType))
+                                ? undefined
+                                : getExampleFromSchema(
+                                    resolveSchema(responseContent.schema)!,
+                                  )
                             "
-                            :xml="mediaType?.toString().includes('xml')" />
+                            :openapiVersion="content.openapi"
+                            :schema="responseContent.schema"
+                            :xml="isXmlMediaType(String(mediaType))" />
                         </template>
                       </section>
                     </template>

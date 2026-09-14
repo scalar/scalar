@@ -277,6 +277,7 @@ const copyAddressBarUrl = async (): Promise<void> => {
     server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
+    openapiVersion: document.openapi,
     requestBodyCompositionSelection,
   })
 
@@ -317,6 +318,7 @@ const handleExecute = async () => {
     server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
+    openapiVersion: document.openapi,
     requestBodyCompositionSelection,
   })
 
@@ -720,6 +722,7 @@ onBeforeUnmount(() => {
           :exampleKey
           :layout
           :method
+          :openapiVersion="document.openapi"
           :operation
           :options="toValue(options)"
           :path="requestPath"

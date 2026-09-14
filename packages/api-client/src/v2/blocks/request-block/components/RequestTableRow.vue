@@ -117,7 +117,7 @@ watch(
     // Do not overwrite a valid local name with an empty incoming prop — this
     // can happen when the placeholder row (appended by displayData) is briefly
     // mapped onto this component instance before Vue re-keys the list.
-    if (!newName && name.value) return
+    if (!newName && name.value && !deferKeyUpdates) return
     name.value = newName ?? ''
   },
 )
@@ -229,7 +229,7 @@ const handleKeyBlur = (newName: string): void => {
   }
   // Do not emit an update that would blank the parameter name — this can fire
   // when CodeInputLite blurs before it has rendered its initial value.
-  if (!newName && data.name) {
+  if (!newName && data.name && (!deferKeyUpdates || name.value !== '')) {
     return
   }
 

@@ -5,6 +5,13 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
+import {
+  EXAMPLE_EVALUATION,
+  type ExampleEvaluation,
+  type ExampleEvaluationState,
+  setExampleOrigin,
+} from './example-evaluation'
+
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
 
@@ -393,6 +400,31 @@ const getCompositionSelectionIndex = (
   return Math.max(0, Math.min(rawIndex, length - 1))
 }
 
+/** Select a composition branch once for both generated values and supplied example metadata. */
+export const selectExampleComposition = (
+  schema: SchemaObject,
+  schemaPath: string[],
+  options?: GetExampleFromSchemaOptions,
+  arrayItem = false,
+): SchemaObject | undefined => {
+  const keyword = schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : undefined
+  const members = keyword ? schema[keyword] : undefined
+  if (!keyword || !members?.length) {
+    return undefined
+  }
+  const index = getCompositionSelectionIndex(schemaPath, keyword, options, members.length)
+  const isObject = 'properties' in schema || ('type' in schema && schema.type === 'object')
+  const candidate =
+    index !== undefined || isObject || arrayItem
+      ? members[index ?? 0]
+      : members.find((item) => {
+          const resolved = resolve.schema(item)
+          return resolved && (!('type' in resolved) || resolved.type !== 'null')
+        })
+  // The generator resolves the value at its entry point; serializers also need the reference site.
+  return candidate as SchemaObject | undefined
+}
+
 /**
  * Read the numeric `x-order` extension value from a raw property entry, if present.
  * The entry may be a schema or a `$ref` object, so we check membership before reading.
@@ -443,7 +475,7 @@ const handleObjectSchema = (
   const response: Record<string, unknown> = {}
   // Children are evaluated with this schema added to the dynamic scope so nested `$dynamicRef`s bind here.
   const childScope = pushDynamicScope(dynamicScope, schema)
-  const skipCache = dynamicScope.length > 0
+  const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
   if ('properties' in schema && schema.properties) {
     const properties = schema.properties
@@ -533,8 +565,7 @@ const handleObjectSchema = (
   const compositionKeyword = schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : undefined
   const oneOfAnyOf = compositionKeyword ? schema[compositionKeyword] : undefined
   if (compositionKeyword && oneOfAnyOf?.length) {
-    const index = getCompositionSelectionIndex(schemaPath, compositionKeyword, options, oneOfAnyOf.length) ?? 0
-    const chosen = resolve.schema(oneOfAnyOf[index])
+    const chosen = selectExampleComposition(schema, schemaPath, options)
     if (chosen) {
       Object.assign(
         response,
@@ -592,7 +623,19 @@ const handleArraySchema = (
   dynamicScope: DynamicScope,
 ) => {
   const childScope = pushDynamicScope(dynamicScope, schema)
-  const skipCache = dynamicScope.length > 0
+  const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
+
+  if ('prefixItems' in schema && Array.isArray(schema.prefixItems)) {
+    const values = schema.prefixItems.map((item, index) =>
+      getExampleFromSchema(item as SchemaObject, options, {
+        level: level + 1,
+        schemaPath: [...schemaPath, 'prefixItems', String(index)],
+        seen,
+        dynamicScope: childScope,
+      }),
+    )
+    return cache(schema, values, cacheKey, skipCache)
+  }
 
   let items = 'items' in schema ? resolve.schema(schema.items) : undefined
   // Bind a dynamic item type (e.g. the generic `PaginatedResponse<T>` pattern) before inspecting it.
@@ -650,10 +693,8 @@ const handleArraySchema = (
     const compositionKeyword = items.oneOf ? 'oneOf' : items.anyOf ? 'anyOf' : undefined
     const union = compositionKeyword ? items[compositionKeyword] : undefined
     if (compositionKeyword && union && union.length > 0) {
-      const selectedIndex =
-        getCompositionSelectionIndex(itemsSchemaPath, compositionKeyword, options, union.length) ?? 0
-      const selected = union[selectedIndex]!
-      const ex = getExampleFromSchema(resolve.schema(selected), options, {
+      const selected = selectExampleComposition(items, itemsSchemaPath, options, true)
+      const ex = getExampleFromSchema(selected as SchemaObject, options, {
         level: level + 1,
         parentSchema: schema,
         schemaPath: itemsSchemaPath,
@@ -731,10 +772,13 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
   return undefined
 }
 
-type GetExampleFromSchemaOptions = {
+/** Options shared by data generation and schema-aware serializers. */
+export type GetExampleFromSchemaOptions = {
+  /** Internal provenance capture, excluded from persistent result caches. */
+  [EXAMPLE_EVALUATION]?: ExampleEvaluationState
   /** Fallback string for empty string values. */
   emptyString?: string
-  /** Whether to use XML tag names as keys. */
+  /** @deprecated Use getXmlExampleFromSchema for schema-aware XML serialization. */
   xml?: boolean
   /** Whether to show read-only/write-only properties. */
   mode?: 'read' | 'write'
@@ -988,7 +1032,7 @@ const getMaxDepthValue = (
  * @param name - The name of the property being processed.
  * @returns An example value for the given schema.
  */
-export const getExampleFromSchema = (
+const generateExampleFromSchema = (
   schema: SchemaObject,
   options?: GetExampleFromSchemaOptions,
   {
@@ -1043,7 +1087,7 @@ export const getExampleFromSchema = (
   // Grow the scope with this schema so nested references can bind to its `$dynamicAnchor`s.
   const childScope = pushDynamicScope(dynamicScope, _schema)
   // The same shared node can resolve differently per scope, so skip the result cache under a scope.
-  const skipCache = dynamicScope.length > 0
+  const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
   // Unpack from all proxies to get the raw schema object for cycle detection
   const targetValue = getSchemaCacheTarget(_schema)
@@ -1077,6 +1121,7 @@ export const getExampleFromSchema = (
   if ('x-variable' in _schema && _schema['x-variable']) {
     const value = options?.variables?.[_schema['x-variable']]
     if (value !== undefined) {
+      setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'variable')
       // Type coercion for numeric types
       if ('type' in _schema && (_schema.type === 'number' || _schema.type === 'integer')) {
         seen.delete(targetValue)
@@ -1089,10 +1134,12 @@ export const getExampleFromSchema = (
 
   // Priority order: examples > example > default > const > enum
   if (Array.isArray(_schema.examples) && _schema.examples.length > 0) {
+    setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'example')
     seen.delete(targetValue)
     return cache(_schema, _schema.examples[0], cacheKey, skipCache)
   }
   if (_schema.example !== undefined) {
+    setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'example')
     seen.delete(targetValue)
     return cache(_schema, _schema.example, cacheKey, skipCache)
   }
@@ -1100,15 +1147,18 @@ export const getExampleFromSchema = (
     const normalizedDefault = normalizeSchemaDefault(_schema)
 
     if (normalizedDefault !== INVALID_DEFAULT) {
+      setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'default')
       seen.delete(targetValue)
       return cache(_schema, normalizedDefault, cacheKey, skipCache)
     }
   }
   if (_schema.const !== undefined) {
+    setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'const')
     seen.delete(targetValue)
     return cache(_schema, _schema.const, cacheKey, skipCache)
   }
   if (Array.isArray(_schema.enum) && _schema.enum.length > 0) {
+    setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'enum')
     seen.delete(targetValue)
     return cache(_schema, _schema.enum[0], cacheKey, skipCache)
   }
@@ -1131,7 +1181,7 @@ export const getExampleFromSchema = (
   }
 
   // Handle array types
-  if (('type' in _schema && _schema.type === 'array') || 'items' in _schema) {
+  if (('type' in _schema && _schema.type === 'array') || 'items' in _schema || 'prefixItems' in _schema) {
     const result = handleArraySchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope)
     seen.delete(targetValue)
     return result
@@ -1148,14 +1198,7 @@ export const getExampleFromSchema = (
   const compositionKeyword = _schema.oneOf ? 'oneOf' : _schema.anyOf ? 'anyOf' : undefined
   const discriminate = compositionKeyword ? _schema[compositionKeyword] : undefined
   if (compositionKeyword && Array.isArray(discriminate) && discriminate.length > 0) {
-    const index = getCompositionSelectionIndex(schemaPath, compositionKeyword, options, discriminate.length)
-    const candidate =
-      index !== undefined
-        ? discriminate[index]
-        : discriminate.find((item) => {
-            const resolved = resolve.schema(item)
-            return resolved && (!('type' in resolved) || resolved.type !== 'null')
-          })
+    const candidate = selectExampleComposition(_schema, schemaPath, options)
     if (candidate) {
       const resolved = resolve.schema(candidate)
       if (resolved) {
@@ -1217,4 +1260,38 @@ export const getExampleFromSchema = (
   // Default fallback
   seen.delete(targetValue)
   return cache(_schema, null, cacheKey, skipCache)
+}
+
+/** Generate data, optionally retaining the exact schema decisions for another output format. */
+export const getExampleFromSchema = (
+  schema: SchemaObject,
+  options?: GetExampleFromSchemaOptions,
+  context: Parameters<typeof generateExampleFromSchema>[2] = {},
+): unknown => {
+  const capture = options?.[EXAMPLE_EVALUATION]
+  if (!capture) {
+    return generateExampleFromSchema(schema, options, context)
+  }
+  const node: ExampleEvaluation = {
+    schema,
+    value: undefined,
+    origin: 'generated',
+    path: context.schemaPath ?? [],
+    name: context.name,
+    dynamicScope: context.dynamicScope ?? [],
+    children: [],
+  }
+  const parent = capture.stack.at(-1)
+  if (parent) {
+    parent.children.push(node)
+  } else {
+    capture.root = node
+  }
+  capture.stack.push(node)
+  try {
+    node.value = generateExampleFromSchema(schema, options, context)
+    return node.value
+  } finally {
+    capture.stack.pop()
+  }
 }
