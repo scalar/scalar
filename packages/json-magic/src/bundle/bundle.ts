@@ -751,7 +751,8 @@ export async function bundle(input: UnknownObject | string, config: Config) {
             depth + 1,
             [config.externalDocumentsKey, compressedPath],
             null,
-            currentPath,
+            // Keep the referring document path across external hops, replacing the storage wrapper.
+            referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
           )
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls

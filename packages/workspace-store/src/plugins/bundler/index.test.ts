@@ -1172,6 +1172,42 @@ describe('normalizeRefs', () => {
     })
   })
 
+  it('keeps schema bindings across multiple external references', async () => {
+    const server = fastify({ logger: false })
+    server.get('/first', () => ({ $ref: './second' }))
+    server.get('/second', () => ({
+      $dynamicAnchor: 'itemType',
+      $defs: { itemType: { type: 'string' } },
+      $ref: '#/$defs/itemType',
+    }))
+
+    await server.listen({ port: 0 })
+    const origin = `http://localhost:${(server.server.address() as AddressInfo).port}`
+
+    try {
+      const result = await bundle(
+        { components: { schemas: { Item: { $ref: `${origin}/first` } } } },
+        { treeShake: false, plugins: [normalizeRefs(), fetchUrls()] },
+      )
+      const firstHash = getHash(`${origin}/first`)
+      const secondHash = getHash(`${origin}/second`)
+
+      expect(result).toEqual({
+        components: { schemas: { Item: { $ref: `#/x-ext/${firstHash}` } } },
+        'x-ext': {
+          [firstHash]: { $ref: `#/x-ext/${secondHash}` },
+          [secondHash]: {
+            $dynamicAnchor: 'itemType',
+            $defs: { itemType: { type: 'string' } },
+            $ref: `#/x-ext/${secondHash}/$defs/itemType`,
+          },
+        },
+      })
+    } finally {
+      await server.close()
+    }
+  })
+
   it('keeps a $dynamicAnchor binding on a bundled external response schema $ref', async () => {
     const server = fastify({ logger: false })
 
