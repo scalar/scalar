@@ -9,6 +9,7 @@ import { generateResponseExample } from './generate-response-example'
 import { normalizeResponseBody } from './normalize-response-body'
 import { parsePreferHeader } from './parse-prefer-header'
 import { pathParameters } from './path-parameters'
+import { findQuerystringParameter, parseQuerystringParameter } from './querystring-parameter'
 import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper'
 import { getStreamingResponse } from './streaming-response'
 
@@ -20,7 +21,8 @@ export type HandlerContext = {
   req: {
     body: any
     params: Record<string, string>
-    query: Record<string, string>
+    /** Named query values, or the decoded content of an `in: querystring` parameter. */
+    query: unknown
     headers: Record<string, string>
   }
   res: Record<string, any>
@@ -99,6 +101,7 @@ function getExampleFromResponse(
 export async function buildHandlerContext(
   c: Context,
   operation?: OpenAPIV3_1.OperationObject,
+  pathItemParameters?: OpenAPIV3_1.PathItemObject['parameters'],
 ): Promise<HandlerContextResult> {
   let body: any = undefined
 
@@ -120,6 +123,17 @@ export async function buildHandlerContext(
     // Ignore parsing errors, body remains undefined
   }
 
+  const parameter = findQuerystringParameter(operation, pathItemParameters)
+  let query: unknown = Object.fromEntries(new URL(c.req.url).searchParams.entries())
+  if (parameter) {
+    try {
+      query = parseQuerystringParameter(c.req.url, parameter)
+    } catch {
+      // With validation disabled, malformed content remains unavailable just like an invalid body.
+      query = undefined
+    }
+  }
+
   const { wrappedStore, tracking } = createStoreWrapper(store)
 
   // Build res object with examples for all response status codes
@@ -136,7 +150,7 @@ export async function buildHandlerContext(
       req: {
         body,
         params: pathParameters(c),
-        query: Object.fromEntries(new URL(c.req.url).searchParams.entries()),
+        query,
         headers: Object.fromEntries(Object.entries(c.req.header()).map(([key, value]) => [key, value ?? ''])),
       },
       res,

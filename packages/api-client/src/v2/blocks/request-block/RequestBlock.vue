@@ -207,6 +207,14 @@ const recordExpandedRowRename = (
   }
 }
 
+/** Whole-query parameters share the Query section but retain their original identity. */
+const hasQuerystringParameter = computed(
+  () =>
+    operation.parameters?.some(
+      (parameter) => getResolvedRef(parameter)?.in === 'querystring',
+    ) ?? false,
+)
+
 /** Parameters grouped by type (path, query, header, cookie) */
 const sections = computed(() =>
   groupBy(
@@ -223,7 +231,7 @@ const sections = computed(() =>
         // Overlays retain parameter order, but their downloaded values are read-only.
         originalParameter:
           getResolvedRef(sourceOperation?.parameters?.[index]) ?? param,
-        in: param.in,
+        in: param.in === 'querystring' ? 'query' : param.in,
       }))
     }) ?? [],
     'in',
@@ -735,7 +743,8 @@ const filterLabels = computed(() => ({
         :eventBus
         :exampleKey
         :rows="sections.query ?? []"
-        :title="translate('apiClient.requestBlock.queryParameters')"
+        :showAddRowPlaceholder="!hasQuerystringParameter"
+        :title="hasQuerystringParameter ? 'Query String' : translate('apiClient.requestBlock.queryParameters')"
         v-on="parameterHandlers.query" />
 
       <!-- Request Body -->

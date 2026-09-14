@@ -8,6 +8,7 @@ import { assert, describe, expect, it } from 'vitest'
 
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 
+import { buildRequest } from './build-request'
 import { requestFactory } from './request-factory'
 
 type ExtendedParameter = ParameterObject & { value: string }
@@ -45,6 +46,33 @@ const createBaseArgs = (overrides: Partial<FactoryArgs> = {}): FactoryArgs => ({
 })
 
 describe('requestFactory', () => {
+  it('sends a referenced whole-query parameter after environment substitution', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        server: { url: 'https://example.com' },
+        proxyUrl: '',
+        operation: {
+          parameters: [
+            {
+              $ref: '#/components/parameters/Search',
+              '$ref-value': {
+                name: 'metadata',
+                in: 'querystring',
+                required: true,
+                content: { 'application/x-www-form-urlencoded': { example: { q: '{{term}}' } } },
+              },
+            },
+          ],
+        },
+      }),
+    )
+    const result = buildRequest(request, { envVariables: { term: 'a + b' } })
+    assert(result.ok)
+    expect(result.data.requestPayload[0]).toBe('https://example.com/v1/users?q=a+%2B+b')
+    expect(result.data.requestPayload[1].body).toBe(null)
+    expect(request.query.toString()).toBe('')
+  })
+
   it('does not include default headers disabled for the example', () => {
     const operation: OperationObject = {
       parameters: [],

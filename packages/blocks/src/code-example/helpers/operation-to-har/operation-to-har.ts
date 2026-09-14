@@ -217,6 +217,20 @@ export const operationToHar = ({
     harRequest.cookies = []
   }
 
+  // Whole-query content must remain URI-ready, including any query authentication appended to it.
+  // Keeping all query data in the URL avoids snippet generators introducing a second question mark.
+  if (
+    operation.parameters?.some((parameter) => getResolvedRef(parameter)?.in === 'querystring') &&
+    harRequest.queryString.length
+  ) {
+    const hashIndex = harRequest.url.indexOf('#')
+    const hash = hashIndex === -1 ? '' : harRequest.url.slice(hashIndex)
+    const url = hashIndex === -1 ? harRequest.url : harRequest.url.slice(0, hashIndex)
+    const query = new URLSearchParams(harRequest.queryString.map(({ name, value }) => [name, value])).toString()
+    harRequest.url = `${url}${url.includes('?') ? '&' : '?'}${query}${hash}`
+    harRequest.queryString = []
+  }
+
   // Calculate headers size without allocating a large joined string
   let headersSize = 0
   for (const h of harRequest.headers) {

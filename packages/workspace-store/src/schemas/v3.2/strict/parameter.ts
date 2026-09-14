@@ -100,11 +100,16 @@ const ParameterObjectWithContentSchema = compose(
   ParameterObjectBaseSchema,
   Type.Object({
     content: Type.Optional(Type.Record(Type.String(), MediaTypeObjectRef)),
+    example: Type.Optional(Type.Unknown()),
+    examples: Type.Optional(Type.Record(Type.String(), Type.Union([ExampleObjectRef, reference(ExampleObjectRef)]))),
   }),
 )
 
 export type ParameterWithContentObject = ParameterObjectBase & {
   content?: Record<string, MediaTypeObject>
+  /** Examples at the parameter level override media type examples. */
+  example?: unknown
+  examples?: Record<string, ReferenceType<ExampleObject>>
 }
 
 /**

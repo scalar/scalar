@@ -4,6 +4,48 @@ import { describe, expect, it } from 'vitest'
 import { createParameterRows } from './create-parameter-rows'
 
 describe('createParameterRows', () => {
+  it('retains the whole-query value while disabled so it can be re-enabled', () => {
+    const parameter: ParameterObject = {
+      name: 'metadata',
+      in: 'querystring',
+      content: { 'application/x-www-form-urlencoded': {} },
+      examples: { default: { serializedValue: 'q=a+%2B+b', 'x-disabled': true } },
+    }
+    expect(
+      createParameterRows(parameter, 'default').map(({ value, isDisabled }) => ({ value, isDisabled })),
+    ).toStrictEqual([{ value: 'q=a+%2B+b', isDisabled: true }])
+  })
+
+  it('shows a content-based whole query as one editable serialized value', () => {
+    const parameter: ParameterObject = {
+      name: 'metadata',
+      in: 'querystring',
+      required: true,
+      content: { 'application/x-www-form-urlencoded': { example: { foo: 'a + b', bar: true } } },
+    }
+    const rows = createParameterRows(parameter, 'default')
+    expect(
+      rows.map(({ name, value, isDisabled, originalParameter }) => ({ name, value, isDisabled, originalParameter })),
+    ).toStrictEqual([
+      { name: 'metadata', value: 'foo=a+%2B+b&bar=true', isDisabled: false, originalParameter: parameter },
+    ])
+  })
+
+  it('does not offer decoded schema suggestions in the raw whole-query editor', () => {
+    const rows = createParameterRows(
+      {
+        name: 'search',
+        in: 'querystring',
+        required: true,
+        content: { 'application/json': { schema: { type: 'string', enum: ['cat', 'dog'], examples: ['dog'] } } },
+        examples: { default: { dataValue: 'cat' } },
+      },
+      'default',
+    )
+    expect(rows[0]?.value).toBe('%22cat%22')
+    expect(rows[0]?.schema).toBeUndefined()
+  })
+
   it('expands default form query object parameters into property rows', () => {
     const pageSchema = {
       type: 'integer',

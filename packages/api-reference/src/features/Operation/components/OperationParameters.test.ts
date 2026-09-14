@@ -60,6 +60,35 @@ describe('OperationParameters', () => {
     expect(wrapper.find('button[aria-expanded]').exists()).toBe(false)
   })
 
+  it('renders a querystring parameter content schema without crashing', () => {
+    const wrapper = mount(OperationParameters, {
+      props: {
+        eventBus: null,
+        options: defaultSchemaOptions,
+        parameters: [
+          {
+            name: 'metadata',
+            in: 'querystring',
+            required: true,
+            description: 'The entire query string.',
+            content: {
+              'application/json': {
+                schema: coerceValue(SchemaObjectSchema, {
+                  type: 'object',
+                  properties: { term: { type: 'string' } },
+                }),
+              },
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.text()).toContain('Query Parameters')
+    expect(wrapper.text()).toContain('metadata')
+    expect(wrapper.text()).toContain('The entire query string.')
+    expect(wrapper.text()).toContain('term')
+  })
+
   describe('path parameters', () => {
     it('renders path parameters', () => {
       const wrapper = mount(OperationParameters, {

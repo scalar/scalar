@@ -724,6 +724,8 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
               'Long description for the example. CommonMark syntax MAY be used for rich text representation.',
           }),
         ),
+        dataValue: optional(any()),
+        serializedValue: optional(string()),
         value: optional(
           any({
             typeComment: 'Embedded literal example. The value field and externalValue field are mutually exclusive.',
@@ -950,6 +952,8 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
               'When this is true, parameter values are serialized using reserved expansion, as defined by RFC6570. This field only applies to parameters with an in value of query. The default value is false.',
           }),
         ),
+        example: optional(any()),
+        examples: optional(record(string(), maybeRef(example))),
         content: optional(record(string(), maybeRef(lazy((): Schema => mediaType)), { typeName: 'ParameterContent' })),
       },
       { typeName: 'ParameterObjectWithContent' },
