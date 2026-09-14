@@ -135,6 +135,16 @@
       "types": "./dist/schemas/v3.1/strict/type-guards.d.ts",
       "default": "./dist/schemas/v3.1/strict/type-guards.js"
     },
+    "./schemas/v3.2/strict/openapi-document": {
+      "import": "./dist/schemas/v3.2/strict/openapi-document.js",
+      "types": "./dist/schemas/v3.2/strict/openapi-document.d.ts",
+      "default": "./dist/schemas/v3.2/strict/openapi-document.js"
+    },
+    "./schemas/v3.2/strict/type-guards": {
+      "import": "./dist/schemas/v3.2/strict/type-guards.js",
+      "types": "./dist/schemas/v3.2/strict/type-guards.d.ts",
+      "default": "./dist/schemas/v3.2/strict/type-guards.js"
+    },
     "./server": {
       "import": "./dist/server.js",
       "types": "./dist/server.d.ts",
