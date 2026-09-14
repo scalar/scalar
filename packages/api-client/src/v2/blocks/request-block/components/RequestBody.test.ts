@@ -52,6 +52,22 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it('fills the raw editor with a framed stream item example', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/jsonl': {
+              itemSchema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe('{"id":7}\n')
+  })
+
   it.each(['application/json', 'application/yaml'])(
     'uses dataValue in the %s form even with wire text',
     async (contentType) => {

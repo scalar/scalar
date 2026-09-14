@@ -8,6 +8,32 @@ import { describe, expect, it } from 'vitest'
 import { getExampleFromBody, getSchemaExampleFromBody } from './get-request-body-example'
 
 describe('get-request-body-example', () => {
+  it('generates a framed example from a referenced stream item schema', () => {
+    const body = {
+      content: {
+        'application/jsonl': {
+          itemSchema: {
+            $ref: '#/components/schemas/Entry',
+            '$ref-value': { type: 'object' as const, properties: { id: { type: 'integer' as const, const: 42 } } },
+          },
+        },
+      },
+    }
+    expect(getExampleFromBody(body, 'application/jsonl', 'default')).toStrictEqual({ value: '{"id":42}\n' })
+  })
+
+  it('keeps explicit stream examples unchanged', () => {
+    const body = {
+      content: {
+        'application/jsonl': {
+          itemSchema: { type: 'integer' as const },
+          example: '1\n2\n',
+        },
+      },
+    }
+    expect(getExampleFromBody(body, 'application/jsonl', 'default')?.value).toBe('1\n2\n')
+  })
+
   it('returns existing example when found in content.examples', () => {
     const requestBody = {
       content: {

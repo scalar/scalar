@@ -121,6 +121,14 @@ export const shellCurl: Plugin = {
             parts.push(`--data '${escapedText}'`)
           }
         }
+      } else if (
+        ['application/jsonl', 'application/x-ndjson'].includes(
+          parseMimeType(normalizedRequest.postData.mimeType ?? '').essence,
+        )
+      ) {
+        // Preserve line framing for generated stream items, even when one item is valid JSON.
+        const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
+        parts.push(`--data-binary '${escapedText}'`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
         parts.push(`--data-binary '${escapedText}'`)
