@@ -37,7 +37,7 @@ export function createVoidServer(options: CreateVoidServerOptions = {}) {
   }
 
   // CORS headers
-  app.use(cors())
+  app.use(cors({ origin: '*', allowMethods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH', 'QUERY'] }))
 
   // Security headers
   app.use(async (c, next) => {
