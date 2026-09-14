@@ -4,6 +4,39 @@ import { assert, describe, expect, it } from 'vitest'
 import { getFormBodyRows } from './get-form-body-rows'
 
 describe('getFormBodyRows', () => {
+  it.each(
+    (['allOf', 'oneOf', 'anyOf'] as const).flatMap((composition) =>
+      ['multipart/form-data', 'application/x-www-form-urlencoded'].map((contentType) => ({
+        composition,
+        contentType,
+      })),
+    ),
+  )('keeps $composition fields enabled for $contentType until explicitly disabled', ({ composition, contentType }) => {
+    const modeSchema: SchemaObject = { type: 'string', enum: ['none', 'fast'], description: 'Processing mode' }
+    const schema: SchemaObject = {
+      type: 'object',
+      properties: { mode: modeSchema },
+      // The builder preserves composed fields because a member can require them.
+      [composition]: [{ required: ['mode'] }],
+    }
+
+    expect(getFormBodyRows({ value: { mode: 'none' } }, contentType, schema)).toStrictEqual([
+      {
+        name: 'mode',
+        value: 'none',
+        isDisabled: false,
+        schema: modeSchema,
+        description: 'Processing mode',
+        isRequired: false,
+      },
+    ])
+    expect(
+      getFormBodyRows({ value: [{ name: 'mode', value: 'fast', isDisabled: true }] }, contentType, schema).map(
+        ({ name, value, isDisabled }) => ({ name, value, isDisabled }),
+      ),
+    ).toStrictEqual([{ name: 'mode', value: 'fast', isDisabled: true }])
+  })
+
   it('returns empty array when example is null, undefined, or missing value', () => {
     expect(getFormBodyRows(null, 'multipart/form-data')).toEqual([])
     expect(getFormBodyRows(undefined, 'multipart/form-data')).toEqual([])

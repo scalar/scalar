@@ -133,6 +133,9 @@ export const getFormBodyRows = (
 
   // Get all the schema properties if the schema is an object schema
   const schemaWithProperties = formBodySchema && isObjectSchema(formBodySchema) ? formBodySchema : undefined
+  // The request builder preserves composed fields because members can make them required.
+  // Keep those fields checked so the initial form matches the body that will be sent.
+  const isComposed = Boolean(schemaWithProperties?.allOf || schemaWithProperties?.oneOf || schemaWithProperties?.anyOf)
   const requiredSet = schemaWithProperties ? new Set(schemaWithProperties.required ?? []) : undefined
 
   // Pre-compute the leaf-by-dotted-name index up front so both the array and the
@@ -175,6 +178,7 @@ export const getFormBodyRows = (
     // explicit `isDisabled` (from a stored form-row array) always wins.
     if (
       isDisabled === undefined &&
+      !isComposed &&
       schemaWithProperties.properties &&
       Object.hasOwn(schemaWithProperties.properties, name)
     ) {
