@@ -56,6 +56,7 @@ describe('Auth', () => {
   it('renders OAuth2 metadata discovery for an OpenAPI 3.2 document', () => {
     const document = {
       openapi: '3.2.1',
+      'x-scalar-original-document-hash': '',
       info: { title: 'OAuth metadata', version: '1.0' },
       'x-scalar-navigation': {
         name: 'oauth-metadata',
