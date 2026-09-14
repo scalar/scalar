@@ -15,6 +15,7 @@ import { parsePreferHeader } from '@/utils/parse-prefer-header'
 import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
 import { serializeResponseBody } from '@/utils/serialize-response-body'
+import { getStreamingResponse, sendStreamingResponse } from '@/utils/streaming-response'
 
 /**
  * Mock any response
@@ -91,6 +92,15 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   c.header('Content-Type', acceptedContentType)
 
   const acceptedResponse = selectedResponse?.content?.[acceptedContentType]
+
+  const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
+    exampleName: prefer.example,
+    variables: pathParameters(c),
+  })
+  if (streamingResponse) {
+    c.status(statusCode)
+    return sendStreamingResponse(c, streamingResponse)
+  }
 
   const responseSchema = acceptedResponse?.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined
 
