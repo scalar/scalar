@@ -53,7 +53,7 @@
     <li>Every plan can be billed monthly or yearly. Yearly billing gives you two months free: Pro is $125 per month billed yearly ($1,500 per year) and Business is $500 per month billed yearly ($6,000 per year).</li>
     <li>Max APIs: 3 on Free, 15 on Pro, 25 on Business, unlimited on Enterprise.</li>
     <li>SDK size is measured by the number of endpoints in your OpenAPI document. Free covers SDKs up to 25 endpoints; Pro includes 100 endpoints; Business includes 250 endpoints; Enterprise is custom.</li>
-    <li>Every plan includes 1 SDK, where an SDK is one language target for one API — a TypeScript and a Python client for the same API are two SDKs. Additional SDKs are $150 per month each on Pro and $600 per month each on Business, with volume discounts as you add more. Enterprise SDK pricing is custom.</li>
+    <li>Every plan includes 1 SDK, where an SDK is one language target for one API — a TypeScript and a Python client for the same API are two SDKs. Additional SDKs are priced by each SDK's endpoint count: $150 per month each for up to 100 endpoints, or $600 per month each for 101–250 endpoints. Business teams can have SDKs in both price bands. The included SDK is applied to the most expensive band first. Volume discounts are available. Enterprise SDK pricing is custom.</li>
     <li>Editor seats: 1 on Free, 5 on Pro, 10 on Business, custom on Enterprise.</li>
     <li>Agent Scalar includes 50 credits on Free, 500 credits on Pro, 2,000 credits on Business, and custom usage on Enterprise.</li>
     <li>One Agent Scalar credit covers 200 MCP tool calls, 2 Docs chat messages, or 50,000 tokens.</li>
@@ -312,7 +312,7 @@
 <th class="pricing-table-column" scope="row">Additional SDKs</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price">$150 / month <span class="text-c-2">each</span></td>
-<td class="pricing-table-column business-price">$600 / month <span class="text-c-2">each, volume discounts</span></td>
+<td class="pricing-table-column business-price">$150–$600 / month <span class="text-c-2">each, by SDK size; volume discounts</span></td>
 <td class="pricing-table-column enterprise-price">Volume discounts</td>
 </tr>
             <tr class="pricing-table-row">
@@ -468,7 +468,7 @@
 </tbody>
         <tbody class="st_wrap_table pricing-table-group" data-table_id="2" role="rowgroup">
           <tr class="pricing-table-group-heading-row"><th class="pricing-table-group-heading flex gap-1.5 items-center flex gap-1.5" colspan="5" scope="rowgroup"><scalar-icon src="phosphor/bold/package" aria-hidden="true"></scalar-icon>SDKs</th></tr>
-<tr class="pricing-table-row pricing-table-group-desc-row"><td class="pricing-table-group-desc" colspan="5">Every plan includes 1 SDK. An SDK is one language target for one API — additional SDKs are $150 / month each on Pro and $600 / month each on Business.</td></tr>
+<tr class="pricing-table-row pricing-table-group-desc-row"><td class="pricing-table-group-desc" colspan="5">Every plan includes 1 SDK. An SDK is one language target for one API — additional SDKs are $150 / month each for up to 100 endpoints or $600 / month each for 101–250 endpoints, based on each SDK's size.</td></tr>
             <tr class="pricing-table-row">
 <th class="pricing-table-column" scope="row">TypeScript, Python, Java, Go, C#, PHP &amp; more</th>
 <td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
@@ -881,7 +881,7 @@
     </details>
     <details class="pricing-faq-item">
       <summary>What counts as one SDK?</summary>
-      <p>One language target for one API. A TypeScript SDK and a Python SDK for the same API are two SDKs. Every plan includes one SDK in any supported language; additional SDKs are $150 per month each on Pro and $600 per month each on Business, with volume discounts as you add more.</p>
+      <p>One language target for one API. A TypeScript SDK and a Python SDK for the same API are two SDKs. Every plan includes one SDK in any supported language. Additional SDKs cost $150 per month each for up to 100 endpoints or $600 per month each for 101–250 endpoints, based on each SDK's size. Business teams can use both price bands, and the included SDK is applied to the most expensive band first. For example, a Business team with one 80-endpoint SDK and one 200-endpoint SDK pays $150 per month for the additional SDK, on top of the plan price. Yearly billing gives you two months free on additional SDKs. Enterprise pricing is custom; existing subscriptions on legacy pricing keep their legacy rates until the plan is changed.</p>
     </details>
     <details class="pricing-faq-item">
       <summary>How do volume discounts work?</summary>
