@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -38,75 +39,18 @@ public class ExcludeFromApiReferenceTransformerTests(WebApplicationFactory<Progr
         var response = await client.GetAsync("/openapi/v1.json", TestContext.Current.CancellationToken);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-        const string expected = """
-                                {
-                                  "openapi": *,
-                                  "info": {
-                                    "title": "Scalar.AspNetCore.Microsoft.Tests | v1",
-                                    "version": "1.0.0"
-                                  }*
-                                  "paths": {
-                                    "/foo/exclude": {
-                                      "get": {
-                                        "tags": [
-                                          "foo"
-                                        ],
-                                        "responses": {
-                                          "200": {
-                                            "description": "OK"
-                                          }
-                                        },
-                                        "x-scalar-ignore": true
-                                      }
-                                    },
-                                    "/foo/include": {
-                                      "get": {
-                                        "tags": [
-                                          "foo"
-                                        ],
-                                        "responses": {
-                                          "200": {
-                                            "description": "OK"
-                                          }
-                                        }
-                                      }
-                                    },
-                                    "/full-exclude/foo": {
-                                      "get": {
-                                        "tags": [
-                                          "exclude"
-                                        ],
-                                        "responses": {
-                                          "200": {
-                                            "description": "OK"
-                                          }
-                                        }
-                                      }
-                                    },
-                                    "/full-exclude/bar": {
-                                      "get": {
-                                        "tags": [
-                                          "exclude"
-                                        ],
-                                        "responses": {
-                                          "200": {
-                                            "description": "OK"
-                                          }
-                                        }
-                                      }
-                                    }
-                                  },*
-                                  "tags": [
-                                    {
-                                      "name": "foo"
-                                    },
-                                    {
-                                      "name": "exclude",
-                                      "x-scalar-ignore": true
-                                    }
-                                  ]
-                                }
-                                """;
-        content.Should().Match(expected);
+        // Tag order can differ between generator versions.
+        response.EnsureSuccessStatusCode();
+        using var document = JsonDocument.Parse(content);
+        var paths = document.RootElement.GetProperty("paths");
+        paths.GetProperty("/foo/exclude").GetProperty("get").GetProperty("x-scalar-ignore").GetBoolean().Should().BeTrue();
+        paths.GetProperty("/foo/include").GetProperty("get").TryGetProperty("x-scalar-ignore", out _).Should().BeFalse();
+        paths.GetProperty("/full-exclude/foo").GetProperty("get").TryGetProperty("x-scalar-ignore", out _).Should().BeFalse();
+        paths.GetProperty("/full-exclude/bar").GetProperty("get").TryGetProperty("x-scalar-ignore", out _).Should().BeFalse();
+
+        var tags = document.RootElement.GetProperty("tags").EnumerateArray().ToDictionary(tag => tag.GetProperty("name").GetString()!);
+        tags.Keys.Should().BeEquivalentTo(["foo", "exclude"]);
+        tags["foo"].TryGetProperty("x-scalar-ignore", out _).Should().BeFalse();
+        tags["exclude"].GetProperty("x-scalar-ignore").GetBoolean().Should().BeTrue();
     }
 }
