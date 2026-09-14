@@ -1350,17 +1350,18 @@ describe('sendRequest', () => {
       expect(requestArg.body).toBe(null)
     })
 
-    it('preserves the body on POST requests in non-Electron environments', async () => {
+    it.each(['POST', 'QUERY'])('preserves the body on %s requests in non-Electron environments', async (method) => {
       const customFetch = vi.fn().mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, {}))
 
       await sendRequest({
         isUsingProxy: false,
-        requestPayload: [MOCK_URL, { method: 'POST', body: '{"key":"value"}' }],
+        requestPayload: [MOCK_URL, { method, body: '{"key":"value"}' }],
         customFetch,
       })
 
       const [requestArg] = customFetch.mock.calls[0] as [Request]
-      expect(requestArg.body).not.toBe(null)
+      expect(requestArg.method).toBe(method)
+      expect(await requestArg.text()).toBe('{"key":"value"}')
     })
 
     it('calls customFetch with spread (url, init) args in Electron, bypassing buildSafeBodyRequest', async () => {
