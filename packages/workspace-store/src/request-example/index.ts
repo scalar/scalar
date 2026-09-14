@@ -89,3 +89,6 @@ export {
 } from './functions'
 export { createVariablesStoreForRequest } from './variable-store'
 export type { VariableEntry, VariablesStore } from './variable-store/types'
+export { getXmlBodyExample } from './xml/get-xml-body-example'
+export { type XmlExampleOptions, getXmlExampleFromSchema, serializeXmlExample } from './xml/get-xml-example'
+export type { XmlDiagnostic, XmlExampleResult } from './xml/xml-node'

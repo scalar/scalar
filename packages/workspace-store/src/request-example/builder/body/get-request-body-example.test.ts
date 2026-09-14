@@ -327,4 +327,60 @@ describe('getSchemaExampleFromBody', () => {
 
     expect(getSchemaExampleFromBody(requestBody, 'application/json')).toBeUndefined()
   })
+  it.each(['application/xml', 'text/xml', 'application/problem+xml; charset=utf-8'])(
+    'generates XML request bodies for %s',
+    (contentType) => {
+      const requestBody = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          [contentType]: {
+            schema: {
+              type: 'object',
+              xml: { name: 'person' },
+              properties: { id: { example: 7, xml: { attribute: true } } },
+            },
+          },
+        },
+      })
+      const expected = '<?xml version="1.0" encoding="UTF-8"?>\n<person id="7"/>'
+      expect(getExampleFromBody(requestBody, contentType, 'default')).toStrictEqual({ value: expected })
+      expect(getSchemaExampleFromBody(requestBody, contentType)).toBe(expected)
+    },
+  )
+
+  it('serializes an explicit XML data example and preserves a serialized example', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'application/xml': {
+          schema: {
+            type: 'object',
+            xml: { name: 'person' },
+            properties: { id: { example: 7, xml: { attribute: true } } },
+          },
+          examples: { data: { value: { id: 0 } }, raw: { value: '<person id="9" />\n' } },
+        },
+      },
+    })
+    expect(getExampleFromBody(requestBody, 'application/xml', 'data')?.value).toBe(
+      '<?xml version="1.0" encoding="UTF-8"?>\n<person id="0"/>',
+    )
+    expect(getExampleFromBody(requestBody, 'application/xml', 'raw')?.value).toBe('<person id="9" />\n')
+  })
+
+  it('uses the selected XML composition for regeneration', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'application/xml': {
+          schema: {
+            oneOf: [
+              { type: 'string', example: 'a', xml: { name: 'first' } },
+              { type: 'string', example: 'b', xml: { name: 'second' } },
+            ],
+          },
+        },
+      },
+    })
+    expect(getSchemaExampleFromBody(requestBody, 'application/xml', { 'requestBody.oneOf': 1 })).toBe(
+      '<?xml version="1.0" encoding="UTF-8"?>\n<second>b</second>',
+    )
+  })
 })

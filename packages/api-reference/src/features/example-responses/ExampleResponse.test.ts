@@ -1383,4 +1383,29 @@ describe('ExampleResponse', () => {
       expect(codeBlock.props('prettyPrintedContent')).toEqual(prettyPrintJson({ message: 'Inline value' }))
     })
   })
+  it('renders schema-aware XML with XML highlighting', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        contentType: 'application/problem+xml',
+        example: undefined,
+        response: coerceValue(MediaTypeObjectSchema, {
+          schema: {
+            type: 'object',
+            xml: { name: 'person' },
+            properties: { id: { example: 7, xml: { attribute: true } } },
+          },
+        }),
+      },
+    })
+    const code = wrapper.findComponent({ name: 'ScalarCodeBlock' })
+    expect(code.props('lang')).toBe('xml')
+    expect(code.props('prettyPrintedContent')).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<person id="7"/>')
+  })
+
+  it('preserves serialized XML response examples', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: { contentType: 'text/xml', response: undefined, example: { value: '<person id="8" />\n' } },
+    })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('<person id="8" />\n')
+  })
 })

@@ -345,7 +345,7 @@ describe('processBody', () => {
     })
   })
 
-  it('handles custom content type with schema examples', () => {
+  it('serializes schema string examples as XML text', () => {
     const content = {
       'application/xml': {
         schema: coerceValue(SchemaObjectSchema, {
@@ -362,7 +362,7 @@ describe('processBody', () => {
 
     expect(result).toEqual({
       mimeType: 'application/xml',
-      text: '<user><name>Bob</name></user>',
+      text: '<?xml version="1.0" encoding="UTF-8"?>\n<root>&lt;user&gt;&lt;name&gt;Bob&lt;/name&gt;&lt;/user&gt;</root>',
     })
   })
 
@@ -2252,4 +2252,27 @@ describe('processBody', () => {
       ],
     })
   })
+  it.each(['application/xml', 'text/xml', 'application/problem+xml; charset=utf-8'])(
+    'shares schema-aware XML body serialization for %s',
+    (contentType) => {
+      const requestBody = {
+        content: {
+          [contentType]: {
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              xml: { name: 'person' },
+              properties: {
+                id: { example: 7, xml: { attribute: true } },
+                names: { type: 'array', example: ['Ada', 'Grace'], items: { type: 'string', xml: { name: 'name' } } },
+              },
+            }),
+          },
+        },
+      }
+      expect(processBody({ requestBody, contentType })).toStrictEqual({
+        mimeType: contentType,
+        text: '<?xml version="1.0" encoding="UTF-8"?>\n<person id="7">\n  <name>Ada</name>\n  <name>Grace</name>\n</person>',
+      })
+    },
+  )
 })
