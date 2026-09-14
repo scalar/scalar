@@ -1,7 +1,7 @@
 import { createDetectChangesProxy } from '@scalar/workspace-store/helpers/detect-changes-proxy'
 import { createOverridesProxy } from '@scalar/workspace-store/helpers/overrides-proxy'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 import { reactive } from 'vue'
 
