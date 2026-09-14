@@ -136,7 +136,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   }
 
   // CORS headers
-  app.use(cors())
+  app.use(cors({ origin: '*', allowMethods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH', 'QUERY'] }))
 
   /** Authentication methods defined in the OpenAPI document */
   setUpAuthenticationRoutes(app, schema)
