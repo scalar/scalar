@@ -54,6 +54,12 @@ export const REQUEST_METHODS = {
     colorVar: 'var(--scalar-color-2)',
     backgroundColor: 'bg-c-2/10',
   },
+  query: {
+    short: 'QUERY',
+    colorClass: 'text-blue',
+    colorVar: 'var(--scalar-color-blue)',
+    backgroundColor: 'bg-blue/10',
+  },
   trace: {
     short: 'TRACE',
     colorClass: 'text-c-2',

@@ -181,10 +181,10 @@ describe('requestFactory', () => {
     })
   })
 
-  it('builds a body for DELETE when the method allows a body', () => {
+  it.each(['delete', 'query'] as const)('builds a body for %s when the method allows a body', (method) => {
     const { request } = requestFactory(
       createBaseArgs({
-        method: 'delete',
+        method,
         operation: {
           requestBody: {
             content: {
@@ -206,7 +206,7 @@ describe('requestFactory', () => {
   })
 
   it('normalizes the method to uppercase', () => {
-    const methods: HttpMethod[] = ['post', 'patch', 'put']
+    const methods: HttpMethod[] = ['post', 'patch', 'put', 'query']
 
     for (const method of methods) {
       const { request } = requestFactory(createBaseArgs({ method }))
