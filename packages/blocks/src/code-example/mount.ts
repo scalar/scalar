@@ -1,8 +1,8 @@
 import { ScalarTeleportRoot } from '@scalar/components/teleport'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
@@ -20,7 +20,7 @@ export type CreateCodeExampleOptions = {
   /** Path of the operation to render, e.g. '/users/{id}'. */
   path: string
   /** HTTP method of the operation to render. */
-  method: HttpMethod
+  method: string
   /** Pre-selected client ID, e.g. 'shell/curl'. */
   selectedClient?: AvailableClients[number]
   /**
@@ -110,7 +110,7 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
       return undefined
     }
     const pathItem = getResolvedRef(activeDocument.paths?.[options.path])
-    const operation = getResolvedRef(pathItem?.[options.method])
+    const operation = getResolvedRef(getPathItemOperation(pathItem, options.method))
     if (!operation) {
       return undefined
     }

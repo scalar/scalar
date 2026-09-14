@@ -56,7 +56,7 @@ const href = computed((): string | undefined => {
 
   if (operationPath?.length && operationMethod?.length) {
     link.searchParams.set('operation_path', operationPath)
-    link.searchParams.set('operation_method', operationMethod.toLowerCase())
+    link.searchParams.set('operation_method', operationMethod)
   }
 
   // Integration identifier

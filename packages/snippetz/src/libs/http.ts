@@ -1,3 +1,4 @@
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { HarRequest } from '@scalar/types/snippetz'
 
 type HeaderPair = {
@@ -21,7 +22,7 @@ type NameOptionalValuePair = {
 export function normalizeRequest(request: Partial<HarRequest>): Partial<HarRequest> & { method: string } {
   return {
     ...request,
-    method: (request.method || 'GET').toUpperCase(),
+    method: normalizeMethod(request.method),
   }
 }
 
@@ -40,7 +41,8 @@ export function buildQueryString(queryParams?: Array<{ name: string; value: stri
 /**
  * Normalizes a request method.
  */
-export const normalizeMethod = (method?: string): string => (method || 'GET').toUpperCase()
+export const normalizeMethod = (method?: string): string =>
+  method ? (isHttpMethod(method) ? method.toUpperCase() : method) : 'GET'
 
 /**
  * Normalizes URL formatting while preserving origin-only paths.

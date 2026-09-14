@@ -1,6 +1,7 @@
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { normalizeMethod } from '@/libs/http'
 import { escapeSingleQuotes } from '@/libs/shell'
 
 /**
@@ -27,7 +28,7 @@ export const shellWget: Plugin = {
     // against an explicit `method: undefined`, which would otherwise overwrite the default.
     const normalizedRequest = {
       ...request,
-      method: (request?.method ?? 'GET').toUpperCase(),
+      method: normalizeMethod(request?.method),
     }
 
     // Build the URL, joining extra query parameters with `&` when the URL already carries a query string

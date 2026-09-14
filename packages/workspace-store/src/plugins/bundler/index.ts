@@ -312,8 +312,9 @@ export const syncPathParameters = (): LifecyclePlugin => {
       const pathString = path[1]
 
       // Sync parameters for each operation method
-      for (const method of HTTP_METHODS) {
-        const operation = getResolvedRef(node[method], context)
+      const additionalOperations = isObject(node.additionalOperations) ? Object.values(node.additionalOperations) : []
+      for (const operationNode of [...HTTP_METHODS.map((method) => node[method]), ...additionalOperations]) {
+        const operation = getResolvedRef(operationNode, context)
 
         if (!isObject(operation)) {
           continue

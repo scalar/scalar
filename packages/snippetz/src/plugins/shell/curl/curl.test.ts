@@ -11,6 +11,12 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl 'https://example.com/search?%7b%22a%22%3a1%7d&token=secret'`)
   })
 
+  it('preserves a custom method in the generated request', () => {
+    expect(shellCurl.generate({ url: 'https://example.com', method: 'customMethod' })).toContain(
+      '--request customMethod',
+    )
+  })
+
   it('returns a basic request', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',

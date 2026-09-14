@@ -73,6 +73,34 @@ describe('create-server-store', () => {
     expect(store.get('#/api/components/schemas/__proto__')).toStrictEqual({ type: 'string' })
   })
 
+  it('resolves SSR additional operation chunks with HTTP token punctuation', async () => {
+    const methods = ['deliver~Event', 'custom#Method', 'custom&Method', 'custom+Method']
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [
+        {
+          name: 'custom',
+          document: {
+            openapi: '3.2.1',
+            info: { title: 'Custom', version: '1' },
+            paths: {
+              '/pets': {
+                additionalOperations: Object.fromEntries(methods.map((method) => [method, { summary: method }])),
+              },
+            },
+          },
+        },
+      ],
+    })
+    const document = getOpenApiServerDocument(store, 'custom')
+    for (const method of methods) {
+      const operation = getResolvedRef(document?.paths?.['/pets'])?.additionalOperations?.[method]
+      assert(operation && '$ref' in operation)
+      expect(store.get(operation.$ref)).toEqual({ summary: method })
+    }
+  })
+
   const exampleDocument = () => ({
     'openapi': '3.1.1',
     'info': {

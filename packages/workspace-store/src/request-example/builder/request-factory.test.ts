@@ -73,6 +73,11 @@ describe('requestFactory', () => {
     expect(request.query.toString()).toBe('')
   })
 
+  it.each(['COPY', 'copy', 'customMethod'])('preserves additional method %s', (method) => {
+    const { request } = requestFactory(createBaseArgs({ method }))
+    expect(request.method).toBe(method)
+  })
+
   it('does not include default headers disabled for the example', () => {
     const operation: OperationObject = {
       parameters: [],
@@ -185,29 +190,32 @@ describe('requestFactory', () => {
     expect(request.body).toBe(null)
   })
 
-  it('builds a JSON body for POST when an example exists', () => {
-    const { request } = requestFactory(
-      createBaseArgs({
-        method: 'post',
-        operation: {
-          requestBody: {
-            content: {
-              'application/json': {
-                examples: {
-                  default: { value: '{"name":"Ada"}' },
+  it.each(['post', 'QUERY', 'PROPFIND', 'customMethod'])(
+    'builds a JSON body for %s when an example exists',
+    (method) => {
+      const { request } = requestFactory(
+        createBaseArgs({
+          method,
+          operation: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    default: { value: '{"name":"Ada"}' },
+                  },
                 },
               },
             },
-          },
-        } as OperationObject,
-      }),
-    )
+          } as OperationObject,
+        }),
+      )
 
-    expect(request.body).toEqual({
-      mode: 'raw',
-      value: '{"name":"Ada"}',
-    })
-  })
+      expect(request.body).toEqual({
+        mode: 'raw',
+        value: '{"name":"Ada"}',
+      })
+    },
+  )
 
   it.each(['delete', 'query'] as const)('builds a body for %s when the method allows a body', (method) => {
     const { request } = requestFactory(

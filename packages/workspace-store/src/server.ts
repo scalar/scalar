@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer'
 import { resolve } from 'node:path'
 
 import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
@@ -92,6 +93,12 @@ type CreateServerWorkspaceStoreProps =
       mode: 'ssr'
     } & CreateServerWorkspaceStoreBase)
 
+const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
+
+/** Custom methods must remain distinct even on case-insensitive filesystems. */
+const getOperationChunkFilename = (method: string): string =>
+  httpMethods.has(method) ? method : `additional-${Buffer.from(method).toString('hex')}`
+
 /**
  * Wraps a document so local `$ref`s resolve while the store inspects it.
  *
@@ -175,21 +182,19 @@ export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record
       continue
     }
 
-    const filteredMethods: Record<string, OperationObject> = {}
+    const operations = new Map<string, OperationObject>()
 
     forEachPathItemOperation(pathItemRef, (method, operation) => {
-      if (isHttpMethod(method)) {
-        // Unwrapped because the caller hands us a resolved document. A magic proxy enumerates a
-        // virtual `$ref-value`, so storing one would inline every referenced component beside its
-        // `$ref` when the chunk is written — and a self-referential schema would never finish
-        // serializing. Unwrapping one level is enough: the proxy wraps lazily, so a raw target's
-        // children are already raw.
-        filteredMethods[method] = getRaw(getResolvedRef(operation) ?? operation)
-      }
+      // Unwrapped because the caller hands us a resolved document. A magic proxy enumerates a
+      // virtual `$ref-value`, so storing one would inline every referenced component beside its
+      // `$ref` when the chunk is written — and a self-referential schema would never finish
+      // serializing. Unwrapping one level is enough: the proxy wraps lazily, so a raw target's
+      // children are already raw.
+      operations.set(method, getRaw(getResolvedRef(operation) ?? operation))
     })
 
-    if (Object.keys(filteredMethods).length > 0) {
-      result[path] = filteredMethods
+    if (operations.size > 0) {
+      result[path] = Object.fromEntries(operations)
     }
   }
 
@@ -283,6 +288,19 @@ export function externalizePathReferences(
             : `./chunks/${encodeChunkName(meta.name)}/operations/${encodeChunkName(path)}/${type}.json#`
 
         result[path][type] = { '$ref': ref, $global: true }
+      } else if (type === 'additionalOperations') {
+        result[path][type] = Object.fromEntries(
+          Object.keys(pathItem.additionalOperations ?? {}).map((method) => [
+            method,
+            {
+              '$ref':
+                meta.mode === 'ssr'
+                  ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${getOperationChunkFilename(method)}#`
+                  : `./chunks/${encodeChunkName(meta.name)}/operations/${encodeChunkName(path)}/${getOperationChunkFilename(method)}.json#`,
+              $global: true,
+            },
+          ]),
+        )
       } else if (type !== '$ref' && type !== '$ref-value') {
         // Skip the reference plumbing merged in by getResolvedPathItem. The referenced path item is
         // externalized on its own and its operations are externalized above, so keeping the `$ref`
@@ -619,7 +637,23 @@ export async function createServerWorkspaceStore(
       // Components need no resolution: they are externalized as authored, and the client resolves the
       // references inside them the same way it resolves the ones this store leaves behind.
       components: documentV3.components,
-      operations: resolvedDocument.paths && escapePaths(filterHttpMethodsOnly(resolvedDocument.paths)),
+      operations:
+        resolvedDocument.paths &&
+        escapePaths(
+          Object.fromEntries(
+            Object.entries(filterHttpMethodsOnly(resolvedDocument.paths)).map(([path, operations]) => [
+              path,
+              workspaceProps.mode === 'ssr'
+                ? Object.fromEntries(
+                    Object.entries(operations).map(([method, operation]) => [
+                      getOperationChunkFilename(method),
+                      operation,
+                    ]),
+                  )
+                : operations,
+            ]),
+          ),
+        ),
     }
     assets[meta.name] = documentAssets
 
@@ -763,7 +797,7 @@ export async function createServerWorkspaceStore(
                   encodeChunkName(name),
                   'operations',
                   encodeChunkName(unescapeJsonPointer(path)),
-                  `${encodeChunkName(method)}.json`,
+                  `${getOperationChunkFilename(method)}.json`,
                 ],
                 operation,
               )

@@ -1,6 +1,6 @@
 import type { Plugin, TargetId } from '@scalar/types/snippetz'
 
-import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
+import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
 import { Raw, escapeJsString, objectToString } from '@/libs/javascript'
 
 type AxiosHeaders = Record<string, string | string[]>
@@ -121,7 +121,7 @@ export const createAxiosPlugin = <T extends Extract<TargetId, 'js' | 'node'>>(ta
       method: 'GET',
       ...request,
     }
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     const options: Record<string, unknown> = {
       method: normalizedRequest.method,

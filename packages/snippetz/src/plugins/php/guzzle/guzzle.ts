@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { reduceQueryParams } from '@/libs/http'
+import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/php'
 
 /**
@@ -16,7 +16,7 @@ export const phpGuzzle: Plugin = {
     }
 
     const options: Record<string, any> = {}
-    const method = (request.method || 'GET').toUpperCase()
+    const method = normalizeMethod(request.method)
     const url = request.url || ''
 
     // Handle headers
