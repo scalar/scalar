@@ -1,8 +1,9 @@
 import type { ClientOptionGroup, CodeExampleProps } from '@scalar/blocks/code-example'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { shallowMount } from '@vue/test-utils'
+import { mount, shallowMount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import { defineComponent, h, vShow, withDirectives } from 'vue'
 
 import RequestCodeSnippet from './RequestCodeSnippet.vue'
 
@@ -99,7 +100,24 @@ describe('RequestCodeSnippet', () => {
         props: createProps(),
       })
 
-      expect(wrapper.find('collapsible-section-stub').isVisible()).toBe(false)
+      expect(wrapper.find('collapsible-section-stub').exists()).toBe(false)
+    })
+
+    /**
+     * The parent (RequestBlock) puts its own `v-show` on this component. Two v-shows
+     * write the same root `style.display`, and the parent's truthy one wins, so a
+     * `v-show` here would leave an empty "Code Snippet" section on screen.
+     *
+     * @see https://github.com/scalar/scalar/issues/7986
+     */
+    it('stays hidden even when a parent v-show is truthy', () => {
+      const Parent = defineComponent({
+        render: () => withDirectives(h(RequestCodeSnippet, createProps()), [[vShow, true]]),
+      })
+
+      const wrapper = mount(Parent)
+
+      expect(wrapper.text()).not.toContain('Code Snippet')
     })
   })
 })
