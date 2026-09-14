@@ -159,6 +159,112 @@ describe('createMockServer', () => {
     )
   })
 
+  it.each([
+    ['application/jsonl', '{"message":"hello"}\n'],
+    ['application/x-ndjson', '{"message":"hello"}\n'],
+    ['application/json-seq', '\u001e{"message":"hello"}\n'],
+    ['text/event-stream', 'event: update\ndata: hello\n\n'],
+  ])('streams referenced OpenAPI 3.2 item schemas as %s', async (contentType, chunk) => {
+    const item =
+      contentType === 'text/event-stream'
+        ? { type: 'object', properties: { event: { const: 'update' }, data: { const: 'hello' } } }
+        : { type: 'object', properties: { message: { $ref: '#/components/schemas/Message' } } }
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        components: { schemas: { Item: item, Message: { type: 'string', const: 'hello' } } },
+        paths: {
+          '/events': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Items',
+                  content: {
+                    [contentType]: { itemSchema: { $ref: '#/components/schemas/Item' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe(contentType)
+    expect(await response.text()).toBe(chunk.repeat(3))
+  })
+
+  it.each(['return undefined', "return res['200']", 'return [{ data: "handler" }]'])(
+    'streams custom handler responses with itemSchema: %s',
+    async (handler) => {
+      const server = await createMockServer({
+        logger: false,
+        document: {
+          openapi: '3.2.1',
+          info: { title: 'Stream', version: '1' },
+          paths: {
+            '/events': {
+              get: {
+                'x-handler': handler,
+                responses: {
+                  '200': {
+                    description: 'Events',
+                    content: {
+                      'text/event-stream': {
+                        itemSchema: { type: 'object', properties: { data: { type: 'string', const: 'generated' } } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      const response = await server.request('/events')
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toBe('text/event-stream')
+      expect(await response.text()).toBe(
+        handler.includes('handler') ? 'data: handler\n\n' : 'data: generated\n\n'.repeat(3),
+      )
+    },
+  )
+
+  it('keeps explicit examples and response headers for itemSchema streams', async () => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        paths: {
+          '/events': {
+            get: {
+              responses: {
+                '201': {
+                  description: 'Events',
+                  headers: { 'X-Stream': { schema: { type: 'string', const: 'yes' } } },
+                  content: {
+                    'application/jsonl': {
+                      itemSchema: { type: 'integer', const: 7 },
+                      examples: { first: { value: '1\n' }, second: { value: '2\n3\n' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events', { headers: { Prefer: 'code=201, example=second' } })
+    expect(response.status).toBe(201)
+    expect(response.headers.get('X-Stream')).toBe('yes')
+    expect(await response.text()).toBe('2\n3\n')
+  })
+
   // The error-handling tests below silence the log the server writes. Restoring through a hook
   // rather than inline keeps a failing assertion from leaving `console.error` mocked for the rest
   // of the file.

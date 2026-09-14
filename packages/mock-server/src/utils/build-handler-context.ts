@@ -9,6 +9,7 @@ import { generateResponseExample } from './generate-response-example'
 import { normalizeResponseBody } from './normalize-response-body'
 import { pathParameters } from './path-parameters'
 import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper'
+import { getStreamingResponse } from './streaming-response'
 
 /**
  * Context object provided to x-handler code.
@@ -71,6 +72,13 @@ function getExampleFromResponse(
 
   if (!acceptedResponse) {
     return null
+  }
+
+  const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
+    variables: pathParameters(c),
+  })
+  if (streamingResponse) {
+    return streamingResponse.body
   }
 
   const responseSchema = acceptedResponse.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined

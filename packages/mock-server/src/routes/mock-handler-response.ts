@@ -11,6 +11,7 @@ import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
 import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
+import { getStreamingResponse, sendStreamingResponse } from '@/utils/streaming-response'
 
 /**
  * Get example response from OpenAPI spec for a given status code.
@@ -161,6 +162,26 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.Ope
     // For 204 No Content, return null body without Content-Type header
     if (statusCode === 204) {
       return c.body(null)
+    }
+
+    const response = getResolvedRef(operation.responses?.[String(statusCode)] ?? operation.responses?.default)
+    const contentTypes = Object.keys(response?.content ?? {})
+    if (contentTypes.some((type) => 'itemSchema' in (response?.content?.[type] ?? {}))) {
+      const contentType = accepts(c, {
+        header: 'Accept',
+        supports: contentTypes,
+        default: contentTypes.includes('application/json')
+          ? 'application/json'
+          : (contentTypes[0] ?? 'application/json'),
+      })
+      const streamingResponse = getStreamingResponse(response?.content?.[contentType], contentType, {
+        body: result ?? undefined,
+        exampleName: parsePreferHeader(c.req.header('Prefer')).example,
+        variables: pathParameters(c),
+      })
+      if (streamingResponse) {
+        return sendStreamingResponse(c, streamingResponse)
+      }
     }
 
     // Set Content-Type header for other responses
