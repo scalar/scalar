@@ -202,9 +202,9 @@ describe('RequestBlock', () => {
     expect(bodyGet.isVisible()).toBe(false)
   })
 
-  it('shows request body for methods with a body', () => {
+  it.each(['post', 'query'] as const)('shows the request body for %s', (method) => {
     const wrapper = mount(RequestBlock, {
-      props: { ...defaultProps, method: 'post' },
+      props: { ...defaultProps, method },
       global: {
         stubs: {
           RouterLink: true,
