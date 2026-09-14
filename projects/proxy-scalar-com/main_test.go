@@ -229,8 +229,8 @@ func TestCORSHandling(t *testing.T) {
 				headers.Get("Access-Control-Allow-Headers"))
 		}
 
-		if headers.Get("Access-Control-Allow-Methods") != "POST, GET, OPTIONS, PUT, DELETE, PATCH" {
-			t.Errorf("Expected Access-Control-Allow-Methods header to be 'POST, GET, OPTIONS, PUT, DELETE, PATCH', got '%s'",
+		if headers.Get("Access-Control-Allow-Methods") != "POST, GET, OPTIONS, PUT, DELETE, PATCH, QUERY" {
+			t.Errorf("Expected Access-Control-Allow-Methods header to be 'POST, GET, OPTIONS, PUT, DELETE, PATCH, QUERY', got '%s'",
 				headers.Get("Access-Control-Allow-Methods"))
 		}
 
@@ -248,6 +248,59 @@ func TestCORSHandling(t *testing.T) {
 
 func TestProxyBehavior(t *testing.T) {
 	proxyServer := NewProxyServer(true)
+
+	t.Run("Allows QUERY preflight and forwards the request body", func(t *testing.T) {
+		const body = `{"name":"Earth","habitable":true}`
+		calls := 0
+		target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			calls++
+			if r.Method != "QUERY" {
+				t.Errorf("Expected QUERY method, got %s", r.Method)
+			}
+			if r.Header.Get("Content-Type") != "application/json" {
+				t.Errorf("Expected JSON content type, got %s", r.Header.Get("Content-Type"))
+			}
+			data, err := io.ReadAll(r.Body)
+			if err != nil || string(data) != body {
+				t.Errorf("Expected body %s, got %s (error: %v)", body, data, err)
+			}
+			w.Write(data)
+		}))
+		defer target.Close()
+
+		handler := corsMiddleware(http.HandlerFunc(proxyServer.handleRequest))
+		path := "/?scalar_url=" + url.QueryEscape(target.URL)
+		preflight := httptest.NewRequest(http.MethodOptions, path, nil)
+		preflight.Header.Set("Origin", "http://example.com")
+		preflight.Header.Set("Access-Control-Request-Method", "QUERY")
+		preflight.Header.Set("Access-Control-Request-Headers", "content-type")
+		preflightResponse := httptest.NewRecorder()
+		handler.ServeHTTP(preflightResponse, preflight)
+		if preflightResponse.Code != http.StatusOK {
+			t.Fatalf("Expected successful preflight, got %d", preflightResponse.Code)
+		}
+		if !strings.Contains(preflightResponse.Header().Get("Access-Control-Allow-Methods"), "QUERY") {
+			t.Fatal("Expected preflight to allow QUERY")
+		}
+		if calls != 0 {
+			t.Fatal("Preflight must not reach the upstream server")
+		}
+
+		req := httptest.NewRequest("QUERY", path, strings.NewReader(body))
+		req.Header.Set("Origin", "http://example.com")
+		req.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, req)
+		if response.Code != http.StatusOK || response.Body.String() != body {
+			t.Errorf("Expected successful echoed response, got %d: %s", response.Code, response.Body.String())
+		}
+		if calls != 1 {
+			t.Errorf("Expected one upstream request, got %d", calls)
+		}
+		if !strings.Contains(response.Header().Get("Access-Control-Allow-Methods"), "QUERY") {
+			t.Error("Expected response to allow QUERY")
+		}
+	})
 
 	t.Run("Follows redirects correctly", func(t *testing.T) {
 		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
@@ -336,7 +389,7 @@ func TestProxyBehavior(t *testing.T) {
 				expectedOrigin, headers.Get("Access-Control-Allow-Origin"))
 		}
 
-		expectedMethods := "POST, GET, OPTIONS, PUT, DELETE, PATCH"
+		expectedMethods := "POST, GET, OPTIONS, PUT, DELETE, PATCH, QUERY"
 		if headers.Get("Access-Control-Allow-Methods") != expectedMethods {
 			t.Errorf("Expected Access-Control-Allow-Methods header to be '%s', got '%s'",
 				expectedMethods, headers.Get("Access-Control-Allow-Methods"))
