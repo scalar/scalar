@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -20,7 +19,7 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 const { method, name, url, options, document, breadcrumb } = defineProps<{
   callback: OperationObject
-  method: HttpMethodType
+  method: string
   name: string
   url: string
   eventBus: WorkspaceEventBus | null

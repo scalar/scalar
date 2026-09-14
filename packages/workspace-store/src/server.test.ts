@@ -7,6 +7,7 @@ import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isAsyncApiDocument } from '@/schemas'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
@@ -24,6 +25,34 @@ import {
 } from './server'
 
 describe('create-server-store', () => {
+  it('resolves SSR additional operation chunks with HTTP token punctuation', async () => {
+    const methods = ['deliver~Event', 'custom#Method', 'custom&Method', 'custom+Method']
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [
+        {
+          name: 'custom',
+          document: {
+            openapi: '3.2.1',
+            info: { title: 'Custom', version: '1' },
+            paths: {
+              '/pets': {
+                additionalOperations: Object.fromEntries(methods.map((method) => [method, { summary: method }])),
+              },
+            },
+          },
+        },
+      ],
+    })
+    const document = getOpenApiServerDocument(store, 'custom')
+    for (const method of methods) {
+      const operation = getResolvedRef(document?.paths?.['/pets'])?.additionalOperations?.[method]
+      assert(operation && '$ref' in operation)
+      expect(store.get(operation.$ref)).toEqual({ summary: method })
+    }
+  })
+
   const exampleDocument = () => ({
     'openapi': '3.1.1',
     'info': {
@@ -323,6 +352,45 @@ describe('create-server-store', () => {
   })
 
   describe('ssg', () => {
+    it('writes separate chunks for additional methods that differ only in case', async () => {
+      const directory = randomUUID()
+      const basePath = `${cwd()}/${directory}`
+      try {
+        const store = await createServerWorkspaceStore({
+          mode: 'static',
+          directory,
+          documents: [
+            {
+              name: 'custom',
+              document: {
+                openapi: '3.2.1',
+                info: { title: 'Custom', version: '1' },
+                paths: {
+                  '/pets': {
+                    additionalOperations: {
+                      COPY: { summary: 'Uppercase copy' },
+                      copy: { summary: 'Lowercase copy' },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        })
+        await store.generateWorkspaceChunks()
+        const chunks = `${basePath}/chunks/custom/operations/~1pets`
+        expect((await fs.readdir(chunks)).sort()).toEqual(['additional-434f5059.json', 'additional-636f7079.json'])
+        expect(JSON.parse(await fs.readFile(`${chunks}/additional-434f5059.json`, 'utf8')).summary).toBe(
+          'Uppercase copy',
+        )
+        expect(JSON.parse(await fs.readFile(`${chunks}/additional-636f7079.json`, 'utf8')).summary).toBe(
+          'Lowercase copy',
+        )
+      } finally {
+        await fs.rm(basePath, { recursive: true, force: true })
+      }
+    })
+
     it('should generate the workspace file and also all the related chunks', async () => {
       const dir = 'temp'
 
@@ -1245,6 +1313,28 @@ describe('externalize-component-references', () => {
 })
 
 describe('externalize-path-references', () => {
+  it('externalizes additional operations without flattening their document location', () => {
+    const document = {
+      openapi: '3.2.1',
+      info: { title: 'Custom', version: '1' },
+      'x-scalar-original-document-hash': '',
+      paths: { '/pets': { additionalOperations: { customMethod: { summary: 'Custom' } } } },
+    }
+    expect(filterHttpMethodsOnly(document.paths)).toEqual({
+      '/pets': { customMethod: { summary: 'Custom' } },
+    })
+    expect(externalizePathReferences(document, { mode: 'static', name: 'custom', directory: '/tmp' })).toEqual({
+      '/pets': {
+        additionalOperations: {
+          customMethod: {
+            $ref: './chunks/custom/operations/~1pets/additional-637573746f6d4d6574686f64.json#',
+            $global: true,
+          },
+        },
+      },
+    })
+  })
+
   it('should correctly replace the contents with a ref for ssr mode', () => {
     const result = externalizePathReferences(
       {

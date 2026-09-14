@@ -9,7 +9,7 @@ export type ModalProps = {
   /** The event bus for handling all events */
   eventBus: WorkspaceEventBus
   /** The method must be initialized and passed in */
-  method: ComputedRef<HttpMethod | undefined>
+  method: ComputedRef<string | undefined>
   /** The example name must be initialized and passed in */
   exampleName: ComputedRef<string | undefined>
   /** Whether the active route resolves from `document.webhooks`. */
@@ -37,7 +37,6 @@ export default {}
 <script setup lang="ts">
 import type { ScalarListboxOption } from '@scalar/components/listbox'
 import type { ModalState } from '@scalar/components/modal'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'

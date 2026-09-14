@@ -1,5 +1,7 @@
 import { isElectron } from '@/general/is-electron'
 
+import { isHttpMethod } from './is-http-method'
+
 /** HTTP Methods which can have a body */
 export const BODY_METHODS = new Set(['post', 'put', 'patch', 'delete'])
 
@@ -17,7 +19,11 @@ export const canMethodHaveBody = (method: string, skipElectron: boolean = false)
     return true
   }
 
-  return BODY_METHODS.has(normalized)
+  // Extension methods can carry bodies too; keep the existing policy for standard OpenAPI methods.
+  const isExtensionMethod =
+    !isHttpMethod(method) && /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(method) && !['connect', 'track'].includes(normalized)
+
+  return BODY_METHODS.has(normalized) || isExtensionMethod
 }
 
 /*** We must purge body from requests that cannot accept it, skips the electron check */

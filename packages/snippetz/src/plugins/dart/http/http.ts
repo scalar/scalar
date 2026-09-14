@@ -1,5 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { normalizeMethod } from '@/libs/http'
+
 /**
  * dart/http
  */
@@ -15,7 +17,7 @@ export const dartHttp: Plugin = {
     }
 
     // Normalize method to uppercase
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Start building the Dart code
     let code = `import 'package:http/http.dart' as http;\n\nvoid main() async {\n`

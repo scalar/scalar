@@ -21,7 +21,7 @@ export type OperationProps = {
   /** The API path currently selected (e.g. "/users/{id}") */
   path?: string
   /** The HTTP method for the currently selected API path (e.g. GET, POST) */
-  method?: HttpMethod
+  method?: string
   /** The name of the currently selected example (for examples within an endpoint) */
   exampleName?: string
   /** Resolve the selected entry from the OpenAPI webhooks map. */
@@ -39,7 +39,6 @@ export type OperationProps = {
 
 <script setup lang="ts">
 import { isElectron } from '@scalar/helpers/general/is-electron'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'

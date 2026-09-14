@@ -1,3 +1,4 @@
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { X_SCALAR_DATE, X_SCALAR_DNT, X_SCALAR_REFERER, X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { type Result, err, ok } from '@scalar/helpers/types/result'
@@ -298,7 +299,7 @@ const buildRequestInner = (
          *
          * @see https://github.com/whatwg/fetch/issues/50
          */
-        method: request.method.toUpperCase(),
+        method: isHttpMethod(request.method) ? request.method.toUpperCase() : request.method,
         headers,
         body,
         cache: request.cache,

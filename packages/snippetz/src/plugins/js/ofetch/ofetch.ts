@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { reduceQueryParams } from '@/libs/http'
+import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 import { objectToString } from '@/libs/javascript'
 
 /**
@@ -18,7 +18,7 @@ export const jsOfetch: Plugin = {
     }
 
     // Normalization
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Reset fetch defaults
     const options: Record<string, any> = {

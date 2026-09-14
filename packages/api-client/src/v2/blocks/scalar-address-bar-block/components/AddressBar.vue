@@ -11,7 +11,7 @@ export type AddressBarProps = {
   /** Current request path */
   path: string
   /** Current request method */
-  method: HttpMethodType
+  method: string
   /** Whether the request target belongs to an OpenAPI webhook. */
   isWebhook?: boolean
   /** Openapi document slug */
@@ -39,8 +39,7 @@ import { ScalarButton } from '@scalar/components/button'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import { getSelector } from '@scalar/helpers/dom/get-selector'
-import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { EditorView } from '@scalar/use-codemirror'
@@ -110,7 +109,7 @@ const { percentage, startLoading, stopLoading, isLoading } =
   useLoadingAnimation()
 
 const pathConflict = ref<string | null>(null)
-const methodConflict = ref<HttpMethodType | null>(null)
+const methodConflict = ref<string | null>(null)
 const tabbedOut = ref(false)
 const isServerDropdownOpen = ref(false)
 const isHistoryDropdownOpen = ref(false)
@@ -126,7 +125,7 @@ const addressBarScrollMargins = EditorView.scrollMargins.of(() => ({
 
 /** Animated background transform for the loading indicator */
 const style = computed(() => ({
-  backgroundColor: `color-mix(in srgb, transparent 90%, ${REQUEST_METHODS[method].colorVar})`,
+  backgroundColor: `color-mix(in srgb, transparent 90%, ${getHttpMethodInfo(method).colorVar})`,
   transform: `translate3d(-${percentage.value}%,0,0)`,
 }))
 
@@ -273,7 +272,7 @@ const normalizePath = (value: string): string =>
 
 /** Emit a path/method update and reconcile conflicts + cursor state on the result */
 const emitPathMethodUpdate = (
-  targetMethod: HttpMethodType,
+  targetMethod: string,
   targetPath: string,
   blurTargetSelector: string | null = null,
 ): void => {
@@ -334,7 +333,7 @@ const emitPathMethodUpdate = (
 }
 
 /** Change the operation's method, preferring the conflicting path if present */
-const handleMethodChange = (newMethod: HttpMethodType): void =>
+const handleMethodChange = (newMethod: string): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
 /**

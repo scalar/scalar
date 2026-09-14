@@ -1,6 +1,7 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { normalizeMethod } from '@/libs/http'
 import { escapeSingleQuotes } from '@/libs/shell'
 
 /**
@@ -31,7 +32,7 @@ export const shellCurl: Plugin = {
     }
 
     // Normalization
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Build curl command parts
     const parts: string[] = ['curl']

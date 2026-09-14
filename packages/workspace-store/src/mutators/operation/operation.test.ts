@@ -26,6 +26,25 @@ const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => 
 }
 
 describe('updateOperationPathMethod (method only)', () => {
+  it('moves an imported additional operation and preserves its metadata', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'custom',
+      document: createDocument({ paths: { '/pets': { additionalOperations: { COPY: { summary: 'Copy' } } } } }),
+    })
+    store.buildSidebar('custom')
+    const document = getOpenApiDocument(store, 'custom')!
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'COPY', path: '/pets' },
+      payload: { method: 'customMethod', path: '/pets' },
+      blurTargetSelector: null,
+      callback: () => {},
+    })
+    expect(getPathItemOperation(document.paths?.['/pets'], 'COPY')).toBeUndefined()
+    expect(getResolvedRef(getPathItemOperation(document.paths?.['/pets'], 'customMethod'))?.summary).toBe('Copy')
+    expect(document['x-scalar-order']).toContain('custom/customMethod/pets')
+  })
+
   const store = createWorkspaceStore()
 
   it('replaces the x-scalar-order with the new ID', async () => {

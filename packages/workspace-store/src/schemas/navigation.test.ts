@@ -98,13 +98,13 @@ describe('navigation', () => {
         expect(Value.Check(TraversedOperationSchemaDefinition, result)).toBe(true)
       })
 
-      it('rejects operation entry with invalid HTTP method', () => {
+      it('rejects operation entry with a non-string HTTP method', () => {
         const invalidInput = {
           id: 'op-3',
           title: 'Invalid Operation',
           type: 'operation',
           ref: '#/paths/~1users/get',
-          method: 'invalid-method', // not a valid HTTP method
+          method: 123,
           path: '/users',
         }
 

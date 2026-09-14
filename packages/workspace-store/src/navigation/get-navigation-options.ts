@@ -1,3 +1,4 @@
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { type ApiReferenceConfigurationRaw, DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
 
@@ -99,12 +100,12 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         return `${prefixTag}${options.generateOperationSlug({
           path: props.path,
           operationId: props.operation.operationId,
-          method: props.method.toUpperCase(),
+          method: isHttpMethod(props.method) ? props.method.toUpperCase() : props.method,
           summary: props.operation.summary,
         })}`
       }
 
-      return `${prefixTag}${props.method.toUpperCase()}${props.path}`
+      return `${prefixTag}${isHttpMethod(props.method) ? props.method.toUpperCase() : props.method}${props.path}`
     }
 
     // -------- Default webhook id generation logic --------
@@ -120,14 +121,14 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
       if (options?.generateWebhookSlug) {
         return `${prefixTag}webhook/${options.generateWebhookSlug({
           name: props.name,
-          method: props.method?.toUpperCase(),
+          method: isHttpMethod(props.method) ? props.method.toUpperCase() : props.method,
         })}`
       }
 
       // Webhook events are commonly named with dots (e.g. "account_holder.created").
       // Keep the dot so the deep link stays close to the event name, instead of
       // dropping it and joining adjacent words ("account-holdercreated").
-      return `${prefixTag}webhook/${props.method?.toUpperCase()}/${slugify(props.name, { allowedSpecialChars: '.' })}`
+      return `${prefixTag}webhook/${isHttpMethod(props.method) ? props.method.toUpperCase() : props.method}/${slugify(props.name, { allowedSpecialChars: '.' })}`
     }
 
     // -------- Default model id generation logic --------

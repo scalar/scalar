@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { forEachPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
-  CallbackObject,
   OpenApiDocument,
   OperationObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -20,7 +19,7 @@ import Callback from './Callback.vue'
 
 const { path, callbacks, breadcrumb } = defineProps<{
   path: string
-  callbacks: CallbackObject
+  callbacks: NonNullable<OperationObject['callbacks']>
   eventBus: WorkspaceEventBus | null
   /** Breadcrumb of the owning operation; extended per callback below */
   breadcrumb?: string[]
@@ -42,7 +41,7 @@ const { level: headingLevel } = useDocumentOutline('operationSection')
 type CallbackType = {
   name: string
   url: string
-  method: HttpMethod
+  method: string
   callback: OperationObject
 }
 
@@ -59,16 +58,12 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
       }
 
       // Loop over the method level
-      objectEntries(methods).forEach(([callbackMethod, callback]) => {
-        if (!isHttpMethod(callbackMethod)) {
-          return
-        }
-
+      forEachPathItemOperation(methods, (callbackMethod, callback) => {
         _callbacks.push({
           name,
           url,
           method: callbackMethod,
-          callback: callback,
+          callback: getResolvedRef(callback),
         })
       })
     })
@@ -96,7 +91,17 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
       v-for="{ callback, method, name, url } in flattenedCallbacks"
       :key="`${name}-${url}-${method}`"
       :breadcrumb="
-        breadcrumb ? [...breadcrumb, 'callbacks', name, url, method] : undefined
+        breadcrumb
+          ? [
+              ...breadcrumb,
+              'callbacks',
+              name,
+              url,
+              ...(isHttpMethod(method)
+                ? [method]
+                : ['additionalOperations', method]),
+            ]
+          : undefined
       "
       :callback
       :document

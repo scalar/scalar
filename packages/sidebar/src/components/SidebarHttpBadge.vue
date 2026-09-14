@@ -41,7 +41,6 @@ defineProps<{
   overflow: hidden;
   line-height: 14px;
   flex-shrink: 0;
-  text-transform: uppercase;
   color: var(--method-color, var(--scalar-color-1));
   font-size: 10px;
   font-weight: var(--scalar-bold);
