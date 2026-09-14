@@ -1,9 +1,9 @@
 import type { HarRequest } from '@scalar/snippetz'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
+import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/reference'
 
-import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
+import { isContentTypeParameterObject } from '@/schemas/v3.2/strict/type-guards'
 
 type HarToOperationProps = {
   /** HAR request to convert */

@@ -4,7 +4,7 @@ import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import type {
   ExampleObject,
   MediaTypeObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'

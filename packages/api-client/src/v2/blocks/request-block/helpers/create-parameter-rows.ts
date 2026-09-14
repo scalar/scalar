@@ -7,8 +7,8 @@ import type {
   ParameterWithSchemaObject,
   ReferenceType,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isArraySchema, isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema, isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 import type { TableRow } from '../components/RequestTableRow.vue'
 import { getParameterSchema } from './get-parameter-schema'

@@ -1,7 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 
-import type { OpenApiDocument } from './v3.1/strict/openapi-document'
+import type { OpenApiDocument } from './v3.2/strict/openapi-document'
 
 /**
  * Narrow a value to an OpenAPI document.

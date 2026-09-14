@@ -3,8 +3,8 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 
 import { type NodeInput, getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
-import type { PathItemObject } from '@/schemas/v3.1/strict/path-item'
+import type { OperationObject } from '@/schemas/v3.2/strict/operation'
+import type { PathItemObject } from '@/schemas/v3.2/strict/path-item'
 
 /**
  * How many `$ref` hops to follow before treating a chain as circular.

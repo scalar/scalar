@@ -7,8 +7,8 @@ import type {
   ReferenceType,
   SchemaObject,
   SchemaReferenceType,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 const isSchemaObject = (value: unknown): value is SchemaObject => typeof value === 'object' && value !== null
 

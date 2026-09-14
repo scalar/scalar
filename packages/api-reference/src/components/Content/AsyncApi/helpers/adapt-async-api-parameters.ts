@@ -1,6 +1,6 @@
 import type { AsyncApiChannelObject } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ParameterObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
  * Adapt AsyncAPI channel parameters into the OpenAPI `ParameterObject` shape so we can reuse the

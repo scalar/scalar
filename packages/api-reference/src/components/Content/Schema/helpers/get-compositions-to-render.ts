@@ -1,7 +1,7 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { OpenApiDocument, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import type { OpenApiDocument, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 import { getRefName } from './get-ref-name'
 import { type CompositionKeyword, compositions } from './schema-composition'

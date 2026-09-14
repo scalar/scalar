@@ -5,7 +5,7 @@ import {
   coerceUntypedValue,
   resolveLeafSchema,
 } from '@scalar/workspace-store/request-example'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 

@@ -7,7 +7,7 @@ import type {
   OpenApiDocument,
   SecurityRequirementObject,
   SecuritySchemeObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { authOptions } from '@/v2/blocks/scalar-auth-selector-block/helpers/auth-options'
 

@@ -1,8 +1,8 @@
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { WorkspaceDocument } from '@/schemas'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
+import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 
 import { getSelectedServer, getServers } from './servers'
 

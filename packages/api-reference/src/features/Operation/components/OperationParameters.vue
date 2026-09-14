@@ -7,7 +7,7 @@ import type {
   ParameterObject,
   ReferenceType,
   RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
@@ -49,7 +49,11 @@ const splitParameters = computed(() =>
       if (parameter && !isHidden(parameter)) {
         const flattenedParameters = flattenDeepObjectQueryParameter(parameter)
         flattenedParameters.forEach((flattenedParameter) => {
-          acc[flattenedParameter.in].push(flattenedParameter)
+          const location =
+            flattenedParameter.in === 'querystring'
+              ? 'query'
+              : flattenedParameter.in
+          acc[location].push(flattenedParameter)
         })
       }
       return acc

@@ -11,7 +11,7 @@ import { isAsyncApiDocument } from '@/schemas'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
+import { SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
 import { allFilesMatch, getOpenApiServerDocument } from '../test/helpers'
 import {

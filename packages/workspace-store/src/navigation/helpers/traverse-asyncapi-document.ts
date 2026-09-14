@@ -21,7 +21,7 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
 /** Anything that may carry the navigation visibility extensions. */
 type Hideable = XInternal & XScalarIgnore

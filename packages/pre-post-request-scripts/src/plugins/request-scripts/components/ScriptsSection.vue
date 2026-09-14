@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import ScriptEditor from '@/components/ScriptEditor.vue'

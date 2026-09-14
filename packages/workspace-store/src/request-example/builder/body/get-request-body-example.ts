@@ -3,7 +3,7 @@ import type {
   ExampleObject,
   RequestBodyObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { getResolvedRefDeep } from '@/helpers/get-resolved-ref-deep'
 import { getExample } from '@/request-example/builder/helpers/get-example'

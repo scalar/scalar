@@ -1,5 +1,5 @@
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/example'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { buildRequestParameters } from './build-request-parameters'
@@ -800,6 +800,37 @@ describe('buildRequestParameters', () => {
       // Form style query parameters default to explode: true
       // Array values should be serialized as multiple parameters
       expect(result.urlParams.get('user')).toEqual('{"name":"John","age":30}')
+    })
+  })
+
+  // The OpenAPI 3.2 `querystring` location is handled like a regular query parameter so its
+  // value still lands in the query string instead of being silently dropped.
+  describe('querystring parameters', () => {
+    it('builds a scalar querystring parameter into the query string', () => {
+      const params = [
+        createParameter({ name: 'q', in: 'querystring', value: 'hello' }, { default: { value: 'hello' } }),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      expect(result.urlParams.get('q')).toBe('hello')
+    })
+
+    it('expands an object querystring parameter into individual query params', () => {
+      const params = [
+        {
+          name: 'filter',
+          in: 'querystring',
+          required: true,
+          examples: { default: { value: { page: '1', limit: '10' } } },
+        },
+      ] satisfies ParameterObject[]
+
+      const result = buildRequestParameters(params)
+
+      // Form style defaults to explode: true, so the object expands into individual query params
+      expect(result.urlParams.get('page')).toBe('1')
+      expect(result.urlParams.get('limit')).toBe('10')
     })
   })
 
