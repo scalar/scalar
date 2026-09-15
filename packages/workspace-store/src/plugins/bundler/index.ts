@@ -163,7 +163,7 @@ export const refsEverywhere = (): LifecyclePlugin => {
 export const restoreOriginalRefs = (): LifecyclePlugin => {
   return {
     type: 'lifecycle',
-    onBeforeNodeProcess: (node, context) => {
+    onAfterNodeProcess: (node, context) => {
       const ref = node['$ref']
       const root = context.rootNode
       const extUrls = root['x-ext-urls']
@@ -390,3 +390,5 @@ export const removeExtraScalarKeys = (): LifecyclePlugin => {
     },
   }
 }
+
+export { openApiDocument, resolveOpenApiDocument } from './openapi-document'

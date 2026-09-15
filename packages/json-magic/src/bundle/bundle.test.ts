@@ -26,6 +26,50 @@ import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 
 describe('bundle', () => {
+  it('uses the retrieval URI without interpreting format-specific identity fields', async () => {
+    const input = { openapi: '3.2.1', $self: 'https://other.example.com/api.json', item: { $ref: 'value.json' } }
+    const requested: string[] = []
+    await bundle(input, {
+      origin: 'https://example.com/root.json',
+      treeShake: false,
+      plugins: [
+        {
+          type: 'loader',
+          validate: () => true,
+          exec: (uri) => {
+            requested.push(uri)
+            return Promise.resolve({ ok: true, data: { type: 'string' }, raw: '{}' })
+          },
+        },
+      ],
+    })
+    expect(requested).toStrictEqual(['https://example.com/value.json'])
+    expect(input.$self).toBe('https://other.example.com/api.json')
+  })
+
+  it('uses caller-defined document identity and retains metadata when tree shaking', async () => {
+    const external = { identity: 'https://example.com/value.json', format: { version: 1 }, value: { type: 'string' } }
+    const input = { item: { $ref: 'https://example.com/value.json#/value' } }
+    await bundle(input, {
+      treeShake: true,
+      compress: () => 'value',
+      cache: new Map([
+        ['https://mirror.example.com/value.json', Promise.resolve({ ok: true, data: external, raw: '{}' })],
+      ]),
+      plugins: [],
+      hooks: {
+        resolveDocument: (document) =>
+          document === external
+            ? { baseUri: external.identity, metadata: { identity: external.identity, format: external.format } }
+            : undefined,
+      },
+    })
+    expect(input).toStrictEqual({
+      item: { $ref: '#/x-ext/value/value' },
+      'x-ext': { value: external },
+    })
+  })
+
   describe('external urls', () => {
     let server: FastifyInstance
     let url: string
@@ -1632,7 +1676,7 @@ describe('bundle', () => {
       })
 
       expect(exec).toHaveBeenCalledOnce()
-      expect(exec).toHaveBeenCalledWith('/b')
+      expect(exec).toHaveBeenCalledWith(`${url}/b`)
     })
 
     it('prioritizes $id when resolving refs with origin #2', async () => {
