@@ -15,6 +15,26 @@ type DeviceGrant = {
   status: 'pending' | 'approved' | 'denied'
 }
 
+/** Both endpoints compare the decoded client ID, regardless of credential location. */
+const getClientId = (clientId: unknown, authorization: string | undefined): string => {
+  if (typeof clientId === 'string') {
+    return clientId
+  }
+  if (!authorization?.startsWith('Basic ')) {
+    return ''
+  }
+  const credentials = Buffer.from(authorization.slice(6), 'base64').toString()
+  const separator = credentials.indexOf(':')
+  if (separator === -1) {
+    return ''
+  }
+  try {
+    return decodeURIComponent(credentials.slice(0, separator).replace(/\+/g, ' '))
+  } catch {
+    return ''
+  }
+}
+
 /** Keeps the device form and its outcomes consistent with the mock OAuth authorization page. */
 const renderDevicePage = (
   title: string,
@@ -98,13 +118,7 @@ export const setUpDeviceAuthorization = (app: Hono, document?: OpenAPI.Document)
     const verificationPath = `${devicePath.replace(/\/$/, '')}/verify`
     app.post(devicePath, async (c) => {
       const body = await c.req.parseBody()
-      const basic = c.req.header('Authorization')
-      const clientId =
-        typeof body.client_id === 'string'
-          ? body.client_id
-          : basic?.startsWith('Basic ')
-            ? Buffer.from(basic.slice(6), 'base64').toString().split(':')[0]
-            : ''
+      const clientId = getClientId(body.client_id, c.req.header('Authorization'))
       c.header('Cache-Control', 'no-store')
       c.header('Pragma', 'no-cache')
       if (!clientId) {
@@ -196,13 +210,7 @@ export const setUpDeviceAuthorization = (app: Hono, document?: OpenAPI.Document)
       }
       c.header('Cache-Control', 'no-store')
       c.header('Pragma', 'no-cache')
-      const basic = c.req.header('Authorization')
-      const clientId =
-        typeof body.client_id === 'string'
-          ? body.client_id
-          : basic?.startsWith('Basic ')
-            ? Buffer.from(basic.slice(6), 'base64').toString().split(':')[0]
-            : ''
+      const clientId = getClientId(body.client_id, c.req.header('Authorization'))
       const code = String(body.device_code ?? '')
       const grant = grants.get(code)
       if (!grant || grant.tokenPath !== tokenPath || grant.clientId !== clientId) {

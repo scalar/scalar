@@ -258,7 +258,10 @@ export const authorizeOauth2 = async (
     }
 
     // Common to all flows
-    url.searchParams.set('client_id', replaceEnvVariables(flow['x-scalar-secret-client-id'], environmentVariables).trim())
+    url.searchParams.set(
+      'client_id',
+      replaceEnvVariables(flow['x-scalar-secret-client-id'], environmentVariables).trim(),
+    )
     url.searchParams.set('state', state)
     if (scopes) {
       url.searchParams.set('scope', scopes)
