@@ -1,3 +1,4 @@
+import type { MarkdownRenderHook } from '@scalar/helpers/markdown/markdown-render-hook'
 import { z } from 'zod'
 
 import { baseConfigurationSchema } from './base-configuration'
@@ -141,6 +142,8 @@ export const apiReferencePluginSchema = z.function({
      * Components to render at specific views in the API Reference
      */
     views: viewsSchema.optional(),
+    /** Browser-only enhancements for every Markdown rendering, including summaries and the client modal. */
+    markdown: z.custom<MarkdownRenderHook>().optional(),
     /**
      * Lifecycle hooks for the plugin
      */

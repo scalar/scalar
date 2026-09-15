@@ -13,6 +13,7 @@ packages:
 
 catalogs:
   '*':
+    mermaid: 12.0.0
     '@ai-sdk/vue': 3.0.33
     '@astrojs/starlight': 0.42.2
     '@fastify/basic-auth': ^6.3.0
