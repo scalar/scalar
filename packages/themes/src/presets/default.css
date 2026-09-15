@@ -48,11 +48,7 @@
   --scalar-sidebar-indent-border-hover: var(--scalar-sidebar-border-color);
   --scalar-sidebar-indent-border-active: var(--scalar-sidebar-border-color);
 
-  --scalar-sidebar-search-background: color-mix(
-    in srgb,
-    var(--scalar-background-2),
-    var(--scalar-background-1)
-  );
+  --scalar-sidebar-search-background: color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1));
   --scalar-sidebar-search-color: var(--scalar-color-3);
   --scalar-sidebar-search-border-color: var(--scalar-border-color);
 }
@@ -73,34 +69,14 @@
   --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
   --scalar-button-1-color: #fff;
 
-  --scalar-tooltip-background: color-mix(
-    in srgb,
-    var(--scalar-background-1),
-    transparent 10%
-  );
+  --scalar-tooltip-background: color-mix(in srgb, var(--scalar-background-1), transparent 10%);
   --scalar-tooltip-color: var(--scalar-color-1);
 
-  --scalar-color-alert: color-mix(
-    in srgb,
-    var(--scalar-color-orange),
-    var(--scalar-color-1) 20%
-  );
-  --scalar-color-danger: color-mix(
-    in srgb,
-    var(--scalar-color-red),
-    var(--scalar-color-1) 20%
-  );
+  --scalar-color-alert: color-mix(in srgb, var(--scalar-color-orange), var(--scalar-color-1) 20%);
+  --scalar-color-danger: color-mix(in srgb, var(--scalar-color-red), var(--scalar-color-1) 20%);
 
-  --scalar-background-alert: color-mix(
-    in srgb,
-    var(--scalar-color-orange),
-    var(--scalar-background-1) 95%
-  );
-  --scalar-background-danger: color-mix(
-    in srgb,
-    var(--scalar-color-red),
-    var(--scalar-background-1) 95%
-  );
+  --scalar-background-alert: color-mix(in srgb, var(--scalar-color-orange), var(--scalar-background-1) 95%);
+  --scalar-background-danger: color-mix(in srgb, var(--scalar-color-red), var(--scalar-background-1) 95%);
 }
 .dark-mode {
   --scalar-color-green: #00b648;
@@ -118,29 +94,13 @@
   --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
   --scalar-button-1-color: black;
 
-  --scalar-tooltip-background: color-mix(
-    in srgb,
-    var(--scalar-background-1),
-    #fff 10%
-  );
+  --scalar-tooltip-background: color-mix(in srgb, var(--scalar-background-1), #fff 10%);
   --scalar-tooltip-color: color-mix(in srgb, #fff, transparent 5%);
 
-  --scalar-color-danger: color-mix(
-    in srgb,
-    var(--scalar-color-red),
-    var(--scalar-background-1) 20%
-  );
+  --scalar-color-danger: color-mix(in srgb, var(--scalar-color-red), var(--scalar-background-1) 20%);
 
-  --scalar-background-alert: color-mix(
-    in srgb,
-    var(--scalar-color-orange),
-    var(--scalar-background-1) 95%
-  );
-  --scalar-background-danger: color-mix(
-    in srgb,
-    var(--scalar-color-red),
-    var(--scalar-background-1) 95%
-  );
+  --scalar-background-alert: color-mix(in srgb, var(--scalar-color-orange), var(--scalar-background-1) 95%);
+  --scalar-background-danger: color-mix(in srgb, var(--scalar-color-red), var(--scalar-background-1) 95%);
 }
 @supports (color: color(display-p3 1 1 1)) {
   .light-mode {
