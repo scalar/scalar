@@ -413,6 +413,7 @@ jobs:
   fastapi-publish:
     if: inputs.published == 'true' && inputs.fastapi_package_changed == 'true' && inputs.fastapi_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-pypi
     timeout-minutes: 10
     concurrency:
       group: fastapi-publish
@@ -445,6 +446,7 @@ jobs:
   django-ninja-publish:
     if: inputs.published == 'true' && inputs.django_ninja_package_changed == 'true' && inputs.django_ninja_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-pypi
     timeout-minutes: 10
     concurrency:
       group: django-ninja-publish
