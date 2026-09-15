@@ -3,6 +3,9 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 
 import { compositions } from './schema-composition'
 
+/** Display normalization tracks null branches without changing the stored OpenAPI schema. */
+type DisplaySchema = SchemaObject & { nullable?: boolean }
+
 /**
  * Shallow-merges schema-like objects, but unions `properties` and `required`
  * instead of letting a later object's `properties`/`required` completely
@@ -57,7 +60,7 @@ function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)
  * become nullable state, single branches are flattened, and shared properties and
  * required fields are merged into variants so the renderer keeps their full context.
  */
-export function optimizeValueForDisplay(value: SchemaObject | undefined): SchemaObject | undefined {
+export function optimizeValueForDisplay(value: DisplaySchema | undefined): DisplaySchema | undefined {
   if (!value || typeof value !== 'object') {
     return value
   }
@@ -76,7 +79,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   }
 
   // Extract root properties efficiently (excluding composition and nullable)
-  const { [composition]: _, nullable: originalNullable, ...rootProperties } = value as any
+  const { [composition]: _, nullable: originalNullable, ...rootProperties } = value
   const hasRootProperties = Object.keys(rootProperties).length > 0
 
   // Check for null schemas and filter them out in one pass
@@ -107,9 +110,8 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   // Root-level annotations (title, description, …) win over the member's: they
   // describe the combined schema, not the base it extends.
   if (filteredSchemas.length === 1) {
-    const mergedSchema = mergeSchemaProperties(filteredSchemas[0], rootProperties) as SchemaObject
+    const mergedSchema = mergeSchemaProperties(filteredSchemas[0], rootProperties) as DisplaySchema
     if (shouldBeNullable) {
-      // @ts-expect-error We use nullable
       mergedSchema.nullable = true
     }
     return mergedSchema
@@ -148,12 +150,11 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
     })
 
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
-    const result = { [composition]: mergedSchemas } as SchemaObject
+    const result = { [composition]: mergedSchemas } as DisplaySchema
     if (typeof value.description === 'string') {
       result.description = value.description
     }
     if (shouldBeNullable) {
-      // @ts-expect-error We use nullable
       result.nullable = true
     }
     return result
@@ -161,9 +162,8 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
 
   // Return with filtered schemas if any nulls were removed
   if (filteredSchemas.length !== schemas.length) {
-    const result: SchemaObject = { ...value, [composition]: filteredSchemas }
+    const result: DisplaySchema = { ...value, [composition]: filteredSchemas }
     if (shouldBeNullable) {
-      // @ts-expect-error We use nullable
       result.nullable = true
     }
     return result

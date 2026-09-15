@@ -865,8 +865,11 @@ const environment = computed(
 )
 
 if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
-  window.dataDumpWorkspace = () => workspaceStore
+  // The debug hook is optional because it only exists after a reference is mounted.
+  const debugWindow: Window & {
+    dataDumpWorkspace?: () => typeof workspaceStore
+  } = window
+  debugWindow.dataDumpWorkspace = () => workspaceStore
 }
 
 // For testing
