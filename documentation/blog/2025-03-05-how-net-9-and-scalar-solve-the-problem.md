@@ -1,3 +1,7 @@
+---
+date: 2025-03-05
+---
+
 # How .NET 9 and Scalar solve the problem of under-documented APIs
 
 Stop me if you’ve heard this one before:
