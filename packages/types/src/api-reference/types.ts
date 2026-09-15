@@ -364,6 +364,7 @@ export type ApiReferenceTranslations = {
     path: string
     copyDefault: string
     copyExample: string
+    streamItem: string
   }
   search: {
     label: string

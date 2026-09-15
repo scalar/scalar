@@ -2,6 +2,7 @@ import type { ApiReferenceTranslations } from '@scalar/types/api-reference'
 
 export const zhCn = {
   common: {
+    streamItem: '流项目',
     description: '描述',
     httpMethod: 'HTTP 方法',
     path: '路径',

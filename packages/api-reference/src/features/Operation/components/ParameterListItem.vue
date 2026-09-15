@@ -392,7 +392,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
             !content?.[selectedContentType]?.schema
           "
           class="text-c-2 text-sm">
-          Stream item
+          {{ translate('common.streamItem') }}
         </p>
         <!-- Schema -->
         <SchemaProperty
@@ -427,7 +427,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
           "
           compact
           :eventBus="eventBus"
-          name="Stream item"
+          :name="translate('common.streamItem')"
           :noncollapsible="true"
           :options="{ ...options, hideWriteOnly: true, document }"
           :schema="getResolvedRef(content[selectedContentType]?.itemSchema)" />
