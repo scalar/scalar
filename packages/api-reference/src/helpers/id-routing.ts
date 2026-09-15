@@ -191,6 +191,34 @@ export const makeUrlFromId = (_id: string, basePath: string | undefined, isMulti
 }
 
 /**
+ * Identifies the host hash prefix against the loaded navigation, before Scalar changes the URL.
+ * Matching the longest known section suffix handles custom slugs and nested tags without
+ * mistaking the previous section for part of the host route. Explicit basePath configuration
+ * remains necessary when a host route is indistinguishable from a Scalar section.
+ */
+export const resolveHashPrefix = (
+  currentHash: string,
+  navigationIds: Iterable<string>,
+  isMultiDocument: boolean,
+): string => {
+  const ids = new Set(Array.from(navigationIds, (id) => (isMultiDocument ? id : stripFirstSegment(id))).filter(Boolean))
+
+  const { rawId: sectionHash } = getSchemaParamsFromId(currentHash)
+
+  // Check longest suffixes first so a nested tag takes precedence over its child name.
+  for (let start = 0; start < sectionHash.length; start = sectionHash.indexOf('/', start) + 1) {
+    if (ids.has(sectionHash.slice(start))) {
+      return start === 0 ? '' : currentHash.slice(0, start - 1)
+    }
+    if (sectionHash.indexOf('/', start) === -1) {
+      break
+    }
+  }
+
+  return currentHash
+}
+
+/**
  * Builds a crawlable href for a navigation id without reading the current location
  *
  * Unlike {@link makeUrlFromId} this does not depend on `window`, so it is safe to

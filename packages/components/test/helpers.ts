@@ -6,8 +6,8 @@ import {
   expect,
   devices as playwrightDevices,
 } from '@playwright/test'
-
 import { defaultThemeVariant } from '@scalar/helpers/storybook/themes'
+
 import {
   type ComponentTestOptions,
   type SnapshotFn,

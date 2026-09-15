@@ -2,7 +2,6 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type { Page, TestInfo, devices as playwrightDevices } from '@playwright/test'
-
 import { type ThemeVariantId, defaultThemeVariant } from '@scalar/helpers/storybook/themes'
 
 /**

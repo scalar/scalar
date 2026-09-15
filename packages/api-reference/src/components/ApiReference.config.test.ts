@@ -831,3 +831,54 @@ describe('ApiReference AsyncAPI onServerChange', () => {
     wrapper.unmount()
   })
 })
+
+describe('host-app hash routing', () => {
+  afterEach(() => {
+    locationMock.href = 'http://localhost:3000/'
+    locationMock.hash = ''
+    vi.restoreAllMocks()
+  })
+
+  it.each([
+    ['#docs/api-spec', '#docs/api-spec', false],
+    ['#docs/api-spec/tag/users', '#docs/api-spec', false],
+    ['#tag/users', '', false],
+    ['#docs/api-spec/second/tag/users', '#docs/api-spec', true],
+  ])('keeps the host route when opening and navigating from %s', async (hash, prefix, multi) => {
+    locationMock.hash = hash
+    locationMock.href = `http://localhost:3000/${hash}`
+    const updateLocation = (_data: unknown, _unused: string, url?: string | URL | null): void => {
+      const next = new URL(String(url), locationMock.href)
+      locationMock.href = next.href
+      locationMock.hash = next.hash
+    }
+    vi.spyOn(window.history, 'replaceState').mockImplementation(updateLocation)
+    vi.spyOn(window.history, 'pushState').mockImplementation(updateLocation)
+
+    const configuration = {
+      slug: 'doc',
+      content: {
+        openapi: '3.1.0',
+        info: { title: 'Hash routing', version: '1.0.0' },
+        tags: [{ name: 'Users' }, { name: 'Payers' }],
+        paths: {
+          '/users': { get: { tags: ['Users'], responses: {} } },
+          '/payers': { get: { tags: ['Payers'], responses: {} } },
+        },
+      },
+    }
+    const wrapper = mountComponent({
+      props: {
+        configuration: multi ? [configuration, { ...configuration, slug: 'second' }] : configuration,
+      },
+    })
+    await flushPromises()
+
+    const expectedHash = `${prefix || '#'}${prefix ? '/' : ''}${multi ? 'second/' : ''}tag/payers`
+    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toContain(expectedHash)
+    const eventBus = wrapper.findComponent({ name: 'Content' }).props('eventBus')
+    eventBus.emit('select:nav-item', { id: `${multi ? 'second' : 'doc'}/tag/payers` })
+    await flushPromises()
+    expect(locationMock.hash).toBe(expectedHash)
+  })
+})
