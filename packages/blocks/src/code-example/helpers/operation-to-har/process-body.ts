@@ -247,7 +247,7 @@ export const processBody = ({
 
   // Try to extract examples from the schema
   const mediaType = requestBody.content[_contentType]
-  const contentSchema = mediaType?.schema ?? mediaType?.itemSchema
+  const contentSchema = getResolvedRef(mediaType?.schema ?? mediaType?.itemSchema)
   if (typeof contentSchema !== 'undefined') {
     const resolvedContentSchema = getResolvedRefDeep(contentSchema) as SchemaObject
     const extractedExample = getExampleFromSchema(

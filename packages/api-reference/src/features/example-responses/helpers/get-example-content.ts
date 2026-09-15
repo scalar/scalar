@@ -1,6 +1,6 @@
 import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
+import { isStreamingMediaType, serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
@@ -16,9 +16,7 @@ export const getExampleContent = (
 ): string | undefined => {
   if (example !== undefined) {
     const value = getResolvedRefDeep(example)?.value ?? ''
-    return typeof value === 'string' && serializeStreamExample([], contentType, false) !== undefined
-      ? value
-      : prettyPrintJson(value)
+    return typeof value === 'string' && isStreamingMediaType(contentType) ? value : prettyPrintJson(value)
   }
 
   const schema = response?.schema ?? response?.itemSchema
