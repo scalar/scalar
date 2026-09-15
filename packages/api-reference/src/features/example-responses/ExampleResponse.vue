@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import type {
   ExampleObject,
   MediaTypeObject,
@@ -11,17 +12,22 @@ import { useLocalization } from '@/features/localization'
 
 import { getExampleContent } from './helpers/get-example-content'
 
-const { example, response, content } = defineProps<{
-  response: MediaTypeObject | undefined
-  example: ExampleObject | undefined
-  /** Reuse the card's formatted value so generation and copying cannot diverge. */
-  content?: string
-}>()
+const { example, response, content, contentType, openapiVersion } =
+  defineProps<{
+    contentType?: string
+    openapiVersion?: string
+    response: MediaTypeObject | undefined
+    example: ExampleObject | undefined
+    /** Reuse the card's formatted value so generation and copying cannot diverge. */
+    content?: string
+  }>()
 const { translate } = useLocalization()
 
 /** Preformatted content is shared with the response card clipboard action. */
 const prettyPrintedContent = computed(
-  () => content ?? getExampleContent(response, example),
+  () =>
+    content ??
+    getExampleContent(response, example, contentType, openapiVersion),
 )
 
 const VIRTUALIZATION_THRESHOLD = 20_000
@@ -39,14 +45,14 @@ const shouldVirtualize = computed(() => {
   <ScalarCodeBlock
     v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
     class="bg-b-2"
-    lang="json"
+    :lang="isXmlMediaType(contentType) ? 'xml' : 'json'"
     :prettyPrintedContent="prettyPrintedContent" />
 
   <ScalarVirtualCodeBlock
     v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
     class="bg-b-2"
     :content="prettyPrintedContent"
-    lang="json" />
+    :lang="isXmlMediaType(contentType) ? 'xml' : 'json'" />
 
   <div
     v-else

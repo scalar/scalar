@@ -130,6 +130,51 @@ describe('RequestBody', () => {
     ])
   })
 
+  it.each(['application/xml', 'text/xml', 'application/vnd.person+xml; charset=utf-8'])(
+    'regenerates an edited %s body when a different oneOf branch is selected',
+    async (contentType) => {
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          openapiVersion: '3.2.0',
+          requestBody: {
+            content: {
+              [contentType]: {
+                example: '<person>Edited</person>',
+                schema: {
+                  type: 'object',
+                  oneOf: [
+                    {
+                      type: 'object',
+                      xml: { name: 'person' },
+                      properties: { name: { type: 'string', example: 'Ada' } },
+                    },
+                    {
+                      type: 'object',
+                      xml: { name: 'organization' },
+                      properties: { name: { type: 'string', example: 'Scalar' } },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+        },
+      })
+      await wrapper.setProps({ requestBodyCompositionSelection: { 'requestBody.oneOf': 1 } })
+      expect(wrapper.emitted('update:value')).toStrictEqual([
+        [
+          {
+            contentType,
+            payload: '<?xml version="1.0" encoding="UTF-8"?>\n<organization>\n  <name>Scalar</name>\n</organization>',
+          },
+        ],
+      ])
+      wrapper.unmount()
+    },
+  )
+
   it('keeps the named example when the selection is first established on open', async () => {
     // On the first open of a composition body the modal applies the reference's selection, moving it
     // from empty to populated. That is not a user branch switch, so the body must keep its named

@@ -8,6 +8,40 @@ import { describe, expect, it } from 'vitest'
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
 
 describe('createMarkdownFromOpenApi', () => {
+  it('preserves schema-free XML request and response examples', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.2.0',
+      info: { title: 'XML examples', version: '1' },
+      paths: {
+        '/messages': {
+          post: {
+            requestBody: {
+              content: {
+                'application/xml': {
+                  examples: {
+                    default: { serializedValue: '<request>supplied</request>' },
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/xml': {
+                    example: '<response>supplied</response>',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(result).toContain('```xml\n<request>supplied</request>\n```')
+    expect(result).toContain('```xml\n<response>supplied</response>\n```')
+  })
+
   it('renders title, version and OpenAPI version', async () => {
     const content = {
       openapi: '3.1.1',
@@ -598,10 +632,10 @@ Test description`
 
       \`\`\`xml
       <?xml version="1.0" encoding="UTF-8"?>
-      <0>
+      <root>
         <id></id>
         <name></name>
-      </0>
+      </root>
       \`\`\`
       "
     `)

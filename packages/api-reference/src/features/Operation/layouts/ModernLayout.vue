@@ -251,6 +251,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
               fallback
               :isWebhook
               :method
+              :openapiVersion="document?.openapi"
               :operation
               :path
               :requestBodyCompositionSelection="
@@ -289,6 +290,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
             <ExampleResponses
               v-if="operation.responses"
               :eventBus
+              :openapiVersion="document?.openapi"
               :responses="operation.responses"
               :selectedContentTypes="selectedResponseContentTypes"
               :selectedExample
