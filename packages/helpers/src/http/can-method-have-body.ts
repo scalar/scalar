@@ -6,7 +6,8 @@ import { isHttpMethod } from './is-http-method'
 export const BODY_METHODS = new Set(['post', 'put', 'patch', 'delete', 'query'])
 
 /**
- * Makes a check to see if this method CAN have a body.
+ * Whether Scalar can send this method with a body in the current runtime.
+ * Browser-forbidden methods are excluded along with methods whose bodies are unsupported.
  *
  * When running inside Electron, all requests are also allowed to have a body because the underlying
  * undici implementation does not reject it, which matches the behavior users expect from desktop API clients.
