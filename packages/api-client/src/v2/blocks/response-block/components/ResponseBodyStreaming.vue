@@ -5,107 +5,92 @@ import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { CollapsibleSection } from '@/v2/components/layout'
 
-const { reader } = defineProps<{
+import { createResponseStreamParser } from '../helpers/response-stream'
+
+const { reader, contentType = 'text/event-stream' } = defineProps<{
   reader: ReadableStreamDefaultReader<Uint8Array>
+  contentType?: string
 }>()
 
 const loader = useLoadingState()
-
 const textContent = ref('')
 const errorRef = ref<Error | null>(null)
 const contentContainer = ref<HTMLElement | null>(null)
+let currentReader: ReadableStreamDefaultReader<Uint8Array> | null = null
 
-/** Track the current reader to prevent race conditions when reader changes */
-const currentReader = ref<ReadableStreamDefaultReader<Uint8Array> | null>(null)
+/** Bound the text retained by a connection that can stay open indefinitely. */
+const MAX_DISPLAY_SIZE = 16 * 1024 * 1024
 
-/** Current decoder instance - reset for each new stream to prevent buffer corruption */
-const decoder = ref<TextDecoder | null>(null)
-
-/**
- * Scrolls the content container to the bottom
- */
-const scrollToBottom = () => {
+watch(textContent, async () => {
+  await nextTick()
   if (contentContainer.value) {
     contentContainer.value.scrollTop = contentContainer.value.scrollHeight
   }
-}
-
-// Watch for changes in textContent and scroll to bottom
-watch(textContent, async () => {
-  // Use nextTick to ensure the DOM has updated
-  await nextTick(scrollToBottom)
 })
 
-/**
- * Reads the stream and appends the content
- */
-async function readStream(
+const cancelReader = (
   streamReader: ReadableStreamDefaultReader<Uint8Array>,
-) {
+): void => {
+  void Promise.resolve(streamReader.cancel()).catch(() => {
+    // A failed or disconnected stream can already be closed when the user cancels.
+  })
+}
+
+const readStream = async (
+  streamReader: ReadableStreamDefaultReader<Uint8Array>,
+): Promise<void> => {
   try {
-    while (loader.isLoading && currentReader.value === streamReader) {
+    const parser = createResponseStreamParser(contentType, (text) => {
+      if (textContent.value.length + text.length > MAX_DISPLAY_SIZE) {
+        throw new Error(
+          'Stream display reached its 16 MiB limit. Cancelled further reading.',
+        )
+      }
+      textContent.value += text
+    })
+    while (currentReader === streamReader) {
       const { done, value } = await streamReader.read()
-
-      // Stop if this reader is no longer the current one
-      if (currentReader.value !== streamReader) {
-        break
+      if (currentReader !== streamReader) {
+        return
       }
-
       if (done) {
+        parser.finish()
         void loader.clear()
-        break
+        return
       }
-
-      // Decode the Uint8Array to string and append to content
-      if (value && decoder.value) {
-        textContent.value += decoder.value.decode(value, { stream: true })
-      }
+      parser.push(value)
     }
   } catch (error) {
-    // Only handle the error if this is still the current reader
-    if (currentReader.value === streamReader) {
+    if (currentReader === streamReader) {
       console.error('Error reading stream:', error)
+      errorRef.value = error instanceof Error ? error : new Error(String(error))
+      cancelReader(streamReader)
       void loader.clear()
-      errorRef.value = error as Error
     }
   } finally {
-    // Only finalize decoding if this is still the current reader
-    if (currentReader.value === streamReader && decoder.value) {
-      // Make sure to decode any remaining bytes
-      textContent.value += decoder.value.decode()
-    }
+    streamReader.releaseLock()
   }
 }
 
-const startStreaming = () => {
-  // Cancel the old reader if it exists
-  if (currentReader.value) {
-    currentReader.value.cancel()
+const stopStreaming = (): void => {
+  const previous = currentReader
+  currentReader = null
+  if (previous) {
+    cancelReader(previous)
   }
+  void loader.clear()
+}
 
-  // Set the new reader as current
-  currentReader.value = reader
-
-  // Reset state and start new stream
-  // Create a new decoder instance to prevent buffer corruption from previous streams
-  decoder.value = new TextDecoder()
+const startStreaming = (): void => {
+  stopStreaming()
+  currentReader = reader
   loader.start()
   textContent.value = ''
   errorRef.value = null
   void readStream(reader)
 }
 
-const stopStreaming = () => {
-  if (currentReader.value) {
-    currentReader.value.cancel()
-    currentReader.value = null
-  }
-  void loader.clear()
-}
-
-// Start streaming when the reader changes
 watch(() => reader, startStreaming, { immediate: true })
-
 onBeforeUnmount(stopStreaming)
 </script>
 
