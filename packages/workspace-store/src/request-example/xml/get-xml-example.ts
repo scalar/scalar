@@ -2,7 +2,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
-import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 import type { XMLObject } from '@/schemas/v3.2/strict/xml'
 
 import {
