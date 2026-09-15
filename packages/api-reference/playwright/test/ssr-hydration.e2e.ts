@@ -267,3 +267,30 @@ test('uses a replacement configuration when the pending source fails', async ({ 
   await expect(page.getByRole('heading', { name: 'Replacement API', exact: true })).toBeVisible()
   expect(hydrationErrors).toStrictEqual([])
 })
+
+test('recovers when configuration changes after preparation has failed', async ({ page }) => {
+  await page.route('**/document', (route) => route.fulfill({ status: 503, body: 'Unavailable' }))
+  await page.goto(baseUrl)
+  const failed = page.waitForEvent('console', (message) => message.text().includes('Could not prepare API References:'))
+  await page.evaluate(() => {
+    const state = window as TestWindow & { configuration: Parameters<CreateApiReference>[1] }
+    state.loaded = 0
+    state.reference = state.Scalar.createApiReference('#app', state.configuration)
+  })
+  await failed
+  await expect(page.getByRole('heading', { name: content.info.title, exact: true })).toBeVisible()
+  await page.evaluate(
+    (document) => {
+      const state = window as TestWindow
+      state.reference.updateConfiguration({
+        content: document,
+        onLoaded: () => {
+          state.loaded++
+        },
+      })
+    },
+    { ...content, info: { ...content.info, title: 'Recovered API' } },
+  )
+  await expect.poll(() => page.evaluate(() => (window as TestWindow).loaded)).toBe(1)
+  await expect(page.getByRole('heading', { name: 'Recovered API', exact: true })).toBeVisible()
+})
