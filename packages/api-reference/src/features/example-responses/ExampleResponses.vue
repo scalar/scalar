@@ -38,6 +38,7 @@ import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
 import { getExampleContent } from './helpers/get-example-content'
+import { getResponseVariants } from './helpers/get-response-variants'
 import { hasResponseContent } from './helpers/has-response-content'
 import { normalizeMimeTypeObject } from './helpers/normalize-mime-type-object'
 
@@ -198,11 +199,42 @@ const externalExamples = useExternalExamples(
 const currentExample = computed(() =>
   externalExamples.resolve(selectedExampleObject.value),
 )
+/** Explicit examples take precedence over generated schema variants. */
+const responseVariants = computed(() =>
+  currentExample.value === undefined
+    ? getResponseVariants(currentResponseContent.value)
+    : undefined,
+)
+const selectedVariantKey = ref('')
+const currentVariantKey = computed(() => {
+  const variants = responseVariants.value
+  return variants && Object.hasOwn(variants.examples, selectedVariantKey.value)
+    ? selectedVariantKey.value
+    : (variants?.defaultKey ?? '')
+})
+
+// A selection belongs to this response and content type, not the next tab.
+watch(
+  [
+    selectedResponseIndex,
+    currentResponse,
+    currentContentType,
+    currentResponseContent,
+  ],
+  () => {
+    selectedVariantKey.value = ''
+  },
+  { flush: 'sync' },
+)
+
 const exampleContent = computed(() =>
   externalExamples.pending.value
     ? undefined
     : getExampleContent(currentResponseContent.value, currentExample.value, {
         contentType: currentContentType.value,
+        compositionSelection: responseVariants.value
+          ? { [responseVariants.value.composition]: Number(currentVariantKey.value) }
+          : undefined,
       }),
 )
 
@@ -286,7 +318,8 @@ const copyExample = (): void => {
       v-if="
         currentResponse?.summary ||
         currentResponse?.description ||
-        hasMultipleExamples
+        hasMultipleExamples ||
+        responseVariants
       "
       class="response-card-footer">
       <ExamplePicker
@@ -295,6 +328,14 @@ const copyExample = (): void => {
         :examples="currentResponseContent?.examples"
         :modelValue="selectedExampleKey"
         @update:modelValue="selectExample" />
+      <ExamplePicker
+        v-if="responseVariants && !showSchema"
+        :aria-label="translate('schema.schema')"
+        class="response-example-selector px-0"
+        data-testid="response-variant-picker"
+        :examples="responseVariants.examples"
+        :modelValue="currentVariantKey"
+        @update:modelValue="selectedVariantKey = $event" />
       <div class="response-description">
         <!-- Short summary of the response (OpenAPI 3.2) -->
         <div

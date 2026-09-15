@@ -12,7 +12,10 @@ import type {
 export const getExampleContent = (
   response: MediaTypeObject | undefined,
   example: ExampleObject | undefined,
-  { contentType = 'application/json' }: { contentType?: string } = {},
+  { contentType = 'application/json', compositionSelection }: {
+    contentType?: string
+    compositionSelection?: Record<string, number>
+  } = {},
 ): string | undefined => {
   if (example !== undefined) {
     const selected = getExampleValue(getResolvedRefDeep(example))
@@ -29,9 +32,24 @@ export const getExampleContent = (
   }
 
   if (response?.schema) {
-    const content = getExampleFromSchema(getResolvedRefDeep(response.schema) as SchemaObject, {
+    const schema = getResolvedRefDeep(response.schema) as SchemaObject | undefined
+    if (!schema) {
+      return undefined
+    }
+    const composition = schema.oneOf ? 'oneOf' : 'anyOf'
+    const index = compositionSelection?.[composition]
+    const variant = index === undefined ? undefined : schema[composition]?.[index]
+    // The generator handles an explicit primitive/array type before its root union.
+    // Merge that selected branch with the common fields so its constraints still apply.
+    const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
+    const selectedSchema =
+      variant && !('properties' in schema) && ('items' in schema || ('type' in schema && schema.type !== 'object'))
+        ? { ...base, ...variant }
+        : schema
+    const content = getExampleFromSchema(selectedSchema as SchemaObject, {
       emptyString: 'string',
       mode: 'read',
+      compositionSelection,
     })
     if (content === undefined) {
       return undefined
