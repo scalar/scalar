@@ -6,6 +6,38 @@ import { resolveMessageTraits } from './resolve-message-traits'
 const asMessage = (value: unknown): AsyncApiMessageObject => value as AsyncApiMessageObject
 
 describe('resolve-message-traits', () => {
+  it('preserves header names and literal data containing $ref', () => {
+    const headers = {
+      type: 'object',
+      properties: {
+        $ref: { type: 'string' },
+        default: { type: 'object', default: { $ref: 'literal-default' }, example: { $ref: 'literal-example' } },
+        properties: { type: 'object', default: { $ref: 'nested-literal' } },
+      },
+    }
+    const extension = { $ref: 'literal-extension' }
+    const message = asMessage({ traits: [{ headers, 'x-custom': extension }] })
+    expect(resolveMessageTraits(message)).toStrictEqual({ ...message, headers, 'x-custom': extension })
+  })
+
+  it('merges referenced bindings with message-level overrides', () => {
+    const message = asMessage({
+      traits: [
+        {
+          bindings: {
+            $ref: '#/components/messageBindings/common',
+            '$ref-value': { kafka: { bindingVersion: '0.5.0', key: { type: 'string' } } },
+          },
+        },
+      ],
+      bindings: { kafka: { bindingVersion: '0.4.0' } },
+    })
+    expect(resolveMessageTraits(message)).toStrictEqual({
+      ...message,
+      bindings: { kafka: { bindingVersion: '0.4.0', key: { type: 'string' } } },
+    })
+  })
+
   it('preserves messages without traits', () => {
     const message = asMessage({ payload: { type: 'string' } })
     expect(resolveMessageTraits(message)).toBe(message)
