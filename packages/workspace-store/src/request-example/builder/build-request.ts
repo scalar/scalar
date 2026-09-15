@@ -164,6 +164,14 @@ const buildRequestInner = (
 
   /** Create a new body object with the replaced values */
   const body: BodyInit | null = (() => {
+    if (request.body?.mode === 'multipart') {
+      const encoded = encodeMultipartBody(request.body.value, request.body.contentType, (value) =>
+        replaceEnvVariables(value, replace),
+      )
+      headers.set('content-type', encoded.type)
+      return encoded
+    }
+
     if (request.body?.mode === 'raw') {
       if (typeof request.body.value === 'string') {
         return replaceEnvVariables(request.body.value, replace)

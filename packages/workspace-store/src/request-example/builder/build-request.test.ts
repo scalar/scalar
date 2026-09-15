@@ -33,6 +33,30 @@ const unwrap = (factory: RequestFactory, options: Parameters<typeof buildRequest
 }
 
 describe('buildRequest', () => {
+  it('sends nested multipart bodies with matching boundaries and resolved variables', async () => {
+    const body = buildRequestBody({
+      content: {
+        'multipart/mixed': {
+          examples: { default: { value: [{ document: '{{name}}' }] } },
+          itemEncoding: { contentType: 'multipart/form-data', encoding: { document: { contentType: 'text/plain' } } },
+        },
+      },
+    })
+    const [, init] = unwrap(
+      createFactory({ method: 'POST', body, headers: new Headers({ 'Content-Type': 'multipart/mixed' }) }),
+      { envVariables: { name: 'Alice' } },
+    ).requestPayload
+    if (!(init.body instanceof Blob)) {
+      throw new Error('Expected a multipart Blob')
+    }
+    expect(new Headers(init.headers).get('content-type')).toBe(init.body.type)
+    const boundary = init.body.type.match(/boundary="?([^";]+)/)?.[1]
+    const wire = await init.body.text()
+    expect(wire.startsWith('--' + boundary + '\r\n')).toBe(true)
+    expect(wire.endsWith('--' + boundary + '--\r\n')).toBe(true)
+    expect(wire).toContain('name="document"\r\nContent-Type: text/plain\r\n\r\nAlice')
+  })
+
   beforeEach(() => {
     vi.spyOn(console, 'warn').mockImplementation(() => undefined)
   })
