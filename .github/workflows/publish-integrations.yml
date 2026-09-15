@@ -250,7 +250,7 @@ jobs:
         working-directory: integrations/dotnet/aspnetcore
         run: |
           dotnet pack src/Scalar.AspNetCore -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
-          dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
+          dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:VersionPrefix=${{ steps.package-version.outputs.VERSION }}
           dotnet pack src/Scalar.AspNetCore.Swashbuckle -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
       - name: Publish packages

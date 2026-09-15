@@ -28,4 +28,6 @@ This changes the document format. It does not change the Microsoft.OpenApi depen
 
 The repository uses the .NET 11 RC1 SDK in `integrations/dotnet/global.json`. Keep the .NET 8, 9, and 10 runtimes installed to run tests for the older targets.
 
-Publish this support as a prerelease while it depends on ASP.NET Core 11 RC1. Before a stable release, update the RC1 SDK and package references to the final .NET 11 versions.
+`Scalar.AspNetCore.Microsoft` has a project-local `VersionSuffix` of `rc.1` while it depends on ASP.NET Core 11 RC1. The publish workflow passes `VersionPrefix` so this package receives the prerelease suffix and its `Scalar.AspNetCore` dependency keeps the stable version published separately. Use `dotnet pack src/Scalar.AspNetCore.Microsoft -p:VersionPrefix=<version>` when packaging manually.
+
+Before a stable release, update the RC1 SDK and package references to the final .NET 11 versions and remove `VersionSuffix` from `Scalar.AspNetCore.Microsoft.csproj`.
