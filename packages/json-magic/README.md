@@ -54,7 +54,9 @@ There is no root export. Every module is imported from its own entry point, so y
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 
-For OpenAPI documents, `$self` declares the base URI for relative references. A relative `$self` is resolved against `origin` or the input URL. Each loaded document has its own base, and schema `$id` values resolve against their enclosing base. Documents supplied through `cache` can be referenced by their declared identity, even when their retrieval location differs. API server URLs are unchanged.
+Document formats can supply a `resolveDocument` lifecycle hook returning `{ baseUri, metadata }`. The bundler resolves relative references against that base URI and retains the supplied root metadata when tree shaking. The hook also applies to cached and previously bundled documents. Without a hook, the retrieval URI remains the document base. JSON Schema `$id` values resolve against their enclosing base.
+
+When reading qualified root references with `createMagicProxy`, pass the canonical URI as `documentUri`. Interpretation of format-specific identity fields belongs in the caller or a plugin.
 
 External documents are stored under the `x-ext` key, and the mapping between the generated keys and their original URLs is stored under `x-ext-urls`. Both keys are configurable, see [Options](#options).
 

@@ -8,6 +8,30 @@ import { describe, expect, it } from 'vitest'
 import { processOpenApiDocument } from './process-openapi-document'
 
 describe('processOpenApiDocument', () => {
+  it('resolves a schema reference to the document declared by $self', async () => {
+    const result = await processOpenApiDocument({
+      openapi: '3.2.1',
+      $self: 'https://example.com/api.json',
+      info: { title: 'Example', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Value: { type: 'string' },
+          Model: { $id: 'model.json', properties: { value: { $ref: 'api.json#/components/schemas/Value' } } },
+        },
+      },
+    })
+    expect(result.components?.schemas?.Model).toStrictEqual({
+      $id: 'model.json',
+      properties: {
+        value: {
+          $ref: 'https://example.com/api.json#/components/schemas/Value',
+          '$ref-value': { type: 'string' },
+        },
+      },
+    })
+  })
+
   it('does not request loopback URLs through a $ref', async () => {
     const requests: string[] = []
     const server = createServer((request, response) => {
