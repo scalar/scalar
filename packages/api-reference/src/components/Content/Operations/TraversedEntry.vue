@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/blocks/code-example'
+import { isObject } from '@scalar/helpers/object/is-object'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   TraversedEntry,
@@ -17,8 +17,10 @@ import type {
 } from '@scalar/workspace-store/schemas/navigation'
 import type {
   OpenApiDocument,
+  SchemaObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { computed } from 'vue'
 
 import Model from '@/components/Content/Models/Model.vue'
 import ModelTag from '@/components/Content/Models/ModelTag.vue'
@@ -112,6 +114,29 @@ const isModelsTag = (entry: TraversedEntry): entry is TraversedModels =>
 
 const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
   entry['type'] === 'model'
+
+/**
+ * Keep schema wrappers with resolved targets while excluding unresolved sparse chunk references.
+ */
+const isSchemaObject = (value: unknown): value is SchemaObject =>
+  isObject(value) && (!('$ref' in value) || value['$ref-value'] !== undefined)
+
+/**
+ * Resolves a model entry to the schema the Model component renders.
+ *
+ * A model may point at a named `$ref` wrapper whose item type is bound through a sibling `$defs`
+ * (a named `Paginated<User>`). We keep that wrapper intact rather than resolving it away, so the
+ * dynamic binding survives and the shared Schema renderer can bind the item type for display — see
+ * #9883.
+ */
+const modelSchemas = computed<Record<string, SchemaObject | undefined>>(() =>
+  Object.fromEntries(
+    Object.entries(document.components?.schemas ?? {}).map(([name, schema]) => [
+      name,
+      isSchemaObject(schema) ? schema : undefined,
+    ]),
+  ),
+)
 
 function getPathValue(entry: TraversedOperation | TraversedWebhook) {
   return isWebhook(entry)
@@ -232,14 +257,14 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     </ModelTag>
 
     <Model
-      v-else-if="isModel(entry) && document.components?.schemas?.[entry.name]"
+      v-else-if="isModel(entry) && modelSchemas[entry.name]"
       :id="entry.id"
       :document
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
       :name="entry.name"
       :options
-      :schema="getResolvedRef(document.components.schemas[entry.name])">
+      :schema="modelSchemas[entry.name]">
     </Model>
   </Lazy>
 </template>
