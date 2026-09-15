@@ -437,8 +437,15 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                 v-for="(bodyContent, mediaType) in entry.requestBody.content"
                 :key="mediaType">
                 <h5>Content-Type: {{ mediaType }}</h5>
-                <template v-if="resolveSchema(bodyContent.schema)">
-                  <Schema :schema="resolveSchema(bodyContent.schema)!" />
+                <template
+                  v-if="
+                    resolveSchema(bodyContent.schema) ||
+                    (isXmlMediaType(String(mediaType)) &&
+                      getMediaExample(bodyContent))
+                  ">
+                  <Schema
+                    v-if="resolveSchema(bodyContent.schema)"
+                    :schema="resolveSchema(bodyContent.schema)!" />
                   <p><strong>Example:</strong></p>
                   <XmlOrJson
                     :example="getMediaExample(bodyContent)"
@@ -481,8 +488,14 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                       :key="mediaType">
                       <section>
                         <h6>Content-Type: {{ mediaType }}</h6>
-                        <template v-if="resolveSchema(responseContent.schema)">
+                        <template
+                          v-if="
+                            resolveSchema(responseContent.schema) ||
+                            (isXmlMediaType(String(mediaType)) &&
+                              getMediaExample(responseContent))
+                          ">
                           <Schema
+                            v-if="resolveSchema(responseContent.schema)"
                             :schema="resolveSchema(responseContent.schema)!" />
                           <p><strong>Example:</strong></p>
                           <XmlOrJson

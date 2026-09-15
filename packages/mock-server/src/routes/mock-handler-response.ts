@@ -80,12 +80,7 @@ function getExampleFromResponse(
     )
   }
 
-  const provenance =
-    selectedExample?.serializedValue !== undefined
-      ? 'serialized'
-      : selectedExample?.dataValue !== undefined
-        ? 'data'
-        : undefined
+  const provenance = selectedExample?.provenance
   if (selectedExample && provenance) {
     c.header('Content-Type', acceptedContentType)
     return serializeResponseBody(selectedExample.value, acceptedContentType, responseSchema, provenance) ?? null
