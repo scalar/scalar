@@ -6,11 +6,13 @@ import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
 import { getServerVariables } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { encode, fromUint8Array } from 'js-base64'
+import { fromUint8Array } from 'js-base64'
 
 import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 
 import { getOAuthCallbackData } from './oauth-callback'
+import { oauthClientAuthorization } from './oauth-client-authorization'
+import { type DeviceAuthorizationOptions, authorizeDevice } from './oauth-device-authorization'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
@@ -149,6 +151,7 @@ export const authorizeOauth2 = async (
    * default popup-polling approach. Required for the Electron desktop app.
    */
   captureCallback?: CaptureOAuth2Callback,
+  deviceOptions?: DeviceAuthorizationOptions,
 ): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
 
@@ -157,6 +160,20 @@ export const authorizeOauth2 = async (
       return [new Error('Flow not found'), null]
     }
 
+    if (type === 'deviceAuthorization' && flows.deviceAuthorization) {
+      return authorizeDevice(
+        flows.deviceAuthorization,
+        selectedScopes,
+        activeServer,
+        proxyUrl,
+        environmentVariables,
+        customFetch,
+        deviceOptions,
+      )
+    }
+    if (type === 'deviceAuthorization') {
+      return [new Error('Flow not found'), null]
+    }
     const scopes = selectedScopes.join(' ')
 
     // Client Credentials or Password Flow
@@ -241,7 +258,7 @@ export const authorizeOauth2 = async (
     }
 
     // Common to all flows
-    url.searchParams.set('client_id', flow['x-scalar-secret-client-id'].trim())
+    url.searchParams.set('client_id', replaceEnvVariables(flow['x-scalar-secret-client-id'], environmentVariables).trim())
     url.searchParams.set('state', state)
     if (scopes) {
       url.searchParams.set('scope', scopes)
@@ -411,8 +428,8 @@ const authorizeServers = async (
   }
 
   // Ignore surrounding copy/paste whitespace without changing stored credentials or other secrets.
-  const clientId = flow['x-scalar-secret-client-id'].trim()
-  const clientSecret = flow['x-scalar-secret-client-secret'].trim()
+  const clientId = replaceEnvVariables(flow['x-scalar-secret-client-id'], environmentVariables).trim()
+  const clientSecret = replaceEnvVariables(flow['x-scalar-secret-client-secret'], environmentVariables).trim()
   /** Where to add the credentials */
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
   /**
@@ -424,7 +441,8 @@ const authorizeServers = async (
    * Public authorization-code clients still need client_id in the token body.
    * We only send it implicitly for that case to avoid conflicting with Basic auth.
    */
-  const shouldSendClientIdInBody = addCredentialsToBody || (type === 'authorizationCode' && !hasClientSecret)
+  const shouldSendClientIdInBody =
+    addCredentialsToBody || ((type === 'authorizationCode' || type === 'deviceAuthorization') && !hasClientSecret)
 
   if (shouldSendClientIdInBody) {
     formData.set('client_id', clientId)
@@ -476,7 +494,7 @@ const authorizeServers = async (
 
     // Add client id + secret to headers for confidential clients.
     if (!addCredentialsToBody && hasClientSecret) {
-      headers.Authorization = `Basic ${encode(`${clientId}:${clientSecret}`)}`
+      headers.Authorization = oauthClientAuthorization(clientId, clientSecret)
     }
 
     // Check if we should use the proxy
@@ -550,8 +568,8 @@ export const refreshOauth2Token = async (
   formData.set('refresh_token', refreshToken)
 
   // Ignore surrounding copy/paste whitespace without changing stored credentials or other secrets.
-  const clientId = flow['x-scalar-secret-client-id'].trim()
-  const clientSecret = flow['x-scalar-secret-client-secret'].trim()
+  const clientId = replaceEnvVariables(flow['x-scalar-secret-client-id'], environmentVariables).trim()
+  const clientSecret = replaceEnvVariables(flow['x-scalar-secret-client-secret'], environmentVariables).trim()
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
   /** A confidential client keeps using its secret on refresh, even when PKCE is enabled. */
   const hasClientSecret = Boolean(clientSecret)
@@ -559,7 +577,8 @@ export const refreshOauth2Token = async (
    * Public authorization-code clients still need client_id in the refresh body per RFC 6749 Section 6.
    * We only send it implicitly for that case to avoid conflicting with Basic auth.
    */
-  const shouldSendClientIdInBody = addCredentialsToBody || (type === 'authorizationCode' && !hasClientSecret)
+  const shouldSendClientIdInBody =
+    addCredentialsToBody || ((type === 'authorizationCode' || type === 'deviceAuthorization') && !hasClientSecret)
 
   if (shouldSendClientIdInBody) {
     formData.set('client_id', clientId)
@@ -582,7 +601,7 @@ export const refreshOauth2Token = async (
     }
 
     if (!addCredentialsToBody && hasClientSecret) {
-      headers.Authorization = `Basic ${encode(`${clientId}:${clientSecret}`)}`
+      headers.Authorization = oauthClientAuthorization(clientId, clientSecret)
     }
 
     const refreshUrl = flow.refreshUrl || flow['x-scalar-secret-token-url'] || flow.tokenUrl

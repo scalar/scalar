@@ -48,4 +48,33 @@ describe('oauth2-metadata-to-flows', () => {
       implicit: { authorizationUrl: metadata.authorization_endpoint, scopes: {} },
     })
   })
+  it('discovers device authorization and fills missing device endpoints', () => {
+    const metadata = {
+      device_authorization_endpoint: 'https://example.com/device',
+      token_endpoint: 'https://example.com/token',
+      grant_types_supported: ['urn:ietf:params:oauth:grant-type:device_code'],
+    }
+    expect(oauth2MetadataToFlows(metadata, {})).toStrictEqual({
+      deviceAuthorization: {
+        deviceAuthorizationUrl: metadata.device_authorization_endpoint,
+        tokenUrl: metadata.token_endpoint,
+        scopes: {},
+      },
+    })
+    expect(
+      oauth2MetadataToFlows(metadata, {
+        deviceAuthorization: {
+          deviceAuthorizationUrl: '',
+          tokenUrl: '',
+          refreshUrl: '',
+          scopes: {},
+        },
+      }),
+    ).toStrictEqual({
+      deviceAuthorization: {
+        deviceAuthorizationUrl: metadata.device_authorization_endpoint,
+        tokenUrl: metadata.token_endpoint,
+      },
+    })
+  })
 })
