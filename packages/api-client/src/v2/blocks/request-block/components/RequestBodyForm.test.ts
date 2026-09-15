@@ -4,8 +4,8 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
-import { CodeInputLite } from '@/v2/components/code-input'
 import { useFileDialog } from '@/hooks/use-file-dialog'
+import { CodeInputLite } from '@/v2/components/code-input'
 
 import RequestBodyForm from './RequestBodyForm.vue'
 import RequestTable from './RequestTable.vue'
@@ -525,9 +525,18 @@ describe('RequestBodyForm', () => {
   }
 
   it('opens a multi-file picker for array-typed fields and adds one row per file', async () => {
+    vi.mocked(useFileDialog).mockImplementationOnce((options) => {
+      fileDialogOnChange = options?.onChange
+      return { files: readonly(mockFiles), open: mockOpen }
+    })
     const wrapper = mount(RequestBodyForm, {
       props: {
-        example: { value: [{ name: 'files', value: '', isDisabled: false }] },
+        example: {
+          value: [
+            { name: 'files', value: '', isDisabled: false },
+            { name: 'note', value: 'Keep me', isDisabled: false },
+          ],
+        },
         bodySchema: arrayFieldSchema,
         selectedContentType: 'multipart/form-data',
         environment: defaultEnvironment,
@@ -541,24 +550,22 @@ describe('RequestBodyForm', () => {
     // The array field opts into a multi-select picker.
     expect(vi.mocked(useFileDialog).mock.calls.at(-1)?.[0]?.multiple).toBe(true)
 
-    fileDialogOnChange?.(
-      toFileList([
-        new File(['a'], 'a.txt', { type: 'text/plain' }),
-        new File(['b'], 'b.txt', { type: 'text/plain' }),
-        new File(['c'], 'c.txt', { type: 'text/plain' }),
-      ]),
-    )
+    const files = [
+      new File(['a'], 'a.txt', { type: 'text/plain' }),
+      new File(['b'], 'b.txt', { type: 'text/plain' }),
+      new File(['c'], 'c.txt', { type: 'text/plain' }),
+    ]
+    fileDialogOnChange?.(toFileList(files))
     await nextTick()
 
-    const events = wrapper.emitted('update:formValue')
-    const lastEvent = events?.[events.length - 1]?.[0]
-    expect(Array.isArray(lastEvent)).toBe(true)
-    if (Array.isArray(lastEvent)) {
-      // Every selected file becomes its own row, all reusing the `files` field name.
-      expect(lastEvent).toHaveLength(3)
-      expect(lastEvent.map((row) => row.name)).toEqual(['files', 'files', 'files'])
-      expect(lastEvent.map((row) => (row.value as File).name)).toEqual(['a.txt', 'b.txt', 'c.txt'])
-    }
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        [
+          ...files.map((file) => ({ name: 'files', value: file, isDisabled: false })),
+          { name: 'note', value: 'Keep me', isDisabled: false },
+        ],
+      ],
+    ])
   })
 
   it('keeps the file picker single-select for non-array fields', async () => {

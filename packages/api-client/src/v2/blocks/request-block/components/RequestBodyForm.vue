@@ -116,20 +116,21 @@ const handleFileUpload = (index: number) => {
       // the row has no name yet (e.g. schema-less requests).
       const fieldName = currentRow?.name || selected[0]?.name || ''
 
-      // The first file fills the clicked row (handleUpsertRow appends if it is the new-row
-      // slot); any extras become additional rows reusing the same name, so the request sends
-      // one part per file (`files=@a`, `files=@b`) — the array/multipart wire shape.
-      handleUpsertRow(index, { name: fieldName, value: selected[0]! })
-
-      if (selected.length > 1) {
-        const extraRows: TableRow[] = selected.slice(1).map((file) => ({
-          name: fieldName,
-          value: file,
-          isDisabled: false,
-        }))
-        localFormBodyRows.value = [...localFormBodyRows.value, ...extraRows]
-        handleUpdateFormValue(localFormBodyRows.value)
-      }
+      // Keep a selection together beside its field, and emit once so consumers never
+      // observe a partially applied selection.
+      const selectedRows: TableRow[] = selected.map((file) => ({
+        ...currentRow,
+        name: fieldName,
+        value: file,
+        isDisabled: currentRow?.isDisabled ?? false,
+      }))
+      const insertionIndex = Math.min(index, localFormBodyRows.value.length)
+      localFormBodyRows.value = [
+        ...localFormBodyRows.value.slice(0, insertionIndex),
+        ...selectedRows,
+        ...localFormBodyRows.value.slice(insertionIndex + 1),
+      ]
+      handleUpdateFormValue(localFormBodyRows.value)
     },
     multiple: allowMultiple,
     accept: '*/*',
