@@ -5,7 +5,7 @@ import type {
   ExampleObject,
   MediaTypeObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** Keep the displayed response and its clipboard action on the same resolved, formatted value. */
 export const getExampleContent = (

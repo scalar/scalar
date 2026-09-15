@@ -27,7 +27,7 @@ import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
 import { useLocalization } from '@/features/localization'

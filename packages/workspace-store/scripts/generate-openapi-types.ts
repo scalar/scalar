@@ -1,16 +1,16 @@
 import { generateTypes } from '@scalar/validation'
 
-import { generateSchema } from './../src/schemas/v3.1/openapi'
-import { normalRef, recursiveRef } from '../src/schemas/v3.1/openapi/reference'
+import { generateSchema } from './../src/schemas/v3.2/openapi'
+import { normalRef, recursiveRef } from '../src/schemas/v3.2/openapi/reference'
 
 const openapi = generateTypes(generateSchema(normalRef), {
   maxDepth: Number.POSITIVE_INFINITY,
-  namespace: 'OpenAPIV3_1',
+  namespace: 'OpenAPIV3_2',
 })
 
 const proxyOpenapi = generateTypes(generateSchema(recursiveRef), {
   maxDepth: Number.POSITIVE_INFINITY,
-  namespace: 'OpenAPIV3_1',
+  namespace: 'OpenAPIV3_2',
 })
 
 import fs from 'node:fs/promises'
