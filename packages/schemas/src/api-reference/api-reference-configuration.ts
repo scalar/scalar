@@ -284,7 +284,9 @@ const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
 export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => {
-  const input = coerce(apiReferenceConfigurationSchema, rawInput)
+  const parsed = coerce(apiReferenceConfigurationSchema, rawInput)
+  // Migration removes the deprecated field from this same configuration object.
+  const input: Omit<typeof parsed, 'showToolbar'> & Partial<Pick<typeof parsed, 'showToolbar'>> = parsed
 
   if (input.hideDownloadButton) {
     console.warn(
@@ -347,7 +349,6 @@ export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => 
 
     input.showDeveloperTools = input.showToolbar
 
-    // @ts-expect-error - We're deleting the deprecated attribute
     delete input.showToolbar
   }
 

@@ -581,7 +581,9 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
 /** Configuration for the Api Reference */
 export const apiReferenceConfigurationWithSourceSchema: ZodType<
   Omit<ApiReferenceConfiguration, 'url' | 'content'> & SourceConfiguration
-> = apiReferenceConfigurationSchema.extend(sourceConfigurationSchema.shape).transform((configuration) => {
+> = apiReferenceConfigurationSchema.extend(sourceConfigurationSchema.shape).transform((parsed) => {
+  // Migration removes the deprecated field from this same configuration object.
+  const configuration: Omit<typeof parsed, 'showToolbar'> & Partial<Pick<typeof parsed, 'showToolbar'>> = parsed
   // Migrate hideDownloadButton to documentDownloadType
   if (configuration.hideDownloadButton) {
     console.warn(
@@ -650,7 +652,6 @@ export const apiReferenceConfigurationWithSourceSchema: ZodType<
 
     configuration.showDeveloperTools = configuration.showToolbar
 
-    // @ts-expect-error - We're deleting the deprecated attribute
     delete configuration.showToolbar
   }
 

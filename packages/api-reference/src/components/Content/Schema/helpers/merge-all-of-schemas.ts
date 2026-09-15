@@ -401,15 +401,12 @@ const mergeItemsInner = (
     return mergeAllOfSchemas({ allOf: allOfSchemas } as SchemaObject, undefined, seenRefs)
   }
 
-  const merged = { ...existing, ...incoming }
-
-  // Recursively merge properties if both have properties
+  // Construct the merged object after narrowing both schemas so their property types survive.
   if ('properties' in existing && 'properties' in incoming) {
-    // @ts-expect-error
-    merged.properties = { ...existing.properties }
-    // @ts-expect-error
+    const merged = { ...existing, ...incoming, properties: { ...existing.properties } }
     mergePropertiesIntoResult(merged.properties, incoming.properties, seenRefs)
+    return merged
   }
 
-  return merged
+  return { ...existing, ...incoming }
 }
