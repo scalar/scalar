@@ -602,6 +602,69 @@ Every page on your site advertises the feed in its `<head>`, so feed readers and
 
 Pages at `path` and beneath it also show a subscribe button in the page header, next to Copy Page — one per feed the page belongs to.
 
+## Content Signals
+
+The `contentSignals` property declares how search and AI crawlers may use your published documentation. Scalar writes these preferences as a `Content-Signal` line in the generated `robots.txt`.
+
+Content Signals are enabled by default. If you omit `contentSignals`, or omit an individual signal, all unspecified signals default to `"yes"`:
+
+```text
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+```
+
+### Properties
+
+Set `contentSignals` to `false` to omit the directive, or use an object with these optional properties:
+
+| Property  | Type              | Default | Description |
+| --------- | ----------------- | ------- | ----------- |
+| `enabled` | `boolean`         | `true`  | Whether to emit the directive. Set to `false` to retain your preferences without publishing them. |
+| `search`  | `"yes"` or `"no"` | `"yes"` | Building a search index and showing links and short excerpts. |
+| `aiInput` | `"yes"` or `"no"` | `"yes"` | Using content as input for AI answers, including retrieval and grounding. |
+| `aiTrain` | `"yes"` or `"no"` | `"yes"` | Training or fine-tuning AI models. |
+
+### Allow Search and AI Answers, Decline AI Training
+
+Add the following to your `scalar.config.json`:
+
+```json
+{
+  "siteConfig": {
+    "contentSignals": {
+      "search": "yes",
+      "aiInput": "yes",
+      "aiTrain": "no"
+    }
+  }
+}
+```
+
+After publishing, the generated `robots.txt` includes:
+
+```text
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+```
+
+### Disable the Directive
+
+Set `contentSignals` to `false` to omit the `Content-Signal` line entirely:
+
+```json
+{
+  "siteConfig": {
+    "contentSignals": false
+  }
+}
+```
+
+Alternatively, set `contentSignals.enabled` to `false` to keep your per-signal preferences for later. Disabling the directive does not declare `no` for any use. To decline a use explicitly, keep Content Signals enabled and set that signal to `"no"`.
+
+You can also manage these settings in your documentation project's **Settings → Content Signals**. Publish changes to update the generated file. If your project's assets include a custom `robots.txt`, Scalar preserves that file instead of generating one; edit its Content Signals directly.
+
+Content Signals are advisory preferences that crawlers may honor. They do not block access or replace authentication. See [Privacy](../privacy.md#content-signals) for more context.
+
 ## Routing
 
 The `routing` property configures URL redirects and path patterns for your documentation.
