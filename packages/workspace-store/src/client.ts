@@ -25,6 +25,7 @@ import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
 import { mergeObjects } from '@/helpers/merge-object'
+import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
@@ -1098,7 +1099,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = withMeasurementSync('coerceValue', () => coerce<Schema>(openapiSchema, deepClone(strictDocument)))
+      const coerced = withMeasurementSync('coerceValue', () =>
+        coerce<Schema>(openapiSchema, normalizeBooleanSchemas(deepClone(strictDocument))),
+      )
       withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
