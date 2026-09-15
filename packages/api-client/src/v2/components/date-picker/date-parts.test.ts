@@ -67,6 +67,24 @@ describe('parseValue', () => {
     })
   })
 
+  it.each(['13:45:30Z', '13:45:30+02:00', '13:45:30.123', '13:45:30.123Z'])(
+    'preserves time fields, fraction and offset in %s',
+    (value) => {
+      const parsed = parseValue(value, 'time')
+      expect(parsed).toStrictEqual({
+        year: 0,
+        month: 0,
+        day: 0,
+        hour: 13,
+        minute: 45,
+        second: 30,
+        offset: value.endsWith('Z') ? 'Z' : value.endsWith('+02:00') ? '+02:00' : '',
+        ...(value.includes('.123') ? { fraction: '.123' } : {}),
+      })
+      expect(formatValue(parsed!, 'time')).toBe(value)
+    },
+  )
+
   it('returns null for free-text or variable values', () => {
     expect(parseValue('not a date', 'date')).toBeNull()
     expect(parseValue('{{myDate}}', 'date-time')).toBeNull()
@@ -84,7 +102,7 @@ describe('formatValue', () => {
   })
 
   it('formats a time', () => {
-    expect(formatValue(parts(), 'time')).toBe('13:45:30')
+    expect(formatValue(parts({ offset: '' }), 'time')).toBe('13:45:30')
   })
 
   it('formats a date-time with the supplied offset', () => {
