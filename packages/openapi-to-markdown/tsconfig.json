@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", "playground"],
+  "include": ["src", "playground", "evaluation", "vitest.config.ts"],
   "compilerOptions": {
     "types": ["vite/client", "node"],
     "paths": {

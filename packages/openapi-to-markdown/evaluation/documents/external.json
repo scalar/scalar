@@ -1,0 +1,17 @@
+{
+  "openapi": "3.1.1",
+  "info": { "title": "External API", "version": "1" },
+  "paths": {
+    "/external": {
+      "get": {
+        "summary": "External",
+        "responses": {
+          "200": {
+            "description": "Resolved",
+            "content": { "application/json": { "schema": { "$ref": "./schemas.json#/Alias" } } }
+          }
+        }
+      }
+    }
+  }
+}
