@@ -220,6 +220,7 @@ const buildStreamingResponse = ({
       requestPayload,
       response: {
         ...normalizedResponse,
+        status: response.status,
         headers: responseHeaders,
         cookieHeaderKeys,
         reader: response.body!.getReader(),
