@@ -14,6 +14,39 @@ const wireParts = async (body: Blob): Promise<string[]> => {
 }
 
 describe('build-multipart', () => {
+  it('uses the schema root name for an XML multipart document', async () => {
+    const parts = buildMultipart(
+      [{ id: 1, name: 'Alice' }],
+      'multipart/mixed',
+      { itemEncoding: { contentType: 'application/xml' } },
+      {
+        type: 'array',
+        items: {
+          type: 'object',
+          xml: { name: 'user' },
+          properties: { id: { type: 'integer' }, name: { type: 'string' } },
+        },
+      },
+    )
+    expect(await wireParts(encodeMultipartBody(parts, 'multipart/mixed'))).toStrictEqual([
+      'Content-Type: application/xml\r\n\r\n<?xml version="1.0" encoding="UTF-8"?>\n<user>\n  <id>1</id>\n  <name>Alice</name>\n</user>',
+    ])
+  })
+
+  it('provides one XML root for an object without a schema root name', () => {
+    expect(
+      buildMultipart([{ id: 1, name: 'Alice' }], 'multipart/mixed', {
+        itemEncoding: { contentType: 'application/xml' },
+      }),
+    ).toStrictEqual([
+      {
+        type: 'text',
+        contentType: 'application/xml',
+        value: '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <id>1</id>\n  <name>Alice</name>\n</root>',
+      },
+    ])
+  })
+
   it('serializes XML objects inside nested multipart while escaping text', async () => {
     const parts = buildMultipart([[{ info: 'a & b' }]], 'multipart/mixed', {
       itemEncoding: { contentType: 'multipart/mixed', itemEncoding: { contentType: 'application/xml' } },
