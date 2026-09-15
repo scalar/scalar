@@ -11,6 +11,83 @@ const anySchema = { __scalar_: '' }
 const neverSchema = { __scalar_: '', not: anySchema }
 
 describe('normalize-boolean-schemas', () => {
+  it('normalizes streaming item schemas and arbitrary OpenAPI 3.2 map names', () => {
+    const document = {
+      components: {
+        mediaTypes: {
+          example: { itemSchema: false },
+          'x-stream': { schema: true },
+          schema: { schema: false },
+          itemSchema: { itemSchema: false },
+        },
+      },
+      paths: {
+        '/stream': {
+          additionalOperations: {
+            'x-custom': { requestBody: { content: { 'application/jsonl': { itemSchema: false } } } },
+          },
+        },
+      },
+    }
+    expect(normalizeBooleanSchemas(document)).toStrictEqual({
+      components: {
+        mediaTypes: {
+          example: { itemSchema: neverSchema },
+          'x-stream': { schema: anySchema },
+          schema: { schema: neverSchema },
+          itemSchema: { itemSchema: neverSchema },
+        },
+      },
+      paths: {
+        '/stream': {
+          additionalOperations: {
+            'x-custom': { requestBody: { content: { 'application/jsonl': { itemSchema: neverSchema } } } },
+          },
+        },
+      },
+    })
+  })
+
+  it('preserves structured dataValue example payloads', () => {
+    const document = {
+      components: { examples: { event: { dataValue: { schema: false, itemSchema: true } } } },
+      'x-ext': { event: { dataValue: { schema: false, itemSchema: true } } },
+    }
+    const original = structuredClone(document)
+    expect(normalizeBooleanSchemas(document)).toStrictEqual(original)
+  })
+
+  it('normalizes referenced external schemas and recursive targets', () => {
+    const document = {
+      components: { schemas: { Alias: { $ref: '#/x-ext/never~1schema' }, Node: { $ref: '#/x-ext/node' } } },
+      'x-ext': {
+        'never/schema': false,
+        node: { properties: { forbidden: false, child: { $ref: '#/x-ext/node' } } },
+      },
+    }
+    normalizeBooleanSchemas(document)
+    expect(document['x-ext']).toStrictEqual({
+      'never/schema': neverSchema,
+      node: { properties: { forbidden: neverSchema, child: { $ref: '#/x-ext/node' } } },
+    })
+  })
+
+  it('preserves normalized external schema targets through server ingestion', async () => {
+    const document = {
+      openapi: '3.1.1',
+      info: { title: 'External boolean schema', version: '1' },
+      components: { schemas: { Alias: { $ref: '#/x-ext/external' } } },
+      'x-ext': { external: false },
+    }
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [{ name: 'boolean', document }],
+    })
+    expect(store.getWorkspace().documents.boolean).toMatchObject({ 'x-ext': { external: neverSchema } })
+    expect(document['x-ext'].external).toBe(false)
+  })
+
   it('preserves the semantics of root and nested boolean schemas', () => {
     const document = {
       components: {

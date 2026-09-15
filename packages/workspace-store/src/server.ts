@@ -106,14 +106,8 @@ const BUNDLED_EXTERNAL_KEYS = [bundleExtensions.externalDocuments, bundleExtensi
  * coercion drops them and leaves every rewritten reference dangling, which is how a split-file
  * document loses the operations it keeps in its other files.
  *
- * Copied by reference, deliberately. `upgrade` hands back the very object it was given when the
- * document is already 3.1, so the served workspace ends up sharing these buckets with the caller's
- * document — but that is what the store already does with every other field coercion passes through
- * untouched (`info` among them), so cloning only these two would buy consistency nowhere. It would
- * also be the worst place to pay for it: `x-ext` holds every external document that was bundled in,
- * so cloning it roughly doubles peak memory at ingest, and `deepClone` recurses per level and throws
- * on input nested a few thousand deep. Cloning the caller's document as a whole is the fix, and it
- * belongs with the aliasing the store already has rather than here.
+ * Use the normalized source so external boolean schema targets keep their converted semantics.
+ * The source has already been cloned before coercion, so these buckets do not alias caller data.
  */
 const preserveBundledExternals = (source: Record<string, unknown>, target: Record<string, unknown>): void => {
   for (const key of BUNDLED_EXTERNAL_KEYS) {
@@ -541,8 +535,9 @@ export async function createServerWorkspaceStore(
     }
 
     const upgradedDocument = upgrade(document, '3.1')
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, normalizeBooleanSchemas(deepClone(upgradedDocument)))
-    preserveBundledExternals(upgradedDocument, documentV3)
+    const normalizedDocument = normalizeBooleanSchemas(deepClone(upgradedDocument))
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, normalizedDocument)
+    preserveBundledExternals(normalizedDocument, documentV3)
 
     // Everything that inspects the document reads through this; everything that stores a piece of it
     // stores the raw `documentV3` or a `getRaw` of the piece.
