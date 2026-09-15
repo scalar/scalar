@@ -18,8 +18,10 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
  * caller still gets a schema-generated body. An unknown `exampleName` simply
  * falls through to the later steps.
  */
-export const selectResponseExample = (
-  mediaType: OpenAPIV3_1.MediaTypeObject | undefined,
+export const selectResponseExample = <
+  T extends Pick<OpenAPIV3_1.MediaTypeObject, 'example' | 'examples'> & { schema?: unknown },
+>(
+  mediaType: T | undefined,
   exampleName?: string,
 ): { value: unknown } | undefined => {
   if (!mediaType) {

@@ -1,12 +1,12 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { Context } from 'hono'
-import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import { buildHandlerContext } from '@/utils/build-handler-context'
 import { executeHandler } from '@/utils/execute-handler'
 import { generateResponseExample } from '@/utils/generate-response-example'
+import { negotiateContentType } from '@/utils/negotiate-content-type'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
 import { pathParameters } from '@/utils/path-parameters'
@@ -46,13 +46,7 @@ function getExampleFromResponse(
   }
 
   // Content-Type negotiation
-  const acceptedContentType = accepts(c, {
-    header: 'Accept',
-    supports: supportedContentTypes,
-    default: supportedContentTypes.includes('application/json')
-      ? 'application/json'
-      : (supportedContentTypes[0] ?? 'text/plain;charset=UTF-8'),
-  })
+  const acceptedContentType = negotiateContentType(c, response.content)
 
   const acceptedResponse = response.content?.[acceptedContentType]
 
@@ -165,23 +159,14 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.Ope
     }
 
     const response = getResolvedRef(operation.responses?.[String(statusCode)] ?? operation.responses?.default)
-    const contentTypes = Object.keys(response?.content ?? {})
-    if (contentTypes.some((type) => 'itemSchema' in (response?.content?.[type] ?? {}))) {
-      const contentType = accepts(c, {
-        header: 'Accept',
-        supports: contentTypes,
-        default: contentTypes.includes('application/json')
-          ? 'application/json'
-          : (contentTypes[0] ?? 'application/json'),
-      })
-      const streamingResponse = getStreamingResponse(response?.content?.[contentType], contentType, {
-        body: result ?? undefined,
-        exampleName: parsePreferHeader(c.req.header('Prefer')).example,
-        variables: pathParameters(c),
-      })
-      if (streamingResponse) {
-        return sendStreamingResponse(c, streamingResponse)
-      }
+    const contentType = negotiateContentType(c, response?.content)
+    const streamingResponse = getStreamingResponse(response?.content?.[contentType], contentType, {
+      body: result ?? undefined,
+      exampleName: parsePreferHeader(c.req.header('Prefer')).example,
+      variables: pathParameters(c),
+    })
+    if (streamingResponse) {
+      return sendStreamingResponse(c, streamingResponse)
     }
 
     // Set Content-Type header for other responses
