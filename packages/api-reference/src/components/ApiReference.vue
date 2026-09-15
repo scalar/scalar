@@ -82,10 +82,7 @@ import { provideSchemaExpansion } from '@/components/Content/Schema/helpers/sche
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
-import {
-  provideLocalization,
-  resolveLocalization,
-} from '@/features/localization'
+import { provideLocalization } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { buildModelsIndex } from '@/helpers/build-models-index'
@@ -126,6 +123,7 @@ import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import type { PreparedApiReference } from '@/helpers/prepare-api-reference'
+import { withLocalizedConfigurationDefaults } from '@/helpers/with-localized-configuration-defaults'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
@@ -313,26 +311,6 @@ const configurationOverrides = ref<
   Partial<Omit<ApiReferenceConfiguration, 'slug' | 'title' | ''>>
 >({})
 
-const withLocalizedConfigurationDefaults = (
-  config: ApiReferenceConfiguration,
-  activeConfig: Partial<ApiReferenceConfiguration> | undefined,
-): ApiReferenceConfiguration => {
-  const localization = resolveLocalization(config.localization)
-  const configuredModelsSectionLabel =
-    configurationOverrides.value.modelsSectionLabel ??
-    (activeConfig?.modelsSectionLabel !== DEFAULT_MODELS_SECTION_LABEL
-      ? activeConfig?.modelsSectionLabel
-      : undefined)
-
-  return {
-    ...config,
-    modelsSectionLabel:
-      configuredModelsSectionLabel ??
-      localization.translations.models.label ??
-      DEFAULT_MODELS_SECTION_LABEL,
-  }
-}
-
 /** Any dev toolbar modifications are merged with the active configuration */
 const mergedConfig = computed<ApiReferenceConfiguration>(() => {
   const activeConfig = configList.value[activeSlug.value]?.config
@@ -341,11 +319,12 @@ const mergedConfig = computed<ApiReferenceConfiguration>(() => {
     ...coerce(apiReferenceConfigurationSchema, {}),
     // The active configuration based on the slug
     ...activeConfig,
-    // Any overrides from the localhost toolbar
-    ...configurationOverrides.value,
   }
 
-  return withLocalizedConfigurationDefaults(merged, activeConfig)
+  return withLocalizedConfigurationDefaults(
+    merged,
+    configurationOverrides.value,
+  )
 })
 
 const apiReferenceLocalization = provideLocalization(
@@ -961,8 +940,8 @@ const { addDocument, ensureDocumentLoaded, documentLoadPromises } =
     getConfigurations: () => configList.value,
     getConfiguration: (normalized) =>
       withLocalizedConfigurationDefaults(
-        { ...normalized.config, ...configurationOverrides.value },
         normalized.config,
+        configurationOverrides.value,
       ),
   })
 
@@ -1047,11 +1026,8 @@ const changeSelectedDocument = async (
   }
 
   const config = withLocalizedConfigurationDefaults(
-    {
-      ...normalized.config,
-      ...configurationOverrides.value,
-    },
     normalized.config,
+    configurationOverrides.value,
   )
 
   // Store `onDocumentSelect` result to await its execution later, before calling `onLoaded`
@@ -1144,11 +1120,8 @@ watch(
       previous: NormalizedConfiguration | undefined,
     ) => {
       const config = withLocalizedConfigurationDefaults(
-        {
-          ...updated.config,
-          ...configurationOverrides.value,
-        },
         updated.config,
+        configurationOverrides.value,
       )
 
       /**

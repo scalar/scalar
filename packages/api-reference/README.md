@@ -71,7 +71,7 @@ The source code in this repository is licensed under [MIT](https://github.com/sc
 
 `createApiReference(element, configuration)` prepares the initial document before hydrating an element containing server-rendered content. The existing HTML remains visible and accessible while the document and its external references load. If preparation fails, the existing HTML remains in place and the error is logged.
 
-For a custom Vue SSR integration, await `prepareApiReference` before mounting the client app and pass its result through the `prepared` prop:
+A plain `<ApiReference :configuration="configuration" />` does not prepare client state automatically. For a custom Vue SSR integration, await `prepareApiReference` before mounting the client app and pass its result through the `prepared` prop:
 
 ```ts
 import { ApiReference, prepareApiReference } from '@scalar/api-reference'

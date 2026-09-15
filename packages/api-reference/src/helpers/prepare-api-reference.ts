@@ -1,9 +1,9 @@
-import { type AnyApiReferenceConfiguration, DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 
-import { resolveLocalization } from '@/features/localization'
 import { createReferenceDocumentLoader } from '@/helpers/create-reference-document-loader'
 import { normalizeConfigurations } from '@/helpers/normalize-configurations'
+import { withLocalizedConfigurationDefaults } from '@/helpers/with-localized-configuration-defaults'
 
 /** Initial document state, prepared independently for each server render or client hydration. */
 export type PreparedApiReference = {
@@ -31,13 +31,7 @@ export const prepareApiReference = async (
     workspaceStore,
     clientStore,
     getConfigurations: () => configurations,
-    getConfiguration: ({ config }) => ({
-      ...config,
-      modelsSectionLabel:
-        config.modelsSectionLabel !== DEFAULT_MODELS_SECTION_LABEL
-          ? config.modelsSectionLabel
-          : (resolveLocalization(config.localization).translations.models.label ?? DEFAULT_MODELS_SECTION_LABEL),
-    }),
+    getConfiguration: ({ config }) => withLocalizedConfigurationDefaults(config),
   })
 
   const loaded = await ensureDocumentLoaded(slug)
