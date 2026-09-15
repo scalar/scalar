@@ -57,9 +57,8 @@ const getCurrentContent = () => {
   return codeMirror.value?.state.doc.toString() || ''
 }
 
-const toggleLineWrapping = (event: MouseEvent) => {
+const toggleLineWrapping = (): void => {
   isLineWrapping.value = !isLineWrapping.value
-  ;(event.currentTarget as HTMLElement)?.blur()
 }
 </script>
 <template>
@@ -79,6 +78,8 @@ const toggleLineWrapping = (event: MouseEvent) => {
       <ScalarIconButton
         class="bg-b-2 text-c-2 hover:text-c-1 absolute right-18"
         :icon="ScalarIconArrowElbowDownLeft"
+        :aria-pressed="isLineWrapping"
+        :aria-label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
         :label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
         size="sm"
         tooltip

@@ -298,9 +298,8 @@ watch(
   },
 )
 
-const toggleLineWrapping = (event: MouseEvent) => {
+const toggleLineWrapping = (): void => {
   isLineWrapping.value = !isLineWrapping.value
-  ;(event.currentTarget as HTMLElement)?.blur()
 }
 
 const lineWrappingExtension = computed(() =>
@@ -513,7 +512,7 @@ defineExpose({
     class="group/input group-[.alert]:outline-orange group-[.error]:outline-red font-code peer relative w-full overflow-hidden text-xs leading-[1.44] whitespace-nowrap -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
     :class="{
       'line-wrapping has-[:focus-visible]:bg-b-1 has-[:focus-visible]:absolute has-[:focus-visible]:z-1':
-        isLineWrapping,
+        lineWrapping,
       'flow-code-input--error': error,
       'line-through': linethrough,
     }"
@@ -529,6 +528,8 @@ defineExpose({
         class="bg-b-2 text-c-2 hover:text-c-1"
         :class="{ '!bg-b-3 !text-c-1': isLineWrapping }"
         :icon="ScalarIconArrowElbowDownLeft"
+        :aria-pressed="isLineWrapping"
+        :aria-label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
         :label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
         size="sm"
         tooltip
