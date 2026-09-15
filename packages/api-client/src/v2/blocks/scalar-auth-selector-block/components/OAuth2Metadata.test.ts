@@ -1,11 +1,12 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import OAuth2Metadata from './OAuth2Metadata.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 describe('OAuth2Metadata', () => {
+  afterEach(() => vi.useRealTimers())
   it('edits the metadata URL without changing the scheme type', async () => {
     const eventBus = createWorkspaceEventBus()
     const update = vi.fn()
@@ -62,6 +63,58 @@ describe('OAuth2Metadata', () => {
           },
         ],
       ]),
+    )
+    wrapper.unmount()
+  })
+  it.each([false, true])('checks the server URL rather than proxy identity (changed URL: %s)', async (changedUrl) => {
+    const eventBus = createWorkspaceEventBus()
+    const update = vi.fn()
+    eventBus.on('auth:update:security-scheme', update)
+    vi.useFakeTimers()
+    let resolveResponse: (value: Response) => void = () => {}
+    const response = new Promise<Response>((resolve) => {
+      resolveResponse = resolve
+    })
+    const wrapper = mount(OAuth2Metadata, {
+      props: {
+        scheme: { type: 'oauth2', flows: {}, oauth2MetadataUrl: 'https://example.com/metadata' },
+        name: 'oauth',
+        environment: { color: '', variables: [] },
+        eventBus,
+        proxyUrl: '',
+        customFetch: () => response,
+      },
+    })
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Fetch Configuration')!
+      .trigger('click')
+    await wrapper.setProps({
+      scheme: {
+        type: 'oauth2',
+        flows: {},
+        oauth2MetadataUrl: changedUrl ? 'https://other.example/metadata' : 'https://example.com/metadata',
+      },
+    })
+    resolveResponse(
+      Response.json({ token_endpoint: 'https://example.com/token', grant_types_supported: ['client_credentials'] }),
+    )
+    await flushPromises()
+    await vi.runAllTimersAsync()
+    expect(update.mock.calls).toStrictEqual(
+      changedUrl
+        ? []
+        : [
+            [
+              {
+                name: 'oauth',
+                payload: {
+                  type: 'oauth2',
+                  flows: { clientCredentials: { tokenUrl: 'https://example.com/token', scopes: {} } },
+                },
+              },
+            ],
+          ],
     )
     wrapper.unmount()
   })

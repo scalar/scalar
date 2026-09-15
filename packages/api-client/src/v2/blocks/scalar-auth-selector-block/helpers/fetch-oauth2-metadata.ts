@@ -4,7 +4,11 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 
-import { type OpenIDConnectDiscovery, OpenIDConnectDiscoverySchema } from './fetch-openid-connect-discovery'
+// RFC 8414 and OIDC share these consumed fields; this alias does not imply OIDC issuer semantics.
+import {
+  type OpenIDConnectDiscovery as AuthorizationServerMetadata,
+  OpenIDConnectDiscoverySchema as AuthorizationServerMetadataSchema,
+} from './fetch-openid-connect-discovery'
 
 // Reserved development domains are broader than loopback, so isLocalUrl is not suitable here.
 const isAllowedMetadataUrl = (url: URL): boolean =>
@@ -15,7 +19,7 @@ export const fetchOAuth2Metadata = async (
   url: string,
   proxyUrl: string,
   customFetch: CustomFetch = fetch,
-): Promise<ErrorResponse<OpenIDConnectDiscovery>> => {
+): Promise<ErrorResponse<AuthorizationServerMetadata>> => {
   try {
     const metadataUrl = new URL(url.trim())
     if (!isAllowedMetadataUrl(metadataUrl)) {
@@ -25,7 +29,7 @@ export const fetchOAuth2Metadata = async (
     if (!response.ok) {
       return [new Error(`Failed to fetch OAuth2 metadata: ${response.status} ${response.statusText}`), null]
     }
-    const data = coerceValue(OpenIDConnectDiscoverySchema, await response.json())
+    const data = coerceValue(AuthorizationServerMetadataSchema, await response.json())
     if (!data.authorization_endpoint && !data.token_endpoint) {
       return [new Error('Invalid OAuth2 metadata: missing or invalid endpoints'), null]
     }
