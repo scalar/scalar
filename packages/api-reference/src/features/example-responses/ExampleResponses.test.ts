@@ -19,6 +19,177 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).toContain('Deletion completed')
   })
 
+  it('renders an empty response when its schema reference is unresolved', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              // @ts-expect-error An unresolved reference can arrive before document resolution completes.
+              'application/json': { schema: { $ref: '#/components/schemas/Missing' } },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    expect(wrapper.text()).toContain('No Body')
+  })
+
+  it.each([
+    {
+      type: 'string',
+      anyOf: [
+        { title: 'Phone', const: 'phone' },
+        { title: 'Email', const: 'email' },
+      ],
+      expected: 'email',
+    },
+    {
+      type: 'array',
+      oneOf: [
+        { title: 'Phone', items: { type: 'string', const: 'phone' } },
+        { title: 'Email', items: { type: 'string', const: 'email' } },
+      ],
+      expected: ['email'],
+    },
+  ])('selects variants with a shared root $type', async ({ expected, ...definition }) => {
+    const schema = coerceValue(SchemaObjectSchema, definition)
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
+    expect(mockCopyToClipboard).toHaveBeenLastCalledWith(
+      typeof expected === 'string' ? expected : JSON.stringify(expected, null, 2),
+    )
+  })
+
+  it.each(['anyOf', 'oneOf'])('selects and copies a generated %s response variant', async (composition) => {
+    const phone = 'Phone number is associated with another account'
+    const email = 'Email address is associated with another account'
+    const schema = coerceValue(SchemaObjectSchema, {
+      [composition]: [phone, email].map((message) => ({
+        type: 'object',
+        properties: { message: { type: 'string', default: message } },
+        required: ['message'],
+        additionalProperties: false,
+      })),
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '409': { description: 'Conflict', content: { 'application/json': { schema } } } } },
+    })
+    const picker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(picker.props('modelValue')).toBe('0')
+    expect(wrapper.text()).toContain(phone)
+    expect(wrapper.text()).not.toContain(email)
+    await picker.vm.$emit('update:modelValue', '1')
+    expect(wrapper.text()).toContain(email)
+    expect(wrapper.text()).not.toContain(phone)
+    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
+    expect(mockCopyToClipboard).toHaveBeenLastCalledWith(JSON.stringify({ message: email }, null, 2))
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(false)
+    expect(wrapper.text()).toContain(phone)
+    expect(wrapper.text()).toContain(email)
+    await wrapper.get('input[type="checkbox"]').setValue(false)
+    expect(wrapper.text()).toContain(email)
+    expect(wrapper.text()).not.toContain(phone)
+  })
+
+  it('resets the generated variant when the response or content type changes', async () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      anyOf: [
+        { type: 'string', default: 'first' },
+        { type: 'string', default: 'second' },
+      ],
+    })
+    const response = {
+      description: '',
+      content: {
+        'application/json': { schema },
+        'application/problem+json': { schema },
+      },
+    }
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': response, '409': { ...response } } },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    expect(wrapper.text()).toContain('second')
+    await wrapper.setProps({ selectedContentTypes: { '200': 'application/problem+json' } })
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).props('modelValue')).toBe('0')
+    expect(wrapper.text()).toContain('first')
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    await wrapper.findComponent({ name: 'ExampleResponseTabList' }).vm.$emit('change', 1)
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).props('modelValue')).toBe('0')
+    expect(wrapper.text()).toContain('first')
+  })
+
+  it('keeps explicit media type examples ahead of schema variants', async () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      anyOf: [
+        { type: 'string', default: 'generated first' },
+        { type: 'string', default: 'generated second' },
+      ],
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': {
+                schema,
+                examples: { first: { value: 'explicit first' }, second: { value: 'explicit second' } },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findAllComponents({ name: 'ExamplePicker' }).length).toBe(1)
+    expect(wrapper.find('[data-testid="response-variant-picker"]').exists()).toBe(false)
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', 'second')
+    expect(wrapper.text()).toContain('explicit second')
+    expect(wrapper.text()).not.toContain('generated')
+  })
+
+  it('selects referenced variants without dropping shared response properties', async () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { shared: { type: 'boolean', default: true } },
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Phone',
+          '$ref-value': {
+            title: 'Phone',
+            type: 'object',
+            properties: { message: { type: 'string', default: 'phone' } },
+          },
+        },
+        {
+          $ref: '#/components/schemas/Email',
+          '$ref-value': {
+            title: 'Email',
+            type: 'object',
+            properties: { message: { type: 'string', default: 'email' } },
+          },
+        },
+      ],
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+    })
+    const picker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(picker.text()).toContain('Phone')
+    await picker.vm.$emit('update:modelValue', '1')
+    expect(picker.text()).toContain('Email')
+    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
+    expect(JSON.parse(mockCopyToClipboard.mock.lastCall?.[0])).toStrictEqual({ shared: true, message: 'email' })
+  })
+
   it('renders a single example correctly', () => {
     const wrapper = mount(ExampleResponses, {
       props: {

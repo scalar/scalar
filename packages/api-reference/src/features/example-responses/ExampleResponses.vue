@@ -26,6 +26,7 @@ import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
 import { getExampleContent } from './helpers/get-example-content'
+import { getResponseVariants } from './helpers/get-response-variants'
 import { hasResponseContent } from './helpers/has-response-content'
 import { normalizeMimeTypeObject } from './helpers/normalize-mime-type-object'
 
@@ -97,7 +98,7 @@ const normalizedResponseContent = computed(() =>
   normalizeMimeTypeObject(currentResponse.value?.content),
 )
 
-const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
+const currentContentType = computed(() => {
   const content = normalizedResponseContent.value
   if (!content) {
     return undefined
@@ -106,10 +107,12 @@ const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
     toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
   const selected = selectedContentTypes?.[statusCode]
   const keys = objectKeys(content)
-  return content[
-    selected && keys.includes(selected) ? selected : (keys[0] ?? '')
-  ]
+  return selected && keys.includes(selected) ? selected : (keys[0] ?? '')
 })
+
+const currentResponseContent = computed<MediaTypeObject | undefined>(
+  () => normalizedResponseContent.value?.[currentContentType.value ?? ''],
+)
 
 const hasMultipleExamples = computed<boolean>(
   () =>
@@ -170,8 +173,44 @@ const changeTab = (index: number) => {
   selectedExampleKey.value = resolveExampleKey(selectedExample)
 }
 
+/** Explicit examples take precedence over generated schema variants. */
+const responseVariants = computed(() =>
+  currentExample.value === undefined
+    ? getResponseVariants(currentResponseContent.value)
+    : undefined,
+)
+const selectedVariantKey = ref('')
+const currentVariantKey = computed(() => {
+  const variants = responseVariants.value
+  return variants && Object.hasOwn(variants.examples, selectedVariantKey.value)
+    ? selectedVariantKey.value
+    : (variants?.defaultKey ?? '')
+})
+
+// A selection belongs to this response and content type, not the next tab.
+watch(
+  [
+    selectedResponseIndex,
+    currentResponse,
+    currentContentType,
+    currentResponseContent,
+  ],
+  () => {
+    selectedVariantKey.value = ''
+  },
+  { flush: 'sync' },
+)
+
 const exampleContent = computed(() =>
-  getExampleContent(currentResponseContent.value, currentExample.value),
+  getExampleContent(
+    currentResponseContent.value,
+    currentExample.value,
+    responseVariants.value
+      ? {
+          [responseVariants.value.composition]: Number(currentVariantKey.value),
+        }
+      : undefined,
+  ),
 )
 
 const copyExample = (): void => {
@@ -240,7 +279,8 @@ const showSchema = ref(false)
       v-if="
         currentResponse?.summary ||
         currentResponse?.description ||
-        hasMultipleExamples
+        hasMultipleExamples ||
+        responseVariants
       "
       class="response-card-footer">
       <ExamplePicker
@@ -249,6 +289,14 @@ const showSchema = ref(false)
         :examples="currentResponseContent?.examples"
         :modelValue="selectedExampleKey"
         @update:modelValue="selectExample" />
+      <ExamplePicker
+        v-if="responseVariants && !showSchema"
+        :aria-label="translate('schema.schema')"
+        class="response-example-selector px-0"
+        data-testid="response-variant-picker"
+        :examples="responseVariants.examples"
+        :modelValue="currentVariantKey"
+        @update:modelValue="selectedVariantKey = $event" />
       <div class="response-description">
         <!-- Short summary of the response (OpenAPI 3.2) -->
         <div
