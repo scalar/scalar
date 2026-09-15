@@ -239,11 +239,11 @@ function resolveUri(
     return resolveUri(`#${path}`, options, resolve(externalReference), filesystem, resolve, errors)
   }
 
-  // Pointers
-  const segments = getSegmentsFromPath(path)
-
   // Try to find the URI
   try {
+    // Decoding malformed percent escapes can throw before the target is read.
+    const segments = getSegmentsFromPath(path)
+
     return segments.reduce<unknown>((acc, key) => {
       if (!isObjectLike(acc) || !(key in acc)) {
         throw new Error(ERRORS.INVALID_REFERENCE.replace('%s', uri))

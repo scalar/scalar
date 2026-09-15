@@ -327,4 +327,25 @@ paths: {}
       ),
     ).rejects.toThrowError('#/components/schemas/Missing')
   })
+  it.each(['3.1.0', '3.2.0'])('returns a reference error for malformed escapes in OpenAPI %s', async (openapi) => {
+    const document = {
+      openapi,
+      info: { title: 'Users', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { User: { $ref: '#/components/schemas/Bad%ZZ' } } },
+    }
+
+    const result = await validate(document)
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toStrictEqual([
+      {
+        code: 'INVALID_REFERENCE',
+        message: "Can't resolve reference: #/components/schemas/Bad%ZZ",
+      },
+    ])
+    await expect(validate(document, { throwOnError: true })).rejects.toThrow(
+      "Can't resolve reference: #/components/schemas/Bad%ZZ",
+    )
+  })
 })

@@ -35,6 +35,8 @@ export type SpecificationValidatorConfig<TVersion extends string, TOptions exten
     /** The document's version is not supported. */
     versionNotSupported: string
   }
+  /** Adds specification-specific guidance to schema errors before returning or throwing them. */
+  transformErrors?: (errors: ErrorObject[], specification: AnyObject) => ErrorObject[]
   /**
    * Adjusts the document before schema validation without touching the caller's
    * copy (AsyncAPI, for example, pins `asyncapi` to an exact version). The
@@ -118,10 +120,16 @@ export function createSpecificationValidator<
       }
 
       const documentToValidate = config.prepareDocument?.(specification, version) ?? specification
-      const result = getValidator(version)(documentToValidate, options)
+      const result = getValidator(version)(documentToValidate)
 
       if (!result.valid) {
-        return { valid: false, version, errors: result.errors }
+        const errors = config.transformErrors?.(result.errors, documentToValidate) ?? result.errors
+
+        if (options?.throwOnError) {
+          throw new Error(errors[0]?.message ?? 'Validation failed')
+        }
+
+        return { valid: false, version, errors }
       }
 
       const semanticErrors = config.postValidate?.(specification, version, options) ?? []

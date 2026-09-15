@@ -164,11 +164,19 @@ function formatFormatError(error: AjvError, document: unknown): PrettyError {
   return { message: `${error.keyword} ${error.message}`, path }
 }
 
-function uriReferenceMessage(document: unknown, path: string): string {
+const uriReferenceMessage = (document: unknown, path: string): string => {
   const refValue = extractRefValue(document, path)
 
   if (refValue && /[^\x00-\x7F]/.test(refValue)) {
-    return `$ref "${refValue}" contains non-ASCII characters`
+    return `$ref "${refValue}" contains non-ASCII characters. Percent-encode them using UTF-8 (RFC 3986).`
+  }
+
+  if (refValue && /%(?![0-9a-fA-F]{2})/.test(refValue)) {
+    return `$ref "${refValue}" contains invalid percent-encoding. Each "%" must be followed by two hexadecimal digits; encode a literal "%" as "%25".`
+  }
+
+  if (refValue && /\s/.test(refValue)) {
+    return `$ref "${refValue}" contains whitespace. Remove it or percent-encode it (for example, use "%20" for a space).`
   }
 
   if (refValue) {
@@ -182,7 +190,7 @@ function uriReferenceMessage(document: unknown, path: string): string {
 const unescapePointerSegment = (segment: string): string => segment.replace(/~1/g, '/').replace(/~0/g, '~')
 
 /** Splits a JSON Pointer into its decoded segments. */
-const pointerSegments = (path: string): string[] => path.split('/').filter(Boolean).map(unescapePointerSegment)
+const pointerSegments = (path: string): string[] => path.split('/').slice(1).map(unescapePointerSegment)
 
 /**
  * Walks the document along a list of JSON Pointer segments.
