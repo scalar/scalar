@@ -28,12 +28,26 @@ export type XmlExampleOptions = Omit<GetExampleFromSchemaOptions, 'xml' | typeof
     rootName?: string
     /** Keep composition-selection keys aligned with the request editor. */
     schemaPath?: string[]
+    /** Receives diagnostics; errors otherwise appear in the developer console instead of failing silently. */
+    onDiagnostic?: (diagnostic: XmlDiagnostic) => void
   }
 
 type XmlSchema = SchemaObject & { xml?: XMLObject }
 type Context = { path: string[]; scope: DynamicScope; evaluation?: ExampleEvaluation; depth: number }
 type Shape = { schema: XmlSchema; scope: DynamicScope; evaluations: ExampleEvaluation[] }
 const xsi = 'http://www.w3.org/2001/XMLSchema-instance'
+
+/** Keep failures visible even when a consumer only reads the XML string. */
+const reportXmlResult = (result: XmlExampleResult, options: XmlExampleOptions): XmlExampleResult => {
+  for (const diagnostic of result.diagnostics) {
+    if (options.onDiagnostic) {
+      options.onDiagnostic(diagnostic)
+    } else if (diagnostic.severity === 'error') {
+      console.warn('Unable to generate an XML example:', diagnostic)
+    }
+  }
+  return result
+}
 
 /** Generate XML using the same value evaluator and selected branches as JSON examples. */
 export const getXmlExampleFromSchema = (schema: SchemaObject, options: XmlExampleOptions = {}): XmlExampleResult => {
@@ -43,7 +57,7 @@ export const getXmlExampleFromSchema = (schema: SchemaObject, options: XmlExampl
     { ...options, [EXAMPLE_EVALUATION]: capture },
     { schemaPath: options.schemaPath },
   )
-  return buildXmlExample(value, schema, options, capture.root)
+  return reportXmlResult(buildXmlExample(value, schema, options, capture.root), options)
 }
 
 /** Serialize schema-ready example data. Serialized XML strings bypass this function at the media boundary. */
@@ -51,7 +65,7 @@ export const serializeXmlExample = (
   value: unknown,
   schema: SchemaObject,
   options: XmlExampleOptions = {},
-): XmlExampleResult => buildXmlExample(value, schema, options)
+): XmlExampleResult => reportXmlResult(buildXmlExample(value, schema, options), options)
 
 const buildXmlExample = (
   value: unknown,
