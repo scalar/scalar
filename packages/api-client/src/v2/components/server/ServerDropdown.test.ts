@@ -39,12 +39,28 @@ describe('ServerDropdown', () => {
           // Stub child item to count instances and emit events
           ServerDropdownItem: {
             name: 'ServerDropdownItem',
+            props: ['serverOption'],
             template: '<div class="server-dropdown-item"></div>',
           },
         },
       },
     })
   }
+
+  it('labels named servers and preserves URL selection values', async () => {
+    const wrapper = makeWrapper({
+      servers: [{ name: 'Production', url: 'https://api.example.com' }, { url: 'https://fallback.example.com' }],
+    })
+    const items = wrapper.findAllComponents({ name: 'ServerDropdownItem' })
+    expect(items.map((item) => item.props('serverOption'))).toStrictEqual([
+      { id: 'https://api.example.com', label: 'Production (https://api.example.com)' },
+      { id: 'https://fallback.example.com', label: 'https://fallback.example.com' },
+    ])
+    await items[0]!.vm.$emit('update:selectedServer')
+    expect(wrapper.emitted('update:selectedServer')).toStrictEqual([
+      [{ url: 'https://api.example.com', meta: { type: 'document' } }],
+    ])
+  })
 
   it('renders selected server label without trailing slash', () => {
     const wrapper = makeWrapper({ server: { url: 'https://api-2.example.com/' } })
