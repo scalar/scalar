@@ -64,7 +64,6 @@
     // path, and remain reachable via the package `./schemas/*` export.
     "packages/workspace-store/src/schemas/v3.1/strict/ref-definitions.ts": ["exports"],
     "packages/workspace-store/src/schemas/v3.1/strict/schema.ts": ["types"]
-    // Type generation uses v3.2; keep the v3.1 non-recursive reference helper for compatibility.
   },
   "workspaces": {
     ".": {
