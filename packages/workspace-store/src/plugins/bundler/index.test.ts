@@ -1268,7 +1268,7 @@ describe('normalizeRefs', () => {
         [urlHash]: {
           $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
           $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object' }, Paginated: {} },
-          $ref: `#/x-ext/${urlHash}/$defs/Paginated`,
+          $ref: '#/$defs/Paginated',
         },
       },
     })

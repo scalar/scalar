@@ -29,6 +29,65 @@ import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 
 describe('bundle', () => {
+  it.each([false, true])(
+    'qualifies cross-resource pointers from a schema base with external target %s',
+    async (external) => {
+      const input = {
+        openapi: '3.2.1',
+        $self: './openapi.yaml',
+        components: {
+          schemas: {
+            Value: { type: 'string' },
+            Model: {
+              $id: 'models/model.json',
+              properties: { value: { $ref: external ? 'value.yaml' : '../openapi.yaml#/components/schemas/Value' } },
+            },
+          },
+        },
+      }
+      await bundle(input, {
+        origin: 'https://example.com/input.yaml',
+        treeShake: true,
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: () => Promise.resolve({ ok: true, data: { type: 'string' }, raw: '{"type":"string"}' }),
+          },
+        ],
+      })
+      const pointer = external ? `#/x-ext/${getHash('models/value.yaml')}` : '#/components/schemas/Value'
+      expect(input.$self).toBe('https://example.com/openapi.yaml')
+      expect(input.components.schemas.Model.properties.value.$ref).toBe(`https://example.com/openapi.yaml${pointer}`)
+      expect(createMagicProxy(input).components.schemas.Model.properties.value).toStrictEqual({
+        $ref: `https://example.com/openapi.yaml${pointer}`,
+        '$ref-value': { type: 'string' },
+      })
+    },
+  )
+
+  it.each(['models/model.json', 'https://example.com/models/model.json'])(
+    'preserves schema-local pointers under $id %s',
+    async (id) => {
+      const input = {
+        openapi: '3.2.1',
+        $self: 'https://example.com/openapi.yaml',
+        components: {
+          schemas: {
+            Model: {
+              $id: id,
+              $defs: { Value: { type: 'string' } },
+              properties: { value: { $ref: '#/$defs/Value' } },
+            },
+          },
+        },
+      }
+      await bundle(input, { plugins: [], treeShake: false })
+      expect(input.components.schemas.Model.properties.value.$ref).toBe('#/$defs/Value')
+      expect(input.components.schemas.Model.$id).toBe(id)
+    },
+  )
+
   it('retains nested schema bases when tree shaking a selected property', async () => {
     const requested: string[] = []
     const input = {
@@ -65,7 +124,7 @@ describe('bundle', () => {
     ]
     await bundle(input, { depth: 1, plugins, treeShake: true, urlMap: true })
     await bundle(input, { plugins, treeShake: true, urlMap: true })
-    expect(requested).toEqual([
+    expect(requested).toStrictEqual([
       'https://example.com/api/models.yaml',
       'https://example.com/canonical/models/nested/value.yaml',
     ])
@@ -98,7 +157,7 @@ describe('bundle', () => {
     ]
     await bundle(input, { depth: 1, plugins, treeShake: true, urlMap: true })
     await bundle(input, { plugins, treeShake: true, urlMap: true })
-    expect(requested).toEqual(['https://example.com/api/models.yaml', 'https://example.com/canonical/value.yaml'])
+    expect(requested).toStrictEqual(['https://example.com/api/models.yaml', 'https://example.com/canonical/value.yaml'])
   })
 
   it('rewrites absolute references to relative schema identifiers for downstream resolution', async () => {
@@ -114,7 +173,7 @@ describe('bundle', () => {
     }
     await bundle(input, { plugins: [], treeShake: false })
     expect(input.components.schemas.Ref.$ref).toBe('#/components/schemas/Order')
-    expect(createMagicProxy(input).components.schemas.Ref).toEqual({
+    expect(createMagicProxy(input).components.schemas.Ref).toStrictEqual({
       $ref: '#/components/schemas/Order',
       '$ref-value': { $id: 'models/order.json', type: 'string' },
     })
@@ -149,7 +208,7 @@ describe('bundle', () => {
     ]
     await bundle(input, { depth: 1, plugins, urlMap: true, treeShake: false })
     await bundle(input, { plugins, urlMap: true, treeShake: false })
-    expect(requested).toEqual([modelUri, valueUri])
+    expect(requested).toStrictEqual([modelUri, valueUri])
   })
 
   it.each([true, false])(
@@ -179,13 +238,13 @@ describe('bundle', () => {
       await bundle(document, { plugins: [], treeShake, cache, urlMap: true })
       expect(
         getValueByPath(document, getSegmentsFromPath(document.components.schemas.First.$ref.slice(1))).value,
-      ).toEqual({ type: 'string' })
+      ).toStrictEqual({ type: 'string' })
       expect(
         getValueByPath(document, getSegmentsFromPath(document.components.schemas.Second.$ref.slice(1))).value,
-      ).toEqual({ type: 'number' })
+      ).toStrictEqual({ type: 'number' })
       const previous = structuredClone(document)
       await bundle(document, { plugins: [], treeShake, cache, urlMap: true })
-      expect(document).toEqual(previous)
+      expect(document).toStrictEqual(previous)
     },
   )
 
@@ -206,8 +265,8 @@ describe('bundle', () => {
         },
       },
     })
-    expect([...new Set(origins)]).toEqual(['https://example.com/api/openapi.yaml'])
-    expect(document.servers).toEqual([{ url: './server' }])
+    expect([...new Set(origins)]).toStrictEqual(['https://example.com/api/openapi.yaml'])
+    expect(document.servers).toStrictEqual([{ url: './server' }])
   })
 
   it.each([
@@ -254,9 +313,9 @@ describe('bundle', () => {
         },
       ],
     })
-    expect(requested).toEqual([expected])
+    expect(requested).toStrictEqual([expected])
     const refPath = getSegmentsFromPath(document.components.schemas.Order.$ref.slice(1))
-    expect(getValueByPath(document, refPath).value).toEqual({ type: 'string' })
+    expect(getValueByPath(document, refPath).value).toStrictEqual({ type: 'string' })
   })
 
   it.each([true, false])(
@@ -305,13 +364,13 @@ describe('bundle', () => {
           },
         ],
       })
-      expect(requested).toEqual(['https://example.com/api/shared.yaml', 'https://example.com/shared/value.yaml'])
+      expect(requested).toStrictEqual(['https://example.com/api/shared.yaml', 'https://example.com/shared/value.yaml'])
       expect(document.components.schemas.Self.$ref).toBe('#/components/schemas/Local')
       const shared = getValueByPath(
         document,
         getSegmentsFromPath(document.components.schemas.External.$ref.slice(1)),
       ).value
-      expect(getValueByPath(document, getSegmentsFromPath(shared.properties.local.$ref.slice(1))).value).toEqual({
+      expect(getValueByPath(document, getSegmentsFromPath(shared.properties.local.$ref.slice(1))).value).toStrictEqual({
         type: 'number',
       })
       expect(shared.properties.back.$ref).toBe('#/components/schemas/Local')
@@ -346,7 +405,7 @@ describe('bundle', () => {
         },
       ],
     })
-    expect(requested).toEqual(['https://example.com/api/models/value.json'])
+    expect(requested).toStrictEqual(['https://example.com/api/models/value.json'])
   })
 
   describe('external urls', () => {

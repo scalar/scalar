@@ -27,7 +27,9 @@ describe('document-references', () => {
     }
     const references = documentReferences('x-ext')
     references.register(root, '/orders.yaml')
-    expect(references.resolve('urn:example:orders#/components/schemas/Order', '/')?.value).toEqual({ type: 'string' })
+    expect(references.resolve('urn:example:orders#/components/schemas/Order', '/')?.value).toStrictEqual({
+      type: 'string',
+    })
   })
 
   it('escapes pointer segments when locating an external document', () => {
