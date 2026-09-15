@@ -52,6 +52,59 @@ Builds never commit straight to your default branch. The repository follows a th
 > [!NOTE]
 > Linking only controls where generated code goes. Turn on **Publish to \<registry\> on merge** (or add a `publish` block to the target) to also push the package to its registry. See [Publishing](overview.md).
 
+## Promotion
+
+By default every successful build reaches production on its own: it pushes to `scalar-generated`, merges into `scalar-next`, and updates the release pull request. Set a target to promote **manually** and that last part waits for you.
+
+A manual target still builds on every change, and its **staging** repository — a private playground that mirrors the latest build — is still updated. What waits is the push to the repository your team works in, until you click **Promote to production**.
+
+Use it when generated output should be reviewed before it lands in your repository, or when you want to decide the moment a release pull request opens.
+
+### Choosing the mode
+
+<scalar-steps>
+  <scalar-step id="promotion-connect" title="When you connect a repository">
+
+**Promote manually** sits under the organization, repository and default branch in the connect form. Leave it off for automatic promotion.
+
+  </scalar-step>
+
+  <scalar-step id="promotion-settings" title="Or later, from repository settings">
+
+Open the target, select **Configure** on the Production row, and flip **Promote manually**. The change takes effect immediately; it is not tied to a new version.
+
+  </scalar-step>
+</scalar-steps>
+
+### Promoting a build
+
+A build waiting in staging shows **Promote to production** on the **Staging** row. Promoting pushes that build's generated output to `scalar-generated`, merges it into `scalar-next`, and opens the release pull request — exactly what an automatic build does, at a time you choose. Your custom code on `scalar-next` is preserved either way.
+
+The pipeline card only ever offers the newest build, and the action clears once you have promoted it, so an older build cannot be pushed over one production already has. The version history offers each staged build on its own row, and warns you when the one you picked has been superseded by a newer build.
+
+### Switching back to automatic
+
+Turning **Promote manually** off ships the build already waiting, so production catches up instead of skipping it. Every build after that pushes on its own again.
+
+> [!NOTE]
+> Unlinking a repository clears the promotion mode along with the rest of the link, so a repository you connect later starts out on automatic promotion.
+
+### Configuration equivalent
+
+```json
+{
+  "targets": {
+    "typescript": {
+      "promotion": "manual"
+    }
+  }
+}
+```
+
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| `promotion` | `"automatic" \| "manual"` | When this target's builds reach its production repository. `manual` holds each build at staging until it is promoted. Defaults to `automatic`, which is also what an absent key means. |
+
 ## Your custom code is preserved
 
 You can edit generated files in your repository on `scalar-next`. Scalar performs a three-way merge on every regeneration, so your changes are carried forward into the next release pull request instead of being overwritten. Review it as usual; only genuine conflicts need your attention. See [Custom Code](../custom-code.md).
@@ -114,4 +167,4 @@ Enter the **Name** the workflow expects (for example `NPM_TOKEN`) and paste the 
 
 ## Unlink a repository
 
-To stop syncing, open the target and use **Unlink** under the Danger Zone. Builds stop pushing to GitHub until you reconnect. Code already in the repository, and anything already published, is left untouched.
+To stop syncing, open the target, select **Configure** on the Production row, and use **Unlink**. Builds stop pushing to GitHub until you reconnect. Code already in the repository, and anything already published, is left untouched.
