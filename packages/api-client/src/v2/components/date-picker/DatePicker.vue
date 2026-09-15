@@ -149,7 +149,19 @@ const fakerOptions = computed<{ name: string; label: string }[]>(() =>
 const commit = (next: DateParts): void => {
   const resolved =
     type === 'date-time' && !next.offset
-      ? { ...next, offset: getLocalTimezoneOffset(new Date()) }
+      ? {
+          ...next,
+          offset: getLocalTimezoneOffset(
+            new Date(
+              next.year,
+              next.month - 1,
+              next.day,
+              next.hour,
+              next.minute,
+              next.second,
+            ),
+          ),
+        }
       : next
   draft.value = resolved
   emit('update:modelValue', formatValue(resolved, type))
@@ -167,6 +179,8 @@ const handleCalendarSelect = (
     year: value.year,
     month: value.month,
     day: value.day,
+    // Unzoned input uses the selected date's local offset, which can differ across seasons.
+    offset: selection.value?.offset ?? '',
   })
   // A date has nothing left to pick, so close; date-time keeps the time controls open.
   if (type === 'date') {
@@ -206,14 +220,14 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
     teleport>
     <button
       :aria-label="type === 'time' ? 'Pick a time' : 'Pick a date'"
-      class="text-c-2 hover:text-c-1 hover:bg-b-2 -mr-0.5 rounded p-1"
+      class="text-c-2 hover:text-c-1 hover:bg-b-2 focus-visible:outline-c-accent -mr-0.5 rounded p-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
       type="button">
       <component
         :is="type === 'time' ? ScalarIconClock : ScalarIconCalendarBlank"
         class="size-3.5" />
     </button>
     <template #popover="{ close }">
-      <div class="flex w-64 flex-col gap-2 py-1">
+      <div class="flex w-64 flex-col gap-3 py-2">
         <!-- Calendar (accessible grid from radix-vue) -->
         <CalendarRoot
           v-if="showCalendar"
@@ -224,16 +238,16 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
           :placeholder="placeholder as DateValue"
           @update:modelValue="(v) => handleCalendarSelect(v, close)"
           @update:placeholder="(v) => (placeholder = v)">
-          <CalendarHeader class="flex items-center justify-between">
+          <CalendarHeader class="mb-2 flex items-center justify-between">
             <CalendarPrev
               aria-label="Previous month"
-              class="text-c-2 hover:text-c-1 hover:bg-b-2 flex size-6 items-center justify-center rounded">
+              class="text-c-2 hover:text-c-1 hover:bg-b-2 flex size-7 items-center justify-center rounded">
               <ScalarIconCaretLeft class="size-4" />
             </CalendarPrev>
             <CalendarHeading class="text-c-1 text-sm font-medium" />
             <CalendarNext
               aria-label="Next month"
-              class="text-c-2 hover:text-c-1 hover:bg-b-2 flex size-6 items-center justify-center rounded">
+              class="text-c-2 hover:text-c-1 hover:bg-b-2 flex size-7 items-center justify-center rounded">
               <ScalarIconCaretRight class="size-4" />
             </CalendarNext>
           </CalendarHeader>
@@ -264,7 +278,7 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
                   <CalendarCellTrigger
                     :day="weekDate"
                     :month="month.value"
-                    class="text-c-1 hover:bg-b-2 data-[selected]:bg-c-accent data-[selected]:text-b-1 data-[outside-view]:text-c-3 mx-auto flex size-7 cursor-pointer items-center justify-center rounded text-sm outline-offset-2 data-[today]:font-bold" />
+                    class="text-c-1 hover:bg-b-2 data-[selected]:bg-b-btn data-[selected]:text-c-btn data-[outside-view]:text-c-3 mx-auto flex size-8 cursor-pointer items-center justify-center rounded text-sm outline-offset-2 data-[today]:font-bold" />
                 </CalendarCell>
               </CalendarGridRow>
             </CalendarGridBody>
@@ -280,7 +294,7 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
             v-slot="{ segments }"
             v-model="timeModel"
             aria-label="Time"
-            class="bg-b-2 text-c-1 flex items-center rounded px-2 py-1 tabular-nums"
+            class="border-c-3 bg-b-1 text-c-1 flex items-center rounded border px-2 py-1.5 tabular-nums"
             granularity="second"
             :hourCycle="24"
             :locale="locale">
@@ -290,7 +304,7 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
               :class="
                 item.part === 'literal'
                   ? 'text-c-3'
-                  : 'data-[placeholder]:text-c-3 focus:bg-c-accent focus:text-b-1 rounded px-px focus:outline-none'
+                  : 'data-[placeholder]:text-c-3 focus:bg-b-btn focus:text-c-btn rounded px-px focus:outline-none'
               "
               :part="item.part">
               {{ item.value }}
@@ -298,19 +312,29 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
           </DateFieldRoot>
         </div>
 
-        <ScalarButton
-          class="mx-2 h-fit"
-          size="sm"
-          variant="outlined"
-          @click="selectNow(close)">
-          {{ type === 'time' ? 'Now' : 'Today' }}
-        </ScalarButton>
+        <div class="flex items-center justify-between gap-2 px-2">
+          <ScalarButton
+            size="sm"
+            variant="outlined"
+            @click="selectNow(close)">
+            {{ type === 'date' ? 'Today' : 'Now' }}
+          </ScalarButton>
+          <ScalarButton
+            v-if="showTime"
+            size="sm"
+            @click="close">
+            Done
+          </ScalarButton>
+        </div>
 
         <!-- Faker shortcuts (date-time only) -->
-        <template v-if="fakerOptions.length">
-          <div class="bg-b-3 -mx-0.75 h-px" />
-          <span class="text-c-3 px-2 text-xs">Variables</span>
-          <div class="flex flex-col">
+        <details
+          v-if="fakerOptions.length"
+          class="border-c-3 border-t px-2 pt-2">
+          <summary class="text-c-2 hover:text-c-1 cursor-pointer text-xs">
+            Insert a variable
+          </summary>
+          <div class="mt-2 flex flex-col">
             <button
               v-for="option in fakerOptions"
               :key="option.name"
@@ -320,7 +344,7 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
               {{ option.label }}
             </button>
           </div>
-        </template>
+        </details>
       </div>
     </template>
   </ScalarPopover>
