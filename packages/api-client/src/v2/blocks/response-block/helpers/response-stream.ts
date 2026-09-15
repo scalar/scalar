@@ -110,7 +110,7 @@ export const createResponseStreamParser = (contentType: string, emit: (text: str
       } else if (char === '}' || char === ']') {
         depth--
       }
-      if (char === '\n' && !quoted && depth === 0) {
+      if (char === '\n' && !quoted && depth === 0 && buffer.trim()) {
         flush()
         started = false
       }

@@ -1,6 +1,6 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestPayload } from '@scalar/workspace-store/request-example'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw } from 'vue'
 
@@ -36,6 +36,24 @@ describe('ResponseBlock', () => {
     plugins: [],
     eventBus: createWorkspaceEventBus(),
   }
+
+  it.each(['Content-Type', 'content-type'])('formats live records using the %s header', async (header) => {
+    const stream = new ReadableStream<Uint8Array>({
+      start: (controller) => {
+        controller.enqueue(new TextEncoder().encode('{"ok":true}\n'))
+        controller.close()
+      },
+    })
+    const wrapper = mount(ResponseBlock, {
+      props: {
+        ...defaultProps,
+        response: getDefaultResponse({ headers: { [header]: 'application/jsonl' }, reader: stream.getReader() }),
+      },
+    })
+    await flushPromises()
+    expect(wrapper.text()).toContain('{\n  "ok": true\n}')
+    wrapper.unmount()
+  })
 
   describe('empty state', () => {
     it('renders ResponseEmpty when no response provided', () => {

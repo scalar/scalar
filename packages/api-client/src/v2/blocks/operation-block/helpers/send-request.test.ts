@@ -29,12 +29,14 @@ describe('sendRequest', () => {
       const [error, result] = await sendRequest({
         isUsingProxy: false,
         requestPayload: [MOCK_URL, { method: 'GET' }],
-        customFetch: () => Promise.resolve(new Response(stream, { headers: { 'Content-Type': contentType } })),
+        customFetch: () =>
+          Promise.resolve(new Response(stream, { status: 206, headers: { 'Content-Type': contentType } })),
       })
       expect(error).toBeNull()
       if (!result || !('reader' in result.response)) {
         throw new Error('Expected a live reader')
       }
+      expect(result.response.status).toBe(206)
       await result.response.reader.cancel()
       expect(cancelled).toBe(true)
     },

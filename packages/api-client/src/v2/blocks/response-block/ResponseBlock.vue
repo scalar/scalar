@@ -53,6 +53,10 @@ const responseHeaders = computed(() => {
     : []
 })
 
+const responseContentType = computed(
+  () => response?.headers['content-type'] ?? response?.headers['Content-Type'],
+)
+
 // Cookies
 const responseCookies = computed(
   () =>
@@ -222,7 +226,7 @@ defineExpose({
             v-if="'reader' in response"
             :id="filterIds.Body"
             class="response-section-content-body"
-            :contentType="response.headers['content-type']"
+            :contentType="responseContentType"
             :reader="response.reader" />
 
           <!-- Virtualized Text for massive responses -->
