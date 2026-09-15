@@ -132,5 +132,8 @@ export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlEx
     options.xmlDeclaration === false
       ? ''
       : `<?xml version="1.0" encoding="UTF-8"?>${options.format === false ? '' : '\n'}`
-  return { xml: diagnostics.length ? undefined : declaration + body, diagnostics }
+  return {
+    xml: diagnostics.some((diagnostic) => diagnostic.severity === 'error') ? undefined : declaration + body,
+    diagnostics,
+  }
 }
