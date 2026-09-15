@@ -1,7 +1,7 @@
 import { isElectron } from '@/general/is-electron'
 
 /** HTTP Methods which can have a body */
-export const BODY_METHODS = new Set(['post', 'put', 'patch', 'delete'])
+export const BODY_METHODS = new Set(['post', 'put', 'patch', 'delete', 'query'])
 
 /**
  * Makes a check to see if this method CAN have a body.

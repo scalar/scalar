@@ -3,13 +3,27 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   deletePathItemOperation,
   forEachPathItemOperation,
+  getPathItemOperation,
   getResolvedPathItem,
   pathItemIsEmpty,
+  setPathItemOperation,
 } from '@/helpers/for-each-path-item-operation'
 import type { NodeInput } from '@/helpers/get-resolved-ref'
 import type { PathItemObject } from '@/schemas/v3.2/strict/path-item'
 
-describe('getResolvedPathItem', () => {
+describe('for-each-path-item-operation', () => {
+  it('creates, traverses, reads, and deletes a QUERY operation', () => {
+    const pathItem: PathItemObject = {}
+    const operation = { summary: 'Search planets' }
+    setPathItemOperation(pathItem, 'query', operation)
+    const callback = vi.fn()
+    forEachPathItemOperation(pathItem, callback)
+    expect(callback.mock.calls).toStrictEqual([['query', operation]])
+    expect(getPathItemOperation(pathItem, 'query')).toStrictEqual(operation)
+    deletePathItemOperation(pathItem, 'query')
+    expect(pathItem).toStrictEqual({})
+  })
+
   it('includes parameters declared alongside a path $ref on the paths map', () => {
     const resolved = getResolvedPathItem({
       $ref: '#/components/pathItems/UsersPath',
