@@ -4,7 +4,7 @@ import type { OperationObject } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getUniqueExampleName, traverseOperationExamples } from './traverse-examples'
 
-describe('traverseOperationExamples', () => {
+describe('traverse-examples', () => {
   it('returns empty array for empty operation object', () => {
     const operation: OperationObject = {
       responses: {},
@@ -574,9 +574,6 @@ describe('traverseOperationExamples', () => {
     expect(result[1]).toBe('second')
     expect(result[2]).toBe('third')
   })
-})
-
-describe('getUniqueExampleName', () => {
   it('returns the base name when nothing uses it yet', () => {
     const operation: OperationObject = {
       'x-draft-examples': ['Existing'],
