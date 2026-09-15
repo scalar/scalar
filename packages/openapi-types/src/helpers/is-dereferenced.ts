@@ -5,6 +5,9 @@
  * property. Use this helper while walking a document that may still contain
  * references to narrow values down to their inline shape.
  *
+ * Do not use this guard for workspace-store nodes: their resolved `$ref` wrappers
+ * retain meaningful siblings such as `$defs` and `$dynamicAnchor`.
+ *
  * Like the schema discriminators, this works with the `SchemaObject` and
  * `ReferenceObject` types from every supported OpenAPI version (2.0, 3.0,
  * 3.1, and 3.2). It removes the reference members from the union when they

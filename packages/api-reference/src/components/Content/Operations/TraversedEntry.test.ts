@@ -504,6 +504,23 @@ describe('props passing', () => {
 })
 
 describe('model rendering', () => {
+  it('does not render an unresolved sparse model reference', () => {
+    const model: TraversedSchema = {
+      type: 'model',
+      id: 'sparse-model',
+      title: 'SparseModel',
+      name: 'SparseModel',
+      ref: '#/components/schemas/SparseModel',
+    }
+    const props = makeMockProps([model])
+    // Sparse chunks arrive before their referenced document has been loaded.
+    const document = Object.assign(props.document, {
+      components: { schemas: { SparseModel: { $ref: './unloaded.json' } } },
+    })
+    const wrapper = mount(TraversedEntryComponent, { props: { ...props, document } })
+    expect(wrapper.findComponent({ name: 'Model' }).exists()).toBe(false)
+  })
+
   // A model whose item type is bound with a `$dynamicRef`/`$dynamicAnchor` (a named `Paginated<User>`).
   // The model must render the bound `User` shape, not the template's empty placeholder. See #9883.
   it('renders the bound item type for a named $dynamicRef binding schema', async () => {
@@ -516,6 +533,7 @@ describe('model rendering', () => {
         components: {
           schemas: {
             User: {
+              description: 'Bound user record',
               type: 'object',
               required: ['id', 'email'],
               properties: { id: { type: 'string' }, email: { type: 'string', format: 'email' } },
@@ -529,7 +547,8 @@ describe('model rendering', () => {
             },
             PaginatedUserResponse: {
               $id: 'https://example.com/schemas/PaginatedUserResponse',
-              $defs: { itemTypeAAA: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/User' } },
+              // The key differs from the anchor: binding depends on $dynamicAnchor, not the $defs key.
+              $defs: { boundItemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/User' } },
               $ref: '#/components/schemas/PaginatedTemplate',
             },
           },
@@ -566,6 +585,8 @@ describe('model rendering', () => {
       },
     })
 
+    expect(wrapper.text()).toContain('PaginatedUserResponse')
+    expect(wrapper.text()).toContain('Bound user record')
     expect(wrapper.text()).toContain('email')
   })
 })
