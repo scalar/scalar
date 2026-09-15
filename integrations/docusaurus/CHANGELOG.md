@@ -1,5 +1,11 @@
 # @scalar/docusaurus
 
+## 0.8.40
+
+### Patch Changes
+
+- [#10139](https://github.com/scalar/scalar/pull/10139): Use the Docusaurus route type for the API reference configuration.
+
 ## 0.8.39
 
 ## 0.8.38
